@@ -256,6 +256,34 @@ Restart the nginx service to use the new configuration.
 # service nginx restart
  * Restarting nginx nginx
 ```
+## Apache Configuration
+
+If you're feeling adventurous, or you already have Apache installed and can't run a dual-stack on your server - an Apache configuration has been created:
+
+```
+<VirtualHost *:80>
+    ProxyPreserveHost On
+    
+    ServerName netbox.totallycool.tld
+
+    Alias /static/ /opt/netbox/static/static
+
+    <Directory /opt/netbox/netbox/static>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Order allow,deny
+        Allow from all
+        #Require all granted [UNCOMMENT THIS IF RUNNING APACHE 2.4]
+    </Directory>
+
+    <Location /static>
+        ProxyPass !
+    </Location>
+
+    ProxyPass / http://127.0.0.1:8001;
+    ProxyPassReverse / http://127.0.0.1:8001;
+</VirtualHost>
+```
 
 ## gunicorn Configuration
 
