@@ -206,19 +206,25 @@ Now if we navigate to the name or IP of the server (as defined in `ALLOWED_HOSTS
 
 If the test service does not run, or you cannot reach the NetBox home page, something has gone wrong. Do not proceed with the rest of this guide until the installation has been corrected.
 
-# nginx and gunicorn
+# Web Server and gunicorn
 
 ## Installation
 
 We'll set up a simple HTTP front end using [nginx](https://www.nginx.com/resources/wiki/) and [gunicorn](http://gunicorn.org/) for the purposes of this guide. (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll also use [supervisord](http://supervisord.org/) for service persistence. 
 
 ```
-# apt-get install nginx gunicorn supervisor
+# apt-get install gunicorn supervisor
 ```
 
 ## nginx Configuration
 
 The following will serve as a minimal nginx configuration. Be sure to modify your server name and installation path appropriately.
+
+```
+# apt-get install nginx
+```
+
+Once nginx is installed, proceed with the following configuration:
 
 ```
 server {
@@ -283,6 +289,12 @@ If you're feeling adventurous, or you already have Apache installed and can't ru
     ProxyPass / http://127.0.0.1:8001;
     ProxyPassReverse / http://127.0.0.1:8001;
 </VirtualHost>
+```
+
+Save the contents of the above example in /etc/apache2/sites-available/netbox.conf, add in the newly saved configuration and reload Apache:
+
+```
+# a2ensite netbox; service apache2 restart
 ```
 
 ## gunicorn Configuration
