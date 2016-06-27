@@ -291,7 +291,7 @@ If you're feeling adventurous, or you already have Apache installed and can't ru
 </VirtualHost>
 ```
 
-Save the contents of the above example in /etc/apache2/sites-available/netbox.conf, add in the newly saved configuration and reload Apache:
+Save the contents of the above example in `/etc/apache2/sites-available/netbox.conf`, add in the newly saved configuration and reload Apache:
 
 ```
 # a2ensite netbox; service apache2 restart
