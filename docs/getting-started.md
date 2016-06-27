@@ -210,7 +210,7 @@ If the test service does not run, or you cannot reach the NetBox home page, some
 
 ## Installation
 
-We'll set up a simple HTTP front end using [nginx](https://www.nginx.com/resources/wiki/) and [gunicorn](http://gunicorn.org/) for the purposes of this guide. (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll also use [supervisord](http://supervisord.org/) for service persistence. 
+We'll set up a simple HTTP front end using [gunicorn](http://gunicorn.org/) for the purposes of this guide. For web servers, we have 2 configurations ready to go - we provide instructions for both [nginx](https://www.nginx.com/resources/wiki/)and [Apache](http://httpd.apache.org/docs/2.4). (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll also use [supervisord](http://supervisord.org/) for service persistence. 
 
 ```
 # apt-get install gunicorn supervisor
