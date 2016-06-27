@@ -353,7 +353,7 @@ class ComponentTemplateCreateView(View):
 
             if not form.errors:
                 self.model.objects.bulk_create(component_templates)
-                messages.success(request, "Added {} compontent(s) to {}".format(len(component_templates), devicetype))
+                messages.success(request, "Added {} component(s) to {}".format(len(component_templates), devicetype))
                 if '_addanother' in request.POST:
                     return redirect(request.path)
                 else:
