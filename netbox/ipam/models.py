@@ -121,6 +121,12 @@ class Aggregate(CreatedUpdatedModel):
                 raise ValidationError("{} is already covered by an existing aggregate ({})"
                                       .format(self.prefix, covering_aggregates[0]))
 
+            # Ensure that the aggregate being added does not cover an existing aggregate
+            covered_aggregates = Aggregate.objects.filter(prefix__net_contained=str(self.prefix))
+            if covered_aggregates:
+                raise ValidationError("{} is overlaps with an existing aggregate ({})"
+                                      .format(self.prefix, covered_aggregates[0]))
+
     def save(self, *args, **kwargs):
         if self.prefix:
             # Infer address family from IPNetwork object
