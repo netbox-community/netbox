@@ -424,7 +424,7 @@ class DeviceFromCSVForm(forms.ModelForm):
         'invalid_choice': 'Invalid site name.',
     })
     rack_name = forms.CharField()
-    face = forms.ChoiceField(choices=[('front', 'Front'), ('rear', 'Rear')])
+    face = forms.ChoiceField(choices=[('Front', 'Front'), ('Rear', 'Rear')])
 
     class Meta:
         model = Device
