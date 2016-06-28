@@ -47,7 +47,7 @@ class SiteTest(APITestCase):
     graph_fields = [
         'name',
         'embed_url',
-        'link',
+        'embed_link',
     ]
 
     def test_get_list(self, endpoint='/api/dcim/sites/'):
