@@ -126,13 +126,32 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
+                <strong>Rack Groups</strong>
+            </div>
+            {% if rack_groups %}
+                <table class="table table-hover panel-body">
+                    {% for rg in rack_groups %}
+                        <tr>
+                            <td><i class="fa fa-fw fa-folder"></i> <a href="{{ rg.get_absolute_url }}">{{ rg.name }}</a></td>
+                            <td>{{ rg.rack_count }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <div class="panel-body text-muted">
+                    None
+                </div>
+            {% endif %}
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
                 <strong>Topology Maps</strong>
             </div>
             {% if topology_maps %}
                 <table class="table table-hover panel-body">
                     {% for tm in topology_maps %}
                         <tr>
-                            <td><i class="fa fa-fw fa-map text-success"></i> <a href="{% url 'dcim-api:topology_map' slug=tm.slug %}" target="_blank">{{ tm }}</a></td>
+                            <td><i class="fa fa-fw fa-map"></i> <a href="{% url 'dcim-api:topology_map' slug=tm.slug %}" target="_blank">{{ tm }}</a></td>
                             <td>{{ tm.description }}</td>
                         </tr>
                     {% endfor %}

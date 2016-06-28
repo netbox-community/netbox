@@ -75,11 +75,13 @@ def site(request, slug):
         'vlan_count': VLAN.objects.filter(site=site).count(),
         'circuit_count': Circuit.objects.filter(site=site).count(),
     }
+    rack_groups = RackGroup.objects.filter(site=site).annotate(rack_count=Count('racks'))
     topology_maps = TopologyMap.objects.filter(site=site)
 
     return render(request, 'dcim/site.html', {
         'site': site,
         'stats': stats,
+        'rack_groups': rack_groups,
         'topology_maps': topology_maps,
     })
 
