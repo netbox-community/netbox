@@ -187,7 +187,7 @@ class Rack(CreatedUpdatedModel):
 
         # Validate that Rack is tall enough to house the installed Devices
         if self.pk:
-            top_device = Device.objects.filter(rack=self).order_by('-position').first()
+            top_device = Device.objects.filter(rack=self).exclude(position__isnull=True).order_by('-position').first()
             if top_device:
                 min_height = top_device.position + top_device.device_type.u_height - 1
                 if self.u_height < min_height:

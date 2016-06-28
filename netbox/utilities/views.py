@@ -120,7 +120,7 @@ class ObjectEditView(View):
             'obj': obj,
             'obj_type': self.model._meta.verbose_name,
             'form': form,
-            'cancel_url': reverse(self.cancel_url) if self.cancel_url else obj.get_absolute_url(),
+            'cancel_url': obj.get_absolute_url() if obj else reverse(self.cancel_url),
         })
 
     def post(self, request, *args, **kwargs):
@@ -157,7 +157,7 @@ class ObjectEditView(View):
             'obj': obj,
             'obj_type': self.model._meta.verbose_name,
             'form': form,
-            'cancel_url': reverse(self.cancel_url) if self.cancel_url else obj.get_absolute_url(),
+            'cancel_url': obj.get_absolute_url() if obj else reverse(self.cancel_url),
         })
 
 
