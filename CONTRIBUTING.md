@@ -48,3 +48,9 @@ Even if it's not quite right for NetBox, we may be able to point you to a tool b
     * A use case for the feature; who would use it and what value it would add to NetBox
     * A rough description of any changes necessary to the database schema (if applicable)
     * Any third-party libraries or other resources which would be involved
+
+# Submitting Pull Requests
+
+When submitting a pull request, please be sure to work off of branch `develop`, rather than branch `master`.
+In NetBox, the `develop` branch is used for ongoing development, while `master` is used for tagging new
+stable releases.
