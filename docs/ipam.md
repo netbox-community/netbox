@@ -36,7 +36,7 @@ Any prefixes you create in NetBox (discussed below) will be automatically organi
 
 Regional Internet Registries (RIRs) are responsible for the allocation of global address space. The five RIRs are ARIN, RIPE, APNIC, LACNIC, and AFRINIC. However, some address space has been set aside for private or internal use only, such as defined in RFCs 1918 and 6598. NetBox considers these RFCs as a sort of RIR as well; that is, an authority which "owns" certain address space.
 
-Each aggregate must be assigned to one RIR. NetBox by default will be populated with the RIRs listed above, however you are free to remove these and/or create your own if you choose.
+Each aggregate must be assigned to one RIR. You are free to define whichever RIRs you choose (or create your own).
 
 ---
 
