@@ -55,7 +55,7 @@ class TopologyMapView(APIView):
             subgraph = pydot.Subgraph('sg{}'.format(i), rank='same')
 
             # Add a pseudonode for each device_set to enforce hierarchical layout
-            subgraph.add_node(pydot.Node('set{}'.format(i), shape='none', width='0', label=''))
+            subgraph.add_node(pydot.Node('set{}'.format(i), shape='none', width='0'))
             if i:
                 graph.add_edge(pydot.Edge('set{}'.format(i - 1), 'set{}'.format(i), style='invis'))
 
