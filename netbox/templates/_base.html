@@ -11,7 +11,7 @@
 </head>
 <body>
     <nav class="navbar navbar-default navbar-fixed-top">
-        <div class="container">
+        <div class="container-fluid">
             <div class="navbar-header">
                 <a class="navbar-brand" href="/">NetBox</a>
             </div>
@@ -215,7 +215,7 @@
             </div>
         </div>
     </nav>
-	<div class="container wrapper">
+	<div class="container-fluid wrapper">
         {% if settings.MAINTENANCE_MODE %}
             <div class="alert alert-warning text-center" role="alert">
                 <h4><i class="fa fa-exclamation-triangle"></i> Maintenance Mode</h4>
@@ -234,7 +234,7 @@
 		<div class="push"></div>
 	</div>
 	<footer class="footer">
-		<div class="container">
+		<div class="container-fluid">
             <div class="row">
                 <div class="col-md-4">
                     <p class="text-muted">{{ settings.HOSTNAME }}</p>
