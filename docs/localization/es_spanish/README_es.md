@@ -158,9 +158,9 @@ Running migrations:
 
 Si en este paso resulta con errores de autenticación en PostgreSQL , asegura que el nombre de el usuario y la contraseña creada en la base de datos es igual a lo que fue especificado en `configuration.py`
 
-## Create a Super User
+## Crear un super usuario
 
-NetBox does not come with any predefined user accounts. You'll need to create a super user to be able to log into NetBox:
+NetBox no viene con ninguna cuentas basica.Vas a necesitar crear un super usuario para poder entrar a NetBox:
 
 ```
 # ./manage.py createsuperuser
@@ -171,7 +171,7 @@ Password (again):
 Superuser created successfully.
 ```
 
-## Collect Static Files
+## Colecionar archivos estaticos
 
 ```
 # ./manage.py collectstatic
@@ -187,9 +187,9 @@ Are you sure you want to do this?
 Type 'yes' to continue, or 'no' to cancel: yes
 ```
 
-## Test the Application
+## Testiar la aplicación
 
-At this point, NetBox should be able to run. We can verify this by starting a development instance:
+En este punto ya NetBox puede correr. Podemos verificar empesando la aplicación:
 
 ```
 # ./manage.py runserver 0.0.0.0:8000 --insecure
@@ -202,23 +202,23 @@ Starting development server at http://0.0.0.0:8000/
 Quit the server with CONTROL-C.
 ```
 
-Now if we navigate to the name or IP of the server (as defined in `ALLOWED_HOSTS`) we should be greeted with the NetBox home page. Note that this built-in web service is for development and testing purposes only. It is not suited for production use.
+Ahora si vamos a el nombre de el aparato o IP de el servidor (como definido en `ALLOWED_HOSTS`) Nos encontramos con la página de NetBox. Nota que este servicio de web es para testiar o desarrollo namas y no se deveria ser usada para nada en producción.
 
-If the test service does not run, or you cannot reach the NetBox home page, something has gone wrong. Do not proceed with the rest of this guide until the installation has been corrected.
+Si el servicio no corre or no te sale la página de NetBox entonces algo paso. No sigas con el resto de esta guía hasta que el problema a sido resuelto.
 
 # nginx and gunicorn
 
-## Installation
+## Instalación
 
-We'll set up a simple HTTP front end using [nginx](https://www.nginx.com/resources/wiki/) and [gunicorn](http://gunicorn.org/) for the purposes of this guide. (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll also use [supervisord](http://supervisord.org/) for service persistence.
+Vamos a setiar un simple HTTP front end suando [nginx](https://www.nginx.com/resources/wiki/) y [gunicorn](http://gunicorn.org/) como ejemplos en esta guía . (Tu puedes usar cualquier combinación que quieras de  HTTP and WSGI .) Tambien vamos a usar [supervisord](http://supervisord.org/).
 
 ```
 # apt-get install nginx gunicorn supervisor
 ```
 
-## nginx Configuration
+## nginx Configuración
 
-The following will serve as a minimal nginx configuration. Be sure to modify your server name and installation path appropriately.
+Esto servira para correr lo minimo de nginx. Acuerdate cambiar el nombre de el servidor y el directorio de la instalación.
 
 ```
 server {
@@ -242,7 +242,7 @@ server {
 }
 ```
 
-Save this configuration to `/etc/nginx/sites-available/netbox`. Then, delete `/etc/nginx/sites-enabled/default` and create a symlink in the `sites-enabled` directory to the configuration file you just created.
+Graba esta configuración a `/etc/nginx/sites-available/netbox`. entonces borra `/etc/nginx/sites-enabled/default` y crea un  symlink en `sites-enabled` directorio para la configuración  de el archivo que creaste.
 
 ```
 # cd /etc/nginx/sites-enabled/
@@ -250,16 +250,16 @@ Save this configuration to `/etc/nginx/sites-available/netbox`. Then, delete `/e
 # ln -s /etc/nginx/sites-available/netbox
 ```
 
-Restart the nginx service to use the new configuration.
+Vuelve a empezar el servicio de nginx para usar la nueva configuración.
 
 ```
 # service nginx restart
  * Restarting nginx nginx
 ```
 
-## gunicorn Configuration
+## gunicorn Configuración
 
-Save the following configuration file in the root netbox installation path (in this example, `/opt/netbox/`.) as `gunicorn_config.py`. Be sure to verify the location of the gunicorn executable (e.g. `which gunicorn`) and to update the `pythonpath` variable if needed.
+Save the following configuración file in the root netbox installation path (in this example, `/opt/netbox/`.) as `gunicorn_config.py`. Be sure to verify the location of the gunicorn executable (e.g. `which gunicorn`) and to update the `pythonpath` variable if needed.
 
 ```
 command = '/usr/bin/gunicorn'
@@ -269,7 +269,7 @@ workers = 3
 user = 'www-data'
 ```
 
-## supervisord Configuration
+## supervisord Configuración
 
 Save the following as `/etc/supervisor/conf.d/netbox.conf`. Update the `command` and `directory` paths as needed.
 
@@ -286,6 +286,6 @@ Finally, restart the supervisor service to detect and run the gunicorn service:
 # service supervisor restart
 ```
 
-At this point, you should be able to connect to the nginx HTTP service at the server name or IP address you provided. If you are unable to connect, check that the nginx service is running and properly configured. If you receive a 502 (bad gateway) error, this indicates that gunicorn is misconfigured or not running.
+A este punto deverias poder conectarte a  nginx con el nombre de el servidor o el que pusistes. Si no te pudes conectar chequea que el servicio de nginx esta corriendo y tiene la configuración correcta. Si recibes un 502 (bad gateway) error esto indica que gunicorn no tiene la configuración correcta o no esta prendido.
 
 Please keep in mind that the configurations provided here are a bare minimum to get NetBox up and running. You will almost certainly want to make some changes to better suit your production environment.
