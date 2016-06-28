@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.utils.encoding import force_text
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-
+from django.core.exceptions import MultipleObjectsReturned
 
 EXPANSION_PATTERN = '\[(\d+-\d+)\]'
 
@@ -244,18 +244,20 @@ class BulkImportForm(forms.Form):
             return
 
         obj_list = []
-
         for i, record in enumerate(records, start=1):
             obj_form = self.fields['csv'].csv_form(data=record)
-            if obj_form.is_valid():
-                obj = obj_form.save(commit=False)
-                obj_list.append(obj)
-            else:
-                for field, errors in obj_form.errors.items():
-                    for e in errors:
-                        if field == '__all__':
-                            self.add_error('csv', "Record {}: {}".format(i, e))
-                        else:
-                            self.add_error('csv', "Record {} ({}): {}".format(i, field, e))
+            try:
+                 if obj_form.is_valid():
+                    obj = obj_form.save(commit=False)
+                    obj_list.append(obj)
+                 else:
+                    for field, errors in obj_form.errors.items():
+                        for e in errors:
+                            if field == '__all__':
+                                self.add_error('csv', "Record {}: {}".format(i, e))
+                            else:
+                                self.add_error('csv', "Record {} ({}): {}".format(i, field, e))
+            except MultipleObjectsReturned as e:
+                self.add_error('csv', '%s' % (e.message))
 
-        self.cleaned_data['csv'] = obj_list
+            self.cleaned_data['csv'] = obj_list
