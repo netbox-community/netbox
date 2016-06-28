@@ -270,9 +270,9 @@ If you're feeling adventurous, or you already have Apache installed and can't ru
 <VirtualHost *:80>
     ProxyPreserveHost On
     
-    ServerName netbox.totallycool.tld
+    ServerName netbox.example.com
 
-    Alias /static/ /opt/netbox/static/static
+    Alias /static/ /opt/netbox/netbox/static
 
     <Directory /opt/netbox/netbox/static>
         Options Indexes FollowSymLinks MultiViews
