@@ -188,10 +188,11 @@ class Rack(CreatedUpdatedModel):
         # Validate that Rack is tall enough to house the installed Devices
         if self.pk:
             top_device = Device.objects.filter(rack=self).order_by('-position').first()
-            min_height = top_device.position + top_device.device_type.u_height - 1
-            if self.u_height < min_height:
-                raise ValidationError("Rack must be at least {}U tall with currently installed devices."
-                                      .format(min_height))
+            if top_device:
+                min_height = top_device.position + top_device.device_type.u_height - 1
+                if self.u_height < min_height:
+                    raise ValidationError("Rack must be at least {}U tall with currently installed devices."
+                                          .format(min_height))
 
     def to_csv(self):
         return ','.join([
