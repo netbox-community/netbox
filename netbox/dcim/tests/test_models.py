@@ -64,7 +64,7 @@ class RackTestCase(TestCase):
             rack=rack1,
             position=10,
             face=RACK_FACE_REAR,
-            )
+        )
         device1.save()
 
         # Validate rack height
