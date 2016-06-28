@@ -424,7 +424,7 @@ class DeviceFromCSVForm(forms.ModelForm):
         'invalid_choice': 'Invalid site name.',
     })
     rack_name = forms.CharField()
-    face = forms.ChoiceField(choices=[('front', 'Front'), ('rear', 'Rear')])
+    face = forms.ChoiceField(choices=[('Front', 'Front'), ('Rear', 'Rear')])
 
     class Meta:
         model = Device
@@ -1036,20 +1036,29 @@ class InterfaceConnectionImportForm(BulkImportForm, BootstrapMixin):
             return
 
         connection_list = []
+        occupied_interfaces = []
 
         for i, record in enumerate(records, start=1):
             form = self.fields['csv'].csv_form(data=record)
             if form.is_valid():
                 interface_a = Interface.objects.get(device=form.cleaned_data['device_a'],
                                                     name=form.cleaned_data['interface_a'])
+                if interface_a in occupied_interfaces:
+                    raise forms.ValidationError("{} {} found in multiple connections"
+                                                .format(interface_a.device.name, interface_a.name))
                 interface_b = Interface.objects.get(device=form.cleaned_data['device_b'],
                                                     name=form.cleaned_data['interface_b'])
+                if interface_b in occupied_interfaces:
+                    raise forms.ValidationError("{} {} found in multiple connections"
+                                                .format(interface_b.device.name, interface_b.name))
                 connection = InterfaceConnection(interface_a=interface_a, interface_b=interface_b)
                 if form.cleaned_data['status'] == 'planned':
                     connection.connection_status = CONNECTION_STATUS_PLANNED
                 else:
                     connection.connection_status = CONNECTION_STATUS_CONNECTED
                 connection_list.append(connection)
+                occupied_interfaces.append(interface_a)
+                occupied_interfaces.append(interface_b)
             else:
                 for field, errors in form.errors.items():
                     for e in errors:

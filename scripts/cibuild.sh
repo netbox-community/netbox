@@ -21,6 +21,30 @@ if [[ ! -z $SYNTAX ]]; then
 	EXIT=1
 fi
 
+# Check all python source files for PEP 8 compliance, but explicitly
+# ignore:
+#  - E501: line greater than 80 characters in length
+pep8 --ignore=E501 netbox/
+RC=$?
+if [[ $RC != 0 ]]; then
+	echo -e "\n$(info) one or more PEP 8 errors detected, failing build."
+	EXIT=$RC
+fi
+
+# Prepare configuration file for use in CI
+CONFIG="netbox/netbox/configuration.py"
+cp netbox/netbox/configuration.example.py $CONFIG
+sed -i -e "s/ALLOWED_HOSTS = \[\]/ALLOWED_HOSTS = \['*'\]/g" $CONFIG
+sed -i -e "s/SECRET_KEY = ''/SECRET_KEY = 'netboxci'/g" $CONFIG
+
+# Run NetBox tests
+./netbox/manage.py test netbox/
+RC=$?
+if [[ $RC != 0 ]]; then
+	echo -e "\n$(info) one or more tests failed, failing build."
+	EXIT=$RC
+fi
+
 # Show build duration
 END=$(date +%s)
 echo "$(info) exiting with code $EXIT after $(($END - $START)) seconds."

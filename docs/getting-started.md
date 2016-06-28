@@ -210,7 +210,7 @@ If the test service does not run, or you cannot reach the NetBox home page, some
 
 ## Installation
 
-We'll set up a simple HTTP front end using [gunicorn](http://gunicorn.org/) for the purposes of this guide. For web servers, we have 2 configurations ready to go - we provide instructions for both [nginx](https://www.nginx.com/resources/wiki/)and [Apache](http://httpd.apache.org/docs/2.4). (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll also use [supervisord](http://supervisord.org/) for service persistence. 
+We'll set up a simple HTTP front end using [gunicorn](http://gunicorn.org/) for the purposes of this guide. For web servers, we provide example configurations for both [nginx](https://www.nginx.com/resources/wiki/) and [Apache](http://httpd.apache.org/docs/2.4). (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll also use [supervisord](http://supervisord.org/) for service persistence. 
 
 ```
 # apt-get install gunicorn supervisor
@@ -264,34 +264,35 @@ Restart the nginx service to use the new configuration.
 ```
 ## Apache Configuration
 
-If you're feeling adventurous, or you already have Apache installed and can't run a dual-stack on your server - an Apache configuration has been created:
+If you're feeling adventurous, or you already have Apache installed and can't run a dual-stack on your server, the following configuration should work for Apache:
 
 ```
 <VirtualHost *:80>
     ProxyPreserveHost On
     
-    ServerName netbox.totallycool.tld
+    ServerName netbox.example.com
 
-    Alias /static/ /opt/netbox/static/static
+    Alias /static/ /opt/netbox/netbox/static
 
     <Directory /opt/netbox/netbox/static>
         Options Indexes FollowSymLinks MultiViews
         AllowOverride None
         Order allow,deny
         Allow from all
-        #Require all granted [UNCOMMENT THIS IF RUNNING APACHE 2.4]
+        # Uncomment the line below if running Apache 2.4
+        #Require all granted
     </Directory>
 
     <Location /static>
         ProxyPass !
     </Location>
 
-    ProxyPass / http://127.0.0.1:8001;
-    ProxyPassReverse / http://127.0.0.1:8001;
+    ProxyPass / http://127.0.0.1:8001
+    ProxyPassReverse / http://127.0.0.1:8001
 </VirtualHost>
 ```
 
-Save the contents of the above example in `/etc/apache2/sites-available/netbox.conf`, add in the newly saved configuration and reload Apache:
+Save the contents of the above example in `/etc/apache2/sites-available/netbox.conf` and reload Apache:
 
 ```
 # a2ensite netbox; service apache2 restart
@@ -329,4 +330,3 @@ Finally, restart the supervisor service to detect and run the gunicorn service:
 At this point, you should be able to connect to the nginx HTTP service at the server name or IP address you provided. If you are unable to connect, check that the nginx service is running and properly configured. If you receive a 502 (bad gateway) error, this indicates that gunicorn is misconfigured or not running.
 
 Please keep in mind that the configurations provided here are a bare minimum to get NetBox up and running. You will almost certainly want to make some changes to better suit your production environment.
-
