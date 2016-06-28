@@ -386,10 +386,13 @@ class DeviceForm(forms.ModelForm, BootstrapMixin):
 
         # Rack position
         try:
+            pk = self.instance.pk if self.instance.pk else None
             if self.is_bound and self.data.get('rack') and str(self.data.get('face')):
-                position_choices = Rack.objects.get(pk=self.data['rack']).get_rack_units(face=self.data.get('face'))
+                position_choices = Rack.objects.get(pk=self.data['rack'])\
+                    .get_rack_units(face=self.data.get('face'), exclude=pk)
             elif self.initial.get('rack') and str(self.initial.get('face')):
-                position_choices = Rack.objects.get(pk=self.initial['rack']).get_rack_units(face=self.initial.get('face'))
+                position_choices = Rack.objects.get(pk=self.initial['rack'])\
+                    .get_rack_units(face=self.initial.get('face'), exclude=pk)
             else:
                 position_choices = []
         except Rack.DoesNotExist:

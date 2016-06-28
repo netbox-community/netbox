@@ -215,12 +215,13 @@ class Rack(CreatedUpdatedModel):
             return "{} ({})".format(self.name, self.facility_id)
         return self.name
 
-    def get_rack_units(self, face=RACK_FACE_FRONT, remove_redundant=False):
+    def get_rack_units(self, face=RACK_FACE_FRONT, exclude=None, remove_redundant=False):
         """
         Return a list of rack units as dictionaries. Example: {'device': None, 'face': 0, 'id': 48, 'name': 'U48'}
         Each key 'device' is either a Device or None. By default, multi-U devices are repeated for each U they occupy.
 
         :param face: Rack face (front or rear)
+        :param exclude: PK of a Device to exclude (optional); helpful when relocating a Device within a Rack
         :param remove_redundant: If True, rack units occupied by a device already listed will be omitted
         """
 
@@ -231,7 +232,9 @@ class Rack(CreatedUpdatedModel):
         # Add devices to rack units list
         if self.pk:
             for device in Device.objects.select_related('device_type__manufacturer', 'device_role')\
-                    .filter(rack=self, position__gt=0).filter(Q(face=face) | Q(device_type__is_full_depth=True)):
+                    .exclude(pk=exclude)\
+                    .filter(rack=self, position__gt=0)\
+                    .filter(Q(face=face) | Q(device_type__is_full_depth=True)):
                 if remove_redundant:
                     elevation[device.position]['device'] = device
                     for u in range(device.position + 1, device.position + device.device_type.u_height):
