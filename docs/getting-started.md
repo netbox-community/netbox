@@ -287,38 +287,38 @@ Restart the nginx service to use the new configuration.
 ```
 ## Apache Configuration
 
-If you're feeling adventurous, or you already have Apache installed and can't run a dual-stack on your server, the following configuration should work for Apache:
+The following configuration should work for Apache. Be sure to modify the `ServerName` appropriately.
 
 ```
 <VirtualHost *:80>
     ProxyPreserveHost On
-    
+
     ServerName netbox.example.com
 
-    Alias /static/ /opt/netbox/netbox/static
+    Alias /static /opt/netbox/netbox/static
 
     <Directory /opt/netbox/netbox/static>
         Options Indexes FollowSymLinks MultiViews
         AllowOverride None
-        Order allow,deny
-        Allow from all
-        # Uncomment the line below if running Apache 2.4
-        #Require all granted
+        Require all granted
     </Directory>
 
     <Location /static>
         ProxyPass !
     </Location>
 
-    ProxyPass / http://127.0.0.1:8001
-    ProxyPassReverse / http://127.0.0.1:8001
+    ProxyPass / http://127.0.0.1:8001/
+    ProxyPassReverse / http://127.0.0.1:8001/
 </VirtualHost>
 ```
 
-Save the contents of the above example in `/etc/apache2/sites-available/netbox.conf` and reload Apache:
+Save the contents of the above example in `/etc/apache2/sites-available/netbox.conf`, enable the `proxy` and `proxy_http` modules, and reload Apache:
 
 ```
-# a2ensite netbox; service apache2 restart
+# a2enmod proxy
+# a2enmod proxy_http
+# a2ensite netbox
+# service apache2 restart
 ```
 
 ## gunicorn Configuration
