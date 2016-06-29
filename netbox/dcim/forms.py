@@ -427,7 +427,7 @@ class DeviceFromCSVForm(forms.ModelForm):
         'invalid_choice': 'Invalid site name.',
     })
     rack_name = forms.CharField()
-    face = forms.ChoiceField(choices=[('Front', 'Front'), ('Rear', 'Rear')])
+    face = forms.CharField(required=False)
 
     class Meta:
         model = Device
@@ -446,7 +446,7 @@ class DeviceFromCSVForm(forms.ModelForm):
             try:
                 self.instance.device_type = DeviceType.objects.get(manufacturer=manufacturer, model=model_name)
             except DeviceType.DoesNotExist:
-                self.add_error('model_name', "Invalid device type ({})".format(model_name))
+                self.add_error('model_name', "Invalid device type ({} {})".format(manufacturer, model_name))
 
         # Validate rack
         if site and rack_name:
@@ -457,11 +457,15 @@ class DeviceFromCSVForm(forms.ModelForm):
 
     def clean_face(self):
         face = self.cleaned_data['face']
-        if face.lower() == 'front':
-            return 0
-        if face.lower() == 'rear':
-            return 1
-        raise forms.ValidationError("Invalid rack face ({})".format(face))
+        if face:
+            try:
+                return {
+                    'front': 0,
+                    'rear': 1,
+                }[face.lower()]
+            except KeyError:
+                raise forms.ValidationError('Invalid rack face ({}); must be "front" or "rear".'.format(face))
+        return face
 
 
 class DeviceImportForm(BulkImportForm, BootstrapMixin):

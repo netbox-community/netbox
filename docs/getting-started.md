@@ -58,13 +58,11 @@ NetBox requires following dependencies:
 * libxml2-dev
 * libxslt1-dev
 * libffi-dev
-* graphviz*
+* graphviz
 
 ```
 # apt-get install python2.7 python-dev git python-pip libxml2-dev libxslt1-dev libffi-dev graphviz
 ```
-
-*graphviz is needed to render topology maps. If you have no need for this feature, graphviz is not required. 
 
 You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.
 
@@ -354,21 +352,98 @@ At this point, you should be able to connect to the nginx HTTP service at the se
 
 Please keep in mind that the configurations provided here are bare minimums required to get NetBox up and running. You will almost certainly want to make some changes to better suit your production environment.
 
+## Let's Encrypt SSL + nginx
+
+To add SSL support to the installation we'll start by installing the arbitrary precision calculator language.
+
+```
+# sudo apt-get -y bc
+```
+
+Next we'll clone Let’s Encrypt in to /opt
+
+```
+# sudo git clone https://github.com/letsencrypt/letsencrypt /opt/letsencrypt
+```
+
+To ensure Let's Encrypt can publicly access the directory it needs for certificate validation you'll need to edit `/etc/nginx/sites-available/netbox` and add:
+
+```
+    location /.well-known/ {
+        alias /opt/netbox/netbox/.well-known/;
+        allow all;
+    }
+```
+
+Then restart nginix:
+
+```
+# sudo services nginx restart
+```
+
+To create the certificate use the following commands ensuring to change `netbox.example.com` to the domain name of the server:
+
+```
+# cd /opt/letsencrypt
+# ./letsencrypt-auto certonly -a webroot --webroot-path=/opt/netbox/netbox/ -d netbox.example.com
+```
+
+If you wish to add support for the `www` prefix you'd use:
+
+```
+# cd /opt/letsencrypt
+# ./letsencrypt-auto certonly -a webroot --webroot-path=/opt/netbox/netbox/ -d netbox.example.com -d www.netbox.example.com
+```
+
+Make sure you have DNS records setup for the hostnames you use and that they resolve back the netbox server.
+
+You will be prompted for your email address to receive notifications about your SSL and then asked to accept the subscriber agreement.
+
+If successful you'll now have four files in `/etc/letsencrypt/live/netbox.example.com` (remember, your hostname is different)
+
+```
+cert.pem
+chain.pem
+fullchain.pem
+privkey.pem
+```
+
+Now edit your nginx configuration `/etc/nginx/sites-available/netbox` and at the top edit to the following:
+
+```
+    #listen 80;
+    #listen [::]80;
+    listen 443;
+    listen [::]443;
+
+    ssl on;
+    ssl_certificate /etc/letsencrypt/live/netbox.example.com/cert.pem;
+    ssl_certificate_key /etc/letsencrypt/live/netbox.example.com/privkey.pem;
+```
+
+If you are not using IPv6 then you do not need `listen [::]443;` The two commented lines are for non-SSL for both IPv4 and IPv6.
+
+Lastly, restart nginx:
+
+```
+# sudo services nginx restart
+```
+
+You should now have netbox running on a SSL protected connection.
+
 # Upgrading
 
-As with the initial installation, you can upgrade NetBox by either downloading the lastest release package or by cloning the `master` branch of the git repository. Several important steps are required before running the new code.
-
-First, apply any database migrations that were included with the release. Not all releases include database migrations (in fact, most don't), so don't worry if this command returns "No migrations to apply."
+As with the initial installation, you can upgrade NetBox by either downloading the latest release package or by cloning the `master` branch of the git repository. Once the new code is in place, run the upgrade script (which may need to be run as root depending on how your environment is configured).
 
 ```
-# ./manage.py migrate
+# ./upgrade.sh
 ```
 
-Second, collect any static file that have changed into the root static path. As with database migrations, not all releases will include changes to static files.
+This script:
 
-```
-# ./manage.py collectstatic
-```
+* Installs or upgrades any new required Python packages
+* Applies any database migrations that were included in the release
+* Collects all static files to be served by the HTTP service
 
 Finally, restart the WSGI service to run the new code. If you followed this guide for the initial installation, this is done using `supervisorctl`:
 

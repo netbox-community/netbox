@@ -6,6 +6,26 @@
 {% block title %}{{ site }}{% endblock %}
 
 {% block content %}
+<div class="row">
+    <div class="col-md-9">
+        <ol class="breadcrumb">
+            <li><a href="{% url 'dcim:site_list' %}">Sites</a></li>
+            <li>{{ site }}</li>
+        </ol>
+    </div>
+    <div class="col-md-3">
+        <form action="{% url 'dcim:site_list' %}" method="get">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Search" />
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
 <div class="pull-right">
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ site.name }}" data-url="{% url 'dcim-api:site_graphs' pk=site.pk %}" title="Show graphs">
         <i class="glyphicon glyphicon-signal" aria-hidden="true"></i>

@@ -25,6 +25,8 @@ Questions? Comments? Please join us on IRC in **#netbox** on **irc.freenode.net*
 
 Please see docs/getting-started.md for instructions on installing NetBox.
 
+To upgrade NetBox, please download the [latest release](https://github.com/digitalocean/netbox/releases) and run `upgrade.sh`.
+
 # Components
 
 NetBox understands all of the physical and logical building blocks that comprise network infrastructure, and the manners in which they are all related.

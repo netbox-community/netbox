@@ -253,6 +253,9 @@ class BulkImportForm(forms.Form):
             else:
                 for field, errors in obj_form.errors.items():
                     for e in errors:
-                        self.add_error('csv', "Record {} ({}): {}".format(i, field, e))
+                        if field == '__all__':
+                            self.add_error('csv', "Record {}: {}".format(i, e))
+                        else:
+                            self.add_error('csv', "Record {} ({}): {}".format(i, field, e))
 
         self.cleaned_data['csv'] = obj_list

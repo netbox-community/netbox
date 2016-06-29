@@ -61,6 +61,7 @@ def expand_pattern(string):
 
 class SiteListView(ObjectListView):
     queryset = Site.objects.all()
+    filter = filters.SiteFilter
     table = tables.SiteTable
     template_name = 'dcim/site_list.html'
 
