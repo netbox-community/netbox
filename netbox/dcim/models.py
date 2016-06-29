@@ -85,6 +85,48 @@ RPC_CLIENT_CHOICES = [
 ]
 
 
+def order_interfaces(queryset, sql_col, primary_ordering=tuple()):
+    """
+    Attempt to match interface names by their slot/position identifiers and order according. Matching is done using the
+    following pattern:
+
+        {a}/{b}/{c}:{d}
+
+    Interfaces are ordered first by field a, then b, then c, and finally d. Leading text (which typically indicates the
+    interface's type) is ignored. If any fields are not contained by an interface name, those fields are treated as
+    None. 'None' is ordered after all other values. For example:
+
+        et-0/0/0
+        et-0/0/1
+        et-0/1/0
+        xe-0/1/1:0
+        xe-0/1/1:1
+        xe-0/1/1:2
+        xe-0/1/1:3
+        et-0/1/2
+        ...
+        et-0/1/9
+        et-0/1/10
+        et-0/1/11
+        et-1/0/0
+        et-1/0/1
+        ...
+        vlan1
+        vlan10
+
+    :param queryset: The base queryset to be ordered
+    :param sql_col: Table and name of the SQL column which contains the interface name (ex: ''dcim_interface.name')
+    :param primary_ordering: A tuple of fields which take ordering precedence before the interface name (optional)
+    """
+    ordering = primary_ordering + ('_id1', '_id2', '_id3', '_id4')
+    return queryset.extra(select={
+        '_id1': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+\/[0-9]+(:[0-9]+)?$') AS integer)".format(sql_col),
+        '_id2': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+(:[0-9]+)?$') AS integer)".format(sql_col),
+        '_id3': "CAST(SUBSTRING({} FROM '([0-9]+)(:[0-9]+)?$') AS integer)".format(sql_col),
+        '_id4': "CAST(SUBSTRING({} FROM ':([0-9]+)$') AS integer)".format(sql_col),
+    }).order_by(*ordering)
+
+
 class Site(CreatedUpdatedModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
@@ -413,6 +455,13 @@ class PowerOutletTemplate(models.Model):
         return self.name
 
 
+class InterfaceTemplateManager(models.Manager):
+
+    def get_queryset(self):
+        qs = super(InterfaceTemplateManager, self).get_queryset()
+        return order_interfaces(qs, 'dcim_interfacetemplate.name', ('device_type',))
+
+
 class InterfaceTemplate(models.Model):
     """
     A template for a physical data interface on a new Device.
@@ -421,6 +470,8 @@ class InterfaceTemplate(models.Model):
     name = models.CharField(max_length=30)
     form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_SFP_PLUS)
     mgmt_only = models.BooleanField(default=False, verbose_name='Management only')
+
+    objects = InterfaceTemplateManager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -713,18 +764,8 @@ class PowerOutlet(models.Model):
 class InterfaceManager(models.Manager):
 
     def get_queryset(self):
-        """
-        Cast up to three interface slot/position IDs as independent integers and order appropriately. This ensures that
-        interfaces are ordered numerically without regard to type. For example:
-            xe-0/0/0, xe-0/0/1, xe-0/0/2 ... et-0/0/47, et-0/0/48, et-0/0/49 ...
-        instead of:
-            et-0/0/48, et-0/0/49, et-0/0/50 ... et-0/0/53, xe-0/0/0, xe-0/0/1 ...
-        """
-        return super(InterfaceManager, self).get_queryset().extra(select={
-            '_id1': "CAST(SUBSTRING(dcim_interface.name FROM '([0-9]+)\/([0-9]+)\/([0-9]+)$') AS integer)",
-            '_id2': "CAST(SUBSTRING(dcim_interface.name FROM '([0-9]+)\/([0-9]+)$') AS integer)",
-            '_id3': "CAST(SUBSTRING(dcim_interface.name FROM '([0-9]+)$') AS integer)",
-        }).order_by('device', '_id1', '_id2', '_id3')
+        qs = super(InterfaceManager, self).get_queryset()
+        return order_interfaces(qs, 'dcim_interface.name', ('device',))
 
     def virtual(self):
         return self.get_queryset().filter(form_factor=IFACE_FF_VIRTUAL)
