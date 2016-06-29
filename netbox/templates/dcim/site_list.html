@@ -14,5 +14,28 @@
     {% include 'inc/export_button.html' with obj_type='sites' %}
 </div>
 <h1>Sites</h1>
-{% render_table table 'table.html' %}
+<div class="row">
+	<div class="col-md-9">
+        {% render_table table 'table.html' %}
+    </div>
+    <div class="col-md-3">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<strong>Search</strong>
+			</div>
+			<div class="panel-body">
+				<form action="{% url 'dcim:site_list' %}" method="get">
+					<div class="input-group">
+						<input type="text" name="q" class="form-control" placeholder="Name" {% if request.GET.q %}value="{{ request.GET.q }}" {% endif %}/>
+						<span class="input-group-btn">
+							<button type="submit" class="btn btn-primary">
+								<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+							</button>
+						</span>
+					</div>
+				</form>
+			</div>
+		</div>
+    </div>
+</div>
 {% endblock %}

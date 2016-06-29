@@ -8,6 +8,29 @@ from .models import (
 )
 
 
+class SiteFilter(django_filters.FilterSet):
+    q = django_filters.MethodFilter(
+        action='search',
+        label='Search',
+    )
+
+    class Meta:
+        model = Site
+        fields = ['q', 'name', 'facility', 'asn']
+
+    def search(self, queryset, value):
+        value = value.strip()
+        qs_filter = Q(name__icontains=value) |\
+                    Q(facility__icontains=value) |\
+                    Q(physical_address__icontains=value) |\
+                    Q(shipping_address__icontains=value)
+        try:
+            qs_filter |= Q(asn=int(value))
+        except ValueError:
+            pass
+        return queryset.filter(qs_filter)
+
+
 class RackGroupFilter(django_filters.FilterSet):
     site_id = django_filters.ModelMultipleChoiceFilter(
         name='site',
