@@ -5,6 +5,7 @@ django-filter==0.13.0
 django-rest-swagger==0.3.7
 django-tables2==1.2.1
 djangorestframework==3.3.3
+graphviz==0.4.10
 Markdown==2.6.6
 ncclient==0.4.7
 netaddr==0.7.18
@@ -12,6 +13,5 @@ paramiko==2.0.0
 psycopg2==2.6.1
 py-gfm==0.1.3
 pycrypto==2.6.1
-pydot==1.0.2
 sqlparse==0.1.19
 xmltodict==0.10.2

@@ -1,4 +1,4 @@
-import pydot
+import graphviz
 from rest_framework import generics
 from rest_framework.views import APIView
 import tempfile
@@ -49,32 +49,30 @@ class TopologyMapView(APIView):
         tmap = get_object_or_404(TopologyMap, slug=slug)
 
         # Construct the graph
-        graph = pydot.Dot(graph_type='graph', ranksep='1')
+        graph = graphviz.Graph()
+        graph.graph_attr['ranksep'] = '1'
         for i, device_set in enumerate(tmap.device_sets):
 
-            subgraph = pydot.Subgraph('sg{}'.format(i), rank='same')
+            subgraph = graphviz.Graph(name='sg{}'.format(i))
+            subgraph.graph_attr['rank'] = 'same'
 
             # Add a pseudonode for each device_set to enforce hierarchical layout
-            subgraph.add_node(pydot.Node('set{}'.format(i), shape='none', width='0', label=''))
+            subgraph.node('set{}'.format(i), label='', shape='none', width='0')
             if i:
-                graph.add_edge(pydot.Edge('set{}'.format(i - 1), 'set{}'.format(i), style='invis'))
+                graph.edge('set{}'.format(i - 1), 'set{}'.format(i), style='invis')
 
             # Add each device to the graph
             devices = []
             for query in device_set.split(','):
                 devices += Device.objects.filter(name__regex=query)
             for d in devices:
-                node = pydot.Node(d.name)
-                subgraph.add_node(node)
+                subgraph.node(d.name)
 
             # Add an invisible connection to each successive device in a set to enforce horizontal order
             for j in range(0, len(devices) - 1):
-                edge = pydot.Edge(devices[j].name, devices[j + 1].name)
-                # edge.set('style', 'invis') doesn't seem to work for some reason
-                edge.set_style('invis')
-                subgraph.add_edge(edge)
+                subgraph.edge(devices[j].name, devices[j + 1].name, style='invis')
 
-            graph.add_subgraph(subgraph)
+            graph.subgraph(subgraph)
 
         # Compile list of all devices
         device_superset = Q()
@@ -87,17 +85,14 @@ class TopologyMapView(APIView):
         connections = InterfaceConnection.objects.filter(interface_a__device__in=devices,
                                                          interface_b__device__in=devices)
         for c in connections:
-            edge = pydot.Edge(c.interface_a.device.name, c.interface_b.device.name)
-            graph.add_edge(edge)
+            graph.edge(c.interface_a.device.name, c.interface_b.device.name)
 
-        # Write the image to disk and return
-        topo_file = tempfile.NamedTemporaryFile()
+        # Get the image data and return
         try:
-            graph.write(topo_file.name, format='png')
+            topo_data = graph.pipe(format='png')
         except:
             return HttpResponse("There was an error generating the requested graph. Ensure that the GraphViz "
                                 "executables have been installed correctly.")
-        response = HttpResponse(FileWrapper(topo_file), content_type='image/png')
-        topo_file.close()
+        response = HttpResponse(topo_data, content_type='image/png')
 
         return response
