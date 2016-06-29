@@ -568,7 +568,10 @@ class Device(CreatedUpdatedModel):
             raise ValidationError("Must specify rack face with rack position.")
 
         # Validate rack space
-        rack_face = self.face if not self.device_type.is_full_depth else None
+        try:
+            rack_face = self.face if not self.device_type.is_full_depth else None
+        except DeviceType.DoesNotExist:
+            raise ValidationError("Must specify device type.")
         exclude_list = [self.pk] if self.pk else []
         try:
             available_units = self.rack.get_available_units(u_height=self.device_type.u_height, rack_face=rack_face,
