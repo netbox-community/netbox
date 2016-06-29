@@ -11,6 +11,8 @@ except ImportError:
                                "the documentation.")
 
 
+VERSION = '1.0.6'
+
 # Import local configuration
 for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
     try:
