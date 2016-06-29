@@ -52,14 +52,12 @@ A prefix may optionally be assigned to one VLAN; a VLAN may have multiple prefix
 
 ### Statuses
 
-Each prefix is assigned an operational status. This may be one of the following:
+Each prefix is assigned an operational status. This is one of the following:
 
 * Container - A summary of child prefixes
 * Active - Provisioned and in use
 * Reserved - Earmarked for future use
 * Deprecated - No longer in use
-
-NetBox provides several statuses by default, but you are free to change them to suit the needs of your organization.
 
 ### Roles
 
@@ -71,7 +69,7 @@ Whereas a status describes a prefix's operational state, a role describes its fu
 * Lab
 * Out-of-band
 
-Role assignment is optional. And like statuses, you are free to create your own.
+Role assignment is optional and you are free to create as many as you'd like.
 
 ---
 

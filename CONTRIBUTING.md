@@ -49,8 +49,14 @@ Even if it's not quite right for NetBox, we may be able to point you to a tool b
     * A rough description of any changes necessary to the database schema (if applicable)
     * Any third-party libraries or other resources which would be involved
 
-# Submitting Pull Requests
+## Submitting Pull Requests
 
-When submitting a pull request, please be sure to work off of branch `develop`, rather than branch `master`.
+* When submitting a pull request, please be sure to work off of branch `develop`, rather than branch `master`.
 In NetBox, the `develop` branch is used for ongoing development, while `master` is used for tagging new
 stable releases.
+
+* All code submissions should meet the following criteria (CI will enforce these checks):
+
+    * Python syntax is valid
+    * All tests pass when run with `./manage.py test netbox/`
+    * PEP 8 compliance is enforced, with the exception that lines may be greater than 80 characters in length

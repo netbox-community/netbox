@@ -75,11 +75,13 @@ def site(request, slug):
         'vlan_count': VLAN.objects.filter(site=site).count(),
         'circuit_count': Circuit.objects.filter(site=site).count(),
     }
+    rack_groups = RackGroup.objects.filter(site=site).annotate(rack_count=Count('racks'))
     topology_maps = TopologyMap.objects.filter(site=site)
 
     return render(request, 'dcim/site.html', {
         'site': site,
         'stats': stats,
+        'rack_groups': rack_groups,
         'topology_maps': topology_maps,
     })
 
@@ -1514,7 +1516,10 @@ def module_add(request, pk):
             module.device = device
             module.save()
             messages.success(request, "Added module {} to {}".format(module.name, module.device.name))
-            return redirect('dcim:device_inventory', pk=module.device.pk)
+            if '_addanother' in request.POST:
+                return redirect('dcim:module_add', pk=module.device.pk)
+            else:
+                return redirect('dcim:device_inventory', pk=module.device.pk)
 
     else:
         form = forms.ModuleForm()

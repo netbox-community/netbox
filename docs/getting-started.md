@@ -48,11 +48,12 @@ You can verify that authentication works using the following command:
 
 # NetBox
 
-## Dependencies
+## Installation
+
+NetBox requires following dependencies:
 
 * python2.7
 * python-dev
-* git
 * python-pip
 * libxml2-dev
 * libxslt1-dev
@@ -65,13 +66,33 @@ You can verify that authentication works using the following command:
 
 *graphviz is needed to render topology maps. If you have no need for this feature, graphviz is not required. 
 
-## Clone the Git Repository
+You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.
+
+### Option A: Download a Release
+
+Download the [latest stable release](https://github.com/digitalocean/netbox/releases) from GitHub as a tarball or ZIP archive. Extract it to your desired path. In this example, we'll use `/opt/netbox`.
+
+```
+# wget https://github.com/digitalocean/netbox/archive/vX.Y.Z.tar.gz
+# tar -xzf vX.Y.Z.tar.gz -C /opt
+# cd /opt/
+# ln -s netbox-1.0.4/ netbox
+# cd /opt/netbox/
+```
+
+### Option B: Clone the Git Repository
 
 Create the base directory for the NetBox installation. For this guide, we'll use `/opt/netbox`.
 
 ```
 # mkdir -p /opt/netbox/
 # cd /opt/netbox/
+```
+
+If `git` is not already installed, install it:
+
+```
+# sudo apt-get install git
 ```
 
 Next, clone the NetBox git repository into the current directory:
@@ -86,6 +107,8 @@ Receiving objects: 100% (1994/1994), 472.36 KiB | 0 bytes/s, done.
 Resolving deltas: 100% (1495/1495), done.
 Checking connectivity... done.
 ```
+
+### Install Python Packages
 
 Install the necessary Python packages using pip. (If you encounter any compilation errors during this step, ensure that you've installed all of the required dependencies.)
 
@@ -264,38 +287,38 @@ Restart the nginx service to use the new configuration.
 ```
 ## Apache Configuration
 
-If you're feeling adventurous, or you already have Apache installed and can't run a dual-stack on your server, the following configuration should work for Apache:
+The following configuration should work for Apache. Be sure to modify the `ServerName` appropriately.
 
 ```
 <VirtualHost *:80>
     ProxyPreserveHost On
-    
+
     ServerName netbox.example.com
 
-    Alias /static/ /opt/netbox/netbox/static
+    Alias /static /opt/netbox/netbox/static
 
     <Directory /opt/netbox/netbox/static>
         Options Indexes FollowSymLinks MultiViews
         AllowOverride None
-        Order allow,deny
-        Allow from all
-        # Uncomment the line below if running Apache 2.4
-        #Require all granted
+        Require all granted
     </Directory>
 
     <Location /static>
         ProxyPass !
     </Location>
 
-    ProxyPass / http://127.0.0.1:8001
-    ProxyPassReverse / http://127.0.0.1:8001
+    ProxyPass / http://127.0.0.1:8001/
+    ProxyPassReverse / http://127.0.0.1:8001/
 </VirtualHost>
 ```
 
-Save the contents of the above example in `/etc/apache2/sites-available/netbox.conf` and reload Apache:
+Save the contents of the above example in `/etc/apache2/sites-available/netbox.conf`, enable the `proxy` and `proxy_http` modules, and reload Apache:
 
 ```
-# a2ensite netbox; service apache2 restart
+# a2enmod proxy
+# a2enmod proxy_http
+# a2ensite netbox
+# service apache2 restart
 ```
 
 ## gunicorn Configuration
@@ -329,4 +352,26 @@ Finally, restart the supervisor service to detect and run the gunicorn service:
 
 At this point, you should be able to connect to the nginx HTTP service at the server name or IP address you provided. If you are unable to connect, check that the nginx service is running and properly configured. If you receive a 502 (bad gateway) error, this indicates that gunicorn is misconfigured or not running.
 
-Please keep in mind that the configurations provided here are a bare minimum to get NetBox up and running. You will almost certainly want to make some changes to better suit your production environment.
+Please keep in mind that the configurations provided here are bare minimums required to get NetBox up and running. You will almost certainly want to make some changes to better suit your production environment.
+
+# Upgrading
+
+As with the initial installation, you can upgrade NetBox by either downloading the lastest release package or by cloning the `master` branch of the git repository. Several important steps are required before running the new code.
+
+First, apply any database migrations that were included with the release. Not all releases include database migrations (in fact, most don't), so don't worry if this command returns "No migrations to apply."
+
+```
+# ./manage.py migrate
+```
+
+Second, collect any static file that have changed into the root static path. As with database migrations, not all releases will include changes to static files.
+
+```
+# ./manage.py collectstatic
+```
+
+Finally, restart the WSGI service to run the new code. If you followed this guide for the initial installation, this is done using `supervisorctl`:
+
+```
+# sudo supervisorctl restart netbox
+```
