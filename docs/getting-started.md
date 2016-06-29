@@ -356,19 +356,17 @@ Please keep in mind that the configurations provided here are bare minimums requ
 
 # Upgrading
 
-As with the initial installation, you can upgrade NetBox by either downloading the lastest release package or by cloning the `master` branch of the git repository. Several important steps are required before running the new code.
-
-First, apply any database migrations that were included with the release. Not all releases include database migrations (in fact, most don't), so don't worry if this command returns "No migrations to apply."
+As with the initial installation, you can upgrade NetBox by either downloading the latest release package or by cloning the `master` branch of the git repository. Once the new code is in place, run the upgrade script (which may need to be run as root depending on how your environment is configured).
 
 ```
-# ./manage.py migrate
+# ./upgrade.sh
 ```
 
-Second, collect any static file that have changed into the root static path. As with database migrations, not all releases will include changes to static files.
+This script:
 
-```
-# ./manage.py collectstatic
-```
+* Installs or upgrades any new required Python packages
+* Applies any database migrations that were included in the release
+* Collects all static files to be served by the HTTP service
 
 Finally, restart the WSGI service to run the new code. If you followed this guide for the initial installation, this is done using `supervisorctl`:
 
