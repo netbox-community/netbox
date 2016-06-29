@@ -58,13 +58,11 @@ NetBox requires following dependencies:
 * libxml2-dev
 * libxslt1-dev
 * libffi-dev
-* graphviz*
+* graphviz
 
 ```
 # apt-get install python2.7 python-dev git python-pip libxml2-dev libxslt1-dev libffi-dev graphviz
 ```
-
-*graphviz is needed to render topology maps. If you have no need for this feature, graphviz is not required. 
 
 You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.
 
