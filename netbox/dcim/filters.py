@@ -20,10 +20,8 @@ class SiteFilter(django_filters.FilterSet):
 
     def search(self, queryset, value):
         value = value.strip()
-        qs_filter = Q(name__icontains=value) |\
-                    Q(facility__icontains=value) |\
-                    Q(physical_address__icontains=value) |\
-                    Q(shipping_address__icontains=value)
+        qs_filter = Q(name__icontains=value) | Q(facility__icontains=value) | Q(physical_address__icontains=value) | \
+            Q(shipping_address__icontains=value)
         try:
             qs_filter |= Q(asn=int(value))
         except ValueError:
