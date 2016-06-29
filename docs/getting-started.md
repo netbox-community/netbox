@@ -354,6 +354,85 @@ At this point, you should be able to connect to the nginx HTTP service at the se
 
 Please keep in mind that the configurations provided here are bare minimums required to get NetBox up and running. You will almost certainly want to make some changes to better suit your production environment.
 
+## Let's Encrypt SSL + nginx
+
+To add SSL support to the installation we'll start by installing the arbitrary precision calculator language.
+
+```
+# sudo apt-get -y bc
+```
+
+Next we'll clone Let’s Encrypt in to /opt
+
+```
+# sudo git clone https://github.com/letsencrypt/letsencrypt /opt/letsencrypt
+```
+
+To ensure Let's Encrypt can publicly access the directory it needs for certificate validation you'll need to edit `/etc/nginx/sites-available/netbox` and add:
+
+```
+    location /.well-known/ {
+        alias /opt/netbox/netbox/.well-known/;
+        allow all;
+    }
+```
+
+Then restart nginix:
+
+```
+# sudo services nginx restart
+```
+
+To create the certificate use the following commands ensuring to change `netbox.example.com` to the domain name of the server:
+
+```
+# cd /opt/letsencrypt
+# ./letsencrypt-auto certonly -a webroot --webroot-path=/opt/netbox/netbox/ -d netbox.example.com
+```
+
+If you wish to add support for the `www` prefix you'd use:
+
+```
+# cd /opt/letsencrypt
+# ./letsencrypt-auto certonly -a webroot --webroot-path=/opt/netbox/netbox/ -d netbox.example.com -d www.netbox.example.com
+```
+
+Make sure you have DNS records setup for the hostnames you use and that they resolve back the netbox server.
+
+You will be prompted for your email address to receive notifications about your SSL and then asked to accept the subscriber agreement.
+
+If successful you'll now have four files in `/etc/letsencrypt/live/netbox.example.com` (remember, your hostname is different)
+
+```
+cert.pem
+chain.pem
+fullchain.pem
+privkey.pem
+```
+
+Now edit your nginx configuration `/etc/nginx/sites-available/netbox` and at the top edit to the following:
+
+```
+    #listen 80;
+    #listen [::]80;
+    listen 443;
+    listen [::]443;
+
+    ssl on;
+    ssl_certificate /etc/letsencrypt/live/netbox.example.com/cert.pem;
+    ssl_certificate_key /etc/letsencrypt/live/netbox.example.com/privkey.pem;
+```
+
+If you are not using IPv6 then you do not need `listen [::]443;` The two commented lines are for non-SSL for both IPv4 and IPv6.
+
+Lastly, restart nginx:
+
+```
+# sudo services nginx restart
+```
+
+You should now have netbox running on a SSL protected connection.
+
 # Upgrading
 
 As with the initial installation, you can upgrade NetBox by either downloading the lastest release package or by cloning the `master` branch of the git repository. Several important steps are required before running the new code.
