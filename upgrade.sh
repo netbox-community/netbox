@@ -6,7 +6,8 @@
 # gunicorn or uWSGI).
 
 # Install any new Python packages
-pip install -r requirements.txt --upgrade
+echo "Updating required Python packages (pip install -r requirements.txt --upgrade)..."
+sudo pip install -r requirements.txt --upgrade
 
 # Apply any database migrations
 ./netbox/manage.py migrate
