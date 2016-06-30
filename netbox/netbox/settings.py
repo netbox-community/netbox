@@ -11,7 +11,7 @@ except ImportError:
                                "the documentation.")
 
 
-VERSION = '1.0.7'
+VERSION = '1.0.8-dev'
 
 # Import local configuration
 for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
