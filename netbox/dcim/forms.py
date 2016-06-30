@@ -326,10 +326,10 @@ class DeviceForm(forms.ModelForm, BootstrapMixin):
         display_field='display_name',
         attrs={'filter-for': 'position'}
     ))
-    position = forms.TypedChoiceField(required=False, empty_value=None, widget=APISelect(
-        api_url='/api/dcim/racks/{{rack}}/rack-units/?face={{face}}',
-        disabled_indicator='device',
-    ))
+    position = forms.TypedChoiceField(required=False, empty_value=None,
+                                      help_text="For multi-U devices, this is the lowest occupied rack unit.",
+                                      widget=APISelect(api_url='/api/dcim/racks/{{rack}}/rack-units/?face={{face}}',
+                                                       disabled_indicator='device'))
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(),
                                           widget=forms.Select(attrs={'filter-for': 'device_type'}))
     device_type = forms.ModelChoiceField(queryset=DeviceType.objects.all(), label='Model', widget=APISelect(

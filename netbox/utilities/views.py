@@ -137,9 +137,9 @@ class ObjectEditView(View):
             msg = 'Created ' if obj_created else 'Modified '
             msg += self.model._meta.verbose_name
             if hasattr(obj, 'get_absolute_url'):
-                msg += ' <a href="{}">{}</a>'.format(obj.get_absolute_url(), obj)
+                msg = '{} <a href="{}">{}</a>'.format(msg, obj.get_absolute_url(), obj)
             else:
-                msg += ' {}'.format(obj)
+                msg = '{} {}'.format(msg, obj)
             messages.success(request, msg)
             if obj_created:
                 UserAction.objects.log_create(request.user, obj, msg)

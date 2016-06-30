@@ -15,7 +15,7 @@ The following packages are needed to install PostgreSQL:
 * python-psycopg2
 
 ```
-# apt-get install postgresql libpq-dev python-psycopg2
+# sudo apt-get install -y postgresql libpq-dev python-psycopg2
 ```
 
 ## Configuration
@@ -61,7 +61,7 @@ NetBox requires following dependencies:
 * graphviz
 
 ```
-# apt-get install python2.7 python-dev git python-pip libxml2-dev libxslt1-dev libffi-dev graphviz
+# sudo apt-get install -y python2.7 python-dev git python-pip libxml2-dev libxslt1-dev libffi-dev graphviz
 ```
 
 You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.
@@ -90,13 +90,13 @@ Create the base directory for the NetBox installation. For this guide, we'll use
 If `git` is not already installed, install it:
 
 ```
-# sudo apt-get install git
+# sudo apt-get install -y git
 ```
 
-Next, clone the NetBox git repository into the current directory:
+Next, clone the **master** branch of the NetBox GitHub repository into the current directory:
 
 ```
-# git clone https://github.com/digitalocean/netbox.git .
+# git clone -b master https://github.com/digitalocean/netbox.git .
 Cloning into '.'...
 remote: Counting objects: 1994, done.
 remote: Compressing objects: 100% (150/150), done.
@@ -111,7 +111,7 @@ Checking connectivity... done.
 Install the necessary Python packages using pip. (If you encounter any compilation errors during this step, ensure that you've installed all of the required dependencies.)
 
 ```
-# pip install -r requirements.txt
+# sudo pip install -r requirements.txt
 ```
 
 ## Configuration
@@ -166,6 +166,7 @@ You may use the script located at `netbox/generate_secret_key.py` to generate a 
 Before NetBox can run, we need to install the database schema. This is done by running `./manage.py migrate` from the `netbox` directory (`/opt/netbox/netbox/` in our example):
 
 ```
+# cd /opt/netbox/netbox/
 # ./manage.py migrate
 Operations to perform:
   Apply all migrations: dcim, sessions, admin, ipam, utilities, auth, circuits, contenttypes, extras, secrets, users
@@ -234,7 +235,7 @@ If the test service does not run, or you cannot reach the NetBox home page, some
 We'll set up a simple HTTP front end using [gunicorn](http://gunicorn.org/) for the purposes of this guide. For web servers, we provide example configurations for both [nginx](https://www.nginx.com/resources/wiki/) and [Apache](http://httpd.apache.org/docs/2.4). (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll also use [supervisord](http://supervisord.org/) for service persistence. 
 
 ```
-# apt-get install gunicorn supervisor
+# sudo apt-get install -y gunicorn supervisor
 ```
 
 ## nginx Configuration
@@ -242,7 +243,7 @@ We'll set up a simple HTTP front end using [gunicorn](http://gunicorn.org/) for 
 The following will serve as a minimal nginx configuration. Be sure to modify your server name and installation path appropriately.
 
 ```
-# apt-get install nginx
+# sudo apt-get install -y nginx
 ```
 
 Once nginx is installed, proceed with the following configuration:
@@ -285,7 +286,11 @@ Restart the nginx service to use the new configuration.
 ```
 ## Apache Configuration
 
-The following configuration should work for Apache. Be sure to modify the `ServerName` appropriately.
+```
+# sudo apt-get install -y apache2
+```
+
+Once Apache is installed, proceed with the following configuration (Be sure to modify the `ServerName` appropriately):
 
 ```
 <VirtualHost *:80>
@@ -321,7 +326,7 @@ Save the contents of the above example in `/etc/apache2/sites-available/netbox.c
 
 ## gunicorn Configuration
 
-Save the following configuration file in the root netbox installation path (in this example, `/opt/netbox/`.) as `gunicorn_config.py`. Be sure to verify the location of the gunicorn executable (e.g. `which gunicorn`) and to update the `pythonpath` variable if needed.
+Save the following configuration file in the root netbox installation path (in this example, `/opt/netbox/`) as `gunicorn_config.py`. Be sure to verify the location of the gunicorn executable (e.g. `which gunicorn`) and to update the `pythonpath` variable if needed.
 
 ```
 command = '/usr/bin/gunicorn'
@@ -357,10 +362,10 @@ Please keep in mind that the configurations provided here are bare minimums requ
 To add SSL support to the installation we'll start by installing the arbitrary precision calculator language.
 
 ```
-# sudo apt-get -y bc
+# sudo apt-get install -y bc
 ```
 
-Next we'll clone Let’s Encrypt in to /opt
+Next we'll clone Let's Encrypt into /opt/:
 
 ```
 # sudo git clone https://github.com/letsencrypt/letsencrypt /opt/letsencrypt
