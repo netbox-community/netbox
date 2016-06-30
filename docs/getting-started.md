@@ -361,7 +361,7 @@ To add SSL support to the installation we'll start by installing the arbitrary p
 # sudo apt-get -y bc
 ```
 
-Next we'll clone Let’s Encrypt in to /opt
+Next we'll clone Let's Encrypt into /opt/:
 
 ```
 # sudo git clone https://github.com/letsencrypt/letsencrypt /opt/letsencrypt
