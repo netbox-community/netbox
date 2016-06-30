@@ -10,7 +10,13 @@ from .lookups import (
 )
 
 
+def prefix_validator(prefix):
+    if prefix.ip != prefix.cidr.ip:
+        raise ValidationError("{} is not a valid prefix. Did you mean {}?".format(prefix, prefix.cidr))
+
+
 class BaseIPField(models.Field):
+    default_validators = [prefix_validator]
 
     def python_type(self):
         return IPNetwork
