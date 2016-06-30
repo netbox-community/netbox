@@ -93,10 +93,10 @@ If `git` is not already installed, install it:
 # sudo apt-get install git
 ```
 
-Next, clone the NetBox git repository into the current directory:
+Next, clone the **master** branch of the NetBox GitHub repository into the current directory:
 
 ```
-# git clone https://github.com/digitalocean/netbox.git .
+# git clone -b master https://github.com/digitalocean/netbox.git .
 Cloning into '.'...
 remote: Counting objects: 1994, done.
 remote: Compressing objects: 100% (150/150), done.
@@ -166,6 +166,7 @@ You may use the script located at `netbox/generate_secret_key.py` to generate a 
 Before NetBox can run, we need to install the database schema. This is done by running `./manage.py migrate` from the `netbox` directory (`/opt/netbox/netbox/` in our example):
 
 ```
+# cd /opt/netbox/netbox/
 # ./manage.py migrate
 Operations to perform:
   Apply all migrations: dcim, sessions, admin, ipam, utilities, auth, circuits, contenttypes, extras, secrets, users
