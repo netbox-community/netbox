@@ -59,11 +59,11 @@ Note that assignment of components from templates occurs only at the time of dev
 
 # Devices
 
-Every piece of hardware which is installed within a rack exists in NetBox as a device. Devices are measured in rack units (U) and whether they are full depth. 0U devices which can be installed in a rack but don't consume vertical rack space (such as a vertically-mounted power distribution unit) can also be defined.
+Every piece of hardware which is installed within a rack exists in NetBox as a device. Devices are measured in rack units (U) and depth. 0U devices which can be installed in a rack but don't consume vertical rack space (such as a vertically-mounted power distribution unit) can also be defined.
+
+When assigning a multi-U device to a rack, it is considered to be mounted in the lowest-numbered rack unit which it occupies. For example, a 3U device which occupies U8 through U10 shows as being mounted in U8.
 
 A device is said to be "full depth" if its installation on one rack face prevents the installation of any other device on the opposite face within the same rack unit(s). This could be either because the device is physically too deep to allow a device behind it, or because the installation of an opposing device would impede air flow.
-
-Each device has a physical device type (make and model), which is discussed below.
 
 ### Roles
 
