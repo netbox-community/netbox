@@ -235,12 +235,18 @@ If the test service does not run, or you cannot reach the NetBox home page, some
 We'll set up a simple HTTP front end using [gunicorn](http://gunicorn.org/) for the purposes of this guide. For web servers, we provide example configurations for both [nginx](https://www.nginx.com/resources/wiki/) and [Apache](http://httpd.apache.org/docs/2.4). (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll also use [supervisord](http://supervisord.org/) for service persistence. 
 
 ```
-# sudo apt-get install -y gunicorn supervisor apache2 nginx
+# sudo apt-get install -y gunicorn supervisor
 ```
 
 ## nginx Configuration
 
 The following will serve as a minimal nginx configuration. Be sure to modify your server name and installation path appropriately.
+
+```
+# sudo apt-get install -y nginx
+```
+
+Once nginx is installed, proceed with the following configuration:
 
 ```
 server {
@@ -280,7 +286,11 @@ Restart the nginx service to use the new configuration.
 ```
 ## Apache Configuration
 
-The following configuration should work for Apache. Be sure to modify the `ServerName` appropriately.
+```
+# sudo apt-get install -y apache2
+```
+
+Once Apache is installed, proceed with the following configuration (Be sure to modify the `ServerName` appropriately):
 
 ```
 <VirtualHost *:80>
