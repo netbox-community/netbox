@@ -1252,6 +1252,7 @@ def interface_add(request, pk):
                     'device': device.pk,
                     'name': name,
                     'form_factor': form.cleaned_data['form_factor'],
+                    'mac_address': form.cleaned_data['mac_address'],
                     'mgmt_only': form.cleaned_data['mgmt_only'],
                     'description': form.cleaned_data['description'],
                 })

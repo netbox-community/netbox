@@ -334,7 +334,7 @@ class InterfaceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Interface
-        fields = ['id', 'device', 'name', 'form_factor', 'mgmt_only', 'description', 'is_connected']
+        fields = ['id', 'device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description', 'is_connected']
 
 
 class InterfaceNestedSerializer(InterfaceSerializer):
@@ -348,7 +348,7 @@ class InterfaceDetailSerializer(InterfaceSerializer):
     connected_interface = InterfaceSerializer(source='get_connected_interface')
 
     class Meta(InterfaceSerializer.Meta):
-        fields = ['id', 'device', 'name', 'form_factor', 'mgmt_only', 'description', 'is_connected',
+        fields = ['id', 'device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description', 'is_connected',
                   'connected_interface']
 
 
