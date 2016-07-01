@@ -29,7 +29,12 @@
                 <tr>
                     <td>Position</td>
                     <td>
-                        {% if device.position %}
+                        {% if device.parent_bay %}
+                            {% with device.parent_bay.device as parent %}
+                                <span>U{{ parent.position }} / {{ parent.get_face_display }}
+                                (<a href="{{ parent.get_absolute_url }}">{{ parent }}</a> - {{ device.parent_bay.name }})</span>
+                            {% endwith %}
+                        {% elif device.position %}
                             <span>U{{ device.position }} / {{ device.get_face_display }}</span>
                         {% elif device.device_type.u_height %}
                             <span class="label label-warning">Not racked</span>
@@ -268,6 +273,25 @@
         </div>
 	</div>
 	<div class="col-md-6">
+        {% if device_bays or device.device_type.is_parent_device %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    {% if perms.dcim.add_devicebay %}
+                        <a href="{% url 'dcim:devicebay_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Device Bays</a>
+                    {% endif %}
+                    <strong>Device Bays</strong>
+                </div>
+                <table class="table table-hover panel-body">
+                    {% for devicebay in device_bays %}
+                        {% include 'dcim/inc/_devicebay.html' %}
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">No device bays defined</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endif %}
         {% if interfaces or device.device_type.is_network_device %}
             <div class="panel panel-default">
                 <div class="panel-heading">
