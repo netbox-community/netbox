@@ -112,6 +112,12 @@
             </div>
             {% if nonracked_devices %}
                 <table class="table table-hover panel-body">
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Type</th>
+                        <th>Parent</th>
+                    </tr>
                     {% for device in nonracked_devices %}
                         <tr{% if device.device_type.u_height %} class="warning"{% endif %}>
                             <td>
@@ -119,6 +125,7 @@
                             </td>
                             <td>{{ device.device_role }}</td>
                             <td>{{ device.device_type }}</td>
+                            <td>{% if device.parent_bay %}<a href="{{ device.parent_bay.device.get_absolute_url }}">{{ device.parent_bay }}</a>{% endif %}</td>
                         </tr>
                     {% endfor %}
                 </table>
