@@ -295,9 +295,6 @@
         {% if interfaces or device.device_type.is_network_device %}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    {% if perms.dcim.add_interface %}
-                        <a href="{% url 'dcim:interface_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Interfaces</a>
-                    {% endif %}
                     <strong>Interfaces</strong>
                 </div>
                 <table class="table table-hover panel-body">
@@ -309,6 +306,14 @@
                         </tr>
                     {% endfor %}
                 </table>
+                {% if perms.dcim.add_interface %}
+                    <div class="panel-footer text-right">
+                      <a href="{% url 'dcim:interface_add' pk=device.pk %}" class="btn btn-xs btn-primary">
+                          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                          Add interface
+                      </a>
+                     </div>
+                {% endif %}
             </div>
         {% endif %}
         {% if cs_ports or device.device_type.is_console_server %}
