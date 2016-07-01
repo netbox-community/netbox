@@ -925,7 +925,7 @@ class InterfaceForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Interface
-        fields = ['device', 'name', 'form_factor', 'mgmt_only', 'description']
+        fields = ['device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description']
         widgets = {
             'device': forms.HiddenInput(),
         }
@@ -936,7 +936,7 @@ class InterfaceCreateForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Interface
-        fields = ['name_pattern', 'form_factor', 'mgmt_only', 'description']
+        fields = ['name_pattern', 'form_factor', 'mac_address', 'mgmt_only', 'description']
 
 
 class InterfaceBulkCreateForm(InterfaceCreateForm, BootstrapMixin):

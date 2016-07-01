@@ -6,7 +6,7 @@
         {% endif %}
     </td>
     {% if not iface.is_physical %}
-        <td colspan="2">Virtual</td>
+        <td>Virtual</td>
     {% elif iface.connection %}
         {% with iface.get_connected_interface as connected_iface %}
             <td>
@@ -17,11 +17,16 @@
             </td>
         {% endwith %}
     {% elif iface.circuit %}
-        <td colspan="2">
+        <td>
             <a href="{% url 'circuits:circuit' pk=iface.circuit.pk %}">{{ iface.circuit }}</a>
         </td>
     {% else %}
-        <td colspan="2">Not connected</td>
+        <td>Not connected</td>
+    {% endif %}
+    {% if iface.mac_address %}
+        <td><span class="small text-muted">{{ iface.mac_address }}</span></td>
+    {% else %}
+        <td><span class="small text-muted">00:00:00:00:00:00</span></td>
     {% endif %}
     <td class="text-right">
         {% if iface.circuit or iface.connection %}

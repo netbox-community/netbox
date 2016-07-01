@@ -5,6 +5,7 @@ django-filter==0.13.0
 django-rest-swagger==0.3.7
 django-tables2==1.2.1
 djangorestframework==3.3.3
+django-macaddress==1.3.2
 graphviz==0.4.10
 Markdown==2.6.6
 ncclient==0.4.7
