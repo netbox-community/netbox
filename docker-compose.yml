@@ -1,0 +1,55 @@
+version: '2'
+
+services:
+    postgres:
+        image: postgres:9.6
+        container_name: postgres
+        environment:
+            POSTGRES_USER: netbox
+            POSTGRES_PASSWORD: J5brHrAXFLQSif0K
+            POSTGRES_DB: netbox
+    netbox:
+        build: .
+        links:
+        - postgres
+        container_name: netbox
+        depends_on:
+        - postgres
+        environment:
+            SUPERUSER_NAME: admin
+            SUPERUSER_EMAIL: admin@example.com
+            SUPERUSER_PASSWORD: admin
+            ALLOWED_HOSTS: localhost
+            DB_NAME: netbox
+            DB_USER: netbox
+            DB_PASSWORD: J5brHrAXFLQSif0K
+            DB_HOST: postgres
+            SECRET_KEY: r8OwDznj!!dci#P9ghmRfdu1Ysxm0AiPeDCQhKE+N_rClfWNj
+            EMAIL_SERVER: localhost
+            EMAIL_PORT: 25
+            EMAIL_USERNAME: foo
+            EMAIL_PASSWORD: bar
+            EMAIL_TIMEOUT: 10
+            EMAIL_FROM: netbox@bar.com
+            NETBOX_USERNAME: guest
+            NETBOX_PASSWORD: guest
+        volumes:
+        - $PWD/netbox/netbox/configuration.docker.py:/opt/netbox/netbox/netbox/configuration.py:ro
+        - $PWD/docker/gunicorn_config.py:/opt/netbox/gunicorn_config.py:ro
+        - netbox-static-files:/opt/netbox/netbox/static
+    nginx:
+        image: nginx:1.11.1-alpine
+        links:
+        - netbox
+        container_name: nginx
+        depends_on:
+        - netbox
+        ports:
+        - 80:80
+        volumes:
+        - $PWD/docker/nginx.conf:/etc/nginx/nginx.conf:ro
+        volumes_from:
+        - netbox
+volumes:
+    netbox-static-files:
+        driver: local
