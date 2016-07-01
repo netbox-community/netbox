@@ -5,7 +5,7 @@ from utilities.tables import BaseTable, ToggleColumn
 
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType, InterfaceTemplate,
-    Manufacturer, Platform, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, Site,
+    Interface, Manufacturer, Platform, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, Site,
 )
 
 
@@ -305,5 +305,5 @@ class InterfaceConnectionTable(BaseTable):
     interface_b = tables.Column(verbose_name='Interface B')
 
     class Meta(BaseTable.Meta):
-        model = PowerPort
+        model = Interface
         fields = ('device_a', 'interface_a', 'device_b', 'interface_b')
