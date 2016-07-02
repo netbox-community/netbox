@@ -8,6 +8,14 @@
 <h1>Interface Connections Import</h1>
 <div class="row">
 	<div class="col-md-6">
+        {% if form.non_field_errors %}
+            <div class="panel panel-danger">
+                <div class="panel-heading"><strong>Errors</strong></div>
+                <div class="panel-body">
+                    {{ form.non_field_errors }}
+                </div>
+            </div>
+        {% endif %}
 		<form action="." method="post" class="form">
 		    {% csrf_token %}
 		    {% render_form form %}

@@ -9,7 +9,8 @@ body {
     padding-top: 70px;
 }
 .container {
-    width: 1340px;
+    width: auto;
+    max-width: 1340px;
 }
 .wrapper {
     min-height: 100%;

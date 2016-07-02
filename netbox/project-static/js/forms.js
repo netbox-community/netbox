@@ -7,9 +7,9 @@ $(document).ready(function() {
 
     // Slugify
     function slugify(s, num_chars) {
-        s = s.replace(/[^-\.\+\w\s]/g, '');  // Remove unneeded chars
+        s = s.replace(/[^\-\.\w\s]/g, '');   // Remove unneeded chars
         s = s.replace(/^\s+|\s+$/g, '');     // Trim leading/trailing spaces
-        s = s.replace(/[-\s]+/g, '-');       // Convert spaces to hyphens
+        s = s.replace(/[\-\.\s]+/g, '-');    // Convert spaces and decimals to hyphens
         s = s.toLowerCase();                 // Convert to lowercase
         return s.substring(0, num_chars);    // Trim to first num_chars chars
     }

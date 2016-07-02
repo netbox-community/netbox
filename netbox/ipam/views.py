@@ -395,16 +395,24 @@ def ipaddress(request, pk):
 
     ipaddress = get_object_or_404(IPAddress.objects.select_related('interface__device'), pk=pk)
 
+    # Parent prefixes table
     parent_prefixes = Prefix.objects.filter(vrf=ipaddress.vrf, prefix__net_contains=str(ipaddress.address.ip))
-    related_ips = IPAddress.objects.select_related('interface__device').exclude(pk=ipaddress.pk)\
-        .filter(vrf=ipaddress.vrf, address__net_contained_or_equal=str(ipaddress.address))
+    parent_prefixes_table = tables.PrefixBriefTable(parent_prefixes)
 
+    # Duplicate IPs table
+    duplicate_ips = IPAddress.objects.filter(vrf=ipaddress.vrf, address=str(ipaddress.address))\
+        .exclude(pk=ipaddress.pk).select_related('interface__device', 'nat_inside')
+    duplicate_ips_table = tables.IPAddressBriefTable(duplicate_ips)
+
+    # Related IP table
+    related_ips = IPAddress.objects.select_related('interface__device').exclude(address=str(ipaddress.address))\
+        .filter(vrf=ipaddress.vrf, address__net_contained_or_equal=str(ipaddress.address))
     related_ips_table = tables.IPAddressBriefTable(related_ips)
-    RequestConfig(request, paginate={'klass': EnhancedPaginator}).configure(related_ips_table)
 
     return render(request, 'ipam/ipaddress.html', {
         'ipaddress': ipaddress,
-        'parent_prefixes': parent_prefixes,
+        'parent_prefixes_table': parent_prefixes_table,
+        'duplicate_ips_table': duplicate_ips_table,
         'related_ips_table': related_ips_table,
     })
 

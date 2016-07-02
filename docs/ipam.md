@@ -32,11 +32,13 @@ Additionally, you might define an aggregate for each large swath of public IPv4 
 
 Any prefixes you create in NetBox (discussed below) will be automatically organized under their respective aggregates. Any space within an aggregate which is not covered by an existing prefix will be annotated as available for allocation.
 
+Aggregates cannot overlap with one another; they can only exist in parallel. For instance, you cannot define both 10.0.0.0/8 and 10.16.0.0/16 as aggregates, because they overlap. 10.16.0.0/16 in this example would be created as a prefix.
+
 ### RIRs
 
 Regional Internet Registries (RIRs) are responsible for the allocation of global address space. The five RIRs are ARIN, RIPE, APNIC, LACNIC, and AFRINIC. However, some address space has been set aside for private or internal use only, such as defined in RFCs 1918 and 6598. NetBox considers these RFCs as a sort of RIR as well; that is, an authority which "owns" certain address space.
 
-Each aggregate must be assigned to one RIR. NetBox by default will be populated with the RIRs listed above, however you are free to remove these and/or create your own if you choose.
+Each aggregate must be assigned to one RIR. You are free to define whichever RIRs you choose (or create your own).
 
 ---
 
@@ -50,14 +52,12 @@ A prefix may optionally be assigned to one VLAN; a VLAN may have multiple prefix
 
 ### Statuses
 
-Each prefix is assigned an operational status. This may be one of the following:
+Each prefix is assigned an operational status. This is one of the following:
 
 * Container - A summary of child prefixes
 * Active - Provisioned and in use
 * Reserved - Earmarked for future use
 * Deprecated - No longer in use
-
-NetBox provides several statuses by default, but you are free to change them to suit the needs of your organization.
 
 ### Roles
 
@@ -69,7 +69,7 @@ Whereas a status describes a prefix's operational state, a role describes its fu
 * Lab
 * Out-of-band
 
-Role assignment is optional. And like statuses, you are free to create your own.
+Role assignment is optional and you are free to create as many as you'd like.
 
 ---
 

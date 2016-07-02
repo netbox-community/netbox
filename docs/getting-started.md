@@ -15,7 +15,7 @@ The following packages are needed to install PostgreSQL:
 * python-psycopg2
 
 ```
-# apt-get install postgresql libpq-dev python-psycopg2
+# sudo apt-get install -y postgresql libpq-dev python-psycopg2
 ```
 
 ## Configuration
@@ -48,24 +48,37 @@ You can verify that authentication works using the following command:
 
 # NetBox
 
-## Dependencies
+## Installation
+
+NetBox requires following dependencies:
 
 * python2.7
 * python-dev
-* git
 * python-pip
 * libxml2-dev
 * libxslt1-dev
 * libffi-dev
-* graphviz*
+* graphviz
 
 ```
-# apt-get install python2.7 python-dev git python-pip libxml2-dev libxslt1-dev libffi-dev graphviz
+# sudo apt-get install -y python2.7 python-dev git python-pip libxml2-dev libxslt1-dev libffi-dev graphviz
 ```
 
-*graphviz is needed to render topology maps. If you have no need for this feature, graphviz is not required. 
+You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.
 
-## Clone the Git Repository
+### Option A: Download a Release
+
+Download the [latest stable release](https://github.com/digitalocean/netbox/releases) from GitHub as a tarball or ZIP archive. Extract it to your desired path. In this example, we'll use `/opt/netbox`.
+
+```
+# wget https://github.com/digitalocean/netbox/archive/vX.Y.Z.tar.gz
+# tar -xzf vX.Y.Z.tar.gz -C /opt
+# cd /opt/
+# ln -s netbox-1.0.4/ netbox
+# cd /opt/netbox/
+```
+
+### Option B: Clone the Git Repository
 
 Create the base directory for the NetBox installation. For this guide, we'll use `/opt/netbox`.
 
@@ -74,10 +87,16 @@ Create the base directory for the NetBox installation. For this guide, we'll use
 # cd /opt/netbox/
 ```
 
-Next, clone the NetBox git repository into the current directory:
+If `git` is not already installed, install it:
 
 ```
-# git clone https://github.com/digitalocean/netbox.git .
+# sudo apt-get install -y git
+```
+
+Next, clone the **master** branch of the NetBox GitHub repository into the current directory:
+
+```
+# git clone -b master https://github.com/digitalocean/netbox.git .
 Cloning into '.'...
 remote: Counting objects: 1994, done.
 remote: Compressing objects: 100% (150/150), done.
@@ -87,10 +106,12 @@ Resolving deltas: 100% (1495/1495), done.
 Checking connectivity... done.
 ```
 
+### Install Python Packages
+
 Install the necessary Python packages using pip. (If you encounter any compilation errors during this step, ensure that you've installed all of the required dependencies.)
 
 ```
-# pip install -r requirements.txt
+# sudo pip install -r requirements.txt
 ```
 
 ## Configuration
@@ -145,6 +166,7 @@ You may use the script located at `netbox/generate_secret_key.py` to generate a 
 Before NetBox can run, we need to install the database schema. This is done by running `./manage.py migrate` from the `netbox` directory (`/opt/netbox/netbox/` in our example):
 
 ```
+# cd /opt/netbox/netbox/
 # ./manage.py migrate
 Operations to perform:
   Apply all migrations: dcim, sessions, admin, ipam, utilities, auth, circuits, contenttypes, extras, secrets, users
@@ -206,19 +228,25 @@ Now if we navigate to the name or IP of the server (as defined in `ALLOWED_HOSTS
 
 If the test service does not run, or you cannot reach the NetBox home page, something has gone wrong. Do not proceed with the rest of this guide until the installation has been corrected.
 
-# nginx and gunicorn
+# Web Server and gunicorn
 
 ## Installation
 
-We'll set up a simple HTTP front end using [nginx](https://www.nginx.com/resources/wiki/) and [gunicorn](http://gunicorn.org/) for the purposes of this guide. (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll also use [supervisord](http://supervisord.org/) for service persistence. 
+We'll set up a simple HTTP front end using [gunicorn](http://gunicorn.org/) for the purposes of this guide. For web servers, we provide example configurations for both [nginx](https://www.nginx.com/resources/wiki/) and [Apache](http://httpd.apache.org/docs/2.4). (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll also use [supervisord](http://supervisord.org/) for service persistence. 
 
 ```
-# apt-get install nginx gunicorn supervisor
+# sudo apt-get install -y gunicorn supervisor
 ```
 
 ## nginx Configuration
 
 The following will serve as a minimal nginx configuration. Be sure to modify your server name and installation path appropriately.
+
+```
+# sudo apt-get install -y nginx
+```
+
+Once nginx is installed, proceed with the following configuration:
 
 ```
 server {
@@ -256,10 +284,49 @@ Restart the nginx service to use the new configuration.
 # service nginx restart
  * Restarting nginx nginx
 ```
+## Apache Configuration
+
+```
+# sudo apt-get install -y apache2
+```
+
+Once Apache is installed, proceed with the following configuration (Be sure to modify the `ServerName` appropriately):
+
+```
+<VirtualHost *:80>
+    ProxyPreserveHost On
+
+    ServerName netbox.example.com
+
+    Alias /static /opt/netbox/netbox/static
+
+    <Directory /opt/netbox/netbox/static>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Require all granted
+    </Directory>
+
+    <Location /static>
+        ProxyPass !
+    </Location>
+
+    ProxyPass / http://127.0.0.1:8001/
+    ProxyPassReverse / http://127.0.0.1:8001/
+</VirtualHost>
+```
+
+Save the contents of the above example in `/etc/apache2/sites-available/netbox.conf`, enable the `proxy` and `proxy_http` modules, and reload Apache:
+
+```
+# a2enmod proxy
+# a2enmod proxy_http
+# a2ensite netbox
+# service apache2 restart
+```
 
 ## gunicorn Configuration
 
-Save the following configuration file in the root netbox installation path (in this example, `/opt/netbox/`.) as `gunicorn_config.py`. Be sure to verify the location of the gunicorn executable (e.g. `which gunicorn`) and to update the `pythonpath` variable if needed.
+Save the following configuration file in the root netbox installation path (in this example, `/opt/netbox/`) as `gunicorn_config.py`. Be sure to verify the location of the gunicorn executable (e.g. `which gunicorn`) and to update the `pythonpath` variable if needed.
 
 ```
 command = '/usr/bin/gunicorn'
@@ -288,4 +355,103 @@ Finally, restart the supervisor service to detect and run the gunicorn service:
 
 At this point, you should be able to connect to the nginx HTTP service at the server name or IP address you provided. If you are unable to connect, check that the nginx service is running and properly configured. If you receive a 502 (bad gateway) error, this indicates that gunicorn is misconfigured or not running.
 
-Please keep in mind that the configurations provided here are a bare minimum to get NetBox up and running. You will almost certainly want to make some changes to better suit your production environment.
+Please keep in mind that the configurations provided here are bare minimums required to get NetBox up and running. You will almost certainly want to make some changes to better suit your production environment.
+
+## Let's Encrypt SSL + nginx
+
+To add SSL support to the installation we'll start by installing the arbitrary precision calculator language.
+
+```
+# sudo apt-get install -y bc
+```
+
+Next we'll clone Let's Encrypt into /opt/:
+
+```
+# sudo git clone https://github.com/letsencrypt/letsencrypt /opt/letsencrypt
+```
+
+To ensure Let's Encrypt can publicly access the directory it needs for certificate validation you'll need to edit `/etc/nginx/sites-available/netbox` and add:
+
+```
+    location /.well-known/ {
+        alias /opt/netbox/netbox/.well-known/;
+        allow all;
+    }
+```
+
+Then restart nginix:
+
+```
+# sudo services nginx restart
+```
+
+To create the certificate use the following commands ensuring to change `netbox.example.com` to the domain name of the server:
+
+```
+# cd /opt/letsencrypt
+# ./letsencrypt-auto certonly -a webroot --webroot-path=/opt/netbox/netbox/ -d netbox.example.com
+```
+
+If you wish to add support for the `www` prefix you'd use:
+
+```
+# cd /opt/letsencrypt
+# ./letsencrypt-auto certonly -a webroot --webroot-path=/opt/netbox/netbox/ -d netbox.example.com -d www.netbox.example.com
+```
+
+Make sure you have DNS records setup for the hostnames you use and that they resolve back the netbox server.
+
+You will be prompted for your email address to receive notifications about your SSL and then asked to accept the subscriber agreement.
+
+If successful you'll now have four files in `/etc/letsencrypt/live/netbox.example.com` (remember, your hostname is different)
+
+```
+cert.pem
+chain.pem
+fullchain.pem
+privkey.pem
+```
+
+Now edit your nginx configuration `/etc/nginx/sites-available/netbox` and at the top edit to the following:
+
+```
+    #listen 80;
+    #listen [::]80;
+    listen 443;
+    listen [::]443;
+
+    ssl on;
+    ssl_certificate /etc/letsencrypt/live/netbox.example.com/cert.pem;
+    ssl_certificate_key /etc/letsencrypt/live/netbox.example.com/privkey.pem;
+```
+
+If you are not using IPv6 then you do not need `listen [::]443;` The two commented lines are for non-SSL for both IPv4 and IPv6.
+
+Lastly, restart nginx:
+
+```
+# sudo services nginx restart
+```
+
+You should now have netbox running on a SSL protected connection.
+
+# Upgrading
+
+As with the initial installation, you can upgrade NetBox by either downloading the latest release package or by cloning the `master` branch of the git repository. Once the new code is in place, run the upgrade script (which may need to be run as root depending on how your environment is configured).
+
+```
+# ./upgrade.sh
+```
+
+This script:
+
+* Installs or upgrades any new required Python packages
+* Applies any database migrations that were included in the release
+* Collects all static files to be served by the HTTP service
+
+Finally, restart the WSGI service to run the new code. If you followed this guide for the initial installation, this is done using `supervisorctl`:
+
+```
+# sudo supervisorctl restart netbox
+```

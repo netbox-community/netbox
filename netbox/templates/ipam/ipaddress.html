@@ -119,31 +119,14 @@
         </div>
 	</div>
 	<div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Parent Prefixes</strong>
-            </div>
-            {% if parent_prefixes %}
-                <table class="table table-hover panel-body">
-                    {% for p in parent_prefixes %}
-                        <tr>
-                            <td>
-                                <a href="{% url 'ipam:prefix' pk=p.pk %}">{{ p }}</a>
-                            </td>
-                            <td>
-                                {% if p.site %}
-                                    <a href="{% url 'dcim:site' slug=p.site.slug %}">{{ p.site }}</a>
-                                {% endif %}
-                            </td>
-                            <td>{{ p.status }}</td>
-                            <td>{{ p.role }}</td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            {% else %}
-                <div class="panel-body text-muted">None</div>
-            {% endif %}
-        </div>
+        {% with heading='Parent Prefixes' %}
+            {% render_table parent_prefixes_table 'panel_table.html' %}
+        {% endwith %}
+        {% if duplicate_ips_table.rows %}
+            {% with heading='Duplicate IP Addresses' panel_class='danger' %}
+                {% render_table duplicate_ips_table 'panel_table.html' %}
+            {% endwith %}
+        {% endif %}
         {% with heading='Related IP Addresses' %}
             {% render_table related_ips_table 'panel_table.html' %}
         {% endwith %}

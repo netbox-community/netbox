@@ -1,7 +1,7 @@
 from rest_framework import generics
 
 from ipam.models import VRF, Role, RIR, Aggregate, Prefix, IPAddress, VLAN
-from ipam.filters import AggregateFilter, PrefixFilter, IPAddressFilter, VLANFilter
+from ipam.filters import AggregateFilter, PrefixFilter, IPAddressFilter, VLANFilter, VRFFilter
 
 from . import serializers
 
@@ -12,6 +12,7 @@ class VRFListView(generics.ListAPIView):
     """
     queryset = VRF.objects.all()
     serializer_class = serializers.VRFSerializer
+    filter_class = VRFFilter
 
 
 class VRFDetailView(generics.RetrieveAPIView):

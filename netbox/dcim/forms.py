@@ -326,10 +326,10 @@ class DeviceForm(forms.ModelForm, BootstrapMixin):
         display_field='display_name',
         attrs={'filter-for': 'position'}
     ))
-    position = forms.TypedChoiceField(required=False, empty_value=None, widget=APISelect(
-        api_url='/api/dcim/racks/{{rack}}/rack-units/?face={{face}}',
-        disabled_indicator='device',
-    ))
+    position = forms.TypedChoiceField(required=False, empty_value=None,
+                                      help_text="For multi-U devices, this is the lowest occupied rack unit.",
+                                      widget=APISelect(api_url='/api/dcim/racks/{{rack}}/rack-units/?face={{face}}',
+                                                       disabled_indicator='device'))
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(),
                                           widget=forms.Select(attrs={'filter-for': 'device_type'}))
     device_type = forms.ModelChoiceField(queryset=DeviceType.objects.all(), label='Model', widget=APISelect(
@@ -386,10 +386,13 @@ class DeviceForm(forms.ModelForm, BootstrapMixin):
 
         # Rack position
         try:
+            pk = self.instance.pk if self.instance.pk else None
             if self.is_bound and self.data.get('rack') and str(self.data.get('face')):
-                position_choices = Rack.objects.get(pk=self.data['rack']).get_rack_units(face=self.data.get('face'))
+                position_choices = Rack.objects.get(pk=self.data['rack'])\
+                    .get_rack_units(face=self.data.get('face'), exclude=pk)
             elif self.initial.get('rack') and str(self.initial.get('face')):
-                position_choices = Rack.objects.get(pk=self.initial['rack']).get_rack_units(face=self.initial.get('face'))
+                position_choices = Rack.objects.get(pk=self.initial['rack'])\
+                    .get_rack_units(face=self.initial.get('face'), exclude=pk)
             else:
                 position_choices = []
         except Rack.DoesNotExist:
@@ -424,7 +427,7 @@ class DeviceFromCSVForm(forms.ModelForm):
         'invalid_choice': 'Invalid site name.',
     })
     rack_name = forms.CharField()
-    face = forms.ChoiceField(choices=[('front', 'Front'), ('rear', 'Rear')])
+    face = forms.CharField(required=False)
 
     class Meta:
         model = Device
@@ -443,7 +446,7 @@ class DeviceFromCSVForm(forms.ModelForm):
             try:
                 self.instance.device_type = DeviceType.objects.get(manufacturer=manufacturer, model=model_name)
             except DeviceType.DoesNotExist:
-                self.add_error('model_name', "Invalid device type ({})".format(model_name))
+                self.add_error('model_name', "Invalid device type ({} {})".format(manufacturer, model_name))
 
         # Validate rack
         if site and rack_name:
@@ -454,11 +457,15 @@ class DeviceFromCSVForm(forms.ModelForm):
 
     def clean_face(self):
         face = self.cleaned_data['face']
-        if face.lower() == 'front':
-            return 0
-        if face.lower() == 'rear':
-            return 1
-        raise forms.ValidationError("Invalid rack face ({})".format(face))
+        if face:
+            try:
+                return {
+                    'front': 0,
+                    'rear': 1,
+                }[face.lower()]
+            except KeyError:
+                raise forms.ValidationError('Invalid rack face ({}); must be "front" or "rear".'.format(face))
+        return face
 
 
 class DeviceImportForm(BulkImportForm, BootstrapMixin):
@@ -1036,20 +1043,29 @@ class InterfaceConnectionImportForm(BulkImportForm, BootstrapMixin):
             return
 
         connection_list = []
+        occupied_interfaces = []
 
         for i, record in enumerate(records, start=1):
             form = self.fields['csv'].csv_form(data=record)
             if form.is_valid():
                 interface_a = Interface.objects.get(device=form.cleaned_data['device_a'],
                                                     name=form.cleaned_data['interface_a'])
+                if interface_a in occupied_interfaces:
+                    raise forms.ValidationError("{} {} found in multiple connections"
+                                                .format(interface_a.device.name, interface_a.name))
                 interface_b = Interface.objects.get(device=form.cleaned_data['device_b'],
                                                     name=form.cleaned_data['interface_b'])
+                if interface_b in occupied_interfaces:
+                    raise forms.ValidationError("{} {} found in multiple connections"
+                                                .format(interface_b.device.name, interface_b.name))
                 connection = InterfaceConnection(interface_a=interface_a, interface_b=interface_b)
                 if form.cleaned_data['status'] == 'planned':
                     connection.connection_status = CONNECTION_STATUS_PLANNED
                 else:
                     connection.connection_status = CONNECTION_STATUS_CONNECTED
                 connection_list.append(connection)
+                occupied_interfaces.append(interface_a)
+                occupied_interfaces.append(interface_b)
             else:
                 for field, errors in form.errors.items():
                     for e in errors:

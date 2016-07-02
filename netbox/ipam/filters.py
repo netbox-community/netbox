@@ -46,9 +46,14 @@ class PrefixFilter(django_filters.FilterSet):
         action='search_by_parent',
         label='Parent prefix',
     )
+    vrf = django_filters.MethodFilter(
+        action='_vrf',
+        label='VRF',
+    )
+    # Duplicate of `vrf` for backward-compatibility
     vrf_id = django_filters.MethodFilter(
-        action='vrf',
-        label='VRF (ID)',
+        action='_vrf',
+        label='VRF',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         name='site',
@@ -84,7 +89,7 @@ class PrefixFilter(django_filters.FilterSet):
 
     class Meta:
         model = Prefix
-        fields = ['family', 'site_id', 'site', 'vrf_id', 'vrf', 'vlan_id', 'vlan_vid', 'status', 'role_id', 'role']
+        fields = ['family', 'site_id', 'site', 'vrf', 'vrf_id', 'vlan_id', 'vlan_vid', 'status', 'role_id', 'role']
 
     def search(self, queryset, value):
         value = value.strip()
@@ -104,7 +109,7 @@ class PrefixFilter(django_filters.FilterSet):
         except AddrFormatError:
             return queryset.none()
 
-    def vrf(self, queryset, value):
+    def _vrf(self, queryset, value):
         if str(value) == '':
             return queryset
         try:
@@ -121,10 +126,14 @@ class IPAddressFilter(django_filters.FilterSet):
         action='search',
         label='Search',
     )
-    vrf_id = django_filters.ModelMultipleChoiceFilter(
-        name='vrf',
-        queryset=VRF.objects.all(),
-        label='VRF (ID)',
+    vrf = django_filters.MethodFilter(
+        action='_vrf',
+        label='VRF',
+    )
+    # Duplicate of `vrf` for backward-compatibility
+    vrf_id = django_filters.MethodFilter(
+        action='_vrf',
+        label='VRF',
     )
     device_id = django_filters.ModelMultipleChoiceFilter(
         name='interface__device',
@@ -154,6 +163,17 @@ class IPAddressFilter(django_filters.FilterSet):
             return queryset.filter(address__net_host=query)
         except AddrFormatError:
             return queryset.none()
+
+    def _vrf(self, queryset, value):
+        if str(value) == '':
+            return queryset
+        try:
+            vrf_id = int(value)
+        except ValueError:
+            return queryset.none()
+        if vrf_id == 0:
+            return queryset.filter(vrf__isnull=True)
+        return queryset.filter(vrf__pk=value)
 
 
 class VLANFilter(django_filters.FilterSet):

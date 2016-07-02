@@ -45,14 +45,16 @@ IFACE_FF_VIRTUAL = 0
 IFACE_FF_100M_COPPER = 800
 IFACE_FF_1GE_COPPER = 1000
 IFACE_FF_SFP = 1100
+IFACE_FF_10GE_COPPER = 1150
 IFACE_FF_SFP_PLUS = 1200
 IFACE_FF_XFP = 1300
 IFACE_FF_QSFP_PLUS = 1400
 IFACE_FF_CHOICES = [
     [IFACE_FF_VIRTUAL, 'Virtual'],
-    [IFACE_FF_100M_COPPER, '10/100M (Copper)'],
-    [IFACE_FF_1GE_COPPER, '1GE (Copper)'],
+    [IFACE_FF_100M_COPPER, '10/100M (100BASE-TX)'],
+    [IFACE_FF_1GE_COPPER, '1GE (1000BASE-T)'],
     [IFACE_FF_SFP, '1GE (SFP)'],
+    [IFACE_FF_10GE_COPPER, '10GE (10GBASE-T)'],
     [IFACE_FF_SFP_PLUS, '10GE (SFP+)'],
     [IFACE_FF_XFP, '10GE (XFP)'],
     [IFACE_FF_QSFP_PLUS, '40GE (QSFP+)'],
@@ -81,6 +83,48 @@ RPC_CLIENT_CHOICES = [
     [RPC_CLIENT_CISCO_IOS, 'Cisco IOS (SSH)'],
     [RPC_CLIENT_OPENGEAR, 'Opengear (SSH)'],
 ]
+
+
+def order_interfaces(queryset, sql_col, primary_ordering=tuple()):
+    """
+    Attempt to match interface names by their slot/position identifiers and order according. Matching is done using the
+    following pattern:
+
+        {a}/{b}/{c}:{d}
+
+    Interfaces are ordered first by field a, then b, then c, and finally d. Leading text (which typically indicates the
+    interface's type) is ignored. If any fields are not contained by an interface name, those fields are treated as
+    None. 'None' is ordered after all other values. For example:
+
+        et-0/0/0
+        et-0/0/1
+        et-0/1/0
+        xe-0/1/1:0
+        xe-0/1/1:1
+        xe-0/1/1:2
+        xe-0/1/1:3
+        et-0/1/2
+        ...
+        et-0/1/9
+        et-0/1/10
+        et-0/1/11
+        et-1/0/0
+        et-1/0/1
+        ...
+        vlan1
+        vlan10
+
+    :param queryset: The base queryset to be ordered
+    :param sql_col: Table and name of the SQL column which contains the interface name (ex: ''dcim_interface.name')
+    :param primary_ordering: A tuple of fields which take ordering precedence before the interface name (optional)
+    """
+    ordering = primary_ordering + ('_id1', '_id2', '_id3', '_id4')
+    return queryset.extra(select={
+        '_id1': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+\/[0-9]+(:[0-9]+)?$') AS integer)".format(sql_col),
+        '_id2': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+(:[0-9]+)?$') AS integer)".format(sql_col),
+        '_id3': "CAST(SUBSTRING({} FROM '([0-9]+)(:[0-9]+)?$') AS integer)".format(sql_col),
+        '_id4': "CAST(SUBSTRING({} FROM ':([0-9]+)$') AS integer)".format(sql_col),
+    }).order_by(*ordering)
 
 
 class Site(CreatedUpdatedModel):
@@ -187,11 +231,12 @@ class Rack(CreatedUpdatedModel):
 
         # Validate that Rack is tall enough to house the installed Devices
         if self.pk:
-            top_device = Device.objects.filter(rack=self).order_by('-position').first()
-            min_height = top_device.position + top_device.device_type.u_height - 1
-            if self.u_height < min_height:
-                raise ValidationError("Rack must be at least {}U tall with currently installed devices."
-                                      .format(min_height))
+            top_device = Device.objects.filter(rack=self).exclude(position__isnull=True).order_by('-position').first()
+            if top_device:
+                min_height = top_device.position + top_device.device_type.u_height - 1
+                if self.u_height < min_height:
+                    raise ValidationError("Rack must be at least {}U tall with currently installed devices."
+                                          .format(min_height))
 
     def to_csv(self):
         return ','.join([
@@ -212,12 +257,13 @@ class Rack(CreatedUpdatedModel):
             return "{} ({})".format(self.name, self.facility_id)
         return self.name
 
-    def get_rack_units(self, face=RACK_FACE_FRONT, remove_redundant=False):
+    def get_rack_units(self, face=RACK_FACE_FRONT, exclude=None, remove_redundant=False):
         """
         Return a list of rack units as dictionaries. Example: {'device': None, 'face': 0, 'id': 48, 'name': 'U48'}
         Each key 'device' is either a Device or None. By default, multi-U devices are repeated for each U they occupy.
 
         :param face: Rack face (front or rear)
+        :param exclude: PK of a Device to exclude (optional); helpful when relocating a Device within a Rack
         :param remove_redundant: If True, rack units occupied by a device already listed will be omitted
         """
 
@@ -228,7 +274,9 @@ class Rack(CreatedUpdatedModel):
         # Add devices to rack units list
         if self.pk:
             for device in Device.objects.select_related('device_type__manufacturer', 'device_role')\
-                    .filter(rack=self, position__gt=0).filter(Q(face=face) | Q(device_type__is_full_depth=True)):
+                    .exclude(pk=exclude)\
+                    .filter(rack=self, position__gt=0)\
+                    .filter(Q(face=face) | Q(device_type__is_full_depth=True)):
                 if remove_redundant:
                     elevation[device.position]['device'] = device
                     for u in range(device.position + 1, device.position + device.device_type.u_height):
@@ -407,6 +455,13 @@ class PowerOutletTemplate(models.Model):
         return self.name
 
 
+class InterfaceTemplateManager(models.Manager):
+
+    def get_queryset(self):
+        qs = super(InterfaceTemplateManager, self).get_queryset()
+        return order_interfaces(qs, 'dcim_interfacetemplate.name', ('device_type',))
+
+
 class InterfaceTemplate(models.Model):
     """
     A template for a physical data interface on a new Device.
@@ -415,6 +470,8 @@ class InterfaceTemplate(models.Model):
     name = models.CharField(max_length=30)
     form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_SFP_PLUS)
     mgmt_only = models.BooleanField(default=False, verbose_name='Management only')
+
+    objects = InterfaceTemplateManager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -511,7 +568,10 @@ class Device(CreatedUpdatedModel):
             raise ValidationError("Must specify rack face with rack position.")
 
         # Validate rack space
-        rack_face = self.face if not self.device_type.is_full_depth else None
+        try:
+            rack_face = self.face if not self.device_type.is_full_depth else None
+        except DeviceType.DoesNotExist:
+            raise ValidationError("Must specify device type.")
         exclude_list = [self.pk] if self.pk else []
         try:
             available_units = self.rack.get_available_units(u_height=self.device_type.u_height, rack_face=rack_face,
@@ -707,18 +767,8 @@ class PowerOutlet(models.Model):
 class InterfaceManager(models.Manager):
 
     def get_queryset(self):
-        """
-        Cast up to three interface slot/position IDs as independent integers and order appropriately. This ensures that
-        interfaces are ordered numerically without regard to type. For example:
-            xe-0/0/0, xe-0/0/1, xe-0/0/2 ... et-0/0/47, et-0/0/48, et-0/0/49 ...
-        instead of:
-            et-0/0/48, et-0/0/49, et-0/0/50 ... et-0/0/53, xe-0/0/0, xe-0/0/1 ...
-        """
-        return super(InterfaceManager, self).get_queryset().extra(select={
-            '_id1': "CAST(SUBSTRING(dcim_interface.name FROM '([0-9]+)\/([0-9]+)\/([0-9]+)$') AS integer)",
-            '_id2': "CAST(SUBSTRING(dcim_interface.name FROM '([0-9]+)\/([0-9]+)$') AS integer)",
-            '_id3': "CAST(SUBSTRING(dcim_interface.name FROM '([0-9]+)$') AS integer)",
-        }).order_by('device', '_id1', '_id2', '_id3')
+        qs = super(InterfaceManager, self).get_queryset()
+        return order_interfaces(qs, 'dcim_interface.name', ('device',))
 
     def virtual(self):
         return self.get_queryset().filter(form_factor=IFACE_FF_VIRTUAL)
