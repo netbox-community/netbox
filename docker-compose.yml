@@ -15,8 +15,6 @@ services:
         container_name: netbox
         depends_on:
         - postgres
-        ports:
-         - 8001:8001
         environment:
             SUPERUSER_NAME: admin
             SUPERUSER_EMAIL: admin@example.com
