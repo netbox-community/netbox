@@ -9,12 +9,14 @@ services:
             POSTGRES_PASSWORD: J5brHrAXFLQSif0K
             POSTGRES_DB: netbox
     netbox:
-        build: .
+        image: digitalocean/netbox
         links:
         - postgres
         container_name: netbox
         depends_on:
         - postgres
+        ports:
+         - 8001:8001
         environment:
             SUPERUSER_NAME: admin
             SUPERUSER_EMAIL: admin@example.com
@@ -34,20 +36,17 @@ services:
             NETBOX_USERNAME: guest
             NETBOX_PASSWORD: guest
         volumes:
-        - $PWD/netbox/netbox/configuration.docker.py:/opt/netbox/netbox/netbox/configuration.py:ro
-        - $PWD/docker/gunicorn_config.py:/opt/netbox/gunicorn_config.py:ro
         - netbox-static-files:/opt/netbox/netbox/static
     nginx:
         image: nginx:1.11.1-alpine
         links:
         - netbox
         container_name: nginx
+        command: nginx -g 'daemon off;' -c /etc/netbox-nginx/nginx.conf
         depends_on:
         - netbox
         ports:
         - 80:80
-        volumes:
-        - $PWD/docker/nginx.conf:/etc/nginx/nginx.conf:ro
         volumes_from:
         - netbox
 volumes:
