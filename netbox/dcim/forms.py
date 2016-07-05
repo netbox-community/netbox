@@ -10,10 +10,10 @@ from utilities.forms import (
 )
 
 from .models import (
-    CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_PLANNED, CONNECTION_STATUS_CONNECTED, ConsolePort, ConsolePortTemplate,
-    ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType, Interface, IFACE_FF_VIRTUAL,
-    InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
-    PowerPortTemplate, Rack, RackGroup, Site, STATUS_CHOICES
+    DeviceBay, DeviceBayTemplate, CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_PLANNED, CONNECTION_STATUS_CONNECTED,
+    ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType,
+    Interface, IFACE_FF_VIRTUAL, InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet,
+    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD
 )
 
 
@@ -216,7 +216,7 @@ class DeviceTypeForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = DeviceType
         fields = ['manufacturer', 'model', 'slug', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
-                  'is_network_device']
+                  'is_network_device', 'subdevice_role']
 
 
 class DeviceTypeBulkEditForm(forms.Form, BootstrapMixin):
@@ -281,6 +281,14 @@ class InterfaceTemplateForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = InterfaceTemplate
         fields = ['name_pattern', 'form_factor', 'mgmt_only']
+
+
+class DeviceBayTemplateForm(forms.ModelForm, BootstrapMixin):
+    name_pattern = ExpandableNameField(label='Name')
+
+    class Meta:
+        model = DeviceBayTemplate
+        fields = ['name_pattern']
 
 
 #
@@ -1078,6 +1086,41 @@ class InterfaceConnectionDeletionForm(forms.Form, BootstrapMixin):
     confirm = forms.BooleanField(required=True)
     # Used for HTTP redirect upon successful deletion
     device = forms.ModelChoiceField(queryset=Device.objects.all(), widget=forms.HiddenInput(), required=False)
+
+
+#
+# Device bays
+#
+
+class DeviceBayForm(forms.ModelForm, BootstrapMixin):
+
+    class Meta:
+        model = DeviceBay
+        fields = ['device', 'name']
+        widgets = {
+            'device': forms.HiddenInput(),
+        }
+
+
+class DeviceBayCreateForm(forms.Form, BootstrapMixin):
+    name_pattern = ExpandableNameField(label='Name')
+
+
+class PopulateDeviceBayForm(forms.Form, BootstrapMixin):
+    installed_device = forms.ModelChoiceField(queryset=Device.objects.all(), label='Child Device',
+                                              help_text="Child devices must first be created within the rack occupied "
+                                                        "by the parent device. Then they can be assigned to a bay.")
+
+    def __init__(self, device_bay, *args, **kwargs):
+
+        super(PopulateDeviceBayForm, self).__init__(*args, **kwargs)
+
+        children_queryset = Device.objects.filter(rack=device_bay.device.rack,
+                                                  parent_bay__isnull=True,
+                                                  device_type__u_height=0,
+                                                  device_type__subdevice_role=SUBDEVICE_ROLE_CHILD)\
+            .exclude(pk=device_bay.device.pk)
+        self.fields['installed_device'].queryset = children_queryset
 
 
 #

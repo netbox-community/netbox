@@ -1,0 +1,44 @@
+<tr>
+    <td>
+        <i class="fa fa-fw fa-{% if devicebay.installed_device %}dot-circle-o{% else %}circle-o{% endif %}"></i> {{ devicebay.name }}
+    </td>
+    {% if devicebay.installed_device %}
+        <td>
+            <a href="{% url 'dcim:device' pk=devicebay.installed_device.pk %}">{{ devicebay.installed_device }}</a>
+        </td>
+        <td>
+            <span>{{ devicebay.installed_device.device_type }}</span>
+        </td>
+    {% else %}
+        <td colspan="2">
+            <span class="text-muted">Vacant</span>
+        </td>
+    {% endif %}
+    <td class="text-right">
+        {% if perms.dcim.change_devicebay %}
+            {% if devicebay.installed_device %}
+                <a href="{% url 'dcim:devicebay_depopulate' pk=devicebay.pk %}" class="btn btn-danger btn-xs">
+                    <i class="glyphicon glyphicon-remove" aria-hidden="true" title="Remove device"></i>
+                </a>
+            {% else %}
+                <a href="{% url 'dcim:devicebay_populate' pk=devicebay.pk %}" class="btn btn-success btn-xs">
+                    <i class="glyphicon glyphicon-plus" aria-hidden="true" title="Install device"></i>
+                </a>
+            {% endif %}
+            <a href="{% url 'dcim:devicebay_edit' pk=devicebay.pk %}" class="btn btn-info btn-xs">
+                <i class="glyphicon glyphicon-pencil" aria-hidden="true" title="Edit device bay"></i>
+            </a>
+        {% endif %}
+        {% if perms.dcim.delete_devicebay %}
+            {% if devicebay.installed_device %}
+                <button class="btn btn-danger btn-xs" disabled="disabled">
+                    <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+                </button>
+            {% else %}
+                <a href="{% url 'dcim:devicebay_delete' pk=devicebay.pk %}" class="btn btn-danger btn-xs">
+                    <i class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete device bay"></i>
+                </a>
+            {% endif %}
+        {% endif %}
+    </td>
+</tr>

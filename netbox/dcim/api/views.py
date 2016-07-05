@@ -9,8 +9,8 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from dcim.models import (
-    ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, IFACE_FF_VIRTUAL, Interface, InterfaceConnection,
-    Manufacturer, Platform, PowerOutlet, PowerPort, Rack, RackGroup, Site,
+    ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, DeviceType, IFACE_FF_VIRTUAL, Interface,
+    InterfaceConnection, Manufacturer, Platform, PowerOutlet, PowerPort, Rack, RackGroup, Site,
 )
 from dcim import filters
 from .exceptions import MissingFilterException
@@ -324,6 +324,33 @@ class InterfaceConnectionView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
     serializer_class = serializers.InterfaceConnectionSerializer
     queryset = InterfaceConnection.objects.all()
+
+
+#
+# Device bays
+#
+
+class DeviceBayListView(generics.ListAPIView):
+    """
+    List device bays (by device)
+    """
+    serializer_class = serializers.DeviceBayNestedSerializer
+
+    def get_queryset(self):
+
+        device = get_object_or_404(Device, pk=self.kwargs['pk'])
+        queryset = DeviceBay.objects.filter(device=device).select_related('installed_device')
+
+        # Filter by type (physical or virtual)
+        iface_type = self.request.query_params.get('type')
+        if iface_type == 'physical':
+            queryset = queryset.exclude(form_factor=IFACE_FF_VIRTUAL)
+        elif iface_type == 'virtual':
+            queryset = queryset.filter(form_factor=IFACE_FF_VIRTUAL)
+        elif iface_type is not None:
+            queryset = queryset.empty()
+
+        return queryset
 
 
 #
