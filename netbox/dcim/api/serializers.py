@@ -221,11 +221,26 @@ class DeviceSerializer(serializers.ModelSerializer):
     platform = PlatformNestedSerializer()
     rack = RackNestedSerializer()
     primary_ip = DeviceIPAddressNestedSerializer()
+    parent_device = serializers.SerializerMethodField()
 
     class Meta:
         model = Device
         fields = ['id', 'name', 'display_name', 'device_type', 'device_role', 'platform', 'serial', 'rack', 'position',
-                  'face', 'status', 'primary_ip', 'comments']
+                  'face', 'parent_device', 'status', 'primary_ip', 'comments']
+
+    def get_parent_device(self, obj):
+        try:
+            device_bay = obj.parent_bay
+        except DeviceBay.DoesNotExist:
+            return None
+        return {
+            'id': device_bay.device.pk,
+            'name': device_bay.device.name,
+            'device_bay': {
+                'id': device_bay.pk,
+                'name': device_bay.name,
+            }
+        }
 
 
 class DeviceNestedSerializer(serializers.ModelSerializer):
