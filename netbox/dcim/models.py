@@ -409,6 +409,22 @@ class DeviceType(models.Model):
 
     def clean(self):
 
+        if not self.is_console_server and self.cs_port_templates.count():
+            raise ValidationError("Must delete all console server port templates associated with this device before "
+                                  "declassifying it as a console server.")
+
+        if not self.is_pdu and self.power_outlet_templates.count():
+            raise ValidationError("Must delete all power outlet templates associated with this device before "
+                                  "declassifying it as a PDU.")
+
+        if not self.is_network_device and self.interface_templates.filter(mgmt_only=False).count():
+            raise ValidationError("Must delete all non-management-only interface templates associated with this device "
+                                  "before declassifying it as a network device.")
+
+        if self.subdevice_role != SUBDEVICE_ROLE_PARENT and self.device_bay_templates.count():
+            raise ValidationError("Must delete all device bay templates associated with this device before "
+                                  "declassifying it as a parent device.")
+
         if self.u_height and self.subdevice_role == SUBDEVICE_ROLE_CHILD:
             raise ValidationError("Child device types must be 0U.")
 

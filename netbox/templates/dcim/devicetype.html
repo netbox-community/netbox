@@ -14,23 +14,27 @@
         </ol>
     </div>
 </div>
-{% if perms.dcim.change_devicetype %}
+
+{% if perms.dcim.change_devicetype or perms.dcim.delete_devicetype %}
     <div class="pull-right">
-		<a href="{% url 'dcim:devicetype_edit' pk=devicetype.pk %}" class="btn btn-warning">
-			<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-			Edit this device type
-		</a>
-    {% endif %}
-    {% if perms.dcim.delete_devicetype %}
-		<a href="{% url 'dcim:devicetype_delete' pk=devicetype.pk %}" class="btn btn-danger">
-			<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-			Delete this device type
-		</a>
+      {% if perms.dcim.change_devicetype %}
+            <a href="{% url 'dcim:devicetype_edit' pk=devicetype.pk %}" class="btn btn-warning">
+              <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+              Edit this device type
+            </a>
+      {% endif %}
+      {% if perms.dcim.delete_devicetype %}
+          <a href="{% url 'dcim:devicetype_delete' pk=devicetype.pk %}" class="btn btn-danger">
+          	<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+          	Delete this device type
+          </a>
+      {% endif %}
     </div>
 {% endif %}
+
 <h1>{{ devicetype }}</h1>
 <div class="row">
-	<div class="col-md-6">
+    <div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Chassis</strong>
@@ -76,11 +80,19 @@
         {% include 'dcim/inc/devicetype_component_table.html' with table=consoleport_table title='Console Ports' add_url='dcim:devicetype_add_consoleport' delete_url='dcim:devicetype_delete_consoleport' %}
         {% include 'dcim/inc/devicetype_component_table.html' with table=powerport_table title='Power Ports' add_url='dcim:devicetype_add_powerport' delete_url='dcim:devicetype_delete_powerport' %}
     </div>
-	<div class="col-md-6">
-        {% include 'dcim/inc/devicetype_component_table.html' with table=devicebay_table title='Device Bays' add_url='dcim:devicetype_add_devicebay' delete_url='dcim:devicetype_delete_devicebay' %}
-        {% include 'dcim/inc/devicetype_component_table.html' with table=interface_table title='Interfaces' add_url='dcim:devicetype_add_interface' delete_url='dcim:devicetype_delete_interface' %}
-        {% include 'dcim/inc/devicetype_component_table.html' with table=consoleserverport_table title='Console Server Ports' add_url='dcim:devicetype_add_consoleserverport' delete_url='dcim:devicetype_delete_consoleserverport' %}
-        {% include 'dcim/inc/devicetype_component_table.html' with table=poweroutlet_table title='Power Outlets' add_url='dcim:devicetype_add_poweroutlet' delete_url='dcim:devicetype_delete_poweroutlet' %}
+    <div class="col-md-6">
+        {% if devicetype.is_network_device %}
+            {% include 'dcim/inc/devicetype_component_table.html' with table=devicebay_table title='Device Bays' add_url='dcim:devicetype_add_devicebay' delete_url='dcim:devicetype_delete_devicebay' %}
+        {% endif %}
+        {% if devicetype.is_network_device %}
+            {% include 'dcim/inc/devicetype_component_table.html' with table=interface_table title='Interfaces' add_url='dcim:devicetype_add_interface' delete_url='dcim:devicetype_delete_interface' %}
+        {% endif %}
+        {% if devicetype.is_console_server %}
+            {% include 'dcim/inc/devicetype_component_table.html' with table=consoleserverport_table title='Console Server Ports' add_url='dcim:devicetype_add_consoleserverport' delete_url='dcim:devicetype_delete_consoleserverport' %}
+        {% endif %}
+        {% if devicetype.is_pdu %}
+            {% include 'dcim/inc/devicetype_component_table.html' with table=poweroutlet_table title='Power Outlets' add_url='dcim:devicetype_add_poweroutlet' delete_url='dcim:devicetype_delete_poweroutlet' %}
+        {% endif %}
     </div>
 </div>
 {% endblock %}
