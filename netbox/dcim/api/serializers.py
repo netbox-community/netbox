@@ -2,9 +2,9 @@ from rest_framework import serializers
 
 from ipam.models import IPAddress
 from dcim.models import (
-    ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceType, DeviceRole,
-    Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate,
-    PowerPort, PowerPortTemplate, Rack, RackGroup, RACK_FACE_FRONT, RACK_FACE_REAR, Site,
+    ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay, DeviceType,
+    DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Platform, PowerOutlet,
+    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RACK_FACE_FRONT, RACK_FACE_REAR, Site,
 )
 
 
@@ -228,9 +228,9 @@ class DeviceSerializer(serializers.ModelSerializer):
                   'face', 'status', 'primary_ip', 'comments']
 
 
-class DeviceNestedSerializer(DeviceSerializer):
+class DeviceNestedSerializer(serializers.ModelSerializer):
 
-    class Meta(DeviceSerializer.Meta):
+    class Meta:
         model = Device
         fields = ['id', 'name', 'display_name']
 
@@ -335,6 +335,32 @@ class InterfaceDetailSerializer(InterfaceSerializer):
     class Meta(InterfaceSerializer.Meta):
         fields = ['id', 'device', 'name', 'form_factor', 'mgmt_only', 'description', 'is_connected',
                   'connected_interface']
+
+
+#
+# Device bays
+#
+
+class DeviceBaySerializer(serializers.ModelSerializer):
+    device = DeviceNestedSerializer()
+
+    class Meta:
+        model = DeviceBay
+        fields = ['id', 'device', 'name']
+
+
+class DeviceBayNestedSerializer(DeviceBaySerializer):
+    installed_device = DeviceNestedSerializer()
+
+    class Meta(DeviceBaySerializer.Meta):
+        fields = ['id', 'name', 'installed_device']
+
+
+class DeviceBayDetailSerializer(DeviceBaySerializer):
+    installed_device = DeviceNestedSerializer()
+
+    class Meta(DeviceBaySerializer.Meta):
+        fields = ['id', 'device', 'name', 'installed_device']
 
 
 #
