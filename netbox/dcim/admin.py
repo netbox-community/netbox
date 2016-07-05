@@ -156,6 +156,7 @@ class InterfaceAdmin(admin.TabularInline):
 class DeviceBayAdmin(admin.TabularInline):
     model = DeviceBay
     fk_name = 'device'
+    readonly_fields = ['installed_device']
 
 
 class ModuleAdmin(admin.TabularInline):
