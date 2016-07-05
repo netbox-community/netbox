@@ -10,7 +10,7 @@ from extras.rpc import RPC_CLIENTS
 from utilities.fields import NullableCharField
 from utilities.models import CreatedUpdatedModel
 
-from macaddress.fields import MACAddressField
+from .fields import MACAddressField
 
 RACK_FACE_FRONT = 0
 RACK_FACE_REAR = 1
