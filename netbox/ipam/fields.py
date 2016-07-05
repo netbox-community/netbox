@@ -16,7 +16,6 @@ def prefix_validator(prefix):
 
 
 class BaseIPField(models.Field):
-    default_validators = [prefix_validator]
 
     def python_type(self):
         return IPNetwork
@@ -51,6 +50,7 @@ class IPNetworkField(BaseIPField):
     IP prefix (network and mask)
     """
     description = "PostgreSQL CIDR field"
+    default_validators = [prefix_validator]
 
     def db_type(self, connection):
         return 'cidr'
