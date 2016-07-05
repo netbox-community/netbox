@@ -520,7 +520,7 @@ def device(request, pk):
         .select_related('connected_as_a', 'connected_as_b', 'circuit')
     mgmt_interfaces = Interface.objects.filter(device=device, mgmt_only=True)\
         .select_related('connected_as_a', 'connected_as_b', 'circuit')
-    device_bays = DeviceBay.objects.filter(device=device).select_related('installed_device')
+    device_bays = DeviceBay.objects.filter(device=device).select_related('installed_device__device_type__manufacturer')
 
     # Gather any secrets which belong to this device
     secrets = device.secrets.all()
