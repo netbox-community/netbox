@@ -11,8 +11,7 @@
         {% with iface.get_connected_interface as connected_iface %}
             <td>
                 <a href="{% url 'dcim:device' pk=connected_iface.device.pk %}">{{ connected_iface.device }}</a>
-            </td>
-            <td>
+                &Colon;
                 <span title="{{ connected_iface.get_form_factor_display }}">{{ connected_iface }}</span>
             </td>
         {% endwith %}
