@@ -9,6 +9,7 @@ from .formfields import MACAddressFormField
 class mac_unix_expanded_uppercase(mac_unix_expanded):
     word_fmt = '%.2X'
 
+
 class MACAddressField(models.Field):
     description = "PostgreSQL MAC Address field"
 
