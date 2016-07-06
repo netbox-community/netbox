@@ -20,10 +20,10 @@ class MACAddressField(models.Field):
         return self.to_python(value)
 
     def to_python(self, value):
-        if not value:
+        if value is None:
             return value
         try:
-            return EUI(value, dialect=mac_unix_expanded_uppercase)
+            return EUI(value, version=48, dialect=mac_unix_expanded_uppercase)
         except ValueError as e:
             raise ValidationError(e)
 

@@ -21,6 +21,6 @@ class MACAddressFormField(forms.Field):
             return value
 
         try:
-            return EUI(value)
+            return EUI(value, version=48)
         except AddrFormatError:
             raise ValidationError("Please specify a valid MAC address.")
