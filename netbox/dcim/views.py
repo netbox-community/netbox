@@ -1252,6 +1252,7 @@ def interface_add(request, pk):
                     'device': device.pk,
                     'name': name,
                     'form_factor': form.cleaned_data['form_factor'],
+                    'mac_address': form.cleaned_data['mac_address'],
                     'mgmt_only': form.cleaned_data['mgmt_only'],
                     'description': form.cleaned_data['description'],
                 })
@@ -1339,6 +1340,7 @@ class InterfaceBulkAddView(PermissionRequiredMixin, BulkEditView):
                 iface_form = forms.InterfaceForm({
                     'device': device.pk,
                     'name': name,
+                    'mac_address': mac_address,
                     'form_factor': form.cleaned_data['form_factor'],
                     'mgmt_only': form.cleaned_data['mgmt_only'],
                     'description': form.cleaned_data['description'],

@@ -10,6 +10,7 @@ from extras.rpc import RPC_CLIENTS
 from utilities.fields import NullableCharField
 from utilities.models import CreatedUpdatedModel
 
+from .fields import MACAddressField
 
 RACK_FACE_FRONT = 0
 RACK_FACE_REAR = 1
@@ -856,6 +857,7 @@ class Interface(models.Model):
     device = models.ForeignKey('Device', related_name='interfaces', on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
     form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_SFP_PLUS)
+    mac_address = MACAddressField(null=True, blank=True, verbose_name='MAC Address')
     mgmt_only = models.BooleanField(default=False, verbose_name='OOB Management',
                                     help_text="This interface is used only for out-of-band management")
     description = models.CharField(max_length=100, blank=True)

@@ -529,6 +529,7 @@ class InterfaceTest(APITestCase):
         'device',
         'name',
         'form_factor',
+        'mac_address',
         'mgmt_only',
         'description',
         'is_connected'
@@ -541,6 +542,7 @@ class InterfaceTest(APITestCase):
         'device',
         'name',
         'form_factor',
+        'mac_address',
         'mgmt_only',
         'description',
         'is_connected',

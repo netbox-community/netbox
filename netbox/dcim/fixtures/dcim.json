@@ -3419,6 +3419,7 @@
     "fields": {
         "device": 3,
         "name": "em0",
+        "mac_address": "00-00-00-AA-BB-CC",
         "form_factor": 800,
         "mgmt_only": true,
         "description": ""
@@ -3772,6 +3773,7 @@
         "device": 4,
         "name": "em0",
         "form_factor": 1000,
+        "mac_address": "ff-ee-dd-33-22-11",
         "mgmt_only": true,
         "description": ""
     }
@@ -5686,6 +5688,7 @@
         "device": 9,
         "name": "eth0",
         "form_factor": 1000,
+        "mac_address": "44-55-66-77-88-99",
         "mgmt_only": true,
         "description": ""
     }
