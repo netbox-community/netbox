@@ -304,4 +304,6 @@ class Secret(CreatedUpdatedModel):
         """
         Check whether the given user has permission to decrypt this Secret.
         """
+        if user.is_superuser:
+            return True
         return user in self.role.users.all() or user.groups.filter(pk__in=self.role.groups.all()).exists()
