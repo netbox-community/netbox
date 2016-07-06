@@ -240,9 +240,11 @@ def prefix_site_choices():
     site_choices = Site.objects.annotate(prefix_count=Count('prefixes'))
     return [(s.slug, '{} ({})'.format(s.name, s.prefix_count)) for s in site_choices]
 
+
 def prefix_vlan_choices():
     vlan_choices = VLAN.objects.annotate(prefix_count=Count('prefixes'))
     return [(v.id, '{} ({})'.format(v.display_name, v.prefix_count)) for v in vlan_choices]
+
 
 def prefix_status_choices():
     status_counts = {}
@@ -262,8 +264,8 @@ class PrefixFilterForm(forms.Form, BootstrapMixin):
     status = forms.MultipleChoiceField(required=False, choices=prefix_status_choices)
     site = forms.MultipleChoiceField(required=False, choices=prefix_site_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 6}))
-    vlan_id = forms.MultipleChoiceField(required=False, choices=prefix_vlan_choices, label='VLAN',
-				     widget=forms.SelectMultiple(attrs={'size': 8}))
+    vlan_id = forms.MultipleChoiceField(required=False, choices=prefix_vlan_choices,
+                                        label='VLAN', widget=forms.SelectMultiple(attrs={'size': 8}))
     role = forms.MultipleChoiceField(required=False, choices=prefix_role_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 6}))
     expand = forms.BooleanField(required=False, label='Expand prefix hierarchy')

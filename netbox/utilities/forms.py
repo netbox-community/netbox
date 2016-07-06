@@ -247,10 +247,10 @@ class BulkImportForm(forms.Form):
         for i, record in enumerate(records, start=1):
             obj_form = self.fields['csv'].csv_form(data=record)
             try:
-                 if obj_form.is_valid():
+                if obj_form.is_valid():
                     obj = obj_form.save(commit=False)
                     obj_list.append(obj)
-                 else:
+                else:
                     for field, errors in obj_form.errors.items():
                         for e in errors:
                             if field == '__all__':
