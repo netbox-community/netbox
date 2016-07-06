@@ -280,10 +280,10 @@ class BulkEditView(View):
             form = self.form(request.POST)
             if form.is_valid():
                 updated_count = self.update_objects(pk_list, form)
-                msg = 'Updated {} {}'.format(updated_count, self.cls._meta.verbose_name_plural)
-                messages.success(self.request, msg)
-                UserAction.objects.log_bulk_edit(request.user, ContentType.objects.get_for_model(self.cls), msg)
-
+                if updated_count:
+                    msg = 'Updated {} {}'.format(updated_count, self.cls._meta.verbose_name_plural)
+                    messages.success(self.request, msg)
+                    UserAction.objects.log_bulk_edit(request.user, ContentType.objects.get_for_model(self.cls), msg)
                 return redirect(redirect_url)
 
         else:
