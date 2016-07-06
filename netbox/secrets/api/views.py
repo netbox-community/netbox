@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
 from rest_framework import status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -108,14 +109,15 @@ class SecretDetailView(generics.GenericAPIView):
                     {'error': ERR_USERKEY_INACTIVE},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            if secret.decryptable_by(request.user):
-                master_key = uk.get_master_key(private_key)
-                if master_key is None:
-                    return Response(
-                        {'error': ERR_PRIVKEY_INVALID},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-                secret.decrypt(master_key)
+            if not secret.decryptable_by(request.user):
+                raise PermissionDenied(detail="You do not have permission to decrypt this secret.")
+            master_key = uk.get_master_key(private_key)
+            if master_key is None:
+                return Response(
+                    {'error': ERR_PRIVKEY_INVALID},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            secret.decrypt(master_key)
 
         serializer = self.get_serializer(secret)
         return Response(serializer.data)
