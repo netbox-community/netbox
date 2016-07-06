@@ -431,7 +431,7 @@ def component_template_delete(request, pk, model):
     else:
         form = ComponentTemplateBulkDeleteForm(initial={'pk': request.POST.getlist('pk')})
 
-    selected_objects = model.objects.filter(pk__in=form.initial.get('pk'))
+    selected_objects = model.objects.filter(pk__in=request.POST.getlist('pk'))
     if not selected_objects:
         messages.warning(request, "No {} were selected for deletion.".format(model._meta.verbose_name_plural))
         return redirect('dcim:devicetype', pk=devicetype.pk)
