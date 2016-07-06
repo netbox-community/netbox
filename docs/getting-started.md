@@ -15,7 +15,7 @@ The following packages are needed to install PostgreSQL:
 * python-psycopg2
 
 ```
-# apt-get install postgresql libpq-dev python-psycopg2
+# sudo apt-get install -y postgresql libpq-dev python-psycopg2
 ```
 
 ## Configuration
@@ -61,7 +61,7 @@ NetBox requires following dependencies:
 * graphviz
 
 ```
-# apt-get install python2.7 python-dev git python-pip libxml2-dev libxslt1-dev libffi-dev graphviz
+# sudo apt-get install -y python2.7 python-dev git python-pip libxml2-dev libxslt1-dev libffi-dev graphviz
 ```
 
 You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.
@@ -90,7 +90,7 @@ Create the base directory for the NetBox installation. For this guide, we'll use
 If `git` is not already installed, install it:
 
 ```
-# sudo apt-get install git
+# sudo apt-get install -y git
 ```
 
 Next, clone the **master** branch of the NetBox GitHub repository into the current directory:
@@ -111,7 +111,7 @@ Checking connectivity... done.
 Install the necessary Python packages using pip. (If you encounter any compilation errors during this step, ensure that you've installed all of the required dependencies.)
 
 ```
-# pip install -r requirements.txt
+# sudo pip install -r requirements.txt
 ```
 
 ## Configuration
@@ -235,7 +235,7 @@ If the test service does not run, or you cannot reach the NetBox home page, some
 We'll set up a simple HTTP front end using [gunicorn](http://gunicorn.org/) for the purposes of this guide. For web servers, we provide example configurations for both [nginx](https://www.nginx.com/resources/wiki/) and [Apache](http://httpd.apache.org/docs/2.4). (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll also use [supervisord](http://supervisord.org/) for service persistence. 
 
 ```
-# apt-get install gunicorn supervisor
+# sudo apt-get install -y gunicorn supervisor
 ```
 
 ## nginx Configuration
@@ -243,7 +243,7 @@ We'll set up a simple HTTP front end using [gunicorn](http://gunicorn.org/) for 
 The following will serve as a minimal nginx configuration. Be sure to modify your server name and installation path appropriately.
 
 ```
-# apt-get install nginx
+# sudo apt-get install -y nginx
 ```
 
 Once nginx is installed, proceed with the following configuration:
@@ -286,7 +286,11 @@ Restart the nginx service to use the new configuration.
 ```
 ## Apache Configuration
 
-The following configuration should work for Apache. Be sure to modify the `ServerName` appropriately.
+```
+# sudo apt-get install -y apache2
+```
+
+Once Apache is installed, proceed with the following configuration (Be sure to modify the `ServerName` appropriately):
 
 ```
 <VirtualHost *:80>
@@ -358,10 +362,10 @@ Please keep in mind that the configurations provided here are bare minimums requ
 To add SSL support to the installation we'll start by installing the arbitrary precision calculator language.
 
 ```
-# sudo apt-get -y bc
+# sudo apt-get install -y bc
 ```
 
-Next we'll clone Let’s Encrypt in to /opt
+Next we'll clone Let's Encrypt into /opt/:
 
 ```
 # sudo git clone https://github.com/letsencrypt/letsencrypt /opt/letsencrypt
@@ -434,7 +438,52 @@ You should now have netbox running on a SSL protected connection.
 
 # Upgrading
 
-As with the initial installation, you can upgrade NetBox by either downloading the latest release package or by cloning the `master` branch of the git repository. Once the new code is in place, run the upgrade script (which may need to be run as root depending on how your environment is configured).
+## Installation of Upgrade
+
+As with the initial installation, you can upgrade NetBox by either downloading the latest release package or by cloning the `master` branch of the git repository. 
+
+### Option A: Download a Release
+
+Download the [latest stable release](https://github.com/digitalocean/netbox/releases) from GitHub as a tarball or ZIP archive. Extract it to your desired path. In this example, we'll use `/opt/netbox`.  For this guide we are using 1.0.4 as the old version and 1.0.7 as the new version.
+
+Download & extract latest version:
+```
+# wget https://github.com/digitalocean/netbox/archive/vX.Y.Z.tar.gz
+# tar -xzf vX.Y.Z.tar.gz -C /opt
+# cd /opt/
+# ln -sf netbox-1.0.7/ netbox
+```
+
+Copy the 'configuration.py' you created when first installing to the new version:
+```
+# cp /opt/netbox-1.0.4/configuration.py /opt/netbox/configuration.py
+```
+
+### Option B: Clone the Git Repository (latest master release)
+
+For this guide, we'll use `/opt/netbox`.
+
+Check that your git branch is up to date & is set to master:
+```
+# cd /opt/netbox
+# git status
+```
+
+If not on branch master, set it and verify status:
+```
+# git checkout master
+# git status
+```
+
+Pull down the set branch from git status above:
+```
+# git pull
+```
+
+
+## Upgrade Script & Netbox Restart
+
+Once the new code is in place, run the upgrade script (which may need to be run as root depending on how your environment is configured).
 
 ```
 # ./upgrade.sh
