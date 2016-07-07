@@ -41,7 +41,7 @@ def home(request):
 
     return render(request, 'home.html', {
         'stats': stats,
-        'recent_activity': UserAction.objects.all()[:15]
+        'recent_activity': UserAction.objects.select_related('user')[:15]
     })
 
 

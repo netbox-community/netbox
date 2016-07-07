@@ -4,7 +4,8 @@ from secrets.views import secret_add
 
 from . import views
 from .models import (
-    ConsolePortTemplate, ConsoleServerPortTemplate, PowerPortTemplate, PowerOutletTemplate, InterfaceTemplate,
+    ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, PowerPortTemplate, PowerOutletTemplate,
+    InterfaceTemplate,
 )
 
 
@@ -70,6 +71,10 @@ urlpatterns = [
         name='devicetype_add_interface'),
     url(r'^device-types/(?P<pk>\d+)/interfaces/delete/$', views.component_template_delete,
         {'model': InterfaceTemplate}, name='devicetype_delete_interface'),
+    url(r'^device-types/(?P<pk>\d+)/device-bays/add/$', views.DeviceBayTemplateAddView.as_view(),
+        name='devicetype_add_devicebay'),
+    url(r'^device-types/(?P<pk>\d+)/device-bays/delete/$', views.component_template_delete,
+        {'model': DeviceBayTemplate}, name='devicetype_delete_devicebay'),
 
     # Device roles
     url(r'^device-roles/$', views.DeviceRoleListView.as_view(), name='devicerole_list'),
@@ -124,6 +129,13 @@ urlpatterns = [
     url(r'^power-outlets/(?P<pk>\d+)/disconnect/$', views.poweroutlet_disconnect, name='poweroutlet_disconnect'),
     url(r'^power-outlets/(?P<pk>\d+)/edit/$', views.poweroutlet_edit, name='poweroutlet_edit'),
     url(r'^power-outlets/(?P<pk>\d+)/delete/$', views.poweroutlet_delete, name='poweroutlet_delete'),
+
+    # Device bays
+    url(r'^devices/(?P<pk>\d+)/bays/add/$', views.devicebay_add, name='devicebay_add'),
+    url(r'^device-bays/(?P<pk>\d+)/edit/$', views.devicebay_edit, name='devicebay_edit'),
+    url(r'^device-bays/(?P<pk>\d+)/delete/$', views.devicebay_delete, name='devicebay_delete'),
+    url(r'^device-bays/(?P<pk>\d+)/populate/$', views.devicebay_populate, name='devicebay_populate'),
+    url(r'^device-bays/(?P<pk>\d+)/depopulate/$', views.devicebay_depopulate, name='devicebay_depopulate'),
 
     # Console/power/interface connections
     url(r'^console-connections/$', views.ConsoleConnectionsListView.as_view(), name='console_connections_list'),

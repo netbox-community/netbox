@@ -43,6 +43,7 @@ Each device type is assigned a number of component templates which describe the 
 * Power port templates
 * Power outlet templates
 * Interface templates
+* Device bay templates
 
 Whenever a new device is created, it is automatically assigned console, power, and interface components per the templates assigned to its device type. For example, suppose your network employs Juniper EX4300-48T switches. You would create a device type with a model name "EX4300-48T" and assign it to the manufacturer "Juniper." You might then also create the following templates for it:
 
@@ -81,16 +82,19 @@ A device can be assigned modules which represent internal components. Currently,
 
 ### Components
 
-There are five types of device components which comprise all of the interconnection logic with NetBox:
+There are six types of device components which comprise all of the interconnection logic with NetBox:
 
 * Console ports
 * Console server ports
 * Power ports
 * Power outlets
 * Interfaces
+* Device bays
 
 Console ports connect only to console server ports, and power ports connect only to power outlets. Interfaces connect to one another in a symmetric manner: If interface A connects to interface B, interface B therefore connects to interface A. (The relationship between two interfaces is actually represented in the database by an InterfaceConnection object, but this is transparent to the user.)
 
-Each type of connection can be defined as either *planned* or *connected*. This allows for easily denoting connections which have not yet been installed.
+Each type of connection can be classified as either *planned* or *connected*. This allows for easily denoting connections which have not yet been installed. In addition to a connecting peer, interfaces are also assigned a form factor and may be designated as management-only (for out-of-band management). Interfaces may also be assigned a short description.
 
-In addition to a connecting peer, interfaces are also assigned a form factor and may be designated as management-only (for out-of-band management). Interfaces may also be assigned a short description.
+Device bays represent the ability of a device to house child devices. For example, you might install four blade servers into a 2U chassis. The chassis would appear in the rack elevation as a 2U device with four device bays. Each server within it would be defined as a 0U device installed in one of the device bays. Child devices do not appear on rack elevations, but they are included in the "Non-Racked Devices" list within the rack view.
+
+Note that child devices differ from modules in that they are still treated as independent devices, with their own console/power/data components, modules, and IP addresses. Modules, on the other hand, are parts within a device, such as a hard disk or power supply.
