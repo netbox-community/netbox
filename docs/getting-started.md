@@ -124,7 +124,7 @@ Move into the NetBox configuration directory and make a copy of `configuration.e
 ```
 
 Open `configuration.py` with your preferred editor and set the following variables:
- 
+
 * ALLOWED_HOSTS
 * DATABASE
 * SECRET_KEY
@@ -188,8 +188,8 @@ NetBox does not come with any predefined user accounts. You'll need to create a 
 # ./manage.py createsuperuser
 Username: admin
 Email address: admin@example.com
-Password: 
-Password (again): 
+Password:
+Password (again):
 Superuser created successfully.
 ```
 
@@ -232,7 +232,7 @@ If the test service does not run, or you cannot reach the NetBox home page, some
 
 ## Installation
 
-We'll set up a simple HTTP front end using [gunicorn](http://gunicorn.org/) for the purposes of this guide. For web servers, we provide example configurations for both [nginx](https://www.nginx.com/resources/wiki/) and [Apache](http://httpd.apache.org/docs/2.4). (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll also use [supervisord](http://supervisord.org/) for service persistence. 
+We'll set up a simple HTTP front end using [gunicorn](http://gunicorn.org/) for the purposes of this guide. For web servers, we provide example configurations for both [nginx](https://www.nginx.com/resources/wiki/) and [Apache](http://httpd.apache.org/docs/2.4). (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll also use [supervisord](http://supervisord.org/) for service persistence.
 
 ```
 # sudo apt-get install -y gunicorn supervisor
@@ -275,7 +275,7 @@ Save this configuration to `/etc/nginx/sites-available/netbox`. Then, delete `/e
 ```
 # cd /etc/nginx/sites-enabled/
 # rm default
-# ln -s /etc/nginx/sites-available/netbox 
+# ln -s /etc/nginx/sites-available/netbox
 ```
 
 Restart the nginx service to use the new configuration.
