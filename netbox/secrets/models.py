@@ -182,6 +182,14 @@ class SecretRole(models.Model):
     def get_absolute_url(self):
         return "{}?role={}".format(reverse('secrets:secret_list'), self.slug)
 
+    def has_member(self, user):
+        """
+        Check whether the given user has belongs to this SecretRole. Note that superusers belong to all roles.
+        """
+        if user.is_superuser:
+            return True
+        return user in self.users.all() or user.groups.filter(pk__in=self.groups.all()).exists()
+
 
 class Secret(CreatedUpdatedModel):
     """
@@ -304,4 +312,4 @@ class Secret(CreatedUpdatedModel):
         """
         Check whether the given user has permission to decrypt this Secret.
         """
-        return user in self.role.users.all() or user.groups.filter(pk__in=self.role.groups.all()).exists()
+        return self.role.has_member(user)

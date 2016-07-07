@@ -29,7 +29,12 @@
                 <tr>
                     <td>Position</td>
                     <td>
-                        {% if device.position %}
+                        {% if device.parent_bay %}
+                            {% with device.parent_bay.device as parent %}
+                                <span>U{{ parent.position }} / {{ parent.get_face_display }}
+                                (<a href="{{ parent.get_absolute_url }}">{{ parent }}</a> - {{ device.parent_bay.name }})</span>
+                            {% endwith %}
+                        {% elif device.position %}
                             <span>U{{ device.position }} / {{ device.get_face_display }}</span>
                         {% elif device.device_type.u_height %}
                             <span class="label label-warning">Not racked</span>
@@ -160,7 +165,7 @@
                 <div class="panel-footer text-right">
                     <a href="{% url 'dcim:ipaddress_assign' pk=device.pk %}" class="btn btn-xs btn-primary">
                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                        Assign IP Address
+                        Assign IP address
                     </a>
                 </div>
             {% endif %}
@@ -174,7 +179,7 @@
                     {% include 'dcim/inc/_interface.html' with icon='wrench' %}
                 {% empty %}
                     <tr>
-                        <td colspan="4" class="alert-warning">
+                        <td colspan="5" class="alert-warning">
                             <i class="fa fa-fw fa-warning"></i> No management interfaces defined!
                             {% if perms.dcim.add_interface %}
                                 <a href="{% url 'dcim:interface_add' pk=device.pk %}?mgmt_only=1" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
@@ -186,7 +191,7 @@
                     {% include 'dcim/inc/_consoleport.html' %}
                 {% empty %}
                     <tr>
-                        <td colspan="4" class="alert-warning">
+                        <td colspan="5" class="alert-warning">
                             <i class="fa fa-fw fa-warning"></i> No console ports defined!
                             {% if perms.dcim.add_consoleport %}
                                 <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
@@ -199,7 +204,7 @@
                 {% empty %}
                     {% if not device.device_type.is_pdu %}
                         <tr>
-                            <td colspan="4" class="alert-warning">
+                            <td colspan="5" class="alert-warning">
                                 <i class="fa fa-fw fa-warning"></i> No power ports defined!
                                 {% if perms.dcim.add_powerport %}
                                     <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
@@ -268,12 +273,33 @@
         </div>
 	</div>
 	<div class="col-md-6">
+        {% if device_bays or device.device_type.is_parent_device %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Device Bays</strong>
+                </div>
+                <table class="table table-hover panel-body">
+                    {% for devicebay in device_bays %}
+                        {% include 'dcim/inc/_devicebay.html' %}
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">No device bays defined</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                {% if perms.dcim.add_devicebay %}
+                    <div class="panel-footer text-right">
+                        <a href="{% url 'dcim:devicebay_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            Add device bays
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
         {% if interfaces or device.device_type.is_network_device %}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    {% if perms.dcim.add_interface %}
-                        <a href="{% url 'dcim:interface_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Interfaces</a>
-                    {% endif %}
                     <strong>Interfaces</strong>
                 </div>
                 <table class="table table-hover panel-body">
@@ -285,14 +311,19 @@
                         </tr>
                     {% endfor %}
                 </table>
+                {% if perms.dcim.add_interface %}
+                    <div class="panel-footer text-right">
+                        <a href="{% url 'dcim:interface_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            Add interface
+                        </a>
+                     </div>
+                {% endif %}
             </div>
         {% endif %}
         {% if cs_ports or device.device_type.is_console_server %}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    {% if perms.dcim.add_consoleserverport %}
-                        <a href="{% url 'dcim:consoleserverport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Console Server Ports</a>
-                    {% endif %}
                     <strong>Console Server Ports</strong>
                 </div>
                 <table class="table table-hover panel-body">
@@ -304,14 +335,19 @@
                         </tr>
                     {% endfor %}
                 </table>
+                {% if perms.dcim.add_consoleserverport %}
+                    <div class="panel-footer text-right">
+                        <a href="{% url 'dcim:consoleserverport_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            Add console server ports
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         {% endif %}
         {% if power_outlets or device.device_type.is_pdu %}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    {% if perms.dcim.add_poweroutlet %}
-                        <a href="{% url 'dcim:poweroutlet_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Power Outlets</a>
-                    {% endif %}
                     <strong>Power Outlets</strong>
                 </div>
                 <table class="table table-hover panel-body">
@@ -323,6 +359,14 @@
                         </tr>
                     {% endfor %}
                 </table>
+                {% if perms.dcim.add_poweroutlet %}
+                    <div class="panel-footer text-right">
+                        <a href="{% url 'dcim:poweroutlet_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            Add power outlets
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         {% endif %}
 	</div>

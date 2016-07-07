@@ -10,7 +10,9 @@
             {{ po.connected_port.name }}
         </td>
     {% else %}
-        <td colspan="2">Not connected</td>
+        <td colspan="2">
+            <span class="text-muted">Not connected</span>
+        </td>
     {% endif %}
     <td class="text-right">
         {% if perms.dcim.change_poweroutlet %}

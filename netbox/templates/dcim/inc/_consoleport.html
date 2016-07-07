@@ -2,6 +2,7 @@
     <td>
         <i class="fa fa-fw fa-keyboard-o"></i> {{ cp.name }}
     </td>
+    <td></td>
     {% if cp.cs_port %}
         <td>
             <a href="{% url 'dcim:device' pk=cp.cs_port.device.pk %}">{{ cp.cs_port.device }}</a>
@@ -10,7 +11,9 @@
             {{ cp.cs_port.name }}
         </td>
     {% else %}
-        <td colspan="2">Not connected</td>
+        <td colspan="2">
+            <span class="text-muted">Not connected</span>
+        </td>
     {% endif %}
     <td class="text-right">
         {% if perms.dcim.change_consoleport %}

@@ -4,12 +4,13 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import Q, ObjectDoesNotExist
+from django.db.models import Count, Q, ObjectDoesNotExist
 
 from extras.rpc import RPC_CLIENTS
 from utilities.fields import NullableCharField
 from utilities.models import CreatedUpdatedModel
 
+from .fields import MACAddressField
 
 RACK_FACE_FRONT = 0
 RACK_FACE_REAR = 1
@@ -17,6 +18,14 @@ RACK_FACE_CHOICES = [
     [RACK_FACE_FRONT, 'Front'],
     [RACK_FACE_REAR, 'Rear'],
 ]
+
+SUBDEVICE_ROLE_PARENT = True
+SUBDEVICE_ROLE_CHILD = False
+SUBDEVICE_ROLE_CHOICES = (
+    (None, 'None'),
+    (SUBDEVICE_ROLE_PARENT, 'Parent'),
+    (SUBDEVICE_ROLE_CHILD, 'Child'),
+)
 
 COLOR_TEAL = 'teal'
 COLOR_GREEN = 'green'
@@ -274,6 +283,7 @@ class Rack(CreatedUpdatedModel):
         # Add devices to rack units list
         if self.pk:
             for device in Device.objects.select_related('device_type__manufacturer', 'device_role')\
+                    .annotate(devicebay_count=Count('device_bays'))\
                     .exclude(pk=exclude)\
                     .filter(rack=self, position__gt=0)\
                     .filter(Q(face=face) | Q(device_type__is_full_depth=True)):
@@ -380,6 +390,10 @@ class DeviceType(models.Model):
                                  help_text="This type of device has power outlets")
     is_network_device = models.BooleanField(default=True, verbose_name='Is a network device',
                                             help_text="This type of device has network interfaces")
+    subdevice_role = models.NullBooleanField(default=None, verbose_name='Parent/child status',
+                                             choices=SUBDEVICE_ROLE_CHOICES,
+                                             help_text="Parent devices house child devices in device bays. Select "
+                                                       "\"None\" if this device type is neither a parent nor a child.")
 
     class Meta:
         ordering = ['manufacturer', 'model']
@@ -389,10 +403,39 @@ class DeviceType(models.Model):
         ]
 
     def __unicode__(self):
-        return "{0} {1}".format(self.manufacturer, self.model)
+        return "{} {}".format(self.manufacturer, self.model)
 
     def get_absolute_url(self):
         return reverse('dcim:devicetype', args=[self.pk])
+
+    def clean(self):
+
+        if not self.is_console_server and self.cs_port_templates.count():
+            raise ValidationError("Must delete all console server port templates associated with this device before "
+                                  "declassifying it as a console server.")
+
+        if not self.is_pdu and self.power_outlet_templates.count():
+            raise ValidationError("Must delete all power outlet templates associated with this device before "
+                                  "declassifying it as a PDU.")
+
+        if not self.is_network_device and self.interface_templates.filter(mgmt_only=False).count():
+            raise ValidationError("Must delete all non-management-only interface templates associated with this device "
+                                  "before declassifying it as a network device.")
+
+        if self.subdevice_role != SUBDEVICE_ROLE_PARENT and self.device_bay_templates.count():
+            raise ValidationError("Must delete all device bay templates associated with this device before "
+                                  "declassifying it as a parent device.")
+
+        if self.u_height and self.subdevice_role == SUBDEVICE_ROLE_CHILD:
+            raise ValidationError("Child device types must be 0U.")
+
+    @property
+    def is_parent_device(self):
+        return bool(self.subdevice_role)
+
+    @property
+    def is_child_device(self):
+        return bool(self.subdevice_role is False)
 
 
 class ConsolePortTemplate(models.Model):
@@ -472,6 +515,21 @@ class InterfaceTemplate(models.Model):
     mgmt_only = models.BooleanField(default=False, verbose_name='Management only')
 
     objects = InterfaceTemplateManager()
+
+    class Meta:
+        ordering = ['device_type', 'name']
+        unique_together = ['device_type', 'name']
+
+    def __unicode__(self):
+        return self.name
+
+
+class DeviceBayTemplate(models.Model):
+    """
+    A template for a DeviceBay to be created for a new parent Device.
+    """
+    device_type = models.ForeignKey('DeviceType', related_name='device_bay_templates', on_delete=models.CASCADE)
+    name = models.CharField(max_length=30)
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -563,6 +621,10 @@ class Device(CreatedUpdatedModel):
 
     def clean(self):
 
+        # Child devices cannot be assigned to a rack face/unit
+        if self.device_type.is_child_device and (self.face is not None or self.position):
+            raise ValidationError("Child device types cannot be assigned a rack face or position.")
+
         # Validate position/face combination
         if self.position and self.face is None:
             raise ValidationError("Must specify rack face with rack position.")
@@ -610,6 +672,10 @@ class Device(CreatedUpdatedModel):
                 [Interface(device=self, name=template.name, form_factor=template.form_factor,
                            mgmt_only=template.mgmt_only) for template in self.device_type.interface_templates.all()]
             )
+            DeviceBay.objects.bulk_create(
+                [DeviceBay(device=self, name=template.name) for template in
+                 self.device_type.device_bay_templates.all()]
+            )
 
     def to_csv(self):
         return ','.join([
@@ -642,6 +708,12 @@ class Device(CreatedUpdatedModel):
         if self.name is not None:
             return self.name
         return '{{{}}}'.format(self.pk)
+
+    def get_children(self):
+        """
+        Return the set of child Devices installed in DeviceBays within this Device.
+        """
+        return Device.objects.filter(parent_bay__device=self.pk)
 
     def get_rpc_client(self):
         """
@@ -785,6 +857,7 @@ class Interface(models.Model):
     device = models.ForeignKey('Device', related_name='interfaces', on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
     form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_SFP_PLUS)
+    mac_address = MACAddressField(null=True, blank=True, verbose_name='MAC Address')
     mgmt_only = models.BooleanField(default=False, verbose_name='OOB Management',
                                     help_text="This interface is used only for out-of-band management")
     description = models.CharField(max_length=100, blank=True)
@@ -858,6 +931,33 @@ class InterfaceConnection(models.Model):
             self.interface_b.name,
             self.get_connection_status_display(),
         ])
+
+
+class DeviceBay(models.Model):
+    """
+    An empty space within a Device which can house a child device
+    """
+    device = models.ForeignKey('Device', related_name='device_bays', on_delete=models.CASCADE)
+    name = models.CharField(max_length=50, verbose_name='Name')
+    installed_device = models.OneToOneField('Device', related_name='parent_bay', blank=True, null=True)
+
+    class Meta:
+        ordering = ['device', 'name']
+        unique_together = ['device', 'name']
+
+    def __unicode__(self):
+        return '{} - {}'.format(self.device.name, self.name)
+
+    def clean(self):
+
+        # Validate that the parent Device can have DeviceBays
+        if not self.device.device_type.is_parent_device:
+            raise ValidationError("This type of device ({}) does not support device bays."
+                                  .format(self.device.device_type))
+
+        # Cannot install a device into itself, obviously
+        if self.device == self.installed_device:
+            raise ValidationError("Cannot install a device into itself.")
 
 
 class Module(models.Model):

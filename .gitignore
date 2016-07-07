@@ -4,3 +4,4 @@ configuration.py
 /*.sh
 !upgrade.sh
 fabfile.py
+*.swp

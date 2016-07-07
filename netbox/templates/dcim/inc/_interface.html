@@ -5,6 +5,9 @@
             <i class="fa fa-fw fa-comment-o" title="{{ iface.description }}"></i>
         {% endif %}
     </td>
+    <td>
+        <small>{{ iface.mac_address|default:'' }}</small>
+    </td>
     {% if not iface.is_physical %}
         <td colspan="2">Virtual</td>
     {% elif iface.connection %}
@@ -21,7 +24,9 @@
             <a href="{% url 'circuits:circuit' pk=iface.circuit.pk %}">{{ iface.circuit }}</a>
         </td>
     {% else %}
-        <td colspan="2">Not connected</td>
+        <td colspan="2">
+            <span class="text-muted">Not connected</span>
+        </td>
     {% endif %}
     <td class="text-right">
         {% if iface.circuit or iface.connection %}

@@ -24,8 +24,9 @@ from utilities.views import (
 from . import filters, forms, tables
 from .models import (
     CONNECTION_STATUS_CONNECTED, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
-    DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform,
-    PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, Site,
+    DeviceBay, DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate,
+    Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
+    Site,
 )
 
 
@@ -153,7 +154,8 @@ def rack(request, pk):
 
     rack = get_object_or_404(Rack, pk=pk)
 
-    nonracked_devices = Device.objects.filter(rack=rack, position__isnull=True)
+    nonracked_devices = Device.objects.filter(rack=rack, position__isnull=True)\
+        .select_related('device_type__manufacturer')
     next_rack = Rack.objects.filter(site=rack.site, name__gt=rack.name).order_by('name').first()
     prev_rack = Rack.objects.filter(site=rack.site, name__lt=rack.name).order_by('-name').first()
 
@@ -263,12 +265,14 @@ def devicetype(request, pk):
     powerport_table = tables.PowerPortTemplateTable(PowerPortTemplate.objects.filter(device_type=devicetype))
     poweroutlet_table = tables.PowerOutletTemplateTable(PowerOutletTemplate.objects.filter(device_type=devicetype))
     interface_table = tables.InterfaceTemplateTable(InterfaceTemplate.objects.filter(device_type=devicetype))
+    devicebay_table = tables.DeviceBayTemplateTable(DeviceBayTemplate.objects.filter(device_type=devicetype))
     if request.user.has_perm('dcim.change_devicetype'):
         consoleport_table.base_columns['pk'].visible = True
         consoleserverport_table.base_columns['pk'].visible = True
         powerport_table.base_columns['pk'].visible = True
         poweroutlet_table.base_columns['pk'].visible = True
         interface_table.base_columns['pk'].visible = True
+        devicebay_table.base_columns['pk'].visible = True
 
     return render(request, 'dcim/devicetype.html', {
         'devicetype': devicetype,
@@ -277,6 +281,7 @@ def devicetype(request, pk):
         'powerport_table': powerport_table,
         'poweroutlet_table': poweroutlet_table,
         'interface_table': interface_table,
+        'devicebay_table': devicebay_table,
     })
 
 
@@ -395,6 +400,11 @@ class InterfaceTemplateAddView(ComponentTemplateCreateView):
     form = forms.InterfaceTemplateForm
 
 
+class DeviceBayTemplateAddView(ComponentTemplateCreateView):
+    model = DeviceBayTemplate
+    form = forms.DeviceBayTemplateForm
+
+
 def component_template_delete(request, pk, model):
 
     devicetype = get_object_or_404(DeviceType, pk=pk)
@@ -421,7 +431,7 @@ def component_template_delete(request, pk, model):
     else:
         form = ComponentTemplateBulkDeleteForm(initial={'pk': request.POST.getlist('pk')})
 
-    selected_objects = model.objects.filter(pk__in=form.initial.get('pk'))
+    selected_objects = model.objects.filter(pk__in=request.POST.getlist('pk'))
     if not selected_objects:
         messages.warning(request, "No {} were selected for deletion.".format(model._meta.verbose_name_plural))
         return redirect('dcim:devicetype', pk=devicetype.pk)
@@ -510,6 +520,7 @@ def device(request, pk):
         .select_related('connected_as_a', 'connected_as_b', 'circuit')
     mgmt_interfaces = Interface.objects.filter(device=device, mgmt_only=True)\
         .select_related('connected_as_a', 'connected_as_b', 'circuit')
+    device_bays = DeviceBay.objects.filter(device=device).select_related('installed_device__device_type__manufacturer')
 
     # Gather any secrets which belong to this device
     secrets = device.secrets.all()
@@ -540,6 +551,7 @@ def device(request, pk):
         'power_outlets': power_outlets,
         'interfaces': interfaces,
         'mgmt_interfaces': mgmt_interfaces,
+        'device_bays': device_bays,
         'ip_addresses': ip_addresses,
         'secrets': secrets,
         'related_devices': related_devices,
@@ -550,7 +562,7 @@ class DeviceEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_device'
     model = Device
     form_class = forms.DeviceForm
-    fields_initial = ['site', 'rack', 'position', 'face']
+    fields_initial = ['site', 'rack', 'position', 'face', 'device_bay']
     template_name = 'dcim/device_edit.html'
     cancel_url = 'dcim:device_list'
 
@@ -1240,6 +1252,7 @@ def interface_add(request, pk):
                     'device': device.pk,
                     'name': name,
                     'form_factor': form.cleaned_data['form_factor'],
+                    'mac_address': form.cleaned_data['mac_address'],
                     'mgmt_only': form.cleaned_data['mgmt_only'],
                     'description': form.cleaned_data['description'],
                 })
@@ -1327,6 +1340,7 @@ class InterfaceBulkAddView(PermissionRequiredMixin, BulkEditView):
                 iface_form = forms.InterfaceForm({
                     'device': device.pk,
                     'name': name,
+                    'mac_address': form.cleaned_data['mac_address'],
                     'form_factor': form.cleaned_data['form_factor'],
                     'mgmt_only': form.cleaned_data['mgmt_only'],
                     'description': form.cleaned_data['description'],
@@ -1340,6 +1354,143 @@ class InterfaceBulkAddView(PermissionRequiredMixin, BulkEditView):
             Interface.objects.bulk_create(interfaces)
             messages.success(self.request, "Added {} interfaces to {} devices".format(len(interfaces),
                                                                                       len(selected_devices)))
+
+
+#
+# Device bays
+#
+
+@permission_required('dcim.add_devicebay')
+def devicebay_add(request, pk):
+
+    device = get_object_or_404(Device, pk=pk)
+
+    if request.method == 'POST':
+        form = forms.DeviceBayCreateForm(request.POST)
+        if form.is_valid():
+
+            device_bays = []
+            for name in form.cleaned_data['name_pattern']:
+                devicebay_form = forms.DeviceBayForm({
+                    'device': device.pk,
+                    'name': name,
+                })
+                if devicebay_form.is_valid():
+                    device_bays.append(devicebay_form.save(commit=False))
+                else:
+                    for err in devicebay_form.errors.get('__all__', []):
+                        form.add_error('name_pattern', err)
+
+            if not form.errors:
+                DeviceBay.objects.bulk_create(device_bays)
+                messages.success(request, "Added {} device bay(s) to {}".format(len(device_bays), device))
+                if '_addanother' in request.POST:
+                    return redirect('dcim:devicebay_add', pk=device.pk)
+                else:
+                    return redirect('dcim:device', pk=device.pk)
+
+    else:
+        form = forms.DeviceBayCreateForm()
+
+    return render(request, 'dcim/devicebay_edit.html', {
+        'device': device,
+        'form': form,
+        'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
+    })
+
+
+@permission_required('dcim.change_devicebay')
+def devicebay_edit(request, pk):
+
+    devicebay = get_object_or_404(DeviceBay, pk=pk)
+
+    if request.method == 'POST':
+        form = forms.DeviceBayForm(request.POST, instance=devicebay)
+        if form.is_valid():
+            devicebay = form.save()
+            messages.success(request, "Modified {} bay {}".format(devicebay.device.name, devicebay.name))
+            return redirect('dcim:device', pk=devicebay.device.pk)
+
+    else:
+        form = forms.DeviceBayForm(instance=devicebay)
+
+    return render(request, 'dcim/devicebay_edit.html', {
+        'devicebay': devicebay,
+        'form': form,
+        'cancel_url': reverse('dcim:device', kwargs={'pk': devicebay.device.pk}),
+    })
+
+
+@permission_required('dcim.delete_devicebay')
+def devicebay_delete(request, pk):
+
+    devicebay = get_object_or_404(DeviceBay, pk=pk)
+
+    if request.method == 'POST':
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+            devicebay.delete()
+            messages.success(request, "Device bay {} has been deleted from {}".format(devicebay, devicebay.device))
+            return redirect('dcim:device', pk=devicebay.device.pk)
+
+    else:
+        form = ConfirmationForm()
+
+    return render(request, 'dcim/devicebay_delete.html', {
+        'devicebay': devicebay,
+        'form': form,
+        'cancel_url': reverse('dcim:device', kwargs={'pk': devicebay.device.pk}),
+    })
+
+
+@permission_required('dcim.change_devicebay')
+def devicebay_populate(request, pk):
+
+    device_bay = get_object_or_404(DeviceBay, pk=pk)
+
+    if request.method == 'POST':
+        form = forms.PopulateDeviceBayForm(device_bay, request.POST)
+        if form.is_valid():
+
+            device_bay.installed_device = form.cleaned_data['installed_device']
+            device_bay.save()
+
+            if not form.errors:
+                messages.success(request, "Added {} to {}".format(device_bay.installed_device, device_bay))
+                return redirect('dcim:device', pk=device_bay.device.pk)
+
+    else:
+        form = forms.PopulateDeviceBayForm(device_bay)
+
+    return render(request, 'dcim/devicebay_populate.html', {
+        'device_bay': device_bay,
+        'form': form,
+        'cancel_url': reverse('dcim:device', kwargs={'pk': device_bay.device.pk}),
+    })
+
+
+@permission_required('dcim.change_devicebay')
+def devicebay_depopulate(request, pk):
+
+    device_bay = get_object_or_404(DeviceBay, pk=pk)
+
+    if request.method == 'POST':
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+            removed_device = device_bay.installed_device
+            device_bay.installed_device = None
+            device_bay.save()
+            messages.success(request, "{} has been removed from {}".format(removed_device, device_bay))
+            return redirect('dcim:device', pk=device_bay.device.pk)
+
+    else:
+        form = ConfirmationForm()
+
+    return render(request, 'dcim/devicebay_depopulate.html', {
+        'device_bay': device_bay,
+        'form': form,
+        'cancel_url': reverse('dcim:device', kwargs={'pk': device_bay.device.pk}),
+    })
 
 
 #

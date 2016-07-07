@@ -4,8 +4,9 @@ from django_tables2.utils import Accessor
 from utilities.tables import BaseTable, ToggleColumn
 
 from .models import (
-    ConsolePort, ConsolePortTemplate, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType, InterfaceTemplate,
-    Manufacturer, Platform, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, Site,
+    ConsolePort, ConsolePortTemplate, ConsoleServerPortTemplate, Device, DeviceBayTemplate, DeviceRole, DeviceType,
+    Interface, InterfaceTemplate, Manufacturer, Platform, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
+    RackGroup, Site,
 )
 
 
@@ -201,6 +202,19 @@ class InterfaceTemplateTable(tables.Table):
         }
 
 
+class DeviceBayTemplateTable(tables.Table):
+    pk = ToggleColumn()
+
+    class Meta:
+        model = DeviceBayTemplate
+        fields = ('pk', 'name')
+        empty_text = "None"
+        show_header = False
+        attrs = {
+            'class': 'table table-hover panel-body',
+        }
+
+
 #
 # Device roles
 #
@@ -305,5 +319,5 @@ class InterfaceConnectionTable(BaseTable):
     interface_b = tables.Column(verbose_name='Interface B')
 
     class Meta(BaseTable.Meta):
-        model = PowerPort
+        model = Interface
         fields = ('device_a', 'interface_a', 'device_b', 'interface_b')

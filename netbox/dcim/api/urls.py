@@ -49,6 +49,7 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/power-ports/$', PowerPortListView.as_view(), name='device_powerports'),
     url(r'^devices/(?P<pk>\d+)/power-outlets/$', PowerOutletListView.as_view(), name='device_poweroutlets'),
     url(r'^devices/(?P<pk>\d+)/interfaces/$', InterfaceListView.as_view(), name='device_interfaces'),
+    url(r'^devices/(?P<pk>\d+)/device-bays/$', DeviceBayListView.as_view(), name='device_devicebays'),
 
     # Console ports
     url(r'^console-ports/(?P<pk>\d+)/$', ConsolePortView.as_view(), name='consoleport'),
