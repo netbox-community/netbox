@@ -2,7 +2,7 @@
 
 This guide documents the process of installing NetBox on RHEL/Centos 7  server with [nginx](https://www.nginx.com/) and [gunicorn](http://gunicorn.org/).
 
-[TOC]
+A big thank you to @dinoocch for making this Guide possible.
 
 # PostgreSQL
 
