@@ -1,71 +1,103 @@
-<h1>Getting started on RHEL/Centos OS</h1>
+<h1>Getting started on RHEL/Centos OS( DRAFT STILL IN THE WORKS)</h1>
 
 This guide documents the process of installing NetBox on RHEL/Centos 7 with [nginx](https://www.nginx.com/) and [gunicorn](http://gunicorn.org/).
 
- sudo yum install postgresql-server python-psycopg2 postgresql-devel
+CENTOS 7 - Centos 6 is similar, but slightly different
 
-  sudo postgresql-setup initdb
-  sudo systemctl start postgresql
+[TOC]
 
-sudo systemctl enable postgresql
-
-sudo yum install epel-release
+# PostgreSQL
 
 
-yum install python python-devel python-pip git libxml2-devel libxslt-devel libffi-devel graphviz gcc openssl-devel
 
-This will install all the missing packages for a successful pip install
-yum groupinstall 'Development Tools'
-pip install gunicorn
+# Install postgresql repository
+yum localinstall https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-centos95-9.5-2.noarch.rpm
 
+# Install posgresql
+yum install postgresql95-server postgresql95-devel python-psycopg2 -y
+# Enable the service
+systemctl enable postgresql-9.5
+# Initialize the database
+/usr/pgsql-9.5/bin/postgresql95-setup initdb
 
-sudo su -
-su - postgres
-cd data/
-vim  pg_hba.conf
+# Allow password login for users
 
-change the indent on the localhost connections to password and save
-exit postgres user
-service postgresql reload
+sed -i -e 's/ident/md5/' /var/lib/pgsql/9.5/data/pg_hba.conf
+# Start the service
+service postgresql-9.5 start
 
-test connections
+# Create our user/database
+sudo -u postgres psql <<EOL
+CREATE DATABASE netbox;
+CREATE USER netbox WITH PASSWORD 'J5brHrAXFLQSif0K';
+GRANT ALL PRIVILEGES ON DATABASE netbox TO netbox;
+\q
+EOL
 
+# Install required RPM's
+yum install epel-release
+yum install -y gcc openssl-devel python python-dev git python-pip libxml2-devel libxslt-devel libffi-devel graphviz
 
-# Quickstart
+# Either choose to clone or pull stable.
+mkdir -p /opt/netbox
+cd /opt/netbox
+git clone -b master https://github.com/digitalocean/netbox.git .
+pip install -r requirements.txt
+sed -i -e "s/'USER': ''/'USER': 'netbox'/" /opt/netbox/netbox/netbox/configuration.py
+sed -i -e "s/'PASSWORD': ''/'PASSWORD': 'J5brHrAXFLQSif0K'/" /opt/netbox/netbox/netbox/configuration.py
+sed -i -e "s/ALLOWED_HOSTS = \[\]/ALLOWED_HOSTS = \['\*'\]/" /opt/netbox/netbox/netbox/configuration.py
+key=`python2.7 /opt/netbox/netbox/generate_secret_key.py`
+sed -i -e "s/SECRET_KEY = ''/SECRET_KEY = '$key'/" /opt/netbox/netbox/netbox/configuration.py
+python2.7 /opt/netbox/netbox/manage.py migrate
+python2.7 /opt/netbox/netbox/manage.py collectstatic
+# You should probably createsuperuser too, but django doesn't like heredocs
+# You can also test your install at  this point using python2.7 manage.py runserver 0.0.0.0:8080
 
-Create a vagrant directory:
+# Latest Nginx is better
+echo "[nginx]
+name=nginx repo
+baseurl=http://nginx.org/packages/centos/7/$basearch/
+gpgcheck=0
+enabled=1" > /etc/yum.repos.d/nginx.repo
 
-```
-mkdir -p ~/vagrant
-cd ~/vagrant
+yum install -y nginx python-gunicorn supervisor
 
-```
-The vagrant is hosted on dropbox since vagrant charges for hosting the files.
+# nginx:
+echo 'server {
+   listen 80;
 
-Download from  and put into your ~/vagrant:
-https://www.dropbox.com/s/frlh9ul4n0wna46/package.box?dl=0   
+   server_name netbox.example.com;
 
+   access_log off;
 
-This install uses this default user and passwd for all the services:
-* user: vagrant
-* password: vagrant
+   location /static/ {
+       alias /opt/netbox/netbox/static/;
+   }
 
-When I say all the services this includes the ssh log-in, postgresql and the netbox
-Gui log-in.
+   location / {
+       proxy_pass http://127.0.0.1:8001;
+       proxy_set_header X-Forwarded-Host $server_name;
+       proxy_set_header X-Real-IP $remote_addr;
+       proxy_set_header X-Forwarded-Proto $scheme;
+       add_header P3P \'CP="ALL DSP COR PSAa PSDa OUR NOR ONL UNI COM NAV"\';
+   }
+}' > /etc/nginx/conf.d/netbox.conf
+rm /etc/nginx/conf.d/default
 
-Do the following inside ~/vagrant:
-vagrant box add netbox ~/vagrant/package.box
-vagrant init netbox
-vagrant up
-vagrant ssh
+# Creater a user to run netbox services
+useradd -M netbox
 
- open up a browser and put 127.0.0.1:2223 and log-in!
+# Gunicorn config
+echo "command = '/usr/bin/gunicorn'
+pythonpath = '/opt/netbox/netbox'
+bind = '0.0.0.0:8001'
+workers = 3
+user = 'netbox'" > /opt/netbox/gunicorn_config.py
 
-# if you cannot ssh or bring up the GUI check the virtualbox settings:
-* In the Virtualbox GUI click on your VM then settings.
-* Go to the networking and click on "port forwarding".
-* Make sure that ssh and nginx port are there. If not add them
-* rule: [Name: SSH, Protocol: TCP, Host IP: blank, Host Port: 2222, Guest IP: blank, Guest Port: 22]
-* rule: [Name: nginx, Protocol: TCP, Host IP: blank, Host Port: 2223, Guest IP: blank, Guest Port: 80]
-
-You can change the Host port since that is the port your host is going to use but, keep the Guest port the same as above since those are the default.
+# supervisor config
+echo "[program:netbox]
+command = gunicorn -c /opt/netbox/gunicorn_config.py netbox.wsgi
+directory = /opt/netbox/netbox/
+user = netbox" >> /etc/supervisord.conf
+service nginx restart
+service supervisord restart
