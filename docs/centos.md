@@ -9,11 +9,6 @@ This guide documents the process of installing NetBox on RHEL/Centos 7  server w
 ## Installation
 
 The following packages are needed to install PostgreSQL:
-
-* postgresql
-* libpq-dev
-* python-psycopg2
-
 ```
 # yum localinstall https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-centos95-9.5-2.noarch.rpm
 # yum install postgresql95-server postgresql95-devel python-psycopg2 -y
