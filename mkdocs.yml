@@ -6,9 +6,12 @@ pages:
         - 'PostgreSQL': 'installation/postgresql.md'
         - 'NetBox': 'installation/netbox.md'
         - 'Web Server': 'installation/web-server.md'
+        - 'LDAP (Optional)': 'installation/ldap.md'
         - 'Upgrading': 'installation/upgrading.md'
         - 'Alternate Install: Docker': 'installation/docker.md'
-    - 'Configuration': 'configuration.md'
+    - 'Configuration':
+        - 'Mandatory Settings': 'configuration/mandatory-settings.md'
+        - 'Optional Settings': 'configuration/optional-settings.md'
     - 'Data Model':
         - 'Circuits': 'data-model/circuits.md'
         - 'DCIM': 'data-model/dcim.md'
