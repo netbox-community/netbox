@@ -1,0 +1,12 @@
+site_name: NetBox
+pages:
+    - 'Introduction': 'index.md'
+    - 'Getting Started': 'getting-started.md'
+    - 'Configuration': 'configuration.md'
+    - 'Data Model':
+        - 'Circuits': 'data-model/circuits.md'
+        - 'DCIM': 'data-model/dcim.md'
+        - 'IPAM': 'data-model/ipam.md'
+        - 'Secrets': 'data-model/secrets.md'
+        - 'Extras': 'data-model/extras.md'
+    - 'API Integration': 'api-integration.md'

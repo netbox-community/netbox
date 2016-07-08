@@ -1,5 +1,3 @@
-<h1>IPAM</h1>
-
 IP address management (IPAM) entails the allocation of IP networks, addresses, and related numeric resources.
 
 [TOC]

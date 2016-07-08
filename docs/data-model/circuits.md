@@ -1,5 +1,3 @@
-<h1>Circuits</h1>
-
 The circuits component of NetBox deals with the management of long-haul Internet and private transit links and providers.
 
 [TOC]

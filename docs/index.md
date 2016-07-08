@@ -11,15 +11,15 @@ NetBox is an open source web application designed to help manage and document co
 
 It was designed with the following tenets foremost in mind.
 
-### Replicate the Real World
+## Replicate the Real World
 
 Careful consideration has been given to the data model to ensure that it can accurately reflect a real-world network. For instance, IP addresses are assigned not to devices, but to specific interfaces attached to a device, and an interface may have multiple IP addresses assigned to it.
 
-### Serve as a "Source of Truth"
+## Serve as a "Source of Truth"
 
 NetBox intends to represent the _desired_ state of a network versus its _operational_ state. As such, automated import of live network state is strongly discouraged. All data created in NetBox should first be vetted by a human to ensure its integrity. NetBox can then be used to populate monitoring and provisioning systems with a high degree of confidence.
 
-### Keep it Simple
+## Keep it Simple
 
 When given a choice between a relatively simple [80% solution](https://en.wikipedia.org/wiki/Pareto_principle) and a much more complex complete solution, the former will typically be favored. This ensures a lean codebase with a low learning curve.
 

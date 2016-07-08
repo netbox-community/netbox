@@ -1,5 +1,3 @@
-<h1>Secrets</h1>
-
 "Secrets" are small amounts of data that must be kept confidential; for example, passwords and SNMP community strings. NetBox provides encrypted storage of secret data.
 
 [TOC]
