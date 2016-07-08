@@ -1,7 +1,5 @@
 IP address management (IPAM) entails the allocation of IP networks, addresses, and related numeric resources.
 
-[TOC]
-
 # VRFs
 
 A VRF object in NetBox represents a virtual routing and forwarding (VRF) domain within a network. Each VRF is essentially a separate routing table: the same IP prefix or address can exist in multiple VRFs. VRFs are commonly used to isolate customers or organizations from one another within a network.

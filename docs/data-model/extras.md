@@ -1,7 +1,5 @@
 This section entails features of NetBox which are not crucial to its primary functions, but that provide additional value.
 
-[TOC]
-
 # Export Templates
 
 NetBox allows users to define custom templates that can be used when exporting objects. To create an export template, navigate to Extras > Export Templates under the admin interface.

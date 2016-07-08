@@ -1,7 +1,5 @@
 Data center infrastructure management (DCIM) entails all physical assets: sites, racks, devices, cabling, etc.
 
-[TOC]
-
 # Sites
 
 How you define sites will depend on the nature of your organization, but typically a site will equate a building or campus. For example, a chain of banks might create a site to represent each of its branches, a site for its corporate headquarters, and two additional sites for its presence in two colocation facilities.

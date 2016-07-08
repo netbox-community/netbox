@@ -1,7 +1,5 @@
 The circuits component of NetBox deals with the management of long-haul Internet and private transit links and providers.
 
-[TOC]
-
 # Providers
 
 A provider is any entity which provides some form of connectivity. This obviously includes carriers which offer Internet and private transit service. However, it might also include Internet exchange (IX) points and even organizations with whom you peer directly.

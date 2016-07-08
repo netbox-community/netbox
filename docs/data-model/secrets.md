@@ -1,7 +1,5 @@
 "Secrets" are small amounts of data that must be kept confidential; for example, passwords and SNMP community strings. NetBox provides encrypted storage of secret data.
 
-[TOC]
-
 # Secrets
 
 A secret represents a single credential or other string which must be stored securely. Each secret is assigned to a device within NetBox. The plaintext value of a secret is encrypted to a ciphertext immediately prior to storage within the database using a 256-bit AES master key. A SHA256 hash of the plaintext is also stored along with each ciphertext to validate the decrypted plaintext.
