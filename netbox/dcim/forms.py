@@ -340,7 +340,7 @@ class DeviceForm(forms.ModelForm, BootstrapMixin):
                                                        disabled_indicator='device'))
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(),
                                           widget=forms.Select(attrs={'filter-for': 'device_type'}))
-    device_type = forms.ModelChoiceField(queryset=DeviceType.objects.all(), label='Model', widget=APISelect(
+    device_type = forms.ModelChoiceField(queryset=DeviceType.objects.all(), label='Device type', widget=APISelect(
         api_url='/api/dcim/device-types/?manufacturer_id={{manufacturer}}',
         display_field='model'
     ))
