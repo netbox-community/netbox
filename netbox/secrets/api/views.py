@@ -52,7 +52,7 @@ class SecretListView(generics.GenericAPIView):
         queryset = self.filter_queryset(self.get_queryset())
 
         # Attempt to decrypt each Secret if a private key was provided.
-        if private_key is not None:
+        if private_key:
             try:
                 uk = UserKey.objects.get(user=request.user)
             except UserKey.DoesNotExist:
@@ -96,7 +96,7 @@ class SecretDetailView(generics.GenericAPIView):
         secret = get_object_or_404(Secret, pk=pk)
 
         # Attempt to decrypt the Secret if a private key was provided.
-        if private_key is not None:
+        if private_key:
             try:
                 uk = UserKey.objects.get(user=request.user)
             except UserKey.DoesNotExist:
