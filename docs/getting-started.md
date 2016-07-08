@@ -1,5 +1,3 @@
-<h1>Getting Started</h1>
-
 This guide documents the process of installing NetBox on an Ubuntu 14.04 server with [nginx](https://www.nginx.com/) and [gunicorn](http://gunicorn.org/).
 
 [TOC]
