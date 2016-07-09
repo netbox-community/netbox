@@ -51,7 +51,8 @@ except ImportError:
 # LDAP configuration (optional)
 if LDAP_CONFIGURED:
     try:
-        import ldap, django_auth_ldap
+        import ldap
+        import django_auth_ldap
         # Prepend LDAPBackend to the default ModelBackend
         AUTHENTICATION_BACKENDS = [
             'django_auth_ldap.backend.LDAPBackend',
