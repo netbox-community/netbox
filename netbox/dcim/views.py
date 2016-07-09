@@ -1,4 +1,5 @@
 import re
+from operator import attrgetter
 
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
@@ -11,6 +12,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import urlencode
 from django.views.generic import View
+
+from natsort import natsorted
 
 from ipam.models import Prefix, IPAddress, VLAN
 from circuits.models import Circuit
@@ -520,7 +523,10 @@ def device(request, pk):
         .select_related('connected_as_a', 'connected_as_b', 'circuit')
     mgmt_interfaces = Interface.objects.filter(device=device, mgmt_only=True)\
         .select_related('connected_as_a', 'connected_as_b', 'circuit')
-    device_bays = DeviceBay.objects.filter(device=device).select_related('installed_device__device_type__manufacturer')
+    device_bays = natsorted(
+        DeviceBay.objects.filter(device=device).select_related('installed_device__device_type__manufacturer'),
+        key=attrgetter("name")
+    )
 
     # Gather any secrets which belong to this device
     secrets = device.secrets.all()
