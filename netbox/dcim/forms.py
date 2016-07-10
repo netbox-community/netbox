@@ -1,6 +1,7 @@
 import re
 
 from django import forms
+from django.conf import settings
 from django.db.models import Count, Q
 
 from ipam.models import IPAddress
@@ -25,6 +26,9 @@ FORM_STATUS_CHOICES += STATUS_CHOICES
 
 DEVICE_BY_PK_RE = '{\d+\}'
 
+url_prefix = ''
+if settings.URL_PREFIX.strip('/'):
+    url_prefix = '/{0}'.format(settings.URL_PREFIX.strip('/'))
 
 def get_device_by_name_or_pk(name):
     """
@@ -105,7 +109,7 @@ class RackGroupFilterForm(forms.Form, BootstrapMixin):
 
 class RackForm(forms.ModelForm, BootstrapMixin):
     group = forms.ModelChoiceField(queryset=RackGroup.objects.all(), required=False, label='Group', widget=APISelect(
-        api_url='/api/dcim/rack-groups/?site_id={{site}}',
+        api_url=url_prefix + '/api/dcim/rack-groups/?site_id={{site}}',
     ))
     comments = CommentField()
 
@@ -330,18 +334,18 @@ class PlatformBulkDeleteForm(ConfirmationForm):
 class DeviceForm(forms.ModelForm, BootstrapMixin):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs={'filter-for': 'rack'}))
     rack = forms.ModelChoiceField(queryset=Rack.objects.all(), widget=APISelect(
-        api_url='/api/dcim/racks/?site_id={{site}}',
+        api_url=url_prefix + '/api/dcim/racks/?site_id={{site}}',
         display_field='display_name',
         attrs={'filter-for': 'position'}
     ))
     position = forms.TypedChoiceField(required=False, empty_value=None,
                                       help_text="For multi-U devices, this is the lowest occupied rack unit.",
-                                      widget=APISelect(api_url='/api/dcim/racks/{{rack}}/rack-units/?face={{face}}',
+                                      widget=APISelect(api_url=url_prefix + '/api/dcim/racks/{{rack}}/rack-units/?face={{face}}',
                                                        disabled_indicator='device'))
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(),
                                           widget=forms.Select(attrs={'filter-for': 'device_type'}))
     device_type = forms.ModelChoiceField(queryset=DeviceType.objects.all(), label='Device type', widget=APISelect(
-        api_url='/api/dcim/device-types/?manufacturer_id={{manufacturer}}',
+        api_url=url_prefix + '/api/dcim/device-types/?manufacturer_id={{manufacturer}}',
         display_field='model'
     ))
     comments = CommentField()
@@ -614,13 +618,13 @@ class ConsolePortConnectionForm(forms.ModelForm, BootstrapMixin):
     rack = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
                                   widget=forms.Select(attrs={'filter-for': 'console_server'}))
     console_server = forms.ModelChoiceField(queryset=Device.objects.all(), label='Console Server', required=False,
-                                            widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}&is_console_server=True',
+                                            widget=APISelect(api_url=url_prefix + '/api/dcim/devices/?rack_id={{rack}}&is_console_server=True',
                                                              attrs={'filter-for': 'cs_port'}))
     livesearch = forms.CharField(required=False, label='Console Server', widget=Livesearch(
         query_key='q', query_url='dcim-api:device_list', field_to_update='console_server')
     )
     cs_port = forms.ModelChoiceField(queryset=ConsoleServerPort.objects.all(), label='Port',
-                                     widget=APISelect(api_url='/api/dcim/devices/{{console_server}}/console-server-ports/',
+                                     widget=APISelect(api_url=url_prefix + '/api/dcim/devices/{{console_server}}/console-server-ports/',
                                                       disabled_indicator='connected_console'))
 
     class Meta:
@@ -681,13 +685,13 @@ class ConsoleServerPortConnectionForm(forms.Form, BootstrapMixin):
     rack = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
                                   widget=forms.Select(attrs={'filter-for': 'device'}))
     device = forms.ModelChoiceField(queryset=Device.objects.all(), label='Device', required=False,
-                                    widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}',
+                                    widget=APISelect(api_url=url_prefix + '/api/dcim/devices/?rack_id={{rack}}',
                                                      attrs={'filter-for': 'port'}))
     livesearch = forms.CharField(required=False, label='Device', widget=Livesearch(
         query_key='q', query_url='dcim-api:device_list', field_to_update='device')
     )
     port = forms.ModelChoiceField(queryset=ConsolePort.objects.all(), label='Port',
-                                  widget=APISelect(api_url='/api/dcim/devices/{{device}}/console-ports/',
+                                  widget=APISelect(api_url=url_prefix + '/api/dcim/devices/{{device}}/console-ports/',
                                                    disabled_indicator='cs_port'))
     connection_status = forms.BooleanField(required=False, initial=CONNECTION_STATUS_CONNECTED, label='Status',
                                            widget=forms.Select(choices=CONNECTION_STATUS_CHOICES))
@@ -810,13 +814,13 @@ class PowerPortConnectionForm(forms.ModelForm, BootstrapMixin):
     rack = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
                                   widget=forms.Select(attrs={'filter-for': 'pdu'}))
     pdu = forms.ModelChoiceField(queryset=Device.objects.all(), label='PDU', required=False,
-                                 widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}&is_pdu=True',
+                                 widget=APISelect(api_url=url_prefix + '/api/dcim/devices/?rack_id={{rack}}&is_pdu=True',
                                                   attrs={'filter-for': 'power_outlet'}))
     livesearch = forms.CharField(required=False, label='PDU', widget=Livesearch(
         query_key='q', query_url='dcim-api:device_list', field_to_update='pdu')
     )
     power_outlet = forms.ModelChoiceField(queryset=PowerOutlet.objects.all(), label='Outlet',
-                                          widget=APISelect(api_url='/api/dcim/devices/{{pdu}}/power-outlets/',
+                                          widget=APISelect(api_url=url_prefix + '/api/dcim/devices/{{pdu}}/power-outlets/',
                                                            disabled_indicator='connected_port'))
 
     class Meta:
@@ -877,13 +881,13 @@ class PowerOutletConnectionForm(forms.Form, BootstrapMixin):
     rack = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
                                   widget=forms.Select(attrs={'filter-for': 'device'}))
     device = forms.ModelChoiceField(queryset=Device.objects.all(), label='Device', required=False,
-                                    widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}',
+                                    widget=APISelect(api_url=url_prefix + '/api/dcim/devices/?rack_id={{rack}}',
                                                      attrs={'filter-for': 'port'}))
     livesearch = forms.CharField(required=False, label='Device', widget=Livesearch(
         query_key='q', query_url='dcim-api:device_list', field_to_update='device')
     )
     port = forms.ModelChoiceField(queryset=PowerPort.objects.all(), label='Port',
-                                  widget=APISelect(api_url='/api/dcim/devices/{{device}}/power-ports/',
+                                  widget=APISelect(api_url=url_prefix + '/api/dcim/devices/{{device}}/power-ports/',
                                                    disabled_indicator='power_outlet'))
     connection_status = forms.BooleanField(required=False, initial=CONNECTION_STATUS_CONNECTED, label='Status',
                                            widget=forms.Select(choices=CONNECTION_STATUS_CHOICES))
@@ -952,13 +956,13 @@ class InterfaceConnectionForm(forms.ModelForm, BootstrapMixin):
     rack_b = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
                                     widget=forms.Select(attrs={'filter-for': 'device_b'}))
     device_b = forms.ModelChoiceField(queryset=Device.objects.all(), label='Device', required=False,
-                                      widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack_b}}',
+                                      widget=APISelect(api_url=url_prefix + '/api/dcim/devices/?rack_id={{rack_b}}',
                                                        attrs={'filter-for': 'interface_b'}))
     livesearch = forms.CharField(required=False, label='Device', widget=Livesearch(
         query_key='q', query_url='dcim-api:device_list', field_to_update='device_b')
     )
     interface_b = forms.ModelChoiceField(queryset=Interface.objects.all(), label='Interface',
-                                         widget=APISelect(api_url='/api/dcim/devices/{{device_b}}/interfaces/?type=physical',
+                                         widget=APISelect(api_url=url_prefix + '/api/dcim/devices/{{device_b}}/interfaces/?type=physical',
                                                           disabled_indicator='is_connected'))
 
     class Meta:

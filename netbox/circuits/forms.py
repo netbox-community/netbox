@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.db.models import Count
 
 from dcim.models import Site, Device, Interface, Rack, IFACE_FF_VIRTUAL
@@ -9,6 +10,9 @@ from utilities.forms import (
 
 from .models import Circuit, CircuitType, Provider
 
+url_prefix = ''
+if settings.URL_PREFIX.strip('/'):
+    url_prefix = '/{0}'.format(settings.URL_PREFIX.strip('/'))
 
 #
 # Providers
@@ -82,16 +86,16 @@ class CircuitTypeBulkDeleteForm(ConfirmationForm):
 class CircuitForm(forms.ModelForm, BootstrapMixin):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs={'filter-for': 'rack'}))
     rack = forms.ModelChoiceField(queryset=Rack.objects.all(), required=False, label='Rack',
-                                  widget=APISelect(api_url='/api/dcim/racks/?site_id={{site}}',
+                                  widget=APISelect(api_url=url_prefix + '/api/dcim/racks/?site_id={{site}}',
                                                    attrs={'filter-for': 'device'}))
     device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False, label='Device',
-                                    widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}',
+                                    widget=APISelect(api_url=url_prefix + '/api/dcim/devices/?rack_id={{rack}}',
                                                      attrs={'filter-for': 'interface'}))
     livesearch = forms.CharField(required=False, label='Device', widget=Livesearch(
         query_key='q', query_url='dcim-api:device_list', field_to_update='device')
     )
     interface = forms.ModelChoiceField(queryset=Interface.objects.all(), required=False, label='Interface',
-                                       widget=APISelect(api_url='/api/dcim/devices/{{device}}/interfaces/?type=physical',
+                                       widget=APISelect(api_url=url_prefix + '/api/dcim/devices/{{device}}/interfaces/?type=physical',
                                                         disabled_indicator='is_connected'))
     comments = CommentField()
 

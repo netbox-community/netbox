@@ -1,6 +1,7 @@
 from netaddr import IPNetwork
 
 from django import forms
+from django.conf import settings
 from django.db.models import Count
 
 from dcim.models import Site, Device, Interface
@@ -16,6 +17,9 @@ from .models import (
 FORM_PREFIX_STATUS_CHOICES = (('', '---------'),) + PREFIX_STATUS_CHOICES
 FORM_VLAN_STATUS_CHOICES = (('', '---------'),) + VLAN_STATUS_CHOICES
 
+url_prefix = ''
+if settings.URL_PREFIX.strip('/'):
+    url_prefix = '/{0}'.format(settings.URL_PREFIX.strip('/'))
 
 #
 # VRFs
@@ -144,7 +148,7 @@ class PrefixForm(forms.ModelForm, BootstrapMixin):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site',
                                   widget=forms.Select(attrs={'filter-for': 'vlan'}))
     vlan = forms.ModelChoiceField(queryset=VLAN.objects.all(), required=False, label='VLAN',
-                                  widget=APISelect(api_url='/api/ipam/vlans/?site_id={{site}}',
+                                  widget=APISelect(api_url=url_prefix + '/api/ipam/vlans/?site_id={{site}}',
                                                    display_field='display_name'))
 
     class Meta:
@@ -270,13 +274,13 @@ class IPAddressForm(forms.ModelForm, BootstrapMixin):
     nat_site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site',
                                       widget=forms.Select(attrs={'filter-for': 'nat_device'}))
     nat_device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False, label='Device',
-                                        widget=APISelect(api_url='/api/dcim/devices/?site_id={{nat_site}}',
+                                        widget=APISelect(api_url=url_prefix + '/api/dcim/devices/?site_id={{nat_site}}',
                                                          attrs={'filter-for': 'nat_inside'}))
     livesearch = forms.CharField(required=False, label='IP Address', widget=Livesearch(
         query_key='q', query_url='ipam-api:ipaddress_list', field_to_update='nat_inside', obj_label='address')
     )
     nat_inside = forms.ModelChoiceField(queryset=IPAddress.objects.all(), required=False, label='NAT (Inside)',
-                                        widget=APISelect(api_url='/api/ipam/ip-addresses/?device_id={{nat_device}}',
+                                        widget=APISelect(api_url=url_prefix + '/api/ipam/ip-addresses/?device_id={{nat_device}}',
                                                          display_field='address'))
 
     class Meta:
