@@ -605,8 +605,10 @@ class Device(CreatedUpdatedModel):
                                                 help_text='Number of the lowest U position occupied by the device')
     face = models.PositiveSmallIntegerField(blank=True, null=True, choices=RACK_FACE_CHOICES, verbose_name='Rack face')
     status = models.BooleanField(choices=STATUS_CHOICES, default=STATUS_ACTIVE, verbose_name='Status')
-    primary_ip = models.OneToOneField('ipam.IPAddress', related_name='primary_for', on_delete=models.SET_NULL,
-                                      blank=True, null=True, verbose_name='Primary IP')
+    primary_ip4 = models.OneToOneField('ipam.IPAddress', related_name='primary_ip4_for', on_delete=models.SET_NULL,
+                                       blank=True, null=True, verbose_name='Primary IPv4')
+    primary_ip6 = models.OneToOneField('ipam.IPAddress', related_name='primary_ip6_for', on_delete=models.SET_NULL,
+                                       blank=True, null=True, verbose_name='Primary IPv6')
     comments = models.TextField(blank=True)
 
     class Meta:
@@ -708,6 +710,15 @@ class Device(CreatedUpdatedModel):
         if self.name is not None:
             return self.name
         return '{{{}}}'.format(self.pk)
+
+    @property
+    def primary_ip(self):
+        if self.primary_ip6:
+            return self.primary_ip6
+        elif self.primary_ip4:
+            return self.primary_ip4
+        else:
+            return None
 
     def get_children(self):
         """
