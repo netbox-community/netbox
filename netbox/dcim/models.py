@@ -143,6 +143,7 @@ class Site(CreatedUpdatedModel):
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
+    region = models.CharField(max_length=50, blank=True)
     facility = models.CharField(max_length=50, blank=True)
     asn = models.PositiveIntegerField(blank=True, null=True, verbose_name='ASN')
     physical_address = models.CharField(max_length=200, blank=True)

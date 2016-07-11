@@ -48,13 +48,14 @@ class SiteForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Site
-        fields = ['name', 'slug', 'facility', 'asn', 'physical_address', 'shipping_address', 'comments']
+        fields = ['name', 'slug', 'region', 'facility', 'asn', 'physical_address', 'shipping_address', 'comments']
         widgets = {
             'physical_address': SmallTextarea(attrs={'rows': 3}),
             'shipping_address': SmallTextarea(attrs={'rows': 3}),
         }
         help_texts = {
             'name': "Full name of the site",
+            'region': "Region or group of the site",
             'facility': "Data center provider and facility (e.g. Equinix NY7)",
             'asn': "BGP autonomous system number",
             'physical_address': "Physical location of the building (e.g. for GPS)",
