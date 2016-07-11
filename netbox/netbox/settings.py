@@ -38,9 +38,9 @@ TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
 DATETIME_FORMAT = getattr(configuration, 'DATETIME_FORMAT', 'N j, Y g:i a')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
-CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 BANNER_TOP = getattr(configuration, 'BANNER_TOP', False)
 BANNER_BOTTOM = getattr(configuration, 'BANNER_BOTTOM', False)
+CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
 # Attempt to import LDAP configuration if it has been defined
 LDAP_IGNORE_CERT_ERRORS = False

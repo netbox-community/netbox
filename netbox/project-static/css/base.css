@@ -295,6 +295,9 @@ ul.rack_near_face li.empty:hover a {
 .dark_gray:hover { background-color: #2c3e50; }
 
 /* Misc */
+.banner-bottom {
+    margin-bottom: 50px;
+}
 .panel table {
     margin-bottom: 0;
 }

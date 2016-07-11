@@ -227,8 +227,8 @@
         {% if settings.BANNER_TOP %}
             <div class="alert alert-info text-center" role="alert">
 				{{ settings.BANNER_TOP|safe }}
-        </div>
-        	{% endif %}
+            </div>
+        {% endif %}
         {% if settings.MAINTENANCE_MODE %}
             <div class="alert alert-warning text-center" role="alert">
                 <h4><i class="fa fa-exclamation-triangle"></i> Maintenance Mode</h4>
@@ -244,9 +244,8 @@
 	    	</div>
 	    {% endfor %}
 		{% block content %}{% endblock %}
-		<div class="push"></div>
  		{% if settings.BANNER_BOTTOM %}
-        	<div class="alert alert-info text-center" role="alert" style="margin-bottom:50px">
+        	<div class="alert alert-info text-center banner-bottom" role="alert">
                  {{ settings.BANNER_BOTTOM|safe }}
             </div>
         {% endif %}
