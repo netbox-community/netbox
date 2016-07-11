@@ -32,6 +32,15 @@ SECRET_KEY = ''
 #                       #
 #########################
 
+# URL prefix if NetBox is served from non-root location, e.g. http://mysite/netbox/
+# By default, URL_PREFIX = '/', i.e. NetBox is served from root location
+# URL_PREFIX = '/netbox'
+
+# Directory and URL from which static files will be served
+# for more info, see https://docs.djangoproject.com/en/1.9/howto/static-files/
+# STATIC_ROOT = '/var/www/htdocs/netbox/static/'
+# STATIC_URL = '/static/netbox/'
+
 # Specify one or more name and email address tuples representing NetBox administrators. These people will be notified of
 # application errors (assuming correct email settings are provided).
 ADMINS = [

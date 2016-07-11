@@ -22,7 +22,15 @@ for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
         raise ImproperlyConfigured("Mandatory setting {} is missing from configuration.py. Please define it per the "
                                    "documentation.".format(setting))
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # Default configurations
+URL_PREFIX = getattr(configuration, 'URL_PREFIX', '/')
+url_prefix = ''
+if URL_PREFIX.strip('/'):
+    url_prefix = '/{0}'.format(URL_PREFIX.strip('/'))
+STATIC_ROOT = getattr(configuration, 'STATIC_ROOT', BASE_DIR + '/static/')
+STATIC_URL = getattr(configuration, 'STATIC_URL', '/static' + url_prefix + '/')
 ADMINS = getattr(configuration, 'ADMINS', [])
 DEBUG = getattr(configuration, 'DEBUG', False)
 EMAIL = getattr(configuration, 'EMAIL', {})
@@ -70,8 +78,6 @@ if LDAP_CONFIGURED:
     except ImportError:
         raise ImproperlyConfigured("LDAP authentication has been configured, but django-auth-ldap is not installed. "
                                    "You can remove netbox/ldap.py to disable LDAP.")
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Database
 configuration.DATABASE.update({'ENGINE': 'django.db.backends.postgresql'})
@@ -155,9 +161,7 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.8/howto/static-files/
-STATIC_ROOT = BASE_DIR + '/static/'
-STATIC_URL = '/static/'
+# https://docs.djangoproject.com/en/1.9/howto/static-files/
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "project-static"),
 )
@@ -168,9 +172,9 @@ MESSAGE_TAGS = {
 }
 
 # Authentication URLs
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_URL = '/logout/'
+LOGIN_URL = url_prefix + '/login/'
+LOGIN_REDIRECT_URL = url_prefix + '/'
+LOGOUT_URL = url_prefix + '/logout/'
 
 # Secrets
 SECRETS_MIN_PUBKEY_SIZE = 2048
@@ -182,7 +186,7 @@ REST_FRAMEWORK = {
 
 # Swagger settings (API docs)
 SWAGGER_SETTINGS = {
-    'base_path': '{}/api/docs'.format(ALLOWED_HOSTS[0]),
+    'base_path': '{}'.format(ALLOWED_HOSTS[0]) + url_prefix + '/api/docs',
 }
 
 
