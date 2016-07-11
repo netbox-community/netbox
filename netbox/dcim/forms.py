@@ -30,6 +30,7 @@ url_prefix = ''
 if settings.URL_PREFIX.strip('/'):
     url_prefix = '/{0}'.format(settings.URL_PREFIX.strip('/'))
 
+
 def get_device_by_name_or_pk(name):
     """
     Attempt to retrieve a device by either its name or primary key ('{pk}').

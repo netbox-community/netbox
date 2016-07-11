@@ -21,6 +21,7 @@ url_prefix = ''
 if settings.URL_PREFIX.strip('/'):
     url_prefix = '/{0}'.format(settings.URL_PREFIX.strip('/'))
 
+
 #
 # VRFs
 #
