@@ -318,6 +318,8 @@ class DeviceTest(APITestCase):
         'parent_device',
         'status',
         'primary_ip',
+        'primary_ip4',
+        'primary_ip6',
         'comments',
     ]
 
@@ -375,6 +377,10 @@ class DeviceTest(APITestCase):
             'primary_ip_address',
             'primary_ip_family',
             'primary_ip_id',
+            'primary_ip4_address',
+            'primary_ip4_family',
+            'primary_ip4_id',
+            'primary_ip6',
             'rack_display_name',
             'rack_facility_id',
             'rack_id',

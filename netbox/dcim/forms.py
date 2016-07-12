@@ -349,7 +349,7 @@ class DeviceForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Device
         fields = ['name', 'device_role', 'device_type', 'serial', 'site', 'rack', 'position', 'face', 'status',
-                  'platform', 'primary_ip', 'comments']
+                  'platform', 'primary_ip4', 'primary_ip6', 'comments']
         help_texts = {
             'device_role': "The function this device serves",
             'serial': "Chassis serial number",
@@ -369,20 +369,23 @@ class DeviceForm(forms.ModelForm, BootstrapMixin):
             self.initial['site'] = self.instance.rack.site
             self.initial['manufacturer'] = self.instance.device_type.manufacturer
 
-            # Compile list of IPs assigned to this device
-            primary_ip_choices = []
-            interface_ips = IPAddress.objects.filter(interface__device=self.instance)
-            primary_ip_choices += [(ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips]
-            nat_ips = IPAddress.objects.filter(nat_inside__interface__device=self.instance)\
-                .select_related('nat_inside__interface')
-            primary_ip_choices += [(ip.id, '{} ({} NAT)'.format(ip.address, ip.nat_inside.interface)) for ip in nat_ips]
-            self.fields['primary_ip'].choices = [(None, '---------')] + primary_ip_choices
+            # Compile list of choices for primary IPv4 and IPv6 addresses
+            for family in [4, 6]:
+                ip_choices = []
+                interface_ips = IPAddress.objects.filter(family=family, interface__device=self.instance)
+                ip_choices += [(ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips]
+                nat_ips = IPAddress.objects.filter(family=family, nat_inside__interface__device=self.instance)\
+                    .select_related('nat_inside__interface')
+                ip_choices += [(ip.id, '{} ({} NAT)'.format(ip.address, ip.nat_inside.interface)) for ip in nat_ips]
+                self.fields['primary_ip{}'.format(family)].choices = [(None, '---------')] + ip_choices
 
         else:
 
             # An object that doesn't exist yet can't have any IPs assigned to it
-            self.fields['primary_ip'].choices = []
-            self.fields['primary_ip'].widget.attrs['readonly'] = True
+            self.fields['primary_ip4'].choices = []
+            self.fields['primary_ip4'].widget.attrs['readonly'] = True
+            self.fields['primary_ip6'].choices = []
+            self.fields['primary_ip6'].widget.attrs['readonly'] = True
 
         # Limit rack choices
         if self.is_bound:
