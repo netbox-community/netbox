@@ -9,6 +9,7 @@ services:
             POSTGRES_PASSWORD: J5brHrAXFLQSif0K
             POSTGRES_DB: netbox
     netbox:
+        build: .
         image: digitalocean/netbox
         links:
         - postgres
