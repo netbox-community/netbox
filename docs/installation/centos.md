@@ -245,7 +245,7 @@ We'll set up a simple HTTP front end using [gunicorn](http://gunicorn.org/) for 
 ```
 #If python-gunicorn does show up then install with pip
 ```
-#sudo yum install -y gunicorn
+#sudo pip install gunicorn
 ```
 
 ## nginx Configuration
