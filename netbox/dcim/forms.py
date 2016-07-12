@@ -186,7 +186,7 @@ def rack_group_choices():
 class RackFilterForm(forms.Form, BootstrapMixin):
     site = forms.MultipleChoiceField(required=False, choices=rack_site_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
-    group_id = forms.MultipleChoiceField(required=False, choices=rack_group_choices,
+    group_id = forms.MultipleChoiceField(required=False, choices=rack_group_choices, label='Rack Group',
                                          widget=forms.SelectMultiple(attrs={'size': 8}))
 
 
