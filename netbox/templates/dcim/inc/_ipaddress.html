@@ -4,7 +4,7 @@
     </td>
     <td>{{ ip.interface }}</td>
     <td>
-        {% if device.primary_ip == ip %}
+        {% if device.primary_ip4 == ip or device.primary_ip6 == ip %}
             <span class="label label-success">Primary</span>
         {% endif %}
     </td>

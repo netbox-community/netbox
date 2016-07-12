@@ -31,7 +31,10 @@
         <div class="panel-body">
             {% render_field form.platform %}
             {% render_field form.status %}
-            {% if obj %}{% render_field form.primary_ip %}{% endif %}
+            {% if obj %}
+                {% render_field form.primary_ip4 %}
+                {% render_field form.primary_ip6 %}
+            {% endif %}
         </div>
     </div>
     <div class="panel panel-default">

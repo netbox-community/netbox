@@ -89,7 +89,7 @@ class DeviceTypeAdmin(admin.ModelAdmin):
             power_port_count=Count('power_port_templates', distinct=True),
             power_outlet_count=Count('power_outlet_templates', distinct=True),
             interface_count=Count('interface_templates', distinct=True),
-            devicebay_count=Count('devicebay_templates', distinct=True),
+            devicebay_count=Count('device_bay_templates', distinct=True),
         )
 
     def console_ports(self, instance):
@@ -180,4 +180,4 @@ class DeviceAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super(DeviceAdmin, self).get_queryset(request)
-        return qs.select_related('device_type__manufacturer', 'device_role', 'primary_ip', 'rack')
+        return qs.select_related('device_type__manufacturer', 'device_role', 'primary_ip4', 'primary_ip6', 'rack')
