@@ -263,7 +263,7 @@ class Rack(CreatedUpdatedModel):
     @property
     def display_name(self):
         if self.facility_id:
-            return "{} ({})".format(self.name, self.facility_id)
+            return u"{} ({})".format(self.name, self.facility_id)
         return self.name
 
     def get_rack_units(self, face=RACK_FACE_FRONT, exclude=None, remove_redundant=False):
@@ -698,9 +698,9 @@ class Device(CreatedUpdatedModel):
         if self.name:
             return self.name
         elif self.position:
-            return "{} ({} U{})".format(self.device_type, self.rack.name, self.position)
+            return u"{} ({} U{})".format(self.device_type, self.rack.name, self.position)
         else:
-            return "{} ({})".format(self.device_type, self.rack.name)
+            return u"{} ({})".format(self.device_type, self.rack.name)
 
     @property
     def identifier(self):

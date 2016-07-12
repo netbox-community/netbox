@@ -375,7 +375,7 @@ class VLAN(CreatedUpdatedModel):
 
     @property
     def display_name(self):
-        return "{} ({})".format(self.vid, self.name)
+        return u"{} ({})".format(self.vid, self.name)
 
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]
