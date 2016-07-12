@@ -364,7 +364,7 @@ def prefix_ipaddresses(request, pk):
 
     # Find all IPAddresses belonging to this Prefix
     ipaddresses = IPAddress.objects.filter(address__net_contained_or_equal=str(prefix.prefix))\
-        .select_related('vrf', 'interface__device', 'primary_for')
+        .select_related('vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for')
 
     ip_table = tables.IPAddressTable(ipaddresses)
     ip_table.model = IPAddress
@@ -383,7 +383,7 @@ def prefix_ipaddresses(request, pk):
 #
 
 class IPAddressListView(ObjectListView):
-    queryset = IPAddress.objects.select_related('vrf', 'interface__device', 'primary_for')
+    queryset = IPAddress.objects.select_related('vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for')
     filter = filters.IPAddressFilter
     filter_form = forms.IPAddressFilterForm
     table = tables.IPAddressTable
@@ -443,9 +443,14 @@ class IPAddressBulkImportView(PermissionRequiredMixin, BulkImportView):
         obj.save()
         # Update primary IP for device if needed
         try:
-            device = obj.primary_for
-            device.primary_ip = obj
-            device.save()
+            if obj.family == 4 and obj.primary_ip4_for:
+                device = obj.primary_ip4_for
+                device.primary_ip4 = obj
+                device.save()
+            elif obj.family == 6 and obj.primary_ip6_for:
+                device = obj.primary_ip6_for
+                device.primary_ip6 = obj
+                device.save()
         except Device.DoesNotExist:
             pass
 

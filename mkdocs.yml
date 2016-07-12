@@ -1,0 +1,24 @@
+site_name: NetBox
+
+pages:
+    - 'Introduction': 'index.md'
+    - 'Installation':
+        - 'PostgreSQL': 'installation/postgresql.md'
+        - 'NetBox': 'installation/netbox.md'
+        - 'Web Server': 'installation/web-server.md'
+        - 'LDAP (Optional)': 'installation/ldap.md'
+        - 'Upgrading': 'installation/upgrading.md'
+        - 'Alternate Install: Docker': 'installation/docker.md'
+    - 'Configuration':
+        - 'Mandatory Settings': 'configuration/mandatory-settings.md'
+        - 'Optional Settings': 'configuration/optional-settings.md'
+    - 'Data Model':
+        - 'Circuits': 'data-model/circuits.md'
+        - 'DCIM': 'data-model/dcim.md'
+        - 'IPAM': 'data-model/ipam.md'
+        - 'Secrets': 'data-model/secrets.md'
+        - 'Extras': 'data-model/extras.md'
+    - 'API Integration': 'api-integration.md'
+
+markdown_extensions:
+    - admonition:

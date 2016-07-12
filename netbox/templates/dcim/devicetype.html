@@ -81,7 +81,7 @@
         {% include 'dcim/inc/devicetype_component_table.html' with table=powerport_table title='Power Ports' add_url='dcim:devicetype_add_powerport' delete_url='dcim:devicetype_delete_powerport' %}
     </div>
     <div class="col-md-6">
-        {% if devicetype.is_network_device %}
+        {% if devicetype.is_parent_device %}
             {% include 'dcim/inc/devicetype_component_table.html' with table=devicebay_table title='Device Bays' add_url='dcim:devicetype_add_devicebay' delete_url='dcim:devicetype_delete_devicebay' %}
         {% endif %}
         {% if devicetype.is_network_device %}

@@ -1,8 +1,4 @@
-<h1>DCIM</h1>
-
 Data center infrastructure management (DCIM) entails all physical assets: sites, racks, devices, cabling, etc.
-
-[TOC]
 
 # Sites
 

@@ -314,12 +314,20 @@ class IPAddress(CreatedUpdatedModel):
         super(IPAddress, self).save(*args, **kwargs)
 
     def to_csv(self):
+
+        # Determine if this IP is primary for a Device
+        is_primary = False
+        if self.family == 4 and getattr(self, 'primary_ip4_for', False):
+            is_primary = True
+        elif self.family == 6 and getattr(self, 'primary_ip6_for', False):
+            is_primary = True
+
         return ','.join([
             str(self.address),
             self.vrf.rd if self.vrf else '',
             self.device.identifier if self.device else '',
             self.interface.name if self.interface else '',
-            'True' if getattr(self, 'primary_for', False) else '',
+            'True' if is_primary else '',
             self.description,
         ])
 
@@ -367,7 +375,7 @@ class VLAN(CreatedUpdatedModel):
 
     @property
     def display_name(self):
-        return "{} ({})".format(self.vid, self.name)
+        return u"{} ({})".format(self.vid, self.name)
 
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]

@@ -1,3 +1,4 @@
+import logging
 import os
 import socket
 
@@ -11,7 +12,7 @@ except ImportError:
                                "the documentation.")
 
 
-VERSION = '1.1.0'
+VERSION = '1.2.0'
 
 # Import local configuration
 for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
@@ -37,7 +38,38 @@ TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
 DATETIME_FORMAT = getattr(configuration, 'DATETIME_FORMAT', 'N j, Y g:i a')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
+BANNER_TOP = getattr(configuration, 'BANNER_TOP', False)
+BANNER_BOTTOM = getattr(configuration, 'BANNER_BOTTOM', False)
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
+
+# Attempt to import LDAP configuration if it has been defined
+LDAP_IGNORE_CERT_ERRORS = False
+try:
+    from ldap_config import *
+    LDAP_CONFIGURED = True
+except ImportError:
+    LDAP_CONFIGURED = False
+
+# LDAP configuration (optional)
+if LDAP_CONFIGURED:
+    try:
+        import ldap
+        import django_auth_ldap
+        # Prepend LDAPBackend to the default ModelBackend
+        AUTHENTICATION_BACKENDS = [
+            'django_auth_ldap.backend.LDAPBackend',
+            'django.contrib.auth.backends.ModelBackend',
+        ]
+        # Optionally disable strict certificate checking
+        if LDAP_IGNORE_CERT_ERRORS:
+            ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
+        # Enable logging for django_auth_ldap
+        logger = logging.getLogger('django_auth_ldap')
+        logger.addHandler(logging.StreamHandler())
+        logger.setLevel(logging.DEBUG)
+    except ImportError:
+        raise ImproperlyConfigured("LDAP authentication has been configured, but django-auth-ldap is not installed. "
+                                   "You can remove netbox/ldap.py to disable LDAP.")
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

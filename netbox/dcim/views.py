@@ -501,7 +501,8 @@ class PlatformBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class DeviceListView(ObjectListView):
-    queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'rack__site', 'primary_ip')
+    queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'rack__site', 'primary_ip4',
+                                             'primary_ip6')
     filter = filters.DeviceFilter
     filter_form = forms.DeviceFilterForm
     table = tables.DeviceTable
@@ -1634,7 +1635,10 @@ def ipaddress_assign(request, pk):
                                                                                          ipaddress.interface))
 
             if form.cleaned_data['set_as_primary']:
-                device.primary_ip = ipaddress
+                if ipaddress.family == 4:
+                    device.primary_ip4 = ipaddress
+                elif ipaddress.family == 6:
+                    device.primary_ip6 = ipaddress
                 device.save()
 
             if '_addanother' in request.POST:

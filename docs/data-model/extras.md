@@ -1,8 +1,4 @@
-<h1>Extras</h1>
-
 This section entails features of NetBox which are not crucial to its primary functions, but that provide additional value.
-
-[TOC]
 
 # Export Templates
 

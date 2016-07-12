@@ -1,13 +1,11 @@
-<h1>Getting Started with NetBox and Docker</h1>
-
-This guide assumes that the latest versions of [Docker](https://www.docker.com/) and [docker-compose](https://docs.docker.com/compose/) are already installed in your host.
+This guide demonstrates how to build and run NetBox as a Docker container. It assumes that the latest versions of [Docker](https://www.docker.com/) and [docker-compose](https://docs.docker.com/compose/) are already installed in your host.
 
 # Quickstart
 
 To get NetBox up and running:
 
 ```
-git clone https://github.com/digitalocean/netbox.git
+git clone -b master https://github.com/digitalocean/netbox.git
 cd netbox
 docker-compose up -d
 ```
@@ -15,13 +13,13 @@ docker-compose up -d
 The application will be available on http://localhost/ after a few minutes.
 
 Default credentials:
-* user: admin
-* password: admin
+
+* Username: **admin**
+* Password: **admin**
 
 # Configuration
-You can configure the app at runtime using variables (see docker-compose.yml).
 
-Possible environment variables:
+You can configure the app at runtime using variables (see `docker-compose.yml`). Possible environment variables include:
 
 * SUPERUSER_NAME
 * SUPERUSER_EMAIL
@@ -51,4 +49,3 @@ Possible environment variables:
 * SHORT_TIME_FORMAT
 * DATETIME_FORMAT
 * SHORT_DATETIME_FORMAT
-

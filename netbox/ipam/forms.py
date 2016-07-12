@@ -329,7 +329,7 @@ class IPAddressForm(forms.ModelForm, BootstrapMixin):
 
 class IPAddressFromCSVForm(forms.ModelForm):
     vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, to_field_name='rd',
-                                 error_messages={'invalid_choice': 'Site not found.'})
+                                 error_messages={'invalid_choice': 'VRF not found.'})
     device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False, to_field_name='name',
                                     error_messages={'invalid_choice': 'Device not found.'})
     interface_name = forms.CharField(required=False)
@@ -368,7 +368,10 @@ class IPAddressFromCSVForm(forms.ModelForm):
                                                             name=self.cleaned_data['interface_name'])
         # Set as primary for device
         if self.cleaned_data['is_primary']:
-            self.instance.primary_for = self.cleaned_data['device']
+            if self.instance.family == 4:
+                self.instance.primary_ip4_for = self.cleaned_data['device']
+            elif self.instance.family == 6:
+                self.instance.primary_ip6_for = self.cleaned_data['device']
 
         return super(IPAddressFromCSVForm, self).save(commit=commit)
 

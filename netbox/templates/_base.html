@@ -224,6 +224,11 @@
         </div>
     </nav>
 	<div class="container wrapper">
+        {% if settings.BANNER_TOP %}
+            <div class="alert alert-info text-center" role="alert">
+				{{ settings.BANNER_TOP|safe }}
+            </div>
+        {% endif %}
         {% if settings.MAINTENANCE_MODE %}
             <div class="alert alert-warning text-center" role="alert">
                 <h4><i class="fa fa-exclamation-triangle"></i> Maintenance Mode</h4>
@@ -239,20 +244,25 @@
 	    	</div>
 	    {% endfor %}
 		{% block content %}{% endblock %}
-		<div class="push"></div>
+        <div class="push"></div>
+ 		{% if settings.BANNER_BOTTOM %}
+        	<div class="alert alert-info text-center banner-bottom" role="alert">
+                 {{ settings.BANNER_BOTTOM|safe }}
+            </div>
+        {% endif %}
 	</div>
 	<footer class="footer">
 		<div class="container">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-xs-4">
                     <p class="text-muted">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
                 </div>
-                <div class="col-md-4 text-center">
+                <div class="col-xs-4 text-center">
                     <p class="text-muted">{% now 'Y-m-d H:i:s T' %}</p>
                 </div>
-                <div class="col-md-4 text-right">
+                <div class="col-xs-4 text-right">
                     <p class="text-muted">
-                        <i class="fa fa-fw fa-book text-primary"></i> <a href="{% url 'docs_root' %}">Docs</a> &middot;
+                        <i class="fa fa-fw fa-book text-primary"></i> <a href="http://netbox.readthedocs.io/" target="_blank">Docs</a> &middot;
                         <i class="fa fa-fw fa-cloud text-primary"></i> <a href="/api/docs/">API</a> &middot;
                         <i class="fa fa-fw fa-code text-primary"></i> <a href="https://github.com/digitalocean/netbox">Code</a>
                     </p>

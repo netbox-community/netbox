@@ -89,7 +89,7 @@ class DeviceTypeAdmin(admin.ModelAdmin):
             power_port_count=Count('power_port_templates', distinct=True),
             power_outlet_count=Count('power_outlet_templates', distinct=True),
             interface_count=Count('interface_templates', distinct=True),
-            devicebay_count=Count('devicebay_templates', distinct=True),
+            devicebay_count=Count('device_bay_templates', distinct=True),
         )
 
     def console_ports(self, instance):
