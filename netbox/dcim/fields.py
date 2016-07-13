@@ -1,9 +1,18 @@
 from netaddr import EUI, mac_unix_expanded
 
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from .formfields import MACAddressFormField
+
+
+class ASNField(models.BigIntegerField):
+    description = "32-bit ASN field"
+    default_validators = [
+        MinValueValidator(1),
+        MaxValueValidator(4294967295),
+    ]
 
 
 class mac_unix_expanded_uppercase(mac_unix_expanded):

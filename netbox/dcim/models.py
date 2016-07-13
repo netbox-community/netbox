@@ -11,7 +11,7 @@ from extras.rpc import RPC_CLIENTS
 from utilities.fields import NullableCharField
 from utilities.models import CreatedUpdatedModel
 
-from .fields import MACAddressField
+from .fields import ASNField, MACAddressField
 
 RACK_FACE_FRONT = 0
 RACK_FACE_REAR = 1
@@ -145,7 +145,7 @@ class Site(CreatedUpdatedModel):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
     facility = models.CharField(max_length=50, blank=True)
-    asn = models.PositiveIntegerField(blank=True, null=True, verbose_name='ASN')
+    asn = ASNField(blank=True, null=True, verbose_name='ASN')
     physical_address = models.CharField(max_length=200, blank=True)
     shipping_address = models.CharField(max_length=200, blank=True)
     comments = models.TextField(blank=True)

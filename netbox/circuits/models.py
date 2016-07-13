@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.db import models
 
+from dcim.fields import ASNField
 from dcim.models import Site, Interface
 from utilities.models import CreatedUpdatedModel
 
@@ -12,7 +13,7 @@ class Provider(CreatedUpdatedModel):
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
-    asn = models.PositiveIntegerField(blank=True, null=True, verbose_name='ASN')
+    asn = ASNField(blank=True, null=True, verbose_name='ASN')
     account = models.CharField(max_length=30, blank=True, verbose_name='Account number')
     portal_url = models.URLField(blank=True, verbose_name='Portal')
     noc_contact = models.TextField(blank=True, verbose_name='NOC contact')
