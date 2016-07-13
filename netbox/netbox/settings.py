@@ -102,7 +102,7 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework_swagger',
     'circuits',
-    'dcim',
+    'dcim.apps.IPAMConfig',
     'ipam',
     'extras',
     'secrets',
