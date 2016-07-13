@@ -12,7 +12,7 @@ except ImportError:
                                "the documentation.")
 
 
-VERSION = '1.2.0'
+VERSION = '1.2.1'
 
 # Import local configuration
 for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
@@ -40,6 +40,7 @@ DATETIME_FORMAT = getattr(configuration, 'DATETIME_FORMAT', 'N j, Y g:i a')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
 BANNER_TOP = getattr(configuration, 'BANNER_TOP', False)
 BANNER_BOTTOM = getattr(configuration, 'BANNER_BOTTOM', False)
+PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
 # Attempt to import LDAP configuration if it has been defined

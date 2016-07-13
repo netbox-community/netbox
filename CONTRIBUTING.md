@@ -27,9 +27,10 @@ IRC.
 
 ## Feature Requests
 
-* First, check the [issues list](https://github.com/digitalocean/netbox/issues) to see if the feature you'd like to see
-has already been requested (and possibly rejected). If it is, be sure to comment with a "+1" and any additional
-justification you have for the feature.
+* First, check the [issues list](https://github.com/digitalocean/netbox/issues) to see if the feature you're requesting
+has already been requested (and possibly rejected). If it has, click "add a reaction" in the top right corner of the
+issue and add a thumbs up (+1). This ensures that the issue has a better chance of making it onto the roadmap. Also feel
+free to add a comment with any additional justification for the feature.
 
 * While discussion of new features is welcome, it's important to limit the scope of NetBox's feature set to avoid
 feature creep. For example, the following features would be firmly out of scope for NetBox:

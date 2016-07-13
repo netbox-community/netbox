@@ -180,4 +180,4 @@ class DeviceAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super(DeviceAdmin, self).get_queryset(request)
-        return qs.select_related('device_type__manufacturer', 'device_role', 'primary_ip', 'rack')
+        return qs.select_related('device_type__manufacturer', 'device_role', 'primary_ip4', 'primary_ip6', 'rack')

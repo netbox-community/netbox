@@ -4,40 +4,38 @@ As with the initial installation, you can upgrade NetBox by either downloading t
 
 ## Option A: Download a Release
 
-Download the [latest stable release](https://github.com/digitalocean/netbox/releases) from GitHub as a tarball or ZIP archive. Extract it to your desired path. In this example, we'll use `/opt/netbox`.  For this guide we are using 1.0.4 as the old version and 1.0.7 as the new version.
+Download the [latest stable release](https://github.com/digitalocean/netbox/releases) from GitHub as a tarball or ZIP archive. Extract it to your desired path. In this example, we'll use `/opt/netbox`.
 
-Download & extract latest version:
+Download and extract the latest version:
+
 ```
 # wget https://github.com/digitalocean/netbox/archive/vX.Y.Z.tar.gz
 # tar -xzf vX.Y.Z.tar.gz -C /opt
 # cd /opt/
-# ln -sf netbox-1.0.7/ netbox
+# ln -sf netbox-X.Y.Z/ netbox
 ```
 
 Copy the 'configuration.py' you created when first installing to the new version:
+
 ```
-# cp /opt/netbox-1.0.4/configuration.py /opt/netbox/configuration.py
+# cp /opt/netbox-X.Y.Z/configuration.py /opt/netbox/configuration.py
+```
+
+If you followed the original installation guide to set up gunicorn, be sure to copy its configuration as well:
+
+```
+# cp /opt/netbox-X.Y.Z/gunicorn_config.py /opt/netbox/gunicorn_config.py
 ```
 
 ## Option B: Clone the Git Repository (latest master release)
 
-For this guide, we'll use `/opt/netbox`.
+This guide assumes that NetBox is installed at `/opt/netbox`. Pull down the most recent iteration of the master branch:
 
-Check that your git branch is up to date & is set to master:
 ```
 # cd /opt/netbox
-# git status
-```
-
-If not on branch master, set it and verify status:
-```
 # git checkout master
+# git pull origin master
 # git status
-```
-
-Pull down the set branch from git status above:
-```
-# git pull
 ```
 
 # Run the Upgrade Script

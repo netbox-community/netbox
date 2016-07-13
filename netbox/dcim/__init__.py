@@ -1,1 +1,1 @@
-default_app_config = 'dcim.apps.IPAMConfig'
+default_app_config = 'dcim.apps.DCIMConfig'
