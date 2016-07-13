@@ -123,6 +123,8 @@ class Aggregate(CreatedUpdatedModel):
 
             # Ensure that the aggregate being added does not cover an existing aggregate
             covered_aggregates = Aggregate.objects.filter(prefix__net_contained=str(self.prefix))
+            if self.pk:
+                covered_aggregates = covered_aggregates.exclude(pk=self.pk)
             if covered_aggregates:
                 raise ValidationError("{} is overlaps with an existing aggregate ({})"
                                       .format(self.prefix, covered_aggregates[0]))
