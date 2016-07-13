@@ -101,14 +101,29 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Primary IP</td>
+                    <td>Primary IPv4</td>
                     <td>
-                        {% if device.primary_ip %}
-                            <a href="{% url 'ipam:ipaddress' pk=device.primary_ip.pk %}">{{ device.primary_ip.address.ip }}</a>
-                            {% if device.primary_ip.nat_inside %}
-                                <span>(NAT for {{ device.primary_ip.nat_inside.address.ip }})</span>
-                            {% elif device.primary_ip.nat_outside %}
-                                <span>(NAT: {{ device.primary_ip.nat_outside.address.ip }})</span>
+                        {% if device.primary_ip4 %}
+                            <a href="{% url 'ipam:ipaddress' pk=device.primary_ip4.pk %}">{{ device.primary_ip4.address.ip }}</a>
+                            {% if device.primary_ip4.nat_inside %}
+                                <span>(NAT for {{ device.primary_ip4.nat_inside.address.ip }})</span>
+                            {% elif device.primary_ip4.nat_outside %}
+                                <span>(NAT: {{ device.primary_ip4.nat_outside.address.ip }})</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">Not defined</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Primary IPv6</td>
+                    <td>
+                        {% if device.primary_ip6 %}
+                            <a href="{% url 'ipam:ipaddress' pk=device.primary_ip6.pk %}">{{ device.primary_ip6.address.ip }}</a>
+                            {% if device.primary_ip6.nat_inside %}
+                                <span>(NAT for {{ device.primary_ip6.nat_inside.address.ip }})</span>
+                            {% elif device.primary_ip6.nat_outside %}
+                                <span>(NAT: {{ device.primary_ip6.nat_outside.address.ip }})</span>
                             {% endif %}
                         {% else %}
                             <span class="text-muted">Not defined</span>

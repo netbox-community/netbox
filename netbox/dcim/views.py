@@ -1,4 +1,5 @@
 import re
+from natsort import natsorted
 from operator import attrgetter
 
 from django.contrib import messages
@@ -12,8 +13,6 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import urlencode
 from django.views.generic import View
-
-from natsort import natsorted
 
 from ipam.models import Prefix, IPAddress, VLAN
 from circuits.models import Circuit
@@ -262,13 +261,22 @@ def devicetype(request, pk):
     devicetype = get_object_or_404(DeviceType, pk=pk)
 
     # Component tables
-    consoleport_table = tables.ConsolePortTemplateTable(ConsolePortTemplate.objects.filter(device_type=devicetype))
-    consoleserverport_table = tables.ConsoleServerPortTemplateTable(ConsoleServerPortTemplate.objects
-                                                                    .filter(device_type=devicetype))
-    powerport_table = tables.PowerPortTemplateTable(PowerPortTemplate.objects.filter(device_type=devicetype))
-    poweroutlet_table = tables.PowerOutletTemplateTable(PowerOutletTemplate.objects.filter(device_type=devicetype))
+    consoleport_table = tables.ConsolePortTemplateTable(
+        natsorted(ConsolePortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
+    )
+    consoleserverport_table = tables.ConsoleServerPortTemplateTable(
+        natsorted(ConsoleServerPortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
+    )
+    powerport_table = tables.PowerPortTemplateTable(
+        natsorted(PowerPortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
+    )
+    poweroutlet_table = tables.PowerOutletTemplateTable(
+        natsorted(PowerOutletTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
+    )
     interface_table = tables.InterfaceTemplateTable(InterfaceTemplate.objects.filter(device_type=devicetype))
-    devicebay_table = tables.DeviceBayTemplateTable(DeviceBayTemplate.objects.filter(device_type=devicetype))
+    devicebay_table = tables.DeviceBayTemplateTable(
+        natsorted(DeviceBayTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
+    )
     if request.user.has_perm('dcim.change_devicetype'):
         consoleport_table.base_columns['pk'].visible = True
         consoleserverport_table.base_columns['pk'].visible = True
@@ -504,7 +512,8 @@ class PlatformBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class DeviceListView(ObjectListView):
-    queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'rack__site', 'primary_ip')
+    queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'rack__site', 'primary_ip4',
+                                             'primary_ip6')
     filter = filters.DeviceFilter
     filter_form = forms.DeviceFilterForm
     table = tables.DeviceTable
@@ -515,17 +524,25 @@ class DeviceListView(ObjectListView):
 def device(request, pk):
 
     device = get_object_or_404(Device, pk=pk)
-    console_ports = ConsolePort.objects.filter(device=device).select_related('cs_port__device')
-    cs_ports = ConsoleServerPort.objects.filter(device=device).select_related('connected_console')
-    power_ports = PowerPort.objects.filter(device=device).select_related('power_outlet__device')
-    power_outlets = PowerOutlet.objects.filter(device=device).select_related('connected_port')
+    console_ports = natsorted(
+        ConsolePort.objects.filter(device=device).select_related('cs_port__device'), key=attrgetter('name')
+    )
+    cs_ports = natsorted(
+        ConsoleServerPort.objects.filter(device=device).select_related('connected_console'), key=attrgetter('name')
+    )
+    power_ports = natsorted(
+        PowerPort.objects.filter(device=device).select_related('power_outlet__device'), key=attrgetter('name')
+    )
+    power_outlets = natsorted(
+        PowerOutlet.objects.filter(device=device).select_related('connected_port'), key=attrgetter('name')
+    )
     interfaces = Interface.objects.filter(device=device, mgmt_only=False)\
         .select_related('connected_as_a', 'connected_as_b', 'circuit')
     mgmt_interfaces = Interface.objects.filter(device=device, mgmt_only=True)\
         .select_related('connected_as_a', 'connected_as_b', 'circuit')
     device_bays = natsorted(
         DeviceBay.objects.filter(device=device).select_related('installed_device__device_type__manufacturer'),
-        key=attrgetter("name")
+        key=attrgetter('name')
     )
 
     # Gather any secrets which belong to this device
@@ -1640,7 +1657,10 @@ def ipaddress_assign(request, pk):
                                                                                          ipaddress.interface))
 
             if form.cleaned_data['set_as_primary']:
-                device.primary_ip = ipaddress
+                if ipaddress.family == 4:
+                    device.primary_ip4 = ipaddress
+                elif ipaddress.family == 6:
+                    device.primary_ip6 = ipaddress
                 device.save()
 
             if '_addanother' in request.POST:

@@ -9,7 +9,21 @@ NetBox is an open source web application designed to help manage and document co
 * **Data circuits** - Long-haul communications circuits and providers
 * **Secrets** - Encrypted storage of sensitive credentials
 
-It was designed with the following tenets foremost in mind.
+# What NetBox Isn't
+
+While NetBox strives to cover many areas of network management, the scope of its feature set is necessarily limited. This ensures that development focuses on core functionality and that scope creep is reasonably contained. To that end, it might help to provide some examples of functionality that NetBox **does not** provide:
+
+* Network monitoring
+* DNS server
+* RADIUS server
+* Configuration management
+* Facilities management
+
+That said, NetBox _can_ be used to great effect in populating external tools with the data they need to perform these functions.
+
+# Design Philosophy
+
+NetBox was designed with the following tenets foremost in mind.
 
 ## Replicate the Real World
 

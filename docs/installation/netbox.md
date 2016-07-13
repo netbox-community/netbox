@@ -9,9 +9,10 @@ NetBox requires following system dependencies:
 * libxslt1-dev
 * libffi-dev
 * graphviz
+* libpq-dev
 
 ```
-# sudo apt-get install -y python2.7 python-dev git python-pip libxml2-dev libxslt1-dev libffi-dev graphviz
+# sudo apt-get install -y python2.7 python-dev git python-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev
 ```
 
 You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.

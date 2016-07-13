@@ -1919,7 +1919,8 @@
         "position": 1,
         "face": 0,
         "status": true,
-        "primary_ip": 1,
+        "primary_ip4": 1,
+        "primary_ip6": null,
         "comments": ""
     }
 },
@@ -1938,7 +1939,8 @@
         "position": 17,
         "face": 0,
         "status": true,
-        "primary_ip": 5,
+        "primary_ip4": 5,
+        "primary_ip6": null,
         "comments": ""
     }
 },
@@ -1957,7 +1959,8 @@
         "position": 33,
         "face": 0,
         "status": true,
-        "primary_ip": null,
+        "primary_ip4": null,
+        "primary_ip6": null,
         "comments": ""
     }
 },
@@ -1976,7 +1979,8 @@
         "position": 34,
         "face": 0,
         "status": true,
-        "primary_ip": null,
+        "primary_ip4": null,
+        "primary_ip6": null,
         "comments": ""
     }
 },
@@ -1995,7 +1999,8 @@
         "position": 34,
         "face": 0,
         "status": true,
-        "primary_ip": null,
+        "primary_ip4": null,
+        "primary_ip6": null,
         "comments": ""
     }
 },
@@ -2014,7 +2019,8 @@
         "position": 33,
         "face": 0,
         "status": true,
-        "primary_ip": null,
+        "primary_ip4": null,
+        "primary_ip6": null,
         "comments": ""
     }
 },
@@ -2033,7 +2039,8 @@
         "position": 1,
         "face": 0,
         "status": true,
-        "primary_ip": 3,
+        "primary_ip4": 3,
+        "primary_ip6": null,
         "comments": ""
     }
 },
@@ -2052,7 +2059,8 @@
         "position": 17,
         "face": 0,
         "status": true,
-        "primary_ip": 19,
+        "primary_ip4": 19,
+        "primary_ip6": null,
         "comments": ""
     }
 },
@@ -2071,7 +2079,8 @@
         "position": 42,
         "face": 0,
         "status": true,
-        "primary_ip": null,
+        "primary_ip4": null,
+        "primary_ip6": null,
         "comments": ""
     }
 },
@@ -2090,7 +2099,8 @@
         "position": null,
         "face": null,
         "status": true,
-        "primary_ip": null,
+        "primary_ip4": null,
+        "primary_ip6": null,
         "comments": ""
     }
 },
@@ -2109,7 +2119,8 @@
         "position": null,
         "face": null,
         "status": true,
-        "primary_ip": null,
+        "primary_ip4": null,
+        "primary_ip6": null,
         "comments": ""
     }
 },
