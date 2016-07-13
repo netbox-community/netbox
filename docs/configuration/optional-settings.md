@@ -13,11 +13,24 @@ ADMINS = [
 
 ---
 
+## BANNER_TOP
+
+## BANNER_BOTTOM
+
+Setting these variables will display content in a banner at the top and/or bottom of the page, respectively. To replicate the content of the top banner in the bottom banner, set:
+
+```
+BANNER_TOP = 'Your banner text'
+BANNER_BOTTOM = BANNER_TOP
+```
+
+---
+
 ## DEBUG
 
 Default: False
 
-This setting enables debugging. This should be done only during development or troubleshooting. Never enable debugging on a production system, as it can expose sensitive data to unauthenticated users. 
+This setting enables debugging. This should be done only during development or troubleshooting. Never enable debugging on a production system, as it can expose sensitive data to unauthenticated users.
 
 ---
 
