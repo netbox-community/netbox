@@ -2,6 +2,9 @@
 * {
     margin: 0;
 }
+html {
+    overflow-y: scroll;
+}
 html, body {
     height: 100%;
 }
