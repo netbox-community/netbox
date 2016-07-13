@@ -78,3 +78,7 @@ SHORT_DATETIME_FORMAT = 'Y-m-d H:i'
 # banners, define BANNER_TOP and set BANNER_BOTTOM = BANNER_TOP.
 BANNER_TOP = ''
 BANNER_BOTTOM = ''
+
+# When determining the primary IP address for a device, IPv6 is preferred over IPv4 by default. Set this to True to
+# prefer IPv4 instead.
+PREFER_IPV4 = False

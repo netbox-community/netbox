@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import MinValueValidator
@@ -713,7 +714,9 @@ class Device(CreatedUpdatedModel):
 
     @property
     def primary_ip(self):
-        if self.primary_ip6:
+        if settings.PREFER_IPV4 and self.primary_ip4:
+            return self.primary_ip4
+        elif self.primary_ip6:
             return self.primary_ip6
         elif self.primary_ip4:
             return self.primary_ip4

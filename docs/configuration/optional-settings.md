@@ -66,6 +66,14 @@ Determine how many objects to display per page within each list of objects.
 
 ---
 
+## PREFER_IPV4
+
+Default: False
+
+When determining the primary IP address for a device, IPv6 is preferred over IPv4 by default. Set this to True to prefer IPv4 instead.
+
+---
+
 ## TIME_ZONE
 
 Default: UTC
