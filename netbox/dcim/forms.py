@@ -502,9 +502,9 @@ def device_site_choices():
     return [(s.slug, '{} ({})'.format(s.name, s.device_count)) for s in site_choices]
 
 
-def rack_group_choices():
-    group_choices = RackGroup.objects.select_related('site').annotate(rack_count=Count('racks'))
-    return [(g.pk, '{} ({})'.format(g, g.rack_count)) for g in group_choices]
+def device_rack_group_choices():
+    group_choices = RackGroup.objects.select_related('site').annotate(device_count=Count('racks__devices'))
+    return [(g.pk, '{} ({})'.format(g, g.device_count)) for g in group_choices]
 
 
 def device_role_choices():
@@ -525,8 +525,8 @@ def device_platform_choices():
 class DeviceFilterForm(forms.Form, BootstrapMixin):
     site = forms.MultipleChoiceField(required=False, choices=device_site_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
-    group_id = forms.MultipleChoiceField(required=False, choices=rack_group_choices, label='Rack Group',
-                                         widget=forms.SelectMultiple(attrs={'size': 8}))
+    rack_group_id = forms.MultipleChoiceField(required=False, choices=device_rack_group_choices, label='Rack Group',
+                                              widget=forms.SelectMultiple(attrs={'size': 8}))
     role = forms.MultipleChoiceField(required=False, choices=device_role_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
     device_type_id = forms.MultipleChoiceField(required=False, choices=device_type_choices, label='Type',
