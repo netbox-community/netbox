@@ -4,6 +4,8 @@ NetBox is an IP address management (IPAM) and data center infrastructure managem
 
 NetBox runs as a web application atop the [Django](https://www.djangoproject.com/) Python framework with a [PostgreSQL](http://www.postgresql.org/) database. For a complete list of requirements, see `requirements.txt`. The code is available [on GitHub](https://github.com/digitalocean/netbox).
 
+The complete documentation for Netbox can be found at [Read the Docs](http://netbox.readthedocs.io/en/latest/).
+
 Questions? Comments? Please join us on IRC in **#netbox** on **irc.freenode.net**!
 
 ### Build Status
