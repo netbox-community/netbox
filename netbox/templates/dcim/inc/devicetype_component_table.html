@@ -5,6 +5,7 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <a href="{% url add_url pk=devicetype.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add {{ title }}</a>
+                <i class="fa fa-fw fa-{{ icon }}"></i> 
                 <strong>{{ title }}</strong>
             </div>
             {% render_table table 'table.html' %}
@@ -20,6 +21,7 @@
 {% else %}
     <div class="panel panel-default">
         <div class="panel-heading">
+            <i class="fa fa-fw fa-{{ icon }}"></i> 
             <strong>{{ title }}</strong>
         </div>
         {% render_table table 'table.html' %}
