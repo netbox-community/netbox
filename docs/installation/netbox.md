@@ -110,9 +110,10 @@ DATABASE = {
 
 Generate a random secret key of at least 50 alphanumeric characters. This key must be unique to this installation and must not be shared outside the local system.
 
-In the case of a highly available installation with multiple web servers, SECRET_KEY must be identical between all server in order to maintain a persistent user session state between servers.
-
 You may use the script located at `netbox/generate_secret_key.py` to generate a suitable key.
+
+!!! note
+    In the case of a highly available installation with multiple web servers, `SECRET_KEY` must be identical among all servers in order to maintain a persistent user session state.
 
 # Run Database Migrations
 
