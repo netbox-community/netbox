@@ -3,7 +3,9 @@
 
 {% block form %}
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>Provider</strong></div>
+        <div class="panel-heading">
+            <i class="fa fa-fw fa-building"></i> 
+            <strong>Provider</strong></div>
         <div class="panel-body">
             {% render_field form.name %}
             {% render_field form.slug %}
@@ -11,7 +13,9 @@
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>Support Info</strong></div>
+        <div class="panel-heading">
+            <i class="fa fa-fw fa-life-ring"></i> 
+            <strong>Support Info</strong></div>
         <div class="panel-body">
             {% render_field form.account %}
             {% render_field form.portal_url %}
@@ -20,7 +24,9 @@
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>Comments</strong></div>
+        <div class="panel-heading">
+            <i class="fa fa-fw fa-commenting"></i> 
+            <strong>Comments</strong></div>
         <div class="panel-body">
             {% render_field form.comments %}
         </div>
