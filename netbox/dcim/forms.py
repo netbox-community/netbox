@@ -426,7 +426,7 @@ class DeviceForm(forms.ModelForm, BootstrapMixin):
             self.fields['device_type'].choices = []
 
 
-class DeviceFromCSVForm(forms.ModelForm):
+class BaseDeviceFromCSVForm(forms.ModelForm):
     device_role = forms.ModelChoiceField(queryset=DeviceRole.objects.all(), to_field_name='name',
                                          error_messages={'invalid_choice': 'Invalid device role.'})
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), to_field_name='name',
@@ -434,23 +434,15 @@ class DeviceFromCSVForm(forms.ModelForm):
     model_name = forms.CharField()
     platform = forms.ModelChoiceField(queryset=Platform.objects.all(), required=False, to_field_name='name',
                                       error_messages={'invalid_choice': 'Invalid platform.'})
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), to_field_name='name', error_messages={
-        'invalid_choice': 'Invalid site name.',
-    })
-    rack_name = forms.CharField()
-    face = forms.CharField(required=False)
 
     class Meta:
+        fields = []
         model = Device
-        fields = ['name', 'device_role', 'manufacturer', 'model_name', 'platform', 'serial', 'site', 'rack_name',
-                  'position', 'face']
 
     def clean(self):
 
         manufacturer = self.cleaned_data.get('manufacturer')
         model_name = self.cleaned_data.get('model_name')
-        site = self.cleaned_data.get('site')
-        rack_name = self.cleaned_data.get('rack_name')
 
         # Validate device type
         if manufacturer and model_name:
@@ -458,6 +450,25 @@ class DeviceFromCSVForm(forms.ModelForm):
                 self.instance.device_type = DeviceType.objects.get(manufacturer=manufacturer, model=model_name)
             except DeviceType.DoesNotExist:
                 self.add_error('model_name', "Invalid device type ({} {})".format(manufacturer, model_name))
+
+
+class DeviceFromCSVForm(BaseDeviceFromCSVForm):
+    site = forms.ModelChoiceField(queryset=Site.objects.all(), to_field_name='name', error_messages={
+        'invalid_choice': 'Invalid site name.',
+    })
+    rack_name = forms.CharField()
+    face = forms.CharField(required=False)
+
+    class Meta(BaseDeviceFromCSVForm.Meta):
+        fields = ['name', 'device_role', 'manufacturer', 'model_name', 'platform', 'serial', 'site', 'rack_name',
+                  'position', 'face']
+
+    def clean(self):
+
+        super(DeviceFromCSVForm, self).clean()
+
+        site = self.cleaned_data.get('site')
+        rack_name = self.cleaned_data.get('rack_name')
 
         # Validate rack
         if site and rack_name:
@@ -468,19 +479,52 @@ class DeviceFromCSVForm(forms.ModelForm):
 
     def clean_face(self):
         face = self.cleaned_data['face']
-        if face:
+        if not face:
+            return None
+        try:
+            return {
+                'front': 0,
+                'rear': 1,
+            }[face.lower()]
+        except KeyError:
+            raise forms.ValidationError('Invalid rack face ({}); must be "front" or "rear".'.format(face))
+
+
+class ChildDeviceFromCSVForm(BaseDeviceFromCSVForm):
+    parent = FlexibleModelChoiceField(queryset=Device.objects.all(), to_field_name='name', required=False,
+                                      error_messages={'invalid_choice': 'Parent device not found.'})
+    device_bay_name = forms.CharField(required=False)
+
+    class Meta(BaseDeviceFromCSVForm.Meta):
+        fields = ['name', 'device_role', 'manufacturer', 'model_name', 'platform', 'serial', 'parent',
+                  'device_bay_name']
+
+    def clean(self):
+
+        super(ChildDeviceFromCSVForm, self).clean()
+
+        parent = self.cleaned_data.get('parent')
+        device_bay_name = self.cleaned_data.get('device_bay_name')
+
+        # Validate device bay
+        if parent and device_bay_name:
             try:
-                return {
-                    'front': 0,
-                    'rear': 1,
-                }[face.lower()]
-            except KeyError:
-                raise forms.ValidationError('Invalid rack face ({}); must be "front" or "rear".'.format(face))
-        return face
+                device_bay = DeviceBay.objects.get(device=parent, name=device_bay_name)
+                if device_bay.installed_device:
+                    self.add_error('device_bay_name',
+                                   "Device bay ({} {}) is already occupied".format(parent, device_bay_name))
+                else:
+                    self.instance.parent_bay = device_bay
+            except DeviceBay.DoesNotExist:
+                self.add_error('device_bay_name', "Parent device/bay ({} {}) not found".format(parent, device_bay_name))
 
 
 class DeviceImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=DeviceFromCSVForm)
+
+
+class ChildDeviceImportForm(BulkImportForm, BootstrapMixin):
+    csv = CSVDataField(csv_form=ChildDeviceFromCSVForm)
 
 
 class DeviceBulkEditForm(forms.Form, BootstrapMixin):

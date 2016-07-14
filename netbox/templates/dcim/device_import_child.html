@@ -5,7 +5,7 @@
 {% block title %}Device Import{% endblock %}
 
 {% block content %}
-{% include 'dcim/inc/_device_import_header.html' %}
+{% include 'dcim/inc/_device_import_header.html' with active_tab='child_import' %}
 <div class="row">
 	<div class="col-md-12">
 		<form action="." method="post" class="form">
@@ -29,27 +29,27 @@
 				<tr>
 					<td>Name</td>
 					<td>Device name (optional)</td>
-					<td>rack101_sw1</td>
+					<td>Blade12</td>
 				</tr>
 				<tr>
 					<td>Device role</td>
 					<td>Functional role of device</td>
-					<td>ToR Switch</td>
+					<td>Blade Server</td>
 				</tr>
 				<tr>
 					<td>Device manufacturer</td>
 					<td>Hardware manufacturer</td>
-					<td>Juniper</td>
+					<td>Dell</td>
 				</tr>
 				<tr>
 					<td>Device model</td>
 					<td>Hardware model</td>
-					<td>EX4300-48T</td>
+					<td>BS2000T</td>
 				</tr>
 				<tr>
 					<td>Platform</td>
 					<td>Software running on device (optional)</td>
-					<td>Juniper Junos</td>
+					<td>Linux</td>
 				</tr>
 				<tr>
 					<td>Serial</td>
@@ -57,29 +57,19 @@
 					<td>CAB00577291</td>
 				</tr>
 				<tr>
-					<td>Site</td>
-					<td>Site name</td>
-					<td>Ashburn-VA</td>
+					<td>Parent device</td>
+					<td>Parent device</td>
+					<td>Server101</td>
 				</tr>
 				<tr>
-					<td>Rack</td>
-					<td>Rack name</td>
-					<td>R101</td>
-				</tr>
-				<tr>
-					<td>Position (U)</td>
-					<td>Lowest rack unit occupied by the device (optional)</td>
-					<td>21</td>
-				</tr>
-				<tr>
-					<td>Face</td>
-					<td>Rack face; front or rear (optional)</td>
-					<td>Rear</td>
+					<td>Device bay</td>
+					<td>Device bay name</td>
+					<td>Slot 4</td>
 				</tr>
 			</tbody>
 		</table>
 		<h4>Example</h4>
-		<pre>rack101_sw1,ToR Switch,Juniper,EX4300-48T,Juniper Junos,CAB00577291,Ashburn-VA,R101,21,Rear</pre>
+		<pre>Blade12,Blade Server,Dell,BS2000T,Linux,CAB00577291,Server101,Slot4</pre>
 	</div>
 </div>
 {% endblock %}
