@@ -1,7 +1,38 @@
 import django_filters
 
+from django.db.models import Q
+
 from dcim.models import Site
 from .models import Provider, Circuit, CircuitType
+
+
+class ProviderFilter(django_filters.FilterSet):
+    q = django_filters.MethodFilter(
+        action='search',
+        label='Search',
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        name='circuits__site',
+        queryset=Site.objects.all(),
+        label='Site',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        name='circuits__site',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site (slug)',
+    )
+
+    class Meta:
+        model = Provider
+        fields = ['q', 'name', 'account', 'asn']
+
+    def search(self, queryset, value):
+        value = value.strip()
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(account__icontains=value)
+        )
 
 
 class CircuitFilter(django_filters.FilterSet):

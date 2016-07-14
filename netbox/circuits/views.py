@@ -16,6 +16,8 @@ from .models import Circuit, CircuitType, Provider
 
 class ProviderListView(ObjectListView):
     queryset = Provider.objects.annotate(count_circuits=Count('circuits'))
+    filter = filters.ProviderFilter
+    filter_form = forms.ProviderFilterForm
     table = tables.ProviderTable
     edit_permissions = ['circuits.change_provider', 'circuits.delete_provider']
     template_name = 'circuits/provider_list.html'
