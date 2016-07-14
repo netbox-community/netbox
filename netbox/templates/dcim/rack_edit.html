@@ -3,7 +3,9 @@
 
 {% block form %}
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>Rack</strong></div>
+        <div class="panel-heading">
+            <i class="fa fa-fw fa-align-justify"></i> 
+            <strong>Rack</strong></div>
         <div class="panel-body">
             {% render_field form.site %}
             {% render_field form.group %}
@@ -13,7 +15,9 @@
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>Comments</strong></div>
+        <div class="panel-heading">
+            <i class="fa fa-fw fa-commenting"></i> 
+            <strong>Comments</strong></div>
         <div class="panel-body">
             {% render_field form.comments %}
         </div>
