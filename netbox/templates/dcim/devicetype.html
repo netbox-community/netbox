@@ -75,11 +75,15 @@
                     <td>Is a Network Device</td>
                     <td>{{ devicetype.is_network_device|yesno|capfirst }}</td>
                 </tr>
+                <tr>
+                    <td>Parent/Child Role</td>
+                    <td>{{ devicetype.get_subdevice_role_display }}</td>
+                </tr>
             </table>
         </div>
         {% include 'dcim/inc/devicetype_component_table.html' with table=consoleport_table title='Console Ports' add_url='dcim:devicetype_add_consoleport' delete_url='dcim:devicetype_delete_consoleport' %}
         {% include 'dcim/inc/devicetype_component_table.html' with table=powerport_table title='Power Ports' add_url='dcim:devicetype_add_powerport' delete_url='dcim:devicetype_delete_powerport' %}
-        {% include 'dcim/inc/devicetype_component_table.html' with table=mgmt_interface_table title='Management Interfaces' add_url='dcim:devicetype_add_interface' delete_url='dcim:devicetype_delete_interface' %}
+        {% include 'dcim/inc/devicetype_component_table.html' with table=mgmt_interface_table title='Management Interfaces' add_url='dcim:devicetype_add_interface' add_url_extra='?mgmt_only=1' delete_url='dcim:devicetype_delete_interface' %}
     </div>
     <div class="col-md-6">
         {% if devicetype.is_parent_device %}

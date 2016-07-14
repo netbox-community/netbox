@@ -353,7 +353,7 @@ class ComponentTemplateCreateView(View):
         return render(request, 'dcim/component_template_add.html', {
             'devicetype': devicetype,
             'component_type': self.model._meta.verbose_name,
-            'form': self.form(),
+            'form': self.form(initial=request.GET),
             'cancel_url': reverse('dcim:devicetype', kwargs={'pk': devicetype.pk}),
         })
 
