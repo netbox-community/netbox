@@ -22,7 +22,7 @@
         <tbody>
             {% for iface in interfaces %}
                 <tr id="{{ iface }}">
-                    <td>{{ iface }}</td>
+                    <td><i class="fa fa-fw fa-exchange"></i> {{ iface }}</td>
                     {% if iface.connection %}
                         {% with iface.get_connected_interface as connected_iface %}
                             <td class="configured_device" data="{{ connected_iface.device }}">
