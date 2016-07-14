@@ -273,7 +273,10 @@ def devicetype(request, pk):
     poweroutlet_table = tables.PowerOutletTemplateTable(
         natsorted(PowerOutletTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
     )
-    interface_table = tables.InterfaceTemplateTable(InterfaceTemplate.objects.filter(device_type=devicetype))
+    mgmt_interface_table = tables.InterfaceTemplateTable(InterfaceTemplate.objects.filter(device_type=devicetype,
+                                                                                          mgmt_only=True))
+    interface_table = tables.InterfaceTemplateTable(InterfaceTemplate.objects.filter(device_type=devicetype,
+                                                                                     mgmt_only=False))
     devicebay_table = tables.DeviceBayTemplateTable(
         natsorted(DeviceBayTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
     )
@@ -282,6 +285,7 @@ def devicetype(request, pk):
         consoleserverport_table.base_columns['pk'].visible = True
         powerport_table.base_columns['pk'].visible = True
         poweroutlet_table.base_columns['pk'].visible = True
+        mgmt_interface_table.base_columns['pk'].visible = True
         interface_table.base_columns['pk'].visible = True
         devicebay_table.base_columns['pk'].visible = True
 
@@ -291,6 +295,7 @@ def devicetype(request, pk):
         'consoleserverport_table': consoleserverport_table,
         'powerport_table': powerport_table,
         'poweroutlet_table': poweroutlet_table,
+        'mgmt_interface_table': mgmt_interface_table,
         'interface_table': interface_table,
         'devicebay_table': devicebay_table,
     })

@@ -79,6 +79,7 @@
         </div>
         {% include 'dcim/inc/devicetype_component_table.html' with table=consoleport_table title='Console Ports' add_url='dcim:devicetype_add_consoleport' delete_url='dcim:devicetype_delete_consoleport' %}
         {% include 'dcim/inc/devicetype_component_table.html' with table=powerport_table title='Power Ports' add_url='dcim:devicetype_add_powerport' delete_url='dcim:devicetype_delete_powerport' %}
+        {% include 'dcim/inc/devicetype_component_table.html' with table=mgmt_interface_table title='Management Interfaces' add_url='dcim:devicetype_add_interface' delete_url='dcim:devicetype_delete_interface' %}
     </div>
     <div class="col-md-6">
         {% if devicetype.is_parent_device %}
