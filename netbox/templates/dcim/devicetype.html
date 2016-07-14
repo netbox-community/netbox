@@ -42,7 +42,7 @@
             <table class="table table-hover panel-body">
                 <tr>
                     <td>Manufacturer</td>
-                    <td>{{ devicetype.manufacturer }}</td>
+                    <td><a href="{% url 'dcim:devicetype_list' %}?manufacturer={{ devicetype.manufacturer.slug }}">{{ devicetype.manufacturer }}</a></td>
                 </tr>
                 <tr>
                     <td>Model Name</td>
@@ -54,7 +54,13 @@
                 </tr>
                 <tr>
                     <td>Full Depth</td>
-                    <td>{{ devicetype.is_full_depth|yesno|capfirst }}</td>
+                    <td>
+                        {% if devicetype.is_full_depth %}
+                            <i class="glyphicon glyphicon-ok text-success" title="Yes"></i>
+                        {% else %}
+                            <i class="glyphicon glyphicon-remove text-danger" title="No"></i>
+                        {% endif %}
+                    </td>
                 </tr>
             </table>
         </div>
@@ -64,21 +70,70 @@
             </div>
             <table class="table table-hover panel-body">
                 <tr>
-                    <td>Is a Console Server</td>
-                    <td>{{ devicetype.is_console_server|yesno|capfirst }}</td>
+                    <td class="text-right">
+                        {% if devicetype.is_console_server %}
+                            <i class="glyphicon glyphicon-ok text-success" title="Yes"></i>
+                        {% else %}
+                            <i class="glyphicon glyphicon-remove text-danger" title="No"></i>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>Console Server</strong><br />
+                        <small class="text-muted">This device {% if devicetype.is_console_server %}has{% else %}does not have{% endif %} console server ports</small>
+                    </td>
                 </tr>
                 <tr>
-                    <td>Is a PDU</td>
-                    <td>{{ devicetype.is_pdu|yesno|capfirst }}</td>
+                    <td class="text-right">
+                        {% if devicetype.is_pdu %}
+                            <i class="glyphicon glyphicon-ok text-success" title="Yes"></i>
+                        {% else %}
+                            <i class="glyphicon glyphicon-remove text-danger" title="No"></i>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>PDU</strong><br />
+                        <small class="text-muted">This device {% if devicetype.is_pdu %}has{% else %}does not have{% endif %} power outlets</small>
+                    </td>
                 </tr>
                 <tr>
-                    <td>Is a Network Device</td>
-                    <td>{{ devicetype.is_network_device|yesno|capfirst }}</td>
+                    <td class="text-right">
+                        {% if devicetype.is_network_device %}
+                            <i class="glyphicon glyphicon-ok text-success" title="Yes"></i>
+                        {% else %}
+                            <i class="glyphicon glyphicon-remove text-danger" title="No"></i>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>Network Device</strong><br />
+                        <small class="text-muted">This device {% if devicetype.is_network_device %}has{% else %}does not have{% endif %} non-management network interfaces</small>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-right">
+                        {% if devicetype.subdevice_role == True %}
+                            <label class="label label-primary">Parent</label>
+                        {% elif devicetype.subdevice_role == False %}
+                            <label class="label label-info">Child</label>
+                        {% else %}
+                            <label class="label label-default">None</label>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>Parent/Child</strong><br />
+                        {% if devicetype.subdevice_role == True %}
+                            <small class="text-muted">This device has device bays for mounting child devices</small>
+                        {% elif devicetype.subdevice_role == False %}
+                            <small class="text-muted">This device can only be mounted in a parent device</small>
+                        {% else %}
+                            <small class="text-muted">This device does not have device bays</small>
+                        {% endif %}
+                    </td>
                 </tr>
             </table>
         </div>
         {% include 'dcim/inc/devicetype_component_table.html' with table=consoleport_table title='Console Ports' add_url='dcim:devicetype_add_consoleport' delete_url='dcim:devicetype_delete_consoleport' %}
         {% include 'dcim/inc/devicetype_component_table.html' with table=powerport_table title='Power Ports' add_url='dcim:devicetype_add_powerport' delete_url='dcim:devicetype_delete_powerport' %}
+        {% include 'dcim/inc/devicetype_component_table.html' with table=mgmt_interface_table title='Management Interfaces' add_url='dcim:devicetype_add_interface' add_url_extra='?mgmt_only=1' delete_url='dcim:devicetype_delete_interface' %}
     </div>
     <div class="col-md-6">
         {% if devicetype.is_parent_device %}

@@ -112,6 +112,9 @@ Generate a random secret key of at least 50 alphanumeric characters. This key mu
 
 You may use the script located at `netbox/generate_secret_key.py` to generate a suitable key.
 
+!!! note
+    In the case of a highly available installation with multiple web servers, `SECRET_KEY` must be identical among all servers in order to maintain a persistent user session state.
+
 # Run Database Migrations
 
 Before NetBox can run, we need to install the database schema. This is done by running `./manage.py migrate` from the `netbox` directory (`/opt/netbox/netbox/` in our example):

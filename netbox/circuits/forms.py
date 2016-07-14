@@ -59,6 +59,16 @@ class ProviderBulkDeleteForm(ConfirmationForm):
     pk = forms.ModelMultipleChoiceField(queryset=Provider.objects.all(), widget=forms.MultipleHiddenInput)
 
 
+def provider_site_choices():
+    site_choices = Site.objects.all()
+    return [(s.slug, s.name) for s in site_choices]
+
+
+class ProviderFilterForm(forms.Form, BootstrapMixin):
+    site = forms.MultipleChoiceField(required=False, choices=provider_site_choices,
+                                     widget=forms.SelectMultiple(attrs={'size': 8}))
+
+
 #
 # Circuit types
 #

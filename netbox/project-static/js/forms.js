@@ -1,8 +1,14 @@
 $(document).ready(function() {
 
     // "Select all" checkbox in a table header
-    $('th input:checkbox').click(function (event) {
+    $('th input:checkbox[name=_all]').click(function (event) {
         $(this).parents('table').find('td input:checkbox').prop('checked', $(this).prop('checked'));
+    });
+    // Uncheck the "select all" checkbox if an item is unchecked
+    $('input:checkbox[name=pk]').click(function (event) {
+        if (!$(this).attr('checked')) {
+            $(this).parents('table').find('input:checkbox[name=_all]').prop('checked', false);
+        }
     });
 
     // Slugify

@@ -122,6 +122,11 @@ class DeviceFilter(django_filters.FilterSet):
         to_field_name='slug',
         label='Site name (slug)',
     )
+    rack_group_id = django_filters.ModelMultipleChoiceFilter(
+        name='rack__group',
+        queryset=RackGroup.objects.all(),
+        label='Rack group (ID)',
+    )
     rack_id = django_filters.ModelMultipleChoiceFilter(
         name='rack',
         queryset=Rack.objects.all(),

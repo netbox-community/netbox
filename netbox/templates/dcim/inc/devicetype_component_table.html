@@ -4,7 +4,10 @@
         {% csrf_token %}
         <div class="panel panel-default">
             <div class="panel-heading">
-                <a href="{% url add_url pk=devicetype.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add {{ title }}</a>
+                <a href="{% url add_url pk=devicetype.pk %}{{ add_url_extra }}" class="btn btn-primary btn-xs pull-right">
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                    Add {{ title }}
+                </a>
                 <strong>{{ title }}</strong>
             </div>
             {% render_table table 'table.html' %}
