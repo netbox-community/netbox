@@ -32,6 +32,7 @@
 	<div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
+            	<i class="fa fa-fw fa-cube"></i> 
                 <strong>Aggregate</strong>
             </div>
             <table class="table table-hover panel-body">
@@ -79,7 +80,7 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        {% include 'utilities/obj_table.html' with table=prefix_table table_template='panel_table.html' heading='Child Prefixes' bulk_edit_url='ipam:prefix_bulk_edit' bulk_delete_url='ipam:prefix_bulk_delete' %}
+        {% include 'utilities/obj_table.html' with table=prefix_table table_template='panel_table.html' heading='Child Prefixes' icon='cubes' bulk_edit_url='ipam:prefix_bulk_edit' bulk_delete_url='ipam:prefix_bulk_delete' %}
 	</div>
 </div>
 {% endblock %}

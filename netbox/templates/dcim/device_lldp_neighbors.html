@@ -6,6 +6,7 @@
 {% include 'dcim/inc/_device_header.html' with active_tab='lldp-neighbors' %}
 <div class="panel panel-default">
     <div class="panel-heading">
+        <i class="fa fa-fw fa-sitemap"></i> 
         <strong>LLDP Neighbors</strong>
     </div>
     <table class="table table-hover panel-body">
@@ -21,7 +22,7 @@
         <tbody>
             {% for iface in interfaces %}
                 <tr id="{{ iface }}">
-                    <td>{{ iface }}</td>
+                    <td><i class="fa fa-fw fa-exchange"></i> {{ iface }}</td>
                     {% if iface.connection %}
                         {% with iface.get_connected_interface as connected_iface %}
                             <td class="configured_device" data="{{ connected_iface.device }}">

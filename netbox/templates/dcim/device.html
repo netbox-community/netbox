@@ -11,6 +11,7 @@
 	<div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
+            	<i class="fa fa-fw fa-server"></i> 
                 <strong>Device</strong>
             </div>
             <table class="table table-hover panel-body">
@@ -71,6 +72,7 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
+            	<i class="fa fa-fw fa-cogs"></i> 
                 <strong>Management</strong>
             </div>
             <table class="table table-hover panel-body">
@@ -135,6 +137,7 @@
         {% if request.user.is_authenticated %}
             <div class="panel panel-default">
                 <div class="panel-heading">
+                    <i class="fa fa-fw fa-user-secret"></i> 	
                     <strong>Secrets</strong>
                 </div>
                 {% if secrets %}
@@ -163,6 +166,7 @@
         {% endif %}
         <div class="panel panel-default">
             <div class="panel-heading">
+            	<i class="fa fa-fw fa-map-signs"></i> 
                 <strong>IP Addresses</strong>
             </div>
             {% if ip_addresses %}
@@ -187,6 +191,7 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
+            	<i class="fa fa-fw fa-times-circle"></i> 
                 <strong>Critical Connections</strong>
             </div>
             <table class="table table-hover panel-body">
@@ -254,6 +259,7 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
+            	<i class="fa fa-fw fa-commenting"></i> 
                 <strong>Comments</strong>
             </div>
             <div class="panel-body">
@@ -266,6 +272,7 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
+            	<i class="fa fa-fw fa-share-alt"></i> 
                 <strong>Related Devices</strong>
             </div>
             {% if related_devices %}
@@ -291,6 +298,7 @@
         {% if device_bays or device.device_type.is_parent_device %}
             <div class="panel panel-default">
                 <div class="panel-heading">
+                   <i class="fa fa-fw fa-puzzle-piece"></i> 
                     <strong>Device Bays</strong>
                 </div>
                 <table class="table table-hover panel-body">
@@ -315,6 +323,7 @@
         {% if interfaces or device.device_type.is_network_device %}
             <div class="panel panel-default">
                 <div class="panel-heading">
+                    <i class="fa fa-fw fa-exchange"></i> 
                     <strong>Interfaces</strong>
                 </div>
                 <table class="table table-hover panel-body">
@@ -339,6 +348,7 @@
         {% if cs_ports or device.device_type.is_console_server %}
             <div class="panel panel-default">
                 <div class="panel-heading">
+                    <i class="fa fa-fw fa-desktop"></i> 
                     <strong>Console Server Ports</strong>
                 </div>
                 <table class="table table-hover panel-body">
@@ -363,6 +373,7 @@
         {% if power_outlets or device.device_type.is_pdu %}
             <div class="panel panel-default">
                 <div class="panel-heading">
+                    <i class="fa fa-fw fa-plug"></i> 
                     <strong>Power Outlets</strong>
                 </div>
                 <table class="table table-hover panel-body">
