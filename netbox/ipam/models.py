@@ -1,5 +1,6 @@
 from netaddr import IPNetwork, cidr_merge
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -45,6 +46,8 @@ class VRF(CreatedUpdatedModel):
     """
     name = models.CharField(max_length=50)
     rd = models.CharField(max_length=21, unique=True, verbose_name='Route distinguisher')
+    enforce_unique = models.BooleanField(default=True, verbose_name='Enforce unique space',
+                                         help_text="Prevent duplicate prefixes/IP addresses within this VRF")
     description = models.CharField(max_length=100, blank=True)
 
     class Meta:
@@ -308,6 +311,21 @@ class IPAddress(CreatedUpdatedModel):
 
     def get_absolute_url(self):
         return reverse('ipam:ipaddress', args=[self.pk])
+
+    def clean(self):
+
+        # Enforce unique IP space if applicable
+        if self.vrf and self.vrf.enforce_unique:
+            duplicate_ips = IPAddress.objects.filter(vrf=self.vrf, address__net_host=str(self.address.ip))\
+                .exclude(pk=self.pk)
+            if duplicate_ips:
+                raise ValidationError("Duplicate IP address found in VRF {}: {}".format(self.vrf,
+                                                                                        duplicate_ips.first()))
+        elif not self.vrf and settings.ENFORCE_GLOBAL_UNIQUE:
+            duplicate_ips = IPAddress.objects.filter(vrf=None, address__net_host=str(self.address.ip))\
+                .exclude(pk=self.pk)
+            if duplicate_ips:
+                raise ValidationError("Duplicate IP address found in global table: {}".format(duplicate_ips.first()))
 
     def save(self, *args, **kwargs):
         if self.address:

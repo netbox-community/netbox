@@ -12,7 +12,7 @@ class VRFSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VRF
-        fields = ['id', 'name', 'rd', 'description']
+        fields = ['id', 'name', 'rd', 'enforce_unique', 'description']
 
 
 class VRFNestedSerializer(VRFSerializer):

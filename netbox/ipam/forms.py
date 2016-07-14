@@ -25,7 +25,7 @@ class VRFForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = VRF
-        fields = ['name', 'rd', 'description']
+        fields = ['name', 'rd', 'enforce_unique', 'description']
         labels = {
             'rd': "RD",
         }
@@ -38,7 +38,7 @@ class VRFFromCSVForm(forms.ModelForm):
 
     class Meta:
         model = VRF
-        fields = ['name', 'rd', 'description']
+        fields = ['name', 'rd', 'enforce_unique', 'description']
 
 
 class VRFImportForm(BulkImportForm, BootstrapMixin):
