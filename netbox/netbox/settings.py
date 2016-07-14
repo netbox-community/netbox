@@ -12,7 +12,7 @@ except ImportError:
                                "the documentation.")
 
 
-VERSION = '1.2.2'
+VERSION = '1.2.3-dev'
 
 # Import local configuration
 for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
