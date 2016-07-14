@@ -47,6 +47,7 @@
 	<div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
+            	<i class="fa fa-fw fa-map-signs"></i> 
                 <strong>IP Address</strong>
             </div>
             <table class="table table-hover panel-body">
@@ -119,15 +120,15 @@
         </div>
 	</div>
 	<div class="col-md-6">
-        {% with heading='Parent Prefixes' %}
+        {% with heading='Parent Prefixes' icon='cube' %}
             {% render_table parent_prefixes_table 'panel_table.html' %}
         {% endwith %}
         {% if duplicate_ips_table.rows %}
-            {% with heading='Duplicate IP Addresses' panel_class='danger' %}
+            {% with heading='Duplicate IP Addresses' icon='exclamation-traingle' panel_class='danger' %}
                 {% render_table duplicate_ips_table 'panel_table.html' %}
             {% endwith %}
         {% endif %}
-        {% with heading='Related IP Addresses' %}
+        {% with heading='Related IP Addresses' icon=share-alt' %}
             {% render_table related_ips_table 'panel_table.html' %}
         {% endwith %}
 	</div>
