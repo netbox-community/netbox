@@ -3,14 +3,18 @@
 
 {% block form %}
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>Device</strong></div>
+        <div class="panel-heading">
+            <i class="fa fa-fw fa-server"></i> 
+            <strong>Device</strong></div>
         <div class="panel-body">
             {% render_field form.name %}
             {% render_field form.device_role %}
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>Hardware</strong></div>
+        <div class="panel-heading">
+            <i class="fa fa-fw fa-server"></i> 
+            <strong>Hardware</strong></div>
         <div class="panel-body">
             {% render_field form.manufacturer %}
             {% render_field form.device_type %}
@@ -18,7 +22,9 @@
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>Location</strong></div>
+        <div class="panel-heading">
+            <i class="fa fa-fw fa-map-marker"></i> 
+            <strong>Location</strong></div>
         <div class="panel-body">
             {% render_field form.site %}
             {% render_field form.rack %}
@@ -27,7 +33,9 @@
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>Management</strong></div>
+        <div class="panel-heading">
+            <i class="fa fa-fw fa-cogs"></i> 
+            <strong>Management</strong></div>
         <div class="panel-body">
             {% render_field form.platform %}
             {% render_field form.status %}
@@ -38,7 +46,9 @@
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>Comments</strong></div>
+        <div class="panel-heading">
+            <i class="fa fa-fw fa-commenting"></i> 
+            <strong>Comments</strong></div>
         <div class="panel-body">
             {% render_field form.comments %}
         </div>
