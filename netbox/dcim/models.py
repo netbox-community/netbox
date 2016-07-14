@@ -953,7 +953,8 @@ class DeviceBay(models.Model):
     """
     device = models.ForeignKey('Device', related_name='device_bays', on_delete=models.CASCADE)
     name = models.CharField(max_length=50, verbose_name='Name')
-    installed_device = models.OneToOneField('Device', related_name='parent_bay', blank=True, null=True)
+    installed_device = models.OneToOneField('Device', related_name='parent_bay', on_delete=models.SET_NULL, blank=True,
+                                            null=True)
 
     class Meta:
         ordering = ['device', 'name']
