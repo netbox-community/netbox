@@ -624,6 +624,10 @@ class Device(CreatedUpdatedModel):
 
     def clean(self):
 
+        # Validate device type assignment
+        if not hasattr(self, 'device_type'):
+            raise ValidationError("Must specify device type.")
+
         # Child devices cannot be assigned to a rack face/unit
         if self.device_type.is_child_device and (self.face is not None or self.position):
             raise ValidationError("Child device types cannot be assigned a rack face or position.")
@@ -633,10 +637,7 @@ class Device(CreatedUpdatedModel):
             raise ValidationError("Must specify rack face with rack position.")
 
         # Validate rack space
-        try:
-            rack_face = self.face if not self.device_type.is_full_depth else None
-        except DeviceType.DoesNotExist:
-            raise ValidationError("Must specify device type.")
+        rack_face = self.face if not self.device_type.is_full_depth else None
         exclude_list = [self.pk] if self.pk else []
         try:
             available_units = self.rack.get_available_units(u_height=self.device_type.u_height, rack_face=rack_face,
