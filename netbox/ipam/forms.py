@@ -192,13 +192,43 @@ class PrefixFromCSVForm(forms.ModelForm):
                                  error_messages={'invalid_choice': 'VRF not found.'})
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, to_field_name='name',
                                   error_messages={'invalid_choice': 'Site not found.'})
+    vlan_group_name = forms.CharField(required=False)
+    vlan_vid = forms.IntegerField(required=False)
     status_name = forms.ChoiceField(choices=[(s[1], s[0]) for s in PREFIX_STATUS_CHOICES])
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False, to_field_name='name',
                                   error_messages={'invalid_choice': 'Invalid role.'})
 
     class Meta:
         model = Prefix
-        fields = ['prefix', 'vrf', 'site', 'status_name', 'role', 'description']
+        fields = ['prefix', 'vrf', 'site', 'vlan_group_name', 'vlan_vid', 'status_name', 'role', 'description']
+
+    def clean(self):
+
+        super(PrefixFromCSVForm, self).clean()
+
+        site = self.cleaned_data.get('site')
+        vlan_group_name = self.cleaned_data.get('vlan_group_name')
+        vlan_vid = self.cleaned_data.get('vlan_vid')
+
+        # Validate VLAN
+        vlan_group = None
+        if vlan_group_name:
+            try:
+                vlan_group = VLANGroup.objects.get(site=site, name=vlan_group_name)
+            except VLANGroup.DoesNotExist:
+                self.add_error('vlan_group_name', "Invalid VLAN group ({} - {}).".format(site, vlan_group_name))
+        if vlan_vid and vlan_group:
+            try:
+                self.instance.vlan = VLAN.objects.get(group=vlan_group, vid=vlan_vid)
+            except VLAN.DoesNotExist:
+                self.add_error('vlan_vid', "Invalid VLAN ID ({} - {}).".format(vlan_group, vlan_vid))
+        elif vlan_vid and site:
+            try:
+                self.instance.vlan = VLAN.objects.get(site=site, vid=vlan_vid)
+            except VLAN.MultipleObjectsReturned:
+                self.add_error('vlan_vid', "Multiple VLANs found ({} - VID {})".format(site, vlan_vid))
+        elif vlan_vid:
+            self.add_error('vlan_vid', "Must specify site and/or VLAN group when assigning a VLAN.")
 
     def save(self, *args, **kwargs):
         m = super(PrefixFromCSVForm, self).save(commit=False)
