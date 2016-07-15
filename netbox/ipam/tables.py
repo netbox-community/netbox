@@ -133,12 +133,13 @@ class PrefixTable(BaseTable):
     prefix = tables.TemplateColumn(PREFIX_LINK, verbose_name='Prefix')
     vrf = tables.Column(orderable=False, default='Global', verbose_name='VRF')
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
+    vlan = tables.Column(accessor='vlan.display_name', verbose_name='VLAN')
     role = tables.Column(verbose_name='Role')
     description = tables.Column(orderable=False, verbose_name='Description')
 
     class Meta(BaseTable.Meta):
         model = Prefix
-        fields = ('pk', 'prefix', 'status', 'vrf', 'site', 'role', 'description')
+        fields = ('pk', 'prefix', 'status', 'vrf', 'site', 'vlan', 'role', 'description')
 
 
 class PrefixBriefTable(BaseTable):

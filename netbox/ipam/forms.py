@@ -192,13 +192,15 @@ class PrefixFromCSVForm(forms.ModelForm):
                                  error_messages={'invalid_choice': 'VRF not found.'})
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, to_field_name='name',
                                   error_messages={'invalid_choice': 'Site not found.'})
+    vlan = forms.ModelChoiceField(queryset=VLAN.objects.all(), required=False, to_field_name='name',
+                                  error_messages={'invalid_choice': 'VLAN not found.'})
     status_name = forms.ChoiceField(choices=[(s[1], s[0]) for s in PREFIX_STATUS_CHOICES])
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False, to_field_name='name',
                                   error_messages={'invalid_choice': 'Invalid role.'})
 
     class Meta:
         model = Prefix
-        fields = ['prefix', 'vrf', 'site', 'status_name', 'role', 'description']
+        fields = ['prefix', 'vrf', 'site', 'vlan', 'status_name', 'role', 'description']
 
     def save(self, *args, **kwargs):
         m = super(PrefixFromCSVForm, self).save(commit=False)
@@ -239,6 +241,11 @@ def prefix_site_choices():
     return [(s.slug, '{} ({})'.format(s.name, s.prefix_count)) for s in site_choices]
 
 
+def prefix_vlan_choices():
+    vlan_choices = VLAN.objects.annotate(prefix_count=Count('prefixes'))
+    return [(v.id, '{} ({})'.format(v.display_name, v.prefix_count)) for v in vlan_choices]
+
+
 def prefix_status_choices():
     status_counts = {}
     for status in Prefix.objects.values('status').annotate(count=Count('status')).order_by('status'):
@@ -256,9 +263,11 @@ class PrefixFilterForm(forms.Form, BootstrapMixin):
     vrf = forms.ChoiceField(required=False, choices=prefix_vrf_choices, label='VRF')
     status = forms.MultipleChoiceField(required=False, choices=prefix_status_choices)
     site = forms.MultipleChoiceField(required=False, choices=prefix_site_choices,
-                                     widget=forms.SelectMultiple(attrs={'size': 8}))
+                                     widget=forms.SelectMultiple(attrs={'size': 6}))
+    vlan_id = forms.MultipleChoiceField(required=False, choices=prefix_vlan_choices,
+                                        label='VLAN', widget=forms.SelectMultiple(attrs={'size': 8}))
     role = forms.MultipleChoiceField(required=False, choices=prefix_role_choices,
-                                     widget=forms.SelectMultiple(attrs={'size': 8}))
+                                     widget=forms.SelectMultiple(attrs={'size': 6}))
     expand = forms.BooleanField(required=False, label='Expand prefix hierarchy')
 
 
