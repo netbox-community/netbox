@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import (
-    Aggregate, IPAddress, Prefix, RIR, Role, VLAN, VRF,
+    Aggregate, IPAddress, Prefix, RIR, Role, VLAN, VLANGroup, VRF,
 )
 
 
@@ -55,6 +55,14 @@ class IPAddressAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super(IPAddressAdmin, self).get_queryset(request)
         return qs.select_related('vrf', 'nat_inside')
+
+
+@admin.register(VLANGroup)
+class VLANGroupAdmin(admin.ModelAdmin):
+    list_display = ['name', 'site', 'slug']
+    prepopulated_fields = {
+        'slug': ['name'],
+    }
 
 
 @admin.register(VLAN)

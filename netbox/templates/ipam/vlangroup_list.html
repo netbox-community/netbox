@@ -1,0 +1,24 @@
+{% extends '_base.html' %}
+{% load helpers %}
+
+{% block title %}VLAN Groups{% endblock %}
+
+{% block content %}
+<div class="pull-right">
+    {% if perms.ipam.add_vlangroup %}
+        <a href="{% url 'ipam:vlangroup_add' %}" class="btn btn-primary">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+            Add a VLAN group
+        </a>
+    {% endif %}
+</div>
+<h1>VLAN Groups</h1>
+<div class="row">
+	<div class="col-md-9">
+        {% include 'utilities/obj_table.html' with bulk_delete_url='ipam:vlangroup_bulk_delete' %}
+    </div>
+    <div class="col-md-3">
+		{% include 'inc/filter_panel.html' %}
+    </div>
+</div>
+{% endblock %}

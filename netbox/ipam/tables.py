@@ -3,7 +3,7 @@ from django_tables2.utils import Accessor
 
 from utilities.tables import BaseTable, ToggleColumn
 
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, VLAN, VRF
+from .models import Aggregate, IPAddress, Prefix, RIR, Role, VLAN, VLANGroup, VRF
 
 
 RIR_EDIT_LINK = """
@@ -47,6 +47,12 @@ STATUS_LABEL = """
     <span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
 {% else %}
     <span class="label label-success">Available</span>
+{% endif %}
+"""
+
+VLANGROUP_EDIT_LINK = """
+{% if perms.ipam.change_vlangroup %}
+    <a href="{% url 'ipam:vlangroup_edit' pk=record.pk %}">Edit</a>
 {% endif %}
 """
 
@@ -178,6 +184,23 @@ class IPAddressBriefTable(BaseTable):
 
 
 #
+# VLAN groups
+#
+
+class VLANGroupTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.LinkColumn(verbose_name='Name')
+    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
+    vlan_count = tables.Column(verbose_name='VLANs')
+    slug = tables.Column(verbose_name='Slug')
+    edit = tables.TemplateColumn(template_code=VLANGROUP_EDIT_LINK, verbose_name='')
+
+    class Meta(BaseTable.Meta):
+        model = VLANGroup
+        fields = ('pk', 'name', 'site', 'vlan_count', 'slug', 'edit')
+
+
+#
 # VLANs
 #
 
@@ -185,10 +208,11 @@ class VLANTable(BaseTable):
     pk = ToggleColumn()
     vid = tables.LinkColumn('ipam:vlan', args=[Accessor('pk')], verbose_name='ID')
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
+    group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
     name = tables.Column(verbose_name='Name')
     status = tables.TemplateColumn(STATUS_LABEL, verbose_name='Status')
     role = tables.Column(verbose_name='Role')
 
     class Meta(BaseTable.Meta):
         model = VLAN
-        fields = ('pk', 'vid', 'site', 'name', 'status', 'role')
+        fields = ('pk', 'vid', 'site', 'group', 'name', 'status', 'role')

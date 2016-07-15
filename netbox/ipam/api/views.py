@@ -1,10 +1,14 @@
 from rest_framework import generics
 
-from ipam.models import VRF, Role, RIR, Aggregate, Prefix, IPAddress, VLAN
-from ipam.filters import AggregateFilter, PrefixFilter, IPAddressFilter, VLANFilter, VRFFilter
+from ipam.models import VRF, Role, RIR, Aggregate, Prefix, IPAddress, VLAN, VLANGroup
+from ipam import filters
 
 from . import serializers
 
+
+#
+# VRFs
+#
 
 class VRFListView(generics.ListAPIView):
     """
@@ -12,7 +16,7 @@ class VRFListView(generics.ListAPIView):
     """
     queryset = VRF.objects.all()
     serializer_class = serializers.VRFSerializer
-    filter_class = VRFFilter
+    filter_class = filters.VRFFilter
 
 
 class VRFDetailView(generics.RetrieveAPIView):
@@ -22,6 +26,10 @@ class VRFDetailView(generics.RetrieveAPIView):
     queryset = VRF.objects.all()
     serializer_class = serializers.VRFSerializer
 
+
+#
+# Roles
+#
 
 class RoleListView(generics.ListAPIView):
     """
@@ -39,6 +47,10 @@ class RoleDetailView(generics.RetrieveAPIView):
     serializer_class = serializers.RoleSerializer
 
 
+#
+# RIRs
+#
+
 class RIRListView(generics.ListAPIView):
     """
     List all RIRs
@@ -55,13 +67,17 @@ class RIRDetailView(generics.RetrieveAPIView):
     serializer_class = serializers.RIRSerializer
 
 
+#
+# Aggregates
+#
+
 class AggregateListView(generics.ListAPIView):
     """
     List aggregates (filterable)
     """
     queryset = Aggregate.objects.select_related('rir')
     serializer_class = serializers.AggregateSerializer
-    filter_class = AggregateFilter
+    filter_class = filters.AggregateFilter
 
 
 class AggregateDetailView(generics.RetrieveAPIView):
@@ -72,13 +88,17 @@ class AggregateDetailView(generics.RetrieveAPIView):
     serializer_class = serializers.AggregateSerializer
 
 
+#
+# Prefixes
+#
+
 class PrefixListView(generics.ListAPIView):
     """
     List prefixes (filterable)
     """
     queryset = Prefix.objects.select_related('site', 'vrf', 'vlan', 'role')
     serializer_class = serializers.PrefixSerializer
-    filter_class = PrefixFilter
+    filter_class = filters.PrefixFilter
 
 
 class PrefixDetailView(generics.RetrieveAPIView):
@@ -89,6 +109,10 @@ class PrefixDetailView(generics.RetrieveAPIView):
     serializer_class = serializers.PrefixSerializer
 
 
+#
+# IP addresses
+#
+
 class IPAddressListView(generics.ListAPIView):
     """
     List IP addresses (filterable)
@@ -96,7 +120,7 @@ class IPAddressListView(generics.ListAPIView):
     queryset = IPAddress.objects.select_related('vrf', 'interface__device', 'nat_inside')\
         .prefetch_related('nat_outside')
     serializer_class = serializers.IPAddressSerializer
-    filter_class = IPAddressFilter
+    filter_class = filters.IPAddressFilter
 
 
 class IPAddressDetailView(generics.RetrieveAPIView):
@@ -108,13 +132,38 @@ class IPAddressDetailView(generics.RetrieveAPIView):
     serializer_class = serializers.IPAddressSerializer
 
 
+#
+# VLAN groups
+#
+
+class VLANGroupListView(generics.ListAPIView):
+    """
+    List all VLAN groups
+    """
+    queryset = VLANGroup.objects.all()
+    serializer_class = serializers.VLANGroupSerializer
+    filter_class = filters.VLANGroupFilter
+
+
+class VLANGroupDetailView(generics.RetrieveAPIView):
+    """
+    Retrieve a single VLAN group
+    """
+    queryset = VLANGroup.objects.all()
+    serializer_class = serializers.VLANGroupSerializer
+
+
+#
+# VLANs
+#
+
 class VLANListView(generics.ListAPIView):
     """
     List VLANs (filterable)
     """
     queryset = VLAN.objects.select_related('site', 'role')
     serializer_class = serializers.VLANSerializer
-    filter_class = VLANFilter
+    filter_class = filters.VLANFilter
 
 
 class VLANDetailView(generics.RetrieveAPIView):
