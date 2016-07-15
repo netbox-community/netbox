@@ -398,9 +398,9 @@ class IPAddressFromCSVForm(forms.ModelForm):
                                                             name=self.cleaned_data['interface_name'])
         # Set as primary for device
         if self.cleaned_data['is_primary']:
-            if self.instance.family == 4:
+            if self.instance.address.version == 4:
                 self.instance.primary_ip4_for = self.cleaned_data['device']
-            elif self.instance.family == 6:
+            elif self.instance.address.version == 6:
                 self.instance.primary_ip6_for = self.cleaned_data['device']
 
         return super(IPAddressFromCSVForm, self).save(commit=commit)
