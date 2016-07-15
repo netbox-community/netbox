@@ -29,6 +29,10 @@ urlpatterns = [
     url(r'^ip-addresses/$', IPAddressListView.as_view(), name='ipaddress_list'),
     url(r'^ip-addresses/(?P<pk>\d+)/$', IPAddressDetailView.as_view(), name='ipaddress_detail'),
 
+    # VLAN groups
+    url(r'^vlan-groups/$', VLANGroupListView.as_view(), name='vlangroup_list'),
+    url(r'^vlan-groups/(?P<pk>\d+)/$', VLANGroupDetailView.as_view(), name='vlangroup_detail'),
+
     # VLANs
     url(r'^vlans/$', VLANListView.as_view(), name='vlan_list'),
     url(r'^vlans/(?P<pk>\d+)/$', VLANDetailView.as_view(), name='vlan_detail'),

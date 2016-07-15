@@ -358,13 +358,41 @@ class IPAddress(CreatedUpdatedModel):
         return None
 
 
+class VLANGroup(models.Model):
+    """
+    A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique.
+    """
+    name = models.CharField(max_length=50)
+    slug = models.SlugField()
+    site = models.ForeignKey('dcim.Site', related_name='vlan_groups')
+
+    class Meta:
+        ordering = ['site', 'name']
+        unique_together = [
+            ['site', 'name'],
+            ['site', 'slug'],
+        ]
+        verbose_name = 'VLAN group'
+        verbose_name_plural = 'VLAN groups'
+
+    def __unicode__(self):
+        return '{} - {}'.format(self.site.name, self.name)
+
+    def get_absolute_url(self):
+        return "{}?group_id={}".format(reverse('ipam:vlan_list'), self.pk)
+
+
 class VLAN(CreatedUpdatedModel):
     """
     A VLAN is a distinct layer two forwarding domain identified by a 12-bit integer (1-4094). Each VLAN must be assigned
-    to a Site, however VLAN IDs need not be unique within a Site. Like Prefixes, each VLAN is assigned an operational
-    status and optionally a user-defined Role. A VLAN can have zero or more Prefixes assigned to it.
+    to a Site, however VLAN IDs need not be unique within a Site. A VLAN may optionally be assigned to a VLANGroup,
+    within which all VLAN IDs and names but be unique.
+
+    Like Prefixes, each VLAN is assigned an operational status and optionally a user-defined Role. A VLAN can have zero
+    or more Prefixes assigned to it.
     """
     site = models.ForeignKey('dcim.Site', related_name='vlans', on_delete=models.PROTECT)
+    group = models.ForeignKey('VLANGroup', related_name='vlans', blank=True, null=True, on_delete=models.PROTECT)
     vid = models.PositiveSmallIntegerField(verbose_name='ID', validators=[
         MinValueValidator(1),
         MaxValueValidator(4094)
@@ -374,7 +402,11 @@ class VLAN(CreatedUpdatedModel):
     role = models.ForeignKey('Role', related_name='vlans', on_delete=models.SET_NULL, blank=True, null=True)
 
     class Meta:
-        ordering = ['site', 'vid']
+        ordering = ['site', 'group', 'vid']
+        unique_together = [
+            ['group', 'vid'],
+            ['group', 'name'],
+        ]
         verbose_name = 'VLAN'
         verbose_name_plural = 'VLANs'
 
@@ -383,6 +415,12 @@ class VLAN(CreatedUpdatedModel):
 
     def get_absolute_url(self):
         return reverse('ipam:vlan', args=[self.pk])
+
+    def clean(self):
+
+        # Validate VLAN group
+        if self.vlan_group and self.vlan_group.site != self.site:
+            raise ValidationError("VLAN group must belong to the assigned site ({}).".format(self.site))
 
     def to_csv(self):
         return ','.join([

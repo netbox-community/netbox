@@ -58,6 +58,12 @@ urlpatterns = [
     url(r'^ip-addresses/(?P<pk>\d+)/edit/$', views.IPAddressEditView.as_view(), name='ipaddress_edit'),
     url(r'^ip-addresses/(?P<pk>\d+)/delete/$', views.IPAddressDeleteView.as_view(), name='ipaddress_delete'),
 
+    # VLAN groups
+    url(r'^vlan-groups/$', views.VLANGroupListView.as_view(), name='vlangroup_list'),
+    url(r'^vlan-groups/add/$', views.VLANGroupEditView.as_view(), name='vlangroup_add'),
+    url(r'^vlan-groups/delete/$', views.VLANGroupBulkDeleteView.as_view(), name='vlangroup_bulk_delete'),
+    url(r'^vlan-groups/(?P<pk>\d+)/edit/$', views.VLANGroupEditView.as_view(), name='vlangroup_edit'),
+
     # VLANs
     url(r'^vlans/$', views.VLANListView.as_view(), name='vlan_list'),
     url(r'^vlans/add/$', views.VLANEditView.as_view(), name='vlan_add'),

@@ -110,7 +110,7 @@
                             {% endif %}
                         </ul>
                     </li>
-                    <li class="dropdown{% if request.path|startswith:'/ipam/' and not request.path|startswith:'/ipam/vlans/' %} active{% endif %}">
+                    <li class="dropdown{% if request.path|startswith:'/ipam/' and not request.path|startswith:'/ipam/vlan' %} active{% endif %}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">IP Space <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="{% url 'ipam:ipaddress_list' %}"><i class="glyphicon glyphicon-search" aria-hidden="true"></i> IP Addresses</a></li>
@@ -156,17 +156,20 @@
                             {% endif %}
                         </ul>
                     </li>
-                    <li class="dropdown{% if request.path|startswith:'/ipam/vlans/' %} active{% endif %}">
-                        {% if perms.ipam.add_vlan %}
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">VLANs <span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url 'ipam:vlan_list' %}"><i class="glyphicon glyphicon-search" aria-hidden="true"></i> VLANs</a></li>
+                    <li class="dropdown{% if request.path|startswith:'/ipam/vlan' %} active{% endif %}">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">VLANs <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'ipam:vlan_list' %}"><i class="glyphicon glyphicon-search" aria-hidden="true"></i> VLANs</a></li>
+                            {% if perms.ipam.add_vlan %}
                                 <li><a href="{% url 'ipam:vlan_add' %}"><i class="glyphicon glyphicon-plus" aria-hidden="true"></i> Add a VLAN</a></li>
                                 <li><a href="{% url 'ipam:vlan_import' %}"><i class="glyphicon glyphicon-import" aria-hidden="true"></i> Import VLANs</a></li>
-                            </ul>
-                        {% else %}
-                            <a href="{% url 'ipam:vlan_list' %}">VLANs</a>
-                        {% endif %}
+                            {% endif %}
+                            <li class="divider"></li>
+                            <li><a href="{% url 'ipam:vlangroup_list' %}"><i class="glyphicon glyphicon-search" aria-hidden="true"></i> VLAN Groups</a></li>
+                            {% if perms.ipam.add_vlangroup %}
+                                <li><a href="{% url 'ipam:vlangroup_add' %}"><i class="glyphicon glyphicon-plus" aria-hidden="true"></i> Add a VLAN Group</a></li>
+                            {% endif %}
+                        </ul>
                     </li>
                     <li class="dropdown{% if request.path|startswith:'/circuits/' %} active{% endif %}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Circuits <span class="caret"></span></a>
