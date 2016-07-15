@@ -57,7 +57,9 @@ UTILIZATION_GRAPH = """
         {% if percentage >= 15 %}{{ percentage }}%{% endif %}
     </div>
 </div>
-{% 
+{% endwith %}
+"""
+
 
 #
 # Sites
