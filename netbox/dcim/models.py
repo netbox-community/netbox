@@ -355,8 +355,8 @@ class Rack(CreatedUpdatedModel):
         """
         num_available_units = len(self.get_available_units(u_height=1, rack_face=None, exclude=list()))
         return int(float(self.u_height - num_available_units) / self.u_height * 100)
-        
-        
+
+
 #
 # Device Types
 #
