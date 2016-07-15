@@ -342,7 +342,19 @@ class Rack(CreatedUpdatedModel):
     def get_0u_devices(self):
         return self.devices.filter(position=0)
 
+    def get_used_units(self):
+        """
+        Determine how many rack units are used considering both faces of the rack.
+        """
+        used_units = int(len(self.get_available_units(u_height=1, rack_face=None, exclude=list())))
+        return int(self.u_height - used_units)
 
+    def get_utilization(self):
+        """
+        Determine the utilization rate of the rack and return it as a percentage.
+        """
+        num_available_units = len(self.get_available_units(u_height=1, rack_face=None, exclude=list()))
+        return int(float(self.u_height - num_available_units) / self.u_height * 100)
 #
 # Device Types
 #
