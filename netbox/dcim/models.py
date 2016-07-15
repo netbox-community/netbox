@@ -681,6 +681,9 @@ class Device(CreatedUpdatedModel):
                  self.device_type.device_bay_templates.all()]
             )
 
+        # Update Rack assignment for any child Devices
+        Device.objects.filter(parent_bay__device=self).update(rack=self.rack)
+
     def to_csv(self):
         return ','.join([
             self.name or '',
