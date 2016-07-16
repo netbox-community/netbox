@@ -1,3 +1,6 @@
+from natsort import natsorted
+from operator import attrgetter
+
 from django_tables2 import RequestConfig
 
 from django.contrib import messages
@@ -25,6 +28,7 @@ class ObjectListView(View):
     filter = None
     filter_form = None
     table = None
+    sorting_attribute = None
     edit_permissions = []
     template_name = None
     redirect_on_single_result = True
@@ -67,6 +71,10 @@ class ObjectListView(View):
 
         # Provide a hook to tweak the queryset based on the request immediately prior to rendering the object list
         self.queryset = self.alter_queryset(request)
+
+        # If the sorting attribute is set, sort the final result based on the provided attribute key
+        if self.sorting_attribute:
+            self.queryset = natsorted(self.queryset, key=attrgetter(self.sorting_attribute))
 
         # Construct the table based on the user's permissions
         table = self.table(self.queryset)
