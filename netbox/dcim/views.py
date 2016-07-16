@@ -66,6 +66,7 @@ class SiteListView(ObjectListView):
     queryset = Site.objects.all()
     filter = filters.SiteFilter
     table = tables.SiteTable
+    sorting_attribute = 'name'
     template_name = 'dcim/site_list.html'
 
 
