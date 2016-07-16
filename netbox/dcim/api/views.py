@@ -326,6 +326,14 @@ class InterfaceConnectionView(generics.RetrieveUpdateDestroyAPIView):
     queryset = InterfaceConnection.objects.all()
 
 
+class InterfaceConnectionListView(generics.ListAPIView):
+    """
+    Retrieve a list of all interface connections
+    """
+    serializer_class = serializers.InterfaceConnectionSerializer
+    queryset = InterfaceConnection.objects.all()
+
+
 #
 # Device bays
 #
