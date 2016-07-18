@@ -247,6 +247,15 @@ class Prefix(CreatedUpdatedModel):
     def get_absolute_url(self):
         return reverse('ipam:prefix', args=[self.pk])
 
+    def clean(self):
+        # Disallow host masks
+        if self.prefix.version == 4 and self.prefix.prefixlen == 32:
+            raise ValidationError("Cannot create host addresses (/32) as prefixes. These should be IPv4 addresses "
+                                  "instead.")
+        elif self.prefix.version == 6 and self.prefix.prefixlen == 128:
+            raise ValidationError("Cannot create host addresses (/128) as prefixes. These should be IPv6 addresses "
+                                  "instead.")
+
     def save(self, *args, **kwargs):
         if self.prefix:
             # Clear host bits from prefix
