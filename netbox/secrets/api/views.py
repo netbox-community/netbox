@@ -28,6 +28,7 @@ class SecretRoleListView(generics.ListAPIView):
     """
     queryset = SecretRole.objects.all()
     serializer_class = serializers.SecretRoleSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class SecretRoleDetailView(generics.RetrieveAPIView):
@@ -36,6 +37,7 @@ class SecretRoleDetailView(generics.RetrieveAPIView):
     """
     queryset = SecretRole.objects.all()
     serializer_class = serializers.SecretRoleSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class SecretListView(generics.GenericAPIView):
@@ -47,6 +49,7 @@ class SecretListView(generics.GenericAPIView):
     serializer_class = serializers.SecretSerializer
     filter_class = SecretFilter
     renderer_classes = [FormlessBrowsableAPIRenderer, JSONRenderer, FreeRADIUSClientsRenderer]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, private_key=None):
         queryset = self.filter_queryset(self.get_queryset())
@@ -91,6 +94,7 @@ class SecretDetailView(generics.GenericAPIView):
         .prefetch_related('role__users', 'role__groups')
     serializer_class = serializers.SecretSerializer
     renderer_classes = [FormlessBrowsableAPIRenderer, JSONRenderer, FreeRADIUSClientsRenderer]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, pk, private_key=None):
         secret = get_object_or_404(Secret, pk=pk)
