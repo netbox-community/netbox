@@ -385,7 +385,7 @@ class VLANGroup(models.Model):
         verbose_name_plural = 'VLAN groups'
 
     def __unicode__(self):
-        return '{} - {}'.format(self.site.name, self.name)
+        return u'{} - {}'.format(self.site.name, self.name)
 
     def get_absolute_url(self):
         return "{}?group_id={}".format(reverse('ipam:vlan_list'), self.pk)
@@ -442,7 +442,7 @@ class VLAN(CreatedUpdatedModel):
 
     @property
     def display_name(self):
-        return u"{} ({})".format(self.vid, self.name)
+        return u'{} ({})'.format(self.vid, self.name)
 
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]

@@ -206,7 +206,7 @@ class RackGroup(models.Model):
         ]
 
     def __unicode__(self):
-        return '{} - {}'.format(self.site.name, self.name)
+        return u'{} - {}'.format(self.site.name, self.name)
 
     def get_absolute_url(self):
         return "{}?group_id={}".format(reverse('dcim:rack_list'), self.pk)
@@ -404,7 +404,7 @@ class DeviceType(models.Model):
         ]
 
     def __unicode__(self):
-        return "{} {}".format(self.manufacturer, self.model)
+        return u'{} {}'.format(self.manufacturer, self.model)
 
     def get_absolute_url(self):
         return reverse('dcim:devicetype', args=[self.pk])
@@ -965,7 +965,7 @@ class DeviceBay(models.Model):
         unique_together = ['device', 'name']
 
     def __unicode__(self):
-        return '{} - {}'.format(self.device.name, self.name)
+        return u'{} - {}'.format(self.device.name, self.name)
 
     def clean(self):
 
