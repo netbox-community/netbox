@@ -428,7 +428,7 @@ class VLAN(CreatedUpdatedModel):
     def clean(self):
 
         # Validate VLAN group
-        if self.vlan_group and self.vlan_group.site != self.site:
+        if self.group and self.group.site != self.site:
             raise ValidationError("VLAN group must belong to the assigned site ({}).".format(self.site))
 
     def to_csv(self):
