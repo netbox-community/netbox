@@ -503,13 +503,15 @@ class VLANForm(forms.ModelForm, BootstrapMixin):
 class VLANFromCSVForm(forms.ModelForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), to_field_name='name',
                                   error_messages={'invalid_choice': 'Device not found.'})
+    group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False, to_field_name='name',
+                                   error_messages={'invalid_choice': 'VLAN group not found.'})
     status_name = forms.ChoiceField(choices=[(s[1], s[0]) for s in VLAN_STATUS_CHOICES])
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False, to_field_name='name',
                                   error_messages={'invalid_choice': 'Invalid role.'})
 
     class Meta:
         model = VLAN
-        fields = ['site', 'vid', 'name', 'status_name', 'role']
+        fields = ['site', 'group', 'vid', 'name', 'status_name', 'role']
 
     def save(self, *args, **kwargs):
         m = super(VLANFromCSVForm, self).save(commit=False)
