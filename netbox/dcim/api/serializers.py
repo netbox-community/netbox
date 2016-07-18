@@ -38,7 +38,7 @@ class RackGroupSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'site']
 
 
-class RackGroupNestedSerializer(SiteSerializer):
+class RackGroupNestedSerializer(RackGroupSerializer):
 
     class Meta(SiteSerializer.Meta):
         fields = ['id', 'name', 'slug']

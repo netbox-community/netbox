@@ -4,7 +4,7 @@ from netaddr.core import AddrFormatError
 
 from dcim.models import Site, Device, Interface
 
-from .models import RIR, Aggregate, VRF, Prefix, IPAddress, VLAN, Role
+from .models import RIR, Aggregate, VRF, Prefix, IPAddress, VLAN, VLANGroup, Role
 
 
 class VRFFilter(django_filters.FilterSet):
@@ -176,6 +176,24 @@ class IPAddressFilter(django_filters.FilterSet):
         return queryset.filter(vrf__pk=value)
 
 
+class VLANGroupFilter(django_filters.FilterSet):
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        name='site',
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        name='site',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site (slug)',
+    )
+
+    class Meta:
+        model = VLANGroup
+        fields = ['site_id', 'site']
+
+
 class VLANFilter(django_filters.FilterSet):
     site_id = django_filters.ModelMultipleChoiceFilter(
         name='site',
@@ -187,6 +205,17 @@ class VLANFilter(django_filters.FilterSet):
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
+    )
+    group_id = django_filters.ModelMultipleChoiceFilter(
+        name='group',
+        queryset=VLANGroup.objects.all(),
+        label='Group (ID)',
+    )
+    group = django_filters.ModelMultipleChoiceFilter(
+        name='group',
+        queryset=VLANGroup.objects.all(),
+        to_field_name='slug',
+        label='Group',
     )
     name = django_filters.CharFilter(
         name='name',

@@ -52,6 +52,16 @@
                     <td><a href="{% url 'dcim:site' slug=vlan.site.slug %}">{{ vlan.site }}</a></td>
                 </tr>
                 <tr>
+                    <td>Group</td>
+                    <td>
+                        {% if vlan.group %}
+                            <a href="{{ vlan.group.get_absolute_url }}">{{ vlan.group.name }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>VLAN ID</td>
                     <td>{{ vlan.vid }}</td>
                 </tr>

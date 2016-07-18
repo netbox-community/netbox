@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from dcim.api.serializers import SiteNestedSerializer, InterfaceNestedSerializer
-from ipam.models import VRF, Role, RIR, Aggregate, Prefix, IPAddress, VLAN
+from ipam.models import VRF, Role, RIR, Aggregate, Prefix, IPAddress, VLAN, VLANGroup
 
 
 #
@@ -12,7 +12,7 @@ class VRFSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VRF
-        fields = ['id', 'name', 'rd', 'description']
+        fields = ['id', 'name', 'rd', 'enforce_unique', 'description']
 
 
 class VRFNestedSerializer(VRFSerializer):
@@ -74,16 +74,35 @@ class AggregateNestedSerializer(AggregateSerializer):
 
 
 #
+# VLAN groups
+#
+
+class VLANGroupSerializer(serializers.ModelSerializer):
+    site = SiteNestedSerializer()
+
+    class Meta:
+        model = VLANGroup
+        fields = ['id', 'name', 'slug', 'site']
+
+
+class VLANGroupNestedSerializer(VLANGroupSerializer):
+
+    class Meta(VLANGroupSerializer.Meta):
+        fields = ['id', 'name', 'slug']
+
+
+#
 # VLANs
 #
 
 class VLANSerializer(serializers.ModelSerializer):
     site = SiteNestedSerializer()
+    group = VLANGroupNestedSerializer()
     role = RoleNestedSerializer()
 
     class Meta:
         model = VLAN
-        fields = ['id', 'site', 'vid', 'name', 'status', 'role', 'display_name']
+        fields = ['id', 'site', 'group', 'vid', 'name', 'status', 'role', 'display_name']
 
 
 class VLANNestedSerializer(VLANSerializer):

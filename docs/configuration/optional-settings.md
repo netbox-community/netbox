@@ -47,9 +47,17 @@ In order to send email, NetBox needs an email server configured. The following i
 
 ---
 
+# ENFORCE_GLOBAL_UNIQUE
+
+Default: False
+
+Enforcement of unique IP space can be toggled on a per-VRF basis. To enforce unique IP space within the global table (all prefixes and IP addresses not assigned to a VRF), set `ENFORCE_GLOBAL_UNIQUE` to True.
+
+---
+
 ## LOGIN_REQUIRED
 
-Default: False,
+Default: False
 
 Setting this to True will permit only authenticated users to access any part of NetBox. By default, anonymous users are permitted to access most data in NetBox (excluding secrets) but not make any changes.
 

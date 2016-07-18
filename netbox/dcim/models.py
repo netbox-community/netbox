@@ -624,6 +624,10 @@ class Device(CreatedUpdatedModel):
 
     def clean(self):
 
+        # Validate device type assignment
+        if not hasattr(self, 'device_type'):
+            raise ValidationError("Must specify device type.")
+
         # Child devices cannot be assigned to a rack face/unit
         if self.device_type.is_child_device and (self.face is not None or self.position):
             raise ValidationError("Child device types cannot be assigned a rack face or position.")
@@ -633,10 +637,7 @@ class Device(CreatedUpdatedModel):
             raise ValidationError("Must specify rack face with rack position.")
 
         # Validate rack space
-        try:
-            rack_face = self.face if not self.device_type.is_full_depth else None
-        except DeviceType.DoesNotExist:
-            raise ValidationError("Must specify device type.")
+        rack_face = self.face if not self.device_type.is_full_depth else None
         exclude_list = [self.pk] if self.pk else []
         try:
             available_units = self.rack.get_available_units(u_height=self.device_type.u_height, rack_face=rack_face,
@@ -679,6 +680,9 @@ class Device(CreatedUpdatedModel):
                 [DeviceBay(device=self, name=template.name) for template in
                  self.device_type.device_bay_templates.all()]
             )
+
+        # Update Rack assignment for any child Devices
+        Device.objects.filter(parent_bay__device=self).update(rack=self.rack)
 
     def to_csv(self):
         return ','.join([
@@ -953,7 +957,8 @@ class DeviceBay(models.Model):
     """
     device = models.ForeignKey('Device', related_name='device_bays', on_delete=models.CASCADE)
     name = models.CharField(max_length=50, verbose_name='Name')
-    installed_device = models.OneToOneField('Device', related_name='parent_bay', blank=True, null=True)
+    installed_device = models.OneToOneField('Device', related_name='parent_bay', on_delete=models.SET_NULL, blank=True,
+                                            null=True)
 
     class Meta:
         ordering = ['device', 'name']

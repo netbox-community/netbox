@@ -9,7 +9,7 @@ from utilities.forms import (
 )
 
 from .models import (
-    Aggregate, IPAddress, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, VLAN, VLAN_STATUS_CHOICES, VRF,
+    Aggregate, IPAddress, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, VLAN, VLANGroup, VLAN_STATUS_CHOICES, VRF,
 )
 
 
@@ -25,7 +25,7 @@ class VRFForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = VRF
-        fields = ['name', 'rd', 'description']
+        fields = ['name', 'rd', 'enforce_unique', 'description']
         labels = {
             'rd': "RD",
         }
@@ -38,7 +38,7 @@ class VRFFromCSVForm(forms.ModelForm):
 
     class Meta:
         model = VRF
-        fields = ['name', 'rd', 'description']
+        fields = ['name', 'rd', 'enforce_unique', 'description']
 
 
 class VRFImportForm(BulkImportForm, BootstrapMixin):
@@ -192,13 +192,43 @@ class PrefixFromCSVForm(forms.ModelForm):
                                  error_messages={'invalid_choice': 'VRF not found.'})
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, to_field_name='name',
                                   error_messages={'invalid_choice': 'Site not found.'})
+    vlan_group_name = forms.CharField(required=False)
+    vlan_vid = forms.IntegerField(required=False)
     status_name = forms.ChoiceField(choices=[(s[1], s[0]) for s in PREFIX_STATUS_CHOICES])
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False, to_field_name='name',
                                   error_messages={'invalid_choice': 'Invalid role.'})
 
     class Meta:
         model = Prefix
-        fields = ['prefix', 'vrf', 'site', 'status_name', 'role', 'description']
+        fields = ['prefix', 'vrf', 'site', 'vlan_group_name', 'vlan_vid', 'status_name', 'role', 'description']
+
+    def clean(self):
+
+        super(PrefixFromCSVForm, self).clean()
+
+        site = self.cleaned_data.get('site')
+        vlan_group_name = self.cleaned_data.get('vlan_group_name')
+        vlan_vid = self.cleaned_data.get('vlan_vid')
+
+        # Validate VLAN
+        vlan_group = None
+        if vlan_group_name:
+            try:
+                vlan_group = VLANGroup.objects.get(site=site, name=vlan_group_name)
+            except VLANGroup.DoesNotExist:
+                self.add_error('vlan_group_name', "Invalid VLAN group ({} - {}).".format(site, vlan_group_name))
+        if vlan_vid and vlan_group:
+            try:
+                self.instance.vlan = VLAN.objects.get(group=vlan_group, vid=vlan_vid)
+            except VLAN.DoesNotExist:
+                self.add_error('vlan_vid', "Invalid VLAN ID ({} - {}).".format(vlan_group, vlan_vid))
+        elif vlan_vid and site:
+            try:
+                self.instance.vlan = VLAN.objects.get(site=site, vid=vlan_vid)
+            except VLAN.MultipleObjectsReturned:
+                self.add_error('vlan_vid', "Multiple VLANs found ({} - VID {})".format(site, vlan_vid))
+        elif vlan_vid:
+            self.add_error('vlan_vid', "Must specify site and/or VLAN group when assigning a VLAN.")
 
     def save(self, *args, **kwargs):
         m = super(PrefixFromCSVForm, self).save(commit=False)
@@ -368,9 +398,9 @@ class IPAddressFromCSVForm(forms.ModelForm):
                                                             name=self.cleaned_data['interface_name'])
         # Set as primary for device
         if self.cleaned_data['is_primary']:
-            if self.instance.family == 4:
+            if self.instance.address.version == 4:
                 self.instance.primary_ip4_for = self.cleaned_data['device']
-            elif self.instance.family == 6:
+            elif self.instance.address.version == 6:
                 self.instance.primary_ip6_for = self.cleaned_data['device']
 
         return super(IPAddressFromCSVForm, self).save(commit=commit)
@@ -408,33 +438,80 @@ class IPAddressFilterForm(forms.Form, BootstrapMixin):
 
 
 #
+# VLAN groups
+#
+
+class VLANGroupForm(forms.ModelForm, BootstrapMixin):
+    slug = SlugField()
+
+    class Meta:
+        model = VLANGroup
+        fields = ['site', 'name', 'slug']
+
+
+class VLANGroupBulkDeleteForm(ConfirmationForm):
+    pk = forms.ModelMultipleChoiceField(queryset=VLANGroup.objects.all(), widget=forms.MultipleHiddenInput)
+
+
+def vlangroup_site_choices():
+    site_choices = Site.objects.annotate(vlangroup_count=Count('vlan_groups'))
+    return [(s.slug, '{} ({})'.format(s.name, s.vlangroup_count)) for s in site_choices]
+
+
+class VLANGroupFilterForm(forms.Form, BootstrapMixin):
+    site = forms.MultipleChoiceField(required=False, choices=vlangroup_site_choices,
+                                     widget=forms.SelectMultiple(attrs={'size': 8}))
+
+
+#
 # VLANs
 #
 
 class VLANForm(forms.ModelForm, BootstrapMixin):
+    group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False, label='Group', widget=APISelect(
+        api_url='/api/ipam/vlan-groups/?site_id={{site}}',
+    ))
 
     class Meta:
         model = VLAN
-        fields = ['site', 'vid', 'name', 'status', 'role']
+        fields = ['site', 'group', 'vid', 'name', 'status', 'role']
         help_texts = {
             'site': "The site at which this VLAN exists",
+            'group': "VLAN group (optional)",
             'vid': "Configured VLAN ID",
             'name': "Configured VLAN name",
             'status': "Operational status of this VLAN",
             'role': "The primary function of this VLAN",
         }
+        widgets = {
+            'site': forms.Select(attrs={'filter-for': 'group'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+
+        super(VLANForm, self).__init__(*args, **kwargs)
+
+        # Limit VLAN group choices
+        if self.is_bound and self.data.get('site'):
+            self.fields['group'].queryset = VLANGroup.objects.filter(site__pk=self.data['site'])
+        elif self.initial.get('site'):
+            self.fields['group'].queryset = VLANGroup.objects.filter(site=self.initial['site'])
+        else:
+            self.fields['group'].choices = []
 
 
 class VLANFromCSVForm(forms.ModelForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), to_field_name='name',
                                   error_messages={'invalid_choice': 'Device not found.'})
+    group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False, to_field_name='name',
+                                   error_messages={'invalid_choice': 'VLAN group not found.'})
     status_name = forms.ChoiceField(choices=[(s[1], s[0]) for s in VLAN_STATUS_CHOICES])
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False, to_field_name='name',
                                   error_messages={'invalid_choice': 'Invalid role.'})
 
     class Meta:
         model = VLAN
-        fields = ['site', 'vid', 'name', 'status_name', 'role']
+        fields = ['site', 'group', 'vid', 'name', 'status_name', 'role']
 
     def save(self, *args, **kwargs):
         m = super(VLANFromCSVForm, self).save(commit=False)
@@ -465,6 +542,11 @@ def vlan_site_choices():
     return [(s.slug, '{} ({})'.format(s.name, s.vlan_count)) for s in site_choices]
 
 
+def vlan_group_choices():
+    group_choices = VLANGroup.objects.select_related('site').annotate(vlan_count=Count('vlans'))
+    return [(g.pk, '{} ({})'.format(g, g.vlan_count)) for g in group_choices]
+
+
 def vlan_status_choices():
     status_counts = {}
     for status in VLAN.objects.values('status').annotate(count=Count('status')).order_by('status'):
@@ -480,6 +562,8 @@ def vlan_role_choices():
 class VLANFilterForm(forms.Form, BootstrapMixin):
     site = forms.MultipleChoiceField(required=False, choices=vlan_site_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
+    group_id = forms.MultipleChoiceField(required=False, choices=vlan_group_choices, label='VLAN Group',
+                                         widget=forms.SelectMultiple(attrs={'size': 8}))
     status = forms.MultipleChoiceField(required=False, choices=vlan_status_choices)
     role = forms.MultipleChoiceField(required=False, choices=vlan_role_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))

@@ -1,5 +1,6 @@
 from netaddr import IPNetwork, cidr_merge
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -45,6 +46,8 @@ class VRF(CreatedUpdatedModel):
     """
     name = models.CharField(max_length=50)
     rd = models.CharField(max_length=21, unique=True, verbose_name='Route distinguisher')
+    enforce_unique = models.BooleanField(default=True, verbose_name='Enforce unique space',
+                                         help_text="Prevent duplicate prefixes/IP addresses within this VRF")
     description = models.CharField(max_length=100, blank=True)
 
     class Meta:
@@ -244,6 +247,15 @@ class Prefix(CreatedUpdatedModel):
     def get_absolute_url(self):
         return reverse('ipam:prefix', args=[self.pk])
 
+    def clean(self):
+        # Disallow host masks
+        if self.prefix.version == 4 and self.prefix.prefixlen == 32:
+            raise ValidationError("Cannot create host addresses (/32) as prefixes. These should be IPv4 addresses "
+                                  "instead.")
+        elif self.prefix.version == 6 and self.prefix.prefixlen == 128:
+            raise ValidationError("Cannot create host addresses (/128) as prefixes. These should be IPv6 addresses "
+                                  "instead.")
+
     def save(self, *args, **kwargs):
         if self.prefix:
             # Clear host bits from prefix
@@ -309,6 +321,21 @@ class IPAddress(CreatedUpdatedModel):
     def get_absolute_url(self):
         return reverse('ipam:ipaddress', args=[self.pk])
 
+    def clean(self):
+
+        # Enforce unique IP space if applicable
+        if self.vrf and self.vrf.enforce_unique:
+            duplicate_ips = IPAddress.objects.filter(vrf=self.vrf, address__net_host=str(self.address.ip))\
+                .exclude(pk=self.pk)
+            if duplicate_ips:
+                raise ValidationError("Duplicate IP address found in VRF {}: {}".format(self.vrf,
+                                                                                        duplicate_ips.first()))
+        elif not self.vrf and settings.ENFORCE_GLOBAL_UNIQUE:
+            duplicate_ips = IPAddress.objects.filter(vrf=None, address__net_host=str(self.address.ip))\
+                .exclude(pk=self.pk)
+            if duplicate_ips:
+                raise ValidationError("Duplicate IP address found in global table: {}".format(duplicate_ips.first()))
+
     def save(self, *args, **kwargs):
         if self.address:
             # Infer address family from IPAddress object
@@ -340,13 +367,41 @@ class IPAddress(CreatedUpdatedModel):
         return None
 
 
+class VLANGroup(models.Model):
+    """
+    A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique.
+    """
+    name = models.CharField(max_length=50)
+    slug = models.SlugField()
+    site = models.ForeignKey('dcim.Site', related_name='vlan_groups')
+
+    class Meta:
+        ordering = ['site', 'name']
+        unique_together = [
+            ['site', 'name'],
+            ['site', 'slug'],
+        ]
+        verbose_name = 'VLAN group'
+        verbose_name_plural = 'VLAN groups'
+
+    def __unicode__(self):
+        return '{} - {}'.format(self.site.name, self.name)
+
+    def get_absolute_url(self):
+        return "{}?group_id={}".format(reverse('ipam:vlan_list'), self.pk)
+
+
 class VLAN(CreatedUpdatedModel):
     """
     A VLAN is a distinct layer two forwarding domain identified by a 12-bit integer (1-4094). Each VLAN must be assigned
-    to a Site, however VLAN IDs need not be unique within a Site. Like Prefixes, each VLAN is assigned an operational
-    status and optionally a user-defined Role. A VLAN can have zero or more Prefixes assigned to it.
+    to a Site, however VLAN IDs need not be unique within a Site. A VLAN may optionally be assigned to a VLANGroup,
+    within which all VLAN IDs and names but be unique.
+
+    Like Prefixes, each VLAN is assigned an operational status and optionally a user-defined Role. A VLAN can have zero
+    or more Prefixes assigned to it.
     """
     site = models.ForeignKey('dcim.Site', related_name='vlans', on_delete=models.PROTECT)
+    group = models.ForeignKey('VLANGroup', related_name='vlans', blank=True, null=True, on_delete=models.PROTECT)
     vid = models.PositiveSmallIntegerField(verbose_name='ID', validators=[
         MinValueValidator(1),
         MaxValueValidator(4094)
@@ -356,7 +411,11 @@ class VLAN(CreatedUpdatedModel):
     role = models.ForeignKey('Role', related_name='vlans', on_delete=models.SET_NULL, blank=True, null=True)
 
     class Meta:
-        ordering = ['site', 'vid']
+        ordering = ['site', 'group', 'vid']
+        unique_together = [
+            ['group', 'vid'],
+            ['group', 'name'],
+        ]
         verbose_name = 'VLAN'
         verbose_name_plural = 'VLANs'
 
@@ -365,6 +424,12 @@ class VLAN(CreatedUpdatedModel):
 
     def get_absolute_url(self):
         return reverse('ipam:vlan', args=[self.pk])
+
+    def clean(self):
+
+        # Validate VLAN group
+        if self.group and self.group.site != self.site:
+            raise ValidationError("VLAN group must belong to the assigned site ({}).".format(self.site))
 
     def to_csv(self):
         return ','.join([

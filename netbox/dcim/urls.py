@@ -92,6 +92,7 @@ urlpatterns = [
     url(r'^devices/$', views.DeviceListView.as_view(), name='device_list'),
     url(r'^devices/add/$', views.DeviceEditView.as_view(), name='device_add'),
     url(r'^devices/import/$', views.DeviceBulkImportView.as_view(), name='device_import'),
+    url(r'^devices/import/child-devices/$', views.ChildDeviceBulkImportView.as_view(), name='device_import_child'),
     url(r'^devices/edit/$', views.DeviceBulkEditView.as_view(), name='device_bulk_edit'),
     url(r'^devices/delete/$', views.DeviceBulkDeleteView.as_view(), name='device_bulk_delete'),
     url(r'^devices/(?P<pk>\d+)/$', views.device, name='device'),
