@@ -425,6 +425,11 @@ class DeviceForm(forms.ModelForm, BootstrapMixin):
         else:
             self.fields['device_type'].choices = []
 
+        # Disable rack assignment if this is a child device installed in a parent device
+        if self.instance.device_type.is_child_device and hasattr(self.instance, 'parent_bay'):
+            self.fields['site'].disabled = True
+            self.fields['rack'].disabled = True
+
 
 class BaseDeviceFromCSVForm(forms.ModelForm):
     device_role = forms.ModelChoiceField(queryset=DeviceRole.objects.all(), to_field_name='name',

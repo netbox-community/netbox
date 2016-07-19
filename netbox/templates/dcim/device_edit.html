@@ -22,8 +22,32 @@
         <div class="panel-body">
             {% render_field form.site %}
             {% render_field form.rack %}
-            {% render_field form.face %}
-            {% render_field form.position %}
+            {% if obj.device_type.is_child_device and obj.parent_bay %}
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Parent device</label>
+                    <div class="col-md-9">
+                        <p class="form-control-static">
+                            <a href="{% url 'dcim:device' pk=obj.parent_bay.device.pk %}">{{ obj.parent_bay.device }}</a>
+                        </p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Parent bay</label>
+                    <div class="col-md-9">
+                        <p class="form-control-static">
+                            {{ obj.parent_bay.name }}
+                            {% if perms.dcim.change_devicebay %}
+                                <a href="{% url 'dcim:devicebay_depopulate' pk=obj.parent_bay.pk %}" class="btn btn-danger btn-xs">
+                                    <i class="glyphicon glyphicon-remove" aria-hidden="true" title="Remove device"></i> Remove
+                                </a>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            {% elif not obj.device_type.is_child_device %}
+                {% render_field form.face %}
+                {% render_field form.position %}
+            {% endif %}
         </div>
     </div>
     <div class="panel panel-default">
