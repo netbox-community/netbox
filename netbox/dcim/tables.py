@@ -108,6 +108,8 @@ class RackTable(BaseTable):
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
     facility_id = tables.Column(verbose_name='Facility ID')
+    u_consumed = tables.Column(accessor=Accessor('u_consumed'), verbose_name='Used (U)')
+    utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
     u_height = tables.Column(verbose_name='Height (U)')
     u_consumed = tables.Column(accessor=Accessor('u_consumed'), verbose_name='Used (U)')
     utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
