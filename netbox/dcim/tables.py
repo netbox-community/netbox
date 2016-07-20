@@ -48,6 +48,18 @@ STATUS_ICON = """
 {% endif %}
 """
 
+UTILIZATION_GRAPH = """
+{% with record.get_utilization as percentage %}
+<div class="progress text-center">
+    {% if percentage < 15 %}<span style="font-size: 12px;">{{ percentage }}%</span>{% endif %}
+    <div class="progress-bar progress-bar-{% if percentage >= 90 %}danger{% elif percentage >= 75 %}warning{% else %}success{% endif %}"
+        role="progressbar" aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ percentage }}%">
+        {% if percentage >= 15 %}{{ percentage }}%{% endif %}
+    </div>
+</div>
+{% endwith %}
+"""
+
 
 #
 # Sites
