@@ -360,6 +360,15 @@ class Rack(CreatedUpdatedModel):
     def get_0u_devices(self):
         return self.devices.filter(position=0)
 
+    def get_utilization(self):
+        """
+        Determine the utilization rate of the rack and return it as a percentage.
+        """
+        if self.u_consumed is None:
+                self.u_consumed = 0
+        u_available = self.u_height - self.u_consumed
+        return int(float(self.u_height - u_available) / self.u_height * 100)
+
 
 #
 # Device Types

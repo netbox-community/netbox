@@ -48,6 +48,18 @@ STATUS_ICON = """
 {% endif %}
 """
 
+UTILIZATION_GRAPH = """
+{% with record.get_utilization as percentage %}
+<div class="progress text-center">
+    {% if percentage < 15 %}<span style="font-size: 12px;">{{ percentage }}%</span>{% endif %}
+    <div class="progress-bar progress-bar-{% if percentage >= 90 %}danger{% elif percentage >= 75 %}warning{% else %}success{% endif %}"
+        role="progressbar" aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ percentage }}%">
+        {% if percentage >= 15 %}{{ percentage }}%{% endif %}
+    </div>
+</div>
+{% endwith %}
+"""
+
 
 #
 # Sites
@@ -97,6 +109,8 @@ class RackTable(BaseTable):
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
     facility_id = tables.Column(verbose_name='Facility ID')
     u_height = tables.Column(verbose_name='Height (U)')
+    u_consumed = tables.Column(accessor=Accessor('u_consumed'), verbose_name='Used (U)')
+    utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
     devices = tables.Column(accessor=Accessor('device_count'), verbose_name='Devices')
 
     class Meta(BaseTable.Meta):
