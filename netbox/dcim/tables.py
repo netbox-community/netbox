@@ -109,6 +109,8 @@ class RackTable(BaseTable):
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
     facility_id = tables.Column(verbose_name='Facility ID')
     u_height = tables.Column(verbose_name='Height (U)')
+    u_consumed = tables.Column(accessor=Accessor('u_consumed'), verbose_name='Used (U)')
+    utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
     devices = tables.Column(accessor=Accessor('device_count'), verbose_name='Devices')
 
     class Meta(BaseTable.Meta):
