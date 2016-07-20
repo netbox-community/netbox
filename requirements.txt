@@ -1,5 +1,5 @@
 cryptography==1.4
-Django==1.9.7
+Django==1.9.8
 django-debug-toolbar==1.4
 django-filter==0.13.0
 django-rest-swagger==0.3.7
