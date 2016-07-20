@@ -144,7 +144,7 @@ class RackGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class RackListView(ObjectListView):
-    queryset = Rack.objects.select_related('site').annotate(device_count=Count('devices', distinct=True))
+    queryset = Rack.objects.select_related('site', 'group').annotate(device_count=Count('devices', distinct=True))
     filter = filters.RackFilter
     filter_form = forms.RackFilterForm
     table = tables.RackTable
