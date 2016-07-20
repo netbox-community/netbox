@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -957,8 +957,8 @@ class Interface(models.Model):
                 return connection.interface_a
         except InterfaceConnection.DoesNotExist:
             return None
-        except InterfaceConnection.MultipleObjectsReturned as e:
-            raise e("Multiple connections found for {0} interface {1}!".format(self.device, self))
+        except InterfaceConnection.MultipleObjectsReturned:
+            raise MultipleObjectsReturned("Multiple connections found for {} interface {}!".format(self.device, self))
 
 
 class InterfaceConnection(models.Model):
