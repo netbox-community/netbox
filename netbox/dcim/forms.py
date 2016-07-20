@@ -396,8 +396,8 @@ class DeviceForm(forms.ModelForm, BootstrapMixin):
             self.fields['rack'].choices = []
 
         # Rack position
+        pk = self.instance.pk if self.instance.pk else None
         try:
-            pk = self.instance.pk if self.instance.pk else None
             if self.is_bound and self.data.get('rack') and str(self.data.get('face')):
                 position_choices = Rack.objects.get(pk=self.data['rack'])\
                     .get_rack_units(face=self.data.get('face'), exclude=pk)
@@ -426,7 +426,7 @@ class DeviceForm(forms.ModelForm, BootstrapMixin):
             self.fields['device_type'].choices = []
 
         # Disable rack assignment if this is a child device installed in a parent device
-        if self.instance.device_type.is_child_device and hasattr(self.instance, 'parent_bay'):
+        if pk and self.instance.device_type.is_child_device and hasattr(self.instance, 'parent_bay'):
             self.fields['site'].disabled = True
             self.fields['rack'].disabled = True
 
