@@ -309,7 +309,7 @@ Make sure you have the log file in the directory above or remove the log line if
 
 # Final step
 
-Last step is to make /opt/netbox executable so Apache can run
+Last step is to make /opt/netbox executable so Apache can run the application from this directory
 
 ```
 # chmod +x /opt/netbox
@@ -319,3 +319,13 @@ Restart apache and you should be good to go.
 ```
 # systemctl restart httpd
 ```
+
+Apache version:
+
+```
+# httpd -v
+Server version: Apache/2.4.6 (CentOS)
+Server built:   Jul 18 2016 15:30:14
+```
+
+
