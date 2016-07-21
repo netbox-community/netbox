@@ -50,4 +50,4 @@ NetBox is built on the [Django](https://djangoproject.com/) Python framework and
 
 # Getting Started
 
-See the [getting started](getting-started.md) guide for help with getting NetBox up and running quickly.
+See the [installation guide](installation/postgresql.md) for help getting NetBox up and running quickly.
