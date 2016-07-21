@@ -197,17 +197,17 @@ class CircuitBulkDeleteForm(ConfirmationForm):
 
 def circuit_type_choices():
     type_choices = CircuitType.objects.annotate(circuit_count=Count('circuits'))
-    return [(t.slug, '{} ({})'.format(t.name, t.circuit_count)) for t in type_choices]
+    return [(t.slug, u'{} ({})'.format(t.name, t.circuit_count)) for t in type_choices]
 
 
 def circuit_provider_choices():
     provider_choices = Provider.objects.annotate(circuit_count=Count('circuits'))
-    return [(p.slug, '{} ({})'.format(p.name, p.circuit_count)) for p in provider_choices]
+    return [(p.slug, u'{} ({})'.format(p.name, p.circuit_count)) for p in provider_choices]
 
 
 def circuit_site_choices():
     site_choices = Site.objects.annotate(circuit_count=Count('circuits'))
-    return [(s.slug, '{} ({})'.format(s.name, s.circuit_count)) for s in site_choices]
+    return [(s.slug, u'{} ({})'.format(s.name, s.circuit_count)) for s in site_choices]
 
 
 class CircuitFilterForm(forms.Form, BootstrapMixin):

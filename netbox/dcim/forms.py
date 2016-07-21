@@ -91,7 +91,7 @@ class RackGroupBulkDeleteForm(ConfirmationForm):
 
 def rackgroup_site_choices():
     site_choices = Site.objects.annotate(rack_count=Count('rack_groups'))
-    return [(s.slug, '{} ({})'.format(s.name, s.rack_count)) for s in site_choices]
+    return [(s.slug, u'{} ({})'.format(s.name, s.rack_count)) for s in site_choices]
 
 
 class RackGroupFilterForm(forms.Form, BootstrapMixin):
@@ -175,12 +175,12 @@ class RackBulkDeleteForm(ConfirmationForm):
 
 def rack_site_choices():
     site_choices = Site.objects.annotate(rack_count=Count('racks'))
-    return [(s.slug, '{} ({})'.format(s.name, s.rack_count)) for s in site_choices]
+    return [(s.slug, u'{} ({})'.format(s.name, s.rack_count)) for s in site_choices]
 
 
 def rack_group_choices():
     group_choices = RackGroup.objects.select_related('site').annotate(rack_count=Count('racks'))
-    return [(g.pk, '{} ({})'.format(g, g.rack_count)) for g in group_choices]
+    return [(g.pk, u'{} ({})'.format(g, g.rack_count)) for g in group_choices]
 
 
 class RackFilterForm(forms.Form, BootstrapMixin):
@@ -231,7 +231,7 @@ class DeviceTypeBulkDeleteForm(ConfirmationForm):
 
 def devicetype_manufacturer_choices():
     manufacturer_choices = Manufacturer.objects.annotate(devicetype_count=Count('device_types'))
-    return [(m.slug, '{} ({})'.format(m.name, m.devicetype_count)) for m in manufacturer_choices]
+    return [(m.slug, u'{} ({})'.format(m.name, m.devicetype_count)) for m in manufacturer_choices]
 
 
 class DeviceTypeFilterForm(forms.Form, BootstrapMixin):
@@ -373,10 +373,10 @@ class DeviceForm(forms.ModelForm, BootstrapMixin):
             for family in [4, 6]:
                 ip_choices = []
                 interface_ips = IPAddress.objects.filter(family=family, interface__device=self.instance)
-                ip_choices += [(ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips]
+                ip_choices += [(ip.id, u'{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips]
                 nat_ips = IPAddress.objects.filter(family=family, nat_inside__interface__device=self.instance)\
                     .select_related('nat_inside__interface')
-                ip_choices += [(ip.id, '{} ({} NAT)'.format(ip.address, ip.nat_inside.interface)) for ip in nat_ips]
+                ip_choices += [(ip.id, u'{} ({} NAT)'.format(ip.address, ip.nat_inside.interface)) for ip in nat_ips]
                 self.fields['primary_ip{}'.format(family)].choices = [(None, '---------')] + ip_choices
 
         else:
@@ -548,27 +548,27 @@ class DeviceBulkDeleteForm(ConfirmationForm):
 
 def device_site_choices():
     site_choices = Site.objects.annotate(device_count=Count('racks__devices'))
-    return [(s.slug, '{} ({})'.format(s.name, s.device_count)) for s in site_choices]
+    return [(s.slug, u'{} ({})'.format(s.name, s.device_count)) for s in site_choices]
 
 
 def device_rack_group_choices():
     group_choices = RackGroup.objects.select_related('site').annotate(device_count=Count('racks__devices'))
-    return [(g.pk, '{} ({})'.format(g, g.device_count)) for g in group_choices]
+    return [(g.pk, u'{} ({})'.format(g, g.device_count)) for g in group_choices]
 
 
 def device_role_choices():
     role_choices = DeviceRole.objects.annotate(device_count=Count('devices'))
-    return [(r.slug, '{} ({})'.format(r.name, r.device_count)) for r in role_choices]
+    return [(r.slug, u'{} ({})'.format(r.name, r.device_count)) for r in role_choices]
 
 
 def device_type_choices():
     type_choices = DeviceType.objects.select_related('manufacturer').annotate(device_count=Count('instances'))
-    return [(t.pk, '{} ({})'.format(t, t.device_count)) for t in type_choices]
+    return [(t.pk, u'{} ({})'.format(t, t.device_count)) for t in type_choices]
 
 
 def device_platform_choices():
     platform_choices = Platform.objects.annotate(device_count=Count('devices'))
-    return [(p.slug, '{} ({})'.format(p.name, p.device_count)) for p in platform_choices]
+    return [(p.slug, u'{} ({})'.format(p.name, p.device_count)) for p in platform_choices]
 
 
 class DeviceFilterForm(forms.Form, BootstrapMixin):

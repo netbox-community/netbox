@@ -103,7 +103,7 @@ class SecretBulkDeleteForm(ConfirmationForm):
 
 def secret_role_choices():
     role_choices = SecretRole.objects.annotate(secret_count=Count('secrets'))
-    return [(r.slug, '{} ({})'.format(r.name, r.secret_count)) for r in role_choices]
+    return [(r.slug, u'{} ({})'.format(r.name, r.secret_count)) for r in role_choices]
 
 
 class SecretFilterForm(forms.Form, BootstrapMixin):
