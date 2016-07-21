@@ -112,7 +112,7 @@ class AggregateBulkDeleteForm(ConfirmationForm):
 
 def aggregate_rir_choices():
     rir_choices = RIR.objects.annotate(aggregate_count=Count('aggregates'))
-    return [(r.slug, '{} ({})'.format(r.name, r.aggregate_count)) for r in rir_choices]
+    return [(r.slug, u'{} ({})'.format(r.name, r.aggregate_count)) for r in rir_choices]
 
 
 class AggregateFilterForm(forms.Form, BootstrapMixin):
@@ -266,19 +266,19 @@ def prefix_vrf_choices():
 
 def prefix_site_choices():
     site_choices = Site.objects.annotate(prefix_count=Count('prefixes'))
-    return [(s.slug, '{} ({})'.format(s.name, s.prefix_count)) for s in site_choices]
+    return [(s.slug, u'{} ({})'.format(s.name, s.prefix_count)) for s in site_choices]
 
 
 def prefix_status_choices():
     status_counts = {}
     for status in Prefix.objects.values('status').annotate(count=Count('status')).order_by('status'):
         status_counts[status['status']] = status['count']
-    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in PREFIX_STATUS_CHOICES]
+    return [(s[0], u'{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in PREFIX_STATUS_CHOICES]
 
 
 def prefix_role_choices():
     role_choices = Role.objects.annotate(prefix_count=Count('prefixes'))
-    return [(r.slug, '{} ({})'.format(r.name, r.prefix_count)) for r in role_choices]
+    return [(r.slug, u'{} ({})'.format(r.name, r.prefix_count)) for r in role_choices]
 
 
 class PrefixFilterForm(forms.Form, BootstrapMixin):
@@ -455,7 +455,7 @@ class VLANGroupBulkDeleteForm(ConfirmationForm):
 
 def vlangroup_site_choices():
     site_choices = Site.objects.annotate(vlangroup_count=Count('vlan_groups'))
-    return [(s.slug, '{} ({})'.format(s.name, s.vlangroup_count)) for s in site_choices]
+    return [(s.slug, u'{} ({})'.format(s.name, s.vlangroup_count)) for s in site_choices]
 
 
 class VLANGroupFilterForm(forms.Form, BootstrapMixin):
@@ -529,6 +529,7 @@ class VLANImportForm(BulkImportForm, BootstrapMixin):
 class VLANBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=VLAN.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
+    group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False)
     status = forms.ChoiceField(choices=FORM_VLAN_STATUS_CHOICES, required=False)
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
 
@@ -539,24 +540,24 @@ class VLANBulkDeleteForm(ConfirmationForm):
 
 def vlan_site_choices():
     site_choices = Site.objects.annotate(vlan_count=Count('vlans'))
-    return [(s.slug, '{} ({})'.format(s.name, s.vlan_count)) for s in site_choices]
+    return [(s.slug, u'{} ({})'.format(s.name, s.vlan_count)) for s in site_choices]
 
 
 def vlan_group_choices():
     group_choices = VLANGroup.objects.select_related('site').annotate(vlan_count=Count('vlans'))
-    return [(g.pk, '{} ({})'.format(g, g.vlan_count)) for g in group_choices]
+    return [(g.pk, u'{} ({})'.format(g, g.vlan_count)) for g in group_choices]
 
 
 def vlan_status_choices():
     status_counts = {}
     for status in VLAN.objects.values('status').annotate(count=Count('status')).order_by('status'):
         status_counts[status['status']] = status['count']
-    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in VLAN_STATUS_CHOICES]
+    return [(s[0], u'{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in VLAN_STATUS_CHOICES]
 
 
 def vlan_role_choices():
     role_choices = Role.objects.annotate(vlan_count=Count('vlans'))
-    return [(r.slug, '{} ({})'.format(r.name, r.vlan_count)) for r in role_choices]
+    return [(r.slug, u'{} ({})'.format(r.name, r.vlan_count)) for r in role_choices]
 
 
 class VLANFilterForm(forms.Form, BootstrapMixin):

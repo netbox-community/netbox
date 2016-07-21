@@ -12,8 +12,9 @@ possible that the bug has already been fixed.
 reported. If you think you may be experiencing a reported issue, please add a quick comment to it with a "+1" and a
 quick description of how it's affecting your installation.
 
-* If you're unsure whether the behavior you're seeing is expected, you can join #netbox on irc.freenode.net and ask
-before going through the trouble of submitting an issue report.
+* If you're having trouble installing NetBox, please join #netbox on irc.freenode.net and ask for help before creating
+an issue on GitHub. Many installation problems are simple fixes. The issues list should be reserved for bug reports and
+feature requests.
 
 * When submitting an issue, please be as descriptive as possible. Be sure to describe:
 
@@ -40,12 +41,15 @@ feature creep. For example, the following features would be firmly out of scope 
     * Acting as a DNS server
     * Acting as an authentication server
 
+* Feature requests must be very narrowly defined. The more effort you put into writing a feature request, the better its
+chances are of being implemented. Overly broad feature requests will be closed.
+
 * If you're not sure whether the feature you want is a good fit for NetBox, please ask in #netbox on irc.freenode.net.
 Even if it's not quite right for NetBox, we may be able to point you to a tool better suited for the job.
 
 * When submitting a feature request, be sure to include the following:
 
-    * A brief description of the functionality
+    * A detailed description of the functionality
     * A use case for the feature; who would use it and what value it would add to NetBox
     * A rough description of any changes necessary to the database schema (if applicable)
     * Any third-party libraries or other resources which would be involved

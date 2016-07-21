@@ -219,8 +219,8 @@ class Secret(CreatedUpdatedModel):
 
     def __unicode__(self):
         if self.role and self.device:
-            return "{} for {}".format(self.role, self.device)
-        return "Secret"
+            return u'{} for {}'.format(self.role, self.device)
+        return u'Secret'
 
     def get_absolute_url(self):
         return reverse('secrets:secret', args=[self.pk])

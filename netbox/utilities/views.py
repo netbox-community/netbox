@@ -134,12 +134,12 @@ class ObjectEditView(View):
             obj_created = not obj.pk
             obj.save()
 
-            msg = 'Created ' if obj_created else 'Modified '
+            msg = u'Created ' if obj_created else u'Modified '
             msg += self.model._meta.verbose_name
             if hasattr(obj, 'get_absolute_url'):
-                msg = '{} <a href="{}">{}</a>'.format(msg, obj.get_absolute_url(), obj)
+                msg = u'{} <a href="{}">{}</a>'.format(msg, obj.get_absolute_url(), obj)
             else:
-                msg = '{} {}'.format(msg, obj)
+                msg = u'{} {}'.format(msg, obj)
             messages.success(request, msg)
             if obj_created:
                 UserAction.objects.log_create(request.user, obj, msg)
@@ -192,7 +192,7 @@ class ObjectDeleteView(View):
         if form.is_valid():
             try:
                 obj.delete()
-                msg = 'Deleted {} {}'.format(self.model._meta.verbose_name, obj)
+                msg = u'Deleted {} {}'.format(self.model._meta.verbose_name, obj)
                 messages.success(request, msg)
                 UserAction.objects.log_delete(request.user, obj, msg)
                 return redirect(self.redirect_url)
@@ -234,7 +234,7 @@ class BulkImportView(View):
 
                 obj_table = self.table(new_objs)
                 if new_objs:
-                    msg = 'Imported {} {}'.format(len(new_objs), new_objs[0]._meta.verbose_name_plural)
+                    msg = u'Imported {} {}'.format(len(new_objs), new_objs[0]._meta.verbose_name_plural)
                     messages.success(request, msg)
                     UserAction.objects.log_import(request.user, ContentType.objects.get_for_model(new_objs[0]), msg)
 
@@ -281,7 +281,7 @@ class BulkEditView(View):
             if form.is_valid():
                 updated_count = self.update_objects(pk_list, form)
                 if updated_count:
-                    msg = 'Updated {} {}'.format(updated_count, self.cls._meta.verbose_name_plural)
+                    msg = u'Updated {} {}'.format(updated_count, self.cls._meta.verbose_name_plural)
                     messages.success(self.request, msg)
                     UserAction.objects.log_bulk_edit(request.user, ContentType.objects.get_for_model(self.cls), msg)
                 return redirect(redirect_url)
@@ -345,7 +345,7 @@ class BulkDeleteView(View):
                     handle_protectederror(list(queryset), request, e)
                     return redirect(redirect_url)
 
-                msg = 'Deleted {} {}'.format(deleted_count, self.cls._meta.verbose_name_plural)
+                msg = u'Deleted {} {}'.format(deleted_count, self.cls._meta.verbose_name_plural)
                 messages.success(request, msg)
                 UserAction.objects.log_bulk_delete(request.user, ContentType.objects.get_for_model(self.cls), msg)
                 return redirect(redirect_url)

@@ -95,3 +95,15 @@ def querystring_toggle(request, multi=True, page_key='page', **kwargs):
         return '?' + querystring
     else:
         return ''
+
+
+@register.inclusion_tag('utilities/templatetags/utilization_graph.html')
+def utilization_graph(utilization, warning_threshold=75, danger_threshold=90):
+    """
+    Display a horizontal bar graph indicating a percentage of utilization.
+    """
+    return {
+        'utilization': utilization,
+        'warning_threshold': warning_threshold,
+        'danger_threshold': danger_threshold,
+    }

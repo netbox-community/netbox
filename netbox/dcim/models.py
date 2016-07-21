@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -9,9 +9,11 @@ from django.db.models import Count, Q, ObjectDoesNotExist
 
 from extras.rpc import RPC_CLIENTS
 from utilities.fields import NullableCharField
+from utilities.managers import NaturalOrderByManager
 from utilities.models import CreatedUpdatedModel
 
 from .fields import ASNField, MACAddressField
+
 
 RACK_FACE_FRONT = 0
 RACK_FACE_REAR = 1
@@ -137,6 +139,12 @@ def order_interfaces(queryset, sql_col, primary_ordering=tuple()):
     }).order_by(*ordering)
 
 
+class SiteManager(NaturalOrderByManager):
+
+    def get_queryset(self):
+        return self.natural_order_by('name')
+
+
 class Site(CreatedUpdatedModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
@@ -149,6 +157,8 @@ class Site(CreatedUpdatedModel):
     physical_address = models.CharField(max_length=200, blank=True)
     shipping_address = models.CharField(max_length=200, blank=True)
     comments = models.TextField(blank=True)
+
+    objects = SiteManager()
 
     class Meta:
         ordering = ['name']
@@ -206,10 +216,16 @@ class RackGroup(models.Model):
         ]
 
     def __unicode__(self):
-        return '{} - {}'.format(self.site.name, self.name)
+        return u'{} - {}'.format(self.site.name, self.name)
 
     def get_absolute_url(self):
         return "{}?group_id={}".format(reverse('dcim:rack_list'), self.pk)
+
+
+class RackManager(NaturalOrderByManager):
+
+    def get_queryset(self):
+        return self.natural_order_by('site__name', 'name')
 
 
 class Rack(CreatedUpdatedModel):
@@ -223,6 +239,8 @@ class Rack(CreatedUpdatedModel):
     group = models.ForeignKey('RackGroup', related_name='racks', blank=True, null=True, on_delete=models.SET_NULL)
     u_height = models.PositiveSmallIntegerField(default=42, verbose_name='Height (U)')
     comments = models.TextField(blank=True)
+
+    objects = RackManager()
 
     class Meta:
         ordering = ['site', 'name']
@@ -342,6 +360,15 @@ class Rack(CreatedUpdatedModel):
     def get_0u_devices(self):
         return self.devices.filter(position=0)
 
+    def get_utilization(self):
+        """
+        Determine the utilization rate of the rack and return it as a percentage.
+        """
+        if self.u_consumed is None:
+                self.u_consumed = 0
+        u_available = self.u_height - self.u_consumed
+        return int(float(self.u_height - u_available) / self.u_height * 100)
+
 
 #
 # Device Types
@@ -404,7 +431,7 @@ class DeviceType(models.Model):
         ]
 
     def __unicode__(self):
-        return "{} {}".format(self.manufacturer, self.model)
+        return u'{} {}'.format(self.manufacturer, self.model)
 
     def get_absolute_url(self):
         return reverse('dcim:devicetype', args=[self.pk])
@@ -583,6 +610,12 @@ class Platform(models.Model):
         return "{}?platform={}".format(reverse('dcim:device_list'), self.slug)
 
 
+class DeviceManager(NaturalOrderByManager):
+
+    def get_queryset(self):
+        return self.natural_order_by('name')
+
+
 class Device(CreatedUpdatedModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
@@ -611,6 +644,8 @@ class Device(CreatedUpdatedModel):
     primary_ip6 = models.OneToOneField('ipam.IPAddress', related_name='primary_ip6_for', on_delete=models.SET_NULL,
                                        blank=True, null=True, verbose_name='Primary IPv6')
     comments = models.TextField(blank=True)
+
+    objects = DeviceManager()
 
     class Meta:
         ordering = ['name']
@@ -922,8 +957,8 @@ class Interface(models.Model):
                 return connection.interface_a
         except InterfaceConnection.DoesNotExist:
             return None
-        except InterfaceConnection.MultipleObjectsReturned as e:
-            raise e("Multiple connections found for {0} interface {1}!".format(self.device, self))
+        except InterfaceConnection.MultipleObjectsReturned:
+            raise MultipleObjectsReturned("Multiple connections found for {} interface {}!".format(self.device, self))
 
 
 class InterfaceConnection(models.Model):
@@ -965,7 +1000,7 @@ class DeviceBay(models.Model):
         unique_together = ['device', 'name']
 
     def __unicode__(self):
-        return '{} - {}'.format(self.device.name, self.name)
+        return u'{} - {}'.format(self.device.name, self.name)
 
     def clean(self):
 

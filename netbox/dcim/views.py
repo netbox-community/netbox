@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.db.models import Count, ProtectedError
+from django.db.models import Count, ProtectedError, Sum
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -144,7 +144,7 @@ class RackGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class RackListView(ObjectListView):
-    queryset = Rack.objects.select_related('site').annotate(device_count=Count('devices', distinct=True))
+    queryset = Rack.objects.select_related('site').prefetch_related('devices__device_type').annotate(device_count=Count('devices', distinct=True), u_consumed=Sum('devices__device_type__u_height'))
     filter = filters.RackFilter
     filter_form = forms.RackFilterForm
     table = tables.RackTable

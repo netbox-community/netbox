@@ -60,7 +60,7 @@ class SelectWithDisabled(forms.Select):
             option_label = option_label['label']
         disabled_html = ' disabled="disabled"' if option_disabled else ''
 
-        return format_html('<option value="{}"{}{}>{}</option>',
+        return format_html(u'<option value="{}"{}{}>{}</option>',
                            option_value,
                            selected_html,
                            disabled_html,

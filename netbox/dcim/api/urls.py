@@ -61,7 +61,8 @@ urlpatterns = [
     url(r'^interfaces/(?P<pk>\d+)/$', InterfaceDetailView.as_view(), name='interface_detail'),
     url(r'^interfaces/(?P<pk>\d+)/graphs/$', GraphListView.as_view(), {'type': GRAPH_TYPE_INTERFACE},
         name='interface_graphs'),
-    url(r'^interface-connections/(?P<pk>\d+)/$', InterfaceConnectionView.as_view(), name='interfaceconnection'),
+    url(r'^interface-connections/$', InterfaceConnectionListView.as_view(), name='interfaceconnection_list'),
+    url(r'^interface-connections/(?P<pk>\d+)/$', InterfaceConnectionView.as_view(), name='interfaceconnection_detail'),
 
     # Miscellaneous
     url(r'^related-connections/$', RelatedConnectionsView.as_view(), name='related_connections'),
