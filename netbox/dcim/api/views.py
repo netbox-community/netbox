@@ -419,53 +419,36 @@ class RelatedConnectionsView(APIView):
                 return Response()
 
         else:
-            raise MissingFilterException(detail='Must specify search parameters (peer-device and peer-interface).')
+            raise MissingFilterException(detail='Must specify search parameters "peer-device" and "peer-interface".')
 
         # Initialize response skeleton
-        response = dict()
-        response['device'] = serializers.DeviceSerializer(device).data
-        response['console-ports'] = []
-        response['power-ports'] = []
-        response['interfaces'] = []
+        response = {
+            'device': serializers.DeviceSerializer(device).data,
+            'console-ports': [],
+            'power-ports': [],
+            'interfaces': [],
+        }
 
-        # Build console connections
+        # Console connections
         console_ports = ConsolePort.objects.filter(device=device).select_related('cs_port__device')
         for cp in console_ports:
-            cp_info = dict()
-            cp_info['name'] = cp.name
-            if cp.cs_port:
-                cp_info['console-server'] = cp.cs_port.device.name
-                cp_info['port'] = cp.cs_port.name
-            else:
-                cp_info['console-server'] = None
-                cp_info['port'] = None
-            response['console-ports'].append(cp_info)
+            data = serializers.ConsolePortSerializer(instance=cp).data
+            del(data['device'])
+            response['console-ports'].append(data)
 
-        # Build power connections
+        # Power connections
         power_ports = PowerPort.objects.filter(device=device).select_related('power_outlet__device')
         for pp in power_ports:
-            pp_info = dict()
-            pp_info['name'] = pp.name
-            if pp.power_outlet:
-                pp_info['pdu'] = pp.power_outlet.device.name
-                pp_info['outlet'] = pp.power_outlet.name
-            else:
-                pp_info['pdu'] = None
-                pp_info['outlet'] = None
-            response['power-ports'].append(pp_info)
+            data = serializers.PowerPortSerializer(instance=pp).data
+            del(data['device'])
+            response['power-ports'].append(data)
 
-        # Built interface connections
-        interfaces = Interface.objects.filter(device=device)
+        # Interface connections
+        interfaces = Interface.objects.filter(device=device).select_related('connected_as_a', 'connected_as_b',
+                                                                            'circuit')
         for iface in interfaces:
-            iface_info = dict()
-            iface_info['name'] = iface.name
-            peer_interface = iface.get_connected_interface()
-            if peer_interface:
-                iface_info['device'] = peer_interface.device.name
-                iface_info['interface'] = peer_interface.name
-            else:
-                iface_info['device'] = None
-                iface_info['interface'] = None
-            response['interfaces'].append(iface_info)
+            data = serializers.InterfaceDetailSerializer(instance=iface).data
+            del(data['device'])
+            response['interfaces'].append(data)
 
         return Response(response)
