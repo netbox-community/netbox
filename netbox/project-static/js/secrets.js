@@ -10,15 +10,16 @@ $(document).ready(function() {
             $('#privkey_modal').modal('show');
         } else {
             unlock_secret(secret_id, private_key);
-            $(this).hide();
-            $(this).siblings('button.lock-secret').show();
         }
     });
 
     // Locking a secret
     $('button.lock-secret').click(function (event) {
         var secret_id = $(this).attr('secret-id');
-        $('#secret_' + secret_id).html('********');
+        var secret_div = $('#secret_' + secret_id);
+
+        // Delete the plaintext
+        secret_div.html('********');
         $(this).hide();
         $(this).siblings('button.unlock-secret').show();
     });
@@ -81,13 +82,16 @@ $(document).ready(function() {
                 xhr.setRequestHeader("X-CSRFToken", csrf_token);
             },
             success: function (response, status) {
-                var secret_plaintext = response.plaintext;
-                $('#secret_' + secret_id).html(secret_plaintext);
-                return true;
+                $('#secret_' + secret_id).html(response.plaintext);
+                $('button.unlock-secret').hide();
+                $('button.lock-secret').show();
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 if (xhr.status == 403) {
-                    alert("Decryption failed: " + xhr.statusText);
+                    alert("Permission denied");
+                } else {
+                    var json = jQuery.parseJSON(xhr.responseText);
+                    alert("Decryption failed: " + json['error']);
                 }
             }
         });
