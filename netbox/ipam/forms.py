@@ -93,7 +93,7 @@ class AggregateBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Aggregate.objects.all(), widget=forms.MultipleHiddenInput)
     rir = forms.ModelChoiceField(queryset=RIR.objects.all(), required=False, label='RIR')
     date_added = forms.DateField(required=False)
-    description = forms.CharField(max_length=50, required=False)
+    description = forms.CharField(max_length=100, required=False)
 
 
 def aggregate_rir_choices():
@@ -233,7 +233,7 @@ class PrefixBulkEditForm(forms.Form, BootstrapMixin):
     vrf_global = forms.BooleanField(required=False, label='Set VRF to global')
     status = forms.ChoiceField(choices=FORM_PREFIX_STATUS_CHOICES, required=False)
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
-    description = forms.CharField(max_length=50, required=False)
+    description = forms.CharField(max_length=100, required=False)
 
 
 def prefix_vrf_choices():
@@ -393,7 +393,7 @@ class IPAddressBulkEditForm(forms.Form, BootstrapMixin):
     vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF',
                                  help_text="Select the VRF to assign, or check below to remove VRF assignment")
     vrf_global = forms.BooleanField(required=False, label='Set VRF to global')
-    description = forms.CharField(max_length=50, required=False)
+    description = forms.CharField(max_length=100, required=False)
 
 
 def ipaddress_family_choices():
