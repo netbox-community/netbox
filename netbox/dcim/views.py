@@ -133,7 +133,6 @@ class RackGroupEditView(PermissionRequiredMixin, ObjectEditView):
 class RackGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rackgroup'
     cls = RackGroup
-    form = forms.RackGroupBulkDeleteForm
     default_redirect_url = 'dcim:rackgroup_list'
 
 
@@ -211,7 +210,6 @@ class RackBulkEditView(PermissionRequiredMixin, BulkEditView):
 class RackBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rack'
     cls = Rack
-    form = forms.RackBulkDeleteForm
     default_redirect_url = 'dcim:rack_list'
 
 
@@ -237,7 +235,6 @@ class ManufacturerEditView(PermissionRequiredMixin, ObjectEditView):
 class ManufacturerBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_manufacturer'
     cls = Manufacturer
-    form = forms.ManufacturerBulkDeleteForm
     default_redirect_url = 'dcim:manufacturer_list'
 
 
@@ -332,7 +329,6 @@ class DeviceTypeBulkEditView(PermissionRequiredMixin, BulkEditView):
 class DeviceTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_devicetype'
     cls = DeviceType
-    form = forms.DeviceTypeBulkDeleteForm
     default_redirect_url = 'dcim:devicetype_list'
 
 
@@ -477,7 +473,6 @@ class DeviceRoleEditView(PermissionRequiredMixin, ObjectEditView):
 class DeviceRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_devicerole'
     cls = DeviceRole
-    form = forms.DeviceRoleBulkDeleteForm
     default_redirect_url = 'dcim:devicerole_list'
 
 
@@ -503,7 +498,6 @@ class PlatformEditView(PermissionRequiredMixin, ObjectEditView):
 class PlatformBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_platform'
     cls = Platform
-    form = forms.PlatformBulkDeleteForm
     default_redirect_url = 'dcim:platform_list'
 
 
@@ -648,7 +642,6 @@ class DeviceBulkEditView(PermissionRequiredMixin, BulkEditView):
 class DeviceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_device'
     cls = Device
-    form = forms.DeviceBulkDeleteForm
     default_redirect_url = 'dcim:device_list'
 
 

@@ -4,9 +4,7 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Site, Device, Interface
-from utilities.forms import (
-    BootstrapMixin, ConfirmationForm, APISelect, Livesearch, CSVDataField, BulkImportForm, SlugField,
-)
+from utilities.forms import BootstrapMixin, APISelect, Livesearch, CSVDataField, BulkImportForm, SlugField
 
 from .models import (
     Aggregate, IPAddress, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, VLAN, VLANGroup, VLAN_STATUS_CHOICES, VRF,
@@ -50,10 +48,6 @@ class VRFBulkEditForm(forms.Form, BootstrapMixin):
     description = forms.CharField(max_length=100, required=False)
 
 
-class VRFBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=VRF.objects.all(), widget=forms.MultipleHiddenInput)
-
-
 #
 # RIRs
 #
@@ -64,10 +58,6 @@ class RIRForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = RIR
         fields = ['name', 'slug']
-
-
-class RIRBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=RIR.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 #
@@ -106,10 +96,6 @@ class AggregateBulkEditForm(forms.Form, BootstrapMixin):
     description = forms.CharField(max_length=50, required=False)
 
 
-class AggregateBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Aggregate.objects.all(), widget=forms.MultipleHiddenInput)
-
-
 def aggregate_rir_choices():
     rir_choices = RIR.objects.annotate(aggregate_count=Count('aggregates'))
     return [(r.slug, u'{} ({})'.format(r.name, r.aggregate_count)) for r in rir_choices]
@@ -130,10 +116,6 @@ class RoleForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Role
         fields = ['name', 'slug']
-
-
-class RoleBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Role.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 #
@@ -252,10 +234,6 @@ class PrefixBulkEditForm(forms.Form, BootstrapMixin):
     status = forms.ChoiceField(choices=FORM_PREFIX_STATUS_CHOICES, required=False)
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
     description = forms.CharField(max_length=50, required=False)
-
-
-class PrefixBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Prefix.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 def prefix_vrf_choices():
@@ -418,10 +396,6 @@ class IPAddressBulkEditForm(forms.Form, BootstrapMixin):
     description = forms.CharField(max_length=50, required=False)
 
 
-class IPAddressBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=IPAddress.objects.all(), widget=forms.MultipleHiddenInput)
-
-
 def ipaddress_family_choices():
     return [('', 'All'), (4, 'IPv4'), (6, 'IPv6')]
 
@@ -447,10 +421,6 @@ class VLANGroupForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = VLANGroup
         fields = ['site', 'name', 'slug']
-
-
-class VLANGroupBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=VLANGroup.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 def vlangroup_site_choices():
@@ -533,10 +503,6 @@ class VLANBulkEditForm(forms.Form, BootstrapMixin):
     status = forms.ChoiceField(choices=FORM_VLAN_STATUS_CHOICES, required=False)
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
     description = forms.CharField(max_length=100, required=False)
-
-
-class VLANBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=VLAN.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 def vlan_site_choices():

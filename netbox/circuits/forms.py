@@ -3,8 +3,7 @@ from django.db.models import Count
 
 from dcim.models import Site, Device, Interface, Rack, IFACE_FF_VIRTUAL
 from utilities.forms import (
-    APISelect, BootstrapMixin, BulkImportForm, CommentField, ConfirmationForm, CSVDataField, Livesearch, SmallTextarea,
-    SlugField,
+    APISelect, BootstrapMixin, BulkImportForm, CommentField, CSVDataField, Livesearch, SmallTextarea, SlugField,
 )
 
 from .models import Circuit, CircuitType, Provider
@@ -55,10 +54,6 @@ class ProviderBulkEditForm(forms.Form, BootstrapMixin):
     comments = CommentField()
 
 
-class ProviderBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Provider.objects.all(), widget=forms.MultipleHiddenInput)
-
-
 def provider_site_choices():
     site_choices = Site.objects.all()
     return [(s.slug, s.name) for s in site_choices]
@@ -79,10 +74,6 @@ class CircuitTypeForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = CircuitType
         fields = ['name', 'slug']
-
-
-class CircuitTypeBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=CircuitType.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 #
@@ -189,10 +180,6 @@ class CircuitBulkEditForm(forms.Form, BootstrapMixin):
     port_speed = forms.IntegerField(required=False, label='Port speed (Kbps)')
     commit_rate = forms.IntegerField(required=False, label='Commit rate (Kbps)')
     comments = CommentField()
-
-
-class CircuitBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Circuit.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 def circuit_type_choices():

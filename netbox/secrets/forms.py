@@ -5,7 +5,7 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Device
-from utilities.forms import BootstrapMixin, BulkImportForm, ConfirmationForm, CSVDataField, SlugField
+from utilities.forms import BootstrapMixin, BulkImportForm, CSVDataField, SlugField
 
 from .models import Secret, SecretRole, UserKey
 
@@ -40,10 +40,6 @@ class SecretRoleForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = SecretRole
         fields = ['name', 'slug']
-
-
-class SecretRoleBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=SecretRole.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 #
@@ -95,10 +91,6 @@ class SecretBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Secret.objects.all(), widget=forms.MultipleHiddenInput)
     role = forms.ModelChoiceField(queryset=SecretRole.objects.all())
     name = forms.CharField(max_length=100, required=False)
-
-
-class SecretBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Secret.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 def secret_role_choices():
