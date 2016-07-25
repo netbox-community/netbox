@@ -188,7 +188,7 @@ class RackDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 class RackBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.add_rack'
     form = forms.RackImportForm
-    table = tables.RackTable
+    table = tables.RackImportTable
     template_name = 'dcim/rack_import.html'
     obj_list_url = 'dcim:rack_list'
 
