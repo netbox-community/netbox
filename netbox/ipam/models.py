@@ -406,7 +406,8 @@ class VLAN(CreatedUpdatedModel):
         MinValueValidator(1),
         MaxValueValidator(4094)
     ])
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=64)
+    description = models.CharField(max_length=100, blank=True)
     status = models.PositiveSmallIntegerField('Status', choices=VLAN_STATUS_CHOICES, default=1)
     role = models.ForeignKey('Role', related_name='vlans', on_delete=models.SET_NULL, blank=True, null=True)
 
@@ -434,10 +435,12 @@ class VLAN(CreatedUpdatedModel):
     def to_csv(self):
         return ','.join([
             self.site.name,
+            self.group.name if self.group else '',
             str(self.vid),
             self.name,
             self.get_status_display(),
             self.role.name if self.role else '',
+            self.description,
         ])
 
     @property

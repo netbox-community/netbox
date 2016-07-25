@@ -474,7 +474,7 @@ class VLANForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = VLAN
-        fields = ['site', 'group', 'vid', 'name', 'status', 'role']
+        fields = ['site', 'group', 'vid', 'name', 'description', 'status', 'role']
         help_texts = {
             'site': "The site at which this VLAN exists",
             'group': "VLAN group (optional)",
@@ -511,7 +511,7 @@ class VLANFromCSVForm(forms.ModelForm):
 
     class Meta:
         model = VLAN
-        fields = ['site', 'group', 'vid', 'name', 'status_name', 'role']
+        fields = ['site', 'group', 'vid', 'name', 'status_name', 'role', 'description']
 
     def save(self, *args, **kwargs):
         m = super(VLANFromCSVForm, self).save(commit=False)
@@ -532,6 +532,7 @@ class VLANBulkEditForm(forms.Form, BootstrapMixin):
     group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False)
     status = forms.ChoiceField(choices=FORM_VLAN_STATUS_CHOICES, required=False)
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
+    description = forms.CharField(max_length=100, required=False)
 
 
 class VLANBulkDeleteForm(ConfirmationForm):

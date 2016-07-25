@@ -102,7 +102,7 @@ class VLANSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VLAN
-        fields = ['id', 'site', 'group', 'vid', 'name', 'status', 'role', 'display_name']
+        fields = ['id', 'site', 'group', 'vid', 'name', 'status', 'role', 'description', 'display_name']
 
 
 class VLANNestedSerializer(VLANSerializer):

@@ -70,6 +70,16 @@
                     <td>{{ vlan.name }}</td>
                 </tr>
                 <tr>
+                    <td>Description</td>
+                    <td>
+                        {% if vlan.description %}
+                            {{ vlan.description }}
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Status</td>
                     <td>
                         <span class="label label-{{ vlan.get_status_class }}">{{ vlan.get_status_display }}</span>

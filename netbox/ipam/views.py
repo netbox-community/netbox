@@ -565,7 +565,7 @@ class VLANBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        for field in ['site', 'group', 'status', 'role']:
+        for field in ['site', 'group', 'status', 'role', 'description']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
 
