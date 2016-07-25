@@ -251,12 +251,20 @@ class ConsolePortTemplateForm(forms.ModelForm, BootstrapMixin):
         fields = ['name_pattern']
 
 
+class ConsolePortTemplateBulkDeleteForm(ConfirmationForm):
+    pk = forms.ModelMultipleChoiceField(queryset=ConsolePortTemplate.objects.all(), widget=forms.MultipleHiddenInput)
+
+
 class ConsoleServerPortTemplateForm(forms.ModelForm, BootstrapMixin):
     name_pattern = ExpandableNameField(label='Name')
 
     class Meta:
         model = ConsoleServerPortTemplate
         fields = ['name_pattern']
+
+
+class ConsoleServerPortTemplateBulkDeleteForm(ConfirmationForm):
+    pk = forms.ModelMultipleChoiceField(queryset=ConsoleServerPortTemplate.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 class PowerPortTemplateForm(forms.ModelForm, BootstrapMixin):

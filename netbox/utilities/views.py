@@ -3,9 +3,11 @@ from django_tables2 import RequestConfig
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
+from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import TemplateSyntaxError
@@ -309,6 +311,7 @@ class BulkEditView(View):
 
 class BulkDeleteView(View):
     cls = None
+    parent_cls = None
     form = None
     template_name = 'utilities/confirm_bulk_delete.html'
     default_redirect_url = None
@@ -317,24 +320,35 @@ class BulkDeleteView(View):
     def dispatch(self, *args, **kwargs):
         return super(BulkDeleteView, self).dispatch(*args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        return redirect(self.default_redirect_url)
-
     def post(self, request, *args, **kwargs):
 
+        # Attempt to derive parent object if a parent class has been given
+        if self.parent_cls:
+            parent_obj = get_object_or_404(self.parent_cls, **kwargs)
+        else:
+            parent_obj = None
+
+        # Determine URL to redirect users upon deletion of objects
         posted_redirect_url = request.POST.get('redirect_url')
         if posted_redirect_url and is_safe_url(url=posted_redirect_url, host=request.get_host()):
             redirect_url = posted_redirect_url
-        else:
+        elif parent_obj:
+            redirect_url = parent_obj.get_absolute_url()
+        elif self.default_redirect_url:
             redirect_url = reverse(self.default_redirect_url)
+        else:
+            raise ImproperlyConfigured('No redirect URL has been provided.')
 
+        # Are we deleting *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all'):
             pk_list = [x for x in request.POST.get('pk_all').split(',') if x]
         else:
             pk_list = request.POST.getlist('pk')
 
+        form_cls = self.get_form()
+
         if '_confirm' in request.POST:
-            form = self.form(request.POST)
+            form = form_cls(request.POST)
             if form.is_valid():
 
                 # Delete objects
@@ -351,7 +365,7 @@ class BulkDeleteView(View):
                 return redirect(redirect_url)
 
         else:
-            form = self.form(initial={'pk': pk_list})
+            form = form_cls(initial={'pk': pk_list})
 
         selected_objects = self.cls.objects.filter(pk__in=pk_list)
         if not selected_objects:
@@ -360,7 +374,18 @@ class BulkDeleteView(View):
 
         return render(request, self.template_name, {
             'form': form,
+            'parent_obj': parent_obj,
             'obj_type_plural': self.cls._meta.verbose_name_plural,
             'selected_objects': selected_objects,
             'cancel_url': redirect_url,
         })
+
+    def get_form(self):
+        """Provide a standard bulk delete form if none has been specified for the view"""
+
+        class BulkDeleteForm(ConfirmationForm):
+            pk = ModelMultipleChoiceField(queryset=self.cls.objects.all(), widget=MultipleHiddenInput)
+
+        if self.form:
+            return self.form
+        return BulkDeleteForm

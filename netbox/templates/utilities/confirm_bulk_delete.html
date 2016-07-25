@@ -5,11 +5,15 @@
 
 {% block message %}
     <p>
-        Are you sure you want to delete these {{ obj_type_plural|default:"objects" }}?
+        Are you sure you want to delete these {{ obj_type_plural|default:"objects" }}{% if parent_obj %} from <a href="{{ parent_obj.get_absolute_url }}">{{ parent_obj }}</a>{% endif %}?
     </p>
     <ul>
         {% for obj in selected_objects %}
-            <li><a href="{{ obj.get_absolute_url }}">{{ obj }}</a></li>
+            {% if obj.get_absolute_url %}
+                <li><a href="{{ obj.get_absolute_url }}">{{ obj }}</a></li>
+            {% else %}
+                <li>{{ obj }}</li>
+            {% endif %}
         {% endfor %}
     </ul>
 {% endblock %}

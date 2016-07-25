@@ -7,8 +7,7 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.db.models import Count, ProtectedError, Sum
-from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
+from django.db.models import Count, Sum
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import urlencode
@@ -17,7 +16,6 @@ from django.views.generic import View
 from ipam.models import Prefix, IPAddress, VLAN
 from circuits.models import Circuit
 from extras.models import TopologyMap
-from utilities.error_handlers import handle_protectederror
 from utilities.forms import ConfirmationForm
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -396,9 +394,21 @@ class ConsolePortTemplateAddView(ComponentTemplateCreateView):
     form = forms.ConsolePortTemplateForm
 
 
+class ConsolePortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_consoleporttemplate'
+    cls = ConsolePortTemplate
+    parent_cls = DeviceType
+
+
 class ConsoleServerPortTemplateAddView(ComponentTemplateCreateView):
     model = ConsoleServerPortTemplate
     form = forms.ConsoleServerPortTemplateForm
+
+
+class ConsoleServerPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_consoleserverporttemplate'
+    cls = ConsoleServerPortTemplate
+    parent_cls = DeviceType
 
 
 class PowerPortTemplateAddView(ComponentTemplateCreateView):
@@ -406,9 +416,21 @@ class PowerPortTemplateAddView(ComponentTemplateCreateView):
     form = forms.PowerPortTemplateForm
 
 
+class PowerPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_powerporttemplate'
+    cls = PowerPortTemplate
+    parent_cls = DeviceType
+
+
 class PowerOutletTemplateAddView(ComponentTemplateCreateView):
     model = PowerOutletTemplate
     form = forms.PowerOutletTemplateForm
+
+
+class PowerOutletTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_poweroutlettemplate'
+    cls = PowerOutletTemplate
+    parent_cls = DeviceType
 
 
 class InterfaceTemplateAddView(ComponentTemplateCreateView):
@@ -416,48 +438,21 @@ class InterfaceTemplateAddView(ComponentTemplateCreateView):
     form = forms.InterfaceTemplateForm
 
 
+class InterfaceTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_interfacetemplate'
+    cls = InterfaceTemplate
+    parent_cls = DeviceType
+
+
 class DeviceBayTemplateAddView(ComponentTemplateCreateView):
     model = DeviceBayTemplate
     form = forms.DeviceBayTemplateForm
 
 
-def component_template_delete(request, pk, model):
-
-    devicetype = get_object_or_404(DeviceType, pk=pk)
-
-    class ComponentTemplateBulkDeleteForm(ConfirmationForm):
-        pk = ModelMultipleChoiceField(queryset=model.objects.all(), widget=MultipleHiddenInput)
-
-    if '_confirm' in request.POST:
-        form = ComponentTemplateBulkDeleteForm(request.POST)
-        if form.is_valid():
-
-            # Delete component templates
-            objects_to_delete = model.objects.filter(pk__in=[v.id for v in form.cleaned_data['pk']])
-            try:
-                deleted_count = objects_to_delete.count()
-                objects_to_delete.delete()
-            except ProtectedError, e:
-                handle_protectederror(list(objects_to_delete), request, e)
-                return redirect('dcim:devicetype', {'pk': devicetype.pk})
-
-            messages.success(request, "Deleted {} {}".format(deleted_count, model._meta.verbose_name_plural))
-            return redirect('dcim:devicetype', pk=devicetype.pk)
-
-    else:
-        form = ComponentTemplateBulkDeleteForm(initial={'pk': request.POST.getlist('pk')})
-
-    selected_objects = model.objects.filter(pk__in=request.POST.getlist('pk'))
-    if not selected_objects:
-        messages.warning(request, "No {} were selected for deletion.".format(model._meta.verbose_name_plural))
-        return redirect('dcim:devicetype', pk=devicetype.pk)
-
-    return render(request, 'dcim/component_template_delete.html', {
-        'devicetype': devicetype,
-        'form': form,
-        'selected_objects': selected_objects,
-        'cancel_url': reverse('dcim:devicetype', kwargs={'pk': devicetype.pk}),
-    })
+class DeviceBayTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_devicebaytemplate'
+    cls = DeviceBayTemplate
+    parent_cls = DeviceType
 
 
 #

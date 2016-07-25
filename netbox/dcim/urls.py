@@ -50,31 +50,29 @@ urlpatterns = [
     url(r'^device-types/(?P<pk>\d+)/edit/$', views.DeviceTypeEditView.as_view(), name='devicetype_edit'),
     url(r'^device-types/(?P<pk>\d+)/delete/$', views.DeviceTypeDeleteView.as_view(), name='devicetype_delete'),
 
-    # Component templates
-    url(r'^device-types/(?P<pk>\d+)/console-ports/add/$', views.ConsolePortTemplateAddView.as_view(),
-        name='devicetype_add_consoleport'),
-    url(r'^device-types/(?P<pk>\d+)/console-ports/delete/$', views.component_template_delete,
-        {'model': ConsolePortTemplate}, name='devicetype_delete_consoleport'),
-    url(r'^device-types/(?P<pk>\d+)/console-server-ports/add/$', views.ConsoleServerPortTemplateAddView.as_view(),
-        name='devicetype_add_consoleserverport'),
-    url(r'^device-types/(?P<pk>\d+)/console-server-ports/delete/$', views.component_template_delete,
-        {'model': ConsoleServerPortTemplate}, name='devicetype_delete_consoleserverport'),
-    url(r'^device-types/(?P<pk>\d+)/power-ports/add/$', views.PowerPortTemplateAddView.as_view(),
-        name='devicetype_add_powerport'),
-    url(r'^device-types/(?P<pk>\d+)/power-ports/delete/$', views.component_template_delete,
-        {'model': PowerPortTemplate}, name='devicetype_delete_powerport'),
-    url(r'^device-types/(?P<pk>\d+)/power-outlets/add/$', views.PowerOutletTemplateAddView.as_view(),
-        name='devicetype_add_poweroutlet'),
-    url(r'^device-types/(?P<pk>\d+)/power-outlets/delete/$', views.component_template_delete,
-        {'model': PowerOutletTemplate}, name='devicetype_delete_poweroutlet'),
-    url(r'^device-types/(?P<pk>\d+)/interfaces/add/$', views.InterfaceTemplateAddView.as_view(),
-        name='devicetype_add_interface'),
-    url(r'^device-types/(?P<pk>\d+)/interfaces/delete/$', views.component_template_delete,
-        {'model': InterfaceTemplate}, name='devicetype_delete_interface'),
-    url(r'^device-types/(?P<pk>\d+)/device-bays/add/$', views.DeviceBayTemplateAddView.as_view(),
-        name='devicetype_add_devicebay'),
-    url(r'^device-types/(?P<pk>\d+)/device-bays/delete/$', views.component_template_delete,
-        {'model': DeviceBayTemplate}, name='devicetype_delete_devicebay'),
+    # Console port templates
+    url(r'^device-types/(?P<pk>\d+)/console-ports/add/$', views.ConsolePortTemplateAddView.as_view(), name='devicetype_add_consoleport'),
+    url(r'^device-types/(?P<pk>\d+)/console-ports/delete/$', views.ConsolePortTemplateBulkDeleteView.as_view(), name='devicetype_delete_consoleport'),
+
+    # Console server port templates
+    url(r'^device-types/(?P<pk>\d+)/console-server-ports/add/$', views.ConsoleServerPortTemplateAddView.as_view(), name='devicetype_add_consoleserverport'),
+    url(r'^device-types/(?P<pk>\d+)/console-server-ports/delete/$', views.ConsoleServerPortTemplateBulkDeleteView.as_view(), name='devicetype_delete_consoleserverport'),
+
+    # Power port templates
+    url(r'^device-types/(?P<pk>\d+)/power-ports/add/$', views.PowerPortTemplateAddView.as_view(), name='devicetype_add_powerport'),
+    url(r'^device-types/(?P<pk>\d+)/power-ports/delete/$', views.PowerPortTemplateBulkDeleteView.as_view(), name='devicetype_delete_powerport'),
+
+    # Power outlet templates
+    url(r'^device-types/(?P<pk>\d+)/power-outlets/add/$', views.PowerOutletTemplateAddView.as_view(), name='devicetype_add_poweroutlet'),
+    url(r'^device-types/(?P<pk>\d+)/power-outlets/delete/$', views.PowerOutletTemplateBulkDeleteView.as_view(), name='devicetype_delete_poweroutlet'),
+
+    # Interface templates
+    url(r'^device-types/(?P<pk>\d+)/interfaces/add/$', views.InterfaceTemplateAddView.as_view(), name='devicetype_add_interface'),
+    url(r'^device-types/(?P<pk>\d+)/interfaces/delete/$', views.InterfaceTemplateBulkDeleteView.as_view(), name='devicetype_delete_interface'),
+
+    # Device bay templates
+    url(r'^device-types/(?P<pk>\d+)/device-bays/add/$', views.DeviceBayTemplateAddView.as_view(), name='devicetype_add_devicebay'),
+    url(r'^device-types/(?P<pk>\d+)/device-bays/delete/$', views.DeviceBayTemplateBulkDeleteView.as_view(), name='devicetype_delete_devicebay'),
 
     # Device roles
     url(r'^device-roles/$', views.DeviceRoleListView.as_view(), name='devicerole_list'),
