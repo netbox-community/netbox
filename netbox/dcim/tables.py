@@ -122,6 +122,7 @@ class RackImportTable(BaseTable):
         model = Rack
         fields = ('site', 'group', 'name', 'facility_id', 'u_height')
 
+
 #
 # Manufacturers
 #
@@ -144,6 +145,7 @@ class ManufacturerTable(BaseTable):
 
 class DeviceTypeTable(BaseTable):
     pk = ToggleColumn()
+    manufacturer = tables.Column(verbose_name='Manufacturer')
     model = tables.LinkColumn('dcim:devicetype', args=[Accessor('pk')], verbose_name='Device Type')
 
     class Meta(BaseTable.Meta):
