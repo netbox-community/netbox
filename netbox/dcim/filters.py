@@ -6,12 +6,24 @@ from .models import (
     ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, Interface, InterfaceConnection, Manufacturer,
     Platform, PowerOutlet, PowerPort, Rack, RackGroup, Site,
 )
+from tenancy.models import Tenant
 
 
 class SiteFilter(django_filters.FilterSet):
     q = django_filters.MethodFilter(
         action='search',
         label='Search',
+    )
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
+        name='tenant',
+        queryset=Tenant.objects.all(),
+        label='Tenant (ID)',
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        name='tenant',
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        label='Tenant (slug)',
     )
 
     class Meta:
@@ -73,6 +85,17 @@ class RackFilter(django_filters.FilterSet):
         queryset=RackGroup.objects.all(),
         to_field_name='slug',
         label='Group',
+    )
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
+        name='tenant',
+        queryset=Tenant.objects.all(),
+        label='Tenant (ID)',
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        name='tenant',
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        label='Tenant (slug)',
     )
 
     class Meta:
@@ -142,6 +165,17 @@ class DeviceFilter(django_filters.FilterSet):
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
+    )
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
+        name='tenant',
+        queryset=Tenant.objects.all(),
+        label='Tenant (ID)',
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        name='tenant',
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        label='Tenant (slug)',
     )
     device_type_id = django_filters.ModelMultipleChoiceFilter(
         name='device_type',

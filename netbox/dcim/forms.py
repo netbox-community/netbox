@@ -76,6 +76,16 @@ class SiteImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=SiteFromCSVForm)
 
 
+def site_tenant_choices():
+    tenant_choices = Tenant.objects.annotate(site_count=Count('sites'))
+    return [(t.slug, u'{} ({})'.format(t.name, t.site_count)) for t in tenant_choices]
+
+
+class SiteFilterForm(forms.Form, BootstrapMixin):
+    tenant = forms.MultipleChoiceField(required=False, choices=site_tenant_choices,
+                                       widget=forms.SelectMultiple(attrs={'size': 8}))
+
+
 #
 # Rack groups
 #
@@ -181,11 +191,18 @@ def rack_group_choices():
     return [(g.pk, u'{} ({})'.format(g, g.rack_count)) for g in group_choices]
 
 
+def rack_tenant_choices():
+    tenant_choices = Tenant.objects.annotate(rack_count=Count('racks'))
+    return [(t.slug, u'{} ({})'.format(t.name, t.rack_count)) for t in tenant_choices]
+
+
 class RackFilterForm(forms.Form, BootstrapMixin):
     site = forms.MultipleChoiceField(required=False, choices=rack_site_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
     group_id = forms.MultipleChoiceField(required=False, choices=rack_group_choices, label='Rack Group',
                                          widget=forms.SelectMultiple(attrs={'size': 8}))
+    tenant = forms.MultipleChoiceField(required=False, choices=rack_tenant_choices,
+                                       widget=forms.SelectMultiple(attrs={'size': 8}))
 
 
 #
@@ -542,6 +559,11 @@ def device_role_choices():
     return [(r.slug, u'{} ({})'.format(r.name, r.device_count)) for r in role_choices]
 
 
+def device_tenant_choices():
+    tenant_choices = Tenant.objects.annotate(device_count=Count('devices'))
+    return [(t.slug, u'{} ({})'.format(t.name, t.device_count)) for t in tenant_choices]
+
+
 def device_type_choices():
     type_choices = DeviceType.objects.select_related('manufacturer').annotate(device_count=Count('instances'))
     return [(t.pk, u'{} ({})'.format(t, t.device_count)) for t in type_choices]
@@ -559,6 +581,8 @@ class DeviceFilterForm(forms.Form, BootstrapMixin):
                                               widget=forms.SelectMultiple(attrs={'size': 8}))
     role = forms.MultipleChoiceField(required=False, choices=device_role_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
+    tenant = forms.MultipleChoiceField(required=False, choices=device_tenant_choices,
+                                       widget=forms.SelectMultiple(attrs={'size': 8}))
     device_type_id = forms.MultipleChoiceField(required=False, choices=device_type_choices, label='Type',
                                                widget=forms.SelectMultiple(attrs={'size': 8}))
     platform = forms.MultipleChoiceField(required=False, choices=device_platform_choices)

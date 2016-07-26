@@ -63,6 +63,7 @@ def expand_pattern(string):
 class SiteListView(ObjectListView):
     queryset = Site.objects.select_related('tenant')
     filter = filters.SiteFilter
+    filter_form = forms.SiteFilterForm
     table = tables.SiteTable
     template_name = 'dcim/site_list.html'
 
