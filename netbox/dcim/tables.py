@@ -157,82 +157,64 @@ class DeviceTypeTable(BaseTable):
 # Device type components
 #
 
-class ConsolePortTemplateTable(tables.Table):
+class ConsolePortTemplateTable(BaseTable):
     pk = ToggleColumn()
 
-    class Meta:
+    class Meta(BaseTable.Meta):
         model = ConsolePortTemplate
         fields = ('pk', 'name')
         empty_text = "None"
         show_header = False
-        attrs = {
-            'class': 'table table-hover',
-        }
 
 
-class ConsoleServerPortTemplateTable(tables.Table):
+class ConsoleServerPortTemplateTable(BaseTable):
     pk = ToggleColumn()
 
-    class Meta:
+    class Meta(BaseTable.Meta):
         model = ConsoleServerPortTemplate
         fields = ('pk', 'name')
         empty_text = "None"
         show_header = False
-        attrs = {
-            'class': 'table table-hover',
-        }
 
 
-class PowerPortTemplateTable(tables.Table):
+class PowerPortTemplateTable(BaseTable):
     pk = ToggleColumn()
 
-    class Meta:
+    class Meta(BaseTable.Meta):
         model = PowerPortTemplate
         fields = ('pk', 'name')
         empty_text = "None"
         show_header = False
-        attrs = {
-            'class': 'table table-hover',
-        }
 
 
-class PowerOutletTemplateTable(tables.Table):
+class PowerOutletTemplateTable(BaseTable):
     pk = ToggleColumn()
 
-    class Meta:
+    class Meta(BaseTable.Meta):
         model = PowerOutletTemplate
         fields = ('pk', 'name')
         empty_text = "None"
         show_header = False
-        attrs = {
-            'class': 'table table-hover',
-        }
 
 
-class InterfaceTemplateTable(tables.Table):
+class InterfaceTemplateTable(BaseTable):
     pk = ToggleColumn()
 
-    class Meta:
+    class Meta(BaseTable.Meta):
         model = InterfaceTemplate
-        fields = ('pk', 'name')
+        fields = ('pk', 'name', 'form_factor')
         empty_text = "None"
         show_header = False
-        attrs = {
-            'class': 'table table-hover panel-body',
-        }
 
 
-class DeviceBayTemplateTable(tables.Table):
+class DeviceBayTemplateTable(BaseTable):
     pk = ToggleColumn()
 
-    class Meta:
+    class Meta(BaseTable.Meta):
         model = DeviceBayTemplate
         fields = ('pk', 'name')
         empty_text = "None"
         show_header = False
-        attrs = {
-            'class': 'table table-hover panel-body',
-        }
 
 
 #
