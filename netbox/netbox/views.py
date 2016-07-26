@@ -7,14 +7,18 @@ from dcim.models import Site, Rack, Device, ConsolePort, PowerPort, InterfaceCon
 from extras.models import UserAction
 from ipam.models import Aggregate, Prefix, IPAddress, VLAN
 from secrets.models import Secret
+from tenancy.models import Tenant
 
 
 def home(request):
 
     stats = {
 
-        # DCIM
+        # Organization
         'site_count': Site.objects.count(),
+        'tenant_count': Tenant.objects.count(),
+
+        # DCIM
         'rack_count': Rack.objects.count(),
         'device_count': Device.objects.count(),
         'interface_connections_count': InterfaceConnection.objects.count(),

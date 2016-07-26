@@ -24,17 +24,26 @@
             <div id="navbar" class="navbar-collapse collapse">
                 {% if request.user.is_authenticated or not settings.LOGIN_REQUIRED %}
                 <ul class="nav navbar-nav">
-                    <li class="dropdown{% if request.path|startswith:'/dcim/sites/' %} active{% endif %}">
-                        {% if perms.dcim.add_site %}
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Sites <span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{% url 'dcim:site_list' %}"><i class="glyphicon glyphicon-search" aria-hidden="true"></i> Sites</a></li>
+                    <li class="dropdown{% if request.path|startswith:'/dcim/sites/' or 'tenancy' in request.path %} active{% endif %}">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Organization <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'dcim:site_list' %}"><i class="glyphicon glyphicon-search" aria-hidden="true"></i> Sites</a></li>
+                            {% if perms.dcim.add_site %}
                                 <li><a href="{% url 'dcim:site_add' %}"><i class="glyphicon glyphicon-plus" aria-hidden="true"></i> Add a Site</a></li>
                                 <li><a href="{% url 'dcim:site_import' %}"><i class="glyphicon glyphicon-import" aria-hidden="true"></i> Import Sites</a></li>
-                            </ul>
-                        {% else %}
-                            <a href="{% url 'dcim:site_list' %}">Sites</a>
-                        {% endif %}
+                            {% endif %}
+                            <li class="divider"></li>
+                            <li><a href="{% url 'tenancy:tenant_list' %}"><i class="glyphicon glyphicon-search" aria-hidden="true"></i> Tenants</a></li>
+                            {% if perms.tenancy.add_tenant %}
+                                <li><a href="{% url 'tenancy:tenant_add' %}"><i class="glyphicon glyphicon-plus" aria-hidden="true"></i> Add a Tenant</a></li>
+                                <li><a href="{% url 'tenancy:tenant_import' %}"><i class="glyphicon glyphicon-import" aria-hidden="true"></i> Import Tenants</a></li>
+                            {% endif %}
+                            <li class="divider"></li>
+                            <li><a href="{% url 'tenancy:tenantgroup_list' %}"><i class="glyphicon glyphicon-search" aria-hidden="true"></i> Tenant Groups</a></li>
+                            {% if perms.tenancy.add_tenantgroup %}
+                                <li><a href="{% url 'tenancy:tenantgroup_add' %}"><i class="glyphicon glyphicon-plus" aria-hidden="true"></i> Add a Tenant Group</a></li>
+                            {% endif %}
+                        </ul>
                     </li>
                     <li class="dropdown{% if request.path|startswith:'/dcim/rack' %} active{% endif %}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Racks <span class="caret"></span></a>
