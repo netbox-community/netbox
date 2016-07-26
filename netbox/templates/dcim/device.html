@@ -457,6 +457,9 @@
                     </div>
                 {% endif %}
             </div>
+            {% if perms.dcim.delete_poweroutlet %}
+                </form>
+            {% endif %}
         {% endif %}
 	</div>
 </div>
