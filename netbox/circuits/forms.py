@@ -180,6 +180,7 @@ class CircuitBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Circuit.objects.all(), widget=forms.MultipleHiddenInput)
     type = forms.ModelChoiceField(queryset=CircuitType.objects.all(), required=False)
     provider = forms.ModelChoiceField(queryset=Provider.objects.all(), required=False)
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     port_speed = forms.IntegerField(required=False, label='Port speed (Kbps)')
     commit_rate = forms.IntegerField(required=False, label='Commit rate (Kbps)')
     comments = CommentField()
@@ -195,6 +196,11 @@ def circuit_provider_choices():
     return [(p.slug, u'{} ({})'.format(p.name, p.circuit_count)) for p in provider_choices]
 
 
+def circuit_tenant_choices():
+    tenant_choices = Tenant.objects.annotate(circuit_count=Count('circuits'))
+    return [(t.slug, u'{} ({})'.format(t.name, t.circuit_count)) for t in tenant_choices]
+
+
 def circuit_site_choices():
     site_choices = Site.objects.annotate(circuit_count=Count('circuits'))
     return [(s.slug, u'{} ({})'.format(s.name, s.circuit_count)) for s in site_choices]
@@ -204,5 +210,7 @@ class CircuitFilterForm(forms.Form, BootstrapMixin):
     type = forms.MultipleChoiceField(required=False, choices=circuit_type_choices)
     provider = forms.MultipleChoiceField(required=False, choices=circuit_provider_choices,
                                          widget=forms.SelectMultiple(attrs={'size': 8}))
+    tenant = forms.MultipleChoiceField(required=False, choices=circuit_tenant_choices,
+                                       widget=forms.SelectMultiple(attrs={'size': 8}))
     site = forms.MultipleChoiceField(required=False, choices=circuit_site_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
