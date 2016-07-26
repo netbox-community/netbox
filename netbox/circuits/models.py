@@ -92,6 +92,7 @@ class Circuit(CreatedUpdatedModel):
             self.cid,
             self.provider.name,
             self.type.name,
+            self.tenant.name if self.tenant else '',
             self.site.name,
             self.install_date.isoformat() if self.install_date else '',
             str(self.port_speed),

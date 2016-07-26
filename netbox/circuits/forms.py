@@ -2,6 +2,7 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Site, Device, Interface, Rack, IFACE_FF_VIRTUAL
+from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, BootstrapMixin, BulkImportForm, CommentField, CSVDataField, Livesearch, SmallTextarea, SlugField,
 )
@@ -160,13 +161,15 @@ class CircuitFromCSVForm(forms.ModelForm):
                                       error_messages={'invalid_choice': 'Provider not found.'})
     type = forms.ModelChoiceField(CircuitType.objects.all(), to_field_name='name',
                                   error_messages={'invalid_choice': 'Invalid circuit type.'})
+    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
+                                    error_messages={'invalid_choice': 'Tenant not found.'})
     site = forms.ModelChoiceField(Site.objects.all(), to_field_name='name',
                                   error_messages={'invalid_choice': 'Site not found.'})
 
     class Meta:
         model = Circuit
-        fields = ['cid', 'provider', 'type', 'site', 'install_date', 'port_speed', 'commit_rate', 'xconnect_id',
-                  'pp_info']
+        fields = ['cid', 'provider', 'type', 'tenant', 'site', 'install_date', 'port_speed', 'commit_rate',
+                  'xconnect_id', 'pp_info']
 
 
 class CircuitImportForm(BulkImportForm, BootstrapMixin):
