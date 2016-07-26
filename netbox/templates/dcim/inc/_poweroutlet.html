@@ -1,4 +1,9 @@
 <tr{% if po.connected_port and not po.connected_port.connection_status %} class="info"{% endif %}>
+    {% if selectable and perms.dcim.delete_poweroutlet %}
+        <td class="pk">
+            <input name="pk" type="checkbox" value="{{ po.pk }}" />
+        </td>
+    {% endif %}
     <td>
         <i class="fa fa-fw fa-bolt"></i> {{ po.name }}
     </td>

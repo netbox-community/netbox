@@ -7,7 +7,7 @@
         <input type="hidden" name="pk_all" value="{% for row in table.rows %}{{ row.record.pk|default:'' }}{% if not forloop.last %},{% endif %}{% endfor %}" />
         {% render_table table table_template|default:'table.html' %}
         {% if perms.dcim.add_interface %}
-            <button type="submit" name="_edit" formaction="{% url 'dcim:interface_bulk_add' %}" class="btn btn-primary btn-sm">
+            <button type="submit" name="_edit" formaction="{% url 'dcim:interface_add_multi' %}" class="btn btn-primary btn-sm">
                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 Add Interfaces
             </button>

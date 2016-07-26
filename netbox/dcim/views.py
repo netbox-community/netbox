@@ -813,6 +813,12 @@ def consoleport_delete(request, pk):
     })
 
 
+class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_consoleport'
+    cls = ConsolePort
+    parent_cls = Device
+
+
 class ConsoleConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.change_consoleport'
     form = forms.ConsoleConnectionImportForm
@@ -968,6 +974,12 @@ def consoleserverport_delete(request, pk):
     })
 
 
+class ConsoleServerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_consoleserverport'
+    cls = ConsoleServerPort
+    parent_cls = Device
+
+
 #
 # Power ports
 #
@@ -1111,6 +1123,12 @@ def powerport_delete(request, pk):
         'form': form,
         'cancel_url': reverse('dcim:device', kwargs={'pk': powerport.device.pk}),
     })
+
+
+class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_powerport'
+    cls = PowerPort
+    parent_cls = Device
 
 
 class PowerConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -1266,6 +1284,12 @@ def poweroutlet_delete(request, pk):
     })
 
 
+class PowerOutletBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_poweroutlet'
+    cls = PowerOutlet
+    parent_cls = Device
+
+
 #
 # Interfaces
 #
@@ -1360,7 +1384,7 @@ class InterfaceBulkAddView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.add_interface'
     cls = Device
     form = forms.InterfaceBulkCreateForm
-    template_name = 'dcim/interface_bulk_add.html'
+    template_name = 'dcim/interface_add_multi.html'
     default_redirect_url = 'dcim:device_list'
 
     def update_objects(self, pk_list, form):
@@ -1387,6 +1411,12 @@ class InterfaceBulkAddView(PermissionRequiredMixin, BulkEditView):
             Interface.objects.bulk_create(interfaces)
             messages.success(self.request, "Added {} interfaces to {} devices".format(len(interfaces),
                                                                                       len(selected_devices)))
+
+
+class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_interface'
+    cls = Interface
+    parent_cls = Device
 
 
 #
@@ -1524,6 +1554,12 @@ def devicebay_depopulate(request, pk):
         'form': form,
         'cancel_url': reverse('dcim:device', kwargs={'pk': device_bay.device.pk}),
     })
+
+
+class DeviceBayBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_devicebay'
+    cls = DeviceBay
+    parent_cls = Device
 
 
 #
