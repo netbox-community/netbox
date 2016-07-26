@@ -37,7 +37,6 @@ class SecretRoleEditView(PermissionRequiredMixin, ObjectEditView):
 class SecretRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'secrets.delete_secretrole'
     cls = SecretRole
-    form = forms.SecretRoleBulkDeleteForm
     default_redirect_url = 'secrets:secretrole_list'
 
 
@@ -219,5 +218,4 @@ class SecretBulkEditView(PermissionRequiredMixin, BulkEditView):
 class SecretBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'secrets.delete_secret'
     cls = Secret
-    form = forms.SecretBulkDeleteForm
     default_redirect_url = 'secrets:secret_list'

@@ -5,7 +5,7 @@ from django.db.models import Count, Q
 
 from ipam.models import IPAddress
 from utilities.forms import (
-    APISelect, BootstrapMixin, BulkImportForm, CommentField, ConfirmationForm, CSVDataField, ExpandableNameField,
+    APISelect, BootstrapMixin, BulkImportForm, CommentField, CSVDataField, ExpandableNameField,
     FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
 )
 
@@ -83,10 +83,6 @@ class RackGroupForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = RackGroup
         fields = ['site', 'name', 'slug']
-
-
-class RackGroupBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=RackGroup.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 def rackgroup_site_choices():
@@ -169,10 +165,6 @@ class RackBulkEditForm(forms.Form, BootstrapMixin):
     comments = CommentField()
 
 
-class RackBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Rack.objects.all(), widget=forms.MultipleHiddenInput)
-
-
 def rack_site_choices():
     site_choices = Site.objects.annotate(rack_count=Count('racks'))
     return [(s.slug, u'{} ({})'.format(s.name, s.rack_count)) for s in site_choices]
@@ -202,10 +194,6 @@ class ManufacturerForm(forms.ModelForm, BootstrapMixin):
         fields = ['name', 'slug']
 
 
-class ManufacturerBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Manufacturer.objects.all(), widget=forms.MultipleHiddenInput)
-
-
 #
 # Device types
 #
@@ -215,7 +203,7 @@ class DeviceTypeForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = DeviceType
-        fields = ['manufacturer', 'model', 'slug', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
+        fields = ['manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
                   'is_network_device', 'subdevice_role']
 
 
@@ -223,10 +211,6 @@ class DeviceTypeBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=DeviceType.objects.all(), widget=forms.MultipleHiddenInput)
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), required=False)
     u_height = forms.IntegerField(min_value=1, required=False)
-
-
-class DeviceTypeBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=DeviceType.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 def devicetype_manufacturer_choices():
@@ -303,10 +287,6 @@ class DeviceRoleForm(forms.ModelForm, BootstrapMixin):
         fields = ['name', 'slug', 'color']
 
 
-class DeviceRoleBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=DeviceRole.objects.all(), widget=forms.MultipleHiddenInput)
-
-
 #
 # Platforms
 #
@@ -317,10 +297,6 @@ class PlatformForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Platform
         fields = ['name', 'slug']
-
-
-class PlatformBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Platform.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 #
@@ -540,10 +516,6 @@ class DeviceBulkEditForm(forms.Form, BootstrapMixin):
     platform_delete = forms.BooleanField(required=False, label='Set platform to "none"')
     status = forms.ChoiceField(choices=FORM_STATUS_CHOICES, required=False, initial='', label='Status')
     serial = forms.CharField(max_length=50, required=False, label='Serial Number')
-
-
-class DeviceBulkDeleteForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 def device_site_choices():

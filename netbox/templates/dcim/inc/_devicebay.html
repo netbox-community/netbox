@@ -1,4 +1,9 @@
 <tr>
+    {% if selectable and perms.dcim.delete_devicebay %}
+        <td class="pk">
+            <input name="pk" type="checkbox" value="{{ devicebay.pk }}" />
+        </td>
+    {% endif %}
     <td>
         <i class="fa fa-fw fa-{% if devicebay.installed_device %}dot-circle-o{% else %}circle-o{% endif %}"></i> {{ devicebay.name }}
     </td>

@@ -78,8 +78,8 @@ class DeviceTypeAdmin(admin.ModelAdmin):
         InterfaceTemplateAdmin,
         DeviceBayTemplateAdmin,
     ]
-    list_display = ['model', 'manufacturer', 'slug', 'u_height', 'console_ports', 'console_server_ports', 'power_ports',
-                    'power_outlets', 'interfaces', 'device_bays']
+    list_display = ['model', 'manufacturer', 'slug', 'part_number', 'u_height', 'console_ports', 'console_server_ports',
+                    'power_ports', 'power_outlets', 'interfaces', 'device_bays']
     list_filter = ['manufacturer']
 
     def get_queryset(self, request):

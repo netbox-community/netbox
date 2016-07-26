@@ -76,7 +76,6 @@ class ProviderBulkEditView(PermissionRequiredMixin, BulkEditView):
 class ProviderBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_provider'
     cls = Provider
-    form = forms.ProviderBulkDeleteForm
     default_redirect_url = 'circuits:provider_list'
 
 
@@ -102,7 +101,6 @@ class CircuitTypeEditView(PermissionRequiredMixin, ObjectEditView):
 class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_circuittype'
     cls = CircuitType
-    form = forms.CircuitTypeBulkDeleteForm
     default_redirect_url = 'circuits:circuittype_list'
 
 
@@ -171,5 +169,4 @@ class CircuitBulkEditView(PermissionRequiredMixin, BulkEditView):
 class CircuitBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_circuit'
     cls = Circuit
-    form = forms.CircuitBulkDeleteForm
     default_redirect_url = 'circuits:circuit_list'

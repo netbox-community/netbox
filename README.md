@@ -25,6 +25,6 @@ Questions? Comments? Please join us on IRC in **#netbox** on **irc.freenode.net*
 
 # Installation
 
-Please see docs/getting-started.md for instructions on installing NetBox.
+Please see [the documentation](http://netbox.readthedocs.io/en/latest/) for instructions on installing NetBox.
 
 To upgrade NetBox, please download the [latest release](https://github.com/digitalocean/netbox/releases) and run `upgrade.sh`.

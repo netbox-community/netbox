@@ -102,7 +102,7 @@ class DeviceTypeFilter(django_filters.FilterSet):
 
     class Meta:
         model = DeviceType
-        fields = ['manufacturer_id', 'manufacturer', 'model', 'u_height', 'is_console_server', 'is_pdu',
+        fields = ['manufacturer_id', 'manufacturer', 'model', 'part_number', 'u_height', 'is_console_server', 'is_pdu',
                   'is_network_device']
 
 

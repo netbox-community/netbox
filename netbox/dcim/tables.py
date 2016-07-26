@@ -102,13 +102,25 @@ class RackTable(BaseTable):
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
     facility_id = tables.Column(verbose_name='Facility ID')
     u_height = tables.Column(verbose_name='Height (U)')
+    devices = tables.Column(accessor=Accessor('device_count'), verbose_name='Devices')
     u_consumed = tables.Column(accessor=Accessor('u_consumed'), verbose_name='Used (U)')
     utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
-    devices = tables.Column(accessor=Accessor('device_count'), verbose_name='Devices')
 
     class Meta(BaseTable.Meta):
         model = Rack
-        fields = ('pk', 'name', 'site', 'group', 'facility_id', 'u_height', 'devices')
+        fields = ('pk', 'name', 'site', 'group', 'facility_id', 'u_height', 'devices', 'u_consumed', 'utilization')
+
+
+class RackImportTable(BaseTable):
+    name = tables.LinkColumn('dcim:rack', args=[Accessor('pk')], verbose_name='Name')
+    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
+    group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
+    facility_id = tables.Column(verbose_name='Facility ID')
+    u_height = tables.Column(verbose_name='Height (U)')
+
+    class Meta(BaseTable.Meta):
+        model = Rack
+        fields = ('site', 'group', 'name', 'facility_id', 'u_height')
 
 
 #
@@ -133,93 +145,77 @@ class ManufacturerTable(BaseTable):
 
 class DeviceTypeTable(BaseTable):
     pk = ToggleColumn()
+    manufacturer = tables.Column(verbose_name='Manufacturer')
     model = tables.LinkColumn('dcim:devicetype', args=[Accessor('pk')], verbose_name='Device Type')
+    part_number = tables.Column(verbose_name='Part Number')
 
     class Meta(BaseTable.Meta):
         model = DeviceType
-        fields = ('pk', 'model', 'manufacturer', 'u_height')
+        fields = ('pk', 'model', 'manufacturer', 'part_number', 'u_height')
 
 
 #
 # Device type components
 #
 
-class ConsolePortTemplateTable(tables.Table):
+class ConsolePortTemplateTable(BaseTable):
     pk = ToggleColumn()
 
-    class Meta:
+    class Meta(BaseTable.Meta):
         model = ConsolePortTemplate
         fields = ('pk', 'name')
         empty_text = "None"
         show_header = False
-        attrs = {
-            'class': 'table table-hover',
-        }
 
 
-class ConsoleServerPortTemplateTable(tables.Table):
+class ConsoleServerPortTemplateTable(BaseTable):
     pk = ToggleColumn()
 
-    class Meta:
+    class Meta(BaseTable.Meta):
         model = ConsoleServerPortTemplate
         fields = ('pk', 'name')
         empty_text = "None"
         show_header = False
-        attrs = {
-            'class': 'table table-hover',
-        }
 
 
-class PowerPortTemplateTable(tables.Table):
+class PowerPortTemplateTable(BaseTable):
     pk = ToggleColumn()
 
-    class Meta:
+    class Meta(BaseTable.Meta):
         model = PowerPortTemplate
         fields = ('pk', 'name')
         empty_text = "None"
         show_header = False
-        attrs = {
-            'class': 'table table-hover',
-        }
 
 
-class PowerOutletTemplateTable(tables.Table):
+class PowerOutletTemplateTable(BaseTable):
     pk = ToggleColumn()
 
-    class Meta:
+    class Meta(BaseTable.Meta):
         model = PowerOutletTemplate
         fields = ('pk', 'name')
         empty_text = "None"
         show_header = False
-        attrs = {
-            'class': 'table table-hover',
-        }
 
 
-class InterfaceTemplateTable(tables.Table):
+class InterfaceTemplateTable(BaseTable):
     pk = ToggleColumn()
 
-    class Meta:
+    class Meta(BaseTable.Meta):
         model = InterfaceTemplate
-        fields = ('pk', 'name')
+        fields = ('pk', 'name', 'form_factor')
         empty_text = "None"
         show_header = False
-        attrs = {
-            'class': 'table table-hover panel-body',
-        }
 
 
-class DeviceBayTemplateTable(tables.Table):
+class DeviceBayTemplateTable(BaseTable):
     pk = ToggleColumn()
 
-    class Meta:
+    class Meta(BaseTable.Meta):
         model = DeviceBayTemplate
         fields = ('pk', 'name')
         empty_text = "None"
         show_header = False
-        attrs = {
-            'class': 'table table-hover panel-body',
-        }
 
 
 #

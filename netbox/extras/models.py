@@ -77,7 +77,7 @@ class ExportTemplate(models.Model):
         ]
 
     def __unicode__(self):
-        return "{}: {}".format(self.content_type, self.name)
+        return u'{}: {}'.format(self.content_type, self.name)
 
     def to_response(self, context_dict, filename):
         """
@@ -176,8 +176,8 @@ class UserAction(models.Model):
 
     def __unicode__(self):
         if self.message:
-            return ' '.join([self.user, self.message])
-        return ' '.join([self.user, self.get_action_display(), self.content_type])
+            return u'{} {}'.format(self.user, self.message)
+        return u'{} {} {}'.format(self.user, self.get_action_display(), self.content_type)
 
     def icon(self):
         if self.action in [ACTION_CREATE, ACTION_IMPORT]:

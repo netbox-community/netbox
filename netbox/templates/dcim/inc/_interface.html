@@ -1,4 +1,9 @@
 <tr{% if iface.connection and not iface.connection.connection_status %} class="info"{% endif %}>
+    {% if selectable and perms.dcim.delete_interface %}
+        <td class="pk">
+            <input name="pk" type="checkbox" value="{{ iface.pk }}" />
+        </td>
+    {% endif %}
     <td>
         <i class="fa fa-fw fa-{{ icon|default:"exchange" }}"></i> <span title="{{ iface.get_form_factor_display }}">{{ iface.name }}</span>
         {% if iface.description %}

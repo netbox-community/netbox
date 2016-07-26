@@ -95,7 +95,6 @@ class VRFBulkEditView(PermissionRequiredMixin, BulkEditView):
 class VRFBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_vrf'
     cls = VRF
-    form = forms.VRFBulkDeleteForm
     default_redirect_url = 'ipam:vrf_list'
 
 
@@ -121,7 +120,6 @@ class RIREditView(PermissionRequiredMixin, ObjectEditView):
 class RIRBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_rir'
     cls = RIR
-    form = forms.RIRBulkDeleteForm
     default_redirect_url = 'ipam:rir_list'
 
 
@@ -217,7 +215,6 @@ class AggregateBulkEditView(PermissionRequiredMixin, BulkEditView):
 class AggregateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_aggregate'
     cls = Aggregate
-    form = forms.AggregateBulkDeleteForm
     default_redirect_url = 'ipam:aggregate_list'
 
 
@@ -243,7 +240,6 @@ class RoleEditView(PermissionRequiredMixin, ObjectEditView):
 class RoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_role'
     cls = Role
-    form = forms.RoleBulkDeleteForm
     default_redirect_url = 'ipam:role_list'
 
 
@@ -354,7 +350,6 @@ class PrefixBulkEditView(PermissionRequiredMixin, BulkEditView):
 class PrefixBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_prefix'
     cls = Prefix
-    form = forms.PrefixBulkDeleteForm
     default_redirect_url = 'ipam:prefix_list'
 
 
@@ -479,7 +474,6 @@ class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
 class IPAddressBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_ipaddress'
     cls = IPAddress
-    form = forms.IPAddressBulkDeleteForm
     default_redirect_url = 'ipam:ipaddress_list'
 
 
@@ -506,7 +500,6 @@ class VLANGroupEditView(PermissionRequiredMixin, ObjectEditView):
 class VLANGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_vlangroup'
     cls = VLANGroup
-    form = forms.VLANGroupBulkDeleteForm
     default_redirect_url = 'ipam:vlangroup_list'
 
 
@@ -565,7 +558,7 @@ class VLANBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        for field in ['site', 'group', 'status', 'role']:
+        for field in ['site', 'group', 'status', 'role', 'description']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
 
@@ -575,5 +568,4 @@ class VLANBulkEditView(PermissionRequiredMixin, BulkEditView):
 class VLANBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_vlan'
     cls = VLAN
-    form = forms.VLANBulkDeleteForm
     default_redirect_url = 'ipam:vlan_list'
