@@ -409,6 +409,7 @@ class DeviceType(models.Model):
     manufacturer = models.ForeignKey('Manufacturer', related_name='device_types', on_delete=models.PROTECT)
     model = models.CharField(max_length=50)
     slug = models.SlugField()
+    part_number = models.CharField(max_length=50, blank=True, help_text="Discrete part number (optional)")
     u_height = models.PositiveSmallIntegerField(verbose_name='Height (U)', default=1)
     is_full_depth = models.BooleanField(default=True, verbose_name="Is full depth",
                                         help_text="Device consumes both front and rear rack faces")

@@ -49,6 +49,16 @@
                     <td>{{ devicetype.model }}</td>
                 </tr>
                 <tr>
+                    <td>Part Number</td>
+                    <td>
+                        {% if devicetype.part_number %}
+                            {{ devicetype.part_number }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Height (U)</td>
                     <td>{{ devicetype.u_height }}</td>
                 </tr>

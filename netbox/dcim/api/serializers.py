@@ -111,8 +111,8 @@ class DeviceTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DeviceType
-        fields = ['id', 'manufacturer', 'model', 'slug', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
-                  'is_network_device']
+        fields = ['id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
+                  'is_console_server', 'is_pdu', 'is_network_device']
 
 
 class DeviceTypeNestedSerializer(DeviceTypeSerializer):
@@ -164,9 +164,9 @@ class DeviceTypeDetailSerializer(DeviceTypeSerializer):
     interface_templates = InterfaceTemplateNestedSerializer(many=True, read_only=True)
 
     class Meta(DeviceTypeSerializer.Meta):
-        fields = ['id', 'manufacturer', 'model', 'slug', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
-                  'is_network_device', 'console_port_templates', 'cs_port_templates', 'power_port_templates',
-                  'power_outlet_templates', 'interface_templates']
+        fields = ['id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
+                  'is_console_server', 'is_pdu', 'is_network_device', 'console_port_templates', 'cs_port_templates',
+                  'power_port_templates', 'power_outlet_templates', 'interface_templates']
 
 
 #

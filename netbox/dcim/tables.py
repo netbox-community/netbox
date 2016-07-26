@@ -147,10 +147,11 @@ class DeviceTypeTable(BaseTable):
     pk = ToggleColumn()
     manufacturer = tables.Column(verbose_name='Manufacturer')
     model = tables.LinkColumn('dcim:devicetype', args=[Accessor('pk')], verbose_name='Device Type')
+    part_number = tables.Column(verbose_name='Part Number')
 
     class Meta(BaseTable.Meta):
         model = DeviceType
-        fields = ('pk', 'model', 'manufacturer', 'u_height')
+        fields = ('pk', 'model', 'manufacturer', 'part_number', 'u_height')
 
 
 #

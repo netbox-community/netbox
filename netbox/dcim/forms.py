@@ -203,7 +203,7 @@ class DeviceTypeForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = DeviceType
-        fields = ['manufacturer', 'model', 'slug', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
+        fields = ['manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
                   'is_network_device', 'subdevice_role']
 
 
