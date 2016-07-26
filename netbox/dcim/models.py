@@ -153,7 +153,7 @@ class Site(CreatedUpdatedModel):
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
-    tenant = models.ForeignKey(Tenant, blank=True, null=True, on_delete=models.PROTECT)
+    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='sites', on_delete=models.PROTECT)
     facility = models.CharField(max_length=50, blank=True)
     asn = ASNField(blank=True, null=True, verbose_name='ASN')
     physical_address = models.CharField(max_length=200, blank=True)
@@ -240,7 +240,7 @@ class Rack(CreatedUpdatedModel):
     facility_id = NullableCharField(max_length=30, blank=True, null=True, verbose_name='Facility ID')
     site = models.ForeignKey('Site', related_name='racks', on_delete=models.PROTECT)
     group = models.ForeignKey('RackGroup', related_name='racks', blank=True, null=True, on_delete=models.SET_NULL)
-    tenant = models.ForeignKey(Tenant, blank=True, null=True, on_delete=models.PROTECT)
+    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='racks', on_delete=models.PROTECT)
     u_height = models.PositiveSmallIntegerField(default=42, verbose_name='Height (U)')
     comments = models.TextField(blank=True)
 
@@ -636,7 +636,7 @@ class Device(CreatedUpdatedModel):
     """
     device_type = models.ForeignKey('DeviceType', related_name='instances', on_delete=models.PROTECT)
     device_role = models.ForeignKey('DeviceRole', related_name='devices', on_delete=models.PROTECT)
-    tenant = models.ForeignKey(Tenant, blank=True, null=True, on_delete=models.PROTECT)
+    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='devices', on_delete=models.PROTECT)
     platform = models.ForeignKey('Platform', related_name='devices', blank=True, null=True, on_delete=models.SET_NULL)
     name = NullableCharField(max_length=50, blank=True, null=True, unique=True)
     serial = models.CharField(max_length=50, blank=True, verbose_name='Serial number')
