@@ -328,6 +328,9 @@
                      </div>
                 {% endif %}
             </div>
+            {% if perms.dcim.delete_devicebay %}
+                </form>
+            {% endif %}
         {% endif %}
         {% if interfaces or device.device_type.is_network_device %}
             {% if perms.dcim.delete_interface %}
