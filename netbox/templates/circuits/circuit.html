@@ -58,6 +58,45 @@
                     <td>{{ circuit.cid }}</td>
                 </tr>
                 <tr>
+                    <td>Type</td>
+                    <td><a href="{{ circuit.type.get_absolute_url }}">{{ circuit.type }}</a></td>
+                </tr>
+                <tr>
+                    <td>Tenant</td>
+                    <td>
+                        {% if circuit.tenant %}
+                            <a href="{{ circuit.tenant.get_absolute_url }}">{{ circuit.tenant }}</a>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Port Speed</td>
+                    <td>{{ circuit.port_speed_human }}</td>
+                </tr>
+                <tr>
+                    <td>Commit Rate</td>
+                    <td>{% if circuit.commit_rate %}{{ circuit.commit_rate_human }}{% else %}<span class="text-muted">N/A</span>{% endif %}</td>
+                </tr>
+                <tr>
+                    <td>Created</td>
+                    <td>{{ circuit.created }}</td>
+                </tr>
+                <tr>
+                    <td>Last Updated</td>
+                    <td>{{ circuit.last_updated }}</td>
+                </tr>
+            </table>
+        </div>
+	</div>
+	<div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Termination</strong>
+            </div>
+            <table class="table table-hover panel-body">
+                <tr>
                     <td>Site</td>
                     <td>
                         <a href="{% url 'dcim:site' slug=circuit.site.slug %}">{{ circuit.site }}</a>
@@ -75,36 +114,36 @@
                 </tr>
                 <tr>
                     <td>Install Date</td>
-                    <td>{{ circuit.install_date }}</td>
-                </tr>
-                <tr>
-                    <td>Port Speed</td>
-                    <td>{{ circuit.port_speed_human }}</td>
-                </tr>
-                <tr>
-                    <td>Commit Rate</td>
-                    <td>{% if circuit.commit_rate %}{{ circuit.commit_rate_human }}{% else %}<span class="text-muted">N/A</span>{% endif %}</td>
+                    <td>
+                        {% if circuit.install_date %}
+                            {{ circuit.install_date }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Cross-Connect</td>
-                    <td>{{ circuit.xconnect_id }}</td>
+                    <td>
+                        {% if circuit.xconnect_id %}
+                            {{ circuit.xconnect_id }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Patch Panel/Port</td>
-                    <td>{{ circuit.pp_info }}</td>
-                </tr>
-                <tr>
-                    <td>Created</td>
-                    <td>{{ circuit.created }}</td>
-                </tr>
-                <tr>
-                    <td>Last Updated</td>
-                    <td>{{ circuit.last_updated }}</td>
+                    <td>
+                        {% if circuit.pp_info %}
+                            {{ circuit.pp_info }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
                 </tr>
             </table>
         </div>
-	</div>
-	<div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Comments</strong>

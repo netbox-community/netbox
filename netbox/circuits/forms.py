@@ -99,7 +99,7 @@ class CircuitForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Circuit
         fields = [
-            'cid', 'type', 'provider', 'site', 'rack', 'device', 'livesearch', 'interface', 'install_date',
+            'cid', 'type', 'provider', 'tenant', 'site', 'rack', 'device', 'livesearch', 'interface', 'install_date',
             'port_speed', 'commit_rate', 'xconnect_id', 'pp_info', 'comments'
         ]
         help_texts = {
