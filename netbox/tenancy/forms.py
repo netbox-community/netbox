@@ -39,7 +39,7 @@ class TenantFromCSVForm(forms.ModelForm):
 
     class Meta:
         model = Tenant
-        fields = ['name', 'slug', 'group', 'description', 'comments']
+        fields = ['name', 'slug', 'group', 'description']
 
 
 class TenantImportForm(BulkImportForm, BootstrapMixin):
