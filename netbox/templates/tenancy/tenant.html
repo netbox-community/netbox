@@ -53,6 +53,16 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Description</td>
+                    <td>
+                        {% if tenant.description %}
+                            {{ tenant.description }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Created</td>
                     <td>{{ tenant.created }}</td>
                 </tr>

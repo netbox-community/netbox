@@ -37,7 +37,8 @@ class TenantTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn('tenancy:tenant', args=[Accessor('slug')], verbose_name='Name')
     group = tables.Column(verbose_name='Group')
+    description = tables.Column(verbose_name='Description')
 
     class Meta(BaseTable.Meta):
         model = Tenant
-        fields = ('pk', 'name', 'group')
+        fields = ('pk', 'name', 'group', 'description')

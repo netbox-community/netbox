@@ -26,9 +26,10 @@ class Tenant(CreatedUpdatedModel):
     A Tenant represents an organization served by the NetBox owner. This is typically a customer or an internal
     department.
     """
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=30, unique=True)
     slug = models.SlugField(unique=True)
     group = models.ForeignKey('TenantGroup', related_name='tenants', on_delete=models.PROTECT)
+    description = models.CharField(max_length=100, blank=True, help_text="Long-form name (optional)")
     comments = models.TextField(blank=True)
 
     class Meta:
