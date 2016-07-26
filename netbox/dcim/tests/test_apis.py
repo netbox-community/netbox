@@ -204,6 +204,7 @@ class DeviceTypeTest(APITestCase):
         'manufacturer',
         'model',
         'slug',
+        'part_number',
         'u_height',
         'is_full_depth',
         'is_console_server',
