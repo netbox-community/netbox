@@ -4,6 +4,7 @@ from django import forms
 from django.db.models import Count, Q
 
 from ipam.models import IPAddress
+from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, BootstrapMixin, BulkImportForm, CommentField, CSVDataField, ExpandableNameField,
     FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
@@ -48,7 +49,7 @@ class SiteForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Site
-        fields = ['name', 'slug', 'facility', 'asn', 'physical_address', 'shipping_address', 'comments']
+        fields = ['name', 'slug', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address', 'comments']
         widgets = {
             'physical_address': SmallTextarea(attrs={'rows': 3}),
             'shipping_address': SmallTextarea(attrs={'rows': 3}),
@@ -63,10 +64,12 @@ class SiteForm(forms.ModelForm, BootstrapMixin):
 
 
 class SiteFromCSVForm(forms.ModelForm):
+    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
+                                    error_messages={'invalid_choice': 'Tenant not found.'})
 
     class Meta:
         model = Site
-        fields = ['name', 'slug', 'facility', 'asn']
+        fields = ['name', 'slug', 'tenant', 'facility', 'asn']
 
 
 class SiteImportForm(BulkImportForm, BootstrapMixin):
@@ -107,7 +110,7 @@ class RackForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Rack
-        fields = ['site', 'group', 'name', 'facility_id', 'u_height', 'comments']
+        fields = ['site', 'group', 'name', 'facility_id', 'tenant', 'u_height', 'comments']
         help_texts = {
             'site': "The site at which the rack exists",
             'name': "Organizational rack name",
@@ -135,10 +138,12 @@ class RackFromCSVForm(forms.ModelForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), to_field_name='name',
                                   error_messages={'invalid_choice': 'Site not found.'})
     group_name = forms.CharField(required=False)
+    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
+                                    error_messages={'invalid_choice': 'Tenant not found.'})
 
     class Meta:
         model = Rack
-        fields = ['site', 'group_name', 'name', 'facility_id', 'u_height']
+        fields = ['site', 'group_name', 'name', 'facility_id', 'tenant', 'u_height']
 
     def clean(self):
 
@@ -161,6 +166,7 @@ class RackBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Rack.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
     group = forms.ModelChoiceField(queryset=RackGroup.objects.all(), required=False)
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     u_height = forms.IntegerField(required=False, label='Height (U)')
     comments = CommentField()
 
@@ -203,8 +209,8 @@ class DeviceTypeForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = DeviceType
-        fields = ['manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
-                  'is_network_device', 'subdevice_role']
+        fields = ['manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
+                  'is_pdu', 'is_network_device', 'subdevice_role']
 
 
 class DeviceTypeBulkEditForm(forms.Form, BootstrapMixin):
@@ -324,7 +330,7 @@ class DeviceForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Device
-        fields = ['name', 'device_role', 'device_type', 'serial', 'site', 'rack', 'position', 'face', 'status',
+        fields = ['name', 'device_role', 'tenant', 'device_type', 'serial', 'site', 'rack', 'position', 'face', 'status',
                   'platform', 'primary_ip4', 'primary_ip6', 'comments']
         help_texts = {
             'device_role': "The function this device serves",
@@ -410,6 +416,8 @@ class DeviceForm(forms.ModelForm, BootstrapMixin):
 class BaseDeviceFromCSVForm(forms.ModelForm):
     device_role = forms.ModelChoiceField(queryset=DeviceRole.objects.all(), to_field_name='name',
                                          error_messages={'invalid_choice': 'Invalid device role.'})
+    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
+                                    error_messages={'invalid_choice': 'Tenant not found.'})
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), to_field_name='name',
                                           error_messages={'invalid_choice': 'Invalid manufacturer.'})
     model_name = forms.CharField()
@@ -441,8 +449,8 @@ class DeviceFromCSVForm(BaseDeviceFromCSVForm):
     face = forms.CharField(required=False)
 
     class Meta(BaseDeviceFromCSVForm.Meta):
-        fields = ['name', 'device_role', 'manufacturer', 'model_name', 'platform', 'serial', 'site', 'rack_name',
-                  'position', 'face']
+        fields = ['name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'site',
+                  'rack_name', 'position', 'face']
 
     def clean(self):
 
@@ -477,7 +485,7 @@ class ChildDeviceFromCSVForm(BaseDeviceFromCSVForm):
     device_bay_name = forms.CharField(required=False)
 
     class Meta(BaseDeviceFromCSVForm.Meta):
-        fields = ['name', 'device_role', 'manufacturer', 'model_name', 'platform', 'serial', 'parent',
+        fields = ['name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'parent',
                   'device_bay_name']
 
     def clean(self):
@@ -512,6 +520,7 @@ class DeviceBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
     device_type = forms.ModelChoiceField(queryset=DeviceType.objects.all(), required=False, label='Type')
     device_role = forms.ModelChoiceField(queryset=DeviceRole.objects.all(), required=False, label='Role')
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False, label='Tenant')
     platform = forms.ModelChoiceField(queryset=Platform.objects.all(), required=False, label='Platform')
     platform_delete = forms.BooleanField(required=False, label='Set platform to "none"')
     status = forms.ChoiceField(choices=FORM_STATUS_CHOICES, required=False, initial='', label='Status')

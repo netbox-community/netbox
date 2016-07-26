@@ -53,6 +53,16 @@
             </div>
             <table class="table table-hover panel-body">
                 <tr>
+                    <td>Tenant</td>
+                    <td>
+                        {% if site.tenant %}
+                            <a href="{{ site.tenant.get_absolute_url }}">{{ site.tenant }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Facility</td>
                     <td>{{ site.facility }}</td>
                 </tr>
