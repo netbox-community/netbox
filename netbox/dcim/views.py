@@ -626,10 +626,10 @@ class DeviceBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        if form.cleaned_data['platform']:
-            fields_to_update['platform'] = form.cleaned_data['platform']
-        elif form.cleaned_data['platform_delete']:
+        if form.cleaned_data['platform'] == 0:
             fields_to_update['platform'] = None
+        elif form.cleaned_data['platform']:
+            fields_to_update['platform'] = form.cleaned_data['platform']
         if form.cleaned_data['status']:
             status = form.cleaned_data['status']
             fields_to_update['status'] = True if status == 'True' else False

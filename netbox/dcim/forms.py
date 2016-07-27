@@ -533,13 +533,22 @@ class ChildDeviceImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=ChildDeviceFromCSVForm)
 
 
+def device_edit_platform_choices():
+    choices = [
+        (None, '---------'),
+        (0, 'None'),
+    ]
+    choices += [(p.pk, p.name) for p in Platform.objects.all()]
+    return choices
+
+
 class DeviceBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
     device_type = forms.ModelChoiceField(queryset=DeviceType.objects.all(), required=False, label='Type')
     device_role = forms.ModelChoiceField(queryset=DeviceRole.objects.all(), required=False, label='Role')
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False, label='Tenant')
-    platform = forms.ModelChoiceField(queryset=Platform.objects.all(), required=False, label='Platform')
-    platform_delete = forms.BooleanField(required=False, label='Set platform to "none"')
+    platform = forms.TypedChoiceField(choices=device_edit_platform_choices, coerce=int, required=False,
+                                      label='Platform')
     status = forms.ChoiceField(choices=FORM_STATUS_CHOICES, required=False, initial='', label='Status')
     serial = forms.CharField(max_length=50, required=False, label='Serial Number')
 
