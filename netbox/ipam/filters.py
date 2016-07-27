@@ -3,6 +3,7 @@ from netaddr import IPNetwork
 from netaddr.core import AddrFormatError
 
 from dcim.models import Site, Device, Interface
+from tenancy.models import Tenant
 
 from .models import RIR, Aggregate, VRF, Prefix, IPAddress, VLAN, VLANGroup, Role
 
@@ -12,6 +13,17 @@ class VRFFilter(django_filters.FilterSet):
         name='name',
         lookup_type='icontains',
         label='Name',
+    )
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
+        name='tenant',
+        queryset=Tenant.objects.all(),
+        label='Tenant (ID)',
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        name='tenant',
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        label='Tenant (slug)',
     )
 
     class Meta:
@@ -225,6 +237,17 @@ class VLANFilter(django_filters.FilterSet):
     vid = django_filters.NumberFilter(
         name='vid',
         label='VLAN number (1-4095)',
+    )
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
+        name='tenant',
+        queryset=Tenant.objects.all(),
+        label='Tenant (ID)',
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        name='tenant',
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        label='Tenant (slug)',
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         name='role',

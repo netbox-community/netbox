@@ -8,6 +8,7 @@
         <tr>
             <td><a href="{% url 'ipam:vrf' pk=vrf.pk %}">{{ vrf.name }}</a></td>
             <td>{{ vrf.rd }}</td>
+            <td>{{ vrf.tenant }}</td>
             <td>{{ vrf.description }}</td>
         </tr>
     {% endfor %}

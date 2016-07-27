@@ -31,6 +31,16 @@
                     <td>{{ vrf.rd }}</td>
                 </tr>
                 <tr>
+                    <td>Tenant</td>
+                    <td>
+                        {% if vrf.tenant %}
+                            <a href="{{ vrf.tenant.get_absolute_url }}">{{ vrf.tenant }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Enforce Uniqueness</td>
                     <td>
                         {% if vrf.enforce_unique %}

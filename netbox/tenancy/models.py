@@ -46,4 +46,5 @@ class Tenant(CreatedUpdatedModel):
             self.name,
             self.slug,
             self.group.name,
+            self.description,
         ])

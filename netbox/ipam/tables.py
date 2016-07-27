@@ -58,11 +58,12 @@ class VRFTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn('ipam:vrf', args=[Accessor('pk')], verbose_name='Name')
     rd = tables.Column(verbose_name='RD')
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
     description = tables.Column(orderable=False, verbose_name='Description')
 
     class Meta(BaseTable.Meta):
         model = VRF
-        fields = ('pk', 'name', 'rd', 'description')
+        fields = ('pk', 'name', 'rd', 'tenant', 'description')
 
 
 #
@@ -203,9 +204,10 @@ class VLANTable(BaseTable):
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
     name = tables.Column(verbose_name='Name')
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
     status = tables.TemplateColumn(STATUS_LABEL, verbose_name='Status')
     role = tables.Column(verbose_name='Role')
 
     class Meta(BaseTable.Meta):
         model = VLAN
-        fields = ('pk', 'vid', 'site', 'group', 'name', 'status', 'role')
+        fields = ('pk', 'vid', 'site', 'group', 'name', 'tenant', 'status', 'role')

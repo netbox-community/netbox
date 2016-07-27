@@ -9,7 +9,8 @@
             <td><a href="{% url 'ipam:vlan' pk=vlan.pk %}">{{ vlan.vid }}</a></td>
             <td>{{ vlan.name }}</td>
             <td>{{ vlan.site }}</td>
-            <td>{{ vlan.status }}</td>
+            <td>{{ vlan.tenant }}</td>
+            <td>{{ vlan.get_status_display }}</td>
             <td>{{ vlan.role }}</td>
             <td>{{ vlan.description }}</td>
         </tr>

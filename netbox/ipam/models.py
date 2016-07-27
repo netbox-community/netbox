@@ -7,6 +7,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from dcim.models import Interface
+from tenancy.models import Tenant
 from utilities.models import CreatedUpdatedModel
 
 from .fields import IPNetworkField, IPAddressField
@@ -46,6 +47,7 @@ class VRF(CreatedUpdatedModel):
     """
     name = models.CharField(max_length=50)
     rd = models.CharField(max_length=21, unique=True, verbose_name='Route distinguisher')
+    tenant = models.ForeignKey(Tenant, related_name='vrfs', blank=True, null=True, on_delete=models.PROTECT)
     enforce_unique = models.BooleanField(default=True, verbose_name='Enforce unique space',
                                          help_text="Prevent duplicate prefixes/IP addresses within this VRF")
     description = models.CharField(max_length=100, blank=True)
@@ -65,6 +67,8 @@ class VRF(CreatedUpdatedModel):
         return ','.join([
             self.name,
             self.rd,
+            self.tenant.name if self.tenant else '',
+            'True' if self.enforce_unique else '',
             self.description,
         ])
 
@@ -291,7 +295,7 @@ class Prefix(CreatedUpdatedModel):
 
 class IPAddress(CreatedUpdatedModel):
     """
-    An IPAddress represents an individual IPV4 or IPv6 address and its mask. The mask length should match what is
+    An IPAddress represents an individual IPv4 or IPv6 address and its mask. The mask length should match what is
     configured in the real world. (Typically, only loopback interfaces are configured with /32 or /128 masks.) Like
     Prefixes, IPAddresses can optionally be assigned to a VRF. An IPAddress can optionally be assigned to an Interface.
     Interfaces can have zero or more IPAddresses assigned to them.
@@ -407,9 +411,10 @@ class VLAN(CreatedUpdatedModel):
         MaxValueValidator(4094)
     ])
     name = models.CharField(max_length=64)
-    description = models.CharField(max_length=100, blank=True)
+    tenant = models.ForeignKey(Tenant, related_name='vlans', blank=True, null=True, on_delete=models.PROTECT)
     status = models.PositiveSmallIntegerField('Status', choices=VLAN_STATUS_CHOICES, default=1)
     role = models.ForeignKey('Role', related_name='vlans', on_delete=models.SET_NULL, blank=True, null=True)
+    description = models.CharField(max_length=100, blank=True)
 
     class Meta:
         ordering = ['site', 'group', 'vid']
@@ -438,6 +443,7 @@ class VLAN(CreatedUpdatedModel):
             self.group.name if self.group else '',
             str(self.vid),
             self.name,
+            self.tenant.name if self.tenant else '',
             self.get_status_display(),
             self.role.name if self.role else '',
             self.description,
