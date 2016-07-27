@@ -337,10 +337,10 @@ class PrefixBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        if form.cleaned_data['vrf']:
-            fields_to_update['vrf'] = form.cleaned_data['vrf']
-        elif form.cleaned_data['vrf_global']:
+        if form.cleaned_data['vrf'] == 0:
             fields_to_update['vrf'] = None
+        elif form.cleaned_data['vrf']:
+            fields_to_update['vrf'] = form.cleaned_data['vrf']
         for field in ['site', 'status', 'role', 'description']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
@@ -461,10 +461,10 @@ class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        if form.cleaned_data['vrf']:
-            fields_to_update['vrf'] = form.cleaned_data['vrf']
-        elif form.cleaned_data['vrf_global']:
+        if form.cleaned_data['vrf'] == 0:
             fields_to_update['vrf'] = None
+        elif form.cleaned_data['vrf']:
+            fields_to_update['vrf'] = form.cleaned_data['vrf']
         for field in ['description']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]

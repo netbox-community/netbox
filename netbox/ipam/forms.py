@@ -239,21 +239,22 @@ class PrefixImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=PrefixFromCSVForm)
 
 
+def prefix_vrf_choices():
+    choices = [
+        (None, '---------'),
+        (0, 'Global'),
+    ]
+    choices += [(v.pk, v.name) for v in VRF.objects.all()]
+    return choices
+
+
 class PrefixBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Prefix.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
-    vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF',
-                                 help_text="Select the VRF to assign, or check below to remove VRF assignment")
-    vrf_global = forms.BooleanField(required=False, label='Set VRF to global')
+    vrf = forms.TypedChoiceField(choices=prefix_vrf_choices, coerce=int, required=False, label='VRF')
     status = forms.ChoiceField(choices=FORM_PREFIX_STATUS_CHOICES, required=False)
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
     description = forms.CharField(max_length=100, required=False)
-
-
-def prefix_vrf_choices():
-    vrf_choices = [('', 'All'), (0, 'Global')]
-    vrf_choices += [(v.pk, v.name) for v in VRF.objects.all()]
-    return vrf_choices
 
 
 def prefix_site_choices():
@@ -402,22 +403,23 @@ class IPAddressImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=IPAddressFromCSVForm)
 
 
+def ipaddress_vrf_choices():
+    choices = [
+        (None, '---------'),
+        (0, 'Global'),
+    ]
+    choices += [(v.pk, v.name) for v in VRF.objects.all()]
+    return choices
+
+
 class IPAddressBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=IPAddress.objects.all(), widget=forms.MultipleHiddenInput)
-    vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF',
-                                 help_text="Select the VRF to assign, or check below to remove VRF assignment")
-    vrf_global = forms.BooleanField(required=False, label='Set VRF to global')
+    vrf = forms.TypedChoiceField(choices=ipaddress_vrf_choices, coerce=int, required=False, label='VRF')
     description = forms.CharField(max_length=100, required=False)
 
 
 def ipaddress_family_choices():
     return [('', 'All'), (4, 'IPv4'), (6, 'IPv6')]
-
-
-def ipaddress_vrf_choices():
-    vrf_choices = [('', 'All'), (0, 'Global')]
-    vrf_choices += [(v.pk, v.name) for v in VRF.objects.all()]
-    return vrf_choices
 
 
 class IPAddressFilterForm(forms.Form, BootstrapMixin):
