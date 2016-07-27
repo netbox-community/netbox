@@ -125,7 +125,7 @@ class PrefixTable(BaseTable):
     pk = ToggleColumn()
     status = tables.TemplateColumn(STATUS_LABEL, verbose_name='Status')
     prefix = tables.TemplateColumn(PREFIX_LINK, verbose_name='Prefix')
-    vrf = tables.Column(orderable=False, default='Global', verbose_name='VRF')
+    vrf = tables.LinkColumn('ipam:vrf', args=[Accessor('vrf.pk')], default='Global', verbose_name='VRF')
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
     role = tables.Column(verbose_name='Role')
     description = tables.Column(orderable=False, verbose_name='Description')
@@ -153,7 +153,7 @@ class PrefixBriefTable(BaseTable):
 class IPAddressTable(BaseTable):
     pk = ToggleColumn()
     address = tables.LinkColumn('ipam:ipaddress', args=[Accessor('pk')], verbose_name='IP Address')
-    vrf = tables.Column(orderable=False, default='Global', verbose_name='VRF')
+    vrf = tables.LinkColumn('ipam:vrf', args=[Accessor('vrf.pk')], default='Global', verbose_name='VRF')
     device = tables.LinkColumn('dcim:device', args=[Accessor('interface.device.pk')], orderable=False,
                                verbose_name='Device')
     interface = tables.Column(orderable=False, verbose_name='Interface')
