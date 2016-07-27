@@ -99,6 +99,11 @@
             </div>
             <div class="list-group">
                 <div class="list-group-item">
+                    <span class="badge pull-right">{{ stats.vrf_count }}</span>
+                    <h4 class="list-group-item-heading"><a href="{% url 'ipam:vrf_list' %}">VRFs</a></h4>
+                    <p class="list-group-item-text text-muted">Virtual routing and forwarding tables</p>
+                </div>
+                <div class="list-group-item">
                     <span class="badge pull-right">{{ stats.aggregate_count }}</span>
                     <h4 class="list-group-item-heading"><a href="{% url 'ipam:aggregate_list' %}">Aggregates</a></h4>
                     <p class="list-group-item-text text-muted">Top-level IP allocations</p>
