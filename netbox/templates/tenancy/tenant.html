@@ -40,7 +40,7 @@
 </div>
 <h1>{{ tenant }}</h1>
 <div class="row">
-	<div class="col-md-6">
+	<div class="col-md-7">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Tenant</strong>
@@ -72,8 +72,6 @@
                 </tr>
             </table>
         </div>
-	</div>
-	<div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Comments</strong>
@@ -84,6 +82,41 @@
                 {% else %}
                     <span class="text-muted">None</span>
                 {% endif %}
+            </div>
+        </div>
+	</div>
+	<div class="col-md-5">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Stats</strong>
+            </div>
+            <div class="row panel-body">
+                <div class="col-md-4 text-center">
+                    <h2><a href="{% url 'dcim:site_list' %}?tenant={{ tenant.slug }}" class="btn {% if tenant.site_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ tenant.site_count }}</a></h2>
+                    <p>Sites</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h2><a href="{% url 'dcim:rack_list' %}?tenant={{ tenant.slug }}" class="btn {% if tenant.rack_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ tenant.rack_count }}</a></h2>
+                    <p>Racks</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h2><a href="{% url 'dcim:device_list' %}?tenant={{ tenant.slug }}" class="btn {% if tenant.device_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ tenant.device_count }}</a></h2>
+                    <p>Devices</p>
+                </div>
+            </div>
+            <div class="row panel-body">
+                <div class="col-md-4 text-center">
+                    <h2><a href="{% url 'ipam:vrf_list' %}?tenant={{ tenant.slug }}" class="btn {% if tenant.vrf_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ tenant.vrf_count }}</a></h2>
+                    <p>VRFs</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h2><a href="{% url 'ipam:vlan_list' %}?tenant={{ tenant.slug }}" class="btn {% if tenant.vlan_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ tenant.vlan_count }}</a></h2>
+                    <p>VLANs</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h2><a href="{% url 'circuits:circuit_list' %}?tenant={{ tenant.slug }}" class="btn {% if tenant.circuit_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ tenant.circuit_count }}</a></h2>
+                    <p>Circuits</p>
+                </div>
             </div>
         </div>
     </div>

@@ -50,7 +50,14 @@ class TenantListView(ObjectListView):
 
 def tenant(request, slug):
 
-    tenant = get_object_or_404(Tenant, slug=slug)
+    tenant = get_object_or_404(Tenant.objects.annotate(
+        site_count=Count('sites', distinct=True),
+        rack_count=Count('racks', distinct=True),
+        device_count=Count('devices', distinct=True),
+        vrf_count=Count('vrfs', distinct=True),
+        vlan_count=Count('vlans', distinct=True),
+        circuit_count=Count('circuits', distinct=True),
+    ), slug=slug)
 
     return render(request, 'tenancy/tenant.html', {
         'tenant': tenant,

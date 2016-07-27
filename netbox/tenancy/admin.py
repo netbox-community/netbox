@@ -16,7 +16,7 @@ class TenantAdmin(admin.ModelAdmin):
     prepopulated_fields = {
         'slug': ['name'],
     }
-    list_display = ['name', 'slug', 'group']
+    list_display = ['name', 'slug', 'group', 'description']
 
     def get_queryset(self, request):
         qs = super(TenantAdmin, self).get_queryset(request)
