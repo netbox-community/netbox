@@ -60,6 +60,7 @@ UTILIZATION_GRAPH = """
 
 class SiteTable(BaseTable):
     name = tables.LinkColumn('dcim:site', args=[Accessor('slug')], verbose_name='Name')
+    region = tables.Column(verbose_name='Region')
     facility = tables.Column(verbose_name='Facility')
     asn = tables.Column(verbose_name='ASN')
     rack_count = tables.Column(accessor=Accessor('count_racks'), orderable=False, verbose_name='Racks')
@@ -70,7 +71,7 @@ class SiteTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Site
-        fields = ('name', 'facility', 'asn', 'rack_count', 'device_count', 'prefix_count', 'vlan_count',
+        fields = ('name', 'region', 'facility', 'asn', 'rack_count', 'device_count', 'prefix_count', 'vlan_count',
                   'circuit_count')
 
 
