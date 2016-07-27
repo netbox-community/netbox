@@ -140,7 +140,7 @@ class VLANGroupListView(generics.ListAPIView):
     """
     List all VLAN groups
     """
-    queryset = VLANGroup.objects.all()
+    queryset = VLANGroup.objects.select_related('site')
     serializer_class = serializers.VLANGroupSerializer
     filter_class = filters.VLANGroupFilter
 
@@ -149,7 +149,7 @@ class VLANGroupDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single VLAN group
     """
-    queryset = VLANGroup.objects.all()
+    queryset = VLANGroup.objects.select_related('site')
     serializer_class = serializers.VLANGroupSerializer
 
 
@@ -161,7 +161,7 @@ class VLANListView(generics.ListAPIView):
     """
     List VLANs (filterable)
     """
-    queryset = VLAN.objects.select_related('site', 'tenant', 'role')
+    queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role')
     serializer_class = serializers.VLANSerializer
     filter_class = filters.VLANFilter
 
@@ -170,5 +170,5 @@ class VLANDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single VLAN
     """
-    queryset = VLAN.objects.select_related('site', 'tenant', 'role')
+    queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role')
     serializer_class = serializers.VLANSerializer
