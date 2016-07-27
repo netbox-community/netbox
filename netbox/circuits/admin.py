@@ -21,10 +21,11 @@ class CircuitTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Circuit)
 class CircuitAdmin(admin.ModelAdmin):
-    list_display = ['cid', 'provider', 'type', 'site', 'install_date', 'port_speed', 'commit_rate', 'xconnect_id']
-    list_filter = ['provider']
+    list_display = ['cid', 'provider', 'type', 'tenant', 'site', 'install_date', 'port_speed', 'commit_rate',
+                    'xconnect_id']
+    list_filter = ['provider', 'type', 'tenant']
     exclude = ['interface']
 
     def get_queryset(self, request):
         qs = super(CircuitAdmin, self).get_queryset(request)
-        return qs.select_related('provider', 'type', 'site')
+        return qs.select_related('provider', 'type', 'tenant', 'site')

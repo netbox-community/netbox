@@ -61,6 +61,7 @@ UTILIZATION_GRAPH = """
 class SiteTable(BaseTable):
     name = tables.LinkColumn('dcim:site', args=[Accessor('slug')], verbose_name='Name')
     facility = tables.Column(verbose_name='Facility')
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
     asn = tables.Column(verbose_name='ASN')
     rack_count = tables.Column(accessor=Accessor('count_racks'), orderable=False, verbose_name='Racks')
     device_count = tables.Column(accessor=Accessor('count_devices'), orderable=False, verbose_name='Devices')
@@ -70,7 +71,7 @@ class SiteTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Site
-        fields = ('name', 'facility', 'asn', 'rack_count', 'device_count', 'prefix_count', 'vlan_count',
+        fields = ('name', 'facility', 'tenant', 'asn', 'rack_count', 'device_count', 'prefix_count', 'vlan_count',
                   'circuit_count')
 
 
@@ -101,14 +102,16 @@ class RackTable(BaseTable):
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
     facility_id = tables.Column(verbose_name='Facility ID')
-    u_height = tables.Column(verbose_name='Height (U)')
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
+    u_height = tables.TemplateColumn("{{ record.u_height }}U", verbose_name='Height')
     devices = tables.Column(accessor=Accessor('device_count'), verbose_name='Devices')
-    u_consumed = tables.Column(accessor=Accessor('u_consumed'), verbose_name='Used (U)')
+    u_consumed = tables.TemplateColumn("{{ record.u_consumed|default:'0' }}U", verbose_name='Used')
     utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
 
     class Meta(BaseTable.Meta):
         model = Rack
-        fields = ('pk', 'name', 'site', 'group', 'facility_id', 'u_height', 'devices', 'u_consumed', 'utilization')
+        fields = ('pk', 'name', 'site', 'group', 'facility_id', 'tenant', 'u_height', 'devices', 'u_consumed',
+                  'utilization')
 
 
 class RackImportTable(BaseTable):
@@ -116,11 +119,12 @@ class RackImportTable(BaseTable):
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
     facility_id = tables.Column(verbose_name='Facility ID')
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
     u_height = tables.Column(verbose_name='Height (U)')
 
     class Meta(BaseTable.Meta):
         model = Rack
-        fields = ('site', 'group', 'name', 'facility_id', 'u_height')
+        fields = ('site', 'group', 'name', 'facility_id', 'tenant', 'u_height')
 
 
 #
@@ -259,6 +263,7 @@ class DeviceTable(BaseTable):
     pk = ToggleColumn()
     status = tables.TemplateColumn(template_code=STATUS_ICON, verbose_name='')
     name = tables.TemplateColumn(template_code=DEVICE_LINK, verbose_name='Name')
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
     site = tables.Column(accessor=Accessor('rack.site'), verbose_name='Site')
     rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')], verbose_name='Rack')
     device_role = tables.Column(verbose_name='Role')
@@ -268,11 +273,12 @@ class DeviceTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Device
-        fields = ('pk', 'name', 'status', 'site', 'rack', 'device_role', 'device_type', 'primary_ip')
+        fields = ('pk', 'name', 'status', 'tenant', 'site', 'rack', 'device_role', 'device_type', 'primary_ip')
 
 
 class DeviceImportTable(BaseTable):
     name = tables.TemplateColumn(template_code=DEVICE_LINK, verbose_name='Name')
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
     site = tables.Column(accessor=Accessor('rack.site'), verbose_name='Site')
     rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')], verbose_name='Rack')
     position = tables.Column(verbose_name='Position')
@@ -281,7 +287,7 @@ class DeviceImportTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Device
-        fields = ('name', 'site', 'rack', 'position', 'device_role', 'device_type')
+        fields = ('name', 'tenant', 'site', 'rack', 'position', 'device_role', 'device_type')
         empty_text = False
 
 

@@ -61,8 +61,9 @@ def expand_pattern(string):
 #
 
 class SiteListView(ObjectListView):
-    queryset = Site.objects.all()
+    queryset = Site.objects.select_related('tenant')
     filter = filters.SiteFilter
+    filter_form = forms.SiteFilterForm
     table = tables.SiteTable
     template_name = 'dcim/site_list.html'
 
@@ -200,7 +201,7 @@ class RackBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        for field in ['site', 'group', 'u_height', 'comments']:
+        for field in ['site', 'group', 'tenant', 'u_height', 'comments']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
 
@@ -632,7 +633,7 @@ class DeviceBulkEditView(PermissionRequiredMixin, BulkEditView):
         if form.cleaned_data['status']:
             status = form.cleaned_data['status']
             fields_to_update['status'] = True if status == 'True' else False
-        for field in ['device_type', 'device_role', 'serial']:
+        for field in ['tenant', 'device_type', 'device_role', 'serial']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
 

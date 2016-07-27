@@ -70,10 +70,10 @@
                     <td>{{ vlan.name }}</td>
                 </tr>
                 <tr>
-                    <td>Description</td>
+                    <td>Tenant</td>
                     <td>
-                        {% if vlan.description %}
-                            {{ vlan.description }}
+                        {% if vlan.tenant %}
+                            <a href="{{ vlan.tenant.get_absolute_url }}">{{ vlan.tenant }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -88,6 +88,16 @@
                 <tr>
                     <td>Role</td>
                     <td>{{ vlan.role }}</td>
+                </tr>
+                <tr>
+                    <td>Description</td>
+                    <td>
+                        {% if vlan.description %}
+                            {{ vlan.description }}
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Created</td>

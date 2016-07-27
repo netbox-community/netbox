@@ -1,0 +1,42 @@
+{% extends '_base.html' %}
+{% load helpers %}
+
+{% block title %}Tenants{% endblock %}
+
+{% block content %}
+<div class="pull-right">
+    {% if perms.tenancy.add_tenant %}
+		<a href="{% url 'tenancy:tenant_add' %}" class="btn btn-primary">
+			<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+			Add a tenant
+		</a>
+    {% endif %}
+    {% include 'inc/export_button.html' with obj_type='tenants' %}
+</div>
+<h1>Tenants</h1>
+<div class="row">
+	<div class="col-md-9">
+        {% include 'utilities/obj_table.html' with bulk_edit_url='tenancy:tenant_bulk_edit' bulk_delete_url='tenancy:tenant_bulk_delete' %}
+    </div>
+    <div class="col-md-3">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<strong>Search</strong>
+			</div>
+			<div class="panel-body">
+				<form action="{% url 'tenancy:tenant_list' %}" method="get">
+					<div class="input-group">
+						<input type="text" name="q" class="form-control" placeholder="Name" {% if request.GET.q %}value="{{ request.GET.q }}" {% endif %}/>
+						<span class="input-group-btn">
+							<button type="submit" class="btn btn-primary">
+								<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+							</button>
+						</span>
+					</div>
+				</form>
+			</div>
+		</div>
+		{% include 'inc/filter_panel.html' %}
+    </div>
+</div>
+{% endblock %}

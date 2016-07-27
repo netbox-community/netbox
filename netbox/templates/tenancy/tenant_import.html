@@ -1,0 +1,57 @@
+{% extends '_base.html' %}
+{% load render_table from django_tables2 %}
+{% load form_helpers %}
+
+{% block title %}Tenant Import{% endblock %}
+
+{% block content %}
+<h1>Tenant Import</h1>
+<div class="row">
+	<div class="col-md-6">
+		<form action="." method="post" class="form">
+		    {% csrf_token %}
+		    {% render_form form %}
+		    <div class="form-group">
+		        <button type="submit" class="btn btn-primary">Submit</button>
+		        <a href="{% url obj_list_url %}" class="btn btn-default">Cancel</a>
+		    </div>
+		</form>
+	</div>
+	<div class="col-md-6">
+		<h4>CSV Format</h4>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Field</th>
+					<th>Description</th>
+					<th>Example</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Name</td>
+					<td>Tenant name</td>
+					<td>WIDG01</td>
+				</tr>
+				<tr>
+					<td>Slug</td>
+					<td>URL-friendly name</td>
+					<td>widg01</td>
+				</tr>
+				<tr>
+					<td>Group</td>
+					<td>Tenant group</td>
+					<td>Customers</td>
+				</tr>
+				<tr>
+					<td>Description</td>
+					<td>Long-form name or other text (optional)</td>
+					<td>Widgets Inc.</td>
+				</tr>
+			</tbody>
+		</table>
+		<h4>Example</h4>
+		<pre>WIDG01,widg01,Customers,Widgets Inc.</pre>
+	</div>
+</div>
+{% endblock %}

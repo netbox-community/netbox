@@ -1,0 +1,13 @@
+{% extends 'utilities/bulk_edit_form.html' %}
+{% load form_helpers %}
+
+{% block title %}Tenant Bulk Edit{% endblock %}
+
+{% block select_objects_table %}
+    {% for tenant in selected_objects %}
+        <tr>
+            <td><a href="{% url 'tenancy:tenant' slug=tenant.slug %}">{{ tenant }}</a></td>
+            <td>{{ tenant.group }}</td>
+        </tr>
+    {% endfor %}
+{% endblock %}

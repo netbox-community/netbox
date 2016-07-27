@@ -7,7 +7,12 @@ from .models import (
 
 @admin.register(VRF)
 class VRFAdmin(admin.ModelAdmin):
-    list_display = ['name', 'rd']
+    list_display = ['name', 'rd', 'tenant', 'enforce_unique']
+    list_filter = ['tenant']
+
+    def get_queryset(self, request):
+        qs = super(VRFAdmin, self).get_queryset(request)
+        return qs.select_related('tenant')
 
 
 @admin.register(Role)
@@ -67,10 +72,10 @@ class VLANGroupAdmin(admin.ModelAdmin):
 
 @admin.register(VLAN)
 class VLANAdmin(admin.ModelAdmin):
-    list_display = ['site', 'vid', 'name', 'status', 'role']
-    list_filter = ['site', 'status', 'role']
+    list_display = ['site', 'vid', 'name', 'tenant', 'status', 'role']
+    list_filter = ['site', 'tenant', 'status', 'role']
     search_fields = ['vid', 'name']
 
     def get_queryset(self, request):
         qs = super(VLANAdmin, self).get_queryset(request)
-        return qs.select_related('site', 'role')
+        return qs.select_related('site', 'tenant', 'role')

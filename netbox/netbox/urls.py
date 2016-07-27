@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^dcim/', include('dcim.urls', namespace='dcim')),
     url(r'^ipam/', include('ipam.urls', namespace='ipam')),
     url(r'^secrets/', include('secrets.urls', namespace='secrets')),
+    url(r'^tenancy/', include('tenancy.urls', namespace='tenancy')),
     url(r'^profile/', include('users.urls', namespace='users')),
 
     # API
@@ -29,6 +30,7 @@ urlpatterns = [
     url(r'^api/dcim/', include('dcim.api.urls', namespace='dcim-api')),
     url(r'^api/ipam/', include('ipam.api.urls', namespace='ipam-api')),
     url(r'^api/secrets/', include('secrets.api.urls', namespace='secrets-api')),
+    url(r'^api/tenancy/', include('tenancy.api.urls', namespace='tenancy-api')),
     url(r'^api/docs/', include('rest_framework_swagger.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 

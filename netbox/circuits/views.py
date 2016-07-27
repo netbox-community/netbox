@@ -109,7 +109,7 @@ class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class CircuitListView(ObjectListView):
-    queryset = Circuit.objects.select_related('provider', 'type', 'site')
+    queryset = Circuit.objects.select_related('provider', 'type', 'tenant', 'site')
     filter = filters.CircuitFilter
     filter_form = forms.CircuitFilterForm
     table = tables.CircuitTable
@@ -159,7 +159,7 @@ class CircuitBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        for field in ['type', 'provider', 'port_speed', 'commit_rate', 'comments']:
+        for field in ['type', 'provider', 'tenant', 'port_speed', 'commit_rate', 'comments']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
 

@@ -50,7 +50,7 @@
     <div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <strong>DCIM</strong>
+                <strong>Organization</strong>
             </div>
             <div class="list-group">
                 <div class="list-group-item">
@@ -58,6 +58,18 @@
                     <h4 class="list-group-item-heading"><a href="{% url 'dcim:site_list' %}">Sites</a></h4>
                     <p class="list-group-item-text text-muted">Geographic locations</p>
                 </div>
+                <div class="list-group-item">
+                    <span class="badge pull-right">{{ stats.tenant_count }}</span>
+                    <h4 class="list-group-item-heading"><a href="{% url 'tenancy:tenant_list' %}">Tenants</a></h4>
+                    <p class="list-group-item-text text-muted">Customers or departments</p>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>DCIM</strong>
+            </div>
+            <div class="list-group">
                 <div class="list-group-item">
                     <span class="badge pull-right">{{ stats.rack_count }}</span>
                     <h4 class="list-group-item-heading"><a href="{% url 'dcim:rack_list' %}">Racks</a></h4>
@@ -79,20 +91,6 @@
                 </div>
             </div>
         </div>
-        {% if perms.secrets %}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Secrets</strong>
-                </div>
-                <div class="list-group">
-                    <div class="list-group-item">
-                        <span class="badge pull-right">{{ stats.secret_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'secrets:secret_list' %}">Secrets</a></h4>
-                        <p class="list-group-item-text text-muted">Sensitive data (such as passwords) which has been stored securely</p>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
     </div>
     <div class="col-md-4">
         <div class="panel panel-default">
@@ -141,6 +139,20 @@
         </div>
     </div>
     <div class="col-md-4">
+        {% if perms.secrets %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Secrets</strong>
+                </div>
+                <div class="list-group">
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.secret_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'secrets:secret_list' %}">Secrets</a></h4>
+                        <p class="list-group-item-text text-muted">Sensitive data (such as passwords) which has been stored securely</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Recent Activity</strong>

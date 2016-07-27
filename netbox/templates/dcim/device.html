@@ -15,6 +15,16 @@
             </div>
             <table class="table table-hover panel-body">
                 <tr>
+                    <td>Tenant</td>
+                    <td>
+                        {% if device.tenant %}
+                            <a href="{{ device.tenant.get_absolute_url }}">{{ device.tenant }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Site</td>
                     <td>
                         <a href="{% url 'dcim:site' slug=device.rack.site.slug %}">{{ device.rack.site }}</a>

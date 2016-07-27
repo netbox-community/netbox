@@ -42,7 +42,7 @@ class CircuitListView(generics.ListAPIView):
     """
     List circuits (filterable)
     """
-    queryset = Circuit.objects.select_related('type', 'provider', 'site', 'interface__device')
+    queryset = Circuit.objects.select_related('type', 'tenant', 'provider', 'site', 'interface__device')
     serializer_class = serializers.CircuitSerializer
     filter_class = CircuitFilter
 
@@ -51,5 +51,5 @@ class CircuitDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single circuit
     """
-    queryset = Circuit.objects.select_related('type', 'provider', 'site', 'interface__device')
+    queryset = Circuit.objects.select_related('type', 'tenant', 'provider', 'site', 'interface__device')
     serializer_class = serializers.CircuitSerializer

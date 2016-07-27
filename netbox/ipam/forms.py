@@ -4,6 +4,7 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Site, Device, Interface
+from tenancy.models import Tenant
 from utilities.forms import BootstrapMixin, APISelect, Livesearch, CSVDataField, BulkImportForm, SlugField
 
 from .models import (
@@ -23,7 +24,7 @@ class VRFForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = VRF
-        fields = ['name', 'rd', 'enforce_unique', 'description']
+        fields = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
         labels = {
             'rd': "RD",
         }
@@ -33,10 +34,12 @@ class VRFForm(forms.ModelForm, BootstrapMixin):
 
 
 class VRFFromCSVForm(forms.ModelForm):
+    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
+                                    error_messages={'invalid_choice': 'Tenant not found.'})
 
     class Meta:
         model = VRF
-        fields = ['name', 'rd', 'enforce_unique', 'description']
+        fields = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
 
 
 class VRFImportForm(BulkImportForm, BootstrapMixin):
@@ -45,7 +48,18 @@ class VRFImportForm(BulkImportForm, BootstrapMixin):
 
 class VRFBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=VRF.objects.all(), widget=forms.MultipleHiddenInput)
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     description = forms.CharField(max_length=100, required=False)
+
+
+def vrf_tenant_choices():
+    tenant_choices = Tenant.objects.annotate(vrf_count=Count('vrfs'))
+    return [(t.slug, u'{} ({})'.format(t.name, t.vrf_count)) for t in tenant_choices]
+
+
+class VRFFilterForm(forms.Form, BootstrapMixin):
+    tenant = forms.MultipleChoiceField(required=False, choices=vrf_tenant_choices,
+                                       widget=forms.SelectMultiple(attrs={'size': 8}))
 
 
 #
@@ -444,7 +458,7 @@ class VLANForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = VLAN
-        fields = ['site', 'group', 'vid', 'name', 'description', 'status', 'role']
+        fields = ['site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description']
         help_texts = {
             'site': "The site at which this VLAN exists",
             'group': "VLAN group (optional)",
@@ -475,13 +489,15 @@ class VLANFromCSVForm(forms.ModelForm):
                                   error_messages={'invalid_choice': 'Device not found.'})
     group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False, to_field_name='name',
                                    error_messages={'invalid_choice': 'VLAN group not found.'})
+    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
+                                    error_messages={'invalid_choice': 'Tenant not found.'})
     status_name = forms.ChoiceField(choices=[(s[1], s[0]) for s in VLAN_STATUS_CHOICES])
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False, to_field_name='name',
                                   error_messages={'invalid_choice': 'Invalid role.'})
 
     class Meta:
         model = VLAN
-        fields = ['site', 'group', 'vid', 'name', 'status_name', 'role', 'description']
+        fields = ['site', 'group', 'vid', 'name', 'tenant', 'status_name', 'role', 'description']
 
     def save(self, *args, **kwargs):
         m = super(VLANFromCSVForm, self).save(commit=False)
@@ -500,6 +516,7 @@ class VLANBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=VLAN.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
     group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False)
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     status = forms.ChoiceField(choices=FORM_VLAN_STATUS_CHOICES, required=False)
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
     description = forms.CharField(max_length=100, required=False)
@@ -513,6 +530,11 @@ def vlan_site_choices():
 def vlan_group_choices():
     group_choices = VLANGroup.objects.select_related('site').annotate(vlan_count=Count('vlans'))
     return [(g.pk, u'{} ({})'.format(g, g.vlan_count)) for g in group_choices]
+
+
+def vlan_tenant_choices():
+    tenant_choices = Tenant.objects.annotate(vrf_count=Count('vlans'))
+    return [(t.slug, u'{} ({})'.format(t.name, t.vrf_count)) for t in tenant_choices]
 
 
 def vlan_status_choices():
@@ -532,6 +554,8 @@ class VLANFilterForm(forms.Form, BootstrapMixin):
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
     group_id = forms.MultipleChoiceField(required=False, choices=vlan_group_choices, label='VLAN Group',
                                          widget=forms.SelectMultiple(attrs={'size': 8}))
+    tenant = forms.MultipleChoiceField(required=False, choices=vlan_tenant_choices,
+                                       widget=forms.SelectMultiple(attrs={'size': 8}))
     status = forms.MultipleChoiceField(required=False, choices=vlan_status_choices)
     role = forms.MultipleChoiceField(required=False, choices=vlan_role_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))

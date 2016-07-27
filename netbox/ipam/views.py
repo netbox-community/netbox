@@ -36,8 +36,9 @@ def add_available_prefixes(parent, prefix_list):
 #
 
 class VRFListView(ObjectListView):
-    queryset = VRF.objects.all()
+    queryset = VRF.objects.select_related('tenant')
     filter = filters.VRFFilter
+    filter_form = forms.VRFFilterForm
     table = tables.VRFTable
     edit_permissions = ['ipam.change_vrf', 'ipam.delete_vrf']
     template_name = 'ipam/vrf_list.html'
@@ -85,7 +86,7 @@ class VRFBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        for field in ['description']:
+        for field in ['tenant', 'description']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
 
@@ -558,7 +559,7 @@ class VLANBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        for field in ['site', 'group', 'status', 'role', 'description']:
+        for field in ['site', 'group', 'tenant', 'status', 'role', 'description']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
 

@@ -15,6 +15,7 @@ class SiteTest(APITestCase):
         'id',
         'name',
         'slug',
+        'tenant',
         'facility',
         'asn',
         'physical_address',
@@ -40,6 +41,7 @@ class SiteTest(APITestCase):
         'display_name',
         'site',
         'group',
+        'tenant',
         'u_height',
         'comments'
     ]
@@ -115,6 +117,7 @@ class RackTest(APITestCase):
         'display_name',
         'site',
         'group',
+        'tenant',
         'u_height',
         'comments'
     ]
@@ -126,6 +129,7 @@ class RackTest(APITestCase):
         'display_name',
         'site',
         'group',
+        'tenant',
         'u_height',
         'comments',
         'front_units',
@@ -311,6 +315,7 @@ class DeviceTest(APITestCase):
         'display_name',
         'device_type',
         'device_role',
+        'tenant',
         'platform',
         'serial',
         'rack',
@@ -388,6 +393,7 @@ class DeviceTest(APITestCase):
             'rack_name',
             'serial',
             'status',
+            'tenant',
         ]
 
         response = self.client.get(endpoint)

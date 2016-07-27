@@ -2,6 +2,7 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Site, Device, Interface, Rack, IFACE_FF_VIRTUAL
+from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, BootstrapMixin, BulkImportForm, CommentField, CSVDataField, Livesearch, SmallTextarea, SlugField,
 )
@@ -99,7 +100,7 @@ class CircuitForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = Circuit
         fields = [
-            'cid', 'type', 'provider', 'site', 'rack', 'device', 'livesearch', 'interface', 'install_date',
+            'cid', 'type', 'provider', 'tenant', 'site', 'rack', 'device', 'livesearch', 'interface', 'install_date',
             'port_speed', 'commit_rate', 'xconnect_id', 'pp_info', 'comments'
         ]
         help_texts = {
@@ -160,13 +161,15 @@ class CircuitFromCSVForm(forms.ModelForm):
                                       error_messages={'invalid_choice': 'Provider not found.'})
     type = forms.ModelChoiceField(CircuitType.objects.all(), to_field_name='name',
                                   error_messages={'invalid_choice': 'Invalid circuit type.'})
+    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
+                                    error_messages={'invalid_choice': 'Tenant not found.'})
     site = forms.ModelChoiceField(Site.objects.all(), to_field_name='name',
                                   error_messages={'invalid_choice': 'Site not found.'})
 
     class Meta:
         model = Circuit
-        fields = ['cid', 'provider', 'type', 'site', 'install_date', 'port_speed', 'commit_rate', 'xconnect_id',
-                  'pp_info']
+        fields = ['cid', 'provider', 'type', 'tenant', 'site', 'install_date', 'port_speed', 'commit_rate',
+                  'xconnect_id', 'pp_info']
 
 
 class CircuitImportForm(BulkImportForm, BootstrapMixin):
@@ -177,6 +180,7 @@ class CircuitBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Circuit.objects.all(), widget=forms.MultipleHiddenInput)
     type = forms.ModelChoiceField(queryset=CircuitType.objects.all(), required=False)
     provider = forms.ModelChoiceField(queryset=Provider.objects.all(), required=False)
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     port_speed = forms.IntegerField(required=False, label='Port speed (Kbps)')
     commit_rate = forms.IntegerField(required=False, label='Commit rate (Kbps)')
     comments = CommentField()
@@ -192,6 +196,11 @@ def circuit_provider_choices():
     return [(p.slug, u'{} ({})'.format(p.name, p.circuit_count)) for p in provider_choices]
 
 
+def circuit_tenant_choices():
+    tenant_choices = Tenant.objects.annotate(circuit_count=Count('circuits'))
+    return [(t.slug, u'{} ({})'.format(t.name, t.circuit_count)) for t in tenant_choices]
+
+
 def circuit_site_choices():
     site_choices = Site.objects.annotate(circuit_count=Count('circuits'))
     return [(s.slug, u'{} ({})'.format(s.name, s.circuit_count)) for s in site_choices]
@@ -201,5 +210,7 @@ class CircuitFilterForm(forms.Form, BootstrapMixin):
     type = forms.MultipleChoiceField(required=False, choices=circuit_type_choices)
     provider = forms.MultipleChoiceField(required=False, choices=circuit_provider_choices,
                                          widget=forms.SelectMultiple(attrs={'size': 8}))
+    tenant = forms.MultipleChoiceField(required=False, choices=circuit_tenant_choices,
+                                       widget=forms.SelectMultiple(attrs={'size': 8}))
     site = forms.MultipleChoiceField(required=False, choices=circuit_site_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
