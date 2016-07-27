@@ -555,7 +555,7 @@ class VLANFilterForm(forms.Form, BootstrapMixin):
     group_id = forms.MultipleChoiceField(required=False, choices=vlan_group_choices, label='VLAN Group',
                                          widget=forms.SelectMultiple(attrs={'size': 8}))
     tenant = forms.MultipleChoiceField(required=False, choices=vlan_tenant_choices,
-                                     widget=forms.SelectMultiple(attrs={'size': 8}))
+                                       widget=forms.SelectMultiple(attrs={'size': 8}))
     status = forms.MultipleChoiceField(required=False, choices=vlan_status_choices)
     role = forms.MultipleChoiceField(required=False, choices=vlan_role_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
