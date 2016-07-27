@@ -14,7 +14,7 @@ class VRFListView(generics.ListAPIView):
     """
     List all VRFs
     """
-    queryset = VRF.objects.all()
+    queryset = VRF.objects.select_related('tenant')
     serializer_class = serializers.VRFSerializer
     filter_class = filters.VRFFilter
 
@@ -23,7 +23,7 @@ class VRFDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single VRF
     """
-    queryset = VRF.objects.all()
+    queryset = VRF.objects.select_related('tenant')
     serializer_class = serializers.VRFSerializer
 
 
@@ -161,7 +161,7 @@ class VLANListView(generics.ListAPIView):
     """
     List VLANs (filterable)
     """
-    queryset = VLAN.objects.select_related('site', 'role')
+    queryset = VLAN.objects.select_related('site', 'tenant', 'role')
     serializer_class = serializers.VLANSerializer
     filter_class = filters.VLANFilter
 
@@ -170,5 +170,5 @@ class VLANDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single VLAN
     """
-    queryset = VLAN.objects.select_related('site', 'role')
+    queryset = VLAN.objects.select_related('site', 'tenant', 'role')
     serializer_class = serializers.VLANSerializer

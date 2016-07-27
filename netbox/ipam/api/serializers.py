@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from dcim.api.serializers import SiteNestedSerializer, InterfaceNestedSerializer
 from ipam.models import VRF, Role, RIR, Aggregate, Prefix, IPAddress, VLAN, VLANGroup
+from tenancy.api.serializers import TenantNestedSerializer
 
 
 #
@@ -9,10 +10,11 @@ from ipam.models import VRF, Role, RIR, Aggregate, Prefix, IPAddress, VLAN, VLAN
 #
 
 class VRFSerializer(serializers.ModelSerializer):
+    tenant = TenantNestedSerializer()
 
     class Meta:
         model = VRF
-        fields = ['id', 'name', 'rd', 'enforce_unique', 'description']
+        fields = ['id', 'name', 'rd', 'tenant', 'enforce_unique', 'description']
 
 
 class VRFNestedSerializer(VRFSerializer):
@@ -98,11 +100,12 @@ class VLANGroupNestedSerializer(VLANGroupSerializer):
 class VLANSerializer(serializers.ModelSerializer):
     site = SiteNestedSerializer()
     group = VLANGroupNestedSerializer()
+    tenant = TenantNestedSerializer()
     role = RoleNestedSerializer()
 
     class Meta:
         model = VLAN
-        fields = ['id', 'site', 'group', 'vid', 'name', 'status', 'role', 'description', 'display_name']
+        fields = ['id', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'display_name']
 
 
 class VLANNestedSerializer(VLANSerializer):
