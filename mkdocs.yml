@@ -17,6 +17,7 @@ pages:
         - 'DCIM': 'data-model/dcim.md'
         - 'IPAM': 'data-model/ipam.md'
         - 'Secrets': 'data-model/secrets.md'
+        - 'Tenancy': 'data-model/tenancy.md'
         - 'Extras': 'data-model/extras.md'
     - 'API Integration': 'api-integration.md'
 
