@@ -6,8 +6,10 @@ from utilities.tables import BaseTable, ToggleColumn
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, VLAN, VLANGroup, VRF
 
 
-RIR_EDIT_LINK = """
-{% if perms.ipam.change_rir %}<a href="{% url 'ipam:rir_edit' slug=record.slug %}">Edit</a>{% endif %}
+RIR_ACTIONS = """
+{% if perms.ipam.change_rir %}
+    <a href="{% url 'ipam:rir_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+{% endif %}
 """
 
 UTILIZATION_GRAPH = """
@@ -15,8 +17,10 @@ UTILIZATION_GRAPH = """
 {% utilization_graph record.get_utilization %}
 """
 
-ROLE_EDIT_LINK = """
-{% if perms.ipam.change_role %}<a href="{% url 'ipam:role_edit' slug=record.slug %}">Edit</a>{% endif %}
+ROLE_ACTIONS = """
+{% if perms.ipam.change_role %}
+    <a href="{% url 'ipam:role_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+{% endif %}
 """
 
 PREFIX_LINK = """
@@ -43,9 +47,9 @@ STATUS_LABEL = """
 {% endif %}
 """
 
-VLANGROUP_EDIT_LINK = """
+VLANGROUP_ACTIONS = """
 {% if perms.ipam.change_vlangroup %}
-    <a href="{% url 'ipam:vlangroup_edit' pk=record.pk %}">Edit</a>
+    <a href="{% url 'ipam:vlangroup_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
@@ -85,11 +89,11 @@ class RIRTable(BaseTable):
     name = tables.LinkColumn(verbose_name='Name')
     aggregate_count = tables.Column(verbose_name='Aggregates')
     slug = tables.Column(verbose_name='Slug')
-    edit = tables.TemplateColumn(template_code=RIR_EDIT_LINK, verbose_name='')
+    actions = tables.TemplateColumn(template_code=RIR_ACTIONS, attrs={'td': {'class': 'text-right'}}, verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = RIR
-        fields = ('pk', 'name', 'aggregate_count', 'slug', 'edit')
+        fields = ('pk', 'name', 'aggregate_count', 'slug', 'actions')
 
 
 #
@@ -120,11 +124,11 @@ class RoleTable(BaseTable):
     prefix_count = tables.Column(accessor=Accessor('count_prefixes'), orderable=False, verbose_name='Prefixes')
     vlan_count = tables.Column(accessor=Accessor('count_vlans'), orderable=False, verbose_name='VLANs')
     slug = tables.Column(verbose_name='Slug')
-    edit = tables.TemplateColumn(template_code=ROLE_EDIT_LINK, verbose_name='')
+    actions = tables.TemplateColumn(template_code=ROLE_ACTIONS, attrs={'td': {'class': 'text-right'}}, verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = Role
-        fields = ('pk', 'name', 'prefix_count', 'vlan_count', 'slug', 'edit')
+        fields = ('pk', 'name', 'prefix_count', 'vlan_count', 'slug', 'actions')
 
 
 #
@@ -199,11 +203,12 @@ class VLANGroupTable(BaseTable):
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
     vlan_count = tables.Column(verbose_name='VLANs')
     slug = tables.Column(verbose_name='Slug')
-    edit = tables.TemplateColumn(template_code=VLANGROUP_EDIT_LINK, verbose_name='')
+    actions = tables.TemplateColumn(template_code=VLANGROUP_ACTIONS, attrs={'td': {'class': 'text-right'}},
+                                 verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = VLANGroup
-        fields = ('pk', 'name', 'site', 'vlan_count', 'slug', 'edit')
+        fields = ('pk', 'name', 'site', 'vlan_count', 'slug', 'actions')
 
 
 #

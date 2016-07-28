@@ -6,9 +6,9 @@ from utilities.tables import BaseTable, ToggleColumn
 from .models import Circuit, CircuitType, Provider
 
 
-CIRCUITTYPE_EDIT_LINK = """
+CIRCUITTYPE_ACTIONS = """
 {% if perms.circuit.change_circuittype %}
-    <a href="{% url 'circuits:circuittype_edit' slug=record.slug %}">Edit</a>
+    <a href="{% url 'circuits:circuittype_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
@@ -37,11 +37,12 @@ class CircuitTypeTable(BaseTable):
     name = tables.LinkColumn(verbose_name='Name')
     circuit_count = tables.Column(verbose_name='Circuits')
     slug = tables.Column(verbose_name='Slug')
-    edit = tables.TemplateColumn(template_code=CIRCUITTYPE_EDIT_LINK, verbose_name='')
+    actions = tables.TemplateColumn(template_code=CIRCUITTYPE_ACTIONS, attrs={'td': {'class': 'text-right'}},
+                                    verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = CircuitType
-        fields = ('pk', 'name', 'circuit_count', 'slug', 'edit')
+        fields = ('pk', 'name', 'circuit_count', 'slug', 'actions')
 
 
 #

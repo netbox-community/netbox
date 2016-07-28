@@ -16,27 +16,27 @@ DEVICE_LINK = """
 </a>
 """
 
-RACKGROUP_EDIT_LINK = """
+RACKGROUP_ACTIONS = """
 {% if perms.dcim.change_rackgroup %}
-    <a href="{% url 'dcim:rackgroup_edit' pk=record.pk %}">Edit</a>
+    <a href="{% url 'dcim:rackgroup_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
-DEVICEROLE_EDIT_LINK = """
+DEVICEROLE_ACTIONS = """
 {% if perms.dcim.change_devicerole %}
-    <a href="{% url 'dcim:devicerole_edit' slug=record.slug %}">Edit</a>
+    <a href="{% url 'dcim:devicerole_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
-MANUFACTURER_EDIT_LINK = """
+MANUFACTURER_ACTIONS = """
 {% if perms.dcim.change_manufacturer %}
-    <a href="{% url 'dcim:manufacturer_edit' slug=record.slug %}">Edit</a>
+    <a href="{% url 'dcim:manufacturer_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
-PLATFORM_EDIT_LINK = """
+PLATFORM_ACTIONS = """
 {% if perms.dcim.change_platform %}
-    <a href="{% url 'dcim:platform_edit' slug=record.slug %}">Edit</a>
+    <a href="{% url 'dcim:platform_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
@@ -85,11 +85,12 @@ class RackGroupTable(BaseTable):
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
     rack_count = tables.Column(verbose_name='Racks')
     slug = tables.Column(verbose_name='Slug')
-    edit = tables.TemplateColumn(template_code=RACKGROUP_EDIT_LINK, verbose_name='')
+    actions = tables.TemplateColumn(template_code=RACKGROUP_ACTIONS, attrs={'td': {'class': 'text-right'}},
+                                 verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = RackGroup
-        fields = ('pk', 'name', 'site', 'rack_count', 'slug', 'edit')
+        fields = ('pk', 'name', 'site', 'rack_count', 'slug', 'actions')
 
 
 #
@@ -136,11 +137,12 @@ class ManufacturerTable(BaseTable):
     name = tables.LinkColumn(verbose_name='Name')
     devicetype_count = tables.Column(verbose_name='Device Types')
     slug = tables.Column(verbose_name='Slug')
-    edit = tables.TemplateColumn(template_code=MANUFACTURER_EDIT_LINK, verbose_name='')
+    actions = tables.TemplateColumn(template_code=MANUFACTURER_ACTIONS, attrs={'td': {'class': 'text-right'}},
+                                 verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = Manufacturer
-        fields = ('pk', 'name', 'devicetype_count', 'slug', 'edit')
+        fields = ('pk', 'name', 'devicetype_count', 'slug', 'actions')
 
 
 #
@@ -232,11 +234,12 @@ class DeviceRoleTable(BaseTable):
     device_count = tables.Column(verbose_name='Devices')
     slug = tables.Column(verbose_name='Slug')
     color = tables.Column(verbose_name='Color')
-    edit = tables.TemplateColumn(template_code=DEVICEROLE_EDIT_LINK, verbose_name='')
+    actions = tables.TemplateColumn(template_code=DEVICEROLE_ACTIONS, attrs={'td': {'class': 'text-right'}},
+                                 verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = DeviceRole
-        fields = ('pk', 'name', 'device_count', 'slug', 'color')
+        fields = ('pk', 'name', 'device_count', 'slug', 'color', 'actions')
 
 
 #
@@ -248,11 +251,11 @@ class PlatformTable(BaseTable):
     name = tables.LinkColumn(verbose_name='Name')
     device_count = tables.Column(verbose_name='Devices')
     slug = tables.Column(verbose_name='Slug')
-    edit = tables.TemplateColumn(template_code=PLATFORM_EDIT_LINK, verbose_name='')
+    actions = tables.TemplateColumn(template_code=PLATFORM_ACTIONS, attrs={'td': {'class': 'text-right'}}, verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = Platform
-        fields = ('pk', 'name', 'device_count', 'slug', 'edit')
+        fields = ('pk', 'name', 'device_count', 'slug', 'actions')
 
 
 #
