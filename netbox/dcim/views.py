@@ -65,6 +65,7 @@ class SiteListView(ObjectListView):
     filter = filters.SiteFilter
     filter_form = forms.SiteFilterForm
     table = tables.SiteTable
+    edit_permissions = ['dcim.change_rack', 'dcim.delete_rack']
     template_name = 'dcim/site_list.html'
 
 
@@ -109,6 +110,23 @@ class SiteBulkImportView(PermissionRequiredMixin, BulkImportView):
     table = tables.SiteTable
     template_name = 'dcim/site_import.html'
     obj_list_url = 'dcim:site_list'
+
+
+class SiteBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_site'
+    cls = Site
+    form = forms.SiteBulkEditForm
+    template_name = 'dcim/site_bulk_edit.html'
+    default_redirect_url = 'dcim:site_list'
+
+    def update_objects(self, pk_list, form):
+
+        fields_to_update = {}
+        for field in ['tenant']:
+            if form.cleaned_data[field]:
+                fields_to_update[field] = form.cleaned_data[field]
+
+        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
 
 
 #

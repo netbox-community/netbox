@@ -1,5 +1,4 @@
 {% extends '_base.html' %}
-{% load render_table from django_tables2 %}
 
 {% block title %}Sites{% endblock %}
 
@@ -10,13 +9,17 @@
 			<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
 			Add a site
 		</a>
+        <a href="{% url 'dcim:site_import' %}" class="btn btn-info">
+            <span class="glyphicon glyphicon-import" aria-hidden="true"></span>
+            Import sites
+        </a>
     {% endif %}
     {% include 'inc/export_button.html' with obj_type='sites' %}
 </div>
 <h1>Sites</h1>
 <div class="row">
 	<div class="col-md-9">
-        {% render_table table 'table.html' %}
+        {% include 'utilities/obj_table.html' with bulk_edit_url='dcim:site_bulk_edit' %}
     </div>
     <div class="col-md-3">
 		<div class="panel panel-default">

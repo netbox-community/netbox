@@ -1,0 +1,13 @@
+{% extends 'utilities/bulk_edit_form.html' %}
+{% load form_helpers %}
+
+{% block title %}Site Bulk Edit{% endblock %}
+
+{% block select_objects_table %}
+    {% for site in selected_objects %}
+        <tr>
+            <td><a href="{% url 'dcim:site' slug=site.slug %}">{{ site.slug }}</a></td>
+            <td>{{ site.tenant }}</td>
+        </tr>
+    {% endfor %}
+{% endblock %}

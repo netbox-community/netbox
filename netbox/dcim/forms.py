@@ -76,6 +76,11 @@ class SiteImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=SiteFromCSVForm)
 
 
+class SiteBulkEditForm(forms.Form, BootstrapMixin):
+    pk = forms.ModelMultipleChoiceField(queryset=Site.objects.all(), widget=forms.MultipleHiddenInput)
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
+
+
 def site_tenant_choices():
     tenant_choices = Tenant.objects.annotate(site_count=Count('sites'))
     return [(t.slug, u'{} ({})'.format(t.name, t.site_count)) for t in tenant_choices]

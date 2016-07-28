@@ -59,6 +59,7 @@ UTILIZATION_GRAPH = """
 #
 
 class SiteTable(BaseTable):
+    pk = ToggleColumn()
     name = tables.LinkColumn('dcim:site', args=[Accessor('slug')], verbose_name='Name')
     facility = tables.Column(verbose_name='Facility')
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
@@ -71,8 +72,8 @@ class SiteTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Site
-        fields = ('name', 'facility', 'tenant', 'asn', 'rack_count', 'device_count', 'prefix_count', 'vlan_count',
-                  'circuit_count')
+        fields = ('pk', 'name', 'facility', 'tenant', 'asn', 'rack_count', 'device_count', 'prefix_count',
+                  'vlan_count', 'circuit_count')
 
 
 #
