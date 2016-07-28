@@ -40,7 +40,7 @@ class AggregateAdmin(admin.ModelAdmin):
 
 @admin.register(Prefix)
 class PrefixAdmin(admin.ModelAdmin):
-    list_display = ['prefix', 'vrf', 'site', 'status', 'role', 'vlan']
+    list_display = ['prefix', 'vrf', 'tenant', 'site', 'status', 'role', 'vlan']
     list_filter = ['family', 'site', 'status', 'role']
     search_fields = ['prefix']
 
@@ -51,7 +51,7 @@ class PrefixAdmin(admin.ModelAdmin):
 
 @admin.register(IPAddress)
 class IPAddressAdmin(admin.ModelAdmin):
-    list_display = ['address', 'vrf', 'nat_inside']
+    list_display = ['address', 'vrf', 'tenant', 'nat_inside']
     list_filter = ['family']
     fields = ['address', 'vrf', 'device', 'interface', 'nat_inside']
     readonly_fields = ['interface', 'device', 'nat_inside']

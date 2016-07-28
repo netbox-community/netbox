@@ -49,6 +49,16 @@ VLANGROUP_EDIT_LINK = """
 {% endif %}
 """
 
+TENANT_LINK = """
+{% if record.tenant %}
+    <a href="{% url 'tenancy:tenant' slug=record.tenant.slug %}">{{ record.tenant }}</a>
+{% elif record.vrf.tenant %}
+    <a href="{% url 'tenancy:tenant' slug=record.vrf.tenant.slug %}">{{ record.vrf.tenant }}</a>*
+{% else %}
+    &mdash;
+{% endif %}
+"""
+
 
 #
 # VRFs
@@ -126,13 +136,14 @@ class PrefixTable(BaseTable):
     status = tables.TemplateColumn(STATUS_LABEL, verbose_name='Status')
     prefix = tables.TemplateColumn(PREFIX_LINK, verbose_name='Prefix')
     vrf = tables.LinkColumn('ipam:vrf', args=[Accessor('vrf.pk')], default='Global', verbose_name='VRF')
+    tenant = tables.TemplateColumn(TENANT_LINK, verbose_name='Tenant')
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
     role = tables.Column(verbose_name='Role')
     description = tables.Column(orderable=False, verbose_name='Description')
 
     class Meta(BaseTable.Meta):
         model = Prefix
-        fields = ('pk', 'prefix', 'status', 'vrf', 'site', 'role', 'description')
+        fields = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'role', 'description')
 
 
 class PrefixBriefTable(BaseTable):
@@ -154,6 +165,7 @@ class IPAddressTable(BaseTable):
     pk = ToggleColumn()
     address = tables.LinkColumn('ipam:ipaddress', args=[Accessor('pk')], verbose_name='IP Address')
     vrf = tables.LinkColumn('ipam:vrf', args=[Accessor('vrf.pk')], default='Global', verbose_name='VRF')
+    tenant = tables.TemplateColumn(TENANT_LINK, verbose_name='Tenant')
     device = tables.LinkColumn('dcim:device', args=[Accessor('interface.device.pk')], orderable=False,
                                verbose_name='Device')
     interface = tables.Column(orderable=False, verbose_name='Interface')
@@ -161,7 +173,7 @@ class IPAddressTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = IPAddress
-        fields = ('pk', 'address', 'vrf', 'device', 'interface', 'description')
+        fields = ('pk', 'address', 'vrf', 'tenant', 'device', 'interface', 'description')
 
 
 class IPAddressBriefTable(BaseTable):

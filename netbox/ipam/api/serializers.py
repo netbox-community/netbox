@@ -23,6 +23,15 @@ class VRFNestedSerializer(VRFSerializer):
         fields = ['id', 'name', 'rd']
 
 
+class VRFTenantSerializer(VRFSerializer):
+    """
+    Include tenant serializer. Useful for determining tenant inheritance for Prefixes and IPAddresses.
+    """
+
+    class Meta(VRFSerializer.Meta):
+        fields = ['id', 'name', 'rd', 'tenant']
+
+
 #
 # Roles
 #
@@ -120,13 +129,14 @@ class VLANNestedSerializer(VLANSerializer):
 
 class PrefixSerializer(serializers.ModelSerializer):
     site = SiteNestedSerializer()
-    vrf = VRFNestedSerializer()
+    vrf = VRFTenantSerializer()
+    tenant = TenantNestedSerializer()
     vlan = VLANNestedSerializer()
     role = RoleNestedSerializer()
 
     class Meta:
         model = Prefix
-        fields = ['id', 'family', 'prefix', 'site', 'vrf', 'vlan', 'status', 'role', 'description']
+        fields = ['id', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'description']
 
 
 class PrefixNestedSerializer(PrefixSerializer):
@@ -140,12 +150,13 @@ class PrefixNestedSerializer(PrefixSerializer):
 #
 
 class IPAddressSerializer(serializers.ModelSerializer):
-    vrf = VRFNestedSerializer()
+    vrf = VRFTenantSerializer()
+    tenant = TenantNestedSerializer()
     interface = InterfaceNestedSerializer()
 
     class Meta:
         model = IPAddress
-        fields = ['id', 'family', 'address', 'vrf', 'interface', 'description', 'nat_inside', 'nat_outside']
+        fields = ['id', 'family', 'address', 'vrf', 'tenant', 'interface', 'description', 'nat_inside', 'nat_outside']
 
 
 class IPAddressNestedSerializer(IPAddressSerializer):

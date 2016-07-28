@@ -55,6 +55,8 @@ def tenant(request, slug):
         rack_count=Count('racks', distinct=True),
         device_count=Count('devices', distinct=True),
         vrf_count=Count('vrfs', distinct=True),
+        prefix_count=Count('prefixes', distinct=True),
+        ipaddress_count=Count('ip_addresses', distinct=True),
         vlan_count=Count('vlans', distinct=True),
         circuit_count=Count('circuits', distinct=True),
     ), slug=slug)

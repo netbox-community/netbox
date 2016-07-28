@@ -233,6 +233,7 @@ class Prefix(CreatedUpdatedModel):
     site = models.ForeignKey('dcim.Site', related_name='prefixes', on_delete=models.PROTECT, blank=True, null=True)
     vrf = models.ForeignKey('VRF', related_name='prefixes', on_delete=models.PROTECT, blank=True, null=True,
                             verbose_name='VRF')
+    tenant = models.ForeignKey(Tenant, related_name='prefixes', blank=True, null=True, on_delete=models.PROTECT)
     vlan = models.ForeignKey('VLAN', related_name='prefixes', on_delete=models.PROTECT, blank=True, null=True,
                              verbose_name='VLAN')
     status = models.PositiveSmallIntegerField('Status', choices=PREFIX_STATUS_CHOICES, default=1)
@@ -308,6 +309,7 @@ class IPAddress(CreatedUpdatedModel):
     address = IPAddressField()
     vrf = models.ForeignKey('VRF', related_name='ip_addresses', on_delete=models.PROTECT, blank=True, null=True,
                             verbose_name='VRF')
+    tenant = models.ForeignKey(Tenant, related_name='ip_addresses', blank=True, null=True, on_delete=models.PROTECT)
     interface = models.ForeignKey(Interface, related_name='ip_addresses', on_delete=models.CASCADE, blank=True,
                                   null=True)
     nat_inside = models.OneToOneField('self', related_name='nat_outside', on_delete=models.SET_NULL, blank=True,

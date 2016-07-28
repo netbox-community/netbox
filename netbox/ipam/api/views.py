@@ -96,7 +96,7 @@ class PrefixListView(generics.ListAPIView):
     """
     List prefixes (filterable)
     """
-    queryset = Prefix.objects.select_related('site', 'vrf', 'vlan', 'role')
+    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
     serializer_class = serializers.PrefixSerializer
     filter_class = filters.PrefixFilter
 
@@ -105,7 +105,7 @@ class PrefixDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single prefix
     """
-    queryset = Prefix.objects.select_related('site', 'vrf', 'vlan', 'role')
+    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
     serializer_class = serializers.PrefixSerializer
 
 
@@ -117,7 +117,7 @@ class IPAddressListView(generics.ListAPIView):
     """
     List IP addresses (filterable)
     """
-    queryset = IPAddress.objects.select_related('vrf', 'interface__device', 'nat_inside')\
+    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device', 'nat_inside')\
         .prefetch_related('nat_outside')
     serializer_class = serializers.IPAddressSerializer
     filter_class = filters.IPAddressFilter
@@ -127,7 +127,7 @@ class IPAddressDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single IP address
     """
-    queryset = IPAddress.objects.select_related('vrf', 'interface__device', 'nat_inside')\
+    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device', 'nat_inside')\
         .prefetch_related('nat_outside')
     serializer_class = serializers.IPAddressSerializer
 

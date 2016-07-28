@@ -65,6 +65,19 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Tenant</td>
+                    <td>
+                        {% if ipaddress.tenant %}
+                            <a href="{{ ipaddress.tenant.get_absolute_url }}">{{ ipaddress.tenant }}</a>
+                        {% elif ipaddress.vrf.tenant %}
+                            <a href="{{ ipaddress.vrf.tenant.get_absolute_url }}">{{ ipaddress.vrf.tenant }}</a>
+                            <label class="label label-warning">Inherited</label>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Description</td>
                     <td>
                         {% if ipaddress.description  %}

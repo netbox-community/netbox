@@ -16,6 +16,24 @@ FORM_PREFIX_STATUS_CHOICES = (('', '---------'),) + PREFIX_STATUS_CHOICES
 FORM_VLAN_STATUS_CHOICES = (('', '---------'),) + VLAN_STATUS_CHOICES
 
 
+def bulkedit_vrf_choices():
+    choices = [
+        (None, '---------'),
+        (0, 'Global'),
+    ]
+    choices += [(v.pk, v.name) for v in VRF.objects.all()]
+    return choices
+
+
+def bulkedit_tenant_choices():
+    choices = [
+        (None, '---------'),
+        (0, 'None'),
+    ]
+    choices += [(t.pk, t.name) for t in Tenant.objects.all()]
+    return choices
+
+
 #
 # VRFs
 #
@@ -48,7 +66,7 @@ class VRFImportForm(BulkImportForm, BootstrapMixin):
 
 class VRFBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=VRF.objects.all(), widget=forms.MultipleHiddenInput)
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
+    tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
     description = forms.CharField(max_length=100, required=False)
 
 
@@ -145,7 +163,7 @@ class PrefixForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Prefix
-        fields = ['prefix', 'vrf', 'site', 'vlan', 'status', 'role', 'description']
+        fields = ['prefix', 'vrf', 'tenant', 'site', 'vlan', 'status', 'role', 'description']
         help_texts = {
             'prefix': "IPv4 or IPv6 network",
             'vrf': "VRF (if applicable)",
@@ -186,6 +204,8 @@ class PrefixForm(forms.ModelForm, BootstrapMixin):
 class PrefixFromCSVForm(forms.ModelForm):
     vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, to_field_name='rd',
                                  error_messages={'invalid_choice': 'VRF not found.'})
+    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
+                                    error_messages={'invalid_choice': 'Tenant not found.'})
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, to_field_name='name',
                                   error_messages={'invalid_choice': 'Site not found.'})
     vlan_group_name = forms.CharField(required=False)
@@ -196,7 +216,8 @@ class PrefixFromCSVForm(forms.ModelForm):
 
     class Meta:
         model = Prefix
-        fields = ['prefix', 'vrf', 'site', 'vlan_group_name', 'vlan_vid', 'status_name', 'role', 'description']
+        fields = ['prefix', 'vrf', 'tenant', 'site', 'vlan_group_name', 'vlan_vid', 'status_name', 'role',
+                  'description']
 
     def clean(self):
 
@@ -239,22 +260,19 @@ class PrefixImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=PrefixFromCSVForm)
 
 
-def prefix_vrf_choices():
-    choices = [
-        (None, '---------'),
-        (0, 'Global'),
-    ]
-    choices += [(v.pk, v.name) for v in VRF.objects.all()]
-    return choices
-
-
 class PrefixBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Prefix.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
-    vrf = forms.TypedChoiceField(choices=prefix_vrf_choices, coerce=int, required=False, label='VRF')
+    vrf = forms.TypedChoiceField(choices=bulkedit_vrf_choices, coerce=int, required=False, label='VRF')
+    tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
     status = forms.ChoiceField(choices=FORM_PREFIX_STATUS_CHOICES, required=False)
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
     description = forms.CharField(max_length=100, required=False)
+
+
+def prefix_vrf_choices():
+    vrf_choices = VRF.objects.annotate(prefix_count=Count('prefixes'))
+    return [(v.pk, u'{} ({})'.format(v.name, v.prefix_count)) for v in vrf_choices]
 
 
 def prefix_site_choices():
@@ -276,12 +294,16 @@ def prefix_role_choices():
 
 class PrefixFilterForm(forms.Form, BootstrapMixin):
     parent = forms.CharField(required=False, label='Search Within')
-    vrf = forms.ChoiceField(required=False, choices=prefix_vrf_choices, label='VRF')
-    status = forms.MultipleChoiceField(required=False, choices=prefix_status_choices)
+    vrf = forms.MultipleChoiceField(required=False, choices=prefix_vrf_choices, label='VRF',
+                                    widget=forms.SelectMultiple(attrs={'size': 6}))
+    tenant = forms.ModelMultipleChoiceField(queryset=Tenant.objects.all(), required=False,
+                                            widget=forms.SelectMultiple(attrs={'size': 6}))
+    status = forms.MultipleChoiceField(required=False, choices=prefix_status_choices,
+                                       widget=forms.SelectMultiple(attrs={'size': 6}))
     site = forms.MultipleChoiceField(required=False, choices=prefix_site_choices,
-                                     widget=forms.SelectMultiple(attrs={'size': 8}))
+                                     widget=forms.SelectMultiple(attrs={'size': 6}))
     role = forms.MultipleChoiceField(required=False, choices=prefix_role_choices,
-                                     widget=forms.SelectMultiple(attrs={'size': 8}))
+                                     widget=forms.SelectMultiple(attrs={'size': 6}))
     expand = forms.BooleanField(required=False, label='Expand prefix hierarchy')
 
 
@@ -304,7 +326,7 @@ class IPAddressForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = IPAddress
-        fields = ['address', 'vrf', 'nat_device', 'nat_inside', 'description']
+        fields = ['address', 'vrf', 'tenant', 'nat_device', 'nat_inside', 'description']
         help_texts = {
             'address': "IPv4 or IPv6 address and mask",
             'vrf': "VRF (if applicable)",
@@ -353,6 +375,8 @@ class IPAddressForm(forms.ModelForm, BootstrapMixin):
 class IPAddressFromCSVForm(forms.ModelForm):
     vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, to_field_name='rd',
                                  error_messages={'invalid_choice': 'VRF not found.'})
+    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
+                                    error_messages={'invalid_choice': 'Tenant not found.'})
     device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False, to_field_name='name',
                                     error_messages={'invalid_choice': 'Device not found.'})
     interface_name = forms.CharField(required=False)
@@ -360,7 +384,7 @@ class IPAddressFromCSVForm(forms.ModelForm):
 
     class Meta:
         model = IPAddress
-        fields = ['address', 'vrf', 'device', 'interface_name', 'is_primary', 'description']
+        fields = ['address', 'vrf', 'tenant', 'device', 'interface_name', 'is_primary', 'description']
 
     def clean(self):
 
@@ -403,18 +427,10 @@ class IPAddressImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=IPAddressFromCSVForm)
 
 
-def ipaddress_vrf_choices():
-    choices = [
-        (None, '---------'),
-        (0, 'Global'),
-    ]
-    choices += [(v.pk, v.name) for v in VRF.objects.all()]
-    return choices
-
-
 class IPAddressBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=IPAddress.objects.all(), widget=forms.MultipleHiddenInput)
-    vrf = forms.TypedChoiceField(choices=ipaddress_vrf_choices, coerce=int, required=False, label='VRF')
+    vrf = forms.TypedChoiceField(choices=bulkedit_vrf_choices, coerce=int, required=False, label='VRF')
+    tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
     description = forms.CharField(max_length=100, required=False)
 
 
@@ -422,9 +438,17 @@ def ipaddress_family_choices():
     return [('', 'All'), (4, 'IPv4'), (6, 'IPv6')]
 
 
+def ipaddress_vrf_choices():
+    vrf_choices = VRF.objects.annotate(ipaddress_count=Count('ip_addresses'))
+    return [(v.pk, u'{} ({})'.format(v.name, v.ipaddress_count)) for v in vrf_choices]
+
+
 class IPAddressFilterForm(forms.Form, BootstrapMixin):
     family = forms.ChoiceField(required=False, choices=ipaddress_family_choices, label='Address Family')
-    vrf = forms.ChoiceField(required=False, choices=ipaddress_vrf_choices, label='VRF')
+    vrf = forms.MultipleChoiceField(required=False, choices=ipaddress_vrf_choices, label='VRF',
+                                    widget=forms.SelectMultiple(attrs={'size': 6}))
+    tenant = forms.ModelMultipleChoiceField(queryset=Tenant.objects.all(), required=False,
+                                            widget=forms.SelectMultiple(attrs={'size': 6}))
 
 
 #
@@ -518,7 +542,7 @@ class VLANBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=VLAN.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
     group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False)
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
+    tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
     status = forms.ChoiceField(choices=FORM_VLAN_STATUS_CHOICES, required=False)
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
     description = forms.CharField(max_length=100, required=False)
