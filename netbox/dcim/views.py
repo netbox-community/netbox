@@ -142,7 +142,8 @@ class RackGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class RackListView(ObjectListView):
-    queryset = Rack.objects.select_related('site').prefetch_related('devices__device_type').annotate(device_count=Count('devices', distinct=True), u_consumed=Sum('devices__device_type__u_height'))
+    queryset = Rack.objects.select_related('site').prefetch_related('devices__device_type')\
+        .annotate(device_count=Count('devices', distinct=True), u_consumed=Sum('devices__device_type__u_height'))
     filter = filters.RackFilter
     filter_form = forms.RackFilterForm
     table = tables.RackTable
@@ -154,7 +155,7 @@ def rack(request, pk):
 
     rack = get_object_or_404(Rack, pk=pk)
 
-    nonracked_devices = Device.objects.filter(rack=rack, position__isnull=True)\
+    nonracked_devices = Device.objects.filter(rack=rack, position__isnull=True, parent_bay__isnull=True)\
         .select_related('device_type__manufacturer')
     next_rack = Rack.objects.filter(site=rack.site, name__gt=rack.name).order_by('name').first()
     prev_rack = Rack.objects.filter(site=rack.site, name__lt=rack.name).order_by('-name').first()
