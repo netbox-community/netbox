@@ -272,7 +272,8 @@ def prefix(request, pk):
         aggregate = None
 
     # Count child IP addresses
-    ipaddress_count = IPAddress.objects.filter(address__net_contained_or_equal=str(prefix.prefix)).count()
+    ipaddress_count = IPAddress.objects.filter(vrf=prefix.vrf, address__net_contained_or_equal=str(prefix.prefix))\
+        .count()
 
     # Parent prefixes table
     parent_prefixes = Prefix.objects.filter(vrf=prefix.vrf, prefix__net_contains=str(prefix.prefix))\
@@ -359,7 +360,7 @@ def prefix_ipaddresses(request, pk):
     prefix = get_object_or_404(Prefix.objects.all(), pk=pk)
 
     # Find all IPAddresses belonging to this Prefix
-    ipaddresses = IPAddress.objects.filter(address__net_contained_or_equal=str(prefix.prefix))\
+    ipaddresses = IPAddress.objects.filter(vrf=prefix.vrf, address__net_contained_or_equal=str(prefix.prefix))\
         .select_related('vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for')
 
     ip_table = tables.IPAddressTable(ipaddresses)
