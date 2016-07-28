@@ -159,7 +159,11 @@ class CircuitBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        for field in ['type', 'provider', 'tenant', 'port_speed', 'commit_rate', 'comments']:
+        if form.cleaned_data['tenant'] == 0:
+            fields_to_update['tenant'] = None
+        elif form.cleaned_data['tenant']:
+            fields_to_update['tenant'] = form.cleaned_data['tenant']
+        for field in ['type', 'provider', 'port_speed', 'commit_rate', 'comments']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
 

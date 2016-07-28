@@ -8,6 +8,18 @@ from utilities.forms import (
 from .models import Tenant, TenantGroup
 
 
+def bulkedit_tenant_choices():
+    """
+    Include an option to remove the currently assigned Tenant from an object.
+    """
+    choices = [
+        (None, '---------'),
+        (0, 'None'),
+    ]
+    choices += [(t.pk, t.name) for t in Tenant.objects.all()]
+    return choices
+
+
 #
 # Tenant groups
 #

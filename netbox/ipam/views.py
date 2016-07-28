@@ -86,7 +86,11 @@ class VRFBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        for field in ['tenant', 'description']:
+        if form.cleaned_data['tenant'] == 0:
+            fields_to_update['tenant'] = None
+        elif form.cleaned_data['tenant']:
+            fields_to_update['tenant'] = form.cleaned_data['tenant']
+        for field in ['description']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
 
@@ -338,10 +342,11 @@ class PrefixBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        if form.cleaned_data['vrf'] == 0:
-            fields_to_update['vrf'] = None
-        elif form.cleaned_data['vrf']:
-            fields_to_update['vrf'] = form.cleaned_data['vrf']
+        for field in ['vrf', 'tenant']:
+            if form.cleaned_data[field] == 0:
+                fields_to_update[field] = None
+            elif form.cleaned_data[field]:
+                fields_to_update[field] = form.cleaned_data[field]
         for field in ['site', 'status', 'role', 'description']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
@@ -462,10 +467,11 @@ class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        if form.cleaned_data['vrf'] == 0:
-            fields_to_update['vrf'] = None
-        elif form.cleaned_data['vrf']:
-            fields_to_update['vrf'] = form.cleaned_data['vrf']
+        for field in ['vrf', 'tenant']:
+            if form.cleaned_data[field] == 0:
+                fields_to_update[field] = None
+            elif form.cleaned_data[field]:
+                fields_to_update[field] = form.cleaned_data[field]
         for field in ['description']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
@@ -560,7 +566,11 @@ class VLANBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        for field in ['site', 'group', 'tenant', 'status', 'role', 'description']:
+        if form.cleaned_data['tenant'] == 0:
+            fields_to_update['tenant'] = None
+        elif form.cleaned_data['tenant']:
+            fields_to_update['tenant'] = form.cleaned_data['tenant']
+        for field in ['site', 'group', 'status', 'role', 'description']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
 

@@ -4,6 +4,7 @@ from django import forms
 from django.db.models import Count, Q
 
 from ipam.models import IPAddress
+from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, BootstrapMixin, BulkImportForm, CommentField, CSVDataField, ExpandableNameField,
@@ -37,6 +38,15 @@ def get_device_by_name_or_pk(name):
     else:
         device = Device.objects.get(name=name)
     return device
+
+
+def bulkedit_platform_choices():
+    choices = [
+        (None, '---------'),
+        (0, 'None'),
+    ]
+    choices += [(p.pk, p.name) for p in Platform.objects.all()]
+    return choices
 
 
 #
@@ -78,7 +88,7 @@ class SiteImportForm(BulkImportForm, BootstrapMixin):
 
 class SiteBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Site.objects.all(), widget=forms.MultipleHiddenInput)
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
+    tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
 
 
 def site_tenant_choices():
@@ -181,7 +191,7 @@ class RackBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Rack.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
     group = forms.ModelChoiceField(queryset=RackGroup.objects.all(), required=False)
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
+    tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
     u_height = forms.IntegerField(required=False, label='Height (U)')
     comments = CommentField()
 
@@ -538,21 +548,12 @@ class ChildDeviceImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=ChildDeviceFromCSVForm)
 
 
-def device_edit_platform_choices():
-    choices = [
-        (None, '---------'),
-        (0, 'None'),
-    ]
-    choices += [(p.pk, p.name) for p in Platform.objects.all()]
-    return choices
-
-
 class DeviceBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
     device_type = forms.ModelChoiceField(queryset=DeviceType.objects.all(), required=False, label='Type')
     device_role = forms.ModelChoiceField(queryset=DeviceRole.objects.all(), required=False, label='Role')
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False, label='Tenant')
-    platform = forms.TypedChoiceField(choices=device_edit_platform_choices, coerce=int, required=False,
+    tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
+    platform = forms.TypedChoiceField(choices=bulkedit_platform_choices, coerce=int, required=False,
                                       label='Platform')
     status = forms.ChoiceField(choices=FORM_STATUS_CHOICES, required=False, initial='', label='Status')
     serial = forms.CharField(max_length=50, required=False, label='Serial Number')

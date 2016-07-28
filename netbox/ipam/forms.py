@@ -4,6 +4,7 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Site, Device, Interface
+from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
 from utilities.forms import BootstrapMixin, APISelect, Livesearch, CSVDataField, BulkImportForm, SlugField
 
@@ -17,20 +18,14 @@ FORM_VLAN_STATUS_CHOICES = (('', '---------'),) + VLAN_STATUS_CHOICES
 
 
 def bulkedit_vrf_choices():
+    """
+    Include an option to assign the object to the global table.
+    """
     choices = [
         (None, '---------'),
         (0, 'Global'),
     ]
     choices += [(v.pk, v.name) for v in VRF.objects.all()]
-    return choices
-
-
-def bulkedit_tenant_choices():
-    choices = [
-        (None, '---------'),
-        (0, 'None'),
-    ]
-    choices += [(t.pk, t.name) for t in Tenant.objects.all()]
     return choices
 
 

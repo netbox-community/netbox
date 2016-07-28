@@ -122,9 +122,10 @@ class SiteBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        for field in ['tenant']:
-            if form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
+        if form.cleaned_data['tenant'] == 0:
+            fields_to_update['tenant'] = None
+        elif form.cleaned_data['tenant']:
+            fields_to_update['tenant'] = form.cleaned_data['tenant']
 
         return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
 
@@ -220,6 +221,10 @@ class RackBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
+        if form.cleaned_data['tenant'] == 0:
+            fields_to_update['tenant'] = None
+        elif form.cleaned_data['tenant']:
+            fields_to_update['tenant'] = form.cleaned_data['tenant']
         for field in ['site', 'group', 'tenant', 'u_height', 'comments']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
@@ -645,10 +650,11 @@ class DeviceBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        if form.cleaned_data['platform'] == 0:
-            fields_to_update['platform'] = None
-        elif form.cleaned_data['platform']:
-            fields_to_update['platform'] = form.cleaned_data['platform']
+        for field in ['tenant', 'platform']:
+            if form.cleaned_data[field] == 0:
+                fields_to_update[field] = None
+            elif form.cleaned_data[field]:
+                fields_to_update[field] = form.cleaned_data[field]
         if form.cleaned_data['status']:
             status = form.cleaned_data['status']
             fields_to_update['status'] = True if status == 'True' else False
