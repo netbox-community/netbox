@@ -29,10 +29,10 @@ class ProviderFilter(django_filters.FilterSet):
         fields = ['q', 'name', 'account', 'asn']
 
     def search(self, queryset, value):
-        value = value.strip()
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(account__icontains=value)
+            Q(account__icontains=value) |
+            Q(comments__icontains=value)
         )
 
 
@@ -91,5 +91,9 @@ class CircuitFilter(django_filters.FilterSet):
         fields = ['q', 'provider_id', 'provider', 'type_id', 'type', 'site_id', 'site', 'interface', 'install_date']
 
     def search(self, queryset, value):
-        value = value.strip()
-        return queryset.filter(cid__icontains=value)
+        return queryset.filter(
+            Q(cid__icontains=value) |
+            Q(xconnect_id__icontains=value) |
+            Q(pp_info__icontains=value) |
+            Q(comments__icontains=value)
+        )

@@ -1,0 +1,18 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+        <strong>Search</strong>
+    </div>
+    <div class="panel-body">
+        <form action="." method="get">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Search" {% if request.GET.q %}value="{{ request.GET.q }}" {% endif %}/>
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>

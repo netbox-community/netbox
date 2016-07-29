@@ -6,7 +6,7 @@
 	<div class="col-md-4">
 		<form action="{% url 'dcim:device_list' %}" method="get">
 			<div class="input-group input-group-lg">
-				<input type="text" name="q" placeholder="Device name or serial" class="form-control" />
+				<input type="text" name="q" placeholder="Search devices" class="form-control" />
 				<span class="input-group-btn">
 					<button type="submit" class="btn btn-primary">
 						<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
@@ -20,11 +20,11 @@
 	<div class="col-md-4">
 		<form action="{% url 'ipam:prefix_list' %}" method="get">
 			<div class="input-group input-group-lg">
-				<input type="text" name="q" placeholder="IP or network" class="form-control" />
+				<input type="text" name="q" placeholder="Search prefixes" class="form-control" />
 				<span class="input-group-btn">
 					<button type="submit" class="btn btn-primary">
 						<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-						IP
+						Prefixes
 					</button>
 				</span>
 			</div>
@@ -34,7 +34,7 @@
 	<div class="col-md-4">
 		<form action="{% url 'circuits:circuit_list' %}" method="get">
 			<div class="input-group input-group-lg">
-				<input type="text" name="q" placeholder="Circuit ID" class="form-control" />
+				<input type="text" name="q" placeholder="Search circuits" class="form-control" />
 				<span class="input-group-btn">
 					<button type="submit" class="btn btn-primary">
 						<span class="glyphicon glyphicon-search" aria-hidden="true"></span>

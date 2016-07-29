@@ -31,11 +31,10 @@ class SiteFilter(django_filters.FilterSet):
         fields = ['q', 'name', 'facility', 'asn']
 
     def search(self, queryset, value):
-        value = value.strip()
         qs_filter = Q(name__icontains=value) | Q(facility__icontains=value) | Q(physical_address__icontains=value) | \
-            Q(shipping_address__icontains=value)
+            Q(shipping_address__icontains=value) | Q(comments__icontains=value)
         try:
-            qs_filter |= Q(asn=int(value))
+            qs_filter |= Q(asn=int(value.strip()))
         except ValueError:
             pass
         return queryset.filter(qs_filter)
@@ -103,10 +102,10 @@ class RackFilter(django_filters.FilterSet):
         fields = ['q', 'site_id', 'site', 'u_height']
 
     def search(self, queryset, value):
-        value = value.strip()
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(facility_id__icontains=value)
+            Q(facility_id__icontains=value) |
+            Q(comments__icontains=value)
         )
 
 
@@ -234,11 +233,11 @@ class DeviceFilter(django_filters.FilterSet):
                   'is_network_device']
 
     def search(self, queryset, value):
-        value = value.strip()
         return queryset.filter(
             Q(name__icontains=value) |
             Q(serial__icontains=value) |
-            Q(modules__serial__icontains=value)
+            Q(modules__serial__icontains=value) |
+            Q(comments__icontains=value)
         ).distinct()
 
 

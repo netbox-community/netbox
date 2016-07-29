@@ -6,11 +6,23 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'circuits:provider_list' %}">Providers</a></li>
             <li>{{ provider }}</li>
         </ol>
+    </div>
+    <div class="col-md-3">
+        <form action="{% url 'circuits:provider_list' %}" method="get">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" />
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
     </div>
 </div>
 <div class="pull-right">

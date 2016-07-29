@@ -1,5 +1,7 @@
 import django_filters
 
+from django.db.models import Q
+
 from .models import Tenant, TenantGroup
 
 
@@ -25,5 +27,8 @@ class TenantFilter(django_filters.FilterSet):
         fields = ['q', 'group_id', 'group', 'name']
 
     def search(self, queryset, value):
-        value = value.strip()
-        return queryset.filter(name__icontains=value)
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
+        )

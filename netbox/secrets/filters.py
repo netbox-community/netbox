@@ -1,10 +1,16 @@
 import django_filters
 
+from django.db.models import Q
+
 from .models import Secret, SecretRole
 from dcim.models import Device
 
 
 class SecretFilter(django_filters.FilterSet):
+    q = django_filters.MethodFilter(
+        action='search',
+        label='Search',
+    )
     role_id = django_filters.ModelMultipleChoiceFilter(
         name='role',
         queryset=SecretRole.objects.all(),
@@ -26,3 +32,9 @@ class SecretFilter(django_filters.FilterSet):
     class Meta:
         model = Secret
         fields = ['name', 'role_id', 'role', 'device']
+
+    def search(self, queryset, value):
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(device__name__icontains=value)
+        )
