@@ -15,7 +15,7 @@ from django.views.generic import View
 
 from ipam.models import Prefix, IPAddress, VLAN
 from circuits.models import Circuit
-from extras.models import TopologyMap
+from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE
 from utilities.forms import ConfirmationForm
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -81,12 +81,14 @@ def site(request, slug):
     }
     rack_groups = RackGroup.objects.filter(site=site).annotate(rack_count=Count('racks'))
     topology_maps = TopologyMap.objects.filter(site=site)
+    show_graphs = Graph.objects.filter(type=GRAPH_TYPE_SITE).exists()
 
     return render(request, 'dcim/site.html', {
         'site': site,
         'stats': stats,
         'rack_groups': rack_groups,
         'topology_maps': topology_maps,
+        'show_graphs': show_graphs,
     })
 
 
@@ -585,6 +587,9 @@ def device(request, pk):
             related_devices = Device.objects.filter(name__istartswith=base_name).exclude(pk=device.pk)\
                 .select_related('rack', 'device_type__manufacturer')[:10]
 
+    # Show graph button on interfaces only if at least one graph has been created.
+    show_graphs = Graph.objects.filter(type=GRAPH_TYPE_INTERFACE).exists()
+
     return render(request, 'dcim/device.html', {
         'device': device,
         'console_ports': console_ports,
@@ -597,6 +602,7 @@ def device(request, pk):
         'ip_addresses': ip_addresses,
         'secrets': secrets,
         'related_devices': related_devices,
+        'show_graphs': show_graphs,
     })
 
 
