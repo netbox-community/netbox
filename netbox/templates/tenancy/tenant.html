@@ -7,6 +7,7 @@
 <div class="row">
     <div class="col-md-9">
         <ol class="breadcrumb">
+            <li><a href="{% url 'tenancy:tenant_list' %}">Tenants</a></li>
             <li><a href="{% url 'tenancy:tenant_list' %}?group={{ tenant.group.slug }}">{{ tenant.group }}</a></li>
             <li>{{ tenant }}</li>
         </ol>

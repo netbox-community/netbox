@@ -1,11 +1,9 @@
 <div class="row">
     <div class="col-md-9">
         <ol class="breadcrumb">
-            {% if prefix.site %}
-                <li><a href="{% url 'dcim:site' slug=prefix.site.slug %}">{{ prefix.site }}</a></li>
-                <li><a href="{% url 'ipam:prefix_list' %}?site={{ prefix.site.slug }}">Prefixes</a></li>
-            {% else %}
-                <li><a href="{% url 'ipam:prefix_list' %}">Prefixes</a></li>
+            <li><a href="{% url 'ipam:prefix_list' %}">Prefixes</a></li>
+            {% if prefix.vrf %}
+                <li><a href="{% url 'ipam:prefix_list' %}?vrf={{ prefix.vrf.pk }}">{{ prefix.vrf }}</a></li>
             {% endif %}
             <li>{{ prefix }}</li>
         </ol>

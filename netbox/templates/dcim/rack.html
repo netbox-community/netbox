@@ -8,8 +8,8 @@
 <div class="row">
     <div class="col-md-9">
         <ol class="breadcrumb">
-            <li><a href="{% url 'dcim:site' slug=rack.site.slug %}">{{ rack.site }}</a></li>
-            <li><a href="{% url 'dcim:rack_list' %}?site={{ rack.site.slug }}">Racks</a></li>
+            <li><a href="{% url 'dcim:rack_list' %}">Racks</a></li>
+            <li><a href="{% url 'dcim:rack_list' %}?site={{ rack.site.slug }}">{{ rack.site }}</a></li>
             <li>{{ rack }}</li>
         </ol>
     </div>

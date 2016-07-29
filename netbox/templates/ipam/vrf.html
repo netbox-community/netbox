@@ -4,6 +4,26 @@
 {% block title %}VRF {{ vrf }}{% endblock %}
 
 {% block content %}
+<div class="row">
+    <div class="col-md-9">
+        <ol class="breadcrumb">
+            <li><a href="{% url 'ipam:vrf_list' %}">VRFs</a></li>
+            <li>{{ vrf }}</li>
+        </ol>
+    </div>
+    <div class="col-md-3">
+        <form action="{% url 'ipam:vrf_list' %}" method="get">
+            <div class="input-group">
+                <input type="text" name="name" class="form-control" placeholder="VRF name" />
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
 <div class="pull-right">
     {% if perms.ipam.change_vrf %}
         <a href="{% url 'ipam:vrf_edit' pk=vrf.pk %}" class="btn btn-warning">

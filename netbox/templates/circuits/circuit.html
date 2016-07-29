@@ -7,9 +7,9 @@
 <div class="row">
     <div class="col-md-9">
         <ol class="breadcrumb">
-            <li><a href="{% url 'dcim:site' slug=circuit.site.slug %}">{{ circuit.site }}</a></li>
-            <li><a href="{% url 'circuits:circuit_list' %}?site={{ circuit.site.slug }}">Circuits</a></li>
-            <li>{{ circuit }}</li>
+            <li><a href="{% url 'circuits:circuit_list' %}">Circuits</a></li>
+            <li><a href="{% url 'circuits:circuit_list' %}?provider={{ circuit.provider.slug }}">{{ circuit.provider }}</a></li>
+            <li>{{ circuit.cid }}</li>
         </ol>
     </div>
     <div class="col-md-3">
