@@ -151,7 +151,7 @@ class AggregateListView(ObjectListView):
             if a.prefix.version == 4:
                 ipv4_total += a.prefix.size
             elif a.prefix.version == 6:
-                ipv6_total += a.prefix.size / 2**64
+                ipv6_total += a.prefix.size / 2 ** 64
 
         return {
             'ipv4_total': ipv4_total,

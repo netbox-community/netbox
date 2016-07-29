@@ -87,7 +87,7 @@ class RackGroupTable(BaseTable):
     rack_count = tables.Column(verbose_name='Racks')
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(template_code=RACKGROUP_ACTIONS, attrs={'td': {'class': 'text-right'}},
-                                 verbose_name='')
+                                    verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = RackGroup
@@ -139,7 +139,7 @@ class ManufacturerTable(BaseTable):
     devicetype_count = tables.Column(verbose_name='Device Types')
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(template_code=MANUFACTURER_ACTIONS, attrs={'td': {'class': 'text-right'}},
-                                 verbose_name='')
+                                    verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = Manufacturer
@@ -236,7 +236,7 @@ class DeviceRoleTable(BaseTable):
     slug = tables.Column(verbose_name='Slug')
     color = tables.Column(verbose_name='Color')
     actions = tables.TemplateColumn(template_code=DEVICEROLE_ACTIONS, attrs={'td': {'class': 'text-right'}},
-                                 verbose_name='')
+                                    verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = DeviceRole

@@ -205,7 +205,7 @@ class VLANGroupTable(BaseTable):
     vlan_count = tables.Column(verbose_name='VLANs')
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(template_code=VLANGROUP_ACTIONS, attrs={'td': {'class': 'text-right'}},
-                                 verbose_name='')
+                                    verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = VLANGroup
