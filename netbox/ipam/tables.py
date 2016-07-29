@@ -159,6 +159,7 @@ class PrefixBriefTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Prefix
         fields = ('prefix', 'status', 'site', 'role')
+        orderable = False
 
 
 #

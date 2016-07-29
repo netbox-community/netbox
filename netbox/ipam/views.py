@@ -48,10 +48,11 @@ def vrf(request, pk):
 
     vrf = get_object_or_404(VRF.objects.all(), pk=pk)
     prefixes = Prefix.objects.filter(vrf=vrf)
+    prefix_table = tables.PrefixBriefTable(prefixes)
 
     return render(request, 'ipam/vrf.html', {
         'vrf': vrf,
-        'prefixes': prefixes,
+        'prefix_table': prefix_table,
     })
 
 
@@ -528,10 +529,11 @@ def vlan(request, pk):
 
     vlan = get_object_or_404(VLAN.objects.select_related('site', 'role'), pk=pk)
     prefixes = Prefix.objects.filter(vlan=vlan)
+    prefix_table = tables.PrefixBriefTable(prefixes)
 
     return render(request, 'ipam/vlan.html', {
         'vlan': vlan,
-        'prefixes': prefixes,
+        'prefix_table': prefix_table,
     })
 
 

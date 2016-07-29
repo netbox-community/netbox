@@ -96,26 +96,7 @@
             <div class="panel-heading">
                 <strong>Prefixes</strong>
             </div>
-            {% if prefixes %}
-                <table class="table table-hover panel-body">
-                    {% for p in prefixes %}
-                        <tr>
-                            <td>
-                                <a href="{% url 'ipam:prefix' pk=p.pk %}">{{ p }}</a>
-                            </td>
-                            <td>
-                                {% if p.site %}
-                                    <a href="{% url 'dcim:site' slug=p.site.slug %}">{{ p.site }}</a>
-                                {% endif %}
-                            </td>
-                            <td>{{ p.status }}</td>
-                            <td>{{ p.role }}</td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            {% else %}
-                <div class="panel-body text-muted">None</div>
-            {% endif %}
+            {% render_table prefix_table %}
         </div>
 	</div>
 </div>
