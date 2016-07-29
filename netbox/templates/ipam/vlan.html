@@ -90,7 +90,13 @@
                 </tr>
                 <tr>
                     <td>Role</td>
-                    <td>{{ vlan.role }}</td>
+                    <td>
+                        {% if vlan.role %}
+                            <span>{{ vlan.role }}</span>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Description</td>
@@ -98,7 +104,7 @@
                         {% if vlan.description %}
                             {{ vlan.description }}
                         {% else %}
-                            <span class="text-muted">None</span>
+                            <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
                 </tr>

@@ -82,7 +82,7 @@
                         {% if rack.facility_id %}
                             <span>{{ rack.facility_id }}</span>
                         {% else %}
-                            <span class="text-muted">None</span>
+                            <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -156,7 +156,7 @@
                 <strong>Comments</strong>
             </div>
             <div class="panel-body">
-                {% if rack.comments  %}
+                {% if rack.comments %}
                     {{ rack.comments|gfm }}
                 {% else %}
                     <span class="text-muted">None</span>

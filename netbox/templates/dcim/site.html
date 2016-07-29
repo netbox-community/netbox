@@ -48,7 +48,7 @@
 </div>
 <h1>{{ site.name }}</h1>
 <div class="row">
-	<div class="col-md-6">
+	<div class="col-md-7">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Site</strong>
@@ -66,11 +66,23 @@
                 </tr>
                 <tr>
                     <td>Facility</td>
-                    <td>{{ site.facility }}</td>
+                    <td>
+                        {% if site.facility %}
+                            {{ site.facility }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td>AS Number</td>
-                    <td>{{ site.asn }}</td>
+                    <td>
+                        {% if site.asn %}
+                            {{ site.asn }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Physical Address</td>
@@ -81,8 +93,10 @@
                                     <i class="glyphicon glyphicon-map-marker"></i> Map it
                                 </a>
                             </div>
+                            <span>{{ site.physical_address|linebreaksbr }}</span>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
                         {% endif %}
-                        <span>{{ site.physical_address|linebreaksbr }}</span>
                     </td>
                 </tr>
                 <tr>
@@ -91,7 +105,7 @@
                         {% if site.shipping_address %}
                             <span>{{ site.shipping_address|linebreaksbr }}</span>
                         {% else %}
-                            <span class="text-muted">See physical address</span>
+                            <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -110,7 +124,7 @@
                 <strong>Comments</strong>
             </div>
             <div class="panel-body">
-                {% if site.comments  %}
+                {% if site.comments %}
                     {{ site.comments|gfm }}
                 {% else %}
                     <span class="text-muted">None</span>
@@ -118,43 +132,33 @@
             </div>
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-5">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Stats</strong>
             </div>
-            <table class="table table-hover panel-body">
-                <tr>
-                    <td>Racks</td>
-                    <td>
-                        <a href="{% url 'dcim:rack_list' %}?site={{ site.slug }}">{{ stats.rack_count }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Devices</td>
-                    <td>
-                        <a href="{% url 'dcim:device_list' %}?site={{ site.slug }}">{{ stats.device_count }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Prefixes</td>
-                    <td>
-                        <a href="{% url 'ipam:prefix_list' %}?site={{ site.slug }}">{{ stats.prefix_count }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>VLANs</td>
-                    <td>
-                        <a href="{% url 'ipam:vlan_list' %}?site={{ site.slug }}">{{ stats.vlan_count }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Circuits</td>
-                    <td>
-                        <a href="{% url 'circuits:circuit_list' %}?site={{ site.slug }}">{{ stats.circuit_count }}</a>
-                    </td>
-                </tr>
-            </table>
+            <div class="row panel-body">
+                <div class="col-md-4 text-center">
+                    <h2><a href="{% url 'dcim:rack_list' %}?site={{ site.slug }}" class="btn {% if stats.rack_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.rack_count }}</a></h2>
+                    <p>Racks</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h2><a href="{% url 'dcim:device_list' %}?site={{ site.slug }}" class="btn {% if stats.device_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.device_count }}</a></h2>
+                    <p>Devices</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h2><a href="{% url 'ipam:prefix_list' %}?site={{ site.slug }}" class="btn {% if stats.prefix_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.prefix_count }}</a></h2>
+                    <p>Prefixes</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h2><a href="{% url 'ipam:vlan_list' %}?site={{ site.slug }}" class="btn {% if stats.vlan_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.vlan_count }}</a></h2>
+                    <p>VLANs</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h2><a href="{% url 'circuits:circuit_list' %}?site={{ site.slug }}" class="btn {% if stats.circuit_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.circuit_count }}</a></h2>
+                    <p>Circuits</p>
+                </div>
+            </div>
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">

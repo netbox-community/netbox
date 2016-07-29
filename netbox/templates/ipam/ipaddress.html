@@ -70,7 +70,7 @@
                             <a href="{{ ipaddress.tenant.get_absolute_url }}">{{ ipaddress.tenant }}</a>
                         {% elif ipaddress.vrf.tenant %}
                             <a href="{{ ipaddress.vrf.tenant.get_absolute_url }}">{{ ipaddress.vrf.tenant }}</a>
-                            <label class="label label-warning">Inherited</label>
+                            <label class="label label-info">Inherited</label>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -79,10 +79,10 @@
                 <tr>
                     <td>Description</td>
                     <td>
-                        {% if ipaddress.description  %}
+                        {% if ipaddress.description %}
                             <span>{{ ipaddress.description }}</span>
                         {% else %}
-                            <span class="text-muted">None</span>
+                            <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
                 </tr>

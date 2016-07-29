@@ -1,7 +1,7 @@
 {% extends '_base.html' %}
 {% load helpers %}
 
-{% block title %}{{ circuit.provider }} Circuit {{ circuit.cid }}{% endblock %}
+{% block title %}{{ circuit.provider }} - {{ circuit.cid }}{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -39,7 +39,7 @@
 		</a>
     {% endif %}
 </div>
-<h1>{{ circuit.provider }} Circuit {{ circuit.cid }}</h1>
+<h1>{{ circuit.provider }} - {{ circuit.cid }}</h1>
 <div class="row">
 	<div class="col-md-6">
         <div class="panel panel-default">
@@ -67,17 +67,39 @@
                         {% if circuit.tenant %}
                             <a href="{{ circuit.tenant.get_absolute_url }}">{{ circuit.tenant }}</a>
                         {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Install Date</td>
+                    <td>
+                        {% if circuit.install_date %}
+                            {{ circuit.install_date }}
+                        {% else %}
                             <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
                 </tr>
                 <tr>
                     <td>Port Speed</td>
-                    <td>{{ circuit.port_speed_human }}</td>
+                    <td>
+                        {% if circuit.port_speed %}
+                            {{ circuit.port_speed_human }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Commit Rate</td>
-                    <td>{% if circuit.commit_rate %}{{ circuit.commit_rate_human }}{% else %}<span class="text-muted">N/A</span>{% endif %}</td>
+                    <td>
+                        {% if circuit.commit_speed %}
+                            {{ circuit.commit_speed_human }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Created</td>
@@ -113,16 +135,6 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Install Date</td>
-                    <td>
-                        {% if circuit.install_date %}
-                            {{ circuit.install_date }}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
                     <td>Cross-Connect</td>
                     <td>
                         {% if circuit.xconnect_id %}
@@ -149,7 +161,7 @@
                 <strong>Comments</strong>
             </div>
             <div class="panel-body">
-                {% if circuit.comments  %}
+                {% if circuit.comments %}
                     {{ circuit.comments|gfm }}
                 {% else %}
                     <span class="text-muted">None</span>

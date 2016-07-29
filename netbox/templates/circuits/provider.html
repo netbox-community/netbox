@@ -55,25 +55,53 @@
             <table class="table table-hover panel-body">
                 <tr>
                     <td>ASN</td>
-                    <td>{{ provider.asn }}</td>
+                    <td>
+                        {% if provider.asn %}
+                            {{ provider.asn }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Account</td>
-                    <td>{{ provider.account }}</td>
+                    <td>
+                        {% if provider.account %}
+                            {{ provider.account }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Customer Portal</td>
                     <td>
-                        <a href="{{ provider.portal_url }}">{{ provider.portal_url }}</a>
+                        {% if provider.portal_url %}
+                            <a href="{{ provider.portal_url }}">{{ provider.portal_url }}</a>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
                     </td>
                 </tr>
                 <tr>
                     <td>NOC Contact</td>
-                    <td>{{ provider.noc_contact|linebreaksbr }}</td>
+                    <td>
+                        {% if provider.noc_contact %}
+                            {{ provider.noc_contact|linebreaksbr }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Admin Contact</td>
-                    <td>{{ provider.admin_contact|linebreaksbr }}</td>
+                    <td>
+                        {% if provider.admin_contact %}
+                            {{ provider.admin_contact|linebreaksbr }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Created</td>
@@ -90,7 +118,7 @@
                 <strong>Comments</strong>
             </div>
             <div class="panel-body">
-                {% if provider.comments  %}
+                {% if provider.comments %}
                     {{ provider.comments|gfm }}
                 {% else %}
                     <span class="text-muted">None</span>

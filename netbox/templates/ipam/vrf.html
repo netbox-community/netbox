@@ -61,7 +61,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Enforce Uniqueness</td>
+                    <td>Unique IP Space</td>
                     <td>
                         {% if vrf.enforce_unique %}
                             <i class="glyphicon glyphicon-ok text-success" title="Yes"></i>
@@ -73,10 +73,10 @@
                 <tr>
                     <td>Description</td>
                     <td>
-                        {% if vrf.description  %}
+                        {% if vrf.description %}
                             <span>{{ vrf.description }}</span>
                         {% else %}
-                            <span class="text-muted">None</span>
+                            <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
                 </tr>
