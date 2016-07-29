@@ -1,7 +1,7 @@
 {% if export_templates %}
     <div class="btn-group">
         <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="glyphicon glyphicon-export" aria-hidden="true"></span>
+            <span class="fa fa-upload" aria-hidden="true"></span>
             Export {{ obj_type }} <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
@@ -14,7 +14,7 @@
     </div>
 {% else %}
     <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}export" class="btn btn-success">
-        <span class="glyphicon glyphicon-export" aria-hidden="true"></span>
+        <span class="fa fa-upload" aria-hidden="true"></span>
         Export {{ obj_type }}
     </a>
 {% endif %}
