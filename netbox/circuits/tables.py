@@ -21,11 +21,12 @@ class ProviderTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn('circuits:provider', args=[Accessor('slug')], verbose_name='Name')
     asn = tables.Column(verbose_name='ASN')
+    account = tables.Column(verbose_name='Account')
     circuit_count = tables.Column(accessor=Accessor('count_circuits'), verbose_name='Circuits')
 
     class Meta(BaseTable.Meta):
         model = Provider
-        fields = ('pk', 'name', 'asn', 'circuit_count')
+        fields = ('pk', 'name', 'asn', 'account', 'circuit_count')
 
 
 #
