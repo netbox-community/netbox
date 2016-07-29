@@ -22,7 +22,8 @@ class TenantGroupTable(BaseTable):
     name = tables.LinkColumn(verbose_name='Name')
     tenant_count = tables.Column(verbose_name='Tenants')
     slug = tables.Column(verbose_name='Slug')
-    actions = tables.TemplateColumn(template_code=TENANTGROUP_ACTIONS, verbose_name='')
+    actions = tables.TemplateColumn(template_code=TENANTGROUP_ACTIONS, attrs={'td': {'class': 'text-right'}},
+                                    verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = TenantGroup
