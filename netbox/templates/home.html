@@ -6,10 +6,10 @@
 	<div class="col-md-4">
 		<form action="{% url 'dcim:device_list' %}" method="get">
 			<div class="input-group input-group-lg">
-				<input type="text" name="q" placeholder="Device name or serial" class="form-control" />
+				<input type="text" name="q" placeholder="Search devices" class="form-control" />
 				<span class="input-group-btn">
 					<button type="submit" class="btn btn-primary">
-						<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+						<span class="fa fa-search" aria-hidden="true"></span>
 						Devices
 					</button>
 				</span>
@@ -20,11 +20,11 @@
 	<div class="col-md-4">
 		<form action="{% url 'ipam:prefix_list' %}" method="get">
 			<div class="input-group input-group-lg">
-				<input type="text" name="q" placeholder="IP or network" class="form-control" />
+				<input type="text" name="q" placeholder="Search prefixes" class="form-control" />
 				<span class="input-group-btn">
 					<button type="submit" class="btn btn-primary">
-						<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-						IP
+						<span class="fa fa-search" aria-hidden="true"></span>
+						Prefixes
 					</button>
 				</span>
 			</div>
@@ -34,10 +34,10 @@
 	<div class="col-md-4">
 		<form action="{% url 'circuits:circuit_list' %}" method="get">
 			<div class="input-group input-group-lg">
-				<input type="text" name="q" placeholder="Circuit ID" class="form-control" />
+				<input type="text" name="q" placeholder="Search circuits" class="form-control" />
 				<span class="input-group-btn">
 					<button type="submit" class="btn btn-primary">
-						<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+						<span class="fa fa-search" aria-hidden="true"></span>
 						Circuits
 					</button>
 				</span>
@@ -50,7 +50,7 @@
     <div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <strong>DCIM</strong>
+                <strong>Organization</strong>
             </div>
             <div class="list-group">
                 <div class="list-group-item">
@@ -58,6 +58,18 @@
                     <h4 class="list-group-item-heading"><a href="{% url 'dcim:site_list' %}">Sites</a></h4>
                     <p class="list-group-item-text text-muted">Geographic locations</p>
                 </div>
+                <div class="list-group-item">
+                    <span class="badge pull-right">{{ stats.tenant_count }}</span>
+                    <h4 class="list-group-item-heading"><a href="{% url 'tenancy:tenant_list' %}">Tenants</a></h4>
+                    <p class="list-group-item-text text-muted">Customers or departments</p>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>DCIM</strong>
+            </div>
+            <div class="list-group">
                 <div class="list-group-item">
                     <span class="badge pull-right">{{ stats.rack_count }}</span>
                     <h4 class="list-group-item-heading"><a href="{% url 'dcim:rack_list' %}">Racks</a></h4>
@@ -79,20 +91,6 @@
                 </div>
             </div>
         </div>
-        {% if perms.secrets %}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Secrets</strong>
-                </div>
-                <div class="list-group">
-                    <div class="list-group-item">
-                        <span class="badge pull-right">{{ stats.secret_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'secrets:secret_list' %}">Secrets</a></h4>
-                        <p class="list-group-item-text text-muted">Sensitive data (such as passwords) which has been stored securely</p>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
     </div>
     <div class="col-md-4">
         <div class="panel panel-default">
@@ -100,6 +98,11 @@
                 <strong>IPAM</strong>
             </div>
             <div class="list-group">
+                <div class="list-group-item">
+                    <span class="badge pull-right">{{ stats.vrf_count }}</span>
+                    <h4 class="list-group-item-heading"><a href="{% url 'ipam:vrf_list' %}">VRFs</a></h4>
+                    <p class="list-group-item-text text-muted">Virtual routing and forwarding tables</p>
+                </div>
                 <div class="list-group-item">
                     <span class="badge pull-right">{{ stats.aggregate_count }}</span>
                     <h4 class="list-group-item-heading"><a href="{% url 'ipam:aggregate_list' %}">Aggregates</a></h4>
@@ -141,6 +144,20 @@
         </div>
     </div>
     <div class="col-md-4">
+        {% if perms.secrets %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Secrets</strong>
+                </div>
+                <div class="list-group">
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.secret_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'secrets:secret_list' %}">Secrets</a></h4>
+                        <p class="list-group-item-text text-muted">Sensitive data (such as passwords) which has been stored securely</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Recent Activity</strong>

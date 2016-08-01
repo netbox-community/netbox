@@ -36,8 +36,9 @@ def add_available_prefixes(parent, prefix_list):
 #
 
 class VRFListView(ObjectListView):
-    queryset = VRF.objects.all()
+    queryset = VRF.objects.select_related('tenant')
     filter = filters.VRFFilter
+    filter_form = forms.VRFFilterForm
     table = tables.VRFTable
     edit_permissions = ['ipam.change_vrf', 'ipam.delete_vrf']
     template_name = 'ipam/vrf_list.html'
@@ -47,10 +48,11 @@ def vrf(request, pk):
 
     vrf = get_object_or_404(VRF.objects.all(), pk=pk)
     prefixes = Prefix.objects.filter(vrf=vrf)
+    prefix_table = tables.PrefixBriefTable(prefixes)
 
     return render(request, 'ipam/vrf.html', {
         'vrf': vrf,
-        'prefixes': prefixes,
+        'prefix_table': prefix_table,
     })
 
 
@@ -85,6 +87,10 @@ class VRFBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
+        if form.cleaned_data['tenant'] == 0:
+            fields_to_update['tenant'] = None
+        elif form.cleaned_data['tenant']:
+            fields_to_update['tenant'] = form.cleaned_data['tenant']
         for field in ['description']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
@@ -145,7 +151,7 @@ class AggregateListView(ObjectListView):
             if a.prefix.version == 4:
                 ipv4_total += a.prefix.size
             elif a.prefix.version == 6:
-                ipv6_total += a.prefix.size / 2**64
+                ipv6_total += a.prefix.size / 2 ** 64
 
         return {
             'ipv4_total': ipv4_total,
@@ -248,7 +254,7 @@ class RoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class PrefixListView(ObjectListView):
-    queryset = Prefix.objects.select_related('site', 'role')
+    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'role')
     filter = filters.PrefixFilter
     filter_form = forms.PrefixFilterForm
     table = tables.PrefixTable
@@ -271,7 +277,8 @@ def prefix(request, pk):
         aggregate = None
 
     # Count child IP addresses
-    ipaddress_count = IPAddress.objects.filter(address__net_contained_or_equal=str(prefix.prefix)).count()
+    ipaddress_count = IPAddress.objects.filter(vrf=prefix.vrf, address__net_contained_or_equal=str(prefix.prefix))\
+        .count()
 
     # Parent prefixes table
     parent_prefixes = Prefix.objects.filter(vrf=prefix.vrf, prefix__net_contains=str(prefix.prefix))\
@@ -336,10 +343,11 @@ class PrefixBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        if form.cleaned_data['vrf']:
-            fields_to_update['vrf'] = form.cleaned_data['vrf']
-        elif form.cleaned_data['vrf_global']:
-            fields_to_update['vrf'] = None
+        for field in ['vrf', 'tenant']:
+            if form.cleaned_data[field] == 0:
+                fields_to_update[field] = None
+            elif form.cleaned_data[field]:
+                fields_to_update[field] = form.cleaned_data[field]
         for field in ['site', 'status', 'role', 'description']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
@@ -358,7 +366,7 @@ def prefix_ipaddresses(request, pk):
     prefix = get_object_or_404(Prefix.objects.all(), pk=pk)
 
     # Find all IPAddresses belonging to this Prefix
-    ipaddresses = IPAddress.objects.filter(address__net_contained_or_equal=str(prefix.prefix))\
+    ipaddresses = IPAddress.objects.filter(vrf=prefix.vrf, address__net_contained_or_equal=str(prefix.prefix))\
         .select_related('vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for')
 
     ip_table = tables.IPAddressTable(ipaddresses)
@@ -378,7 +386,7 @@ def prefix_ipaddresses(request, pk):
 #
 
 class IPAddressListView(ObjectListView):
-    queryset = IPAddress.objects.select_related('vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for')
+    queryset = IPAddress.objects.select_related('vrf__tenant', 'interface__device')
     filter = filters.IPAddressFilter
     filter_form = forms.IPAddressFilterForm
     table = tables.IPAddressTable
@@ -460,10 +468,11 @@ class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        if form.cleaned_data['vrf']:
-            fields_to_update['vrf'] = form.cleaned_data['vrf']
-        elif form.cleaned_data['vrf_global']:
-            fields_to_update['vrf'] = None
+        for field in ['vrf', 'tenant']:
+            if form.cleaned_data[field] == 0:
+                fields_to_update[field] = None
+            elif form.cleaned_data[field]:
+                fields_to_update[field] = form.cleaned_data[field]
         for field in ['description']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
@@ -520,10 +529,11 @@ def vlan(request, pk):
 
     vlan = get_object_or_404(VLAN.objects.select_related('site', 'role'), pk=pk)
     prefixes = Prefix.objects.filter(vlan=vlan)
+    prefix_table = tables.PrefixBriefTable(prefixes)
 
     return render(request, 'ipam/vlan.html', {
         'vlan': vlan,
-        'prefixes': prefixes,
+        'prefix_table': prefix_table,
     })
 
 
@@ -558,6 +568,10 @@ class VLANBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
+        if form.cleaned_data['tenant'] == 0:
+            fields_to_update['tenant'] = None
+        elif form.cleaned_data['tenant']:
+            fields_to_update['tenant'] = form.cleaned_data['tenant']
         for field in ['site', 'group', 'status', 'role', 'description']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]

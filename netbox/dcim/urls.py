@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^sites/$', views.SiteListView.as_view(), name='site_list'),
     url(r'^sites/add/$', views.SiteEditView.as_view(), name='site_add'),
     url(r'^sites/import/$', views.SiteBulkImportView.as_view(), name='site_import'),
+    url(r'^sites/edit/$', views.SiteBulkEditView.as_view(), name='site_bulk_edit'),
     url(r'^sites/(?P<slug>[\w-]+)/$', views.site, name='site'),
     url(r'^sites/(?P<slug>[\w-]+)/edit/$', views.SiteEditView.as_view(), name='site_edit'),
     url(r'^sites/(?P<slug>[\w-]+)/delete/$', views.SiteDeleteView.as_view(), name='site_delete'),

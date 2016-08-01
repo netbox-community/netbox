@@ -27,6 +27,19 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Tenant</td>
+                    <td>
+                        {% if prefix.tenant %}
+                            <a href="{{ prefix.tenant.get_absolute_url }}">{{ prefix.tenant }}</a>
+                        {% elif prefix.vrf.tenant %}
+                            <a href="{{ prefix.vrf.tenant.get_absolute_url }}">{{ prefix.vrf.tenant }}</a>
+                            <label class="label label-info">Inherited</label>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Aggregate</td>
                     <td>
                         {% if aggregate %}
@@ -42,7 +55,7 @@
                         {% if prefix.site %}
                             <a href="{% url 'dcim:site' slug=prefix.site.slug %}">{{ prefix.site }}</a>
                         {% else %}
-                            <span class="text-muted">Not assigned</span>
+                            <span class="text-muted">None</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -52,7 +65,7 @@
                         {% if prefix.vlan %}
                             <a href="{% url 'ipam:vlan' pk=prefix.vlan.pk %}">{{ prefix.vlan.display_name }}</a>
                         {% else %}
-                            <span class="text-muted">Not assigned</span>
+                            <span class="text-muted">None</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -64,15 +77,21 @@
                 </tr>
                 <tr>
                     <td>Role</td>
-                    <td>{{ prefix.role }}</td>
+                    <td>
+                        {% if prefix.role %}
+                            <span>{{ prefix.role }}</span>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Description</td>
                     <td>
-                        {% if prefix.description  %}
+                        {% if prefix.description %}
                             <span>{{ prefix.description }}</span>
                         {% else %}
-                            <span class="text-muted">None</span>
+                            <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -108,7 +127,7 @@
             {% include 'utilities/obj_table.html' with table=child_prefix_table table_template='panel_table.html' heading='Child Prefixes' parent=prefix bulk_edit_url='ipam:prefix_bulk_edit' bulk_delete_url='ipam:prefix_bulk_delete' %}
         {% elif prefix.new_subnet %}
             <a href="{% url 'ipam:prefix_add' %}?prefix={{ prefix.new_subnet }}{% if prefix.vrf %}&vrf={{ prefix.vrf.pk }}{% endif %}{% if prefix.site %}&site={{ prefix.site.pk }}{% endif %}" class="btn btn-success">
-                <i class="glyphicon glyphicon-plus" aria-hidden="true"></i> Add Child Prefix
+                <i class="fa fa-plus" aria-hidden="true"></i> Add Child Prefix
             </a>
         {% endif %}
     </div>

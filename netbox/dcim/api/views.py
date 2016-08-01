@@ -27,7 +27,7 @@ class SiteListView(generics.ListAPIView):
     """
     List all sites
     """
-    queryset = Site.objects.all()
+    queryset = Site.objects.select_related('tenant')
     serializer_class = serializers.SiteSerializer
 
 
@@ -35,7 +35,7 @@ class SiteDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single site
     """
-    queryset = Site.objects.all()
+    queryset = Site.objects.select_related('tenant')
     serializer_class = serializers.SiteSerializer
 
 
@@ -47,7 +47,7 @@ class RackGroupListView(generics.ListAPIView):
     """
     List all rack groups
     """
-    queryset = RackGroup.objects.all()
+    queryset = RackGroup.objects.select_related('site')
     serializer_class = serializers.RackGroupSerializer
     filter_class = filters.RackGroupFilter
 
@@ -56,7 +56,7 @@ class RackGroupDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single rack group
     """
-    queryset = RackGroup.objects.all()
+    queryset = RackGroup.objects.select_related('site')
     serializer_class = serializers.RackGroupSerializer
 
 
@@ -68,7 +68,7 @@ class RackListView(generics.ListAPIView):
     """
     List racks (filterable)
     """
-    queryset = Rack.objects.select_related('site')
+    queryset = Rack.objects.select_related('site', 'group', 'tenant')
     serializer_class = serializers.RackSerializer
     filter_class = filters.RackFilter
 
@@ -77,7 +77,7 @@ class RackDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single rack
     """
-    queryset = Rack.objects.select_related('site')
+    queryset = Rack.objects.select_related('site', 'group', 'tenant')
     serializer_class = serializers.RackDetailSerializer
 
 
@@ -193,8 +193,9 @@ class DeviceListView(generics.ListAPIView):
     """
     List devices (filterable)
     """
-    queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'platform', 'rack__site')\
-        .prefetch_related('primary_ip4__nat_outside', 'primary_ip6__nat_outside')
+    queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'tenant', 'platform',
+                                             'rack__site', 'parent_bay').prefetch_related('primary_ip4__nat_outside',
+                                                                                          'primary_ip6__nat_outside')
     serializer_class = serializers.DeviceSerializer
     filter_class = filters.DeviceFilter
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES + [BINDZoneRenderer, FlatJSONRenderer]
@@ -204,7 +205,8 @@ class DeviceDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single device
     """
-    queryset = Device.objects.all()
+    queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'tenant', 'platform',
+                                             'rack__site', 'parent_bay')
     serializer_class = serializers.DeviceSerializer
 
 

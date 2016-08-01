@@ -15,7 +15,7 @@ from django.views.generic import View
 
 from ipam.models import Prefix, IPAddress, VLAN
 from circuits.models import Circuit
-from extras.models import TopologyMap
+from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from utilities.forms import ConfirmationForm
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -61,9 +61,11 @@ def expand_pattern(string):
 #
 
 class SiteListView(ObjectListView):
-    queryset = Site.objects.all()
+    queryset = Site.objects.select_related('tenant')
     filter = filters.SiteFilter
+    filter_form = forms.SiteFilterForm
     table = tables.SiteTable
+    edit_permissions = ['dcim.change_rack', 'dcim.delete_rack']
     template_name = 'dcim/site_list.html'
 
 
@@ -79,12 +81,14 @@ def site(request, slug):
     }
     rack_groups = RackGroup.objects.filter(site=site).annotate(rack_count=Count('racks'))
     topology_maps = TopologyMap.objects.filter(site=site)
+    show_graphs = Graph.objects.filter(type=GRAPH_TYPE_SITE).exists()
 
     return render(request, 'dcim/site.html', {
         'site': site,
         'stats': stats,
         'rack_groups': rack_groups,
         'topology_maps': topology_maps,
+        'show_graphs': show_graphs,
     })
 
 
@@ -108,6 +112,24 @@ class SiteBulkImportView(PermissionRequiredMixin, BulkImportView):
     table = tables.SiteTable
     template_name = 'dcim/site_import.html'
     obj_list_url = 'dcim:site_list'
+
+
+class SiteBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_site'
+    cls = Site
+    form = forms.SiteBulkEditForm
+    template_name = 'dcim/site_bulk_edit.html'
+    default_redirect_url = 'dcim:site_list'
+
+    def update_objects(self, pk_list, form):
+
+        fields_to_update = {}
+        if form.cleaned_data['tenant'] == 0:
+            fields_to_update['tenant'] = None
+        elif form.cleaned_data['tenant']:
+            fields_to_update['tenant'] = form.cleaned_data['tenant']
+
+        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
 
 
 #
@@ -141,7 +163,8 @@ class RackGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class RackListView(ObjectListView):
-    queryset = Rack.objects.select_related('site').prefetch_related('devices__device_type').annotate(device_count=Count('devices', distinct=True), u_consumed=Sum('devices__device_type__u_height'))
+    queryset = Rack.objects.select_related('site').prefetch_related('devices__device_type')\
+        .annotate(device_count=Count('devices', distinct=True), u_consumed=Sum('devices__device_type__u_height'))
     filter = filters.RackFilter
     filter_form = forms.RackFilterForm
     table = tables.RackTable
@@ -153,7 +176,7 @@ def rack(request, pk):
 
     rack = get_object_or_404(Rack, pk=pk)
 
-    nonracked_devices = Device.objects.filter(rack=rack, position__isnull=True)\
+    nonracked_devices = Device.objects.filter(rack=rack, position__isnull=True, parent_bay__isnull=True)\
         .select_related('device_type__manufacturer')
     next_rack = Rack.objects.filter(site=rack.site, name__gt=rack.name).order_by('name').first()
     prev_rack = Rack.objects.filter(site=rack.site, name__lt=rack.name).order_by('-name').first()
@@ -200,7 +223,11 @@ class RackBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        for field in ['site', 'group', 'u_height', 'comments']:
+        if form.cleaned_data['tenant'] == 0:
+            fields_to_update['tenant'] = None
+        elif form.cleaned_data['tenant']:
+            fields_to_update['tenant'] = form.cleaned_data['tenant']
+        for field in ['site', 'group', 'tenant', 'u_height', 'comments']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
 
@@ -560,6 +587,9 @@ def device(request, pk):
             related_devices = Device.objects.filter(name__istartswith=base_name).exclude(pk=device.pk)\
                 .select_related('rack', 'device_type__manufacturer')[:10]
 
+    # Show graph button on interfaces only if at least one graph has been created.
+    show_graphs = Graph.objects.filter(type=GRAPH_TYPE_INTERFACE).exists()
+
     return render(request, 'dcim/device.html', {
         'device': device,
         'console_ports': console_ports,
@@ -572,6 +602,7 @@ def device(request, pk):
         'ip_addresses': ip_addresses,
         'secrets': secrets,
         'related_devices': related_devices,
+        'show_graphs': show_graphs,
     })
 
 
@@ -625,14 +656,15 @@ class DeviceBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        if form.cleaned_data['platform']:
-            fields_to_update['platform'] = form.cleaned_data['platform']
-        elif form.cleaned_data['platform_delete']:
-            fields_to_update['platform'] = None
+        for field in ['tenant', 'platform']:
+            if form.cleaned_data[field] == 0:
+                fields_to_update[field] = None
+            elif form.cleaned_data[field]:
+                fields_to_update[field] = form.cleaned_data[field]
         if form.cleaned_data['status']:
             status = form.cleaned_data['status']
             fields_to_update['status'] = True if status == 'True' else False
-        for field in ['device_type', 'device_role', 'serial']:
+        for field in ['tenant', 'device_type', 'device_role', 'serial']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
 

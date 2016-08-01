@@ -5,24 +5,36 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'ipam:aggregate_list' %}">Aggregates</a></li>
             <li><a href="{% url 'ipam:aggregate_list' %}?rir={{ aggregate.rir.slug }}">{{ aggregate.rir }}</a></li>
             <li>{{ aggregate }}</li>
         </ol>
     </div>
+    <div class="col-md-3">
+        <form action="{% url 'ipam:aggregate_list' %}" method="get">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Search aggregates" />
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="fa fa-search" aria-hidden="true"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
 </div>
 <div class="pull-right">
     {% if perms.ipam.change_aggregate %}
         <a href="{% url 'ipam:aggregate_edit' pk=aggregate.pk %}" class="btn btn-warning">
-            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+            <span class="fa fa-pencil" aria-hidden="true"></span>
             Edit this aggregate
         </a>
     {% endif %}
     {% if perms.ipam.delete_aggregate %}
         <a href="{% url 'ipam:aggregate_delete' pk=aggregate.pk %}" class="btn btn-danger">
-            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+            <span class="fa fa-trash" aria-hidden="true"></span>
             Delete this aggregate
         </a>
     {% endif %}
@@ -51,17 +63,17 @@
                         {% if aggregate.date_added %}
                             <span>{{ aggregate.date_added }}</span>
                         {% else %}
-                            <span class="text-muted">Not defined</span>
+                            <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
                 </tr>
                 <tr>
                     <td>Description</td>
                     <td>
-                        {% if aggregate.description  %}
+                        {% if aggregate.description %}
                             <span>{{ aggregate.description }}</span>
                         {% else %}
-                            <span class="text-muted">None</span>
+                            <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
                 </tr>

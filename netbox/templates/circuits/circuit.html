@@ -1,24 +1,24 @@
 {% extends '_base.html' %}
 {% load helpers %}
 
-{% block title %}{{ circuit.provider }} Circuit {{ circuit.cid }}{% endblock %}
+{% block title %}{{ circuit.provider }} - {{ circuit.cid }}{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-9">
         <ol class="breadcrumb">
-            <li><a href="{% url 'dcim:site' slug=circuit.site.slug %}">{{ circuit.site }}</a></li>
-            <li><a href="{% url 'circuits:circuit_list' %}?site={{ circuit.site.slug }}">Circuits</a></li>
-            <li>{{ circuit }}</li>
+            <li><a href="{% url 'circuits:circuit_list' %}">Circuits</a></li>
+            <li><a href="{% url 'circuits:circuit_list' %}?provider={{ circuit.provider.slug }}">{{ circuit.provider }}</a></li>
+            <li>{{ circuit.cid }}</li>
         </ol>
     </div>
     <div class="col-md-3">
         <form action="{% url 'circuits:circuit_list' %}" method="get">
             <div class="input-group">
-                <input type="text" name="q" class="form-control" placeholder="Circuit ID" />
+                <input type="text" name="q" class="form-control" />
                 <span class="input-group-btn">
                     <button type="submit" class="btn btn-primary">
-                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                        <span class="fa fa-search" aria-hidden="true"></span>
                     </button>
                 </span>
             </div>
@@ -28,18 +28,18 @@
 <div class="pull-right">
     {% if perms.circuits.change_circuit %}
 		<a href="{% url 'circuits:circuit_edit' pk=circuit.pk %}" class="btn btn-warning">
-			<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+			<span class="fa fa-pencil" aria-hidden="true"></span>
 			Edit this circuit
 		</a>
     {% endif %}
     {% if perms.circuits.delete_circuit %}
 		<a href="{% url 'circuits:circuit_delete' pk=circuit.pk %}" class="btn btn-danger">
-			<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+			<span class="fa fa-trash" aria-hidden="true"></span>
 			Delete this circuit
 		</a>
     {% endif %}
 </div>
-<h1>{{ circuit.provider }} Circuit {{ circuit.cid }}</h1>
+<h1>{{ circuit.provider }} - {{ circuit.cid }}</h1>
 <div class="row">
 	<div class="col-md-6">
         <div class="panel panel-default">
@@ -58,6 +58,67 @@
                     <td>{{ circuit.cid }}</td>
                 </tr>
                 <tr>
+                    <td>Type</td>
+                    <td><a href="{{ circuit.type.get_absolute_url }}">{{ circuit.type }}</a></td>
+                </tr>
+                <tr>
+                    <td>Tenant</td>
+                    <td>
+                        {% if circuit.tenant %}
+                            <a href="{{ circuit.tenant.get_absolute_url }}">{{ circuit.tenant }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Install Date</td>
+                    <td>
+                        {% if circuit.install_date %}
+                            {{ circuit.install_date }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Port Speed</td>
+                    <td>
+                        {% if circuit.port_speed %}
+                            {{ circuit.port_speed_human }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Commit Rate</td>
+                    <td>
+                        {% if circuit.commit_speed %}
+                            {{ circuit.commit_speed_human }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Created</td>
+                    <td>{{ circuit.created }}</td>
+                </tr>
+                <tr>
+                    <td>Last Updated</td>
+                    <td>{{ circuit.last_updated }}</td>
+                </tr>
+            </table>
+        </div>
+	</div>
+	<div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Termination</strong>
+            </div>
+            <table class="table table-hover panel-body">
+                <tr>
                     <td>Site</td>
                     <td>
                         <a href="{% url 'dcim:site' slug=circuit.site.slug %}">{{ circuit.site }}</a>
@@ -74,43 +135,33 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Install Date</td>
-                    <td>{{ circuit.install_date }}</td>
-                </tr>
-                <tr>
-                    <td>Port Speed</td>
-                    <td>{{ circuit.port_speed_human }}</td>
-                </tr>
-                <tr>
-                    <td>Commit Rate</td>
-                    <td>{% if circuit.commit_rate %}{{ circuit.commit_rate_human }}{% else %}<span class="text-muted">N/A</span>{% endif %}</td>
-                </tr>
-                <tr>
                     <td>Cross-Connect</td>
-                    <td>{{ circuit.xconnect_id }}</td>
+                    <td>
+                        {% if circuit.xconnect_id %}
+                            {{ circuit.xconnect_id }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Patch Panel/Port</td>
-                    <td>{{ circuit.pp_info }}</td>
-                </tr>
-                <tr>
-                    <td>Created</td>
-                    <td>{{ circuit.created }}</td>
-                </tr>
-                <tr>
-                    <td>Last Updated</td>
-                    <td>{{ circuit.last_updated }}</td>
+                    <td>
+                        {% if circuit.pp_info %}
+                            {{ circuit.pp_info }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
                 </tr>
             </table>
         </div>
-	</div>
-	<div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Comments</strong>
             </div>
             <div class="panel-body">
-                {% if circuit.comments  %}
+                {% if circuit.comments %}
                     {{ circuit.comments|gfm }}
                 {% else %}
                     <span class="text-muted">None</span>

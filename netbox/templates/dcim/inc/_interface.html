@@ -34,10 +34,12 @@
         </td>
     {% endif %}
     <td class="text-right">
-        {% if iface.circuit or iface.connection %}
-            <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ device.name }} - {{ iface.name }}" data-url="{% url 'dcim-api:interface_graphs' pk=iface.pk %}" title="Show graphs">
-                <i class="glyphicon glyphicon-signal" aria-hidden="true"></i>
-            </button>
+        {% if show_graphs %}
+            {% if iface.circuit or iface.connection %}
+                <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ device.name }} - {{ iface.name }}" data-url="{% url 'dcim-api:interface_graphs' pk=iface.pk %}" title="Show graphs">
+                    <i class="glyphicon glyphicon-signal" aria-hidden="true"></i>
+                </button>
+            {% endif %}
         {% endif %}
         {% if perms.dcim.change_interface %}
             {% if iface.is_physical %}

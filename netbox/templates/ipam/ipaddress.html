@@ -7,21 +7,20 @@
 <div class="row">
     <div class="col-md-9">
         <ol class="breadcrumb">
-            {% for p in parent_prefixes %}
-                <li><a href="{% url 'ipam:prefix' pk=p.pk %}">{{ p }}</a></li>
-            {% empty %}
-                <li><a href="{% url 'ipam:ipaddress_list' %}">IP Addresses</a></li>
-            {% endfor %}
-            <li>{{ ipaddress.address.ip }}</li>
+            <li><a href="{% url 'ipam:ipaddress_list' %}">IP Addresses</a></li>
+            {% if ipaddress.vrf %}
+                <li><a href="{% url 'ipam:ipaddress_list' %}?vrf={{ ipaddress.vrf.pk }}">{{ ipaddress.vrf }}</a></li>
+            {% endif %}
+            <li>{{ ipaddress }}</li>
         </ol>
     </div>
     <div class="col-md-3">
         <form action="{% url 'ipam:ipaddress_list' %}" method="get">
             <div class="input-group">
-                <input type="text" name="q" class="form-control" placeholder="IP address" />
+                <input type="text" name="q" class="form-control" placeholder="Search IPs" />
                 <span class="input-group-btn">
                     <button type="submit" class="btn btn-primary">
-                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                        <span class="fa fa-search" aria-hidden="true"></span>
                     </button>
                 </span>
             </div>
@@ -31,13 +30,13 @@
 <div class="pull-right">
     {% if perms.ipam.change_ipaddress %}
         <a href="{% url 'ipam:ipaddress_edit' pk=ipaddress.pk %}" class="btn btn-warning">
-            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+            <span class="fa fa-pencil" aria-hidden="true"></span>
             Edit this IP
         </a>
     {% endif %}
     {% if perms.ipam.delete_ipaddress %}
         <a href="{% url 'ipam:ipaddress_delete' pk=ipaddress.pk %}" class="btn btn-danger">
-            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+            <span class="fa fa-trash" aria-hidden="true"></span>
             Delete this IP
         </a>
     {% endif %}
@@ -65,12 +64,25 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Description</td>
+                    <td>Tenant</td>
                     <td>
-                        {% if ipaddress.description  %}
-                            <span>{{ ipaddress.description }}</span>
+                        {% if ipaddress.tenant %}
+                            <a href="{{ ipaddress.tenant.get_absolute_url }}">{{ ipaddress.tenant }}</a>
+                        {% elif ipaddress.vrf.tenant %}
+                            <a href="{{ ipaddress.vrf.tenant.get_absolute_url }}">{{ ipaddress.vrf.tenant }}</a>
+                            <label class="label label-info">Inherited</label>
                         {% else %}
                             <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Description</td>
+                    <td>
+                        {% if ipaddress.description %}
+                            <span>{{ ipaddress.description }}</span>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
                 </tr>

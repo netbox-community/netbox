@@ -3,6 +3,7 @@ from django.db import models
 
 from dcim.fields import ASNField
 from dcim.models import Site, Interface
+from tenancy.models import Tenant
 from utilities.models import CreatedUpdatedModel
 
 
@@ -66,6 +67,7 @@ class Circuit(CreatedUpdatedModel):
     cid = models.CharField(max_length=50, verbose_name='Circuit ID')
     provider = models.ForeignKey('Provider', related_name='circuits', on_delete=models.PROTECT)
     type = models.ForeignKey('CircuitType', related_name='circuits', on_delete=models.PROTECT)
+    tenant = models.ForeignKey(Tenant, related_name='circuits', blank=True, null=True, on_delete=models.PROTECT)
     site = models.ForeignKey(Site, related_name='circuits', on_delete=models.PROTECT)
     interface = models.OneToOneField(Interface, related_name='circuit', blank=True, null=True)
     install_date = models.DateField(blank=True, null=True, verbose_name='Date installed')
@@ -90,6 +92,7 @@ class Circuit(CreatedUpdatedModel):
             self.cid,
             self.provider.name,
             self.type.name,
+            self.tenant.name if self.tenant else '',
             self.site.name,
             self.install_date.isoformat() if self.install_date else '',
             str(self.port_speed),

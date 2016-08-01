@@ -9,11 +9,17 @@
             {% render_field form.provider %}
             {% render_field form.cid %}
             {% render_field form.type %}
+            {% render_field form.tenant %}
             {% render_field form.install_date %}
-            {% render_field form.port_speed %}
-            {% render_field form.commit_rate %}
             {% render_field form.xconnect_id %}
             {% render_field form.pp_info %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Bandwidth</strong></div>
+        <div class="panel-body">
+            {% render_field form.port_speed %}
+            {% render_field form.commit_rate %}
         </div>
     </div>
     <div class="panel panel-default">

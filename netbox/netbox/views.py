@@ -5,16 +5,20 @@ from django.shortcuts import render
 from circuits.models import Provider, Circuit
 from dcim.models import Site, Rack, Device, ConsolePort, PowerPort, InterfaceConnection
 from extras.models import UserAction
-from ipam.models import Aggregate, Prefix, IPAddress, VLAN
+from ipam.models import Aggregate, Prefix, IPAddress, VLAN, VRF
 from secrets.models import Secret
+from tenancy.models import Tenant
 
 
 def home(request):
 
     stats = {
 
-        # DCIM
+        # Organization
         'site_count': Site.objects.count(),
+        'tenant_count': Tenant.objects.count(),
+
+        # DCIM
         'rack_count': Rack.objects.count(),
         'device_count': Device.objects.count(),
         'interface_connections_count': InterfaceConnection.objects.count(),
@@ -22,6 +26,7 @@ def home(request):
         'power_connections_count': PowerPort.objects.filter(power_outlet__isnull=False).count(),
 
         # IPAM
+        'vrf_count': VRF.objects.count(),
         'aggregate_count': Aggregate.objects.count(),
         'prefix_count': Prefix.objects.count(),
         'ipaddress_count': IPAddress.objects.count(),

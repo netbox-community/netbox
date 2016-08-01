@@ -2,6 +2,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, render
 
+from extras.models import Graph, GRAPH_TYPE_PROVIDER
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
@@ -27,10 +28,12 @@ def provider(request, slug):
 
     provider = get_object_or_404(Provider, slug=slug)
     circuits = Circuit.objects.filter(provider=provider).select_related('site', 'interface__device')
+    show_graphs = Graph.objects.filter(type=GRAPH_TYPE_PROVIDER).exists()
 
     return render(request, 'circuits/provider.html', {
         'provider': provider,
         'circuits': circuits,
+        'show_graphs': show_graphs,
     })
 
 
@@ -109,7 +112,7 @@ class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class CircuitListView(ObjectListView):
-    queryset = Circuit.objects.select_related('provider', 'type', 'site')
+    queryset = Circuit.objects.select_related('provider', 'type', 'tenant', 'site')
     filter = filters.CircuitFilter
     filter_form = forms.CircuitFilterForm
     table = tables.CircuitTable
@@ -159,6 +162,10 @@ class CircuitBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
+        if form.cleaned_data['tenant'] == 0:
+            fields_to_update['tenant'] = None
+        elif form.cleaned_data['tenant']:
+            fields_to_update['tenant'] = form.cleaned_data['tenant']
         for field in ['type', 'provider', 'port_speed', 'commit_rate', 'comments']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]

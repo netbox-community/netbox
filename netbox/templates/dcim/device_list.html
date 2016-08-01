@@ -7,11 +7,11 @@
 <div class="pull-right">
     {% if perms.dcim.add_device %}
         <a href="{% url 'dcim:device_add' %}" class="btn btn-primary">
-            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+            <span class="fa fa-plus" aria-hidden="true"></span>
             Add a device
         </a>
         <a href="{% url 'dcim:device_import' %}" class="btn btn-info">
-            <span class="glyphicon glyphicon-import" aria-hidden="true"></span>
+            <span class="fa fa-download" aria-hidden="true"></span>
             Import devices
         </a>
     {% endif %}
@@ -23,24 +23,7 @@
         {% include 'dcim/inc/device_table.html' with bulk_edit_url='dcim:device_bulk_edit' bulk_delete_url='dcim:device_bulk_delete' %}
     </div>
     <div class="col-md-3">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<span class="glyphicon glyphicon-search" aria-hidden="true"></span> 
-				<strong>Search</strong>
-			</div>
-			<div class="panel-body">
-				<form action="{% url 'dcim:device_list' %}" method="get">
-					<div class="input-group">
-						<input type="text" name="q" class="form-control" placeholder="Name or serial" {% if request.GET.q %}value="{{ request.GET.q }}" {% endif %}/>
-						<span class="input-group-btn">
-							<button type="submit" class="btn btn-primary">
-								<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-							</button>
-						</span>
-					</div>
-				</form>
-			</div>
-		</div>
+		{% include 'inc/search_panel.html' %}
 		{% include 'inc/filter_panel.html' %}
     </div>
 </div>

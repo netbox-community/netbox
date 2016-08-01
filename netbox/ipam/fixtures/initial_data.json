@@ -1,0 +1,125 @@
+[
+{
+    "model": "ipam.aggregate",
+    "pk": 1,
+    "fields": {
+        "created": "2016-08-01",
+        "last_updated": "2016-08-01T15:22:20.938Z",
+        "family": 4,
+        "prefix": "10.0.0.0/8",
+        "rir": 6,
+        "date_added": null,
+        "description": "Private IPv4 space"
+    }
+},
+{
+    "model": "ipam.aggregate",
+    "pk": 2,
+    "fields": {
+        "created": "2016-08-01",
+        "last_updated": "2016-08-01T15:22:32.679Z",
+        "family": 4,
+        "prefix": "172.16.0.0/12",
+        "rir": 6,
+        "date_added": null,
+        "description": "Private IPv4 space"
+    }
+},
+{
+    "model": "ipam.aggregate",
+    "pk": 3,
+    "fields": {
+        "created": "2016-08-01",
+        "last_updated": "2016-08-01T15:22:42.289Z",
+        "family": 4,
+        "prefix": "192.168.0.0/16",
+        "rir": 6,
+        "date_added": null,
+        "description": "Private IPv4 space"
+    }
+},
+{
+    "model": "ipam.rir",
+    "pk": 1,
+    "fields": {
+        "name": "ARIN",
+        "slug": "arin"
+    }
+},
+{
+    "model": "ipam.rir",
+    "pk": 2,
+    "fields": {
+        "name": "RIPE",
+        "slug": "ripe"
+    }
+},
+{
+    "model": "ipam.rir",
+    "pk": 3,
+    "fields": {
+        "name": "APNIC",
+        "slug": "apnic"
+    }
+},
+{
+    "model": "ipam.rir",
+    "pk": 4,
+    "fields": {
+        "name": "LACNIC",
+        "slug": "lacnic"
+    }
+},
+{
+    "model": "ipam.rir",
+    "pk": 5,
+    "fields": {
+        "name": "AFRINIC",
+        "slug": "afrinic"
+    }
+},
+{
+    "model": "ipam.rir",
+    "pk": 6,
+    "fields": {
+        "name": "RFC 1918",
+        "slug": "rfc-1918"
+    }
+},
+{
+    "model": "ipam.role",
+    "pk": 1,
+    "fields": {
+        "name": "Production",
+        "slug": "production",
+        "weight": 1000
+    }
+},
+{
+    "model": "ipam.role",
+    "pk": 2,
+    "fields": {
+        "name": "Development",
+        "slug": "development",
+        "weight": 1000
+    }
+},
+{
+    "model": "ipam.role",
+    "pk": 3,
+    "fields": {
+        "name": "Management",
+        "slug": "management",
+        "weight": 1000
+    }
+},
+{
+    "model": "ipam.role",
+    "pk": 4,
+    "fields": {
+        "name": "Backup",
+        "slug": "backup",
+        "weight": 1000
+    }
+}
+]

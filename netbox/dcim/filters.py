@@ -6,6 +6,7 @@ from .models import (
     ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, Interface, InterfaceConnection, Manufacturer,
     Platform, PowerOutlet, PowerPort, Rack, RackGroup, Site,
 )
+from tenancy.models import Tenant
 
 
 class SiteFilter(django_filters.FilterSet):
@@ -13,17 +14,27 @@ class SiteFilter(django_filters.FilterSet):
         action='search',
         label='Search',
     )
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
+        name='tenant',
+        queryset=Tenant.objects.all(),
+        label='Tenant (ID)',
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        name='tenant',
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        label='Tenant (slug)',
+    )
 
     class Meta:
         model = Site
         fields = ['q', 'name', 'facility', 'asn']
 
     def search(self, queryset, value):
-        value = value.strip()
         qs_filter = Q(name__icontains=value) | Q(facility__icontains=value) | Q(physical_address__icontains=value) | \
-            Q(shipping_address__icontains=value)
+            Q(shipping_address__icontains=value) | Q(comments__icontains=value)
         try:
-            qs_filter |= Q(asn=int(value))
+            qs_filter |= Q(asn=int(value.strip()))
         except ValueError:
             pass
         return queryset.filter(qs_filter)
@@ -74,16 +85,27 @@ class RackFilter(django_filters.FilterSet):
         to_field_name='slug',
         label='Group',
     )
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
+        name='tenant',
+        queryset=Tenant.objects.all(),
+        label='Tenant (ID)',
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        name='tenant',
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        label='Tenant (slug)',
+    )
 
     class Meta:
         model = Rack
         fields = ['q', 'site_id', 'site', 'u_height']
 
     def search(self, queryset, value):
-        value = value.strip()
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(facility_id__icontains=value)
+            Q(facility_id__icontains=value) |
+            Q(comments__icontains=value)
         )
 
 
@@ -143,6 +165,17 @@ class DeviceFilter(django_filters.FilterSet):
         to_field_name='slug',
         label='Role (slug)',
     )
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
+        name='tenant',
+        queryset=Tenant.objects.all(),
+        label='Tenant (ID)',
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        name='tenant',
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        label='Tenant (slug)',
+    )
     device_type_id = django_filters.ModelMultipleChoiceFilter(
         name='device_type',
         queryset=DeviceType.objects.all(),
@@ -200,11 +233,11 @@ class DeviceFilter(django_filters.FilterSet):
                   'is_network_device']
 
     def search(self, queryset, value):
-        value = value.strip()
         return queryset.filter(
             Q(name__icontains=value) |
             Q(serial__icontains=value) |
-            Q(modules__serial__icontains=value)
+            Q(modules__serial__icontains=value) |
+            Q(comments__icontains=value)
         ).distinct()
 
 

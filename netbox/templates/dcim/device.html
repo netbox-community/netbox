@@ -15,6 +15,16 @@
             </div>
             <table class="table table-hover panel-body">
                 <tr>
+                    <td>Tenant</td>
+                    <td>
+                        {% if device.tenant %}
+                            <a href="{{ device.tenant.get_absolute_url }}">{{ device.tenant }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Site</td>
                     <td>
                         <a href="{% url 'dcim:site' slug=device.rack.site.slug %}">{{ device.rack.site }}</a>
@@ -55,7 +65,7 @@
                         {% if device.serial %}
                             <span>{{ device.serial }}</span>
                         {% else %}
-                            <span class="text-muted">Not defined</span>
+                            <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -86,7 +96,7 @@
                         {% if device.platform %}
                             <span>{{ device.platform }}</span>
                         {% else %}
-                            <span class="text-warning">Not assigned</span>
+                            <span class="text-muted">None</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -111,7 +121,7 @@
                                 <span>(NAT: {{ device.primary_ip4.nat_outside.address.ip }})</span>
                             {% endif %}
                         {% else %}
-                            <span class="text-muted">Not defined</span>
+                            <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -126,7 +136,7 @@
                                 <span>(NAT: {{ device.primary_ip6.nat_outside.address.ip }})</span>
                             {% endif %}
                         {% else %}
-                            <span class="text-muted">Not defined</span>
+                            <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -257,7 +267,7 @@
                 <strong>Comments</strong>
             </div>
             <div class="panel-body">
-                {% if device.comments  %}
+                {% if device.comments %}
                     {{ device.comments|gfm }}
                 {% else %}
                     <span class="text-muted">None</span>

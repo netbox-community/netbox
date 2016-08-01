@@ -8,6 +8,7 @@
         <tr>
             <td><a href="{% url 'ipam:prefix' pk=prefix.pk %}">{{ prefix }}</a></td>
             <td>{{ prefix.vrf|default:"Global" }}</td>
+            <td>{{ prefix.tenant }}</td>
             <td>{{ prefix.site }}</td>
             <td>{{ prefix.status }}</td>
             <td>{{ prefix.role }}</td>

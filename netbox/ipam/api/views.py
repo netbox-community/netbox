@@ -14,7 +14,7 @@ class VRFListView(generics.ListAPIView):
     """
     List all VRFs
     """
-    queryset = VRF.objects.all()
+    queryset = VRF.objects.select_related('tenant')
     serializer_class = serializers.VRFSerializer
     filter_class = filters.VRFFilter
 
@@ -23,7 +23,7 @@ class VRFDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single VRF
     """
-    queryset = VRF.objects.all()
+    queryset = VRF.objects.select_related('tenant')
     serializer_class = serializers.VRFSerializer
 
 
@@ -96,7 +96,7 @@ class PrefixListView(generics.ListAPIView):
     """
     List prefixes (filterable)
     """
-    queryset = Prefix.objects.select_related('site', 'vrf', 'vlan', 'role')
+    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
     serializer_class = serializers.PrefixSerializer
     filter_class = filters.PrefixFilter
 
@@ -105,7 +105,7 @@ class PrefixDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single prefix
     """
-    queryset = Prefix.objects.select_related('site', 'vrf', 'vlan', 'role')
+    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
     serializer_class = serializers.PrefixSerializer
 
 
@@ -117,7 +117,7 @@ class IPAddressListView(generics.ListAPIView):
     """
     List IP addresses (filterable)
     """
-    queryset = IPAddress.objects.select_related('vrf', 'interface__device', 'nat_inside')\
+    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device', 'nat_inside')\
         .prefetch_related('nat_outside')
     serializer_class = serializers.IPAddressSerializer
     filter_class = filters.IPAddressFilter
@@ -127,7 +127,7 @@ class IPAddressDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single IP address
     """
-    queryset = IPAddress.objects.select_related('vrf', 'interface__device', 'nat_inside')\
+    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device', 'nat_inside')\
         .prefetch_related('nat_outside')
     serializer_class = serializers.IPAddressSerializer
 
@@ -140,7 +140,7 @@ class VLANGroupListView(generics.ListAPIView):
     """
     List all VLAN groups
     """
-    queryset = VLANGroup.objects.all()
+    queryset = VLANGroup.objects.select_related('site')
     serializer_class = serializers.VLANGroupSerializer
     filter_class = filters.VLANGroupFilter
 
@@ -149,7 +149,7 @@ class VLANGroupDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single VLAN group
     """
-    queryset = VLANGroup.objects.all()
+    queryset = VLANGroup.objects.select_related('site')
     serializer_class = serializers.VLANGroupSerializer
 
 
@@ -161,7 +161,7 @@ class VLANListView(generics.ListAPIView):
     """
     List VLANs (filterable)
     """
-    queryset = VLAN.objects.select_related('site', 'role')
+    queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role')
     serializer_class = serializers.VLANSerializer
     filter_class = filters.VLANFilter
 
@@ -170,5 +170,5 @@ class VLANDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single VLAN
     """
-    queryset = VLAN.objects.select_related('site', 'role')
+    queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role')
     serializer_class = serializers.VLANSerializer

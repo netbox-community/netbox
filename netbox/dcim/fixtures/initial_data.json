@@ -1,0 +1,201 @@
+[
+{
+    "model": "dcim.devicerole",
+    "pk": 1,
+    "fields": {
+        "name": "Console Server",
+        "slug": "console-server",
+        "color": "teal"
+    }
+},
+{
+    "model": "dcim.devicerole",
+    "pk": 2,
+    "fields": {
+        "name": "Core Switch",
+        "slug": "core-switch",
+        "color": "blue"
+    }
+},
+{
+    "model": "dcim.devicerole",
+    "pk": 3,
+    "fields": {
+        "name": "Distribution Switch",
+        "slug": "distribution-switch",
+        "color": "blue"
+    }
+},
+{
+    "model": "dcim.devicerole",
+    "pk": 4,
+    "fields": {
+        "name": "Access Switch",
+        "slug": "access-switch",
+        "color": "blue"
+    }
+},
+{
+    "model": "dcim.devicerole",
+    "pk": 5,
+    "fields": {
+        "name": "Management Switch",
+        "slug": "management-switch",
+        "color": "orange"
+    }
+},
+{
+    "model": "dcim.devicerole",
+    "pk": 6,
+    "fields": {
+        "name": "Firewall",
+        "slug": "firewall",
+        "color": "red"
+    }
+},
+{
+    "model": "dcim.devicerole",
+    "pk": 7,
+    "fields": {
+        "name": "Router",
+        "slug": "router",
+        "color": "purple"
+    }
+},
+{
+    "model": "dcim.devicerole",
+    "pk": 8,
+    "fields": {
+        "name": "Server",
+        "slug": "server",
+        "color": "medium_gray"
+    }
+},
+{
+    "model": "dcim.devicerole",
+    "pk": 9,
+    "fields": {
+        "name": "PDU",
+        "slug": "pdu",
+        "color": "dark_gray"
+    }
+},
+{
+    "model": "dcim.manufacturer",
+    "pk": 1,
+    "fields": {
+        "name": "APC",
+        "slug": "apc"
+    }
+},
+{
+    "model": "dcim.manufacturer",
+    "pk": 2,
+    "fields": {
+        "name": "Cisco",
+        "slug": "cisco"
+    }
+},
+{
+    "model": "dcim.manufacturer",
+    "pk": 3,
+    "fields": {
+        "name": "Dell",
+        "slug": "dell"
+    }
+},
+{
+    "model": "dcim.manufacturer",
+    "pk": 4,
+    "fields": {
+        "name": "HP",
+        "slug": "hp"
+    }
+},
+{
+    "model": "dcim.manufacturer",
+    "pk": 5,
+    "fields": {
+        "name": "Juniper",
+        "slug": "juniper"
+    }
+},
+{
+    "model": "dcim.manufacturer",
+    "pk": 6,
+    "fields": {
+        "name": "Arista",
+        "slug": "arista"
+    }
+},
+{
+    "model": "dcim.manufacturer",
+    "pk": 7,
+    "fields": {
+        "name": "Opengear",
+        "slug": "opengear"
+    }
+},
+{
+    "model": "dcim.manufacturer",
+    "pk": 8,
+    "fields": {
+        "name": "Super Micro",
+        "slug": "super-micro"
+    }
+},
+{
+    "model": "dcim.platform",
+    "pk": 1,
+    "fields": {
+        "name": "Cisco IOS",
+        "slug": "cisco-ios",
+        "rpc_client": "cisco-ios"
+    }
+},
+{
+    "model": "dcim.platform",
+    "pk": 2,
+    "fields": {
+        "name": "Cisco NX-OS",
+        "slug": "cisco-nx-os",
+        "rpc_client": ""
+    }
+},
+{
+    "model": "dcim.platform",
+    "pk": 3,
+    "fields": {
+        "name": "Juniper Junos",
+        "slug": "juniper-junos",
+        "rpc_client": "juniper-junos"
+    }
+},
+{
+    "model": "dcim.platform",
+    "pk": 4,
+    "fields": {
+        "name": "Arista EOS",
+        "slug": "arista-eos",
+        "rpc_client": ""
+    }
+},
+{
+    "model": "dcim.platform",
+    "pk": 5,
+    "fields": {
+        "name": "Linux",
+        "slug": "linux",
+        "rpc_client": ""
+    }
+},
+{
+    "model": "dcim.platform",
+    "pk": 6,
+    "fields": {
+        "name": "Opengear",
+        "slug": "opengear",
+        "rpc_client": "opengear"
+    }
+}
+]

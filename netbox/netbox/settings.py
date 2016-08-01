@@ -12,7 +12,7 @@ except ImportError:
                                "the documentation.")
 
 
-VERSION = '1.3.2'
+VERSION = '1.4.0'
 
 # Import local configuration
 for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
@@ -108,6 +108,7 @@ INSTALLED_APPS = (
     'ipam',
     'extras',
     'secrets',
+    'tenancy',
     'users',
     'utilities',
 )

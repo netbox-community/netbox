@@ -7,7 +7,8 @@
     {% for ipaddress in selected_objects %}
         <tr>
             <td><a href="{% url 'ipam:ipaddress' pk=ipaddress.pk %}">{{ ipaddress }}</a></td>
-            <td>{{ ipaddress.vrf }}</td>
+            <td>{{ ipaddress.vrf|default:"Global" }}</td>
+            <td>{{ ipaddress.tenant }}</td>
             <td>{{ ipaddress.interface.device }}</td>
             <td>{{ ipaddress.interface }}</td>
             <td>{{ ipaddress.description }}</td>

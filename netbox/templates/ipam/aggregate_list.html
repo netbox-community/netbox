@@ -8,7 +8,7 @@
 <div class="pull-right">
     {% if perms.ipam.add_aggregate %}
 		<a href="{% url 'ipam:aggregate_add' %}" class="btn btn-primary">
-			<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+			<span class="fa fa-plus" aria-hidden="true"></span>
 			Add an aggregate
 		</a>
     {% endif %}
@@ -22,6 +22,7 @@
         <p class="text-right">IPv6 total: <strong>{{ ipv6_total|intcomma }} /64s</strong></p>
 	</div>
 	<div class="col-md-3">
+		{% include 'inc/search_panel.html' %}
 		{% include 'inc/filter_panel.html' %}
 	</div>
 </div>

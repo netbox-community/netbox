@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from circuits.models import Provider, CircuitType, Circuit
 from dcim.api.serializers import SiteNestedSerializer, InterfaceNestedSerializer
+from tenancy.api.serializers import TenantNestedSerializer
 
 
 #
@@ -45,13 +46,14 @@ class CircuitTypeNestedSerializer(CircuitTypeSerializer):
 class CircuitSerializer(serializers.ModelSerializer):
     provider = ProviderNestedSerializer()
     type = CircuitTypeNestedSerializer()
+    tenant = TenantNestedSerializer()
     site = SiteNestedSerializer()
     interface = InterfaceNestedSerializer()
 
     class Meta:
         model = Circuit
-        fields = ['id', 'cid', 'provider', 'type', 'site', 'interface', 'install_date', 'port_speed', 'commit_rate',
-                  'xconnect_id', 'comments']
+        fields = ['id', 'cid', 'provider', 'type', 'tenant', 'site', 'interface', 'install_date', 'port_speed',
+                  'commit_rate', 'xconnect_id', 'comments']
 
 
 class CircuitNestedSerializer(CircuitSerializer):

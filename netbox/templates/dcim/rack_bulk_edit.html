@@ -9,6 +9,7 @@
             <td><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack }}</a></td>
             <td>{{ rack.facility_id }}</td>
             <td>{{ rack.site }}</td>
+            <td>{{ rack.tenant }}</td>
             <td>{{ rack.u_height }}</td>
         </tr>
     {% endfor %}

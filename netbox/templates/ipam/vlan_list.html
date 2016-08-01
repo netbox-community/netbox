@@ -8,11 +8,11 @@
 <div class="pull-right">
     {% if perms.ipam.add_vlan %}
 		<a href="{% url 'ipam:vlan_add' %}" class="btn btn-primary">
-			<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+			<span class="fa fa-plus" aria-hidden="true"></span>
 			Add a VLAN
 		</a>
 		<a href="{% url 'ipam:vlan_import' %}" class="btn btn-info">
-			<span class="glyphicon glyphicon-import" aria-hidden="true"></span>
+			<span class="fa fa-download" aria-hidden="true"></span>
 			Import VLANs
 		</a>
 	{% endif %}
@@ -24,24 +24,7 @@
         {% include 'utilities/obj_table.html' with bulk_edit_url='ipam:vlan_bulk_edit' bulk_delete_url='ipam:vlan_bulk_delete' %}
 	</div>
 	<div class="col-md-3">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<span class="glyphicon glyphicon-search" aria-hidden="true"></span> 
-				<strong>Search by ID</strong>
-			</div>
-			<div class="panel-body">
-				<form action="{% url 'ipam:vlan_list' %}" method="get">
-					<div class="input-group">
-						<input type="text" name="vid" class="form-control" placeholder="VLAN ID" {%  if request.GET.vid %}value="{{ request.GET.vid }}" {% endif %}/>
-						<span class="input-group-btn">
-							<button type="submit" class="btn btn-primary">
-								<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-							</button>
-						</span>
-					</div>
-				</form>
-			</div>
-		</div>
+		{% include 'inc/search_panel.html' %}
 		{% include 'inc/filter_panel.html' %}
 	</div>
 </div>

@@ -7,7 +7,12 @@ from .models import (
 
 @admin.register(VRF)
 class VRFAdmin(admin.ModelAdmin):
-    list_display = ['name', 'rd']
+    list_display = ['name', 'rd', 'tenant', 'enforce_unique']
+    list_filter = ['tenant']
+
+    def get_queryset(self, request):
+        qs = super(VRFAdmin, self).get_queryset(request)
+        return qs.select_related('tenant')
 
 
 @admin.register(Role)
@@ -35,7 +40,7 @@ class AggregateAdmin(admin.ModelAdmin):
 
 @admin.register(Prefix)
 class PrefixAdmin(admin.ModelAdmin):
-    list_display = ['prefix', 'vrf', 'site', 'status', 'role', 'vlan']
+    list_display = ['prefix', 'vrf', 'tenant', 'site', 'status', 'role', 'vlan']
     list_filter = ['family', 'site', 'status', 'role']
     search_fields = ['prefix']
 
@@ -46,7 +51,7 @@ class PrefixAdmin(admin.ModelAdmin):
 
 @admin.register(IPAddress)
 class IPAddressAdmin(admin.ModelAdmin):
-    list_display = ['address', 'vrf', 'nat_inside']
+    list_display = ['address', 'vrf', 'tenant', 'nat_inside']
     list_filter = ['family']
     fields = ['address', 'vrf', 'device', 'interface', 'nat_inside']
     readonly_fields = ['interface', 'device', 'nat_inside']
@@ -67,10 +72,10 @@ class VLANGroupAdmin(admin.ModelAdmin):
 
 @admin.register(VLAN)
 class VLANAdmin(admin.ModelAdmin):
-    list_display = ['site', 'vid', 'name', 'status', 'role']
-    list_filter = ['site', 'status', 'role']
+    list_display = ['site', 'vid', 'name', 'tenant', 'status', 'role']
+    list_filter = ['site', 'tenant', 'status', 'role']
     search_fields = ['vid', 'name']
 
     def get_queryset(self, request):
         qs = super(VLANAdmin, self).get_queryset(request)
-        return qs.select_related('site', 'role')
+        return qs.select_related('site', 'tenant', 'role')

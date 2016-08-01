@@ -1,0 +1,26 @@
+[
+{
+    "model": "circuits.circuittype",
+    "pk": 1,
+    "fields": {
+        "name": "Internet",
+        "slug": "internet"
+    }
+},
+{
+    "model": "circuits.circuittype",
+    "pk": 2,
+    "fields": {
+        "name": "Private WAN",
+        "slug": "private-wan"
+    }
+},
+{
+    "model": "circuits.circuittype",
+    "pk": 3,
+    "fields": {
+        "name": "Out-of-Band",
+        "slug": "out-of-band"
+    }
+}
+]

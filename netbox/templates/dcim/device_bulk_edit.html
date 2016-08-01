@@ -9,6 +9,7 @@
             <td><a href="{% url 'dcim:device' pk=device.pk %}">{{ device }}</a></td>
             <td>{{ device.device_type }}</td>
             <td>{{ device.device_role }}</td>
+            <td>{{ device.tenant }}</td>
             <td>{{ device.serial }}</td>
         </tr>
     {% endfor %}
