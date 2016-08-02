@@ -1,4 +1,4 @@
-from netaddr import IPSet
+from netaddr import IPNetwork, IPSet
 from django_tables2 import RequestConfig
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -29,6 +29,41 @@ def add_available_prefixes(parent, prefix_list):
     prefix_list.sort(key=lambda p: p.prefix)
 
     return prefix_list
+
+
+def add_available_ipaddresses(prefix, ipaddress_list):
+    """
+    Create fake IPAddress objects for all unallocated space within a prefix.
+    """
+
+    # Find all unallocated space
+    available_ips = IPSet(prefix) - IPSet([str(ip.address.ip) for ip in ipaddress_list])
+    available_ips = [IPAddress(address=IPNetwork('{}/{}'.format(ip, prefix.prefixlen))) for ip in available_ips]
+
+    # Concatenate and sort complete list of children
+    ipaddress_list = list(ipaddress_list) + available_ips
+    ipaddress_list.sort(key=lambda ip: ip.address)
+    if not ipaddress_list:
+        return []
+
+    # Summarize free IPs in the list
+    computed_list = []
+    count = 0
+    prev_ip = ipaddress_list[0]
+    for ip in ipaddress_list:
+        if ip.pk:
+            if count:
+                computed_list.append((count, prev_ip))
+                count = 0
+            computed_list.append(ip)
+            continue
+        if not count:
+            prev_ip = ip
+        count += 1
+    if count:
+        computed_list.append((count, prev_ip))
+
+    return computed_list
 
 
 #
@@ -375,6 +410,7 @@ def prefix_ipaddresses(request, pk):
     # Find all IPAddresses belonging to this Prefix
     ipaddresses = IPAddress.objects.filter(vrf=prefix.vrf, address__net_contained_or_equal=str(prefix.prefix))\
         .select_related('vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for')
+    ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses)
 
     ip_table = tables.IPAddressTable(ipaddresses)
     ip_table.model = IPAddress

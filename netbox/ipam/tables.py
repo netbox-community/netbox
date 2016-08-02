@@ -39,6 +39,16 @@ PREFIX_LINK_BRIEF = """
 </span>
 """
 
+IPADDRESS_LINK = """
+{% if record.pk %}
+    <a href="{{ record.get_absolute_url }}">{{ record.address }}</a>
+{% elif perms.ipam.add_ipaddress %}
+    <a href="{% url 'ipam:ipaddress_add' %}?address={{ record.1 }}" class="btn btn-xs btn-success">{{ record.0 }} free IP{{ record.0|pluralize }}</a>
+{% else %}
+    {{ record.0 }}
+{% endif %}
+"""
+
 STATUS_LABEL = """
 {% if record.pk %}
     <span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
@@ -169,7 +179,7 @@ class PrefixBriefTable(BaseTable):
 
 class IPAddressTable(BaseTable):
     pk = ToggleColumn()
-    address = tables.LinkColumn('ipam:ipaddress', args=[Accessor('pk')], verbose_name='IP Address')
+    address = tables.TemplateColumn(IPADDRESS_LINK, verbose_name='IP Address')
     vrf = tables.LinkColumn('ipam:vrf', args=[Accessor('vrf.pk')], default='Global', verbose_name='VRF')
     tenant = tables.TemplateColumn(TENANT_LINK, verbose_name='Tenant')
     device = tables.LinkColumn('dcim:device', args=[Accessor('interface.device.pk')], orderable=False,
