@@ -270,6 +270,11 @@ def prefix_vrf_choices():
     return [(v.pk, u'{} ({})'.format(v.name, v.prefix_count)) for v in vrf_choices]
 
 
+def tenant_choices():
+    tenant_choices = Tenant.objects.all()
+    return [(t.slug, t.name) for t in tenant_choices]
+
+
 def prefix_site_choices():
     site_choices = Site.objects.annotate(prefix_count=Count('prefixes'))
     return [(s.slug, u'{} ({})'.format(s.name, s.prefix_count)) for s in site_choices]
@@ -291,8 +296,8 @@ class PrefixFilterForm(forms.Form, BootstrapMixin):
     parent = forms.CharField(required=False, label='Search Within')
     vrf = forms.MultipleChoiceField(required=False, choices=prefix_vrf_choices, label='VRF',
                                     widget=forms.SelectMultiple(attrs={'size': 6}))
-    tenant = forms.ModelMultipleChoiceField(queryset=Tenant.objects.all(), required=False,
-                                            widget=forms.SelectMultiple(attrs={'size': 6}))
+    tenant = forms.MultipleChoiceField(required=False, choices=tenant_choices, label='Tenant',
+                                       widget=forms.SelectMultiple(attrs={'size': 6}))
     status = forms.MultipleChoiceField(required=False, choices=prefix_status_choices,
                                        widget=forms.SelectMultiple(attrs={'size': 6}))
     site = forms.MultipleChoiceField(required=False, choices=prefix_site_choices,
@@ -442,8 +447,8 @@ class IPAddressFilterForm(forms.Form, BootstrapMixin):
     family = forms.ChoiceField(required=False, choices=ipaddress_family_choices, label='Address Family')
     vrf = forms.MultipleChoiceField(required=False, choices=ipaddress_vrf_choices, label='VRF',
                                     widget=forms.SelectMultiple(attrs={'size': 6}))
-    tenant = forms.ModelMultipleChoiceField(queryset=Tenant.objects.all(), required=False,
-                                            widget=forms.SelectMultiple(attrs={'size': 6}))
+    tenant = forms.MultipleChoiceField(required=False, choices=tenant_choices, label='Tenant',
+                                       widget=forms.SelectMultiple(attrs={'size': 6}))
 
 
 #
