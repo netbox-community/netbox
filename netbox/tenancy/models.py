@@ -28,7 +28,7 @@ class Tenant(CreatedUpdatedModel):
     """
     name = models.CharField(max_length=30, unique=True)
     slug = models.SlugField(unique=True)
-    group = models.ForeignKey('TenantGroup', related_name='tenants', on_delete=models.PROTECT)
+    group = models.ForeignKey('TenantGroup', related_name='tenants', blank=True, null=True, on_delete=models.SET_NULL)
     description = models.CharField(max_length=100, blank=True, help_text="Long-form name (optional)")
     comments = models.TextField(blank=True)
 

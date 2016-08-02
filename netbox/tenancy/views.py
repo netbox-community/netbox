@@ -99,9 +99,10 @@ class TenantBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        for field in ['group']:
-            if form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
+        if form.cleaned_data['group'] == 0:
+            fields_to_update['group'] = None
+        elif form.cleaned_data['group']:
+            fields_to_update['group'] = form.cleaned_data['group']
 
         return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
 
