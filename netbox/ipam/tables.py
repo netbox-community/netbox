@@ -152,13 +152,14 @@ class PrefixTable(BaseTable):
 
 class PrefixBriefTable(BaseTable):
     prefix = tables.TemplateColumn(PREFIX_LINK_BRIEF, verbose_name='Prefix')
+    vrf = tables.LinkColumn('ipam:vrf', args=[Accessor('vrf.pk')], default='Global', verbose_name='VRF')
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
     status = tables.TemplateColumn(STATUS_LABEL, verbose_name='Status')
     role = tables.Column(verbose_name='Role')
 
     class Meta(BaseTable.Meta):
         model = Prefix
-        fields = ('prefix', 'status', 'site', 'role')
+        fields = ('prefix', 'vrf', 'status', 'site', 'role')
         orderable = False
 
 

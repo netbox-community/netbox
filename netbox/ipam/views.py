@@ -2,7 +2,7 @@ from netaddr import IPSet
 from django_tables2 import RequestConfig
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, render
 
 from dcim.models import Device
@@ -281,7 +281,8 @@ def prefix(request, pk):
         .count()
 
     # Parent prefixes table
-    parent_prefixes = Prefix.objects.filter(vrf=prefix.vrf, prefix__net_contains=str(prefix.prefix))\
+    parent_prefixes = Prefix.objects.filter(Q(vrf=prefix.vrf) | Q(vrf__isnull=True))\
+        .filter(prefix__net_contains=str(prefix.prefix))\
         .select_related('site', 'role').annotate_depth()
     parent_prefix_table = tables.PrefixBriefTable(parent_prefixes)
 
@@ -291,7 +292,13 @@ def prefix(request, pk):
     duplicate_prefix_table = tables.PrefixBriefTable(duplicate_prefixes)
 
     # Child prefixes table
-    child_prefixes = Prefix.objects.filter(vrf=prefix.vrf, prefix__net_contained=str(prefix.prefix))\
+    if prefix.vrf:
+        # If the prefix is in a VRF, show child prefixes only within that VRF.
+        child_prefixes = Prefix.objects.filter(vrf=prefix.vrf)
+    else:
+        # If the prefix is in the global table, show child prefixes from all VRFs.
+        child_prefixes = Prefix.objects.all()
+    child_prefixes = child_prefixes.filter(prefix__net_contained=str(prefix.prefix))\
         .select_related('site', 'role').annotate_depth(limit=0)
     if child_prefixes:
         child_prefixes = add_available_prefixes(prefix.prefix, child_prefixes)
