@@ -44,7 +44,7 @@ def add_available_ipaddresses(prefix, ipaddress_list):
         first_ip_in_prefix = netaddr.IPAddress(prefix.first)
     else:
         first_ip_in_prefix = netaddr.IPAddress(prefix.first + 1)
-    if prefix.version == 4 and prefix.prefixlen == 31:
+    if prefix.version == 6 or (prefix.version == 4 and prefix.prefixlen == 31):
         last_ip_in_prefix = netaddr.IPAddress(prefix.last)
     else:
         last_ip_in_prefix = netaddr.IPAddress(prefix.last - 1)
