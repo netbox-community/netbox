@@ -64,9 +64,10 @@ def add_available_ipaddresses(prefix, ipaddress_list):
     # Iterate through existing IPs and annotate free ranges
     for ip in ipaddress_list:
         if prev_ip:
-            skipped_count = int(ip.address.ip - prev_ip.address.ip)
-            first_skipped = '{}/{}'.format(prev_ip.address.ip + 1, prefix.prefixlen)
-            output.append((skipped_count, first_skipped))
+            skipped_count = int(ip.address.ip - prev_ip.address.ip - 1)
+            if skipped_count:
+                first_skipped = '{}/{}'.format(prev_ip.address.ip + 1, prefix.prefixlen)
+                output.append((skipped_count, first_skipped))
         output.append(ip)
         prev_ip = ip
 
