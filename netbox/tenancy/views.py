@@ -2,6 +2,9 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, render
 
+from circuits.models import Circuit
+from dcim.models import Site, Rack, Device
+from ipam.models import IPAddress, Prefix, VLAN, VRF
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
@@ -50,19 +53,21 @@ class TenantListView(ObjectListView):
 
 def tenant(request, slug):
 
-    tenant = get_object_or_404(Tenant.objects.annotate(
-        site_count=Count('sites', distinct=True),
-        rack_count=Count('racks', distinct=True),
-        device_count=Count('devices', distinct=True),
-        vrf_count=Count('vrfs', distinct=True),
-        prefix_count=Count('prefixes', distinct=True),
-        ipaddress_count=Count('ip_addresses', distinct=True),
-        vlan_count=Count('vlans', distinct=True),
-        circuit_count=Count('circuits', distinct=True),
-    ), slug=slug)
+    tenant = get_object_or_404(Tenant, slug=slug)
+    stats = {
+        'site_count': Site.objects.filter(tenant=tenant).count(),
+        'rack_count': Rack.objects.filter(tenant=tenant).count(),
+        'device_count': Device.objects.filter(tenant=tenant).count(),
+        'vrf_count': VRF.objects.filter(tenant=tenant).count(),
+        'prefix_count': Prefix.objects.filter(tenant=tenant).count(),
+        'ipaddress_count': IPAddress.objects.filter(tenant=tenant).count(),
+        'vlan_count': VLAN.objects.filter(tenant=tenant).count(),
+        'circuit_count': Circuit.objects.filter(tenant=tenant).count(),
+    }
 
     return render(request, 'tenancy/tenant.html', {
         'tenant': tenant,
+        'stats': stats,
     })
 
 
@@ -99,9 +104,10 @@ class TenantBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        for field in ['group']:
-            if form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
+        if form.cleaned_data['group'] == 0:
+            fields_to_update['group'] = None
+        elif form.cleaned_data['group']:
+            fields_to_update['group'] = form.cleaned_data['group']
 
         return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
 

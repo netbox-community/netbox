@@ -8,6 +8,18 @@ from utilities.forms import (
 from .models import Tenant, TenantGroup
 
 
+def bulkedit_tenantgroup_choices():
+    """
+    Include an option to remove the currently assigned TenantGroup from a Tenant.
+    """
+    choices = [
+        (None, '---------'),
+        (0, 'None'),
+    ]
+    choices += [(g.pk, g.name) for g in TenantGroup.objects.all()]
+    return choices
+
+
 def bulkedit_tenant_choices():
     """
     Include an option to remove the currently assigned Tenant from an object.
@@ -46,7 +58,7 @@ class TenantForm(forms.ModelForm, BootstrapMixin):
 
 
 class TenantFromCSVForm(forms.ModelForm):
-    group = forms.ModelChoiceField(TenantGroup.objects.all(), to_field_name='name',
+    group = forms.ModelChoiceField(TenantGroup.objects.all(), required=False, to_field_name='name',
                                    error_messages={'invalid_choice': 'Group not found.'})
 
     class Meta:
@@ -60,7 +72,7 @@ class TenantImportForm(BulkImportForm, BootstrapMixin):
 
 class TenantBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Tenant.objects.all(), widget=forms.MultipleHiddenInput)
-    group = forms.ModelChoiceField(queryset=TenantGroup.objects.all(), required=False)
+    group = forms.TypedChoiceField(choices=bulkedit_tenantgroup_choices, coerce=int, required=False, label='Group')
 
 
 def tenant_group_choices():

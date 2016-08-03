@@ -1,3 +1,4 @@
+import csv
 import re
 
 from django import forms
@@ -118,7 +119,8 @@ class Livesearch(forms.TextInput):
 
 class CSVDataField(forms.CharField):
     """
-    A field for comma-separated values (CSV)
+    A field for comma-separated values (CSV). Values containing commas should be encased within double quotes. Example:
+        '"New York, NY",new-york-ny,Other stuff' => ['New York, NY', 'new-york-ny', 'Other stuff']
     """
     csv_form = None
 
@@ -136,16 +138,16 @@ class CSVDataField(forms.CharField):
     def to_python(self, value):
         # Return a list of dictionaries, each representing an individual record
         records = []
-        for i, row in enumerate(value.split('\n'), start=1):
-            if row.strip():
-                values = row.strip().split(',')
-                if len(values) < len(self.columns):
+        reader = csv.reader(value.splitlines())
+        for i, row in enumerate(reader, start=1):
+            if row:
+                if len(row) < len(self.columns):
                     raise forms.ValidationError("Line {}: Field(s) missing (found {}; expected {})"
-                                                .format(i, len(values), len(self.columns)))
-                elif len(values) > len(self.columns):
+                                                .format(i, len(row), len(self.columns)))
+                elif len(row) > len(self.columns):
                     raise forms.ValidationError("Line {}: Too many fields (found {}; expected {})"
-                                                .format(i, len(values), len(self.columns)))
-                record = dict(zip(self.columns, values))
+                                                .format(i, len(row), len(self.columns)))
+                record = dict(zip(self.columns, row))
                 records.append(record)
         return records
 
