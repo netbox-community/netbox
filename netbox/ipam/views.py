@@ -1,4 +1,4 @@
-from netaddr import IPSet
+import netaddr
 from django_tables2 import RequestConfig
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -21,7 +21,7 @@ def add_available_prefixes(parent, prefix_list):
     """
 
     # Find all unallocated space
-    available_prefixes = IPSet(parent) ^ IPSet([p.prefix for p in prefix_list])
+    available_prefixes = netaddr.IPSet(parent) ^ netaddr.IPSet([p.prefix for p in prefix_list])
     available_prefixes = [Prefix(prefix=p) for p in available_prefixes.iter_cidrs()]
 
     # Concatenate and sort complete list of children
@@ -29,6 +29,57 @@ def add_available_prefixes(parent, prefix_list):
     prefix_list.sort(key=lambda p: p.prefix)
 
     return prefix_list
+
+
+def add_available_ipaddresses(prefix, ipaddress_list):
+    """
+    Annotate ranges of available IP addresses within a given prefix.
+    """
+
+    output = []
+    prev_ip = None
+
+    # Ignore the "network address" for IPv4 prefixes larger than /31
+    if prefix.version == 4 and prefix.prefixlen < 31:
+        first_ip_in_prefix = netaddr.IPAddress(prefix.first + 1)
+    else:
+        first_ip_in_prefix = netaddr.IPAddress(prefix.first)
+
+    # Ignore the broadcast address for IPv4 prefixes larger than /31
+    if prefix.version == 4 and prefix.prefixlen < 31:
+        last_ip_in_prefix = netaddr.IPAddress(prefix.last - 1)
+    else:
+        last_ip_in_prefix = netaddr.IPAddress(prefix.last)
+
+    if not ipaddress_list:
+        return [(
+            int(last_ip_in_prefix - first_ip_in_prefix + 1),
+            '{}/{}'.format(first_ip_in_prefix, prefix.prefixlen)
+        )]
+
+    # Account for any available IPs before the first real IP
+    if ipaddress_list[0].address.ip > first_ip_in_prefix:
+        skipped_count = int(ipaddress_list[0].address.ip - first_ip_in_prefix)
+        first_skipped = '{}/{}'.format(first_ip_in_prefix, prefix.prefixlen)
+        output.append((skipped_count, first_skipped))
+
+    # Iterate through existing IPs and annotate free ranges
+    for ip in ipaddress_list:
+        if prev_ip:
+            skipped_count = int(ip.address.ip - prev_ip.address.ip - 1)
+            if skipped_count:
+                first_skipped = '{}/{}'.format(prev_ip.address.ip + 1, prefix.prefixlen)
+                output.append((skipped_count, first_skipped))
+        output.append(ip)
+        prev_ip = ip
+
+    # Include any remaining available IPs
+    if prev_ip.address.ip < last_ip_in_prefix:
+        skipped_count = int(last_ip_in_prefix - prev_ip.address.ip)
+        first_skipped = '{}/{}'.format(prev_ip.address.ip + 1, prefix.prefixlen)
+        output.append((skipped_count, first_skipped))
+
+    return output
 
 
 #
@@ -375,6 +426,7 @@ def prefix_ipaddresses(request, pk):
     # Find all IPAddresses belonging to this Prefix
     ipaddresses = IPAddress.objects.filter(vrf=prefix.vrf, address__net_contained_or_equal=str(prefix.prefix))\
         .select_related('vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for')
+    ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses)
 
     ip_table = tables.IPAddressTable(ipaddresses)
     ip_table.model = IPAddress
