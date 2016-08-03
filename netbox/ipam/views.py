@@ -39,15 +39,17 @@ def add_available_ipaddresses(prefix, ipaddress_list):
     output = []
     prev_ip = None
 
-    # Determine first and last usable IP
-    if prefix.version == 6 or (prefix.version == 4 and prefix.prefixlen == 31):
-        first_ip_in_prefix = netaddr.IPAddress(prefix.first)
-    else:
+    # Ignore the "network address" for IPv4 prefixes larger than /31
+    if prefix.version == 4 and prefix.prefixlen < 31:
         first_ip_in_prefix = netaddr.IPAddress(prefix.first + 1)
-    if prefix.version == 6 or (prefix.version == 4 and prefix.prefixlen == 31):
-        last_ip_in_prefix = netaddr.IPAddress(prefix.last)
     else:
+        first_ip_in_prefix = netaddr.IPAddress(prefix.first)
+
+    # Ignore the broadcast address for IPv4 prefixes larger than /31
+    if prefix.version == 4 and prefix.prefixlen < 31:
         last_ip_in_prefix = netaddr.IPAddress(prefix.last - 1)
+    else:
+        last_ip_in_prefix = netaddr.IPAddress(prefix.last)
 
     if not ipaddress_list:
         return [(
@@ -56,7 +58,7 @@ def add_available_ipaddresses(prefix, ipaddress_list):
         )]
 
     # Account for any available IPs before the first real IP
-    if ipaddress_list[0].address.ip != first_ip_in_prefix:
+    if ipaddress_list[0].address.ip > first_ip_in_prefix:
         skipped_count = int(ipaddress_list[0].address.ip - first_ip_in_prefix)
         first_skipped = '{}/{}'.format(first_ip_in_prefix, prefix.prefixlen)
         output.append((skipped_count, first_skipped))
@@ -72,7 +74,7 @@ def add_available_ipaddresses(prefix, ipaddress_list):
         prev_ip = ip
 
     # Include any remaining available IPs
-    if prev_ip.address.ip != last_ip_in_prefix:
+    if prev_ip.address.ip < last_ip_in_prefix:
         skipped_count = int(last_ip_in_prefix - prev_ip.address.ip)
         first_skipped = '{}/{}'.format(prev_ip.address.ip + 1, prefix.prefixlen)
         output.append((skipped_count, first_skipped))
