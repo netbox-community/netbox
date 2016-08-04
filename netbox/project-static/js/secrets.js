@@ -83,8 +83,8 @@ $(document).ready(function() {
             },
             success: function (response, status) {
                 $('#secret_' + secret_id).html(response.plaintext);
-                $('button.unlock-secret').hide();
-                $('button.lock-secret').show();
+                $('button.unlock-secret[secret-id=' + secret_id + ']').hide();
+                $('button.lock-secret[secret-id=' + secret_id + ']').show();
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 if (xhr.status == 403) {
