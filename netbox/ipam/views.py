@@ -373,7 +373,7 @@ class PrefixEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.change_prefix'
     model = Prefix
     form_class = forms.PrefixForm
-    fields_initial = ['site', 'vrf', 'prefix']
+    fields_initial = ['vrf', 'tenant', 'site', 'prefix', 'vlan']
     cancel_url = 'ipam:prefix_list'
 
 
