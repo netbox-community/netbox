@@ -92,7 +92,7 @@ def secret_add(request, pk):
 
                 messages.success(request, "Added new secret: {0}".format(secret))
                 if '_addanother' in request.POST:
-                    return redirect('secrets:secret_add')
+                    return redirect('dcim:device_addsecret', pk=device.pk)
                 else:
                     return redirect('secrets:secret', pk=secret.pk)
 

@@ -57,20 +57,63 @@ DEVICE_ROLE_COLOR_CHOICES = [
 IFACE_FF_VIRTUAL = 0
 IFACE_FF_100M_COPPER = 800
 IFACE_FF_1GE_COPPER = 1000
+IFACE_FF_GBIC = 1050
 IFACE_FF_SFP = 1100
 IFACE_FF_10GE_COPPER = 1150
 IFACE_FF_SFP_PLUS = 1200
 IFACE_FF_XFP = 1300
 IFACE_FF_QSFP_PLUS = 1400
+IFACE_FF_CFP = 1500
+IFACE_FF_QSFP28 = 1600
+IFACE_FF_T1 = 4000
+IFACE_FF_E1 = 4010
+IFACE_FF_T3 = 4040
+IFACE_FF_E3 = 4050
+IFACE_FF_STACKWISE = 5000
+IFACE_FF_STACKWISE_PLUS = 5050
 IFACE_FF_CHOICES = [
-    [IFACE_FF_VIRTUAL, 'Virtual'],
-    [IFACE_FF_100M_COPPER, '10/100M (100BASE-TX)'],
-    [IFACE_FF_1GE_COPPER, '1GE (1000BASE-T)'],
-    [IFACE_FF_SFP, '1GE (SFP)'],
-    [IFACE_FF_10GE_COPPER, '10GE (10GBASE-T)'],
-    [IFACE_FF_SFP_PLUS, '10GE (SFP+)'],
-    [IFACE_FF_XFP, '10GE (XFP)'],
-    [IFACE_FF_QSFP_PLUS, '40GE (QSFP+)'],
+    [
+        'Virtual interfaces',
+        [
+            [IFACE_FF_VIRTUAL, 'Virtual'],
+        ]
+    ],
+    [
+        'Ethernet',
+        [
+            [IFACE_FF_100M_COPPER, '100BASE-TX (10/100M)'],
+            [IFACE_FF_1GE_COPPER, '1000BASE-T (1GE)'],
+            [IFACE_FF_10GE_COPPER, '10GBASE-T (10GE)'],
+        ]
+    ],
+    [
+        'Modular',
+        [
+            [IFACE_FF_GBIC, 'GBIC (1GE)'],
+            [IFACE_FF_SFP, 'SFP (1GE)'],
+            [IFACE_FF_XFP, 'XFP (10GE)'],
+            [IFACE_FF_SFP_PLUS, 'SFP+ (10GE)'],
+            [IFACE_FF_QSFP_PLUS, 'QSFP+ (40GE)'],
+            [IFACE_FF_CFP, 'CFP (100GE)'],
+            [IFACE_FF_QSFP28, 'QSFP28 (100GE)'],
+        ]
+    ],
+    [
+        'Serial',
+        [
+            [IFACE_FF_T1, 'T1 (1.544 Mbps)'],
+            [IFACE_FF_E1, 'E1 (2.048 Mbps)'],
+            [IFACE_FF_T3, 'T3 (45 Mbps)'],
+            [IFACE_FF_E3, 'E3 (34 Mbps)'],
+        ]
+    ],
+    [
+        'Stacking',
+        [
+            [IFACE_FF_STACKWISE, 'Cisco StackWise'],
+            [IFACE_FF_STACKWISE_PLUS, 'Cisco StackWise Plus'],
+        ]
+    ],
 ]
 
 STATUS_ACTIVE = True
