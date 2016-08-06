@@ -72,36 +72,46 @@ IFACE_FF_E3 = 4050
 IFACE_FF_STACKWISE = 5000
 IFACE_FF_STACKWISE_PLUS = 5050
 IFACE_FF_CHOICES = [
-    ['Virtual interfaces', [
-        [IFACE_FF_VIRTUAL, 'Virtual'],
+    [
+        'Virtual interfaces',
+        [
+            [IFACE_FF_VIRTUAL, 'Virtual'],
         ]
     ],
-    ['Ethernet', [
-        [IFACE_FF_100M_COPPER, '100BASE-TX (10/100M)'],
-        [IFACE_FF_1GE_COPPER, '1000BASE-T (1GE)'],
-        [IFACE_FF_10GE_COPPER, '10GBASE-T (10GE)'],
+    [
+        'Ethernet',
+        [
+            [IFACE_FF_100M_COPPER, '100BASE-TX (10/100M)'],
+            [IFACE_FF_1GE_COPPER, '1000BASE-T (1GE)'],
+            [IFACE_FF_10GE_COPPER, '10GBASE-T (10GE)'],
         ]
     ],
-    ['Modular', [
-        [IFACE_FF_GBIC, 'GBIC (1GE)'],
-        [IFACE_FF_SFP, 'SFP (1GE)'],
-        [IFACE_FF_XFP, 'XFP (10GE)'],
-        [IFACE_FF_SFP_PLUS, 'SFP+ (10GE)'],
-        [IFACE_FF_QSFP_PLUS, 'QSFP+ (40GE)'],
-        [IFACE_FF_CFP, 'CFP (100GE)'],
-        [IFACE_FF_QSFP28, 'QSFP28 (100GE)'],
+    [
+        'Modular',
+        [
+            [IFACE_FF_GBIC, 'GBIC (1GE)'],
+            [IFACE_FF_SFP, 'SFP (1GE)'],
+            [IFACE_FF_XFP, 'XFP (10GE)'],
+            [IFACE_FF_SFP_PLUS, 'SFP+ (10GE)'],
+            [IFACE_FF_QSFP_PLUS, 'QSFP+ (40GE)'],
+            [IFACE_FF_CFP, 'CFP (100GE)'],
+            [IFACE_FF_QSFP28, 'QSFP28 (100GE)'],
         ]
     ],
-    ['Serial', [
-        [IFACE_FF_T1, 'T1 (1.544 Mbps)'],
-        [IFACE_FF_E1, 'E1 (2.048 Mbps)'],
-        [IFACE_FF_T3, 'T3 (45 Mbps)'],
-        [IFACE_FF_E3, 'E3 (34 Mbps)'],
+    [
+        'Serial',
+        [
+            [IFACE_FF_T1, 'T1 (1.544 Mbps)'],
+            [IFACE_FF_E1, 'E1 (2.048 Mbps)'],
+            [IFACE_FF_T3, 'T3 (45 Mbps)'],
+            [IFACE_FF_E3, 'E3 (34 Mbps)'],
         ]
     ],
-    ['Stacking', [
-        [IFACE_FF_STACKWISE, 'Cisco StackWise'],
-        [IFACE_FF_STACKWISE_PLUS, 'Cisco StackWise Plus'],
+    [
+        'Stacking',
+        [
+            [IFACE_FF_STACKWISE, 'Cisco StackWise'],
+            [IFACE_FF_STACKWISE_PLUS, 'Cisco StackWise Plus'],
         ]
     ],
 ]
