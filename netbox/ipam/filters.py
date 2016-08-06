@@ -191,6 +191,10 @@ class IPAddressFilter(django_filters.FilterSet):
         action='search',
         label='Search',
     )
+    parent = django_filters.MethodFilter(
+        action='search_by_parent',
+        label='Parent prefix',
+    )
     vrf = django_filters.MethodFilter(
         action='_vrf',
         label='VRF',
@@ -237,6 +241,16 @@ class IPAddressFilter(django_filters.FilterSet):
         except AddrFormatError:
             pass
         return queryset.filter(qs_filter)
+
+    def search_by_parent(self, queryset, value):
+        value = value.strip()
+        if not value:
+            return queryset
+        try:
+            query = str(IPNetwork(value).cidr)
+            return queryset.filter(address__net_contained_or_equal=query)
+        except AddrFormatError:
+            return queryset.none()
 
     def _vrf(self, queryset, value):
         if str(value) == '':

@@ -293,7 +293,9 @@ def prefix_role_choices():
 
 
 class PrefixFilterForm(forms.Form, BootstrapMixin):
-    parent = forms.CharField(required=False, label='Search Within')
+    parent = forms.CharField(required=False, label='Search Within', widget=forms.TextInput(attrs={
+        'placeholder': 'Network',
+    }))
     vrf = forms.MultipleChoiceField(required=False, choices=prefix_vrf_choices, label='VRF',
                                     widget=forms.SelectMultiple(attrs={'size': 6}))
     tenant = forms.MultipleChoiceField(required=False, choices=tenant_choices, label='Tenant',
@@ -444,6 +446,9 @@ def ipaddress_vrf_choices():
 
 
 class IPAddressFilterForm(forms.Form, BootstrapMixin):
+    parent = forms.CharField(required=False, label='Search Within', widget=forms.TextInput(attrs={
+        'placeholder': 'Prefix',
+    }))
     family = forms.ChoiceField(required=False, choices=ipaddress_family_choices, label='Address Family')
     vrf = forms.MultipleChoiceField(required=False, choices=ipaddress_vrf_choices, label='VRF',
                                     widget=forms.SelectMultiple(attrs={'size': 6}))

@@ -231,7 +231,8 @@ class BootstrapMixin(forms.BaseForm):
                     field.widget.attrs['class'] = 'form-control'
             if field.required:
                 field.widget.attrs['required'] = 'required'
-            field.widget.attrs['placeholder'] = field.label
+            if 'placeholder' not in field.widget.attrs:
+                field.widget.attrs['placeholder'] = field.label
 
 
 class ConfirmationForm(forms.Form, BootstrapMixin):
