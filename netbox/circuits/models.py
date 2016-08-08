@@ -72,6 +72,8 @@ class Circuit(CreatedUpdatedModel):
     interface = models.OneToOneField(Interface, related_name='circuit', blank=True, null=True)
     install_date = models.DateField(blank=True, null=True, verbose_name='Date installed')
     port_speed = models.PositiveIntegerField(verbose_name='Port speed (Kbps)')
+    upstream_speed = models.PositiveIntegerField(blank=True, null=True, verbose_name='Upstream speed (Kbps)',
+                                                 help_text='Upstream speed, if different from port speed')
     commit_rate = models.PositiveIntegerField(blank=True, null=True, verbose_name='Commit rate (Kbps)')
     xconnect_id = models.CharField(max_length=50, blank=True, verbose_name='Cross-connect ID')
     pp_info = models.CharField(max_length=100, blank=True, verbose_name='Patch panel/port(s)')
@@ -96,6 +98,7 @@ class Circuit(CreatedUpdatedModel):
             self.site.name,
             self.install_date.isoformat() if self.install_date else '',
             str(self.port_speed),
+            str(self.upstream_speed),
             str(self.commit_rate) if self.commit_rate else '',
             self.xconnect_id,
             self.pp_info,
@@ -116,12 +119,18 @@ class Circuit(CreatedUpdatedModel):
         else:
             return '{} Kbps'.format(speed)
 
-    @property
     def port_speed_human(self):
         return self._humanize_speed(self.port_speed)
+    port_speed_human.admin_order_field = 'port_speed'
 
-    @property
+    def upstream_speed_human(self):
+        if not self.upstream_speed:
+            return ''
+        return self._humanize_speed(self.upstream_speed)
+    upstream_speed_human.admin_order_field = 'upstream_speed'
+
     def commit_rate_human(self):
         if not self.commit_rate:
             return ''
         return self._humanize_speed(self.commit_rate)
+    commit_rate_human.admin_order_field = 'commit_rate'

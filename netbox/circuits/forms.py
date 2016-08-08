@@ -102,7 +102,7 @@ class CircuitForm(forms.ModelForm, BootstrapMixin):
         model = Circuit
         fields = [
             'cid', 'type', 'provider', 'tenant', 'site', 'rack', 'device', 'livesearch', 'interface', 'install_date',
-            'port_speed', 'commit_rate', 'xconnect_id', 'pp_info', 'comments'
+            'port_speed', 'upstream_speed', 'commit_rate', 'xconnect_id', 'pp_info', 'comments'
         ]
         help_texts = {
             'cid': "Unique circuit ID",
@@ -169,8 +169,8 @@ class CircuitFromCSVForm(forms.ModelForm):
 
     class Meta:
         model = Circuit
-        fields = ['cid', 'provider', 'type', 'tenant', 'site', 'install_date', 'port_speed', 'commit_rate',
-                  'xconnect_id', 'pp_info']
+        fields = ['cid', 'provider', 'type', 'tenant', 'site', 'install_date', 'port_speed', 'upstream_speed',
+                  'commit_rate', 'xconnect_id', 'pp_info']
 
 
 class CircuitImportForm(BulkImportForm, BootstrapMixin):
