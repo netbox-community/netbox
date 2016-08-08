@@ -402,7 +402,7 @@ class DeviceForm(forms.ModelForm, BootstrapMixin):
             self.fields['primary_ip6'].widget.attrs['readonly'] = True
 
         # Limit rack choices
-        if self.is_bound:
+        if self.is_bound and self.data.get('site'):
             self.fields['rack'].queryset = Rack.objects.filter(site__pk=self.data['site'])
         elif self.initial.get('site'):
             self.fields['rack'].queryset = Rack.objects.filter(site=self.initial['site'])
@@ -443,6 +443,8 @@ class DeviceForm(forms.ModelForm, BootstrapMixin):
         if pk and self.instance.device_type.is_child_device and hasattr(self.instance, 'parent_bay'):
             self.fields['site'].disabled = True
             self.fields['rack'].disabled = True
+            self.initial['site'] = self.instance.parent_bay.device.rack.site_id
+            self.initial['rack'] = self.instance.parent_bay.device.rack_id
 
 
 class BaseDeviceFromCSVForm(forms.ModelForm):
