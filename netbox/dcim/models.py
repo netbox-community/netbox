@@ -16,6 +16,26 @@ from utilities.models import CreatedUpdatedModel
 from .fields import ASNField, MACAddressField
 
 
+RACK_TYPE_2POST = 100
+RACK_TYPE_4POST = 200
+RACK_TYPE_CABINET = 300
+RACK_TYPE_WALLFRAME = 1000
+RACK_TYPE_WALLCABINET = 1100
+RACK_TYPE_CHOICES = (
+    (RACK_TYPE_2POST, '2-post frame'),
+    (RACK_TYPE_4POST, '4-post frame'),
+    (RACK_TYPE_CABINET, '4-post cabinet'),
+    (RACK_TYPE_WALLFRAME, 'Wall-mounted frame'),
+    (RACK_TYPE_WALLCABINET, 'Wall-mounted cabinet'),
+)
+
+RACK_WIDTH_19IN = 19
+RACK_WIDTH_23IN = 23
+RACK_WIDTH_CHOICES = (
+    (RACK_WIDTH_19IN, '19 inches'),
+    (RACK_WIDTH_23IN, '23 inches'),
+)
+
 RACK_FACE_FRONT = 0
 RACK_FACE_REAR = 1
 RACK_FACE_CHOICES = [
@@ -284,6 +304,9 @@ class Rack(CreatedUpdatedModel):
     site = models.ForeignKey('Site', related_name='racks', on_delete=models.PROTECT)
     group = models.ForeignKey('RackGroup', related_name='racks', blank=True, null=True, on_delete=models.SET_NULL)
     tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='racks', on_delete=models.PROTECT)
+    type = models.PositiveSmallIntegerField(choices=RACK_TYPE_CHOICES, blank=True, null=True, verbose_name='Type')
+    width = models.PositiveSmallIntegerField(choices=RACK_WIDTH_CHOICES, default=RACK_WIDTH_19IN, verbose_name='Width',
+                                             help_text='Rail-to-rail width')
     u_height = models.PositiveSmallIntegerField(default=42, verbose_name='Height (U)')
     comments = models.TextField(blank=True)
 

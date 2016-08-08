@@ -26,7 +26,7 @@ class RackGroupAdmin(admin.ModelAdmin):
 
 @admin.register(Rack)
 class RackAdmin(admin.ModelAdmin):
-    list_display = ['name', 'facility_id', 'site', 'u_height']
+    list_display = ['name', 'facility_id', 'site', 'type', 'width', 'u_height']
 
 
 #

@@ -58,7 +58,8 @@ class RackSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Rack
-        fields = ['id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'u_height', 'comments']
+        fields = ['id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'type', 'width', 'u_height',
+                  'comments']
 
 
 class RackNestedSerializer(RackSerializer):
@@ -72,8 +73,8 @@ class RackDetailSerializer(RackSerializer):
     rear_units = serializers.SerializerMethodField()
 
     class Meta(RackSerializer.Meta):
-        fields = ['id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'u_height', 'comments',
-                  'front_units', 'rear_units']
+        fields = ['id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'type', 'width', 'u_height',
+                  'comments', 'front_units', 'rear_units']
 
     def get_front_units(self, obj):
         units = obj.get_rack_units(face=RACK_FACE_FRONT)

@@ -227,7 +227,7 @@ class RackBulkEditView(PermissionRequiredMixin, BulkEditView):
             fields_to_update['tenant'] = None
         elif form.cleaned_data['tenant']:
             fields_to_update['tenant'] = form.cleaned_data['tenant']
-        for field in ['site', 'group', 'tenant', 'u_height', 'comments']:
+        for field in ['site', 'group', 'tenant', 'type', 'width', 'u_height', 'comments']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
 

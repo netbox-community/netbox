@@ -7,7 +7,7 @@ from ipam.models import IPAddress
 from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, BootstrapMixin, BulkImportForm, CommentField, CSVDataField, ExpandableNameField,
+    APISelect, add_blank_choice, BootstrapMixin, BulkImportForm, CommentField, CSVDataField, ExpandableNameField,
     FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
 )
 
@@ -15,7 +15,8 @@ from .models import (
     DeviceBay, DeviceBayTemplate, CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_PLANNED, CONNECTION_STATUS_CONNECTED,
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType,
     Interface, IFACE_FF_VIRTUAL, InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet,
-    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD
+    PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, Rack, RackGroup, Site,
+    STATUS_CHOICES, SUBDEVICE_ROLE_CHILD
 )
 
 
@@ -135,7 +136,7 @@ class RackForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Rack
-        fields = ['site', 'group', 'name', 'facility_id', 'tenant', 'u_height', 'comments']
+        fields = ['site', 'group', 'name', 'facility_id', 'tenant', 'type', 'width', 'u_height', 'comments']
         help_texts = {
             'site': "The site at which the rack exists",
             'name': "Organizational rack name",
@@ -165,10 +166,11 @@ class RackFromCSVForm(forms.ModelForm):
     group_name = forms.CharField(required=False)
     tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
                                     error_messages={'invalid_choice': 'Tenant not found.'})
+    type = forms.CharField(required=False)
 
     class Meta:
         model = Rack
-        fields = ['site', 'group_name', 'name', 'facility_id', 'tenant', 'u_height']
+        fields = ['site', 'group_name', 'name', 'facility_id', 'tenant', 'type', 'width', 'u_height']
 
     def clean(self):
 
@@ -182,6 +184,19 @@ class RackFromCSVForm(forms.ModelForm):
             except RackGroup.DoesNotExist:
                 self.add_error('group_name', "Invalid rack group ({})".format(group))
 
+    def clean_type(self):
+        rack_type = self.cleaned_data['type']
+        if not rack_type:
+            return None
+        try:
+            choices = {v.lower(): k for k, v in RACK_TYPE_CHOICES}
+            return choices[rack_type.lower()]
+        except KeyError:
+            raise forms.ValidationError('Invalid rack type ({}). Valid choices are: {}.'.format(
+                rack_type,
+                ', '.join({v: k for k, v in RACK_TYPE_CHOICES}),
+            ))
+
 
 class RackImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=RackFromCSVForm)
@@ -192,6 +207,8 @@ class RackBulkEditForm(forms.Form, BootstrapMixin):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
     group = forms.ModelChoiceField(queryset=RackGroup.objects.all(), required=False)
     tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
+    type = forms.ChoiceField(choices=add_blank_choice(RACK_TYPE_CHOICES), required=False, label='Type')
+    width = forms.ChoiceField(choices=add_blank_choice(RACK_WIDTH_CHOICES), required=False, label='Width')
     u_height = forms.IntegerField(required=False, label='Height (U)')
     comments = CommentField()
 
