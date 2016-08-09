@@ -3,7 +3,7 @@ from collections import OrderedDict
 from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.core.urlresolvers import reverse
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, Q, ObjectDoesNotExist
 
@@ -307,7 +307,8 @@ class Rack(CreatedUpdatedModel):
     type = models.PositiveSmallIntegerField(choices=RACK_TYPE_CHOICES, blank=True, null=True, verbose_name='Type')
     width = models.PositiveSmallIntegerField(choices=RACK_WIDTH_CHOICES, default=RACK_WIDTH_19IN, verbose_name='Width',
                                              help_text='Rail-to-rail width')
-    u_height = models.PositiveSmallIntegerField(default=42, verbose_name='Height (U)')
+    u_height = models.PositiveSmallIntegerField(default=42, verbose_name='Height (U)',
+                                                validators=[MinValueValidator(1), MaxValueValidator(100)])
     comments = models.TextField(blank=True)
 
     objects = RackManager()
