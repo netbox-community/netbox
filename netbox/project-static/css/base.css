@@ -21,6 +21,9 @@ body {
     margin: 0 auto -61px; /* the bottom margin is the negative value of the footer's height */
     padding-bottom: 30px;
 }
+.navbar-brand {
+    padding: 12px 15px 8px;
+}
 .footer, .push {
     height: 60px; /* .push must be the same height as .footer */
 }
