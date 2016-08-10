@@ -305,7 +305,7 @@ class RoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class PrefixListView(ObjectListView):
-    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'role')
+    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'role')
     filter = filters.PrefixFilter
     filter_form = forms.PrefixFilterForm
     table = tables.PrefixTable
@@ -445,7 +445,7 @@ def prefix_ipaddresses(request, pk):
 #
 
 class IPAddressListView(ObjectListView):
-    queryset = IPAddress.objects.select_related('vrf__tenant', 'interface__device')
+    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device')
     filter = filters.IPAddressFilter
     filter_form = forms.IPAddressFilterForm
     table = tables.IPAddressTable
@@ -550,7 +550,7 @@ class IPAddressBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class VLANGroupListView(ObjectListView):
-    queryset = VLANGroup.objects.annotate(vlan_count=Count('vlans'))
+    queryset = VLANGroup.objects.select_related('site').annotate(vlan_count=Count('vlans'))
     filter = filters.VLANGroupFilter
     filter_form = forms.VLANGroupFilterForm
     table = tables.VLANGroupTable
@@ -576,7 +576,7 @@ class VLANGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class VLANListView(ObjectListView):
-    queryset = VLAN.objects.select_related('site', 'role')
+    queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role')
     filter = filters.VLANFilter
     filter_form = forms.VLANFilterForm
     table = tables.VLANTable
