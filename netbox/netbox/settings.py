@@ -172,7 +172,6 @@ MESSAGE_TAGS = {
 # Authentication URLs
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
-LOGOUT_URL = '/logout/'
 
 # Secrets
 SECRETS_MIN_PUBKEY_SIZE = 2048
