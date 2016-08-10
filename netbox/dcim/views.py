@@ -150,6 +150,7 @@ class RackGroupEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_rackgroup'
     model = RackGroup
     form_class = forms.RackGroupForm
+    success_url = 'dcim:rackgroup_list'
     cancel_url = 'dcim:rackgroup_list'
 
 

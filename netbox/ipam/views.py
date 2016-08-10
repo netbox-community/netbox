@@ -562,6 +562,7 @@ class VLANGroupEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.change_vlangroup'
     model = VLANGroup
     form_class = forms.VLANGroupForm
+    success_url = 'ipam:vlangroup_list'
     cancel_url = 'ipam:vlangroup_list'
 
 
