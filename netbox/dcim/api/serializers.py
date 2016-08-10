@@ -3,7 +3,7 @@ from rest_framework import serializers
 from ipam.models import IPAddress
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay, DeviceType,
-    DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Platform, PowerOutlet,
+    DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet,
     PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RACK_FACE_FRONT, RACK_FACE_REAR, Site,
 )
 from tenancy.api.serializers import TenantNestedSerializer
@@ -383,6 +383,25 @@ class DeviceBayDetailSerializer(DeviceBaySerializer):
 
     class Meta(DeviceBaySerializer.Meta):
         fields = ['id', 'device', 'name', 'installed_device']
+
+
+#
+# Modules
+#
+
+class ModuleSerializer(serializers.ModelSerializer):
+    device = DeviceNestedSerializer()
+    manufacturer = ManufacturerNestedSerializer()
+
+    class Meta:
+        model = Module
+        fields = ['id', 'device', 'parent', 'name', 'manufacturer', 'part_id', 'serial', 'discovered']
+
+
+class ModuleNestedSerializer(ModuleSerializer):
+
+    class Meta(ModuleSerializer.Meta):
+        fields = ['id', 'device', 'parent', 'name']
 
 
 #
