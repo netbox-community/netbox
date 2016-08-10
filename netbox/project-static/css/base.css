@@ -294,27 +294,39 @@ ul.rack_near_face li.empty:hover a {
     display: block;
 }
 
-/* Rack elevation colors (from http://flatuicolors.com) */
-.teal { background-color: #1abc9c; border-bottom: 1px solid #16a085; }
-.teal:hover { background-color: #16a085; }
-.green { background-color: #2ecc71; border-bottom: 1px solid #27ae60; }
-.green:hover { background-color: #27ae60; }
-.blue { background-color: #3498db; border-bottom: 1px solid #2980b9; }
-.blue:hover { background-color: #2980b9; }
-.purple { background-color: #9b59b6; border-bottom: 1px solid #8e44ad; }
-.purple:hover { background-color: #8e44ad; }
-.yellow { background-color: #f1c40f; border-bottom: 1px solid #f39c12; }
-.yellow:hover { background-color: #f39c12; }
-.orange { background-color: #e67e22; border-bottom: 1px solid #d35400; }
-.orange:hover { background-color: #d35400; }
-.red { background-color: #e74c3c; border-bottom: 1px solid #c0392b; }
-.red:hover { background-color: #c0392b; }
-.light_gray { background-color: #dce2e3; border-bottom: 1px solid #bdc3c7; }
-.light_gray:hover { background-color: #bdc3c7; }
-.medium_gray { background-color: #95a5a6; border-bottom: 1px solid #7f8c8d; }
-.medium_gray:hover { background-color: #7f8c8d; }
-.dark_gray { background-color: #34495e; border-bottom: 1px solid #2c3e50; }
-.dark_gray:hover { background-color: #2c3e50; }
+/* Colors (from http://flatuicolors.com) */
+.teal { background-color: #1abc9c; }
+.green { background-color: #2ecc71; }
+.blue { background-color: #3498db; }
+.purple { background-color: #9b59b6; }
+.yellow { background-color: #f1c40f; }
+.orange { background-color: #e67e22; }
+.red { background-color: #e74c3c; }
+.light_gray { background-color: #dce2e3; }
+.medium_gray { background-color: #95a5a6; }
+.dark_gray { background-color: #34495e; }
+
+/* Rack elevation coloring */
+ul.rack .teal { border-bottom: 1px solid #16a085; }
+ul.rack .teal:hover { background-color: #16a085; }
+ul.rack .green { border-bottom: 1px solid #27ae60; }
+ul.rack .green:hover { background-color: #27ae60; }
+ul.rack .blue { border-bottom: 1px solid #2980b9; }
+ul.rack .blue:hover { background-color: #2980b9; }
+ul.rack .purple { border-bottom: 1px solid #8e44ad; }
+ul.rack .purple:hover { background-color: #8e44ad; }
+ul.rack .yellow { border-bottom: 1px solid #f39c12; }
+ul.rack .yellow:hover { background-color: #f39c12; }
+ul.rack .orange { border-bottom: 1px solid #d35400; }
+ul.rack .orange:hover { background-color: #d35400; }
+ul.rack .red { border-bottom: 1px solid #c0392b; }
+ul.rack .red:hover { background-color: #c0392b; }
+ul.rack .light_gray { border-bottom: 1px solid #bdc3c7; }
+ul.rack .light_gray:hover { background-color: #bdc3c7; }
+ul.rack .medium_gray { border-bottom: 1px solid #7f8c8d; }
+ul.rack .medium_gray:hover { background-color: #7f8c8d; }
+ul.rack .dark_gray { border-bottom: 1px solid #2c3e50; }
+ul.rack .dark_gray:hover { background-color: #2c3e50; }
 
 /* Misc */
 .banner-bottom {

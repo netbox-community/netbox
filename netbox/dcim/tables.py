@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from utilities.tables import BaseTable, ToggleColumn
+from utilities.tables import BaseTable, ColorColumn, ToggleColumn
 
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPortTemplate, Device, DeviceBayTemplate, DeviceRole, DeviceType,
@@ -108,7 +108,7 @@ class RackRoleTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn(verbose_name='Name')
     rack_count = tables.Column(verbose_name='Racks')
-    color = tables.Column(verbose_name='Color')
+    color = ColorColumn(verbose_name='Color')
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(template_code=RACKROLE_ACTIONS, attrs={'td': {'class': 'text-right'}},
                                     verbose_name='')
@@ -258,14 +258,14 @@ class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn(verbose_name='Name')
     device_count = tables.Column(verbose_name='Devices')
+    color = ColorColumn(verbose_name='Color')
     slug = tables.Column(verbose_name='Slug')
-    color = tables.Column(verbose_name='Color')
     actions = tables.TemplateColumn(template_code=DEVICEROLE_ACTIONS, attrs={'td': {'class': 'text-right'}},
                                     verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = DeviceRole
-        fields = ('pk', 'name', 'device_count', 'slug', 'color', 'actions')
+        fields = ('pk', 'name', 'device_count', 'color', 'slug', 'actions')
 
 
 #
