@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from utilities.tables import BaseTable, ToggleColumn
+from utilities.tables import BaseTable, ColorColumn, ToggleColumn
 
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPortTemplate, Device, DeviceBayTemplate, DeviceRole, DeviceType,
@@ -19,6 +19,12 @@ DEVICE_LINK = """
 RACKGROUP_ACTIONS = """
 {% if perms.dcim.change_rackgroup %}
     <a href="{% url 'dcim:rackgroup_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+{% endif %}
+"""
+
+RACKROLE_ACTIONS = """
+{% if perms.dcim.change_rackrole %}
+    <a href="{% url 'dcim:rackrole_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
@@ -95,6 +101,24 @@ class RackGroupTable(BaseTable):
 
 
 #
+# Rack roles
+#
+
+class RackRoleTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.LinkColumn(verbose_name='Name')
+    rack_count = tables.Column(verbose_name='Racks')
+    color = ColorColumn(verbose_name='Color')
+    slug = tables.Column(verbose_name='Slug')
+    actions = tables.TemplateColumn(template_code=RACKROLE_ACTIONS, attrs={'td': {'class': 'text-right'}},
+                                    verbose_name='')
+
+    class Meta(BaseTable.Meta):
+        model = RackGroup
+        fields = ('pk', 'name', 'rack_count', 'color', 'slug', 'actions')
+
+
+#
 # Racks
 #
 
@@ -105,6 +129,7 @@ class RackTable(BaseTable):
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
     facility_id = tables.Column(verbose_name='Facility ID')
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
+    role = tables.Column(verbose_name='Role')
     u_height = tables.TemplateColumn("{{ record.u_height }}U", verbose_name='Height')
     devices = tables.Column(accessor=Accessor('device_count'), verbose_name='Devices')
     u_consumed = tables.TemplateColumn("{{ record.u_consumed|default:'0' }}U", verbose_name='Used')
@@ -112,7 +137,7 @@ class RackTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Rack
-        fields = ('pk', 'name', 'site', 'group', 'facility_id', 'tenant', 'u_height', 'devices', 'u_consumed',
+        fields = ('pk', 'name', 'site', 'group', 'facility_id', 'tenant', 'role', 'u_height', 'devices', 'u_consumed',
                   'utilization')
 
 
@@ -233,14 +258,14 @@ class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn(verbose_name='Name')
     device_count = tables.Column(verbose_name='Devices')
+    color = ColorColumn(verbose_name='Color')
     slug = tables.Column(verbose_name='Slug')
-    color = tables.Column(verbose_name='Color')
     actions = tables.TemplateColumn(template_code=DEVICEROLE_ACTIONS, attrs={'td': {'class': 'text-right'}},
                                     verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = DeviceRole
-        fields = ('pk', 'name', 'device_count', 'slug', 'color', 'actions')
+        fields = ('pk', 'name', 'device_count', 'color', 'slug', 'actions')
 
 
 #

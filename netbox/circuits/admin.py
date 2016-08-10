@@ -21,8 +21,8 @@ class CircuitTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Circuit)
 class CircuitAdmin(admin.ModelAdmin):
-    list_display = ['cid', 'provider', 'type', 'tenant', 'site', 'install_date', 'port_speed', 'commit_rate',
-                    'xconnect_id']
+    list_display = ['cid', 'provider', 'type', 'tenant', 'site', 'install_date', 'port_speed_human',
+                    'upstream_speed_human', 'commit_rate_human', 'xconnect_id']
     list_filter = ['provider', 'type', 'tenant']
     exclude = ['interface']
 

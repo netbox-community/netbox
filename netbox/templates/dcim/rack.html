@@ -97,6 +97,20 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Type</td>
+                    <td>
+                        {% if rack.type %}
+                            {{ rack.get_type_display }}
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Width</td>
+                    <td>{{ rack.get_width_display }}</td>
+                </tr>
+                <tr>
                     <td>Height</td>
                     <td>{{ rack.u_height }}U</td>
                 </tr>

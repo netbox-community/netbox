@@ -26,6 +26,12 @@ urlpatterns = [
     url(r'^rack-groups/delete/$', views.RackGroupBulkDeleteView.as_view(), name='rackgroup_bulk_delete'),
     url(r'^rack-groups/(?P<pk>\d+)/edit/$', views.RackGroupEditView.as_view(), name='rackgroup_edit'),
 
+    # Rack roles
+    url(r'^rack-roles/$', views.RackRoleListView.as_view(), name='rackrole_list'),
+    url(r'^rack-roles/add/$', views.RackRoleEditView.as_view(), name='rackrole_add'),
+    url(r'^rack-roles/delete/$', views.RackRoleBulkDeleteView.as_view(), name='rackrole_bulk_delete'),
+    url(r'^rack-roles/(?P<pk>\d+)/edit/$', views.RackRoleEditView.as_view(), name='rackrole_edit'),
+
     # Racks
     url(r'^racks/$', views.RackListView.as_view(), name='rack_list'),
     url(r'^racks/add/$', views.RackEditView.as_view(), name='rack_add'),

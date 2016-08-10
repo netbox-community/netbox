@@ -3,8 +3,8 @@ from rest_framework import serializers
 from ipam.models import IPAddress
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay, DeviceType,
-    DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Platform, PowerOutlet,
-    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RACK_FACE_FRONT, RACK_FACE_REAR, Site,
+    DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet,
+    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, RACK_FACE_FRONT, RACK_FACE_REAR, Site,
 )
 from tenancy.api.serializers import TenantNestedSerializer
 
@@ -47,6 +47,23 @@ class RackGroupNestedSerializer(RackGroupSerializer):
 
 
 #
+# Rack roles
+#
+
+class RackRoleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RackRole
+        fields = ['id', 'name', 'slug', 'color']
+
+
+class RackRoleNestedSerializer(RackRoleSerializer):
+
+    class Meta(RackRoleSerializer.Meta):
+        fields = ['id', 'name', 'slug']
+
+
+#
 # Racks
 #
 
@@ -55,10 +72,12 @@ class RackSerializer(serializers.ModelSerializer):
     site = SiteNestedSerializer()
     group = RackGroupNestedSerializer()
     tenant = TenantNestedSerializer()
+    role = RackRoleNestedSerializer()
 
     class Meta:
         model = Rack
-        fields = ['id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'u_height', 'comments']
+        fields = ['id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'type', 'width',
+                  'u_height', 'comments']
 
 
 class RackNestedSerializer(RackSerializer):
@@ -72,8 +91,8 @@ class RackDetailSerializer(RackSerializer):
     rear_units = serializers.SerializerMethodField()
 
     class Meta(RackSerializer.Meta):
-        fields = ['id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'u_height', 'comments',
-                  'front_units', 'rear_units']
+        fields = ['id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'type', 'width',
+                  'u_height', 'comments', 'front_units', 'rear_units']
 
     def get_front_units(self, obj):
         units = obj.get_rack_units(face=RACK_FACE_FRONT)
@@ -382,6 +401,25 @@ class DeviceBayDetailSerializer(DeviceBaySerializer):
 
     class Meta(DeviceBaySerializer.Meta):
         fields = ['id', 'device', 'name', 'installed_device']
+
+
+#
+# Modules
+#
+
+class ModuleSerializer(serializers.ModelSerializer):
+    device = DeviceNestedSerializer()
+    manufacturer = ManufacturerNestedSerializer()
+
+    class Meta:
+        model = Module
+        fields = ['id', 'device', 'parent', 'name', 'manufacturer', 'part_id', 'serial', 'discovered']
+
+
+class ModuleNestedSerializer(ModuleSerializer):
+
+    class Meta(ModuleSerializer.Meta):
+        fields = ['id', 'device', 'parent', 'name']
 
 
 #

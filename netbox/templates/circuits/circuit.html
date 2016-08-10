@@ -82,12 +82,13 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Port Speed</td>
+                    <td>Speed</td>
                     <td>
-                        {% if circuit.port_speed %}
-                            {{ circuit.port_speed_human }}
+                        {% if circuit.upstream_speed %}
+                            <i class="fa fa-arrow-down" title="Downstream"></i> {{ circuit.port_speed_human }} &nbsp;
+                            <i class="fa fa-arrow-up" title="Upstream"></i> {{ circuit.upstream_speed_human }}
                         {% else %}
-                            <span class="text-muted">N/A</span>
+                            {{ circuit.port_speed_human }}
                         {% endif %}
                     </td>
                 </tr>

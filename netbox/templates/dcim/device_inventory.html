@@ -32,6 +32,7 @@
                     <tr>
                         <th>Module</th>
                         <th></th>
+                        <th>Manufacturer</th>
                         <th>Part Number</th>
                         <th>Serial Number</th>
                         <th></th>
@@ -42,6 +43,7 @@
                         <tr>
                             <td>{{ m.name }}</td>
                             <td>{% if not m.discovered %}<i class="fa fa-asterisk" title="Manually created"></i>{% endif %}</td>
+                            <td>{{ m.manufacturer|default:'' }}</td>
                             <td>{{ m.part_id }}</td>
                             <td>{{ m.serial }}</td>
                             <td class="text-right">
@@ -57,6 +59,7 @@
                             <tr>
                                 <td style="padding-left: 20px">{{ m2.name }}</td>
                                 <td>{% if not m2.discovered %}<i class="fa fa-asterisk" title="Manually created"></i>{% endif %}</td>
+                                <td>{{ m2.manufacturer|default:'' }}</td>
                                 <td>{{ m2.part_id }}</td>
                                 <td>{{ m2.serial }}</td>
                                 <td class="text-right">
@@ -72,6 +75,7 @@
                                 <tr>
                                     <td style="padding-left: 40px">{{ m3.name }}</td>
                                     <td>{% if not m3.discovered %}<i class="fa fa-asterisk" title="Manually created"></i>{% endif %}</td>
+                                    <td>{{ m3.manufacturer|default:'' }}</td>
                                     <td>{{ m3.part_id }}</td>
                                     <td>{{ m3.serial }}</td>
                                     <td class="text-right">
@@ -87,6 +91,7 @@
                                     <tr>
                                         <td style="padding-left: 60px">{{ m4.name }}</td>
                                         <td>{% if not m4.discovered %}<i class="fa fa-asterisk" title="Manually created"></i>{% endif %}</td>
+                                        <td>{{ m4.manufacturer|default:'' }}</td>
                                         <td>{{ m4.part_id }}</td>
                                         <td>{{ m4.serial }}</td>
                                         <td class="text-right">

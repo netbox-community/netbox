@@ -12,7 +12,7 @@ except ImportError:
                                "the documentation.")
 
 
-VERSION = '1.4.2'
+VERSION = '1.5.0'
 
 # Import local configuration
 for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
@@ -172,7 +172,6 @@ MESSAGE_TAGS = {
 # Authentication URLs
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
-LOGOUT_URL = '/logout/'
 
 # Secrets
 SECRETS_MIN_PUBKEY_SIZE = 2048

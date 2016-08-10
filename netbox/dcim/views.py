@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db.models import Count, Sum
+from django.db.models.functions import Coalesce
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import urlencode
@@ -26,7 +27,7 @@ from .models import (
     CONNECTION_STATUS_CONNECTED, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
     DeviceBay, DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate,
     Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    Site,
+    RackRole, Site,
 )
 
 
@@ -137,7 +138,7 @@ class SiteBulkEditView(PermissionRequiredMixin, BulkEditView):
 #
 
 class RackGroupListView(ObjectListView):
-    queryset = RackGroup.objects.annotate(rack_count=Count('racks'))
+    queryset = RackGroup.objects.select_related('site').annotate(rack_count=Count('racks'))
     filter = filters.RackGroupFilter
     filter_form = forms.RackGroupFilterForm
     table = tables.RackGroupTable
@@ -149,6 +150,7 @@ class RackGroupEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_rackgroup'
     model = RackGroup
     form_class = forms.RackGroupForm
+    success_url = 'dcim:rackgroup_list'
     cancel_url = 'dcim:rackgroup_list'
 
 
@@ -159,12 +161,38 @@ class RackGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 
 #
+# Rack roles
+#
+
+class RackRoleListView(ObjectListView):
+    queryset = RackRole.objects.annotate(rack_count=Count('racks'))
+    table = tables.RackRoleTable
+    edit_permissions = ['dcim.change_rackrole', 'dcim.delete_rackrole']
+    template_name = 'dcim/rackrole_list.html'
+
+
+class RackRoleEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_rackrole'
+    model = RackRole
+    form_class = forms.RackRoleForm
+    success_url = 'dcim:rackrole_list'
+    cancel_url = 'dcim:rackrole_list'
+
+
+class RackRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_rackrole'
+    cls = RackRole
+    default_redirect_url = 'dcim:rackrole_list'
+
+
+#
 # Racks
 #
 
 class RackListView(ObjectListView):
-    queryset = Rack.objects.select_related('site').prefetch_related('devices__device_type')\
-        .annotate(device_count=Count('devices', distinct=True), u_consumed=Sum('devices__device_type__u_height'))
+    queryset = Rack.objects.select_related('site', 'group', 'tenant', 'role').prefetch_related('devices__device_type')\
+        .annotate(device_count=Count('devices', distinct=True),
+                  u_consumed=Coalesce(Sum('devices__device_type__u_height'), 0))
     filter = filters.RackFilter
     filter_form = forms.RackFilterForm
     table = tables.RackTable
@@ -223,11 +251,12 @@ class RackBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        if form.cleaned_data['tenant'] == 0:
-            fields_to_update['tenant'] = None
-        elif form.cleaned_data['tenant']:
-            fields_to_update['tenant'] = form.cleaned_data['tenant']
-        for field in ['site', 'group', 'tenant', 'u_height', 'comments']:
+        for field in ['group', 'tenant', 'role']:
+            if form.cleaned_data[field] == 0:
+                fields_to_update[field] = None
+            elif form.cleaned_data[field]:
+                fields_to_update[field] = form.cleaned_data[field]
+        for field in ['site', 'type', 'width', 'u_height', 'comments']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
 
@@ -533,8 +562,8 @@ class PlatformBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class DeviceListView(ObjectListView):
-    queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'rack__site', 'primary_ip4',
-                                             'primary_ip6')
+    queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'tenant', 'rack__site',
+                                             'primary_ip4', 'primary_ip6')
     filter = filters.DeviceFilter
     filter_form = forms.DeviceFilterForm
     table = tables.DeviceTable
@@ -680,7 +709,8 @@ class DeviceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 def device_inventory(request, pk):
 
     device = get_object_or_404(Device, pk=pk)
-    modules = Module.objects.filter(device=device, parent=None).prefetch_related('submodules')
+    modules = Module.objects.filter(device=device, parent=None).select_related('manufacturer')\
+        .prefetch_related('submodules')
 
     return render(request, 'dcim/device_inventory.html', {
         'device': device,

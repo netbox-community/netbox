@@ -53,7 +53,7 @@ class CircuitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Circuit
         fields = ['id', 'cid', 'provider', 'type', 'tenant', 'site', 'interface', 'install_date', 'port_speed',
-                  'commit_rate', 'xconnect_id', 'comments']
+                  'upstream_speed', 'commit_rate', 'xconnect_id', 'comments']
 
 
 class CircuitNestedSerializer(CircuitSerializer):

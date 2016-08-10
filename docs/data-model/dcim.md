@@ -10,15 +10,21 @@ Sites can be assigned an optional facility ID to identify the actual facility ho
 
 # Racks
 
-Within each site exist one or more racks. Each rack within NetBox represents a physical two- or four-post equipment rack in which equipment is mounted. Rack height is measured in *rack units *(U); most racks are between 42U and 48U, but NetBox allows you to define racks of any height. Each rack has two faces (front and rear) on which devices can be mounted.
+Within each site exist one or more racks. Each rack within NetBox represents a physical two- or four-post equipment rack in which equipment is mounted. Rack height is measured in *rack units* (U); most racks are between 42U and 48U, but NetBox allows you to define racks of any height. Each rack has two faces (front and rear) on which devices can be mounted.
 
 Each rack is assigned a name and (optionally) a separate facility ID. This is helpful when leasing space in a data center your organization does not own: The facility will often assign a seemingly arbitrary ID to a rack (for example, M204.313) whereas internally you refer to is simply as "R113." The facility ID can alternatively be used to store a rack's serial number.
+
+The available rack types include 2- and 4-post frames, 4-post cabinet, and wall-mounted frame and cabinet. Rail-to-rail width may be 19 or 23 inches.
 
 ### Rack Groups
 
 Racks can be arranged into groups. As with sites, how you choose to designate rack groups will depend on the nature of your organization. For example, if each site is a campus, each group might be a building. If each site is a building, each rack group might be a floor or room.
 
-Each group is assigned to a parent site for easy navigation. Hierarchical recursion of rack groups is not currently supported.
+Each group is assigned to a parent site for easy navigation. Hierarchical recursion of rack groups is not supported.
+
+### Rack Roles
+
+Each rak can optionally be assigned to a functional role. For example, you might designate a rack for compute or storage resources, or to house colocated customer devices.
 
 ---
 
@@ -74,7 +80,7 @@ The assignment of platforms to devices is an entirely optional feature, and may 
 
 ### Modules
 
-A device can be assigned modules which represent internal components. Currently, these are used merely for inventory tracking, although future development might see their functionality expand.
+A device can be assigned modules which represent internal components. Currently, these are used merely for inventory tracking, although future development might see their functionality expand. Each module can optionally be assigned to a manufacturer.
 
 ### Components
 

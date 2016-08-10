@@ -28,3 +28,10 @@ class ToggleColumn(tables.CheckBoxColumn):
     @property
     def header(self):
         return mark_safe('<input type="checkbox" name="_all" title="Select all" />')
+
+
+class ColorColumn(tables.Column):
+
+    def render(self, record):
+        html = '<label class="label {}">{}</label>'.format(record.color, record.get_color_display())
+        return mark_safe(html)

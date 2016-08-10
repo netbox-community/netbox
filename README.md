@@ -1,4 +1,4 @@
-# NetBox
+![NetBox](docs/netbox_logo.png "NetBox logo")
 
 NetBox is an IP address management (IPAM) and data center infrastructure management (DCIM) tool. Initially conceived by the network engineering team at [DigitalOcean](https://www.digitalocean.com/), NetBox was developed specifically to address the needs of network and infrastructure engineers.
 

@@ -4,7 +4,7 @@ from django.db.models import Q
 
 from .models import (
     ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, Interface, InterfaceConnection, Manufacturer,
-    Platform, PowerOutlet, PowerPort, Rack, RackGroup, Site,
+    Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackRole, Site,
 )
 from tenancy.models import Tenant
 
@@ -95,6 +95,17 @@ class RackFilter(django_filters.FilterSet):
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
+    )
+    role_id = django_filters.ModelMultipleChoiceFilter(
+        name='role',
+        queryset=RackRole.objects.all(),
+        label='Role (ID)',
+    )
+    role = django_filters.ModelMultipleChoiceFilter(
+        name='role',
+        queryset=RackRole.objects.all(),
+        to_field_name='slug',
+        label='Role (slug)',
     )
 
     class Meta:

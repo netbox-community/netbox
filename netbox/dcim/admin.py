@@ -4,7 +4,7 @@ from django.db.models import Count
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceTemplate, Manufacturer, Module, Platform,
-    PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, Site,
+    PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, Site,
 )
 
 
@@ -24,9 +24,17 @@ class RackGroupAdmin(admin.ModelAdmin):
     }
 
 
+@admin.register(RackRole)
+class RackRoleAdmin(admin.ModelAdmin):
+    list_display = ['name', 'slug', 'color']
+    prepopulated_fields = {
+        'slug': ['name'],
+    }
+
+
 @admin.register(Rack)
 class RackAdmin(admin.ModelAdmin):
-    list_display = ['name', 'facility_id', 'site', 'u_height']
+    list_display = ['name', 'facility_id', 'site', 'group', 'tenant', 'role', 'type', 'width', 'u_height']
 
 
 #

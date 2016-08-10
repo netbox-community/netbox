@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 
 from dcim.models import (
     ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, DeviceType, IFACE_FF_VIRTUAL, Interface,
-    InterfaceConnection, Manufacturer, Platform, PowerOutlet, PowerPort, Rack, RackGroup, Site,
+    InterfaceConnection, Manufacturer, Module, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackRole, Site,
 )
 from dcim import filters
 from .exceptions import MissingFilterException
@@ -58,6 +58,26 @@ class RackGroupDetailView(generics.RetrieveAPIView):
     """
     queryset = RackGroup.objects.select_related('site')
     serializer_class = serializers.RackGroupSerializer
+
+
+#
+# Rack roles
+#
+
+class RackRoleListView(generics.ListAPIView):
+    """
+    List all rack roles
+    """
+    queryset = RackRole.objects.all()
+    serializer_class = serializers.RackRoleSerializer
+
+
+class RackRoleDetailView(generics.RetrieveAPIView):
+    """
+    Retrieve a single rack role
+    """
+    queryset = RackRole.objects.all()
+    serializer_class = serializers.RackRoleSerializer
 
 
 #
@@ -349,18 +369,23 @@ class DeviceBayListView(generics.ListAPIView):
     def get_queryset(self):
 
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
-        queryset = DeviceBay.objects.filter(device=device).select_related('installed_device')
+        return DeviceBay.objects.filter(device=device).select_related('installed_device')
 
-        # Filter by type (physical or virtual)
-        iface_type = self.request.query_params.get('type')
-        if iface_type == 'physical':
-            queryset = queryset.exclude(form_factor=IFACE_FF_VIRTUAL)
-        elif iface_type == 'virtual':
-            queryset = queryset.filter(form_factor=IFACE_FF_VIRTUAL)
-        elif iface_type is not None:
-            queryset = queryset.empty()
 
-        return queryset
+#
+# Modules
+#
+
+class ModuleListView(generics.ListAPIView):
+    """
+    List device modules (by device)
+    """
+    serializer_class = serializers.ModuleSerializer
+
+    def get_queryset(self):
+
+        device = get_object_or_404(Device, pk=self.kwargs['pk'])
+        return Module.objects.filter(device=device).select_related('device', 'manufacturer')
 
 
 #

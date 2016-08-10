@@ -42,6 +42,9 @@ class SiteTest(APITestCase):
         'site',
         'group',
         'tenant',
+        'role',
+        'type',
+        'width',
         'u_height',
         'comments'
     ]
@@ -118,6 +121,9 @@ class RackTest(APITestCase):
         'site',
         'group',
         'tenant',
+        'role',
+        'type',
+        'width',
         'u_height',
         'comments'
     ]
@@ -130,6 +136,9 @@ class RackTest(APITestCase):
         'site',
         'group',
         'tenant',
+        'role',
+        'type',
+        'width',
         'u_height',
         'comments',
         'front_units',

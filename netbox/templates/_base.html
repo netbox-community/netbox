@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{% static 'font-awesome-4.6.3/css/font-awesome.min.css' %}">
     <link rel="stylesheet" href="{% static 'jquery-ui-1.11.4/jquery-ui.css' %}">
 	<link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'img/netbox.ico' %}" />
 </head>
 <body>
     <nav class="navbar navbar-default navbar-fixed-top">
@@ -19,7 +20,9 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="/">NetBox</a>
+                <a class="navbar-brand" href="/">
+                    <img src="{% static 'img/netbox_logo.png' %}" />
+                </a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 {% if request.user.is_authenticated or not settings.LOGIN_REQUIRED %}
@@ -57,6 +60,11 @@
                             <li><a href="{% url 'dcim:rackgroup_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Rack Groups</a></li>
                             {% if perms.dcim.add_rackgroup %}
                                 <li><a href="{% url 'dcim:rackgroup_add' %}"><i class="fa fa-plus" aria-hidden="true"></i> Add a Rack Group</a></li>
+                            {% endif %}
+                            <li class="divider"></li>
+                            <li><a href="{% url 'dcim:rackrole_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Rack Roles</a></li>
+                            {% if perms.dcim.add_rackrole %}
+                                <li><a href="{% url 'dcim:rackrole_add' %}"><i class="fa fa-plus" aria-hidden="true"></i> Add a Rack Role</a></li>
                             {% endif %}
                         </ul>
                     </li>
