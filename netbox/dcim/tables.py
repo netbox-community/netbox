@@ -22,6 +22,12 @@ RACKGROUP_ACTIONS = """
 {% endif %}
 """
 
+RACKROLE_ACTIONS = """
+{% if perms.dcim.change_rackrole %}
+    <a href="{% url 'dcim:rackrole_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+{% endif %}
+"""
+
 DEVICEROLE_ACTIONS = """
 {% if perms.dcim.change_devicerole %}
     <a href="{% url 'dcim:devicerole_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
@@ -95,6 +101,24 @@ class RackGroupTable(BaseTable):
 
 
 #
+# Rack roles
+#
+
+class RackRoleTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.LinkColumn(verbose_name='Name')
+    rack_count = tables.Column(verbose_name='Racks')
+    color = tables.Column(verbose_name='Color')
+    slug = tables.Column(verbose_name='Slug')
+    actions = tables.TemplateColumn(template_code=RACKROLE_ACTIONS, attrs={'td': {'class': 'text-right'}},
+                                    verbose_name='')
+
+    class Meta(BaseTable.Meta):
+        model = RackGroup
+        fields = ('pk', 'name', 'rack_count', 'color', 'slug', 'actions')
+
+
+#
 # Racks
 #
 
@@ -105,6 +129,7 @@ class RackTable(BaseTable):
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
     facility_id = tables.Column(verbose_name='Facility ID')
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
+    role = tables.Column(verbose_name='Role')
     u_height = tables.TemplateColumn("{{ record.u_height }}U", verbose_name='Height')
     devices = tables.Column(accessor=Accessor('device_count'), verbose_name='Devices')
     u_consumed = tables.TemplateColumn("{{ record.u_consumed|default:'0' }}U", verbose_name='Used')
@@ -112,7 +137,7 @@ class RackTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Rack
-        fields = ('pk', 'name', 'site', 'group', 'facility_id', 'tenant', 'u_height', 'devices', 'u_consumed',
+        fields = ('pk', 'name', 'site', 'group', 'facility_id', 'tenant', 'role', 'u_height', 'devices', 'u_consumed',
                   'utilization')
 
 

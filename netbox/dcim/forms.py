@@ -15,8 +15,8 @@ from .models import (
     DeviceBay, DeviceBayTemplate, CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_PLANNED, CONNECTION_STATUS_CONNECTED,
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType,
     Interface, IFACE_FF_VIRTUAL, InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet,
-    PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, Rack, RackGroup, Site,
-    STATUS_CHOICES, SUBDEVICE_ROLE_CHILD
+    PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, Rack, RackGroup, RackRole,
+    Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD
 )
 
 
@@ -47,6 +47,30 @@ def bulkedit_platform_choices():
         (0, 'None'),
     ]
     choices += [(p.pk, p.name) for p in Platform.objects.all()]
+    return choices
+
+
+def bulkedit_rackgroup_choices():
+    """
+    Include an option to remove the currently assigned group from a rack.
+    """
+    choices = [
+        (None, '---------'),
+        (0, 'None'),
+    ]
+    choices += [(r.pk, r) for r in RackGroup.objects.all()]
+    return choices
+
+
+def bulkedit_rackrole_choices():
+    """
+    Include an option to remove the currently assigned role from a rack.
+    """
+    choices = [
+        (None, '---------'),
+        (0, 'None'),
+    ]
+    choices += [(r.pk, r.name) for r in RackRole.objects.all()]
     return choices
 
 
@@ -125,6 +149,18 @@ class RackGroupFilterForm(forms.Form, BootstrapMixin):
 
 
 #
+# Rack roles
+#
+
+class RackRoleForm(forms.ModelForm, BootstrapMixin):
+    slug = SlugField()
+
+    class Meta:
+        model = RackRole
+        fields = ['name', 'slug', 'color']
+
+
+#
 # Racks
 #
 
@@ -136,7 +172,7 @@ class RackForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Rack
-        fields = ['site', 'group', 'name', 'facility_id', 'tenant', 'type', 'width', 'u_height', 'comments']
+        fields = ['site', 'group', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height', 'comments']
         help_texts = {
             'site': "The site at which the rack exists",
             'name': "Organizational rack name",
@@ -166,11 +202,13 @@ class RackFromCSVForm(forms.ModelForm):
     group_name = forms.CharField(required=False)
     tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
                                     error_messages={'invalid_choice': 'Tenant not found.'})
+    role = forms.ModelChoiceField(RackRole.objects.all(), to_field_name='name', required=False,
+                                  error_messages={'invalid_choice': 'Role not found.'})
     type = forms.CharField(required=False)
 
     class Meta:
         model = Rack
-        fields = ['site', 'group_name', 'name', 'facility_id', 'tenant', 'type', 'width', 'u_height']
+        fields = ['site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height']
 
     def clean(self):
 
@@ -204,9 +242,10 @@ class RackImportForm(BulkImportForm, BootstrapMixin):
 
 class RackBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Rack.objects.all(), widget=forms.MultipleHiddenInput)
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
-    group = forms.ModelChoiceField(queryset=RackGroup.objects.all(), required=False)
+    site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site')
+    group = forms.TypedChoiceField(choices=bulkedit_rackgroup_choices, coerce=int, required=False, label='Group')
     tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
+    role = forms.TypedChoiceField(choices=bulkedit_rackrole_choices, coerce=int, required=False, label='Role')
     type = forms.ChoiceField(choices=add_blank_choice(RACK_TYPE_CHOICES), required=False, label='Type')
     width = forms.ChoiceField(choices=add_blank_choice(RACK_WIDTH_CHOICES), required=False, label='Width')
     u_height = forms.IntegerField(required=False, label='Height (U)')
@@ -228,6 +267,11 @@ def rack_tenant_choices():
     return [(t.slug, u'{} ({})'.format(t.name, t.rack_count)) for t in tenant_choices]
 
 
+def rack_role_choices():
+    role_choices = RackRole.objects.annotate(rack_count=Count('racks'))
+    return [(r.slug, u'{} ({})'.format(r.name, r.rack_count)) for r in role_choices]
+
+
 class RackFilterForm(forms.Form, BootstrapMixin):
     site = forms.MultipleChoiceField(required=False, choices=rack_site_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
@@ -235,6 +279,8 @@ class RackFilterForm(forms.Form, BootstrapMixin):
                                          widget=forms.SelectMultiple(attrs={'size': 8}))
     tenant = forms.MultipleChoiceField(required=False, choices=rack_tenant_choices,
                                        widget=forms.SelectMultiple(attrs={'size': 8}))
+    role = forms.MultipleChoiceField(required=False, choices=rack_role_choices,
+                                     widget=forms.SelectMultiple(attrs={'size': 8}))
 
 
 #

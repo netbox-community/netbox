@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 
 from dcim.models import (
     ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, DeviceType, IFACE_FF_VIRTUAL, Interface,
-    InterfaceConnection, Manufacturer, Module, Platform, PowerOutlet, PowerPort, Rack, RackGroup, Site,
+    InterfaceConnection, Manufacturer, Module, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackRole, Site,
 )
 from dcim import filters
 from .exceptions import MissingFilterException
@@ -58,6 +58,26 @@ class RackGroupDetailView(generics.RetrieveAPIView):
     """
     queryset = RackGroup.objects.select_related('site')
     serializer_class = serializers.RackGroupSerializer
+
+
+#
+# Rack roles
+#
+
+class RackRoleListView(generics.ListAPIView):
+    """
+    List all rack roles
+    """
+    queryset = RackRole.objects.all()
+    serializer_class = serializers.RackRoleSerializer
+
+
+class RackRoleDetailView(generics.RetrieveAPIView):
+    """
+    Retrieve a single rack role
+    """
+    queryset = RackRole.objects.all()
+    serializer_class = serializers.RackRoleSerializer
 
 
 #

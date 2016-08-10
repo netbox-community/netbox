@@ -61,7 +61,7 @@ COLOR_RED = 'red'
 COLOR_GRAY1 = 'light_gray'
 COLOR_GRAY2 = 'medium_gray'
 COLOR_GRAY3 = 'dark_gray'
-DEVICE_ROLE_COLOR_CHOICES = [
+ROLE_COLOR_CHOICES = [
     [COLOR_TEAL, 'Teal'],
     [COLOR_GREEN, 'Green'],
     [COLOR_BLUE, 'Blue'],
@@ -203,6 +203,10 @@ def order_interfaces(queryset, sql_col, primary_ordering=tuple()):
     }).order_by(*ordering)
 
 
+#
+# Sites
+#
+
 class SiteManager(NaturalOrderByManager):
 
     def get_queryset(self):
@@ -264,6 +268,10 @@ class Site(CreatedUpdatedModel):
         return self.circuits.count()
 
 
+#
+# Racks
+#
+
 class RackGroup(models.Model):
     """
     Racks can be grouped as subsets within a Site. The scope of a group will depend on how Sites are defined. For
@@ -288,6 +296,24 @@ class RackGroup(models.Model):
         return "{}?group_id={}".format(reverse('dcim:rack_list'), self.pk)
 
 
+class RackRole(models.Model):
+    """
+    Racks can be organized by functional role, similar to Devices.
+    """
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(unique=True)
+    color = models.CharField(max_length=30, choices=ROLE_COLOR_CHOICES)
+
+    class Meta:
+        ordering = ['name']
+
+    def __unicode__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return "{}?role={}".format(reverse('dcim:rack_list'), self.slug)
+
+
 class RackManager(NaturalOrderByManager):
 
     def get_queryset(self):
@@ -304,6 +330,7 @@ class Rack(CreatedUpdatedModel):
     site = models.ForeignKey('Site', related_name='racks', on_delete=models.PROTECT)
     group = models.ForeignKey('RackGroup', related_name='racks', blank=True, null=True, on_delete=models.SET_NULL)
     tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='racks', on_delete=models.PROTECT)
+    role = models.ForeignKey('RackRole', related_name='racks', blank=True, null=True, on_delete=models.PROTECT)
     type = models.PositiveSmallIntegerField(choices=RACK_TYPE_CHOICES, blank=True, null=True, verbose_name='Type')
     width = models.PositiveSmallIntegerField(choices=RACK_WIDTH_CHOICES, default=RACK_WIDTH_19IN, verbose_name='Width',
                                              help_text='Rail-to-rail width')
@@ -344,6 +371,9 @@ class Rack(CreatedUpdatedModel):
             self.name,
             self.facility_id or '',
             self.tenant.name if self.tenant else '',
+            self.role.name if self.role else '',
+            self.get_type_display() if self.type else '',
+            self.width,
             str(self.u_height),
         ])
 
@@ -651,7 +681,7 @@ class DeviceRole(models.Model):
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
-    color = models.CharField(max_length=30, choices=DEVICE_ROLE_COLOR_CHOICES)
+    color = models.CharField(max_length=30, choices=ROLE_COLOR_CHOICES)
 
     class Meta:
         ordering = ['name']

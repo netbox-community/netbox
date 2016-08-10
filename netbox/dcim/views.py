@@ -26,7 +26,7 @@ from .models import (
     CONNECTION_STATUS_CONNECTED, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
     DeviceBay, DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate,
     Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    Site,
+    RackRole, Site,
 )
 
 
@@ -159,6 +159,31 @@ class RackGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 
 #
+# Rack roles
+#
+
+class RackRoleListView(ObjectListView):
+    queryset = RackRole.objects.annotate(rack_count=Count('racks'))
+    table = tables.RackRoleTable
+    edit_permissions = ['dcim.change_rackrole', 'dcim.delete_rackrole']
+    template_name = 'dcim/rackrole_list.html'
+
+
+class RackRoleEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_rackrole'
+    model = RackRole
+    form_class = forms.RackRoleForm
+    success_url = 'dcim:rackrole_list'
+    cancel_url = 'dcim:rackrole_list'
+
+
+class RackRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_rackrole'
+    cls = RackRole
+    default_redirect_url = 'dcim:rackrole_list'
+
+
+#
 # Racks
 #
 
@@ -223,11 +248,12 @@ class RackBulkEditView(PermissionRequiredMixin, BulkEditView):
     def update_objects(self, pk_list, form):
 
         fields_to_update = {}
-        if form.cleaned_data['tenant'] == 0:
-            fields_to_update['tenant'] = None
-        elif form.cleaned_data['tenant']:
-            fields_to_update['tenant'] = form.cleaned_data['tenant']
-        for field in ['site', 'group', 'tenant', 'type', 'width', 'u_height', 'comments']:
+        for field in ['group', 'tenant', 'role']:
+            if form.cleaned_data[field] == 0:
+                fields_to_update[field] = None
+            elif form.cleaned_data[field]:
+                fields_to_update[field] = form.cleaned_data[field]
+        for field in ['site', 'type', 'width', 'u_height', 'comments']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
 

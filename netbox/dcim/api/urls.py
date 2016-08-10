@@ -18,6 +18,10 @@ urlpatterns = [
     url(r'^rack-groups/$', RackGroupListView.as_view(), name='rackgroup_list'),
     url(r'^rack-groups/(?P<pk>\d+)/$', RackGroupDetailView.as_view(), name='rackgroup_detail'),
 
+    # Rack roles
+    url(r'^rack-roles/$', RackRoleListView.as_view(), name='rackrole_list'),
+    url(r'^rack-roles/(?P<pk>\d+)/$', RackRoleDetailView.as_view(), name='rackrole_detail'),
+
     # Racks
     url(r'^racks/$', RackListView.as_view(), name='rack_list'),
     url(r'^racks/(?P<pk>\d+)/$', RackDetailView.as_view(), name='rack_detail'),
