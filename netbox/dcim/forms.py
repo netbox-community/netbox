@@ -1273,4 +1273,4 @@ class ModuleForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Module
-        fields = ['name', 'part_id', 'serial']
+        fields = ['name', 'manufacturer', 'part_id', 'serial']

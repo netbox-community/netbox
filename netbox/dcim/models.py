@@ -1097,6 +1097,8 @@ class Module(models.Model):
     device = models.ForeignKey('Device', related_name='modules', on_delete=models.CASCADE)
     parent = models.ForeignKey('self', related_name='submodules', blank=True, null=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, verbose_name='Name')
+    manufacturer = models.ForeignKey('Manufacturer', related_name='modules', blank=True, null=True,
+                                     on_delete=models.PROTECT)
     part_id = models.CharField(max_length=50, verbose_name='Part ID', blank=True)
     serial = models.CharField(max_length=50, verbose_name='Serial number', blank=True)
     discovered = models.BooleanField(default=False, verbose_name='Discovered')
