@@ -327,6 +327,7 @@ class DeviceTest(APITestCase):
         'tenant',
         'platform',
         'serial',
+        'asset_tag',
         'rack',
         'position',
         'face',
@@ -370,6 +371,7 @@ class DeviceTest(APITestCase):
     def test_get_list_flat(self, endpoint='/api/dcim/devices/?format=json_flat'):
 
         flat_fields = [
+            'asset_tag',
             'comments',
             'device_role_id',
             'device_role_name',
