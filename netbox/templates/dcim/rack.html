@@ -97,6 +97,16 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Role</td>
+                    <td>
+                        {% if rack.role %}
+                            <a href="{{ rack.role.get_absolute_url }}">{{ rack.role }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Type</td>
                     <td>
                         {% if rack.type %}

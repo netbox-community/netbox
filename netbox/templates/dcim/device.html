@@ -60,10 +60,20 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Serial</td>
+                    <td>Serial Number</td>
                     <td>
                         {% if device.serial %}
                             <span>{{ device.serial }}</span>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Asset Tag</td>
+                    <td>
+                        {% if device.asset_tag %}
+                            <span>{{ device.asset_tag }}</span>
                         {% else %}
                             <span class="text-muted">N/A</span>
                         {% endif %}
@@ -87,7 +97,7 @@
                 <tr>
                     <td>Role</td>
                     <td>
-                        <a href="{% url 'dcim:device_list' %}?role={{ device.device_role.slug }}">{{ device.device_role }}</a>
+                        <a href="{{ device.device_role.get_absolute_url }}">{{ device.device_role }}</a>
                     </td>
                 </tr>
                 <tr>

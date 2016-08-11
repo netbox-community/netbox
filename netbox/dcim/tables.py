@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from utilities.tables import BaseTable, ColorColumn, ToggleColumn
+from utilities.tables import BaseTable, ToggleColumn
 
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPortTemplate, Device, DeviceBayTemplate, DeviceRole, DeviceType,
@@ -9,6 +9,10 @@ from .models import (
     RackGroup, Site,
 )
 
+
+COLOR_LABEL = """
+<label class="label {{ record.color }}">{{ record }}</label>
+"""
 
 DEVICE_LINK = """
 <a href="{% url 'dcim:device' pk=record.pk %}">
@@ -28,6 +32,14 @@ RACKROLE_ACTIONS = """
 {% endif %}
 """
 
+RACK_ROLE = """
+{% if record.role %}
+    <label class="label {{ record.role.color }}">{{ value }}</label>
+{% else %}
+    &mdash;
+{% endif %}
+"""
+
 DEVICEROLE_ACTIONS = """
 {% if perms.dcim.change_devicerole %}
     <a href="{% url 'dcim:devicerole_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
@@ -44,6 +56,10 @@ PLATFORM_ACTIONS = """
 {% if perms.dcim.change_platform %}
     <a href="{% url 'dcim:platform_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
+"""
+
+DEVICE_ROLE = """
+<label class="label {{ record.device_role.color }}">{{ value }}</label>
 """
 
 STATUS_ICON = """
@@ -108,7 +124,7 @@ class RackRoleTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn(verbose_name='Name')
     rack_count = tables.Column(verbose_name='Racks')
-    color = ColorColumn(verbose_name='Color')
+    color = tables.TemplateColumn(COLOR_LABEL, verbose_name='Color')
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(template_code=RACKROLE_ACTIONS, attrs={'td': {'class': 'text-right'}},
                                     verbose_name='')
@@ -129,7 +145,7 @@ class RackTable(BaseTable):
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
     facility_id = tables.Column(verbose_name='Facility ID')
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
-    role = tables.Column(verbose_name='Role')
+    role = tables.TemplateColumn(RACK_ROLE, verbose_name='Role')
     u_height = tables.TemplateColumn("{{ record.u_height }}U", verbose_name='Height')
     devices = tables.Column(accessor=Accessor('device_count'), verbose_name='Devices')
     u_consumed = tables.TemplateColumn("{{ record.u_consumed|default:'0' }}U", verbose_name='Used')
@@ -258,7 +274,7 @@ class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn(verbose_name='Name')
     device_count = tables.Column(verbose_name='Devices')
-    color = ColorColumn(verbose_name='Color')
+    color = tables.TemplateColumn(COLOR_LABEL, verbose_name='Color')
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(template_code=DEVICEROLE_ACTIONS, attrs={'td': {'class': 'text-right'}},
                                     verbose_name='')
@@ -295,7 +311,7 @@ class DeviceTable(BaseTable):
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
     site = tables.Column(accessor=Accessor('rack.site'), verbose_name='Site')
     rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')], verbose_name='Rack')
-    device_role = tables.Column(verbose_name='Role')
+    device_role = tables.TemplateColumn(DEVICE_ROLE, verbose_name='Role')
     device_type = tables.Column(verbose_name='Type')
     primary_ip = tables.TemplateColumn(orderable=False, verbose_name='IP Address',
                                        template_code="{{ record.primary_ip.address.ip }}")
