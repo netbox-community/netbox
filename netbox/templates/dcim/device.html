@@ -87,7 +87,7 @@
                 <tr>
                     <td>Role</td>
                     <td>
-                        <a href="{% url 'dcim:device_list' %}?role={{ device.device_role.slug }}">{{ device.device_role }}</a>
+                        <a href="{{ device.device_role.get_absolute_url }}">{{ device.device_role }}</a>
                     </td>
                 </tr>
                 <tr>
