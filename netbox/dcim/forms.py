@@ -425,8 +425,8 @@ class DeviceForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = Device
-        fields = ['name', 'device_role', 'tenant', 'device_type', 'serial', 'site', 'rack', 'position', 'face', 'status',
-                  'platform', 'primary_ip4', 'primary_ip6', 'comments']
+        fields = ['name', 'device_role', 'tenant', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'position',
+                  'face', 'status', 'platform', 'primary_ip4', 'primary_ip6', 'comments']
         help_texts = {
             'device_role': "The function this device serves",
             'serial': "Chassis serial number",
@@ -546,8 +546,8 @@ class DeviceFromCSVForm(BaseDeviceFromCSVForm):
     face = forms.CharField(required=False)
 
     class Meta(BaseDeviceFromCSVForm.Meta):
-        fields = ['name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'site',
-                  'rack_name', 'position', 'face']
+        fields = ['name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag',
+                  'site', 'rack_name', 'position', 'face']
 
     def clean(self):
 
@@ -582,8 +582,8 @@ class ChildDeviceFromCSVForm(BaseDeviceFromCSVForm):
     device_bay_name = forms.CharField(required=False)
 
     class Meta(BaseDeviceFromCSVForm.Meta):
-        fields = ['name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'parent',
-                  'device_bay_name']
+        fields = ['name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag',
+                  'parent', 'device_bay_name']
 
     def clean(self):
 

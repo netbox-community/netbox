@@ -250,8 +250,9 @@ class DeviceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Device
-        fields = ['id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'rack',
-                  'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4', 'primary_ip6', 'comments']
+        fields = ['id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial',
+                  'asset_tag', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4',
+                  'primary_ip6', 'comments']
 
     def get_parent_device(self, obj):
         try:

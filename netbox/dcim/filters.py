@@ -239,15 +239,16 @@ class DeviceFilter(django_filters.FilterSet):
 
     class Meta:
         model = Device
-        fields = ['q', 'name', 'site_id', 'site', 'rack_id', 'role_id', 'role', 'device_type_id', 'manufacturer_id',
-                  'manufacturer', 'model', 'platform_id', 'platform', 'status', 'is_console_server', 'is_pdu',
-                  'is_network_device']
+        fields = ['q', 'name', 'serial', 'asset_tag', 'site_id', 'site', 'rack_id', 'role_id', 'role', 'device_type_id',
+                  'manufacturer_id', 'manufacturer', 'model', 'platform_id', 'platform', 'status', 'is_console_server',
+                  'is_pdu', 'is_network_device']
 
     def search(self, queryset, value):
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(serial__icontains=value) |
-            Q(modules__serial__icontains=value) |
+            Q(serial__icontains=value.strip()) |
+            Q(modules__serial__icontains=value.strip()) |
+            Q(asset_tag=value.strip()) |
             Q(comments__icontains=value)
         ).distinct()
 

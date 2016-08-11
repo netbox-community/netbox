@@ -737,6 +737,8 @@ class Device(CreatedUpdatedModel):
     platform = models.ForeignKey('Platform', related_name='devices', blank=True, null=True, on_delete=models.SET_NULL)
     name = NullableCharField(max_length=50, blank=True, null=True, unique=True)
     serial = models.CharField(max_length=50, blank=True, verbose_name='Serial number')
+    asset_tag = NullableCharField(max_length=50, blank=True, null=True, unique=True, verbose_name='Asset tag',
+                                  help_text='A unique tag used to identify this device')
     rack = models.ForeignKey('Rack', related_name='devices', on_delete=models.PROTECT)
     position = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1)],
                                                 verbose_name='Position (U)',
@@ -832,6 +834,7 @@ class Device(CreatedUpdatedModel):
             self.device_type.model,
             self.platform.name if self.platform else '',
             self.serial,
+            self.asset_tag if self.asset_tag else '',
             self.rack.site.name,
             self.rack.name,
             str(self.position) if self.position else '',

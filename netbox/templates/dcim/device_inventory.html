@@ -17,7 +17,23 @@
                 </tr>
                 <tr>
                     <td>Serial Number</td>
-                    <td>{{ device.serial }}</td>
+                    <td>
+                        {% if device.serial %}
+                            <span>{{ device.serial }}</span>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Asset Tag</td>
+                    <td>
+                        {% if device.asset_tag %}
+                            <span>{{ device.asset_tag }}</span>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
                 </tr>
             </table>
         </div>

@@ -183,7 +183,8 @@ class DeviceAdmin(admin.ModelAdmin):
         DeviceBayAdmin,
         ModuleAdmin,
     ]
-    list_display = ['display_name', 'device_type', 'device_role', 'primary_ip', 'rack', 'position', 'serial']
+    list_display = ['display_name', 'device_type', 'device_role', 'primary_ip', 'rack', 'position', 'asset_tag',
+                    'serial']
     list_filter = ['device_role']
 
     def get_queryset(self, request):
