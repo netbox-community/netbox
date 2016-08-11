@@ -373,7 +373,7 @@ class Rack(CreatedUpdatedModel):
             self.tenant.name if self.tenant else '',
             self.role.name if self.role else '',
             self.get_type_display() if self.type else '',
-            self.width,
+            str(self.width),
             str(self.u_height),
         ])
 
