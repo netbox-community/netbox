@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import ValidationError
 from django.db import models
 from django.http import HttpResponse
 from django.template import Template, Context
@@ -7,6 +9,26 @@ from django.utils.safestring import mark_safe
 
 from dcim.models import Site
 
+
+CUSTOMFIELD_MODELS = (
+    'site', 'rack', 'device',                               # DCIM
+    'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf',      # IPAM
+    'provider', 'circuit',                                  # Circuits
+    'tenant',                                               # Tenants
+)
+
+CF_TYPE_TEXT = 100
+CF_TYPE_INTEGER = 200
+CF_TYPE_BOOLEAN = 300
+CF_TYPE_DATE = 400
+CF_TYPE_SELECT = 500
+CUSTOMFIELD_TYPE_CHOICES = (
+    (CF_TYPE_TEXT, 'Text'),
+    (CF_TYPE_INTEGER, 'Integer'),
+    (CF_TYPE_BOOLEAN, 'Boolean (true/false)'),
+    (CF_TYPE_DATE, 'Date'),
+    (CF_TYPE_SELECT, 'Selection'),
+)
 
 GRAPH_TYPE_INTERFACE = 100
 GRAPH_TYPE_PROVIDER = 200
@@ -38,6 +60,80 @@ ACTION_CHOICES = (
     (ACTION_DELETE, 'deleted'),
     (ACTION_BULK_DELETE, 'bulk deleted')
 )
+
+
+class CustomField(models.Model):
+    obj_type = models.ManyToManyField(ContentType, related_name='custom_fields',
+                                      limit_choices_to={'model__in': CUSTOMFIELD_MODELS})
+    type = models.PositiveSmallIntegerField(choices=CUSTOMFIELD_TYPE_CHOICES, default=CF_TYPE_TEXT)
+    name = models.CharField(max_length=50, unique=True)
+    label = models.CharField(max_length=50, blank=True, help_text="Name of the field as displayed to users")
+    description = models.CharField(max_length=100, blank=True)
+    required = models.BooleanField(default=False, help_text="This field is required when creating new objects")
+    default = models.CharField(max_length=100, blank=True, help_text="Default value for the field")
+
+    class Meta:
+        ordering = ['name']
+
+    def __unicode__(self):
+        return self.label or self.name
+
+
+class CustomFieldValue(models.Model):
+    field = models.ForeignKey('CustomField', related_name='values')
+    obj_type = models.ForeignKey(ContentType, related_name='+', on_delete=models.PROTECT)
+    obj_id = models.PositiveIntegerField()
+    obj = GenericForeignKey('obj_type', 'obj_id')
+    val_int = models.BigIntegerField(blank=True, null=True)
+    val_char = models.CharField(max_length=100, blank=True)
+    val_date = models.DateField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['obj_type', 'obj_id']
+
+    def __unicode__(self):
+        return self.value
+
+    @property
+    def value(self):
+        if self.field.type == CF_TYPE_INTEGER:
+            return self.val_int
+        if self.field.type == CF_TYPE_BOOLEAN:
+            return bool(self.val_int) if self.val_int is not None else None
+        if self.field.type == CF_TYPE_DATE:
+            return self.val_date
+        if self.field.type == CF_TYPE_SELECT:
+            return CustomFieldChoice.objects.get(pk=self.val_int)
+        return self.val_char
+
+    @value.setter
+    def value(self, value):
+        if self.field.type in [CF_TYPE_INTEGER, CF_TYPE_SELECT]:
+            self.val_int = value
+        elif self.field.type == CF_TYPE_BOOLEAN:
+            self.val_int = bool(value) if value else None
+        elif self.field.type == CF_TYPE_DATE:
+            self.val_date = value
+        else:
+            self.val_char = value
+
+
+class CustomFieldChoice(models.Model):
+    field = models.ForeignKey('CustomField', related_name='choices', limit_choices_to={'type': CF_TYPE_SELECT},
+                              on_delete=models.CASCADE)
+    value = models.CharField(max_length=100)
+    weight = models.PositiveSmallIntegerField(default=100)
+
+    class Meta:
+        ordering = ['field', 'weight', 'value']
+        unique_together = ['field', 'value']
+
+    def __unicode__(self):
+        return self.value
+
+    def clean(self):
+        if self.field.type != CF_TYPE_SELECT:
+            raise ValidationError("Custom field choices can only be assigned to selection fields.")
 
 
 class Graph(models.Model):

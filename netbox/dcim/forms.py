@@ -3,6 +3,7 @@ import re
 from django import forms
 from django.db.models import Count, Q
 
+from extras.forms import CustomFieldForm
 from ipam.models import IPAddress
 from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
@@ -78,7 +79,7 @@ def bulkedit_rackrole_choices():
 # Sites
 #
 
-class SiteForm(forms.ModelForm, BootstrapMixin):
+class SiteForm(BootstrapMixin, CustomFieldForm):
     slug = SlugField()
     comments = CommentField()
 

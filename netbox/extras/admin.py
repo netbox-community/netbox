@@ -1,6 +1,16 @@
 from django.contrib import admin
 
-from .models import Graph, ExportTemplate, TopologyMap, UserAction
+from .models import CustomField, CustomFieldValue, CustomFieldChoice, Graph, ExportTemplate, TopologyMap, UserAction
+
+
+class CustomFieldChoiceAdmin(admin.TabularInline):
+    model = CustomFieldChoice
+
+
+@admin.register(CustomField)
+class CustomFieldAdmin(admin.ModelAdmin):
+    inlines = [CustomFieldChoiceAdmin]
+    list_display = ['name', 'type', 'required', 'default', 'description']
 
 
 @admin.register(Graph)

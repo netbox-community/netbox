@@ -1,0 +1,7 @@
+{% load form_helpers %}
+
+{% for field in form %}
+    {% if field.name in form.custom_fields %}
+        {% render_field field %}
+    {% endif %}
+{% endfor %}
