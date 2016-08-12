@@ -8,9 +8,15 @@ $(document).ready(function() {
     }
 
     // Update livesearch text when real field changes
-    search_field.val(real_field.children('option:selected').text());
-    real_field.change(function() {
+    if (real_field.val()) {
         search_field.val(real_field.children('option:selected').text());
+    }
+    real_field.change(function() {
+        if (real_field.val()) {
+            search_field.val(real_field.children('option:selected').text());
+        } else {
+            search_field.val('');
+        }
     });
 
     search_field.autocomplete({
