@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models.expressions import RawSQL
 
 from dcim.models import Interface
 from tenancy.models import Tenant
@@ -295,6 +296,18 @@ class Prefix(CreatedUpdatedModel):
         return STATUS_CHOICE_CLASSES[self.status]
 
 
+class IPAddressManager(models.Manager):
+
+    def get_queryset(self):
+        """
+        By default, PostgreSQL will order INETs with shorter (larger) prefix lengths ahead of those with longer
+        (smaller) masks. This makes no sense when ordering IPs, which should be ordered solely by family and host
+        address. Here, we alter the default ordering to use HOST(address) instead of the raw address value.
+        """
+        qs = super(IPAddressManager, self).get_queryset()
+        return qs.annotate(host=RawSQL('HOST(ipam_ipaddress.address)', [])).order_by('family', 'host')
+
+
 class IPAddress(CreatedUpdatedModel):
     """
     An IPAddress represents an individual IPv4 or IPv6 address and its mask. The mask length should match what is
@@ -316,6 +329,8 @@ class IPAddress(CreatedUpdatedModel):
     nat_inside = models.OneToOneField('self', related_name='nat_outside', on_delete=models.SET_NULL, blank=True,
                                       null=True, verbose_name='NAT IP (inside)')
     description = models.CharField(max_length=100, blank=True)
+
+    objects = IPAddressManager()
 
     class Meta:
         ordering = ['family', 'address']
