@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.db import models
 
+from extras.models import CustomFieldModel
 from utilities.models import CreatedUpdatedModel
 
 
@@ -21,7 +22,7 @@ class TenantGroup(models.Model):
         return "{}?group={}".format(reverse('tenancy:tenant_list'), self.slug)
 
 
-class Tenant(CreatedUpdatedModel):
+class Tenant(CreatedUpdatedModel, CustomFieldModel):
     """
     A Tenant represents an organization served by the NetBox owner. This is typically a customer or an internal
     department.

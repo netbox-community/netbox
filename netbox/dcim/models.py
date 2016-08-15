@@ -1,12 +1,14 @@
 from collections import OrderedDict
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, Q, ObjectDoesNotExist
 
+from extras.models import CustomFieldModel, CustomField, CustomFieldValue
 from extras.rpc import RPC_CLIENTS
 from tenancy.models import Tenant
 from utilities.fields import NullableCharField
@@ -213,7 +215,7 @@ class SiteManager(NaturalOrderByManager):
         return self.natural_order_by('name')
 
 
-class Site(CreatedUpdatedModel):
+class Site(CreatedUpdatedModel, CustomFieldModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
     field can be used to include an external designation, such as a data center name (e.g. Equinix SV6).
@@ -320,7 +322,7 @@ class RackManager(NaturalOrderByManager):
         return self.natural_order_by('site__name', 'name')
 
 
-class Rack(CreatedUpdatedModel):
+class Rack(CreatedUpdatedModel, CustomFieldModel):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a RackGroup.
@@ -719,7 +721,7 @@ class DeviceManager(NaturalOrderByManager):
         return self.natural_order_by('name')
 
 
-class Device(CreatedUpdatedModel):
+class Device(CreatedUpdatedModel, CustomFieldModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
     DeviceRole, and (optionally) a Platform. Device names are not required, however if one is set it must be unique.

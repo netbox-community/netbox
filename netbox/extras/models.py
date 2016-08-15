@@ -7,9 +7,8 @@ from django.http import HttpResponse
 from django.template import Template, Context
 from django.utils.safestring import mark_safe
 
-from dcim.models import Site
 
-
+# NOTE: Any model added here MUST have a GenericRelation defined for CustomField
 CUSTOMFIELD_MODELS = (
     'site', 'rack', 'device',                               # DCIM
     'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf',      # IPAM
@@ -62,21 +61,42 @@ ACTION_CHOICES = (
 )
 
 
+class CustomFieldModel(object):
+
+    def custom_fields(self):
+
+        # Find all custom fields applicable to this type of object
+        content_type = ContentType.objects.get_for_model(self)
+        fields = CustomField.objects.filter(obj_type=content_type)
+
+        # If the object exists, populate its custom fields with values
+        if hasattr(self, 'pk'):
+            values = CustomFieldValue.objects.filter(obj_type=content_type, obj_id=self.pk).select_related('field')
+            values_dict = {cfv.field_id: cfv.value for cfv in values}
+            return {field: values_dict.get(field.pk) for field in fields}
+        else:
+            return {field: None for field in fields}
+
+
 class CustomField(models.Model):
-    obj_type = models.ManyToManyField(ContentType, related_name='custom_fields',
-                                      limit_choices_to={'model__in': CUSTOMFIELD_MODELS})
+    obj_type = models.ManyToManyField(ContentType, related_name='custom_fields', verbose_name='Object(s)',
+                                      limit_choices_to={'model__in': CUSTOMFIELD_MODELS},
+                                      help_text="The object(s) to which this field applies.")
     type = models.PositiveSmallIntegerField(choices=CUSTOMFIELD_TYPE_CHOICES, default=CF_TYPE_TEXT)
     name = models.CharField(max_length=50, unique=True)
-    label = models.CharField(max_length=50, blank=True, help_text="Name of the field as displayed to users")
+    label = models.CharField(max_length=50, blank=True, help_text="Name of the field as displayed to users (if not "
+                                                                  "provided, the field's name will be used)")
     description = models.CharField(max_length=100, blank=True)
-    required = models.BooleanField(default=False, help_text="This field is required when creating new objects")
-    default = models.CharField(max_length=100, blank=True, help_text="Default value for the field")
+    required = models.BooleanField(default=False, help_text="Determines whether this field is required when creating "
+                                                            "new objects or editing an existing object.")
+    default = models.CharField(max_length=100, blank=True, help_text="Default value for the field. N/A for selection "
+                                                                     "fields.")
 
     class Meta:
         ordering = ['name']
 
     def __unicode__(self):
-        return self.label or self.name
+        return self.label or self.name.capitalize()
 
 
 class CustomFieldValue(models.Model):
@@ -90,9 +110,10 @@ class CustomFieldValue(models.Model):
 
     class Meta:
         ordering = ['obj_type', 'obj_id']
+        unique_together = ['field', 'obj_type', 'obj_id']
 
     def __unicode__(self):
-        return self.value
+        return '{} {}'.format(self.obj, self.field)
 
     @property
     def value(self):
@@ -103,17 +124,19 @@ class CustomFieldValue(models.Model):
         if self.field.type == CF_TYPE_DATE:
             return self.val_date
         if self.field.type == CF_TYPE_SELECT:
-            return CustomFieldChoice.objects.get(pk=self.val_int)
+            return CustomFieldChoice.objects.get(pk=self.val_int) if self.val_int else None
         return self.val_char
 
     @value.setter
     def value(self, value):
-        if self.field.type in [CF_TYPE_INTEGER, CF_TYPE_SELECT]:
+        if self.field.type == CF_TYPE_INTEGER:
             self.val_int = value
         elif self.field.type == CF_TYPE_BOOLEAN:
             self.val_int = bool(value) if value else None
         elif self.field.type == CF_TYPE_DATE:
             self.val_date = value
+        elif self.field.type == CF_TYPE_SELECT:
+            self.val_int = value.id
         else:
             self.val_char = value
 
@@ -195,7 +218,7 @@ class ExportTemplate(models.Model):
 class TopologyMap(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
-    site = models.ForeignKey(Site, related_name='topology_maps', blank=True, null=True)
+    site = models.ForeignKey('dcim.Site', related_name='topology_maps', blank=True, null=True)
     device_patterns = models.TextField(help_text="Identify devices to include in the diagram using regular expressions,"
                                                  "one per line. Each line will result in a new tier of the drawing. "
                                                  "Separate multiple regexes on a line using commas. Devices will be "

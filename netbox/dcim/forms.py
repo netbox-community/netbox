@@ -165,7 +165,7 @@ class RackRoleForm(forms.ModelForm, BootstrapMixin):
 # Racks
 #
 
-class RackForm(forms.ModelForm, BootstrapMixin):
+class RackForm(BootstrapMixin, CustomFieldForm):
     group = forms.ModelChoiceField(queryset=RackGroup.objects.all(), required=False, label='Group', widget=APISelect(
         api_url='/api/dcim/rack-groups/?site_id={{site}}',
     ))
@@ -405,7 +405,7 @@ class PlatformForm(forms.ModelForm, BootstrapMixin):
 # Devices
 #
 
-class DeviceForm(forms.ModelForm, BootstrapMixin):
+class DeviceForm(BootstrapMixin, CustomFieldForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs={'filter-for': 'rack'}))
     rack = forms.ModelChoiceField(queryset=Rack.objects.all(), widget=APISelect(
         api_url='/api/dcim/racks/?site_id={{site}}',

@@ -118,6 +118,9 @@
                 </tr>
 		    </table>
         </div>
+        {% with vlan.custom_fields as custom_fields %}
+            {% include 'inc/custom_fields_panel.html' %}
+        {% endwith %}
 	</div>
 	<div class="col-md-6">
         <div class="panel panel-default">

@@ -4,6 +4,7 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Site, Device, Interface
+from extras.forms import CustomFieldForm
 from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
 from utilities.forms import BootstrapMixin, APISelect, Livesearch, CSVDataField, BulkImportForm, SlugField
@@ -33,7 +34,7 @@ def bulkedit_vrf_choices():
 # VRFs
 #
 
-class VRFForm(forms.ModelForm, BootstrapMixin):
+class VRFForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = VRF
@@ -91,7 +92,7 @@ class RIRForm(forms.ModelForm, BootstrapMixin):
 # Aggregates
 #
 
-class AggregateForm(forms.ModelForm, BootstrapMixin):
+class AggregateForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = Aggregate
@@ -149,7 +150,7 @@ class RoleForm(forms.ModelForm, BootstrapMixin):
 # Prefixes
 #
 
-class PrefixForm(forms.ModelForm, BootstrapMixin):
+class PrefixForm(BootstrapMixin, CustomFieldForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site',
                                   widget=forms.Select(attrs={'filter-for': 'vlan'}))
     vlan = forms.ModelChoiceField(queryset=VLAN.objects.all(), required=False, label='VLAN',
@@ -309,7 +310,7 @@ class PrefixFilterForm(forms.Form, BootstrapMixin):
 # IP addresses
 #
 
-class IPAddressForm(forms.ModelForm, BootstrapMixin):
+class IPAddressForm(BootstrapMixin, CustomFieldForm):
     nat_site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site',
                                       widget=forms.Select(attrs={'filter-for': 'nat_device'}))
     nat_device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False, label='Device',
@@ -478,7 +479,7 @@ class VLANGroupFilterForm(forms.Form, BootstrapMixin):
 # VLANs
 #
 
-class VLANForm(forms.ModelForm, BootstrapMixin):
+class VLANForm(BootstrapMixin, CustomFieldForm):
     group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False, label='Group', widget=APISelect(
         api_url='/api/ipam/vlan-groups/?site_id={{site}}',
     ))

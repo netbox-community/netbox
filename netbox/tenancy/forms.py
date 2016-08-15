@@ -1,9 +1,8 @@
 from django import forms
 from django.db.models import Count
 
-from utilities.forms import (
-    BootstrapMixin, BulkImportForm, CommentField, CSVDataField, SlugField,
-)
+from extras.forms import CustomFieldForm
+from utilities.forms import BootstrapMixin, BulkImportForm, CommentField, CSVDataField, SlugField
 
 from .models import Tenant, TenantGroup
 
@@ -48,7 +47,7 @@ class TenantGroupForm(forms.ModelForm, BootstrapMixin):
 # Tenants
 #
 
-class TenantForm(forms.ModelForm, BootstrapMixin):
+class TenantForm(BootstrapMixin, CustomFieldForm):
     slug = SlugField()
     comments = CommentField()
 

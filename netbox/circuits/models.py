@@ -3,11 +3,12 @@ from django.db import models
 
 from dcim.fields import ASNField
 from dcim.models import Site, Interface
+from extras.models import CustomFieldModel
 from tenancy.models import Tenant
 from utilities.models import CreatedUpdatedModel
 
 
-class Provider(CreatedUpdatedModel):
+class Provider(CreatedUpdatedModel, CustomFieldModel):
     """
     Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model
     stores information pertinent to the user's relationship with the Provider.
@@ -58,7 +59,7 @@ class CircuitType(models.Model):
         return "{}?type={}".format(reverse('circuits:circuit_list'), self.slug)
 
 
-class Circuit(CreatedUpdatedModel):
+class Circuit(CreatedUpdatedModel, CustomFieldModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
     circuits. Each circuit is also assigned a CircuitType and a Site. A Circuit may be terminated to a specific device

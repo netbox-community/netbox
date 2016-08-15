@@ -2,6 +2,7 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Site, Device, Interface, Rack, IFACE_FF_VIRTUAL
+from extras.forms import CustomFieldForm
 from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -15,7 +16,7 @@ from .models import Circuit, CircuitType, Provider
 # Providers
 #
 
-class ProviderForm(forms.ModelForm, BootstrapMixin):
+class ProviderForm(BootstrapMixin, CustomFieldForm):
     slug = SlugField()
     comments = CommentField()
 
@@ -82,7 +83,7 @@ class CircuitTypeForm(forms.ModelForm, BootstrapMixin):
 # Circuits
 #
 
-class CircuitForm(forms.ModelForm, BootstrapMixin):
+class CircuitForm(BootstrapMixin, CustomFieldForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs={'filter-for': 'rack'}))
     rack = forms.ModelChoiceField(queryset=Rack.objects.all(), required=False, label='Rack',
                                   widget=APISelect(api_url='/api/dcim/racks/?site_id={{site}}',

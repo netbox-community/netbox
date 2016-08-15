@@ -109,6 +109,9 @@
                 </tr>
             </table>
         </div>
+        {% with prefix.custom_fields as custom_fields %}
+            {% include 'inc/custom_fields_panel.html' %}
+        {% endwith %}
 	</div>
 	<div class="col-md-7">
         {% if duplicate_prefix_table.rows %}

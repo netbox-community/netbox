@@ -15,6 +15,7 @@ from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
 from django.views.generic import View
 
+from extras.forms import CustomFieldForm
 from extras.models import ExportTemplate, UserAction
 
 from .error_handlers import handle_protectederror
@@ -135,6 +136,8 @@ class ObjectEditView(View):
             obj = form.save(commit=False)
             obj_created = not obj.pk
             obj.save()
+            if isinstance(form, CustomFieldForm):
+                form.save_custom_fields()
 
             msg = u'Created ' if obj_created else u'Modified '
             msg += self.model._meta.verbose_name

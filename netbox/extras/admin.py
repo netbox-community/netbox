@@ -10,7 +10,10 @@ class CustomFieldChoiceAdmin(admin.TabularInline):
 @admin.register(CustomField)
 class CustomFieldAdmin(admin.ModelAdmin):
     inlines = [CustomFieldChoiceAdmin]
-    list_display = ['name', 'type', 'required', 'default', 'description']
+    list_display = ['name', 'models', 'type', 'required', 'default', 'description']
+
+    def models(self, obj):
+        return ', '.join([ct.name for ct in obj.obj_type.all()])
 
 
 @admin.register(Graph)
