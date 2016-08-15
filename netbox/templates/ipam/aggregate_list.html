@@ -11,6 +11,10 @@
 			<span class="fa fa-plus" aria-hidden="true"></span>
 			Add an aggregate
 		</a>
+        <a href="{% url 'ipam:aggregate_import' %}" class="btn btn-info">
+            <span class="fa fa-download" aria-hidden="true"></span>
+            Import aggregates
+        </a>
     {% endif %}
     {% include 'inc/export_button.html' with obj_type='aggregates' %}
 </div>
