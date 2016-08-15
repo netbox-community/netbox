@@ -43,7 +43,7 @@ class CustomFieldForm(forms.ModelForm):
                 field = forms.CharField(max_length=100, required=cf.required, initial=cf.default)
 
             field.model = cf
-            field.label = cf.label if cf.label else cf.name
+            field.label = cf.label if cf.label else cf.name.capitalize()
             field.help_text = cf.description
             self.fields[field_name] = field
             self.custom_fields.append(field_name)

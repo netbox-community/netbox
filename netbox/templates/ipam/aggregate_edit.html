@@ -1,0 +1,22 @@
+{% extends 'utilities/obj_edit.html' %}
+{% load form_helpers %}
+
+{% block form %}
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Aggregate</strong></div>
+        <div class="panel-body">
+            {% render_field form.prefix %}
+            {% render_field form.rir %}
+            {% render_field form.date_added %}
+            {% render_field form.description %}
+        </div>
+    </div>
+    {% if form.custom_fields %}
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>Custom Fields</strong></div>
+            <div class="panel-body">
+                {% render_custom_fields form %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

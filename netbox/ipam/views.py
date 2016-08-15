@@ -111,6 +111,7 @@ class VRFEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.change_vrf'
     model = VRF
     form_class = forms.VRFForm
+    template_name = 'ipam/vrf_edit.html'
     cancel_url = 'ipam:vrf_list'
 
 
@@ -235,6 +236,7 @@ class AggregateEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.change_aggregate'
     model = Aggregate
     form_class = forms.AggregateForm
+    template_name = 'ipam/aggregate_edit.html'
     cancel_url = 'ipam:aggregate_list'
 
 
@@ -373,6 +375,7 @@ class PrefixEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.change_prefix'
     model = Prefix
     form_class = forms.PrefixForm
+    template_name = 'ipam/prefix_edit.html'
     fields_initial = ['vrf', 'tenant', 'site', 'prefix', 'vlan']
     cancel_url = 'ipam:prefix_list'
 
@@ -601,6 +604,7 @@ class VLANEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.change_vlan'
     model = VLAN
     form_class = forms.VLANForm
+    template_name = 'ipam/vlan_edit.html'
     cancel_url = 'ipam:vlan_list'
 
 

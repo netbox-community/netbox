@@ -8,7 +8,6 @@ from django.template import Template, Context
 from django.utils.safestring import mark_safe
 
 
-# NOTE: Any model added here MUST have a GenericRelation defined for CustomField
 CUSTOMFIELD_MODELS = (
     'site', 'rack', 'device',                               # DCIM
     'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf',      # IPAM
