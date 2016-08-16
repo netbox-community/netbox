@@ -7,7 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
-from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
+from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, TypedChoiceField
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import TemplateSyntaxError
@@ -15,8 +15,8 @@ from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
 from django.views.generic import View
 
-from extras.forms import CustomFieldForm
-from extras.models import ExportTemplate, UserAction
+from extras.forms import CustomFieldForm, CustomFieldBulkEditForm
+from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
 
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
@@ -282,9 +282,22 @@ class BulkEditView(View):
             pk_list = request.POST.getlist('pk')
 
         if '_apply' in request.POST:
-            form = self.form(request.POST)
+            if hasattr(self.form, 'custom_fields'):
+                form = self.form(self.cls, request.POST)
+            else:
+                form = self.form(request.POST)
             if form.is_valid():
-                updated_count = self.update_objects(pk_list, form)
+
+                custom_fields = form.custom_fields if hasattr(form, 'custom_fields') else []
+                standard_fields = [field for field in form.fields if field not in custom_fields and field != 'pk']
+
+                # Update objects
+                updated_count = self.update_objects(pk_list, form, standard_fields)
+
+                # Update custom fields for objects
+                if custom_fields:
+                    self.update_custom_fields(pk_list, form, custom_fields)
+
                 if updated_count:
                     msg = u'Updated {} {}'.format(updated_count, self.cls._meta.verbose_name_plural)
                     messages.success(self.request, msg)
@@ -292,7 +305,10 @@ class BulkEditView(View):
                 return redirect(redirect_url)
 
         else:
-            form = self.form(initial={'pk': pk_list})
+            if hasattr(self.form, 'custom_fields'):
+                form = self.form(self.cls, initial={'pk': pk_list})
+            else:
+                form = self.form(initial={'pk': pk_list})
 
         selected_objects = self.cls.objects.filter(pk__in=pk_list)
         if not selected_objects:
@@ -305,11 +321,29 @@ class BulkEditView(View):
             'cancel_url': redirect_url,
         })
 
-    def update_objects(self, obj_list, form):
-        """
-        This method provides the update logic (must be overridden by subclasses).
-        """
-        raise NotImplementedError()
+    def update_objects(self, pk_list, form, fields):
+        fields_to_update = {}
+
+        for name in fields:
+            if isinstance(form.fields[name], TypedChoiceField) and form.cleaned_data[name] == 0:
+                fields_to_update[name] = None
+            elif form.cleaned_data[name]:
+                fields_to_update[name] = form.cleaned_data[name]
+
+        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
+
+    def update_custom_fields(self, pk_list, form, fields):
+        obj_type = ContentType.objects.get_for_model(self.cls)
+
+        for name in fields:
+            if form.cleaned_data[name] not in [None, u'']:
+                for pk in pk_list:
+                    try:
+                        cfv = CustomFieldValue.objects.get(field=form.fields[name].model, obj_type=obj_type, obj_id=pk)
+                    except CustomFieldValue.DoesNotExist:
+                        cfv = CustomFieldValue(field=form.fields[name].model, obj_type=obj_type, obj_id=pk)
+                    cfv.value = form.cleaned_data[name]
+                    cfv.save()
 
 
 class BulkDeleteView(View):

@@ -136,19 +136,6 @@ class VRFBulkEditView(PermissionRequiredMixin, BulkEditView):
     template_name = 'ipam/vrf_bulk_edit.html'
     default_redirect_url = 'ipam:vrf_list'
 
-    def update_objects(self, pk_list, form):
-
-        fields_to_update = {}
-        if form.cleaned_data['tenant'] == 0:
-            fields_to_update['tenant'] = None
-        elif form.cleaned_data['tenant']:
-            fields_to_update['tenant'] = form.cleaned_data['tenant']
-        for field in ['description']:
-            if form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
-
-        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
-
 
 class VRFBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_vrf'
@@ -260,15 +247,6 @@ class AggregateBulkEditView(PermissionRequiredMixin, BulkEditView):
     form = forms.AggregateBulkEditForm
     template_name = 'ipam/aggregate_bulk_edit.html'
     default_redirect_url = 'ipam:aggregate_list'
-
-    def update_objects(self, pk_list, form):
-
-        fields_to_update = {}
-        for field in ['rir', 'date_added', 'description']:
-            if form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
-
-        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
 
 
 class AggregateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -401,20 +379,6 @@ class PrefixBulkEditView(PermissionRequiredMixin, BulkEditView):
     template_name = 'ipam/prefix_bulk_edit.html'
     default_redirect_url = 'ipam:prefix_list'
 
-    def update_objects(self, pk_list, form):
-
-        fields_to_update = {}
-        for field in ['vrf', 'tenant']:
-            if form.cleaned_data[field] == 0:
-                fields_to_update[field] = None
-            elif form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
-        for field in ['site', 'status', 'role', 'description']:
-            if form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
-
-        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
-
 
 class PrefixBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_prefix'
@@ -527,20 +491,6 @@ class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
     template_name = 'ipam/ipaddress_bulk_edit.html'
     default_redirect_url = 'ipam:ipaddress_list'
 
-    def update_objects(self, pk_list, form):
-
-        fields_to_update = {}
-        for field in ['vrf', 'tenant']:
-            if form.cleaned_data[field] == 0:
-                fields_to_update[field] = None
-            elif form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
-        for field in ['description']:
-            if form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
-
-        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
-
 
 class IPAddressBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_ipaddress'
@@ -628,19 +578,6 @@ class VLANBulkEditView(PermissionRequiredMixin, BulkEditView):
     form = forms.VLANBulkEditForm
     template_name = 'ipam/vlan_bulk_edit.html'
     default_redirect_url = 'ipam:vlan_list'
-
-    def update_objects(self, pk_list, form):
-
-        fields_to_update = {}
-        if form.cleaned_data['tenant'] == 0:
-            fields_to_update['tenant'] = None
-        elif form.cleaned_data['tenant']:
-            fields_to_update['tenant'] = form.cleaned_data['tenant']
-        for field in ['site', 'group', 'status', 'role', 'description']:
-            if form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
-
-        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
 
 
 class VLANBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):

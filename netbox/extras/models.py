@@ -131,13 +131,21 @@ class CustomFieldValue(models.Model):
         if self.field.type == CF_TYPE_INTEGER:
             self.val_int = value
         elif self.field.type == CF_TYPE_BOOLEAN:
-            self.val_int = bool(value) if value else None
+            self.val_int = int(bool(value)) if value is not None else None
         elif self.field.type == CF_TYPE_DATE:
             self.val_date = value
         elif self.field.type == CF_TYPE_SELECT:
-            self.val_int = value.id
+            # Could be ModelChoiceField or TypedChoiceField
+            self.val_int = value.id if hasattr(value, 'id') else value
         else:
             self.val_char = value
+
+    def save(self, *args, **kwargs):
+        if (self.field.type == CF_TYPE_TEXT and self.value == '') or self.value is None:
+            if self.pk:
+                self.delete()
+        else:
+            super(CustomFieldValue, self).save(*args, **kwargs)
 
 
 class CustomFieldChoice(models.Model):

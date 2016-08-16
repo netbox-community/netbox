@@ -205,15 +205,6 @@ class SecretBulkEditView(PermissionRequiredMixin, BulkEditView):
     template_name = 'secrets/secret_bulk_edit.html'
     default_redirect_url = 'secrets:secret_list'
 
-    def update_objects(self, pk_list, form):
-
-        fields_to_update = {}
-        for field in ['role', 'name']:
-            if form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
-
-        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
-
 
 class SecretBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'secrets.delete_secret'

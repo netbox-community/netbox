@@ -8,7 +8,7 @@
                 <tr>
                     <td>{{ field }}</td>
                     <td>
-                        {% if value %}
+                        {% if value != None %}
                             {{ value }}
                         {% elif field.required %}
                             <span class="text-warning">Not defined</span>

@@ -3,7 +3,7 @@ import re
 from django import forms
 from django.db.models import Count, Q
 
-from extras.forms import CustomFieldForm
+from extras.forms import CustomFieldForm, CustomFieldBulkEditForm
 from ipam.models import IPAddress
 from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
@@ -112,7 +112,7 @@ class SiteImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=SiteFromCSVForm)
 
 
-class SiteBulkEditForm(forms.Form, BootstrapMixin):
+class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Site.objects.all(), widget=forms.MultipleHiddenInput)
     tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
 
