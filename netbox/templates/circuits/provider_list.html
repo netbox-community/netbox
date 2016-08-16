@@ -9,6 +9,10 @@
 			<span class="fa fa-plus" aria-hidden="true"></span>
 			Add a provider
 		</a>
+        <a href="{% url 'circuits:provider_import' %}" class="btn btn-info">
+            <span class="fa fa-download" aria-hidden="true"></span>
+            Import providers
+        </a>
     {% endif %}
     {% include 'inc/export_button.html' with obj_type='providers' %}
 </div>

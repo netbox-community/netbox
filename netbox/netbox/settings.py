@@ -12,7 +12,7 @@ except ImportError:
                                "the documentation.")
 
 
-VERSION = '1.5.1'
+VERSION = '1.5.2'
 
 # Import local configuration
 for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:

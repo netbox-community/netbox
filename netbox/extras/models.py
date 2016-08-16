@@ -18,9 +18,10 @@ GRAPH_TYPE_CHOICES = (
 )
 
 EXPORTTEMPLATE_MODELS = [
-    'site', 'rack', 'device', 'consoleport', 'powerport', 'interfaceconnection',
-    'aggregate', 'prefix', 'ipaddress', 'vlan',
-    'provider', 'circuit'
+    'site', 'rack', 'device', 'consoleport', 'powerport', 'interfaceconnection',    # DCIM
+    'aggregate', 'prefix', 'ipaddress', 'vlan',                                     # IPAM
+    'provider', 'circuit',                                                          # Circuits
+    'tenant',                                                                       # Tenants
 ]
 
 ACTION_CREATE = 1

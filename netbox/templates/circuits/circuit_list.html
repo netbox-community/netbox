@@ -10,6 +10,10 @@
 			<span class="fa fa-plus" aria-hidden="true"></span>
 			Add a circuit
 		</a>
+        <a href="{% url 'circuits:circuit_import' %}" class="btn btn-info">
+            <span class="fa fa-download" aria-hidden="true"></span>
+            Import circuits
+        </a>
     {% endif %}
     {% include 'inc/export_button.html' with obj_type='circuits' %}
 </div>
