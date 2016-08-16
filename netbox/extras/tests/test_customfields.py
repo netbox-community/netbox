@@ -11,7 +11,7 @@ from extras.models import (
 )
 
 
-class RackTestCase(TestCase):
+class CustomFieldTestCase(TestCase):
 
     def setUp(self):
 
