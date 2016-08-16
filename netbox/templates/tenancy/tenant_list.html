@@ -10,6 +10,10 @@
 			<span class="fa fa-plus" aria-hidden="true"></span>
 			Add a tenant
 		</a>
+        <a href="{% url 'tenancy:tenant_import' %}" class="btn btn-info">
+            <span class="fa fa-download" aria-hidden="true"></span>
+            Import tenants
+        </a>
     {% endif %}
     {% include 'inc/export_button.html' with obj_type='tenants' %}
 </div>

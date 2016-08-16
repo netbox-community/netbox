@@ -1034,6 +1034,13 @@ class Interface(models.Model):
     def __unicode__(self):
         return self.name
 
+    def clean(self):
+
+        if self.form_factor == IFACE_FF_VIRTUAL and self.is_connected:
+            raise ValidationError({'form_factor': "Virtual interfaces cannot be connected to another interface or "
+                                                  "circuit. Disconnect the interface or choose a physical form "
+                                                  "factor."})
+
     @property
     def is_physical(self):
         return self.form_factor != IFACE_FF_VIRTUAL

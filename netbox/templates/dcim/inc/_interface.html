@@ -56,6 +56,10 @@
                     <a href="{% url 'dcim:interfaceconnection_delete' pk=iface.connection.pk %}?device={{ device.pk }}" class="btn btn-danger btn-xs" title="Delete connection">
                         <i class="glyphicon glyphicon-remove" aria-hidden="true"></i>
                     </a>
+                {% elif iface.circuit and perms.circuits.change_circuit %}
+                    <a href="{% url 'circuits:circuit_edit' pk=iface.circuit.pk %}" class="btn btn-danger btn-xs" title="Edit circuit">
+                        <i class="glyphicon glyphicon-remove" aria-hidden="true"></i>
+                    </a>
                 {% else %}
                     <a href="{% url 'dcim:interfaceconnection_add' pk=device.pk %}?interface={{ iface.pk }}" class="btn btn-success btn-xs" title="Connect">
                         <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>

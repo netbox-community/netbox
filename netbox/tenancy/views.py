@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, render
 
 from circuits.models import Circuit
@@ -59,8 +59,14 @@ def tenant(request, slug):
         'rack_count': Rack.objects.filter(tenant=tenant).count(),
         'device_count': Device.objects.filter(tenant=tenant).count(),
         'vrf_count': VRF.objects.filter(tenant=tenant).count(),
-        'prefix_count': Prefix.objects.filter(tenant=tenant).count(),
-        'ipaddress_count': IPAddress.objects.filter(tenant=tenant).count(),
+        'prefix_count': Prefix.objects.filter(
+            Q(tenant=tenant) |
+            Q(tenant__isnull=True, vrf__tenant=tenant)
+        ).count(),
+        'ipaddress_count': IPAddress.objects.filter(
+            Q(tenant=tenant) |
+            Q(tenant__isnull=True, vrf__tenant=tenant)
+        ).count(),
         'vlan_count': VLAN.objects.filter(tenant=tenant).count(),
         'circuit_count': Circuit.objects.filter(tenant=tenant).count(),
     }
