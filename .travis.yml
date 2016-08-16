@@ -1,3 +1,11 @@
+sudo: required
+
+services:
+  - docker
+
+env:
+  - DOCKER_TAG=$TRAVIS_TAG
+
 language: python
 python:
   - "2.7"
@@ -6,3 +14,7 @@ install:
   - pip install pep8
 script:
   - ./scripts/cibuild.sh
+after_success:
+  - if [ ! -z "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+    ./scripts/docker-build.sh;
+    fi
