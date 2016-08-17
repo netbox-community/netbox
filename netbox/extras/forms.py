@@ -111,7 +111,10 @@ class CustomFieldBulkEditForm(forms.Form):
         super(CustomFieldBulkEditForm, self).__init__(*args, **kwargs)
 
         # Add all applicable CustomFields to the form
+        custom_fields = []
         for name, field in get_custom_fields_for_model(self.obj_type, bulk_editing=True).items():
             field.required = False
             self.fields[name] = field
-            self.custom_fields.append(name)
+            custom_fields.append(name)
+
+        self.custom_fields = custom_fields

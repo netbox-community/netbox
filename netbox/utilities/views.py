@@ -339,7 +339,8 @@ class BulkEditView(View):
             if form.cleaned_data[name] not in [None, u'']:
                 for pk in pk_list:
                     try:
-                        cfv = CustomFieldValue.objects.get(field=form.fields[name].model, obj_type=obj_type, obj_id=pk)
+                        cfv = CustomFieldValue.objects.select_related('field').get(field=form.fields[name].model,
+                                                                                   obj_type=obj_type, obj_id=pk)
                     except CustomFieldValue.DoesNotExist:
                         cfv = CustomFieldValue(field=form.fields[name].model, obj_type=obj_type, obj_id=pk)
                     cfv.value = form.cleaned_data[name]
