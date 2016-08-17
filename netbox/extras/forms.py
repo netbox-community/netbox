@@ -5,7 +5,9 @@ from .models import CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELE
 
 
 def get_custom_fields_for_model(content_type, bulk_editing=False):
-    """Retrieve all CustomFields applicable to the given ContentType"""
+    """
+    Retrieve all CustomFields applicable to the given ContentType
+    """
     field_dict = {}
     custom_fields = CustomField.objects.filter(obj_type=content_type)
 
@@ -63,9 +65,11 @@ class CustomFieldForm(forms.ModelForm):
         super(CustomFieldForm, self).__init__(*args, **kwargs)
 
         # Add all applicable CustomFields to the form
+        custom_fields = []
         for name, field in get_custom_fields_for_model(self.obj_type).items():
             self.fields[name] = field
-            self.custom_fields.append(name)
+            custom_fields.append(name)
+        self.custom_fields = custom_fields
 
         # If editing an existing object, initialize values for all custom fields
         if self.instance.pk:
@@ -78,8 +82,9 @@ class CustomFieldForm(forms.ModelForm):
 
         for field_name in self.custom_fields:
             try:
-                cfv = CustomFieldValue.objects.get(field=self.fields[field_name].model, obj_type=self.obj_type,
-                                                   obj_id=self.instance.pk)
+                cfv = CustomFieldValue.objects.select_related('field').get(field=self.fields[field_name].model,
+                                                                           obj_type=self.obj_type,
+                                                                           obj_id=self.instance.pk)
             except CustomFieldValue.DoesNotExist:
                 cfv = CustomFieldValue(
                     field=self.fields[field_name].model,
@@ -116,5 +121,4 @@ class CustomFieldBulkEditForm(forms.Form):
             field.required = False
             self.fields[name] = field
             custom_fields.append(name)
-
         self.custom_fields = custom_fields
