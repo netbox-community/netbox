@@ -8,9 +8,6 @@
     {% if request.POST.redirect_url %}
         <input type="hidden" name="redirect_url" value="{{ request.POST.redirect_url }}" />
     {% endif %}
-    {% for hidden in form.hidden_fields %}
-        {{ hidden }}
-    {% endfor %}
     <div class="row">
         <div class="col-md-7">
             <div class="panel panel-default">
