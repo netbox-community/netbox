@@ -277,9 +277,9 @@ class BulkEditView(View):
             redirect_url = reverse(self.default_redirect_url)
 
         if request.POST.get('_all'):
-            pk_list = [x for x in request.POST.get('pk_all').split(',') if x]
+            pk_list = [int(pk) for pk in request.POST.get('pk_all').split(',') if pk]
         else:
-            pk_list = request.POST.getlist('pk')
+            pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
         if '_apply' in request.POST:
             if hasattr(self.form, 'custom_fields'):
@@ -334,17 +334,25 @@ class BulkEditView(View):
 
     def update_custom_fields(self, pk_list, form, fields):
         obj_type = ContentType.objects.get_for_model(self.cls)
-
         for name in fields:
             if form.cleaned_data[name] not in [None, u'']:
-                for pk in pk_list:
-                    try:
-                        cfv = CustomFieldValue.objects.select_related('field').get(field=form.fields[name].model,
-                                                                                   obj_type=obj_type, obj_id=pk)
-                    except CustomFieldValue.DoesNotExist:
-                        cfv = CustomFieldValue(field=form.fields[name].model, obj_type=obj_type, obj_id=pk)
-                    cfv.value = form.cleaned_data[name]
-                    cfv.save()
+
+                field = form.fields[name].model
+                serialized_value = field.serialize_value(form.cleaned_data[name])
+                existing_cfvs = CustomFieldValue.objects.filter(field=field, obj_type=obj_type, obj_id__in=pk_list)
+
+                # Determine which objects have an existing CFV to update and which need a new CFV created.
+                update_list = [cfv['obj_id'] for cfv in existing_cfvs.values()]
+                create_list = list(set(pk_list) - set(update_list))
+
+                # Update any existing CFVs.
+                existing_cfvs.update(serialized_value=serialized_value)
+
+                # Create new CFVs as needed.
+                CustomFieldValue.objects.bulk_create([
+                    CustomFieldValue(field=field, obj_type=obj_type, obj_id=pk, serialized_value=serialized_value)
+                    for pk in create_list
+                ])
 
 
 class BulkDeleteView(View):

@@ -81,18 +81,19 @@ class CustomFieldForm(forms.ModelForm):
     def _save_custom_fields(self):
 
         for field_name in self.custom_fields:
-            try:
-                cfv = CustomFieldValue.objects.select_related('field').get(field=self.fields[field_name].model,
-                                                                           obj_type=self.obj_type,
-                                                                           obj_id=self.instance.pk)
-            except CustomFieldValue.DoesNotExist:
-                cfv = CustomFieldValue(
-                    field=self.fields[field_name].model,
-                    obj_type=self.obj_type,
-                    obj_id=self.instance.pk
-                )
-            cfv.value = self.cleaned_data[field_name]
-            cfv.save()
+            if self.cleaned_data[field_name] not in [None, u'']:
+                try:
+                    cfv = CustomFieldValue.objects.select_related('field').get(field=self.fields[field_name].model,
+                                                                               obj_type=self.obj_type,
+                                                                               obj_id=self.instance.pk)
+                except CustomFieldValue.DoesNotExist:
+                    cfv = CustomFieldValue(
+                        field=self.fields[field_name].model,
+                        obj_type=self.obj_type,
+                        obj_id=self.instance.pk
+                    )
+                cfv.value = self.cleaned_data[field_name]
+                cfv.save()
 
     def save(self, commit=True):
         obj = super(CustomFieldForm, self).save(commit)

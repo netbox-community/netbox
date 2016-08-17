@@ -155,9 +155,9 @@ class CustomFieldValue(models.Model):
         self.serialized_value = self.field.serialize_value(value)
 
     def save(self, *args, **kwargs):
-        if (self.field.type == CF_TYPE_TEXT and self.value == '') or self.value is None:
-            if self.pk:
-                self.delete()
+        # Delete this object if it no longer has a value to store
+        if self.pk and self.value is None:
+            self.delete()
         else:
             super(CustomFieldValue, self).save(*args, **kwargs)
 
