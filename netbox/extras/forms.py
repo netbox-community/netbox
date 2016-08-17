@@ -44,7 +44,7 @@ def get_custom_fields_for_model(content_type, bulk_editing=False):
 
         # Text
         else:
-            field = forms.CharField(max_length=100, required=cf.required, initial=cf.default)
+            field = forms.CharField(max_length=255, required=cf.required, initial=cf.default)
 
         field.model = cf
         field.label = cf.label if cf.label else cf.name.capitalize()

@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -97,15 +99,45 @@ class CustomField(models.Model):
     def __unicode__(self):
         return self.label or self.name.capitalize()
 
+    def serialize_value(self, value):
+        """
+        Serialize the given value to a string suitable for storage as a CustomFieldValue
+        """
+        if value is None:
+            return ''
+        if self.type == CF_TYPE_BOOLEAN:
+            return str(int(bool(value)))
+        if self.type == CF_TYPE_DATE:
+            return value.strftime('%Y-%m-%d')
+        if self.type == CF_TYPE_SELECT:
+            # Could be ModelChoiceField or TypedChoiceField
+            return str(value.id) if hasattr(value, 'id') else str(value)
+        return str(value)
+
+    def deserialize_value(self, serialized_value):
+        """
+        Convert a string into the object it represents depending on the type of field
+        """
+        if serialized_value is '':
+            return None
+        if self.type == CF_TYPE_INTEGER:
+            return int(serialized_value)
+        if self.type == CF_TYPE_BOOLEAN:
+            return bool(int(serialized_value))
+        if self.type == CF_TYPE_DATE:
+            # Read date as YYYY-MM-DD
+            return date(*[int(n) for n in serialized_value.split('-')])
+        if self.type == CF_TYPE_SELECT:
+            return CustomFieldChoice.objects.get(pk=int(serialized_value))
+        return serialized_value
+
 
 class CustomFieldValue(models.Model):
     field = models.ForeignKey('CustomField', related_name='values')
     obj_type = models.ForeignKey(ContentType, related_name='+', on_delete=models.PROTECT)
     obj_id = models.PositiveIntegerField()
     obj = GenericForeignKey('obj_type', 'obj_id')
-    val_int = models.BigIntegerField(blank=True, null=True)
-    val_char = models.CharField(max_length=100, blank=True)
-    val_date = models.DateField(blank=True, null=True)
+    serialized_value = models.CharField(max_length=255)
 
     class Meta:
         ordering = ['obj_type', 'obj_id']
@@ -116,29 +148,11 @@ class CustomFieldValue(models.Model):
 
     @property
     def value(self):
-        if self.field.type == CF_TYPE_INTEGER:
-            return self.val_int
-        if self.field.type == CF_TYPE_BOOLEAN:
-            return bool(self.val_int) if self.val_int is not None else None
-        if self.field.type == CF_TYPE_DATE:
-            return self.val_date
-        if self.field.type == CF_TYPE_SELECT:
-            return CustomFieldChoice.objects.get(pk=self.val_int) if self.val_int else None
-        return self.val_char
+        return self.field.deserialize_value(self.serialized_value)
 
     @value.setter
     def value(self, value):
-        if self.field.type == CF_TYPE_INTEGER:
-            self.val_int = value
-        elif self.field.type == CF_TYPE_BOOLEAN:
-            self.val_int = int(bool(value)) if value is not None else None
-        elif self.field.type == CF_TYPE_DATE:
-            self.val_date = value
-        elif self.field.type == CF_TYPE_SELECT:
-            # Could be ModelChoiceField or TypedChoiceField
-            self.val_int = value.id if hasattr(value, 'id') else value
-        else:
-            self.val_char = value
+        self.serialized_value = self.field.serialize_value(value)
 
     def save(self, *args, **kwargs):
         if (self.field.type == CF_TYPE_TEXT and self.value == '') or self.value is None:
