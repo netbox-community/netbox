@@ -164,6 +164,9 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "project-static"),
 )
 
+# Disable default limit of 1000 fields per request. Needed for bulk deletion of objects. (Added in Django 1.10.)
+DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+
 # Messages
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
