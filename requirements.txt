@@ -1,4 +1,3 @@
-gunicorn==17.5
 cryptography==1.4
 Django==1.10
 django-debug-toolbar==1.4
