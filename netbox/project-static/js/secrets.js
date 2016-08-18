@@ -25,17 +25,20 @@ $(document).ready(function() {
     });
 
     // Adding/editing a secret
-    $('form.requires-private-key').submit(function(event) {
+    private_key_field = $('#id_private_key');
+    private_key_field.parents('form').submit(function(event) {
+        console.log("form submitted");
         var private_key = sessionStorage.getItem('private_key');
         if (private_key) {
-            $('#id_private_key').val(private_key);
-        } else {
+            private_key_field.val(private_key);
+        } else if ($('form .requires-private-key:first').val()) {
+            console.log("we need a key!");
             $('#privkey_modal').modal('show');
             return false;
         }
     });
 
-    // Prompt the user to enter a private RSA key for decryption
+    // Saving a private RSA key locally
     $('#submit_privkey').click(function() {
         var private_key = $('#user_privkey').val();
         sessionStorage.setItem('private_key', private_key);
