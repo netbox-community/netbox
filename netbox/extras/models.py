@@ -98,7 +98,7 @@ class CustomField(models.Model):
         ordering = ['name']
 
     def __unicode__(self):
-        return self.label or self.name.capitalize()
+        return self.label or self.name.replace('_', ' ').capitalize()
 
     def serialize_value(self, value):
         """

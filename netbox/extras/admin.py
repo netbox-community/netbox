@@ -20,6 +20,7 @@ class CustomFieldForm(forms.ModelForm):
 
 class CustomFieldChoiceAdmin(admin.TabularInline):
     model = CustomFieldChoice
+    extra = 5
 
 
 @admin.register(CustomField)

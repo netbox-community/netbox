@@ -54,7 +54,7 @@ def get_custom_fields_for_model(content_type, bulk_editing=False):
             field = forms.CharField(max_length=255, required=cf.required, initial=cf.default)
 
         field.model = cf
-        field.label = cf.label if cf.label else cf.name.capitalize()
+        field.label = cf.label if cf.label else cf.name.replace('_', ' ').capitalize()
         field.help_text = cf.description
 
         field_dict[field_name] = field
