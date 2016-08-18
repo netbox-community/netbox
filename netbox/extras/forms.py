@@ -25,7 +25,14 @@ def get_custom_fields_for_model(content_type, bulk_editing=False):
                 (True, 'True'),
                 (False, 'False'),
             )
-            field = forms.NullBooleanField(required=cf.required, widget=forms.Select(choices=choices))
+            if cf.default.lower() in ['true', 'yes', '1']:
+                initial = True
+            elif cf.default.lower() in ['false', 'no', '0']:
+                initial = False
+            else:
+                initial = None
+            field = forms.NullBooleanField(required=cf.required, initial=initial,
+                                           widget=forms.Select(choices=choices))
 
         # Date
         elif cf.type == CF_TYPE_DATE:

@@ -90,7 +90,8 @@ class CustomField(models.Model):
     description = models.CharField(max_length=100, blank=True)
     required = models.BooleanField(default=False, help_text="Determines whether this field is required when creating "
                                                             "new objects or editing an existing object.")
-    default = models.CharField(max_length=100, blank=True, help_text="Default value for the field. N/A for selection "
+    default = models.CharField(max_length=100, blank=True, help_text="Default value for the field. Use \"true\" or "
+                                                                     "\"false\" for booleans. N/A for selection "
                                                                      "fields.")
 
     class Meta:
