@@ -99,16 +99,10 @@
                     <td>IP Addresses</td>
                     <td><a href="{% url 'ipam:prefix_ipaddresses' pk=prefix.pk %}">{{ ipaddress_count }}</a></td>
                 </tr>
-                <tr>
-                    <td>Created</td>
-                    <td>{{ prefix.created }}</td>
-                </tr>
-                <tr>
-                    <td>Last Updated</td>
-                    <td>{{ prefix.last_updated }}</td>
-                </tr>
             </table>
         </div>
+        {% include 'inc/created_updated.html' with obj=prefix %}
+        <br />
 	</div>
 	<div class="col-md-7">
         {% if duplicate_prefix_table.rows %}

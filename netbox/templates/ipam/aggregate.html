@@ -77,16 +77,9 @@
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <td>Created</td>
-                    <td>{{ aggregate.created }}</td>
-                </tr>
-                <tr>
-                    <td>Last Updated</td>
-                    <td>{{ aggregate.last_updated }}</td>
-                </tr>
             </table>
         </div>
+        {% include 'inc/created_updated.html' with obj=aggregate %}
     </div>
 </div>
 <div class="row">

@@ -130,14 +130,6 @@
                         <a href="{% url 'dcim:device_list' %}?rack_id={{ rack.id }}">{{ rack.devices.count }}</a>
                     </td>
                 </tr>
-                <tr>
-                    <td>Created</td>
-                    <td>{{ rack.created }}</td>
-                </tr>
-                <tr>
-                    <td>Last Updated</td>
-                    <td>{{ rack.last_updated }}</td>
-                </tr>
             </table>
         </div>
         <div class="panel panel-default">
@@ -187,6 +179,7 @@
                 {% endif %}
             </div>
         </div>
+        {% include 'inc/created_updated.html' with obj=rack %}
 	</div>
     <div class="row col-md-6">
        <div class="col-md-6 col-sm-6 col-xs-12">

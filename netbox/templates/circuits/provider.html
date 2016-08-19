@@ -103,14 +103,6 @@
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <td>Created</td>
-                    <td>{{ provider.created }}</td>
-                </tr>
-                <tr>
-                    <td>Last Updated</td>
-                    <td>{{ provider.last_updated }}</td>
-                </tr>
             </table>
         </div>
         <div class="panel panel-default">
@@ -125,6 +117,7 @@
                 {% endif %}
             </div>
         </div>
+        {% include 'inc/created_updated.html' with obj=provider %}
 	</div>
 	<div class="col-md-6">
         <div class="panel panel-default">
