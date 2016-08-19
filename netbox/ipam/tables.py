@@ -195,6 +195,7 @@ class IPAddressTable(BaseTable):
     address = tables.TemplateColumn(IPADDRESS_LINK, verbose_name='IP Address')
     vrf = tables.TemplateColumn(VRF_LINK, verbose_name='VRF')
     tenant = tables.TemplateColumn(TENANT_LINK, verbose_name='Tenant')
+    ptr = tables.Column(verbose_name='PTR')
     device = tables.LinkColumn('dcim:device', args=[Accessor('interface.device.pk')], orderable=False,
                                verbose_name='Device')
     interface = tables.Column(orderable=False, verbose_name='Interface')
@@ -202,7 +203,7 @@ class IPAddressTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = IPAddress
-        fields = ('pk', 'address', 'vrf', 'tenant', 'device', 'interface', 'description')
+        fields = ('pk', 'address', 'vrf', 'tenant', 'ptr', 'device', 'interface', 'description')
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, IPAddress) else '',
         }

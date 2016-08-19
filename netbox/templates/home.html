@@ -141,18 +141,26 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
-                <strong>Circuits</strong>
+                <strong>DNS</strong>
             </div>
             <div class="list-group">
                 <div class="list-group-item">
-                    <span class="badge pull-right">{{ stats.provider_count }}</span>
-                    <h4 class="list-group-item-heading"><a href="{% url 'circuits:provider_list' %}">Providers</a></h4>
-                    <p class="list-group-item-text text-muted">Organizations which provide circuit connectivity</p>
+                    <h4 class="list-group-item-heading"><a href="{% url 'dns:full_forward' %}">Export Forward</a></h4>
+                    <p class="list-group-item-text text-muted">Export forward zones into Bind format</p>
                 </div>
                 <div class="list-group-item">
-                    <span class="badge pull-right">{{ stats.circuit_count }}</span>
-                    <h4 class="list-group-item-heading"><a href="{% url 'circuits:circuit_list' %}">Circuits</a></h4>
-                    <p class="list-group-item-text text-muted">Communication links for Internet transit, peering, and other services</p>
+                <h4 class="list-group-item-heading"><a href="{% url 'dns:full_reverse' %}">Export Reverse</a></h4>
+                    <p class="list-group-item-text text-muted">Export reverse zones into Bind format</p>
+                </div>
+                <div class="list-group-item">
+                    <span class="badge pull-right">{{ stats.zone_count }}</span>
+                    <h4 class="list-group-item-heading"><a href="{% url 'dns:zone_list' %}">Zones</a></h4>
+                    <p class="list-group-item-text text-muted">Domain name system zones</p>
+                </div>
+                <div class="list-group-item">
+                    <span class="badge pull-right">{{ stats.record_count }}</span>
+                    <h4 class="list-group-item-heading"><a href="{% url 'dns:record_list' %}">Records</a></h4>
+                    <p class="list-group-item-text text-muted">Links between a hostname and a resource</p>
                 </div>
             </div>
         </div>

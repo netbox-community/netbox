@@ -9,7 +9,7 @@ html, body {
     height: 100%;
 }
 body {
-    padding-top: 70px;
+    padding-top: 60px;
 }
 .container {
     width: auto;
@@ -19,7 +19,7 @@ body {
     min-height: 100%;
     height: auto !important;
     margin: 0 auto -61px; /* the bottom margin is the negative value of the footer's height */
-    padding-bottom: 30px;
+    padding-bottom: 5px;
 }
 .navbar-brand {
     padding: 12px 15px 8px;

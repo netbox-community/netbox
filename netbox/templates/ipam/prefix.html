@@ -100,6 +100,42 @@
                     <td><a href="{% url 'ipam:prefix_ipaddresses' pk=prefix.pk %}">{{ ipaddress_count }}</a></td>
                 </tr>
                 <tr>
+                    <td>Reverse DNS - TTL</td>
+                    <td>{{ prefix.ttl }}</td>
+                </tr>
+                <tr>
+                    <td>Reverse DNS - SOA Name</td>
+                    <td>{{ prefix.soa_name }}</td>
+                </tr>
+                <tr>
+                    <td>Reverse DNS - SOA Contact</td>
+                    <td>{{ prefix.soa_contact }}</td>
+                </tr>
+                <tr>
+                    <td>Reverse DNS - SOA Serial</td>
+                    <td>{{ prefix.soa_serial }}</td>
+                </tr>
+                <tr>
+                    <td>Reverse DNS - SOA Refresh</td>
+                    <td>{{ prefix.soa_refresh }}</td>
+                </tr>
+                <tr>
+                    <td>Reverse DNS - SOA Retry</td>
+                    <td>{{ prefix.soa_retry }}</td>
+                </tr>
+                <tr>
+                    <td>Reverse DNS - SOA Expire</td>
+                    <td>{{ prefix.soa_expire }}</td>
+                </tr>
+                <tr>
+                    <td>Reverse DNS - SOA Minimum</td>
+                    <td>{{ prefix.soa_minimum }}</td>
+                </tr>
+                <tr>
+                    <td>Reverse DNS - Extra Conf</td>
+                    <td>{{ prefix.extra_conf }}</td>
+                </tr>
+                <tr>
                     <td>Created</td>
                     <td>{{ prefix.created }}</td>
                 </tr>
@@ -133,3 +169,4 @@
     </div>
 </div>
 {% endblock %}
+

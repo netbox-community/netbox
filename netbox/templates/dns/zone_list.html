@@ -1,0 +1,46 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% load form_helpers %}
+
+{% block title %}Zones{% endblock %}
+
+{% block content %}
+<div class="pull-right">
+    {% if perms.dns.add_zone %}
+		<a href="{% url 'dns:zone_add' %}" class="btn btn-primary">
+			<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+			Add a zone
+		</a>
+		<a href="{% url 'dns:zone_import' %}" class="btn btn-info">
+			<span class="glyphicon glyphicon-import" aria-hidden="true"></span>
+			Import zones
+		</a>
+	{% endif %}
+    {% include 'inc/export_button.html' with obj_type='Zones' %}
+</div>
+<h1>Zones</h1>
+<div class="row">
+	<div class="col-md-9">
+        {% include 'utilities/obj_table.html' with bulk_edit_url='dns:zone_bulk_edit' bulk_delete_url='dns:zone_bulk_delete' %}
+	</div>
+	<div class="col-md-3">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<strong>Search</strong>
+			</div>
+			<div class="panel-body">
+				<form action="{% url 'dns:zone_list' %}" method="get">
+					<div class="input-group">
+						<input type="text" name="name" class="form-control" placeholder="Name" {%  if request.GET.q %}value="{{ request.GET.q }}" {% endif %}/>
+						<span class="input-group-btn">
+							<button type="submit" class="btn btn-primary">
+								<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+							</button>
+						</span>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

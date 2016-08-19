@@ -6,6 +6,7 @@ from circuits.models import Provider, Circuit
 from dcim.models import Site, Rack, Device, ConsolePort, PowerPort, InterfaceConnection
 from extras.models import UserAction
 from ipam.models import Aggregate, Prefix, IPAddress, VLAN, VRF
+from dns.models import Zone, Record
 from secrets.models import Secret
 from tenancy.models import Tenant
 
@@ -31,6 +32,10 @@ def home(request):
         'prefix_count': Prefix.objects.count(),
         'ipaddress_count': IPAddress.objects.count(),
         'vlan_count': VLAN.objects.count(),
+
+        # DNS
+        'zone_count': Zone.objects.count(),
+        'record_count': Record.objects.count(),
 
         # Circuits
         'provider_count': Provider.objects.count(),

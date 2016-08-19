@@ -6,6 +6,8 @@ from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, render
 
 from dcim.models import Device
+from dns.models import Zone, Record
+from dns.tables import RecordBriefTable
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -327,9 +329,10 @@ def prefix(request, pk):
     except Aggregate.DoesNotExist:
         aggregate = None
 
+    child_ip = IPAddress.objects.filter(vrf=prefix.vrf, address__net_contained_or_equal=str(prefix.prefix))
+
     # Count child IP addresses
-    ipaddress_count = IPAddress.objects.filter(vrf=prefix.vrf, address__net_contained_or_equal=str(prefix.prefix))\
-        .count()
+    ipaddress_count = child_ip.count()
 
     # Parent prefixes table
     parent_prefixes = Prefix.objects.filter(Q(vrf=prefix.vrf) | Q(vrf__isnull=True))\
@@ -406,11 +409,14 @@ class PrefixBulkEditView(PermissionRequiredMixin, BulkEditView):
                 fields_to_update[field] = None
             elif form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
-        for field in ['site', 'status', 'role', 'description']:
+        for field in ['site', 'status', 'role', 'description', 'ttl', 'soa_name', 'soa_contact', 'soa_refresh', 'soa_retry', 'soa_expire', 'soa_minimum', 'extra_conf']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
 
-        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
+        plist = self.cls.objects.filter(pk__in=pk_list)
+        for p in plist:
+            p.set_bind_changed(True)
+        return plist.update(**fields_to_update)
 
 
 class PrefixBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -471,11 +477,16 @@ def ipaddress(request, pk):
         .filter(vrf=ipaddress.vrf, address__net_contained_or_equal=str(ipaddress.address))
     related_ips_table = tables.IPAddressBriefTable(related_ips)
 
+    # Related DNS records
+    dns_records = Record.objects.filter(address=ipaddress)
+    dns_records_table = RecordBriefTable(dns_records)
+
     return render(request, 'ipam/ipaddress.html', {
         'ipaddress': ipaddress,
         'parent_prefixes_table': parent_prefixes_table,
         'duplicate_ips_table': duplicate_ips_table,
         'related_ips_table': related_ips_table,
+        'dns_records_table': dns_records_table,
     })
 
 
@@ -532,11 +543,14 @@ class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
                 fields_to_update[field] = None
             elif form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
-        for field in ['description']:
+        for field in ['ptr', 'description']:
             if form.cleaned_data[field]:
                 fields_to_update[field] = form.cleaned_data[field]
 
-        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
+        iplist = self.cls.objects.filter(pk__in=pk_list)
+        for ip in iplist:
+            ip.save()
+        return iplist.update(**fields_to_update)
 
 
 class IPAddressBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):

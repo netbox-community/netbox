@@ -1,0 +1,126 @@
+{% extends '_base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block title %}Zone {{ zone }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-9">
+        <ol class="breadcrumb">
+            <li><a href="{% url 'dns:zone_list' %}">Zones</a></li>
+            <li>{{ zone }}</li>
+        </ol>
+    </div>
+    <div class="col-md-3">
+        <form action="{% url 'dns:zone_list' %}" method="get">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Zone" />
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="pull-right">
+    {% if perms.dns.change_zone %}
+        <a href="{% url 'dns:zone_edit' pk=zone.pk %}" class="btn btn-warning">
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+            Edit this zone
+        </a>
+    {% endif %}
+    {% if perms.dns.delete_zone %}
+        <a href="{% url 'dns:zone_delete' pk=zone.pk %}" class="btn btn-danger">
+            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+            Delete this zone
+        </a>
+    {% endif %}
+</div>
+<h1>{{ zone }}</h1>
+<div class="row">
+	<div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Zone</strong>
+            </div>
+            <table class="table table-hover panel-body">
+                <tr>
+                    <td>Name</td>
+                    <td>{{ zone.name }}</td>
+                </tr>
+                <tr>
+                    <td>Records</td>
+                    <td>{{ record_count }}</td>
+                </tr>
+                <tr>
+                    <td>TTL</td>
+                    <td>{{ zone.ttl }}</td>
+                </tr>
+                <tr>
+                    <td>SOA Name</td>
+                    <td>{{ zone.soa_name }}</td>
+                </tr>
+                <tr>
+                    <td>SOA Contact</td>
+                    <td>{{ zone.soa_contact }}</td>
+                </tr>
+                <tr>
+                    <td>SOA Serial</td>
+                    <td>{{ zone.soa_serial }}</td>
+                </tr>
+                <tr>
+                    <td>SOA Refresh</td>
+                    <td>{{ zone.soa_refresh }}</td>
+                </tr>
+                <tr>
+                    <td>SOA Retry</td>
+                    <td>{{ zone.soa_retry }}</td>
+                </tr>
+                <tr>
+                    <td>SOA Expire</td>
+                    <td>{{ zone.soa_expire }}</td>
+                </tr>
+                <tr>
+                    <td>SOA Minimum</td>
+                    <td>{{ zone.soa_minimum }}</td>
+                </tr>
+                <tr>
+                    <td>Extra Conf</td>
+                    <td>
+                        {% if zone.extra_conf %}
+                            {{ zone.extra_conf }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Description</td>
+                    <td>
+                        {% if zone.description %}
+                            {{ zone.description }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Created</td>
+                    <td>{{ zone.created }}</td>
+                </tr>
+                <tr>
+                    <td>Last Updated</td>
+                    <td>{{ zone.last_updated }}</td>
+                </tr>
+		    </table>
+        </div>
+	</div>
+	<div class="col-md-6">
+        {% with heading='Records' %}
+            {% render_table dns_records_table 'panel_table.html' %}
+        {% endwith %}
+	</div>
+</div>
+{% endblock %}

@@ -42,7 +42,15 @@
         "vlan": null,
         "status": 1,
         "role": 1,
-        "description": ""
+        "description": "",
+        "ttl": 10800,
+        "soa_name": "@",
+        "soa_contact": "ns.foo.net. noc.foo.net.",
+        "soa_serial": "2016070401",
+        "soa_refresh": 3600,
+        "soa_retry": 3600,
+        "soa_expire": 604800,
+        "soa_minimum": 1800
     }
 },
 {
@@ -58,7 +66,15 @@
         "vlan": null,
         "status": 1,
         "role": 1,
-        "description": ""
+        "description": "",
+        "ttl": 10800,
+        "soa_name": "",
+        "soa_contact": "",
+        "soa_serial": "",
+        "soa_refresh": null,
+        "soa_retry": null,
+        "soa_expire": null,
+        "soa_minimum": null
     }
 },
 {
@@ -70,6 +86,7 @@
         "family": 4,
         "address": "10.0.255.1/32",
         "vrf": null,
+        "ptr": "www.foo.net",
         "interface": 3,
         "nat_inside": null,
         "description": ""
@@ -84,6 +101,7 @@
         "family": 4,
         "address": "169.254.254.1/31",
         "vrf": null,
+        "ptr": "",
         "interface": 4,
         "nat_inside": null,
         "description": ""
@@ -98,6 +116,7 @@
         "family": 4,
         "address": "10.0.255.2/32",
         "vrf": null,
+        "ptr": "",
         "interface": 185,
         "nat_inside": null,
         "description": ""
@@ -112,6 +131,7 @@
         "family": 4,
         "address": "169.254.1.1/31",
         "vrf": null,
+        "ptr": "",
         "interface": 213,
         "nat_inside": null,
         "description": ""
@@ -126,6 +146,7 @@
         "family": 4,
         "address": "10.0.254.1/24",
         "vrf": null,
+        "ptr": "",
         "interface": 12,
         "nat_inside": null,
         "description": ""
@@ -140,6 +161,7 @@
         "family": 4,
         "address": "10.15.21.1/31",
         "vrf": null,
+        "ptr": "",
         "interface": 218,
         "nat_inside": null,
         "description": ""
@@ -154,6 +176,7 @@
         "family": 4,
         "address": "10.15.21.2/31",
         "vrf": null,
+        "ptr": "",
         "interface": 9,
         "nat_inside": null,
         "description": ""
@@ -168,6 +191,7 @@
         "family": 4,
         "address": "10.15.22.1/31",
         "vrf": null,
+        "ptr": "",
         "interface": 8,
         "nat_inside": null,
         "description": ""
@@ -182,6 +206,7 @@
         "family": 4,
         "address": "10.15.20.1/31",
         "vrf": null,
+        "ptr": "",
         "interface": 7,
         "nat_inside": null,
         "description": ""
@@ -196,6 +221,7 @@
         "family": 4,
         "address": "10.16.20.1/31",
         "vrf": null,
+        "ptr": "",
         "interface": 216,
         "nat_inside": null,
         "description": ""
@@ -210,6 +236,7 @@
         "family": 4,
         "address": "10.15.22.2/31",
         "vrf": null,
+        "ptr": "",
         "interface": 206,
         "nat_inside": null,
         "description": ""
@@ -224,6 +251,7 @@
         "family": 4,
         "address": "10.16.22.1/31",
         "vrf": null,
+        "ptr": "",
         "interface": 217,
         "nat_inside": null,
         "description": ""
@@ -238,6 +266,7 @@
         "family": 4,
         "address": "10.16.22.2/31",
         "vrf": null,
+        "ptr": "",
         "interface": 205,
         "nat_inside": null,
         "description": ""
@@ -252,6 +281,7 @@
         "family": 4,
         "address": "10.16.20.2/31",
         "vrf": null,
+        "ptr": "",
         "interface": 211,
         "nat_inside": null,
         "description": ""
@@ -266,6 +296,7 @@
         "family": 4,
         "address": "10.15.22.2/31",
         "vrf": null,
+        "ptr": "",
         "interface": 212,
         "nat_inside": null,
         "description": ""
@@ -280,6 +311,7 @@
         "family": 4,
         "address": "10.0.254.2/32",
         "vrf": null,
+        "ptr": "",
         "interface": 188,
         "nat_inside": null,
         "description": ""
@@ -294,6 +326,7 @@
         "family": 4,
         "address": "169.254.1.1/31",
         "vrf": null,
+        "ptr": "",
         "interface": 200,
         "nat_inside": null,
         "description": ""
@@ -308,6 +341,7 @@
         "family": 4,
         "address": "169.254.1.2/31",
         "vrf": null,
+        "ptr": "",
         "interface": 194,
         "nat_inside": null,
         "description": ""

@@ -77,6 +77,16 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>PTR</td>
+                    <td>
+                        {% if ipaddress.ptr %}
+                            <span>{{ ipaddress.ptr }}</span>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Description</td>
                     <td>
                         {% if ipaddress.description %}
@@ -141,6 +151,9 @@
         {% endif %}
         {% with heading='Related IP Addresses' %}
             {% render_table related_ips_table 'panel_table.html' %}
+        {% endwith %}
+        {% with heading='Related DNS Records' %}
+            {% render_table dns_records_table 'panel_table.html' %}
         {% endwith %}
 	</div>
 </div>

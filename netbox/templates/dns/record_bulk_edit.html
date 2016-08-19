@@ -1,0 +1,18 @@
+{% extends 'utilities/bulk_edit_form.html' %}
+{% load form_helpers %}
+
+{% block title %}Record Bulk Edit{% endblock %}
+
+{% block select_objects_table %}
+    {% for record in selected_objects %}
+        <tr>
+            <td><a href="{% url 'dns:record' pk=record.pk %}">{{ record.name }}</a></td>
+            <td>{{ record.record_type }}</td>
+            <td>{{ record.priority }}</td>
+            <td>{{ record.address }}</td>
+            <td>{{ record.value }}</td>
+            <td>{{ record.zone }}</td>
+            <td>{{ record.description }}</td>
+        </tr>
+    {% endfor %}
+{% endblock %}

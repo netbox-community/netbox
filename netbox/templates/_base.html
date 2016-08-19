@@ -173,6 +173,25 @@
                             {% endif %}
                         </ul>
                     </li>
+                    <li class="dropdown{% if request.path|startswith:'/dns/' %} active{% endif %}">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">DNS <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'dns:record_list' %}"><i class="glyphicon glyphicon-search" aria-hidden="true"></i> Records</a></li>
+                            {% if perms.dns.add_record %}
+                                <li><a href="{% url 'dns:record_add' %}"><i class="glyphicon glyphicon-plus" aria-hidden="true"></i> Add a record</a></li>
+                                <li><a href="{% url 'dns:record_import' %}"><i class="glyphicon glyphicon-import" aria-hidden="true"></i> Import records</a></li>
+                            {% endif %}
+                            <li class="divider"></li>
+                            <li><a href="{% url 'dns:zone_list' %}"><i class="glyphicon glyphicon-search" aria-hidden="true"></i> Zones</a></li>
+                            {% if perms.dns.add_zone %}
+                                <li><a href="{% url 'dns:zone_add' %}"><i class="glyphicon glyphicon-plus" aria-hidden="true"></i> Add a zone</a></li>
+                                <li><a href="{% url 'dns:zone_import' %}"><i class="glyphicon glyphicon-import" aria-hidden="true"></i> Import zones</a></li>
+                            {% endif %}
+                            <li class="divider"></li>
+                            <li><a href="{% url 'dns:full_forward' %}"><i class="glyphicon glyphicon-export" aria-hidden="true"></i> BIND Export Forward</a></li>
+                            <li><a href="{% url 'dns:full_reverse' %}"><i class="glyphicon glyphicon-export" aria-hidden="true"></i> BIND Export Reverse</a></li>
+                        </ul>
+                    </li>
                     <li class="dropdown{% if request.path|startswith:'/ipam/vlan' %} active{% endif %}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">VLANs <span class="caret"></span></a>
                         <ul class="dropdown-menu">

@@ -106,6 +106,7 @@ INSTALLED_APPS = (
     'circuits',
     'dcim',
     'ipam',
+    'dns',
     'extras',
     'secrets',
     'tenancy',

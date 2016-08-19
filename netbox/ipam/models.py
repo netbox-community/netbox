@@ -10,8 +10,13 @@ from django.db.models.expressions import RawSQL
 from dcim.models import Interface
 from tenancy.models import Tenant
 from utilities.models import CreatedUpdatedModel
+import dns.models
 
 from .fields import IPNetworkField, IPAddressField
+
+import time
+import ipaddress
+import netaddr
 
 
 AF_CHOICES = (
@@ -239,9 +244,24 @@ class Prefix(CreatedUpdatedModel):
                              verbose_name='VLAN')
     status = models.PositiveSmallIntegerField('Status', choices=PREFIX_STATUS_CHOICES, default=1)
     role = models.ForeignKey('Role', related_name='prefixes', on_delete=models.SET_NULL, blank=True, null=True)
-    description = models.CharField(max_length=100, blank=True)
 
     objects = PrefixQuerySet.as_manager()
+
+    # Reverse DNS
+    ttl = models.PositiveIntegerField(blank=True, null=True)
+    soa_name = models.CharField(max_length=100, blank=True)
+    soa_contact = models.CharField(max_length=100, blank=True)
+
+    soa_serial = models.CharField(max_length=10, blank=True)
+    bind_changed = models.BooleanField(default=True)
+
+    soa_refresh = models.PositiveIntegerField(blank=True, null=True)
+    soa_retry = models.PositiveIntegerField(blank=True, null=True)
+    soa_expire = models.PositiveIntegerField(blank=True, null=True)
+    soa_minimum = models.PositiveIntegerField(blank=True, null=True)
+
+    extra_conf = models.CharField(max_length=500, blank=True)
+    description = models.CharField(max_length=100, blank=True)
 
     class Meta:
         ordering = ['family', 'prefix']
@@ -264,12 +284,39 @@ class Prefix(CreatedUpdatedModel):
                                       "instead.")
 
     def save(self, *args, **kwargs):
+        self.bind_changed = True
         if self.prefix:
             # Clear host bits from prefix
             self.prefix = self.prefix.cidr
             # Infer address family from IPNetwork object
             self.family = self.prefix.version
         super(Prefix, self).save(*args, **kwargs)
+
+    def set_bind_changed(self, value):
+        self.bind_changed = value
+        super(Prefix, self).save()
+
+    def update_serial(self):
+        """
+        Each time a record or the zone is modified, the serial is incremented.
+        """
+        current_date = time.strftime('%Y%m%d', time.localtime())
+        if not self.soa_serial:
+            self.soa_serial = current_date + '01'
+        else:
+            serial_date = self.soa_serial[:8]
+            serial_num = self.soa_serial[8:]
+
+            if serial_date != current_date:
+                self.soa_serial = current_date + '01'
+            else:
+                serial_num = int(serial_num)
+                serial_num += 1
+                if serial_num < 10:
+                    self.soa_serial = current_date + '0' + str(serial_num)
+                else:
+                    self.soa_serial = current_date + str(serial_num)
+        self.set_bind_changed(False)
 
     def to_csv(self):
         return ','.join([
@@ -279,6 +326,15 @@ class Prefix(CreatedUpdatedModel):
             self.get_status_display(),
             self.role.name if self.role else '',
             self.description,
+            str(self.ttl) if self.ttl else '',
+            self.soa_name if self.soa_name else '',
+            self.soa_contact if self.soa_contact else '',
+            self.soa_serial if self.soa_serial else '',
+            str(self.soa_refresh) if self.soa_refresh else '',
+            str(self.soa_retry) if self.soa_retry else '',
+            str(self.soa_expire) if self.soa_expire else '',
+            str(self.soa_minimum) if self.soa_minimum else '',
+            '"{}"'.format(self.extra_conf) if self.extra_conf else '',
         ])
 
     @property
@@ -294,6 +350,117 @@ class Prefix(CreatedUpdatedModel):
 
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]
+
+    def to_bind(self, ipaddresses):
+        if self.bind_changed:
+            self.update_serial()
+
+        zones = {}
+
+        def header(zone_id):
+            return '\n'.join([
+                '; ' + zone_id,
+                '; gen from prefix ' + str(self.prefix) + ' (' + (self.description if self.description else '') + ') by netbox ( ' + time.strftime('%A %B %d %Y %H:%M:%S', time.localtime()) + ' ) ',
+                '',
+                '$TTL ' + str(self.ttl),
+                self.soa_name.ljust(30) + '    IN    ' + 'SOA                   ' + self.soa_contact + ' (',
+                '    ' + self.soa_serial.ljust(30) + ' ; serial',
+                '    ' + str(self.soa_refresh).ljust(30) + ' ; refresh',
+                '    ' + str(self.soa_retry).ljust(30) + ' ; retry',
+                '    ' + str(self.soa_expire).ljust(30) + ' ; expire',
+                '    ' + str(self.soa_minimum).ljust(29) + ') ; minimum',
+                '',
+                '',
+                '',
+                '$ORIGIN        ' + zone_id,
+                '',
+                '',
+            ])
+
+        if self.prefix.version == 4:
+            pbytes = str(self.prefix).split('/')[0].split('.')
+            pslash = int(str(self.prefix).split('/')[1])
+
+            if pslash > 16:
+                pbytes[3] = '0'
+                zslash = 24
+                largerPrefix = Prefix.objects.filter(family=4, prefix__net_contains_or_equals=pbytes[0] + '.' + pbytes[1] + '.0.0/16')
+                if largerPrefix:
+                    pbytes[2] = '0'
+                    zslash = 16
+            else:
+                pbytes[2] = '0'
+                zslash = 16
+
+            if pslash > zslash:
+                pslash = zslash
+
+            p = IPNetwork(unicode('.'.join(pbytes) + '/' + str(pslash)))
+
+            ipaddresses = IPAddress.objects.filter(family=4)
+            for ip in ipaddresses:
+                if ip.ptr:
+                    ibytes = str(ip.address).split('/')[0].split('.')
+                    islash = str(ip.address).split('/')[1]
+                    i = netaddr.IPAddress(unicode('.'.join(ibytes)))
+
+                    if i in p:
+                        if zslash == 24:
+                            zone_id = ibytes[2] + '.' + ibytes[1] + '.' + ibytes[0] + '.in-addr.arpa.'
+                            if zone_id not in zones:
+                                zones[zone_id] = header(zone_id)
+                            zones[zone_id] += ibytes[3].ljust(3) + '        IN PTR        ' + ip.ptr.ljust(40) + '    ; ' + ip.description.ljust(20) + ' ; gen by netbox ( ' + time.strftime('%A %B %d %Y %H:%M:%S', time.localtime()) + ' ) \n'
+                        else:
+                            zone_id = ibytes[1] + '.' + ibytes[0] + '.in-addr.arpa.'
+                            if zone_id not in zones:
+                                zones[zone_id] = header(zone_id)
+                            zones[zone_id] += (ibytes[3] + '.' + ibytes[2]).ljust(7) + '        IN PTR        ' + ip.ptr.ljust(40) + '    ; ' + ip.description.ljust(20) + ' ; gen by netbox ( ' + time.strftime('%A %B %d %Y %H:%M:%S', time.localtime()) + ' ) \n'
+
+        else:
+            pfull = str(ipaddress.IPv6Address(unicode(str(self.prefix).split('/')[0])).exploded)
+            pnibbles = pfull.split(':')
+            pdigits = pfull.replace(':', '')
+            pslash = int(str(self.prefix).split('/')[1])
+
+            zslash = pslash if pslash % 16 == 0 else pslash / 16 + 16
+            pnibbles = pnibbles[:zslash / 16] + ['0000'] * (8 - zslash / 16)
+
+            largerPrefix = Prefix.objects.filter(family=6, prefix__net_contains_or_equals=':'.join(pnibbles) + '/' + str(zslash))
+            if largerPrefix:
+                minSlash = 128
+                for pp in largerPrefix:
+                    ppslash = int(str(pp.prefix).split('/')[1])
+                    if ppslash < minSlash:
+                        minSlash = ppslash
+                zslash = minSlash
+                pnibbles = pnibbles[:zslash / 16] + ['0000'] * (8 - zslash / 16)
+
+            for ip in ipaddresses:
+                if ip.ptr:
+                    ifull = str(ipaddress.IPv6Address(unicode(str(ip.address).split('/')[0])).exploded)
+                    inibbles = ifull.split(':')
+                    idigits = ifull.replace(':', '')[::-1]
+                    islash = int(str(ip.address).split('/')[1])
+
+                    pdigitszone = pdigits[:zslash / 4][::-1]
+                    zone_id = '.'.join(pdigitszone) + '.ip6.arpa.'
+                    if zone_id not in zones:
+                        zones[zone_id] = header(zone_id)
+
+                    zones[zone_id] += ('.'.join(idigits[:32 - zslash / 4])).ljust(30) + '        IN PTR        ' + ip.ptr.ljust(40) + '    ; ' + ip.description.ljust(20) + ' ; gen by netbox ( ' + time.strftime('%A %B %d %Y %H:%M:%S', time.localtime()) + ' ) \n'
+
+        for z in zones:
+            z += '\n\n; end '
+
+        ret = []
+        for zid, zc in zones.items():
+            ret.append({
+                'num': len(ret),
+                'id': zid,
+                'content': zc,
+            })
+
+        return ret
 
 
 class IPAddressManager(models.Manager):
@@ -326,6 +493,7 @@ class IPAddress(CreatedUpdatedModel):
     vrf = models.ForeignKey('VRF', related_name='ip_addresses', on_delete=models.PROTECT, blank=True, null=True,
                             verbose_name='VRF')
     tenant = models.ForeignKey(Tenant, related_name='ip_addresses', blank=True, null=True, on_delete=models.PROTECT)
+    ptr = models.CharField(max_length=100, blank=True, verbose_name='PTR')
     interface = models.ForeignKey(Interface, related_name='ip_addresses', on_delete=models.CASCADE, blank=True,
                                   null=True)
     nat_inside = models.OneToOneField('self', related_name='nat_outside', on_delete=models.SET_NULL, blank=True,
@@ -365,6 +533,34 @@ class IPAddress(CreatedUpdatedModel):
             # Infer address family from IPAddress object
             self.family = self.address.version
         super(IPAddress, self).save(*args, **kwargs)
+        self.update_dns()
+        dns_records = dns.models.Record.objects.filter(address=self)
+        for r in dns_records:
+            r.save()
+
+    def update_dns(self):
+        """Auto-create a corresponding A/AAAA DNS record (if possible) whenever the PTR field is modified"""
+        if self.ptr:
+            which_zone = None
+            zones = dns.models.Zone.objects.all()
+            for zone in zones:
+                if self.ptr.endswith(zone.name) or self.ptr.endswith(zone.name + '.'):
+                    which_zone = zone
+                    break
+
+            if which_zone:
+                zone_name = which_zone.name
+                record_name = self.ptr[:-len(zone_name)] if not self.ptr.endswith('.') else self.ptr[:-len(zone_name) - 1]
+                if record_name.endswith('.'):
+                    record_name = record_name[:-1]
+                record_type = 'A' if self.family == 4 else 'AAAA'
+
+                dns.models.Record.objects.get_or_create(
+                    name=record_name,
+                    record_type=record_type,
+                    zone=which_zone,
+                    address=self
+                )
 
     def to_csv(self):
 
@@ -378,6 +574,7 @@ class IPAddress(CreatedUpdatedModel):
         return ','.join([
             str(self.address),
             self.vrf.rd if self.vrf else '',
+            self.ptr if self.ptr else '',
             self.device.identifier if self.device else '',
             self.interface.name if self.interface else '',
             'True' if is_primary else '',

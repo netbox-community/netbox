@@ -1,0 +1,65 @@
+{% extends '_base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block title %}BIND Export {{context}}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}download=all" class="btn btn-success pull-right">
+            <span class="glyphicon glyphicon-export" aria-hidden="true"></span>
+            Download ZIP
+        </a>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <h1 style="margin-bottom: 35px;">BIND Export {{context}}</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        {% for z in zones %}
+            <div class="panel panel-default" style="box-sizing: content-box; max-width: 100%; overflow: scroll;">
+                <div class="panel-heading">
+                    <strong class="text-md-left">{{ z.id }}</strong>
+                    <span class="pull-right">
+                        <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}download={{ z.num }}">Download</a>
+                         - 
+                        <a id="bind_export_select_{{ z.num }}" href="#">Select</a>
+                    </span>
+                </div>
+                <table class="table table-hover panel-body">
+                    <tr><td>
+                        <pre id="bind_export_{{ z.num }}" style="overflow: auto; overflow-x: auto; overflow-y: auto; word-wrap: break-word; white-space: pre;">{{ z.content }}</pre>
+                    </td></tr>
+                    {% if z.extra_conf %}<tr><td><pre style="overflow: auto; overflow-x: auto; overflow-y: auto; word-wrap: break-word; white-space: pre;">{{ z.extra_conf }}</pre></td></tr>{% endif %}
+                </table>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script>
+    for(var i=0;i<{{ bind_export_count }};i++) {
+        $('#bind_export_select_'+i).click(function(e){
+            var i_str = $(this).attr('id');
+            i_str = i_str.substr(i_str.lastIndexOf('_')+1);
+            e.preventDefault();
+            if(document.selection) {
+                var range = document.body.createTextRange();
+                var id='bind_export_'+i_str;
+                range.moveToElementText(document.getElementById(id));
+                range.select();
+            }
+            else if(window.getSelection) {
+                var range = document.createRange();
+                var id='bind_export_'+i_str;
+                range.selectNode(document.getElementById(id));
+                window.getSelection().addRange(range);
+            }
+        });
+    }
+</script>
+{% endblock %}

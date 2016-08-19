@@ -1,0 +1,37 @@
+[
+{
+	"model": "dns.zone",
+	"pk": 1,
+	"fields": {
+		"name": "foo.net",
+		"ttl": 10800,
+		"soa_name": "@",
+		"soa_contact": "ns@foo.net. noc@foo.net.",
+		"soa_serial": "2016070401",
+		"soa_refresh": 3600,
+		"soa_retry": 3600,
+		"soa_expire": 604800,
+		"soa_minimum": 1800
+	}
+},
+{
+	"model": "dns.record",
+	"pk": 1,
+	"fields": {
+		"name": "@",
+		"record_type": "NS",
+		"zone": 1,
+		"value": "ns.foo.net."
+	}
+},
+{
+	"model": "dns.record",
+	"pk": 2,
+	"fields": {
+		"name": "www",
+		"record_type": "A",
+		"zone": 1,
+		"address": 1
+	}
+}
+]
