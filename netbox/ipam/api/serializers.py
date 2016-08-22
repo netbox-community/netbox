@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from dcim.api.serializers import SiteNestedSerializer, InterfaceNestedSerializer
-from extras.api.serializers import CustomFieldsSerializer
+from extras.api.serializers import CustomFieldSerializer
 from ipam.models import VRF, Role, RIR, Aggregate, Prefix, IPAddress, VLAN, VLANGroup
 from tenancy.api.serializers import TenantNestedSerializer
 
@@ -10,7 +10,7 @@ from tenancy.api.serializers import TenantNestedSerializer
 # VRFs
 #
 
-class VRFSerializer(CustomFieldsSerializer, serializers.ModelSerializer):
+class VRFSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     tenant = TenantNestedSerializer()
 
     class Meta:
@@ -71,7 +71,7 @@ class RIRNestedSerializer(RIRSerializer):
 # Aggregates
 #
 
-class AggregateSerializer(CustomFieldsSerializer, serializers.ModelSerializer):
+class AggregateSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     rir = RIRNestedSerializer()
 
     class Meta:
@@ -107,7 +107,7 @@ class VLANGroupNestedSerializer(VLANGroupSerializer):
 # VLANs
 #
 
-class VLANSerializer(CustomFieldsSerializer, serializers.ModelSerializer):
+class VLANSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     site = SiteNestedSerializer()
     group = VLANGroupNestedSerializer()
     tenant = TenantNestedSerializer()
@@ -129,7 +129,7 @@ class VLANNestedSerializer(VLANSerializer):
 # Prefixes
 #
 
-class PrefixSerializer(CustomFieldsSerializer, serializers.ModelSerializer):
+class PrefixSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     site = SiteNestedSerializer()
     vrf = VRFTenantSerializer()
     tenant = TenantNestedSerializer()
@@ -152,7 +152,7 @@ class PrefixNestedSerializer(PrefixSerializer):
 # IP addresses
 #
 
-class IPAddressSerializer(CustomFieldsSerializer, serializers.ModelSerializer):
+class IPAddressSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     vrf = VRFTenantSerializer()
     tenant = TenantNestedSerializer()
     interface = InterfaceNestedSerializer()

@@ -28,7 +28,7 @@ class SiteListView(CustomFieldModelAPIView, generics.ListAPIView):
     """
     List all sites
     """
-    queryset = Site.objects.select_related('tenant').prefetch_related('custom_field_values')
+    queryset = Site.objects.select_related('tenant').prefetch_related('custom_field_values__field')
     serializer_class = serializers.SiteSerializer
 
 
@@ -36,7 +36,7 @@ class SiteDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
     """
     Retrieve a single site
     """
-    queryset = Site.objects.select_related('tenant').prefetch_related('custom_field_values')
+    queryset = Site.objects.select_related('tenant').prefetch_related('custom_field_values__field')
     serializer_class = serializers.SiteSerializer
 
 
@@ -89,7 +89,8 @@ class RackListView(CustomFieldModelAPIView, generics.ListAPIView):
     """
     List racks (filterable)
     """
-    queryset = Rack.objects.select_related('site', 'group__site', 'tenant').prefetch_related('custom_field_values')
+    queryset = Rack.objects.select_related('site', 'group__site', 'tenant')\
+        .prefetch_related('custom_field_values__field')
     serializer_class = serializers.RackSerializer
     filter_class = filters.RackFilter
 
@@ -98,7 +99,8 @@ class RackDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
     """
     Retrieve a single rack
     """
-    queryset = Rack.objects.select_related('site', 'group__site', 'tenant').prefetch_related('custom_field_values')
+    queryset = Rack.objects.select_related('site', 'group__site', 'tenant')\
+        .prefetch_related('custom_field_values__field')
     serializer_class = serializers.RackDetailSerializer
 
 
@@ -217,7 +219,7 @@ class DeviceListView(CustomFieldModelAPIView, generics.ListAPIView):
     queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'tenant', 'platform',
                                              'rack__site', 'parent_bay').prefetch_related('primary_ip4__nat_outside',
                                                                                           'primary_ip6__nat_outside',
-                                                                                          'custom_field_values')
+                                                                                          'custom_field_values__field')
     serializer_class = serializers.DeviceSerializer
     filter_class = filters.DeviceFilter
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES + [BINDZoneRenderer, FlatJSONRenderer]
@@ -228,7 +230,7 @@ class DeviceDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
     Retrieve a single device
     """
     queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'tenant', 'platform',
-                                             'rack__site', 'parent_bay').prefetch_related('custom_field_values')
+                                             'rack__site', 'parent_bay').prefetch_related('custom_field_values__field')
     serializer_class = serializers.DeviceSerializer
 
 

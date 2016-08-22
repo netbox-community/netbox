@@ -27,7 +27,7 @@ class TenantListView(CustomFieldModelAPIView, generics.ListAPIView):
     """
     List tenants (filterable)
     """
-    queryset = Tenant.objects.select_related('group').prefetch_related('custom_field_values')
+    queryset = Tenant.objects.select_related('group').prefetch_related('custom_field_values__field')
     serializer_class = serializers.TenantSerializer
     filter_class = TenantFilter
 
@@ -36,5 +36,5 @@ class TenantDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
     """
     Retrieve a single tenant
     """
-    queryset = Tenant.objects.select_related('group').prefetch_related('custom_field_values')
+    queryset = Tenant.objects.select_related('group').prefetch_related('custom_field_values__field')
     serializer_class = serializers.TenantSerializer

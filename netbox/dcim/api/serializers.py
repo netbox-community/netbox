@@ -6,7 +6,7 @@ from dcim.models import (
     DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet,
     PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, RACK_FACE_FRONT, RACK_FACE_REAR, Site,
 )
-from extras.api.serializers import CustomFieldsSerializer
+from extras.api.serializers import CustomFieldSerializer
 from tenancy.api.serializers import TenantNestedSerializer
 
 
@@ -14,7 +14,7 @@ from tenancy.api.serializers import TenantNestedSerializer
 # Sites
 #
 
-class SiteSerializer(CustomFieldsSerializer, serializers.ModelSerializer):
+class SiteSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     tenant = TenantNestedSerializer()
 
     class Meta:
@@ -69,7 +69,7 @@ class RackRoleNestedSerializer(RackRoleSerializer):
 #
 
 
-class RackSerializer(CustomFieldsSerializer, serializers.ModelSerializer):
+class RackSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     site = SiteNestedSerializer()
     group = RackGroupNestedSerializer()
     tenant = TenantNestedSerializer()
@@ -238,7 +238,7 @@ class DeviceIPAddressNestedSerializer(serializers.ModelSerializer):
         fields = ['id', 'family', 'address']
 
 
-class DeviceSerializer(CustomFieldsSerializer, serializers.ModelSerializer):
+class DeviceSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     device_type = DeviceTypeNestedSerializer()
     device_role = DeviceRoleNestedSerializer()
     tenant = TenantNestedSerializer()

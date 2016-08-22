@@ -1,21 +1,33 @@
 from rest_framework import serializers
 
-from extras.models import CF_TYPE_SELECT, CustomFieldChoice, Graph
+from extras.models import CF_TYPE_SELECT, CustomFieldChoice, CustomFieldValue, Graph
 
 
-class CustomFieldsSerializer(serializers.Serializer):
+class CustomFieldSerializer(serializers.Serializer):
     """
     Extends a ModelSerializer to render any CustomFields and their values associated with an object.
     """
     custom_fields = serializers.SerializerMethodField()
 
     def get_custom_fields(self, obj):
+
+        # Gather all CustomFields applicable to this object
         fields = {cf.name: None for cf in self.context['view'].custom_fields}
+
+        # Attach any defined CustomFieldValues to their respective CustomFields
         for cfv in obj.custom_field_values.all():
+
+            # Suppress database lookups for CustomFieldChoices. Instead, use the cached choice set from the view
+            # context.
             if cfv.field.type == CF_TYPE_SELECT:
-                fields[cfv.field.name] = CustomFieldChoiceSerializer(instance=cfv.value).data
+                cfc = {
+                    'id': int(cfv.serialized_value),
+                    'value': self.context['view'].custom_field_choices[int(cfv.serialized_value)]
+                }
+                fields[cfv.field.name] = CustomFieldChoiceSerializer(instance=cfc).data
             else:
                 fields[cfv.field.name] = cfv.value
+
         return fields
 
 
