@@ -109,14 +109,6 @@
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <td>Created</td>
-                    <td>{{ site.created }}</td>
-                </tr>
-                <tr>
-                    <td>Last Updated</td>
-                    <td>{{ site.last_updated }}</td>
-                </tr>
             </table>
         </div>
         {% with site.custom_fields as custom_fields %}
@@ -134,6 +126,7 @@
                 {% endif %}
             </div>
         </div>
+        {% include 'inc/created_updated.html' with obj=site %}
     </div>
     <div class="col-md-5">
         <div class="panel panel-default">

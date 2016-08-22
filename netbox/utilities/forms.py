@@ -130,11 +130,11 @@ class CSVDataField(forms.CharField):
         '"New York, NY",new-york-ny,Other stuff' => ['New York, NY', 'new-york-ny', 'Other stuff']
     """
     csv_form = None
+    widget = forms.Textarea
 
     def __init__(self, csv_form, *args, **kwargs):
         self.csv_form = csv_form
         self.columns = self.csv_form().fields.keys()
-        self.widget = forms.Textarea
         super(CSVDataField, self).__init__(*args, **kwargs)
         self.strip = False
         if not self.label:

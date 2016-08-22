@@ -79,14 +79,6 @@
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <td>Created</td>
-                    <td>{{ device.created }}</td>
-                </tr>
-                <tr>
-                    <td>Last Updated</td>
-                    <td>{{ device.last_updated }}</td>
-                </tr>
             </table>
         </div>
         <div class="panel panel-default">
@@ -309,6 +301,7 @@
                 <div class="panel-body text-muted">None found</div>
             {% endif %}
         </div>
+        {% include 'inc/created_updated.html' with obj=device %}
 	</div>
 	<div class="col-md-6">
         {% if device_bays or device.device_type.is_parent_device %}

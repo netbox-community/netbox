@@ -80,19 +80,9 @@
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <td>Created</td>
-                    <td>{{ vrf.created }}</td>
-                </tr>
-                <tr>
-                    <td>Last Updated</td>
-                    <td>{{ vrf.last_updated }}</td>
-                </tr>
 		    </table>
         </div>
-        {% with vrf.custom_fields as custom_fields %}
-            {% include 'inc/custom_fields_panel.html' %}
-        {% endwith %}
+        {% include 'inc/created_updated.html' with obj=vrf %}
 	</div>
 	<div class="col-md-6">
         <div class="panel panel-default">

@@ -31,6 +31,7 @@
                     Edit user key
                 </a>
             </div>
+            {% include 'inc/created_updated.html' with obj=userkey %}
         {% else %}
             <p>You don't have a user key on file.</p>
             <p>

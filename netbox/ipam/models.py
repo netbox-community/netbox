@@ -280,6 +280,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
         return ','.join([
             str(self.prefix),
             self.vrf.rd if self.vrf else '',
+            self.tenant.name if self.tenant else '',
             self.site.name if self.site else '',
             self.get_status_display(),
             self.role.name if self.role else '',
@@ -384,6 +385,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
         return ','.join([
             str(self.address),
             self.vrf.rd if self.vrf else '',
+            self.tenant.name if self.tenant else '',
             self.device.identifier if self.device else '',
             self.interface.name if self.interface else '',
             'True' if is_primary else '',

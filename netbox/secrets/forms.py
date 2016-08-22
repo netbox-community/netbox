@@ -47,8 +47,9 @@ class SecretRoleForm(forms.ModelForm, BootstrapMixin):
 #
 
 class SecretForm(forms.ModelForm, BootstrapMixin):
-    private_key = forms.CharField(widget=forms.HiddenInput())
-    plaintext = forms.CharField(max_length=65535, required=False, label='Plaintext')
+    private_key = forms.CharField(required=False, widget=forms.HiddenInput())
+    plaintext = forms.CharField(max_length=65535, required=False, label='Plaintext',
+                                widget=forms.TextInput(attrs={'class': 'requires-private-key'}))
     plaintext2 = forms.CharField(max_length=65535, required=False, label='Plaintext (verify)')
 
     class Meta:
@@ -56,7 +57,8 @@ class SecretForm(forms.ModelForm, BootstrapMixin):
         fields = ['role', 'name', 'plaintext', 'plaintext2']
 
     def clean(self):
-        validate_rsa_key(self.cleaned_data['private_key'])
+        if self.cleaned_data['plaintext']:
+            validate_rsa_key(self.cleaned_data['private_key'])
 
     def clean_plaintext2(self):
         plaintext = self.cleaned_data['plaintext']
@@ -84,7 +86,7 @@ class SecretFromCSVForm(forms.ModelForm):
 
 class SecretImportForm(BulkImportForm, BootstrapMixin):
     private_key = forms.CharField(widget=forms.HiddenInput())
-    csv = CSVDataField(csv_form=SecretFromCSVForm)
+    csv = CSVDataField(csv_form=SecretFromCSVForm, widget=forms.Textarea(attrs={'class': 'requires-private-key'}))
 
 
 class SecretBulkEditForm(forms.Form, BootstrapMixin):

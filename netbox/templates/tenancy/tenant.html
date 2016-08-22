@@ -63,14 +63,6 @@
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <td>Created</td>
-                    <td>{{ tenant.created }}</td>
-                </tr>
-                <tr>
-                    <td>Last Updated</td>
-                    <td>{{ tenant.last_updated }}</td>
-                </tr>
             </table>
         </div>
         {% with tenant.custom_fields as custom_fields %}
@@ -88,6 +80,7 @@
                 {% endif %}
             </div>
         </div>
+        {% include 'inc/created_updated.html' with obj=tenant %}
 	</div>
 	<div class="col-md-5">
         <div class="panel panel-default">

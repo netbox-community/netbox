@@ -119,19 +119,9 @@
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <td>Created</td>
-                    <td>{{ ipaddress.created }}</td>
-                </tr>
-                <tr>
-                    <td>Last Updated</td>
-                    <td>{{ ipaddress.last_updated }}</td>
-                </tr>
             </table>
         </div>
-        {% with ipaddress.custom_fields as custom_fields %}
-            {% include 'inc/custom_fields_panel.html' %}
-        {% endwith %}
+        {% include 'inc/created_updated.html' with obj=ipaddress %}
 	</div>
 	<div class="col-md-6">
         {% with heading='Parent Prefixes' %}
