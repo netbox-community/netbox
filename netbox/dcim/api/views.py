@@ -5,6 +5,7 @@ from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
@@ -430,6 +431,13 @@ class RelatedConnectionsView(APIView):
     Retrieve all connections related to a given console/power/interface connection
     """
 
+    def __init__(self):
+        super(RelatedConnectionsView, self).__init__()
+
+        # Custom fields
+        self.content_type = ContentType.objects.get_for_model(Device)
+        self.custom_fields = self.content_type.custom_fields.prefetch_related('choices')
+
     def get(self, request):
 
         peer_device = request.GET.get('peer-device')
@@ -454,7 +462,7 @@ class RelatedConnectionsView(APIView):
 
         # Initialize response skeleton
         response = {
-            'device': serializers.DeviceSerializer(device).data,
+            'device': serializers.DeviceSerializer(device, context={'view': self}).data,
             'console-ports': [],
             'power-ports': [],
             'interfaces': [],

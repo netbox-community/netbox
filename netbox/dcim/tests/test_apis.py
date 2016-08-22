@@ -21,6 +21,7 @@ class SiteTest(APITestCase):
         'physical_address',
         'shipping_address',
         'comments',
+        'custom_fields',
         'count_prefixes',
         'count_vlans',
         'count_racks',
@@ -46,7 +47,8 @@ class SiteTest(APITestCase):
         'type',
         'width',
         'u_height',
-        'comments'
+        'comments',
+        'custom_fields',
     ]
 
     graph_fields = [
@@ -125,7 +127,8 @@ class RackTest(APITestCase):
         'type',
         'width',
         'u_height',
-        'comments'
+        'comments',
+        'custom_fields',
     ]
 
     detail_fields = [
@@ -141,6 +144,7 @@ class RackTest(APITestCase):
         'width',
         'u_height',
         'comments',
+        'custom_fields',
         'front_units',
         'rear_units'
     ]
@@ -337,6 +341,7 @@ class DeviceTest(APITestCase):
         'primary_ip4',
         'primary_ip6',
         'comments',
+        'custom_fields',
     ]
 
     nested_fields = ['id', 'name', 'display_name']

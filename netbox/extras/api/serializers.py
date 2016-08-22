@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from extras.models import CF_TYPE_SELECT, CustomFieldChoice, CustomFieldValue, Graph
+from extras.models import CF_TYPE_SELECT, CustomFieldChoice, Graph
 
 
 class CustomFieldSerializer(serializers.Serializer):
@@ -17,14 +17,17 @@ class CustomFieldSerializer(serializers.Serializer):
         # Attach any defined CustomFieldValues to their respective CustomFields
         for cfv in obj.custom_field_values.all():
 
-            # Suppress database lookups for CustomFieldChoices. Instead, use the cached choice set from the view
+            # Attempt to suppress database lookups for CustomFieldChoices by using the cached choice set from the view
             # context.
-            if cfv.field.type == CF_TYPE_SELECT:
+            if cfv.field.type == CF_TYPE_SELECT and hasattr(self, 'custom_field_choices'):
                 cfc = {
                     'id': int(cfv.serialized_value),
                     'value': self.context['view'].custom_field_choices[int(cfv.serialized_value)]
                 }
                 fields[cfv.field.name] = CustomFieldChoiceSerializer(instance=cfc).data
+            # Fall back to hitting the database in case we're in a view that doesn't inherit CustomFieldModelAPIView.
+            elif cfv.field.type == CF_TYPE_SELECT:
+                fields[cfv.field.name] = CustomFieldChoiceSerializer(instance=cfv.value).data
             else:
                 fields[cfv.field.name] = cfv.value
 

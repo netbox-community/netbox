@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 
 from circuits.models import Provider
 from dcim.models import Site, Device, Interface, InterfaceConnection
-from extras.models import CustomFieldChoice, Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_PROVIDER, GRAPH_TYPE_SITE
+from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_PROVIDER, GRAPH_TYPE_SITE
 
 from .serializers import GraphSerializer
 
