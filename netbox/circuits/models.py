@@ -1,9 +1,10 @@
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.urlresolvers import reverse
 from django.db import models
 
 from dcim.fields import ASNField
 from dcim.models import Site, Interface
-from extras.models import CustomFieldModel
+from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
 from utilities.models import CreatedUpdatedModel
 
@@ -21,6 +22,7 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
     noc_contact = models.TextField(blank=True, verbose_name='NOC contact')
     admin_contact = models.TextField(blank=True, verbose_name='Admin contact')
     comments = models.TextField(blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:
         ordering = ['name']
@@ -79,6 +81,7 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
     xconnect_id = models.CharField(max_length=50, blank=True, verbose_name='Cross-connect ID')
     pp_info = models.CharField(max_length=100, blank=True, verbose_name='Patch panel/port(s)')
     comments = models.TextField(blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:
         ordering = ['provider', 'cid']

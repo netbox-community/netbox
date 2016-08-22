@@ -3,22 +3,23 @@ from rest_framework import generics
 from circuits.models import Provider, CircuitType, Circuit
 from circuits.filters import CircuitFilter
 
+from extras.api.views import CustomFieldModelAPIView
 from . import serializers
 
 
-class ProviderListView(generics.ListAPIView):
+class ProviderListView(CustomFieldModelAPIView, generics.ListAPIView):
     """
     List all providers
     """
-    queryset = Provider.objects.all()
+    queryset = Provider.objects.prefetch_related('custom_field_values')
     serializer_class = serializers.ProviderSerializer
 
 
-class ProviderDetailView(generics.RetrieveAPIView):
+class ProviderDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
     """
     Retrieve a single provider
     """
-    queryset = Provider.objects.all()
+    queryset = Provider.objects.prefetch_related('custom_field_values')
     serializer_class = serializers.ProviderSerializer
 
 
@@ -38,18 +39,20 @@ class CircuitTypeDetailView(generics.RetrieveAPIView):
     serializer_class = serializers.CircuitTypeSerializer
 
 
-class CircuitListView(generics.ListAPIView):
+class CircuitListView(CustomFieldModelAPIView, generics.ListAPIView):
     """
     List circuits (filterable)
     """
-    queryset = Circuit.objects.select_related('type', 'tenant', 'provider', 'site', 'interface__device')
+    queryset = Circuit.objects.select_related('type', 'tenant', 'provider', 'site', 'interface__device')\
+        .prefetch_related('custom_field_values')
     serializer_class = serializers.CircuitSerializer
     filter_class = CircuitFilter
 
 
-class CircuitDetailView(generics.RetrieveAPIView):
+class CircuitDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
     """
     Retrieve a single circuit
     """
-    queryset = Circuit.objects.select_related('type', 'tenant', 'provider', 'site', 'interface__device')
+    queryset = Circuit.objects.select_related('type', 'tenant', 'provider', 'site', 'interface__device')\
+        .prefetch_related('custom_field_values')
     serializer_class = serializers.CircuitSerializer

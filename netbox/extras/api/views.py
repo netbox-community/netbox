@@ -1,9 +1,8 @@
 import graphviz
 from rest_framework import generics
 from rest_framework.views import APIView
-import tempfile
-from wsgiref.util import FileWrapper
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -13,6 +12,17 @@ from dcim.models import Site, Device, Interface, InterfaceConnection
 from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_PROVIDER, GRAPH_TYPE_SITE
 
 from .serializers import GraphSerializer
+
+
+class CustomFieldModelAPIView(object):
+    """
+    Include the applicable set of CustomField in the view context.
+    """
+
+    def __init__(self):
+        super(CustomFieldModelAPIView, self).__init__()
+        self.content_type = ContentType.objects.get_for_model(self.queryset.model)
+        self.custom_fields = self.content_type.custom_fields.all()
 
 
 class GraphListView(generics.ListAPIView):

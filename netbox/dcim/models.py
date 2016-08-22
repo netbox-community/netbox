@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -228,6 +229,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     physical_address = models.CharField(max_length=200, blank=True)
     shipping_address = models.CharField(max_length=200, blank=True)
     comments = models.TextField(blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     objects = SiteManager()
 
@@ -339,6 +341,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
     u_height = models.PositiveSmallIntegerField(default=42, verbose_name='Height (U)',
                                                 validators=[MinValueValidator(1), MaxValueValidator(100)])
     comments = models.TextField(blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     objects = RackManager()
 
@@ -752,6 +755,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     primary_ip6 = models.OneToOneField('ipam.IPAddress', related_name='primary_ip6_for', on_delete=models.SET_NULL,
                                        blank=True, null=True, verbose_name='Primary IPv6')
     comments = models.TextField(blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     objects = DeviceManager()
 

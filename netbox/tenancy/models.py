@@ -1,7 +1,8 @@
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.urlresolvers import reverse
 from django.db import models
 
-from extras.models import CustomFieldModel
+from extras.models import CustomFieldModel, CustomFieldValue
 from utilities.models import CreatedUpdatedModel
 
 
@@ -32,6 +33,7 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
     group = models.ForeignKey('TenantGroup', related_name='tenants', blank=True, null=True, on_delete=models.SET_NULL)
     description = models.CharField(max_length=100, blank=True, help_text="Long-form name (optional)")
     comments = models.TextField(blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:
         ordering = ['group', 'name']

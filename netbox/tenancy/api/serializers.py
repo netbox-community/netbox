@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from extras.api.serializers import CustomFieldsSerializer
 from tenancy.models import Tenant, TenantGroup
 
 
@@ -24,12 +25,12 @@ class TenantGroupNestedSerializer(TenantGroupSerializer):
 # Tenants
 #
 
-class TenantSerializer(serializers.ModelSerializer):
+class TenantSerializer(CustomFieldsSerializer, serializers.ModelSerializer):
     group = TenantGroupNestedSerializer()
 
     class Meta:
         model = Tenant
-        fields = ['id', 'name', 'slug', 'group', 'comments']
+        fields = ['id', 'name', 'slug', 'group', 'comments', 'custom_fields']
 
 
 class TenantNestedSerializer(TenantSerializer):

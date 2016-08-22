@@ -1,6 +1,29 @@
 from rest_framework import serializers
 
-from extras.models import Graph
+from extras.models import CF_TYPE_SELECT, CustomFieldChoice, Graph
+
+
+class CustomFieldsSerializer(serializers.Serializer):
+    """
+    Extends a ModelSerializer to render any CustomFields and their values associated with an object.
+    """
+    custom_fields = serializers.SerializerMethodField()
+
+    def get_custom_fields(self, obj):
+        fields = {cf.name: None for cf in self.context['view'].custom_fields}
+        for cfv in obj.custom_field_values.all():
+            if cfv.field.type == CF_TYPE_SELECT:
+                fields[cfv.field.name] = CustomFieldChoiceSerializer(instance=cfv.value).data
+            else:
+                fields[cfv.field.name] = cfv.value
+        return fields
+
+
+class CustomFieldChoiceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CustomFieldChoice
+        fields = ['id', 'value']
 
 
 class GraphSerializer(serializers.ModelSerializer):

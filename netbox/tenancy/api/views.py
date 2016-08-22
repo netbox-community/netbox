@@ -3,6 +3,7 @@ from rest_framework import generics
 from tenancy.models import Tenant, TenantGroup
 from tenancy.filters import TenantFilter
 
+from extras.api.views import CustomFieldModelAPIView
 from . import serializers
 
 
@@ -22,18 +23,18 @@ class TenantGroupDetailView(generics.RetrieveAPIView):
     serializer_class = serializers.TenantGroupSerializer
 
 
-class TenantListView(generics.ListAPIView):
+class TenantListView(CustomFieldModelAPIView, generics.ListAPIView):
     """
     List tenants (filterable)
     """
-    queryset = Tenant.objects.select_related('group')
+    queryset = Tenant.objects.select_related('group').prefetch_related('custom_field_values')
     serializer_class = serializers.TenantSerializer
     filter_class = TenantFilter
 
 
-class TenantDetailView(generics.RetrieveAPIView):
+class TenantDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
     """
     Retrieve a single tenant
     """
-    queryset = Tenant.objects.select_related('group')
+    queryset = Tenant.objects.select_related('group').prefetch_related('custom_field_values')
     serializer_class = serializers.TenantSerializer

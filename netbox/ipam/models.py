@@ -1,6 +1,7 @@
 from netaddr import IPNetwork, cidr_merge
 
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -8,7 +9,7 @@ from django.db import models
 from django.db.models.expressions import RawSQL
 
 from dcim.models import Interface
-from extras.models import CustomFieldModel
+from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
 from utilities.models import CreatedUpdatedModel
 
@@ -53,6 +54,7 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
     enforce_unique = models.BooleanField(default=True, verbose_name='Enforce unique space',
                                          help_text="Prevent duplicate prefixes/IP addresses within this VRF")
     description = models.CharField(max_length=100, blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:
         ordering = ['name']
@@ -105,6 +107,7 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
     rir = models.ForeignKey('RIR', related_name='aggregates', on_delete=models.PROTECT, verbose_name='RIR')
     date_added = models.DateField(blank=True, null=True)
     description = models.CharField(max_length=100, blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:
         ordering = ['family', 'prefix']
@@ -241,6 +244,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
     status = models.PositiveSmallIntegerField('Status', choices=PREFIX_STATUS_CHOICES, default=1)
     role = models.ForeignKey('Role', related_name='prefixes', on_delete=models.SET_NULL, blank=True, null=True)
     description = models.CharField(max_length=100, blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     objects = PrefixQuerySet.as_manager()
 
@@ -332,6 +336,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     nat_inside = models.OneToOneField('self', related_name='nat_outside', on_delete=models.SET_NULL, blank=True,
                                       null=True, verbose_name='NAT IP (inside)')
     description = models.CharField(max_length=100, blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     objects = IPAddressManager()
 
@@ -436,6 +441,7 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
     status = models.PositiveSmallIntegerField('Status', choices=VLAN_STATUS_CHOICES, default=1)
     role = models.ForeignKey('Role', related_name='vlans', on_delete=models.SET_NULL, blank=True, null=True)
     description = models.CharField(max_length=100, blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:
         ordering = ['site', 'group', 'vid']
