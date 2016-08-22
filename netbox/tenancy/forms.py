@@ -1,7 +1,7 @@
 from django import forms
 from django.db.models import Count
 
-from extras.forms import CustomFieldForm
+from extras.forms import CustomFieldForm, CustomFieldBulkEditForm
 from utilities.forms import BootstrapMixin, BulkImportForm, CommentField, CSVDataField, SlugField
 
 from .models import Tenant, TenantGroup
@@ -69,7 +69,7 @@ class TenantImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=TenantFromCSVForm)
 
 
-class TenantBulkEditForm(forms.Form, BootstrapMixin):
+class TenantBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Tenant.objects.all(), widget=forms.MultipleHiddenInput)
     group = forms.TypedChoiceField(choices=bulkedit_tenantgroup_choices, coerce=int, required=False, label='Group')
 

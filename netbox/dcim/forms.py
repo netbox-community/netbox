@@ -241,7 +241,7 @@ class RackImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=RackFromCSVForm)
 
 
-class RackBulkEditForm(forms.Form, BootstrapMixin):
+class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Rack.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site')
     group = forms.TypedChoiceField(choices=bulkedit_rackgroup_choices, coerce=int, required=False, label='Group')
@@ -614,7 +614,7 @@ class ChildDeviceImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=ChildDeviceFromCSVForm)
 
 
-class DeviceBulkEditForm(forms.Form, BootstrapMixin):
+class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
     device_type = forms.ModelChoiceField(queryset=DeviceType.objects.all(), required=False, label='Type')
     device_role = forms.ModelChoiceField(queryset=DeviceRole.objects.all(), required=False, label='Role')

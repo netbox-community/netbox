@@ -2,7 +2,7 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Site, Device, Interface, Rack, IFACE_FF_VIRTUAL
-from extras.forms import CustomFieldForm
+from extras.forms import CustomFieldForm, CustomFieldBulkEditForm
 from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -47,7 +47,7 @@ class ProviderImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=ProviderFromCSVForm)
 
 
-class ProviderBulkEditForm(forms.Form, BootstrapMixin):
+class ProviderBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Provider.objects.all(), widget=forms.MultipleHiddenInput)
     asn = forms.IntegerField(required=False, label='ASN')
     account = forms.CharField(max_length=30, required=False, label='Account number')
@@ -178,7 +178,7 @@ class CircuitImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=CircuitFromCSVForm)
 
 
-class CircuitBulkEditForm(forms.Form, BootstrapMixin):
+class CircuitBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Circuit.objects.all(), widget=forms.MultipleHiddenInput)
     type = forms.ModelChoiceField(queryset=CircuitType.objects.all(), required=False)
     provider = forms.ModelChoiceField(queryset=Provider.objects.all(), required=False)

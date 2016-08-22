@@ -1,10 +1,8 @@
-from netaddr import IPNetwork
-
 from django import forms
 from django.db.models import Count
 
 from dcim.models import Site, Device, Interface
-from extras.forms import CustomFieldForm
+from extras.forms import CustomFieldForm, CustomFieldBulkEditForm
 from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
 from utilities.forms import BootstrapMixin, APISelect, Livesearch, CSVDataField, BulkImportForm, SlugField
@@ -60,7 +58,7 @@ class VRFImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=VRFFromCSVForm)
 
 
-class VRFBulkEditForm(forms.Form, BootstrapMixin):
+class VRFBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VRF.objects.all(), widget=forms.MultipleHiddenInput)
     tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
     description = forms.CharField(max_length=100, required=False)
@@ -117,7 +115,7 @@ class AggregateImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=AggregateFromCSVForm)
 
 
-class AggregateBulkEditForm(forms.Form, BootstrapMixin):
+class AggregateBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Aggregate.objects.all(), widget=forms.MultipleHiddenInput)
     rir = forms.ModelChoiceField(queryset=RIR.objects.all(), required=False, label='RIR')
     date_added = forms.DateField(required=False)
@@ -252,7 +250,7 @@ class PrefixImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=PrefixFromCSVForm)
 
 
-class PrefixBulkEditForm(forms.Form, BootstrapMixin):
+class PrefixBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Prefix.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
     vrf = forms.TypedChoiceField(choices=bulkedit_vrf_choices, coerce=int, required=False, label='VRF')
@@ -426,7 +424,7 @@ class IPAddressImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=IPAddressFromCSVForm)
 
 
-class IPAddressBulkEditForm(forms.Form, BootstrapMixin):
+class IPAddressBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=IPAddress.objects.all(), widget=forms.MultipleHiddenInput)
     vrf = forms.TypedChoiceField(choices=bulkedit_vrf_choices, coerce=int, required=False, label='VRF')
     tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
@@ -540,7 +538,7 @@ class VLANImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=VLANFromCSVForm)
 
 
-class VLANBulkEditForm(forms.Form, BootstrapMixin):
+class VLANBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VLAN.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
     group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False)
