@@ -97,7 +97,7 @@ class CustomField(models.Model):
                                                                      "form")
 
     class Meta:
-        ordering = ['name']
+        ordering = ['weight', 'name']
 
     def __unicode__(self):
         return self.label or self.name.replace('_', ' ').capitalize()
