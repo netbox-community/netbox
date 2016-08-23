@@ -3,11 +3,12 @@ import django_filters
 from django.db.models import Q
 
 from dcim.models import Site
+from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from .models import Provider, Circuit, CircuitType
 
 
-class ProviderFilter(django_filters.FilterSet):
+class ProviderFilter(CustomFieldFilterSet, django_filters.FilterSet):
     q = django_filters.MethodFilter(
         action='search',
         label='Search',
@@ -36,7 +37,7 @@ class ProviderFilter(django_filters.FilterSet):
         )
 
 
-class CircuitFilter(django_filters.FilterSet):
+class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
     q = django_filters.MethodFilter(
         action='search',
         label='Search',

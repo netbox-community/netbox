@@ -2,14 +2,15 @@ import django_filters
 
 from django.db.models import Q
 
+from extras.filters import CustomFieldFilterSet
+from tenancy.models import Tenant
 from .models import (
     ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, Interface, InterfaceConnection, Manufacturer,
     Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackRole, Site,
 )
-from tenancy.models import Tenant
 
 
-class SiteFilter(django_filters.FilterSet):
+class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
     q = django_filters.MethodFilter(
         action='search',
         label='Search',
@@ -58,7 +59,7 @@ class RackGroupFilter(django_filters.FilterSet):
         fields = ['site_id', 'site']
 
 
-class RackFilter(django_filters.FilterSet):
+class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
     q = django_filters.MethodFilter(
         action='search',
         label='Search',
@@ -139,7 +140,7 @@ class DeviceTypeFilter(django_filters.FilterSet):
                   'is_network_device']
 
 
-class DeviceFilter(django_filters.FilterSet):
+class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
     q = django_filters.MethodFilter(
         action='search',
         label='Search',
