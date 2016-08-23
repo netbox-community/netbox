@@ -93,6 +93,8 @@ class CustomField(models.Model):
     default = models.CharField(max_length=100, blank=True, help_text="Default value for the field. Use \"true\" or "
                                                                      "\"false\" for booleans. N/A for selection "
                                                                      "fields.")
+    weight = models.PositiveSmallIntegerField(default=100, help_text="Fields with higher weights appear lower in a "
+                                                                     "form")
 
     class Meta:
         ordering = ['name']
@@ -168,7 +170,7 @@ class CustomFieldChoice(models.Model):
     field = models.ForeignKey('CustomField', related_name='choices', limit_choices_to={'type': CF_TYPE_SELECT},
                               on_delete=models.CASCADE)
     value = models.CharField(max_length=100)
-    weight = models.PositiveSmallIntegerField(default=100)
+    weight = models.PositiveSmallIntegerField(default=100, help_text="Higher weights appear lower in the list")
 
     class Meta:
         ordering = ['field', 'weight', 'value']
