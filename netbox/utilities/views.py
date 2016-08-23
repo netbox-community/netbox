@@ -296,7 +296,9 @@ class BulkEditView(View):
 
                 # Update custom fields for objects
                 if custom_fields:
-                    self.update_custom_fields(pk_list, form, custom_fields)
+                    objs_updated = self.update_custom_fields(pk_list, form, custom_fields)
+                    if objs_updated and not updated_count:
+                        updated_count = objs_updated
 
                 if updated_count:
                     msg = u'Updated {} {}'.format(updated_count, self.cls._meta.verbose_name_plural)
@@ -334,6 +336,8 @@ class BulkEditView(View):
 
     def update_custom_fields(self, pk_list, form, fields):
         obj_type = ContentType.objects.get_for_model(self.cls)
+        objs_updated = False
+
         for name in fields:
             if form.cleaned_data[name] not in [None, u'']:
 
@@ -353,6 +357,10 @@ class BulkEditView(View):
                     CustomFieldValue(field=field, obj_type=obj_type, obj_id=pk, serialized_value=serialized_value)
                     for pk in create_list
                 ])
+
+                objs_updated = True
+
+        return len(pk_list) if objs_updated else 0
 
 
 class BulkDeleteView(View):
