@@ -15,8 +15,8 @@ from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
 from django.views.generic import View
 
-from extras.forms import CustomFieldForm, CustomFieldBulkEditForm
-from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
+from extras.forms import CustomFieldForm
+from extras.models import CustomFieldValue, ExportTemplate, UserAction
 
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
@@ -327,6 +327,7 @@ class BulkEditView(View):
         fields_to_update = {}
 
         for name in fields:
+            # Check for zero value (bulk editing)
             if isinstance(form.fields[name], TypedChoiceField) and form.cleaned_data[name] == 0:
                 fields_to_update[name] = None
             elif form.cleaned_data[name]:
@@ -342,21 +343,31 @@ class BulkEditView(View):
             if form.cleaned_data[name] not in [None, u'']:
 
                 field = form.fields[name].model
-                serialized_value = field.serialize_value(form.cleaned_data[name])
+
+                # Check for zero value (bulk editing)
+                if isinstance(form.fields[name], TypedChoiceField) and form.cleaned_data[name] == 0:
+                    serialized_value = field.serialize_value(None)
+                else:
+                    serialized_value = field.serialize_value(form.cleaned_data[name])
+
+                # Gather any pre-existing CustomFieldValues for the objects being edited.
                 existing_cfvs = CustomFieldValue.objects.filter(field=field, obj_type=obj_type, obj_id__in=pk_list)
 
                 # Determine which objects have an existing CFV to update and which need a new CFV created.
                 update_list = [cfv['obj_id'] for cfv in existing_cfvs.values()]
                 create_list = list(set(pk_list) - set(update_list))
 
-                # Update any existing CFVs.
-                existing_cfvs.update(serialized_value=serialized_value)
+                # Creating/updating CFVs
+                if serialized_value:
+                    existing_cfvs.update(serialized_value=serialized_value)
+                    CustomFieldValue.objects.bulk_create([
+                        CustomFieldValue(field=field, obj_type=obj_type, obj_id=pk, serialized_value=serialized_value)
+                        for pk in create_list
+                    ])
 
-                # Create new CFVs as needed.
-                CustomFieldValue.objects.bulk_create([
-                    CustomFieldValue(field=field, obj_type=obj_type, obj_id=pk, serialized_value=serialized_value)
-                    for pk in create_list
-                ])
+                # Deleting CFVs
+                else:
+                    existing_cfvs.delete()
 
                 objs_updated = True
 

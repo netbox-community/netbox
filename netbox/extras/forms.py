@@ -1,15 +1,22 @@
+from collections import OrderedDict
+
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 
-from .models import CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CustomField, CustomFieldValue
+from .models import (
+    CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL, CustomField, CustomFieldValue
+)
 
 
-def get_custom_fields_for_model(content_type, select_empty=False, select_none=True):
+def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=False):
     """
     Retrieve all CustomFields applicable to the given ContentType
     """
-    field_dict = {}
-    custom_fields = CustomField.objects.filter(obj_type=content_type)
+    field_dict = OrderedDict()
+    kwargs = {'obj_type': content_type}
+    if filterable_only:
+        kwargs['is_filterable'] = True
+    custom_fields = CustomField.objects.filter(**kwargs)
 
     for cf in custom_fields:
         field_name = 'cf_{}'.format(str(cf.name))
@@ -40,14 +47,18 @@ def get_custom_fields_for_model(content_type, select_empty=False, select_none=Tr
 
         # Select
         elif cf.type == CF_TYPE_SELECT:
-            choices = [(cfc.pk, cfc) for cfc in cf.choices.all()]
-            if select_none and not cf.required:
-                choices = [(0, 'None')] + choices
-            if select_empty:
+            if bulk_edit:
+                choices = [(cfc.pk, cfc) for cfc in cf.choices.all()]
+                if not cf.required:
+                    choices = [(0, 'None')] + choices
                 choices = [(None, '---------')] + choices
                 field = forms.TypedChoiceField(choices=choices, coerce=int, required=cf.required)
             else:
                 field = forms.ModelChoiceField(queryset=cf.choices.all(), required=cf.required)
+
+        # URL
+        elif cf.type == CF_TYPE_URL:
+            field = forms.URLField(required=cf.required, initial=cf.default)
 
         # Text
         else:
@@ -88,19 +99,21 @@ class CustomFieldForm(forms.ModelForm):
     def _save_custom_fields(self):
 
         for field_name in self.custom_fields:
-            if self.cleaned_data[field_name] not in [None, u'']:
-                try:
-                    cfv = CustomFieldValue.objects.select_related('field').get(field=self.fields[field_name].model,
-                                                                               obj_type=self.obj_type,
-                                                                               obj_id=self.instance.pk)
-                except CustomFieldValue.DoesNotExist:
-                    cfv = CustomFieldValue(
-                        field=self.fields[field_name].model,
-                        obj_type=self.obj_type,
-                        obj_id=self.instance.pk
-                    )
-                cfv.value = self.cleaned_data[field_name]
-                cfv.save()
+            try:
+                cfv = CustomFieldValue.objects.select_related('field').get(field=self.fields[field_name].model,
+                                                                           obj_type=self.obj_type,
+                                                                           obj_id=self.instance.pk)
+            except CustomFieldValue.DoesNotExist:
+                # Skip this field if none exists already and its value is empty
+                if self.cleaned_data[field_name] in [None, u'']:
+                    continue
+                cfv = CustomFieldValue(
+                    field=self.fields[field_name].model,
+                    obj_type=self.obj_type,
+                    obj_id=self.instance.pk
+                )
+            cfv.value = self.cleaned_data[field_name]
+            cfv.save()
 
     def save(self, commit=True):
         obj = super(CustomFieldForm, self).save(commit)
@@ -125,7 +138,7 @@ class CustomFieldBulkEditForm(forms.Form):
 
         # Add all applicable CustomFields to the form
         custom_fields = []
-        for name, field in get_custom_fields_for_model(self.obj_type, select_empty=True).items():
+        for name, field in get_custom_fields_for_model(self.obj_type, bulk_edit=True).items():
             field.required = False
             self.fields[name] = field
             custom_fields.append(name)
@@ -141,8 +154,7 @@ class CustomFieldFilterForm(forms.Form):
         super(CustomFieldFilterForm, self).__init__(*args, **kwargs)
 
         # Add all applicable CustomFields to the form
-        custom_fields = get_custom_fields_for_model(self.obj_type, select_empty=True, select_none=False)\
-            .items()
+        custom_fields = get_custom_fields_for_model(self.obj_type, filterable_only=True).items()
         for name, field in custom_fields:
             field.required = False
             self.fields[name] = field

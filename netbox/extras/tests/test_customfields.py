@@ -7,7 +7,7 @@ from dcim.models import Site
 
 from extras.models import (
     CustomField, CustomFieldValue, CustomFieldChoice, CF_TYPE_TEXT, CF_TYPE_INTEGER, CF_TYPE_BOOLEAN, CF_TYPE_DATE,
-    CF_TYPE_SELECT,
+    CF_TYPE_SELECT, CF_TYPE_URL,
 )
 
 
@@ -30,6 +30,7 @@ class CustomFieldTestCase(TestCase):
             {'field_type': CF_TYPE_BOOLEAN, 'field_value': True, 'empty_value': None},
             {'field_type': CF_TYPE_BOOLEAN, 'field_value': False, 'empty_value': None},
             {'field_type': CF_TYPE_DATE, 'field_value': date(2016, 6, 23), 'empty_value': None},
+            {'field_type': CF_TYPE_URL, 'field_value': 'http://example.com/', 'empty_value': ''},
         )
 
         obj_type = ContentType.objects.get_for_model(Site)

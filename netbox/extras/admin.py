@@ -26,7 +26,7 @@ class CustomFieldChoiceAdmin(admin.TabularInline):
 @admin.register(CustomField)
 class CustomFieldAdmin(admin.ModelAdmin):
     inlines = [CustomFieldChoiceAdmin]
-    list_display = ['name', 'models', 'type', 'required', 'default', 'description']
+    list_display = ['name', 'models', 'type', 'required', 'default', 'weight', 'description']
     form = CustomFieldForm
 
     def models(self, obj):

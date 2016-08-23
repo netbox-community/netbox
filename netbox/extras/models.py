@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from datetime import date
 
 from django.contrib.auth.models import User
@@ -21,12 +22,14 @@ CF_TYPE_TEXT = 100
 CF_TYPE_INTEGER = 200
 CF_TYPE_BOOLEAN = 300
 CF_TYPE_DATE = 400
-CF_TYPE_SELECT = 500
+CF_TYPE_URL = 500
+CF_TYPE_SELECT = 600
 CUSTOMFIELD_TYPE_CHOICES = (
     (CF_TYPE_TEXT, 'Text'),
     (CF_TYPE_INTEGER, 'Integer'),
     (CF_TYPE_BOOLEAN, 'Boolean (true/false)'),
     (CF_TYPE_DATE, 'Date'),
+    (CF_TYPE_URL, 'URL'),
     (CF_TYPE_SELECT, 'Selection'),
 )
 
@@ -74,9 +77,9 @@ class CustomFieldModel(object):
         if hasattr(self, 'pk'):
             values = CustomFieldValue.objects.filter(obj_type=content_type, obj_id=self.pk).select_related('field')
             values_dict = {cfv.field_id: cfv.value for cfv in values}
-            return {field: values_dict.get(field.pk) for field in fields}
+            return OrderedDict([(field, values_dict.get(field.pk)) for field in fields])
         else:
-            return {field: None for field in fields}
+            return OrderedDict([(field, None) for field in fields])
 
 
 class CustomField(models.Model):
@@ -90,6 +93,7 @@ class CustomField(models.Model):
     description = models.CharField(max_length=100, blank=True)
     required = models.BooleanField(default=False, help_text="Determines whether this field is required when creating "
                                                             "new objects or editing an existing object.")
+    is_filterable = models.BooleanField(default=True, help_text="This field can be used to filter objects.")
     default = models.CharField(max_length=100, blank=True, help_text="Default value for the field. Use \"true\" or "
                                                                      "\"false\" for booleans. N/A for selection "
                                                                      "fields.")
