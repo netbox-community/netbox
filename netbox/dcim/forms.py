@@ -3,7 +3,7 @@ import re
 from django import forms
 from django.db.models import Count, Q
 
-from extras.forms import CustomFieldForm, CustomFieldBulkEditForm
+from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from ipam.models import IPAddress
 from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
@@ -122,7 +122,8 @@ def site_tenant_choices():
     return [(t.slug, u'{} ({})'.format(t.name, t.site_count)) for t in tenant_choices]
 
 
-class SiteFilterForm(forms.Form, BootstrapMixin):
+class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Site
     tenant = forms.MultipleChoiceField(required=False, choices=site_tenant_choices,
                                        widget=forms.SelectMultiple(attrs={'size': 8}))
 
@@ -273,7 +274,8 @@ def rack_role_choices():
     return [(r.slug, u'{} ({})'.format(r.name, r.rack_count)) for r in role_choices]
 
 
-class RackFilterForm(forms.Form, BootstrapMixin):
+class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Rack
     site = forms.MultipleChoiceField(required=False, choices=rack_site_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
     group_id = forms.MultipleChoiceField(required=False, choices=rack_group_choices, label='Rack Group',
@@ -655,7 +657,8 @@ def device_platform_choices():
     return [(p.slug, u'{} ({})'.format(p.name, p.device_count)) for p in platform_choices]
 
 
-class DeviceFilterForm(forms.Form, BootstrapMixin):
+class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Device
     site = forms.MultipleChoiceField(required=False, choices=device_site_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
     rack_group_id = forms.MultipleChoiceField(required=False, choices=device_rack_group_choices, label='Rack Group',

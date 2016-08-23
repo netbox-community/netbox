@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from .models import CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CustomField, CustomFieldValue
 
 
-def get_custom_fields_for_model(content_type, bulk_editing=False):
+def get_custom_fields_for_model(content_type, select_empty=False, select_none=True):
     """
     Retrieve all CustomFields applicable to the given ContentType
     """
@@ -41,9 +41,9 @@ def get_custom_fields_for_model(content_type, bulk_editing=False):
         # Select
         elif cf.type == CF_TYPE_SELECT:
             choices = [(cfc.pk, cfc) for cfc in cf.choices.all()]
-            if not cf.required:
+            if select_none and not cf.required:
                 choices = [(0, 'None')] + choices
-            if bulk_editing:
+            if select_empty:
                 choices = [(None, '---------')] + choices
                 field = forms.TypedChoiceField(choices=choices, coerce=int, required=cf.required)
             else:
@@ -125,8 +125,24 @@ class CustomFieldBulkEditForm(forms.Form):
 
         # Add all applicable CustomFields to the form
         custom_fields = []
-        for name, field in get_custom_fields_for_model(self.obj_type, bulk_editing=True).items():
+        for name, field in get_custom_fields_for_model(self.obj_type, select_empty=True).items():
             field.required = False
             self.fields[name] = field
             custom_fields.append(name)
         self.custom_fields = custom_fields
+
+
+class CustomFieldFilterForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+
+        self.obj_type = ContentType.objects.get_for_model(self.model)
+
+        super(CustomFieldFilterForm, self).__init__(*args, **kwargs)
+
+        # Add all applicable CustomFields to the form
+        custom_fields = get_custom_fields_for_model(self.obj_type, select_empty=True, select_none=False)\
+            .items()
+        for name, field in custom_fields:
+            field.required = False
+            self.fields[name] = field

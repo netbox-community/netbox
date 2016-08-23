@@ -2,7 +2,7 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Site, Device, Interface
-from extras.forms import CustomFieldForm, CustomFieldBulkEditForm
+from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
 from utilities.forms import BootstrapMixin, APISelect, Livesearch, CSVDataField, BulkImportForm, SlugField
@@ -69,7 +69,8 @@ def vrf_tenant_choices():
     return [(t.slug, u'{} ({})'.format(t.name, t.vrf_count)) for t in tenant_choices]
 
 
-class VRFFilterForm(forms.Form, BootstrapMixin):
+class VRFFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = VRF
     tenant = forms.MultipleChoiceField(required=False, choices=vrf_tenant_choices,
                                        widget=forms.SelectMultiple(attrs={'size': 8}))
 
@@ -127,7 +128,8 @@ def aggregate_rir_choices():
     return [(r.slug, u'{} ({})'.format(r.name, r.aggregate_count)) for r in rir_choices]
 
 
-class AggregateFilterForm(forms.Form, BootstrapMixin):
+class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Aggregate
     rir = forms.MultipleChoiceField(required=False, choices=aggregate_rir_choices, label='RIR',
                                     widget=forms.SelectMultiple(attrs={'size': 8}))
 
@@ -287,7 +289,8 @@ def prefix_role_choices():
     return [(r.slug, u'{} ({})'.format(r.name, r.prefix_count)) for r in role_choices]
 
 
-class PrefixFilterForm(forms.Form, BootstrapMixin):
+class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Prefix
     parent = forms.CharField(required=False, label='Search Within', widget=forms.TextInput(attrs={
         'placeholder': 'Network',
     }))
@@ -440,7 +443,8 @@ def ipaddress_vrf_choices():
     return [(v.pk, u'{} ({})'.format(v.name, v.ipaddress_count)) for v in vrf_choices]
 
 
-class IPAddressFilterForm(forms.Form, BootstrapMixin):
+class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = IPAddress
     parent = forms.CharField(required=False, label='Search Within', widget=forms.TextInput(attrs={
         'placeholder': 'Prefix',
     }))
@@ -575,7 +579,8 @@ def vlan_role_choices():
     return [(r.slug, u'{} ({})'.format(r.name, r.vlan_count)) for r in role_choices]
 
 
-class VLANFilterForm(forms.Form, BootstrapMixin):
+class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = VLAN
     site = forms.MultipleChoiceField(required=False, choices=vlan_site_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
     group_id = forms.MultipleChoiceField(required=False, choices=vlan_group_choices, label='VLAN Group',

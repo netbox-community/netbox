@@ -11,6 +11,8 @@ class CustomFieldFilter(django_filters.Filter):
     """
 
     def filter(self, queryset, value):
+        if not value.strip():
+            return queryset
         return queryset.filter(
             custom_field_values__field__name=self.name,
             custom_field_values__serialized_value=value,

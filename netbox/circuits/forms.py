@@ -2,7 +2,7 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Site, Device, Interface, Rack, IFACE_FF_VIRTUAL
-from extras.forms import CustomFieldForm, CustomFieldBulkEditForm
+from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -62,7 +62,8 @@ def provider_site_choices():
     return [(s.slug, s.name) for s in site_choices]
 
 
-class ProviderFilterForm(forms.Form, BootstrapMixin):
+class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Provider
     site = forms.MultipleChoiceField(required=False, choices=provider_site_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
 
@@ -208,7 +209,8 @@ def circuit_site_choices():
     return [(s.slug, u'{} ({})'.format(s.name, s.circuit_count)) for s in site_choices]
 
 
-class CircuitFilterForm(forms.Form, BootstrapMixin):
+class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Circuit
     type = forms.MultipleChoiceField(required=False, choices=circuit_type_choices)
     provider = forms.MultipleChoiceField(required=False, choices=circuit_provider_choices,
                                          widget=forms.SelectMultiple(attrs={'size': 8}))

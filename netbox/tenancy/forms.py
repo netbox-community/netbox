@@ -1,7 +1,7 @@
 from django import forms
 from django.db.models import Count
 
-from extras.forms import CustomFieldForm, CustomFieldBulkEditForm
+from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from utilities.forms import BootstrapMixin, BulkImportForm, CommentField, CSVDataField, SlugField
 
 from .models import Tenant, TenantGroup
@@ -79,6 +79,7 @@ def tenant_group_choices():
     return [(g.slug, u'{} ({})'.format(g.name, g.tenant_count)) for g in group_choices]
 
 
-class TenantFilterForm(forms.Form, BootstrapMixin):
+class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Tenant
     group = forms.MultipleChoiceField(required=False, choices=tenant_group_choices,
                                       widget=forms.SelectMultiple(attrs={'size': 8}))
