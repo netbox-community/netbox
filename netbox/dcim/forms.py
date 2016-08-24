@@ -3,6 +3,7 @@ import re
 from django import forms
 from django.db.models import Count, Q
 
+from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from ipam.models import IPAddress
 from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
@@ -78,7 +79,7 @@ def bulkedit_rackrole_choices():
 # Sites
 #
 
-class SiteForm(forms.ModelForm, BootstrapMixin):
+class SiteForm(BootstrapMixin, CustomFieldForm):
     slug = SlugField()
     comments = CommentField()
 
@@ -111,7 +112,7 @@ class SiteImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=SiteFromCSVForm)
 
 
-class SiteBulkEditForm(forms.Form, BootstrapMixin):
+class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Site.objects.all(), widget=forms.MultipleHiddenInput)
     tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
 
@@ -121,7 +122,8 @@ def site_tenant_choices():
     return [(t.slug, u'{} ({})'.format(t.name, t.site_count)) for t in tenant_choices]
 
 
-class SiteFilterForm(forms.Form, BootstrapMixin):
+class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Site
     tenant = forms.MultipleChoiceField(required=False, choices=site_tenant_choices,
                                        widget=forms.SelectMultiple(attrs={'size': 8}))
 
@@ -164,7 +166,7 @@ class RackRoleForm(forms.ModelForm, BootstrapMixin):
 # Racks
 #
 
-class RackForm(forms.ModelForm, BootstrapMixin):
+class RackForm(BootstrapMixin, CustomFieldForm):
     group = forms.ModelChoiceField(queryset=RackGroup.objects.all(), required=False, label='Group', widget=APISelect(
         api_url='/api/dcim/rack-groups/?site_id={{site}}',
     ))
@@ -240,7 +242,7 @@ class RackImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=RackFromCSVForm)
 
 
-class RackBulkEditForm(forms.Form, BootstrapMixin):
+class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Rack.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site')
     group = forms.TypedChoiceField(choices=bulkedit_rackgroup_choices, coerce=int, required=False, label='Group')
@@ -272,7 +274,8 @@ def rack_role_choices():
     return [(r.slug, u'{} ({})'.format(r.name, r.rack_count)) for r in role_choices]
 
 
-class RackFilterForm(forms.Form, BootstrapMixin):
+class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Rack
     site = forms.MultipleChoiceField(required=False, choices=rack_site_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
     group_id = forms.MultipleChoiceField(required=False, choices=rack_group_choices, label='Rack Group',
@@ -404,7 +407,7 @@ class PlatformForm(forms.ModelForm, BootstrapMixin):
 # Devices
 #
 
-class DeviceForm(forms.ModelForm, BootstrapMixin):
+class DeviceForm(BootstrapMixin, CustomFieldForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs={'filter-for': 'rack'}))
     rack = forms.ModelChoiceField(queryset=Rack.objects.all(), widget=APISelect(
         api_url='/api/dcim/racks/?site_id={{site}}',
@@ -613,7 +616,7 @@ class ChildDeviceImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=ChildDeviceFromCSVForm)
 
 
-class DeviceBulkEditForm(forms.Form, BootstrapMixin):
+class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
     device_type = forms.ModelChoiceField(queryset=DeviceType.objects.all(), required=False, label='Type')
     device_role = forms.ModelChoiceField(queryset=DeviceRole.objects.all(), required=False, label='Role')
@@ -654,7 +657,8 @@ def device_platform_choices():
     return [(p.slug, u'{} ({})'.format(p.name, p.device_count)) for p in platform_choices]
 
 
-class DeviceFilterForm(forms.Form, BootstrapMixin):
+class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Device
     site = forms.MultipleChoiceField(required=False, choices=device_site_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
     rack_group_id = forms.MultipleChoiceField(required=False, choices=device_rack_group_choices, label='Rack Group',

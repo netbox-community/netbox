@@ -14,6 +14,16 @@ def render_field(field):
     }
 
 
+@register.inclusion_tag('utilities/render_custom_fields.html')
+def render_custom_fields(form):
+    """
+    Render all custom fields in a form
+    """
+    return {
+        'form': form,
+    }
+
+
 @register.inclusion_tag('utilities/render_form.html')
 def render_form(form):
     """

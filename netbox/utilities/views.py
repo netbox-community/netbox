@@ -7,7 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
-from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
+from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, TypedChoiceField
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import TemplateSyntaxError
@@ -15,7 +15,8 @@ from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
 from django.views.generic import View
 
-from extras.models import ExportTemplate, UserAction
+from extras.forms import CustomFieldForm
+from extras.models import CustomFieldValue, ExportTemplate, UserAction
 
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
@@ -135,6 +136,8 @@ class ObjectEditView(View):
             obj = form.save(commit=False)
             obj_created = not obj.pk
             obj.save()
+            if isinstance(form, CustomFieldForm):
+                form.save_custom_fields()
 
             msg = u'Created ' if obj_created else u'Modified '
             msg += self.model._meta.verbose_name
@@ -274,14 +277,29 @@ class BulkEditView(View):
             redirect_url = reverse(self.default_redirect_url)
 
         if request.POST.get('_all'):
-            pk_list = [x for x in request.POST.get('pk_all').split(',') if x]
+            pk_list = [int(pk) for pk in request.POST.get('pk_all').split(',') if pk]
         else:
-            pk_list = request.POST.getlist('pk')
+            pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
         if '_apply' in request.POST:
-            form = self.form(request.POST)
+            if hasattr(self.form, 'custom_fields'):
+                form = self.form(self.cls, request.POST)
+            else:
+                form = self.form(request.POST)
             if form.is_valid():
-                updated_count = self.update_objects(pk_list, form)
+
+                custom_fields = form.custom_fields if hasattr(form, 'custom_fields') else []
+                standard_fields = [field for field in form.fields if field not in custom_fields and field != 'pk']
+
+                # Update objects
+                updated_count = self.update_objects(pk_list, form, standard_fields)
+
+                # Update custom fields for objects
+                if custom_fields:
+                    objs_updated = self.update_custom_fields(pk_list, form, custom_fields)
+                    if objs_updated and not updated_count:
+                        updated_count = objs_updated
+
                 if updated_count:
                     msg = u'Updated {} {}'.format(updated_count, self.cls._meta.verbose_name_plural)
                     messages.success(self.request, msg)
@@ -289,7 +307,10 @@ class BulkEditView(View):
                 return redirect(redirect_url)
 
         else:
-            form = self.form(initial={'pk': pk_list})
+            if hasattr(self.form, 'custom_fields'):
+                form = self.form(self.cls, initial={'pk': pk_list})
+            else:
+                form = self.form(initial={'pk': pk_list})
 
         selected_objects = self.cls.objects.filter(pk__in=pk_list)
         if not selected_objects:
@@ -302,11 +323,55 @@ class BulkEditView(View):
             'cancel_url': redirect_url,
         })
 
-    def update_objects(self, obj_list, form):
-        """
-        This method provides the update logic (must be overridden by subclasses).
-        """
-        raise NotImplementedError()
+    def update_objects(self, pk_list, form, fields):
+        fields_to_update = {}
+
+        for name in fields:
+            # Check for zero value (bulk editing)
+            if isinstance(form.fields[name], TypedChoiceField) and form.cleaned_data[name] == 0:
+                fields_to_update[name] = None
+            elif form.cleaned_data[name]:
+                fields_to_update[name] = form.cleaned_data[name]
+
+        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
+
+    def update_custom_fields(self, pk_list, form, fields):
+        obj_type = ContentType.objects.get_for_model(self.cls)
+        objs_updated = False
+
+        for name in fields:
+            if form.cleaned_data[name] not in [None, u'']:
+
+                field = form.fields[name].model
+
+                # Check for zero value (bulk editing)
+                if isinstance(form.fields[name], TypedChoiceField) and form.cleaned_data[name] == 0:
+                    serialized_value = field.serialize_value(None)
+                else:
+                    serialized_value = field.serialize_value(form.cleaned_data[name])
+
+                # Gather any pre-existing CustomFieldValues for the objects being edited.
+                existing_cfvs = CustomFieldValue.objects.filter(field=field, obj_type=obj_type, obj_id__in=pk_list)
+
+                # Determine which objects have an existing CFV to update and which need a new CFV created.
+                update_list = [cfv['obj_id'] for cfv in existing_cfvs.values()]
+                create_list = list(set(pk_list) - set(update_list))
+
+                # Creating/updating CFVs
+                if serialized_value:
+                    existing_cfvs.update(serialized_value=serialized_value)
+                    CustomFieldValue.objects.bulk_create([
+                        CustomFieldValue(field=field, obj_type=obj_type, obj_id=pk, serialized_value=serialized_value)
+                        for pk in create_list
+                    ])
+
+                # Deleting CFVs
+                else:
+                    existing_cfvs.delete()
+
+                objs_updated = True
+
+        return len(pk_list) if objs_updated else 0
 
 
 class BulkDeleteView(View):

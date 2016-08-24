@@ -1,9 +1,8 @@
-from netaddr import IPNetwork
-
 from django import forms
 from django.db.models import Count
 
 from dcim.models import Site, Device, Interface
+from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
 from utilities.forms import BootstrapMixin, APISelect, Livesearch, CSVDataField, BulkImportForm, SlugField
@@ -33,7 +32,7 @@ def bulkedit_vrf_choices():
 # VRFs
 #
 
-class VRFForm(forms.ModelForm, BootstrapMixin):
+class VRFForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = VRF
@@ -59,7 +58,7 @@ class VRFImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=VRFFromCSVForm)
 
 
-class VRFBulkEditForm(forms.Form, BootstrapMixin):
+class VRFBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VRF.objects.all(), widget=forms.MultipleHiddenInput)
     tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
     description = forms.CharField(max_length=100, required=False)
@@ -70,7 +69,8 @@ def vrf_tenant_choices():
     return [(t.slug, u'{} ({})'.format(t.name, t.vrf_count)) for t in tenant_choices]
 
 
-class VRFFilterForm(forms.Form, BootstrapMixin):
+class VRFFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = VRF
     tenant = forms.MultipleChoiceField(required=False, choices=vrf_tenant_choices,
                                        widget=forms.SelectMultiple(attrs={'size': 8}))
 
@@ -91,7 +91,7 @@ class RIRForm(forms.ModelForm, BootstrapMixin):
 # Aggregates
 #
 
-class AggregateForm(forms.ModelForm, BootstrapMixin):
+class AggregateForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = Aggregate
@@ -116,7 +116,7 @@ class AggregateImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=AggregateFromCSVForm)
 
 
-class AggregateBulkEditForm(forms.Form, BootstrapMixin):
+class AggregateBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Aggregate.objects.all(), widget=forms.MultipleHiddenInput)
     rir = forms.ModelChoiceField(queryset=RIR.objects.all(), required=False, label='RIR')
     date_added = forms.DateField(required=False)
@@ -128,7 +128,8 @@ def aggregate_rir_choices():
     return [(r.slug, u'{} ({})'.format(r.name, r.aggregate_count)) for r in rir_choices]
 
 
-class AggregateFilterForm(forms.Form, BootstrapMixin):
+class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Aggregate
     rir = forms.MultipleChoiceField(required=False, choices=aggregate_rir_choices, label='RIR',
                                     widget=forms.SelectMultiple(attrs={'size': 8}))
 
@@ -149,7 +150,7 @@ class RoleForm(forms.ModelForm, BootstrapMixin):
 # Prefixes
 #
 
-class PrefixForm(forms.ModelForm, BootstrapMixin):
+class PrefixForm(BootstrapMixin, CustomFieldForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site',
                                   widget=forms.Select(attrs={'filter-for': 'vlan'}))
     vlan = forms.ModelChoiceField(queryset=VLAN.objects.all(), required=False, label='VLAN',
@@ -251,7 +252,7 @@ class PrefixImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=PrefixFromCSVForm)
 
 
-class PrefixBulkEditForm(forms.Form, BootstrapMixin):
+class PrefixBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Prefix.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
     vrf = forms.TypedChoiceField(choices=bulkedit_vrf_choices, coerce=int, required=False, label='VRF')
@@ -288,7 +289,8 @@ def prefix_role_choices():
     return [(r.slug, u'{} ({})'.format(r.name, r.prefix_count)) for r in role_choices]
 
 
-class PrefixFilterForm(forms.Form, BootstrapMixin):
+class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Prefix
     parent = forms.CharField(required=False, label='Search Within', widget=forms.TextInput(attrs={
         'placeholder': 'Network',
     }))
@@ -309,7 +311,7 @@ class PrefixFilterForm(forms.Form, BootstrapMixin):
 # IP addresses
 #
 
-class IPAddressForm(forms.ModelForm, BootstrapMixin):
+class IPAddressForm(BootstrapMixin, CustomFieldForm):
     nat_site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site',
                                       widget=forms.Select(attrs={'filter-for': 'nat_device'}))
     nat_device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False, label='Device',
@@ -425,7 +427,7 @@ class IPAddressImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=IPAddressFromCSVForm)
 
 
-class IPAddressBulkEditForm(forms.Form, BootstrapMixin):
+class IPAddressBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=IPAddress.objects.all(), widget=forms.MultipleHiddenInput)
     vrf = forms.TypedChoiceField(choices=bulkedit_vrf_choices, coerce=int, required=False, label='VRF')
     tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
@@ -441,7 +443,8 @@ def ipaddress_vrf_choices():
     return [(v.pk, u'{} ({})'.format(v.name, v.ipaddress_count)) for v in vrf_choices]
 
 
-class IPAddressFilterForm(forms.Form, BootstrapMixin):
+class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = IPAddress
     parent = forms.CharField(required=False, label='Search Within', widget=forms.TextInput(attrs={
         'placeholder': 'Prefix',
     }))
@@ -478,7 +481,7 @@ class VLANGroupFilterForm(forms.Form, BootstrapMixin):
 # VLANs
 #
 
-class VLANForm(forms.ModelForm, BootstrapMixin):
+class VLANForm(BootstrapMixin, CustomFieldForm):
     group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False, label='Group', widget=APISelect(
         api_url='/api/ipam/vlan-groups/?site_id={{site}}',
     ))
@@ -539,7 +542,7 @@ class VLANImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=VLANFromCSVForm)
 
 
-class VLANBulkEditForm(forms.Form, BootstrapMixin):
+class VLANBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VLAN.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
     group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False)
@@ -576,7 +579,8 @@ def vlan_role_choices():
     return [(r.slug, u'{} ({})'.format(r.name, r.vlan_count)) for r in role_choices]
 
 
-class VLANFilterForm(forms.Form, BootstrapMixin):
+class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = VLAN
     site = forms.MultipleChoiceField(required=False, choices=vlan_site_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
     group_id = forms.MultipleChoiceField(required=False, choices=vlan_group_choices, label='VLAN Group',

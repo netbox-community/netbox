@@ -2,10 +2,11 @@ import django_filters
 
 from django.db.models import Q
 
+from extras.filters import CustomFieldFilterSet
 from .models import Tenant, TenantGroup
 
 
-class TenantFilter(django_filters.FilterSet):
+class TenantFilter(CustomFieldFilterSet, django_filters.FilterSet):
     q = django_filters.MethodFilter(
         action='search',
         label='Search',

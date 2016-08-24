@@ -1,9 +1,8 @@
 from django import forms
 from django.db.models import Count
 
-from utilities.forms import (
-    BootstrapMixin, BulkImportForm, CommentField, CSVDataField, SlugField,
-)
+from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
+from utilities.forms import BootstrapMixin, BulkImportForm, CommentField, CSVDataField, SlugField
 
 from .models import Tenant, TenantGroup
 
@@ -48,7 +47,7 @@ class TenantGroupForm(forms.ModelForm, BootstrapMixin):
 # Tenants
 #
 
-class TenantForm(forms.ModelForm, BootstrapMixin):
+class TenantForm(BootstrapMixin, CustomFieldForm):
     slug = SlugField()
     comments = CommentField()
 
@@ -70,7 +69,7 @@ class TenantImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=TenantFromCSVForm)
 
 
-class TenantBulkEditForm(forms.Form, BootstrapMixin):
+class TenantBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Tenant.objects.all(), widget=forms.MultipleHiddenInput)
     group = forms.TypedChoiceField(choices=bulkedit_tenantgroup_choices, coerce=int, required=False, label='Group')
 
@@ -80,6 +79,7 @@ def tenant_group_choices():
     return [(g.slug, u'{} ({})'.format(g.name, g.tenant_count)) for g in group_choices]
 
 
-class TenantFilterForm(forms.Form, BootstrapMixin):
+class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Tenant
     group = forms.MultipleChoiceField(required=False, choices=tenant_group_choices,
                                       widget=forms.SelectMultiple(attrs={'size': 8}))

@@ -6,6 +6,7 @@ from dcim.models import (
     DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet,
     PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, RACK_FACE_FRONT, RACK_FACE_REAR, Site,
 )
+from extras.api.serializers import CustomFieldSerializer
 from tenancy.api.serializers import TenantNestedSerializer
 
 
@@ -13,13 +14,13 @@ from tenancy.api.serializers import TenantNestedSerializer
 # Sites
 #
 
-class SiteSerializer(serializers.ModelSerializer):
+class SiteSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     tenant = TenantNestedSerializer()
 
     class Meta:
         model = Site
         fields = ['id', 'name', 'slug', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address', 'comments',
-                  'count_prefixes', 'count_vlans', 'count_racks', 'count_devices', 'count_circuits']
+                  'custom_fields', 'count_prefixes', 'count_vlans', 'count_racks', 'count_devices', 'count_circuits']
 
 
 class SiteNestedSerializer(SiteSerializer):
@@ -68,7 +69,7 @@ class RackRoleNestedSerializer(RackRoleSerializer):
 #
 
 
-class RackSerializer(serializers.ModelSerializer):
+class RackSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     site = SiteNestedSerializer()
     group = RackGroupNestedSerializer()
     tenant = TenantNestedSerializer()
@@ -77,7 +78,7 @@ class RackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rack
         fields = ['id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'type', 'width',
-                  'u_height', 'comments']
+                  'u_height', 'comments', 'custom_fields']
 
 
 class RackNestedSerializer(RackSerializer):
@@ -92,7 +93,7 @@ class RackDetailSerializer(RackSerializer):
 
     class Meta(RackSerializer.Meta):
         fields = ['id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'type', 'width',
-                  'u_height', 'comments', 'front_units', 'rear_units']
+                  'u_height', 'comments', 'custom_fields', 'front_units', 'rear_units']
 
     def get_front_units(self, obj):
         units = obj.get_rack_units(face=RACK_FACE_FRONT)
@@ -237,7 +238,7 @@ class DeviceIPAddressNestedSerializer(serializers.ModelSerializer):
         fields = ['id', 'family', 'address']
 
 
-class DeviceSerializer(serializers.ModelSerializer):
+class DeviceSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     device_type = DeviceTypeNestedSerializer()
     device_role = DeviceRoleNestedSerializer()
     tenant = TenantNestedSerializer()
@@ -252,7 +253,7 @@ class DeviceSerializer(serializers.ModelSerializer):
         model = Device
         fields = ['id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial',
                   'asset_tag', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4',
-                  'primary_ip6', 'comments']
+                  'primary_ip6', 'comments', 'custom_fields']
 
     def get_parent_device(self, obj):
         try:

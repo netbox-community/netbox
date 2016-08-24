@@ -66,15 +66,6 @@ class ProviderBulkEditView(PermissionRequiredMixin, BulkEditView):
     template_name = 'circuits/provider_bulk_edit.html'
     default_redirect_url = 'circuits:provider_list'
 
-    def update_objects(self, pk_list, form):
-
-        fields_to_update = {}
-        for field in ['asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments']:
-            if form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
-
-        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
-
 
 class ProviderBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_provider'
@@ -158,19 +149,6 @@ class CircuitBulkEditView(PermissionRequiredMixin, BulkEditView):
     form = forms.CircuitBulkEditForm
     template_name = 'circuits/circuit_bulk_edit.html'
     default_redirect_url = 'circuits:circuit_list'
-
-    def update_objects(self, pk_list, form):
-
-        fields_to_update = {}
-        if form.cleaned_data['tenant'] == 0:
-            fields_to_update['tenant'] = None
-        elif form.cleaned_data['tenant']:
-            fields_to_update['tenant'] = form.cleaned_data['tenant']
-        for field in ['type', 'provider', 'port_speed', 'commit_rate', 'comments']:
-            if form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
-
-        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
 
 
 class CircuitBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
