@@ -6,12 +6,13 @@ Each object in NetBox is represented in the database as a discrete table, and ea
 
 However, some users might want to associate with objects attributes that are somewhat esoteric in nature, and that would not make sense to include in the core NetBox database schema. For instance, suppose your organization needs to associate each device with a ticket number pointing to the support ticket that was opened to have it installed. This is certainly a legitimate use for NetBox, but it's perhaps not a common enough need to warrant expanding the internal data schema. Instead, you can create a custom field to hold this data.
 
-Custom fields must be created through the admin UI under Extras > Custom Fields. To create a new custom field, select the object(s) to which you want it to apply, and the type of field it will be. NetBox supports five field types:
+Custom fields must be created through the admin UI under Extras > Custom Fields. To create a new custom field, select the object(s) to which you want it to apply, and the type of field it will be. NetBox supports six field types:
 
 * Free-form text (up to 255 characters)
 * Integer
 * Boolean (true/false)
 * Date
+* URL
 * Selection
 
 Assign the field a name. This should be a simple database-friendly string, e.g. `tps_report`. You may optionally assign the field a human-friendly label (e.g. "TPS report") as well; the label will be displayed on forms. If a description is provided, it will appear beneath the field in a form.
