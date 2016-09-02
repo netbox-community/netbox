@@ -62,6 +62,7 @@ If `git` is not already installed, install it:
 
 ```
 # sudo apt-get install -y git
+# sudo yum install -y git
 ```
 
 Next, clone the **master** branch of the NetBox GitHub repository into the current directory:
