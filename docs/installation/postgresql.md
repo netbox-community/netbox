@@ -4,12 +4,26 @@ NetBox requires a PostgreSQL database to store data. MySQL is not supported, as 
 
 The following packages are needed to install PostgreSQL with Python support:
 
+Debian/Ubuntu
+
 * postgresql
 * libpq-dev
 * python-psycopg2
 
+Centos/RHEL
+
+* postgresql
+* postgresql-server
+* postgresql-libs
+* postgresql-devel
+
+Debian/Ubuntu
 ```
 # sudo apt-get install -y postgresql libpq-dev python-psycopg2
+```
+Centos/RHEL
+```
+# sudo yum install postgresql postgresql-server postgresql-libs postgresql-devel
 ```
 
 # Configuration

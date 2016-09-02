@@ -2,6 +2,8 @@
 
 NetBox requires following system dependencies:
 
+Debian/Ubuntu
+
 * python2.7
 * python-dev
 * python-pip
@@ -12,9 +14,26 @@ NetBox requires following system dependencies:
 * libpq-dev
 * libssl-dev
 
+Centos/RHEL
+
+* python27
+* python-devel
+* git
+* python-pip
+* libxml2-devel
+* libxslt-devel  
+* libffi-devel
+* graphviz
+* openssl-devel
+
+### Debian/Ubuntu
 ```
 # sudo apt-get install -y python2.7 python-dev python-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev
 ```
+## Centos/RHEL
+```
+# sudo yum install -y epel-release
+# sudo yum install -y python27 python-devel git python-pip libxml2-devel lbxslt-devel libffi-devel graphviz.x_86_64 openssl-devel
 
 You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.
 
@@ -76,7 +95,7 @@ Move into the NetBox configuration directory and make a copy of `configuration.e
 ```
 
 Open `configuration.py` with your preferred editor and set the following variables:
- 
+
 * ALLOWED_HOSTS
 * DATABASE
 * SECRET_KEY
@@ -143,8 +162,8 @@ NetBox does not come with any predefined user accounts. You'll need to create a 
 # ./manage.py createsuperuser
 Username: admin
 Email address: admin@example.com
-Password: 
-Password (again): 
+Password:
+Password (again):
 Superuser created successfully.
 ```
 
