@@ -300,7 +300,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
 
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]
-        
+
     def get_utilization(self):
         """
         Determine the utilization rate of the aggregate prefix and return it as a percentage.
@@ -327,11 +327,12 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
             ipaddress_count = child_ips.count()
 
             if self.prefix.version == 4 and self.prefix.prefixlen < 31:
-                return int(((float(ipaddress_count) + 2 )/self.prefix.size) * 100)
+                return int(((float(ipaddress_count) + 2) / self.prefix.size) * 100)
             else:
-                return int((float(ipaddress_count) / self.prefix.size ) * 100)
+                return int((float(ipaddress_count) / self.prefix.size) * 100)
         else:
-                return 0
+            return 0
+
 
 class IPAddressManager(models.Manager):
 
