@@ -164,10 +164,11 @@ class PrefixTable(BaseTable):
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
     role = tables.Column(verbose_name='Role')
     description = tables.Column(orderable=False, verbose_name='Description')
+    utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
 
     class Meta(BaseTable.Meta):
         model = Prefix
-        fields = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'role', 'description')
+        fields = ('pk', 'prefix', 'status', 'utilization', 'vrf', 'tenant', 'site', 'role', 'description')
         row_attrs = {
             'class': lambda record: 'success' if not record.pk else '',
         }
