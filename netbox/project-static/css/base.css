@@ -34,7 +34,8 @@ body {
 footer p {
     margin: 20px 0;
 }
-@media (max-width: 1120px) {
+
+@media (max-width: 1200px) {
     .navbar-header {
         float: none;
     }
@@ -54,6 +55,7 @@ footer p {
     }
     .navbar-collapse.collapse {
         display: none!important;
+        max-height: none;
     }
     .navbar-nav {
         float: none!important;
@@ -84,12 +86,10 @@ th.pk, td.pk {
     width: 30px;
 }
 
-
 /* Paginator */
 nav ul.pagination {
     margin-top: 0;
 }
-
 
 /* Racks */
 div.rack_header {
