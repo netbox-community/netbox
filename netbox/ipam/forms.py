@@ -14,6 +14,11 @@ from .models import (
 
 FORM_PREFIX_STATUS_CHOICES = (('', '---------'),) + PREFIX_STATUS_CHOICES
 FORM_VLAN_STATUS_CHOICES = (('', '---------'),) + VLAN_STATUS_CHOICES
+IP_FAMILY_CHOICES = [
+        ('', 'All'),
+        (4, 'IPv4'),
+        (6, 'IPv6'),
+    ]
 
 
 def bulkedit_vrf_choices():
@@ -130,6 +135,7 @@ def aggregate_rir_choices():
 
 class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Aggregate
+    family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address Family')
     rir = forms.MultipleChoiceField(required=False, choices=aggregate_rir_choices, label='RIR',
                                     widget=forms.SelectMultiple(attrs={'size': 8}))
 
@@ -294,6 +300,7 @@ class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
     parent = forms.CharField(required=False, label='Search Within', widget=forms.TextInput(attrs={
         'placeholder': 'Network',
     }))
+    family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address Family')
     vrf = forms.MultipleChoiceField(required=False, choices=prefix_vrf_choices, label='VRF',
                                     widget=forms.SelectMultiple(attrs={'size': 6}))
     tenant = forms.MultipleChoiceField(required=False, choices=tenant_choices, label='Tenant',
@@ -434,10 +441,6 @@ class IPAddressBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     description = forms.CharField(max_length=100, required=False)
 
 
-def ipaddress_family_choices():
-    return [('', 'All'), (4, 'IPv4'), (6, 'IPv6')]
-
-
 def ipaddress_vrf_choices():
     vrf_choices = VRF.objects.annotate(ipaddress_count=Count('ip_addresses'))
     return [(v.pk, u'{} ({})'.format(v.name, v.ipaddress_count)) for v in vrf_choices]
@@ -448,7 +451,7 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
     parent = forms.CharField(required=False, label='Search Within', widget=forms.TextInput(attrs={
         'placeholder': 'Prefix',
     }))
-    family = forms.ChoiceField(required=False, choices=ipaddress_family_choices, label='Address Family')
+    family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address Family')
     vrf = forms.MultipleChoiceField(required=False, choices=ipaddress_vrf_choices, label='VRF',
                                     widget=forms.SelectMultiple(attrs={'size': 6}))
     tenant = forms.MultipleChoiceField(required=False, choices=tenant_choices, label='Tenant',
