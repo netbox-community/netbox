@@ -2,6 +2,7 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Site, Device, Interface, Rack, IFACE_FF_VIRTUAL
+from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -15,7 +16,7 @@ from .models import Circuit, CircuitType, Provider
 # Providers
 #
 
-class ProviderForm(forms.ModelForm, BootstrapMixin):
+class ProviderForm(BootstrapMixin, CustomFieldForm):
     slug = SlugField()
     comments = CommentField()
 
@@ -46,7 +47,7 @@ class ProviderImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=ProviderFromCSVForm)
 
 
-class ProviderBulkEditForm(forms.Form, BootstrapMixin):
+class ProviderBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Provider.objects.all(), widget=forms.MultipleHiddenInput)
     asn = forms.IntegerField(required=False, label='ASN')
     account = forms.CharField(max_length=30, required=False, label='Account number')
@@ -61,7 +62,8 @@ def provider_site_choices():
     return [(s.slug, s.name) for s in site_choices]
 
 
-class ProviderFilterForm(forms.Form, BootstrapMixin):
+class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Provider
     site = forms.MultipleChoiceField(required=False, choices=provider_site_choices,
                                      widget=forms.SelectMultiple(attrs={'size': 8}))
 
@@ -82,7 +84,7 @@ class CircuitTypeForm(forms.ModelForm, BootstrapMixin):
 # Circuits
 #
 
-class CircuitForm(forms.ModelForm, BootstrapMixin):
+class CircuitForm(BootstrapMixin, CustomFieldForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs={'filter-for': 'rack'}))
     rack = forms.ModelChoiceField(queryset=Rack.objects.all(), required=False, label='Rack',
                                   widget=APISelect(api_url='/api/dcim/racks/?site_id={{site}}',
@@ -177,7 +179,7 @@ class CircuitImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=CircuitFromCSVForm)
 
 
-class CircuitBulkEditForm(forms.Form, BootstrapMixin):
+class CircuitBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Circuit.objects.all(), widget=forms.MultipleHiddenInput)
     type = forms.ModelChoiceField(queryset=CircuitType.objects.all(), required=False)
     provider = forms.ModelChoiceField(queryset=Provider.objects.all(), required=False)
@@ -207,7 +209,8 @@ def circuit_site_choices():
     return [(s.slug, u'{} ({})'.format(s.name, s.circuit_count)) for s in site_choices]
 
 
-class CircuitFilterForm(forms.Form, BootstrapMixin):
+class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Circuit
     type = forms.MultipleChoiceField(required=False, choices=circuit_type_choices)
     provider = forms.MultipleChoiceField(required=False, choices=circuit_provider_choices,
                                          widget=forms.SelectMultiple(attrs={'size': 8}))

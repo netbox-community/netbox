@@ -1,6 +1,7 @@
 from netaddr import IPNetwork, cidr_merge
 
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -8,6 +9,7 @@ from django.db import models
 from django.db.models.expressions import RawSQL
 
 from dcim.models import Interface
+from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
 from utilities.models import CreatedUpdatedModel
 
@@ -40,7 +42,7 @@ STATUS_CHOICE_CLASSES = {
 }
 
 
-class VRF(CreatedUpdatedModel):
+class VRF(CreatedUpdatedModel, CustomFieldModel):
     """
     A virtual routing and forwarding (VRF) table represents a discrete layer three forwarding domain (e.g. a routing
     table). Prefixes and IPAddresses can optionally be assigned to VRFs. (Prefixes and IPAddresses not assigned to a VRF
@@ -52,6 +54,7 @@ class VRF(CreatedUpdatedModel):
     enforce_unique = models.BooleanField(default=True, verbose_name='Enforce unique space',
                                          help_text="Prevent duplicate prefixes/IP addresses within this VRF")
     description = models.CharField(max_length=100, blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:
         ordering = ['name']
@@ -94,7 +97,7 @@ class RIR(models.Model):
         return "{}?rir={}".format(reverse('ipam:aggregate_list'), self.slug)
 
 
-class Aggregate(CreatedUpdatedModel):
+class Aggregate(CreatedUpdatedModel, CustomFieldModel):
     """
     An aggregate exists at the root level of the IP address space hierarchy in NetBox. Aggregates are used to organize
     the hierarchy and track the overall utilization of available address space. Each Aggregate is assigned to a RIR.
@@ -104,6 +107,7 @@ class Aggregate(CreatedUpdatedModel):
     rir = models.ForeignKey('RIR', related_name='aggregates', on_delete=models.PROTECT, verbose_name='RIR')
     date_added = models.DateField(blank=True, null=True)
     description = models.CharField(max_length=100, blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:
         ordering = ['family', 'prefix']
@@ -223,7 +227,7 @@ class PrefixQuerySet(models.QuerySet):
         return filter(lambda p: p.depth <= limit, queryset)
 
 
-class Prefix(CreatedUpdatedModel):
+class Prefix(CreatedUpdatedModel, CustomFieldModel):
     """
     A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be assigned to Sites and
     VRFs. A Prefix must be assigned a status and may optionally be assigned a used-define Role. A Prefix can also be
@@ -240,6 +244,7 @@ class Prefix(CreatedUpdatedModel):
     status = models.PositiveSmallIntegerField('Status', choices=PREFIX_STATUS_CHOICES, default=1)
     role = models.ForeignKey('Role', related_name='prefixes', on_delete=models.SET_NULL, blank=True, null=True)
     description = models.CharField(max_length=100, blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     objects = PrefixQuerySet.as_manager()
 
@@ -275,6 +280,7 @@ class Prefix(CreatedUpdatedModel):
         return ','.join([
             str(self.prefix),
             self.vrf.rd if self.vrf else '',
+            self.tenant.name if self.tenant else '',
             self.site.name if self.site else '',
             self.get_status_display(),
             self.role.name if self.role else '',
@@ -310,7 +316,7 @@ class IPAddressManager(models.Manager):
         return qs.annotate(host=RawSQL('INET(HOST(ipam_ipaddress.address))', [])).order_by('family', 'host')
 
 
-class IPAddress(CreatedUpdatedModel):
+class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     """
     An IPAddress represents an individual IPv4 or IPv6 address and its mask. The mask length should match what is
     configured in the real world. (Typically, only loopback interfaces are configured with /32 or /128 masks.) Like
@@ -331,6 +337,7 @@ class IPAddress(CreatedUpdatedModel):
     nat_inside = models.OneToOneField('self', related_name='nat_outside', on_delete=models.SET_NULL, blank=True,
                                       null=True, verbose_name='NAT IP (inside)')
     description = models.CharField(max_length=100, blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     objects = IPAddressManager()
 
@@ -378,6 +385,7 @@ class IPAddress(CreatedUpdatedModel):
         return ','.join([
             str(self.address),
             self.vrf.rd if self.vrf else '',
+            self.tenant.name if self.tenant else '',
             self.device.identifier if self.device else '',
             self.interface.name if self.interface else '',
             'True' if is_primary else '',
@@ -415,7 +423,7 @@ class VLANGroup(models.Model):
         return "{}?group_id={}".format(reverse('ipam:vlan_list'), self.pk)
 
 
-class VLAN(CreatedUpdatedModel):
+class VLAN(CreatedUpdatedModel, CustomFieldModel):
     """
     A VLAN is a distinct layer two forwarding domain identified by a 12-bit integer (1-4094). Each VLAN must be assigned
     to a Site, however VLAN IDs need not be unique within a Site. A VLAN may optionally be assigned to a VLANGroup,
@@ -435,6 +443,7 @@ class VLAN(CreatedUpdatedModel):
     status = models.PositiveSmallIntegerField('Status', choices=VLAN_STATUS_CHOICES, default=1)
     role = models.ForeignKey('Role', related_name='vlans', on_delete=models.SET_NULL, blank=True, null=True)
     description = models.CharField(max_length=100, blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:
         ordering = ['site', 'group', 'vid']

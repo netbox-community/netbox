@@ -119,16 +119,9 @@
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <td>Created</td>
-                    <td>{{ ipaddress.created }}</td>
-                </tr>
-                <tr>
-                    <td>Last Updated</td>
-                    <td>{{ ipaddress.last_updated }}</td>
-                </tr>
             </table>
         </div>
+        {% include 'inc/created_updated.html' with obj=ipaddress %}
 	</div>
 	<div class="col-md-6">
         {% with heading='Parent Prefixes' %}

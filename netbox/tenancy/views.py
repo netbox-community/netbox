@@ -107,16 +107,6 @@ class TenantBulkEditView(PermissionRequiredMixin, BulkEditView):
     template_name = 'tenancy/tenant_bulk_edit.html'
     default_redirect_url = 'tenancy:tenant_list'
 
-    def update_objects(self, pk_list, form):
-
-        fields_to_update = {}
-        if form.cleaned_data['group'] == 0:
-            fields_to_update['group'] = None
-        elif form.cleaned_data['group']:
-            fields_to_update['group'] = form.cleaned_data['group']
-
-        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
-
 
 class TenantBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'tenancy.delete_tenant'

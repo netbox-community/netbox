@@ -1,13 +1,15 @@
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.urlresolvers import reverse
 from django.db import models
 
 from dcim.fields import ASNField
 from dcim.models import Site, Interface
+from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
 from utilities.models import CreatedUpdatedModel
 
 
-class Provider(CreatedUpdatedModel):
+class Provider(CreatedUpdatedModel, CustomFieldModel):
     """
     Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model
     stores information pertinent to the user's relationship with the Provider.
@@ -20,6 +22,7 @@ class Provider(CreatedUpdatedModel):
     noc_contact = models.TextField(blank=True, verbose_name='NOC contact')
     admin_contact = models.TextField(blank=True, verbose_name='Admin contact')
     comments = models.TextField(blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:
         ordering = ['name']
@@ -58,7 +61,7 @@ class CircuitType(models.Model):
         return "{}?type={}".format(reverse('circuits:circuit_list'), self.slug)
 
 
-class Circuit(CreatedUpdatedModel):
+class Circuit(CreatedUpdatedModel, CustomFieldModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
     circuits. Each circuit is also assigned a CircuitType and a Site. A Circuit may be terminated to a specific device
@@ -78,6 +81,7 @@ class Circuit(CreatedUpdatedModel):
     xconnect_id = models.CharField(max_length=50, blank=True, verbose_name='Cross-connect ID')
     pp_info = models.CharField(max_length=100, blank=True, verbose_name='Patch panel/port(s)')
     comments = models.TextField(blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:
         ordering = ['provider', 'cid']

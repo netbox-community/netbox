@@ -1,12 +1,15 @@
 from collections import OrderedDict
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, Q, ObjectDoesNotExist
 
+from extras.models import CustomFieldModel, CustomField, CustomFieldValue
 from extras.rpc import RPC_CLIENTS
 from tenancy.models import Tenant
 from utilities.fields import NullableCharField
@@ -74,23 +77,39 @@ ROLE_COLOR_CHOICES = [
     [COLOR_GRAY3, 'Dark Gray'],
 ]
 
+# Virtual
 IFACE_FF_VIRTUAL = 0
-IFACE_FF_100M_COPPER = 800
-IFACE_FF_1GE_COPPER = 1000
-IFACE_FF_GBIC = 1050
-IFACE_FF_SFP = 1100
-IFACE_FF_10GE_COPPER = 1150
-IFACE_FF_SFP_PLUS = 1200
-IFACE_FF_XFP = 1300
-IFACE_FF_QSFP_PLUS = 1400
-IFACE_FF_CFP = 1500
-IFACE_FF_QSFP28 = 1600
+# Ethernet
+IFACE_FF_100ME_FIXED = 800
+IFACE_FF_1GE_FIXED = 1000
+IFACE_FF_1GE_GBIC = 1050
+IFACE_FF_1GE_SFP = 1100
+IFACE_FF_10GE_FIXED = 1150
+IFACE_FF_10GE_SFP_PLUS = 1200
+IFACE_FF_10GE_XFP = 1300
+IFACE_FF_10GE_XENPAK = 1310
+IFACE_FF_10GE_X2 = 1320
+IFACE_FF_25GE_SFP28 = 1350
+IFACE_FF_40GE_QSFP_PLUS = 1400
+IFACE_FF_100GE_CFP = 1500
+IFACE_FF_100GE_QSFP28 = 1600
+# Fibrechannel
+IFACE_FF_1GFC_SFP = 3010
+IFACE_FF_2GFC_SFP = 3020
+IFACE_FF_4GFC_SFP = 3040
+IFACE_FF_8GFC_SFP_PLUS = 3080
+IFACE_FF_16GFC_SFP_PLUS = 3160
+# Serial
 IFACE_FF_T1 = 4000
 IFACE_FF_E1 = 4010
 IFACE_FF_T3 = 4040
 IFACE_FF_E3 = 4050
+# Stacking
 IFACE_FF_STACKWISE = 5000
 IFACE_FF_STACKWISE_PLUS = 5050
+# Other
+IFACE_FF_OTHER = 32767
+
 IFACE_FF_CHOICES = [
     [
         'Virtual interfaces',
@@ -99,23 +118,36 @@ IFACE_FF_CHOICES = [
         ]
     ],
     [
-        'Ethernet',
+        'Ethernet (fixed)',
         [
-            [IFACE_FF_100M_COPPER, '100BASE-TX (10/100M)'],
-            [IFACE_FF_1GE_COPPER, '1000BASE-T (1GE)'],
-            [IFACE_FF_10GE_COPPER, '10GBASE-T (10GE)'],
+            [IFACE_FF_100ME_FIXED, '100BASE-TX (10/100ME)'],
+            [IFACE_FF_1GE_FIXED, '1000BASE-T (1GE)'],
+            [IFACE_FF_10GE_FIXED, '10GBASE-T (10GE)'],
         ]
     ],
     [
-        'Modular',
+        'Ethernet (modular)',
         [
-            [IFACE_FF_GBIC, 'GBIC (1GE)'],
-            [IFACE_FF_SFP, 'SFP (1GE)'],
-            [IFACE_FF_XFP, 'XFP (10GE)'],
-            [IFACE_FF_SFP_PLUS, 'SFP+ (10GE)'],
-            [IFACE_FF_QSFP_PLUS, 'QSFP+ (40GE)'],
-            [IFACE_FF_CFP, 'CFP (100GE)'],
-            [IFACE_FF_QSFP28, 'QSFP28 (100GE)'],
+            [IFACE_FF_1GE_GBIC, 'GBIC (1GE)'],
+            [IFACE_FF_1GE_SFP, 'SFP (1GE)'],
+            [IFACE_FF_10GE_SFP_PLUS, 'SFP+ (10GE)'],
+            [IFACE_FF_10GE_XFP, 'XFP (10GE)'],
+            [IFACE_FF_10GE_XENPAK, 'XENPAK (10GE)'],
+            [IFACE_FF_10GE_X2, 'X2 (10GE)'],
+            [IFACE_FF_25GE_SFP28, 'SFP28 (25GE)'],
+            [IFACE_FF_40GE_QSFP_PLUS, 'QSFP+ (40GE)'],
+            [IFACE_FF_100GE_CFP, 'CFP (100GE)'],
+            [IFACE_FF_100GE_QSFP28, 'QSFP28 (100GE)'],
+        ]
+    ],
+    [
+        'FibreChannel',
+        [
+            [IFACE_FF_1GFC_SFP, 'SFP (1GFC)'],
+            [IFACE_FF_2GFC_SFP, 'SFP (2GFC)'],
+            [IFACE_FF_4GFC_SFP, 'SFP (4GFC)'],
+            [IFACE_FF_8GFC_SFP_PLUS, 'SFP+ (8GFC)'],
+            [IFACE_FF_16GFC_SFP_PLUS, 'SFP+ (16GFC)'],
         ]
     ],
     [
@@ -132,6 +164,12 @@ IFACE_FF_CHOICES = [
         [
             [IFACE_FF_STACKWISE, 'Cisco StackWise'],
             [IFACE_FF_STACKWISE_PLUS, 'Cisco StackWise Plus'],
+        ]
+    ],
+    [
+        'Other',
+        [
+            [IFACE_FF_OTHER, 'Other'],
         ]
     ],
 ]
@@ -213,7 +251,7 @@ class SiteManager(NaturalOrderByManager):
         return self.natural_order_by('name')
 
 
-class Site(CreatedUpdatedModel):
+class Site(CreatedUpdatedModel, CustomFieldModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
     field can be used to include an external designation, such as a data center name (e.g. Equinix SV6).
@@ -226,6 +264,7 @@ class Site(CreatedUpdatedModel):
     physical_address = models.CharField(max_length=200, blank=True)
     shipping_address = models.CharField(max_length=200, blank=True)
     comments = models.TextField(blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     objects = SiteManager()
 
@@ -320,7 +359,7 @@ class RackManager(NaturalOrderByManager):
         return self.natural_order_by('site__name', 'name')
 
 
-class Rack(CreatedUpdatedModel):
+class Rack(CreatedUpdatedModel, CustomFieldModel):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a RackGroup.
@@ -337,6 +376,7 @@ class Rack(CreatedUpdatedModel):
     u_height = models.PositiveSmallIntegerField(default=42, verbose_name='Height (U)',
                                                 validators=[MinValueValidator(1), MaxValueValidator(100)])
     comments = models.TextField(blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     objects = RackManager()
 
@@ -642,7 +682,7 @@ class InterfaceTemplate(models.Model):
     """
     device_type = models.ForeignKey('DeviceType', related_name='interface_templates', on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
-    form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_SFP_PLUS)
+    form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_10GE_SFP_PLUS)
     mgmt_only = models.BooleanField(default=False, verbose_name='Management only')
 
     objects = InterfaceTemplateManager()
@@ -719,7 +759,7 @@ class DeviceManager(NaturalOrderByManager):
         return self.natural_order_by('name')
 
 
-class Device(CreatedUpdatedModel):
+class Device(CreatedUpdatedModel, CustomFieldModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
     DeviceRole, and (optionally) a Platform. Device names are not required, however if one is set it must be unique.
@@ -750,6 +790,7 @@ class Device(CreatedUpdatedModel):
     primary_ip6 = models.OneToOneField('ipam.IPAddress', related_name='primary_ip6_for', on_delete=models.SET_NULL,
                                        blank=True, null=True, verbose_name='Primary IPv6')
     comments = models.TextField(blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     objects = DeviceManager()
 
@@ -1017,7 +1058,7 @@ class Interface(models.Model):
     """
     device = models.ForeignKey('Device', related_name='interfaces', on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
-    form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_SFP_PLUS)
+    form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_10GE_SFP_PLUS)
     mac_address = MACAddressField(null=True, blank=True, verbose_name='MAC Address')
     mgmt_only = models.BooleanField(default=False, verbose_name='OOB Management',
                                     help_text="This interface is used only for out-of-band management")

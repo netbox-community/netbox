@@ -63,6 +63,14 @@
             {% endif %}
         </div>
     </div>
+    {% if form.custom_fields %}
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>Custom Fields</strong></div>
+            <div class="panel-body">
+                {% render_custom_fields form %}
+            </div>
+        </div>
+    {% endif %}
     <div class="panel panel-default">
         <div class="panel-heading"><strong>Comments</strong></div>
         <div class="panel-body">

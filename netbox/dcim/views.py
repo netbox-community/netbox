@@ -122,16 +122,6 @@ class SiteBulkEditView(PermissionRequiredMixin, BulkEditView):
     template_name = 'dcim/site_bulk_edit.html'
     default_redirect_url = 'dcim:site_list'
 
-    def update_objects(self, pk_list, form):
-
-        fields_to_update = {}
-        if form.cleaned_data['tenant'] == 0:
-            fields_to_update['tenant'] = None
-        elif form.cleaned_data['tenant']:
-            fields_to_update['tenant'] = form.cleaned_data['tenant']
-
-        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
-
 
 #
 # Rack groups
@@ -248,20 +238,6 @@ class RackBulkEditView(PermissionRequiredMixin, BulkEditView):
     template_name = 'dcim/rack_bulk_edit.html'
     default_redirect_url = 'dcim:rack_list'
 
-    def update_objects(self, pk_list, form):
-
-        fields_to_update = {}
-        for field in ['group', 'tenant', 'role']:
-            if form.cleaned_data[field] == 0:
-                fields_to_update[field] = None
-            elif form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
-        for field in ['site', 'type', 'width', 'u_height', 'comments']:
-            if form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
-
-        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
-
 
 class RackBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rack'
@@ -371,15 +347,6 @@ class DeviceTypeBulkEditView(PermissionRequiredMixin, BulkEditView):
     form = forms.DeviceTypeBulkEditForm
     template_name = 'dcim/devicetype_bulk_edit.html'
     default_redirect_url = 'dcim:devicetype_list'
-
-    def update_objects(self, pk_list, form):
-
-        fields_to_update = {}
-        for field in ['manufacturer', 'u_height']:
-            if form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
-
-        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
 
 
 class DeviceTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -681,23 +648,6 @@ class DeviceBulkEditView(PermissionRequiredMixin, BulkEditView):
     form = forms.DeviceBulkEditForm
     template_name = 'dcim/device_bulk_edit.html'
     default_redirect_url = 'dcim:device_list'
-
-    def update_objects(self, pk_list, form):
-
-        fields_to_update = {}
-        for field in ['tenant', 'platform']:
-            if form.cleaned_data[field] == 0:
-                fields_to_update[field] = None
-            elif form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
-        if form.cleaned_data['status']:
-            status = form.cleaned_data['status']
-            fields_to_update['status'] = True if status == 'True' else False
-        for field in ['tenant', 'device_type', 'device_role', 'serial']:
-            if form.cleaned_data[field]:
-                fields_to_update[field] = form.cleaned_data[field]
-
-        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
 
 
 class DeviceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):

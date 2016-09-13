@@ -5,6 +5,7 @@ from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
@@ -13,29 +14,30 @@ from dcim.models import (
     InterfaceConnection, Manufacturer, Module, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackRole, Site,
 )
 from dcim import filters
-from .exceptions import MissingFilterException
-from . import serializers
+from extras.api.views import CustomFieldModelAPIView
 from extras.api.renderers import BINDZoneRenderer, FlatJSONRenderer
 from utilities.api import ServiceUnavailable
+from .exceptions import MissingFilterException
+from . import serializers
 
 
 #
 # Sites
 #
 
-class SiteListView(generics.ListAPIView):
+class SiteListView(CustomFieldModelAPIView, generics.ListAPIView):
     """
     List all sites
     """
-    queryset = Site.objects.select_related('tenant')
+    queryset = Site.objects.select_related('tenant').prefetch_related('custom_field_values__field')
     serializer_class = serializers.SiteSerializer
 
 
-class SiteDetailView(generics.RetrieveAPIView):
+class SiteDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
     """
     Retrieve a single site
     """
-    queryset = Site.objects.select_related('tenant')
+    queryset = Site.objects.select_related('tenant').prefetch_related('custom_field_values__field')
     serializer_class = serializers.SiteSerializer
 
 
@@ -84,20 +86,22 @@ class RackRoleDetailView(generics.RetrieveAPIView):
 # Racks
 #
 
-class RackListView(generics.ListAPIView):
+class RackListView(CustomFieldModelAPIView, generics.ListAPIView):
     """
     List racks (filterable)
     """
-    queryset = Rack.objects.select_related('site', 'group', 'tenant')
+    queryset = Rack.objects.select_related('site', 'group__site', 'tenant')\
+        .prefetch_related('custom_field_values__field')
     serializer_class = serializers.RackSerializer
     filter_class = filters.RackFilter
 
 
-class RackDetailView(generics.RetrieveAPIView):
+class RackDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
     """
     Retrieve a single rack
     """
-    queryset = Rack.objects.select_related('site', 'group', 'tenant')
+    queryset = Rack.objects.select_related('site', 'group__site', 'tenant')\
+        .prefetch_related('custom_field_values__field')
     serializer_class = serializers.RackDetailSerializer
 
 
@@ -209,24 +213,25 @@ class PlatformDetailView(generics.RetrieveAPIView):
 # Devices
 #
 
-class DeviceListView(generics.ListAPIView):
+class DeviceListView(CustomFieldModelAPIView, generics.ListAPIView):
     """
     List devices (filterable)
     """
     queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'tenant', 'platform',
                                              'rack__site', 'parent_bay').prefetch_related('primary_ip4__nat_outside',
-                                                                                          'primary_ip6__nat_outside')
+                                                                                          'primary_ip6__nat_outside',
+                                                                                          'custom_field_values__field')
     serializer_class = serializers.DeviceSerializer
     filter_class = filters.DeviceFilter
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES + [BINDZoneRenderer, FlatJSONRenderer]
 
 
-class DeviceDetailView(generics.RetrieveAPIView):
+class DeviceDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
     """
     Retrieve a single device
     """
     queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'tenant', 'platform',
-                                             'rack__site', 'parent_bay')
+                                             'rack__site', 'parent_bay').prefetch_related('custom_field_values__field')
     serializer_class = serializers.DeviceSerializer
 
 
@@ -426,6 +431,13 @@ class RelatedConnectionsView(APIView):
     Retrieve all connections related to a given console/power/interface connection
     """
 
+    def __init__(self):
+        super(RelatedConnectionsView, self).__init__()
+
+        # Custom fields
+        self.content_type = ContentType.objects.get_for_model(Device)
+        self.custom_fields = self.content_type.custom_fields.prefetch_related('choices')
+
     def get(self, request):
 
         peer_device = request.GET.get('peer-device')
@@ -450,7 +462,7 @@ class RelatedConnectionsView(APIView):
 
         # Initialize response skeleton
         response = {
-            'device': serializers.DeviceSerializer(device).data,
+            'device': serializers.DeviceSerializer(device, context={'view': self}).data,
             'console-ports': [],
             'power-ports': [],
             'interfaces': [],

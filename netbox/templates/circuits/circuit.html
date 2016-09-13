@@ -95,23 +95,16 @@
                 <tr>
                     <td>Commit Rate</td>
                     <td>
-                        {% if circuit.commit_speed %}
-                            {{ circuit.commit_speed_human }}
+                        {% if circuit.commit_rate %}
+                            {{ circuit.commit_rate_human }}
                         {% else %}
                             <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <td>Created</td>
-                    <td>{{ circuit.created }}</td>
-                </tr>
-                <tr>
-                    <td>Last Updated</td>
-                    <td>{{ circuit.last_updated }}</td>
-                </tr>
             </table>
         </div>
+        {% include 'inc/created_updated.html' with obj=circuit %}
 	</div>
 	<div class="col-md-6">
         <div class="panel panel-default">

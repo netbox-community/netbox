@@ -130,16 +130,11 @@
                         <a href="{% url 'dcim:device_list' %}?rack_id={{ rack.id }}">{{ rack.devices.count }}</a>
                     </td>
                 </tr>
-                <tr>
-                    <td>Created</td>
-                    <td>{{ rack.created }}</td>
-                </tr>
-                <tr>
-                    <td>Last Updated</td>
-                    <td>{{ rack.last_updated }}</td>
-                </tr>
             </table>
         </div>
+        {% with rack.custom_fields as custom_fields %}
+            {% include 'inc/custom_fields_panel.html' %}
+        {% endwith %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Non-Racked Devices</strong>
@@ -187,6 +182,7 @@
                 {% endif %}
             </div>
         </div>
+        {% include 'inc/created_updated.html' with obj=rack %}
 	</div>
     <div class="row col-md-6">
        <div class="col-md-6 col-sm-6 col-xs-12">

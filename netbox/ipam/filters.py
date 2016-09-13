@@ -5,12 +5,13 @@ from netaddr.core import AddrFormatError
 from django.db.models import Q
 
 from dcim.models import Site, Device, Interface
+from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 
 from .models import RIR, Aggregate, VRF, Prefix, IPAddress, VLAN, VLANGroup, Role
 
 
-class VRFFilter(django_filters.FilterSet):
+class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
     q = django_filters.MethodFilter(
         action='search',
         label='Search',
@@ -44,7 +45,7 @@ class VRFFilter(django_filters.FilterSet):
         fields = ['name', 'rd']
 
 
-class AggregateFilter(django_filters.FilterSet):
+class AggregateFilter(CustomFieldFilterSet, django_filters.FilterSet):
     q = django_filters.MethodFilter(
         action='search',
         label='Search',
@@ -75,7 +76,7 @@ class AggregateFilter(django_filters.FilterSet):
         return queryset.filter(qs_filter)
 
 
-class PrefixFilter(django_filters.FilterSet):
+class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
     q = django_filters.MethodFilter(
         action='search',
         label='Search',
@@ -186,7 +187,7 @@ class PrefixFilter(django_filters.FilterSet):
         )
 
 
-class IPAddressFilter(django_filters.FilterSet):
+class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
     q = django_filters.MethodFilter(
         action='search',
         label='Search',
@@ -300,7 +301,7 @@ class VLANGroupFilter(django_filters.FilterSet):
         fields = ['site_id', 'site']
 
 
-class VLANFilter(django_filters.FilterSet):
+class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
     q = django_filters.MethodFilter(
         action='search',
         label='Search',
