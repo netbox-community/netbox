@@ -77,23 +77,43 @@ ROLE_COLOR_CHOICES = [
     [COLOR_GRAY3, 'Dark Gray'],
 ]
 
+# Virtual
 IFACE_FF_VIRTUAL = 0
-IFACE_FF_100M_COPPER = 800
-IFACE_FF_1GE_COPPER = 1000
-IFACE_FF_GBIC = 1050
-IFACE_FF_SFP = 1100
-IFACE_FF_10GE_COPPER = 1150
-IFACE_FF_SFP_PLUS = 1200
-IFACE_FF_XFP = 1300
-IFACE_FF_QSFP_PLUS = 1400
-IFACE_FF_CFP = 1500
-IFACE_FF_QSFP28 = 1600
+# Ethernet
+IFACE_FF_100ME_FIXED = 800
+IFACE_FF_1GE_FIXED = 1000
+IFACE_FF_1GE_GBIC = 1050
+IFACE_FF_1GE_SFP = 1100
+IFACE_FF_10GE_FIXED = 1150
+IFACE_FF_10GE_SFP_PLUS = 1200
+IFACE_FF_10GE_XFP = 1300
+IFACE_FF_10GE_XENPAK = 1310
+IFACE_FF_10GE_X2 = 1320
+IFACE_FF_25GE_SFP28 = 1350
+IFACE_FF_40GE_QSFP_PLUS = 1400
+IFACE_FF_100GE_CFP = 1500
+IFACE_FF_100GE_QSFP28 = 1600
+# Fibrechannel
+IFACE_FF_1GFC_SFP = 3010
+IFACE_FF_2GFC_SFP = 3020
+IFACE_FF_4GFC_SFP = 3040
+IFACE_FF_8GFC_SFP_PLUS = 3080
+IFACE_FF_8GFC_XFP = 3081
+IFACE_FF_10GFC_SFP_PLUS = 3100
+IFACE_FF_10GFC_XFP = 3101
+IFACE_FF_16GFC_SFP_PLUS = 3160
+IFACE_FF_16GFC_XFP = 3161
+# Serial
 IFACE_FF_T1 = 4000
 IFACE_FF_E1 = 4010
 IFACE_FF_T3 = 4040
 IFACE_FF_E3 = 4050
+# Stacking
 IFACE_FF_STACKWISE = 5000
 IFACE_FF_STACKWISE_PLUS = 5050
+# Other
+IFACE_FF_OTHER = 32767
+
 IFACE_FF_CHOICES = [
     [
         'Virtual interfaces',
@@ -102,23 +122,40 @@ IFACE_FF_CHOICES = [
         ]
     ],
     [
-        'Ethernet',
+        'Ethernet (fixed)',
         [
-            [IFACE_FF_100M_COPPER, '100BASE-TX (10/100M)'],
-            [IFACE_FF_1GE_COPPER, '1000BASE-T (1GE)'],
-            [IFACE_FF_10GE_COPPER, '10GBASE-T (10GE)'],
+            [IFACE_FF_100ME_FIXED, '100BASE-TX (10/100ME)'],
+            [IFACE_FF_1GE_FIXED, '1000BASE-T (1GE)'],
+            [IFACE_FF_10GE_FIXED, '10GBASE-T (10GE)'],
         ]
     ],
     [
-        'Modular',
+        'Ethernet (modular)',
         [
-            [IFACE_FF_GBIC, 'GBIC (1GE)'],
-            [IFACE_FF_SFP, 'SFP (1GE)'],
-            [IFACE_FF_XFP, 'XFP (10GE)'],
-            [IFACE_FF_SFP_PLUS, 'SFP+ (10GE)'],
-            [IFACE_FF_QSFP_PLUS, 'QSFP+ (40GE)'],
-            [IFACE_FF_CFP, 'CFP (100GE)'],
-            [IFACE_FF_QSFP28, 'QSFP28 (100GE)'],
+            [IFACE_FF_1GE_GBIC, 'GBIC (1GE)'],
+            [IFACE_FF_1GE_SFP, 'SFP (1GE)'],
+            [IFACE_FF_10GE_SFP_PLUS, 'SFP+ (10GE)'],
+            [IFACE_FF_10GE_XFP, 'XFP (10GE)'],
+            [IFACE_FF_10GE_XENPAK, 'XENPAK (10GE)'],
+            [IFACE_FF_10GE_X2, 'X2 (10GE)'],
+            [IFACE_FF_25GE_SFP28, 'SFP28 (25GE)'],
+            [IFACE_FF_40GE_QSFP_PLUS, 'QSFP+ (40GE)'],
+            [IFACE_FF_100GE_CFP, 'CFP (100GE)'],
+            [IFACE_FF_100GE_QSFP28, 'QSFP28 (100GE)'],
+        ]
+    ],
+    [
+        'FibreChannel',
+        [
+            [IFACE_FF_1GFC_SFP, 'SFP (1GFC)'],
+            [IFACE_FF_2GFC_SFP, 'SFP (2GFC)'],
+            [IFACE_FF_4GFC_SFP, 'SFP (4GFC)'],
+            [IFACE_FF_8GFC_SFP_PLUS, 'SFP+ (8GFC)'],
+            [IFACE_FF_8GFC_XFP, 'XFP (8GFC)'],
+            [IFACE_FF_10GFC_SFP_PLUS, 'SFP+ (10GFC)'],
+            [IFACE_FF_10GFC_XFP, 'XFP (10GFC)'],
+            [IFACE_FF_16GFC_SFP_PLUS, 'SFP+ (16GFC)'],
+            [IFACE_FF_16GFC_XFP, 'XFP (16GFC)'],
         ]
     ],
     [
@@ -135,6 +172,12 @@ IFACE_FF_CHOICES = [
         [
             [IFACE_FF_STACKWISE, 'Cisco StackWise'],
             [IFACE_FF_STACKWISE_PLUS, 'Cisco StackWise Plus'],
+        ]
+    ],
+    [
+        'Other',
+        [
+            [IFACE_FF_OTHER, 'Other'],
         ]
     ],
 ]
@@ -647,7 +690,7 @@ class InterfaceTemplate(models.Model):
     """
     device_type = models.ForeignKey('DeviceType', related_name='interface_templates', on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
-    form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_SFP_PLUS)
+    form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_10GE_SFP_PLUS)
     mgmt_only = models.BooleanField(default=False, verbose_name='Management only')
 
     objects = InterfaceTemplateManager()
@@ -1023,7 +1066,7 @@ class Interface(models.Model):
     """
     device = models.ForeignKey('Device', related_name='interfaces', on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
-    form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_SFP_PLUS)
+    form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_10GE_SFP_PLUS)
     mac_address = MACAddressField(null=True, blank=True, verbose_name='MAC Address')
     mgmt_only = models.BooleanField(default=False, verbose_name='OOB Management',
                                     help_text="This interface is used only for out-of-band management")
