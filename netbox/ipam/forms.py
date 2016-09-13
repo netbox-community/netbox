@@ -15,10 +15,10 @@ from .models import (
 FORM_PREFIX_STATUS_CHOICES = (('', '---------'),) + PREFIX_STATUS_CHOICES
 FORM_VLAN_STATUS_CHOICES = (('', '---------'),) + VLAN_STATUS_CHOICES
 IP_FAMILY_CHOICES = [
-        ('', 'All'),
-        (4, 'IPv4'),
-        (6, 'IPv6'),
-    ]
+    ('', 'All'),
+    (4, 'IPv4'),
+    (6, 'IPv6'),
+]
 
 
 def bulkedit_vrf_choices():
