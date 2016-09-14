@@ -1,12 +1,12 @@
 from django import forms
-from django.db.models import Count
 
 from dcim.models import Site, Device, Interface, Rack, IFACE_FF_VIRTUAL
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, BootstrapMixin, BulkImportForm, CommentField, CSVDataField, Livesearch, SmallTextarea, SlugField,
+    APISelect, BootstrapMixin, BulkImportForm, CommentField, CSVDataField, FilterChoiceField, Livesearch, SmallTextarea,
+    SlugField, get_filter_choices,
 )
 
 from .models import Circuit, CircuitType, Provider
@@ -57,15 +57,9 @@ class ProviderBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     comments = CommentField()
 
 
-def provider_site_choices():
-    site_choices = Site.objects.all()
-    return [(s.slug, s.name) for s in site_choices]
-
-
 class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Provider
-    site = forms.MultipleChoiceField(required=False, choices=provider_site_choices,
-                                     widget=forms.SelectMultiple(attrs={'size': 8}))
+    site = FilterChoiceField(choices=get_filter_choices(Site, id_field='slug'))
 
 
 #
@@ -189,32 +183,9 @@ class CircuitBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     comments = CommentField()
 
 
-def circuit_type_choices():
-    type_choices = CircuitType.objects.annotate(circuit_count=Count('circuits'))
-    return [(t.slug, u'{} ({})'.format(t.name, t.circuit_count)) for t in type_choices]
-
-
-def circuit_provider_choices():
-    provider_choices = Provider.objects.annotate(circuit_count=Count('circuits'))
-    return [(p.slug, u'{} ({})'.format(p.name, p.circuit_count)) for p in provider_choices]
-
-
-def circuit_tenant_choices():
-    tenant_choices = Tenant.objects.annotate(circuit_count=Count('circuits'))
-    return [(t.slug, u'{} ({})'.format(t.name, t.circuit_count)) for t in tenant_choices]
-
-
-def circuit_site_choices():
-    site_choices = Site.objects.annotate(circuit_count=Count('circuits'))
-    return [(s.slug, u'{} ({})'.format(s.name, s.circuit_count)) for s in site_choices]
-
-
 class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Circuit
-    type = forms.MultipleChoiceField(required=False, choices=circuit_type_choices)
-    provider = forms.MultipleChoiceField(required=False, choices=circuit_provider_choices,
-                                         widget=forms.SelectMultiple(attrs={'size': 8}))
-    tenant = forms.MultipleChoiceField(required=False, choices=circuit_tenant_choices,
-                                       widget=forms.SelectMultiple(attrs={'size': 8}))
-    site = forms.MultipleChoiceField(required=False, choices=circuit_site_choices,
-                                     widget=forms.SelectMultiple(attrs={'size': 8}))
+    type = FilterChoiceField(choices=get_filter_choices(CircuitType, id_field='slug', count_field='circuits'))
+    provider = FilterChoiceField(choices=get_filter_choices(Provider, id_field='slug', count_field='circuits'))
+    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='circuits'))
+    site = FilterChoiceField(choices=get_filter_choices(Site, id_field='slug', count_field='circuits'))
