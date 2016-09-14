@@ -3,6 +3,7 @@ import re
 
 from django import forms
 from django.core.urlresolvers import reverse_lazy
+from django.db.models import Count
 from django.utils.encoding import force_text
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -32,6 +33,27 @@ def add_blank_choice(choices):
     Add a blank choice to the beginning of a choices list.
     """
     return ((None, '---------'),) + choices
+
+
+def get_filter_choices(model, id_field='pk', select_related=[], count_field=None):
+    """
+    Return a list of choices suitable for a ChoiceField.
+
+    :param model: The base model to use for the queryset
+    :param id_field: Field to use as the object identifier
+    :param select_related: Any related tables to include
+    :param count: The field to use for a child COUNT() (optional)
+    :return:
+    """
+    queryset = model.objects.all()
+    if select_related:
+        queryset = queryset.select_related(*select_related)
+    if count_field:
+        queryset = queryset.annotate(child_count=Count(count_field))
+        return [(getattr(obj, id_field), u'{} ({})'.format(obj, obj.child_count)) for obj in queryset]
+    else:
+        return [(getattr(obj, id_field), u'{}'.format(obj)) for obj in queryset]
+
 
 
 #
@@ -220,6 +242,16 @@ class SlugField(forms.SlugField):
         help_text = kwargs.pop('help_text', "URL-friendly unique shorthand")
         super(SlugField, self).__init__(label=label, help_text=help_text, *args, **kwargs)
         self.widget.attrs['slug-source'] = slug_source
+
+
+class FilterChoiceField(forms.MultipleChoiceField):
+
+    def __init__(self, *args, **kwargs):
+        if 'required' not in kwargs:
+            kwargs['required'] = False
+        if 'widget' not in kwargs:
+            kwargs['widget'] = forms.SelectMultiple(attrs={'size': 6})
+        super(FilterChoiceField, self).__init__(*args, **kwargs)
 
 
 #

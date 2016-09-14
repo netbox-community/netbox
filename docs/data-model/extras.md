@@ -1,4 +1,4 @@
-This section entails features of NetBox which are not crucial to its primary functions, but that provide additional value.
+This section entails features of NetBox which are not crucial to its primary functions, but provide additional value.
 
 # Custom Fields
 
@@ -17,15 +17,15 @@ Custom fields must be created through the admin UI under Extras > Custom Fields.
 
 Assign the field a name. This should be a simple database-friendly string, e.g. `tps_report`. You may optionally assign the field a human-friendly label (e.g. "TPS report") as well; the label will be displayed on forms. If a description is provided, it will appear beneath the field in a form.
 
-Marking the field as required will force the user to provide a value for the field when creating a new object or when saving an existing object. A default value for the field may also be provided. Use "true" or "false" for boolean fields. (The default value has no effect for selection fields.)
+Marking the field as required will require the user to provide a value for the field when creating a new object or when saving an existing object. A default value for the field may also be provided. Use "true" or "false" for boolean fields. (The default value has no effect for selection fields.)
 
-When creating a selection field, you must create at least two choices. These choices will be arranged first by weight, with lower weights appearing higher in the list, and then alphabetically.
+When creating a selection field, you should create at least two choices. These choices will be arranged first by weight, with lower weights appearing higher in the list, and then alphabetically.
 
 ## Using Custom Fields
 
-When a single object is edited, the form will include any custom fields which have been defined for its type. These fields are included in the "Custom Fields" panel. Each custom field value must be saved independently from the core object, so it's best to avoid adding too many custom fields per object.
+When a single object is edited, the form will include any custom fields which have been defined for the object type. These fields are included in the "Custom Fields" panel. On the backend, each custom field value is saved separately from the core object as an independent database call, so it's best to avoid adding too many custom fields per object.
 
-When editing multiple objects, values are saved in bulk per field. That is, there is no significant difference in overhead when saving a custom field value for 100 objects versus one object. However, the bulk operation must be performed separately for each custom field.
+When editing multiple objects, custom field values are saved in bulk. There is no significant difference in overhead when saving a custom field value for 100 objects versus one object. However, the bulk operation must be performed separately for each custom field.
 
 # Export Templates
 

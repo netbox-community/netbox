@@ -1,7 +1,6 @@
 from django_tables2 import RequestConfig
 
 from django.contrib import messages
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
@@ -380,10 +379,6 @@ class BulkDeleteView(View):
     form = None
     template_name = 'utilities/confirm_bulk_delete.html'
     default_redirect_url = None
-
-    @method_decorator(staff_member_required)
-    def dispatch(self, *args, **kwargs):
-        return super(BulkDeleteView, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
 

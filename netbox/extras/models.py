@@ -234,10 +234,10 @@ class ExportTemplate(models.Model):
         """
         template = Template(self.template_code)
         mime_type = 'text/plain' if not self.mime_type else self.mime_type
-        response = HttpResponse(
-            template.render(Context(context_dict)),
-            content_type=mime_type
-        )
+        output = template.render(Context(context_dict))
+        # Replace CRLF-style line terminators
+        output = output.replace('\r\n', '\n')
+        response = HttpResponse(output, content_type=mime_type)
         if self.file_extension:
             filename += '.{}'.format(self.file_extension)
         response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)

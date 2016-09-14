@@ -6,7 +6,8 @@ from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFi
 from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, BootstrapMixin, BulkImportForm, CommentField, CSVDataField, Livesearch, SmallTextarea, SlugField,
+    APISelect, BootstrapMixin, BulkImportForm, CommentField, CSVDataField, FilterChoiceField, Livesearch, SmallTextarea,
+    SlugField, get_filter_choices,
 )
 
 from .models import Circuit, CircuitType, Provider, Termination
@@ -64,8 +65,7 @@ def provider_site_choices():
 
 class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Provider
-    site = forms.MultipleChoiceField(required=False, choices=provider_site_choices,
-                                     widget=forms.SelectMultiple(attrs={'size': 8}))
+    site = FilterChoiceField(choices=get_filter_choices(Site, id_field='slug'))
 
 
 #
@@ -85,6 +85,19 @@ class CircuitTypeForm(forms.ModelForm, BootstrapMixin):
 #
 
 class CircuitForm(BootstrapMixin, CustomFieldForm):
+    site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs={'filter-for': 'rack'}))
+    rack = forms.ModelChoiceField(queryset=Rack.objects.all(), required=False, label='Rack',
+                                  widget=APISelect(api_url='/api/dcim/racks/?site_id={{site}}',
+                                                   attrs={'filter-for': 'device'}))
+    device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False, label='Device',
+                                    widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}',
+                                                     attrs={'filter-for': 'interface'}))
+    livesearch = forms.CharField(required=False, label='Device', widget=Livesearch(
+        query_key='q', query_url='dcim-api:device_list', field_to_update='device')
+    )
+    interface = forms.ModelChoiceField(queryset=Interface.objects.all(), required=False, label='Interface',
+                                       widget=APISelect(api_url='/api/dcim/devices/{{device}}/interfaces/?type=physical',
+                                                        disabled_indicator='is_connected'))
     comments = CommentField()
 
     class Meta:
@@ -95,126 +108,15 @@ class CircuitForm(BootstrapMixin, CustomFieldForm):
         help_texts = {
             'cid': "Unique circuit ID",
             'install_date': "Format: YYYY-MM-DD",
-        }
-
-    def __init__(self, *args, **kwargs):
-
-        super(CircuitForm, self).__init__(*args, **kwargs)
-
-
-class CircuitFromCSVForm(forms.ModelForm):
-    provider = forms.ModelChoiceField(Provider.objects.all(), to_field_name='name',
-                                      error_messages={'invalid_choice': 'Provider not found.'})
-    type = forms.ModelChoiceField(CircuitType.objects.all(), to_field_name='name',
-                                  error_messages={'invalid_choice': 'Invalid circuit type.'})
-    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
-                                    error_messages={'invalid_choice': 'Tenant not found.'})
-
-    class Meta:
-        model = Circuit
-        fields = ['cid', 'provider', 'type', 'tenant', 'install_date']
-
-
-class CircuitImportForm(BulkImportForm, BootstrapMixin):
-    csv = CSVDataField(csv_form=CircuitFromCSVForm)
-
-
-class CircuitBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Circuit.objects.all(), widget=forms.MultipleHiddenInput)
-    type = forms.ModelChoiceField(queryset=CircuitType.objects.all(), required=False)
-    provider = forms.ModelChoiceField(queryset=Provider.objects.all(), required=False)
-    tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
-    comments = CommentField()
-
-
-def circuit_type_choices():
-    type_choices = CircuitType.objects.annotate(circuit_count=Count('circuits'))
-    return [(t.slug, u'{} ({})'.format(t.name, t.circuit_count)) for t in type_choices]
-
-
-def circuit_provider_choices():
-    provider_choices = Provider.objects.annotate(circuit_count=Count('circuits'))
-    return [(p.slug, u'{} ({})'.format(p.name, p.circuit_count)) for p in provider_choices]
-
-
-def circuit_tenant_choices():
-    tenant_choices = Tenant.objects.annotate(circuit_count=Count('circuits'))
-    return [(t.slug, u'{} ({})'.format(t.name, t.circuit_count)) for t in tenant_choices]
-
-
-class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
-    model = Circuit
-    type = forms.MultipleChoiceField(required=False, choices=circuit_type_choices)
-    provider = forms.MultipleChoiceField(required=False, choices=circuit_provider_choices,
-                                         widget=forms.SelectMultiple(attrs={'size': 8}))
-    tenant = forms.MultipleChoiceField(required=False, choices=circuit_tenant_choices,
-                                       widget=forms.SelectMultiple(attrs={'size': 8}))
-
-
-#
-# Terminations
-#
-class TerminationForm(BootstrapMixin, CustomFieldForm):
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs={'filter-for': 'rack'}))
-    rack = forms.ModelChoiceField(
-        queryset=Rack.objects.all(),
-        required=False,
-        label='Rack',
-        widget=APISelect(
-            api_url='/api/dcim/racks/?site_id={{site}}',
-            attrs={'filter-for': 'device'}
-        )
-    )
-    device = forms.ModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        label='Device',
-        widget=APISelect(
-            api_url='/api/dcim/devices/?rack_id={{rack}}',
-            attrs={'filter-for': 'interface'}
-        )
-    )
-    livesearch = forms.CharField(
-        required=False,
-        label='Device',
-        widget=Livesearch(
-            query_key='q',
-            query_url='dcim-api:device_list',
-            field_to_update='device'
-        )
-    )
-    interface = forms.ModelChoiceField(
-        queryset=Interface.objects.all(),
-        required=False,
-        label='Interface',
-        widget=APISelect(
-            api_url='/api/dcim/devices/{{device}}/interfaces/?type=physical',
-            disabled_indicator='is_connected'
-        )
-    )
-    comments = CommentField()
-
-    class Meta:
-        model = Termination
-        fields = [
-            'tid', 'site', 'rack', 'device', 'livesearch',
-            'interface', 'port_speed', 'upstream_speed', 'commit_rate',
-            'xconnect_id', 'pp_info', 'comments'
-        ]
-        help_texts = {
-            'tid': "Termination ID",
             'port_speed': "Physical circuit speed",
             'commit_rate': "Commited rate",
             'xconnect_id': "ID of the local cross-connect",
             'pp_info': "Patch panel ID and port number(s)"
         }
-        widgets = {
-            'circuit': forms.HiddenInput(),
-        }
 
     def __init__(self, *args, **kwargs):
 
-        super(TerminationForm, self).__init__(*args, **kwargs)
+        super(CircuitForm, self).__init__(*args, **kwargs)
 
         # If this circuit has been assigned to an interface, initialize rack and device
         if self.instance.interface:
@@ -240,11 +142,11 @@ class TerminationForm(BootstrapMixin, CustomFieldForm):
         # Limit interface choices
         if self.is_bound and self.data.get('device'):
             interfaces = Interface.objects.filter(device=self.data['device'])\
-                .exclude(form_factor=IFACE_FF_VIRTUAL).select_related('termination', 'connected_as_a', 'connected_as_b')
+                .exclude(form_factor=IFACE_FF_VIRTUAL).select_related('circuit', 'connected_as_a', 'connected_as_b')
             self.fields['interface'].widget.attrs['initial'] = self.data.get('interface')
         elif self.initial.get('device'):
             interfaces = Interface.objects.filter(device=self.initial['device'])\
-                .exclude(form_factor=IFACE_FF_VIRTUAL).select_related('termination', 'connected_as_a', 'connected_as_b')
+                .exclude(form_factor=IFACE_FF_VIRTUAL).select_related('circuit', 'connected_as_a', 'connected_as_b')
             self.fields['interface'].widget.attrs['initial'] = self.initial.get('interface')
         else:
             interfaces = []
@@ -254,3 +156,40 @@ class TerminationForm(BootstrapMixin, CustomFieldForm):
                 'disabled': iface.is_connected and iface.id != self.fields['interface'].widget.attrs.get('initial'),
             }) for iface in interfaces
         ]
+
+
+class CircuitFromCSVForm(forms.ModelForm):
+    provider = forms.ModelChoiceField(Provider.objects.all(), to_field_name='name',
+                                      error_messages={'invalid_choice': 'Provider not found.'})
+    type = forms.ModelChoiceField(CircuitType.objects.all(), to_field_name='name',
+                                  error_messages={'invalid_choice': 'Invalid circuit type.'})
+    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
+                                    error_messages={'invalid_choice': 'Tenant not found.'})
+    site = forms.ModelChoiceField(Site.objects.all(), to_field_name='name',
+                                  error_messages={'invalid_choice': 'Site not found.'})
+
+    class Meta:
+        model = Circuit
+        fields = ['cid', 'provider', 'type', 'tenant', 'install_date']
+
+
+class CircuitImportForm(BulkImportForm, BootstrapMixin):
+    csv = CSVDataField(csv_form=CircuitFromCSVForm)
+
+
+class CircuitBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(queryset=Circuit.objects.all(), widget=forms.MultipleHiddenInput)
+    type = forms.ModelChoiceField(queryset=CircuitType.objects.all(), required=False)
+    provider = forms.ModelChoiceField(queryset=Provider.objects.all(), required=False)
+    tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
+    port_speed = forms.IntegerField(required=False, label='Port speed (Kbps)')
+    commit_rate = forms.IntegerField(required=False, label='Commit rate (Kbps)')
+    comments = CommentField()
+
+
+class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Circuit
+    type = FilterChoiceField(choices=get_filter_choices(CircuitType, id_field='slug', count_field='circuits'))
+    provider = FilterChoiceField(choices=get_filter_choices(Provider, id_field='slug', count_field='circuits'))
+    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='circuits'))
+    site = FilterChoiceField(choices=get_filter_choices(Site, id_field='slug', count_field='circuits'))
