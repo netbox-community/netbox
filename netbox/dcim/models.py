@@ -269,7 +269,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
 
     @property
     def count_circuits(self):
-        return self.circuits.count()
+        return self.terminations.count()
 
 
 #
@@ -1052,7 +1052,7 @@ class Interface(models.Model):
     @property
     def is_connected(self):
         try:
-            return bool(self.circuit)
+            return bool(self.termination)
         except ObjectDoesNotExist:
             pass
         return bool(self.connection)

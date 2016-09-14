@@ -151,8 +151,8 @@
                     <p>VLANs</p>
                 </div>
                 <div class="col-md-4 text-center">
-                    <h2><a href="{% url 'circuits:circuit_list' %}?site={{ site.slug }}" class="btn {% if stats.circuit_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.circuit_count }}</a></h2>
-                    <p>Circuits</p>
+                    <h2><a href="{% url 'circuits:circuit_list' %}?site={{ site.slug }}" class="btn {% if stats.termination_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.termination_count }}</a></h2>
+                    <p>Terminations</p>
                 </div>
             </div>
         </div>

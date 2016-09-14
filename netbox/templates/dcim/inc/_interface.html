@@ -24,9 +24,9 @@
                 <span title="{{ connected_iface.get_form_factor_display }}">{{ connected_iface }}</span>
             </td>
         {% endwith %}
-    {% elif iface.circuit %}
+    {% elif iface.termination %}
         <td colspan="2">
-            <a href="{% url 'circuits:circuit' pk=iface.circuit.pk %}">{{ iface.circuit }}</a>
+            <a href="{% url 'circuits:circuit' pk=iface.termination.circuit.pk %}">{{ iface.termination.circuit }}</a>
         </td>
     {% else %}
         <td colspan="2">
@@ -35,7 +35,7 @@
     {% endif %}
     <td class="text-right">
         {% if show_graphs %}
-            {% if iface.circuit or iface.connection %}
+            {% if iface.termination or iface.connection %}
                 <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ device.name }} - {{ iface.name }}" data-url="{% url 'dcim-api:interface_graphs' pk=iface.pk %}" title="Show graphs">
                     <i class="glyphicon glyphicon-signal" aria-hidden="true"></i>
                 </button>
@@ -56,8 +56,8 @@
                     <a href="{% url 'dcim:interfaceconnection_delete' pk=iface.connection.pk %}?device={{ device.pk }}" class="btn btn-danger btn-xs" title="Delete connection">
                         <i class="glyphicon glyphicon-remove" aria-hidden="true"></i>
                     </a>
-                {% elif iface.circuit and perms.circuits.change_circuit %}
-                    <a href="{% url 'circuits:circuit_edit' pk=iface.circuit.pk %}" class="btn btn-danger btn-xs" title="Edit circuit">
+                {% elif iface.termination and perms.circuits.change_circuit %}
+                    <a href="{% url 'circuits:circuit_edit' pk=iface.termination.circuit.pk %}" class="btn btn-danger btn-xs" title="Edit circuit">
                         <i class="glyphicon glyphicon-remove" aria-hidden="true"></i>
                     </a>
                 {% else %}
@@ -71,7 +71,7 @@
             </a>
         {% endif %}
         {% if perms.dcim.delete_interface %}
-            {% if iface.connection or iface.circuit %}
+            {% if iface.connection or iface.termination.circuit %}
                 <button class="btn btn-danger btn-xs" disabled="disabled">
                     <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </button>

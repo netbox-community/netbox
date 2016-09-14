@@ -1,14 +1,18 @@
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.decorators import permission_required
+from django.core.urlresolvers import reverse, resolve
+from django.contrib import messages
 
 from extras.models import Graph, GRAPH_TYPE_PROVIDER
+from utilities.forms import ConfirmationForm
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 
 from . import filters, forms, tables
-from .models import Circuit, CircuitType, Provider
+from .models import Circuit, CircuitType, Provider, Termination
 
 
 #
@@ -27,7 +31,7 @@ class ProviderListView(ObjectListView):
 def provider(request, slug):
 
     provider = get_object_or_404(Provider, slug=slug)
-    circuits = Circuit.objects.filter(provider=provider).select_related('site', 'interface__device')
+    circuits = Circuit.objects.filter(provider=provider)
     show_graphs = Graph.objects.filter(type=GRAPH_TYPE_PROVIDER).exists()
 
     return render(request, 'circuits/provider.html', {
@@ -103,7 +107,7 @@ class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class CircuitListView(ObjectListView):
-    queryset = Circuit.objects.select_related('provider', 'type', 'tenant', 'site')
+    queryset = Circuit.objects.select_related('provider', 'type', 'tenant').annotate(count_terminations=Count('terminations'))
     filter = filters.CircuitFilter
     filter_form = forms.CircuitFilterForm
     table = tables.CircuitTable
@@ -155,3 +159,61 @@ class CircuitBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_circuit'
     cls = Circuit
     default_redirect_url = 'circuits:circuit_list'
+
+#
+# Terminations
+#
+@permission_required('circuits.change_circuit')
+def termination_add(request, pk):
+
+    circuit = get_object_or_404(Circuit, pk=pk)
+
+    if request.method == 'POST':
+        form = forms.TerminationForm(request.POST)
+        if form.is_valid():
+            if not form.errors:
+                new_termination = form.save(commit=False)
+                new_termination.circuit = circuit
+                new_termination.save()
+                if '_addanother' in request.POST:
+                    return redirect('circuits:termination_add', pk=circuit.pk)
+                else:
+                    return redirect('circuits:circuit', pk=circuit.pk)
+
+    else:
+        form = forms.TerminationForm()
+
+    return render(request, 'circuits/termination_edit.html', {
+        'form': form,
+        'obj_type': "Termination",
+        'cancel_url': reverse('circuits:circuit', kwargs={'pk': circuit.pk}),
+    })
+
+class TerminationEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'circuits.change_circuit'
+    model = Termination
+    form_class = forms.TerminationForm
+    fields_initial = ['site']
+    template_name = 'circuits/termination_edit.html'
+    cancel_url = 'circuits:circuit_list'
+
+@permission_required('circuits.delete_circuit')
+def termination_delete(request, pk):
+
+    termination = get_object_or_404(Termination, pk=pk)
+
+    if request.method == 'POST':
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+            termination.delete()
+            messages.success(request, "Termination {0} has been deleted from {1}".format(termination, termination.circuit))
+            return redirect('circuits:circuit', pk=termination.circuit.pk)
+
+    else:
+        form = ConfirmationForm()
+
+    return render(request, 'circuits/termination_delete.html', {
+        'termination': termination,
+        'form': form,
+        'cancel_url': reverse('circuits:circuit', kwargs={'pk': termination.circuit.pk}),
+    })

@@ -1,15 +1,13 @@
-from django.contrib.contenttypes.fields import GenericRelation
 from django.core.urlresolvers import reverse
 from django.db import models
 
 from dcim.fields import ASNField
 from dcim.models import Site, Interface
-from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
 from utilities.models import CreatedUpdatedModel
 
 
-class Provider(CreatedUpdatedModel, CustomFieldModel):
+class Provider(CreatedUpdatedModel):
     """
     Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model
     stores information pertinent to the user's relationship with the Provider.
@@ -22,7 +20,6 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
     noc_contact = models.TextField(blank=True, verbose_name='NOC contact')
     admin_contact = models.TextField(blank=True, verbose_name='Admin contact')
     comments = models.TextField(blank=True)
-    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:
         ordering = ['name']
@@ -61,7 +58,7 @@ class CircuitType(models.Model):
         return "{}?type={}".format(reverse('circuits:circuit_list'), self.slug)
 
 
-class Circuit(CreatedUpdatedModel, CustomFieldModel):
+class Circuit(CreatedUpdatedModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
     circuits. Each circuit is also assigned a CircuitType and a Site. A Circuit may be terminated to a specific device
@@ -71,17 +68,8 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
     provider = models.ForeignKey('Provider', related_name='circuits', on_delete=models.PROTECT)
     type = models.ForeignKey('CircuitType', related_name='circuits', on_delete=models.PROTECT)
     tenant = models.ForeignKey(Tenant, related_name='circuits', blank=True, null=True, on_delete=models.PROTECT)
-    site = models.ForeignKey(Site, related_name='circuits', on_delete=models.PROTECT)
-    interface = models.OneToOneField(Interface, related_name='circuit', blank=True, null=True)
     install_date = models.DateField(blank=True, null=True, verbose_name='Date installed')
-    port_speed = models.PositiveIntegerField(verbose_name='Port speed (Kbps)')
-    upstream_speed = models.PositiveIntegerField(blank=True, null=True, verbose_name='Upstream speed (Kbps)',
-                                                 help_text='Upstream speed, if different from port speed')
-    commit_rate = models.PositiveIntegerField(blank=True, null=True, verbose_name='Commit rate (Kbps)')
-    xconnect_id = models.CharField(max_length=50, blank=True, verbose_name='Cross-connect ID')
-    pp_info = models.CharField(max_length=100, blank=True, verbose_name='Patch panel/port(s)')
     comments = models.TextField(blank=True)
-    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:
         ordering = ['provider', 'cid']
@@ -95,6 +83,42 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
 
     def to_csv(self):
         return ','.join([
+            self.cid,
+            self.provider.name,
+            self.type.name,
+            self.tenant.name if self.tenant else '',
+            self.install_date.isoformat() if self.install_date else '',
+        ])
+
+class Termination(CreatedUpdatedModel):
+    """
+    A Termination is where a site
+    """
+    circuit = models.ForeignKey('Circuit', related_name='terminations', on_delete=models.PROTECT)
+    tid = models.CharField(max_length=50, verbose_name='Termination ID')
+    site = models.ForeignKey(Site, related_name='terminations', on_delete=models.PROTECT)
+    interface = models.OneToOneField(Interface, related_name='termination', blank=True, null=True)
+    port_speed = models.PositiveIntegerField(verbose_name='Port speed (Kbps)')
+    upstream_speed = models.PositiveIntegerField(blank=True, null=True, verbose_name='Upstream speed (Kbps)',
+                                                 help_text='Upstream speed, if different from port speed')
+    commit_rate = models.PositiveIntegerField(blank=True, null=True, verbose_name='Commit rate (Kbps)')
+    xconnect_id = models.CharField(max_length=50, blank=True, verbose_name='Cross-connect ID')
+    pp_info = models.CharField(max_length=100, blank=True, verbose_name='Patch panel/port(s)')
+    comments = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['circuit', 'tid']
+        unique_together = ['circuit', 'tid']
+
+    def __unicode__(self):
+        return u'{} Termination {}'.format(self.circuit.cid, self.tid)
+
+    def get_absolute_url(self):
+        return reverse('circuits:circuit', args=[self.circuit.pk])
+
+    def to_csv(self):
+        return ','.join([
+            self.tid,
             self.cid,
             self.provider.name,
             self.type.name,

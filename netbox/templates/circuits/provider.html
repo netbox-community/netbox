@@ -133,15 +133,6 @@
                         <td>
                             <a href="{% url 'circuits:circuit' pk=c.pk %}">{{ c.cid }}</a>
                         </td>
-                        <td>
-                            <a href="{% url 'dcim:site' slug=c.site.slug %}">{{ c.site }}</a>
-                        </td>
-                        <td>
-                            {% if c.interface %}
-                                <a href="{% url 'dcim:device' pk=c.interface.device.pk %}">{{ c.interface.device }}</a>
-                            {% endif %}
-                        </td>
-                        <td>{{ c.port_speed_human }}</td>
                     </tr>
                 {% empty %}
                     <tr>
