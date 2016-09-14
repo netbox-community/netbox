@@ -26,7 +26,6 @@ class SiteTest(APITestCase):
         'count_vlans',
         'count_racks',
         'count_devices',
-        'count_circuits'
     ]
 
     nested_fields = [
