@@ -57,8 +57,7 @@ class CircuitTable(BaseTable):
     provider = tables.LinkColumn('circuits:provider', args=[Accessor('provider.slug')], verbose_name='Provider')
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
     termination_count = tables.Column(accessor=Accessor('count_terminations'),
-        verbose_name='Terminations')
-
+                                      verbose_name='Terminations')
 
     class Meta(BaseTable.Meta):
         model = Circuit

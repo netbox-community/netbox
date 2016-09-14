@@ -160,6 +160,7 @@ class CircuitBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     cls = Circuit
     default_redirect_url = 'circuits:circuit_list'
 
+
 #
 # Terminations
 #
@@ -189,6 +190,7 @@ def termination_add(request, pk):
         'cancel_url': reverse('circuits:circuit', kwargs={'pk': circuit.pk}),
     })
 
+
 class TerminationEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.change_circuit'
     model = Termination
@@ -196,6 +198,7 @@ class TerminationEditView(PermissionRequiredMixin, ObjectEditView):
     fields_initial = ['site']
     template_name = 'circuits/termination_edit.html'
     cancel_url = 'circuits:circuit_list'
+
 
 @permission_required('circuits.delete_circuit')
 def termination_delete(request, pk):

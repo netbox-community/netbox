@@ -150,6 +150,7 @@ class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
     tenant = forms.MultipleChoiceField(required=False, choices=circuit_tenant_choices,
                                        widget=forms.SelectMultiple(attrs={'size': 8}))
 
+
 #
 # Terminations
 #
@@ -197,7 +198,7 @@ class TerminationForm(BootstrapMixin, CustomFieldForm):
         model = Termination
         fields = [
             'tid', 'site', 'rack', 'device', 'livesearch',
-            'interface','port_speed', 'upstream_speed', 'commit_rate',
+            'interface', 'port_speed', 'upstream_speed', 'commit_rate',
             'xconnect_id', 'pp_info', 'comments'
         ]
         help_texts = {

@@ -90,6 +90,7 @@ class Circuit(CreatedUpdatedModel):
             self.install_date.isoformat() if self.install_date else '',
         ])
 
+
 class Termination(CreatedUpdatedModel):
     """
     A Termination is where a site
