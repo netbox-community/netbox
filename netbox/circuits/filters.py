@@ -13,17 +13,17 @@ class ProviderFilter(CustomFieldFilterSet, django_filters.FilterSet):
         action='search',
         label='Search',
     )
-    # site_id = django_filters.ModelMultipleChoiceFilter(
-    #     name='circuits__site',
-    #     queryset=Site.objects.all(),
-    #     label='Site',
-    # )
-    # site = django_filters.ModelMultipleChoiceFilter(
-    #     name='circuits__site',
-    #     queryset=Site.objects.all(),
-    #     to_field_name='slug',
-    #     label='Site (slug)',
-    # )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        name='circuits__terminations__site',
+        queryset=Site.objects.all(),
+        label='Site',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        name='circuits__terminations__site',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site (slug)',
+    )
 
     class Meta:
         model = Provider
