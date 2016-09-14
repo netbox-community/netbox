@@ -55,7 +55,6 @@ def get_filter_choices(model, id_field='pk', select_related=[], count_field=None
         return [(getattr(obj, id_field), u'{}'.format(obj)) for obj in queryset]
 
 
-
 #
 # Widgets
 #
