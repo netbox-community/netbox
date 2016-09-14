@@ -5,6 +5,3 @@ configuration.py
 !upgrade.sh
 fabfile.py
 *.swp
-*.bak
-gunicorn_config.py
-netbox/static
