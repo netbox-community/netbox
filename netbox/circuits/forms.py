@@ -192,4 +192,108 @@ class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
     type = FilterChoiceField(choices=get_filter_choices(CircuitType, id_field='slug', count_field='circuits'))
     provider = FilterChoiceField(choices=get_filter_choices(Provider, id_field='slug', count_field='circuits'))
     tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='circuits'))
-    site = FilterChoiceField(choices=get_filter_choices(Site, id_field='slug', count_field='circuits'))
+
+
+#
+# Terminations
+#
+class TerminationForm(BootstrapMixin, CustomFieldForm):
+    site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs={'filter-for': 'rack'}))
+    rack = forms.ModelChoiceField(
+        queryset=Rack.objects.all(),
+        required=False,
+        label='Rack',
+        widget=APISelect(
+            api_url='/api/dcim/racks/?site_id={{site}}',
+            attrs={'filter-for': 'device'}
+        )
+    )
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label='Device',
+        widget=APISelect(
+            api_url='/api/dcim/devices/?rack_id={{rack}}',
+            attrs={'filter-for': 'interface'}
+        )
+    )
+    livesearch = forms.CharField(
+        required=False,
+        label='Device',
+        widget=Livesearch(
+            query_key='q',
+            query_url='dcim-api:device_list',
+            field_to_update='device'
+        )
+    )
+    interface = forms.ModelChoiceField(
+        queryset=Interface.objects.all(),
+        required=False,
+        label='Interface',
+        widget=APISelect(
+            api_url='/api/dcim/devices/{{device}}/interfaces/?type=physical',
+            disabled_indicator='is_connected'
+        )
+    )
+    comments = CommentField()
+
+    class Meta:
+        model = Termination
+        fields = [
+            'tid', 'site', 'rack', 'device', 'livesearch',
+            'interface', 'port_speed', 'upstream_speed', 'commit_rate',
+            'xconnect_id', 'pp_info', 'comments'
+        ]
+        help_texts = {
+            'tid': "Termination ID",
+            'port_speed': "Physical circuit speed",
+            'commit_rate': "Commited rate",
+            'xconnect_id': "ID of the local cross-connect",
+            'pp_info': "Patch panel ID and port number(s)"
+        }
+        widgets = {
+            'circuit': forms.HiddenInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+
+        super(TerminationForm, self).__init__(*args, **kwargs)
+
+        # If this circuit has been assigned to an interface, initialize rack and device
+        if self.instance.interface:
+            self.initial['rack'] = self.instance.interface.device.rack
+            self.initial['device'] = self.instance.interface.device
+
+        # Limit rack choices
+        if self.is_bound:
+            self.fields['rack'].queryset = Rack.objects.filter(site__pk=self.data['site'])
+        elif self.initial.get('site'):
+            self.fields['rack'].queryset = Rack.objects.filter(site=self.initial['site'])
+        else:
+            self.fields['rack'].choices = []
+
+        # Limit device choices
+        if self.is_bound and self.data.get('rack'):
+            self.fields['device'].queryset = Device.objects.filter(rack=self.data['rack'])
+        elif self.initial.get('rack'):
+            self.fields['device'].queryset = Device.objects.filter(rack=self.initial['rack'])
+        else:
+            self.fields['device'].choices = []
+
+        # Limit interface choices
+        if self.is_bound and self.data.get('device'):
+            interfaces = Interface.objects.filter(device=self.data['device'])\
+                .exclude(form_factor=IFACE_FF_VIRTUAL).select_related('termination', 'connected_as_a', 'connected_as_b')
+            self.fields['interface'].widget.attrs['initial'] = self.data.get('interface')
+        elif self.initial.get('device'):
+            interfaces = Interface.objects.filter(device=self.initial['device'])\
+                .exclude(form_factor=IFACE_FF_VIRTUAL).select_related('termination', 'connected_as_a', 'connected_as_b')
+            self.fields['interface'].widget.attrs['initial'] = self.initial.get('interface')
+        else:
+            interfaces = []
+        self.fields['interface'].choices = [
+            (iface.id, {
+                'label': iface.name,
+                'disabled': iface.is_connected and iface.id != self.fields['interface'].widget.attrs.get('initial'),
+            }) for iface in interfaces
+        ]
