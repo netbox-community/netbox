@@ -25,7 +25,7 @@ $(document).ready(function() {
     });
     if (slug_field) {
         var slug_source = $('#id_' + slug_field.attr('slug-source'));
-        slug_source.keyup(function() {
+        slug_source.on('keyup change', function() {
             if (slug_field && !slug_field.attr('_changed')) {
                 slug_field.val(slugify($(this).val(), 50));
             }
