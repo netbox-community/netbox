@@ -120,7 +120,8 @@ class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
 class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Site
-    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='sites'))
+    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='sites',
+                                                          null_option='None'))
 
 
 #
@@ -246,10 +247,13 @@ class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Rack
     site = FilterChoiceField(choices=get_filter_choices(Site, id_field='slug', count_field='racks'))
-    group_id = FilterChoiceField(choices=get_filter_choices(RackGroup, select_related=['site'], count_field='racks'),
+    group_id = FilterChoiceField(choices=get_filter_choices(RackGroup, select_related=['site'], count_field='racks',
+                                                            null_option='None'),
                                  label='Rack Group')
-    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='racks'))
-    role = FilterChoiceField(choices=get_filter_choices(RackRole, id_field='slug', count_field='racks'))
+    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='racks',
+                                                          null_option='None'))
+    role = FilterChoiceField(choices=get_filter_choices(RackRole, id_field='slug', count_field='racks',
+                                                        null_option='None'))
 
 
 #
@@ -595,11 +599,13 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
                                                                  count_field='racks__devices'),
                                       label='Rack Group')
     role = FilterChoiceField(choices=get_filter_choices(DeviceRole, id_field='slug', count_field='devices'))
-    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='devices'))
+    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='devices',
+                                                          null_option='None'))
     device_type_id = FilterChoiceField(choices=get_filter_choices(DeviceType, select_related=['manufacturer'],
                                                                   count_field='instances'),
                                        label='Type')
-    platform = FilterChoiceField(choices=get_filter_choices(Platform, id_field='slug', count_field='devices'))
+    platform = FilterChoiceField(choices=get_filter_choices(Platform, id_field='slug', count_field='devices',
+                                                            null_option='None'))
     status = forms.NullBooleanField(required=False, widget=forms.Select(choices=FORM_STATUS_CHOICES))
 
 

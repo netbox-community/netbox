@@ -74,7 +74,8 @@ class VRFBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
 class VRFFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = VRF
-    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='vrfs'))
+    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='vrfs',
+                                                          null_option='None'))
 
 
 #
@@ -272,13 +273,16 @@ class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
         'placeholder': 'Network',
     }))
     family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address Family')
-    vrf = FilterChoiceField(choices=get_filter_choices(VRF, count_field='prefixes', null_option=(0, 'Global')),
+    vrf = FilterChoiceField(choices=get_filter_choices(VRF, count_field='prefixes', null_option='Global'),
                             label='VRF')
-    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='prefixes'),
+    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='prefixes',
+                                                          null_option='None'),
                                label='Tenant')
     status = FilterChoiceField(choices=prefix_status_choices)
-    site = FilterChoiceField(choices=get_filter_choices(Site, id_field='slug', count_field='prefixes'))
-    role = FilterChoiceField(choices=get_filter_choices(Role, id_field='slug', count_field='prefixes'))
+    site = FilterChoiceField(choices=get_filter_choices(Site, id_field='slug', count_field='prefixes',
+                                                        null_option='None'))
+    role = FilterChoiceField(choices=get_filter_choices(Role, id_field='slug', count_field='prefixes',
+                                                        null_option='None'))
     expand = forms.BooleanField(required=False, label='Expand prefix hierarchy')
 
 
@@ -415,8 +419,10 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
         'placeholder': 'Prefix',
     }))
     family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address Family')
-    vrf = FilterChoiceField(choices=get_filter_choices(VRF, count_field='ip_addresses'), label='VRF')
-    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='prefixes'),
+    vrf = FilterChoiceField(choices=get_filter_choices(VRF, count_field='ip_addresses', null_option='None'),
+                            label='VRF')
+    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='ip_addresses',
+                                                          null_option='None'),
                                label='Tenant')
 
 
@@ -521,8 +527,10 @@ def vlan_status_choices():
 class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = VLAN
     site = FilterChoiceField(choices=get_filter_choices(Site, id_field='slug', count_field='vlans'))
-    group_id = FilterChoiceField(choices=get_filter_choices(VLANGroup, select_related=['site'], count_field='vlans'),
+    group_id = FilterChoiceField(choices=get_filter_choices(VLANGroup, select_related=['site'], count_field='vlans',
+                                                            null_option='None'),
                                  label='VLAN Group')
-    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='vlans'))
+    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='vlans',
+                                                          null_option='None'))
     status = FilterChoiceField(choices=vlan_status_choices)
-    role = FilterChoiceField(choices=get_filter_choices(Role, id_field='slug', count_field='vlans'))
+    role = FilterChoiceField(choices=get_filter_choices(Role, id_field='slug', count_field='vlans', null_option='None'))

@@ -4,6 +4,7 @@ from django.db.models import Q
 
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
+from utilities.filters import NullableModelMultipleChoiceFilter
 from .models import (
     ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, Interface, InterfaceConnection, Manufacturer,
     Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackRole, Site,
@@ -15,12 +16,12 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         action='search',
         label='Search',
     )
-    tenant_id = django_filters.ModelMultipleChoiceFilter(
+    tenant_id = NullableModelMultipleChoiceFilter(
         name='tenant',
         queryset=Tenant.objects.all(),
         label='Tenant (ID)',
     )
-    tenant = django_filters.ModelMultipleChoiceFilter(
+    tenant = NullableModelMultipleChoiceFilter(
         name='tenant',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
@@ -75,34 +76,34 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Site (slug)',
     )
-    group_id = django_filters.ModelMultipleChoiceFilter(
+    group_id = NullableModelMultipleChoiceFilter(
         name='group',
         queryset=RackGroup.objects.all(),
         label='Group (ID)',
     )
-    group = django_filters.ModelMultipleChoiceFilter(
+    group = NullableModelMultipleChoiceFilter(
         name='group',
         queryset=RackGroup.objects.all(),
         to_field_name='slug',
         label='Group',
     )
-    tenant_id = django_filters.ModelMultipleChoiceFilter(
+    tenant_id = NullableModelMultipleChoiceFilter(
         name='tenant',
         queryset=Tenant.objects.all(),
         label='Tenant (ID)',
     )
-    tenant = django_filters.ModelMultipleChoiceFilter(
+    tenant = NullableModelMultipleChoiceFilter(
         name='tenant',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
     )
-    role_id = django_filters.ModelMultipleChoiceFilter(
+    role_id = NullableModelMultipleChoiceFilter(
         name='role',
         queryset=RackRole.objects.all(),
         label='Role (ID)',
     )
-    role = django_filters.ModelMultipleChoiceFilter(
+    role = NullableModelMultipleChoiceFilter(
         name='role',
         queryset=RackRole.objects.all(),
         to_field_name='slug',
@@ -177,12 +178,12 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Role (slug)',
     )
-    tenant_id = django_filters.ModelMultipleChoiceFilter(
+    tenant_id = NullableModelMultipleChoiceFilter(
         name='tenant',
         queryset=Tenant.objects.all(),
         label='Tenant (ID)',
     )
-    tenant = django_filters.ModelMultipleChoiceFilter(
+    tenant = NullableModelMultipleChoiceFilter(
         name='tenant',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
@@ -210,12 +211,12 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Device model (slug)',
     )
-    platform_id = django_filters.ModelMultipleChoiceFilter(
+    platform_id = NullableModelMultipleChoiceFilter(
         name='platform',
         queryset=Platform.objects.all(),
         label='Platform (ID)',
     )
-    platform = django_filters.ModelMultipleChoiceFilter(
+    platform = NullableModelMultipleChoiceFilter(
         name='platform',
         queryset=Platform.objects.all(),
         to_field_name='slug',

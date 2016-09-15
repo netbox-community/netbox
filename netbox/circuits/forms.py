@@ -187,5 +187,6 @@ class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Circuit
     type = FilterChoiceField(choices=get_filter_choices(CircuitType, id_field='slug', count_field='circuits'))
     provider = FilterChoiceField(choices=get_filter_choices(Provider, id_field='slug', count_field='circuits'))
-    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='circuits'))
+    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='circuits',
+                                                          null_option='None'))
     site = FilterChoiceField(choices=get_filter_choices(Site, id_field='slug', count_field='circuits'))

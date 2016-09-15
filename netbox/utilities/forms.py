@@ -43,7 +43,7 @@ def get_filter_choices(model, id_field='pk', select_related=[], count_field=None
     :param id_field: Field to use as the object identifier
     :param select_related: Any related tables to include
     :param count_field: The field to use for a child COUNT() (optional)
-    :param null_option: A (value, label) tuple to include at the beginning of the list serving as "null"
+    :param null_option: A choice to include at the beginning of the list serving as "null"
     """
     queryset = model.objects.all()
     if select_related:
@@ -54,7 +54,7 @@ def get_filter_choices(model, id_field='pk', select_related=[], count_field=None
     else:
         choices = [(getattr(obj, id_field), u'{}'.format(obj)) for obj in queryset]
     if null_option:
-        choices = [null_option] + choices
+        choices = [(0, null_option)] + choices
     return choices
 
 

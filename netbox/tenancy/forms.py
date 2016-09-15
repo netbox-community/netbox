@@ -77,4 +77,5 @@ class TenantBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
 class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Tenant
-    group = FilterChoiceField(choices=get_filter_choices(TenantGroup, id_field='slug', count_field='tenants'))
+    group = FilterChoiceField(choices=get_filter_choices(TenantGroup, id_field='slug', count_field='tenants',
+                                                         null_option='None'))
