@@ -35,24 +35,27 @@ def add_blank_choice(choices):
     return ((None, '---------'),) + choices
 
 
-def get_filter_choices(model, id_field='pk', select_related=[], count_field=None):
+def get_filter_choices(model, id_field='pk', select_related=[], count_field=None, null_option=None):
     """
     Return a list of choices suitable for a ChoiceField.
 
     :param model: The base model to use for the queryset
     :param id_field: Field to use as the object identifier
     :param select_related: Any related tables to include
-    :param count: The field to use for a child COUNT() (optional)
-    :return:
+    :param count_field: The field to use for a child COUNT() (optional)
+    :param null_option: A (value, label) tuple to include at the beginning of the list serving as "null"
     """
     queryset = model.objects.all()
     if select_related:
         queryset = queryset.select_related(*select_related)
     if count_field:
         queryset = queryset.annotate(child_count=Count(count_field))
-        return [(getattr(obj, id_field), u'{} ({})'.format(obj, obj.child_count)) for obj in queryset]
+        choices = [(getattr(obj, id_field), u'{} ({})'.format(obj, obj.child_count)) for obj in queryset]
     else:
-        return [(getattr(obj, id_field), u'{}'.format(obj)) for obj in queryset]
+        choices = [(getattr(obj, id_field), u'{}'.format(obj)) for obj in queryset]
+    if null_option:
+        choices = [null_option] + choices
+    return choices
 
 
 

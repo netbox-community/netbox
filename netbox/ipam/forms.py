@@ -272,7 +272,8 @@ class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
         'placeholder': 'Network',
     }))
     family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address Family')
-    vrf = FilterChoiceField(choices=get_filter_choices(VRF, count_field='prefixes'), label='VRF')
+    vrf = FilterChoiceField(choices=get_filter_choices(VRF, count_field='prefixes', null_option=(0, 'Global')),
+                            label='VRF')
     tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='prefixes'),
                                label='Tenant')
     status = FilterChoiceField(choices=prefix_status_choices)
