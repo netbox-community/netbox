@@ -14,12 +14,12 @@ class ProviderFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Search',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
-        name='circuits__site',
+        name='circuits__terminations__site',
         queryset=Site.objects.all(),
         label='Site',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='circuits__site',
+        name='circuits__terminations__site',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
@@ -75,26 +75,13 @@ class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Tenant (slug)',
     )
-    site_id = django_filters.ModelMultipleChoiceFilter(
-        name='site',
-        queryset=Site.objects.all(),
-        label='Site (ID)',
-    )
-    site = django_filters.ModelMultipleChoiceFilter(
-        name='site',
-        queryset=Site.objects.all(),
-        to_field_name='slug',
-        label='Site (slug)',
-    )
 
     class Meta:
         model = Circuit
-        fields = ['q', 'provider_id', 'provider', 'type_id', 'type', 'site_id', 'site', 'interface', 'install_date']
+        fields = ['q', 'provider_id', 'provider', 'type_id', 'type', 'install_date']
 
     def search(self, queryset, value):
         return queryset.filter(
             Q(cid__icontains=value) |
-            Q(xconnect_id__icontains=value) |
-            Q(pp_info__icontains=value) |
             Q(comments__icontains=value)
         )

@@ -1,0 +1,49 @@
+{% load helpers %}
+<tr>
+    <th>Site</th>
+    <td>
+        <a href="{% url 'dcim:site' slug=t.site.slug %}">{{ t.site }}</a>
+    </td>
+</tr>
+<tr>
+    <th>Termination</th>
+    <td>
+        {% if t.interface %}
+            <span><a href="{% url 'dcim:device' pk=t.interface.device.pk %}">{{ t.interface.device }}</a> {{ t.interface }}</span>
+        {% else %}
+            <span class="text-muted">Not defined</span>
+        {% endif %}
+    </td>
+</tr>
+<tr>
+    <th>Cross-Connect</th>
+    <td>
+        {% if t.xconnect_id %}
+            {{ t.xconnect_id }}
+        {% else %}
+            <span class="text-muted">N/A</span>
+        {% endif %}
+    </td>
+</tr>
+<tr>
+    <th>Patch Panel/Port</th>
+    <td>
+        {% if t.pp_info %}
+            {{ t.pp_info }}
+        {% else %}
+            <span class="text-muted">N/A</span>
+        {% endif %}
+    </td>
+</tr>
+<tr>
+    <th colspan="2">Comments</th>
+</tr>
+<tr>
+    {% if t.comments %}
+        <td colspan="2">
+            {{ t.comments|gfm }}
+        </td>
+    {% else %}
+        <td class="text-muted" colspan="2">None</td>
+    {% endif %}
+</tr>

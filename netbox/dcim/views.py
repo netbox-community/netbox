@@ -15,7 +15,7 @@ from django.utils.http import urlencode
 from django.views.generic import View
 
 from ipam.models import Prefix, IPAddress, VLAN
-from circuits.models import Circuit
+from circuits.models import Circuit, Termination
 from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from utilities.forms import ConfirmationForm
 from utilities.views import (
@@ -78,7 +78,7 @@ def site(request, slug):
         'device_count': Device.objects.filter(rack__site=site).count(),
         'prefix_count': Prefix.objects.filter(site=site).count(),
         'vlan_count': VLAN.objects.filter(site=site).count(),
-        'circuit_count': Circuit.objects.filter(site=site).count(),
+        'termination_count': Termination.objects.filter(site=site).count(),
     }
     rack_groups = RackGroup.objects.filter(site=site).annotate(rack_count=Count('racks'))
     topology_maps = TopologyMap.objects.filter(site=site)
@@ -554,9 +554,9 @@ def device(request, pk):
         PowerOutlet.objects.filter(device=device).select_related('connected_port'), key=attrgetter('name')
     )
     interfaces = Interface.objects.filter(device=device, mgmt_only=False)\
-        .select_related('connected_as_a', 'connected_as_b', 'circuit')
+        .select_related('connected_as_a', 'connected_as_b', 'termination')
     mgmt_interfaces = Interface.objects.filter(device=device, mgmt_only=True)\
-        .select_related('connected_as_a', 'connected_as_b', 'circuit')
+        .select_related('connected_as_a', 'connected_as_b', 'termination')
     device_bays = natsorted(
         DeviceBay.objects.filter(device=device).select_related('installed_device__device_type__manufacturer'),
         key=attrgetter('name')

@@ -43,7 +43,7 @@ class CircuitListView(CustomFieldModelAPIView, generics.ListAPIView):
     """
     List circuits (filterable)
     """
-    queryset = Circuit.objects.select_related('type', 'tenant', 'provider', 'site', 'interface__device')\
+    queryset = Circuit.objects.select_related('type', 'tenant', 'provider')\
         .prefetch_related('custom_field_values__field')
     serializer_class = serializers.CircuitSerializer
     filter_class = CircuitFilter
@@ -53,6 +53,6 @@ class CircuitDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
     """
     Retrieve a single circuit
     """
-    queryset = Circuit.objects.select_related('type', 'tenant', 'provider', 'site', 'interface__device')\
+    queryset = Circuit.objects.select_related('type', 'tenant', 'provider')\
         .prefetch_related('custom_field_values__field')
     serializer_class = serializers.CircuitSerializer

@@ -49,13 +49,10 @@ class CircuitSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     provider = ProviderNestedSerializer()
     type = CircuitTypeNestedSerializer()
     tenant = TenantNestedSerializer()
-    site = SiteNestedSerializer()
-    interface = InterfaceNestedSerializer()
 
     class Meta:
         model = Circuit
-        fields = ['id', 'cid', 'provider', 'type', 'tenant', 'site', 'interface', 'install_date', 'port_speed',
-                  'upstream_speed', 'commit_rate', 'xconnect_id', 'comments', 'custom_fields']
+        fields = ['id', 'cid', 'provider', 'type', 'tenant', 'install_date', 'custom_fields']
 
 
 class CircuitNestedSerializer(CircuitSerializer):

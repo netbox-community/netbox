@@ -31,4 +31,9 @@ urlpatterns = [
     url(r'^circuits/(?P<pk>\d+)/edit/$', views.CircuitEditView.as_view(), name='circuit_edit'),
     url(r'^circuits/(?P<pk>\d+)/delete/$', views.CircuitDeleteView.as_view(), name='circuit_delete'),
 
+    # Terminations
+    url(r'^circuits/(?P<pk>\d+)/terminations/add/$', views.termination_add, name='termination_add'),
+    url(r'^terminations/(?P<pk>\d+)/edit/$', views.TerminationEditView.as_view(), name='termination_edit'),
+    url(r'^terminations/(?P<pk>\d+)/delete/$', views.termination_delete, name='termination_delete'),
+
 ]
