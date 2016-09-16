@@ -71,7 +71,7 @@ if LDAP_CONFIGURED:
         logger.setLevel(logging.DEBUG)
     except ImportError:
         raise ImproperlyConfigured("LDAP authentication has been configured, but django-auth-ldap is not installed. "
-                                   "You can remove netbox/ldap.py to disable LDAP.")
+                                   "You can remove netbox/ldap_config.py to disable LDAP.")
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
