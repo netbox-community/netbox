@@ -168,7 +168,6 @@ class CSVDataField(forms.CharField):
             self.help_text = 'Enter one line per record in CSV format.'
 
     def utf_8_encoder(self, unicode_csv_data):
-        # convert csv,reader to utf-8e
         for line in unicode_csv_data:
             yield line.encode('utf-8')
 
