@@ -58,7 +58,6 @@ def get_filter_choices(model, id_field='pk', select_related=[], count_field=None
     return choices
 
 
-
 #
 # Widgets
 #
