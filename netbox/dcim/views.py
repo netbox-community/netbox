@@ -1399,7 +1399,7 @@ class InterfaceBulkAddView(PermissionRequiredMixin, BulkEditView):
     template_name = 'dcim/interface_add_multi.html'
     default_redirect_url = 'dcim:device_list'
 
-    def update_objects(self, pk_list, form):
+    def update_objects(self, pk_list, form, fields):
 
         selected_devices = Device.objects.filter(pk__in=pk_list)
         interfaces = []
