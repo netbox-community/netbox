@@ -101,6 +101,9 @@
                 </tr>
             </table>
         </div>
+        {% with prefix.get_custom_fields as custom_fields %}
+            {% include 'inc/custom_fields_panel.html' %}
+        {% endwith %}
         {% include 'inc/created_updated.html' with obj=prefix %}
         <br />
 	</div>
