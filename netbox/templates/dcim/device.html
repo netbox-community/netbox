@@ -144,7 +144,7 @@
                 </tr>
             </table>
         </div>
-        {% with device.custom_fields as custom_fields %}
+        {% with device.get_custom_fields as custom_fields %}
             {% include 'inc/custom_fields_panel.html' %}
         {% endwith %}
         {% if request.user.is_authenticated %}

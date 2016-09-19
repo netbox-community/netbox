@@ -67,7 +67,18 @@ ACTION_CHOICES = (
 
 class CustomFieldModel(object):
 
-    def custom_fields(self):
+    def cf(self):
+        """
+        Name-based CustomFieldValue accessor for use in templates
+        """
+        if not hasattr(self, 'custom_fields'):
+            return dict()
+        return {field.name: value for field, value in self.custom_fields.items()}
+
+    def get_custom_fields(self):
+        """
+        Return a dictionary of custom fields for a single object in the form {<field>: value}.
+        """
 
         # Find all custom fields applicable to this type of object
         content_type = ContentType.objects.get_for_model(self)

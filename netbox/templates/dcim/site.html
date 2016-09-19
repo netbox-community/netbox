@@ -111,7 +111,7 @@
                 </tr>
             </table>
         </div>
-        {% with site.custom_fields as custom_fields %}
+        {% with site.get_custom_fields as custom_fields %}
             {% include 'inc/custom_fields_panel.html' %}
         {% endwith %}
         <div class="panel panel-default">

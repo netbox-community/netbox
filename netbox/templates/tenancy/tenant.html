@@ -65,7 +65,7 @@
                 </tr>
             </table>
         </div>
-        {% with tenant.custom_fields as custom_fields %}
+        {% with tenant.get_custom_fields as custom_fields %}
             {% include 'inc/custom_fields_panel.html' %}
         {% endwith %}
         <div class="panel panel-default">
