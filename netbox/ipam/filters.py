@@ -86,16 +86,16 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         action='search_by_parent',
         label='Parent prefix',
     )
-    vrf = NullableModelMultipleChoiceFilter(
-        name='vrf',
-        queryset=VRF.objects.all(),
-        label='VRF',
-    )
-    # Duplicate of `vrf` for backward-compatibility
     vrf_id = NullableModelMultipleChoiceFilter(
         name='vrf_id',
         queryset=VRF.objects.all(),
         label='VRF',
+    )
+    vrf = NullableModelMultipleChoiceFilter(
+        name='vrf',
+        queryset=VRF.objects.all(),
+        to_field_name='rd',
+        label='VRF (RD)',
     )
     tenant_id = NullableModelMultipleChoiceFilter(
         name='tenant',
@@ -191,16 +191,16 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         action='search_by_parent',
         label='Parent prefix',
     )
-    vrf = NullableModelMultipleChoiceFilter(
-        name='vrf',
-        queryset=VRF.objects.all(),
-        label='VRF',
-    )
-    # Duplicate of `vrf` for backward-compatibility
     vrf_id = NullableModelMultipleChoiceFilter(
         name='vrf_id',
         queryset=VRF.objects.all(),
         label='VRF',
+    )
+    vrf = NullableModelMultipleChoiceFilter(
+        name='vrf',
+        queryset=VRF.objects.all(),
+        to_field_name='rd',
+        label='VRF (RD)',
     )
     tenant_id = NullableModelMultipleChoiceFilter(
         name='tenant',
@@ -252,35 +252,6 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
             return queryset.filter(address__net_contained_or_equal=query)
         except AddrFormatError:
             return queryset.none()
-
-    def _vrf(self, queryset, value):
-        if str(value) == '':
-            return queryset
-        try:
-            vrf_id = int(value)
-        except ValueError:
-            return queryset.none()
-        if vrf_id == 0:
-            return queryset.filter(vrf__isnull=True)
-        return queryset.filter(vrf__pk=value)
-
-    def _tenant(self, queryset, value):
-        if str(value) == '':
-            return queryset
-        return queryset.filter(
-            Q(tenant__slug=value) |
-            Q(tenant__isnull=True, vrf__tenant__slug=value)
-        )
-
-    def _tenant_id(self, queryset, value):
-        try:
-            value = int(value)
-        except ValueError:
-            return queryset.none()
-        return queryset.filter(
-            Q(tenant__pk=value) |
-            Q(tenant__isnull=True, vrf__tenant__pk=value)
-        )
 
 
 class VLANGroupFilter(django_filters.FilterSet):

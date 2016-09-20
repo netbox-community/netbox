@@ -4,7 +4,6 @@ import re
 
 from django import forms
 from django.core.urlresolvers import reverse_lazy
-from django.db.models import Count
 from django.utils.encoding import force_text
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe

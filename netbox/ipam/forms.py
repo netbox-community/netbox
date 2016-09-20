@@ -418,7 +418,7 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
         'placeholder': 'Prefix',
     }))
     family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address Family')
-    vrf = FilterChoiceField(queryset=VRF.objects.annotate(filter_count=Count('ip_addresses')), to_field_name='slug',
+    vrf = FilterChoiceField(queryset=VRF.objects.annotate(filter_count=Count('ip_addresses')), to_field_name='rd',
                             label='VRF', null_option=(0, 'Global'))
     tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('ip_addresses')),
                                to_field_name='slug', null_option=(0, 'None'))
