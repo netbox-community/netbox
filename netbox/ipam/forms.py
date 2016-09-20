@@ -277,7 +277,7 @@ class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
                             label='VRF', null_option=(0, 'Global'))
     tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('prefixes')), to_field_name='slug',
                                null_option=(0, 'None'))
-    status = forms.MultipleChoiceField(choices=prefix_status_choices)
+    status = forms.MultipleChoiceField(choices=prefix_status_choices, required=False)
     site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('prefixes')), to_field_name='slug',
                              null_option=(0, 'None'))
     role = FilterChoiceField(queryset=Role.objects.annotate(filter_count=Count('prefixes')), to_field_name='slug',
@@ -529,6 +529,6 @@ class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
                                  null_option=(0, 'None'))
     tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('vlans')), to_field_name='slug',
                                null_option=(0, 'None'))
-    status = forms.MultipleChoiceField(choices=vlan_status_choices)
+    status = forms.MultipleChoiceField(choices=vlan_status_choices, required=False)
     role = FilterChoiceField(queryset=Role.objects.annotate(filter_count=Count('vlans')), to_field_name='slug',
                              null_option=(0, 'None'))
