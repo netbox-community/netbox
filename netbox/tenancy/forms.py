@@ -1,9 +1,8 @@
 from django import forms
+from django.db.models import Count
 
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
-from utilities.forms import (
-    BootstrapMixin, BulkImportForm, CommentField, CSVDataField, FilterChoiceField, SlugField, get_filter_choices,
-)
+from utilities.forms import BootstrapMixin, BulkImportForm, CommentField, CSVDataField, FilterChoiceField, SlugField
 
 from .models import Tenant, TenantGroup
 
@@ -77,5 +76,5 @@ class TenantBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
 class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Tenant
-    group = FilterChoiceField(choices=get_filter_choices(TenantGroup, id_field='slug', count_field='tenants',
-                                                         null_option='None'))
+    group = FilterChoiceField(queryset=TenantGroup.objects.annotate(filter_count=Count('tenants')),
+                              to_field_name='slug', null_option=(0, 'None'))

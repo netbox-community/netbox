@@ -1,4 +1,5 @@
 import csv
+import itertools
 import re
 
 from django import forms
@@ -33,29 +34,6 @@ def add_blank_choice(choices):
     Add a blank choice to the beginning of a choices list.
     """
     return ((None, '---------'),) + choices
-
-
-def get_filter_choices(model, id_field='pk', select_related=[], count_field=None, null_option=None):
-    """
-    Return a list of choices suitable for a ChoiceField.
-
-    :param model: The base model to use for the queryset
-    :param id_field: Field to use as the object identifier
-    :param select_related: Any related tables to include
-    :param count_field: The field to use for a child COUNT() (optional)
-    :param null_option: A choice to include at the beginning of the list serving as "null"
-    """
-    queryset = model.objects.all()
-    if select_related:
-        queryset = queryset.select_related(*select_related)
-    if count_field:
-        queryset = queryset.annotate(child_count=Count(count_field))
-        choices = [(getattr(obj, id_field), u'{} ({})'.format(obj, obj.child_count)) for obj in queryset]
-    else:
-        choices = [(getattr(obj, id_field), u'{}'.format(obj)) for obj in queryset]
-    if null_option:
-        choices = [(0, null_option)] + choices
-    return choices
 
 
 #
@@ -250,14 +228,30 @@ class SlugField(forms.SlugField):
         self.widget.attrs['slug-source'] = slug_source
 
 
-class FilterChoiceField(forms.MultipleChoiceField):
+class FilterChoiceField(forms.ModelMultipleChoiceField):
+    iterator = forms.models.ModelChoiceIterator
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, null_option=None, *args, **kwargs):
+        self.null_option = null_option
         if 'required' not in kwargs:
             kwargs['required'] = False
         if 'widget' not in kwargs:
             kwargs['widget'] = forms.SelectMultiple(attrs={'size': 6})
         super(FilterChoiceField, self).__init__(*args, **kwargs)
+
+    def label_from_instance(self, obj):
+        if hasattr(obj, 'filter_count'):
+            return u'{} ({})'.format(obj, obj.filter_count)
+        return force_text(obj)
+
+    def _get_choices(self):
+        if hasattr(self, '_choices'):
+            return self._choices
+        if self.null_option is not None:
+            return itertools.chain([self.null_option], self.iterator(self))
+        return self.iterator(self)
+
+    choices = property(_get_choices, forms.ChoiceField._set_choices)
 
 
 #

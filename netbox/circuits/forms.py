@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Count
 
 from dcim.models import Site, Device, Interface, Rack, IFACE_FF_VIRTUAL
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
@@ -6,7 +7,7 @@ from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, BootstrapMixin, BulkImportForm, CommentField, CSVDataField, FilterChoiceField, Livesearch, SmallTextarea,
-    SlugField, get_filter_choices,
+    SlugField,
 )
 
 from .models import Circuit, CircuitType, Provider
@@ -59,7 +60,7 @@ class ProviderBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
 class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Provider
-    site = FilterChoiceField(choices=get_filter_choices(Site, id_field='slug'))
+    site = FilterChoiceField(queryset=Site.objects.all(), to_field_name='slug')
 
 
 #
@@ -185,8 +186,10 @@ class CircuitBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
 class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Circuit
-    type = FilterChoiceField(choices=get_filter_choices(CircuitType, id_field='slug', count_field='circuits'))
-    provider = FilterChoiceField(choices=get_filter_choices(Provider, id_field='slug', count_field='circuits'))
-    tenant = FilterChoiceField(choices=get_filter_choices(Tenant, id_field='slug', count_field='circuits',
-                                                          null_option='None'))
-    site = FilterChoiceField(choices=get_filter_choices(Site, id_field='slug', count_field='circuits'))
+    type = FilterChoiceField(queryset=CircuitType.objects.annotate(filter_count=Count('circuits')),
+                             to_field_name='slug')
+    provider = FilterChoiceField(queryset=Provider.objects.annotate(filter_count=Count('circuits')),
+                                 to_field_name='slug')
+    tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('circuits')), to_field_name='slug',
+                               null_option=(0, 'None'))
+    site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('circuits')), to_field_name='slug')

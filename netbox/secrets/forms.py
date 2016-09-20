@@ -2,11 +2,10 @@ from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 
 from django import forms
+from django.db.models import Count
 
 from dcim.models import Device
-from utilities.forms import (
-    BootstrapMixin, BulkImportForm, CSVDataField, FilterChoiceField, SlugField, get_filter_choices,
-)
+from utilities.forms import BootstrapMixin, BulkImportForm, CSVDataField, FilterChoiceField, SlugField
 
 from .models import Secret, SecretRole, UserKey
 
@@ -97,7 +96,7 @@ class SecretBulkEditForm(forms.Form, BootstrapMixin):
 
 
 class SecretFilterForm(forms.Form, BootstrapMixin):
-    role = FilterChoiceField(choices=get_filter_choices(SecretRole, id_field='slug', count_field='secrets'))
+    role = FilterChoiceField(queryset=SecretRole.objects.annotate(filter_count=Count('secrets')), to_field_name='slug')
 
 
 #
