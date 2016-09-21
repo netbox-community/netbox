@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from django_tables2 import RequestConfig
 
 from django.contrib import messages
@@ -10,16 +11,28 @@ from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, TypedCho
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import TemplateSyntaxError
-from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
 from django.views.generic import View
 
 from extras.forms import CustomFieldForm
-from extras.models import CustomFieldValue, ExportTemplate, UserAction
+from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
 
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
 from .paginator import EnhancedPaginator
+
+
+class annotate_custom_fields:
+
+    def __init__(self, queryset, custom_fields):
+        self.queryset = queryset
+        self.custom_fields = custom_fields
+
+    def __iter__(self):
+        for obj in self.queryset:
+            values_dict = {cfv.field_id: cfv.value for cfv in obj.custom_field_values.all()}
+            obj.custom_fields = OrderedDict([(field, values_dict.get(field.pk)) for field in self.custom_fields])
+            yield obj
 
 
 class ObjectListView(View):
@@ -39,19 +52,26 @@ class ObjectListView(View):
         if self.filter:
             self.queryset = self.filter(request.GET, self.queryset).qs
 
+        # If this type of object has one or more custom fields, prefetch any relevant custom field values
+        custom_fields = CustomField.objects.filter(obj_type=ContentType.objects.get_for_model(model))\
+            .prefetch_related('choices')
+        if custom_fields:
+            self.queryset = self.queryset.prefetch_related('custom_field_values')
+
         # Check for export template rendering
         if request.GET.get('export'):
             et = get_object_or_404(ExportTemplate, content_type=object_ct, name=request.GET.get('export'))
+            queryset = annotate_custom_fields(self.queryset, custom_fields) if custom_fields else self.queryset
             try:
-                response = et.to_response(context_dict={'queryset': self.queryset.all()},
-                                          filename='netbox_{}'.format(self.queryset.model._meta.verbose_name_plural))
+                response = et.to_response(context_dict={'queryset': queryset},
+                                          filename='netbox_{}'.format(model._meta.verbose_name_plural))
                 return response
             except TemplateSyntaxError:
                 messages.error(request, "There was an error rendering the selected export template ({})."
                                .format(et.name))
         # Fall back to built-in CSV export
         elif 'export' in request.GET and hasattr(model, 'to_csv'):
-            output = '\n'.join([obj.to_csv() for obj in self.queryset.all()])
+            output = '\n'.join([obj.to_csv() for obj in self.queryset])
             response = HttpResponse(
                 output,
                 content_type='text/csv'

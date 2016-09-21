@@ -5,6 +5,8 @@ from django.db.models import Q
 from dcim.models import Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
+from utilities.filters import NullableModelMultipleChoiceFilter
+
 from .models import Provider, Circuit, CircuitType
 
 
@@ -64,12 +66,12 @@ class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Circuit type (slug)',
     )
-    tenant_id = django_filters.ModelMultipleChoiceFilter(
+    tenant_id = NullableModelMultipleChoiceFilter(
         name='tenant',
         queryset=Tenant.objects.all(),
         label='Tenant (ID)',
     )
-    tenant = django_filters.ModelMultipleChoiceFilter(
+    tenant = NullableModelMultipleChoiceFilter(
         name='tenant',
         queryset=Tenant.objects.all(),
         to_field_name='slug',

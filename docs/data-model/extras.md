@@ -35,6 +35,8 @@ Each export template is associated with a certain type of object. For instance, 
 
 Export templates are written in [Django's template language](https://docs.djangoproject.com/en/1.9/ref/templates/language/), which is very similar to Jinja2. The list of objects returned from the database is stored in the `queryset` variable. Typically, you'll want to iterate through this list using a for loop.
 
+To access custom fields of an object within a template, use the `cf` attribute. For example, `{{ obj.cf.color }}` will return the value (if any) for a custom field named `color` on `obj`.
+
 A MIME type and file extension can optionally be defined for each export template. The default MIME type is `text/plain`.
 
 ## Example

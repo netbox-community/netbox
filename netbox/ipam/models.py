@@ -12,6 +12,7 @@ from dcim.models import Interface
 from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
 from utilities.models import CreatedUpdatedModel
+from utilities.sql import NullsFirstQuerySet
 
 from .fields import IPNetworkField, IPAddressField
 
@@ -192,7 +193,7 @@ class Role(models.Model):
         return self.vlans.count()
 
 
-class PrefixQuerySet(models.QuerySet):
+class PrefixQuerySet(NullsFirstQuerySet):
 
     def annotate_depth(self, limit=None):
         """
@@ -249,7 +250,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
     objects = PrefixQuerySet.as_manager()
 
     class Meta:
-        ordering = ['family', 'prefix']
+        ordering = ['vrf', 'family', 'prefix']
         verbose_name_plural = 'prefixes'
 
     def __unicode__(self):

@@ -1,4 +1,5 @@
 import csv
+import itertools
 import re
 
 from django import forms
@@ -142,10 +143,14 @@ class CSVDataField(forms.CharField):
         if not self.help_text:
             self.help_text = 'Enter one line per record in CSV format.'
 
+    def utf_8_encoder(self, unicode_csv_data):
+        for line in unicode_csv_data:
+            yield line.encode('utf-8')
+
     def to_python(self, value):
         # Return a list of dictionaries, each representing an individual record
         records = []
-        reader = csv.reader(value.splitlines())
+        reader = csv.reader(self.utf_8_encoder(value.splitlines()))
         for i, row in enumerate(reader, start=1):
             if row:
                 if len(row) < len(self.columns):
@@ -220,6 +225,32 @@ class SlugField(forms.SlugField):
         help_text = kwargs.pop('help_text', "URL-friendly unique shorthand")
         super(SlugField, self).__init__(label=label, help_text=help_text, *args, **kwargs)
         self.widget.attrs['slug-source'] = slug_source
+
+
+class FilterChoiceField(forms.ModelMultipleChoiceField):
+    iterator = forms.models.ModelChoiceIterator
+
+    def __init__(self, null_option=None, *args, **kwargs):
+        self.null_option = null_option
+        if 'required' not in kwargs:
+            kwargs['required'] = False
+        if 'widget' not in kwargs:
+            kwargs['widget'] = forms.SelectMultiple(attrs={'size': 6})
+        super(FilterChoiceField, self).__init__(*args, **kwargs)
+
+    def label_from_instance(self, obj):
+        if hasattr(obj, 'filter_count'):
+            return u'{} ({})'.format(obj, obj.filter_count)
+        return force_text(obj)
+
+    def _get_choices(self):
+        if hasattr(self, '_choices'):
+            return self._choices
+        if self.null_option is not None:
+            return itertools.chain([self.null_option], self.iterator(self))
+        return self.iterator(self)
+
+    choices = property(_get_choices, forms.ChoiceField._set_choices)
 
 
 #

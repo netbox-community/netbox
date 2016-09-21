@@ -2,7 +2,7 @@ from django import forms
 from django.db.models import Count
 
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
-from utilities.forms import BootstrapMixin, BulkImportForm, CommentField, CSVDataField, SlugField
+from utilities.forms import BootstrapMixin, BulkImportForm, CommentField, CSVDataField, FilterChoiceField, SlugField
 
 from .models import Tenant, TenantGroup
 
@@ -74,12 +74,7 @@ class TenantBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     group = forms.TypedChoiceField(choices=bulkedit_tenantgroup_choices, coerce=int, required=False, label='Group')
 
 
-def tenant_group_choices():
-    group_choices = TenantGroup.objects.annotate(tenant_count=Count('tenants'))
-    return [(g.slug, u'{} ({})'.format(g.name, g.tenant_count)) for g in group_choices]
-
-
 class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Tenant
-    group = forms.MultipleChoiceField(required=False, choices=tenant_group_choices,
-                                      widget=forms.SelectMultiple(attrs={'size': 8}))
+    group = FilterChoiceField(queryset=TenantGroup.objects.annotate(filter_count=Count('tenants')),
+                              to_field_name='slug', null_option=(0, 'None'))
