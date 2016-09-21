@@ -71,9 +71,9 @@ class CustomFieldModel(object):
         """
         Name-based CustomFieldValue accessor for use in templates
         """
-        if not hasattr(self, 'custom_fields'):
+        if not hasattr(self, 'get_custom_fields'):
             return dict()
-        return {field.name: value for field, value in self.custom_fields.items()}
+        return {field.name: value for field, value in self.get_custom_fields().items()}
 
     def get_custom_fields(self):
         """
