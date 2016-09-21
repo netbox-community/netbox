@@ -6,7 +6,7 @@ NetBox runs as a web application atop the [Django](https://www.djangoproject.com
 
 The complete documentation for Netbox can be found at [Read the Docs](http://netbox.readthedocs.io/en/latest/).
 
-Questions? Comments? Please subscribe to [the netbox-disucss mailing list](https://groups.google.com/forum/#!forum/netbox-discuss), or join us on IRC in **#netbox** on **irc.freenode.net**!
+Questions? Comments? Please subscribe to [the netbox-discuss mailing list](https://groups.google.com/forum/#!forum/netbox-discuss), or join us on IRC in **#netbox** on **irc.freenode.net**!
 
 ### Build Status
 
