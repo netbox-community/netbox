@@ -1,39 +1,17 @@
 # Installation
 
-NetBox requires following system dependencies:
+**Debian/Ubuntu**
 
-Debian/Ubuntu
-
-* python2.7
-* python-dev
-* python-pip
-* libxml2-dev
-* libxslt1-dev
-* libffi-dev
-* graphviz
-* libpq-dev
-* libssl-dev
-
-Centos/RHEL
-
-* python27
-* python-devel
-* git
-* python-pip
-* libxml2-devel
-* libxslt-devel  
-* libffi-devel
-* graphviz
-* openssl-devel
-
-### Debian/Ubuntu
 ```
-# sudo apt-get install -y python2.7 python-dev python-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev
+# apt-get install -y python2.7 python-dev python-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev
 ```
-## Centos/RHEL
+
+**CentOS/RHEL**
+
 ```
-# sudo yum install -y epel-release
-# sudo yum install -y python27 python-devel git python-pip libxml2-devel lbxslt-devel libffi-devel graphviz.x_86_64 openssl-devel
+# yum install -y epel-release
+# yum install -y gcc python2 python-devel python-pip libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel
+```
 
 You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.
 
@@ -60,9 +38,16 @@ Create the base directory for the NetBox installation. For this guide, we'll use
 
 If `git` is not already installed, install it:
 
+**Debian/Ubuntu**
+
 ```
-# sudo apt-get install -y git
-# sudo yum install -y git
+# apt-get install -y git
+```
+
+**CentOS/RHEL**
+
+```
+# yum install -y git
 ```
 
 Next, clone the **master** branch of the NetBox GitHub repository into the current directory:
@@ -83,7 +68,7 @@ Checking connectivity... done.
 Install the required Python packages using pip. (If you encounter any compilation errors during this step, ensure that you've installed all of the system dependencies listed above.)
 
 ```
-# sudo pip install -r requirements.txt
+# pip install -r requirements.txt
 ```
 
 # Configuration
