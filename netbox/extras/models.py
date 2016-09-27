@@ -233,7 +233,8 @@ class Graph(models.Model):
 
 class ExportTemplate(models.Model):
     content_type = models.ForeignKey(ContentType, limit_choices_to={'model__in': EXPORTTEMPLATE_MODELS})
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=200, blank=True)
     template_code = models.TextField()
     mime_type = models.CharField(max_length=15, blank=True)
     file_extension = models.CharField(max_length=15, blank=True)
