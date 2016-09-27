@@ -3,6 +3,7 @@ from collections import OrderedDict
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 
+from utilities.forms import LaxURLField
 from .models import (
     CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL, CustomField, CustomFieldValue
 )
@@ -56,7 +57,7 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
 
         # URL
         elif cf.type == CF_TYPE_URL:
-            field = forms.URLField(required=cf.required, initial=cf.default)
+            field = LaxURLField(required=cf.required, initial=cf.default)
 
         # Text
         else:
