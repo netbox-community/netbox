@@ -30,8 +30,8 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
         elif cf.type == CF_TYPE_BOOLEAN:
             choices = (
                 (None, '---------'),
-                (1, 'True'),
-                (0, 'False'),
+                (True, 'True'),
+                (False, 'False'),
             )
             if cf.default.lower() in ['true', 'yes', '1']:
                 initial = True
