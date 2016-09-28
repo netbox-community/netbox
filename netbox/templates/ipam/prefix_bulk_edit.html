@@ -3,16 +3,23 @@
 
 {% block title %}Prefix Bulk Edit{% endblock %}
 
-{% block select_objects_table %}
+{% block selected_objects_table %}
+    <tr>
+        <th>Prefix</th>
+        <th>Site</th>
+        <th>VRF</th>
+        <th>Tenant</th>
+        <th>Status</th>
+        <th>Role</th>
+    </tr>
     {% for prefix in selected_objects %}
         <tr>
             <td><a href="{% url 'ipam:prefix' pk=prefix.pk %}">{{ prefix }}</a></td>
+            <td>{{ prefix.site }}</td>
             <td>{{ prefix.vrf|default:"Global" }}</td>
             <td>{{ prefix.tenant }}</td>
-            <td>{{ prefix.site }}</td>
-            <td>{{ prefix.status }}</td>
+            <td>{{ prefix.get_status_display }}</td>
             <td>{{ prefix.role }}</td>
-            <td>{{ prefix.description }}</td>
         </tr>
     {% endfor %}
 {% endblock %}

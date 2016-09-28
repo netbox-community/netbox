@@ -3,7 +3,11 @@
 
 {% block title %}Site Bulk Edit{% endblock %}
 
-{% block select_objects_table %}
+{% block selected_objects_table %}
+    <tr>
+        <th>Site</th>
+        <th>Tenant</th>
+    </tr>
     {% for site in selected_objects %}
         <tr>
             <td><a href="{% url 'dcim:site' slug=site.slug %}">{{ site }}</a></td>

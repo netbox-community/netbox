@@ -3,7 +3,13 @@
 
 {% block title %}VRF Bulk Edit{% endblock %}
 
-{% block select_objects_table %}
+{% block selected_objects_table %}
+    <tr>
+        <th>VRF</th>
+        <th>RD</th>
+        <th>Tenant</th>
+        <th>Description</th>
+    </tr>
     {% for vrf in selected_objects %}
         <tr>
             <td><a href="{% url 'ipam:vrf' pk=vrf.pk %}">{{ vrf.name }}</a></td>
