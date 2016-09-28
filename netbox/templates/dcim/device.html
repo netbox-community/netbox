@@ -210,7 +210,7 @@
                 {% empty %}
                     <tr>
                         <td colspan="5" class="alert-warning">
-                            <i class="fa fa-fw fa-warning"></i> No management interfaces defined!
+                            <i class="fa fa-fw fa-warning"></i> No management interfaces defined
                             {% if perms.dcim.add_interface %}
                                 <a href="{% url 'dcim:interface_add' pk=device.pk %}?mgmt_only=1" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
                             {% endif %}
@@ -222,7 +222,7 @@
                 {% empty %}
                     <tr>
                         <td colspan="5" class="alert-warning">
-                            <i class="fa fa-fw fa-warning"></i> No console ports defined!
+                            <i class="fa fa-fw fa-warning"></i> No console ports defined
                             {% if perms.dcim.add_consoleport %}
                                 <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
                             {% endif %}
@@ -235,7 +235,7 @@
                     {% if not device.device_type.is_pdu %}
                         <tr>
                             <td colspan="5" class="alert-warning">
-                                <i class="fa fa-fw fa-warning"></i> No power ports defined!
+                                <i class="fa fa-fw fa-warning"></i> No power ports defined
                                 {% if perms.dcim.add_powerport %}
                                     <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
                                 {% endif %}
@@ -248,20 +248,17 @@
                 <div class="panel-footer text-right">
                     {% if perms.dcim.add_interface %}
                         <a href="{% url 'dcim:interface_add' pk=device.pk %}?mgmt_only=1" class="btn btn-xs btn-primary">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                            Add interface
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add interface
                         </a>
                     {% endif %}
                     {% if perms.dcim.add_consoleport %}
                         <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                            Add console
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console port
                         </a>
                     {% endif %}
                     {% if perms.dcim.add_powerport and not device.device_type.is_pdu %}
                         <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                            Add power
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power port
                         </a>
                     {% endif %}
                 </div>
@@ -312,6 +309,13 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <strong>Device Bays</strong>
+                    {% if perms.dcim.add_devicebay and device_bays|length > 10 %}
+                        <div class="pull-right">
+                            <a href="{% url 'dcim:devicebay_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add device bays
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
                 <table class="table table-hover panel-body">
                     {% for devicebay in device_bays %}
@@ -324,23 +328,19 @@
                 </table>
                 {% if perms.dcim.add_devicebay or perms.dcim.delete_devicebay %}
                     <div class="panel-footer">
-                        <div class="row">
-                            <div class="col-md-6">
-                                {% if device_bays and perms.dcim.delete_devicebay %}
-                                    <button type="submit" class="btn btn-xs btn-danger">
-                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete Selected
-                                    </button>
-                                {% endif %}
+                        {% if device_bays and perms.dcim.delete_devicebay %}
+                            <button type="submit" class="btn btn-danger btn-xs">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete selected
+                            </button>
+                        {% endif %}
+                        {% if perms.dcim.add_devicebay %}
+                            <div class="pull-right">
+                                <a href="{% url 'dcim:devicebay_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add device bays
+                                </a>
                             </div>
-                            <div class="col-md-6 text-right">
-                                {% if perms.dcim.add_devicebay %}
-                                    <a href="{% url 'dcim:devicebay_add' pk=device.pk %}" class="btn btn-primary btn-xs">
-                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                                        Add device bay
-                                    </a>
-                                {% endif %}
-                            </div>
-                        </div>
+                            <div class="clearfix"></div>
+                        {% endif %}
                      </div>
                 {% endif %}
             </div>
@@ -356,6 +356,13 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <strong>Interfaces</strong>
+                    {% if perms.dcim.add_interface and interfaces|length > 10 %}
+                        <div class="pull-right">
+                            <a href="{% url 'dcim:interface_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add interfaces
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
                 <table class="table table-hover panel-body">
                     {% for iface in interfaces %}
@@ -368,23 +375,19 @@
                 </table>
                 {% if perms.dcim.add_interface or perms.dcim.delete_interface %}
                     <div class="panel-footer">
-                        <div class="row">
-                            <div class="col-md-6">
-                                {% if interfaces and perms.dcim.delete_interface %}
-                                    <button type="submit" class="btn btn-xs btn-danger">
-                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete Selected
-                                    </button>
-                                {% endif %}
+                        {% if interfaces and perms.dcim.delete_interface %}
+                            <button type="submit" class="btn btn-danger btn-xs">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete selected
+                            </button>
+                        {% endif %}
+                        {% if perms.dcim.add_interface %}
+                            <div class="pull-right">
+                                <a href="{% url 'dcim:interface_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add interfaces
+                                </a>
                             </div>
-                            <div class="col-md-6 text-right">
-                                {% if perms.dcim.add_interface %}
-                                    <a href="{% url 'dcim:interface_add' pk=device.pk %}" class="btn btn-primary btn-xs">
-                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                                        Add interface
-                                    </a>
-                                {% endif %}
-                            </div>
-                        </div>
+                            <div class="clearfix"></div>
+                        {% endif %}
                      </div>
                 {% endif %}
             </div>
@@ -400,6 +403,13 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <strong>Console Server Ports</strong>
+                    {% if perms.dcim.add_consoleserverport and cs_ports|length > 10 %}
+                        <div class="pull-right">
+                            <a href="{% url 'dcim:consoleserverport_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console server ports
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
                 <table class="table table-hover panel-body">
                     {% for csp in cs_ports %}
@@ -412,23 +422,19 @@
                 </table>
                 {% if perms.dcim.add_consoleserverport or perms.dcim.delete_consoleserverport %}
                     <div class="panel-footer">
-                        <div class="row">
-                            <div class="col-md-6">
-                                {% if cs_ports and perms.dcim.delete_consoleserverport %}
-                                    <button type="submit" class="btn btn-xs btn-danger">
-                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete Selected
-                                    </button>
-                                {% endif %}
+                        {% if cs_ports and perms.dcim.delete_consoleserverport %}
+                            <button type="submit" class="btn btn-danger btn-xs">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete selected
+                            </button>
+                        {% endif %}
+                        {% if perms.dcim.add_consoleserverport %}
+                            <div class="pull-right">
+                                <a href="{% url 'dcim:consoleserverport_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console server ports
+                                </a>
                             </div>
-                            <div class="col-md-6 text-right">
-                                {% if perms.dcim.add_consoleserverport %}
-                                    <a href="{% url 'dcim:consoleserverport_add' pk=device.pk %}" class="btn btn-primary btn-xs">
-                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                                        Add console server ports
-                                    </a>
-                                {% endif %}
-                            </div>
-                        </div>
+                            <div class="clearfix"></div>
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>
@@ -444,6 +450,13 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <strong>Power Outlets</strong>
+                    {% if perms.dcim.add_poweroutlet and power_outlets|length > 10 %}
+                        <div class="pull-right">
+                            <a href="{% url 'dcim:poweroutlet_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power outlets
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
                 <table class="table table-hover panel-body">
                     {% for po in power_outlets %}
@@ -456,23 +469,19 @@
                 </table>
                 {% if perms.dcim.add_poweroutlet or perms.dcim.delete_poweroutlet %}
                     <div class="panel-footer">
-                        <div class="row">
-                            <div class="col-md-6">
-                                {% if power_outlets and perms.dcim.delete_poweroutlet %}
-                                    <button type="submit" class="btn btn-xs btn-danger">
-                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete Selected
-                                    </button>
-                                {% endif %}
+                        {% if power_outlets and perms.dcim.delete_poweroutlet %}
+                            <button type="submit" class="btn btn-danger btn-xs">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete selected
+                            </button>
+                        {% endif %}
+                        {% if perms.dcim.add_poweroutlet %}
+                            <div class="pull-right">
+                                <a href="{% url 'dcim:poweroutlet_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power outlets
+                                </a>
                             </div>
-                            <div class="col-md-6 text-right">
-                                {% if perms.dcim.add_poweroutlet %}
-                                    <a href="{% url 'dcim:poweroutlet_add' pk=device.pk %}" class="btn btn-primary btn-xs">
-                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                                        Add power outlets
-                                    </a>
-                                {% endif %}
-                            </div>
-                        </div>
+                            <div class="clearfix"></div>
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>
