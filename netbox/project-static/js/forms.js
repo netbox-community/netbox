@@ -1,13 +1,18 @@
 $(document).ready(function() {
 
-    // "Select all" checkbox in a table header
-    $('th input:checkbox[name=_all]').click(function (event) {
-        $(this).parents('table').find('td input:checkbox').prop('checked', $(this).prop('checked'));
+    // "Toggle all" checkbox in a table header
+    $('#toggle_all').click(function (event) {
+        $('td input:checkbox[name=pk]').prop('checked', $(this).prop('checked'));
+        if ($(this).is(':checked')) {
+            $('#select_all_box').removeClass('hidden');
+        } else {
+            $('#select_all').prop('checked', false);
+        }
     });
-    // Uncheck the "select all" checkbox if an item is unchecked
+    // Uncheck the "toggle all" checkbox if an item is unchecked
     $('input:checkbox[name=pk]').click(function (event) {
         if (!$(this).attr('checked')) {
-            $(this).parents('table').find('input:checkbox[name=_all]').prop('checked', false);
+            $('#select_all, #toggle_all').prop('checked', false);
         }
     });
 
