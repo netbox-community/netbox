@@ -186,18 +186,23 @@
                         {% include 'dcim/inc/_ipaddress.html' %}
                     {% endfor %}
                 </table>
-            {% else %}
+            {% elif interfaces or mgmt_interfaces %}
                 <div class="panel-body text-muted">
-                    None found
+                    None assigned
+                </div>
+            {% else %}
+                <div class="panel-body">
+                    <a href="{% url 'dcim:interface_add' pk=device.pk %}">Create an interface</a> to assign an IP.
                 </div>
             {% endif %}
             {% if perms.ipam.add_ipaddress %}
-                <div class="panel-footer text-right">
-                    <a href="{% url 'dcim:ipaddress_assign' pk=device.pk %}" class="btn btn-xs btn-primary">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                        Assign IP address
-                    </a>
-                </div>
+                {% if interfaces or mgmt_interfaces %}
+                    <div class="panel-footer text-right">
+                        <a href="{% url 'dcim:ipaddress_assign' pk=device.pk %}" class="btn btn-xs btn-primary">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Assign IP address
+                        </a>
+                    </div>
+                {% endif %}
             {% endif %}
         </div>
         <div class="panel panel-default">
