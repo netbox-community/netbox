@@ -30,8 +30,8 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
         elif cf.type == CF_TYPE_BOOLEAN:
             choices = (
                 (None, '---------'),
-                (True, 'True'),
-                (False, 'False'),
+                (1, 'True'),
+                (0, 'False'),
             )
             if cf.default.lower() in ['true', 'yes', '1']:
                 initial = True
@@ -93,7 +93,7 @@ class CustomFieldForm(forms.ModelForm):
             existing_values = CustomFieldValue.objects.filter(obj_type=self.obj_type, obj_id=self.instance.pk)\
                 .select_related('field')
             for cfv in existing_values:
-                self.initial['cf_{}'.format(str(cfv.field.name))] = cfv.value
+                self.initial['cf_{}'.format(str(cfv.field.name))] = cfv.serialized_value
 
     def _save_custom_fields(self):
 
