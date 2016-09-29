@@ -26,6 +26,18 @@ BANNER_BOTTOM = BANNER_TOP
 
 ---
 
+## BASE_PATH
+
+Default: None
+
+The base URL path to use when accessing NetBox. Do not include the scheme or domain name. For example, if installed at http://example.com/netbox/, set:
+
+```
+BASE_PATH = 'netbox/'
+```
+
+---
+
 ## DEBUG
 
 Default: False

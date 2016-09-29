@@ -21,7 +21,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="/">
+                <a class="navbar-brand" href="{% url 'home' %}">
                     <img src="{% static 'img/netbox_logo.png' %}" />
                 </a>
             </div>
@@ -289,7 +289,7 @@
                 <div class="col-xs-4 text-right">
                     <p class="text-muted">
                         <i class="fa fa-fw fa-book text-primary"></i> <a href="http://netbox.readthedocs.io/" target="_blank">Docs</a> &middot;
-                        <i class="fa fa-fw fa-cloud text-primary"></i> <a href="/api/docs/">API</a> &middot;
+                        <i class="fa fa-fw fa-cloud text-primary"></i> <a href="{% url 'django.swagger.base.view' %}">API</a> &middot;
                         <i class="fa fa-fw fa-code text-primary"></i> <a href="https://github.com/digitalocean/netbox">Code</a>
                     </p>
                 </div>
