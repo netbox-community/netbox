@@ -3,6 +3,7 @@ import itertools
 import re
 
 from django import forms
+from django.conf import settings
 from django.core.urlresolvers import reverse_lazy
 from django.core.validators import URLValidator
 from django.utils.encoding import force_text
@@ -91,7 +92,7 @@ class APISelect(SelectWithDisabled):
         super(APISelect, self).__init__(*args, **kwargs)
 
         self.attrs['class'] = 'api-select'
-        self.attrs['api-url'] = api_url
+        self.attrs['api-url'] = '/{}{}'.format(settings.BASE_PATH, api_url.lstrip('/'))  # Inject BASE_PATH
         if display_field:
             self.attrs['display-field'] = display_field
         if disabled_indicator:
