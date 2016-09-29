@@ -2,6 +2,8 @@ import json
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from django.conf import settings
+
 
 class SiteTest(APITestCase):
 
@@ -57,7 +59,7 @@ class SiteTest(APITestCase):
         'embed_link',
     ]
 
-    def test_get_list(self, endpoint='/api/dcim/sites/'):
+    def test_get_list(self, endpoint='/{}api/dcim/sites/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -67,7 +69,7 @@ class SiteTest(APITestCase):
                 sorted(self.standard_fields),
             )
 
-    def test_get_detail(self, endpoint='/api/dcim/sites/1/'):
+    def test_get_detail(self, endpoint='/{}api/dcim/sites/1/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -76,7 +78,7 @@ class SiteTest(APITestCase):
             sorted(self.standard_fields),
         )
 
-    def test_get_site_list_rack(self, endpoint='/api/dcim/sites/1/racks/'):
+    def test_get_site_list_rack(self, endpoint='/{}api/dcim/sites/1/racks/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -91,7 +93,7 @@ class SiteTest(APITestCase):
                 sorted(self.nested_fields),
             )
 
-    def test_get_site_list_graphs(self, endpoint='/api/dcim/sites/1/graphs/'):
+    def test_get_site_list_graphs(self, endpoint='/{}api/dcim/sites/1/graphs/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -149,7 +151,7 @@ class RackTest(APITestCase):
         'rear_units'
     ]
 
-    def test_get_list(self, endpoint='/api/dcim/racks/'):
+    def test_get_list(self, endpoint='/{}api/dcim/racks/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -163,7 +165,7 @@ class RackTest(APITestCase):
                 sorted(SiteTest.nested_fields),
             )
 
-    def test_get_detail(self, endpoint='/api/dcim/racks/1/'):
+    def test_get_detail(self, endpoint='/{}api/dcim/racks/1/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -192,7 +194,7 @@ class ManufacturersTest(APITestCase):
 
     nested_fields = standard_fields
 
-    def test_get_list(self, endpoint='/api/dcim/manufacturers/'):
+    def test_get_list(self, endpoint='/{}api/dcim/manufacturers/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -202,7 +204,7 @@ class ManufacturersTest(APITestCase):
                 sorted(self.standard_fields),
             )
 
-    def test_get_detail(self, endpoint='/api/dcim/manufacturers/1/'):
+    def test_get_detail(self, endpoint='/{}api/dcim/manufacturers/1/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -237,7 +239,7 @@ class DeviceTypeTest(APITestCase):
         'slug'
     ]
 
-    def test_get_list(self, endpoint='/api/dcim/device-types/'):
+    def test_get_list(self, endpoint='/{}api/dcim/device-types/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -247,7 +249,7 @@ class DeviceTypeTest(APITestCase):
                 sorted(self.standard_fields),
             )
 
-    def test_detail_list(self, endpoint='/api/dcim/device-types/1/'):
+    def test_detail_list(self, endpoint='/{}api/dcim/device-types/1/'.format(settings.BASE_PATH)):
         # TODO: details returns list view.
         # response = self.client.get(endpoint)
         # content = json.loads(response.content)
@@ -271,7 +273,7 @@ class DeviceRolesTest(APITestCase):
 
     nested_fields = ['id', 'name', 'slug']
 
-    def test_get_list(self, endpoint='/api/dcim/device-roles/'):
+    def test_get_list(self, endpoint='/{}api/dcim/device-roles/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -281,7 +283,7 @@ class DeviceRolesTest(APITestCase):
                 sorted(self.standard_fields),
             )
 
-    def test_get_detail(self, endpoint='/api/dcim/device-roles/1/'):
+    def test_get_detail(self, endpoint='/{}api/dcim/device-roles/1/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -299,7 +301,7 @@ class PlatformsTest(APITestCase):
 
     nested_fields = ['id', 'name', 'slug']
 
-    def test_get_list(self, endpoint='/api/dcim/platforms/'):
+    def test_get_list(self, endpoint='/{}api/dcim/platforms/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -309,7 +311,7 @@ class PlatformsTest(APITestCase):
                 sorted(self.standard_fields),
             )
 
-    def test_get_detail(self, endpoint='/api/dcim/platforms/1/'):
+    def test_get_detail(self, endpoint='/{}api/dcim/platforms/1/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -347,7 +349,7 @@ class DeviceTest(APITestCase):
 
     nested_fields = ['id', 'name', 'display_name']
 
-    def test_get_list(self, endpoint='/api/dcim/devices/'):
+    def test_get_list(self, endpoint='/{}api/dcim/devices/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -374,7 +376,7 @@ class DeviceTest(APITestCase):
                 sorted(RackTest.nested_fields),
             )
 
-    def test_get_list_flat(self, endpoint='/api/dcim/devices/?format=json_flat'):
+    def test_get_list_flat(self, endpoint='/{}api/dcim/devices/?format=json_flat'.format(settings.BASE_PATH)):
 
         flat_fields = [
             'asset_tag',
@@ -422,7 +424,7 @@ class DeviceTest(APITestCase):
             sorted(flat_fields),
         )
 
-    def test_get_detail(self, endpoint='/api/dcim/devices/1/'):
+    def test_get_detail(self, endpoint='/{}api/dcim/devices/1/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -440,7 +442,7 @@ class ConsoleServerPortsTest(APITestCase):
 
     nested_fields = ['id', 'device', 'name']
 
-    def test_get_list(self, endpoint='/api/dcim/devices/9/console-server-ports/'):
+    def test_get_list(self, endpoint='/{}api/dcim/devices/9/console-server-ports/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -462,7 +464,7 @@ class ConsolePortsTest(APITestCase):
 
     nested_fields = ['id', 'device', 'name']
 
-    def test_get_list(self, endpoint='/api/dcim/devices/1/console-ports/'):
+    def test_get_list(self, endpoint='/{}api/dcim/devices/1/console-ports/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -480,7 +482,7 @@ class ConsolePortsTest(APITestCase):
                 sorted(ConsoleServerPortsTest.nested_fields),
             )
 
-    def test_get_detail(self, endpoint='/api/dcim/console-ports/1/'):
+    def test_get_detail(self, endpoint='/{}api/dcim/console-ports/1/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -501,7 +503,7 @@ class PowerPortsTest(APITestCase):
 
     nested_fields = ['id', 'device', 'name']
 
-    def test_get_list(self, endpoint='/api/dcim/devices/1/power-ports/'):
+    def test_get_list(self, endpoint='/{}api/dcim/devices/1/power-ports/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -515,7 +517,7 @@ class PowerPortsTest(APITestCase):
                 sorted(DeviceTest.nested_fields),
             )
 
-    def test_get_detail(self, endpoint='/api/dcim/power-ports/1/'):
+    def test_get_detail(self, endpoint='/{}api/dcim/power-ports/1/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -536,7 +538,7 @@ class PowerOutletsTest(APITestCase):
 
     nested_fields = ['id', 'device', 'name']
 
-    def test_get_list(self, endpoint='/api/dcim/devices/11/power-outlets/'):
+    def test_get_list(self, endpoint='/{}api/dcim/devices/11/power-outlets/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -586,7 +588,7 @@ class InterfaceTest(APITestCase):
         'connection_status',
     ]
 
-    def test_get_list(self, endpoint='/api/dcim/devices/1/interfaces/'):
+    def test_get_list(self, endpoint='/{}api/dcim/devices/1/interfaces/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -600,7 +602,7 @@ class InterfaceTest(APITestCase):
                 sorted(DeviceTest.nested_fields),
             )
 
-    def test_get_detail(self, endpoint='/api/dcim/interfaces/1/'):
+    def test_get_detail(self, endpoint='/{}api/dcim/interfaces/1/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -613,7 +615,7 @@ class InterfaceTest(APITestCase):
             sorted(DeviceTest.nested_fields),
         )
 
-    def test_get_graph_list(self, endpoint='/api/dcim/interfaces/1/graphs/'):
+    def test_get_graph_list(self, endpoint='/{}api/dcim/interfaces/1/graphs/'.format(settings.BASE_PATH)):
             response = self.client.get(endpoint)
             content = json.loads(response.content)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -623,7 +625,8 @@ class InterfaceTest(APITestCase):
                     sorted(SiteTest.graph_fields),
                 )
 
-    def test_get_interface_connections(self, endpoint='/api/dcim/interface-connections/4/'):
+    def test_get_interface_connections(self, endpoint='/{}api/dcim/interface-connections/4/'
+                                       .format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -644,9 +647,8 @@ class RelatedConnectionsTest(APITestCase):
         'interfaces',
     ]
 
-    def test_get_list(self, endpoint=(
-            '/api/dcim/related-connections/'
-            '?peer-device=test1-edge1&peer-interface=xe-0/0/3')):
+    def test_get_list(self, endpoint=('/{}api/dcim/related-connections/?peer-device=test1-edge1&peer-interface=xe-0/0/3'
+                                      .format(settings.BASE_PATH))):
         response = self.client.get(endpoint)
         content = json.loads(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
