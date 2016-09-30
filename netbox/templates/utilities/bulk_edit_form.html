@@ -8,6 +8,9 @@
     {% if request.POST.redirect_url %}
         <input type="hidden" name="redirect_url" value="{{ request.POST.redirect_url }}" />
     {% endif %}
+    {% for field in form.hidden_fields %}
+        {{ field }}
+    {% endfor %}
     <div class="row">
         <div class="col-md-7">
             <div class="panel panel-default">
@@ -29,7 +32,13 @@
             <div class="panel panel-default">
                 <div class="panel-heading"><strong>{% block form_title %}Attributes{% endblock %}</strong></div>
                 <div class="panel-body">
-                    {% render_form form %}
+                    {% for field in form.visible_fields %}
+                        {% if field.name in form.nullable_fields %}
+                            {% render_field field bulk_nullable=True %}
+                        {% else %}
+                            {% render_field field %}
+                        {% endif %}
+                    {% endfor %}
                 </div>
             </div>
 		    <div class="form-group text-right">

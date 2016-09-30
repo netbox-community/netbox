@@ -5,11 +5,11 @@ from django.db.models import Count, Q
 
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from ipam.models import IPAddress
-from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, add_blank_choice, BootstrapMixin, BulkImportForm, CommentField, CSVDataField, ExpandableNameField,
-    FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
+    APISelect, add_blank_choice, BootstrapMixin, BulkEditForm, BulkImportForm, CommentField, CSVDataField,
+    ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea,
+    SlugField,
 )
 
 from .models import (
@@ -40,39 +40,6 @@ def get_device_by_name_or_pk(name):
     else:
         device = Device.objects.get(name=name)
     return device
-
-
-def bulkedit_platform_choices():
-    choices = [
-        (None, '---------'),
-        (0, 'None'),
-    ]
-    choices += [(p.pk, p.name) for p in Platform.objects.all()]
-    return choices
-
-
-def bulkedit_rackgroup_choices():
-    """
-    Include an option to remove the currently assigned group from a rack.
-    """
-    choices = [
-        (None, '---------'),
-        (0, 'None'),
-    ]
-    choices += [(r.pk, r) for r in RackGroup.objects.all()]
-    return choices
-
-
-def bulkedit_rackrole_choices():
-    """
-    Include an option to remove the currently assigned role from a rack.
-    """
-    choices = [
-        (None, '---------'),
-        (0, 'None'),
-    ]
-    choices += [(r.pk, r.name) for r in RackRole.objects.all()]
-    return choices
 
 
 #
@@ -114,7 +81,10 @@ class SiteImportForm(BulkImportForm, BootstrapMixin):
 
 class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Site.objects.all(), widget=forms.MultipleHiddenInput)
-    tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
+
+    class Meta:
+        nullable_fields = ['tenant']
 
 
 class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -234,13 +204,16 @@ class RackImportForm(BulkImportForm, BootstrapMixin):
 class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Rack.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site')
-    group = forms.TypedChoiceField(choices=bulkedit_rackgroup_choices, coerce=int, required=False, label='Group')
-    tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
-    role = forms.TypedChoiceField(choices=bulkedit_rackrole_choices, coerce=int, required=False, label='Role')
+    group = forms.ModelChoiceField(queryset=RackGroup.objects.all(), required=False, label='Group')
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
+    role = forms.ModelChoiceField(queryset=RackRole.objects.all(), required=False)
     type = forms.ChoiceField(choices=add_blank_choice(RACK_TYPE_CHOICES), required=False, label='Type')
     width = forms.ChoiceField(choices=add_blank_choice(RACK_WIDTH_CHOICES), required=False, label='Width')
     u_height = forms.IntegerField(required=False, label='Height (U)')
     comments = CommentField()
+
+    class Meta:
+        nullable_fields = ['group', 'tenant', 'role', 'comments']
 
 
 class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -279,7 +252,7 @@ class DeviceTypeForm(forms.ModelForm, BootstrapMixin):
                   'is_pdu', 'is_network_device', 'subdevice_role']
 
 
-class DeviceTypeBulkEditForm(forms.Form, BootstrapMixin):
+class DeviceTypeBulkEditForm(BulkEditForm, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=DeviceType.objects.all(), widget=forms.MultipleHiddenInput)
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), required=False)
     u_height = forms.IntegerField(min_value=1, required=False)
@@ -583,11 +556,13 @@ class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
     device_type = forms.ModelChoiceField(queryset=DeviceType.objects.all(), required=False, label='Type')
     device_role = forms.ModelChoiceField(queryset=DeviceRole.objects.all(), required=False, label='Role')
-    tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
-    platform = forms.TypedChoiceField(choices=bulkedit_platform_choices, coerce=int, required=False,
-                                      label='Platform')
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
+    platform = forms.ModelChoiceField(queryset=Platform.objects.all(), required=False)
     status = forms.ChoiceField(choices=FORM_STATUS_CHOICES, required=False, initial='', label='Status')
     serial = forms.CharField(max_length=50, required=False, label='Serial Number')
+
+    class Meta:
+        nullable_fields = ['tenant', 'platform']
 
 
 class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):

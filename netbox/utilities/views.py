@@ -310,8 +310,15 @@ class BulkEditView(View):
                 custom_fields = form.custom_fields if hasattr(form, 'custom_fields') else []
                 standard_fields = [field for field in form.fields if field not in custom_fields and field != 'pk']
 
-                # Update objects
-                updated_count = self.update_objects(pk_list, form, standard_fields)
+                # Update standard fields. If a field is listed in _nullify, delete its value.
+                nullified_fields = request.POST.getlist('_nullify')
+                fields_to_update = {}
+                for field in standard_fields:
+                    if field in form.nullable_fields and field in nullified_fields:
+                        fields_to_update[field] = ''
+                    elif form.cleaned_data[field]:
+                        fields_to_update[field] = form.cleaned_data[field]
+                updated_count = self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
 
                 # Update custom fields for objects
                 if custom_fields:
@@ -341,18 +348,6 @@ class BulkEditView(View):
             'selected_objects': selected_objects,
             'cancel_url': redirect_url,
         })
-
-    def update_objects(self, pk_list, form, fields):
-        fields_to_update = {}
-
-        for name in fields:
-            # Check for zero value (bulk editing)
-            if isinstance(form.fields[name], TypedChoiceField) and form.cleaned_data[name] == 0:
-                fields_to_update[name] = None
-            elif form.cleaned_data[name]:
-                fields_to_update[name] = form.cleaned_data[name]
-
-        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
 
     def update_custom_fields(self, pk_list, form, fields):
         obj_type = ContentType.objects.get_for_model(self.cls)

@@ -3,7 +3,6 @@ from django.db.models import Count
 
 from dcim.models import Site, Device, Interface, Rack, IFACE_FF_VIRTUAL
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
-from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, BootstrapMixin, BulkImportForm, CommentField, CSVDataField, FilterChoiceField, Livesearch, SmallTextarea,
@@ -56,6 +55,9 @@ class ProviderBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     noc_contact = forms.CharField(required=False, widget=SmallTextarea, label='NOC contact')
     admin_contact = forms.CharField(required=False, widget=SmallTextarea, label='Admin contact')
     comments = CommentField()
+
+    class Meta:
+        nullable_fields = ['asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments']
 
 
 class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -178,10 +180,13 @@ class CircuitBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Circuit.objects.all(), widget=forms.MultipleHiddenInput)
     type = forms.ModelChoiceField(queryset=CircuitType.objects.all(), required=False)
     provider = forms.ModelChoiceField(queryset=Provider.objects.all(), required=False)
-    tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     port_speed = forms.IntegerField(required=False, label='Port speed (Kbps)')
     commit_rate = forms.IntegerField(required=False, label='Commit rate (Kbps)')
     comments = CommentField()
+
+    class Meta:
+        nullable_fields = ['tenant', 'port_speed', 'commit_rate', 'comments']
 
 
 class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):

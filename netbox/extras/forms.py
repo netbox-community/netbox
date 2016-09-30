@@ -3,7 +3,7 @@ from collections import OrderedDict
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 
-from utilities.forms import LaxURLField
+from utilities.forms import BulkEditForm, LaxURLField
 from .models import (
     CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL, CustomField, CustomFieldValue
 )
@@ -49,8 +49,6 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
         # Select
         elif cf.type == CF_TYPE_SELECT:
             choices = [(cfc.pk, cfc) for cfc in cf.choices.all()]
-            if not cf.required:
-                choices = [(0, 'None')] + choices
             if bulk_edit or filterable_only:
                 choices = [(None, '---------')] + choices
             field = forms.TypedChoiceField(choices=choices, coerce=int, required=cf.required)
@@ -126,7 +124,7 @@ class CustomFieldForm(forms.ModelForm):
         return obj
 
 
-class CustomFieldBulkEditForm(forms.Form):
+class CustomFieldBulkEditForm(BulkEditForm):
     custom_fields = []
 
     def __init__(self, model, *args, **kwargs):

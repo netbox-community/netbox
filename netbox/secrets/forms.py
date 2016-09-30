@@ -5,7 +5,7 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Device
-from utilities.forms import BootstrapMixin, BulkImportForm, CSVDataField, FilterChoiceField, SlugField
+from utilities.forms import BootstrapMixin, BulkEditForm, BulkImportForm, CSVDataField, FilterChoiceField, SlugField
 
 from .models import Secret, SecretRole, UserKey
 
@@ -89,10 +89,13 @@ class SecretImportForm(BulkImportForm, BootstrapMixin):
     csv = CSVDataField(csv_form=SecretFromCSVForm, widget=forms.Textarea(attrs={'class': 'requires-private-key'}))
 
 
-class SecretBulkEditForm(forms.Form, BootstrapMixin):
+class SecretBulkEditForm(BulkEditForm, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Secret.objects.all(), widget=forms.MultipleHiddenInput)
     role = forms.ModelChoiceField(queryset=SecretRole.objects.all(), required=False)
     name = forms.CharField(max_length=100, required=False)
+
+    class Meta:
+        nullable_fields = ['name']
 
 
 class SecretFilterForm(forms.Form, BootstrapMixin):

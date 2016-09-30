@@ -37,6 +37,11 @@ $(document).ready(function() {
         })
     }
 
+    // Bulk edit nullification
+    $('input:checkbox[name=_nullify]').click(function (event) {
+        $('#id_' + this.value).toggle('disabled');
+    });
+
     // API select widget
     $('select[filter-for]').change(function () {
 

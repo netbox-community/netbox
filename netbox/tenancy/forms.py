@@ -7,30 +7,6 @@ from utilities.forms import BootstrapMixin, BulkImportForm, CommentField, CSVDat
 from .models import Tenant, TenantGroup
 
 
-def bulkedit_tenantgroup_choices():
-    """
-    Include an option to remove the currently assigned TenantGroup from a Tenant.
-    """
-    choices = [
-        (None, '---------'),
-        (0, 'None'),
-    ]
-    choices += [(g.pk, g.name) for g in TenantGroup.objects.all()]
-    return choices
-
-
-def bulkedit_tenant_choices():
-    """
-    Include an option to remove the currently assigned Tenant from an object.
-    """
-    choices = [
-        (None, '---------'),
-        (0, 'None'),
-    ]
-    choices += [(t.pk, t.name) for t in Tenant.objects.all()]
-    return choices
-
-
 #
 # Tenant groups
 #
@@ -71,7 +47,10 @@ class TenantImportForm(BulkImportForm, BootstrapMixin):
 
 class TenantBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Tenant.objects.all(), widget=forms.MultipleHiddenInput)
-    group = forms.TypedChoiceField(choices=bulkedit_tenantgroup_choices, coerce=int, required=False, label='Group')
+    group = forms.ModelChoiceField(queryset=TenantGroup.objects.all(), required=False)
+
+    class Meta:
+        nullable_fields = ['group']
 
 
 class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):

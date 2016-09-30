@@ -294,6 +294,13 @@ class ConfirmationForm(forms.Form, BootstrapMixin):
     confirm = forms.BooleanField(required=True)
 
 
+class BulkEditForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        super(BulkEditForm, self).__init__(*args, **kwargs)
+        self.nullable_fields = getattr(self.Meta, 'nullable_fields')
+
+
 class BulkImportForm(forms.Form):
 
     def clean(self):
