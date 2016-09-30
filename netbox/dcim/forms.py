@@ -593,7 +593,7 @@ class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Device
     site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('racks__devices')), to_field_name='slug')
-    rack_group_id = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('racks__devices')),
+    rack_group_id = FilterChoiceField(queryset=RackGroup.objects.annotate(filter_count=Count('racks__devices')),
                                       label='Rack Group')
     role = FilterChoiceField(queryset=DeviceRole.objects.annotate(filter_count=Count('devices')), to_field_name='slug')
     tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('devices')), to_field_name='slug',

@@ -3,7 +3,12 @@
 
 {% block title %}Provider Bulk Edit{% endblock %}
 
-{% block select_objects_table %}
+{% block selected_objects_table %}
+    <tr>
+        <th>Provider</th>
+        <th>Account</th>
+        <th>ASN</th>
+    </tr>
     {% for provider in selected_objects %}
         <tr>
             <td><a href="{% url 'circuits:provider' slug=provider.slug %}">{{ provider }}</a></td>

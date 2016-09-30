@@ -5,6 +5,7 @@ from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay, DeviceType,
     DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet,
     PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, RACK_FACE_FRONT, RACK_FACE_REAR, Site,
+    SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
 )
 from extras.api.serializers import CustomFieldSerializer
 from tenancy.api.serializers import TenantNestedSerializer
@@ -131,11 +132,19 @@ class ManufacturerNestedSerializer(ManufacturerSerializer):
 
 class DeviceTypeSerializer(serializers.ModelSerializer):
     manufacturer = ManufacturerNestedSerializer()
+    subdevice_role = serializers.SerializerMethodField()
 
     class Meta:
         model = DeviceType
         fields = ['id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
-                  'is_console_server', 'is_pdu', 'is_network_device']
+                  'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role']
+
+    def get_subdevice_role(self, obj):
+        return {
+            SUBDEVICE_ROLE_PARENT: 'parent',
+            SUBDEVICE_ROLE_CHILD: 'child',
+            None: None,
+        }[obj.subdevice_role]
 
 
 class DeviceTypeNestedSerializer(DeviceTypeSerializer):

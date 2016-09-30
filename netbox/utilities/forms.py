@@ -3,7 +3,9 @@ import itertools
 import re
 
 from django import forms
+from django.conf import settings
 from django.core.urlresolvers import reverse_lazy
+from django.core.validators import URLValidator
 from django.utils.encoding import force_text
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -90,7 +92,7 @@ class APISelect(SelectWithDisabled):
         super(APISelect, self).__init__(*args, **kwargs)
 
         self.attrs['class'] = 'api-select'
-        self.attrs['api-url'] = api_url
+        self.attrs['api-url'] = '/{}{}'.format(settings.BASE_PATH, api_url.lstrip('/'))  # Inject BASE_PATH
         if display_field:
             self.attrs['display-field'] = display_field
         if disabled_indicator:
@@ -251,6 +253,21 @@ class FilterChoiceField(forms.ModelMultipleChoiceField):
         return self.iterator(self)
 
     choices = property(_get_choices, forms.ChoiceField._set_choices)
+
+
+class LaxURLField(forms.URLField):
+    """
+    Custom URLField which allows any valid URL scheme
+    """
+
+    class AnyURLScheme(object):
+        # A fake URL list which "contains" all scheme names abiding by the syntax defined in RFC 3986 section 3.1
+        def __contains__(self, item):
+            if not item or not re.match('^[a-z][0-9a-z+\-.]*$', item.lower()):
+                return False
+            return True
+
+    default_validators = [URLValidator(schemes=AnyURLScheme())]
 
 
 #

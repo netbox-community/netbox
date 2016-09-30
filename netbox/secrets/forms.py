@@ -91,7 +91,7 @@ class SecretImportForm(BulkImportForm, BootstrapMixin):
 
 class SecretBulkEditForm(forms.Form, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Secret.objects.all(), widget=forms.MultipleHiddenInput)
-    role = forms.ModelChoiceField(queryset=SecretRole.objects.all())
+    role = forms.ModelChoiceField(queryset=SecretRole.objects.all(), required=False)
     name = forms.CharField(max_length=100, required=False)
 
 

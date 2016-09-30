@@ -1,19 +1,16 @@
 # Installation
 
-NetBox requires following system dependencies:
-
-* python2.7
-* python-dev
-* python-pip
-* libxml2-dev
-* libxslt1-dev
-* libffi-dev
-* graphviz
-* libpq-dev
-* libssl-dev
+**Debian/Ubuntu**
 
 ```
-# sudo apt-get install -y python2.7 python-dev python-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev
+# apt-get install -y python2.7 python-dev python-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev
+```
+
+**CentOS/RHEL**
+
+```
+# yum install -y epel-release
+# yum install -y gcc python2 python-devel python-pip libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel
 ```
 
 You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.
@@ -41,8 +38,16 @@ Create the base directory for the NetBox installation. For this guide, we'll use
 
 If `git` is not already installed, install it:
 
+**Debian/Ubuntu**
+
 ```
-# sudo apt-get install -y git
+# apt-get install -y git
+```
+
+**CentOS/RHEL**
+
+```
+# yum install -y git
 ```
 
 Next, clone the **master** branch of the NetBox GitHub repository into the current directory:
@@ -63,7 +68,7 @@ Checking connectivity... done.
 Install the required Python packages using pip. (If you encounter any compilation errors during this step, ensure that you've installed all of the system dependencies listed above.)
 
 ```
-# sudo pip install -r requirements.txt
+# pip install -r requirements.txt
 ```
 
 # Configuration
@@ -76,7 +81,7 @@ Move into the NetBox configuration directory and make a copy of `configuration.e
 ```
 
 Open `configuration.py` with your preferred editor and set the following variables:
- 
+
 * ALLOWED_HOSTS
 * DATABASE
 * SECRET_KEY
@@ -143,8 +148,8 @@ NetBox does not come with any predefined user accounts. You'll need to create a 
 # ./manage.py createsuperuser
 Username: admin
 Email address: admin@example.com
-Password: 
-Password (again): 
+Password:
+Password (again):
 Superuser created successfully.
 ```
 

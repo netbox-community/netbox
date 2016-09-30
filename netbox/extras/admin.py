@@ -40,7 +40,7 @@ class GraphAdmin(admin.ModelAdmin):
 
 @admin.register(ExportTemplate)
 class ExportTemplateAdmin(admin.ModelAdmin):
-    list_display = ['content_type', 'name', 'mime_type', 'file_extension']
+    list_display = ['name', 'content_type', 'description', 'mime_type', 'file_extension']
 
 
 @admin.register(TopologyMap)

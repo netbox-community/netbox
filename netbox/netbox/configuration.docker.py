@@ -52,6 +52,10 @@ EMAIL = {
 # are permitted to access most data in NetBox (excluding secrets) but not make any changes.
 LOGIN_REQUIRED = os.environ.get('LOGIN_REQUIRED', False)
 
+# Base URL path if accessing NetBox within a directory. For example, if installed at http://example.com/netbox/, set:
+# BASE_PATH = 'netbox/'
+BASE_PATH = os.environ.get('BASE_PATH', '')
+
 # Setting this to True will display a "maintenance mode" banner at the top of every page.
 MAINTENANCE_MODE = os.environ.get('MAINTENANCE_MODE', False)
 

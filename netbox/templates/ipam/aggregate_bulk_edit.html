@@ -3,7 +3,13 @@
 
 {% block title %}Aggregate Bulk Edit{% endblock %}
 
-{% block select_objects_table %}
+{% block selected_objects_table %}
+    <tr>
+        <th>Aggregate</th>
+        <th>RIR</th>
+        <th>Date Added</th>
+        <th>Description</th>
+    </tr>
     {% for aggregate in selected_objects %}
         <tr>
             <td><a href="{% url 'ipam:aggregate' pk=aggregate.pk %}">{{ aggregate }}</a></td>

@@ -7,7 +7,12 @@
 
 {% block form_title %}Interface(s) to Add{% endblock %}
 
-{% block select_objects_table %}
+{% block selected_objects_table %}
+    <tr>
+        <th>Device</th>
+        <th>Type</th>
+        <th>Role</th>
+    </tr>
     {% for device in selected_objects %}
         <tr>
             <td><a href="{% url 'dcim:device' pk=device.pk %}">{{ device }}</a></td>

@@ -1,9 +1,12 @@
 # Web Server Installation
 
-We'll set up a simple WSGI front end using [gunicorn](http://gunicorn.org/) for the purposes of this guide. For web servers, we provide example configurations for both [nginx](https://www.nginx.com/resources/wiki/) and [Apache](http://httpd.apache.org/docs/2.4). (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll also use [supervisord](http://supervisord.org/) to enable service persistence. 
+We'll set up a simple WSGI front end using [gunicorn](http://gunicorn.org/) for the purposes of this guide. For web servers, we provide example configurations for both [nginx](https://www.nginx.com/resources/wiki/) and [Apache](http://httpd.apache.org/docs/2.4). (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll also use [supervisord](http://supervisord.org/) to enable service persistence.
+
+!!! info
+    Only Debian/Ubuntu instructions are provided here, but the installation process for CentOS/RHEL does not differ much. Please consult the documentation for those distributions for details.
 
 ```
-# sudo apt-get install -y gunicorn supervisor
+# apt-get install -y gunicorn supervisor
 ```
 
 ## Option A: nginx
@@ -11,10 +14,10 @@ We'll set up a simple WSGI front end using [gunicorn](http://gunicorn.org/) for 
 The following will serve as a minimal nginx configuration. Be sure to modify your server name and installation path appropriately.
 
 ```
-# sudo apt-get install -y nginx
+# apt-get install -y nginx
 ```
 
-Once nginx is installed, proceed with the following configuration:
+Once nginx is installed, save the following configuration to `/etc/nginx/sites-available/netbox`. Be sure to replace `netbox.example.com` with the domain name or IP address of your installation. (This should match the value configured for `ALLOWED_HOSTS` in `configuration.py`.)
 
 ```
 server {
@@ -38,19 +41,18 @@ server {
 }
 ```
 
-Save this configuration to `/etc/nginx/sites-available/netbox`. Then, delete `/etc/nginx/sites-enabled/default` and create a symlink in the `sites-enabled` directory to the configuration file you just created.
+Then, delete `/etc/nginx/sites-enabled/default` and create a symlink in the `sites-enabled` directory to the configuration file you just created.
 
 ```
 # cd /etc/nginx/sites-enabled/
 # rm default
-# ln -s /etc/nginx/sites-available/netbox 
+# ln -s /etc/nginx/sites-available/netbox
 ```
 
 Restart the nginx service to use the new configuration.
 
 ```
 # service nginx restart
- * Restarting nginx nginx
 ```
 
 To enable SSL, consider this guide on [securing nginx with Let's Encrypt](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-14-04).
@@ -58,7 +60,7 @@ To enable SSL, consider this guide on [securing nginx with Let's Encrypt](https:
 ## Option B: Apache
 
 ```
-# sudo apt-get install -y apache2
+# apt-get install -y apache2
 ```
 
 Once Apache is installed, proceed with the following configuration (Be sure to modify the `ServerName` appropriately):
@@ -99,7 +101,7 @@ To enable SSL, consider this guide on [securing Apache with Let's Encrypt](https
 
 # gunicorn Installation
 
-Save the following configuration file in the root netbox installation path (in this example, `/opt/netbox/`) as `gunicorn_config.py`. Be sure to verify the location of the gunicorn executable (e.g. `which gunicorn`) and to update the `pythonpath` variable if needed.
+Save the following configuration file in the root netbox installation path (in this example, `/opt/netbox/`) as `gunicorn_config.py`. Be sure to verify the location of the gunicorn executable (e.g. `which gunicorn`) and to update the `pythonpath` variable if needed. If using CentOS/RHEL change the username from `www-data` to `nginx` or `apache`.
 
 ```
 command = '/usr/bin/gunicorn'
@@ -120,7 +122,7 @@ directory = /opt/netbox/netbox/
 user = www-data
 ```
 
-Finally, restart the supervisor service to detect and run the gunicorn service:
+Then, restart the supervisor service to detect and run the gunicorn service:
 
 ```
 # service supervisor restart

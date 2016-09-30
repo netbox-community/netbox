@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.defaults import page_not_found
@@ -8,7 +9,7 @@ from users.views import login, logout
 
 handler500 = handle_500
 
-urlpatterns = [
+_patterns = [
 
     # Default page
     url(r'^$', home, name='home'),
@@ -41,4 +42,9 @@ urlpatterns = [
     # Admin
     url(r'^admin/', include(admin.site.urls)),
 
+]
+
+# Prepend BASE_PATH
+urlpatterns = [
+    url(r'^{}'.format(settings.BASE_PATH), include(_patterns))
 ]

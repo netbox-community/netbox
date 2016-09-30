@@ -576,10 +576,28 @@ class DeviceType(models.Model):
     def __unicode__(self):
         return u'{} {}'.format(self.manufacturer, self.model)
 
+    def __init__(self, *args, **kwargs):
+        super(DeviceType, self).__init__(*args, **kwargs)
+
+        # Save a copy of u_height for validation in clean()
+        self._original_u_height = self.u_height
+
     def get_absolute_url(self):
         return reverse('dcim:devicetype', args=[self.pk])
 
     def clean(self):
+
+        # If editing an existing DeviceType to have a larger u_height, first validate that *all* instances of it have
+        # room to expand within their racks. This validation will impose a very high performance penalty when there are
+        # many instances to check, but increasing the u_height of a DeviceType should be a very rare occurrence.
+        if self.pk is not None and self.u_height > self._original_u_height:
+            for d in Device.objects.filter(device_type=self, position__isnull=False):
+                face_required = None if self.is_full_depth else d.face
+                u_available = d.rack.get_available_units(u_height=self.u_height, rack_face=face_required,
+                                                         exclude=[d.pk])
+                if d.position not in u_available:
+                    raise ValidationError("Device {} in rack {} does not have sufficient space to accommodate a height "
+                                          "of {}U".format(d, d.rack, self.u_height))
 
         if not self.is_console_server and self.cs_port_templates.count():
             raise ValidationError("Must delete all console server port templates associated with this device before "

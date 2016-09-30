@@ -3,16 +3,23 @@
 
 {% block title %}VLAN Bulk Edit{% endblock %}
 
-{% block select_objects_table %}
+{% block selected_objects_table %}
+    <tr>
+        <th>VLAN</th>
+        <th>Site</th>
+        <th>Group</th>
+        <th>Tenant</th>
+        <th>Status</th>
+        <th>Role</th>
+    </tr>
     {% for vlan in selected_objects %}
         <tr>
-            <td><a href="{% url 'ipam:vlan' pk=vlan.pk %}">{{ vlan.vid }}</a></td>
-            <td>{{ vlan.name }}</td>
+            <td><a href="{% url 'ipam:vlan' pk=vlan.pk %}">{{ vlan }}</a></td>
             <td>{{ vlan.site }}</td>
+            <td>{{ vlan.group }}</td>
             <td>{{ vlan.tenant }}</td>
             <td>{{ vlan.get_status_display }}</td>
             <td>{{ vlan.role }}</td>
-            <td>{{ vlan.description }}</td>
         </tr>
     {% endfor %}
 {% endblock %}
