@@ -22,6 +22,11 @@ AF_CHOICES = (
     (6, 'IPv6'),
 )
 
+SERVICE_PORT_CHOICES = (
+    (0, 'TCP'),
+    (1, 'UDP'),
+)
+
 PREFIX_STATUS_CONTAINER = 0
 PREFIX_STATUS_ACTIVE = 1
 PREFIX_STATUS_RESERVED = 2
@@ -434,6 +439,62 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
 
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]
+
+
+class ServicePort(CreatedUpdatedModel):
+    """
+    A ServicePort represents a port on a specific IPAddress on which a service is running.
+    The port can be one of 2 predefined types - TCP or UDP.
+    A ServicePort is always associated with a specific IPAddress on a Device.
+
+    If an user wants to specify a service running on all IP Addresses on a device,
+    this can be done by assigning the port to the '0.0.0.0/24' IPAddress.
+
+    The combination of IPAddress, Port Number and Port Type is always unique for ServicePort.
+
+    If a port number + port type combination is assigned to  '0.0.0.0/24' IPAddress,
+    it cannot be assigned to any other IPAddress on the same Device.
+    """
+    ip_address = models.ForeignKey('IPAddress', related_name='service_ports', on_delete=models.CASCADE,
+                                   blank=False, null=False, verbose_name='ip_address')
+    type = models.PositiveSmallIntegerField(choices=SERVICE_PORT_CHOICES, default=0)
+
+    port = models.PositiveIntegerField()
+    name = models.CharField(max_length=30, blank=False, null=False)
+    description = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['ip_address', 'port']
+        verbose_name = 'Service Port'
+        verbose_name_plural = 'Service Ports'
+        unique_together = ['ip_address', 'port', 'type']
+
+    def __unicode__(self):
+        port_type = dict(SERVICE_PORT_CHOICES).get(self.type)
+        return u'{}/{}'.format(self.port, port_type)
+
+    def get_absolute_url(self):
+        return reverse('ipam:serviceport', args=[self.pk])
+
+    def clean(self):
+        # if port is already assigned on '0.0.0.0/24'
+        # that means it is assigned on all IPs on the device
+        port_assigned_on_all_ips = bool(ServicePort.objects.filter(
+            ip_address__address='0.0.0.0/24', port=self.port, type=self.type).exclude(pk=self.id))
+        if port_assigned_on_all_ips:
+            raise ValidationError('Port already assigned on address 0.0.0.0/24')
+
+    def save(self, *args, **kwargs):
+        super(ServicePort, self).save(*args, **kwargs)
+
+    def to_csv(self):
+        return ','.join([
+            str(self.device_id),
+            self.ip_address,
+            self.port,
+            self.name,
+            self.description,
+        ])
 
 
 class VLANGroup(models.Model):
