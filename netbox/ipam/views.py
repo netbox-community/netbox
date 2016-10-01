@@ -657,6 +657,35 @@ def serviceport(request, pk):
         'service_port': service_port,
     })
 
+
+class ServicePortEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'ipam.change_ipaddress'
+    model = ServicePort
+    form_class = forms.ServicePortForm
+    fields_initial = ['ip_address', 'port' 'type', 'name', 'description']
+    template_name = 'ipam/serviceport_edit.html'
+
+    def post(self, request, *args, **kwargs):
+        service_port = self.get_object(kwargs)
+        device_url = reverse('dcim:device', kwargs={'pk': service_port.ip_address.device.pk})
+        self.success_url = device_url
+        self.cancel_url = device_url
+
+        return super(ServicePortEditView, self).post(request, *args, **kwargs)
+
+
+class ServicePortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'ipam.delete_ipaddress'
+    model = ServicePort
+
+    def post(self, request, *args, **kwargs):
+        service_port = self.get_object(kwargs)
+        self.redirect_url = reverse('dcim:device', kwargs={'pk': service_port.ip_address.device.pk})
+
+        return super(ServicePortDeleteView, self).post(request, *args, **kwargs)
+
+
+#
 # VLAN groups
 #
 

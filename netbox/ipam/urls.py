@@ -62,7 +62,9 @@ urlpatterns = [
 
     # Service Ports
     url(r'^service-ports/(?P<pk>\d+)/$', views.serviceport, name='serviceport'),
-    
+    url(r'^service-ports/(?P<pk>\d+)/edit/$', views.ServicePortEditView.as_view(), name='serviceport_edit'),
+    url(r'^service-ports/(?P<pk>\d+)/delete/$', views.ServicePortDeleteView.as_view(), name='serviceport_delete'),
+
     # VLAN groups
     url(r'^vlan-groups/$', views.VLANGroupListView.as_view(), name='vlangroup_list'),
     url(r'^vlan-groups/add/$', views.VLANGroupEditView.as_view(), name='vlangroup_add'),

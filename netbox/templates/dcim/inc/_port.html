@@ -14,4 +14,16 @@
             {% endif %}
         {% endif %}
     </td>
+    <td class="text-right">
+        {% if perms.ipam.change_ipaddress %}
+        <a href="{% url 'ipam:serviceport_edit' pk=port.pk %}" class="btn btn-info btn-xs" title="Edit service port">
+            <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+        </a>
+        {% endif %}
+        {% if perms.ipam.delete_ipaddress %}
+            <a href="{% url 'ipam:serviceport_delete' pk=port.pk %}" class="btn btn-danger btn-xs">
+                <i class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete port"></i>
+            </a>
+        {% endif %}
+    </td>
 </tr>
