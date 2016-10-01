@@ -662,7 +662,7 @@ class ServicePortEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.change_ipaddress'
     model = ServicePort
     form_class = forms.ServicePortForm
-    fields_initial = ['ip_address', 'port' 'type', 'name', 'description']
+    fields_initial = ['ip_address', 'port' 'protocol', 'name', 'description']
     template_name = 'ipam/serviceport_edit.html'
 
     def post(self, request, *args, **kwargs):

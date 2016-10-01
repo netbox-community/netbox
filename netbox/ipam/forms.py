@@ -451,7 +451,7 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
 class ServicePortForm(forms.ModelForm, BootstrapMixin):
     class Meta:
         model = ServicePort
-        fields = ['ip_address', 'type', 'port', 'name', 'description']
+        fields = ['ip_address', 'protocol', 'port', 'name', 'description']
         help_texts = {
             'port': '0-65535',
             'name': 'Service running on this port',

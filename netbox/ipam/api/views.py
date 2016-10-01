@@ -136,14 +136,14 @@ class IPAddressDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
 
 
 #
-# IP addresses
+# Service Port
 #
 
 class ServicePortListView(generics.ListAPIView):
     """
     List IP addresses (filterable)
     """
-    queryset = ServicePort.objects.select_related('ip_address', 'port', 'type', 'name', 'description')
+    queryset = ServicePort.objects.select_related('ip_address', 'port', 'protocol', 'name', 'description')
     serializer_class = serializers.ServicePortSerializer
 
 
@@ -151,7 +151,7 @@ class ServicePortDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single IP address
     """
-    queryset = ServicePort.objects.select_related('ip_address', 'port', 'type', 'name', 'description')
+    queryset = ServicePort.objects.select_related('ip_address', 'port', 'protocol', 'name', 'description')
     serializer_class = serializers.ServicePortSerializer
 
 

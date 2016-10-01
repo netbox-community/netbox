@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0008_prefix_change_order'),
+        ('ipam', '0009_ipaddress_add_status'),
     ]
 
     operations = [
@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created', models.DateField(auto_now_add=True)),
                 ('last_updated', models.DateTimeField(auto_now=True)),
-                ('type', models.PositiveSmallIntegerField(choices=[(0, b'TCP'), (1, b'UDP')], default=0)),
+                ('protocol', models.PositiveSmallIntegerField(choices=[(0, b'TCP'), (1, b'UDP')], default=0)),
                 ('port', models.PositiveIntegerField()),
                 ('name', models.CharField(max_length=30)),
                 ('description', models.TextField(blank=True)),
@@ -33,6 +33,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='serviceport',
-            unique_together={('ip_address', 'port', 'type')},
+            unique_together={('ip_address', 'port', 'protocol')},
         ),
     ]

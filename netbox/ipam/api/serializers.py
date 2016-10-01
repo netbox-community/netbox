@@ -181,18 +181,18 @@ class ServicePortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ServicePort
-        fields = ['id', 'ip_address', 'port', 'type', 'name', 'description']
+        fields = ['id', 'ip_address', 'port', 'protocol', 'name', 'description']
 
 
 class ServicePortNestedSerializer(ServicePortSerializer):
     ip_address = IPAddressNestedSerializer()
 
     class Meta(ServicePortSerializer.Meta):
-        fields = ['id', 'ip_address', 'port', 'type']
+        fields = ['id', 'ip_address', 'port', 'protocol']
 
 
 class ServicePortDetailSerializer(ServicePortSerializer):
     ip_address = IPAddressNestedSerializer()
 
     class Meta(ServicePortSerializer.Meta):
-        fields = ['id', 'ip_address', 'port', 'type', 'name', 'description']
+        fields = ['id', 'ip_address', 'port', 'protocol', 'name', 'description']
