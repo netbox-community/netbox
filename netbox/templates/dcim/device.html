@@ -207,6 +207,22 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
+                <strong>Service Ports</strong>
+            </div>
+            {% if service_ports %}
+                <table class="table table-hover panel-body">
+                    {% for port in service_ports %}
+                        {% include 'dcim/inc/_port.html' %}
+                    {% endfor %}
+                </table>
+            {% else %}
+                <div class="panel-body text-muted">
+                    None found
+                </div>
+            {% endif %}
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
                 <strong>Critical Connections</strong>
             </div>
             <table class="table table-hover panel-body">

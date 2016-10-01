@@ -448,13 +448,14 @@ class ServicePort(CreatedUpdatedModel):
     A ServicePort is always associated with a specific IPAddress on a Device.
 
     If an user wants to specify a service running on all IP Addresses on a device,
-    this can be done by assigning the port to the '0.0.0.0/24' IPAddress.
+    this can be done by assigning the port to the '0.0.0.0/32' IPAddress.
 
     The combination of IPAddress, Port Number and Port Type is always unique for ServicePort.
 
-    If a port number + port type combination is assigned to  '0.0.0.0/24' IPAddress,
+    If a port number + port type combination is assigned to '0.0.0.0/32' IPAddress,
     it cannot be assigned to any other IPAddress on the same Device.
     """
+
     ip_address = models.ForeignKey('IPAddress', related_name='service_ports', on_delete=models.CASCADE,
                                    blank=False, null=False, verbose_name='ip_address')
     type = models.PositiveSmallIntegerField(choices=SERVICE_PORT_CHOICES, default=0)
@@ -476,11 +477,17 @@ class ServicePort(CreatedUpdatedModel):
     def get_absolute_url(self):
         return reverse('ipam:serviceport', args=[self.pk])
 
+    @property
+    def short_description(self):
+        if self.description:
+            return self.description[:30]
+        return None
+
     def clean(self):
-        # if port is already assigned on '0.0.0.0/24'
+        # if port is already assigned on '0.0.0.0/32'
         # that means it is assigned on all IPs on the device
         port_assigned_on_all_ips = bool(ServicePort.objects.filter(
-            ip_address__address='0.0.0.0/24', port=self.port, type=self.type).exclude(pk=self.id))
+            ip_address__address='0.0.0.0/32', port=self.port, type=self.type).exclude(pk=self.id))
         if port_assigned_on_all_ips:
             raise ValidationError('Port already assigned on address 0.0.0.0/24')
 

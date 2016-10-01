@@ -1,0 +1,17 @@
+<tr>
+    <td>
+        {{ port.ip_address }}
+    </td>
+    <td>
+        <a href="{% url 'ipam:serviceport' pk=port.pk %}"> {{ port }} </a>
+    </td>
+    <td>{{ port.name }}</td>
+    <td>
+        {% if port.short_description %}
+            {{ port.short_description }}
+            {% if port.short_description != port.description %}
+                ...
+            {% endif %}
+        {% endif %}
+    </td>
+</tr>
