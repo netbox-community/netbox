@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Count, Q
 
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
-from ipam.models import IPAddress
+from ipam.models import IPAddress, ServicePort
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, add_blank_choice, BootstrapMixin, BulkEditForm, BulkImportForm, CommentField, CSVDataField,
@@ -1264,6 +1264,28 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
         if not IPAddress.objects.filter(interface__device=device).count():
             self.fields['set_as_primary'].initial = True
 
+
+#
+# Service Port
+#
+
+class ServicePortForm(forms.ModelForm, BootstrapMixin):
+
+    class Meta:
+        model = ServicePort
+        fields = ['ip_address', 'type', 'port', 'name', 'description']
+        help_texts = {
+            'port': '0-65535',
+            'name': 'Service running on this port',
+            'description': 'Service description'
+        }
+        labels = {
+            'ip_address': "IP Address",
+        }
+
+    def __init__(self, device, *args, **kwargs):
+        super(ServicePortForm, self).__init__(*args, **kwargs)
+        self.fields['ip_address'].queryset = IPAddress.objects.filter(interface__device=device)
 
 #
 # Modules

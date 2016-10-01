@@ -15,7 +15,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import urlencode
 from django.views.generic import View
 
-from ipam.models import Prefix, IPAddress, VLAN
+from ipam.models import Prefix, IPAddress, VLAN, ServicePort
 from circuits.models import Circuit
 from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from utilities.forms import ConfirmationForm
@@ -576,6 +576,7 @@ def device(request, pk):
     # Find all IP addresses assigned to this device
     ip_addresses = IPAddress.objects.filter(interface__device=device).select_related('interface', 'vrf')\
         .order_by('address')
+    service_ports = ServicePort.objects.filter(ip_address__interface__device=device).order_by('ip_address', 'port')
 
     # Find any related devices for convenient linking in the UI
     related_devices = []
@@ -605,6 +606,7 @@ def device(request, pk):
         'mgmt_interfaces': mgmt_interfaces,
         'device_bays': device_bays,
         'ip_addresses': ip_addresses,
+        'service_ports': service_ports,
         'secrets': secrets,
         'related_devices': related_devices,
         'show_graphs': show_graphs,
@@ -1593,6 +1595,33 @@ def ipaddress_assign(request, pk):
         form = forms.IPAddressForm(device)
 
     return render(request, 'dcim/ipaddress_assign.html', {
+        'device': device,
+        'form': form,
+        'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
+    })
+
+
+@permission_required('ipam.add_ipaddress')
+def serviceport_assign(request, pk):
+    device = get_object_or_404(Device, pk=pk)
+
+    if request.method == 'POST':
+        form = forms.ServicePortForm(device, request.POST)
+        if form.is_valid():
+            service_port = form.save(commit=False)
+            service_port.save()
+            messages.success(request, "Added new port {0} to IP Address {1}".format(service_port,
+                                                                                    service_port.ip_address))
+
+            if '_addanother' in request.POST:
+                return redirect('dcim:serviceport_assign', pk=device.pk)
+            else:
+                return redirect('dcim:device', pk=device.pk)
+
+    else:
+        form = forms.ServicePortForm(device)
+
+    return render(request, 'dcim/serviceport_assign.html', {
         'device': device,
         'form': form,
         'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),

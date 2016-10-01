@@ -10,7 +10,7 @@ from utilities.forms import (
 
 from .models import (
     Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, VLAN, VLANGroup,
-    VLAN_STATUS_CHOICES, VRF,
+    VLAN_STATUS_CHOICES, VRF, ServicePort
 )
 
 
@@ -442,6 +442,24 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
     tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('ip_addresses')),
                                to_field_name='slug', null_option=(0, 'None'))
     status = forms.MultipleChoiceField(choices=ipaddress_status_choices, required=False)
+
+
+#
+# Service Port
+#
+
+class ServicePortForm(forms.ModelForm, BootstrapMixin):
+    class Meta:
+        model = ServicePort
+        fields = ['ip_address', 'type', 'port', 'name', 'description']
+        help_texts = {
+            'port': '0-65535',
+            'name': 'Service running on this port',
+            'description': 'Service description'
+        }
+        labels = {
+            'ip_address': "IP Address",
+        }
 
 
 #

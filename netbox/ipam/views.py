@@ -1,4 +1,3 @@
-from collections import OrderedDict
 from django_tables2 import RequestConfig
 import netaddr
 
@@ -17,7 +16,8 @@ from utilities.views import (
 )
 
 from . import filters, forms, tables
-from .models import Aggregate, IPAddress, PREFIX_STATUS_ACTIVE, PREFIX_STATUS_DEPRECATED, PREFIX_STATUS_RESERVED, Prefix, RIR, Role, VLAN, VLANGroup, VRF
+from .models import (Aggregate, IPAddress, PREFIX_STATUS_ACTIVE, PREFIX_STATUS_DEPRECATED, PREFIX_STATUS_RESERVED,
+                     Prefix, RIR, Role, VLAN, VLANGroup, VRF, ServicePort)
 
 
 def add_available_prefixes(parent, prefix_list):
@@ -647,6 +647,16 @@ class IPAddressBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 
 #
+# Service Ports
+#
+
+def serviceport(request, pk):
+    service_port = get_object_or_404(ServicePort.objects.select_related('ip_address__interface__device'), pk=pk)
+
+    return render(request, 'ipam/serviceport.html', {
+        'service_port': service_port,
+    })
+
 # VLAN groups
 #
 

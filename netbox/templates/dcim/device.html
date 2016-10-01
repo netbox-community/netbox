@@ -220,6 +220,14 @@
                     None found
                 </div>
             {% endif %}
+            {% if perms.ipam.add_ipaddress %}
+                <div class="panel-footer text-right">
+                    <a href="{% url 'dcim:serviceport_assign' pk=device.pk %}" class="btn btn-xs btn-primary">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        Assign port
+                    </a>
+                </div>
+            {% endif %}
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">

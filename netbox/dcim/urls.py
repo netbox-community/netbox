@@ -103,6 +103,7 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/inventory/$', views.device_inventory, name='device_inventory'),
     url(r'^devices/(?P<pk>\d+)/lldp-neighbors/$', views.device_lldp_neighbors, name='device_lldp_neighbors'),
     url(r'^devices/(?P<pk>\d+)/ip-addresses/assign/$', views.ipaddress_assign, name='ipaddress_assign'),
+    url(r'^devices/(?P<pk>\d+)/service-ports/assign/$', views.serviceport_assign, name='serviceport_assign'),
     url(r'^devices/(?P<pk>\d+)/add-secret/$', secret_add, name='device_addsecret'),
 
     # Console ports
