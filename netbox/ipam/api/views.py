@@ -1,6 +1,6 @@
 from rest_framework import generics
 
-from ipam.models import VRF, Role, RIR, Aggregate, Prefix, IPAddress, VLAN, VLANGroup
+from ipam.models import VRF, Role, RIR, Aggregate, Prefix, IPAddress, VLAN, VLANGroup, ServicePort
 from ipam import filters
 
 from extras.api.views import CustomFieldModelAPIView
@@ -133,6 +133,26 @@ class IPAddressDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
     queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device', 'nat_inside')\
         .prefetch_related('nat_outside', 'custom_field_values__field')
     serializer_class = serializers.IPAddressSerializer
+
+
+#
+# IP addresses
+#
+
+class ServicePortListView(generics.ListAPIView):
+    """
+    List IP addresses (filterable)
+    """
+    queryset = ServicePort.objects.select_related('ip_address', 'port', 'type', 'name', 'description')
+    serializer_class = serializers.ServicePortSerializer
+
+
+class ServicePortDetailView(generics.RetrieveAPIView):
+    """
+    Retrieve a single IP address
+    """
+    queryset = ServicePort.objects.select_related('ip_address', 'port', 'type', 'name', 'description')
+    serializer_class = serializers.ServicePortSerializer
 
 
 #
