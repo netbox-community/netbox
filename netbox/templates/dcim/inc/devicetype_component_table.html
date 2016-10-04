@@ -15,19 +15,20 @@
                 {% endif %}
             </div>
             {% render_table table 'table.html' %}
-            {% if table.rows %}
-                <div class="panel-footer">
+            <div class="panel-footer">
+                {% if table.rows %}
                     <button type="submit" class="btn btn-xs btn-danger">
                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete Selected
                     </button>
-                    <div class="pull-right">
-                        <a href="{% url add_url pk=devicetype.pk %}{{ add_url_extra }}" class="btn btn-primary btn-xs">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                            Add {{ title }}
-                        </a>
-                    </div>
+                {% endif %}
+                <div class="pull-right">
+                    <a href="{% url add_url pk=devicetype.pk %}{{ add_url_extra }}" class="btn btn-primary btn-xs">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        Add {{ title }}
+                    </a>
                 </div>
-            {% endif %}
+                <div class="clearfix"></div>
+            </div>
         </div>
     </form>
 {% else %}
