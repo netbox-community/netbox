@@ -7,6 +7,7 @@
 
    1. Definitions.
 
+
       "License" shall mean the terms and conditions for use, reproduction,
       and distribution as defined by Sections 1 through 9 of this document.
 
