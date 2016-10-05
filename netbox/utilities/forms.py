@@ -296,9 +296,14 @@ class ConfirmationForm(forms.Form, BootstrapMixin):
 
 class BulkEditForm(forms.Form):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, model, *args, **kwargs):
         super(BulkEditForm, self).__init__(*args, **kwargs)
-        self.nullable_fields = getattr(self.Meta, 'nullable_fields')
+        self.model = model
+        # Copy any nullable fields defined in Meta
+        if hasattr(self.Meta, 'nullable_fields'):
+            self.nullable_fields = [field for field in self.Meta.nullable_fields]
+        else:
+            self.nullable_fields = []
 
 
 class BulkImportForm(forms.Form):

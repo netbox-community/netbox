@@ -301,10 +301,7 @@ class BulkEditView(View):
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
         if '_apply' in request.POST:
-            if hasattr(self.form, 'custom_fields'):
-                form = self.form(self.cls, request.POST)
-            else:
-                form = self.form(request.POST)
+            form = self.form(self.cls, request.POST)
             if form.is_valid():
 
                 custom_fields = form.custom_fields if hasattr(form, 'custom_fields') else []
@@ -322,7 +319,7 @@ class BulkEditView(View):
 
                 # Update custom fields for objects
                 if custom_fields:
-                    objs_updated = self.update_custom_fields(pk_list, form, custom_fields)
+                    objs_updated = self.update_custom_fields(pk_list, form, custom_fields, nullified_fields)
                     if objs_updated and not updated_count:
                         updated_count = objs_updated
 
@@ -333,10 +330,7 @@ class BulkEditView(View):
                 return redirect(redirect_url)
 
         else:
-            if hasattr(self.form, 'custom_fields'):
-                form = self.form(self.cls, initial={'pk': pk_list})
-            else:
-                form = self.form(initial={'pk': pk_list})
+            form = self.form(self.cls, initial={'pk': pk_list})
 
         selected_objects = self.cls.objects.filter(pk__in=pk_list)
         if not selected_objects:
@@ -349,14 +343,23 @@ class BulkEditView(View):
             'cancel_url': redirect_url,
         })
 
-    def update_custom_fields(self, pk_list, form, fields):
+    def update_custom_fields(self, pk_list, form, fields, nullified_fields):
         obj_type = ContentType.objects.get_for_model(self.cls)
         objs_updated = False
 
         for name in fields:
-            if form.cleaned_data[name] not in [None, u'']:
 
-                field = form.fields[name].model
+            field = form.fields[name].model
+
+            # Setting the field to null
+            if name in form.nullable_fields and name in nullified_fields:
+
+                # Delete all CustomFieldValues for instances of this field belonging to the selected objects.
+                CustomFieldValue.objects.filter(field=field, obj_type=obj_type, obj_id__in=pk_list).delete()
+                objs_updated = True
+
+            # Updating the value of the field
+            elif form.cleaned_data[name] not in [None, u'']:
 
                 # Check for zero value (bulk editing)
                 if isinstance(form.fields[name], TypedChoiceField) and form.cleaned_data[name] == 0:
