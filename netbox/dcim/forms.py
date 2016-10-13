@@ -1,6 +1,7 @@
 import re
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.db.models import Count, Q
 
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
@@ -40,6 +41,14 @@ def get_device_by_name_or_pk(name):
     else:
         device = Device.objects.get(name=name)
     return device
+
+
+def validate_connection_status(value):
+    """
+    Custom validator for connection statuses. value must be either "planned" or "connected" (case-insensitive).
+    """
+    if value.lower() not in ['planned', 'connected']:
+        raise ValidationError('Invalid connection status ({}); must be either "planned" or "connected".'.format(value))
 
 
 #
@@ -606,7 +615,7 @@ class ConsoleConnectionCSVForm(forms.Form):
     device = FlexibleModelChoiceField(queryset=Device.objects.all(), to_field_name='name',
                                       error_messages={'invalid_choice': 'Device not found'})
     console_port = forms.CharField()
-    status = forms.ChoiceField(choices=[('planned', 'Planned'), ('connected', 'Connected')])
+    status = forms.CharField(validators=[validate_connection_status])
 
     def clean(self):
 
@@ -801,7 +810,7 @@ class PowerConnectionCSVForm(forms.Form):
     device = FlexibleModelChoiceField(queryset=Device.objects.all(), to_field_name='name',
                                       error_messages={'invalid_choice': 'Device not found'})
     power_port = forms.CharField()
-    status = forms.ChoiceField(choices=[('planned', 'Planned'), ('connected', 'Connected')])
+    status = forms.CharField(validators=[validate_connection_status])
 
     def clean(self):
 
@@ -1062,7 +1071,7 @@ class InterfaceConnectionCSVForm(forms.Form):
     device_b = FlexibleModelChoiceField(queryset=Device.objects.all(), to_field_name='name',
                                         error_messages={'invalid_choice': 'Device B not found.'})
     interface_b = forms.CharField()
-    status = forms.ChoiceField(choices=[('planned', 'Planned'), ('connected', 'Connected')])
+    status = forms.CharField(validators=[validate_connection_status])
 
     def clean(self):
 
