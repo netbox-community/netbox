@@ -88,7 +88,7 @@ class CircuitForm(BootstrapMixin, CustomFieldForm):
                                                    attrs={'filter-for': 'device'}))
     device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False, label='Device',
                                     widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}',
-                                                     attrs={'filter-for': 'interface'}))
+                                                     display_field='display_name', attrs={'filter-for': 'interface'}))
     livesearch = forms.CharField(required=False, label='Device', widget=Livesearch(
         query_key='q', query_url='dcim-api:device_list', field_to_update='device')
     )

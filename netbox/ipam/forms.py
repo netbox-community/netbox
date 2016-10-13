@@ -290,6 +290,7 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
                                       widget=forms.Select(attrs={'filter-for': 'nat_device'}))
     nat_device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False, label='Device',
                                         widget=APISelect(api_url='/api/dcim/devices/?site_id={{nat_site}}',
+                                                         display_field='display_name',
                                                          attrs={'filter-for': 'nat_inside'}))
     livesearch = forms.CharField(required=False, label='IP Address', widget=Livesearch(
         query_key='q', query_url='ipam-api:ipaddress_list', field_to_update='nat_inside', obj_label='address')

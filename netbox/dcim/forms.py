@@ -679,6 +679,7 @@ class ConsolePortConnectionForm(forms.ModelForm, BootstrapMixin):
                                   widget=forms.Select(attrs={'filter-for': 'console_server'}))
     console_server = forms.ModelChoiceField(queryset=Device.objects.all(), label='Console Server', required=False,
                                             widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}&is_console_server=True',
+                                                             display_field='display_name',
                                                              attrs={'filter-for': 'cs_port'}))
     livesearch = forms.CharField(required=False, label='Console Server', widget=Livesearch(
         query_key='q', query_url='dcim-api:device_list', field_to_update='console_server')
@@ -746,7 +747,7 @@ class ConsoleServerPortConnectionForm(forms.Form, BootstrapMixin):
                                   widget=forms.Select(attrs={'filter-for': 'device'}))
     device = forms.ModelChoiceField(queryset=Device.objects.all(), label='Device', required=False,
                                     widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}',
-                                                     attrs={'filter-for': 'port'}))
+                                                     display_field='display_name', attrs={'filter-for': 'port'}))
     livesearch = forms.CharField(required=False, label='Device', widget=Livesearch(
         query_key='q', query_url='dcim-api:device_list', field_to_update='device')
     )
@@ -875,7 +876,7 @@ class PowerPortConnectionForm(forms.ModelForm, BootstrapMixin):
                                   widget=forms.Select(attrs={'filter-for': 'pdu'}))
     pdu = forms.ModelChoiceField(queryset=Device.objects.all(), label='PDU', required=False,
                                  widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}&is_pdu=True',
-                                                  attrs={'filter-for': 'power_outlet'}))
+                                                  display_field='display_name', attrs={'filter-for': 'power_outlet'}))
     livesearch = forms.CharField(required=False, label='PDU', widget=Livesearch(
         query_key='q', query_url='dcim-api:device_list', field_to_update='pdu')
     )
@@ -942,7 +943,7 @@ class PowerOutletConnectionForm(forms.Form, BootstrapMixin):
                                   widget=forms.Select(attrs={'filter-for': 'device'}))
     device = forms.ModelChoiceField(queryset=Device.objects.all(), label='Device', required=False,
                                     widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}',
-                                                     attrs={'filter-for': 'port'}))
+                                                     display_field='display_name', attrs={'filter-for': 'port'}))
     livesearch = forms.CharField(required=False, label='Device', widget=Livesearch(
         query_key='q', query_url='dcim-api:device_list', field_to_update='device')
     )
@@ -1017,6 +1018,7 @@ class InterfaceConnectionForm(forms.ModelForm, BootstrapMixin):
                                     widget=forms.Select(attrs={'filter-for': 'device_b'}))
     device_b = forms.ModelChoiceField(queryset=Device.objects.all(), label='Device', required=False,
                                       widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack_b}}',
+                                                       display_field='display_name',
                                                        attrs={'filter-for': 'interface_b'}))
     livesearch = forms.CharField(required=False, label='Device', widget=Livesearch(
         query_key='q', query_url='dcim-api:device_list', field_to_update='device_b')
