@@ -1,10 +1,9 @@
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, render, resolve_url
+from django.shortcuts import redirect, render
 from django.utils.http import is_safe_url
 
 from secrets.forms import UserKeyForm
@@ -26,7 +25,7 @@ def login(request):
             # Determine where to direct user after successful login
             redirect_to = request.POST.get('next', '')
             if not is_safe_url(url=redirect_to, host=request.get_host()):
-                redirect_to = resolve_url(settings.LOGIN_REDIRECT_URL)
+                redirect_to = reverse('home')
 
             # Authenticate user
             auth_login(request, form.get_user())
