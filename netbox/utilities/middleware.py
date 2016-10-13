@@ -12,4 +12,4 @@ class LoginRequiredMiddleware:
     def process_request(self, request):
         if LOGIN_REQUIRED and not request.user.is_authenticated():
             if request.path_info != settings.LOGIN_URL:
-                return HttpResponseRedirect(settings.LOGIN_URL)
+                return HttpResponseRedirect('{}?next={}'.format(settings.LOGIN_URL, request.path_info))
