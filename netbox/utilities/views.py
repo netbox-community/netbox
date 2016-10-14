@@ -280,21 +280,34 @@ class BulkImportView(View):
 
 class BulkEditView(View):
     cls = None
+    parent_cls = None
     form = None
     template_name = None
     default_redirect_url = None
 
-    def get(self, request, *args, **kwargs):
+    def get(self):
         return redirect(self.default_redirect_url)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, **kwargs):
 
+        # Attempt to derive parent object if a parent class has been given
+        if self.parent_cls:
+            parent_obj = get_object_or_404(self.parent_cls, **kwargs)
+        else:
+            parent_obj = None
+
+        # Determine URL to redirect users upon modification of objects
         posted_redirect_url = request.POST.get('redirect_url')
         if posted_redirect_url and is_safe_url(url=posted_redirect_url, host=request.get_host()):
             redirect_url = posted_redirect_url
-        else:
+        elif parent_obj:
+            redirect_url = parent_obj.get_absolute_url()
+        elif self.default_redirect_url:
             redirect_url = reverse(self.default_redirect_url)
+        else:
+            raise ImproperlyConfigured('No redirect URL has been provided.')
 
+        # Are we editing *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all'):
             pk_list = [int(pk) for pk in request.POST.get('pk_all').split(',') if pk]
         else:
@@ -398,7 +411,7 @@ class BulkDeleteView(View):
     template_name = 'utilities/confirm_bulk_delete.html'
     default_redirect_url = None
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, **kwargs):
 
         # Attempt to derive parent object if a parent class has been given
         if self.parent_cls:
@@ -419,9 +432,9 @@ class BulkDeleteView(View):
 
         # Are we deleting *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all'):
-            pk_list = [x for x in request.POST.get('pk_all').split(',') if x]
+            pk_list = [int(pk) for pk in request.POST.get('pk_all').split(',') if pk]
         else:
-            pk_list = request.POST.getlist('pk')
+            pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
         form_cls = self.get_form()
 

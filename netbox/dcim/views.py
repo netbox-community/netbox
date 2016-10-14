@@ -1425,6 +1425,14 @@ class InterfaceBulkAddView(PermissionRequiredMixin, BulkEditView):
                                                                                       len(selected_devices)))
 
 
+class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_interface'
+    cls = Interface
+    parent_cls = Device
+    form = forms.InterfaceBulkEditForm
+    template_name = 'dcim/interface_bulk_edit.html'
+
+
 class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_interface'
     cls = Interface

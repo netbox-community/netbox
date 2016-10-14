@@ -16,9 +16,9 @@ from utilities.forms import (
 from .models import (
     DeviceBay, DeviceBayTemplate, CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_PLANNED, CONNECTION_STATUS_CONNECTED,
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType,
-    Interface, IFACE_FF_VIRTUAL, InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet,
-    PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, Rack, RackGroup, RackRole,
-    Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD
+    Interface, IFACE_FF_CHOICES, IFACE_FF_VIRTUAL, InterfaceConnection, InterfaceTemplate, Manufacturer, Module,
+    Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES,
+    Rack, RackGroup, RackRole, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD
 )
 
 
@@ -1006,6 +1006,15 @@ class InterfaceCreateForm(forms.ModelForm, BootstrapMixin):
 
 class InterfaceBulkCreateForm(InterfaceCreateForm, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
+
+
+class InterfaceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
+    form_factor = forms.ChoiceField(choices=add_blank_choice(IFACE_FF_CHOICES), required=False)
+    description = forms.CharField(max_length=100, required=False)
+
+    class Meta:
+        nullable_fields = ['description']
 
 
 #

@@ -355,7 +355,7 @@
         {% endif %}
         {% if interfaces or device.device_type.is_network_device %}
             {% if perms.dcim.delete_interface %}
-                <form method="post" action="{% url 'dcim:interface_bulk_delete' pk=device.pk %}">
+                <form method="post">
                 {% csrf_token %}
             {% endif %}
             <div class="panel panel-default">
@@ -380,8 +380,13 @@
                 </table>
                 {% if perms.dcim.add_interface or perms.dcim.delete_interface %}
                     <div class="panel-footer">
+                        {% if interfaces and perms.dcim.change_interface %}
+                            <button type="submit" name="_edit" formaction="{% url 'dcim:interface_bulk_edit' pk=device.pk %}" class="btn btn-warning btn-xs">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Edit selected
+                            </button>
+                        {% endif %}
                         {% if interfaces and perms.dcim.delete_interface %}
-                            <button type="submit" class="btn btn-danger btn-xs">
+                            <button type="submit" name="_delete" formaction="{% url 'dcim:interface_bulk_delete' pk=device.pk %}" class="btn btn-danger btn-xs">
                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete selected
                             </button>
                         {% endif %}
