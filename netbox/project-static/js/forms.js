@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-    // "Toggle all" checkbox in a table header
+    // "Toggle all" checkbox (table header)
     $('#toggle_all').click(function (event) {
         $('td input:checkbox[name=pk]').prop('checked', $(this).prop('checked'));
         if ($(this).is(':checked')) {
@@ -14,6 +14,15 @@ $(document).ready(function() {
         if (!$(this).attr('checked')) {
             $('#select_all, #toggle_all').prop('checked', false);
         }
+    });
+
+    // Simple "Toggle all" button (panel)
+    $('button.toggle').click(function (event) {
+        var selected = $(this).attr('selected');
+        $(this).closest('form').find('input:checkbox[name=pk]').prop('checked', !selected);
+        $(this).attr('selected', !selected);
+        $(this).children('span').toggleClass('glyphicon-unchecked glyphicon-check');
+        return false;
     });
 
     // Slugify
