@@ -72,6 +72,10 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Instances</td>
+                    <td><a href="{% url 'dcim:device_list' %}?device_type_id={{ devicetype.pk }}">{{ devicetype.instances.count }}</a></td>
+                </tr>
             </table>
         </div>
         <div class="panel panel-default">
