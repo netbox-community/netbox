@@ -71,6 +71,7 @@ urlpatterns = [
 
     # Interface templates
     url(r'^device-types/(?P<pk>\d+)/interfaces/add/$', views.InterfaceTemplateAddView.as_view(), name='devicetype_add_interface'),
+    url(r'^device-types/(?P<pk>\d+)/interfaces/edit/$', views.InterfaceTemplateBulkEditView.as_view(), name='devicetype_bulkedit_interface'),
     url(r'^device-types/(?P<pk>\d+)/interfaces/delete/$', views.InterfaceTemplateBulkDeleteView.as_view(), name='devicetype_delete_interface'),
 
     # Device bay templates

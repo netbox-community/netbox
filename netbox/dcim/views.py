@@ -457,6 +457,14 @@ class InterfaceTemplateAddView(ComponentTemplateCreateView):
     form = forms.InterfaceTemplateForm
 
 
+class InterfaceTemplateBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_interfacetemplate'
+    cls = InterfaceTemplate
+    parent_cls = DeviceType
+    form = forms.InterfaceTemplateBulkEditForm
+    template_name = 'dcim/interfacetemplate_bulk_edit.html'
+
+
 class InterfaceTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_interfacetemplate'
     cls = InterfaceTemplate

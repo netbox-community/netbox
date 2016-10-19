@@ -382,7 +382,7 @@
                     <div class="panel-footer">
                         {% if interfaces and perms.dcim.change_interface %}
                             <button type="submit" name="_edit" formaction="{% url 'dcim:interface_bulk_edit' pk=device.pk %}" class="btn btn-warning btn-xs">
-                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Edit selected
+                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit selected
                             </button>
                         {% endif %}
                         {% if interfaces and perms.dcim.delete_interface %}

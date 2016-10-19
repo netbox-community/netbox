@@ -316,6 +316,14 @@ class InterfaceTemplateForm(forms.ModelForm, BootstrapMixin):
         fields = ['name_pattern', 'form_factor', 'mgmt_only']
 
 
+class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(queryset=InterfaceTemplate.objects.all(), widget=forms.MultipleHiddenInput)
+    form_factor = forms.ChoiceField(choices=add_blank_choice(IFACE_FF_CHOICES), required=False)
+
+    class Meta:
+        nullable_fields = []
+
+
 class DeviceBayTemplateForm(forms.ModelForm, BootstrapMixin):
     name_pattern = ExpandableNameField(label='Name')
 
@@ -1008,7 +1016,7 @@ class InterfaceBulkCreateForm(InterfaceCreateForm, BootstrapMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
 
 
-class InterfaceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
     form_factor = forms.ChoiceField(choices=add_blank_choice(IFACE_FF_CHOICES), required=False)
     description = forms.CharField(max_length=100, required=False)
