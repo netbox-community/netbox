@@ -3,7 +3,7 @@ from collections import OrderedDict
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 
-from utilities.forms import LaxURLField
+from utilities.forms import BulkEditForm, LaxURLField
 from .models import (
     CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL, CustomField, CustomFieldValue
 )
@@ -49,8 +49,6 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
         # Select
         elif cf.type == CF_TYPE_SELECT:
             choices = [(cfc.pk, cfc) for cfc in cf.choices.all()]
-            if not cf.required:
-                choices = [(0, 'None')] + choices
             if bulk_edit or filterable_only:
                 choices = [(None, '---------')] + choices
             field = forms.TypedChoiceField(choices=choices, coerce=int, required=cf.required)
@@ -73,10 +71,10 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
 
 
 class CustomFieldForm(forms.ModelForm):
-    custom_fields = []
 
     def __init__(self, *args, **kwargs):
 
+        self.custom_fields = []
         self.obj_type = ContentType.objects.get_for_model(self._meta.model)
 
         super(CustomFieldForm, self).__init__(*args, **kwargs)
@@ -126,22 +124,25 @@ class CustomFieldForm(forms.ModelForm):
         return obj
 
 
-class CustomFieldBulkEditForm(forms.Form):
-    custom_fields = []
+class CustomFieldBulkEditForm(BulkEditForm):
 
-    def __init__(self, model, *args, **kwargs):
-
-        self.obj_type = ContentType.objects.get_for_model(model)
-
+    def __init__(self, *args, **kwargs):
         super(CustomFieldBulkEditForm, self).__init__(*args, **kwargs)
 
+        self.custom_fields = []
+        self.obj_type = ContentType.objects.get_for_model(self.model)
+
         # Add all applicable CustomFields to the form
-        custom_fields = []
-        for name, field in get_custom_fields_for_model(self.obj_type, bulk_edit=True).items():
+        custom_fields = get_custom_fields_for_model(self.obj_type, bulk_edit=True).items()
+        for name, field in custom_fields:
+            # Annotate non-required custom fields as nullable
+            if not field.required:
+                self.nullable_fields.append(name)
             field.required = False
             self.fields[name] = field
-            custom_fields.append(name)
-        self.custom_fields = custom_fields
+            # Annotate this as a custom field
+            self.custom_fields.append(name)
+        print(self.nullable_fields)
 
 
 class CustomFieldFilterForm(forms.Form):

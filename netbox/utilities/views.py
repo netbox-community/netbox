@@ -280,42 +280,59 @@ class BulkImportView(View):
 
 class BulkEditView(View):
     cls = None
+    parent_cls = None
     form = None
     template_name = None
     default_redirect_url = None
 
-    def get(self, request, *args, **kwargs):
+    def get(self):
         return redirect(self.default_redirect_url)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, **kwargs):
 
+        # Attempt to derive parent object if a parent class has been given
+        if self.parent_cls:
+            parent_obj = get_object_or_404(self.parent_cls, **kwargs)
+        else:
+            parent_obj = None
+
+        # Determine URL to redirect users upon modification of objects
         posted_redirect_url = request.POST.get('redirect_url')
         if posted_redirect_url and is_safe_url(url=posted_redirect_url, host=request.get_host()):
             redirect_url = posted_redirect_url
-        else:
+        elif parent_obj:
+            redirect_url = parent_obj.get_absolute_url()
+        elif self.default_redirect_url:
             redirect_url = reverse(self.default_redirect_url)
+        else:
+            raise ImproperlyConfigured('No redirect URL has been provided.')
 
+        # Are we editing *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all'):
             pk_list = [int(pk) for pk in request.POST.get('pk_all').split(',') if pk]
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
         if '_apply' in request.POST:
-            if hasattr(self.form, 'custom_fields'):
-                form = self.form(self.cls, request.POST)
-            else:
-                form = self.form(request.POST)
+            form = self.form(self.cls, request.POST)
             if form.is_valid():
 
                 custom_fields = form.custom_fields if hasattr(form, 'custom_fields') else []
                 standard_fields = [field for field in form.fields if field not in custom_fields and field != 'pk']
 
-                # Update objects
-                updated_count = self.update_objects(pk_list, form, standard_fields)
+                # Update standard fields. If a field is listed in _nullify, delete its value.
+                nullified_fields = request.POST.getlist('_nullify')
+                fields_to_update = {}
+                for field in standard_fields:
+                    if field in form.nullable_fields and field in nullified_fields:
+                        fields_to_update[field] = ''
+                    elif form.cleaned_data[field]:
+                        fields_to_update[field] = form.cleaned_data[field]
+                updated_count = self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
 
                 # Update custom fields for objects
                 if custom_fields:
-                    objs_updated = self.update_custom_fields(pk_list, form, custom_fields)
+                    objs_updated = self.update_custom_fields(pk_list, form, custom_fields, nullified_fields)
                     if objs_updated and not updated_count:
                         updated_count = objs_updated
 
@@ -326,10 +343,7 @@ class BulkEditView(View):
                 return redirect(redirect_url)
 
         else:
-            if hasattr(self.form, 'custom_fields'):
-                form = self.form(self.cls, initial={'pk': pk_list})
-            else:
-                form = self.form(initial={'pk': pk_list})
+            form = self.form(self.cls, initial={'pk': pk_list})
 
         selected_objects = self.cls.objects.filter(pk__in=pk_list)
         if not selected_objects:
@@ -342,26 +356,23 @@ class BulkEditView(View):
             'cancel_url': redirect_url,
         })
 
-    def update_objects(self, pk_list, form, fields):
-        fields_to_update = {}
-
-        for name in fields:
-            # Check for zero value (bulk editing)
-            if isinstance(form.fields[name], TypedChoiceField) and form.cleaned_data[name] == 0:
-                fields_to_update[name] = None
-            elif form.cleaned_data[name]:
-                fields_to_update[name] = form.cleaned_data[name]
-
-        return self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
-
-    def update_custom_fields(self, pk_list, form, fields):
+    def update_custom_fields(self, pk_list, form, fields, nullified_fields):
         obj_type = ContentType.objects.get_for_model(self.cls)
         objs_updated = False
 
         for name in fields:
-            if form.cleaned_data[name] not in [None, u'']:
 
-                field = form.fields[name].model
+            field = form.fields[name].model
+
+            # Setting the field to null
+            if name in form.nullable_fields and name in nullified_fields:
+
+                # Delete all CustomFieldValues for instances of this field belonging to the selected objects.
+                CustomFieldValue.objects.filter(field=field, obj_type=obj_type, obj_id__in=pk_list).delete()
+                objs_updated = True
+
+            # Updating the value of the field
+            elif form.cleaned_data[name] not in [None, u'']:
 
                 # Check for zero value (bulk editing)
                 if isinstance(form.fields[name], TypedChoiceField) and form.cleaned_data[name] == 0:
@@ -400,7 +411,7 @@ class BulkDeleteView(View):
     template_name = 'utilities/confirm_bulk_delete.html'
     default_redirect_url = None
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, **kwargs):
 
         # Attempt to derive parent object if a parent class has been given
         if self.parent_cls:
@@ -421,9 +432,9 @@ class BulkDeleteView(View):
 
         # Are we deleting *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all'):
-            pk_list = [x for x in request.POST.get('pk_all').split(',') if x]
+            pk_list = [int(pk) for pk in request.POST.get('pk_all').split(',') if pk]
         else:
-            pk_list = request.POST.getlist('pk')
+            pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
         form_cls = self.get_form()
 

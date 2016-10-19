@@ -3,7 +3,6 @@ from django.db.models import Count
 
 from dcim.models import Site, Device, Interface
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
-from tenancy.forms import bulkedit_tenant_choices
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, BootstrapMixin, CSVDataField, BulkImportForm, FilterChoiceField, Livesearch, SlugField,
@@ -21,18 +20,6 @@ IP_FAMILY_CHOICES = [
     (4, 'IPv4'),
     (6, 'IPv6'),
 ]
-
-
-def bulkedit_vrf_choices():
-    """
-    Include an option to assign the object to the global table.
-    """
-    choices = [
-        (None, '---------'),
-        (0, 'Global'),
-    ]
-    choices += [(v.pk, v.name) for v in VRF.objects.all()]
-    return choices
 
 
 #
@@ -67,8 +54,11 @@ class VRFImportForm(BulkImportForm, BootstrapMixin):
 
 class VRFBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VRF.objects.all(), widget=forms.MultipleHiddenInput)
-    tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     description = forms.CharField(max_length=100, required=False)
+
+    class Meta:
+        nullable_fields = ['tenant', 'description']
 
 
 class VRFFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -123,6 +113,9 @@ class AggregateBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     rir = forms.ModelChoiceField(queryset=RIR.objects.all(), required=False, label='RIR')
     date_added = forms.DateField(required=False)
     description = forms.CharField(max_length=100, required=False)
+
+    class Meta:
+        nullable_fields = ['date_added', 'description']
 
 
 class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -253,11 +246,14 @@ class PrefixImportForm(BulkImportForm, BootstrapMixin):
 class PrefixBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Prefix.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
-    vrf = forms.TypedChoiceField(choices=bulkedit_vrf_choices, coerce=int, required=False, label='VRF')
-    tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
+    vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF')
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     status = forms.ChoiceField(choices=FORM_PREFIX_STATUS_CHOICES, required=False)
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
     description = forms.CharField(max_length=100, required=False)
+
+    class Meta:
+        nullable_fields = ['site', 'vrf', 'tenant', 'role', 'description']
 
 
 def prefix_status_choices():
@@ -294,6 +290,7 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
                                       widget=forms.Select(attrs={'filter-for': 'nat_device'}))
     nat_device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False, label='Device',
                                         widget=APISelect(api_url='/api/dcim/devices/?site_id={{nat_site}}',
+                                                         display_field='display_name',
                                                          attrs={'filter-for': 'nat_inside'}))
     livesearch = forms.CharField(required=False, label='IP Address', widget=Livesearch(
         query_key='q', query_url='ipam-api:ipaddress_list', field_to_update='nat_inside', obj_label='address')
@@ -407,9 +404,12 @@ class IPAddressImportForm(BulkImportForm, BootstrapMixin):
 
 class IPAddressBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=IPAddress.objects.all(), widget=forms.MultipleHiddenInput)
-    vrf = forms.TypedChoiceField(choices=bulkedit_vrf_choices, coerce=int, required=False, label='VRF')
-    tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
+    vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF')
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     description = forms.CharField(max_length=100, required=False)
+
+    class Meta:
+        nullable_fields = ['vrf', 'tenant', 'description']
 
 
 class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -509,10 +509,13 @@ class VLANBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VLAN.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
     group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False)
-    tenant = forms.TypedChoiceField(choices=bulkedit_tenant_choices, coerce=int, required=False, label='Tenant')
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     status = forms.ChoiceField(choices=FORM_VLAN_STATUS_CHOICES, required=False)
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
     description = forms.CharField(max_length=100, required=False)
+
+    class Meta:
+        nullable_fields = ['group', 'tenant', 'role', 'description']
 
 
 def vlan_status_choices():

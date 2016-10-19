@@ -3,10 +3,6 @@ from django.conf.urls import url
 from secrets.views import secret_add
 
 from . import views
-from .models import (
-    ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, PowerPortTemplate, PowerOutletTemplate,
-    InterfaceTemplate,
-)
 
 
 urlpatterns = [
@@ -75,6 +71,7 @@ urlpatterns = [
 
     # Interface templates
     url(r'^device-types/(?P<pk>\d+)/interfaces/add/$', views.InterfaceTemplateAddView.as_view(), name='devicetype_add_interface'),
+    url(r'^device-types/(?P<pk>\d+)/interfaces/edit/$', views.InterfaceTemplateBulkEditView.as_view(), name='devicetype_bulkedit_interface'),
     url(r'^device-types/(?P<pk>\d+)/interfaces/delete/$', views.InterfaceTemplateBulkDeleteView.as_view(), name='devicetype_delete_interface'),
 
     # Device bay templates
@@ -159,6 +156,7 @@ urlpatterns = [
     # Interfaces
     url(r'^devices/interfaces/add/$', views.InterfaceBulkAddView.as_view(), name='interface_add_multi'),
     url(r'^devices/(?P<pk>\d+)/interfaces/add/$', views.interface_add, name='interface_add'),
+    url(r'^devices/(?P<pk>\d+)/interfaces/edit/$', views.InterfaceBulkEditView.as_view(), name='interface_bulk_edit'),
     url(r'^devices/(?P<pk>\d+)/interfaces/delete/$', views.InterfaceBulkDeleteView.as_view(), name='interface_bulk_delete'),
     url(r'^devices/(?P<pk>\d+)/interface-connections/add/$', views.interfaceconnection_add, name='interfaceconnection_add'),
     url(r'^interface-connections/(?P<pk>\d+)/delete/$', views.interfaceconnection_delete, name='interfaceconnection_delete'),

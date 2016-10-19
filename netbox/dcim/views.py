@@ -457,6 +457,14 @@ class InterfaceTemplateAddView(ComponentTemplateCreateView):
     form = forms.InterfaceTemplateForm
 
 
+class InterfaceTemplateBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_interfacetemplate'
+    cls = InterfaceTemplate
+    parent_cls = DeviceType
+    form = forms.InterfaceTemplateBulkEditForm
+    template_name = 'dcim/interfacetemplate_bulk_edit.html'
+
+
 class InterfaceTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_interfacetemplate'
     cls = InterfaceTemplate
@@ -1423,6 +1431,14 @@ class InterfaceBulkAddView(PermissionRequiredMixin, BulkEditView):
             Interface.objects.bulk_create(interfaces)
             messages.success(self.request, "Added {} interfaces to {} devices".format(len(interfaces),
                                                                                       len(selected_devices)))
+
+
+class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_interface'
+    cls = Interface
+    parent_cls = Device
+    form = forms.InterfaceBulkEditForm
+    template_name = 'dcim/interface_bulk_edit.html'
 
 
 class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):

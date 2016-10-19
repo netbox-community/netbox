@@ -34,7 +34,7 @@ def add_blank_choice(choices):
     """
     Add a blank choice to the beginning of a choices list.
     """
-    return ((None, '---------'),) + choices
+    return ((None, '---------'),) + tuple(choices)
 
 
 #
@@ -292,6 +292,18 @@ class BootstrapMixin(forms.BaseForm):
 
 class ConfirmationForm(forms.Form, BootstrapMixin):
     confirm = forms.BooleanField(required=True)
+
+
+class BulkEditForm(forms.Form):
+
+    def __init__(self, model, *args, **kwargs):
+        super(BulkEditForm, self).__init__(*args, **kwargs)
+        self.model = model
+        # Copy any nullable fields defined in Meta
+        if hasattr(self.Meta, 'nullable_fields'):
+            self.nullable_fields = [field for field in self.Meta.nullable_fields]
+        else:
+            self.nullable_fields = []
 
 
 class BulkImportForm(forms.Form):

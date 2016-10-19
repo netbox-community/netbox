@@ -72,6 +72,10 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Instances</td>
+                    <td><a href="{% url 'dcim:device_list' %}?device_type_id={{ devicetype.pk }}">{{ devicetype.instances.count }}</a></td>
+                </tr>
             </table>
         </div>
         <div class="panel panel-default">
@@ -143,14 +147,14 @@
         </div>
         {% include 'dcim/inc/devicetype_component_table.html' with table=consoleport_table title='Console Ports' add_url='dcim:devicetype_add_consoleport' delete_url='dcim:devicetype_delete_consoleport' %}
         {% include 'dcim/inc/devicetype_component_table.html' with table=powerport_table title='Power Ports' add_url='dcim:devicetype_add_powerport' delete_url='dcim:devicetype_delete_powerport' %}
-        {% include 'dcim/inc/devicetype_component_table.html' with table=mgmt_interface_table title='Management Interfaces' add_url='dcim:devicetype_add_interface' add_url_extra='?mgmt_only=1' delete_url='dcim:devicetype_delete_interface' %}
+        {% include 'dcim/inc/devicetype_component_table.html' with table=mgmt_interface_table title='Management Interfaces' add_url='dcim:devicetype_add_interface' add_url_extra='?mgmt_only=1' edit_url='dcim:devicetype_bulkedit_interface' delete_url='dcim:devicetype_delete_interface' %}
     </div>
     <div class="col-md-6">
         {% if devicetype.is_parent_device %}
             {% include 'dcim/inc/devicetype_component_table.html' with table=devicebay_table title='Device Bays' add_url='dcim:devicetype_add_devicebay' delete_url='dcim:devicetype_delete_devicebay' %}
         {% endif %}
         {% if devicetype.is_network_device %}
-            {% include 'dcim/inc/devicetype_component_table.html' with table=interface_table title='Interfaces' add_url='dcim:devicetype_add_interface' delete_url='dcim:devicetype_delete_interface' %}
+            {% include 'dcim/inc/devicetype_component_table.html' with table=interface_table title='Interfaces' add_url='dcim:devicetype_add_interface' edit_url='dcim:devicetype_bulkedit_interface' delete_url='dcim:devicetype_delete_interface' %}
         {% endif %}
         {% if devicetype.is_console_server %}
             {% include 'dcim/inc/devicetype_component_table.html' with table=consoleserverport_table title='Console Server Ports' add_url='dcim:devicetype_add_consoleserverport' delete_url='dcim:devicetype_delete_consoleserverport' %}
