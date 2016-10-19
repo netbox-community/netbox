@@ -139,7 +139,7 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
             if self.pk:
                 covered_aggregates = covered_aggregates.exclude(pk=self.pk)
             if covered_aggregates:
-                raise ValidationError("{} is overlaps with an existing aggregate ({})"
+                raise ValidationError("{} overlaps with an existing aggregate ({})"
                                       .format(self.prefix, covered_aggregates[0]))
 
     def save(self, *args, **kwargs):
