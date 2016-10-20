@@ -18,7 +18,7 @@ Download and extract the latest version:
 Copy the 'configuration.py' you created when first installing to the new version:
 
 ```
-# cp /opt/netbox-X.Y.Z/configuration.py /opt/netbox/configuration.py
+# cp /opt/netbox-X.Y.Z/netbox/netbox/configuration.py /opt/netbox/netbox/netbox/configuration.py
 ```
 
 If you followed the original installation guide to set up gunicorn, be sure to copy its configuration as well:
