@@ -81,24 +81,34 @@ class UserKey(CreatedUpdatedModel):
 
     def clean(self, *args, **kwargs):
 
-        # Validate the public key format and length.
         if self.public_key:
+
+            # Validate the public key format
             try:
                 pubkey = RSA.importKey(self.public_key)
             except ValueError:
-                raise ValidationError("Invalid RSA key format.")
+                raise ValidationError({
+                    'public_key': "Invalid RSA key format."
+                })
             except:
                 raise ValidationError("Something went wrong while trying to save your key. Please ensure that you're "
                                       "uploading a valid RSA public key in PEM format (no SSH/PGP).")
-            # key.size() returns 1 less than the key modulus
-            pubkey_length = pubkey.size() + 1
+
+            # Validate the public key length
+            pubkey_length = pubkey.size() + 1  # key.size() returns 1 less than the key modulus
             if pubkey_length < settings.SECRETS_MIN_PUBKEY_SIZE:
-                raise ValidationError("Insufficient key length. Keys must be at least {} bits long."
-                                      .format(settings.SECRETS_MIN_PUBKEY_SIZE))
+                raise ValidationError({
+                    'public_key': "Insufficient key length. Keys must be at least {} bits long.".format(
+                        settings.SECRETS_MIN_PUBKEY_SIZE
+                    )
+                })
             # We can't use keys bigger than our master_key_cipher field can hold
             if pubkey_length > 4096:
-                raise ValidationError("Public key size ({}) is too large. Maximum key size is 4096 bits."
-                                      .format(pubkey_length))
+                raise ValidationError({
+                    'public_key': "Public key size ({}) is too large. Maximum key size is 4096 bits.".format(
+                        pubkey_length
+                    )
+                })
 
         super(UserKey, self).clean()
 

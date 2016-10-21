@@ -172,16 +172,6 @@ class PrefixForm(BootstrapMixin, CustomFieldForm):
         else:
             self.fields['vlan'].choices = []
 
-    def clean_prefix(self):
-        prefix = self.cleaned_data['prefix']
-        if prefix.version == 4 and prefix.prefixlen == 32:
-            raise forms.ValidationError("Cannot create host addresses (/32) as prefixes. These should be IPv4 "
-                                        "addresses instead.")
-        elif prefix.version == 6 and prefix.prefixlen == 128:
-            raise forms.ValidationError("Cannot create host addresses (/128) as prefixes. These should be IPv6 "
-                                        "addresses instead.")
-        return prefix
-
 
 class PrefixFromCSVForm(forms.ModelForm):
     vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, to_field_name='rd',

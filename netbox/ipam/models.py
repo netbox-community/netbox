@@ -139,16 +139,22 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
             if self.pk:
                 covering_aggregates = covering_aggregates.exclude(pk=self.pk)
             if covering_aggregates:
-                raise ValidationError("{} is already covered by an existing aggregate ({})"
-                                      .format(self.prefix, covering_aggregates[0]))
+                raise ValidationError({
+                    'prefix': "Aggregates cannot overlap. {} is already covered by an existing aggregate ({}).".format(
+                        self.prefix, covering_aggregates[0]
+                    )
+                })
 
             # Ensure that the aggregate being added does not cover an existing aggregate
             covered_aggregates = Aggregate.objects.filter(prefix__net_contained=str(self.prefix))
             if self.pk:
                 covered_aggregates = covered_aggregates.exclude(pk=self.pk)
             if covered_aggregates:
-                raise ValidationError("{} overlaps with an existing aggregate ({})"
-                                      .format(self.prefix, covered_aggregates[0]))
+                raise ValidationError({
+                    'prefix': "Aggregates cannot overlap. {} covers an existing aggregate ({}).".format(
+                        self.prefix, covered_aggregates[0]
+                    )
+                })
 
     def save(self, *args, **kwargs):
         if self.prefix:
@@ -268,14 +274,17 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
         return reverse('ipam:prefix', args=[self.pk])
 
     def clean(self):
+
         # Disallow host masks
         if self.prefix:
             if self.prefix.version == 4 and self.prefix.prefixlen == 32:
-                raise ValidationError("Cannot create host addresses (/32) as prefixes. These should be IPv4 addresses "
-                                      "instead.")
+                raise ValidationError({
+                    'prefix': "Cannot create host addresses (/32) as prefixes. Create an IPv4 address instead."
+                })
             elif self.prefix.version == 6 and self.prefix.prefixlen == 128:
-                raise ValidationError("Cannot create host addresses (/128) as prefixes. These should be IPv6 addresses "
-                                      "instead.")
+                raise ValidationError({
+                    'prefix': "Cannot create host addresses (/128) as prefixes. Create an IPv6 address instead."
+                })
 
     def save(self, *args, **kwargs):
         if self.prefix:
@@ -369,13 +378,16 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
             duplicate_ips = IPAddress.objects.filter(vrf=self.vrf, address__net_host=str(self.address.ip))\
                 .exclude(pk=self.pk)
             if duplicate_ips:
-                raise ValidationError("Duplicate IP address found in VRF {}: {}".format(self.vrf,
-                                                                                        duplicate_ips.first()))
+                raise ValidationError({
+                    'address': "Duplicate IP address found in VRF {}: {}".format(self.vrf, duplicate_ips.first())
+                })
         elif not self.vrf and settings.ENFORCE_GLOBAL_UNIQUE:
             duplicate_ips = IPAddress.objects.filter(vrf=None, address__net_host=str(self.address.ip))\
                 .exclude(pk=self.pk)
             if duplicate_ips:
-                raise ValidationError("Duplicate IP address found in global table: {}".format(duplicate_ips.first()))
+                raise ValidationError({
+                    'address': "Duplicate IP address found in global table: {}".format(duplicate_ips.first())
+                })
 
     def save(self, *args, **kwargs):
         if self.address:
@@ -478,7 +490,9 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
 
         # Validate VLAN group
         if self.group and self.group.site != self.site:
-            raise ValidationError("VLAN group must belong to the assigned site ({}).".format(self.site))
+            raise ValidationError({
+                'group': "VLAN group must belong to the assigned site ({}).".format(self.site)
+            })
 
     def to_csv(self):
         return ','.join([
