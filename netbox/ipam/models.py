@@ -29,6 +29,12 @@ PREFIX_STATUS_CHOICES = (
     (3, 'Deprecated')
 )
 
+IPADDRESS_STATUS_CHOICES = (
+    (1, 'Active'),
+    (2, 'Reserved'),
+    (5, 'DHCP')
+)
+
 VLAN_STATUS_CHOICES = (
     (1, 'Active'),
     (2, 'Reserved'),
@@ -40,6 +46,8 @@ STATUS_CHOICE_CLASSES = {
     1: 'primary',
     2: 'info',
     3: 'danger',
+    4: 'warning',
+    5: 'success',
 }
 
 
@@ -333,6 +341,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     vrf = models.ForeignKey('VRF', related_name='ip_addresses', on_delete=models.PROTECT, blank=True, null=True,
                             verbose_name='VRF')
     tenant = models.ForeignKey(Tenant, related_name='ip_addresses', blank=True, null=True, on_delete=models.PROTECT)
+    status = models.PositiveSmallIntegerField('Status', choices=IPADDRESS_STATUS_CHOICES, default=1)
     interface = models.ForeignKey(Interface, related_name='ip_addresses', on_delete=models.CASCADE, blank=True,
                                   null=True)
     nat_inside = models.OneToOneField('self', related_name='nat_outside', on_delete=models.SET_NULL, blank=True,
@@ -387,6 +396,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
             str(self.address),
             self.vrf.rd if self.vrf else '',
             self.tenant.name if self.tenant else '',
+            self.get_status_display(),
             self.device.identifier if self.device else '',
             self.interface.name if self.interface else '',
             'True' if is_primary else '',
@@ -398,6 +408,9 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
         if self.interface:
             return self.interface.device
         return None
+
+    def get_status_class(self):
+        return STATUS_CHOICE_CLASSES[self.status]
 
 
 class VLANGroup(models.Model):

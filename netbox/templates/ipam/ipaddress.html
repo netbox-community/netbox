@@ -77,6 +77,12 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Status</td>
+                    <td>
+                        <span class="label label-{{ ipaddress.get_status_class }}">{{ ipaddress.get_status_display }}</span>
+                    </td>
+                </tr>
+                <tr>
                     <td>Description</td>
                     <td>
                         {% if ipaddress.description %}

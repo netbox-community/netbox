@@ -193,6 +193,7 @@ class PrefixBriefTable(BaseTable):
 class IPAddressTable(BaseTable):
     pk = ToggleColumn()
     address = tables.TemplateColumn(IPADDRESS_LINK, verbose_name='IP Address')
+    status = tables.TemplateColumn(STATUS_LABEL, verbose_name='Status')
     vrf = tables.TemplateColumn(VRF_LINK, verbose_name='VRF')
     tenant = tables.TemplateColumn(TENANT_LINK, verbose_name='Tenant')
     device = tables.LinkColumn('dcim:device', args=[Accessor('interface.device.pk')], orderable=False,
@@ -202,7 +203,7 @@ class IPAddressTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = IPAddress
-        fields = ('pk', 'address', 'vrf', 'tenant', 'device', 'interface', 'description')
+        fields = ('pk', 'address', 'status', 'vrf', 'tenant', 'device', 'interface', 'description')
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, IPAddress) else '',
         }

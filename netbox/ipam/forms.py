@@ -5,16 +5,15 @@ from dcim.models import Site, Device, Interface
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, BootstrapMixin, CSVDataField, BulkImportForm, FilterChoiceField, Livesearch, SlugField,
+    APISelect, BootstrapMixin, CSVDataField, BulkImportForm, FilterChoiceField, Livesearch, SlugField, add_blank_choice,
 )
 
 from .models import (
-    Aggregate, IPAddress, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, VLAN, VLANGroup, VLAN_STATUS_CHOICES, VRF,
+    Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, VLAN, VLANGroup,
+    VLAN_STATUS_CHOICES, VRF,
 )
 
 
-FORM_PREFIX_STATUS_CHOICES = (('', '---------'),) + PREFIX_STATUS_CHOICES
-FORM_VLAN_STATUS_CHOICES = (('', '---------'),) + VLAN_STATUS_CHOICES
 IP_FAMILY_CHOICES = [
     ('', 'All'),
     (4, 'IPv4'),
@@ -248,7 +247,7 @@ class PrefixBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
     vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF')
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
-    status = forms.ChoiceField(choices=FORM_PREFIX_STATUS_CHOICES, required=False)
+    status = forms.ChoiceField(choices=add_blank_choice(PREFIX_STATUS_CHOICES), required=False)
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
     description = forms.CharField(max_length=100, required=False)
 
@@ -301,7 +300,7 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = IPAddress
-        fields = ['address', 'vrf', 'tenant', 'nat_device', 'nat_inside', 'description']
+        fields = ['address', 'vrf', 'tenant', 'status', 'nat_device', 'nat_inside', 'description']
         help_texts = {
             'address': "IPv4 or IPv6 address and mask",
             'vrf': "VRF (if applicable)",
@@ -352,6 +351,7 @@ class IPAddressFromCSVForm(forms.ModelForm):
                                  error_messages={'invalid_choice': 'VRF not found.'})
     tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
                                     error_messages={'invalid_choice': 'Tenant not found.'})
+    status_name = forms.ChoiceField(choices=[(s[1], s[0]) for s in IPADDRESS_STATUS_CHOICES])
     device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False, to_field_name='name',
                                     error_messages={'invalid_choice': 'Device not found.'})
     interface_name = forms.CharField(required=False)
@@ -359,7 +359,7 @@ class IPAddressFromCSVForm(forms.ModelForm):
 
     class Meta:
         model = IPAddress
-        fields = ['address', 'vrf', 'tenant', 'device', 'interface_name', 'is_primary', 'description']
+        fields = ['address', 'vrf', 'tenant', 'status_name', 'device', 'interface_name', 'is_primary', 'description']
 
     def clean(self):
 
@@ -406,10 +406,18 @@ class IPAddressBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=IPAddress.objects.all(), widget=forms.MultipleHiddenInput)
     vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF')
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
+    status = forms.ChoiceField(choices=add_blank_choice(IPADDRESS_STATUS_CHOICES), required=False)
     description = forms.CharField(max_length=100, required=False)
 
     class Meta:
         nullable_fields = ['vrf', 'tenant', 'description']
+
+
+def ipaddress_status_choices():
+    status_counts = {}
+    for status in IPAddress.objects.values('status').annotate(count=Count('status')).order_by('status'):
+        status_counts[status['status']] = status['count']
+    return [(s[0], u'{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in IPADDRESS_STATUS_CHOICES]
 
 
 class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -422,6 +430,7 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
                             label='VRF', null_option=(0, 'Global'))
     tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('ip_addresses')),
                                to_field_name='slug', null_option=(0, 'None'))
+    status = forms.MultipleChoiceField(choices=ipaddress_status_choices, required=False)
 
 
 #
@@ -510,7 +519,7 @@ class VLANBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
     group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False)
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
-    status = forms.ChoiceField(choices=FORM_VLAN_STATUS_CHOICES, required=False)
+    status = forms.ChoiceField(choices=add_blank_choice(VLAN_STATUS_CHOICES), required=False)
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
     description = forms.CharField(max_length=100, required=False)
 
