@@ -1715,7 +1715,7 @@ class InterfaceConnectionsListView(ObjectListView):
 # IP addresses
 #
 
-@permission_required('ipam.add_ipaddress')
+@permission_required(['dcim.change_device', 'ipam.add_ipaddress'])
 def ipaddress_assign(request, pk):
 
     device = get_object_or_404(Device, pk=pk)
@@ -1727,8 +1727,7 @@ def ipaddress_assign(request, pk):
             ipaddress = form.save(commit=False)
             ipaddress.interface = form.cleaned_data['interface']
             ipaddress.save()
-            messages.success(request, "Added new IP address {0} to interface {1}".format(ipaddress,
-                                                                                         ipaddress.interface))
+            messages.success(request, "Added new IP address {} to interface {}".format(ipaddress, ipaddress.interface))
 
             if form.cleaned_data['set_as_primary']:
                 if ipaddress.family == 4:
