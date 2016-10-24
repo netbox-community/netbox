@@ -1,9 +1,8 @@
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
-from django.views.defaults import page_not_found
 
-from views import home, trigger_500, handle_500
+from views import home, handle_500, trigger_500
 from users.views import login, logout
 
 
@@ -36,7 +35,6 @@ _patterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     # Error testing
-    url(r'^404/$', page_not_found),
     url(r'^500/$', trigger_500),
 
     # Admin
