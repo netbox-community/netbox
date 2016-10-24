@@ -357,7 +357,7 @@ class PowerConnectionTable(BaseTable):
                             args=[Accessor('power_outlet.device.pk')], verbose_name='PDU')
     power_outlet = tables.Column(verbose_name='Outlet')
     device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
-    name = tables.Column(verbose_name='Console port')
+    name = tables.Column(verbose_name='Power Port')
 
     class Meta(BaseTable.Meta):
         model = PowerPort
