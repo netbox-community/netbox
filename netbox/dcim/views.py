@@ -722,8 +722,9 @@ def consoleport_add(request, pk):
     else:
         form = forms.ConsolePortCreateForm()
 
-    return render(request, 'dcim/consoleport_edit.html', {
+    return render(request, 'dcim/device_component_add.html', {
         'device': device,
+        'component_type': 'Console Port',
         'form': form,
         'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
     })
@@ -788,26 +789,10 @@ def consoleport_disconnect(request, pk):
     })
 
 
-@permission_required('dcim.change_consoleport')
-def consoleport_edit(request, pk):
-
-    consoleport = get_object_or_404(ConsolePort, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.ConsolePortForm(request.POST, instance=consoleport)
-        if form.is_valid():
-            consoleport = form.save()
-            messages.success(request, "Modified {0} {1}".format(consoleport.device.name, consoleport.name))
-            return redirect('dcim:device', pk=consoleport.device.pk)
-
-    else:
-        form = forms.ConsolePortForm(instance=consoleport)
-
-    return render(request, 'dcim/consoleport_edit.html', {
-        'consoleport': consoleport,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': consoleport.device.pk}),
-    })
+class ConsolePortEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_consoleport'
+    model = ConsolePort
+    form_class = forms.ConsolePortForm
 
 
 @permission_required('dcim.delete_consoleport')
@@ -882,8 +867,9 @@ def consoleserverport_add(request, pk):
     else:
         form = forms.ConsoleServerPortCreateForm()
 
-    return render(request, 'dcim/consoleserverport_edit.html', {
+    return render(request, 'dcim/device_component_add.html', {
         'device': device,
+        'component_type': 'Console Server Port',
         'form': form,
         'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
     })
@@ -949,26 +935,10 @@ def consoleserverport_disconnect(request, pk):
     })
 
 
-@permission_required('dcim.change_consoleserverport')
-def consoleserverport_edit(request, pk):
-
-    consoleserverport = get_object_or_404(ConsoleServerPort, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.ConsoleServerPortForm(request.POST, instance=consoleserverport)
-        if form.is_valid():
-            consoleserverport = form.save()
-            messages.success(request, "Modified {0} {1}".format(consoleserverport.device.name, consoleserverport.name))
-            return redirect('dcim:device', pk=consoleserverport.device.pk)
-
-    else:
-        form = forms.ConsoleServerPortForm(instance=consoleserverport)
-
-    return render(request, 'dcim/consoleserverport_edit.html', {
-        'consoleserverport': consoleserverport,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': consoleserverport.device.pk}),
-    })
+class ConsoleServerPortEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_consoleserverport'
+    model = ConsoleServerPort
+    form_class = forms.ConsoleServerPortForm
 
 
 @permission_required('dcim.delete_consoleserverport')
@@ -1035,8 +1005,9 @@ def powerport_add(request, pk):
     else:
         form = forms.PowerPortCreateForm()
 
-    return render(request, 'dcim/powerport_edit.html', {
+    return render(request, 'dcim/device_component_add.html', {
         'device': device,
+        'component_type': 'Power Port',
         'form': form,
         'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
     })
@@ -1101,26 +1072,10 @@ def powerport_disconnect(request, pk):
     })
 
 
-@permission_required('dcim.change_powerport')
-def powerport_edit(request, pk):
-
-    powerport = get_object_or_404(PowerPort, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.PowerPortForm(request.POST, instance=powerport)
-        if form.is_valid():
-            powerport = form.save()
-            messages.success(request, "Modified {0} power port {1}".format(powerport.device.name, powerport.name))
-            return redirect('dcim:device', pk=powerport.device.pk)
-
-    else:
-        form = forms.PowerPortForm(instance=powerport)
-
-    return render(request, 'dcim/powerport_edit.html', {
-        'powerport': powerport,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': powerport.device.pk}),
-    })
+class PowerPortEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_powerport'
+    model = PowerPort
+    form_class = forms.PowerPortForm
 
 
 @permission_required('dcim.delete_powerport')
@@ -1193,8 +1148,9 @@ def poweroutlet_add(request, pk):
     else:
         form = forms.PowerOutletCreateForm()
 
-    return render(request, 'dcim/poweroutlet_edit.html', {
+    return render(request, 'dcim/device_component_add.html', {
         'device': device,
+        'component_type': 'Power Outlet',
         'form': form,
         'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
     })
@@ -1259,26 +1215,10 @@ def poweroutlet_disconnect(request, pk):
     })
 
 
-@permission_required('dcim.change_poweroutlet')
-def poweroutlet_edit(request, pk):
-
-    poweroutlet = get_object_or_404(PowerOutlet, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.PowerOutletForm(request.POST, instance=poweroutlet)
-        if form.is_valid():
-            poweroutlet = form.save()
-            messages.success(request, "Modified {0} power outlet {1}".format(poweroutlet.device.name, poweroutlet.name))
-            return redirect('dcim:device', pk=poweroutlet.device.pk)
-
-    else:
-        form = forms.PowerOutletForm(instance=poweroutlet)
-
-    return render(request, 'dcim/poweroutlet_edit.html', {
-        'poweroutlet': poweroutlet,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': poweroutlet.device.pk}),
-    })
+class PowerOutletEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_poweroutlet'
+    model = PowerOutlet
+    form_class = forms.PowerOutletForm
 
 
 @permission_required('dcim.delete_poweroutlet')
@@ -1347,35 +1287,20 @@ def interface_add(request, pk):
                     return redirect('dcim:device', pk=device.pk)
 
     else:
-        form = forms.InterfaceCreateForm()
+        form = forms.InterfaceCreateForm(initial={'mgmt_only': request.GET.get('mgmt_only')})
 
-    return render(request, 'dcim/interface_edit.html', {
+    return render(request, 'dcim/device_component_add.html', {
         'device': device,
+        'component_type': 'Interface',
         'form': form,
         'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
     })
 
 
-@permission_required('dcim.change_interface')
-def interface_edit(request, pk):
-
-    interface = get_object_or_404(Interface, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.InterfaceForm(request.POST, instance=interface)
-        if form.is_valid():
-            interface = form.save()
-            messages.success(request, "Modified {0} interface {1}".format(interface.device.name, interface.name))
-            return redirect('dcim:device', pk=interface.device.pk)
-
-    else:
-        form = forms.InterfaceForm(instance=interface)
-
-    return render(request, 'dcim/interface_edit.html', {
-        'interface': interface,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': interface.device.pk}),
-    })
+class InterfaceEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_interface'
+    model = Interface
+    form_class = forms.InterfaceForm
 
 
 @permission_required('dcim.delete_interface')
@@ -1483,33 +1408,18 @@ def devicebay_add(request, pk):
     else:
         form = forms.DeviceBayCreateForm()
 
-    return render(request, 'dcim/devicebay_edit.html', {
+    return render(request, 'dcim/device_component_add.html', {
         'device': device,
+        'component_type': 'Device Bay',
         'form': form,
         'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
     })
 
 
-@permission_required('dcim.change_devicebay')
-def devicebay_edit(request, pk):
-
-    devicebay = get_object_or_404(DeviceBay, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.DeviceBayForm(request.POST, instance=devicebay)
-        if form.is_valid():
-            devicebay = form.save()
-            messages.success(request, "Modified {} bay {}".format(devicebay.device.name, devicebay.name))
-            return redirect('dcim:device', pk=devicebay.device.pk)
-
-    else:
-        form = forms.DeviceBayForm(instance=devicebay)
-
-    return render(request, 'dcim/devicebay_edit.html', {
-        'devicebay': devicebay,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': devicebay.device.pk}),
-    })
+class DeviceBayEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_devicebay'
+    model = DeviceBay
+    form_class = forms.DeviceBayForm
 
 
 @permission_required('dcim.delete_devicebay')
@@ -1775,33 +1685,18 @@ def module_add(request, pk):
     else:
         form = forms.ModuleForm()
 
-    return render(request, 'dcim/module_edit.html', {
+    return render(request, 'dcim/device_component_add.html', {
         'device': device,
+        'component_type': 'Module',
         'form': form,
         'cancel_url': reverse('dcim:device_inventory', kwargs={'pk': device.pk}),
     })
 
 
-@permission_required('dcim.change_module')
-def module_edit(request, pk):
-
-    module = get_object_or_404(Module, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.ModuleForm(request.POST, instance=module)
-        if form.is_valid():
-            module = form.save()
-            messages.success(request, "Modified {} module {}".format(module.device.name, module.name))
-            return redirect('dcim:device_inventory', pk=module.device.pk)
-
-    else:
-        form = forms.ModuleForm(instance=module)
-
-    return render(request, 'dcim/module_edit.html', {
-        'module': module,
-        'form': form,
-        'cancel_url': reverse('dcim:device_inventory', kwargs={'pk': module.device.pk}),
-    })
+class ModuleEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_module'
+    model = Module
+    form_class = forms.ModuleForm
 
 
 @permission_required('dcim.delete_module')
