@@ -122,7 +122,7 @@
                 </tr>
                 <tr>
                     <td>Height</td>
-                    <td>{{ rack.u_height }}U</td>
+                    <td>{{ rack.u_height }}U ({% if rack.desc_units %}descending{% else %}ascending{% endif %})</td>
                 </tr>
                 <tr>
                     <td>Devices</td>
@@ -189,13 +189,13 @@
           <div class="rack_header">
             <h4>Front</h4>
           </div>
-          {% include 'dcim/_rack_elevation.html' with primary_face=front_elevation secondary_face=rear_elevation face_id=0 %}
+          {% include 'dcim/inc/_rack_elevation.html' with primary_face=front_elevation secondary_face=rear_elevation face_id=0 %}
       </div>
       <div class="col-md-6 col-sm-6 col-xs-12">
         <div class="rack_header">
             <h4>Rear</h4>
         </div>
-        {% include 'dcim/_rack_elevation.html' with primary_face=rear_elevation secondary_face=front_elevation face_id=1 %}
+        {% include 'dcim/inc/_rack_elevation.html' with primary_face=rear_elevation secondary_face=front_elevation face_id=1 %}
       </div>
     </div>
 </div>

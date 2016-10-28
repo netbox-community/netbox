@@ -375,6 +375,8 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
                                              help_text='Rail-to-rail width')
     u_height = models.PositiveSmallIntegerField(default=42, verbose_name='Height (U)',
                                                 validators=[MinValueValidator(1), MaxValueValidator(100)])
+    desc_units = models.BooleanField(default=False, verbose_name='Descending units',
+                                     help_text='Units are numbered top-to-bottom')
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
@@ -422,7 +424,10 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
 
     @property
     def units(self):
-        return reversed(range(1, self.u_height + 1))
+        if self.desc_units:
+            return range(1, self.u_height + 1)
+        else:
+            return reversed(range(1, self.u_height + 1))
 
     @property
     def display_name(self):
@@ -441,7 +446,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
         """
 
         elevation = OrderedDict()
-        for u in reversed(range(1, self.u_height + 1)):
+        for u in self.units:
             elevation[u] = {'id': u, 'name': 'U{}'.format(u), 'face': face, 'device': None}
 
         # Add devices to rack units list
@@ -815,7 +820,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     rack = models.ForeignKey('Rack', related_name='devices', on_delete=models.PROTECT)
     position = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1)],
                                                 verbose_name='Position (U)',
-                                                help_text='Number of the lowest U position occupied by the device')
+                                                help_text='The lowest-numbered unit occupied by the device')
     face = models.PositiveSmallIntegerField(blank=True, null=True, choices=RACK_FACE_CHOICES, verbose_name='Rack face')
     status = models.BooleanField(choices=STATUS_CHOICES, default=STATUS_ACTIVE, verbose_name='Status')
     primary_ip4 = models.OneToOneField('ipam.IPAddress', related_name='primary_ip4_for', on_delete=models.SET_NULL,

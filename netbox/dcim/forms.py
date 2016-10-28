@@ -142,7 +142,8 @@ class RackForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = Rack
-        fields = ['site', 'group', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height', 'comments']
+        fields = ['site', 'group', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
+                  'comments']
         help_texts = {
             'site': "The site at which the rack exists",
             'name': "Organizational rack name",
@@ -178,7 +179,8 @@ class RackFromCSVForm(forms.ModelForm):
 
     class Meta:
         model = Rack
-        fields = ['site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height']
+        fields = ['site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height',
+                  'desc_units']
 
     def clean(self):
 
@@ -368,7 +370,7 @@ class DeviceForm(BootstrapMixin, CustomFieldForm):
         attrs={'filter-for': 'position'}
     ))
     position = forms.TypedChoiceField(required=False, empty_value=None,
-                                      help_text="For multi-U devices, this is the lowest occupied rack unit.",
+                                      help_text="The lowest-numbered unit occupied by the device",
                                       widget=APISelect(api_url='/api/dcim/racks/{{rack}}/rack-units/?face={{face}}',
                                                        disabled_indicator='device'))
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(),
