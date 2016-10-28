@@ -991,7 +991,7 @@ class ConsolePort(models.Model):
     def __unicode__(self):
         return self.name
 
-    def get_absolute_url(self):
+    def get_parent_url(self):
         return self.device.get_absolute_url()
 
     # Used for connections export
@@ -1035,7 +1035,7 @@ class ConsoleServerPort(models.Model):
     def __unicode__(self):
         return self.name
 
-    def get_absolute_url(self):
+    def get_parent_url(self):
         return self.device.get_absolute_url()
 
 
@@ -1056,7 +1056,7 @@ class PowerPort(models.Model):
     def __unicode__(self):
         return self.name
 
-    def get_absolute_url(self):
+    def get_parent_url(self):
         return self.device.get_absolute_url()
 
     # Used for connections export
@@ -1094,7 +1094,7 @@ class PowerOutlet(models.Model):
     def __unicode__(self):
         return self.name
 
-    def get_absolute_url(self):
+    def get_parent_url(self):
         return self.device.get_absolute_url()
 
 
@@ -1133,7 +1133,7 @@ class Interface(models.Model):
     def __unicode__(self):
         return self.name
 
-    def get_absolute_url(self):
+    def get_parent_url(self):
         return self.device.get_absolute_url()
 
     def clean(self):
@@ -1224,7 +1224,7 @@ class DeviceBay(models.Model):
     def __unicode__(self):
         return u'{} - {}'.format(self.device.name, self.name)
 
-    def get_absolute_url(self):
+    def get_parent_url(self):
         return self.device.get_absolute_url()
 
     def clean(self):
@@ -1261,5 +1261,5 @@ class Module(models.Model):
     def __unicode__(self):
         return self.name
 
-    def get_absolute_url(self):
+    def get_parent_url(self):
         return reverse('dcim:device_inventory', args=[self.device.pk])

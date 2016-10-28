@@ -795,27 +795,9 @@ class ConsolePortEditView(PermissionRequiredMixin, ObjectEditView):
     form_class = forms.ConsolePortForm
 
 
-@permission_required('dcim.delete_consoleport')
-def consoleport_delete(request, pk):
-
-    consoleport = get_object_or_404(ConsolePort, pk=pk)
-
-    if request.method == 'POST':
-        form = ConfirmationForm(request.POST)
-        if form.is_valid():
-            consoleport.delete()
-            messages.success(request, "Console port {0} has been deleted from {1}".format(consoleport,
-                                                                                          consoleport.device))
-            return redirect('dcim:device', pk=consoleport.device.pk)
-
-    else:
-        form = ConfirmationForm()
-
-    return render(request, 'dcim/consoleport_delete.html', {
-        'consoleport': consoleport,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': consoleport.device.pk}),
-    })
+class ConsolePortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_consoleport'
+    model = ConsolePort
 
 
 class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -941,27 +923,9 @@ class ConsoleServerPortEditView(PermissionRequiredMixin, ObjectEditView):
     form_class = forms.ConsoleServerPortForm
 
 
-@permission_required('dcim.delete_consoleserverport')
-def consoleserverport_delete(request, pk):
-
-    consoleserverport = get_object_or_404(ConsoleServerPort, pk=pk)
-
-    if request.method == 'POST':
-        form = ConfirmationForm(request.POST)
-        if form.is_valid():
-            consoleserverport.delete()
-            messages.success(request, "Console server port {0} has been deleted from {1}"
-                             .format(consoleserverport, consoleserverport.device))
-            return redirect('dcim:device', pk=consoleserverport.device.pk)
-
-    else:
-        form = ConfirmationForm()
-
-    return render(request, 'dcim/consoleserverport_delete.html', {
-        'consoleserverport': consoleserverport,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': consoleserverport.device.pk}),
-    })
+class ConsoleServerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_consoleserverport'
+    model = ConsoleServerPort
 
 
 class ConsoleServerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -1078,26 +1042,9 @@ class PowerPortEditView(PermissionRequiredMixin, ObjectEditView):
     form_class = forms.PowerPortForm
 
 
-@permission_required('dcim.delete_powerport')
-def powerport_delete(request, pk):
-
-    powerport = get_object_or_404(PowerPort, pk=pk)
-
-    if request.method == 'POST':
-        form = ConfirmationForm(request.POST)
-        if form.is_valid():
-            powerport.delete()
-            messages.success(request, "Power port {0} has been deleted from {1}".format(powerport, powerport.device))
-            return redirect('dcim:device', pk=powerport.device.pk)
-
-    else:
-        form = ConfirmationForm()
-
-    return render(request, 'dcim/powerport_delete.html', {
-        'powerport': powerport,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': powerport.device.pk}),
-    })
+class PowerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_powerport'
+    model = PowerPort
 
 
 class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -1221,27 +1168,9 @@ class PowerOutletEditView(PermissionRequiredMixin, ObjectEditView):
     form_class = forms.PowerOutletForm
 
 
-@permission_required('dcim.delete_poweroutlet')
-def poweroutlet_delete(request, pk):
-
-    poweroutlet = get_object_or_404(PowerOutlet, pk=pk)
-
-    if request.method == 'POST':
-        form = ConfirmationForm(request.POST)
-        if form.is_valid():
-            poweroutlet.delete()
-            messages.success(request, "Power outlet {0} has been deleted from {1}".format(poweroutlet,
-                                                                                          poweroutlet.device))
-            return redirect('dcim:device', pk=poweroutlet.device.pk)
-
-    else:
-        form = ConfirmationForm()
-
-    return render(request, 'dcim/poweroutlet_delete.html', {
-        'poweroutlet': poweroutlet,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': poweroutlet.device.pk}),
-    })
+class PowerOutletDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_poweroutlet'
+    model = PowerOutlet
 
 
 class PowerOutletBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -1303,26 +1232,9 @@ class InterfaceEditView(PermissionRequiredMixin, ObjectEditView):
     form_class = forms.InterfaceForm
 
 
-@permission_required('dcim.delete_interface')
-def interface_delete(request, pk):
-
-    interface = get_object_or_404(Interface, pk=pk)
-
-    if request.method == 'POST':
-        form = ConfirmationForm(request.POST)
-        if form.is_valid():
-            interface.delete()
-            messages.success(request, "Interface {0} has been deleted from {1}".format(interface, interface.device))
-            return redirect('dcim:device', pk=interface.device.pk)
-
-    else:
-        form = ConfirmationForm()
-
-    return render(request, 'dcim/interface_delete.html', {
-        'interface': interface,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': interface.device.pk}),
-    })
+class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_interface'
+    model = Interface
 
 
 class InterfaceBulkAddView(PermissionRequiredMixin, BulkEditView):
@@ -1422,26 +1334,9 @@ class DeviceBayEditView(PermissionRequiredMixin, ObjectEditView):
     form_class = forms.DeviceBayForm
 
 
-@permission_required('dcim.delete_devicebay')
-def devicebay_delete(request, pk):
-
-    devicebay = get_object_or_404(DeviceBay, pk=pk)
-
-    if request.method == 'POST':
-        form = ConfirmationForm(request.POST)
-        if form.is_valid():
-            devicebay.delete()
-            messages.success(request, "Device bay {} has been deleted from {}".format(devicebay, devicebay.device))
-            return redirect('dcim:device', pk=devicebay.device.pk)
-
-    else:
-        form = ConfirmationForm()
-
-    return render(request, 'dcim/devicebay_delete.html', {
-        'devicebay': devicebay,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': devicebay.device.pk}),
-    })
+class DeviceBayDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_devicebay'
+    model = DeviceBay
 
 
 @permission_required('dcim.change_devicebay')
@@ -1699,23 +1594,6 @@ class ModuleEditView(PermissionRequiredMixin, ObjectEditView):
     form_class = forms.ModuleForm
 
 
-@permission_required('dcim.delete_module')
-def module_delete(request, pk):
-
-    module = get_object_or_404(Module, pk=pk)
-
-    if request.method == 'POST':
-        form = ConfirmationForm(request.POST)
-        if form.is_valid():
-            module.delete()
-            messages.success(request, "Module {} has been deleted from {}".format(module, module.device))
-            return redirect('dcim:device_inventory', pk=module.device.pk)
-
-    else:
-        form = ConfirmationForm()
-
-    return render(request, 'dcim/module_delete.html', {
-        'module': module,
-        'form': form,
-        'cancel_url': reverse('dcim:device_inventory', kwargs={'pk': module.device.pk}),
-    })
+class ModuleDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_module'
+    model = Module
