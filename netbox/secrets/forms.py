@@ -49,8 +49,9 @@ class SecretRoleForm(forms.ModelForm, BootstrapMixin):
 class SecretForm(forms.ModelForm, BootstrapMixin):
     private_key = forms.CharField(required=False, widget=forms.HiddenInput())
     plaintext = forms.CharField(max_length=65535, required=False, label='Plaintext',
-                                widget=forms.TextInput(attrs={'class': 'requires-private-key'}))
-    plaintext2 = forms.CharField(max_length=65535, required=False, label='Plaintext (verify)')
+                                widget=forms.PasswordInput(attrs={'class': 'requires-private-key'}))
+    plaintext2 = forms.CharField(max_length=65535, required=False, label='Plaintext (verify)',
+                                 widget=forms.PasswordInput())
 
     class Meta:
         model = Secret
