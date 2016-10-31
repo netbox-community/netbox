@@ -14,7 +14,7 @@ RIR_ACTIONS = """
 
 UTILIZATION_GRAPH = """
 {% load helpers %}
-{% utilization_graph record.get_utilization %}
+{% utilization_graph value %}
 """
 
 ROLE_ACTIONS = """
@@ -125,13 +125,13 @@ class AggregateTable(BaseTable):
     prefix = tables.LinkColumn('ipam:aggregate', args=[Accessor('pk')], verbose_name='Aggregate')
     rir = tables.Column(verbose_name='RIR')
     child_count = tables.Column(verbose_name='Prefixes')
-    utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
+    get_utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
     date_added = tables.DateColumn(format="Y-m-d", verbose_name='Added')
     description = tables.Column(orderable=False, verbose_name='Description')
 
     class Meta(BaseTable.Meta):
         model = Aggregate
-        fields = ('pk', 'prefix', 'rir', 'child_count', 'utilization', 'date_added', 'description')
+        fields = ('pk', 'prefix', 'rir', 'child_count', 'get_utilization', 'date_added', 'description')
 
 
 #
