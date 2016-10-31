@@ -107,6 +107,8 @@ IFACE_FF_E3 = 4050
 # Stacking
 IFACE_FF_STACKWISE = 5000
 IFACE_FF_STACKWISE_PLUS = 5050
+IFACE_FF_FLEXSTACK = 5100
+IFACE_FF_FLEXSTACK_PLUS = 5150
 # Other
 IFACE_FF_OTHER = 32767
 
@@ -164,6 +166,8 @@ IFACE_FF_CHOICES = [
         [
             [IFACE_FF_STACKWISE, 'Cisco StackWise'],
             [IFACE_FF_STACKWISE_PLUS, 'Cisco StackWise Plus'],
+            [IFACE_FF_STACKWISE, 'Cisco FlexStack'],
+            [IFACE_FF_STACKWISE_PLUS, 'Cisco FlexStack Plus'],
         ]
     ],
     [
