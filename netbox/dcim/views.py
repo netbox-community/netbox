@@ -394,7 +394,7 @@ class ComponentTemplateCreateView(View):
 
             if not form.errors:
                 self.model.objects.bulk_create(component_templates)
-                messages.success(request, "Added {} component(s) to {}".format(len(component_templates), devicetype))
+                messages.success(request, u"Added {} component(s) to {}.".format(len(component_templates), devicetype))
                 if '_addanother' in request.POST:
                     return redirect(request.path)
                 else:
@@ -713,7 +713,7 @@ def consoleport_add(request, pk):
 
             if not form.errors:
                 ConsolePort.objects.bulk_create(console_ports)
-                messages.success(request, "Added {} console port(s) to {}".format(len(console_ports), device))
+                messages.success(request, u"Added {} console port(s) to {}.".format(len(console_ports), device))
                 if '_addanother' in request.POST:
                     return redirect('dcim:consoleport_add', pk=device.pk)
                 else:
@@ -739,7 +739,7 @@ def consoleport_connect(request, pk):
         form = forms.ConsolePortConnectionForm(request.POST, instance=consoleport)
         if form.is_valid():
             consoleport = form.save()
-            messages.success(request, "Connected {0} {1} to {2} {3}".format(
+            messages.success(request, u"Connected {} {} to {} {}.".format(
                 consoleport.device,
                 consoleport.name,
                 consoleport.cs_port.device,
@@ -766,7 +766,7 @@ def consoleport_disconnect(request, pk):
     consoleport = get_object_or_404(ConsolePort, pk=pk)
 
     if not consoleport.cs_port:
-        messages.warning(request, "Cannot disconnect console port {0}: It is not connected to anything"
+        messages.warning(request, u"Cannot disconnect console port {}: It is not connected to anything."
                          .format(consoleport))
         return redirect('dcim:device', pk=consoleport.device.pk)
 
@@ -776,7 +776,7 @@ def consoleport_disconnect(request, pk):
             consoleport.cs_port = None
             consoleport.connection_status = None
             consoleport.save()
-            messages.success(request, "Console port {0} has been disconnected".format(consoleport))
+            messages.success(request, u"Console port {} has been disconnected.".format(consoleport))
             return redirect('dcim:device', pk=consoleport.device.pk)
 
     else:
@@ -840,7 +840,7 @@ def consoleserverport_add(request, pk):
 
             if not form.errors:
                 ConsoleServerPort.objects.bulk_create(cs_ports)
-                messages.success(request, "Added {} console server port(s) to {}".format(len(cs_ports), device))
+                messages.success(request, u"Added {} console server port(s) to {}.".format(len(cs_ports), device))
                 if '_addanother' in request.POST:
                     return redirect('dcim:consoleserverport_add', pk=device.pk)
                 else:
@@ -869,7 +869,7 @@ def consoleserverport_connect(request, pk):
             consoleport.cs_port = consoleserverport
             consoleport.connection_status = form.cleaned_data['connection_status']
             consoleport.save()
-            messages.success(request, "Connected {0} {1} to {2} {3}".format(
+            messages.success(request, u"Connected {} {} to {} {}.".format(
                 consoleport.device,
                 consoleport.name,
                 consoleserverport.device,
@@ -893,7 +893,7 @@ def consoleserverport_disconnect(request, pk):
     consoleserverport = get_object_or_404(ConsoleServerPort, pk=pk)
 
     if not hasattr(consoleserverport, 'connected_console'):
-        messages.warning(request, "Cannot disconnect console server port {0}: Nothing is connected to it"
+        messages.warning(request, u"Cannot disconnect console server port {}: Nothing is connected to it."
                          .format(consoleserverport))
         return redirect('dcim:device', pk=consoleserverport.device.pk)
 
@@ -904,7 +904,7 @@ def consoleserverport_disconnect(request, pk):
             consoleport.cs_port = None
             consoleport.connection_status = None
             consoleport.save()
-            messages.success(request, "Console server port {0} has been disconnected".format(consoleserverport))
+            messages.success(request, u"Console server port {} has been disconnected.".format(consoleserverport))
             return redirect('dcim:device', pk=consoleserverport.device.pk)
 
     else:
@@ -960,7 +960,7 @@ def powerport_add(request, pk):
 
             if not form.errors:
                 PowerPort.objects.bulk_create(power_ports)
-                messages.success(request, "Added {} power port(s) to {}".format(len(power_ports), device))
+                messages.success(request, u"Added {} power port(s) to {}.".format(len(power_ports), device))
                 if '_addanother' in request.POST:
                     return redirect('dcim:powerport_add', pk=device.pk)
                 else:
@@ -986,7 +986,7 @@ def powerport_connect(request, pk):
         form = forms.PowerPortConnectionForm(request.POST, instance=powerport)
         if form.is_valid():
             powerport = form.save()
-            messages.success(request, "Connected {0} {1} to {2} {3}".format(
+            messages.success(request, u"Connected {} {} to {} {}.".format(
                 powerport.device,
                 powerport.name,
                 powerport.power_outlet.device,
@@ -1013,7 +1013,7 @@ def powerport_disconnect(request, pk):
     powerport = get_object_or_404(PowerPort, pk=pk)
 
     if not powerport.power_outlet:
-        messages.warning(request, "Cannot disconnect power port {0}: It is not connected to an outlet"
+        messages.warning(request, u"Cannot disconnect power port {}: It is not connected to an outlet."
                          .format(powerport))
         return redirect('dcim:device', pk=powerport.device.pk)
 
@@ -1023,7 +1023,7 @@ def powerport_disconnect(request, pk):
             powerport.power_outlet = None
             powerport.connection_status = None
             powerport.save()
-            messages.success(request, "Power port {0} has been disconnected".format(powerport))
+            messages.success(request, u"Power port {} has been disconnected.".format(powerport))
             return redirect('dcim:device', pk=powerport.device.pk)
 
     else:
@@ -1086,7 +1086,7 @@ def poweroutlet_add(request, pk):
 
             if not form.errors:
                 PowerOutlet.objects.bulk_create(power_outlets)
-                messages.success(request, "Added {} power outlet(s) to {}".format(len(power_outlets), device))
+                messages.success(request, u"Added {} power outlet(s) to {}.".format(len(power_outlets), device))
                 if '_addanother' in request.POST:
                     return redirect('dcim:poweroutlet_add', pk=device.pk)
                 else:
@@ -1115,7 +1115,7 @@ def poweroutlet_connect(request, pk):
             powerport.power_outlet = poweroutlet
             powerport.connection_status = form.cleaned_data['connection_status']
             powerport.save()
-            messages.success(request, "Connected {0} {1} to {2} {3}".format(
+            messages.success(request, u"Connected {} {} to {} {}.".format(
                 powerport.device,
                 powerport.name,
                 poweroutlet.device,
@@ -1139,7 +1139,7 @@ def poweroutlet_disconnect(request, pk):
     poweroutlet = get_object_or_404(PowerOutlet, pk=pk)
 
     if not hasattr(poweroutlet, 'connected_port'):
-        messages.warning(request, "Cannot disconnect power outlet {0}: Nothing is connected to it".format(poweroutlet))
+        messages.warning(request, u"Cannot disconnect power outlet {}: Nothing is connected to it.".format(poweroutlet))
         return redirect('dcim:device', pk=poweroutlet.device.pk)
 
     if request.method == 'POST':
@@ -1149,7 +1149,7 @@ def poweroutlet_disconnect(request, pk):
             powerport.power_outlet = None
             powerport.connection_status = None
             powerport.save()
-            messages.success(request, "Power outlet {0} has been disconnected".format(poweroutlet))
+            messages.success(request, u"Power outlet {} has been disconnected.".format(poweroutlet))
             return redirect('dcim:device', pk=poweroutlet.device.pk)
 
     else:
@@ -1209,7 +1209,7 @@ def interface_add(request, pk):
 
             if not form.errors:
                 Interface.objects.bulk_create(interfaces)
-                messages.success(request, "Added {} interface(s) to {}".format(len(interfaces), device))
+                messages.success(request, u"Added {} interface(s) to {}.".format(len(interfaces), device))
                 if '_addanother' in request.POST:
                     return redirect('dcim:interface_add', pk=device.pk)
                 else:
@@ -1266,8 +1266,8 @@ class InterfaceBulkAddView(PermissionRequiredMixin, BulkEditView):
 
         if not form.errors:
             Interface.objects.bulk_create(interfaces)
-            messages.success(self.request, "Added {} interfaces to {} devices".format(len(interfaces),
-                                                                                      len(selected_devices)))
+            messages.success(self.request, u"Added {} interfaces to {} devices.".format(len(interfaces),
+                                                                                        len(selected_devices)))
 
 
 class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -1311,7 +1311,7 @@ def devicebay_add(request, pk):
 
             if not form.errors:
                 DeviceBay.objects.bulk_create(device_bays)
-                messages.success(request, "Added {} device bay(s) to {}".format(len(device_bays), device))
+                messages.success(request, u"Added {} device bay(s) to {}.".format(len(device_bays), device))
                 if '_addanother' in request.POST:
                     return redirect('dcim:devicebay_add', pk=device.pk)
                 else:
@@ -1352,7 +1352,7 @@ def devicebay_populate(request, pk):
             device_bay.save()
 
             if not form.errors:
-                messages.success(request, "Added {} to {}".format(device_bay.installed_device, device_bay))
+                messages.success(request, u"Added {} to {}.".format(device_bay.installed_device, device_bay))
                 return redirect('dcim:device', pk=device_bay.device.pk)
 
     else:
@@ -1376,7 +1376,7 @@ def devicebay_depopulate(request, pk):
             removed_device = device_bay.installed_device
             device_bay.installed_device = None
             device_bay.save()
-            messages.success(request, "{} has been removed from {}".format(removed_device, device_bay))
+            messages.success(request, u"{} has been removed from {}.".format(removed_device, device_bay))
             return redirect('dcim:device', pk=device_bay.device.pk)
 
     else:
@@ -1408,7 +1408,7 @@ def interfaceconnection_add(request, pk):
         form = forms.InterfaceConnectionForm(device, request.POST)
         if form.is_valid():
             interfaceconnection = form.save()
-            messages.success(request, "Connected {0} {1} to {2} {3}".format(
+            messages.success(request, u"Connected {} {} to {} {}.".format(
                 interfaceconnection.interface_a.device,
                 interfaceconnection.interface_a,
                 interfaceconnection.interface_b.device,
@@ -1448,7 +1448,7 @@ def interfaceconnection_delete(request, pk):
         form = forms.InterfaceConnectionDeletionForm(request.POST)
         if form.is_valid():
             interfaceconnection.delete()
-            messages.success(request, "Deleted the connection between {0} {1} and {2} {3}".format(
+            messages.success(request, u"Deleted the connection between {} {} and {} {}.".format(
                 interfaceconnection.interface_a.device,
                 interfaceconnection.interface_a,
                 interfaceconnection.interface_b.device,
@@ -1532,7 +1532,7 @@ def ipaddress_assign(request, pk):
             ipaddress = form.save(commit=False)
             ipaddress.interface = form.cleaned_data['interface']
             ipaddress.save()
-            messages.success(request, "Added new IP address {} to interface {}".format(ipaddress, ipaddress.interface))
+            messages.success(request, u"Added new IP address {} to interface {}.".format(ipaddress, ipaddress.interface))
 
             if form.cleaned_data['set_as_primary']:
                 if ipaddress.family == 4:
@@ -1571,7 +1571,7 @@ def module_add(request, pk):
             module = form.save(commit=False)
             module.device = device
             module.save()
-            messages.success(request, "Added module {} to {}".format(module.name, module.device.name))
+            messages.success(request, u"Added module {} to {}".format(module.name, module.device.name))
             if '_addanother' in request.POST:
                 return redirect('dcim:module_add', pk=module.device.pk)
             else:

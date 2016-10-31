@@ -90,7 +90,7 @@ def secret_add(request, pk):
                 secret.encrypt(master_key)
                 secret.save()
 
-                messages.success(request, "Added new secret: {0}".format(secret))
+                messages.success(request, u"Added new secret: {}.".format(secret))
                 if '_addanother' in request.POST:
                     return redirect('dcim:device_addsecret', pk=device.pk)
                 else:
@@ -135,7 +135,7 @@ def secret_edit(request, pk):
             else:
                 secret = form.save()
 
-            messages.success(request, "Modified secret {0}".format(secret))
+            messages.success(request, u"Modified secret {}.".format(secret))
             return redirect('secrets:secret', pk=secret.pk)
 
     else:
@@ -180,7 +180,7 @@ def secret_import(request):
                             new_secrets.append(secret)
 
                     table = tables.SecretTable(new_secrets)
-                    messages.success(request, "Imported {} new secrets".format(len(new_secrets)))
+                    messages.success(request, u"Imported {} new secrets.".format(len(new_secrets)))
 
                     return render(request, 'import_success.html', {
                         'table': table,

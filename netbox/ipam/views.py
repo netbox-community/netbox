@@ -462,7 +462,7 @@ def ipaddress_assign(request, pk):
             interface = form.cleaned_data['interface']
             ipaddress.interface = interface
             ipaddress.save()
-            messages.success(request, "Assigned IP address {} to interface {}".format(ipaddress, ipaddress.interface))
+            messages.success(request, u"Assigned IP address {} to interface {}.".format(ipaddress, ipaddress.interface))
 
             if form.cleaned_data['set_as_primary']:
                 device = interface.device
@@ -496,7 +496,7 @@ def ipaddress_remove(request, pk):
             device = ipaddress.interface.device
             ipaddress.interface = None
             ipaddress.save()
-            messages.success(request, "Removed IP address {} from {}".format(ipaddress, device))
+            messages.success(request, u"Removed IP address {} from {}.".format(ipaddress, device))
 
             if device.primary_ip4 == ipaddress.pk:
                 device.primary_ip4 = None

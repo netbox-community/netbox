@@ -67,7 +67,7 @@ class ObjectListView(View):
                                           filename='netbox_{}'.format(model._meta.verbose_name_plural))
                 return response
             except TemplateSyntaxError:
-                messages.error(request, "There was an error rendering the selected export template ({})."
+                messages.error(request, u"There was an error rendering the selected export template ({})."
                                .format(et.name))
         # Fall back to built-in CSV export
         elif 'export' in request.GET and hasattr(model, 'to_csv'):
@@ -368,7 +368,7 @@ class BulkEditView(View):
 
         selected_objects = self.cls.objects.filter(pk__in=pk_list)
         if not selected_objects:
-            messages.warning(request, "No {} were selected.".format(self.cls._meta.verbose_name_plural))
+            messages.warning(request, u"No {} were selected.".format(self.cls._meta.verbose_name_plural))
             return redirect(redirect_url)
 
         return render(request, self.template_name, {
@@ -481,7 +481,7 @@ class BulkDeleteView(View):
 
         selected_objects = self.cls.objects.filter(pk__in=pk_list)
         if not selected_objects:
-            messages.warning(request, "No {} were selected for deletion.".format(self.cls._meta.verbose_name_plural))
+            messages.warning(request, u"No {} were selected for deletion.".format(self.cls._meta.verbose_name_plural))
             return redirect(redirect_url)
 
         return render(request, self.template_name, {
