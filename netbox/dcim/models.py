@@ -166,8 +166,8 @@ IFACE_FF_CHOICES = [
         [
             [IFACE_FF_STACKWISE, 'Cisco StackWise'],
             [IFACE_FF_STACKWISE_PLUS, 'Cisco StackWise Plus'],
-            [IFACE_FF_STACKWISE, 'Cisco FlexStack'],
-            [IFACE_FF_STACKWISE_PLUS, 'Cisco FlexStack Plus'],
+            [IFACE_FF_FLEXSTACK, 'Cisco FlexStack'],
+            [IFACE_FF_FLEXSTACK_PLUS, 'Cisco FlexStack Plus'],
         ]
     ],
     [
