@@ -72,7 +72,7 @@ STATUS_ICON = """
 
 UTILIZATION_GRAPH = """
 {% load helpers %}
-{% utilization_graph record.get_utilization %}
+{% utilization_graph value %}
 """
 
 
@@ -148,13 +148,12 @@ class RackTable(BaseTable):
     role = tables.TemplateColumn(RACK_ROLE, verbose_name='Role')
     u_height = tables.TemplateColumn("{{ record.u_height }}U", verbose_name='Height')
     devices = tables.Column(accessor=Accessor('device_count'), verbose_name='Devices')
-    u_consumed = tables.TemplateColumn("{{ record.u_consumed|default:'0' }}U", verbose_name='Used')
-    utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
+    get_utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
 
     class Meta(BaseTable.Meta):
         model = Rack
-        fields = ('pk', 'name', 'site', 'group', 'facility_id', 'tenant', 'role', 'u_height', 'devices', 'u_consumed',
-                  'utilization')
+        fields = ('pk', 'name', 'site', 'group', 'facility_id', 'tenant', 'role', 'u_height', 'devices',
+                  'get_utilization')
 
 
 class RackImportTable(BaseTable):

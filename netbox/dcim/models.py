@@ -488,7 +488,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
         """
 
         # Gather all devices which consume U space within the rack
-        devices = self.devices.select_related().filter(position__gte=1).exclude(pk__in=exclude)
+        devices = self.devices.select_related('device_type').filter(position__gte=1).exclude(pk__in=exclude)
 
         # Initialize the rack unit skeleton
         units = range(1, self.u_height + 1)
@@ -518,9 +518,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
         """
         Determine the utilization rate of the rack and return it as a percentage.
         """
-        if self.u_consumed is None:
-                self.u_consumed = 0
-        u_available = self.u_height - self.u_consumed
+        u_available = len(self.get_available_units())
         return int(float(self.u_height - u_available) / self.u_height * 100)
 
 
