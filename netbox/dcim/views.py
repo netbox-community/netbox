@@ -275,7 +275,7 @@ class ManufacturerBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class DeviceTypeListView(ObjectListView):
-    queryset = DeviceType.objects.select_related('manufacturer')
+    queryset = DeviceType.objects.select_related('manufacturer').annotate(instance_count=Count('instances'))
     filter = filters.DeviceTypeFilter
     filter_form = forms.DeviceTypeFilterForm
     table = tables.DeviceTypeTable
