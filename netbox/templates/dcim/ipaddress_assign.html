@@ -1,7 +1,7 @@
 {% extends '_base.html' %}
 {% load form_helpers %}
 
-{% block title %}Add an IP Address{% endblock %}
+{% block title %}Assign an IP Address{% endblock %}
 
 {% block content %}
 <form action="." method="post" class="form form-horizontal">
@@ -18,10 +18,34 @@
             {% endif %}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    Add an IP Address
+                    <strong>IP Address</strong>
                 </div>
                 <div class="panel-body">
-                    {% render_form form %}
+                    {% render_field form.address %}
+                    {% render_field form.vrf %}
+                    {% render_field form.tenant %}
+                    {% render_field form.status %}
+                    {% render_field form.description %}
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Interface Assignment</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-3 control-label">Device</label>
+                        <div class="col-md-9">
+                            <p class="form-control-static">{{ device }}</p>
+                        </div>
+                    </div>
+                    {% render_field form.interface %}
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading"><strong>Custom Fields</strong></div>
+                <div class="panel-body">
+                    {% render_custom_fields form %}
                 </div>
             </div>
 		    <div class="form-group">

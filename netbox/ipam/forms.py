@@ -284,16 +284,12 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
     livesearch = forms.CharField(required=False, label='IP Address', widget=Livesearch(
         query_key='q', query_url='ipam-api:ipaddress_list', field_to_update='nat_inside', obj_label='address')
     )
-    nat_inside = forms.ModelChoiceField(queryset=IPAddress.objects.all(), required=False, label='NAT (Inside)',
-                                        widget=APISelect(api_url='/api/ipam/ip-addresses/?device_id={{nat_device}}',
-                                                         display_field='address'))
 
     class Meta:
         model = IPAddress
-        fields = ['address', 'vrf', 'tenant', 'status', 'nat_device', 'nat_inside', 'description']
-        help_texts = {
-            'address': "IPv4 or IPv6 address and mask",
-            'vrf': "VRF (if applicable)",
+        fields = ['address', 'vrf', 'tenant', 'status', 'nat_inside', 'description']
+        widgets ={
+            'nat_inside': APISelect(api_url='/api/ipam/ip-addresses/?device_id={{nat_device}}', display_field='address')
         }
 
     def __init__(self, *args, **kwargs):

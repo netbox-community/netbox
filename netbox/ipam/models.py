@@ -346,7 +346,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     which has a NAT outside IP, that Interface's Device can use either the inside or outside IP as its primary IP.
     """
     family = models.PositiveSmallIntegerField(choices=AF_CHOICES, editable=False)
-    address = IPAddressField()
+    address = IPAddressField(help_text="IPv4 or IPv6 address (with mask)")
     vrf = models.ForeignKey('VRF', related_name='ip_addresses', on_delete=models.PROTECT, blank=True, null=True,
                             verbose_name='VRF')
     tenant = models.ForeignKey(Tenant, related_name='ip_addresses', blank=True, null=True, on_delete=models.PROTECT)
@@ -354,7 +354,8 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     interface = models.ForeignKey(Interface, related_name='ip_addresses', on_delete=models.CASCADE, blank=True,
                                   null=True)
     nat_inside = models.OneToOneField('self', related_name='nat_outside', on_delete=models.SET_NULL, blank=True,
-                                      null=True, verbose_name='NAT IP (inside)')
+                                      null=True, verbose_name='NAT (Inside)',
+                                      help_text="The IP for which this address is the \"outside\" IP")
     description = models.CharField(max_length=100, blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 

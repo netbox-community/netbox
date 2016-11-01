@@ -572,7 +572,8 @@ def device(request, pk):
     secrets = device.secrets.all()
 
     # Find all IP addresses assigned to this device
-    ip_addresses = IPAddress.objects.filter(interface__device=device).select_related('interface').order_by('address')
+    ip_addresses = IPAddress.objects.filter(interface__device=device).select_related('interface', 'vrf')\
+        .order_by('address')
 
     # Find any related devices for convenient linking in the UI
     related_devices = []
@@ -1530,6 +1531,7 @@ def ipaddress_assign(request, pk):
             ipaddress = form.save(commit=False)
             ipaddress.interface = form.cleaned_data['interface']
             ipaddress.save()
+            form.save_custom_fields()
             messages.success(request, u"Added new IP address {} to interface {}.".format(ipaddress, ipaddress.interface))
 
             if form.cleaned_data['set_as_primary']:

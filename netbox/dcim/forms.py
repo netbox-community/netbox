@@ -1228,15 +1228,12 @@ class InterfaceConnectionFilterForm(forms.Form, BootstrapMixin):
 # IP addresses
 #
 
-class IPAddressForm(forms.ModelForm, BootstrapMixin):
+class IPAddressForm(BootstrapMixin, CustomFieldForm):
     set_as_primary = forms.BooleanField(label='Set as primary IP for device', required=False)
 
     class Meta:
         model = IPAddress
-        fields = ['address', 'vrf', 'interface', 'set_as_primary']
-        help_texts = {
-            'address': 'IPv4 or IPv6 address (with mask)'
-        }
+        fields = ['address', 'vrf', 'tenant', 'status', 'interface', 'description']
 
     def __init__(self, device, *args, **kwargs):
 

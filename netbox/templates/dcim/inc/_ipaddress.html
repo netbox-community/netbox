@@ -2,6 +2,9 @@
     <td>
         <a href="{% url 'ipam:ipaddress' pk=ip.pk %}">{{ ip }}</a>
     </td>
+    <td>
+        {{ ip.vrf|default:"Global" }}
+    </td>
     <td>{{ ip.interface }}</td>
     <td>
         {% if device.primary_ip4 == ip or device.primary_ip6 == ip %}
