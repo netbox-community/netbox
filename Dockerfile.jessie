@@ -1,4 +1,4 @@
-FROM python:2.7.12-wheezy
+FROM python:2.7.12
 
 WORKDIR /opt/netbox
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
