@@ -1,5 +1,6 @@
 *.pyc
-configuration.py
+/netbox/netbox/configuration.py
+/netbox/static
 .idea
 /*.sh
 !upgrade.sh
