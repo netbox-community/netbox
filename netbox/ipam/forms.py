@@ -497,7 +497,7 @@ class VLANForm(BootstrapMixin, CustomFieldForm):
 
 class VLANFromCSVForm(forms.ModelForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), to_field_name='name',
-                                  error_messages={'invalid_choice': 'Device not found.'})
+                                  error_messages={'invalid_choice': 'Site not found.'})
     group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False, to_field_name='name',
                                    error_messages={'invalid_choice': 'VLAN group not found.'})
     tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
