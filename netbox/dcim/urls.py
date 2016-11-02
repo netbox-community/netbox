@@ -154,7 +154,7 @@ urlpatterns = [
     url(r'^interface-connections/import/$', views.InterfaceConnectionsBulkImportView.as_view(), name='interface_connections_import'),
 
     # Interfaces
-    url(r'^devices/interfaces/add/$', views.InterfaceBulkAddView.as_view(), name='interface_add_multi'),
+    url(r'^devices/interfaces/add/$', views.DeviceBulkAddInterfaceView.as_view(), name='device_bulk_add_interface'),
     url(r'^devices/(?P<pk>\d+)/interfaces/add/$', views.interface_add, name='interface_add'),
     url(r'^devices/(?P<pk>\d+)/interfaces/edit/$', views.InterfaceBulkEditView.as_view(), name='interface_bulk_edit'),
     url(r'^devices/(?P<pk>\d+)/interfaces/delete/$', views.InterfaceBulkDeleteView.as_view(), name='interface_bulk_delete'),

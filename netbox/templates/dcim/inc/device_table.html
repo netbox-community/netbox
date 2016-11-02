@@ -2,7 +2,7 @@
 
 {% block extra_actions %}
     {% if perms.dcim.add_interface %}
-        <button type="submit" name="_edit" formaction="{% url 'dcim:interface_add_multi' %}" class="btn btn-primary btn-sm">
+        <button type="submit" name="_edit" formaction="{% url 'dcim:device_bulk_add_interface' %}" class="btn btn-primary btn-sm">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Interfaces
         </button>
     {% endif %}

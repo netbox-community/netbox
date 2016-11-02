@@ -1,3 +1,4 @@
+from copy import deepcopy
 import re
 from natsort import natsorted
 from operator import attrgetter
@@ -7,6 +8,7 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
+from django.db import transaction
 from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -686,6 +688,80 @@ def device_lldp_neighbors(request, pk):
     })
 
 
+class DeviceBulkAddComponentView(View):
+    """
+    Add one or more components (e.g. interfaces) to a selected set of Devices.
+    """
+    form = None
+    component_cls = None
+    component_form = None
+
+    def get(self):
+        return redirect('dcim:device_list')
+
+    def post(self, request):
+
+        # Are we editing *all* objects in the queryset or just a selected subset?
+        if request.POST.get('_all'):
+            pk_list = [int(pk) for pk in request.POST.get('pk_all').split(',') if pk]
+        else:
+            pk_list = [int(pk) for pk in request.POST.getlist('pk')]
+
+        if '_create' in request.POST:
+            form = self.form(request.POST)
+            if form.is_valid():
+
+                new_components = []
+                data = deepcopy(form.cleaned_data)
+                for device in data['pk']:
+
+                    names = data['name_pattern']
+                    for name in names:
+                        component_data = {
+                            'device': device.pk,
+                            'name': name,
+                        }
+                        component_data.update(data)
+                        component_form = self.component_form(component_data)
+                        if component_form.is_valid():
+                            new_components.append(component_form.save(commit=False))
+                        else:
+                            form.add_error('name_pattern', "Duplicate {} name for {}: {}".format(
+                                self.component_cls._meta.verbose_name, device, name
+                            ))
+
+                if not form.errors:
+                    self.component_cls.objects.bulk_create(new_components)
+                    messages.success(request, u"Added {} {} to {} devices.".format(
+                        len(new_components), self.component_cls._meta.verbose_name_plural, len(form.cleaned_data['pk'])
+                    ))
+                    return redirect('dcim:device_list')
+
+        else:
+            form = self.form(initial={'pk': pk_list})
+
+        selected_devices = Device.objects.filter(pk__in=pk_list)
+        if not selected_devices:
+            messages.warning(request, u"No devices were selected.")
+            return redirect('dcim:device_list')
+
+        return render(request, 'dcim/device_bulk_add_component.html', {
+            'form': form,
+            'component_name': self.component_cls._meta.verbose_name_plural,
+            'selected_devices': selected_devices,
+            'cancel_url': reverse('dcim:device_list'),
+        })
+
+
+class DeviceBulkAddInterfaceView(DeviceBulkAddComponentView):
+    """
+    Add one or more components (e.g. interfaces) to a selected set of Devices.
+    """
+    form = forms.DeviceBulkAddInterfaceForm
+    component_cls = Interface
+    component_form = forms.InterfaceForm
+
+
 #
 # Console ports
 #
@@ -1234,39 +1310,6 @@ class InterfaceEditView(PermissionRequiredMixin, ObjectEditView):
 class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_interface'
     model = Interface
-
-
-class InterfaceBulkAddView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'dcim.add_interface'
-    cls = Device
-    form = forms.InterfaceBulkCreateForm
-    template_name = 'dcim/interface_add_multi.html'
-    default_redirect_url = 'dcim:device_list'
-
-    def update_objects(self, pk_list, form, fields):
-
-        selected_devices = Device.objects.filter(pk__in=pk_list)
-        interfaces = []
-
-        for device in selected_devices:
-            for name in form.cleaned_data['name_pattern']:
-                iface_form = forms.InterfaceForm({
-                    'device': device.pk,
-                    'name': name,
-                    'mac_address': form.cleaned_data['mac_address'],
-                    'form_factor': form.cleaned_data['form_factor'],
-                    'mgmt_only': form.cleaned_data['mgmt_only'],
-                    'description': form.cleaned_data['description'],
-                })
-                if iface_form.is_valid():
-                    interfaces.append(iface_form.save(commit=False))
-                else:
-                    form.add_error(None, "Duplicate interface {} found for device {}".format(name, device))
-
-        if not form.errors:
-            Interface.objects.bulk_create(interfaces)
-            messages.success(self.request, u"Added {} interfaces to {} devices.".format(len(interfaces),
-                                                                                        len(selected_devices)))
 
 
 class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):

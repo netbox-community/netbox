@@ -584,6 +584,18 @@ class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['tenant', 'platform']
 
 
+class DeviceBulkAddComponentForm(forms.Form, BootstrapMixin):
+    pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
+    name_pattern = ExpandableNameField(label='Name')
+
+
+class DeviceBulkAddInterfaceForm(forms.ModelForm, DeviceBulkAddComponentForm):
+
+    class Meta:
+        model = Interface
+        fields = ['name_pattern', 'form_factor', 'mgmt_only', 'description']
+
+
 class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Device
     site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('racks__devices')), to_field_name='slug')
@@ -1014,10 +1026,6 @@ class InterfaceCreateForm(forms.ModelForm, BootstrapMixin):
         fields = ['name_pattern', 'form_factor', 'mac_address', 'mgmt_only', 'description']
 
 
-class InterfaceBulkCreateForm(InterfaceCreateForm, BootstrapMixin):
-    pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
-
-
 class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
     form_factor = forms.ChoiceField(choices=add_blank_choice(IFACE_FF_CHOICES), required=False)
@@ -1250,7 +1258,7 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
 
 
 #
-# Interfaces
+# Modules
 #
 
 class ModuleForm(forms.ModelForm, BootstrapMixin):
