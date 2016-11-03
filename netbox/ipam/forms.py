@@ -288,7 +288,7 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
     class Meta:
         model = IPAddress
         fields = ['address', 'vrf', 'tenant', 'status', 'nat_inside', 'description']
-        widgets ={
+        widgets = {
             'nat_inside': APISelect(api_url='/api/ipam/ip-addresses/?device_id={{nat_device}}', display_field='address')
         }
 

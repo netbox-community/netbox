@@ -142,7 +142,6 @@ class CustomFieldBulkEditForm(BulkEditForm):
             self.fields[name] = field
             # Annotate this as a custom field
             self.custom_fields.append(name)
-        print(self.nullable_fields)
 
 
 class CustomFieldFilterForm(forms.Form):
