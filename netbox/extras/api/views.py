@@ -80,7 +80,7 @@ class TopologyMapView(APIView):
 
             # Add each device to the graph
             devices = []
-            for query in device_set.split(','):
+            for query in device_set.split(';'):  # Split regexes on semicolons
                 devices += Device.objects.filter(name__regex=query)
             for d in devices:
                 subgraph.node(d.name)
@@ -94,7 +94,7 @@ class TopologyMapView(APIView):
         # Compile list of all devices
         device_superset = Q()
         for device_set in tmap.device_sets:
-            for query in device_set.split(','):
+            for query in device_set.split(';'):  # Split regexes on semicolons
                 device_superset = device_superset | Q(name__regex=query)
 
         # Add all connections to the graph
