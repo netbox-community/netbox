@@ -49,22 +49,23 @@ class SecretRoleForm(forms.ModelForm, BootstrapMixin):
 class SecretForm(forms.ModelForm, BootstrapMixin):
     private_key = forms.CharField(required=False, widget=forms.HiddenInput())
     plaintext = forms.CharField(max_length=65535, required=False, label='Plaintext',
-                                widget=forms.TextInput(attrs={'class': 'requires-private-key'}))
-    plaintext2 = forms.CharField(max_length=65535, required=False, label='Plaintext (verify)')
+                                widget=forms.PasswordInput(attrs={'class': 'requires-private-key'}))
+    plaintext2 = forms.CharField(max_length=65535, required=False, label='Plaintext (verify)',
+                                 widget=forms.PasswordInput())
 
     class Meta:
         model = Secret
         fields = ['role', 'name', 'plaintext', 'plaintext2']
 
     def clean(self):
+
         if self.cleaned_data['plaintext']:
             validate_rsa_key(self.cleaned_data['private_key'])
 
-    def clean_plaintext2(self):
-        plaintext = self.cleaned_data['plaintext']
-        plaintext2 = self.cleaned_data['plaintext2']
-        if plaintext != plaintext2:
-            raise forms.ValidationError("The two given plaintext values do not match. Please check your input.")
+        if self.cleaned_data['plaintext'] != self.cleaned_data['plaintext2']:
+            raise forms.ValidationError({
+                'plaintext2': "The two given plaintext values do not match. Please check your input."
+            })
 
 
 class SecretFromCSVForm(forms.ModelForm):

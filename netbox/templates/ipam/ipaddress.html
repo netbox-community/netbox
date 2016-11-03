@@ -77,6 +77,12 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Status</td>
+                    <td>
+                        <span class="label label-{{ ipaddress.get_status_class }}">{{ ipaddress.get_status_display }}</span>
+                    </td>
+                </tr>
+                <tr>
                     <td>Description</td>
                     <td>
                         {% if ipaddress.description %}
@@ -91,8 +97,14 @@
                     <td>
                         {% if ipaddress.interface %}
                             <span><a href="{% url 'dcim:device' pk=ipaddress.interface.device.pk %}">{{ ipaddress.interface.device }}</a> ({{ ipaddress.interface }})</span>
+                            {% if perms.dcim.change_device and perms.ipam.change_ipaddress %}
+                                <a href="{% url 'ipam:ipaddress_remove' pk=ipaddress.pk %}" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-remove"></i> Remove</a>
+                            {% endif %}
                         {% else %}
                             <span class="text-muted">None</span>
+                            {% if perms.dcim.change_device and perms.ipam.change_ipaddress %}
+                                <a href="{% url 'ipam:ipaddress_assign' pk=ipaddress.pk %}" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-plus"></i> Assign</a>
+                            {% endif %}
                         {% endif %}
                     </td>
                 </tr>

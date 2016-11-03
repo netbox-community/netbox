@@ -98,4 +98,4 @@ dist-switch\d
 access-switch\d+,oob-switch\d+
 ```
 
-Note that you can combine multiple regexes onto one line using commas. (Commas can only be used for separating regexes; they will not be processed as part of a regex.) The order in which regexes are listed on a line is significant: devices matching the first regex will be rendered first, and subsequent groups will be rendered to the right of those.
+Note that you can combine multiple regexes onto one line using semicolons. The order in which regexes are listed on a line is significant: devices matching the first regex will be rendered first, and subsequent groups will be rendered to the right of those.

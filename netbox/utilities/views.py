@@ -67,7 +67,7 @@ class ObjectListView(View):
                                           filename='netbox_{}'.format(model._meta.verbose_name_plural))
                 return response
             except TemplateSyntaxError:
-                messages.error(request, "There was an error rendering the selected export template ({})."
+                messages.error(request, u"There was an error rendering the selected export template ({})."
                                .format(et.name))
         # Fall back to built-in CSV export
         elif 'export' in request.GET and hasattr(model, 'to_csv'):
@@ -129,6 +129,13 @@ class ObjectEditView(View):
         else:
             return get_object_or_404(self.model, pk=kwargs['pk'])
 
+    def get_cancel_url(self, obj):
+        if hasattr(obj, 'get_absolute_url'):
+            return obj.get_absolute_url()
+        if hasattr(obj, 'get_parent_url'):
+            return obj.get_parent_url()
+        return reverse(self.cancel_url)
+
     def get(self, request, *args, **kwargs):
 
         if kwargs:
@@ -142,7 +149,7 @@ class ObjectEditView(View):
             'obj': obj,
             'obj_type': self.model._meta.verbose_name,
             'form': form,
-            'cancel_url': obj.get_absolute_url() if hasattr(obj, 'get_absolute_url') else reverse(self.cancel_url),
+            'cancel_url': self.get_cancel_url(obj),
         })
 
     def post(self, request, *args, **kwargs):
@@ -174,14 +181,16 @@ class ObjectEditView(View):
                 return redirect(request.path)
             elif self.success_url:
                 return redirect(self.success_url)
-            else:
+            elif hasattr(obj, 'get_absolute_url'):
                 return redirect(obj.get_absolute_url())
+            elif hasattr(obj, 'get_parent_url'):
+                return redirect(obj.get_parent_url())
 
         return render(request, self.template_name, {
             'obj': obj,
             'obj_type': self.model._meta.verbose_name,
             'form': form,
-            'cancel_url': obj.get_absolute_url() if hasattr(obj, 'get_absolute_url') else reverse(self.cancel_url),
+            'cancel_url': self.get_cancel_url(obj),
         })
 
 
@@ -197,6 +206,13 @@ class ObjectDeleteView(View):
         else:
             return get_object_or_404(self.model, pk=kwargs['pk'])
 
+    def get_cancel_url(self, obj):
+        if hasattr(obj, 'get_absolute_url'):
+            return obj.get_absolute_url()
+        if hasattr(obj, 'get_parent_url'):
+            return obj.get_parent_url()
+        return reverse('home')
+
     def get(self, request, *args, **kwargs):
 
         obj = self.get_object(kwargs)
@@ -206,7 +222,7 @@ class ObjectDeleteView(View):
             'obj': obj,
             'form': form,
             'obj_type': self.model._meta.verbose_name,
-            'cancel_url': obj.get_absolute_url(),
+            'cancel_url': self.get_cancel_url(obj),
         })
 
     def post(self, request, *args, **kwargs):
@@ -216,19 +232,24 @@ class ObjectDeleteView(View):
         if form.is_valid():
             try:
                 obj.delete()
-                msg = u'Deleted {} {}'.format(self.model._meta.verbose_name, obj)
-                messages.success(request, msg)
-                UserAction.objects.log_delete(request.user, obj, msg)
-                return redirect(self.redirect_url)
             except ProtectedError, e:
                 handle_protectederror(obj, request, e)
                 return redirect(obj.get_absolute_url())
+            msg = u'Deleted {} {}'.format(self.model._meta.verbose_name, obj)
+            messages.success(request, msg)
+            UserAction.objects.log_delete(request.user, obj, msg)
+            if self.redirect_url:
+                return redirect(self.redirect_url)
+            elif hasattr(obj, 'get_parent_url'):
+                return redirect(obj.get_parent_url())
+            else:
+                return redirect('home')
 
         return render(request, self.template_name, {
             'obj': obj,
             'form': form,
             'obj_type': self.model._meta.verbose_name,
-            'cancel_url': obj.get_absolute_url(),
+            'cancel_url': self.get_cancel_url(obj),
         })
 
 
@@ -347,7 +368,7 @@ class BulkEditView(View):
 
         selected_objects = self.cls.objects.filter(pk__in=pk_list)
         if not selected_objects:
-            messages.warning(request, "No {} were selected.".format(self.cls._meta.verbose_name_plural))
+            messages.warning(request, u"No {} were selected.".format(self.cls._meta.verbose_name_plural))
             return redirect(redirect_url)
 
         return render(request, self.template_name, {
@@ -460,7 +481,7 @@ class BulkDeleteView(View):
 
         selected_objects = self.cls.objects.filter(pk__in=pk_list)
         if not selected_objects:
-            messages.warning(request, "No {} were selected for deletion.".format(self.cls._meta.verbose_name_plural))
+            messages.warning(request, u"No {} were selected for deletion.".format(self.cls._meta.verbose_name_plural))
             return redirect(redirect_url)
 
         return render(request, self.template_name, {

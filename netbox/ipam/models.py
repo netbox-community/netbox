@@ -29,6 +29,12 @@ PREFIX_STATUS_CHOICES = (
     (3, 'Deprecated')
 )
 
+IPADDRESS_STATUS_CHOICES = (
+    (1, 'Active'),
+    (2, 'Reserved'),
+    (5, 'DHCP')
+)
+
 VLAN_STATUS_CHOICES = (
     (1, 'Active'),
     (2, 'Reserved'),
@@ -40,6 +46,8 @@ STATUS_CHOICE_CLASSES = {
     1: 'primary',
     2: 'info',
     3: 'danger',
+    4: 'warning',
+    5: 'success',
 }
 
 
@@ -131,16 +139,22 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
             if self.pk:
                 covering_aggregates = covering_aggregates.exclude(pk=self.pk)
             if covering_aggregates:
-                raise ValidationError("{} is already covered by an existing aggregate ({})"
-                                      .format(self.prefix, covering_aggregates[0]))
+                raise ValidationError({
+                    'prefix': "Aggregates cannot overlap. {} is already covered by an existing aggregate ({}).".format(
+                        self.prefix, covering_aggregates[0]
+                    )
+                })
 
             # Ensure that the aggregate being added does not cover an existing aggregate
             covered_aggregates = Aggregate.objects.filter(prefix__net_contained=str(self.prefix))
             if self.pk:
                 covered_aggregates = covered_aggregates.exclude(pk=self.pk)
             if covered_aggregates:
-                raise ValidationError("{} overlaps with an existing aggregate ({})"
-                                      .format(self.prefix, covered_aggregates[0]))
+                raise ValidationError({
+                    'prefix': "Aggregates cannot overlap. {} covers an existing aggregate ({}).".format(
+                        self.prefix, covered_aggregates[0]
+                    )
+                })
 
     def save(self, *args, **kwargs):
         if self.prefix:
@@ -260,14 +274,17 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
         return reverse('ipam:prefix', args=[self.pk])
 
     def clean(self):
+
         # Disallow host masks
         if self.prefix:
             if self.prefix.version == 4 and self.prefix.prefixlen == 32:
-                raise ValidationError("Cannot create host addresses (/32) as prefixes. These should be IPv4 addresses "
-                                      "instead.")
+                raise ValidationError({
+                    'prefix': "Cannot create host addresses (/32) as prefixes. Create an IPv4 address instead."
+                })
             elif self.prefix.version == 6 and self.prefix.prefixlen == 128:
-                raise ValidationError("Cannot create host addresses (/128) as prefixes. These should be IPv6 addresses "
-                                      "instead.")
+                raise ValidationError({
+                    'prefix': "Cannot create host addresses (/128) as prefixes. Create an IPv6 address instead."
+                })
 
     def save(self, *args, **kwargs):
         if self.prefix:
@@ -329,14 +346,16 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     which has a NAT outside IP, that Interface's Device can use either the inside or outside IP as its primary IP.
     """
     family = models.PositiveSmallIntegerField(choices=AF_CHOICES, editable=False)
-    address = IPAddressField()
+    address = IPAddressField(help_text="IPv4 or IPv6 address (with mask)")
     vrf = models.ForeignKey('VRF', related_name='ip_addresses', on_delete=models.PROTECT, blank=True, null=True,
                             verbose_name='VRF')
     tenant = models.ForeignKey(Tenant, related_name='ip_addresses', blank=True, null=True, on_delete=models.PROTECT)
+    status = models.PositiveSmallIntegerField('Status', choices=IPADDRESS_STATUS_CHOICES, default=1)
     interface = models.ForeignKey(Interface, related_name='ip_addresses', on_delete=models.CASCADE, blank=True,
                                   null=True)
     nat_inside = models.OneToOneField('self', related_name='nat_outside', on_delete=models.SET_NULL, blank=True,
-                                      null=True, verbose_name='NAT IP (inside)')
+                                      null=True, verbose_name='NAT (Inside)',
+                                      help_text="The IP for which this address is the \"outside\" IP")
     description = models.CharField(max_length=100, blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
@@ -360,13 +379,16 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
             duplicate_ips = IPAddress.objects.filter(vrf=self.vrf, address__net_host=str(self.address.ip))\
                 .exclude(pk=self.pk)
             if duplicate_ips:
-                raise ValidationError("Duplicate IP address found in VRF {}: {}".format(self.vrf,
-                                                                                        duplicate_ips.first()))
+                raise ValidationError({
+                    'address': "Duplicate IP address found in VRF {}: {}".format(self.vrf, duplicate_ips.first())
+                })
         elif not self.vrf and settings.ENFORCE_GLOBAL_UNIQUE:
             duplicate_ips = IPAddress.objects.filter(vrf=None, address__net_host=str(self.address.ip))\
                 .exclude(pk=self.pk)
             if duplicate_ips:
-                raise ValidationError("Duplicate IP address found in global table: {}".format(duplicate_ips.first()))
+                raise ValidationError({
+                    'address': "Duplicate IP address found in global table: {}".format(duplicate_ips.first())
+                })
 
     def save(self, *args, **kwargs):
         if self.address:
@@ -387,6 +409,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
             str(self.address),
             self.vrf.rd if self.vrf else '',
             self.tenant.name if self.tenant else '',
+            self.get_status_display(),
             self.device.identifier if self.device else '',
             self.interface.name if self.interface else '',
             'True' if is_primary else '',
@@ -398,6 +421,9 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
         if self.interface:
             return self.interface.device
         return None
+
+    def get_status_class(self):
+        return STATUS_CHOICE_CLASSES[self.status]
 
 
 class VLANGroup(models.Model):
@@ -465,7 +491,9 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
 
         # Validate VLAN group
         if self.group and self.group.site != self.site:
-            raise ValidationError("VLAN group must belong to the assigned site ({}).".format(self.site))
+            raise ValidationError({
+                'group': "VLAN group must belong to the assigned site ({}).".format(self.site)
+            })
 
     def to_csv(self):
         return ','.join([

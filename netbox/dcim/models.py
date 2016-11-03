@@ -107,6 +107,8 @@ IFACE_FF_E3 = 4050
 # Stacking
 IFACE_FF_STACKWISE = 5000
 IFACE_FF_STACKWISE_PLUS = 5050
+IFACE_FF_FLEXSTACK = 5100
+IFACE_FF_FLEXSTACK_PLUS = 5150
 # Other
 IFACE_FF_OTHER = 32767
 
@@ -164,6 +166,8 @@ IFACE_FF_CHOICES = [
         [
             [IFACE_FF_STACKWISE, 'Cisco StackWise'],
             [IFACE_FF_STACKWISE_PLUS, 'Cisco StackWise Plus'],
+            [IFACE_FF_FLEXSTACK, 'Cisco FlexStack'],
+            [IFACE_FF_FLEXSTACK_PLUS, 'Cisco FlexStack Plus'],
         ]
     ],
     [
@@ -375,6 +379,8 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
                                              help_text='Rail-to-rail width')
     u_height = models.PositiveSmallIntegerField(default=42, verbose_name='Height (U)',
                                                 validators=[MinValueValidator(1), MaxValueValidator(100)])
+    desc_units = models.BooleanField(default=False, verbose_name='Descending units',
+                                     help_text='Units are numbered top-to-bottom')
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
@@ -401,8 +407,11 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
             if top_device:
                 min_height = top_device.position + top_device.device_type.u_height - 1
                 if self.u_height < min_height:
-                    raise ValidationError("Rack must be at least {}U tall with currently installed devices."
-                                          .format(min_height))
+                    raise ValidationError({
+                        'u_height': "Rack must be at least {}U tall to house currently installed devices.".format(
+                            min_height
+                        )
+                    })
 
     def to_csv(self):
         return ','.join([
@@ -419,7 +428,10 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
 
     @property
     def units(self):
-        return reversed(range(1, self.u_height + 1))
+        if self.desc_units:
+            return range(1, self.u_height + 1)
+        else:
+            return reversed(range(1, self.u_height + 1))
 
     @property
     def display_name(self):
@@ -438,7 +450,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
         """
 
         elevation = OrderedDict()
-        for u in reversed(range(1, self.u_height + 1)):
+        for u in self.units:
             elevation[u] = {'id': u, 'name': 'U{}'.format(u), 'face': face, 'device': None}
 
         # Add devices to rack units list
@@ -476,7 +488,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
         """
 
         # Gather all devices which consume U space within the rack
-        devices = self.devices.select_related().filter(position__gte=1).exclude(pk__in=exclude)
+        devices = self.devices.select_related('device_type').filter(position__gte=1).exclude(pk__in=exclude)
 
         # Initialize the rack unit skeleton
         units = range(1, self.u_height + 1)
@@ -506,9 +518,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
         """
         Determine the utilization rate of the rack and return it as a percentage.
         """
-        if self.u_consumed is None:
-                self.u_consumed = 0
-        u_available = self.u_height - self.u_consumed
+        u_available = len(self.get_available_units())
         return int(float(self.u_height - u_available) / self.u_height * 100)
 
 
@@ -596,27 +606,39 @@ class DeviceType(models.Model):
                 u_available = d.rack.get_available_units(u_height=self.u_height, rack_face=face_required,
                                                          exclude=[d.pk])
                 if d.position not in u_available:
-                    raise ValidationError("Device {} in rack {} does not have sufficient space to accommodate a height "
-                                          "of {}U".format(d, d.rack, self.u_height))
+                    raise ValidationError({
+                        'u_height': "Device {} in rack {} does not have sufficient space to accommodate a height of "
+                                    "{}U".format(d, d.rack, self.u_height)
+                    })
 
         if not self.is_console_server and self.cs_port_templates.count():
-            raise ValidationError("Must delete all console server port templates associated with this device before "
-                                  "declassifying it as a console server.")
+            raise ValidationError({
+                'is_console_server': "Must delete all console server port templates associated with this device before "
+                                     "declassifying it as a console server."
+            })
 
         if not self.is_pdu and self.power_outlet_templates.count():
-            raise ValidationError("Must delete all power outlet templates associated with this device before "
-                                  "declassifying it as a PDU.")
+            raise ValidationError({
+                'is_pdu': "Must delete all power outlet templates associated with this device before declassifying it "
+                          "as a PDU."
+            })
 
         if not self.is_network_device and self.interface_templates.filter(mgmt_only=False).count():
-            raise ValidationError("Must delete all non-management-only interface templates associated with this device "
-                                  "before declassifying it as a network device.")
+            raise ValidationError({
+                'is_network_device': "Must delete all non-management-only interface templates associated with this "
+                                     "device before declassifying it as a network device."
+            })
 
         if self.subdevice_role != SUBDEVICE_ROLE_PARENT and self.device_bay_templates.count():
-            raise ValidationError("Must delete all device bay templates associated with this device before "
-                                  "declassifying it as a parent device.")
+            raise ValidationError({
+                'subdevice_role': "Must delete all device bay templates associated with this device before "
+                                  "declassifying it as a parent device."
+            })
 
         if self.u_height and self.subdevice_role == SUBDEVICE_ROLE_CHILD:
-            raise ValidationError("Child device types must be 0U.")
+            raise ValidationError({
+                'u_height': "Child device types must be 0U."
+            })
 
     @property
     def is_parent_device(self):
@@ -800,7 +822,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     rack = models.ForeignKey('Rack', related_name='devices', on_delete=models.PROTECT)
     position = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1)],
                                                 verbose_name='Position (U)',
-                                                help_text='Number of the lowest U position occupied by the device')
+                                                help_text='The lowest-numbered unit occupied by the device')
     face = models.PositiveSmallIntegerField(blank=True, null=True, choices=RACK_FACE_CHOICES, verbose_name='Rack face')
     status = models.BooleanField(choices=STATUS_CHOICES, default=STATUS_ACTIVE, verbose_name='Status')
     primary_ip4 = models.OneToOneField('ipam.IPAddress', related_name='primary_ip4_for', on_delete=models.SET_NULL,
@@ -824,29 +846,39 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
 
     def clean(self):
 
-        # Validate device type assignment
-        if not hasattr(self, 'device_type'):
-            raise ValidationError("Must specify device type.")
-
-        # Child devices cannot be assigned to a rack face/unit
-        if self.device_type.is_child_device and (self.face is not None or self.position):
-            raise ValidationError("Child device types cannot be assigned a rack face or position.")
-
         # Validate position/face combination
         if self.position and self.face is None:
-            raise ValidationError("Must specify rack face with rack position.")
+            raise ValidationError({
+                'face': "Must specify rack face when defining rack position."
+            })
 
-        # Validate rack space
-        rack_face = self.face if not self.device_type.is_full_depth else None
-        exclude_list = [self.pk] if self.pk else []
-        try:
-            available_units = self.rack.get_available_units(u_height=self.device_type.u_height, rack_face=rack_face,
-                                                            exclude=exclude_list)
-            if self.position and self.position not in available_units:
-                raise ValidationError("U{} is already occupied or does not have sufficient space to accommodate a(n) "
-                                      "{} ({}U).".format(self.position, self.device_type, self.device_type.u_height))
-        except Rack.DoesNotExist:
-            pass
+        if self.device_type:
+
+            # Child devices cannot be assigned to a rack face/unit
+            if self.device_type.is_child_device and self.face is not None:
+                raise ValidationError({
+                    'face': "Child device types cannot be assigned to a rack face. This is an attribute of the parent "
+                            "device."
+                })
+            if self.device_type.is_child_device and self.position:
+                raise ValidationError({
+                    'position': "Child device types cannot be assigned to a rack position. This is an attribute of the "
+                                "parent device."
+                })
+
+            # Validate rack space
+            rack_face = self.face if not self.device_type.is_full_depth else None
+            exclude_list = [self.pk] if self.pk else []
+            try:
+                available_units = self.rack.get_available_units(u_height=self.device_type.u_height, rack_face=rack_face,
+                                                                exclude=exclude_list)
+                if self.position and self.position not in available_units:
+                    raise ValidationError({
+                        'position': "U{} is already occupied or does not have sufficient space to accommodate a(n) {} "
+                                    "({}U).".format(self.position, self.device_type, self.device_type.u_height)
+                    })
+            except Rack.DoesNotExist:
+                pass
 
     def save(self, *args, **kwargs):
 
@@ -961,6 +993,9 @@ class ConsolePort(models.Model):
     def __unicode__(self):
         return self.name
 
+    def get_parent_url(self):
+        return self.device.get_absolute_url()
+
     # Used for connections export
     def to_csv(self):
         return ','.join([
@@ -1002,6 +1037,9 @@ class ConsoleServerPort(models.Model):
     def __unicode__(self):
         return self.name
 
+    def get_parent_url(self):
+        return self.device.get_absolute_url()
+
 
 class PowerPort(models.Model):
     """
@@ -1019,6 +1057,9 @@ class PowerPort(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def get_parent_url(self):
+        return self.device.get_absolute_url()
 
     # Used for connections export
     def to_csv(self):
@@ -1054,6 +1095,9 @@ class PowerOutlet(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def get_parent_url(self):
+        return self.device.get_absolute_url()
 
 
 class InterfaceManager(models.Manager):
@@ -1091,12 +1135,16 @@ class Interface(models.Model):
     def __unicode__(self):
         return self.name
 
+    def get_parent_url(self):
+        return self.device.get_absolute_url()
+
     def clean(self):
 
         if self.form_factor == IFACE_FF_VIRTUAL and self.is_connected:
-            raise ValidationError({'form_factor': "Virtual interfaces cannot be connected to another interface or "
-                                                  "circuit. Disconnect the interface or choose a physical form "
-                                                  "factor."})
+            raise ValidationError({
+                'form_factor': "Virtual interfaces cannot be connected to another interface or circuit. Disconnect the "
+                               "interface or choose a physical form factor."
+            })
 
     @property
     def is_physical(self):
@@ -1147,7 +1195,9 @@ class InterfaceConnection(models.Model):
 
     def clean(self):
         if self.interface_a == self.interface_b:
-            raise ValidationError("Cannot connect an interface to itself")
+            raise ValidationError({
+                'interface_b': "Cannot connect an interface to itself."
+            })
 
     # Used for connections export
     def to_csv(self):
@@ -1176,12 +1226,16 @@ class DeviceBay(models.Model):
     def __unicode__(self):
         return u'{} - {}'.format(self.device.name, self.name)
 
+    def get_parent_url(self):
+        return self.device.get_absolute_url()
+
     def clean(self):
 
         # Validate that the parent Device can have DeviceBays
         if not self.device.device_type.is_parent_device:
-            raise ValidationError("This type of device ({}) does not support device bays."
-                                  .format(self.device.device_type))
+            raise ValidationError("This type of device ({}) does not support device bays.".format(
+                self.device.device_type
+            ))
 
         # Cannot install a device into itself, obviously
         if self.device == self.installed_device:
@@ -1208,3 +1262,6 @@ class Module(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def get_parent_url(self):
+        return reverse('dcim:device_inventory', args=[self.device.pk])

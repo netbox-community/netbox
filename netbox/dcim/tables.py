@@ -72,7 +72,7 @@ STATUS_ICON = """
 
 UTILIZATION_GRAPH = """
 {% load helpers %}
-{% utilization_graph record.get_utilization %}
+{% utilization_graph value %}
 """
 
 
@@ -148,13 +148,12 @@ class RackTable(BaseTable):
     role = tables.TemplateColumn(RACK_ROLE, verbose_name='Role')
     u_height = tables.TemplateColumn("{{ record.u_height }}U", verbose_name='Height')
     devices = tables.Column(accessor=Accessor('device_count'), verbose_name='Devices')
-    u_consumed = tables.TemplateColumn("{{ record.u_consumed|default:'0' }}U", verbose_name='Used')
-    utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
+    get_utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
 
     class Meta(BaseTable.Meta):
         model = Rack
-        fields = ('pk', 'name', 'site', 'group', 'facility_id', 'tenant', 'role', 'u_height', 'devices', 'u_consumed',
-                  'utilization')
+        fields = ('pk', 'name', 'site', 'group', 'facility_id', 'tenant', 'role', 'u_height', 'devices',
+                  'get_utilization')
 
 
 class RackImportTable(BaseTable):
@@ -196,10 +195,12 @@ class DeviceTypeTable(BaseTable):
     manufacturer = tables.Column(verbose_name='Manufacturer')
     model = tables.LinkColumn('dcim:devicetype', args=[Accessor('pk')], verbose_name='Device Type')
     part_number = tables.Column(verbose_name='Part Number')
+    is_full_depth = tables.BooleanColumn(verbose_name='Full Depth')
+    instance_count = tables.Column(verbose_name='Instances')
 
     class Meta(BaseTable.Meta):
         model = DeviceType
-        fields = ('pk', 'model', 'manufacturer', 'part_number', 'u_height')
+        fields = ('pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'instance_count')
 
 
 #
@@ -357,7 +358,7 @@ class PowerConnectionTable(BaseTable):
                             args=[Accessor('power_outlet.device.pk')], verbose_name='PDU')
     power_outlet = tables.Column(verbose_name='Outlet')
     device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
-    name = tables.Column(verbose_name='Console port')
+    name = tables.Column(verbose_name='Power Port')
 
     class Meta(BaseTable.Meta):
         model = PowerPort

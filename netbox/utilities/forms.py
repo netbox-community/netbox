@@ -11,23 +11,49 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 
-EXPANSION_PATTERN = '\[(\d+-\d+)\]'
+NUMERIC_EXPANSION_PATTERN = '\[(\d+-\d+)\]'
+IP4_EXPANSION_PATTERN = '\[([0-9]{1,3}-[0-9]{1,3})\]'
+IP6_EXPANSION_PATTERN = '\[([0-9a-f]{1,4}-[0-9a-f]{1,4})\]'
 
 
-def expand_pattern(string):
+def expand_numeric_pattern(string):
     """
     Expand a numeric pattern into a list of strings. Examples:
       'ge-0/0/[0-3]' => ['ge-0/0/0', 'ge-0/0/1', 'ge-0/0/2', 'ge-0/0/3']
       'xe-0/[0-3]/[0-7]' => ['xe-0/0/0', 'xe-0/0/1', 'xe-0/0/2', ... 'xe-0/3/5', 'xe-0/3/6', 'xe-0/3/7']
     """
-    lead, pattern, remnant = re.split(EXPANSION_PATTERN, string, maxsplit=1)
+    lead, pattern, remnant = re.split(NUMERIC_EXPANSION_PATTERN, string, maxsplit=1)
     x, y = pattern.split('-')
     for i in range(int(x), int(y) + 1):
-        if re.search(EXPANSION_PATTERN, remnant):
-            for string in expand_pattern(remnant):
+        if re.search(NUMERIC_EXPANSION_PATTERN, remnant):
+            for string in expand_numeric_pattern(remnant):
                 yield "{}{}{}".format(lead, i, string)
         else:
             yield "{}{}{}".format(lead, i, remnant)
+
+
+def expand_ipaddress_pattern(string, family):
+    """
+    Expand an IP address pattern into a list of strings. Examples:
+      '192.0.2.[1-254]/24' => ['192.0.2.1/24', '192.0.2.2/24', '192.0.2.3/24' ... '192.0.2.254/24']
+      '2001:db8:0:[0-ff]::/64' => ['2001:db8:0:0::/64', '2001:db8:0:1::/64', ... '2001:db8:0:ff::/64']
+    """
+    if family not in [4, 6]:
+        raise Exception("Invalid IP address family: {}".format(family))
+    if family == 4:
+        regex = IP4_EXPANSION_PATTERN
+        base = 10
+    else:
+        regex = IP6_EXPANSION_PATTERN
+        base = 16
+    lead, pattern, remnant = re.split(regex, string, maxsplit=1)
+    x, y = pattern.split('-')
+    for i in range(int(x, base), int(y, base) + 1):
+        if re.search(regex, remnant):
+            for string in expand_ipaddress_pattern(remnant, family):
+                yield ''.join([lead, format(i, 'x' if family == 6 else 'd'), string])
+        else:
+            yield ''.join([lead, format(i, 'x' if family == 6 else 'd'), remnant])
 
 
 def add_blank_choice(choices):
@@ -178,8 +204,28 @@ class ExpandableNameField(forms.CharField):
                              'Example: <code>ge-0/0/[0-47]</code>'
 
     def to_python(self, value):
-        if re.search(EXPANSION_PATTERN, value):
-            return list(expand_pattern(value))
+        if re.search(NUMERIC_EXPANSION_PATTERN, value):
+            return list(expand_numeric_pattern(value))
+        return [value]
+
+
+class ExpandableIPAddressField(forms.CharField):
+    """
+    A field which allows for expansion of IP address ranges
+      Example: '192.0.2.[1-254]/24' => ['192.0.2.1/24', '192.0.2.2/24', '192.0.2.3/24' ... '192.0.2.254/24']
+    """
+    def __init__(self, *args, **kwargs):
+        super(ExpandableIPAddressField, self).__init__(*args, **kwargs)
+        if not self.help_text:
+            self.help_text = 'Specify a numeric range to create multiple IPs.<br />'\
+                             'Example: <code>192.0.2.[1-254]/24</code>'
+
+    def to_python(self, value):
+        # Hackish address family detection but it's all we have to work with
+        if '.' in value and re.search(IP4_EXPANSION_PATTERN, value):
+            return list(expand_ipaddress_pattern(value, 4))
+        elif ':' in value and re.search(IP6_EXPANSION_PATTERN, value):
+            return list(expand_ipaddress_pattern(value, 6))
         return [value]
 
 

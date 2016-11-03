@@ -1,11 +1,15 @@
 import netaddr
 from django_tables2 import RequestConfig
 
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.db.models import Count, Q
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from dcim.models import Device
+from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -443,6 +447,73 @@ def ipaddress(request, pk):
         'parent_prefixes_table': parent_prefixes_table,
         'duplicate_ips_table': duplicate_ips_table,
         'related_ips_table': related_ips_table,
+    })
+
+
+@permission_required(['dcim.change_device', 'ipam.change_ipaddress'])
+def ipaddress_assign(request, pk):
+
+    ipaddress = get_object_or_404(IPAddress, pk=pk)
+
+    if request.method == 'POST':
+        form = forms.IPAddressAssignForm(request.POST)
+        if form.is_valid():
+
+            interface = form.cleaned_data['interface']
+            ipaddress.interface = interface
+            ipaddress.save()
+            messages.success(request, u"Assigned IP address {} to interface {}.".format(ipaddress, ipaddress.interface))
+
+            if form.cleaned_data['set_as_primary']:
+                device = interface.device
+                if ipaddress.family == 4:
+                    device.primary_ip4 = ipaddress
+                elif ipaddress.family == 6:
+                    device.primary_ip6 = ipaddress
+                device.save()
+
+            return redirect('ipam:ipaddress', pk=ipaddress.pk)
+
+    else:
+        form = forms.IPAddressAssignForm()
+
+    return render(request, 'ipam/ipaddress_assign.html', {
+        'ipaddress': ipaddress,
+        'form': form,
+        'cancel_url': reverse('ipam:ipaddress', kwargs={'pk': ipaddress.pk}),
+    })
+
+
+@permission_required(['dcim.change_device', 'ipam.change_ipaddress'])
+def ipaddress_remove(request, pk):
+
+    ipaddress = get_object_or_404(IPAddress, pk=pk)
+
+    if request.method == 'POST':
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+
+            device = ipaddress.interface.device
+            ipaddress.interface = None
+            ipaddress.save()
+            messages.success(request, u"Removed IP address {} from {}.".format(ipaddress, device))
+
+            if device.primary_ip4 == ipaddress.pk:
+                device.primary_ip4 = None
+                device.save()
+            elif device.primary_ip6 == ipaddress.pk:
+                device.primary_ip6 = None
+                device.save()
+
+            return redirect('ipam:ipaddress', pk=ipaddress.pk)
+
+    else:
+        form = ConfirmationForm()
+
+    return render(request, 'ipam/ipaddress_unassign.html', {
+        'ipaddress': ipaddress,
+        'form': form,
+        'cancel_url': reverse('ipam:ipaddress', kwargs={'pk': ipaddress.pk}),
     })
 
 

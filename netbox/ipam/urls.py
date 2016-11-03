@@ -56,6 +56,8 @@ urlpatterns = [
     url(r'^ip-addresses/delete/$', views.IPAddressBulkDeleteView.as_view(), name='ipaddress_bulk_delete'),
     url(r'^ip-addresses/(?P<pk>\d+)/$', views.ipaddress, name='ipaddress'),
     url(r'^ip-addresses/(?P<pk>\d+)/edit/$', views.IPAddressEditView.as_view(), name='ipaddress_edit'),
+    url(r'^ip-addresses/(?P<pk>\d+)/assign/$', views.ipaddress_assign, name='ipaddress_assign'),
+    url(r'^ip-addresses/(?P<pk>\d+)/remove/$', views.ipaddress_remove, name='ipaddress_remove'),
     url(r'^ip-addresses/(?P<pk>\d+)/delete/$', views.IPAddressDeleteView.as_view(), name='ipaddress_delete'),
 
     # VLAN groups

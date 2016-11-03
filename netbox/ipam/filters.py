@@ -232,7 +232,7 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = IPAddress
-        fields = ['q', 'family', 'device_id', 'device', 'interface_id']
+        fields = ['q', 'family', 'status', 'device_id', 'device', 'interface_id']
 
     def search(self, queryset, value):
         qs_filter = Q(description__icontains=value)

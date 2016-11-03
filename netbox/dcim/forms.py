@@ -142,7 +142,8 @@ class RackForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = Rack
-        fields = ['site', 'group', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height', 'comments']
+        fields = ['site', 'group', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
+                  'comments']
         help_texts = {
             'site': "The site at which the rack exists",
             'name': "Organizational rack name",
@@ -178,7 +179,8 @@ class RackFromCSVForm(forms.ModelForm):
 
     class Meta:
         model = Rack
-        fields = ['site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height']
+        fields = ['site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height',
+                  'desc_units']
 
     def clean(self):
 
@@ -368,7 +370,7 @@ class DeviceForm(BootstrapMixin, CustomFieldForm):
         attrs={'filter-for': 'position'}
     ))
     position = forms.TypedChoiceField(required=False, empty_value=None,
-                                      help_text="For multi-U devices, this is the lowest occupied rack unit.",
+                                      help_text="The lowest-numbered unit occupied by the device",
                                       widget=APISelect(api_url='/api/dcim/racks/{{rack}}/rack-units/?face={{face}}',
                                                        disabled_indicator='device'))
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(),
@@ -580,6 +582,18 @@ class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
     class Meta:
         nullable_fields = ['tenant', 'platform']
+
+
+class DeviceBulkAddComponentForm(forms.Form, BootstrapMixin):
+    pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
+    name_pattern = ExpandableNameField(label='Name')
+
+
+class DeviceBulkAddInterfaceForm(forms.ModelForm, DeviceBulkAddComponentForm):
+
+    class Meta:
+        model = Interface
+        fields = ['name_pattern', 'form_factor', 'mgmt_only', 'description']
 
 
 class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -1012,10 +1026,6 @@ class InterfaceCreateForm(forms.ModelForm, BootstrapMixin):
         fields = ['name_pattern', 'form_factor', 'mac_address', 'mgmt_only', 'description']
 
 
-class InterfaceBulkCreateForm(InterfaceCreateForm, BootstrapMixin):
-    pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
-
-
 class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
     form_factor = forms.ChoiceField(choices=add_blank_choice(IFACE_FF_CHOICES), required=False)
@@ -1226,15 +1236,12 @@ class InterfaceConnectionFilterForm(forms.Form, BootstrapMixin):
 # IP addresses
 #
 
-class IPAddressForm(forms.ModelForm, BootstrapMixin):
+class IPAddressForm(BootstrapMixin, CustomFieldForm):
     set_as_primary = forms.BooleanField(label='Set as primary IP for device', required=False)
 
     class Meta:
         model = IPAddress
-        fields = ['address', 'vrf', 'interface', 'set_as_primary']
-        help_texts = {
-            'address': 'IPv4 or IPv6 address (with mask)'
-        }
+        fields = ['address', 'vrf', 'tenant', 'status', 'interface', 'description']
 
     def __init__(self, device, *args, **kwargs):
 
@@ -1251,7 +1258,7 @@ class IPAddressForm(forms.ModelForm, BootstrapMixin):
 
 
 #
-# Interfaces
+# Modules
 #
 
 class ModuleForm(forms.ModelForm, BootstrapMixin):

@@ -9,6 +9,7 @@
             {% render_field form.address %}
             {% render_field form.vrf %}
             {% render_field form.tenant %}
+            {% render_field form.status %}
             {% if obj %}
                 <div class="form-group">
                     <label class="col-md-3 control-label">Device</label>
@@ -16,8 +17,12 @@
                         <p class="form-control-static">
                             {% if obj.interface %}
                                 <a href="{% url 'dcim:device' pk=obj.interface.device.pk %}">{{ obj.interface.device }}</a>
+                                <a href="{% url 'ipam:ipaddress_remove' pk=obj.pk %}" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-remove"></i> Remove</a>
                             {% else %}
-                                <span>None</span>
+                                <span class="text-muted">None</span>
+                                {% if obj.pk %}
+                                    <a href="{% url 'ipam:ipaddress_assign' pk=obj.pk %}" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-plus"></i> Assign</a>
+                                {% endif %}
                             {% endif %}
                         </p>
                     </div>
@@ -25,7 +30,13 @@
                 <div class="form-group">
                     <label class="col-md-3 control-label">Interface</label>
                     <div class="col-md-9">
-                        <p class="form-control-static">{{ obj.interface }}</p>
+                        <p class="form-control-static">
+                            {% if obj.interface %}
+                                {{ obj.interface }}
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </p>
                     </div>
                 </div>
             {% endif %}

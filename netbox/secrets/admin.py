@@ -34,7 +34,7 @@ class UserKeyAdmin(admin.ModelAdmin):
         try:
             my_userkey = UserKey.objects.get(user=request.user)
         except UserKey.DoesNotExist:
-            messages.error(request, "You do not have an active User Key.")
+            messages.error(request, u"You do not have an active User Key.")
             return redirect('/admin/secrets/userkey/')
 
         if 'activate' in request.POST:
@@ -46,7 +46,7 @@ class UserKeyAdmin(admin.ModelAdmin):
                         uk.activate(master_key)
                     return redirect('/admin/secrets/userkey/')
                 except ValueError:
-                    messages.error(request, "Invalid private key provided. Unable to retrieve master key.")
+                    messages.error(request, u"Invalid private key provided. Unable to retrieve master key.")
         else:
             form = ActivateUserKeyForm(initial={'_selected_action': request.POST.getlist(admin.ACTION_CHECKBOX_NAME)})
 

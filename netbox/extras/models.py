@@ -268,10 +268,11 @@ class TopologyMap(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
     site = models.ForeignKey('dcim.Site', related_name='topology_maps', blank=True, null=True)
-    device_patterns = models.TextField(help_text="Identify devices to include in the diagram using regular expressions,"
-                                                 "one per line. Each line will result in a new tier of the drawing. "
-                                                 "Separate multiple regexes on a line using commas. Devices will be "
-                                                 "rendered in the order they are defined.")
+    device_patterns = models.TextField(
+        help_text="Identify devices to include in the diagram using regular expressions, one per line. Each line will "
+                  "result in a new tier of the drawing. Separate multiple regexes within a line using semicolons. "
+                  "Devices will be rendered in the order they are defined."
+    )
     description = models.CharField(max_length=100, blank=True)
 
     class Meta:

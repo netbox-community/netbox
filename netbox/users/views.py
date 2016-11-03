@@ -29,7 +29,7 @@ def login(request):
 
             # Authenticate user
             auth_login(request, form.get_user())
-            messages.info(request, "Logged in as {0}.".format(request.user))
+            messages.info(request, u"Logged in as {}.".format(request.user))
 
             return HttpResponseRedirect(redirect_to)
 
@@ -44,7 +44,7 @@ def login(request):
 def logout(request):
 
     auth_logout(request)
-    messages.info(request, "You have logged out.")
+    messages.info(request, u"You have logged out.")
     return HttpResponseRedirect(reverse('home'))
 
 
@@ -67,7 +67,7 @@ def change_password(request):
         if form.is_valid():
             form.save()
             update_session_auth_hash(request, form.user)
-            messages.success(request, "Your password has been changed successfully.")
+            messages.success(request, u"Your password has been changed successfully.")
             return redirect('users:profile')
 
     else:
@@ -105,7 +105,7 @@ def userkey_edit(request):
             uk = form.save(commit=False)
             uk.user = request.user
             uk.save()
-            messages.success(request, "Your user key has been saved.")
+            messages.success(request, u"Your user key has been saved.")
             return redirect('users:userkey')
 
     else:

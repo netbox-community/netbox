@@ -49,6 +49,7 @@ class SiteTest(APITestCase):
         'type',
         'width',
         'u_height',
+        'desc_units',
         'comments',
         'custom_fields',
     ]
@@ -129,6 +130,7 @@ class RackTest(APITestCase):
         'type',
         'width',
         'u_height',
+        'desc_units',
         'comments',
         'custom_fields',
     ]
@@ -145,6 +147,7 @@ class RackTest(APITestCase):
         'type',
         'width',
         'u_height',
+        'desc_units',
         'comments',
         'custom_fields',
         'front_units',
