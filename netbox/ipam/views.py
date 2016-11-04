@@ -1,5 +1,6 @@
-import netaddr
+from collections import OrderedDict
 from django_tables2 import RequestConfig
+import netaddr
 
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -16,7 +17,7 @@ from utilities.views import (
 )
 
 from . import filters, forms, tables
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, VLAN, VLANGroup, VRF
+from .models import Aggregate, IPAddress, PREFIX_STATUS_ACTIVE, PREFIX_STATUS_DEPRECATED, PREFIX_STATUS_RESERVED, Prefix, RIR, Role, VLAN, VLANGroup, VRF
 
 
 def add_available_prefixes(parent, prefix_list):
@@ -655,3 +656,76 @@ class VLANBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_vlan'
     cls = VLAN
     default_redirect_url = 'ipam:vlan_list'
+
+
+#
+# Miscellaneous
+#
+
+def rir_stats(request, family=4):
+
+    denominator = 2 ** 64 if family == 6 else 1
+
+    stats = OrderedDict()
+    for rir in RIR.objects.all():
+
+        stats[rir] = {
+            'total': 0,
+            'active': 0,
+            'reserved': 0,
+            'deprecated': 0,
+            'available': 0,
+        }
+        aggregate_list = Aggregate.objects.filter(family=family, rir=rir)
+        for aggregate in aggregate_list:
+
+            queryset = Prefix.objects.filter(prefix__net_contained_or_equal=str(aggregate.prefix))
+
+            # Find all consumed space for each prefix status (we ignore containers for this purpose).
+            active_prefixes = netaddr.cidr_merge([p.prefix for p in queryset.filter(status=PREFIX_STATUS_ACTIVE)])
+            reserved_prefixes = netaddr.cidr_merge([p.prefix for p in queryset.filter(status=PREFIX_STATUS_RESERVED)])
+            deprecated_prefixes = netaddr.cidr_merge([p.prefix for p in queryset.filter(status=PREFIX_STATUS_DEPRECATED)])
+
+            # Find all available prefixes by subtracting each of the existing prefix sets from the aggregate prefix.
+            available_prefixes = (
+                netaddr.IPSet([aggregate.prefix])
+                - netaddr.IPSet(active_prefixes)
+                - netaddr.IPSet(reserved_prefixes)
+                - netaddr.IPSet(deprecated_prefixes)
+            )
+
+            # Add the size of each metric to the RIR total.
+            stats[rir]['total'] += aggregate.prefix.size / denominator
+            stats[rir]['active'] += netaddr.IPSet(active_prefixes).size / denominator
+            stats[rir]['reserved'] += netaddr.IPSet(reserved_prefixes).size / denominator
+            stats[rir]['deprecated'] += netaddr.IPSet(deprecated_prefixes).size / denominator
+            stats[rir]['available'] += available_prefixes.size / denominator
+
+        # Calculate the percentage of total space for each prefix status.
+        total = float(stats[rir]['total'])
+        stats[rir]['percentages'] = {
+            'active': float('{:.2f}'.format(stats[rir]['active'] / total * 100)) if total else 0,
+            'reserved': float('{:.2f}'.format(stats[rir]['reserved'] / total * 100)) if total else 0,
+            'deprecated': float('{:.2f}'.format(stats[rir]['deprecated'] / total * 100)) if total else 0,
+            'available': float('{:.2f}'.format(stats[rir]['available'] / total * 100)) if total else 0,
+        }
+        stats[rir]['percentages']['available'] = (
+            100
+            - stats[rir]['percentages']['active']
+            - stats[rir]['percentages']['reserved']
+            - stats[rir]['percentages']['deprecated']
+        )
+
+    totals = {
+        'total': sum([counts['total'] for rir, counts in stats.items()]),
+        'active': sum([counts['active'] for rir, counts in stats.items()]),
+        'reserved': sum([counts['reserved'] for rir, counts in stats.items()]),
+        'deprecated': sum([counts['deprecated'] for rir, counts in stats.items()]),
+        'available': sum([counts['available'] for rir, counts in stats.items()]),
+    }
+
+    return render(request, 'ipam/stats.html', {
+        'stats': stats,
+        'totals': totals,
+        'family': family,
+    })

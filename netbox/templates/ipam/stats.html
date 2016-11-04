@@ -1,0 +1,90 @@
+{% extends '_base.html' %}
+{% load humanize %}
+{% load render_table from django_tables2 %}
+
+{% block title %}RIR Statistics{% endblock %}
+
+{% block content %}
+<h1>RIR Statistics</h1>
+<div class="row">
+    <div class="col-md-9">
+        <ul class="nav nav-tabs" style="margin-bottom: 20px">
+            <li role="presentation"{% if family == 4 %} class="active"{% endif %}><a href="{% url 'ipam:rir_stats' %}">IPv4</a></li>
+            <li role="presentation"{% if family == 6 %} class="active"{% endif %}><a href="{% url 'ipam:rir_stats_ipv6' %}">IPv6</a></li>
+        </ul>
+        {% if family == 6 %}
+            <div class="alert alert-info alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <strong>Note:</strong> Numbers shown here indicate equivalent /64 prefixes, not individual IP addresses.
+            </div>
+        {% endif %}
+        {% for rir, counts in stats.items %}
+            <h3>{{ rir }}</h3>
+            <div class="progress">
+                {% if counts.total %}
+                    <div class="progress-bar" role="progressbar" style="width: {{ counts.percentages.active }}%;">
+                        <span class="sr-only">{{ counts.percentages.active }}%</span>
+                    </div>
+                    <div class="progress-bar progress-bar-info" role="progressbar" style="width: {{ counts.percentages.reserved }}%;">
+                        <span class="sr-only">{{ counts.percentages.reserved }}%</span>
+                    </div>
+                    <div class="progress-bar progress-bar-danger" role="progressbar" style="width: {{ counts.percentages.deprecated }}%;">
+                        <span class="sr-only">{{ counts.percentages.deprecated }}%</span>
+                    </div>
+                    <div class="progress-bar progress-bar-success" role="progressbar" style="width: {{ counts.percentages.available }}%;">
+                        <span class="sr-only">{{ counts.percentages.available }}%</span>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="row">
+                <div class="col-md-2 col-md-offset-2 text-center">
+                    <h4><span class="label label-default">{{ counts.total|intcomma }}</span></h4>
+                    Total
+                </div>
+                <div class="col-md-2 text-center">
+                    <h4><span class="label label-primary">{{ counts.active|intcomma }}</span></h4>
+                    Active
+                </div>
+                <div class="col-md-2 text-center">
+                    <h4><span class="label label-info">{{ counts.reserved|intcomma }}</span></h4>
+                    Reserved
+                </div>
+                <div class="col-md-2 text-center">
+                    <h4><span class="label label-danger">{{ counts.deprecated|intcomma }}</span></h4>
+                    Deprecated
+                </div>
+                <div class="col-md-2 text-center">
+                    <h4><span class="label label-success">{{ counts.available|intcomma }}</span></h4>
+                    Available
+                </div>
+            </div>
+        {% endfor %}
+        <hr />
+        <div class="row">
+            <div class="col-md-2">
+                <h3>Totals</h3>
+            </div>
+            <div class="col-md-2 text-center">
+                <h3>{{ totals.total|intcomma }}</h3>
+                All IPv{{ family }} space
+            </div>
+            <div class="col-md-2 text-center">
+                <h3>{{ totals.active|intcomma }}</h3>
+                Active
+            </div>
+            <div class="col-md-2 text-center">
+                <h3>{{ totals.reserved|intcomma }}</h3>
+                Reserved
+            </div>
+            <div class="col-md-2 text-center">
+                <h3>{{ totals.deprecated|intcomma }}</h3>
+                Deprecated
+            </div>
+            <div class="col-md-2 text-center">
+                <h3>{{ totals.available|intcomma }}</h3>
+                Available
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

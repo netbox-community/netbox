@@ -19,6 +19,8 @@ urlpatterns = [
     url(r'^rirs/$', views.RIRListView.as_view(), name='rir_list'),
     url(r'^rirs/add/$', views.RIREditView.as_view(), name='rir_add'),
     url(r'^rirs/delete/$', views.RIRBulkDeleteView.as_view(), name='rir_bulk_delete'),
+    url(r'^rirs/stats/$', views.rir_stats, name='rir_stats'),
+    url(r'^rirs/stats/ipv6/$', views.rir_stats, kwargs={'family': 6}, name='rir_stats_ipv6'),
     url(r'^rirs/(?P<slug>[\w-]+)/edit/$', views.RIREditView.as_view(), name='rir_edit'),
 
     # Aggregates
