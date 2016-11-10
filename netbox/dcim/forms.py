@@ -268,6 +268,9 @@ class DeviceTypeBulkEditForm(BulkEditForm, BootstrapMixin):
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), required=False)
     u_height = forms.IntegerField(min_value=1, required=False)
 
+    class Meta:
+        nullable_fields = []
+
 
 class DeviceTypeFilterForm(forms.Form, BootstrapMixin):
     manufacturer = FilterChoiceField(queryset=Manufacturer.objects.annotate(filter_count=Count('device_types')),
