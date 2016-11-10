@@ -220,12 +220,11 @@ class PrefixFromCSVForm(forms.ModelForm):
             self.add_error('vlan_vid', "Must specify site and/or VLAN group when assigning a VLAN.")
 
     def save(self, *args, **kwargs):
-        m = super(PrefixFromCSVForm, self).save(commit=False)
+
         # Assign Prefix status by name
-        m.status = dict(self.fields['status_name'].choices)[self.cleaned_data['status_name']]
-        if kwargs.get('commit'):
-            m.save()
-        return m
+        self.instance.status = dict(self.fields['status_name'].choices)[self.cleaned_data['status_name']]
+
+        return super(PrefixFromCSVForm, self).save(*args, **kwargs)
 
 
 class PrefixImportForm(BulkImportForm, BootstrapMixin):
@@ -391,7 +390,10 @@ class IPAddressFromCSVForm(forms.ModelForm):
         if is_primary and not device:
             self.add_error('is_primary', "No device specified; cannot set as primary IP")
 
-    def save(self, commit=True):
+    def save(self, *args, **kwargs):
+
+        # Assign status by name
+        self.instance.status = dict(self.fields['status_name'].choices)[self.cleaned_data['status_name']]
 
         # Set interface
         if self.cleaned_data['device'] and self.cleaned_data['interface_name']:
@@ -404,7 +406,7 @@ class IPAddressFromCSVForm(forms.ModelForm):
             elif self.instance.address.version == 6:
                 self.instance.primary_ip6_for = self.cleaned_data['device']
 
-        return super(IPAddressFromCSVForm, self).save(commit=commit)
+        return super(IPAddressFromCSVForm, self).save(*args, **kwargs)
 
 
 class IPAddressImportForm(BulkImportForm, BootstrapMixin):
