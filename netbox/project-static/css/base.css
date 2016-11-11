@@ -85,6 +85,9 @@ label.required {
 th.pk, td.pk {
     width: 30px;
 }
+tfoot td {
+    font-weight: bold;
+}
 
 /* Paginator */
 nav ul.pagination {
