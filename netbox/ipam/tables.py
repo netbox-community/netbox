@@ -127,11 +127,16 @@ class RIRTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn(verbose_name='Name')
     aggregate_count = tables.Column(verbose_name='Aggregates')
-    stats_total = tables.Column(accessor='stats.total', verbose_name='Total')
-    stats_active = tables.Column(accessor='stats.active', verbose_name='Active')
-    stats_reserved = tables.Column(accessor='stats.reserved', verbose_name='Reserved')
-    stats_deprecated = tables.Column(accessor='stats.deprecated', verbose_name='Deprecated')
-    stats_available = tables.Column(accessor='stats.available', verbose_name='Available')
+    stats_total = tables.Column(accessor='stats.total', verbose_name='Total',
+                                footer=lambda table: sum(r.stats['total'] for r in table.data))
+    stats_active = tables.Column(accessor='stats.active', verbose_name='Active',
+                                footer=lambda table: sum(r.stats['active'] for r in table.data))
+    stats_reserved = tables.Column(accessor='stats.reserved', verbose_name='Reserved',
+                                footer=lambda table: sum(r.stats['reserved'] for r in table.data))
+    stats_deprecated = tables.Column(accessor='stats.deprecated', verbose_name='Deprecated',
+                                footer=lambda table: sum(r.stats['deprecated'] for r in table.data))
+    stats_available = tables.Column(accessor='stats.available', verbose_name='Available',
+                                footer=lambda table: sum(r.stats['available'] for r in table.data))
     utilization = tables.TemplateColumn(template_code=RIR_UTILIZATION, verbose_name='Utilization')
     actions = tables.TemplateColumn(template_code=RIR_ACTIONS, attrs={'td': {'class': 'text-right'}}, verbose_name='')
 

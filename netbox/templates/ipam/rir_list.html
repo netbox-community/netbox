@@ -6,6 +6,17 @@
 
 {% block content %}
 <div class="pull-right">
+    {% if request.GET.family == '6' %}
+        <a href="{% url 'ipam:rir_list' %}" class="btn btn-default">
+            <span class="fa fa-table" aria-hidden="true"></span>
+            IPv4 Stats
+        </a>
+    {% else %}
+        <a href="{% url 'ipam:rir_list' %}?family=6" class="btn btn-default">
+            <span class="fa fa-table" aria-hidden="true"></span>
+            IPv6 Stats
+        </a>
+    {% endif %}
     {% if perms.ipam.add_rir %}
         <a href="{% url 'ipam:rir_add' %}" class="btn btn-primary">
             <span class="fa fa-plus" aria-hidden="true"></span>
@@ -19,29 +30,7 @@
         {% include 'utilities/obj_table.html' with bulk_delete_url='ipam:rir_bulk_delete' %}
     </div>
 </div>
-<div class="row">
-    <div class="col-md-2">
-        <h3>Totals</h3>
-    </div>
-    <div class="col-md-2 text-center">
-        <h3>{{ totals.total|intcomma }}</h3>
-        All IPv4 space
-    </div>
-    <div class="col-md-2 text-center">
-        <h3>{{ totals.active|intcomma }}</h3>
-        Active
-    </div>
-    <div class="col-md-2 text-center">
-        <h3>{{ totals.reserved|intcomma }}</h3>
-        Reserved
-    </div>
-    <div class="col-md-2 text-center">
-        <h3>{{ totals.deprecated|intcomma }}</h3>
-        Deprecated
-    </div>
-    <div class="col-md-2 text-center">
-        <h3>{{ totals.available|intcomma }}</h3>
-        Available
-    </div>
-</div>
+{% if request.GET.family == '6' %}
+    <div class="pull-right text-muted"><strong>Note:</strong> Numbers shown indicate /64 prefixes.</div>
+{% endif %}
 {% endblock %}

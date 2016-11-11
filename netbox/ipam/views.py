@@ -160,9 +160,12 @@ class RIRListView(ObjectListView):
 
     def alter_queryset(self, request):
 
-        # Count /64s for IPv6 rather than individual IPs
-        family = 4
-        denominator = 2 ** 64 if family == 6 else 1
+        if request.GET.get('family') == '6':
+            family = 6
+            denominator = 2 ** 64  # Count /64s for IPv6 rather than individual IPs
+        else:
+            family = 4
+            denominator = 1
 
         rirs = []
         for rir in self.queryset:
