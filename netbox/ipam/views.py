@@ -189,10 +189,10 @@ class RIRListView(ObjectListView):
 
                 # Find all available prefixes by subtracting each of the existing prefix sets from the aggregate prefix.
                 available_prefixes = (
-                    netaddr.IPSet([aggregate.prefix])
-                    - netaddr.IPSet(active_prefixes)
-                    - netaddr.IPSet(reserved_prefixes)
-                    - netaddr.IPSet(deprecated_prefixes)
+                    netaddr.IPSet([aggregate.prefix]) -
+                    netaddr.IPSet(active_prefixes) -
+                    netaddr.IPSet(reserved_prefixes) -
+                    netaddr.IPSet(deprecated_prefixes)
                 )
 
                 # Add the size of each metric to the RIR total.
@@ -210,10 +210,10 @@ class RIRListView(ObjectListView):
                 'deprecated': float('{:.2f}'.format(stats['deprecated'] / total * 100)) if total else 0,
             }
             stats['percentages']['available'] = (
-                100
-                - stats['percentages']['active']
-                - stats['percentages']['reserved']
-                - stats['percentages']['deprecated']
+                100 -
+                stats['percentages']['active'] -
+                stats['percentages']['reserved'] -
+                stats['percentages']['deprecated']
             )
             rir.stats = stats
             rirs.append(rir)
