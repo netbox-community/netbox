@@ -237,16 +237,14 @@
                 {% for pp in power_ports %}
                     {% include 'dcim/inc/_powerport.html' %}
                 {% empty %}
-                    {% if not device.device_type.is_pdu %}
-                        <tr>
-                            <td colspan="5" class="alert-warning">
-                                <i class="fa fa-fw fa-warning"></i> No power ports defined
-                                {% if perms.dcim.add_powerport %}
-                                    <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endif %}
+                    <tr>
+                        <td colspan="5" class="alert-warning">
+                            <i class="fa fa-fw fa-warning"></i> No power ports defined
+                            {% if perms.dcim.add_powerport %}
+                                <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+                            {% endif %}
+                        </td>
+                    </tr>
                 {% endfor %}
             </table>
             {% if perms.dcim.add_interface or perms.dcim.add_consoleport or perms.dcim.add_powerport %}
@@ -261,7 +259,7 @@
                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console port
                         </a>
                     {% endif %}
-                    {% if perms.dcim.add_powerport and not device.device_type.is_pdu %}
+                    {% if perms.dcim.add_powerport %}
                         <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power port
                         </a>
