@@ -22,23 +22,33 @@ AF_CHOICES = (
     (6, 'IPv6'),
 )
 
+PREFIX_STATUS_CONTAINER = 0
+PREFIX_STATUS_ACTIVE = 1
+PREFIX_STATUS_RESERVED = 2
+PREFIX_STATUS_DEPRECATED = 3
 PREFIX_STATUS_CHOICES = (
-    (0, 'Container'),
-    (1, 'Active'),
-    (2, 'Reserved'),
-    (3, 'Deprecated')
+    (PREFIX_STATUS_CONTAINER, 'Container'),
+    (PREFIX_STATUS_ACTIVE, 'Active'),
+    (PREFIX_STATUS_RESERVED, 'Reserved'),
+    (PREFIX_STATUS_DEPRECATED, 'Deprecated')
 )
 
+IPADDRESS_STATUS_ACTIVE = 1
+IPADDRESS_STATUS_RESERVED = 2
+IPADDRESS_STATUS_DHCP = 5
 IPADDRESS_STATUS_CHOICES = (
-    (1, 'Active'),
-    (2, 'Reserved'),
-    (5, 'DHCP')
+    (IPADDRESS_STATUS_ACTIVE, 'Active'),
+    (IPADDRESS_STATUS_RESERVED, 'Reserved'),
+    (IPADDRESS_STATUS_DHCP, 'DHCP')
 )
 
+VLAN_STATUS_ACTIVE = 1
+VLAN_STATUS_RESERVED = 2
+VLAN_STATUS_DEPRECATED = 3
 VLAN_STATUS_CHOICES = (
-    (1, 'Active'),
-    (2, 'Reserved'),
-    (3, 'Deprecated')
+    (VLAN_STATUS_ACTIVE, 'Active'),
+    (VLAN_STATUS_RESERVED, 'Reserved'),
+    (VLAN_STATUS_DEPRECATED, 'Deprecated')
 )
 
 STATUS_CHOICE_CLASSES = {

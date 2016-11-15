@@ -1,5 +1,6 @@
-import netaddr
+from collections import OrderedDict
 from django_tables2 import RequestConfig
+import netaddr
 
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -16,7 +17,7 @@ from utilities.views import (
 )
 
 from . import filters, forms, tables
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, VLAN, VLANGroup, VRF
+from .models import Aggregate, IPAddress, PREFIX_STATUS_ACTIVE, PREFIX_STATUS_DEPRECATED, PREFIX_STATUS_RESERVED, Prefix, RIR, Role, VLAN, VLANGroup, VRF
 
 
 def add_available_prefixes(parent, prefix_list):
@@ -156,6 +157,82 @@ class RIRListView(ObjectListView):
     table = tables.RIRTable
     edit_permissions = ['ipam.change_rir', 'ipam.delete_rir']
     template_name = 'ipam/rir_list.html'
+
+    def alter_queryset(self, request):
+
+        if request.GET.get('family') == '6':
+            family = 6
+            denominator = 2 ** 64  # Count /64s for IPv6 rather than individual IPs
+        else:
+            family = 4
+            denominator = 1
+
+        rirs = []
+        for rir in self.queryset:
+
+            stats = {
+                'total': 0,
+                'active': 0,
+                'reserved': 0,
+                'deprecated': 0,
+                'available': 0,
+            }
+            aggregate_list = Aggregate.objects.filter(family=family, rir=rir)
+            for aggregate in aggregate_list:
+
+                queryset = Prefix.objects.filter(prefix__net_contained_or_equal=str(aggregate.prefix))
+
+                # Find all consumed space for each prefix status (we ignore containers for this purpose).
+                active_prefixes = netaddr.cidr_merge([p.prefix for p in queryset.filter(status=PREFIX_STATUS_ACTIVE)])
+                reserved_prefixes = netaddr.cidr_merge([p.prefix for p in queryset.filter(status=PREFIX_STATUS_RESERVED)])
+                deprecated_prefixes = netaddr.cidr_merge([p.prefix for p in queryset.filter(status=PREFIX_STATUS_DEPRECATED)])
+
+                # Find all available prefixes by subtracting each of the existing prefix sets from the aggregate prefix.
+                available_prefixes = (
+                    netaddr.IPSet([aggregate.prefix]) -
+                    netaddr.IPSet(active_prefixes) -
+                    netaddr.IPSet(reserved_prefixes) -
+                    netaddr.IPSet(deprecated_prefixes)
+                )
+
+                # Add the size of each metric to the RIR total.
+                stats['total'] += aggregate.prefix.size / denominator
+                stats['active'] += netaddr.IPSet(active_prefixes).size / denominator
+                stats['reserved'] += netaddr.IPSet(reserved_prefixes).size / denominator
+                stats['deprecated'] += netaddr.IPSet(deprecated_prefixes).size / denominator
+                stats['available'] += available_prefixes.size / denominator
+
+            # Calculate the percentage of total space for each prefix status.
+            total = float(stats['total'])
+            stats['percentages'] = {
+                'active': float('{:.2f}'.format(stats['active'] / total * 100)) if total else 0,
+                'reserved': float('{:.2f}'.format(stats['reserved'] / total * 100)) if total else 0,
+                'deprecated': float('{:.2f}'.format(stats['deprecated'] / total * 100)) if total else 0,
+            }
+            stats['percentages']['available'] = (
+                100 -
+                stats['percentages']['active'] -
+                stats['percentages']['reserved'] -
+                stats['percentages']['deprecated']
+            )
+            rir.stats = stats
+            rirs.append(rir)
+
+        return rirs
+
+    def extra_context(self):
+
+        totals = {
+            'total': sum([rir.stats['total'] for rir in self.queryset]),
+            'active': sum([rir.stats['active'] for rir in self.queryset]),
+            'reserved': sum([rir.stats['reserved'] for rir in self.queryset]),
+            'deprecated': sum([rir.stats['deprecated'] for rir in self.queryset]),
+            'available': sum([rir.stats['available'] for rir in self.queryset]),
+        }
+
+        return {
+            'totals': totals,
+        }
 
 
 class RIREditView(PermissionRequiredMixin, ObjectEditView):

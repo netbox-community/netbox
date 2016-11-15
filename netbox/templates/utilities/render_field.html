@@ -16,6 +16,13 @@
                     <input type="checkbox" name="_nullify" value="{{ field.name }}" /> Set null
                 </label>
             {% endif %}
+            {% if field.errors %}
+                <ul>
+                    {% for error in field.errors %}
+                        <li class="text-danger">{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </div>
     {% elif field|widget_type == 'textarea' %}
         <div class="col-md-12">

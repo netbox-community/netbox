@@ -268,6 +268,9 @@ class DeviceTypeBulkEditForm(BulkEditForm, BootstrapMixin):
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), required=False)
     u_height = forms.IntegerField(min_value=1, required=False)
 
+    class Meta:
+        nullable_fields = []
+
 
 class DeviceTypeFilterForm(forms.Form, BootstrapMixin):
     manufacturer = FilterChoiceField(queryset=Manufacturer.objects.annotate(filter_count=Count('device_types')),
@@ -1249,10 +1252,15 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
 
         self.fields['vrf'].empty_label = 'Global'
 
-        self.fields['interface'].queryset = device.interfaces.all()
+        interfaces = device.interfaces.all()
+        self.fields['interface'].queryset = interfaces
         self.fields['interface'].required = True
 
-        # If this device does not have any IP addresses assigned, default to setting the first IP as its primary
+        # If this device has only one interface, select it by default.
+        if len(interfaces) == 1:
+            self.fields['interface'].initial = interfaces[0]
+
+        # If this device does not have any IP addresses assigned, default to setting the first IP as its primary.
         if not IPAddress.objects.filter(interface__device=device).count():
             self.fields['set_as_primary'].initial = True
 

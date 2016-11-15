@@ -852,8 +852,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
                 'face': "Must specify rack face when defining rack position."
             })
 
-        if self.device_type:
-
+        try:
             # Child devices cannot be assigned to a rack face/unit
             if self.device_type.is_child_device and self.face is not None:
                 raise ValidationError({
@@ -879,6 +878,9 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
                     })
             except Rack.DoesNotExist:
                 pass
+
+        except DeviceType.DoesNotExist:
+            pass
 
     def save(self, *args, **kwargs):
 
