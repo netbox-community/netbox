@@ -448,11 +448,11 @@ class ServicePort(CreatedUpdatedModel):
     A ServicePort is always associated with a specific IPAddress on a Device.
 
     If an user wants to specify a service running on all IP Addresses on a device,
-    this can be done by assigning the port to the '0.0.0.0/32' IPAddress.
+    this can be done by assigning the port to the '0.0.0.0/32' or '::/128' IPAddress.
 
     The combination of IPAddress, Port Number and Port Protocol is always unique for ServicePort.
 
-    If a port number + port protocol combination is assigned to '0.0.0.0/32' IPAddress,
+    If a port number + port protocol combination is assigned to '0.0.0.0/32' or '::/128' IPAddress,
     it cannot be assigned to any other IPAddress on the same Device.
     """
 
@@ -484,12 +484,16 @@ class ServicePort(CreatedUpdatedModel):
         return None
 
     def clean(self):
-        # if port is already assigned on '0.0.0.0/32'
+        # if port is already assigned on '0.0.0.0/32' or '::/128'
         # that means it is assigned on all IPs on the device
         port_assigned_on_all_ips = bool(ServicePort.objects.filter(
+            ip_address__address='::/128', port=self.port, protocol=self.protocol).exclude(pk=self.id))
+        port_assigned_on_all_v4_ips = bool(ServicePort.objects.filter(
             ip_address__address='0.0.0.0/32', port=self.port, protocol=self.protocol).exclude(pk=self.id))
         if port_assigned_on_all_ips:
-            raise ValidationError('Port already assigned on address 0.0.0.0/24')
+            raise ValidationError('Port already assigned on address ::/128')
+        elif port_assigned_on_all_v4_ips and self.ip_address.family == 4:
+            raise ValidationError('Port already assigned on address 0.0.0.0/32')
 
     def save(self, *args, **kwargs):
         super(ServicePort, self).save(*args, **kwargs)

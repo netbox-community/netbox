@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0009_ipaddress_add_status'),
+        ('ipam', '0010_ipaddress_help_texts'),
     ]
 
     operations = [
