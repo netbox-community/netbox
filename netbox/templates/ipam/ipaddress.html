@@ -9,7 +9,7 @@
         <ol class="breadcrumb">
             <li><a href="{% url 'ipam:ipaddress_list' %}">IP Addresses</a></li>
             {% if ipaddress.vrf %}
-                <li><a href="{% url 'ipam:ipaddress_list' %}?vrf={{ ipaddress.vrf.pk }}">{{ ipaddress.vrf }}</a></li>
+                <li><a href="{% url 'ipam:vrf' pk=ipaddress.vrf.pk %}">{{ ipaddress.vrf }}</a></li>
             {% endif %}
             <li>{{ ipaddress }}</li>
         </ol>
