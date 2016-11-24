@@ -576,7 +576,7 @@ def device(request, pk):
     # Find all IP addresses assigned to this device
     ip_addresses = IPAddress.objects.filter(interface__device=device).select_related('interface', 'vrf')\
         .order_by('address')
-    service_ports = ServicePort.objects.filter(ip_address__interface__device=device).order_by('ip_address', 'port')
+    service_ports = ServicePort.objects.filter(device=device).order_by('ip_address', 'port')
 
     # Find any related devices for convenient linking in the UI
     related_devices = []
@@ -1606,12 +1606,21 @@ def serviceport_assign(request, pk):
     device = get_object_or_404(Device, pk=pk)
 
     if request.method == 'POST':
-        form = forms.ServicePortForm(device, request.POST)
+        form = forms.ServicePortCreateForm(device, request.POST)
         if form.is_valid():
-            service_port = form.save(commit=False)
-            service_port.save()
-            messages.success(request, "Added new port {0} to IP Address {1}".format(service_port,
-                                                                                    service_port.ip_address))
+            serv_form = forms.ServicePortForm({
+                'device': device.pk,
+                'ip_address': form.cleaned_data['ip_address'].pk,
+                'protocol': form.cleaned_data['protocol'],
+                'port': form.cleaned_data['port'],
+                'name': form.cleaned_data['name'],
+                'description': form.cleaned_data['description'],
+            })
+            if serv_form.is_valid():
+                service_port = serv_form.save(commit=False)
+                service_port.save()
+                messages.success(request, "Added new port {0} for device {1}".format(service_port,
+                                                                                     service_port.device))
 
             if '_addanother' in request.POST:
                 return redirect('dcim:serviceport_assign', pk=device.pk)
@@ -1619,7 +1628,7 @@ def serviceport_assign(request, pk):
                 return redirect('dcim:device', pk=device.pk)
 
     else:
-        form = forms.ServicePortForm(device)
+        form = forms.ServicePortCreateForm(device)
 
     return render(request, 'dcim/serviceport_assign.html', {
         'device': device,

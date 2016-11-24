@@ -143,7 +143,7 @@ class ServicePortListView(generics.ListAPIView):
     """
     List IP addresses (filterable)
     """
-    queryset = ServicePort.objects.select_related('ip_address', 'port', 'protocol', 'name', 'description')
+    queryset = ServicePort.objects.select_related('device', 'ip_address', 'port', 'protocol', 'name', 'description')
     serializer_class = serializers.ServicePortSerializer
 
 
@@ -151,7 +151,7 @@ class ServicePortDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single IP address
     """
-    queryset = ServicePort.objects.select_related('ip_address', 'port', 'protocol', 'name', 'description')
+    queryset = ServicePort.objects.select_related('device', 'ip_address', 'port', 'protocol', 'name', 'description')
     serializer_class = serializers.ServicePortSerializer
 
 

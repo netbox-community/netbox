@@ -1273,6 +1273,16 @@ class ServicePortForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = ServicePort
+        fields = ['device', 'ip_address', 'protocol', 'port', 'name', 'description']
+        widgets = {
+            'device': forms.HiddenInput(),
+        }
+
+
+class ServicePortCreateForm(forms.ModelForm, BootstrapMixin):
+
+    class Meta:
+        model = ServicePort
         fields = ['ip_address', 'protocol', 'port', 'name', 'description']
         help_texts = {
             'port': '0-65535',
@@ -1284,7 +1294,7 @@ class ServicePortForm(forms.ModelForm, BootstrapMixin):
         }
 
     def __init__(self, device, *args, **kwargs):
-        super(ServicePortForm, self).__init__(*args, **kwargs)
+        super(ServicePortCreateForm, self).__init__(*args, **kwargs)
         self.fields['ip_address'].queryset = IPAddress.objects.filter(interface__device=device)
 
 

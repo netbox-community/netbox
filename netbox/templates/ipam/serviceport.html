@@ -38,8 +38,8 @@
                     <td>Device</td>
                     <td>
                         <span>
-                            <a href="{% url 'dcim:device' pk=service_port.ip_address.device.pk %}">
-                                {{ service_port.ip_address.device }}</a> ({{ service_port.ip_address.interface }})
+                            <a href="{% url 'dcim:device' pk=service_port.device.pk %}">
+                                {{ service_port.device }}</a> ({{ service_port.device }})
                         </span>
                     </td>
                 </tr>

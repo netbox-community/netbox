@@ -23,8 +23,8 @@ AF_CHOICES = (
 )
 
 SERVICE_PORT_CHOICES = (
-    (0, 'TCP'),
-    (1, 'UDP'),
+    (6, 'TCP'),
+    (17, 'UDP'),
 )
 
 PREFIX_STATUS_CONTAINER = 0
@@ -456,8 +456,11 @@ class ServicePort(CreatedUpdatedModel):
     it cannot be assigned to any other IPAddress on the same Device.
     """
 
+    device = models.ForeignKey('dcim.Device', related_name='service_ports', on_delete=models.CASCADE,
+                               blank=False, null=False, verbose_name='device')
+
     ip_address = models.ForeignKey('IPAddress', related_name='service_ports', on_delete=models.CASCADE,
-                                   blank=False, null=False, verbose_name='ip_address')
+                                   blank=True, null=True, verbose_name='ip_address')
     protocol = models.PositiveSmallIntegerField(choices=SERVICE_PORT_CHOICES, default=0)
 
     port = models.PositiveIntegerField()
@@ -465,10 +468,10 @@ class ServicePort(CreatedUpdatedModel):
     description = models.TextField(blank=True)
 
     class Meta:
-        ordering = ['ip_address', 'port']
+        ordering = ['device', 'ip_address', 'port']
         verbose_name = 'Service Port'
         verbose_name_plural = 'Service Ports'
-        unique_together = ['ip_address', 'port', 'protocol']
+        unique_together = ['device', 'ip_address', 'port', 'protocol']
 
     def __unicode__(self):
         port_protocol = dict(SERVICE_PORT_CHOICES).get(self.protocol)

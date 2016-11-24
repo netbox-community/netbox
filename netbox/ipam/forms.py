@@ -461,6 +461,11 @@ class ServicePortForm(forms.ModelForm, BootstrapMixin):
             'ip_address': "IP Address",
         }
 
+    def __init__(self, *args, **kwargs):
+        super(ServicePortForm, self).__init__(*args, **kwargs)
+        # self.fields['device'].
+        self.fields['ip_address'].queryset = IPAddress.objects.filter(interface__device=kwargs['instance'].device)
+
 
 #
 # VLAN groups
