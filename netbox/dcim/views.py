@@ -1608,7 +1608,7 @@ def ipaddress_assign(request, pk):
 def serviceport(request, pk):
     service_port = get_object_or_404(ServicePort.objects.select_related('device'), pk=pk)
 
-    return render(request, 'ipam/serviceport.html', {
+    return render(request, 'dcim/serviceport.html', {
         'service_port': service_port,
     })
 
@@ -1618,7 +1618,7 @@ class ServicePortEditView(PermissionRequiredMixin, ObjectEditView):
     model = ServicePort
     form_class = forms.ServiceEditForm
     fields_initial = ['ip_address', 'port' 'protocol', 'name', 'description']
-    template_name = 'ipam/serviceport_edit.html'
+    template_name = 'dcim/serviceport_edit.html'
 
     def post(self, request, *args, **kwargs):
         service_port = self.get_object(kwargs)
