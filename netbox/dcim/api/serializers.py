@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ipam.models import IPAddress
+from ipam.models import IPAddress, ServicePort
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay, DeviceType,
     DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet,
@@ -442,3 +442,32 @@ class InterfaceConnectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = InterfaceConnection
         fields = ['id', 'interface_a', 'interface_b', 'connection_status']
+
+
+#
+# Service Ports
+#
+
+class ServicePortSerializer(serializers.ModelSerializer):
+    device = DeviceNestedSerializer()
+    ip_address = DeviceIPAddressNestedSerializer()
+
+    class Meta:
+        model = ServicePort
+        fields = ['id', 'device', 'ip_address', 'port', 'protocol', 'name', 'description']
+
+
+class ServicePortNestedSerializer(ServicePortSerializer):
+    device = DeviceNestedSerializer()
+    ip_address = DeviceIPAddressNestedSerializer()
+
+    class Meta(ServicePortSerializer.Meta):
+        fields = ['id', 'device', 'ip_address', 'port', 'protocol']
+
+
+class ServicePortDetailSerializer(ServicePortSerializer):
+    device = DeviceNestedSerializer()
+    ip_address = DeviceIPAddressNestedSerializer()
+
+    class Meta(ServicePortSerializer.Meta):
+        fields = ['id', 'device', 'ip_address', 'port', 'protocol', 'name', 'description']

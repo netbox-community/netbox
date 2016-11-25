@@ -16,6 +16,7 @@ from dcim.models import (
 from dcim import filters
 from extras.api.views import CustomFieldModelAPIView
 from extras.api.renderers import BINDZoneRenderer, FlatJSONRenderer
+from ipam.models import ServicePort
 from utilities.api import ServiceUnavailable
 from .exceptions import MissingFilterException
 from . import serializers
@@ -420,6 +421,26 @@ class LLDPNeighborsView(APIView):
             raise ServiceUnavailable(detail="Error connecting to the remote device.")
 
         return Response(lldp_neighbors)
+
+
+#
+# Service Port
+#
+
+class ServicePortListView(generics.ListAPIView):
+    """
+    List IP addresses (filterable)
+    """
+    queryset = ServicePort.objects.select_related('device', 'ip_address', 'port', 'protocol', 'name', 'description')
+    serializer_class = serializers.ServicePortSerializer
+
+
+class ServicePortDetailView(generics.RetrieveAPIView):
+    """
+    Retrieve a single IP address
+    """
+    queryset = ServicePort.objects.select_related('device', 'ip_address', 'port', 'protocol', 'name', 'description')
+    serializer_class = serializers.ServicePortSerializer
 
 
 #

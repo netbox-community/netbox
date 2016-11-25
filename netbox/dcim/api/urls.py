@@ -69,6 +69,10 @@ urlpatterns = [
     url(r'^interface-connections/$', InterfaceConnectionListView.as_view(), name='interfaceconnection_list'),
     url(r'^interface-connections/(?P<pk>\d+)/$', InterfaceConnectionView.as_view(), name='interfaceconnection_detail'),
 
+    # Service ports
+    url(r'^service-ports/$', ServicePortListView.as_view(), name='serviceport_list'),
+    url(r'^service-ports/(?P<pk>\d+)/$', ServicePortDetailView.as_view(), name='serviceport_detail'),
+
     # Miscellaneous
     url(r'^related-connections/$', RelatedConnectionsView.as_view(), name='related_connections'),
     url(r'^topology-maps/(?P<slug>[\w-]+)/$', TopologyMapView.as_view(), name='topology_map'),

@@ -29,10 +29,6 @@ urlpatterns = [
     url(r'^ip-addresses/$', IPAddressListView.as_view(), name='ipaddress_list'),
     url(r'^ip-addresses/(?P<pk>\d+)/$', IPAddressDetailView.as_view(), name='ipaddress_detail'),
 
-    # Service ports
-    url(r'^service-ports/$', ServicePortListView.as_view(), name='serviceport_list'),
-    url(r'^service-ports/(?P<pk>\d+)/$', ServicePortDetailView.as_view(), name='serviceport_detail'),
-
     # VLAN groups
     url(r'^vlan-groups/$', VLANGroupListView.as_view(), name='vlangroup_list'),
     url(r'^vlan-groups/(?P<pk>\d+)/$', VLANGroupDetailView.as_view(), name='vlangroup_detail'),
