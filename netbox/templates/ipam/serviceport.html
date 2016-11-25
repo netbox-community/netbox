@@ -14,13 +14,13 @@
 </div>
 <div class="pull-right">
     {% if perms.ipam.change_ipaddress %}
-        <a href="{% url 'ipam:serviceport_edit' pk=service_port.pk %}" class="btn btn-warning">
+        <a href="{% url 'dcim:serviceport_edit' pk=service_port.pk %}" class="btn btn-warning">
             <span class="fa fa-pencil" aria-hidden="true"></span>
             Edit this Service Port
         </a>
     {% endif %}
     {% if perms.ipam.delete_ipaddress %}
-        <a href="{% url 'ipam:serviceport_delete' pk=service_port.pk %}" class="btn btn-danger">
+        <a href="{% url 'dcim:serviceport_delete' pk=service_port.pk %}" class="btn btn-danger">
             <span class="fa fa-trash" aria-hidden="true"></span>
             Delete this Service Port
         </a>

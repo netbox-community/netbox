@@ -1298,6 +1298,24 @@ class ServicePortCreateForm(forms.ModelForm, BootstrapMixin):
         self.fields['ip_address'].queryset = IPAddress.objects.filter(interface__device=device)
 
 
+class ServiceEditForm(forms.ModelForm, BootstrapMixin):
+    class Meta:
+        model = ServicePort
+        fields = ['ip_address', 'protocol', 'port', 'name', 'description']
+        help_texts = {
+            'port': '0-65535',
+            'name': 'Service running on this port',
+            'description': 'Service description'
+        }
+        labels = {
+            'ip_address': "IP Address",
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(ServiceEditForm, self).__init__(*args, **kwargs)
+        self.fields['ip_address'].queryset = IPAddress.objects.filter(interface__device=kwargs['instance'].device)
+
+
 #
 # Modules
 #

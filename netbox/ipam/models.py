@@ -478,7 +478,7 @@ class ServicePort(CreatedUpdatedModel):
         return u'{}/{}'.format(self.port, port_protocol)
 
     def get_absolute_url(self):
-        return reverse('ipam:serviceport', args=[self.pk])
+        return reverse('dcim:serviceport', args=[self.pk])
 
     @property
     def short_description(self):

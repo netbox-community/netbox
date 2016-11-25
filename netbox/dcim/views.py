@@ -1601,6 +1601,45 @@ def ipaddress_assign(request, pk):
     })
 
 
+#
+# Service Ports
+#
+
+def serviceport(request, pk):
+    service_port = get_object_or_404(ServicePort.objects.select_related('device'), pk=pk)
+
+    return render(request, 'ipam/serviceport.html', {
+        'service_port': service_port,
+    })
+
+
+class ServicePortEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'ipam.change_ipaddress'
+    model = ServicePort
+    form_class = forms.ServiceEditForm
+    fields_initial = ['ip_address', 'port' 'protocol', 'name', 'description']
+    template_name = 'ipam/serviceport_edit.html'
+
+    def post(self, request, *args, **kwargs):
+        service_port = self.get_object(kwargs)
+        device_url = reverse('dcim:device', kwargs={'pk': service_port.device.pk})
+        self.success_url = device_url
+        self.cancel_url = device_url
+
+        return super(ServicePortEditView, self).post(request, *args, **kwargs)
+
+
+class ServicePortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'ipam.delete_ipaddress'
+    model = ServicePort
+
+    def post(self, request, *args, **kwargs):
+        service_port = self.get_object(kwargs)
+        self.redirect_url = reverse('dcim:device', kwargs={'pk': service_port.device.pk})
+
+        return super(ServicePortDeleteView, self).post(request, *args, **kwargs)
+
+
 @permission_required('ipam.add_ipaddress')
 def serviceport_assign(request, pk):
     device = get_object_or_404(Device, pk=pk)
@@ -1610,7 +1649,7 @@ def serviceport_assign(request, pk):
         if form.is_valid():
             serv_form = forms.ServicePortForm({
                 'device': device.pk,
-                'ip_address': form.cleaned_data['ip_address'].pk,
+                'ip_address': form.cleaned_data['ip_address'].pk if form.cleaned_data['ip_address'] else None,
                 'protocol': form.cleaned_data['protocol'],
                 'port': form.cleaned_data['port'],
                 'name': form.cleaned_data['name'],

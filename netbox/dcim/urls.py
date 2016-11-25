@@ -169,4 +169,9 @@ urlpatterns = [
     url(r'^modules/(?P<pk>\d+)/edit/$', views.ModuleEditView.as_view(), name='module_edit'),
     url(r'^modules/(?P<pk>\d+)/delete/$', views.ModuleDeleteView.as_view(), name='module_delete'),
 
+    # ServicePorts
+    url(r'^service-ports/(?P<pk>\d+)/$', views.serviceport, name='serviceport'),
+    url(r'^service-ports/(?P<pk>\d+)/edit/$', views.ServicePortEditView.as_view(), name='serviceport_edit'),
+    url(r'^service-ports/(?P<pk>\d+)/delete/$', views.ServicePortDeleteView.as_view(), name='serviceport_delete'),
+
 ]
