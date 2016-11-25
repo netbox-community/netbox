@@ -103,7 +103,6 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/inventory/$', views.device_inventory, name='device_inventory'),
     url(r'^devices/(?P<pk>\d+)/lldp-neighbors/$', views.device_lldp_neighbors, name='device_lldp_neighbors'),
     url(r'^devices/(?P<pk>\d+)/ip-addresses/assign/$', views.ipaddress_assign, name='ipaddress_assign'),
-    url(r'^devices/(?P<pk>\d+)/service-ports/assign/$', views.serviceport_assign, name='serviceport_assign'),
     url(r'^devices/(?P<pk>\d+)/add-secret/$', secret_add, name='device_addsecret'),
 
     # Console ports
@@ -170,6 +169,7 @@ urlpatterns = [
     url(r'^modules/(?P<pk>\d+)/delete/$', views.ModuleDeleteView.as_view(), name='module_delete'),
 
     # ServicePorts
+    url(r'^devices/(?P<pk>\d+)/service-ports/add/$', views.serviceport_add, name='serviceport_add'),
     url(r'^service-ports/(?P<pk>\d+)/$', views.serviceport, name='serviceport'),
     url(r'^service-ports/(?P<pk>\d+)/edit/$', views.ServicePortEditView.as_view(), name='serviceport_edit'),
     url(r'^service-ports/(?P<pk>\d+)/delete/$', views.ServicePortDeleteView.as_view(), name='serviceport_delete'),

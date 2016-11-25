@@ -222,9 +222,9 @@
             {% endif %}
             {% if perms.ipam.add_ipaddress %}
                 <div class="panel-footer text-right">
-                    <a href="{% url 'dcim:serviceport_assign' pk=device.pk %}" class="btn btn-xs btn-primary">
+                    <a href="{% url 'dcim:serviceport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                        Assign port
+                        Add service port
                     </a>
                 </div>
             {% endif %}

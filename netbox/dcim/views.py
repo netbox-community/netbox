@@ -1641,7 +1641,7 @@ class ServicePortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 
 @permission_required('ipam.add_ipaddress')
-def serviceport_assign(request, pk):
+def serviceport_add(request, pk):
     device = get_object_or_404(Device, pk=pk)
 
     if request.method == 'POST':
@@ -1662,14 +1662,14 @@ def serviceport_assign(request, pk):
                                                                                      service_port.device))
 
             if '_addanother' in request.POST:
-                return redirect('dcim:serviceport_assign', pk=device.pk)
+                return redirect('dcim:serviceport_add', pk=device.pk)
             else:
                 return redirect('dcim:device', pk=device.pk)
 
     else:
         form = forms.ServicePortCreateForm(device)
 
-    return render(request, 'dcim/serviceport_assign.html', {
+    return render(request, 'dcim/serviceport_add.html', {
         'device': device,
         'form': form,
         'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
