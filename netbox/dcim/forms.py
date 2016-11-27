@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Count, Q
 
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
-from ipam.models import IPAddress, ServicePort
+from ipam.models import IPAddress
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, add_blank_choice, BootstrapMixin, BulkEditForm, BulkImportForm, CommentField, CSVDataField,
@@ -18,7 +18,7 @@ from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType,
     Interface, IFACE_FF_CHOICES, IFACE_FF_VIRTUAL, InterfaceConnection, InterfaceTemplate, Manufacturer, Module,
     Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES,
-    Rack, RackGroup, RackRole, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD
+    Rack, RackGroup, RackRole, Site, ServicePort, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD
 )
 
 

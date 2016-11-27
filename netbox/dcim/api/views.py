@@ -12,11 +12,10 @@ from django.shortcuts import get_object_or_404
 from dcim.models import (
     ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, DeviceType, IFACE_FF_VIRTUAL, Interface,
     InterfaceConnection, Manufacturer, Module, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackRole, Site,
-)
+    ServicePort)
 from dcim import filters
 from extras.api.views import CustomFieldModelAPIView
 from extras.api.renderers import BINDZoneRenderer, FlatJSONRenderer
-from ipam.models import ServicePort
 from utilities.api import ServiceUnavailable
 from .exceptions import MissingFilterException
 from . import serializers

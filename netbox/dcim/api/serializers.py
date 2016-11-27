@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
-from ipam.models import IPAddress, ServicePort
+from ipam.models import IPAddress
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay, DeviceType,
     DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet,
     PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, RACK_FACE_FRONT, RACK_FACE_REAR, Site,
     SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
-)
+    ServicePort)
 from extras.api.serializers import CustomFieldSerializer
 from tenancy.api.serializers import TenantNestedSerializer
 

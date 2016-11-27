@@ -13,18 +13,11 @@ from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
 from utilities.models import CreatedUpdatedModel
 from utilities.sql import NullsFirstQuerySet
-
 from .fields import IPNetworkField, IPAddressField
-
 
 AF_CHOICES = (
     (4, 'IPv4'),
     (6, 'IPv6'),
-)
-
-SERVICE_PORT_CHOICES = (
-    (6, 'TCP'),
-    (17, 'UDP'),
 )
 
 PREFIX_STATUS_CONTAINER = 0
@@ -439,76 +432,6 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
 
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]
-
-
-class ServicePort(CreatedUpdatedModel):
-    """
-    A ServicePort represents a port on a specific IPAddress on which a service is running.
-    The port can be one of 2 predefined protocols - TCP or UDP.
-    A ServicePort is always associated with a specific IPAddress on a Device.
-
-    If an user wants to specify a service running on all IP Addresses on a device,
-    this can be done by assigning the port to the '0.0.0.0/32' or '::/128' IPAddress.
-
-    The combination of IPAddress, Port Number and Port Protocol is always unique for ServicePort.
-
-    If a port number + port protocol combination is assigned to '0.0.0.0/32' or '::/128' IPAddress,
-    it cannot be assigned to any other IPAddress on the same Device.
-    """
-
-    device = models.ForeignKey('dcim.Device', related_name='service_ports', on_delete=models.CASCADE,
-                               blank=False, null=False, verbose_name='device')
-
-    ip_address = models.ForeignKey('IPAddress', related_name='service_ports', on_delete=models.CASCADE,
-                                   blank=True, null=True, verbose_name='ip_address')
-    protocol = models.PositiveSmallIntegerField(choices=SERVICE_PORT_CHOICES, default=0)
-
-    port = models.PositiveIntegerField()
-    name = models.CharField(max_length=30, blank=False, null=False)
-    description = models.TextField(blank=True)
-
-    class Meta:
-        ordering = ['device', 'ip_address', 'port']
-        verbose_name = 'Service Port'
-        verbose_name_plural = 'Service Ports'
-        unique_together = ['device', 'ip_address', 'port', 'protocol']
-
-    def __unicode__(self):
-        port_protocol = dict(SERVICE_PORT_CHOICES).get(self.protocol)
-        return u'{}/{}'.format(self.port, port_protocol)
-
-    def get_absolute_url(self):
-        return reverse('dcim:serviceport', args=[self.pk])
-
-    @property
-    def short_description(self):
-        if self.description:
-            return self.description[:30]
-        return None
-
-    def clean(self):
-        # if port is already assigned on '0.0.0.0/32' or '::/128'
-        # that means it is assigned on all IPs on the device
-        port_assigned_on_all_ips = bool(ServicePort.objects.filter(
-            ip_address__address='::/128', port=self.port, protocol=self.protocol).exclude(pk=self.id))
-        port_assigned_on_all_v4_ips = bool(ServicePort.objects.filter(
-            ip_address__address='0.0.0.0/32', port=self.port, protocol=self.protocol).exclude(pk=self.id))
-        if port_assigned_on_all_ips:
-            raise ValidationError('Port already assigned on address ::/128')
-        elif port_assigned_on_all_v4_ips and self.ip_address.family == 4:
-            raise ValidationError('Port already assigned on address 0.0.0.0/32')
-
-    def save(self, *args, **kwargs):
-        super(ServicePort, self).save(*args, **kwargs)
-
-    def to_csv(self):
-        return ','.join([
-            str(self.device_id),
-            self.ip_address,
-            self.port,
-            self.name,
-            self.description,
-        ])
 
 
 class VLANGroup(models.Model):

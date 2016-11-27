@@ -1,6 +1,10 @@
 <tr>
     <td>
-        {{ port.ip_address }}
+        {% if port.ip_address %}
+            {{ port.ip_address }}
+        {% else %}
+            All IP addresses
+        {% endif %}
     </td>
     <td>
         <a href="{% url 'dcim:serviceport' pk=port.pk %}"> {{ port }} </a>
@@ -15,12 +19,12 @@
         {% endif %}
     </td>
     <td class="text-right">
-        {% if perms.ipam.change_ipaddress %}
+        {% if perms.dcim.change_serviceport%}
         <a href="{% url 'dcim:serviceport_edit' pk=port.pk %}" class="btn btn-info btn-xs" title="Edit service port">
             <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
         </a>
         {% endif %}
-        {% if perms.ipam.delete_ipaddress %}
+        {% if perms.dcim.delete_serviceport %}
             <a href="{% url 'dcim:serviceport_delete' pk=port.pk %}" class="btn btn-danger btn-xs">
                 <i class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete port"></i>
             </a>

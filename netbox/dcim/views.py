@@ -8,14 +8,13 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.db import transaction
 from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import urlencode
 from django.views.generic import View
 
-from ipam.models import Prefix, IPAddress, VLAN, ServicePort
+from ipam.models import Prefix, IPAddress, VLAN
 from circuits.models import Circuit
 from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from utilities.forms import ConfirmationForm
@@ -28,7 +27,7 @@ from .models import (
     CONNECTION_STATUS_CONNECTED, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
     DeviceBay, DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate,
     Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackRole, Site,
+    RackRole, ServicePort, Site,
 )
 
 
@@ -1614,7 +1613,7 @@ def serviceport(request, pk):
 
 
 class ServicePortEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.change_ipaddress'
+    permission_required = 'dcim.change_serviceport'
     model = ServicePort
     form_class = forms.ServiceEditForm
     fields_initial = ['ip_address', 'port' 'protocol', 'name', 'description']
@@ -1630,7 +1629,7 @@ class ServicePortEditView(PermissionRequiredMixin, ObjectEditView):
 
 
 class ServicePortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'ipam.delete_ipaddress'
+    permission_required = 'dcim.delete_serviceport'
     model = ServicePort
 
     def post(self, request, *args, **kwargs):
@@ -1640,7 +1639,7 @@ class ServicePortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
         return super(ServicePortDeleteView, self).post(request, *args, **kwargs)
 
 
-@permission_required('ipam.add_ipaddress')
+@permission_required(['dcim.change_device', 'dcim.add_serviceport'])
 def serviceport_add(request, pk):
     device = get_object_or_404(Device, pk=pk)
 

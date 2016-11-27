@@ -203,6 +203,12 @@ RPC_CLIENT_CHOICES = [
 ]
 
 
+SERVICE_PORT_CHOICES = (
+    (6, 'TCP'),
+    (17, 'UDP'),
+)
+
+
 def order_interfaces(queryset, sql_col, primary_ordering=tuple()):
     """
     Attempt to match interface names by their slot/position identifiers and order according. Matching is done using the
@@ -1267,3 +1273,67 @@ class Module(models.Model):
 
     def get_parent_url(self):
         return reverse('dcim:device_inventory', args=[self.device.pk])
+
+
+class ServicePort(CreatedUpdatedModel):
+    """
+    A ServicePort represents a port on a specific IPAddress on which a service is running.
+    The port can be one of 2 predefined protocols - TCP or UDP.
+    A ServicePort is always associated with a specific IPAddress on a Device.
+
+    The combination of IPAddress, Port Number and Port Protocol is always unique for ServicePort.
+
+    If a port number + port protocol combination is already assigned to no specific IPAddress
+    that means it is assigned on all IPs on the device
+    """
+
+    device = models.ForeignKey('Device', related_name='service_ports', on_delete=models.CASCADE,
+                               blank=False, null=False, verbose_name='device')
+
+    ip_address = models.ForeignKey('ipam.IPAddress', related_name='service_ports', on_delete=models.CASCADE,
+                                   blank=True, null=True, verbose_name='ip_address')
+    protocol = models.PositiveSmallIntegerField(choices=SERVICE_PORT_CHOICES, default=0)
+
+    port = models.PositiveIntegerField()
+    name = models.CharField(max_length=30, blank=False, null=False)
+    description = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['device', 'ip_address', 'port']
+        verbose_name = 'Service Port'
+        verbose_name_plural = 'Service Ports'
+        unique_together = ['device', 'ip_address', 'port', 'protocol']
+
+    def __unicode__(self):
+        port_protocol = dict(SERVICE_PORT_CHOICES).get(self.protocol)
+        return u'{}/{}'.format(self.port, port_protocol)
+
+    def get_absolute_url(self):
+        return reverse('dcim:serviceport', args=[self.pk])
+
+    @property
+    def short_description(self):
+        if self.description:
+            return self.description[:30]
+        return None
+
+    def clean(self):
+        # if port is already assigned to no specific IPAddress
+        # that means it is assigned on all IPs on the device
+        port_assigned_on_all_ips = bool(ServicePort.objects.filter(
+            ip_address__address=None, port=self.port, protocol=self.protocol).exclude(pk=self.id))
+        if port_assigned_on_all_ips:
+            raise ValidationError(
+                'Port already assigned all IPAddresses for this device')
+
+    def save(self, *args, **kwargs):
+        super(ServicePort, self).save(*args, **kwargs)
+
+    def to_csv(self):
+        return ','.join([
+            str(self.device_id),
+            self.ip_address,
+            self.port,
+            self.name,
+            self.description,
+        ])

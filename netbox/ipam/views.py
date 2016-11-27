@@ -17,7 +17,7 @@ from utilities.views import (
 
 from . import filters, forms, tables
 from .models import (Aggregate, IPAddress, PREFIX_STATUS_ACTIVE, PREFIX_STATUS_DEPRECATED, PREFIX_STATUS_RESERVED,
-                     Prefix, RIR, Role, VLAN, VLANGroup, VRF, ServicePort)
+                     Prefix, RIR, Role, VLAN, VLANGroup, VRF)
 
 
 def add_available_prefixes(parent, prefix_list):
@@ -644,6 +644,7 @@ class IPAddressBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_ipaddress'
     cls = IPAddress
     default_redirect_url = 'ipam:ipaddress_list'
+
 
 #
 # VLAN groups
