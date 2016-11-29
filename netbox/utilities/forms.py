@@ -234,6 +234,7 @@ class CommentField(forms.CharField):
     A textarea with support for GitHub-Flavored Markdown. Exists mostly just to add a standard help_text.
     """
     widget = forms.Textarea
+    default_label = 'Comments'
     # TODO: Port GFM syntax cheat sheet to internal documentation
     default_helptext = '<i class="fa fa-info-circle"></i> '\
                        '<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">'\
@@ -241,8 +242,9 @@ class CommentField(forms.CharField):
 
     def __init__(self, *args, **kwargs):
         required = kwargs.pop('required', False)
+        label = kwargs.pop('label', self.default_label)
         help_text = kwargs.pop('help_text', self.default_helptext)
-        super(CommentField, self).__init__(required=required, help_text=help_text, *args, **kwargs)
+        super(CommentField, self).__init__(required=required, label=label, help_text=help_text, *args, **kwargs)
 
 
 class FlexibleModelChoiceField(forms.ModelChoiceField):

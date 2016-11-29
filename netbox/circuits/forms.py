@@ -54,7 +54,7 @@ class ProviderBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     portal_url = forms.URLField(required=False, label='Portal')
     noc_contact = forms.CharField(required=False, widget=SmallTextarea, label='NOC contact')
     admin_contact = forms.CharField(required=False, widget=SmallTextarea, label='Admin contact')
-    comments = CommentField()
+    comments = CommentField(widget=SmallTextarea)
 
     class Meta:
         nullable_fields = ['asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments']
@@ -183,7 +183,7 @@ class CircuitBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     port_speed = forms.IntegerField(required=False, label='Port speed (Kbps)')
     commit_rate = forms.IntegerField(required=False, label='Commit rate (Kbps)')
-    comments = CommentField()
+    comments = CommentField(widget=SmallTextarea)
 
     class Meta:
         nullable_fields = ['tenant', 'port_speed', 'commit_rate', 'comments']
