@@ -8,7 +8,9 @@
     <div class="col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'tenancy:tenant_list' %}">Tenants</a></li>
-            <li><a href="{% url 'tenancy:tenant_list' %}?group={{ tenant.group.slug }}">{{ tenant.group }}</a></li>
+            {% if tenant.group %}
+                <li><a href="{% url 'tenancy:tenant_list' %}?group={{ tenant.group.slug }}">{{ tenant.group }}</a></li>
+            {% endif %}
             <li>{{ tenant }}</li>
         </ol>
     </div>
@@ -50,7 +52,11 @@
                 <tr>
                     <td>Group</td>
                     <td>
-                        <a href="{{ tenant.group.get_absolute_url }}">{{ tenant.group }}</a>
+                        {% if tenant.group %}
+                            <a href="{{ tenant.group.get_absolute_url }}">{{ tenant.group }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
                     </td>
                 </tr>
                 <tr>
