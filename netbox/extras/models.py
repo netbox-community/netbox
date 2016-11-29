@@ -165,7 +165,7 @@ class CustomFieldValue(models.Model):
         unique_together = ['field', 'obj_type', 'obj_id']
 
     def __unicode__(self):
-        return '{} {}'.format(self.obj, self.field)
+        return u'{} {}'.format(self.obj, self.field)
 
     @property
     def value(self):
