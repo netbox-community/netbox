@@ -130,7 +130,7 @@ class CustomField(models.Model):
         if self.type == CF_TYPE_SELECT:
             # Could be ModelChoiceField or TypedChoiceField
             return str(value.id) if hasattr(value, 'id') else str(value)
-        return str(value)
+        return value
 
     def deserialize_value(self, serialized_value):
         """
