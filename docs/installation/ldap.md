@@ -17,10 +17,10 @@ On CentOS:
 sudo yum install -y python-devel openldap-devel
 ```
 
-## Install django-auth-ldap
+## Install Python modules
 
 ```
-sudo pip install django-auth-ldap
+sudo pip install django-auth-ldap python-ldap
 ```
 
 # Configuration
