@@ -5,7 +5,7 @@ We'll set up a simple WSGI front end using [gunicorn](http://gunicorn.org/) for 
 !!! info
     Only Debian/Ubuntu instructions are provided here, but the installation process for CentOS/RHEL does not differ much. Please consult the documentation for those distributions for details.
 
-```
+```shell
 # apt-get install -y gunicorn supervisor
 ```
 
@@ -13,13 +13,13 @@ We'll set up a simple WSGI front end using [gunicorn](http://gunicorn.org/) for 
 
 The following will serve as a minimal nginx configuration. Be sure to modify your server name and installation path appropriately.
 
-```
+```shell
 # apt-get install -y nginx
 ```
 
 Once nginx is installed, save the following configuration to `/etc/nginx/sites-available/netbox`. Be sure to replace `netbox.example.com` with the domain name or IP address of your installation. (This should match the value configured for `ALLOWED_HOSTS` in `configuration.py`.)
 
-```
+```nginx
 server {
     listen 80;
 
@@ -43,7 +43,7 @@ server {
 
 Then, delete `/etc/nginx/sites-enabled/default` and create a symlink in the `sites-enabled` directory to the configuration file you just created.
 
-```
+```shell
 # cd /etc/nginx/sites-enabled/
 # rm default
 # ln -s /etc/nginx/sites-available/netbox
@@ -51,7 +51,7 @@ Then, delete `/etc/nginx/sites-enabled/default` and create a symlink in the `sit
 
 Restart the nginx service to use the new configuration.
 
-```
+```shell
 # service nginx restart
 ```
 
@@ -59,13 +59,13 @@ To enable SSL, consider this guide on [securing nginx with Let's Encrypt](https:
 
 ## Option B: Apache
 
-```
+```shell
 # apt-get install -y apache2
 ```
 
 Once Apache is installed, proceed with the following configuration (Be sure to modify the `ServerName` appropriately):
 
-```
+```apache
 <VirtualHost *:80>
     ProxyPreserveHost On
 
@@ -90,7 +90,7 @@ Once Apache is installed, proceed with the following configuration (Be sure to m
 
 Save the contents of the above example in `/etc/apache2/sites-available/netbox.conf`, enable the `proxy` and `proxy_http` modules, and reload Apache:
 
-```
+```shell
 # a2enmod proxy
 # a2enmod proxy_http
 # a2ensite netbox
@@ -103,7 +103,7 @@ To enable SSL, consider this guide on [securing Apache with Let's Encrypt](https
 
 Save the following configuration file in the root netbox installation path (in this example, `/opt/netbox/`) as `gunicorn_config.py`. Be sure to verify the location of the gunicorn executable (e.g. `which gunicorn`) and to update the `pythonpath` variable if needed. If using CentOS/RHEL change the username from `www-data` to `nginx` or `apache`.
 
-```
+```text
 command = '/usr/bin/gunicorn'
 pythonpath = '/opt/netbox/netbox'
 bind = '127.0.0.1:8001'
@@ -115,7 +115,7 @@ user = 'www-data'
 
 Save the following as `/etc/supervisor/conf.d/netbox.conf`. Update the `command` and `directory` paths as needed.
 
-```
+```text
 [program:netbox]
 command = gunicorn -c /opt/netbox/gunicorn_config.py netbox.wsgi
 directory = /opt/netbox/netbox/
@@ -124,7 +124,7 @@ user = www-data
 
 Then, restart the supervisor service to detect and run the gunicorn service:
 
-```
+```shell
 # service supervisor restart
 ```
 
