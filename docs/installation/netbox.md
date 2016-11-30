@@ -2,7 +2,7 @@
 
 **Debian/Ubuntu**
 
-```
+```no-highlight
 # apt-get install -y python2.7 python-dev python-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev
 ```
 
