@@ -8,7 +8,7 @@
 
 **CentOS/RHEL**
 
-```shell
+```no-highlight
 # yum install -y epel-release
 # yum install -y gcc python2 python-devel python-pip libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel
 ```
@@ -19,7 +19,7 @@ You may opt to install NetBox either from a numbered release or by cloning the m
 
 Download the [latest stable release](https://github.com/digitalocean/netbox/releases) from GitHub as a tarball or ZIP archive and extract it to your desired path. In this example, we'll use `/opt/netbox`.
 
-```shell
+```no-highlight
 # wget https://github.com/digitalocean/netbox/archive/vX.Y.Z.tar.gz
 # tar -xzf vX.Y.Z.tar.gz -C /opt
 # cd /opt/
@@ -31,7 +31,7 @@ Download the [latest stable release](https://github.com/digitalocean/netbox/rele
 
 Create the base directory for the NetBox installation. For this guide, we'll use `/opt/netbox`.
 
-```shell
+```no-highlight
 # mkdir -p /opt/netbox/ && cd /opt/netbox/
 ```
 
@@ -39,19 +39,19 @@ If `git` is not already installed, install it:
 
 **Debian/Ubuntu**
 
-```shell
+```no-highlight
 # apt-get install -y git
 ```
 
 **CentOS/RHEL**
 
-```shell
+```no-highlight
 # yum install -y git
 ```
 
 Next, clone the **master** branch of the NetBox GitHub repository into the current directory:
 
-```shell
+```no-highlight
 # git clone -b master https://github.com/digitalocean/netbox.git .
 Cloning into '.'...
 remote: Counting objects: 1994, done.
@@ -66,7 +66,7 @@ Checking connectivity... done.
 
 Install the required Python packages using pip. (If you encounter any compilation errors during this step, ensure that you've installed all of the system dependencies listed above.)
 
-```shell
+```no-highlight
 # pip install -r requirements.txt
 ```
 
@@ -74,7 +74,7 @@ Install the required Python packages using pip. (If you encounter any compilatio
 
 Move into the NetBox configuration directory and make a copy of `configuration.example.py` named `configuration.py`.
 
-```shell
+```no-highlight
 # cd netbox/netbox/
 # cp configuration.example.py configuration.py
 ```
@@ -124,7 +124,7 @@ You may use the script located at `netbox/generate_secret_key.py` to generate a 
 
 Before NetBox can run, we need to install the database schema. This is done by running `./manage.py migrate` from the `netbox` directory (`/opt/netbox/netbox/` in our example):
 
-```shell
+```no-highlight
 # cd /opt/netbox/netbox/
 # ./manage.py migrate
 Operations to perform:
@@ -143,7 +143,7 @@ If this step results in a PostgreSQL authentication error, ensure that the usern
 
 NetBox does not come with any predefined user accounts. You'll need to create a super user to be able to log into NetBox:
 
-```shell
+```no-highlight
 # ./manage.py createsuperuser
 Username: admin
 Email address: admin@example.com
@@ -154,7 +154,7 @@ Superuser created successfully.
 
 # Collect Static Files
 
-```shell
+```no-highlight
 # ./manage.py collectstatic
 
 You have requested to collect static files at the destination
@@ -175,7 +175,7 @@ NetBox ships with some initial data to help you get started: RIR definitions, co
 !!! note
     This step is optional. It's perfectly fine to start using NetBox without using this initial data if you'd rather create everything from scratch.
 
-```shell
+```no-highlight
 # ./manage.py loaddata initial_data
 Installed 43 object(s) from 4 fixture(s)
 ```
@@ -184,7 +184,7 @@ Installed 43 object(s) from 4 fixture(s)
 
 At this point, NetBox should be able to run. We can verify this by starting a development instance:
 
-```shell
+```no-highlight
 # ./manage.py runserver 0.0.0.0:8000 --insecure
 Performing system checks...
 

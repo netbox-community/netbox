@@ -8,7 +8,7 @@ Download the [latest stable release](https://github.com/digitalocean/netbox/rele
 
 Download and extract the latest version:
 
-```shell
+```no-highlight
 # wget https://github.com/digitalocean/netbox/archive/vX.Y.Z.tar.gz
 # tar -xzf vX.Y.Z.tar.gz -C /opt
 # cd /opt/
@@ -17,13 +17,13 @@ Download and extract the latest version:
 
 Copy the 'configuration.py' you created when first installing to the new version:
 
-```shell
+```no-highlight
 # cp /opt/netbox-X.Y.Z/netbox/netbox/configuration.py /opt/netbox/netbox/netbox/configuration.py
 ```
 
 If you followed the original installation guide to set up gunicorn, be sure to copy its configuration as well:
 
-```shell
+```no-highlight
 # cp /opt/netbox-X.Y.Z/gunicorn_config.py /opt/netbox/gunicorn_config.py
 ```
 
@@ -31,7 +31,7 @@ If you followed the original installation guide to set up gunicorn, be sure to c
 
 This guide assumes that NetBox is installed at `/opt/netbox`. Pull down the most recent iteration of the master branch:
 
-```shell
+```no-highlight
 # cd /opt/netbox
 # git checkout master
 # git pull origin master
@@ -42,7 +42,7 @@ This guide assumes that NetBox is installed at `/opt/netbox`. Pull down the most
 
 Once the new code is in place, run the upgrade script (which may need to be run as root depending on how your environment is configured).
 
-```shell
+```no-highlight
 # ./upgrade.sh
 ```
 
@@ -56,6 +56,6 @@ This script:
 
 Finally, restart the WSGI service to run the new code. If you followed this guide for the initial installation, this is done using `supervisorctl`:
 
-```shell
+```no-highlight
 # sudo supervisorctl restart netbox
 ```
