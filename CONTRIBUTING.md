@@ -43,8 +43,9 @@ take some time for someone to address your issue.
 * First, check the GitHub [issues list](https://github.com/digitalocean/netbox/issues) to see if the feature you're
 requesting is already listed. (Be sure to search closed issues as well, since some feature requests are rejected.) If
 the feature you'd like to see has already been requested, click "add a reaction" in the top right corner of the issue
-and add a thumbs up (+1). This ensures that the issue has a better chance of making it onto the roadmap. Also feel free
-to add a comment with any additional justification for the feature.
+and add a thumbs up. This ensures that the issue has a better chance of making it onto the roadmap. Also feel free
+to add a comment with any additional justification for the feature. (However, note that comments with no substance
+other than a "+1" will be deleted as spam. Please use GitHub's reactions feature to indicate your support.)
 
 * While suggestions for new features are welcome, it's important to limit the scope of NetBox's feature set to avoid
 feature creep. For example, the following features would be firmly out of scope for NetBox:
