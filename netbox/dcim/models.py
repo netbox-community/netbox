@@ -1173,16 +1173,13 @@ class Interface(models.Model):
         return None
 
     def get_connected_interface(self):
-        try:
-            connection = InterfaceConnection.objects.select_related().get(Q(interface_a=self) | Q(interface_b=self))
-            if connection.interface_a == self:
-                return connection.interface_b
-            else:
-                return connection.interface_a
-        except InterfaceConnection.DoesNotExist:
-            return None
-        except InterfaceConnection.MultipleObjectsReturned:
-            raise MultipleObjectsReturned("Multiple connections found for {} interface {}!".format(self.device, self))
+        connection = InterfaceConnection.objects.select_related().filter(Q(interface_a=self) | Q(interface_b=self))\
+            .first()
+        if connection and connection.interface_a == self:
+            return connection.interface_b
+        elif connection:
+            return connection.interface_a
+        return None
 
 
 class InterfaceConnection(models.Model):
