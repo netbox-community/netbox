@@ -188,7 +188,7 @@ REST_FRAMEWORK = {
 
 # Swagger settings (API docs)
 SWAGGER_SETTINGS = {
-    'base_path': '{}/api/docs'.format(ALLOWED_HOSTS[0]),
+    'base_path': '{}/{}api/docs'.format(ALLOWED_HOSTS[0], BASE_PATH),
 }
 
 
