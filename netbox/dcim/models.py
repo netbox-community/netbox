@@ -3,7 +3,7 @@ from collections import OrderedDict
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericRelation
-from django.core.exceptions import MultipleObjectsReturned, ValidationError
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -12,7 +12,7 @@ from django.db.models import Count, Q, ObjectDoesNotExist
 from extras.models import CustomFieldModel, CustomField, CustomFieldValue
 from extras.rpc import RPC_CLIENTS
 from tenancy.models import Tenant
-from utilities.fields import NullableCharField
+from utilities.fields import ColorField, NullableCharField
 from utilities.managers import NaturalOrderByManager
 from utilities.models import CreatedUpdatedModel
 
@@ -53,29 +53,6 @@ SUBDEVICE_ROLE_CHOICES = (
     (SUBDEVICE_ROLE_PARENT, 'Parent'),
     (SUBDEVICE_ROLE_CHILD, 'Child'),
 )
-
-COLOR_TEAL = 'teal'
-COLOR_GREEN = 'green'
-COLOR_BLUE = 'blue'
-COLOR_PURPLE = 'purple'
-COLOR_YELLOW = 'yellow'
-COLOR_ORANGE = 'orange'
-COLOR_RED = 'red'
-COLOR_GRAY1 = 'light_gray'
-COLOR_GRAY2 = 'medium_gray'
-COLOR_GRAY3 = 'dark_gray'
-ROLE_COLOR_CHOICES = [
-    [COLOR_TEAL, 'Teal'],
-    [COLOR_GREEN, 'Green'],
-    [COLOR_BLUE, 'Blue'],
-    [COLOR_PURPLE, 'Purple'],
-    [COLOR_YELLOW, 'Yellow'],
-    [COLOR_ORANGE, 'Orange'],
-    [COLOR_RED, 'Red'],
-    [COLOR_GRAY1, 'Light Gray'],
-    [COLOR_GRAY2, 'Medium Gray'],
-    [COLOR_GRAY3, 'Dark Gray'],
-]
 
 # Virtual
 IFACE_FF_VIRTUAL = 0
@@ -345,7 +322,7 @@ class RackRole(models.Model):
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
-    color = models.CharField(max_length=30, choices=ROLE_COLOR_CHOICES)
+    color = ColorField()
 
     class Meta:
         ordering = ['name']
@@ -761,7 +738,7 @@ class DeviceRole(models.Model):
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
-    color = models.CharField(max_length=30, choices=ROLE_COLOR_CHOICES)
+    color = ColorField()
 
     class Meta:
         ordering = ['name']

@@ -296,18 +296,6 @@ li.occupied + li.available {
     border-top: 1px solid #474747;
 }
 
-/* Colors (from http://flatuicolors.com) */
-.teal { background-color: #1abc9c; }
-.green { background-color: #2ecc71; }
-.blue { background-color: #3498db; }
-.purple { background-color: #9b59b6; }
-.yellow { background-color: #f1c40f; }
-.orange { background-color: #e67e22; }
-.red { background-color: #e74c3c; }
-.light_gray { background-color: #dce2e3; }
-.medium_gray { background-color: #95a5a6; }
-.dark_gray { background-color: #34495e; }
-
 /* Misc */
 .banner-bottom {
     margin-bottom: 50px;
