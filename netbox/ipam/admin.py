@@ -28,7 +28,7 @@ class RIRAdmin(admin.ModelAdmin):
     prepopulated_fields = {
         'slug': ['name'],
     }
-    list_display = ['name', 'slug']
+    list_display = ['name', 'slug', 'is_private']
 
 
 @admin.register(Aggregate)

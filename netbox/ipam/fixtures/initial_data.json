@@ -43,7 +43,8 @@
     "pk": 1,
     "fields": {
         "name": "ARIN",
-        "slug": "arin"
+        "slug": "arin",
+        "is_private": false
     }
 },
 {
@@ -51,7 +52,8 @@
     "pk": 2,
     "fields": {
         "name": "RIPE",
-        "slug": "ripe"
+        "slug": "ripe",
+        "is_private": false
     }
 },
 {
@@ -59,7 +61,8 @@
     "pk": 3,
     "fields": {
         "name": "APNIC",
-        "slug": "apnic"
+        "slug": "apnic",
+        "is_private": false
     }
 },
 {
@@ -67,7 +70,8 @@
     "pk": 4,
     "fields": {
         "name": "LACNIC",
-        "slug": "lacnic"
+        "slug": "lacnic",
+        "is_private": false
     }
 },
 {
@@ -75,7 +79,8 @@
     "pk": 5,
     "fields": {
         "name": "AFRINIC",
-        "slug": "afrinic"
+        "slug": "afrinic",
+        "is_private": false
     }
 },
 {
@@ -83,7 +88,8 @@
     "pk": 6,
     "fields": {
         "name": "RFC 1918",
-        "slug": "rfc-1918"
+        "slug": "rfc-1918",
+        "is_private": true
     }
 },
 {

@@ -12,7 +12,7 @@
             IPv4 Stats
         </a>
     {% else %}
-        <a href="{% url 'ipam:rir_list' %}?family=6" class="btn btn-default">
+        <a href="{% url 'ipam:rir_list' %}?family=6{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" class="btn btn-default">
             <span class="fa fa-table" aria-hidden="true"></span>
             IPv6 Stats
         </a>
@@ -26,11 +26,14 @@
 </div>
 <h1>RIRs</h1>
 <div class="row">
-	<div class="col-md-12">
+	<div class="col-md-9">
         {% include 'utilities/obj_table.html' with bulk_delete_url='ipam:rir_bulk_delete' %}
+        {% if request.GET.family == '6' %}
+            <div class="alert alert-info pull-right"><strong>Note:</strong> Numbers shown indicate /64 prefixes.</div>
+        {% endif %}
     </div>
+	<div class="col-md-3">
+		{% include 'inc/filter_panel.html' %}
+	</div>
 </div>
-{% if request.GET.family == '6' %}
-    <div class="pull-right text-muted"><strong>Note:</strong> Numbers shown indicate /64 prefixes.</div>
-{% endif %}
 {% endblock %}

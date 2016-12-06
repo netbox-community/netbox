@@ -58,13 +58,13 @@ class RIRSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RIR
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'is_private']
 
 
 class RIRNestedSerializer(RIRSerializer):
 
     class Meta(RIRSerializer.Meta):
-        pass
+        fields = ['id', 'name', 'slug']
 
 
 #
