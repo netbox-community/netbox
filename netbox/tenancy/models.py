@@ -48,6 +48,6 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
         return ','.join([
             self.name,
             self.slug,
-            self.group.name,
+            self.group.name if self.group else '',
             self.description,
         ])

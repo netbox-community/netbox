@@ -75,7 +75,15 @@ class RIRForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = RIR
-        fields = ['name', 'slug']
+        fields = ['name', 'slug', 'is_private']
+
+
+class RIRFilterForm(forms.Form, BootstrapMixin):
+    is_private = forms.NullBooleanField(required=False, label='Private', widget=forms.Select(choices=[
+        ('', '---------'),
+        ('True', 'Yes'),
+        ('False', 'No'),
+    ]))
 
 
 #

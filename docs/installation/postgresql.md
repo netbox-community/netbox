@@ -4,27 +4,27 @@ NetBox requires a PostgreSQL database to store data. MySQL is not supported, as 
 
 **Debian/Ubuntu**
 
-```
+```no-highlight
 # apt-get install -y postgresql libpq-dev python-psycopg2
 ```
 
 **CentOS/RHEL**
 
-```
+```no-highlight
 # yum install -y postgresql postgresql-server postgresql-devel python-psycopg2
 # postgresql-setup initdb
 ```
 
 If using CentOS, modify the PostgreSQL configuration to accept password-based authentication by replacing `ident` with `md5` for all host entries within `/var/lib/pgsql/data/pg_hba.conf`. For example:
 
-```
+```no-highlight
 host    all             all             127.0.0.1/32            md5
 host    all             all             ::1/128                 md5
 ```
 
 Then, start the service:
 
-```
+```no-highlight
 # systemctl start postgresql
 ```
 
@@ -35,7 +35,7 @@ At a minimum, we need to create a database for NetBox and assign it a username a
 !!! danger
     DO NOT USE THE PASSWORD FROM THE EXAMPLE.
 
-```
+```no-highlight
 # sudo -u postgres psql
 psql (9.3.13)
 Type "help" for help.
@@ -51,7 +51,7 @@ postgres=# \q
 
 You can verify that authentication works issuing the following command and providing the configured password:
 
-```
+```no-highlight
 # psql -U netbox -h localhost -W
 ```
 

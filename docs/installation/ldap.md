@@ -7,19 +7,19 @@ built-in Django users in the event of a failure.
 
 On Ubuntu:
 
-```
+```no-highlight
 sudo apt-get install -y python-dev libldap2-dev libsasl2-dev libssl-dev
 ```
 
 On CentOS:
 
-```
+```no-highlight
 sudo yum install -y python-devel openldap-devel
 ```
 
 ## Install django-auth-ldap
 
-```
+```no-highlight
 sudo pip install django-auth-ldap
 ```
 

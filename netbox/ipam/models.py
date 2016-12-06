@@ -103,6 +103,8 @@ class RIR(models.Model):
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
+    is_private = models.BooleanField(default=False, verbose_name='Private',
+                                     help_text='IP space managed by this RIR is considered private')
 
     class Meta:
         ordering = ['name']

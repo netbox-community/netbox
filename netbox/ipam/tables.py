@@ -126,6 +126,7 @@ class VRFTable(BaseTable):
 class RIRTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn(verbose_name='Name')
+    is_private = tables.BooleanColumn(verbose_name='Private')
     aggregate_count = tables.Column(verbose_name='Aggregates')
     stats_total = tables.Column(accessor='stats.total', verbose_name='Total',
                                 footer=lambda table: sum(r.stats['total'] for r in table.data))
@@ -142,7 +143,8 @@ class RIRTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RIR
-        fields = ('pk', 'name', 'aggregate_count', 'stats_total', 'stats_active', 'stats_reserved', 'stats_deprecated', 'stats_available', 'utilization', 'actions')
+        fields = ('pk', 'name', 'is_private', 'aggregate_count', 'stats_total', 'stats_active', 'stats_reserved',
+                  'stats_deprecated', 'stats_available', 'utilization', 'actions')
 
 
 #

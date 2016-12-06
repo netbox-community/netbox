@@ -6,13 +6,6 @@
 
 <div class="rack_frame">
 
-    <!-- Render all slots empty -->
-    <ul class="rack rack_empty">
-        {% for u in rack.units %}
-            <li></li>
-        {% endfor %}
-    </ul>
-
     <!-- Render rear view of devices on far face -->
     <ul class="rack rack_far_face">
         {% for u in secondary_face %}
@@ -42,7 +35,7 @@
                     {% endifequal %}
                 </li>
             {% else %}
-                <li class="empty">
+                <li class="available">
                     {% if perms.dcim.add_device %}
                         <a href="{% url 'dcim:device_add' %}?site={{ rack.site.pk }}&rack={{ rack.pk }}&face={{ face_id }}&position={{ u.id }}" class="add_device" >add device</a>
                     {% endif %}

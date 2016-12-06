@@ -3,7 +3,7 @@
         <ol class="breadcrumb">
             <li><a href="{% url 'ipam:prefix_list' %}">Prefixes</a></li>
             {% if prefix.vrf %}
-                <li><a href="{% url 'ipam:prefix_list' %}?vrf={{ prefix.vrf.pk }}">{{ prefix.vrf }}</a></li>
+                <li><a href="{% url 'ipam:vrf' pk=prefix.vrf.pk %}">{{ prefix.vrf }}</a></li>
             {% endif %}
             <li>{{ prefix }}</li>
         </ol>

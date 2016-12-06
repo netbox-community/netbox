@@ -2,7 +2,7 @@
 {% load static from staticfiles %}
 {% load form_helpers %}
 
-{% block title %}Assign IP Address{% endblock %}
+{% block title %}Assign an IP Address{% endblock %}
 
 {% block content %}
 <form action="." method="post" class="form form-horizontal">
@@ -19,9 +19,25 @@
             {% endif %}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <strong>Assign IP Address {{ ipaddress }} ({% if ipaddress.vrf %}VRF {{ ipaddress.vrf }}{% else %}Global Table{% endif %})</strong>
+                    <strong>Assign an IP Address</strong>
                 </div>
                 <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-3 control-label">IP Address</label>
+                        <div class="col-md-9">
+                            <p class="form-control-static">{{ ipaddress }}</p>
+                        </div>
+                        <label class="col-md-3 control-label">VRF</label>
+                        <div class="col-md-9">
+                            <p class="form-control-static">
+                                {% if ipaddress.vrf %}
+                                    <a href="{% url 'ipam:vrf' pk=ipaddress.vrf.pk %}">{{ ipaddress.vrf }}</a> ({{ ipaddress.vrf.rd }})
+                                {% else %}
+                                    <span>Global</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
                     <ul class="nav nav-tabs" role="tablist">
                         <li role="presentation" class="active"><a href="#search" aria-controls="search" role="tab" data-toggle="tab">Search</a></li>
                         <li role="presentation"><a href="#select" aria-controls="home" role="tab" data-toggle="tab">Select</a></li>

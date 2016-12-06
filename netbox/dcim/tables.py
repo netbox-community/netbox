@@ -11,7 +11,7 @@ from .models import (
 
 
 COLOR_LABEL = """
-<label class="label {{ record.color }}">{{ record }}</label>
+<label class="label" style="background-color: #{{ record.color }}">{{ record }}</label>
 """
 
 DEVICE_LINK = """
@@ -34,7 +34,7 @@ RACKROLE_ACTIONS = """
 
 RACK_ROLE = """
 {% if record.role %}
-    <label class="label {{ record.role.color }}">{{ value }}</label>
+    <label class="label" style="background-color: #{{ record.role.color }}">{{ value }}</label>
 {% else %}
     &mdash;
 {% endif %}
@@ -59,7 +59,7 @@ PLATFORM_ACTIONS = """
 """
 
 DEVICE_ROLE = """
-<label class="label {{ record.device_role.color }}">{{ value }}</label>
+<label class="label" style="background-color: #{{ record.device_role.color }}">{{ value }}</label>
 """
 
 STATUS_ICON = """

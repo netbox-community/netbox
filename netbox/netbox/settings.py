@@ -12,7 +12,7 @@ except ImportError:
                                "the documentation.")
 
 
-VERSION = '1.7.1'
+VERSION = '1.7.2'
 
 # Import local configuration
 for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
@@ -188,7 +188,7 @@ REST_FRAMEWORK = {
 
 # Swagger settings (API docs)
 SWAGGER_SETTINGS = {
-    'base_path': '{}/api/docs'.format(ALLOWED_HOSTS[0]),
+    'base_path': '{}/{}api/docs'.format(ALLOWED_HOSTS[0], BASE_PATH),
 }
 
 

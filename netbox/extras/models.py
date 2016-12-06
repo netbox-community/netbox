@@ -130,7 +130,7 @@ class CustomField(models.Model):
         if self.type == CF_TYPE_SELECT:
             # Could be ModelChoiceField or TypedChoiceField
             return str(value.id) if hasattr(value, 'id') else str(value)
-        return str(value)
+        return value
 
     def deserialize_value(self, serialized_value):
         """
@@ -165,7 +165,7 @@ class CustomFieldValue(models.Model):
         unique_together = ['field', 'obj_type', 'obj_id']
 
     def __unicode__(self):
-        return '{} {}'.format(self.obj, self.field)
+        return u'{} {}'.format(self.obj, self.field)
 
     @property
     def value(self):

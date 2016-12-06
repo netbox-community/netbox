@@ -98,7 +98,7 @@ nav ul.pagination {
 div.rack_header {
     margin-left: 36px;
     text-align: center;
-    width: 200px;
+    width: 230px;
 }
 ul.rack_legend {
     float: left;
@@ -126,28 +126,15 @@ ul.rack {
     list-style-type: none;
     padding: 0;
     position: absolute;
-    width: 200px;
+    width: 230px;
 }
 ul.rack li {
+    border-top: 1px solid #e0e0e0;
     display: block;
     font-size: 13px;
     height: 20px;
     overflow: hidden;
     text-align: center;
-}
-ul.rack_empty li {
-    background-color: #f7f7f7;
-    border-bottom: 1px solid #dddddd;
-    height: 20px;
-}
-ul.rack li.empty:last-child {
-    border-bottom: 0;
-}
-ul.rack_far_face {
-    z-index: 100;
-}
-ul.rack_near_face {
-    z-index: 200;
 }
 ul.rack li.h2u { height: 40px; }
 ul.rack li.h2u a, ul.rack li.h2u span { padding: 10px 0; }
@@ -247,22 +234,9 @@ ul.rack li.h49u { height: 980px; }
 ul.rack li.h49u a, ul.rack li.h49u span { padding: 480px 0; }
 ul.rack li.h50u { height: 1000px; }
 ul.rack li.h50u a, ul.rack li.h50u span { padding: 490px 0; }
-ul.rack li.occupied a {
-    color: #ffffff;
-    display: block;
-    font-weight: bold;
-}
-ul.rack li.occupied a:hover {
-    text-decoration: none;
-}
-ul.rack li.occupied span {
-    display: block;
-}
-ul.rack_near_face li.empty {
-    border-bottom: 1px solid #e0e0e0;
-}
-ul.rack_near_face li.occupied {
-    color: #474747;
+ul.rack_far_face {
+    background-color: #f7f7f7;
+    z-index: 100;
 }
 ul.rack_far_face li.occupied {
     background: repeating-linear-gradient(
@@ -272,7 +246,6 @@ ul.rack_far_face li.occupied {
         #f0f0f0 7px,
         #f0f0f0 14px
     );
-    color: #303030;
 }
 ul.rack_far_face li.blocked {
     background: repeating-linear-gradient(
@@ -282,54 +255,46 @@ ul.rack_far_face li.blocked {
         #ffc7c7 7px,
         #ffc7c7 14px
     );
-    border-bottom: 1px solid #e0e0e0;
-    color: #303030;
 }
-ul.rack_near_face li.empty a {
+ul.rack_near_face {
+    z-index: 200;
+}
+ul.rack_near_face li.occupied {
+    border-top: 1px solid #474747;
+    color: #474747;
+}
+ul.rack_near_face li.occupied:hover {
+    background-image: url('../img/tint_20.png');
+}
+ul.rack_near_face li:first-child {
+    border-top: 0;
+}
+ul.rack_near_face li.available a {
     color: #0000ff;
     display: none;
     text-decoration: none;
 }
-ul.rack_near_face li.empty:hover {
+ul.rack_near_face li.available:hover {
     background-color: #ffffff;
 }
-ul.rack_near_face li.empty:hover a {
+ul.rack_near_face li.available:hover a {
     display: block;
 }
-
-/* Colors (from http://flatuicolors.com) */
-.teal { background-color: #1abc9c; }
-.green { background-color: #2ecc71; }
-.blue { background-color: #3498db; }
-.purple { background-color: #9b59b6; }
-.yellow { background-color: #f1c40f; }
-.orange { background-color: #e67e22; }
-.red { background-color: #e74c3c; }
-.light_gray { background-color: #dce2e3; }
-.medium_gray { background-color: #95a5a6; }
-.dark_gray { background-color: #34495e; }
-
-/* Rack elevation coloring */
-ul.rack .teal { border-bottom: 1px solid #16a085; }
-ul.rack .teal:hover { background-color: #16a085; }
-ul.rack .green { border-bottom: 1px solid #27ae60; }
-ul.rack .green:hover { background-color: #27ae60; }
-ul.rack .blue { border-bottom: 1px solid #2980b9; }
-ul.rack .blue:hover { background-color: #2980b9; }
-ul.rack .purple { border-bottom: 1px solid #8e44ad; }
-ul.rack .purple:hover { background-color: #8e44ad; }
-ul.rack .yellow { border-bottom: 1px solid #f39c12; }
-ul.rack .yellow:hover { background-color: #f39c12; }
-ul.rack .orange { border-bottom: 1px solid #d35400; }
-ul.rack .orange:hover { background-color: #d35400; }
-ul.rack .red { border-bottom: 1px solid #c0392b; }
-ul.rack .red:hover { background-color: #c0392b; }
-ul.rack .light_gray { border-bottom: 1px solid #bdc3c7; }
-ul.rack .light_gray:hover { background-color: #bdc3c7; }
-ul.rack .medium_gray { border-bottom: 1px solid #7f8c8d; }
-ul.rack .medium_gray:hover { background-color: #7f8c8d; }
-ul.rack .dark_gray { border-bottom: 1px solid #2c3e50; }
-ul.rack .dark_gray:hover { background-color: #2c3e50; }
+ul.rack li.occupied a {
+    color: #ffffff;
+    display: block;
+    font-weight: bold;
+}
+ul.rack li.occupied a:hover {
+    text-decoration: none;
+}
+ul.rack li.occupied span {
+    cursor: default;
+    display: block;
+}
+li.occupied + li.available {
+    border-top: 1px solid #474747;
+}
 
 /* Misc */
 .banner-bottom {

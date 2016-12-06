@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 
 from .models import CustomField, CustomFieldChoice, Graph, ExportTemplate, TopologyMap, UserAction
 
@@ -54,4 +55,7 @@ class TopologyMapAdmin(admin.ModelAdmin):
 @admin.register(UserAction)
 class UserActionAdmin(admin.ModelAdmin):
     actions = None
-    list_display = ['user', 'action', 'content_type', 'object_id', 'message']
+    list_display = ['user', 'action', 'content_type', 'object_id', '_message']
+
+    def _message(self, obj):
+        return mark_safe(obj.message)

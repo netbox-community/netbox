@@ -221,7 +221,7 @@ class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     type = forms.ChoiceField(choices=add_blank_choice(RACK_TYPE_CHOICES), required=False, label='Type')
     width = forms.ChoiceField(choices=add_blank_choice(RACK_WIDTH_CHOICES), required=False, label='Width')
     u_height = forms.IntegerField(required=False, label='Height (U)')
-    comments = CommentField()
+    comments = CommentField(widget=SmallTextarea)
 
     class Meta:
         nullable_fields = ['group', 'tenant', 'role', 'comments']
@@ -612,6 +612,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     platform = FilterChoiceField(queryset=Platform.objects.annotate(filter_count=Count('devices')),
                                  to_field_name='slug', null_option=(0, 'None'))
     status = forms.NullBooleanField(required=False, widget=forms.Select(choices=FORM_STATUS_CHOICES))
+    mac_address = forms.CharField(label='MAC address')
 
 
 #

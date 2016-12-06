@@ -46,6 +46,13 @@ class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
         fields = ['name', 'rd']
 
 
+class RIRFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = RIR
+        fields = ['is_private']
+
+
 class AggregateFilter(CustomFieldFilterSet, django_filters.FilterSet):
     q = django_filters.MethodFilter(
         action='search',

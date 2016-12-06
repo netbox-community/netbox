@@ -1,4 +1,5 @@
 import django_filters
+from netaddr.core import AddrFormatError
 
 from django.db.models import Q
 
@@ -146,6 +147,10 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         action='search',
         label='Search',
     )
+    mac_address = django_filters.MethodFilter(
+        action='_mac_address',
+        label='MAC address',
+    )
     site_id = django_filters.ModelMultipleChoiceFilter(
         name='rack__site',
         queryset=Site.objects.all(),
@@ -253,6 +258,12 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
             Q(asset_tag=value.strip()) |
             Q(comments__icontains=value)
         ).distinct()
+
+    def _mac_address(self, queryset, value):
+        try:
+            return queryset.filter(interfaces__mac_address=value.strip()).distinct()
+        except AddrFormatError:
+            return queryset.none()
 
 
 class ConsolePortFilter(django_filters.FilterSet):

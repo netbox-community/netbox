@@ -11,6 +11,32 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 
+COLOR_CHOICES = (
+    ('aa1409', 'Dark red'),
+    ('f44336', 'Red'),
+    ('e91e63', 'Pink'),
+    ('ff66ff', 'Fuschia'),
+    ('9c27b0', 'Purple'),
+    ('673ab7', 'Dark purple'),
+    ('3f51b5', 'Indigo'),
+    ('2196f3', 'Blue'),
+    ('03a9f4', 'Light blue'),
+    ('00bcd4', 'Cyan'),
+    ('009688', 'Teal'),
+    ('2f6a31', 'Dark green'),
+    ('4caf50', 'Green'),
+    ('8bc34a', 'Light green'),
+    ('cddc39', 'Lime'),
+    ('ffeb3b', 'Yellow'),
+    ('ffc107', 'Amber'),
+    ('ff9800', 'Orange'),
+    ('ff5722', 'Dark orange'),
+    ('795548', 'Brown'),
+    ('c0c0c0', 'Light grey'),
+    ('9e9e9e', 'Grey'),
+    ('607d8b', 'Dark grey'),
+    ('111111', 'Black'),
+)
 NUMERIC_EXPANSION_PATTERN = '\[(\d+-\d+)\]'
 IP4_EXPANSION_PATTERN = '\[([0-9]{1,3}-[0-9]{1,3})\]'
 IP6_EXPANSION_PATTERN = '\[([0-9a-f]{1,4}-[0-9a-f]{1,4})\]'
@@ -69,6 +95,27 @@ def add_blank_choice(choices):
 
 class SmallTextarea(forms.Textarea):
     pass
+
+
+class ColorSelect(forms.Select):
+
+    def __init__(self, *args, **kwargs):
+        kwargs['choices'] = COLOR_CHOICES
+        super(ColorSelect, self).__init__(*args, **kwargs)
+
+    def render_option(self, selected_choices, option_value, option_label):
+        if option_value is None:
+            option_value = ''
+        option_value = force_text(option_value)
+        if option_value in selected_choices:
+            selected_html = mark_safe(' selected')
+            if not self.allow_multiple_selected:
+                # Only allow for a single selection.
+                selected_choices.remove(option_value)
+        else:
+            selected_html = ''
+        return format_html('<option value="{}"{} style="background-color: #{}">{}</option>',
+                           option_value, selected_html, option_value, force_text(option_label))
 
 
 class SelectWithDisabled(forms.Select):
@@ -234,6 +281,7 @@ class CommentField(forms.CharField):
     A textarea with support for GitHub-Flavored Markdown. Exists mostly just to add a standard help_text.
     """
     widget = forms.Textarea
+    default_label = 'Comments'
     # TODO: Port GFM syntax cheat sheet to internal documentation
     default_helptext = '<i class="fa fa-info-circle"></i> '\
                        '<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">'\
@@ -241,8 +289,9 @@ class CommentField(forms.CharField):
 
     def __init__(self, *args, **kwargs):
         required = kwargs.pop('required', False)
+        label = kwargs.pop('label', self.default_label)
         help_text = kwargs.pop('help_text', self.default_helptext)
-        super(CommentField, self).__init__(required=required, help_text=help_text, *args, **kwargs)
+        super(CommentField, self).__init__(required=required, label=label, help_text=help_text, *args, **kwargs)
 
 
 class FlexibleModelChoiceField(forms.ModelChoiceField):

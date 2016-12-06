@@ -154,6 +154,8 @@ class VRFBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class RIRListView(ObjectListView):
     queryset = RIR.objects.annotate(aggregate_count=Count('aggregates'))
+    filter = filters.RIRFilter
+    filter_form = forms.RIRFilterForm
     table = tables.RIRTable
     edit_permissions = ['ipam.change_rir', 'ipam.delete_rir']
     template_name = 'ipam/rir_list.html'

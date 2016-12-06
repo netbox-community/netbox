@@ -4,10 +4,10 @@ This guide demonstrates how to build and run NetBox as a Docker container. It as
 
 To get NetBox up and running:
 
-```
-git clone -b master https://github.com/digitalocean/netbox.git
-cd netbox
-docker-compose up -d
+```no-highlight
+# git clone -b master https://github.com/digitalocean/netbox.git
+# cd netbox
+# docker-compose up -d
 ```
 
 The application will be available on http://localhost/ after a few minutes.

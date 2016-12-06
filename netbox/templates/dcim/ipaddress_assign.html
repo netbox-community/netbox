@@ -1,7 +1,7 @@
 {% extends '_base.html' %}
 {% load form_helpers %}
 
-{% block title %}Assign an IP Address{% endblock %}
+{% block title %}Assign a New IP Address{% endblock %}
 
 {% block content %}
 <form action="." method="post" class="form form-horizontal">
@@ -40,6 +40,7 @@
                         </div>
                     </div>
                     {% render_field form.interface %}
+                    {% render_field form.set_as_primary %}
                 </div>
             </div>
             <div class="panel panel-default">
