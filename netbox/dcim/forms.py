@@ -612,7 +612,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     platform = FilterChoiceField(queryset=Platform.objects.annotate(filter_count=Count('devices')),
                                  to_field_name='slug', null_option=(0, 'None'))
     status = forms.NullBooleanField(required=False, widget=forms.Select(choices=FORM_STATUS_CHOICES))
-    mac_address = forms.CharField(label='MAC address')
+    mac_address = forms.CharField(label='MAC address', required=False)
 
 
 #
