@@ -49,7 +49,7 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
         # Select
         elif cf.type == CF_TYPE_SELECT:
             choices = [(cfc.pk, cfc) for cfc in cf.choices.all()]
-            if bulk_edit or filterable_only:
+            if not cf.required or bulk_edit or filterable_only:
                 choices = [(None, '---------')] + choices
             field = forms.TypedChoiceField(choices=choices, coerce=int, required=cf.required)
 
