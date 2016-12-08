@@ -12,7 +12,7 @@ except ImportError:
                                "the documentation.")
 
 
-VERSION = '1.7.2-r1'
+VERSION = '1.7.3'
 
 # Import local configuration
 for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
@@ -185,6 +185,8 @@ SECRETS_MIN_PUBKEY_SIZE = 2048
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
 }
+if LOGIN_REQUIRED:
+    REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = ('rest_framework.permissions.IsAuthenticated',)
 
 # Swagger settings (API docs)
 SWAGGER_SETTINGS = {

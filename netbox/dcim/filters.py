@@ -260,8 +260,11 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         ).distinct()
 
     def _mac_address(self, queryset, value):
+        value = value.strip()
+        if not value:
+            return queryset
         try:
-            return queryset.filter(interfaces__mac_address=value.strip()).distinct()
+            return queryset.filter(interfaces__mac_address=value).distinct()
         except AddrFormatError:
             return queryset.none()
 

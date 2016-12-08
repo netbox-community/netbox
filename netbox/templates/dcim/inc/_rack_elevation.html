@@ -24,7 +24,7 @@
                 <li class="occupied h{{ u.device.device_type.u_height }}u"{% ifequal u.device.face face_id %} style="background-color: #{{ u.device.device_role.color }}"{% endifequal %}>
                     {% ifequal u.device.face face_id %}
                         <a href="{% url 'dcim:device' pk=u.device.pk %}" data-toggle="popover" data-trigger="hover" data-container="body" data-html="true"
-                           data-content="{{ u.device.device_role }}<br />{{ u.device.device_type }} ({{ u.device.device_type.u_height }}U)">
+                           data-content="{{ u.device.device_role }}<br />{{ u.device.device_type.full_name }} ({{ u.device.device_type.u_height }}U)">
                             {{ u.device.name|default:u.device.device_role }}
                             {% if u.device.devicebay_count %}
                                 ({{ u.device.get_children.count }}/{{ u.device.devicebay_count }})

@@ -183,10 +183,14 @@ class DeviceAdmin(admin.ModelAdmin):
         DeviceBayAdmin,
         ModuleAdmin,
     ]
-    list_display = ['display_name', 'device_type', 'device_role', 'primary_ip', 'rack', 'position', 'asset_tag',
+    list_display = ['display_name', 'device_type_full_name', 'device_role', 'primary_ip', 'rack', 'position', 'asset_tag',
                     'serial']
     list_filter = ['device_role']
 
     def get_queryset(self, request):
         qs = super(DeviceAdmin, self).get_queryset(request)
         return qs.select_related('device_type__manufacturer', 'device_role', 'primary_ip4', 'primary_ip6', 'rack')
+
+    def device_type_full_name(self, obj):
+        return obj.device_type.full_name
+    device_type_full_name.short_description = 'Device type'

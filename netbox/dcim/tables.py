@@ -294,7 +294,8 @@ class PlatformTable(BaseTable):
     name = tables.LinkColumn(verbose_name='Name')
     device_count = tables.Column(verbose_name='Devices')
     slug = tables.Column(verbose_name='Slug')
-    actions = tables.TemplateColumn(template_code=PLATFORM_ACTIONS, attrs={'td': {'class': 'text-right'}}, verbose_name='')
+    actions = tables.TemplateColumn(template_code=PLATFORM_ACTIONS, attrs={'td': {'class': 'text-right'}},
+                                    verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = Platform
@@ -313,7 +314,8 @@ class DeviceTable(BaseTable):
     site = tables.Column(accessor=Accessor('rack.site'), verbose_name='Site')
     rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')], verbose_name='Rack')
     device_role = tables.TemplateColumn(DEVICE_ROLE, verbose_name='Role')
-    device_type = tables.Column(verbose_name='Type')
+    device_type = tables.LinkColumn('dcim:devicetype', args=[Accessor('device_type.pk')], verbose_name='Type',
+                                    text=lambda record: record.device_type.full_name)
     primary_ip = tables.TemplateColumn(orderable=False, verbose_name='IP Address',
                                        template_code="{{ record.primary_ip.address.ip }}")
 

@@ -119,8 +119,8 @@ class ObjectEditView(View):
     form_class = None
     fields_initial = []
     template_name = 'utilities/obj_edit.html'
-    success_url = None
-    cancel_url = None
+    obj_list_url = None
+    use_obj_view = True
 
     def get_object(self, kwargs):
         # Look up object by slug if one has been provided. Otherwise, use PK.
@@ -129,12 +129,13 @@ class ObjectEditView(View):
         else:
             return get_object_or_404(self.model, pk=kwargs['pk'])
 
-    def get_cancel_url(self, obj):
-        if hasattr(obj, 'get_absolute_url'):
-            return obj.get_absolute_url()
-        if hasattr(obj, 'get_parent_url'):
-            return obj.get_parent_url()
-        return reverse(self.cancel_url)
+    def get_redirect_url(self, obj):
+        if obj and self.use_obj_view:
+            if hasattr(obj, 'get_absolute_url'):
+                return obj.get_absolute_url()
+            if hasattr(obj, 'get_parent_url'):
+                return obj.get_parent_url()
+        return reverse(self.obj_list_url)
 
     def get(self, request, *args, **kwargs):
 
@@ -149,7 +150,7 @@ class ObjectEditView(View):
             'obj': obj,
             'obj_type': self.model._meta.verbose_name,
             'form': form,
-            'cancel_url': self.get_cancel_url(obj),
+            'cancel_url': self.get_redirect_url(obj),
         })
 
     def post(self, request, *args, **kwargs):
@@ -179,18 +180,13 @@ class ObjectEditView(View):
 
             if '_addanother' in request.POST:
                 return redirect(request.path)
-            elif self.success_url:
-                return redirect(self.success_url)
-            elif hasattr(obj, 'get_absolute_url'):
-                return redirect(obj.get_absolute_url())
-            elif hasattr(obj, 'get_parent_url'):
-                return redirect(obj.get_parent_url())
+            return redirect(self.get_redirect_url(obj))
 
         return render(request, self.template_name, {
             'obj': obj,
             'obj_type': self.model._meta.verbose_name,
             'form': form,
-            'cancel_url': self.get_cancel_url(obj),
+            'cancel_url': self.get_redirect_url(obj),
         })
 
 

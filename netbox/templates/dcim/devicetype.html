@@ -2,7 +2,7 @@
 {% load helpers %}
 {% load render_table from django_tables2 %}
 
-{% block title %}{{ devicetype }}{% endblock %}
+{% block title %}{{ devicetype.manufacturer }} {{ devicetype.model }}{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -32,7 +32,7 @@
     </div>
 {% endif %}
 
-<h1>{{ devicetype }}</h1>
+<h1>{{ devicetype.manufacturer }} {{ devicetype.model }}</h1>
 <div class="row">
     <div class="col-md-6">
         <div class="panel panel-default">

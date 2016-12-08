@@ -8,7 +8,6 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.db import transaction
 from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -99,7 +98,7 @@ class SiteEditView(PermissionRequiredMixin, ObjectEditView):
     model = Site
     form_class = forms.SiteForm
     template_name = 'dcim/site_edit.html'
-    cancel_url = 'dcim:site_list'
+    obj_list_url = 'dcim:site_list'
 
 
 class SiteDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -141,8 +140,8 @@ class RackGroupEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_rackgroup'
     model = RackGroup
     form_class = forms.RackGroupForm
-    success_url = 'dcim:rackgroup_list'
-    cancel_url = 'dcim:rackgroup_list'
+    obj_list_url = 'dcim:rackgroup_list'
+    use_obj_view = False
 
 
 class RackGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -166,8 +165,8 @@ class RackRoleEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_rackrole'
     model = RackRole
     form_class = forms.RackRoleForm
-    success_url = 'dcim:rackrole_list'
-    cancel_url = 'dcim:rackrole_list'
+    obj_list_url = 'dcim:rackrole_list'
+    use_obj_view = False
 
 
 class RackRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -214,7 +213,7 @@ class RackEditView(PermissionRequiredMixin, ObjectEditView):
     model = Rack
     form_class = forms.RackForm
     template_name = 'dcim/rack_edit.html'
-    cancel_url = 'dcim:rack_list'
+    obj_list_url = 'dcim:rack_list'
 
 
 class RackDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -260,8 +259,8 @@ class ManufacturerEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_manufacturer'
     model = Manufacturer
     form_class = forms.ManufacturerForm
-    success_url = 'dcim:manufacturer_list'
-    cancel_url = 'dcim:manufacturer_list'
+    obj_list_url = 'dcim:manufacturer_list'
+    use_obj_view = False
 
 
 class ManufacturerBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -332,7 +331,7 @@ class DeviceTypeEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_devicetype'
     model = DeviceType
     form_class = forms.DeviceTypeForm
-    cancel_url = 'dcim:devicetype_list'
+    obj_list_url = 'dcim:devicetype_list'
 
 
 class DeviceTypeDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -497,8 +496,8 @@ class DeviceRoleEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_devicerole'
     model = DeviceRole
     form_class = forms.DeviceRoleForm
-    success_url = 'dcim:devicerole_list'
-    cancel_url = 'dcim:devicerole_list'
+    obj_list_url = 'dcim:devicerole_list'
+    use_obj_view = False
 
 
 class DeviceRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -522,8 +521,8 @@ class PlatformEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_platform'
     model = Platform
     form_class = forms.PlatformForm
-    success_url = 'dcim:platform_list'
-    cancel_url = 'dcim:platform_list'
+    obj_list_url = 'dcim:platform_list'
+    use_obj_view = False
 
 
 class PlatformBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -617,7 +616,7 @@ class DeviceEditView(PermissionRequiredMixin, ObjectEditView):
     form_class = forms.DeviceForm
     fields_initial = ['site', 'rack', 'position', 'face', 'device_bay']
     template_name = 'dcim/device_edit.html'
-    cancel_url = 'dcim:device_list'
+    obj_list_url = 'dcim:device_list'
 
 
 class DeviceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
