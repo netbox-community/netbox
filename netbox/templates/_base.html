@@ -281,7 +281,7 @@
 		<div class="container">
             <div class="row">
                 <div class="col-xs-4">
-                    <p class="text-muted">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
+                    <p class="text-muted">{{ settings.HOSTNAME }} (v{{ settings.VERSION }}) <span id="newVersion" class="text-warning"></span></p>
                 </div>
                 <div class="col-xs-4 text-center">
                     <p class="text-muted">{% now 'Y-m-d H:i:s T' %}</p>
@@ -300,6 +300,22 @@
 <script src="{% static 'jquery-ui-1.11.4/jquery-ui.min.js' %}"></script>
 <script src="{% static 'bootstrap-3.3.6-dist/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/forms.js' %}"></script>
+<script type="text/javascript">
+    var current = 'v{{ settings.VERSION }}'
+    var tagsURL = "https://api.github.com/repos/digitalocean/netbox/tags"
+    $(document).ready(function(){
+        $.ajax({
+            dataType: "json",
+            url: tagsURL,
+            success: function(data){
+                var last = data[0].name
+                if(current!=last){
+                    $("#newVersion").html("<span class='text-warning'>Have new :<span> <b><a href=\"\//github.com/digitalocean/netbox/releases/tag/"+last+"\">"+last+"</a></b>")
+                }
+            }
+        })
+    })
+</script>
 {% block javascript %}{% endblock %}
 </body>
 </html>
