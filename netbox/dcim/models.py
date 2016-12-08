@@ -561,7 +561,7 @@ class DeviceType(models.Model):
         ]
 
     def __unicode__(self):
-        return u'{} {}'.format(self.manufacturer, self.model)
+        return self.model
 
     def __init__(self, *args, **kwargs):
         super(DeviceType, self).__init__(*args, **kwargs)
@@ -616,6 +616,10 @@ class DeviceType(models.Model):
             raise ValidationError({
                 'u_height': "Child device types must be 0U."
             })
+
+    @property
+    def full_name(self):
+        return u'{} {}'.format(self.manufacturer.name, self.model)
 
     @property
     def is_parent_device(self):

@@ -56,7 +56,7 @@
                 <tr>
                     <td>Device Type</td>
                     <td>
-                        <span><a href="{% url 'dcim:devicetype' pk=device.device_type.pk %}">{{ device.device_type }}</a> ({{ device.device_type.u_height }}U)</span>
+                        <span><a href="{% url 'dcim:devicetype' pk=device.device_type.pk %}">{{ device.device_type.full_name }}</a> ({{ device.device_type.u_height }}U)</span>
                     </td>
                 </tr>
                 <tr>
@@ -293,7 +293,7 @@
                             <td>
                                 <a href="{% url 'dcim:rack' pk=rd.rack.pk %}">Rack {{ rd.rack }}</a>
                             </td>
-                            <td>{{ rd.device_type }}</td>
+                            <td>{{ rd.device_type.full_name }}</td>
                         </tr>
                     {% endfor %}
                 </table>

@@ -12,7 +12,7 @@
             <a href="{% url 'dcim:device' pk=devicebay.installed_device.pk %}">{{ devicebay.installed_device }}</a>
         </td>
         <td>
-            <span>{{ devicebay.installed_device.device_type }}</span>
+            <span>{{ devicebay.installed_device.device_type.full_name }}</span>
         </td>
     {% else %}
         <td colspan="2">
