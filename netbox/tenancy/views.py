@@ -28,8 +28,8 @@ class TenantGroupEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'tenancy.change_tenantgroup'
     model = TenantGroup
     form_class = forms.TenantGroupForm
-    success_url = 'tenancy:tenantgroup_list'
-    cancel_url = 'tenancy:tenantgroup_list'
+    obj_list_url = 'tenancy:tenantgroup_list'
+    use_obj_view = False
 
 
 class TenantGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -83,7 +83,7 @@ class TenantEditView(PermissionRequiredMixin, ObjectEditView):
     form_class = forms.TenantForm
     fields_initial = ['group']
     template_name = 'tenancy/tenant_edit.html'
-    cancel_url = 'tenancy:tenant_list'
+    obj_list_url = 'tenancy:tenant_list'
 
 
 class TenantDeleteView(PermissionRequiredMixin, ObjectDeleteView):

@@ -30,8 +30,8 @@ class SecretRoleEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'secrets.change_secretrole'
     model = SecretRole
     form_class = forms.SecretRoleForm
-    success_url = 'secrets:secretrole_list'
-    cancel_url = 'secrets:secretrole_list'
+    obj_list_url = 'secrets:secretrole_list'
+    use_obj_view = False
 
 
 class SecretRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):

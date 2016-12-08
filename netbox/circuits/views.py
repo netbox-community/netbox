@@ -42,7 +42,7 @@ class ProviderEditView(PermissionRequiredMixin, ObjectEditView):
     model = Provider
     form_class = forms.ProviderForm
     template_name = 'circuits/provider_edit.html'
-    cancel_url = 'circuits:provider_list'
+    obj_list_url = 'circuits:provider_list'
 
 
 class ProviderDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -88,8 +88,8 @@ class CircuitTypeEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.change_circuittype'
     model = CircuitType
     form_class = forms.CircuitTypeForm
-    success_url = 'circuits:circuittype_list'
-    cancel_url = 'circuits:circuittype_list'
+    obj_list_url = 'circuits:circuittype_list'
+    use_obj_view = False
 
 
 class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -126,7 +126,7 @@ class CircuitEditView(PermissionRequiredMixin, ObjectEditView):
     form_class = forms.CircuitForm
     fields_initial = ['site']
     template_name = 'circuits/circuit_edit.html'
-    cancel_url = 'circuits:circuit_list'
+    obj_list_url = 'circuits:circuit_list'
 
 
 class CircuitDeleteView(PermissionRequiredMixin, ObjectDeleteView):
