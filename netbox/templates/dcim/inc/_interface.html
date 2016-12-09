@@ -61,7 +61,7 @@
                         <i class="glyphicon glyphicon-remove" aria-hidden="true"></i>
                     </a>
                 {% else %}
-                    <a href="{% url 'dcim:interfaceconnection_add' pk=device.pk %}?interface={{ iface.pk }}" class="btn btn-success btn-xs" title="Connect">
+                    <a href="{% url 'dcim:interfaceconnection_add' pk=device.pk %}?interface_a={{ iface.pk }}" class="btn btn-success btn-xs" title="Connect">
                         <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
                     </a>
                 {% endif %}

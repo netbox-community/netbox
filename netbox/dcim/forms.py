@@ -1045,8 +1045,11 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
 
 class InterfaceConnectionForm(forms.ModelForm, BootstrapMixin):
     interface_a = forms.ChoiceField(choices=[], widget=SelectWithDisabled, label='Interface')
+    site_b = forms.ModelChoiceField(queryset=Site.objects.all(), label='Site', required=False,
+                                    widget=forms.Select(attrs={'filter-for': 'rack_b'}))
     rack_b = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
-                                    widget=forms.Select(attrs={'filter-for': 'device_b'}))
+                                    widget=APISelect(api_url='/api/dcim/racks/?site_id={{site_b}}',
+                                                     attrs={'filter-for': 'device_b'}))
     device_b = forms.ModelChoiceField(queryset=Device.objects.all(), label='Device', required=False,
                                       widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack_b}}',
                                                        display_field='display_name',
@@ -1060,13 +1063,11 @@ class InterfaceConnectionForm(forms.ModelForm, BootstrapMixin):
 
     class Meta:
         model = InterfaceConnection
-        fields = ['interface_a', 'rack_b', 'device_b', 'interface_b', 'livesearch', 'connection_status']
+        fields = ['interface_a', 'site_b', 'rack_b', 'device_b', 'interface_b', 'livesearch', 'connection_status']
 
     def __init__(self, device_a, *args, **kwargs):
 
         super(InterfaceConnectionForm, self).__init__(*args, **kwargs)
-
-        self.fields['rack_b'].queryset = Rack.objects.filter(site=device_a.rack.site)
 
         # Initialize interface A choices
         device_a_interfaces = Interface.objects.filter(device=device_a).exclude(form_factor=IFACE_FF_VIRTUAL) \
@@ -1074,6 +1075,14 @@ class InterfaceConnectionForm(forms.ModelForm, BootstrapMixin):
         self.fields['interface_a'].choices = [
             (iface.id, {'label': iface.name, 'disabled': iface.is_connected}) for iface in device_a_interfaces
         ]
+
+        # Initialize rack_b choices if site_b is set
+        if self.is_bound and self.data.get('site_b'):
+            self.fields['rack_b'].queryset = Rack.objects.filter(site__pk=self.data['site_b'])
+        elif self.initial.get('site_b'):
+            self.fields['rack_b'].queryset = Rack.objects.filter(site=self.initial['site_b'])
+        else:
+            self.fields['rack_b'].choices = []
 
         # Initialize device_b choices if rack_b is set
         if self.is_bound and self.data.get('rack_b'):
