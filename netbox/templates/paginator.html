@@ -2,11 +2,10 @@
 
 {# Custom pagination controls to render nicely with Bootstrap CSS. smart_pages requires EnhancedPaginator. #}
 
-<div class="row">
-    <div class="col-md-7">
+<div class="paginator pull-right">
     {% if table.paginator.num_pages > 1 %}
         <nav>
-            <ul class="pagination">
+            <ul class="pagination pull-right">
                 {% if table.page.has_previous %}
                     <li><a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">&laquo;</a></li>
                 {% endif %}
@@ -23,8 +22,7 @@
             </ul>
         </nav>
     {% endif %}
-    </div>
-    <div class="col-md-5 text-right text-muted">
+    <div class="text-right text-muted">
         Showing {{ table.page.start_index }}-{{ table.page.end_index }} of {{ total }}
         {% if total == 1 %}
             {{ table.data.verbose_name }}

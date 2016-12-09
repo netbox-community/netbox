@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-md-9">
+    <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'ipam:prefix_list' %}">Prefixes</a></li>
             {% if prefix.vrf %}
@@ -8,7 +8,7 @@
             <li>{{ prefix }}</li>
         </ol>
     </div>
-    <div class="col-md-3">
+    <div class="col-sm-4 col-md-3">
         <form action="{% url 'ipam:prefix_list' %}" method="get">
             <div class="input-group">
                 <input type="text" name="q" class="form-control" placeholder="Search prefixes" />
@@ -42,6 +42,7 @@
     {% endif %}
 </div>
 <h1>{{ prefix }}</h1>
+{% include 'inc/created_updated.html' with obj=prefix %}
 <ul class="nav nav-tabs" style="margin-bottom: 20px">
     <li role="presentation"{% if active_tab == 'prefix' %} class="active"{% endif %}><a href="{% url 'ipam:prefix' pk=prefix.pk %}">Prefix</a></li>
     <li role="presentation"{% if active_tab == 'ip-addresses' %} class="active"{% endif %}><a href="{% url 'ipam:prefix_ipaddresses' pk=prefix.pk %}">IP Addresses</a></li>

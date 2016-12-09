@@ -8,7 +8,7 @@
 {% block content %}
 {% include 'dcim/inc/_device_header.html' with active_tab='info' %}
 <div class="row">
-	<div class="col-md-6">
+	<div class="col-md-5 col-lg-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Device</strong>
@@ -301,9 +301,8 @@
                 <div class="panel-body text-muted">None found</div>
             {% endif %}
         </div>
-        {% include 'inc/created_updated.html' with obj=device %}
 	</div>
-	<div class="col-md-6">
+	<div class="col-md-7 col-lg-6">
         {% if device_bays or device.device_type.is_parent_device %}
             {% if perms.dcim.delete_devicebay %}
                 <form method="post" action="{% url 'dcim:devicebay_bulk_delete' pk=device.pk %}">

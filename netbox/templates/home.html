@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="row home-search" style="padding: 15px 0px 20px">
-	<div class="col-md-3">
+	<div class="col-sm-6 col-md-3">
 		<form action="{% url 'dcim:device_list' %}" method="get">
 			<div class="input-group">
 				<input type="text" name="q" placeholder="Search devices" class="form-control" />
@@ -17,7 +17,7 @@
 		</form>
 		<p></p>
 	</div>
-	<div class="col-md-3">
+	<div class="col-sm-6 col-md-3">
 		<form action="{% url 'ipam:prefix_list' %}" method="get">
 			<div class="input-group">
 				<input type="text" name="q" placeholder="Search prefixes" class="form-control" />
@@ -31,7 +31,7 @@
 		</form>
 		<p></p>
 	</div>
-	<div class="col-md-3">
+	<div class="col-sm-6 col-md-3">
 		<form action="{% url 'ipam:ipaddress_list' %}" method="get">
 			<div class="input-group">
 				<input type="text" name="q" placeholder="Search IPs" class="form-control" />
@@ -45,7 +45,7 @@
 		</form>
 		<p></p>
 	</div>
-	<div class="col-md-3">
+	<div class="col-sm-6 col-md-3">
 		<form action="{% url 'circuits:circuit_list' %}" method="get">
 			<div class="input-group">
 				<input type="text" name="q" placeholder="Search circuits" class="form-control" />
@@ -61,7 +61,7 @@
 	</div>
 </div>
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-sm-6 col-md-4">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Organization</strong>
@@ -106,7 +106,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-sm-6 col-md-4">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>IPAM</strong>
@@ -157,7 +157,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-sm-6 col-md-4">
         {% if perms.secrets %}
             <div class="panel panel-default">
                 <div class="panel-heading">

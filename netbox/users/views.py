@@ -56,6 +56,7 @@ def logout(request):
 def profile(request):
 
     return render(request, 'users/profile.html', {
+        'active_tab': 'profile',
     })
 
 
@@ -75,6 +76,7 @@ def change_password(request):
 
     return render(request, 'users/change_password.html', {
         'form': form,
+        'active_tab': 'change_password',
     })
 
 
@@ -88,6 +90,7 @@ def userkey(request):
 
     return render(request, 'users/userkey.html', {
         'userkey': userkey,
+        'active_tab': 'userkey',
     })
 
 
@@ -114,6 +117,7 @@ def userkey_edit(request):
     return render(request, 'users/userkey_edit.html', {
         'userkey': userkey,
         'form': form,
+        'active_tab': 'userkey',
     })
 
 
@@ -121,5 +125,6 @@ def userkey_edit(request):
 def recent_activity(request):
 
     return render(request, 'users/recent_activity.html', {
-        'recent_activity': request.user.actions.all()[:50]
+        'recent_activity': request.user.actions.all()[:50],
+        'active_tab': 'recent_activity',
     })

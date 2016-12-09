@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-9">
+    <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'tenancy:tenant_list' %}">Tenants</a></li>
             {% if tenant.group %}
@@ -14,7 +14,7 @@
             <li>{{ tenant }}</li>
         </ol>
     </div>
-    <div class="col-md-3">
+    <div class="col-sm-4 col-md-3">
         <form action="{% url 'tenancy:tenant_list' %}" method="get">
             <div class="input-group">
                 <input type="text" name="q" class="form-control" placeholder="Name" />
@@ -42,6 +42,7 @@
     {% endif %}
 </div>
 <h1>{{ tenant }}</h1>
+{% include 'inc/created_updated.html' with obj=tenant %}
 <div class="row">
 	<div class="col-md-7">
         <div class="panel panel-default">
@@ -86,7 +87,6 @@
                 {% endif %}
             </div>
         </div>
-        {% include 'inc/created_updated.html' with obj=tenant %}
 	</div>
 	<div class="col-md-5">
         <div class="panel panel-default">

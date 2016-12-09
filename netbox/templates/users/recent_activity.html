@@ -1,35 +1,22 @@
-{% extends '_base.html' %}
-{% load form_helpers %}
+{% extends 'users/_user.html' %}
 
 {% block title %}Recent Activity{% endblock %}
 
-{% block content %}
-<div class="row">
-    <div class="col-md-8 col-md-offset-2">
-        <h1>Recent Activity</h1>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-2 col-md-offset-2">
-        {% include 'users/inc/profile_nav.html' with active_tab="recent_activity" %}
-    </div>
-	<div class="col-md-6">
-        <table class="table table-hover">
-            <thead>
+{% block usercontent %}
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for action in recent_activity %}
                 <tr>
-                    <th>Time</th>
-                    <th>Action</th>
+                    <td>{{ action.time|date:'SHORT_DATETIME_FORMAT' }}</td>
+                    <td>{{ action.icon }} {{ action.message|safe }}</td>
                 </tr>
-            </thead>
-            <tbody>
-                {% for action in recent_activity %}
-                    <tr>
-                        <td>{{ action.time|date:'SHORT_DATETIME_FORMAT' }}</td>
-                        <td>{{ action.icon }} {{ action.message|safe }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-	</div>
-</div>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-9">
+    <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'ipam:ipaddress_list' %}">IP Addresses</a></li>
             {% if ipaddress.vrf %}
@@ -14,7 +14,7 @@
             <li>{{ ipaddress }}</li>
         </ol>
     </div>
-    <div class="col-md-3">
+    <div class="col-sm-4 col-md-3">
         <form action="{% url 'ipam:ipaddress_list' %}" method="get">
             <div class="input-group">
                 <input type="text" name="q" class="form-control" placeholder="Search IPs" />
@@ -42,6 +42,7 @@
     {% endif %}
 </div>
 <h1>{{ ipaddress }}</h1>
+{% include 'inc/created_updated.html' with obj=ipaddress %}
 <div class="row">
 	<div class="col-md-6">
         <div class="panel panel-default">
@@ -136,7 +137,6 @@
         {% with ipaddress.get_custom_fields as custom_fields %}
             {% include 'inc/custom_fields_panel.html' %}
         {% endwith %}
-        {% include 'inc/created_updated.html' with obj=ipaddress %}
 	</div>
 	<div class="col-md-6">
         {% with heading='Parent Prefixes' %}

@@ -7,13 +7,13 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-9">
+    <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'dcim:site_list' %}">Sites</a></li>
             <li>{{ site }}</li>
         </ol>
     </div>
-    <div class="col-md-3">
+    <div class="col-sm-4 col-md-3">
         <form action="{% url 'dcim:site_list' %}" method="get">
             <div class="input-group">
                 <input type="text" name="q" class="form-control" placeholder="Search sites" />
@@ -47,6 +47,7 @@
     {% endif %}
 </div>
 <h1>{{ site.name }}</h1>
+{% include 'inc/created_updated.html' with obj=site %}
 <div class="row">
 	<div class="col-md-7">
         <div class="panel panel-default">
@@ -126,7 +127,6 @@
                 {% endif %}
             </div>
         </div>
-        {% include 'inc/created_updated.html' with obj=site %}
     </div>
     <div class="col-md-5">
         <div class="panel panel-default">

@@ -13,7 +13,7 @@ body {
 }
 .container {
     width: auto;
-    max-width: 1340px;
+    max-width: 1600px;
 }
 .wrapper {
     min-height: 100%;
@@ -35,7 +35,8 @@ footer p {
     margin: 20px 0;
 }
 
-@media (max-width: 1200px) {
+/* Collapse the nav menu on displays less than 1200px wide */
+@media (max-width: 1199px) {
     .navbar-header {
         float: none;
     }
@@ -58,7 +59,7 @@ footer p {
         max-height: none;
     }
     .navbar-nav {
-        float: none!important;
+        float: none !important;
         margin-top: 7.5px;
     }
     .navbar-nav>li {
@@ -90,8 +91,12 @@ tfoot td {
 }
 
 /* Paginator */
+div.paginator {
+    margin-bottom: 20px;
+}
 nav ul.pagination {
     margin-top: 0;
+    margin-bottom: 8px !important;
 }
 
 /* Racks */

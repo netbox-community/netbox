@@ -5,14 +5,14 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-9">
+    <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'circuits:circuit_list' %}">Circuits</a></li>
             <li><a href="{% url 'circuits:circuit_list' %}?provider={{ circuit.provider.slug }}">{{ circuit.provider }}</a></li>
             <li>{{ circuit.cid }}</li>
         </ol>
     </div>
-    <div class="col-md-3">
+    <div class="col-sm-4 col-md-3">
         <form action="{% url 'circuits:circuit_list' %}" method="get">
             <div class="input-group">
                 <input type="text" name="q" class="form-control" />
@@ -40,6 +40,7 @@
     {% endif %}
 </div>
 <h1>{{ circuit.provider }} - {{ circuit.cid }}</h1>
+{% include 'inc/created_updated.html' with obj=circuit %}
 <div class="row">
 	<div class="col-md-6">
         <div class="panel panel-default">
@@ -107,7 +108,6 @@
         {% with circuit.get_custom_fields as custom_fields %}
             {% include 'inc/custom_fields_panel.html' %}
         {% endwith %}
-        {% include 'inc/created_updated.html' with obj=circuit %}
 	</div>
 	<div class="col-md-6">
         <div class="panel panel-default">

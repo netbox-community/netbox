@@ -5,14 +5,14 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-9">
+    <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'ipam:aggregate_list' %}">Aggregates</a></li>
             <li><a href="{% url 'ipam:aggregate_list' %}?rir={{ aggregate.rir.slug }}">{{ aggregate.rir }}</a></li>
             <li>{{ aggregate }}</li>
         </ol>
     </div>
-    <div class="col-md-3">
+    <div class="col-sm-4 col-md-3">
         <form action="{% url 'ipam:aggregate_list' %}" method="get">
             <div class="input-group">
                 <input type="text" name="q" class="form-control" placeholder="Search aggregates" />
@@ -40,6 +40,7 @@
     {% endif %}
 </div>
 <h1>{{ aggregate }}</h1>
+{% include 'inc/created_updated.html' with obj=aggregate %}
 <div class="row">
 	<div class="col-md-6">
         <div class="panel panel-default">
@@ -79,7 +80,6 @@
                 </tr>
             </table>
         </div>
-        {% include 'inc/created_updated.html' with obj=aggregate %}
     </div>
     <div class="col-md-6">
         {% with aggregate.get_custom_fields as custom_fields %}

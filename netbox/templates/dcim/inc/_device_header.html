@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-md-9">
+    <div class="col-sm-8 col-md-9">
     {% if device.rack %}
         <ol class="breadcrumb">
             <li><a href="{% url 'dcim:site' slug=device.rack.site.slug %}">{{ device.rack.site }}</a></li>
@@ -13,7 +13,7 @@
         </ol>
     {% endif %}
     </div>
-    <div class="col-md-3">
+    <div class="col-sm-4 col-md-3">
         <form action="{% url 'dcim:device_list' %}" method="get">
             <div class="input-group">
                 <input type="text" name="q" class="form-control" placeholder="Search devices" />
@@ -41,6 +41,7 @@
 {% endif %}
 </div>
 <h1>{{ device }}</h1>
+{% include 'inc/created_updated.html' with obj=device %}
 <ul class="nav nav-tabs" style="margin-bottom: 20px">
     <li role="presentation"{% if active_tab == 'info' %} class="active"{% endif %}><a href="{% url 'dcim:device' pk=device.pk %}">Info</a></li>
     <li role="presentation"{% if active_tab == 'inventory' %} class="active"{% endif %}><a href="{% url 'dcim:device_inventory' pk=device.pk %}">Inventory</a></li>

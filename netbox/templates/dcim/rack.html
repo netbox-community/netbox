@@ -6,14 +6,14 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-9">
+    <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'dcim:rack_list' %}">Racks</a></li>
             <li><a href="{% url 'dcim:rack_list' %}?site={{ rack.site.slug }}">{{ rack.site }}</a></li>
             <li>{{ rack }}</li>
         </ol>
     </div>
-    <div class="col-md-3">
+    <div class="col-sm-4 col-md-3">
         <form action="{% url 'dcim:rack_list' %}" method="get">
             <div class="input-group">
                 <input type="text" name="q" class="form-control" placeholder="Search racks" />
@@ -53,6 +53,7 @@
     {% endif %}
 </div>
 <h1>Rack {{ rack.name }}</h1>
+{% include 'inc/created_updated.html' with obj=rack %}
 <div class="row">
 	<div class="col-md-6">
         <div class="panel panel-default">
@@ -188,7 +189,6 @@
                 {% endif %}
             </div>
         </div>
-        {% include 'inc/created_updated.html' with obj=rack %}
 	</div>
     <div class="row col-md-6">
        <div class="col-md-6 col-sm-6 col-xs-12">
