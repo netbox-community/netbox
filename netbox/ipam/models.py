@@ -331,6 +331,38 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]
 
+    def get_utilization(self):
+        """
+        Determine the utilization rate of the aggregate prefix and return it as a percentage.
+        """
+        if self.vrf:
+            # If the prefix is in a VRF, show child prefixes only within that VRF.
+            child_prefixes = Prefix.objects.filter(vrf=self.vrf)
+        else:
+            # If the prefix is in the global table, show child prefixes from all VRFs.
+            child_prefixes = Prefix.objects.all()
+        child_prefixes = child_prefixes.filter(prefix__net_contained=str(self.prefix))\
+            .select_related('site', 'role').annotate_depth(limit=0)
+        child_ips = IPAddress.objects.filter(vrf=self.vrf, address__net_contained_or_equal=str(self.prefix))
+
+        # Remove overlapping prefixes from list of children
+        if child_prefixes:
+            networks = cidr_merge([c.prefix for c in child_prefixes])
+            children_size = float(0)
+            for p in networks:
+                children_size += p.size
+            return int(children_size / self.prefix.size * 100)
+        elif child_ips:
+            # code to calculate IP Utilization
+            ipaddress_count = child_ips.count()
+
+            if self.prefix.version == 4 and self.prefix.prefixlen < 31:
+                return int(((float(ipaddress_count) + 2) / self.prefix.size) * 100)
+            else:
+                return int((float(ipaddress_count) / self.prefix.size) * 100)
+        else:
+            return 0
+
 
 class IPAddressManager(models.Manager):
 
