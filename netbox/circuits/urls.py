@@ -30,5 +30,11 @@ urlpatterns = [
     url(r'^circuits/(?P<pk>\d+)/$', views.circuit, name='circuit'),
     url(r'^circuits/(?P<pk>\d+)/edit/$', views.CircuitEditView.as_view(), name='circuit_edit'),
     url(r'^circuits/(?P<pk>\d+)/delete/$', views.CircuitDeleteView.as_view(), name='circuit_delete'),
+    url(r'^circuits/(?P<pk>\d+)/terminations/swap/$', views.circuit_terminations_swap, name='circuit_terminations_swap'),
+
+    # Circuit terminations
+    url(r'^circuits/(?P<circuit>\d+)/terminations/add/$', views.CircuitTerminationEditView.as_view(), name='circuittermination_add'),
+    url(r'^circuit-terminations/(?P<pk>\d+)/edit/$', views.CircuitTerminationEditView.as_view(), name='circuittermination_edit'),
+    url(r'^circuit-terminations/(?P<pk>\d+)/delete/$', views.CircuitTerminationDeleteView.as_view(), name='circuittermination_delete'),
 
 ]

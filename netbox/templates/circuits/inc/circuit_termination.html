@@ -1,0 +1,95 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="pull-right">
+            {% if not termination and perms.circuits.add_circuittermination %}
+                <a href="{% url 'circuits:circuittermination_add' circuit=circuit.pk %}?term_side={{ side }}" class="btn btn-xs btn-success">
+                    <span class="fa fa-plus" aria-hidden="true"></span> Add
+                </a>
+            {% endif %}
+            {% if termination and perms.circuits.change_circuittermination %}
+                <a href="{% url 'circuits:circuittermination_edit' pk=termination.pk %}" class="btn btn-xs btn-warning">
+                    <span class="fa fa-pencil" aria-hidden="true"></span> Edit
+                </a>
+                <a href="{% url 'circuits:circuit_terminations_swap' pk=circuit.pk %}" class="btn btn-xs btn-primary">
+                    <span class="fa fa-refresh" aria-hidden="true"></span> Swap
+                </a>
+            {% endif %}
+            {% if termination and perms.circuits.delete_circuittermination %}
+                <a href="{% url 'circuits:circuittermination_delete' pk=termination.pk %}" class="btn btn-xs btn-danger">
+                    <span class="fa fa-trash" aria-hidden="true"></span> Delete
+                </a>
+            {% endif %}
+        </div>
+        <strong>Termination - {{ side }} Side</strong>
+    </div>
+    {% if termination %}
+        <table class="table table-hover panel-body">
+            <tr>
+                <td>Site</td>
+                <td>
+                    <a href="{% url 'dcim:site' slug=termination.site.slug %}">{{ termination.site }}</a>
+                </td>
+            </tr>
+            <tr>
+                <td>Termination</td>
+                <td>
+                    {% if termination.interface %}
+                        <span><a href="{% url 'dcim:device' pk=termination.interface.device.pk %}">{{ termination.interface.device }}</a> {{ termination.interface }}</span>
+                    {% else %}
+                        <span class="text-muted">Not defined</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>Speed</td>
+                <td>
+                    {% if termination.upstream_speed %}
+                        <i class="fa fa-arrow-down" title="Downstream"></i> {{ termination.port_speed_human }} &nbsp;
+                        <i class="fa fa-arrow-up" title="Upstream"></i> {{ termination.upstream_speed_human }}
+                    {% else %}
+                        {{ termination.port_speed_human }}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>IP Addressing</td>
+                <td>
+                    {% if termination.interface %}
+                        {% for ip in termination.interface.ip_addresses.all %}
+                            {% if not forloop.first %}<br />{% endif %}
+                            <a href="{% url 'ipam:ipaddress' pk=ip.pk %}">{{ ip }}</a> ({{ ip.vrf|default:"Global" }})
+                        {% empty %}
+                            <span class="text-muted">None</span>
+                        {% endfor %}
+                    {% else %}
+                        <span class="text-muted">N/A</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>Cross-Connect</td>
+                <td>
+                    {% if termination.xconnect_id %}
+                        {{ termination.xconnect_id }}
+                    {% else %}
+                        <span class="text-muted">N/A</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>Patch Panel/Port</td>
+                <td>
+                    {% if termination.pp_info %}
+                        {{ termination.pp_info }}
+                    {% else %}
+                        <span class="text-muted">N/A</span>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+    {% else %}
+        <div class="panel-body">
+            <span class="text-muted">None</span>
+        </div>
+    {% endif %}
+</div>

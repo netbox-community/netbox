@@ -9,6 +9,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, Q, ObjectDoesNotExist
 
+from circuits.models import Circuit
 from extras.models import CustomFieldModel, CustomField, CustomFieldValue
 from extras.rpc import RPC_CLIENTS
 from tenancy.models import Tenant
@@ -285,7 +286,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
 
     @property
     def count_circuits(self):
-        return self.circuits.count()
+        return Circuit.objects.filter(terminations__site=self).count()
 
 
 #
@@ -1136,7 +1137,7 @@ class Interface(models.Model):
     @property
     def is_connected(self):
         try:
-            return bool(self.circuit)
+            return bool(self.circuit_termination)
         except ObjectDoesNotExist:
             pass
         return bool(self.connection)

@@ -6,7 +6,7 @@
 	<div class="col-md-6 col-md-offset-3">
         <form action="." method="post" class="form">
         {% csrf_token %}
-            <div class="panel panel-danger">
+            <div class="panel panel-{{ panel_class|default:"danger" }}">
                 <div class="panel-heading">{% block title %}{% endblock %}</div>
                 <div class="panel-body">
                     {% block message %}<p>Are you sure?</p>{% endblock %}
@@ -22,7 +22,7 @@
                         </div>
                     </div>
                     <div class="text-right">
-                        <button type="submit" name="_confirm" class="btn btn-danger">Confirm</button>
+                        <button type="submit" name="_confirm" class="btn btn-{{ button_class|default:"danger" }}">Confirm</button>
                         <a href="{{ cancel_url }}" class="btn btn-default">Cancel</a>
                     </div>
                 </div>

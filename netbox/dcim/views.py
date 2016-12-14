@@ -78,7 +78,7 @@ def site(request, slug):
         'device_count': Device.objects.filter(rack__site=site).count(),
         'prefix_count': Prefix.objects.filter(site=site).count(),
         'vlan_count': VLAN.objects.filter(site=site).count(),
-        'circuit_count': Circuit.objects.filter(site=site).count(),
+        'circuit_count': Circuit.objects.filter(terminations__site=site).count(),
     }
     rack_groups = RackGroup.objects.filter(site=site).annotate(rack_count=Count('racks'))
     topology_maps = TopologyMap.objects.filter(site=site)
@@ -561,9 +561,9 @@ def device(request, pk):
         PowerOutlet.objects.filter(device=device).select_related('connected_port'), key=attrgetter('name')
     )
     interfaces = Interface.objects.filter(device=device, mgmt_only=False)\
-        .select_related('connected_as_a', 'connected_as_b', 'circuit')
+        .select_related('connected_as_a', 'connected_as_b', 'circuit_termination__circuit')
     mgmt_interfaces = Interface.objects.filter(device=device, mgmt_only=True)\
-        .select_related('connected_as_a', 'connected_as_b', 'circuit')
+        .select_related('connected_as_a', 'connected_as_b', 'circuit_termination__circuit')
     device_bays = natsorted(
         DeviceBay.objects.filter(device=device).select_related('installed_device__device_type__manufacturer'),
         key=attrgetter('name')

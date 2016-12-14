@@ -14,7 +14,7 @@
         <small>{{ iface.mac_address|default:'' }}</small>
     </td>
     {% if not iface.is_physical %}
-        <td colspan="2">Virtual</td>
+        <td colspan="2" class="text-muted">Virtual interface</td>
     {% elif iface.connection %}
         {% with iface.get_connected_interface as connected_iface %}
             <td>
@@ -24,10 +24,16 @@
                 <span title="{{ connected_iface.get_form_factor_display }}">{{ connected_iface }}</span>
             </td>
         {% endwith %}
-    {% elif iface.circuit %}
-        <td colspan="2">
-            <a href="{% url 'circuits:circuit' pk=iface.circuit.pk %}">{{ iface.circuit }}</a>
-        </td>
+    {% elif iface.circuit_termination %}
+        {% with iface.circuit_termination.get_peer_termination as peer_termination %}
+            <td colspan="2">
+                <i class="fa fa-fw fa-globe"></i>
+                {% if peer_termination %}
+                    <a href="{% url 'dcim:site' slug=peer_termination.site.slug %}">{{ peer_termination.site }}</a> via
+                {% endif %}
+                <a href="{% url 'circuits:circuit' pk=iface.circuit_termination.circuit_id %}">{{ iface.circuit_termination.circuit }}</a>
+            </td>
+        {% endwith %}
     {% else %}
         <td colspan="2">
             <span class="text-muted">Not connected</span>
@@ -35,7 +41,7 @@
     {% endif %}
     <td class="text-right">
         {% if show_graphs %}
-            {% if iface.circuit or iface.connection %}
+            {% if iface.circuit_termination or iface.connection %}
                 <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ device.name }} - {{ iface.name }}" data-url="{% url 'dcim-api:interface_graphs' pk=iface.pk %}" title="Show graphs">
                     <i class="glyphicon glyphicon-signal" aria-hidden="true"></i>
                 </button>
@@ -56,8 +62,11 @@
                     <a href="{% url 'dcim:interfaceconnection_delete' pk=iface.connection.pk %}?device={{ device.pk }}" class="btn btn-danger btn-xs" title="Delete connection">
                         <i class="glyphicon glyphicon-remove" aria-hidden="true"></i>
                     </a>
-                {% elif iface.circuit and perms.circuits.change_circuit %}
-                    <a href="{% url 'circuits:circuit_edit' pk=iface.circuit.pk %}" class="btn btn-danger btn-xs" title="Edit circuit">
+                {% elif iface.circuit_termination and perms.circuits.change_circuittermination %}
+                    <button class="btn btn-warning btn-xs interface-toggle connected" disabled="disabled" title="Circuits cannot be marked as planned or connected">
+                        <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>
+                    </button>
+                    <a href="{% url 'circuits:circuittermination_edit' pk=iface.circuit_termination.pk %}" class="btn btn-danger btn-xs" title="Edit circuit termination">
                         <i class="glyphicon glyphicon-remove" aria-hidden="true"></i>
                     </a>
                 {% else %}
@@ -71,7 +80,7 @@
             </a>
         {% endif %}
         {% if perms.dcim.delete_interface %}
-            {% if iface.connection or iface.circuit %}
+            {% if iface.connection or iface.circuit_termination %}
                 <button class="btn btn-danger btn-xs" disabled="disabled">
                     <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </button>

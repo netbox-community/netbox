@@ -2,15 +2,18 @@
 {% load form_helpers %}
 
 {% block title %}
-    {% if obj %}Editing {{ obj_type }} {{ obj }}{% else %}Add a new {{ obj_type }}{% endif %}
+    {% if obj.pk %}Editing {{ obj_type }} {{ obj }}{% else %}Add a new {{ obj_type }}{% endif %}
 {% endblock %}
 
 {% block content %}
     <form action="." method="post" class="form form-horizontal">
         {% csrf_token %}
+        {% for field in form.hidden_fields %}
+            {{ field }}
+        {% endfor %}
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
-                <h3>{% if obj %}Editing {{ obj_type }} {{ obj }}{% else %}Add a new {{ obj_type }}{% endif %}</h3>
+                <h3>{% if obj.pk %}Editing {{ obj_type }} {{ obj }}{% else %}Add a new {{ obj_type }}{% endif %}</h3>
                 {% if form.non_field_errors %}
                     <div class="panel panel-danger">
                         <div class="panel-heading"><strong>Errors</strong></div>
@@ -31,7 +34,7 @@
         </div>
         <div class="row">
             <div class="col-md-6 col-md-offset-3 text-right">
-                {% if obj %}
+                {% if obj.pk %}
                     <button type="submit" name="_update" class="btn btn-primary">Update</button>
                 {% else %}
                     <button type="submit" name="_create" class="btn btn-primary">Create</button>

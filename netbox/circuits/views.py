@@ -1,14 +1,18 @@
+from django.contrib import messages
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.db import transaction
 from django.db.models import Count
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from extras.models import Graph, GRAPH_TYPE_PROVIDER
+from utilities.forms import ConfirmationForm
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 
 from . import filters, forms, tables
-from .models import Circuit, CircuitType, Provider
+from .models import Circuit, CircuitTermination, CircuitType, Provider, TERM_SIDE_A, TERM_SIDE_Z
 
 
 #
@@ -27,7 +31,7 @@ class ProviderListView(ObjectListView):
 def provider(request, slug):
 
     provider = get_object_or_404(Provider, slug=slug)
-    circuits = Circuit.objects.filter(provider=provider).select_related('site', 'interface__device')
+    circuits = Circuit.objects.filter(provider=provider)
     show_graphs = Graph.objects.filter(type=GRAPH_TYPE_PROVIDER).exists()
 
     return render(request, 'circuits/provider.html', {
@@ -103,7 +107,7 @@ class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class CircuitListView(ObjectListView):
-    queryset = Circuit.objects.select_related('provider', 'type', 'tenant', 'site')
+    queryset = Circuit.objects.select_related('provider', 'type', 'tenant').prefetch_related('terminations__site')
     filter = filters.CircuitFilter
     filter_form = forms.CircuitFilterForm
     table = tables.CircuitTable
@@ -114,9 +118,13 @@ class CircuitListView(ObjectListView):
 def circuit(request, pk):
 
     circuit = get_object_or_404(Circuit, pk=pk)
+    termination_a = CircuitTermination.objects.filter(circuit=circuit, term_side=TERM_SIDE_A).first()
+    termination_z = CircuitTermination.objects.filter(circuit=circuit, term_side=TERM_SIDE_Z).first()
 
     return render(request, 'circuits/circuit.html', {
         'circuit': circuit,
+        'termination_a': termination_a,
+        'termination_z': termination_z,
     })
 
 
@@ -124,7 +132,7 @@ class CircuitEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.change_circuit'
     model = Circuit
     form_class = forms.CircuitForm
-    fields_initial = ['site']
+    fields_initial = ['provider']
     template_name = 'circuits/circuit_edit.html'
     obj_list_url = 'circuits:circuit_list'
 
@@ -155,3 +163,71 @@ class CircuitBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_circuit'
     cls = Circuit
     default_redirect_url = 'circuits:circuit_list'
+
+
+@permission_required('circuits.change_circuittermination')
+def circuit_terminations_swap(request, pk):
+
+    circuit = get_object_or_404(Circuit, pk=pk)
+    termination_a = CircuitTermination.objects.filter(circuit=circuit, term_side=TERM_SIDE_A).first()
+    termination_z = CircuitTermination.objects.filter(circuit=circuit, term_side=TERM_SIDE_Z).first()
+    if not termination_a and not termination_z:
+        messages.error(request, "No terminations have been defined for circuit {}.".format(circuit))
+        return redirect('circuits:circuit', pk=circuit.pk)
+
+    if request.method == 'POST':
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+            if termination_a and termination_z:
+                # Use a placeholder to avoid an IntegrityError on the (circuit, term_side) unique constraint
+                with transaction.atomic():
+                    termination_a.term_side = '_'
+                    termination_a.save()
+                    termination_z.term_side = 'A'
+                    termination_z.save()
+                    termination_a.term_side = 'Z'
+                    termination_a.save()
+            elif termination_a:
+                termination_a.term_side = 'Z'
+                termination_a.save()
+            else:
+                termination_z.term_side = 'A'
+                termination_z.save()
+            messages.success(request, "Swapped terminations for circuit {}.".format(circuit))
+            return redirect('circuits:circuit', pk=circuit.pk)
+
+    else:
+        form = ConfirmationForm()
+
+    return render(request, 'circuits/circuit_terminations_swap.html', {
+        'circuit': circuit,
+        'termination_a': termination_a,
+        'termination_z': termination_z,
+        'form': form,
+        'panel_class': 'default',
+        'button_class': 'primary',
+        'cancel_url': circuit.get_absolute_url(),
+    })
+
+
+#
+# Circuit terminations
+#
+
+class CircuitTerminationEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'circuits.change_circuittermination'
+    model = CircuitTermination
+    form_class = forms.CircuitTerminationForm
+    fields_initial = ['term_side']
+    template_name = 'circuits/circuittermination_edit.html'
+
+    def alter_obj(self, obj, args, kwargs):
+        if 'circuit' in kwargs:
+            circuit = get_object_or_404(Circuit, pk=kwargs['circuit'])
+            obj.circuit = circuit
+        return obj
+
+
+class CircuitTerminationDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'circuits.delete_circuittermination'
+    model = CircuitTermination

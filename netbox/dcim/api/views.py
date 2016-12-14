@@ -484,7 +484,7 @@ class RelatedConnectionsView(APIView):
 
         # Interface connections
         interfaces = Interface.objects.filter(device=device).select_related('connected_as_a', 'connected_as_b',
-                                                                            'circuit')
+                                                                            'circuit_termination')
         for iface in interfaces:
             data = serializers.InterfaceDetailSerializer(instance=iface).data
             del(data['device'])

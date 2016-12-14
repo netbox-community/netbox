@@ -123,28 +123,32 @@ class ObjectEditView(View):
     use_obj_view = True
 
     def get_object(self, kwargs):
-        # Look up object by slug if one has been provided. Otherwise, use PK.
+        # Look up object by slug or PK. Return None if neither was provided.
         if 'slug' in kwargs:
             return get_object_or_404(self.model, slug=kwargs['slug'])
-        else:
+        elif 'pk' in kwargs:
             return get_object_or_404(self.model, pk=kwargs['pk'])
+        return self.model()
+
+    def alter_obj(self, obj, args, kwargs):
+        # Allow views to add extra info to an object before it is processed. For example, a parent object can be defined
+        # given some parameter from the request URI.
+        return obj
 
     def get_redirect_url(self, obj):
-        if obj and self.use_obj_view:
-            if hasattr(obj, 'get_absolute_url'):
-                return obj.get_absolute_url()
-            if hasattr(obj, 'get_parent_url'):
-                return obj.get_parent_url()
+        # Determine where to redirect the user after updating an object (or aborting an update).
+        if obj.pk and self.use_obj_view and hasattr(obj, 'get_absolute_url'):
+            return obj.get_absolute_url()
+        if obj and self.use_obj_view and hasattr(obj, 'get_parent_url'):
+            return obj.get_parent_url()
         return reverse(self.obj_list_url)
 
     def get(self, request, *args, **kwargs):
 
-        if kwargs:
-            obj = self.get_object(kwargs)
-            form = self.form_class(instance=obj)
-        else:
-            obj = None
-            form = self.form_class(initial={k: request.GET.get(k) for k in self.fields_initial})
+        obj = self.get_object(kwargs)
+        obj = self.alter_obj(obj, args, kwargs)
+        initial_data = {k: request.GET[k] for k in self.fields_initial if k in request.GET}
+        form = self.form_class(instance=obj, initial=initial_data)
 
         return render(request, self.template_name, {
             'obj': obj,
@@ -155,10 +159,10 @@ class ObjectEditView(View):
 
     def post(self, request, *args, **kwargs):
 
-        # Validate object if editing an existing object
-        obj = self.get_object(kwargs) if kwargs else None
-
+        obj = self.get_object(kwargs)
+        obj = self.alter_obj(obj, args, kwargs)
         form = self.form_class(request.POST, instance=obj)
+
         if form.is_valid():
             obj = form.save(commit=False)
             obj_created = not obj.pk

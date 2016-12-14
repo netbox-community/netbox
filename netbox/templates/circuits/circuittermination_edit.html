@@ -1,0 +1,94 @@
+{% extends '_base.html' %}
+{% load staticfiles %}
+{% load form_helpers %}
+
+{% block title %}
+    Circuit {{ obj.circuit }} - Side {{ form.term_side.value }}
+{% endblock %}
+
+{% block content %}
+    <form action="." method="post" class="form form-horizontal">
+        {% csrf_token %}
+        {% for field in form.hidden_fields %}
+            {{ field }}
+        {% endfor %}
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <h3>Circuit {{ obj.circuit }} - Side {{ form.term_side.value }}</h3>
+                {% if form.non_field_errors %}
+                    <div class="panel panel-danger">
+                        <div class="panel-heading"><strong>Errors</strong></div>
+                        <div class="panel-body">
+                            {{ form.non_field_errors }}
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="panel panel-default">
+                    <div class="panel-heading"><strong>Location</strong></div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">Provider</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static">{{ obj.circuit.provider }}</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">Circuit</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static">{{ obj.circuit.cid }}</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">Termination</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static">{{ form.term_side.value }}</p>
+                            </div>
+                        </div>
+                        {% render_field form.site %}
+                        <div class="row">
+                            <div class="col-md-9 col-md-offset-3">
+                                <ul class="nav nav-tabs" role="tablist">
+                                    <li role="presentation" class="active"><a href="#select" aria-controls="home" role="tab" data-toggle="tab">Select</a></li>
+                                    <li role="presentation"><a href="#search" aria-controls="search" role="tab" data-toggle="tab">Search</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="select">
+                                {% render_field form.rack %}
+                                {% render_field form.device %}
+                            </div>
+                            <div class="tab-pane" id="search">
+                                {% render_field form.livesearch %}
+                            </div>
+                        </div>
+                        {% render_field form.interface %}
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading"><strong>Termination Details</strong></div>
+                    <div class="panel-body">
+                        {% render_field form.port_speed %}
+                        {% render_field form.upstream_speed %}
+                        {% render_field form.xconnect_id %}
+                        {% render_field form.pp_info %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3 text-right">
+                {% if obj.pk %}
+                    <button type="submit" name="_update" class="btn btn-primary">Update</button>
+                {% else %}
+                    <button type="submit" name="_create" class="btn btn-primary">Create</button>
+                {% endif %}
+                <a href="{{ cancel_url }}" class="btn btn-default">Cancel</a>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static 'js/livesearch.js' %}"></script>
+{% endblock %}

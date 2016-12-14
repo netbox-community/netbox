@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from circuits.models import Provider, CircuitType, Circuit
+from circuits.models import Provider, Circuit, CircuitTermination, CircuitType
 from dcim.api.serializers import SiteNestedSerializer, InterfaceNestedSerializer
 from extras.api.serializers import CustomFieldSerializer
 from tenancy.api.serializers import TenantNestedSerializer
@@ -45,17 +45,24 @@ class CircuitTypeNestedSerializer(CircuitTypeSerializer):
 # Circuits
 #
 
-class CircuitSerializer(CustomFieldSerializer, serializers.ModelSerializer):
-    provider = ProviderNestedSerializer()
-    type = CircuitTypeNestedSerializer()
-    tenant = TenantNestedSerializer()
+class CircuitTerminationSerializer(serializers.ModelSerializer):
     site = SiteNestedSerializer()
     interface = InterfaceNestedSerializer()
 
     class Meta:
+        model = CircuitTermination
+        fields = ['id', 'term_side', 'site', 'interface', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info']
+
+
+class CircuitSerializer(CustomFieldSerializer, serializers.ModelSerializer):
+    provider = ProviderNestedSerializer()
+    type = CircuitTypeNestedSerializer()
+    tenant = TenantNestedSerializer()
+    terminations = CircuitTerminationSerializer(many=True)
+
+    class Meta:
         model = Circuit
-        fields = ['id', 'cid', 'provider', 'type', 'tenant', 'site', 'interface', 'install_date', 'port_speed',
-                  'upstream_speed', 'commit_rate', 'xconnect_id', 'comments', 'custom_fields']
+        fields = ['id', 'cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'comments', 'terminations', 'custom_fields']
 
 
 class CircuitNestedSerializer(CircuitSerializer):

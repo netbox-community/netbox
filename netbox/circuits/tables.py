@@ -56,12 +56,13 @@ class CircuitTable(BaseTable):
     type = tables.Column(verbose_name='Type')
     provider = tables.LinkColumn('circuits:provider', args=[Accessor('provider.slug')], verbose_name='Provider')
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
-    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
-    port_speed = tables.Column(accessor=Accessor('port_speed_human'), order_by=Accessor('port_speed'),
-                               verbose_name='Port Speed')
+    a_side = tables.LinkColumn('dcim:site', accessor=Accessor('termination_a.site'), orderable=False,
+                               args=[Accessor('termination_a.site.slug')])
+    z_side = tables.LinkColumn('dcim:site', accessor=Accessor('termination_z.site'), orderable=False,
+                               args=[Accessor('termination_z.site.slug')])
     commit_rate = tables.Column(accessor=Accessor('commit_rate_human'), order_by=Accessor('commit_rate'),
                                 verbose_name='Commit Rate')
 
     class Meta(BaseTable.Meta):
         model = Circuit
-        fields = ('pk', 'cid', 'type', 'provider', 'tenant', 'site', 'port_speed', 'commit_rate')
+        fields = ('pk', 'cid', 'type', 'provider', 'tenant', 'a_side', 'z_side', 'commit_rate')
