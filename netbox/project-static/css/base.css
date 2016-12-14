@@ -89,6 +89,9 @@ th.pk, td.pk {
 tfoot td {
     font-weight: bold;
 }
+table.attr-table td:nth-child(1) {
+    width: 25%;
+}
 
 /* Paginator */
 div.paginator {
