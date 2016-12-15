@@ -167,6 +167,7 @@ class ObjectEditView(View):
             obj = form.save(commit=False)
             obj_created = not obj.pk
             obj.save()
+            form.save_m2m()
             if isinstance(form, CustomFieldForm):
                 form.save_custom_fields()
 
