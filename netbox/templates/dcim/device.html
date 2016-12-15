@@ -335,9 +335,11 @@
                 <div class="panel-heading">
                     <strong>Device Bays</strong>
                     <div class="pull-right">
-                        <button class="btn btn-default btn-xs toggle">
-                            <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
-                        </button>
+                        {% if perms.dcim.change_devicebay %}
+                            <button class="btn btn-default btn-xs toggle">
+                                <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
+                            </button>
+                        {% endif %}
                         {% if perms.dcim.add_devicebay and device_bays|length > 10 %}
                             <a href="{% url 'dcim:devicebay_add' pk=device.pk %}" class="btn btn-primary btn-xs">
                                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add device bays
@@ -385,9 +387,11 @@
                 <div class="panel-heading">
                     <strong>Interfaces</strong>
                     <div class="pull-right">
-                        <button class="btn btn-default btn-xs toggle">
-                            <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
-                        </button>
+                        {% if perms.dcim.change_interface %}
+                            <button class="btn btn-default btn-xs toggle">
+                                <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
+                            </button>
+                        {% endif %}
                         {% if perms.dcim.add_interface and interfaces|length > 10 %}
                             <a href="{% url 'dcim:interface_add' pk=device.pk %}" class="btn btn-primary btn-xs">
                                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add interfaces
@@ -440,9 +444,11 @@
                 <div class="panel-heading">
                     <strong>Console Server Ports</strong>
                     <div class="pull-right">
-                        <button class="btn btn-default btn-xs toggle">
-                            <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
-                        </button>
+                        {% if perms.dcim.change_consoleserverport %}
+                            <button class="btn btn-default btn-xs toggle">
+                                <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
+                            </button>
+                        {% endif %}
                         {% if perms.dcim.add_consoleserverport and cs_ports|length > 10 %}
                             <a href="{% url 'dcim:consoleserverport_add' pk=device.pk %}" class="btn btn-primary btn-xs">
                                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console server ports
@@ -490,9 +496,11 @@
                 <div class="panel-heading">
                     <strong>Power Outlets</strong>
                     <div class="pull-right">
-                        <button class="btn btn-default btn-xs toggle">
-                            <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
-                        </button>
+                        {% if perms.dcim.change_poweroutlet %}
+                            <button class="btn btn-default btn-xs toggle">
+                                <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
+                            </button>
+                        {% endif %}
                         {% if perms.dcim.add_poweroutlet and power_outlets|length > 10 %}
                             <a href="{% url 'dcim:poweroutlet_add' pk=device.pk %}" class="btn btn-primary btn-xs">
                                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power outlets
