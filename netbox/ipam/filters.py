@@ -9,7 +9,7 @@ from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NullableModelMultipleChoiceFilter
 
-from .models import RIR, Aggregate, VRF, Prefix, IPAddress, VLAN, VLANGroup, Role
+from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 
 class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
@@ -349,3 +349,10 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         except ValueError:
             pass
         return queryset.filter(qs_filter)
+
+
+class ServiceFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = Service
+        fields = ['device', 'name', 'protocol', 'port']

@@ -207,6 +207,29 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
+                <strong>Services</strong>
+            </div>
+            {% if services %}
+                <table class="table table-hover panel-body">
+                    {% for service in services %}
+                        {% include 'dcim/inc/_service.html' %}
+                    {% endfor %}
+                </table>
+            {% else %}
+                <div class="panel-body text-muted">
+                    None
+                </div>
+            {% endif %}
+            {% if perms.dcim.add_service %}
+                <div class="panel-footer text-right">
+                    <a href="{% url 'dcim:service_assign' device=device.pk %}" class="btn btn-xs btn-primary">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Assign service
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
                 <strong>Critical Connections</strong>
             </div>
             <table class="table table-hover panel-body">

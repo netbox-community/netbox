@@ -37,4 +37,8 @@ urlpatterns = [
     url(r'^vlans/$', VLANListView.as_view(), name='vlan_list'),
     url(r'^vlans/(?P<pk>\d+)/$', VLANDetailView.as_view(), name='vlan_detail'),
 
+    # Services
+    url(r'^services/$', ServiceListView.as_view(), name='service_list'),
+    url(r'^services/(?P<pk>\d+)/$', ServiceDetailView.as_view(), name='service_detail'),
+
 ]

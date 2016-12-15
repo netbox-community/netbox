@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import urlencode
 from django.views.generic import View
 
-from ipam.models import Prefix, IPAddress, VLAN
+from ipam.models import Prefix, IPAddress, Service, VLAN
 from circuits.models import Circuit
 from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from utilities.forms import ConfirmationForm
@@ -569,12 +569,11 @@ def device(request, pk):
         key=attrgetter('name')
     )
 
-    # Gather any secrets which belong to this device
-    secrets = device.secrets.all()
-
-    # Find all IP addresses assigned to this device
+    # Gather relevant device objects
     ip_addresses = IPAddress.objects.filter(interface__device=device).select_related('interface', 'vrf')\
         .order_by('address')
+    services = Service.objects.filter(device=device)
+    secrets = device.secrets.all()
 
     # Find any related devices for convenient linking in the UI
     related_devices = []
@@ -604,6 +603,7 @@ def device(request, pk):
         'mgmt_interfaces': mgmt_interfaces,
         'device_bays': device_bays,
         'ip_addresses': ip_addresses,
+        'services': services,
         'secrets': secrets,
         'related_devices': related_devices,
         'show_graphs': show_graphs,

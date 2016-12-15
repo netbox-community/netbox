@@ -16,7 +16,10 @@ from utilities.views import (
 )
 
 from . import filters, forms, tables
-from .models import Aggregate, IPAddress, PREFIX_STATUS_ACTIVE, PREFIX_STATUS_DEPRECATED, PREFIX_STATUS_RESERVED, Prefix, RIR, Role, VLAN, VLANGroup, VRF
+from .models import (
+    Aggregate, IPAddress, PREFIX_STATUS_ACTIVE, PREFIX_STATUS_DEPRECATED, PREFIX_STATUS_RESERVED, Prefix, RIR, Role,
+    Service, VLAN, VLANGroup, VRF,
+)
 
 
 def add_available_prefixes(parent, prefix_list):
@@ -733,3 +736,24 @@ class VLANBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_vlan'
     cls = VLAN
     default_redirect_url = 'ipam:vlan_list'
+
+
+#
+# Services
+#
+
+class ServiceEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'ipam.change_service'
+    model = Service
+    form_class = forms.ServiceForm
+    template_name = 'ipam/service_edit.html'
+
+    def alter_obj(self, obj, args, kwargs):
+        if 'device' in kwargs:
+            obj.device = get_object_or_404(Device, pk=kwargs['device'])
+        return obj
+
+
+class ServiceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'ipam.delete_service'
+    model = Service

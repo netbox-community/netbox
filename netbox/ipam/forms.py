@@ -9,8 +9,8 @@ from utilities.forms import (
 )
 
 from .models import (
-    Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, VLAN, VLANGroup,
-    VLAN_STATUS_CHOICES, VRF,
+    Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, Service, VLAN,
+    VLANGroup, VLAN_STATUS_CHOICES, VRF,
 )
 
 
@@ -563,3 +563,25 @@ class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
     status = forms.MultipleChoiceField(choices=vlan_status_choices, required=False)
     role = FilterChoiceField(queryset=Role.objects.annotate(filter_count=Count('vlans')), to_field_name='slug',
                              null_option=(0, 'None'))
+
+
+#
+# Services
+#
+
+class ServiceForm(forms.ModelForm, BootstrapMixin):
+
+    class Meta:
+        model = Service
+        fields = ['name', 'protocol', 'port', 'ipaddresses', 'description']
+        help_texts = {
+            'ipaddresses': "IP address assignment is optional. If no IPs are selected, the service is assumed to be "
+                           "reachable via all IPs assigned to the device.",
+        }
+
+    def __init__(self, *args, **kwargs):
+
+        super(ServiceForm, self).__init__(*args, **kwargs)
+
+        # Limit IP address choices to those assigned to interfaces of the parent device
+        self.fields['ipaddresses'].queryset = IPAddress.objects.filter(interface__device=self.instance.device)

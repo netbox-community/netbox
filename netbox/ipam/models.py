@@ -61,6 +61,14 @@ STATUS_CHOICE_CLASSES = {
 }
 
 
+IP_PROTOCOL_TCP = 6
+IP_PROTOCOL_UDP = 17
+IP_PROTOCOL_CHOICES = (
+    (IP_PROTOCOL_TCP, 'TCP'),
+    (IP_PROTOCOL_UDP, 'UDP'),
+)
+
+
 class VRF(CreatedUpdatedModel, CustomFieldModel):
     """
     A virtual routing and forwarding (VRF) table represents a discrete layer three forwarding domain (e.g. a routing
@@ -525,3 +533,28 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
 
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]
+
+
+class Service(CreatedUpdatedModel):
+    """
+    A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device. A Service may optionally be tied
+    to one or more specific IPAddresses belonging to the Device.
+    """
+    device = models.ForeignKey('dcim.Device', related_name='services', on_delete=models.CASCADE, verbose_name='device')
+    name = models.CharField(max_length=30)
+    protocol = models.PositiveSmallIntegerField(choices=IP_PROTOCOL_CHOICES)
+    port = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(65535)],
+                                       verbose_name='Port number')
+    ipaddresses = models.ManyToManyField('ipam.IPAddress', related_name='services', blank=True,
+                                         verbose_name='IP addresses')
+    description = models.CharField(max_length=100, blank=True)
+
+    class Meta:
+        ordering = ['device', 'protocol', 'port']
+        unique_together = ['device', 'protocol', 'port']
+
+    def __unicode__(self):
+        return u'{} ({}/{})'.format(self.name, self.port, self.get_protocol_display())
+
+    def get_parent_url(self):
+        return self.device.get_absolute_url()
