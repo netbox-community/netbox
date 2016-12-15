@@ -58,6 +58,10 @@ PREFIX_LINK_BRIEF = """
 </span>
 """
 
+PREFIX_ROLE_LINK = """
+<a href="{% url 'ipam:prefix_list' %}?role={{ record.role.slug }}">{{ record.role }}</a>
+"""
+
 IPADDRESS_LINK = """
 {% if record.pk %}
     <a href="{{ record.get_absolute_url }}">{{ record.address }}</a>
@@ -84,6 +88,18 @@ STATUS_LABEL = """
 {% else %}
     <span class="label label-success">Available</span>
 {% endif %}
+"""
+
+VLAN_PREFIXES = """
+{% for prefix in record.prefixes.all %}
+    <a href="{% url 'ipam:prefix' pk=prefix.pk %}">{{ prefix }}</a>{% if not forloop.last %}<br />{% endif %}
+{% empty %}
+    &mdash;
+{% endfor %}
+"""
+
+VLAN_ROLE_LINK = """
+<a href="{% url 'ipam:vlan_list' %}?role={{ record.role.slug }}">{{ record.role }}</a>
 """
 
 VLANGROUP_ACTIONS = """
@@ -193,12 +209,13 @@ class PrefixTable(BaseTable):
     vrf = tables.TemplateColumn(VRF_LINK, verbose_name='VRF')
     tenant = tables.TemplateColumn(TENANT_LINK, verbose_name='Tenant')
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
-    role = tables.Column(verbose_name='Role')
+    vlan = tables.LinkColumn('ipam:vlan', args=[Accessor('vlan.pk')], verbose_name='VLAN')
+    role = tables.TemplateColumn(PREFIX_ROLE_LINK, verbose_name='Role')
     description = tables.Column(orderable=False, verbose_name='Description')
 
     class Meta(BaseTable.Meta):
         model = Prefix
-        fields = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'role', 'description')
+        fields = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'description')
         row_attrs = {
             'class': lambda record: 'success' if not record.pk else '',
         }
@@ -281,10 +298,11 @@ class VLANTable(BaseTable):
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
     name = tables.Column(verbose_name='Name')
+    prefixes = tables.TemplateColumn(VLAN_PREFIXES, orderable=False, verbose_name='Prefixes')
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
     status = tables.TemplateColumn(STATUS_LABEL, verbose_name='Status')
-    role = tables.Column(verbose_name='Role')
+    role = tables.TemplateColumn(VLAN_ROLE_LINK, verbose_name='Role')
 
     class Meta(BaseTable.Meta):
         model = VLAN
-        fields = ('pk', 'vid', 'site', 'group', 'name', 'tenant', 'status', 'role')
+        fields = ('pk', 'vid', 'site', 'group', 'name', 'prefixes', 'tenant', 'status', 'role')

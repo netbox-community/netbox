@@ -370,7 +370,7 @@ class RoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class PrefixListView(ObjectListView):
-    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'role')
+    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
     filter = filters.PrefixFilter
     filter_form = forms.PrefixFilterForm
     table = tables.PrefixTable
@@ -682,7 +682,7 @@ class VLANGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class VLANListView(ObjectListView):
-    queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role')
+    queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role').prefetch_related('prefixes')
     filter = filters.VLANFilter
     filter_form = forms.VLANFilterForm
     table = tables.VLANTable
