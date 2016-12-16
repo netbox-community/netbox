@@ -127,7 +127,7 @@
             </table>
         </div>
         {% if perms.dcim.add_module %}
-            <a href="{% url 'dcim:module_add' pk=device.pk %}" class="btn btn-success">
+            <a href="{% url 'dcim:module_add' device=device.pk %}" class="btn btn-success">
                 <span class="fa fa-plus" aria-hidden="true"></span>
                 Add a Module
             </a>

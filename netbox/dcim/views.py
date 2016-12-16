@@ -1605,38 +1605,16 @@ def ipaddress_assign(request, pk):
 # Modules
 #
 
-@permission_required('dcim.add_module')
-def module_add(request, pk):
-
-    device = get_object_or_404(Device, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.ModuleForm(request.POST)
-        if form.is_valid():
-            module = form.save(commit=False)
-            module.device = device
-            module.save()
-            messages.success(request, u"Added module {} to {}".format(module.name, module.device.name))
-            if '_addanother' in request.POST:
-                return redirect('dcim:module_add', pk=module.device.pk)
-            else:
-                return redirect('dcim:device_inventory', pk=module.device.pk)
-
-    else:
-        form = forms.ModuleForm()
-
-    return render(request, 'dcim/device_component_add.html', {
-        'device': device,
-        'component_type': 'Module',
-        'form': form,
-        'cancel_url': reverse('dcim:device_inventory', kwargs={'pk': device.pk}),
-    })
-
-
 class ModuleEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_module'
     model = Module
     form_class = forms.ModuleForm
+
+    def alter_obj(self, obj, args, kwargs):
+        if 'device' in kwargs:
+            device = get_object_or_404(Device, pk=kwargs['device'])
+            obj.device = device
+        return obj
 
 
 class ModuleDeleteView(PermissionRequiredMixin, ObjectDeleteView):

@@ -166,7 +166,7 @@ urlpatterns = [
     url(r'^interfaces/(?P<pk>\d+)/delete/$', views.InterfaceDeleteView.as_view(), name='interface_delete'),
 
     # Modules
-    url(r'^devices/(?P<pk>\d+)/modules/add/$', views.module_add, name='module_add'),
+    url(r'^devices/(?P<device>\d+)/modules/add/$', views.ModuleEditView.as_view(), name='module_add'),
     url(r'^modules/(?P<pk>\d+)/edit/$', views.ModuleEditView.as_view(), name='module_edit'),
     url(r'^modules/(?P<pk>\d+)/delete/$', views.ModuleDeleteView.as_view(), name='module_delete'),
 
