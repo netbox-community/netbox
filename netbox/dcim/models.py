@@ -553,6 +553,7 @@ class DeviceType(models.Model, CustomFieldModel):
                                              choices=SUBDEVICE_ROLE_CHOICES,
                                              help_text="Parent devices house child devices in device bays. Select "
                                                        "\"None\" if this device type is neither a parent nor a child.")
+    comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:

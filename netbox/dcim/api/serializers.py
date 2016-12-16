@@ -137,7 +137,7 @@ class DeviceTypeSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     class Meta:
         model = DeviceType
         fields = ['id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
-                  'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'custom_fields']
+                  'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments', 'custom_fields']
 
     def get_subdevice_role(self, obj):
         return {
@@ -197,7 +197,7 @@ class DeviceTypeDetailSerializer(DeviceTypeSerializer):
 
     class Meta(DeviceTypeSerializer.Meta):
         fields = ['id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
-                  'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'custom_fields',
+                  'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments', 'custom_fields',
                   'console_port_templates', 'cs_port_templates', 'power_port_templates', 'power_outlet_templates',
                   'interface_templates']
 

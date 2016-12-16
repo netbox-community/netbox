@@ -260,7 +260,7 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
     class Meta:
         model = DeviceType
         fields = ['manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
-                  'is_pdu', 'is_network_device', 'subdevice_role']
+                  'is_pdu', 'is_network_device', 'subdevice_role', 'comments']
 
 
 class DeviceTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):

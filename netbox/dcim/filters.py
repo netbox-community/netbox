@@ -124,6 +124,10 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
 
 class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
+    q = django_filters.MethodFilter(
+        action='search',
+        label='Search',
+    )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         name='manufacturer',
         queryset=Manufacturer.objects.all(),
@@ -139,7 +143,15 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
     class Meta:
         model = DeviceType
         fields = ['manufacturer_id', 'manufacturer', 'model', 'part_number', 'u_height', 'is_console_server', 'is_pdu',
-                  'is_network_device']
+                  'is_network_device', 'subdevice_role']
+
+    def search(self, queryset, value):
+        return queryset.filter(
+            Q(manufacturer__name__icontains=value) |
+            Q(model__icontains=value) |
+            Q(part_number__icontains=value) |
+            Q(comments__icontains=value)
+        )
 
 
 class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
