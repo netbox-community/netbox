@@ -205,7 +205,7 @@ class RoleTable(BaseTable):
 class PrefixTable(BaseTable):
     pk = ToggleColumn()
     status = tables.TemplateColumn(STATUS_LABEL, verbose_name='Status')
-    prefix = tables.TemplateColumn(PREFIX_LINK, verbose_name='Prefix')
+    prefix = tables.TemplateColumn(PREFIX_LINK, verbose_name='Prefix', attrs={'th': {'style': 'padding-left: 17px'}})
     vrf = tables.TemplateColumn(VRF_LINK, verbose_name='VRF')
     tenant = tables.TemplateColumn(TENANT_LINK, verbose_name='Tenant')
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
