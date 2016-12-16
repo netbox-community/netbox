@@ -233,6 +233,8 @@ class DeviceTypeTest(APITestCase):
         'is_pdu',
         'is_network_device',
         'subdevice_role',
+        'comments',
+        'custom_fields',
     ]
 
     nested_fields = [
