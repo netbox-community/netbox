@@ -265,7 +265,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
             self.slug,
             self.tenant.name if self.tenant else '',
             self.facility,
-            str(self.asn),
+            str(self.asn) if self.asn else '',
         ])
 
     @property
