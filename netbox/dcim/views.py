@@ -688,13 +688,17 @@ def device_lldp_neighbors(request, pk):
     })
 
 
+#
+# Bulk device component creation
+#
+
 class DeviceBulkAddComponentView(View):
     """
     Add one or more components (e.g. interfaces) to a selected set of Devices.
     """
-    form = None
-    component_cls = None
-    component_form = None
+    form = forms.DeviceBulkAddComponentForm
+    model = None
+    model_form = None
 
     def get(self):
         return redirect('dcim:device_list')
@@ -722,18 +726,18 @@ class DeviceBulkAddComponentView(View):
                             'name': name,
                         }
                         component_data.update(data)
-                        component_form = self.component_form(component_data)
+                        component_form = self.model_form(component_data)
                         if component_form.is_valid():
                             new_components.append(component_form.save(commit=False))
                         else:
-                            form.add_error('name_pattern', "Duplicate {} name for {}: {}".format(
-                                self.component_cls._meta.verbose_name, device, name
-                            ))
+                            for field, errors in component_form.errors.as_data().items():
+                                for e in errors:
+                                    form.add_error(field, u'{} {}: {}'.format(device, name, ', '.join(e)))
 
                 if not form.errors:
-                    self.component_cls.objects.bulk_create(new_components)
+                    self.model.objects.bulk_create(new_components)
                     messages.success(request, u"Added {} {} to {} devices.".format(
-                        len(new_components), self.component_cls._meta.verbose_name_plural, len(form.cleaned_data['pk'])
+                        len(new_components), self.model._meta.verbose_name_plural, len(form.cleaned_data['pk'])
                     ))
                     return redirect('dcim:device_list')
 
@@ -747,19 +751,41 @@ class DeviceBulkAddComponentView(View):
 
         return render(request, 'dcim/device_bulk_add_component.html', {
             'form': form,
-            'component_name': self.component_cls._meta.verbose_name_plural,
+            'component_name': self.model._meta.verbose_name_plural,
             'selected_devices': selected_devices,
             'cancel_url': reverse('dcim:device_list'),
         })
 
 
+class DeviceBulkAddConsolePortView(DeviceBulkAddComponentView):
+    model = ConsolePort
+    model_form = forms.ConsolePortForm
+
+
+class DeviceBulkAddConsoleServerPortView(DeviceBulkAddComponentView):
+    model = ConsoleServerPort
+    model_form = forms.ConsoleServerPortForm
+
+
+class DeviceBulkAddPowerPortView(DeviceBulkAddComponentView):
+    model = PowerPort
+    model_form = forms.PowerPortForm
+
+
+class DeviceBulkAddPowerOutletView(DeviceBulkAddComponentView):
+    model = PowerOutlet
+    model_form = forms.PowerOutletForm
+
+
 class DeviceBulkAddInterfaceView(DeviceBulkAddComponentView):
-    """
-    Add one or more components (e.g. interfaces) to a selected set of Devices.
-    """
     form = forms.DeviceBulkAddInterfaceForm
-    component_cls = Interface
-    component_form = forms.InterfaceForm
+    model = Interface
+    model_form = forms.InterfaceForm
+
+
+class DeviceBulkAddDeviceBayView(DeviceBulkAddComponentView):
+    model = DeviceBay
+    model_form = forms.DeviceBayForm
 
 
 #

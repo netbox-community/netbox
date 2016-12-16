@@ -2,8 +2,18 @@
 
 {% block extra_actions %}
     {% if perms.dcim.add_interface %}
-        <button type="submit" name="_edit" formaction="{% url 'dcim:device_bulk_add_interface' %}" class="btn btn-primary btn-sm">
-            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Interfaces
-        </button>
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Components <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a href="{% url 'dcim:device_bulk_add_consoleport' %}" class="formaction">Console Ports</a></li>
+                <li><a href="{% url 'dcim:device_bulk_add_consoleserverport' %}" class="formaction">Console Server Ports</a></li>
+                <li><a href="{% url 'dcim:device_bulk_add_powerport' %}" class="formaction">Power Ports</a></li>
+                <li><a href="{% url 'dcim:device_bulk_add_poweroutlet' %}" class="formaction">Power Outlets</a></li>
+                <li><a href="{% url 'dcim:device_bulk_add_interface' %}" class="formaction">Interfaces</a></li>
+                <li><a href="{% url 'dcim:device_bulk_add_devicebay' %}" class="formaction">Device Bays</a></li>
+            </ul>
+        </div>
     {% endif %}
 {% endblock %}

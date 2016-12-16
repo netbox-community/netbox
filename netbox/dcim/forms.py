@@ -588,18 +588,6 @@ class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['tenant', 'platform']
 
 
-class DeviceBulkAddComponentForm(forms.Form, BootstrapMixin):
-    pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
-    name_pattern = ExpandableNameField(label='Name')
-
-
-class DeviceBulkAddInterfaceForm(forms.ModelForm, DeviceBulkAddComponentForm):
-
-    class Meta:
-        model = Interface
-        fields = ['name_pattern', 'form_factor', 'mgmt_only', 'description']
-
-
 class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Device
     site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('racks__devices')), to_field_name='slug')
@@ -614,6 +602,22 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
                                  to_field_name='slug', null_option=(0, 'None'))
     status = forms.NullBooleanField(required=False, widget=forms.Select(choices=FORM_STATUS_CHOICES))
     mac_address = forms.CharField(required=False, label='MAC address')
+
+
+#
+# Bulk device component creation
+#
+
+class DeviceBulkAddComponentForm(forms.Form, BootstrapMixin):
+    pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
+    name_pattern = ExpandableNameField(label='Name')
+
+
+class DeviceBulkAddInterfaceForm(forms.ModelForm, DeviceBulkAddComponentForm):
+
+    class Meta:
+        model = Interface
+        fields = ['pk', 'name_pattern', 'form_factor', 'mgmt_only', 'description']
 
 
 #
