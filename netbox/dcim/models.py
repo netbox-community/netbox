@@ -521,7 +521,7 @@ class Manufacturer(models.Model):
         return "{}?manufacturer={}".format(reverse('dcim:devicetype_list'), self.slug)
 
 
-class DeviceType(models.Model):
+class DeviceType(models.Model, CustomFieldModel):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
     well as high-level functional role(s).
@@ -553,6 +553,7 @@ class DeviceType(models.Model):
                                              choices=SUBDEVICE_ROLE_CHOICES,
                                              help_text="Parent devices house child devices in device bays. Select "
                                                        "\"None\" if this device type is neither a parent nor a child.")
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:
         ordering = ['manufacturer', 'model']

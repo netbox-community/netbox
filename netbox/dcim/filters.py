@@ -123,7 +123,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         )
 
 
-class DeviceTypeFilter(django_filters.FilterSet):
+class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         name='manufacturer',
         queryset=Manufacturer.objects.all(),

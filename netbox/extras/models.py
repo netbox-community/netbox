@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 
 
 CUSTOMFIELD_MODELS = (
-    'site', 'rack', 'device',                               # DCIM
+    'site', 'rack', 'devicetype', 'device',                 # DCIM
     'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf',      # IPAM
     'provider', 'circuit',                                  # Circuits
     'tenant',                                               # Tenants

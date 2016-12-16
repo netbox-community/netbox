@@ -331,6 +331,7 @@ class DeviceTypeEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_devicetype'
     model = DeviceType
     form_class = forms.DeviceTypeForm
+    template_name = 'dcim/devicetype_edit.html'
     obj_list_url = 'dcim:devicetype_list'
 
 

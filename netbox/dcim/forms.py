@@ -254,7 +254,7 @@ class ManufacturerForm(forms.ModelForm, BootstrapMixin):
 # Device types
 #
 
-class DeviceTypeForm(forms.ModelForm, BootstrapMixin):
+class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
     slug = SlugField(slug_source='model')
 
     class Meta:
@@ -263,7 +263,7 @@ class DeviceTypeForm(forms.ModelForm, BootstrapMixin):
                   'is_pdu', 'is_network_device', 'subdevice_role']
 
 
-class DeviceTypeBulkEditForm(BulkEditForm, BootstrapMixin):
+class DeviceTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=DeviceType.objects.all(), widget=forms.MultipleHiddenInput)
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), required=False)
     u_height = forms.IntegerField(min_value=1, required=False)
@@ -272,7 +272,8 @@ class DeviceTypeBulkEditForm(BulkEditForm, BootstrapMixin):
         nullable_fields = []
 
 
-class DeviceTypeFilterForm(forms.Form, BootstrapMixin):
+class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = DeviceType
     manufacturer = FilterChoiceField(queryset=Manufacturer.objects.annotate(filter_count=Count('device_types')),
                                      to_field_name='slug')
 

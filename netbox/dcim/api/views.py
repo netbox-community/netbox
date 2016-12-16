@@ -152,20 +152,20 @@ class ManufacturerDetailView(generics.RetrieveAPIView):
 # Device Types
 #
 
-class DeviceTypeListView(generics.ListAPIView):
+class DeviceTypeListView(CustomFieldModelAPIView, generics.ListAPIView):
     """
     List device types (filterable)
     """
-    queryset = DeviceType.objects.select_related('manufacturer')
+    queryset = DeviceType.objects.select_related('manufacturer').prefetch_related('custom_field_values__field')
     serializer_class = serializers.DeviceTypeSerializer
     filter_class = filters.DeviceTypeFilter
 
 
-class DeviceTypeDetailView(generics.RetrieveAPIView):
+class DeviceTypeDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
     """
     Retrieve a single device type
     """
-    queryset = DeviceType.objects.select_related('manufacturer')
+    queryset = DeviceType.objects.select_related('manufacturer').prefetch_related('custom_field_values__field')
     serializer_class = serializers.DeviceTypeDetailSerializer
 
 

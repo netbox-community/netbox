@@ -130,14 +130,14 @@ class ManufacturerNestedSerializer(ManufacturerSerializer):
 # Device types
 #
 
-class DeviceTypeSerializer(serializers.ModelSerializer):
+class DeviceTypeSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     manufacturer = ManufacturerNestedSerializer()
     subdevice_role = serializers.SerializerMethodField()
 
     class Meta:
         model = DeviceType
         fields = ['id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
-                  'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role']
+                  'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'custom_fields']
 
     def get_subdevice_role(self, obj):
         return {
@@ -197,8 +197,9 @@ class DeviceTypeDetailSerializer(DeviceTypeSerializer):
 
     class Meta(DeviceTypeSerializer.Meta):
         fields = ['id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
-                  'is_console_server', 'is_pdu', 'is_network_device', 'console_port_templates', 'cs_port_templates',
-                  'power_port_templates', 'power_outlet_templates', 'interface_templates']
+                  'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'custom_fields',
+                  'console_port_templates', 'cs_port_templates', 'power_port_templates', 'power_outlet_templates',
+                  'interface_templates']
 
 
 #
