@@ -21,9 +21,9 @@ class NaturalOrderByManager(Manager):
         id3 = '_{}_{}3'.format(db_table, primary_field)
 
         queryset = super(NaturalOrderByManager, self).get_queryset().extra(select={
-            id1: "CAST(SUBSTRING({}.{} FROM '^(\d+)') AS integer)".format(db_table, primary_field),
+            id1: "CAST(SUBSTRING({}.{} FROM '^(\d{{1,9}})') AS integer)".format(db_table, primary_field),
             id2: "SUBSTRING({}.{} FROM '^\d*(.*?)\d*$')".format(db_table, primary_field),
-            id3: "CAST(SUBSTRING({}.{} FROM '(\d+)$') AS integer)".format(db_table, primary_field),
+            id3: "CAST(SUBSTRING({}.{} FROM '(\d{{1,9}})$') AS integer)".format(db_table, primary_field),
         })
         ordering = fields[0:-1] + (id1, id2, id3)
 
