@@ -59,7 +59,11 @@ PREFIX_LINK_BRIEF = """
 """
 
 PREFIX_ROLE_LINK = """
-<a href="{% url 'ipam:prefix_list' %}?role={{ record.role.slug }}">{{ record.role }}</a>
+{% if record.role %}
+    <a href="{% url 'ipam:prefix_list' %}?role={{ record.role.slug }}">{{ record.role }}</a>
+{% else %}
+    &mdash;
+{% endif %}
 """
 
 IPADDRESS_LINK = """
@@ -99,7 +103,11 @@ VLAN_PREFIXES = """
 """
 
 VLAN_ROLE_LINK = """
-<a href="{% url 'ipam:vlan_list' %}?role={{ record.role.slug }}">{{ record.role }}</a>
+{% if record.role %}
+    <a href="{% url 'ipam:vlan_list' %}?role={{ record.role.slug }}">{{ record.role }}</a>
+{% else %}
+    &mdash;
+{% endif %}
 """
 
 VLANGROUP_ACTIONS = """
