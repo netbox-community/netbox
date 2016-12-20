@@ -128,7 +128,29 @@ Then, restart the supervisor service to detect and run the gunicorn service:
 # service supervisor restart
 ```
 
-At this point, you should be able to connect to the nginx HTTP service at the server name or IP address you provided. If you are unable to connect, check that the nginx service is running and properly configured. If you receive a 502 (bad gateway) error, this indicates that gunicorn is misconfigured or not running.
+At this point, you should be able to connect to the nginx HTTP service at the server name or IP address you provided. If you are unable to connect, check that the nginx service is running and properly configured. 
+
+## Possible reasons for 5XX Errors
+
+### gunicorn is misconfigured or not running
+
+If you receive a 502 (bad gateway) error, this indicates that gunicorn is misconfigured or not running.
+
+### selinux is blocking Nginx or Apache from initating connections
+
+If you receive a 503 (Service Unavailable) selinux might be the culprit if see the following in Apache’s error log:
+```no-highlight
+[proxy:error] [pid xxx] (13)Permission denied: proxy: AJP: attempt to connect to 127.0.0.1:8001 (127.0.0.1) failed
+```
+And the following in your selinux audit log:
+```no-highlight
+type=AVC msg=audit(XXXXX.XXX.XX): avc:  denied  { name_connect } for  pid=xxx comm="httpd" dest=8001 
+scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:port_t:s0 tclass=tcp_socket
+```
+To configure selinux to allow Apache to initate connections use the setsebool utility as root (the -P option makes the change persistent across reboots):
+```no-highlight
+# /usr/sbin/setsebool -P httpd_can_network_connect 1
+```
 
 !!! info
     Please keep in mind that the configurations provided here are bare minimums required to get NetBox up and running. You will almost certainly want to make some changes to better suit your production environment.
