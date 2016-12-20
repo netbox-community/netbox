@@ -91,9 +91,10 @@ class SiteImportForm(BulkImportForm, BootstrapMixin):
 class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Site.objects.all(), widget=forms.MultipleHiddenInput)
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
+    asn = forms.IntegerField(min_value=1, max_value=4294967295, required=False, label='ASN')
 
     class Meta:
-        nullable_fields = ['tenant']
+        nullable_fields = ['tenant', 'asn']
 
 
 class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):

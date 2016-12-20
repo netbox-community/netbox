@@ -7,7 +7,7 @@ from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.urlresolvers import reverse
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
-from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, TypedChoiceField
+from django.forms import CharField, ModelMultipleChoiceField, MultipleHiddenInput, TypedChoiceField
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import TemplateSyntaxError
@@ -398,7 +398,10 @@ class BulkEditView(View):
                 fields_to_update = {}
                 for field in standard_fields:
                     if field in form.nullable_fields and field in nullified_fields:
-                        fields_to_update[field] = ''
+                        if isinstance(form.fields[field], CharField):
+                            fields_to_update[field] = ''
+                        else:
+                            fields_to_update[field] = None
                     elif form.cleaned_data[field]:
                         fields_to_update[field] = form.cleaned_data[field]
                 updated_count = self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
