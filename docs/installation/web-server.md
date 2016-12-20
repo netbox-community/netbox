@@ -132,11 +132,11 @@ At this point, you should be able to connect to the nginx HTTP service at the se
 
 ## Possible reasons for 5XX Errors
 
-### gunicorn is misconfigured or not running
+### gunicorn is mis-configured or not running
 
-If you receive a 502 (bad gateway) error, this indicates that gunicorn is misconfigured or not running.
+If you receive a 502 (bad gateway) error, this indicates that gunicorn is mis-configured or not running.
 
-### selinux is blocking Nginx or Apache from initating connections
+### selinux is blocking Nginx or Apache from initiating connections
 
 If you receive a 503 (Service Unavailable) selinux might be the culprit if see the following in Apache’s error log:
 ```no-highlight
