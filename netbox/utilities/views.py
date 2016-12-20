@@ -3,7 +3,7 @@ from django_tables2 import RequestConfig
 
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.urlresolvers import reverse
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
@@ -251,6 +251,57 @@ class ObjectDeleteView(View):
             'form': form,
             'obj_type': self.model._meta.verbose_name,
             'cancel_url': self.get_cancel_url(obj),
+        })
+
+
+class BulkAddView(View):
+    form = None
+    model = None
+    template_name = None
+    redirect_url = None
+
+    def get(self, request):
+
+        form = self.form()
+
+        return render(request, self.template_name, {
+            'obj_type': self.model._meta.verbose_name,
+            'form': form,
+            'cancel_url': reverse(self.redirect_url),
+        })
+
+    def post(self, request):
+
+        form = self.form(request.POST)
+        if form.is_valid():
+
+            # The first field will be used as the pattern
+            pattern_field = form.fields.keys()[0]
+            pattern = form.cleaned_data[pattern_field]
+
+            # All other fields will be copied as object attributes
+            kwargs = {k: form.cleaned_data[k] for k in form.fields.keys()[1:]}
+
+            new_objs = []
+            try:
+                with transaction.atomic():
+                    for value in pattern:
+                        obj = self.model(**kwargs)
+                        setattr(obj, pattern_field, value)
+                        obj.full_clean()
+                        obj.save()
+                        new_objs.append(obj)
+            except ValidationError as e:
+                form.add_error(None, e)
+
+            if not form.errors:
+                messages.success(request, u"Added {} {}.".format(len(new_objs), self.model._meta.verbose_name_plural))
+                return redirect(self.redirect_url)
+
+        return render(request, self.template_name, {
+            'form': form,
+            'obj_type': self.model._meta.verbose_name,
+            'cancel_url': reverse(self.redirect_url),
         })
 
 

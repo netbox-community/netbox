@@ -2,6 +2,12 @@
 {% load static from staticfiles %}
 {% load form_helpers %}
 
+{% block tabs %}
+    {% if not obj.pk %}
+        {% include 'ipam/inc/ipadress_edit_header.html' with active_tab='add' %}
+    {% endif %}
+{% endblock %}
+
 {% block form %}
     <div class="panel panel-default">
         <div class="panel-heading"><strong>IP Address</strong></div>

@@ -1,0 +1,22 @@
+{% extends 'utilities/obj_edit.html' %}
+{% load static from staticfiles %}
+{% load form_helpers %}
+
+{% block title %}Bulk Add IP Addresses{% endblock %}
+
+{% block tabs %}
+    {% include 'ipam/inc/ipadress_edit_header.html' with active_tab='bulk_add' %}
+{% endblock %}
+
+{% block form %}
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>IP Address</strong></div>
+        <div class="panel-body">
+            {% render_field form.address %}
+            {% render_field form.vrf %}
+            {% render_field form.tenant %}
+            {% render_field form.status %}
+            {% render_field form.description %}
+        </div>
+    </div>
+{% endblock %}

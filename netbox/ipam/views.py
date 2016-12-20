@@ -12,7 +12,7 @@ from dcim.models import Device
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkAddView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 
 from . import filters, forms, tables
@@ -610,6 +610,14 @@ class IPAddressEditView(PermissionRequiredMixin, ObjectEditView):
 class IPAddressDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_ipaddress'
     model = IPAddress
+    redirect_url = 'ipam:ipaddress_list'
+
+
+class IPAddressBulkAddView(PermissionRequiredMixin, BulkAddView):
+    permission_required = 'ipam.add_ipaddress'
+    form = forms.IPAddressBulkAddForm
+    model = IPAddress
+    template_name = 'ipam/ipaddress_bulk_add.html'
     redirect_url = 'ipam:ipaddress_list'
 
 

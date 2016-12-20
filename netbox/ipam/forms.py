@@ -5,7 +5,8 @@ from dcim.models import Site, Rack, Device, Interface
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, BootstrapMixin, CSVDataField, BulkImportForm, FilterChoiceField, Livesearch, SlugField, add_blank_choice,
+    APISelect, BootstrapMixin, BulkImportForm, CSVDataField, ExpandableIPAddressField, FilterChoiceField, Livesearch,
+    SlugField, add_blank_choice,
 )
 
 from .models import (
@@ -337,6 +338,14 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
                     interface__device__pk=self.initial['nat_device'])
             else:
                 self.fields['nat_inside'].choices = []
+
+
+class IPAddressBulkAddForm(forms.Form, BootstrapMixin):
+    address = ExpandableIPAddressField()
+    vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF')
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
+    status = forms.ChoiceField(choices=IPADDRESS_STATUS_CHOICES)
+    description = forms.CharField(max_length=100, required=False)
 
 
 class IPAddressAssignForm(BootstrapMixin, forms.Form):
