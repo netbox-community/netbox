@@ -367,7 +367,7 @@ class ComponentTemplateCreateView(View):
 
         devicetype = get_object_or_404(DeviceType, pk=pk)
 
-        return render(request, 'dcim/component_template_add.html', {
+        return render(request, 'dcim/devicetype_component_add.html', {
             'devicetype': devicetype,
             'component_type': self.model._meta.verbose_name,
             'form': self.form(initial=request.GET),
@@ -400,7 +400,7 @@ class ComponentTemplateCreateView(View):
                 else:
                     return redirect('dcim:devicetype', pk=devicetype.pk)
 
-        return render(request, 'dcim/component_template_add.html', {
+        return render(request, 'dcim/devicetype_component_add.html', {
             'devicetype': devicetype,
             'component_type': self.model._meta.verbose_name,
             'form': form,
