@@ -335,7 +335,7 @@
                 <div class="panel-heading">
                     <strong>Device Bays</strong>
                     <div class="pull-right">
-                        {% if perms.dcim.change_devicebay %}
+                        {% if perms.dcim.change_devicebay and device_bays|length > 1 %}
                             <button class="btn btn-default btn-xs toggle">
                                 <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
                             </button>
@@ -387,7 +387,7 @@
                 <div class="panel-heading">
                     <strong>Interfaces</strong>
                     <div class="pull-right">
-                        {% if perms.dcim.change_interface %}
+                        {% if perms.dcim.change_interface and interfaces|length > 1 %}
                             <button class="btn btn-default btn-xs toggle">
                                 <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
                             </button>
@@ -444,7 +444,7 @@
                 <div class="panel-heading">
                     <strong>Console Server Ports</strong>
                     <div class="pull-right">
-                        {% if perms.dcim.change_consoleserverport %}
+                        {% if perms.dcim.change_consoleserverport and cs_ports|length > 1 %}
                             <button class="btn btn-default btn-xs toggle">
                                 <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
                             </button>
@@ -496,7 +496,7 @@
                 <div class="panel-heading">
                     <strong>Power Outlets</strong>
                     <div class="pull-right">
-                        {% if perms.dcim.change_poweroutlet %}
+                        {% if perms.dcim.change_poweroutlet and cs_ports|length > 1 %}
                             <button class="btn btn-default btn-xs toggle">
                                 <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
                             </button>
