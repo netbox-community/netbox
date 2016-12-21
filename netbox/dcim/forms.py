@@ -13,6 +13,7 @@ from utilities.forms import (
     SlugField,
 )
 
+from formfields import MACAddressFormField
 from .models import (
     DeviceBay, DeviceBayTemplate, CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_PLANNED, CONNECTION_STATUS_CONNECTED,
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType,
@@ -1032,12 +1033,12 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class InterfaceCreateForm(BootstrapMixin, forms.ModelForm):
+class InterfaceCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(label='Name')
-
-    class Meta:
-        model = Interface
-        fields = ['name_pattern', 'form_factor', 'mac_address', 'mgmt_only', 'description']
+    form_factor = forms.ChoiceField(choices=IFACE_FF_CHOICES)
+    mac_address = MACAddressFormField(required=False, label='MAC Address')
+    mgmt_only = forms.BooleanField(required=False, label='OOB Management')
+    description = forms.CharField(max_length=100, required=False)
 
 
 class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):

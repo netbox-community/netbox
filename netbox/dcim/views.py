@@ -694,6 +694,541 @@ def device_lldp_neighbors(request, pk):
     })
 
 
+class DeviceComponentCreateView(View):
+    model = None
+    form = None
+    model_form = None
+
+    def get(self, request, pk):
+
+        device = get_object_or_404(Device, pk=pk)
+
+        return render(request, 'dcim/device_component_add.html', {
+            'device': device,
+            'component_type': self.model._meta.verbose_name,
+            'form': self.form(initial=request.GET),
+            'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
+        })
+
+    def post(self, request, pk):
+
+        device = get_object_or_404(Device, pk=pk)
+
+        form = self.form(request.POST)
+        if form.is_valid():
+
+            new_components = []
+            data = deepcopy(form.cleaned_data)
+
+            for name in form.cleaned_data['name_pattern']:
+                component_data = {
+                    'device': device.pk,
+                    'name': name,
+                }
+                component_data.update(data)
+                component_form = self.model_form(component_data)
+                if component_form.is_valid():
+                    new_components.append(component_form.save(commit=False))
+                else:
+                    for field, errors in component_form.errors.as_data().items():
+                        for e in errors:
+                            form.add_error(field, u'{} {}: {}'.format(device, name, ', '.join(e)))
+
+            if not form.errors:
+                self.model.objects.bulk_create(new_components)
+                messages.success(request, u"Added {} {} to {}.".format(
+                    len(new_components), self.model._meta.verbose_name_plural, device
+                ))
+                if '_addanother' in request.POST:
+                    return redirect(request.path)
+                else:
+                    return redirect('dcim:device', pk=device.pk)
+
+        return render(request, 'dcim/device_component_add.html', {
+            'device': device,
+            'component_type': self.model._meta.verbose_name,
+            'form': form,
+            'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
+        })
+
+
+#
+# Console ports
+#
+
+class ConsolePortAddView(PermissionRequiredMixin, DeviceComponentCreateView):
+    permission_required = 'dcim.add_consoleport'
+    model = ConsolePort
+    form = forms.ConsolePortCreateForm
+    model_form = forms.ConsolePortForm
+
+
+@permission_required('dcim.change_consoleport')
+def consoleport_connect(request, pk):
+
+    consoleport = get_object_or_404(ConsolePort, pk=pk)
+
+    if request.method == 'POST':
+        form = forms.ConsolePortConnectionForm(request.POST, instance=consoleport)
+        if form.is_valid():
+            consoleport = form.save()
+            messages.success(request, u"Connected {} {} to {} {}.".format(
+                consoleport.device,
+                consoleport.name,
+                consoleport.cs_port.device,
+                consoleport.cs_port.name,
+            ))
+            return redirect('dcim:device', pk=consoleport.device.pk)
+
+    else:
+        form = forms.ConsolePortConnectionForm(instance=consoleport, initial={
+            'rack': consoleport.device.rack,
+            'connection_status': CONNECTION_STATUS_CONNECTED,
+        })
+
+    return render(request, 'dcim/consoleport_connect.html', {
+        'consoleport': consoleport,
+        'form': form,
+        'cancel_url': reverse('dcim:device', kwargs={'pk': consoleport.device.pk}),
+    })
+
+
+@permission_required('dcim.change_consoleport')
+def consoleport_disconnect(request, pk):
+
+    consoleport = get_object_or_404(ConsolePort, pk=pk)
+
+    if not consoleport.cs_port:
+        messages.warning(request, u"Cannot disconnect console port {}: It is not connected to anything."
+                         .format(consoleport))
+        return redirect('dcim:device', pk=consoleport.device.pk)
+
+    if request.method == 'POST':
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+            consoleport.cs_port = None
+            consoleport.connection_status = None
+            consoleport.save()
+            messages.success(request, u"Console port {} has been disconnected.".format(consoleport))
+            return redirect('dcim:device', pk=consoleport.device.pk)
+
+    else:
+        form = ConfirmationForm()
+
+    return render(request, 'dcim/consoleport_disconnect.html', {
+        'consoleport': consoleport,
+        'form': form,
+        'cancel_url': reverse('dcim:device', kwargs={'pk': consoleport.device.pk}),
+    })
+
+
+class ConsolePortEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_consoleport'
+    model = ConsolePort
+    form_class = forms.ConsolePortForm
+
+
+class ConsolePortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_consoleport'
+    model = ConsolePort
+
+
+class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_consoleport'
+    cls = ConsolePort
+    parent_cls = Device
+
+
+class ConsoleConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.change_consoleport'
+    form = forms.ConsoleConnectionImportForm
+    table = tables.ConsoleConnectionTable
+    template_name = 'dcim/console_connections_import.html'
+
+
+#
+# Console server ports
+#
+
+class ConsoleServerPortAddView(PermissionRequiredMixin, DeviceComponentCreateView):
+    permission_required = 'dcim.add_consoleserverport'
+    model = ConsoleServerPort
+    form = forms.ConsoleServerPortCreateForm
+    model_form = forms.ConsoleServerPortForm
+
+
+@permission_required('dcim.change_consoleserverport')
+def consoleserverport_connect(request, pk):
+
+    consoleserverport = get_object_or_404(ConsoleServerPort, pk=pk)
+
+    if request.method == 'POST':
+        form = forms.ConsoleServerPortConnectionForm(consoleserverport, request.POST)
+        if form.is_valid():
+            consoleport = form.cleaned_data['port']
+            consoleport.cs_port = consoleserverport
+            consoleport.connection_status = form.cleaned_data['connection_status']
+            consoleport.save()
+            messages.success(request, u"Connected {} {} to {} {}.".format(
+                consoleport.device,
+                consoleport.name,
+                consoleserverport.device,
+                consoleserverport.name,
+            ))
+            return redirect('dcim:device', pk=consoleserverport.device.pk)
+
+    else:
+        form = forms.ConsoleServerPortConnectionForm(consoleserverport, initial={'rack': consoleserverport.device.rack})
+
+    return render(request, 'dcim/consoleserverport_connect.html', {
+        'consoleserverport': consoleserverport,
+        'form': form,
+        'cancel_url': reverse('dcim:device', kwargs={'pk': consoleserverport.device.pk}),
+    })
+
+
+@permission_required('dcim.change_consoleserverport')
+def consoleserverport_disconnect(request, pk):
+
+    consoleserverport = get_object_or_404(ConsoleServerPort, pk=pk)
+
+    if not hasattr(consoleserverport, 'connected_console'):
+        messages.warning(request, u"Cannot disconnect console server port {}: Nothing is connected to it."
+                         .format(consoleserverport))
+        return redirect('dcim:device', pk=consoleserverport.device.pk)
+
+    if request.method == 'POST':
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+            consoleport = consoleserverport.connected_console
+            consoleport.cs_port = None
+            consoleport.connection_status = None
+            consoleport.save()
+            messages.success(request, u"Console server port {} has been disconnected.".format(consoleserverport))
+            return redirect('dcim:device', pk=consoleserverport.device.pk)
+
+    else:
+        form = ConfirmationForm()
+
+    return render(request, 'dcim/consoleserverport_disconnect.html', {
+        'consoleserverport': consoleserverport,
+        'form': form,
+        'cancel_url': reverse('dcim:device', kwargs={'pk': consoleserverport.device.pk}),
+    })
+
+
+class ConsoleServerPortEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_consoleserverport'
+    model = ConsoleServerPort
+    form_class = forms.ConsoleServerPortForm
+
+
+class ConsoleServerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_consoleserverport'
+    model = ConsoleServerPort
+
+
+class ConsoleServerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_consoleserverport'
+    cls = ConsoleServerPort
+    parent_cls = Device
+
+
+#
+# Power ports
+#
+
+class PowerPortAddView(PermissionRequiredMixin, DeviceComponentCreateView):
+    permission_required = 'dcim.add_powerport'
+    model = PowerPort
+    form = forms.PowerPortCreateForm
+    model_form = forms.PowerPortForm
+
+
+@permission_required('dcim.change_powerport')
+def powerport_connect(request, pk):
+
+    powerport = get_object_or_404(PowerPort, pk=pk)
+
+    if request.method == 'POST':
+        form = forms.PowerPortConnectionForm(request.POST, instance=powerport)
+        if form.is_valid():
+            powerport = form.save()
+            messages.success(request, u"Connected {} {} to {} {}.".format(
+                powerport.device,
+                powerport.name,
+                powerport.power_outlet.device,
+                powerport.power_outlet.name,
+            ))
+            return redirect('dcim:device', pk=powerport.device.pk)
+
+    else:
+        form = forms.PowerPortConnectionForm(instance=powerport, initial={
+            'rack': powerport.device.rack,
+            'connection_status': CONNECTION_STATUS_CONNECTED,
+        })
+
+    return render(request, 'dcim/powerport_connect.html', {
+        'powerport': powerport,
+        'form': form,
+        'cancel_url': reverse('dcim:device', kwargs={'pk': powerport.device.pk}),
+    })
+
+
+@permission_required('dcim.change_powerport')
+def powerport_disconnect(request, pk):
+
+    powerport = get_object_or_404(PowerPort, pk=pk)
+
+    if not powerport.power_outlet:
+        messages.warning(request, u"Cannot disconnect power port {}: It is not connected to an outlet."
+                         .format(powerport))
+        return redirect('dcim:device', pk=powerport.device.pk)
+
+    if request.method == 'POST':
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+            powerport.power_outlet = None
+            powerport.connection_status = None
+            powerport.save()
+            messages.success(request, u"Power port {} has been disconnected.".format(powerport))
+            return redirect('dcim:device', pk=powerport.device.pk)
+
+    else:
+        form = ConfirmationForm()
+
+    return render(request, 'dcim/powerport_disconnect.html', {
+        'powerport': powerport,
+        'form': form,
+        'cancel_url': reverse('dcim:device', kwargs={'pk': powerport.device.pk}),
+    })
+
+
+class PowerPortEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_powerport'
+    model = PowerPort
+    form_class = forms.PowerPortForm
+
+
+class PowerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_powerport'
+    model = PowerPort
+
+
+class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_powerport'
+    cls = PowerPort
+    parent_cls = Device
+
+
+class PowerConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.change_powerport'
+    form = forms.PowerConnectionImportForm
+    table = tables.PowerConnectionTable
+    template_name = 'dcim/power_connections_import.html'
+
+
+#
+# Power outlets
+#
+
+class PowerOutletAddView(PermissionRequiredMixin, DeviceComponentCreateView):
+    permission_required = 'dcim.add_poweroutlet'
+    model = PowerOutlet
+    form = forms.PowerOutletCreateForm
+    model_form = forms.PowerOutletForm
+
+
+@permission_required('dcim.change_poweroutlet')
+def poweroutlet_connect(request, pk):
+
+    poweroutlet = get_object_or_404(PowerOutlet, pk=pk)
+
+    if request.method == 'POST':
+        form = forms.PowerOutletConnectionForm(poweroutlet, request.POST)
+        if form.is_valid():
+            powerport = form.cleaned_data['port']
+            powerport.power_outlet = poweroutlet
+            powerport.connection_status = form.cleaned_data['connection_status']
+            powerport.save()
+            messages.success(request, u"Connected {} {} to {} {}.".format(
+                powerport.device,
+                powerport.name,
+                poweroutlet.device,
+                poweroutlet.name,
+            ))
+            return redirect('dcim:device', pk=poweroutlet.device.pk)
+
+    else:
+        form = forms.PowerOutletConnectionForm(poweroutlet, initial={'rack': poweroutlet.device.rack})
+
+    return render(request, 'dcim/poweroutlet_connect.html', {
+        'poweroutlet': poweroutlet,
+        'form': form,
+        'cancel_url': reverse('dcim:device', kwargs={'pk': poweroutlet.device.pk}),
+    })
+
+
+@permission_required('dcim.change_poweroutlet')
+def poweroutlet_disconnect(request, pk):
+
+    poweroutlet = get_object_or_404(PowerOutlet, pk=pk)
+
+    if not hasattr(poweroutlet, 'connected_port'):
+        messages.warning(request, u"Cannot disconnect power outlet {}: Nothing is connected to it.".format(poweroutlet))
+        return redirect('dcim:device', pk=poweroutlet.device.pk)
+
+    if request.method == 'POST':
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+            powerport = poweroutlet.connected_port
+            powerport.power_outlet = None
+            powerport.connection_status = None
+            powerport.save()
+            messages.success(request, u"Power outlet {} has been disconnected.".format(poweroutlet))
+            return redirect('dcim:device', pk=poweroutlet.device.pk)
+
+    else:
+        form = ConfirmationForm()
+
+    return render(request, 'dcim/poweroutlet_disconnect.html', {
+        'poweroutlet': poweroutlet,
+        'form': form,
+        'cancel_url': reverse('dcim:device', kwargs={'pk': poweroutlet.device.pk}),
+    })
+
+
+class PowerOutletEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_poweroutlet'
+    model = PowerOutlet
+    form_class = forms.PowerOutletForm
+
+
+class PowerOutletDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_poweroutlet'
+    model = PowerOutlet
+
+
+class PowerOutletBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_poweroutlet'
+    cls = PowerOutlet
+    parent_cls = Device
+
+
+#
+# Interfaces
+#
+
+class InterfaceAddView(PermissionRequiredMixin, DeviceComponentCreateView):
+    permission_required = 'dcim.add_interface'
+    model = Interface
+    form = forms.InterfaceCreateForm
+    model_form = forms.InterfaceForm
+
+
+class InterfaceEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_interface'
+    model = Interface
+    form_class = forms.InterfaceForm
+
+
+class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_interface'
+    model = Interface
+
+
+class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_interface'
+    cls = Interface
+    parent_cls = Device
+    form = forms.InterfaceBulkEditForm
+    template_name = 'dcim/interface_bulk_edit.html'
+
+
+class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_interface'
+    cls = Interface
+    parent_cls = Device
+
+
+#
+# Device bays
+#
+
+class DeviceBayAddView(PermissionRequiredMixin, DeviceComponentCreateView):
+    permission_required = 'dcim.add_devicebay'
+    model = DeviceBay
+    form = forms.DeviceBayCreateForm
+    model_form = forms.DeviceBayForm
+
+
+class DeviceBayEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_devicebay'
+    model = DeviceBay
+    form_class = forms.DeviceBayForm
+
+
+class DeviceBayDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_devicebay'
+    model = DeviceBay
+
+
+@permission_required('dcim.change_devicebay')
+def devicebay_populate(request, pk):
+
+    device_bay = get_object_or_404(DeviceBay, pk=pk)
+
+    if request.method == 'POST':
+        form = forms.PopulateDeviceBayForm(device_bay, request.POST)
+        if form.is_valid():
+
+            device_bay.installed_device = form.cleaned_data['installed_device']
+            device_bay.save()
+
+            if not form.errors:
+                messages.success(request, u"Added {} to {}.".format(device_bay.installed_device, device_bay))
+                return redirect('dcim:device', pk=device_bay.device.pk)
+
+    else:
+        form = forms.PopulateDeviceBayForm(device_bay)
+
+    return render(request, 'dcim/devicebay_populate.html', {
+        'device_bay': device_bay,
+        'form': form,
+        'cancel_url': reverse('dcim:device', kwargs={'pk': device_bay.device.pk}),
+    })
+
+
+@permission_required('dcim.change_devicebay')
+def devicebay_depopulate(request, pk):
+
+    device_bay = get_object_or_404(DeviceBay, pk=pk)
+
+    if request.method == 'POST':
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+            removed_device = device_bay.installed_device
+            device_bay.installed_device = None
+            device_bay.save()
+            messages.success(request, u"{} has been removed from {}.".format(removed_device, device_bay))
+            return redirect('dcim:device', pk=device_bay.device.pk)
+
+    else:
+        form = ConfirmationForm()
+
+    return render(request, 'dcim/devicebay_depopulate.html', {
+        'device_bay': device_bay,
+        'form': form,
+        'cancel_url': reverse('dcim:device', kwargs={'pk': device_bay.device.pk}),
+    })
+
+
+class DeviceBayBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_devicebay'
+    cls = DeviceBay
+    parent_cls = Device
+
+
 #
 # Bulk device component creation
 #
@@ -798,681 +1333,6 @@ class DeviceBulkAddDeviceBayView(PermissionRequiredMixin, DeviceBulkAddComponent
     permission_required = 'dcim.add_devicebay'
     model = DeviceBay
     model_form = forms.DeviceBayForm
-
-
-#
-# Console ports
-#
-
-@permission_required('dcim.add_consoleport')
-def consoleport_add(request, pk):
-
-    device = get_object_or_404(Device, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.ConsolePortCreateForm(request.POST)
-        if form.is_valid():
-
-            console_ports = []
-            for name in form.cleaned_data['name_pattern']:
-                cp_form = forms.ConsolePortForm({
-                    'device': device.pk,
-                    'name': name,
-                })
-                if cp_form.is_valid():
-                    console_ports.append(cp_form.save(commit=False))
-                else:
-                    form.add_error('name_pattern', "Duplicate console port name for this device: {}".format(name))
-
-            if not form.errors:
-                ConsolePort.objects.bulk_create(console_ports)
-                messages.success(request, u"Added {} console port(s) to {}.".format(len(console_ports), device))
-                if '_addanother' in request.POST:
-                    return redirect('dcim:consoleport_add', pk=device.pk)
-                else:
-                    return redirect('dcim:device', pk=device.pk)
-
-    else:
-        form = forms.ConsolePortCreateForm()
-
-    return render(request, 'dcim/device_component_add.html', {
-        'device': device,
-        'component_type': 'Console Port',
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
-    })
-
-
-@permission_required('dcim.change_consoleport')
-def consoleport_connect(request, pk):
-
-    consoleport = get_object_or_404(ConsolePort, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.ConsolePortConnectionForm(request.POST, instance=consoleport)
-        if form.is_valid():
-            consoleport = form.save()
-            messages.success(request, u"Connected {} {} to {} {}.".format(
-                consoleport.device,
-                consoleport.name,
-                consoleport.cs_port.device,
-                consoleport.cs_port.name,
-            ))
-            return redirect('dcim:device', pk=consoleport.device.pk)
-
-    else:
-        form = forms.ConsolePortConnectionForm(instance=consoleport, initial={
-            'rack': consoleport.device.rack,
-            'connection_status': CONNECTION_STATUS_CONNECTED,
-        })
-
-    return render(request, 'dcim/consoleport_connect.html', {
-        'consoleport': consoleport,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': consoleport.device.pk}),
-    })
-
-
-@permission_required('dcim.change_consoleport')
-def consoleport_disconnect(request, pk):
-
-    consoleport = get_object_or_404(ConsolePort, pk=pk)
-
-    if not consoleport.cs_port:
-        messages.warning(request, u"Cannot disconnect console port {}: It is not connected to anything."
-                         .format(consoleport))
-        return redirect('dcim:device', pk=consoleport.device.pk)
-
-    if request.method == 'POST':
-        form = ConfirmationForm(request.POST)
-        if form.is_valid():
-            consoleport.cs_port = None
-            consoleport.connection_status = None
-            consoleport.save()
-            messages.success(request, u"Console port {} has been disconnected.".format(consoleport))
-            return redirect('dcim:device', pk=consoleport.device.pk)
-
-    else:
-        form = ConfirmationForm()
-
-    return render(request, 'dcim/consoleport_disconnect.html', {
-        'consoleport': consoleport,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': consoleport.device.pk}),
-    })
-
-
-class ConsolePortEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_consoleport'
-    model = ConsolePort
-    form_class = forms.ConsolePortForm
-
-
-class ConsolePortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_consoleport'
-    model = ConsolePort
-
-
-class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'dcim.delete_consoleport'
-    cls = ConsolePort
-    parent_cls = Device
-
-
-class ConsoleConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
-    permission_required = 'dcim.change_consoleport'
-    form = forms.ConsoleConnectionImportForm
-    table = tables.ConsoleConnectionTable
-    template_name = 'dcim/console_connections_import.html'
-
-
-#
-# Console server ports
-#
-
-@permission_required('dcim.add_consoleserverport')
-def consoleserverport_add(request, pk):
-
-    device = get_object_or_404(Device, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.ConsoleServerPortCreateForm(request.POST)
-        if form.is_valid():
-
-            cs_ports = []
-            for name in form.cleaned_data['name_pattern']:
-                csp_form = forms.ConsoleServerPortForm({
-                    'device': device.pk,
-                    'name': name,
-                })
-                if csp_form.is_valid():
-                    cs_ports.append(csp_form.save(commit=False))
-                else:
-                    form.add_error('name_pattern', "Duplicate console server port name for this device: {}"
-                                   .format(name))
-
-            if not form.errors:
-                ConsoleServerPort.objects.bulk_create(cs_ports)
-                messages.success(request, u"Added {} console server port(s) to {}.".format(len(cs_ports), device))
-                if '_addanother' in request.POST:
-                    return redirect('dcim:consoleserverport_add', pk=device.pk)
-                else:
-                    return redirect('dcim:device', pk=device.pk)
-
-    else:
-        form = forms.ConsoleServerPortCreateForm()
-
-    return render(request, 'dcim/device_component_add.html', {
-        'device': device,
-        'component_type': 'Console Server Port',
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
-    })
-
-
-@permission_required('dcim.change_consoleserverport')
-def consoleserverport_connect(request, pk):
-
-    consoleserverport = get_object_or_404(ConsoleServerPort, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.ConsoleServerPortConnectionForm(consoleserverport, request.POST)
-        if form.is_valid():
-            consoleport = form.cleaned_data['port']
-            consoleport.cs_port = consoleserverport
-            consoleport.connection_status = form.cleaned_data['connection_status']
-            consoleport.save()
-            messages.success(request, u"Connected {} {} to {} {}.".format(
-                consoleport.device,
-                consoleport.name,
-                consoleserverport.device,
-                consoleserverport.name,
-            ))
-            return redirect('dcim:device', pk=consoleserverport.device.pk)
-
-    else:
-        form = forms.ConsoleServerPortConnectionForm(consoleserverport, initial={'rack': consoleserverport.device.rack})
-
-    return render(request, 'dcim/consoleserverport_connect.html', {
-        'consoleserverport': consoleserverport,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': consoleserverport.device.pk}),
-    })
-
-
-@permission_required('dcim.change_consoleserverport')
-def consoleserverport_disconnect(request, pk):
-
-    consoleserverport = get_object_or_404(ConsoleServerPort, pk=pk)
-
-    if not hasattr(consoleserverport, 'connected_console'):
-        messages.warning(request, u"Cannot disconnect console server port {}: Nothing is connected to it."
-                         .format(consoleserverport))
-        return redirect('dcim:device', pk=consoleserverport.device.pk)
-
-    if request.method == 'POST':
-        form = ConfirmationForm(request.POST)
-        if form.is_valid():
-            consoleport = consoleserverport.connected_console
-            consoleport.cs_port = None
-            consoleport.connection_status = None
-            consoleport.save()
-            messages.success(request, u"Console server port {} has been disconnected.".format(consoleserverport))
-            return redirect('dcim:device', pk=consoleserverport.device.pk)
-
-    else:
-        form = ConfirmationForm()
-
-    return render(request, 'dcim/consoleserverport_disconnect.html', {
-        'consoleserverport': consoleserverport,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': consoleserverport.device.pk}),
-    })
-
-
-class ConsoleServerPortEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_consoleserverport'
-    model = ConsoleServerPort
-    form_class = forms.ConsoleServerPortForm
-
-
-class ConsoleServerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_consoleserverport'
-    model = ConsoleServerPort
-
-
-class ConsoleServerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'dcim.delete_consoleserverport'
-    cls = ConsoleServerPort
-    parent_cls = Device
-
-
-#
-# Power ports
-#
-
-@permission_required('dcim.add_powerport')
-def powerport_add(request, pk):
-
-    device = get_object_or_404(Device, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.PowerPortCreateForm(request.POST)
-        if form.is_valid():
-
-            power_ports = []
-            for name in form.cleaned_data['name_pattern']:
-                pp_form = forms.PowerPortForm({
-                    'device': device.pk,
-                    'name': name,
-                })
-                if pp_form.is_valid():
-                    power_ports.append(pp_form.save(commit=False))
-                else:
-                    form.add_error('name_pattern', "Duplicate power port name for this device: {}".format(name))
-
-            if not form.errors:
-                PowerPort.objects.bulk_create(power_ports)
-                messages.success(request, u"Added {} power port(s) to {}.".format(len(power_ports), device))
-                if '_addanother' in request.POST:
-                    return redirect('dcim:powerport_add', pk=device.pk)
-                else:
-                    return redirect('dcim:device', pk=device.pk)
-
-    else:
-        form = forms.PowerPortCreateForm()
-
-    return render(request, 'dcim/device_component_add.html', {
-        'device': device,
-        'component_type': 'Power Port',
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
-    })
-
-
-@permission_required('dcim.change_powerport')
-def powerport_connect(request, pk):
-
-    powerport = get_object_or_404(PowerPort, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.PowerPortConnectionForm(request.POST, instance=powerport)
-        if form.is_valid():
-            powerport = form.save()
-            messages.success(request, u"Connected {} {} to {} {}.".format(
-                powerport.device,
-                powerport.name,
-                powerport.power_outlet.device,
-                powerport.power_outlet.name,
-            ))
-            return redirect('dcim:device', pk=powerport.device.pk)
-
-    else:
-        form = forms.PowerPortConnectionForm(instance=powerport, initial={
-            'rack': powerport.device.rack,
-            'connection_status': CONNECTION_STATUS_CONNECTED,
-        })
-
-    return render(request, 'dcim/powerport_connect.html', {
-        'powerport': powerport,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': powerport.device.pk}),
-    })
-
-
-@permission_required('dcim.change_powerport')
-def powerport_disconnect(request, pk):
-
-    powerport = get_object_or_404(PowerPort, pk=pk)
-
-    if not powerport.power_outlet:
-        messages.warning(request, u"Cannot disconnect power port {}: It is not connected to an outlet."
-                         .format(powerport))
-        return redirect('dcim:device', pk=powerport.device.pk)
-
-    if request.method == 'POST':
-        form = ConfirmationForm(request.POST)
-        if form.is_valid():
-            powerport.power_outlet = None
-            powerport.connection_status = None
-            powerport.save()
-            messages.success(request, u"Power port {} has been disconnected.".format(powerport))
-            return redirect('dcim:device', pk=powerport.device.pk)
-
-    else:
-        form = ConfirmationForm()
-
-    return render(request, 'dcim/powerport_disconnect.html', {
-        'powerport': powerport,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': powerport.device.pk}),
-    })
-
-
-class PowerPortEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_powerport'
-    model = PowerPort
-    form_class = forms.PowerPortForm
-
-
-class PowerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_powerport'
-    model = PowerPort
-
-
-class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'dcim.delete_powerport'
-    cls = PowerPort
-    parent_cls = Device
-
-
-class PowerConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
-    permission_required = 'dcim.change_powerport'
-    form = forms.PowerConnectionImportForm
-    table = tables.PowerConnectionTable
-    template_name = 'dcim/power_connections_import.html'
-
-
-#
-# Power outlets
-#
-
-@permission_required('dcim.add_poweroutlet')
-def poweroutlet_add(request, pk):
-
-    device = get_object_or_404(Device, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.PowerOutletCreateForm(request.POST)
-        if form.is_valid():
-
-            power_outlets = []
-            for name in form.cleaned_data['name_pattern']:
-                po_form = forms.PowerOutletForm({
-                    'device': device.pk,
-                    'name': name,
-                })
-                if po_form.is_valid():
-                    power_outlets.append(po_form.save(commit=False))
-                else:
-                    form.add_error('name_pattern', "Duplicate power outlet name for this device: {}".format(name))
-
-            if not form.errors:
-                PowerOutlet.objects.bulk_create(power_outlets)
-                messages.success(request, u"Added {} power outlet(s) to {}.".format(len(power_outlets), device))
-                if '_addanother' in request.POST:
-                    return redirect('dcim:poweroutlet_add', pk=device.pk)
-                else:
-                    return redirect('dcim:device', pk=device.pk)
-
-    else:
-        form = forms.PowerOutletCreateForm()
-
-    return render(request, 'dcim/device_component_add.html', {
-        'device': device,
-        'component_type': 'Power Outlet',
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
-    })
-
-
-@permission_required('dcim.change_poweroutlet')
-def poweroutlet_connect(request, pk):
-
-    poweroutlet = get_object_or_404(PowerOutlet, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.PowerOutletConnectionForm(poweroutlet, request.POST)
-        if form.is_valid():
-            powerport = form.cleaned_data['port']
-            powerport.power_outlet = poweroutlet
-            powerport.connection_status = form.cleaned_data['connection_status']
-            powerport.save()
-            messages.success(request, u"Connected {} {} to {} {}.".format(
-                powerport.device,
-                powerport.name,
-                poweroutlet.device,
-                poweroutlet.name,
-            ))
-            return redirect('dcim:device', pk=poweroutlet.device.pk)
-
-    else:
-        form = forms.PowerOutletConnectionForm(poweroutlet, initial={'rack': poweroutlet.device.rack})
-
-    return render(request, 'dcim/poweroutlet_connect.html', {
-        'poweroutlet': poweroutlet,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': poweroutlet.device.pk}),
-    })
-
-
-@permission_required('dcim.change_poweroutlet')
-def poweroutlet_disconnect(request, pk):
-
-    poweroutlet = get_object_or_404(PowerOutlet, pk=pk)
-
-    if not hasattr(poweroutlet, 'connected_port'):
-        messages.warning(request, u"Cannot disconnect power outlet {}: Nothing is connected to it.".format(poweroutlet))
-        return redirect('dcim:device', pk=poweroutlet.device.pk)
-
-    if request.method == 'POST':
-        form = ConfirmationForm(request.POST)
-        if form.is_valid():
-            powerport = poweroutlet.connected_port
-            powerport.power_outlet = None
-            powerport.connection_status = None
-            powerport.save()
-            messages.success(request, u"Power outlet {} has been disconnected.".format(poweroutlet))
-            return redirect('dcim:device', pk=poweroutlet.device.pk)
-
-    else:
-        form = ConfirmationForm()
-
-    return render(request, 'dcim/poweroutlet_disconnect.html', {
-        'poweroutlet': poweroutlet,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': poweroutlet.device.pk}),
-    })
-
-
-class PowerOutletEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_poweroutlet'
-    model = PowerOutlet
-    form_class = forms.PowerOutletForm
-
-
-class PowerOutletDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_poweroutlet'
-    model = PowerOutlet
-
-
-class PowerOutletBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'dcim.delete_poweroutlet'
-    cls = PowerOutlet
-    parent_cls = Device
-
-
-#
-# Interfaces
-#
-
-@permission_required('dcim.add_interface')
-def interface_add(request, pk):
-
-    device = get_object_or_404(Device, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.InterfaceCreateForm(request.POST)
-        if form.is_valid():
-
-            interfaces = []
-            for name in form.cleaned_data['name_pattern']:
-                iface_form = forms.InterfaceForm({
-                    'device': device.pk,
-                    'name': name,
-                    'form_factor': form.cleaned_data['form_factor'],
-                    'mac_address': form.cleaned_data['mac_address'],
-                    'mgmt_only': form.cleaned_data['mgmt_only'],
-                    'description': form.cleaned_data['description'],
-                })
-                if iface_form.is_valid():
-                    interfaces.append(iface_form.save(commit=False))
-                else:
-                    form.add_error('name_pattern', "Duplicate interface name for this device: {}".format(name))
-
-            if not form.errors:
-                Interface.objects.bulk_create(interfaces)
-                messages.success(request, u"Added {} interface(s) to {}.".format(len(interfaces), device))
-                if '_addanother' in request.POST:
-                    return redirect('dcim:interface_add', pk=device.pk)
-                else:
-                    return redirect('dcim:device', pk=device.pk)
-
-    else:
-        form = forms.InterfaceCreateForm(initial={'mgmt_only': request.GET.get('mgmt_only')})
-
-    return render(request, 'dcim/device_component_add.html', {
-        'device': device,
-        'component_type': 'Interface',
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
-    })
-
-
-class InterfaceEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_interface'
-    model = Interface
-    form_class = forms.InterfaceForm
-
-
-class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_interface'
-    model = Interface
-
-
-class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'dcim.change_interface'
-    cls = Interface
-    parent_cls = Device
-    form = forms.InterfaceBulkEditForm
-    template_name = 'dcim/interface_bulk_edit.html'
-
-
-class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'dcim.delete_interface'
-    cls = Interface
-    parent_cls = Device
-
-
-#
-# Device bays
-#
-
-@permission_required('dcim.add_devicebay')
-def devicebay_add(request, pk):
-
-    device = get_object_or_404(Device, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.DeviceBayCreateForm(request.POST)
-        if form.is_valid():
-
-            device_bays = []
-            for name in form.cleaned_data['name_pattern']:
-                devicebay_form = forms.DeviceBayForm({
-                    'device': device.pk,
-                    'name': name,
-                })
-                if devicebay_form.is_valid():
-                    device_bays.append(devicebay_form.save(commit=False))
-                else:
-                    for err in devicebay_form.errors.get('__all__', []):
-                        form.add_error('name_pattern', err)
-
-            if not form.errors:
-                DeviceBay.objects.bulk_create(device_bays)
-                messages.success(request, u"Added {} device bay(s) to {}.".format(len(device_bays), device))
-                if '_addanother' in request.POST:
-                    return redirect('dcim:devicebay_add', pk=device.pk)
-                else:
-                    return redirect('dcim:device', pk=device.pk)
-
-    else:
-        form = forms.DeviceBayCreateForm()
-
-    return render(request, 'dcim/device_component_add.html', {
-        'device': device,
-        'component_type': 'Device Bay',
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
-    })
-
-
-class DeviceBayEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_devicebay'
-    model = DeviceBay
-    form_class = forms.DeviceBayForm
-
-
-class DeviceBayDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_devicebay'
-    model = DeviceBay
-
-
-@permission_required('dcim.change_devicebay')
-def devicebay_populate(request, pk):
-
-    device_bay = get_object_or_404(DeviceBay, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.PopulateDeviceBayForm(device_bay, request.POST)
-        if form.is_valid():
-
-            device_bay.installed_device = form.cleaned_data['installed_device']
-            device_bay.save()
-
-            if not form.errors:
-                messages.success(request, u"Added {} to {}.".format(device_bay.installed_device, device_bay))
-                return redirect('dcim:device', pk=device_bay.device.pk)
-
-    else:
-        form = forms.PopulateDeviceBayForm(device_bay)
-
-    return render(request, 'dcim/devicebay_populate.html', {
-        'device_bay': device_bay,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': device_bay.device.pk}),
-    })
-
-
-@permission_required('dcim.change_devicebay')
-def devicebay_depopulate(request, pk):
-
-    device_bay = get_object_or_404(DeviceBay, pk=pk)
-
-    if request.method == 'POST':
-        form = ConfirmationForm(request.POST)
-        if form.is_valid():
-            removed_device = device_bay.installed_device
-            device_bay.installed_device = None
-            device_bay.save()
-            messages.success(request, u"{} has been removed from {}.".format(removed_device, device_bay))
-            return redirect('dcim:device', pk=device_bay.device.pk)
-
-    else:
-        form = ConfirmationForm()
-
-    return render(request, 'dcim/devicebay_depopulate.html', {
-        'device_bay': device_bay,
-        'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': device_bay.device.pk}),
-    })
-
-
-class DeviceBayBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'dcim.delete_devicebay'
-    cls = DeviceBay
-    parent_cls = Device
 
 
 #

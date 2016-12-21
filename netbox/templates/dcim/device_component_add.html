@@ -3,7 +3,7 @@
 
 {% block title %}Create {{ component_type }} ({{ device }}){% endblock %}
 
-{% block content %}
+{% block content %}{{ form.errors }}
 <form action="." method="post" class="form form-horizontal">
     {% csrf_token %}
     <div class="row">
@@ -18,7 +18,7 @@
             {% endif %}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <strong>{{ component_type }}</strong>
+                    <strong>{{ component_type|title }}</strong>
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
