@@ -118,7 +118,11 @@ class RackUnitListView(APIView):
 
         rack = get_object_or_404(Rack, pk=pk)
         face = request.GET.get('face', 0)
-        elevation = rack.get_rack_units(face)
+        try:
+            exclude = int(request.GET.get('exclude', None))
+        except ValueError:
+            exclude = None
+        elevation = rack.get_rack_units(face, exclude)
 
         # Serialize Devices within the rack elevation
         for u in elevation:

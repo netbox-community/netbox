@@ -419,6 +419,10 @@ class DeviceForm(BootstrapMixin, CustomFieldForm):
                 ip_choices += [(ip.id, u'{} ({} NAT)'.format(ip.address, ip.nat_inside.interface)) for ip in nat_ips]
                 self.fields['primary_ip{}'.format(family)].choices = [(None, '---------')] + ip_choices
 
+            # If editing an existing device, exclude it from the list of occupied rack units. This ensures that a device
+            # can be flipped from one face to another.
+            self.fields['position'].widget.attrs['api-url'] += '&exclude={}'.format(self.instance.pk)
+
         else:
 
             # An object that doesn't exist yet can't have any IPs assigned to it
