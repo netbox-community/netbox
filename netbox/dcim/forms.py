@@ -84,7 +84,7 @@ class SiteFromCSVForm(forms.ModelForm):
         fields = ['name', 'slug', 'tenant', 'facility', 'asn']
 
 
-class SiteImportForm(BulkImportForm, BootstrapMixin):
+class SiteImportForm(BootstrapMixin, BulkImportForm):
     csv = CSVDataField(csv_form=SiteFromCSVForm)
 
 
@@ -107,7 +107,7 @@ class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Rack groups
 #
 
-class RackGroupForm(forms.ModelForm, BootstrapMixin):
+class RackGroupForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
 
     class Meta:
@@ -115,7 +115,7 @@ class RackGroupForm(forms.ModelForm, BootstrapMixin):
         fields = ['site', 'name', 'slug']
 
 
-class RackGroupFilterForm(forms.Form, BootstrapMixin):
+class RackGroupFilterForm(BootstrapMixin, forms.Form):
     site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('rack_groups')), to_field_name='slug')
 
 
@@ -123,7 +123,7 @@ class RackGroupFilterForm(forms.Form, BootstrapMixin):
 # Rack roles
 #
 
-class RackRoleForm(forms.ModelForm, BootstrapMixin):
+class RackRoleForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
 
     class Meta:
@@ -209,7 +209,7 @@ class RackFromCSVForm(forms.ModelForm):
             ))
 
 
-class RackImportForm(BulkImportForm, BootstrapMixin):
+class RackImportForm(BootstrapMixin, BulkImportForm):
     csv = CSVDataField(csv_form=RackFromCSVForm)
 
 
@@ -243,7 +243,7 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Manufacturers
 #
 
-class ManufacturerForm(forms.ModelForm, BootstrapMixin):
+class ManufacturerForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
 
     class Meta:
@@ -283,7 +283,7 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Device component templates
 #
 
-class ConsolePortTemplateForm(forms.ModelForm, BootstrapMixin):
+class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
     name_pattern = ExpandableNameField(label='Name')
 
     class Meta:
@@ -291,7 +291,7 @@ class ConsolePortTemplateForm(forms.ModelForm, BootstrapMixin):
         fields = ['name_pattern']
 
 
-class ConsoleServerPortTemplateForm(forms.ModelForm, BootstrapMixin):
+class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
     name_pattern = ExpandableNameField(label='Name')
 
     class Meta:
@@ -299,7 +299,7 @@ class ConsoleServerPortTemplateForm(forms.ModelForm, BootstrapMixin):
         fields = ['name_pattern']
 
 
-class PowerPortTemplateForm(forms.ModelForm, BootstrapMixin):
+class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
     name_pattern = ExpandableNameField(label='Name')
 
     class Meta:
@@ -307,7 +307,7 @@ class PowerPortTemplateForm(forms.ModelForm, BootstrapMixin):
         fields = ['name_pattern']
 
 
-class PowerOutletTemplateForm(forms.ModelForm, BootstrapMixin):
+class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
     name_pattern = ExpandableNameField(label='Name')
 
     class Meta:
@@ -315,7 +315,7 @@ class PowerOutletTemplateForm(forms.ModelForm, BootstrapMixin):
         fields = ['name_pattern']
 
 
-class InterfaceTemplateForm(forms.ModelForm, BootstrapMixin):
+class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
     name_pattern = ExpandableNameField(label='Name')
 
     class Meta:
@@ -331,7 +331,7 @@ class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         nullable_fields = []
 
 
-class DeviceBayTemplateForm(forms.ModelForm, BootstrapMixin):
+class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
     name_pattern = ExpandableNameField(label='Name')
 
     class Meta:
@@ -343,7 +343,7 @@ class DeviceBayTemplateForm(forms.ModelForm, BootstrapMixin):
 # Device roles
 #
 
-class DeviceRoleForm(forms.ModelForm, BootstrapMixin):
+class DeviceRoleForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
 
     class Meta:
@@ -355,7 +355,7 @@ class DeviceRoleForm(forms.ModelForm, BootstrapMixin):
 # Platforms
 #
 
-class PlatformForm(forms.ModelForm, BootstrapMixin):
+class PlatformForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
 
     class Meta:
@@ -572,11 +572,11 @@ class ChildDeviceFromCSVForm(BaseDeviceFromCSVForm):
                 self.add_error('device_bay_name', "Parent device/bay ({} {}) not found".format(parent, device_bay_name))
 
 
-class DeviceImportForm(BulkImportForm, BootstrapMixin):
+class DeviceImportForm(BootstrapMixin, BulkImportForm):
     csv = CSVDataField(csv_form=DeviceFromCSVForm)
 
 
-class ChildDeviceImportForm(BulkImportForm, BootstrapMixin):
+class ChildDeviceImportForm(BootstrapMixin, BulkImportForm):
     csv = CSVDataField(csv_form=ChildDeviceFromCSVForm)
 
 
@@ -613,7 +613,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Bulk device component creation
 #
 
-class DeviceBulkAddComponentForm(forms.Form, BootstrapMixin):
+class DeviceBulkAddComponentForm(BootstrapMixin, forms.Form):
     pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
     name_pattern = ExpandableNameField(label='Name')
 
@@ -629,7 +629,7 @@ class DeviceBulkAddInterfaceForm(forms.ModelForm, DeviceBulkAddComponentForm):
 # Console ports
 #
 
-class ConsolePortForm(forms.ModelForm, BootstrapMixin):
+class ConsolePortForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = ConsolePort
@@ -639,7 +639,7 @@ class ConsolePortForm(forms.ModelForm, BootstrapMixin):
         }
 
 
-class ConsolePortCreateForm(forms.Form, BootstrapMixin):
+class ConsolePortCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -680,7 +680,7 @@ class ConsoleConnectionCSVForm(forms.Form):
                                             .format(self.cleaned_data['device'], self.cleaned_data['console_port']))
 
 
-class ConsoleConnectionImportForm(BulkImportForm, BootstrapMixin):
+class ConsoleConnectionImportForm(BootstrapMixin, BulkImportForm):
     csv = CSVDataField(csv_form=ConsoleConnectionCSVForm)
 
     def clean(self):
@@ -710,7 +710,7 @@ class ConsoleConnectionImportForm(BulkImportForm, BootstrapMixin):
         self.cleaned_data['csv'] = connection_list
 
 
-class ConsolePortConnectionForm(forms.ModelForm, BootstrapMixin):
+class ConsolePortConnectionForm(BootstrapMixin, forms.ModelForm):
     rack = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
                                   widget=forms.Select(attrs={'filter-for': 'console_server'}))
     console_server = forms.ModelChoiceField(queryset=Device.objects.all(), label='Console Server', required=False,
@@ -764,7 +764,7 @@ class ConsolePortConnectionForm(forms.ModelForm, BootstrapMixin):
 # Console server ports
 #
 
-class ConsoleServerPortForm(forms.ModelForm, BootstrapMixin):
+class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = ConsoleServerPort
@@ -774,11 +774,11 @@ class ConsoleServerPortForm(forms.ModelForm, BootstrapMixin):
         }
 
 
-class ConsoleServerPortCreateForm(forms.Form, BootstrapMixin):
+class ConsoleServerPortCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(label='Name')
 
 
-class ConsoleServerPortConnectionForm(forms.Form, BootstrapMixin):
+class ConsoleServerPortConnectionForm(BootstrapMixin, forms.Form):
     rack = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
                                   widget=forms.Select(attrs={'filter-for': 'device'}))
     device = forms.ModelChoiceField(queryset=Device.objects.all(), label='Device', required=False,
@@ -826,7 +826,7 @@ class ConsoleServerPortConnectionForm(forms.Form, BootstrapMixin):
 # Power ports
 #
 
-class PowerPortForm(forms.ModelForm, BootstrapMixin):
+class PowerPortForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = PowerPort
@@ -836,7 +836,7 @@ class PowerPortForm(forms.ModelForm, BootstrapMixin):
         }
 
 
-class PowerPortCreateForm(forms.Form, BootstrapMixin):
+class PowerPortCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -877,7 +877,7 @@ class PowerConnectionCSVForm(forms.Form):
                                             .format(self.cleaned_data['device'], self.cleaned_data['power_port']))
 
 
-class PowerConnectionImportForm(BulkImportForm, BootstrapMixin):
+class PowerConnectionImportForm(BootstrapMixin, BulkImportForm):
     csv = CSVDataField(csv_form=PowerConnectionCSVForm)
 
     def clean(self):
@@ -907,7 +907,7 @@ class PowerConnectionImportForm(BulkImportForm, BootstrapMixin):
         self.cleaned_data['csv'] = connection_list
 
 
-class PowerPortConnectionForm(forms.ModelForm, BootstrapMixin):
+class PowerPortConnectionForm(BootstrapMixin, forms.ModelForm):
     rack = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
                                   widget=forms.Select(attrs={'filter-for': 'pdu'}))
     pdu = forms.ModelChoiceField(queryset=Device.objects.all(), label='PDU', required=False,
@@ -960,7 +960,7 @@ class PowerPortConnectionForm(forms.ModelForm, BootstrapMixin):
 # Power outlets
 #
 
-class PowerOutletForm(forms.ModelForm, BootstrapMixin):
+class PowerOutletForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = PowerOutlet
@@ -970,11 +970,11 @@ class PowerOutletForm(forms.ModelForm, BootstrapMixin):
         }
 
 
-class PowerOutletCreateForm(forms.Form, BootstrapMixin):
+class PowerOutletCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(label='Name')
 
 
-class PowerOutletConnectionForm(forms.Form, BootstrapMixin):
+class PowerOutletConnectionForm(BootstrapMixin, forms.Form):
     rack = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
                                   widget=forms.Select(attrs={'filter-for': 'device'}))
     device = forms.ModelChoiceField(queryset=Device.objects.all(), label='Device', required=False,
@@ -1022,7 +1022,7 @@ class PowerOutletConnectionForm(forms.Form, BootstrapMixin):
 # Interfaces
 #
 
-class InterfaceForm(forms.ModelForm, BootstrapMixin):
+class InterfaceForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Interface
@@ -1032,7 +1032,7 @@ class InterfaceForm(forms.ModelForm, BootstrapMixin):
         }
 
 
-class InterfaceCreateForm(forms.ModelForm, BootstrapMixin):
+class InterfaceCreateForm(BootstrapMixin, forms.ModelForm):
     name_pattern = ExpandableNameField(label='Name')
 
     class Meta:
@@ -1053,7 +1053,7 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
 # Interface connections
 #
 
-class InterfaceConnectionForm(forms.ModelForm, BootstrapMixin):
+class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
     interface_a = forms.ChoiceField(choices=[], widget=SelectWithDisabled, label='Interface')
     site_b = forms.ModelChoiceField(queryset=Site.objects.all(), label='Site', required=False,
                                     widget=forms.Select(attrs={'filter-for': 'rack_b'}))
@@ -1158,7 +1158,7 @@ class InterfaceConnectionCSVForm(forms.Form):
                 pass
 
 
-class InterfaceConnectionImportForm(BulkImportForm, BootstrapMixin):
+class InterfaceConnectionImportForm(BootstrapMixin, BulkImportForm):
     csv = CSVDataField(csv_form=InterfaceConnectionCSVForm)
 
     def clean(self):
@@ -1198,7 +1198,7 @@ class InterfaceConnectionImportForm(BulkImportForm, BootstrapMixin):
         self.cleaned_data['csv'] = connection_list
 
 
-class InterfaceConnectionDeletionForm(forms.Form, BootstrapMixin):
+class InterfaceConnectionDeletionForm(BootstrapMixin, forms.Form):
     confirm = forms.BooleanField(required=True)
     # Used for HTTP redirect upon successful deletion
     device = forms.ModelChoiceField(queryset=Device.objects.all(), widget=forms.HiddenInput(), required=False)
@@ -1208,7 +1208,7 @@ class InterfaceConnectionDeletionForm(forms.Form, BootstrapMixin):
 # Device bays
 #
 
-class DeviceBayForm(forms.ModelForm, BootstrapMixin):
+class DeviceBayForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = DeviceBay
@@ -1218,11 +1218,11 @@ class DeviceBayForm(forms.ModelForm, BootstrapMixin):
         }
 
 
-class DeviceBayCreateForm(forms.Form, BootstrapMixin):
+class DeviceBayCreateForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(label='Name')
 
 
-class PopulateDeviceBayForm(forms.Form, BootstrapMixin):
+class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
     installed_device = forms.ModelChoiceField(queryset=Device.objects.all(), label='Child Device',
                                               help_text="Child devices must first be created within the rack occupied "
                                                         "by the parent device. Then they can be assigned to a bay.")
@@ -1243,15 +1243,15 @@ class PopulateDeviceBayForm(forms.Form, BootstrapMixin):
 # Connections
 #
 
-class ConsoleConnectionFilterForm(forms.Form, BootstrapMixin):
+class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
 
 
-class PowerConnectionFilterForm(forms.Form, BootstrapMixin):
+class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
 
 
-class InterfaceConnectionFilterForm(forms.Form, BootstrapMixin):
+class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
 
 
@@ -1289,7 +1289,7 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
 # Modules
 #
 
-class ModuleForm(forms.ModelForm, BootstrapMixin):
+class ModuleForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Module

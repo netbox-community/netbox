@@ -34,7 +34,7 @@ def validate_rsa_key(key, is_secret=True):
 # Secret roles
 #
 
-class SecretRoleForm(forms.ModelForm, BootstrapMixin):
+class SecretRoleForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
 
     class Meta:
@@ -46,7 +46,7 @@ class SecretRoleForm(forms.ModelForm, BootstrapMixin):
 # Secrets
 #
 
-class SecretForm(forms.ModelForm, BootstrapMixin):
+class SecretForm(BootstrapMixin, forms.ModelForm):
     private_key = forms.CharField(required=False, widget=forms.HiddenInput())
     plaintext = forms.CharField(max_length=65535, required=False, label='Plaintext',
                                 widget=forms.PasswordInput(attrs={'class': 'requires-private-key'}))
@@ -85,12 +85,12 @@ class SecretFromCSVForm(forms.ModelForm):
         return s
 
 
-class SecretImportForm(BulkImportForm, BootstrapMixin):
+class SecretImportForm(BootstrapMixin, BulkImportForm):
     private_key = forms.CharField(widget=forms.HiddenInput())
     csv = CSVDataField(csv_form=SecretFromCSVForm, widget=forms.Textarea(attrs={'class': 'requires-private-key'}))
 
 
-class SecretBulkEditForm(BulkEditForm, BootstrapMixin):
+class SecretBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Secret.objects.all(), widget=forms.MultipleHiddenInput)
     role = forms.ModelChoiceField(queryset=SecretRole.objects.all(), required=False)
     name = forms.CharField(max_length=100, required=False)
@@ -99,7 +99,7 @@ class SecretBulkEditForm(BulkEditForm, BootstrapMixin):
         nullable_fields = ['name']
 
 
-class SecretFilterForm(forms.Form, BootstrapMixin):
+class SecretFilterForm(BootstrapMixin, forms.Form):
     role = FilterChoiceField(queryset=SecretRole.objects.annotate(filter_count=Count('secrets')), to_field_name='slug')
 
 
@@ -107,7 +107,7 @@ class SecretFilterForm(forms.Form, BootstrapMixin):
 # UserKeys
 #
 
-class UserKeyForm(forms.ModelForm, BootstrapMixin):
+class UserKeyForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = UserKey

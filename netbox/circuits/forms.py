@@ -43,7 +43,7 @@ class ProviderFromCSVForm(forms.ModelForm):
         fields = ['name', 'slug', 'asn', 'account', 'portal_url']
 
 
-class ProviderImportForm(BulkImportForm, BootstrapMixin):
+class ProviderImportForm(BootstrapMixin, BulkImportForm):
     csv = CSVDataField(csv_form=ProviderFromCSVForm)
 
 
@@ -69,7 +69,7 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Circuit types
 #
 
-class CircuitTypeForm(forms.ModelForm, BootstrapMixin):
+class CircuitTypeForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
 
     class Meta:
@@ -107,7 +107,7 @@ class CircuitFromCSVForm(forms.ModelForm):
         fields = ['cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate']
 
 
-class CircuitImportForm(BulkImportForm, BootstrapMixin):
+class CircuitImportForm(BootstrapMixin, BulkImportForm):
     csv = CSVDataField(csv_form=CircuitFromCSVForm)
 
 
@@ -139,7 +139,7 @@ class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Circuit terminations
 #
 
-class CircuitTerminationForm(forms.ModelForm, BootstrapMixin):
+class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs={'filter-for': 'rack'}))
     rack = forms.ModelChoiceField(queryset=Rack.objects.all(), required=False, label='Rack',
                                   widget=APISelect(api_url='/api/dcim/racks/?site_id={{site}}',
