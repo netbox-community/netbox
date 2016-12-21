@@ -408,7 +408,8 @@ class ComponentTemplateCreateView(View):
         })
 
 
-class ConsolePortTemplateAddView(ComponentTemplateCreateView):
+class ConsolePortTemplateAddView(PermissionRequiredMixin, ComponentTemplateCreateView):
+    permission_required = 'dcim.add_consoleporttemplate'
     model = ConsolePortTemplate
     form = forms.ConsolePortTemplateForm
 
@@ -419,7 +420,8 @@ class ConsolePortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView)
     parent_cls = DeviceType
 
 
-class ConsoleServerPortTemplateAddView(ComponentTemplateCreateView):
+class ConsoleServerPortTemplateAddView(PermissionRequiredMixin, ComponentTemplateCreateView):
+    permission_required = 'dcim.add_consoleserverporttemplate'
     model = ConsoleServerPortTemplate
     form = forms.ConsoleServerPortTemplateForm
 
@@ -430,7 +432,8 @@ class ConsoleServerPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDelet
     parent_cls = DeviceType
 
 
-class PowerPortTemplateAddView(ComponentTemplateCreateView):
+class PowerPortTemplateAddView(PermissionRequiredMixin, ComponentTemplateCreateView):
+    permission_required = 'dcim.add_powerporttemplate'
     model = PowerPortTemplate
     form = forms.PowerPortTemplateForm
 
@@ -441,7 +444,8 @@ class PowerPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     parent_cls = DeviceType
 
 
-class PowerOutletTemplateAddView(ComponentTemplateCreateView):
+class PowerOutletTemplateAddView(PermissionRequiredMixin, ComponentTemplateCreateView):
+    permission_required = 'dcim.add_poweroutlettemplate'
     model = PowerOutletTemplate
     form = forms.PowerOutletTemplateForm
 
@@ -452,7 +456,8 @@ class PowerOutletTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView)
     parent_cls = DeviceType
 
 
-class InterfaceTemplateAddView(ComponentTemplateCreateView):
+class InterfaceTemplateAddView(PermissionRequiredMixin, ComponentTemplateCreateView):
+    permission_required = 'dcim.add_interfacetemplate'
     model = InterfaceTemplate
     form = forms.InterfaceTemplateForm
 
@@ -471,7 +476,8 @@ class InterfaceTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     parent_cls = DeviceType
 
 
-class DeviceBayTemplateAddView(ComponentTemplateCreateView):
+class DeviceBayTemplateAddView(PermissionRequiredMixin, ComponentTemplateCreateView):
+    permission_required = 'dcim.add_devicebaytemplate'
     model = DeviceBayTemplate
     form = forms.DeviceBayTemplateForm
 
