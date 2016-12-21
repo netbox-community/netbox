@@ -1,7 +1,7 @@
 {% extends '_base.html' %}
 {% load form_helpers %}
 
-{% block title %}Add {{ component_type }} to {{ devicetype }}{% endblock %}
+{% block title %}Add {{ component_type }} to {{ parent }}{% endblock %}
 
 {% block content %}
 <form action="." method="post" class="form form-horizontal">
@@ -24,7 +24,7 @@
                     <div class="form-group">
                         <label class="col-md-3 control-label required">Device Type</label>
                         <div class="col-md-9">
-                            <p class="form-control-static">{{ devicetype }}</p>
+                            <p class="form-control-static">{{ parent }}</p>
                         </div>
                     </div>
                     {% render_form form %}

@@ -285,43 +285,75 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
 #
 
 class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
-    name_pattern = ExpandableNameField(label='Name')
 
     class Meta:
         model = ConsolePortTemplate
-        fields = ['name_pattern']
+        fields = ['device_type', 'name']
+        widgets = {
+            'device_type': forms.HiddenInput(),
+        }
+
+
+class ConsolePortTemplateCreateForm(BootstrapMixin, forms.Form):
+    name_pattern = ExpandableNameField(label='Name')
 
 
 class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
-    name_pattern = ExpandableNameField(label='Name')
 
     class Meta:
         model = ConsoleServerPortTemplate
-        fields = ['name_pattern']
+        fields = ['device_type', 'name']
+        widgets = {
+            'device_type': forms.HiddenInput(),
+        }
+
+
+class ConsoleServerPortTemplateCreateForm(BootstrapMixin, forms.Form):
+    name_pattern = ExpandableNameField(label='Name')
 
 
 class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
-    name_pattern = ExpandableNameField(label='Name')
 
     class Meta:
         model = PowerPortTemplate
-        fields = ['name_pattern']
+        fields = ['device_type', 'name']
+        widgets = {
+            'device_type': forms.HiddenInput(),
+        }
+
+
+class PowerPortTemplateCreateForm(BootstrapMixin, forms.Form):
+    name_pattern = ExpandableNameField(label='Name')
 
 
 class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
-    name_pattern = ExpandableNameField(label='Name')
 
     class Meta:
         model = PowerOutletTemplate
-        fields = ['name_pattern']
+        fields = ['device_type', 'name']
+        widgets = {
+            'device_type': forms.HiddenInput(),
+        }
+
+
+class PowerOutletTemplateCreateForm(BootstrapMixin, forms.Form):
+    name_pattern = ExpandableNameField(label='Name')
 
 
 class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
-    name_pattern = ExpandableNameField(label='Name')
 
     class Meta:
         model = InterfaceTemplate
-        fields = ['name_pattern', 'form_factor', 'mgmt_only']
+        fields = ['device_type', 'name', 'form_factor', 'mgmt_only']
+        widgets = {
+            'device_type': forms.HiddenInput(),
+        }
+
+
+class InterfaceTemplateCreateForm(BootstrapMixin, forms.Form):
+    name_pattern = ExpandableNameField(label='Name')
+    form_factor = forms.ChoiceField(choices=IFACE_FF_CHOICES)
+    mgmt_only = forms.BooleanField(required=False, label='OOB Management')
 
 
 class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -333,11 +365,17 @@ class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
 
 
 class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
-    name_pattern = ExpandableNameField(label='Name')
 
     class Meta:
         model = DeviceBayTemplate
-        fields = ['name_pattern']
+        fields = ['device_type', 'name']
+        widgets = {
+            'device_type': forms.HiddenInput(),
+        }
+
+
+class DeviceBayTemplateCreateForm(BootstrapMixin, forms.Form):
+    name_pattern = ExpandableNameField(label='Name')
 
 
 #
