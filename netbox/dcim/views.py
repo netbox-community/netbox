@@ -763,33 +763,39 @@ class DeviceBulkAddComponentView(View):
         })
 
 
-class DeviceBulkAddConsolePortView(DeviceBulkAddComponentView):
+class DeviceBulkAddConsolePortView(PermissionRequiredMixin, DeviceBulkAddComponentView):
+    permission_required = 'dcim.add_consoleport'
     model = ConsolePort
     model_form = forms.ConsolePortForm
 
 
-class DeviceBulkAddConsoleServerPortView(DeviceBulkAddComponentView):
+class DeviceBulkAddConsoleServerPortView(PermissionRequiredMixin, DeviceBulkAddComponentView):
+    permission_required = 'dcim.add_consoleserverport'
     model = ConsoleServerPort
     model_form = forms.ConsoleServerPortForm
 
 
-class DeviceBulkAddPowerPortView(DeviceBulkAddComponentView):
+class DeviceBulkAddPowerPortView(PermissionRequiredMixin, DeviceBulkAddComponentView):
+    permission_required = 'dcim.add_powerport'
     model = PowerPort
     model_form = forms.PowerPortForm
 
 
-class DeviceBulkAddPowerOutletView(DeviceBulkAddComponentView):
+class DeviceBulkAddPowerOutletView(PermissionRequiredMixin, DeviceBulkAddComponentView):
+    permission_required = 'dcim.add_poweroutlet'
     model = PowerOutlet
     model_form = forms.PowerOutletForm
 
 
-class DeviceBulkAddInterfaceView(DeviceBulkAddComponentView):
+class DeviceBulkAddInterfaceView(PermissionRequiredMixin, DeviceBulkAddComponentView):
+    permission_required = 'dcim.add_interface'
     form = forms.DeviceBulkAddInterfaceForm
     model = Interface
     model_form = forms.InterfaceForm
 
 
-class DeviceBulkAddDeviceBayView(DeviceBulkAddComponentView):
+class DeviceBulkAddDeviceBayView(PermissionRequiredMixin, DeviceBulkAddComponentView):
+    permission_required = 'dcim.add_devicebay'
     model = DeviceBay
     model_form = forms.DeviceBayForm
 
