@@ -118,7 +118,6 @@ INSTALLED_APPS = (
 
 # Middleware
 MIDDLEWARE = (
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -129,6 +128,8 @@ MIDDLEWARE = (
     'django.middleware.security.SecurityMiddleware',
     'utilities.middleware.LoginRequiredMiddleware',
 )
+if DEBUG:
+    MIDDLEWARE = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE
 
 ROOT_URLCONF = 'netbox.urls'
 
@@ -193,6 +194,12 @@ if LOGIN_REQUIRED:
 SWAGGER_SETTINGS = {
     'base_path': '{}/{}api/docs'.format(ALLOWED_HOSTS[0], BASE_PATH),
 }
+
+# Django debug toolbar
+INTERNAL_IPS = (
+    '127.0.0.1',
+    '::1',
+)
 
 
 try:
