@@ -1,5 +1,5 @@
 cffi>=1.8
-cryptography==1.4
+cryptography>=1.4
 Django>=1.10
 django-debug-toolbar>=1.6
 django-filter==0.13.0
