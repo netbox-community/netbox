@@ -7,7 +7,7 @@ django-rest-swagger==0.3.10
 django-tables2==1.2.1
 djangorestframework==3.4.3
 graphviz==0.4.10
-Markdown==2.6.6
+Markdown==2.6.7
 natsort>=5.0.0
 ncclient==0.5.2
 netaddr==0.7.18
