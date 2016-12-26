@@ -17,6 +17,10 @@ class BaseTable(tables.Table):
             'class': 'table table-hover',
         }
 
+    @property
+    def model(self):
+        return self._meta.model
+
 
 class ToggleColumn(tables.CheckBoxColumn):
 

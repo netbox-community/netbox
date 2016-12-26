@@ -92,7 +92,6 @@ class ObjectListView(View):
 
         # Construct the table based on the user's permissions
         table = self.table(self.queryset)
-        table.model = model
         if 'pk' in table.base_columns and any([request.user.has_perm(perm) for perm in self.edit_permissions]):
             table.base_columns['pk'].visible = True
         RequestConfig(request, paginate={'klass': EnhancedPaginator}).configure(table)
