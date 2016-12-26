@@ -16,6 +16,10 @@ class EnhancedPage(Page):
 
     def smart_pages(self):
 
+        # When dealing with five or fewer pages, simply return the whole list.
+        if self.paginator.num_pages <= 5:
+            return self.paginator.page_range
+
         # Show first page, last page, next/previous two pages, and current page
         n = self.number
         pages_wanted = [1, n - 2, n - 1, n, n + 1, n + 2, self.paginator.num_pages]
