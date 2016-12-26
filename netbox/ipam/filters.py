@@ -43,7 +43,7 @@ class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = VRF
-        fields = ['name', 'rd']
+        fields = ['rd']
 
 
 class RIRFilter(django_filters.FilterSet):
@@ -64,7 +64,7 @@ class AggregateFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='RIR (ID)',
     )
     rir = django_filters.ModelMultipleChoiceFilter(
-        name='rir',
+        name='rir__slug',
         queryset=RIR.objects.all(),
         to_field_name='slug',
         label='RIR (slug)',
@@ -72,7 +72,7 @@ class AggregateFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Aggregate
-        fields = ['family', 'rir_id', 'rir', 'date_added']
+        fields = ['family', 'date_added']
 
     def search(self, queryset, value):
         qs_filter = Q(description__icontains=value)
@@ -149,7 +149,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Prefix
-        fields = ['family', 'site_id', 'site', 'vlan_id', 'vlan_vid', 'status', 'role_id', 'role']
+        fields = ['family', 'status']
 
     def search(self, queryset, value):
         qs_filter = Q(description__icontains=value)
@@ -226,7 +226,7 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Device (ID)',
     )
     device = django_filters.ModelMultipleChoiceFilter(
-        name='interface__device',
+        name='interface__device__name',
         queryset=Device.objects.all(),
         to_field_name='name',
         label='Device (name)',
@@ -239,7 +239,7 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = IPAddress
-        fields = ['q', 'family', 'status', 'device_id', 'device', 'interface_id']
+        fields = ['q', 'family', 'status']
 
     def search(self, queryset, value):
         qs_filter = Q(description__icontains=value)
@@ -268,7 +268,7 @@ class VLANGroupFilter(django_filters.FilterSet):
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='site',
+        name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
@@ -276,7 +276,6 @@ class VLANGroupFilter(django_filters.FilterSet):
 
     class Meta:
         model = VLANGroup
-        fields = ['site_id', 'site']
 
 
 class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
@@ -290,7 +289,7 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='site',
+        name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
@@ -340,7 +339,7 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = VLAN
-        fields = ['site_id', 'site', 'vid', 'name', 'status', 'role_id', 'role']
+        fields = ['status']
 
     def search(self, queryset, value):
         qs_filter = Q(name__icontains=value) | Q(description__icontains=value)
@@ -352,7 +351,18 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
 
 class ServiceFilter(django_filters.FilterSet):
+    device_id = django_filters.ModelMultipleChoiceFilter(
+        name='device',
+        queryset=Device.objects.all(),
+        label='Device (ID)',
+    )
+    device = django_filters.ModelMultipleChoiceFilter(
+        name='device__name',
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        label='Device (name)',
+    )
 
     class Meta:
         model = Service
-        fields = ['device', 'name', 'protocol', 'port']
+        fields = ['name', 'protocol', 'port']

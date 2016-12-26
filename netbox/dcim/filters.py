@@ -50,7 +50,7 @@ class RackGroupFilter(django_filters.FilterSet):
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='site',
+        name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
@@ -58,7 +58,6 @@ class RackGroupFilter(django_filters.FilterSet):
 
     class Meta:
         model = RackGroup
-        fields = ['site_id', 'site']
 
 
 class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
@@ -72,7 +71,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='site',
+        name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
@@ -113,7 +112,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Rack
-        fields = ['q', 'site_id', 'site', 'u_height']
+        fields = ['u_height']
 
     def search(self, queryset, value):
         return queryset.filter(
@@ -134,7 +133,7 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Manufacturer (ID)',
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
-        name='manufacturer',
+        name='manufacturer__slug',
         queryset=Manufacturer.objects.all(),
         to_field_name='slug',
         label='Manufacturer (slug)',
@@ -142,8 +141,8 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = DeviceType
-        fields = ['manufacturer_id', 'manufacturer', 'model', 'part_number', 'u_height', 'is_console_server', 'is_pdu',
-                  'is_network_device', 'subdevice_role']
+        fields = ['model', 'part_number', 'u_height', 'is_console_server', 'is_pdu', 'is_network_device',
+                  'subdevice_role']
 
     def search(self, queryset, value):
         return queryset.filter(
@@ -169,7 +168,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='rack__site',
+        name='rack__site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site name (slug)',
@@ -190,7 +189,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Role (ID)',
     )
     role = django_filters.ModelMultipleChoiceFilter(
-        name='device_role',
+        name='device_role__slug',
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
@@ -217,13 +216,13 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Manufacturer (ID)',
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
-        name='device_type__manufacturer',
+        name='device_type__manufacturer__slug',
         queryset=Manufacturer.objects.all(),
         to_field_name='slug',
         label='Manufacturer (slug)',
     )
     model = django_filters.ModelMultipleChoiceFilter(
-        name='device_type',
+        name='device_type__slug',
         queryset=DeviceType.objects.all(),
         to_field_name='slug',
         label='Device model (slug)',
@@ -258,9 +257,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Device
-        fields = ['q', 'name', 'serial', 'asset_tag', 'site_id', 'site', 'rack_id', 'role_id', 'role', 'device_type_id',
-                  'manufacturer_id', 'manufacturer', 'model', 'platform_id', 'platform', 'status', 'is_console_server',
-                  'is_pdu', 'is_network_device']
+        fields = ['name', 'serial', 'asset_tag']
 
     def search(self, queryset, value):
         return queryset.filter(
@@ -296,7 +293,7 @@ class ConsolePortFilter(django_filters.FilterSet):
 
     class Meta:
         model = ConsolePort
-        fields = ['device_id', 'device', 'name']
+        fields = ['name']
 
 
 class ConsoleServerPortFilter(django_filters.FilterSet):
@@ -314,7 +311,7 @@ class ConsoleServerPortFilter(django_filters.FilterSet):
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['device_id', 'device', 'name']
+        fields = ['name']
 
 
 class PowerPortFilter(django_filters.FilterSet):
@@ -332,7 +329,7 @@ class PowerPortFilter(django_filters.FilterSet):
 
     class Meta:
         model = PowerPort
-        fields = ['device_id', 'device', 'name']
+        fields = ['name']
 
 
 class PowerOutletFilter(django_filters.FilterSet):
@@ -350,7 +347,7 @@ class PowerOutletFilter(django_filters.FilterSet):
 
     class Meta:
         model = PowerOutlet
-        fields = ['device_id', 'device', 'name']
+        fields = ['name']
 
 
 class InterfaceFilter(django_filters.FilterSet):
@@ -368,7 +365,7 @@ class InterfaceFilter(django_filters.FilterSet):
 
     class Meta:
         model = Interface
-        fields = ['device_id', 'device', 'name']
+        fields = ['name']
 
 
 class ConsoleConnectionFilter(django_filters.FilterSet):

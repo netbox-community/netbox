@@ -17,7 +17,7 @@ class SecretFilter(django_filters.FilterSet):
         label='Role (ID)',
     )
     role = django_filters.ModelMultipleChoiceFilter(
-        name='role',
+        name='role__slug',
         queryset=SecretRole.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
@@ -31,7 +31,7 @@ class SecretFilter(django_filters.FilterSet):
 
     class Meta:
         model = Secret
-        fields = ['name', 'role_id', 'role', 'device']
+        fields = ['name']
 
     def search(self, queryset, value):
         return queryset.filter(

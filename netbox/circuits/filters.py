@@ -21,7 +21,7 @@ class ProviderFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Site',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='circuits__terminations__site',
+        name='circuits__terminations__site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
@@ -29,7 +29,7 @@ class ProviderFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Provider
-        fields = ['q', 'name', 'account', 'asn']
+        fields = ['name', 'account', 'asn']
 
     def search(self, queryset, value):
         return queryset.filter(
@@ -50,7 +50,7 @@ class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Provider (ID)',
     )
     provider = django_filters.ModelMultipleChoiceFilter(
-        name='provider',
+        name='provider__slug',
         queryset=Provider.objects.all(),
         to_field_name='slug',
         label='Provider (slug)',
@@ -61,7 +61,7 @@ class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Circuit type (ID)',
     )
     type = django_filters.ModelMultipleChoiceFilter(
-        name='type',
+        name='type__slug',
         queryset=CircuitType.objects.all(),
         to_field_name='slug',
         label='Circuit type (slug)',
@@ -83,7 +83,7 @@ class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='terminations__site',
+        name='terminations__site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
@@ -91,7 +91,7 @@ class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Circuit
-        fields = ['q', 'provider_id', 'provider', 'type_id', 'type', 'install_date']
+        fields = ['install_date']
 
     def search(self, queryset, value):
         return queryset.filter(
