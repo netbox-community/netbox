@@ -158,15 +158,7 @@ class PrefixForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = Prefix
-        fields = ['prefix', 'vrf', 'tenant', 'site', 'vlan', 'status', 'role', 'description']
-        help_texts = {
-            'prefix': "IPv4 or IPv6 network",
-            'vrf': "VRF (if applicable)",
-            'site': "The site to which this prefix is assigned (if applicable)",
-            'vlan': "The VLAN to which this prefix is assigned (if applicable)",
-            'status': "Operational status of this prefix",
-            'role': "The primary function of this prefix",
-        }
+        fields = ['prefix', 'vrf', 'tenant', 'site', 'vlan', 'status', 'role', 'is_pool', 'description']
 
     def __init__(self, *args, **kwargs):
         super(PrefixForm, self).__init__(*args, **kwargs)
@@ -197,7 +189,7 @@ class PrefixFromCSVForm(forms.ModelForm):
 
     class Meta:
         model = Prefix
-        fields = ['prefix', 'vrf', 'tenant', 'site', 'vlan_group_name', 'vlan_vid', 'status_name', 'role',
+        fields = ['prefix', 'vrf', 'tenant', 'site', 'vlan_group_name', 'vlan_vid', 'status_name', 'role', 'is_pool',
                   'description']
 
     def clean(self):

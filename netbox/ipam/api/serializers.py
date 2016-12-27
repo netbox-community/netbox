@@ -138,7 +138,7 @@ class PrefixSerializer(CustomFieldSerializer, serializers.ModelSerializer):
 
     class Meta:
         model = Prefix
-        fields = ['id', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'description',
+        fields = ['id', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description',
                   'custom_fields']
 
 

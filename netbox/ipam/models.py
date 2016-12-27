@@ -269,15 +269,19 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
     assigned to a VLAN where appropriate.
     """
     family = models.PositiveSmallIntegerField(choices=AF_CHOICES, editable=False)
-    prefix = IPNetworkField()
+    prefix = IPNetworkField(help_text="IPv4 or IPv6 network with mask")
     site = models.ForeignKey('dcim.Site', related_name='prefixes', on_delete=models.PROTECT, blank=True, null=True)
     vrf = models.ForeignKey('VRF', related_name='prefixes', on_delete=models.PROTECT, blank=True, null=True,
                             verbose_name='VRF')
     tenant = models.ForeignKey(Tenant, related_name='prefixes', blank=True, null=True, on_delete=models.PROTECT)
     vlan = models.ForeignKey('VLAN', related_name='prefixes', on_delete=models.PROTECT, blank=True, null=True,
                              verbose_name='VLAN')
-    status = models.PositiveSmallIntegerField('Status', choices=PREFIX_STATUS_CHOICES, default=1)
-    role = models.ForeignKey('Role', related_name='prefixes', on_delete=models.SET_NULL, blank=True, null=True)
+    status = models.PositiveSmallIntegerField('Status', choices=PREFIX_STATUS_CHOICES, default=PREFIX_STATUS_ACTIVE,
+                                              help_text="Operational status of this prefix")
+    role = models.ForeignKey('Role', related_name='prefixes', on_delete=models.SET_NULL, blank=True, null=True,
+                             help_text="The primary function of this prefix")
+    is_pool = models.BooleanField(verbose_name='Is a pool', default=False,
+                                  help_text="All IP addresses within this prefix are considered usable")
     description = models.CharField(max_length=100, blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 

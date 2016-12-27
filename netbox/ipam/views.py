@@ -38,24 +38,21 @@ def add_available_prefixes(parent, prefix_list):
     return prefix_list
 
 
-def add_available_ipaddresses(prefix, ipaddress_list):
+def add_available_ipaddresses(prefix, ipaddress_list, is_pool=False):
     """
-    Annotate ranges of available IP addresses within a given prefix.
+    Annotate ranges of available IP addresses within a given prefix. If is_pool is True, the first and last IP will be
+    considered usable (regardless of mask length).
     """
 
     output = []
     prev_ip = None
 
-    # Ignore the "network address" for IPv4 prefixes larger than /31
-    if prefix.version == 4 and prefix.prefixlen < 31:
+    # Ignore the network and broadcast addresses for non-pool IPv4 prefixes larger than /31.
+    if prefix.version == 4 and prefix.prefixlen < 31 and not is_pool:
         first_ip_in_prefix = netaddr.IPAddress(prefix.first + 1)
-    else:
-        first_ip_in_prefix = netaddr.IPAddress(prefix.first)
-
-    # Ignore the broadcast address for IPv4 prefixes larger than /31
-    if prefix.version == 4 and prefix.prefixlen < 31:
         last_ip_in_prefix = netaddr.IPAddress(prefix.last - 1)
     else:
+        first_ip_in_prefix = netaddr.IPAddress(prefix.first)
         last_ip_in_prefix = netaddr.IPAddress(prefix.last)
 
     if not ipaddress_list:
@@ -476,7 +473,7 @@ def prefix_ipaddresses(request, pk):
     # Find all IPAddresses belonging to this Prefix
     ipaddresses = IPAddress.objects.filter(vrf=prefix.vrf, address__net_contained_or_equal=str(prefix.prefix))\
         .select_related('vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for')
-    ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses)
+    ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses, prefix.is_pool)
 
     ip_table = tables.IPAddressTable(ipaddresses)
     if request.user.has_perm('ipam.change_ipaddress') or request.user.has_perm('ipam.delete_ipaddress'):
