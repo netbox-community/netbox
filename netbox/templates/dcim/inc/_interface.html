@@ -16,7 +16,7 @@
     {% if not iface.is_physical %}
         <td colspan="2" class="text-muted">Virtual interface</td>
     {% elif iface.connection %}
-        {% with iface.get_connected_interface as connected_iface %}
+        {% with iface.connected_interface as connected_iface %}
             <td>
                 <a href="{% url 'dcim:device' pk=connected_iface.device.pk %}">{{ connected_iface.device }}</a>
             </td>
@@ -27,7 +27,7 @@
     {% elif iface.circuit_termination %}
         {% with iface.circuit_termination.get_peer_termination as peer_termination %}
             <td colspan="2">
-                <i class="fa fa-fw fa-globe"></i>
+                <i class="fa fa-fw fa-globe" title="Circuit"></i>
                 {% if peer_termination %}
                     <a href="{% url 'dcim:site' slug=peer_termination.site.slug %}">{{ peer_termination.site }}</a> via
                 {% endif %}

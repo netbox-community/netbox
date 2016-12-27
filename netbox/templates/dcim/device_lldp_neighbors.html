@@ -23,7 +23,7 @@
                 <tr id="{{ iface }}">
                     <td>{{ iface }}</td>
                     {% if iface.connection %}
-                        {% with iface.get_connected_interface as connected_iface %}
+                        {% with iface.connected_interface as connected_iface %}
                             <td class="configured_device" data="{{ connected_iface.device }}">
                                 <a href="{% url 'dcim:device' pk=connected_iface.device.pk %}">{{ connected_iface.device }}</a>
                             </td>

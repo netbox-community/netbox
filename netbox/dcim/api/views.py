@@ -455,7 +455,7 @@ class RelatedConnectionsView(APIView):
                 peer_iface = Interface.objects.get(device__name=peer_device, name=peer_interface)
             except Interface.DoesNotExist:
                 raise Http404()
-            local_iface = peer_iface.get_connected_interface()
+            local_iface = peer_iface.connected_interface
             if local_iface:
                 device = local_iface.device
             else:

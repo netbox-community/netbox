@@ -1156,13 +1156,18 @@ class Interface(models.Model):
             pass
         return None
 
-    def get_connected_interface(self):
-        connection = InterfaceConnection.objects.select_related().filter(Q(interface_a=self) | Q(interface_b=self))\
-            .first()
-        if connection and connection.interface_a == self:
-            return connection.interface_b
-        elif connection:
-            return connection.interface_a
+    @property
+    def connected_interface(self):
+        try:
+            if self.connected_as_a:
+                return self.connected_as_a.interface_b
+        except ObjectDoesNotExist:
+            pass
+        try:
+            if self.connected_as_b:
+                return self.connected_as_b.interface_a
+        except ObjectDoesNotExist:
+            pass
         return None
 
 

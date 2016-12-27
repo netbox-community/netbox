@@ -382,7 +382,7 @@ class InterfaceNestedSerializer(InterfaceSerializer):
 
 
 class InterfaceDetailSerializer(InterfaceSerializer):
-    connected_interface = InterfaceSerializer(source='get_connected_interface')
+    connected_interface = InterfaceSerializer()
 
     class Meta(InterfaceSerializer.Meta):
         fields = ['id', 'device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description', 'is_connected',
