@@ -1120,8 +1120,8 @@ class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
         super(InterfaceConnectionForm, self).__init__(*args, **kwargs)
 
         # Initialize interface A choices
-        device_a_interfaces = Interface.objects.filter(device=device_a).exclude(form_factor=IFACE_FF_VIRTUAL) \
-            .select_related('circuit', 'connected_as_a', 'connected_as_b')
+        device_a_interfaces = Interface.objects.filter(device=device_a).exclude(form_factor=IFACE_FF_VIRTUAL)\
+            .select_related('circuit_termination', 'connected_as_a', 'connected_as_b')
         self.fields['interface_a'].choices = [
             (iface.id, {'label': iface.name, 'disabled': iface.is_connected}) for iface in device_a_interfaces
         ]
@@ -1144,11 +1144,13 @@ class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
 
         # Initialize interface_b choices if device_b is set
         if self.is_bound:
-            device_b_interfaces = Interface.objects.filter(device=self.data['device_b']) \
-                .exclude(form_factor=IFACE_FF_VIRTUAL).select_related('circuit', 'connected_as_a', 'connected_as_b')
+            device_b_interfaces = Interface.objects.filter(device=self.data['device_b'])\
+                .exclude(form_factor=IFACE_FF_VIRTUAL)\
+                .select_related('circuit_termination', 'connected_as_a', 'connected_as_b')
         elif self.initial.get('device_b'):
-            device_b_interfaces = Interface.objects.filter(device=self.initial['device_b']) \
-                .exclude(form_factor=IFACE_FF_VIRTUAL).select_related('circuit', 'connected_as_a', 'connected_as_b')
+            device_b_interfaces = Interface.objects.filter(device=self.initial['device_b'])\
+                .exclude(form_factor=IFACE_FF_VIRTUAL)\
+                .select_related('circuit_termination', 'connected_as_a', 'connected_as_b')
         else:
             device_b_interfaces = []
         self.fields['interface_b'].choices = [
