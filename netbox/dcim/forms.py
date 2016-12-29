@@ -62,7 +62,8 @@ class SiteForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = Site
-        fields = ['name', 'slug', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address', 'comments']
+        fields = ['name', 'slug', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address', 'contact_name',
+                  'contact_phone', 'contact_email', 'comments']
         widgets = {
             'physical_address': SmallTextarea(attrs={'rows': 3}),
             'shipping_address': SmallTextarea(attrs={'rows': 3}),
@@ -82,7 +83,7 @@ class SiteFromCSVForm(forms.ModelForm):
 
     class Meta:
         model = Site
-        fields = ['name', 'slug', 'tenant', 'facility', 'asn']
+        fields = ['name', 'slug', 'tenant', 'facility', 'asn', 'contact_name', 'contact_phone', 'contact_email']
 
 
 class SiteImportForm(BootstrapMixin, BulkImportForm):

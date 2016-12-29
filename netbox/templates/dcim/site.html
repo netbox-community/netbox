@@ -110,6 +110,36 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Contact Name</td>
+                    <td>
+                        {% if site.contact_name %}
+                            <span>{{ site.contact_name }}</span>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Contact Phone</td>
+                    <td>
+                        {% if site.contact_phone %}
+                            <a href="tel:{{ site.contact_phone }}">{{ site.contact_phone }}</a>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Contact E-Mail</td>
+                    <td>
+                        {% if site.contact_email %}
+                            <a href="mailto:{{ site.contact_email }}">{{ site.contact_email }}</a>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
             </table>
         </div>
         {% with site.get_custom_fields as custom_fields %}

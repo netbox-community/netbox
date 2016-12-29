@@ -20,8 +20,9 @@ class SiteSerializer(CustomFieldSerializer, serializers.ModelSerializer):
 
     class Meta:
         model = Site
-        fields = ['id', 'name', 'slug', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address', 'comments',
-                  'custom_fields', 'count_prefixes', 'count_vlans', 'count_racks', 'count_devices', 'count_circuits']
+        fields = ['id', 'name', 'slug', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
+                  'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields', 'count_prefixes',
+                  'count_vlans', 'count_racks', 'count_devices', 'count_circuits']
 
 
 class SiteNestedSerializer(SiteSerializer):

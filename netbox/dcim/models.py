@@ -245,6 +245,9 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     asn = ASNField(blank=True, null=True, verbose_name='ASN')
     physical_address = models.CharField(max_length=200, blank=True)
     shipping_address = models.CharField(max_length=200, blank=True)
+    contact_name = models.CharField(max_length=50, blank=True)
+    contact_phone = models.CharField(max_length=20, blank=True)
+    contact_email = models.EmailField(blank=True, verbose_name="Contact E-mail")
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
@@ -266,6 +269,9 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
             self.tenant.name if self.tenant else '',
             self.facility,
             str(self.asn) if self.asn else '',
+            self.contact_name,
+            self.contact_phone,
+            self.contact_email,
         ])
 
     @property
