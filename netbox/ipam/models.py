@@ -324,8 +324,11 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
             self.vrf.rd if self.vrf else '',
             self.tenant.name if self.tenant else '',
             self.site.name if self.site else '',
+            self.vlan.group.name if self.vlan and self.vlan.group else '',
+            str(self.vlan.vid) if self.vlan else '',
             self.get_status_display(),
             self.role.name if self.role else '',
+            'True' if self.is_pool else '',
             self.description,
         ])
 

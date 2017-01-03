@@ -408,6 +408,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
             self.get_type_display() if self.type else '',
             str(self.width),
             str(self.u_height),
+            'True' if self.desc_units else '',
         ])
 
     @property
