@@ -90,7 +90,7 @@ class CircuitForm(BootstrapMixin, CustomFieldForm):
         help_texts = {
             'cid': "Unique circuit ID",
             'install_date': "Format: YYYY-MM-DD",
-            'commit_rate': "Commited rate",
+            'commit_rate': "Committed rate",
         }
 
 
