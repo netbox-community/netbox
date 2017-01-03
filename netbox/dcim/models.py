@@ -9,6 +9,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, Q, ObjectDoesNotExist
 
+from circuits.models import Circuit
 from extras.models import CustomFieldModel, CustomField, CustomFieldValue
 from extras.rpc import RPC_CLIENTS
 from tenancy.models import Tenant
@@ -244,6 +245,9 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     asn = ASNField(blank=True, null=True, verbose_name='ASN')
     physical_address = models.CharField(max_length=200, blank=True)
     shipping_address = models.CharField(max_length=200, blank=True)
+    contact_name = models.CharField(max_length=50, blank=True)
+    contact_phone = models.CharField(max_length=20, blank=True)
+    contact_email = models.EmailField(blank=True, verbose_name="Contact E-mail")
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
@@ -264,7 +268,10 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
             self.slug,
             self.tenant.name if self.tenant else '',
             self.facility,
-            str(self.asn),
+            str(self.asn) if self.asn else '',
+            self.contact_name,
+            self.contact_phone,
+            self.contact_email,
         ])
 
     @property
@@ -285,7 +292,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
 
     @property
     def count_circuits(self):
-        return self.circuits.count()
+        return Circuit.objects.filter(terminations__site=self).count()
 
 
 #
@@ -401,6 +408,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
             self.get_type_display() if self.type else '',
             str(self.width),
             str(self.u_height),
+            'True' if self.desc_units else '',
         ])
 
     @property
@@ -520,7 +528,7 @@ class Manufacturer(models.Model):
         return "{}?manufacturer={}".format(reverse('dcim:devicetype_list'), self.slug)
 
 
-class DeviceType(models.Model):
+class DeviceType(models.Model, CustomFieldModel):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
     well as high-level functional role(s).
@@ -552,6 +560,8 @@ class DeviceType(models.Model):
                                              choices=SUBDEVICE_ROLE_CHOICES,
                                              help_text="Parent devices house child devices in device bays. Select "
                                                        "\"None\" if this device type is neither a parent nor a child.")
+    comments = models.TextField(blank=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:
         ordering = ['manufacturer', 'model']
@@ -1136,7 +1146,7 @@ class Interface(models.Model):
     @property
     def is_connected(self):
         try:
-            return bool(self.circuit)
+            return bool(self.circuit_termination)
         except ObjectDoesNotExist:
             pass
         return bool(self.connection)
@@ -1153,13 +1163,18 @@ class Interface(models.Model):
             pass
         return None
 
-    def get_connected_interface(self):
-        connection = InterfaceConnection.objects.select_related().filter(Q(interface_a=self) | Q(interface_b=self))\
-            .first()
-        if connection and connection.interface_a == self:
-            return connection.interface_b
-        elif connection:
-            return connection.interface_a
+    @property
+    def connected_interface(self):
+        try:
+            if self.connected_as_a:
+                return self.connected_as_a.interface_b
+        except ObjectDoesNotExist:
+            pass
+        try:
+            if self.connected_as_b:
+                return self.connected_as_b.interface_a
+        except ObjectDoesNotExist:
+            pass
         return None
 
 

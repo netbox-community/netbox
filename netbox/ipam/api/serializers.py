@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
-from dcim.api.serializers import SiteNestedSerializer, InterfaceNestedSerializer
+from dcim.api.serializers import DeviceNestedSerializer, InterfaceNestedSerializer, SiteNestedSerializer
 from extras.api.serializers import CustomFieldSerializer
-from ipam.models import VRF, Role, RIR, Aggregate, Prefix, IPAddress, VLAN, VLANGroup
+from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from tenancy.api.serializers import TenantNestedSerializer
 
 
@@ -138,7 +138,7 @@ class PrefixSerializer(CustomFieldSerializer, serializers.ModelSerializer):
 
     class Meta:
         model = Prefix
-        fields = ['id', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'description',
+        fields = ['id', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description',
                   'custom_fields']
 
 
@@ -170,3 +170,22 @@ class IPAddressNestedSerializer(IPAddressSerializer):
 
 IPAddressSerializer._declared_fields['nat_inside'] = IPAddressNestedSerializer()
 IPAddressSerializer._declared_fields['nat_outside'] = IPAddressNestedSerializer()
+
+
+#
+# Services
+#
+
+class ServiceSerializer(serializers.ModelSerializer):
+    device = DeviceNestedSerializer()
+    ipaddresses = IPAddressNestedSerializer(many=True)
+
+    class Meta:
+        model = Service
+        fields = ['id', 'device', 'name', 'port', 'protocol', 'ipaddresses', 'description']
+
+
+class ServiceNestedSerializer(ServiceSerializer):
+
+    class Meta(ServiceSerializer.Meta):
+        fields = ['id', 'name', 'port', 'protocol']

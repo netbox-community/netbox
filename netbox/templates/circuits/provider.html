@@ -6,13 +6,13 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-9">
+    <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'circuits:provider_list' %}">Providers</a></li>
             <li>{{ provider }}</li>
         </ol>
     </div>
-    <div class="col-md-3">
+    <div class="col-sm-4 col-md-3">
         <form action="{% url 'circuits:provider_list' %}" method="get">
             <div class="input-group">
                 <input type="text" name="q" class="form-control" />
@@ -46,13 +46,14 @@
     {% endif %}
 </div>
 <h1>{{ provider }}</h1>
+{% include 'inc/created_updated.html' with obj=provider %}
 <div class="row">
 	<div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Provider</strong>
             </div>
-            <table class="table table-hover panel-body">
+            <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>ASN</td>
                     <td>
@@ -120,7 +121,6 @@
                 {% endif %}
             </div>
         </div>
-        {% include 'inc/created_updated.html' with obj=provider %}
 	</div>
 	<div class="col-md-6">
         <div class="panel panel-default">
@@ -134,14 +134,8 @@
                             <a href="{% url 'circuits:circuit' pk=c.pk %}">{{ c.cid }}</a>
                         </td>
                         <td>
-                            <a href="{% url 'dcim:site' slug=c.site.slug %}">{{ c.site }}</a>
+                            <a href="{% url 'circuits:circuit_list' %}?type={{ c.type.slug }}">{{ c.type }}</a>
                         </td>
-                        <td>
-                            {% if c.interface %}
-                                <a href="{% url 'dcim:device' pk=c.interface.device.pk %}">{{ c.interface.device }}</a>
-                            {% endif %}
-                        </td>
-                        <td>{{ c.port_speed_human }}</td>
                     </tr>
                 {% empty %}
                     <tr>
@@ -149,6 +143,13 @@
                     </tr>
                 {% endfor %}
             </table>
+            {% if perms.circuits.add_circuit %}
+                <div class="panel-footer text-right">
+                    <a href="{% url 'circuits:circuit_add' %}?provider={{ provider.pk }}" class="btn btn-xs btn-primary">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add circuit
+                    </a>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>

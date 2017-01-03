@@ -3,7 +3,7 @@ from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm as 
 from utilities.forms import BootstrapMixin
 
 
-class LoginForm(AuthenticationForm, BootstrapMixin):
+class LoginForm(BootstrapMixin, AuthenticationForm):
 
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
@@ -12,5 +12,5 @@ class LoginForm(AuthenticationForm, BootstrapMixin):
         self.fields['password'].widget.attrs['placeholder'] = ''
 
 
-class PasswordChangeForm(DjangoPasswordChangeForm, BootstrapMixin):
+class PasswordChangeForm(BootstrapMixin, DjangoPasswordChangeForm):
     pass

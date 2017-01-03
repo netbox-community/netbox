@@ -12,11 +12,14 @@ from dcim.models import Device
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkAddView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 
 from . import filters, forms, tables
-from .models import Aggregate, IPAddress, PREFIX_STATUS_ACTIVE, PREFIX_STATUS_DEPRECATED, PREFIX_STATUS_RESERVED, Prefix, RIR, Role, VLAN, VLANGroup, VRF
+from .models import (
+    Aggregate, IPAddress, PREFIX_STATUS_ACTIVE, PREFIX_STATUS_DEPRECATED, PREFIX_STATUS_RESERVED, Prefix, RIR, Role,
+    Service, VLAN, VLANGroup, VRF,
+)
 
 
 def add_available_prefixes(parent, prefix_list):
@@ -35,24 +38,21 @@ def add_available_prefixes(parent, prefix_list):
     return prefix_list
 
 
-def add_available_ipaddresses(prefix, ipaddress_list):
+def add_available_ipaddresses(prefix, ipaddress_list, is_pool=False):
     """
-    Annotate ranges of available IP addresses within a given prefix.
+    Annotate ranges of available IP addresses within a given prefix. If is_pool is True, the first and last IP will be
+    considered usable (regardless of mask length).
     """
 
     output = []
     prev_ip = None
 
-    # Ignore the "network address" for IPv4 prefixes larger than /31
-    if prefix.version == 4 and prefix.prefixlen < 31:
+    # Ignore the network and broadcast addresses for non-pool IPv4 prefixes larger than /31.
+    if prefix.version == 4 and prefix.prefixlen < 31 and not is_pool:
         first_ip_in_prefix = netaddr.IPAddress(prefix.first + 1)
-    else:
-        first_ip_in_prefix = netaddr.IPAddress(prefix.first)
-
-    # Ignore the broadcast address for IPv4 prefixes larger than /31
-    if prefix.version == 4 and prefix.prefixlen < 31:
         last_ip_in_prefix = netaddr.IPAddress(prefix.last - 1)
     else:
+        first_ip_in_prefix = netaddr.IPAddress(prefix.first)
         last_ip_in_prefix = netaddr.IPAddress(prefix.last)
 
     if not ipaddress_list:
@@ -290,7 +290,6 @@ def aggregate(request, pk):
     child_prefixes = add_available_prefixes(aggregate.prefix, child_prefixes)
 
     prefix_table = tables.PrefixTable(child_prefixes)
-    prefix_table.model = Prefix
     if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
         prefix_table.base_columns['pk'].visible = True
     RequestConfig(request, paginate={'klass': EnhancedPaginator}).configure(prefix_table)
@@ -367,7 +366,7 @@ class RoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class PrefixListView(ObjectListView):
-    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'role')
+    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
     filter = filters.PrefixFilter
     filter_form = forms.PrefixFilterForm
     table = tables.PrefixTable
@@ -416,7 +415,6 @@ def prefix(request, pk):
     if child_prefixes:
         child_prefixes = add_available_prefixes(prefix.prefix, child_prefixes)
     child_prefix_table = tables.PrefixTable(child_prefixes)
-    child_prefix_table.model = Prefix
     if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
         child_prefix_table.base_columns['pk'].visible = True
     RequestConfig(request, paginate={'klass': EnhancedPaginator}).configure(child_prefix_table)
@@ -475,10 +473,9 @@ def prefix_ipaddresses(request, pk):
     # Find all IPAddresses belonging to this Prefix
     ipaddresses = IPAddress.objects.filter(vrf=prefix.vrf, address__net_contained_or_equal=str(prefix.prefix))\
         .select_related('vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for')
-    ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses)
+    ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses, prefix.is_pool)
 
     ip_table = tables.IPAddressTable(ipaddresses)
-    ip_table.model = IPAddress
     if request.user.has_perm('ipam.change_ipaddress') or request.user.has_perm('ipam.delete_ipaddress'):
         ip_table.base_columns['pk'].visible = True
     RequestConfig(request, paginate={'klass': EnhancedPaginator}).configure(ip_table)
@@ -610,6 +607,14 @@ class IPAddressDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     redirect_url = 'ipam:ipaddress_list'
 
 
+class IPAddressBulkAddView(PermissionRequiredMixin, BulkAddView):
+    permission_required = 'ipam.add_ipaddress'
+    form = forms.IPAddressBulkAddForm
+    model = IPAddress
+    template_name = 'ipam/ipaddress_bulk_add.html'
+    redirect_url = 'ipam:ipaddress_list'
+
+
 class IPAddressBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'ipam.add_ipaddress'
     form = forms.IPAddressImportForm
@@ -679,7 +684,7 @@ class VLANGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class VLANListView(ObjectListView):
-    queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role')
+    queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role').prefetch_related('prefixes')
     filter = filters.VLANFilter
     filter_form = forms.VLANFilterForm
     table = tables.VLANTable
@@ -733,3 +738,24 @@ class VLANBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_vlan'
     cls = VLAN
     default_redirect_url = 'ipam:vlan_list'
+
+
+#
+# Services
+#
+
+class ServiceEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'ipam.change_service'
+    model = Service
+    form_class = forms.ServiceForm
+    template_name = 'ipam/service_edit.html'
+
+    def alter_obj(self, obj, args, kwargs):
+        if 'device' in kwargs:
+            obj.device = get_object_or_404(Device, pk=kwargs['device'])
+        return obj
+
+
+class ServiceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'ipam.delete_service'
+    model = Service

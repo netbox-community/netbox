@@ -11,7 +11,7 @@ from .models import Tenant, TenantGroup
 # Tenant groups
 #
 
-class TenantGroupForm(forms.ModelForm, BootstrapMixin):
+class TenantGroupForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
 
     class Meta:
@@ -41,7 +41,7 @@ class TenantFromCSVForm(forms.ModelForm):
         fields = ['name', 'slug', 'group', 'description']
 
 
-class TenantImportForm(BulkImportForm, BootstrapMixin):
+class TenantImportForm(BootstrapMixin, BulkImportForm):
     csv = CSVDataField(csv_form=TenantFromCSVForm)
 
 

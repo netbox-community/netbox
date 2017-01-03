@@ -3,11 +3,11 @@ from django_tables2 import RequestConfig
 
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.urlresolvers import reverse
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
-from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, TypedChoiceField
+from django.forms import CharField, ModelMultipleChoiceField, MultipleHiddenInput, TypedChoiceField
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import TemplateSyntaxError
@@ -22,7 +22,10 @@ from .forms import ConfirmationForm
 from .paginator import EnhancedPaginator
 
 
-class annotate_custom_fields:
+class CustomFieldQueryset:
+    """
+    Annotate custom fields on objects within a QuerySet.
+    """
 
     def __init__(self, queryset, custom_fields):
         self.queryset = queryset
@@ -36,6 +39,18 @@ class annotate_custom_fields:
 
 
 class ObjectListView(View):
+    """
+    List a series of objects.
+
+    queryset: The queryset of objects to display
+    filter: A django-filter FilterSet that is applied to the queryset
+    filter_form: The form used to render filter options
+    table: The django-tables2 Table used to render the objects list
+    edit_permissions: Editing controls are displayed only if the user has these permissions
+    template_name: The name of the template
+    redirect_on_single_result: If True and the queryset returns only a single object, the user is automatically
+                               redirected to that object
+    """
     queryset = None
     filter = None
     filter_form = None
@@ -44,7 +59,7 @@ class ObjectListView(View):
     template_name = None
     redirect_on_single_result = True
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
 
         model = self.queryset.model
         object_ct = ContentType.objects.get_for_model(model)
@@ -61,7 +76,7 @@ class ObjectListView(View):
         # Check for export template rendering
         if request.GET.get('export'):
             et = get_object_or_404(ExportTemplate, content_type=object_ct, name=request.GET.get('export'))
-            queryset = annotate_custom_fields(self.queryset, custom_fields) if custom_fields else self.queryset
+            queryset = CustomFieldQueryset(self.queryset, custom_fields) if custom_fields else self.queryset
             try:
                 response = et.to_response(context_dict={'queryset': queryset},
                                           filename='netbox_{}'.format(model._meta.verbose_name_plural))
@@ -92,7 +107,6 @@ class ObjectListView(View):
 
         # Construct the table based on the user's permissions
         table = self.table(self.queryset)
-        table.model = model
         if 'pk' in table.base_columns and any([request.user.has_perm(perm) for perm in self.edit_permissions]):
             table.base_columns['pk'].visible = True
         RequestConfig(request, paginate={'klass': EnhancedPaginator}).configure(table)
@@ -115,6 +129,17 @@ class ObjectListView(View):
 
 
 class ObjectEditView(View):
+    """
+    Create or edit a single object.
+
+    model: The model of the object being edited
+    form_class: The form used to create or edit the object
+    fields_initial: A set of fields that will be prepopulated in the form from the request parameters
+    template_name: The name of the template
+    obj_list_url: The name of the URL used to display a list of this object type
+    use_obj_view: If True, the user will be directed to a view of the object after it has been edited. Otherwise, the
+                  user will be directed to the object's list view (defined as `obj_list_url`).
+    """
     model = None
     form_class = None
     fields_initial = []
@@ -123,28 +148,32 @@ class ObjectEditView(View):
     use_obj_view = True
 
     def get_object(self, kwargs):
-        # Look up object by slug if one has been provided. Otherwise, use PK.
+        # Look up object by slug or PK. Return None if neither was provided.
         if 'slug' in kwargs:
             return get_object_or_404(self.model, slug=kwargs['slug'])
-        else:
+        elif 'pk' in kwargs:
             return get_object_or_404(self.model, pk=kwargs['pk'])
+        return self.model()
+
+    def alter_obj(self, obj, args, kwargs):
+        # Allow views to add extra info to an object before it is processed. For example, a parent object can be defined
+        # given some parameter from the request URI.
+        return obj
 
     def get_redirect_url(self, obj):
-        if obj and self.use_obj_view:
-            if hasattr(obj, 'get_absolute_url'):
-                return obj.get_absolute_url()
-            if hasattr(obj, 'get_parent_url'):
-                return obj.get_parent_url()
+        # Determine where to redirect the user after updating an object (or aborting an update).
+        if obj.pk and self.use_obj_view and hasattr(obj, 'get_absolute_url'):
+            return obj.get_absolute_url()
+        if obj and self.use_obj_view and hasattr(obj, 'get_parent_url'):
+            return obj.get_parent_url()
         return reverse(self.obj_list_url)
 
     def get(self, request, *args, **kwargs):
 
-        if kwargs:
-            obj = self.get_object(kwargs)
-            form = self.form_class(instance=obj)
-        else:
-            obj = None
-            form = self.form_class(initial={k: request.GET.get(k) for k in self.fields_initial})
+        obj = self.get_object(kwargs)
+        obj = self.alter_obj(obj, args, kwargs)
+        initial_data = {k: request.GET[k] for k in self.fields_initial if k in request.GET}
+        form = self.form_class(instance=obj, initial=initial_data)
 
         return render(request, self.template_name, {
             'obj': obj,
@@ -155,14 +184,15 @@ class ObjectEditView(View):
 
     def post(self, request, *args, **kwargs):
 
-        # Validate object if editing an existing object
-        obj = self.get_object(kwargs) if kwargs else None
-
+        obj = self.get_object(kwargs)
+        obj = self.alter_obj(obj, args, kwargs)
         form = self.form_class(request.POST, instance=obj)
+
         if form.is_valid():
             obj = form.save(commit=False)
             obj_created = not obj.pk
             obj.save()
+            form.save_m2m()
             if isinstance(form, CustomFieldForm):
                 form.save_custom_fields()
 
@@ -191,6 +221,13 @@ class ObjectEditView(View):
 
 
 class ObjectDeleteView(View):
+    """
+    Delete a single object.
+
+    model: The model of the object being edited
+    template_name: The name of the template
+    redirect_url: Name of the URL to which the user is redirected after deleting the object
+    """
     model = None
     template_name = 'utilities/obj_delete.html'
     redirect_url = None
@@ -209,7 +246,7 @@ class ObjectDeleteView(View):
             return obj.get_parent_url()
         return reverse('home')
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, **kwargs):
 
         obj = self.get_object(kwargs)
         form = ConfirmationForm()
@@ -221,14 +258,14 @@ class ObjectDeleteView(View):
             'cancel_url': self.get_cancel_url(obj),
         })
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, **kwargs):
 
         obj = self.get_object(kwargs)
         form = ConfirmationForm(request.POST)
         if form.is_valid():
             try:
                 obj.delete()
-            except ProtectedError, e:
+            except ProtectedError as e:
                 handle_protectederror(obj, request, e)
                 return redirect(obj.get_absolute_url())
             msg = u'Deleted {} {}'.format(self.model._meta.verbose_name, obj)
@@ -249,20 +286,87 @@ class ObjectDeleteView(View):
         })
 
 
+class BulkAddView(View):
+    """
+    Create new objects in bulk.
+
+    form: Form class
+    model: The model of the objects being created
+    template_name: The name of the template
+    redirect_url: Name of the URL to which the user is redirected after creating the objects
+    """
+    form = None
+    model = None
+    template_name = None
+    redirect_url = None
+
+    def get(self, request):
+
+        form = self.form()
+
+        return render(request, self.template_name, {
+            'obj_type': self.model._meta.verbose_name,
+            'form': form,
+            'cancel_url': reverse(self.redirect_url),
+        })
+
+    def post(self, request):
+
+        form = self.form(request.POST)
+        if form.is_valid():
+
+            # The first field will be used as the pattern
+            pattern_field = form.fields.keys()[0]
+            pattern = form.cleaned_data[pattern_field]
+
+            # All other fields will be copied as object attributes
+            kwargs = {k: form.cleaned_data[k] for k in form.fields.keys()[1:]}
+
+            new_objs = []
+            try:
+                with transaction.atomic():
+                    for value in pattern:
+                        obj = self.model(**kwargs)
+                        setattr(obj, pattern_field, value)
+                        obj.full_clean()
+                        obj.save()
+                        new_objs.append(obj)
+            except ValidationError as e:
+                form.add_error(None, e)
+
+            if not form.errors:
+                messages.success(request, u"Added {} {}.".format(len(new_objs), self.model._meta.verbose_name_plural))
+                return redirect(self.redirect_url)
+
+        return render(request, self.template_name, {
+            'form': form,
+            'obj_type': self.model._meta.verbose_name,
+            'cancel_url': reverse(self.redirect_url),
+        })
+
+
 class BulkImportView(View):
+    """
+    Import objects in bulk (CSV format).
+
+    form: Form class
+    table: The django-tables2 Table used to render the list of imported objects
+    template_name: The name of the template
+    obj_list_url: The name of the URL to use for the cancel button
+    """
     form = None
     table = None
     template_name = None
     obj_list_url = None
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
 
         return render(request, self.template_name, {
             'form': self.form(),
             'obj_list_url': self.obj_list_url,
         })
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
 
         form = self.form(request.POST)
         if form.is_valid():
@@ -296,6 +400,15 @@ class BulkImportView(View):
 
 
 class BulkEditView(View):
+    """
+    Edit objects in bulk.
+
+    cls: The model of the objects being edited
+    parent_cls: The model of the parent object (if any)
+    form: The form class used to edit objects in bulk
+    template_name: The name of the template
+    default_redirect_url: Name of the URL to which the user is redirected after editing the objects
+    """
     cls = None
     parent_cls = None
     form = None
@@ -342,7 +455,10 @@ class BulkEditView(View):
                 fields_to_update = {}
                 for field in standard_fields:
                     if field in form.nullable_fields and field in nullified_fields:
-                        fields_to_update[field] = ''
+                        if isinstance(form.fields[field], CharField):
+                            fields_to_update[field] = ''
+                        else:
+                            fields_to_update[field] = None
                     elif form.cleaned_data[field]:
                         fields_to_update[field] = form.cleaned_data[field]
                 updated_count = self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
@@ -422,6 +538,15 @@ class BulkEditView(View):
 
 
 class BulkDeleteView(View):
+    """
+    Delete objects in bulk.
+
+    cls: The model of the objects being deleted
+    parent_cls: The model of the parent object (if any)
+    form: The form class used to delete objects in bulk
+    template_name: The name of the template
+    default_redirect_url: Name of the URL to which the user is redirected after deleting the objects
+    """
     cls = None
     parent_cls = None
     form = None
@@ -463,7 +588,7 @@ class BulkDeleteView(View):
                 queryset = self.cls.objects.filter(pk__in=pk_list)
                 try:
                     deleted_count = queryset.delete()[1][self.cls._meta.label]
-                except ProtectedError, e:
+                except ProtectedError as e:
                     handle_protectederror(list(queryset), request, e)
                     return redirect(redirect_url)
 
@@ -489,7 +614,9 @@ class BulkDeleteView(View):
         })
 
     def get_form(self):
-        """Provide a standard bulk delete form if none has been specified for the view"""
+        """
+        Provide a standard bulk delete form if none has been specified for the view
+        """
 
         class BulkDeleteForm(ConfirmationForm):
             pk = ModelMultipleChoiceField(queryset=self.cls.objects.all(), widget=MultipleHiddenInput)

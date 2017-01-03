@@ -22,6 +22,9 @@ class SiteTest(APITestCase):
         'asn',
         'physical_address',
         'shipping_address',
+        'contact_name',
+        'contact_phone',
+        'contact_email',
         'comments',
         'custom_fields',
         'count_prefixes',
@@ -233,6 +236,8 @@ class DeviceTypeTest(APITestCase):
         'is_pdu',
         'is_network_device',
         'subdevice_role',
+        'comments',
+        'custom_fields',
     ]
 
     nested_fields = [

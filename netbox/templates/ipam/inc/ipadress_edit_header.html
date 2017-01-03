@@ -1,0 +1,4 @@
+<ul class="nav nav-tabs" style="margin-bottom: 20px">
+    <li role="presentation"{% if active_tab == 'add' %} class="active"{% endif %}><a href="{% url 'ipam:ipaddress_add' %}">Individual</a></li>
+    <li role="presentation"{% if active_tab == 'bulk_add' %} class="active"{% endif %}><a href="{% url 'ipam:ipaddress_bulk_add' %}">Bulk</a></li>
+</ul>

@@ -8,12 +8,12 @@
 {% block content %}
 {% include 'dcim/inc/_device_header.html' with active_tab='info' %}
 <div class="row">
-	<div class="col-md-6">
+	<div class="col-md-5 col-lg-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Device</strong>
             </div>
-            <table class="table table-hover panel-body">
+            <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Tenant</td>
                     <td>
@@ -85,7 +85,7 @@
             <div class="panel-heading">
                 <strong>Management</strong>
             </div>
-            <table class="table table-hover panel-body">
+            <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Role</td>
                     <td>
@@ -207,6 +207,29 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
+                <strong>Services</strong>
+            </div>
+            {% if services %}
+                <table class="table table-hover panel-body">
+                    {% for service in services %}
+                        {% include 'dcim/inc/_service.html' %}
+                    {% endfor %}
+                </table>
+            {% else %}
+                <div class="panel-body text-muted">
+                    None
+                </div>
+            {% endif %}
+            {% if perms.dcim.add_service %}
+                <div class="panel-footer text-right">
+                    <a href="{% url 'dcim:service_assign' device=device.pk %}" class="btn btn-xs btn-primary">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Assign service
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
                 <strong>Critical Connections</strong>
             </div>
             <table class="table table-hover panel-body">
@@ -301,9 +324,8 @@
                 <div class="panel-body text-muted">None found</div>
             {% endif %}
         </div>
-        {% include 'inc/created_updated.html' with obj=device %}
 	</div>
-	<div class="col-md-6">
+	<div class="col-md-7 col-lg-6">
         {% if device_bays or device.device_type.is_parent_device %}
             {% if perms.dcim.delete_devicebay %}
                 <form method="post" action="{% url 'dcim:devicebay_bulk_delete' pk=device.pk %}">
@@ -313,9 +335,11 @@
                 <div class="panel-heading">
                     <strong>Device Bays</strong>
                     <div class="pull-right">
-                        <button class="btn btn-default btn-xs toggle">
-                            <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
-                        </button>
+                        {% if perms.dcim.change_devicebay and device_bays|length > 1 %}
+                            <button class="btn btn-default btn-xs toggle">
+                                <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
+                            </button>
+                        {% endif %}
                         {% if perms.dcim.add_devicebay and device_bays|length > 10 %}
                             <a href="{% url 'dcim:devicebay_add' pk=device.pk %}" class="btn btn-primary btn-xs">
                                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add device bays
@@ -363,9 +387,11 @@
                 <div class="panel-heading">
                     <strong>Interfaces</strong>
                     <div class="pull-right">
-                        <button class="btn btn-default btn-xs toggle">
-                            <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
-                        </button>
+                        {% if perms.dcim.change_interface and interfaces|length > 1 %}
+                            <button class="btn btn-default btn-xs toggle">
+                                <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
+                            </button>
+                        {% endif %}
                         {% if perms.dcim.add_interface and interfaces|length > 10 %}
                             <a href="{% url 'dcim:interface_add' pk=device.pk %}" class="btn btn-primary btn-xs">
                                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add interfaces
@@ -418,9 +444,11 @@
                 <div class="panel-heading">
                     <strong>Console Server Ports</strong>
                     <div class="pull-right">
-                        <button class="btn btn-default btn-xs toggle">
-                            <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
-                        </button>
+                        {% if perms.dcim.change_consoleserverport and cs_ports|length > 1 %}
+                            <button class="btn btn-default btn-xs toggle">
+                                <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
+                            </button>
+                        {% endif %}
                         {% if perms.dcim.add_consoleserverport and cs_ports|length > 10 %}
                             <a href="{% url 'dcim:consoleserverport_add' pk=device.pk %}" class="btn btn-primary btn-xs">
                                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console server ports
@@ -468,9 +496,11 @@
                 <div class="panel-heading">
                     <strong>Power Outlets</strong>
                     <div class="pull-right">
-                        <button class="btn btn-default btn-xs toggle">
-                            <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
-                        </button>
+                        {% if perms.dcim.change_poweroutlet and cs_ports|length > 1 %}
+                            <button class="btn btn-default btn-xs toggle">
+                                <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
+                            </button>
+                        {% endif %}
                         {% if perms.dcim.add_poweroutlet and power_outlets|length > 10 %}
                             <a href="{% url 'dcim:poweroutlet_add' pk=device.pk %}" class="btn btn-primary btn-xs">
                                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power outlets

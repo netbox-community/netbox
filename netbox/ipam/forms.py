@@ -5,12 +5,13 @@ from dcim.models import Site, Rack, Device, Interface
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, BootstrapMixin, CSVDataField, BulkImportForm, FilterChoiceField, Livesearch, SlugField, add_blank_choice,
+    APISelect, BootstrapMixin, BulkImportForm, CSVDataField, ExpandableIPAddressField, FilterChoiceField, Livesearch,
+    SlugField, add_blank_choice,
 )
 
 from .models import (
-    Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, VLAN, VLANGroup,
-    VLAN_STATUS_CHOICES, VRF,
+    Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, Service, VLAN,
+    VLANGroup, VLAN_STATUS_CHOICES, VRF,
 )
 
 
@@ -47,7 +48,7 @@ class VRFFromCSVForm(forms.ModelForm):
         fields = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
 
 
-class VRFImportForm(BulkImportForm, BootstrapMixin):
+class VRFImportForm(BootstrapMixin, BulkImportForm):
     csv = CSVDataField(csv_form=VRFFromCSVForm)
 
 
@@ -70,7 +71,7 @@ class VRFFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # RIRs
 #
 
-class RIRForm(forms.ModelForm, BootstrapMixin):
+class RIRForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
 
     class Meta:
@@ -78,7 +79,7 @@ class RIRForm(forms.ModelForm, BootstrapMixin):
         fields = ['name', 'slug', 'is_private']
 
 
-class RIRFilterForm(forms.Form, BootstrapMixin):
+class RIRFilterForm(BootstrapMixin, forms.Form):
     is_private = forms.NullBooleanField(required=False, label='Private', widget=forms.Select(choices=[
         ('', '---------'),
         ('True', 'Yes'),
@@ -111,7 +112,7 @@ class AggregateFromCSVForm(forms.ModelForm):
         fields = ['prefix', 'rir', 'date_added', 'description']
 
 
-class AggregateImportForm(BulkImportForm, BootstrapMixin):
+class AggregateImportForm(BootstrapMixin, BulkImportForm):
     csv = CSVDataField(csv_form=AggregateFromCSVForm)
 
 
@@ -136,7 +137,7 @@ class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Roles
 #
 
-class RoleForm(forms.ModelForm, BootstrapMixin):
+class RoleForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
 
     class Meta:
@@ -157,15 +158,7 @@ class PrefixForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = Prefix
-        fields = ['prefix', 'vrf', 'tenant', 'site', 'vlan', 'status', 'role', 'description']
-        help_texts = {
-            'prefix': "IPv4 or IPv6 network",
-            'vrf': "VRF (if applicable)",
-            'site': "The site to which this prefix is assigned (if applicable)",
-            'vlan': "The VLAN to which this prefix is assigned (if applicable)",
-            'status': "Operational status of this prefix",
-            'role': "The primary function of this prefix",
-        }
+        fields = ['prefix', 'vrf', 'tenant', 'site', 'vlan', 'status', 'role', 'is_pool', 'description']
 
     def __init__(self, *args, **kwargs):
         super(PrefixForm, self).__init__(*args, **kwargs)
@@ -196,7 +189,7 @@ class PrefixFromCSVForm(forms.ModelForm):
 
     class Meta:
         model = Prefix
-        fields = ['prefix', 'vrf', 'tenant', 'site', 'vlan_group_name', 'vlan_vid', 'status_name', 'role',
+        fields = ['prefix', 'vrf', 'tenant', 'site', 'vlan_group_name', 'vlan_vid', 'status_name', 'role', 'is_pool',
                   'description']
 
     def clean(self):
@@ -235,7 +228,7 @@ class PrefixFromCSVForm(forms.ModelForm):
         return super(PrefixFromCSVForm, self).save(*args, **kwargs)
 
 
-class PrefixImportForm(BulkImportForm, BootstrapMixin):
+class PrefixImportForm(BootstrapMixin, BulkImportForm):
     csv = CSVDataField(csv_form=PrefixFromCSVForm)
 
 
@@ -339,6 +332,14 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
                 self.fields['nat_inside'].choices = []
 
 
+class IPAddressBulkAddForm(BootstrapMixin, forms.Form):
+    address = ExpandableIPAddressField()
+    vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF')
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
+    status = forms.ChoiceField(choices=IPADDRESS_STATUS_CHOICES)
+    description = forms.CharField(max_length=100, required=False)
+
+
 class IPAddressAssignForm(BootstrapMixin, forms.Form):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), label='Site', required=False,
                                   widget=forms.Select(attrs={'filter-for': 'rack'}))
@@ -417,7 +418,7 @@ class IPAddressFromCSVForm(forms.ModelForm):
         return super(IPAddressFromCSVForm, self).save(*args, **kwargs)
 
 
-class IPAddressImportForm(BulkImportForm, BootstrapMixin):
+class IPAddressImportForm(BootstrapMixin, BulkImportForm):
     csv = CSVDataField(csv_form=IPAddressFromCSVForm)
 
 
@@ -456,7 +457,7 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # VLAN groups
 #
 
-class VLANGroupForm(forms.ModelForm, BootstrapMixin):
+class VLANGroupForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
 
     class Meta:
@@ -464,7 +465,7 @@ class VLANGroupForm(forms.ModelForm, BootstrapMixin):
         fields = ['site', 'name', 'slug']
 
 
-class VLANGroupFilterForm(forms.Form, BootstrapMixin):
+class VLANGroupFilterForm(BootstrapMixin, forms.Form):
     site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('vlan_groups')), to_field_name='slug')
 
 
@@ -529,7 +530,7 @@ class VLANFromCSVForm(forms.ModelForm):
         return m
 
 
-class VLANImportForm(BulkImportForm, BootstrapMixin):
+class VLANImportForm(BootstrapMixin, BulkImportForm):
     csv = CSVDataField(csv_form=VLANFromCSVForm)
 
 
@@ -563,3 +564,25 @@ class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
     status = forms.MultipleChoiceField(choices=vlan_status_choices, required=False)
     role = FilterChoiceField(queryset=Role.objects.annotate(filter_count=Count('vlans')), to_field_name='slug',
                              null_option=(0, 'None'))
+
+
+#
+# Services
+#
+
+class ServiceForm(BootstrapMixin, forms.ModelForm):
+
+    class Meta:
+        model = Service
+        fields = ['name', 'protocol', 'port', 'ipaddresses', 'description']
+        help_texts = {
+            'ipaddresses': "IP address assignment is optional. If no IPs are selected, the service is assumed to be "
+                           "reachable via all IPs assigned to the device.",
+        }
+
+    def __init__(self, *args, **kwargs):
+
+        super(ServiceForm, self).__init__(*args, **kwargs)
+
+        # Limit IP address choices to those assigned to interfaces of the parent device
+        self.fields['ipaddresses'].queryset = IPAddress.objects.filter(interface__device=self.instance.device)

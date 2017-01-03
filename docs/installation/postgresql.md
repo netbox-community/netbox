@@ -1,4 +1,4 @@
-NetBox requires a PostgreSQL database to store data. MySQL is not supported, as NetBox leverage's PostgreSQL's built-in [network address types](https://www.postgresql.org/docs/9.1/static/datatype-net-types.html).
+NetBox requires a PostgreSQL database to store data. (Please note that MySQL is not supported, as NetBox leverages PostgreSQL's built-in [network address types](https://www.postgresql.org/docs/9.1/static/datatype-net-types.html).)
 
 # Installation
 
@@ -15,7 +15,7 @@ NetBox requires a PostgreSQL database to store data. MySQL is not supported, as 
 # postgresql-setup initdb
 ```
 
-If using CentOS, modify the PostgreSQL configuration to accept password-based authentication by replacing `ident` with `md5` for all host entries within `/var/lib/pgsql/data/pg_hba.conf`. For example:
+CentOS users should modify the PostgreSQL configuration to accept password-based authentication by replacing `ident` with `md5` for all host entries within `/var/lib/pgsql/data/pg_hba.conf`. For example:
 
 ```no-highlight
 host    all             all             127.0.0.1/32            md5

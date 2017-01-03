@@ -20,8 +20,9 @@ class SiteSerializer(CustomFieldSerializer, serializers.ModelSerializer):
 
     class Meta:
         model = Site
-        fields = ['id', 'name', 'slug', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address', 'comments',
-                  'custom_fields', 'count_prefixes', 'count_vlans', 'count_racks', 'count_devices', 'count_circuits']
+        fields = ['id', 'name', 'slug', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
+                  'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields', 'count_prefixes',
+                  'count_vlans', 'count_racks', 'count_devices', 'count_circuits']
 
 
 class SiteNestedSerializer(SiteSerializer):
@@ -130,14 +131,14 @@ class ManufacturerNestedSerializer(ManufacturerSerializer):
 # Device types
 #
 
-class DeviceTypeSerializer(serializers.ModelSerializer):
+class DeviceTypeSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     manufacturer = ManufacturerNestedSerializer()
     subdevice_role = serializers.SerializerMethodField()
 
     class Meta:
         model = DeviceType
         fields = ['id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
-                  'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role']
+                  'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments', 'custom_fields']
 
     def get_subdevice_role(self, obj):
         return {
@@ -197,8 +198,9 @@ class DeviceTypeDetailSerializer(DeviceTypeSerializer):
 
     class Meta(DeviceTypeSerializer.Meta):
         fields = ['id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
-                  'is_console_server', 'is_pdu', 'is_network_device', 'console_port_templates', 'cs_port_templates',
-                  'power_port_templates', 'power_outlet_templates', 'interface_templates']
+                  'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments', 'custom_fields',
+                  'console_port_templates', 'cs_port_templates', 'power_port_templates', 'power_outlet_templates',
+                  'interface_templates']
 
 
 #
@@ -381,7 +383,7 @@ class InterfaceNestedSerializer(InterfaceSerializer):
 
 
 class InterfaceDetailSerializer(InterfaceSerializer):
-    connected_interface = InterfaceSerializer(source='get_connected_interface')
+    connected_interface = InterfaceSerializer()
 
     class Meta(InterfaceSerializer.Meta):
         fields = ['id', 'device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description', 'is_connected',

@@ -51,6 +51,14 @@ $(document).ready(function() {
         $('#id_' + this.value).toggle('disabled');
     });
 
+    // Set formaction and submit using a link
+    $('a.formaction').click(function (event) {
+        event.preventDefault();
+        var form = $(this).closest('form');
+        form.attr('action', $(this).attr('href'));
+        form.submit();
+    });
+
     // API select widget
     $('select[filter-for]').change(function () {
 

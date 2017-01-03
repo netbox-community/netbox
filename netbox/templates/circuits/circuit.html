@@ -5,14 +5,14 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-9">
+    <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'circuits:circuit_list' %}">Circuits</a></li>
             <li><a href="{% url 'circuits:circuit_list' %}?provider={{ circuit.provider.slug }}">{{ circuit.provider }}</a></li>
             <li>{{ circuit.cid }}</li>
         </ol>
     </div>
-    <div class="col-md-3">
+    <div class="col-sm-4 col-md-3">
         <form action="{% url 'circuits:circuit_list' %}" method="get">
             <div class="input-group">
                 <input type="text" name="q" class="form-control" />
@@ -40,13 +40,14 @@
     {% endif %}
 </div>
 <h1>{{ circuit.provider }} - {{ circuit.cid }}</h1>
+{% include 'inc/created_updated.html' with obj=circuit %}
 <div class="row">
 	<div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Circuit</strong>
             </div>
-            <table class="table table-hover panel-body">
+            <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Provider</td>
                     <td>
@@ -82,17 +83,6 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Speed</td>
-                    <td>
-                        {% if circuit.upstream_speed %}
-                            <i class="fa fa-arrow-down" title="Downstream"></i> {{ circuit.port_speed_human }} &nbsp;
-                            <i class="fa fa-arrow-up" title="Upstream"></i> {{ circuit.upstream_speed_human }}
-                        {% else %}
-                            {{ circuit.port_speed_human }}
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
                     <td>Commit Rate</td>
                     <td>
                         {% if circuit.commit_rate %}
@@ -107,67 +97,6 @@
         {% with circuit.get_custom_fields as custom_fields %}
             {% include 'inc/custom_fields_panel.html' %}
         {% endwith %}
-        {% include 'inc/created_updated.html' with obj=circuit %}
-	</div>
-	<div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Termination</strong>
-            </div>
-            <table class="table table-hover panel-body">
-                <tr>
-                    <td>Site</td>
-                    <td>
-                        <a href="{% url 'dcim:site' slug=circuit.site.slug %}">{{ circuit.site }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Termination</td>
-                    <td>
-                        {% if circuit.interface %}
-                            <span><a href="{% url 'dcim:device' pk=circuit.interface.device.pk %}">{{ circuit.interface.device }}</a> {{ circuit.interface }}</span>
-                        {% else %}
-                            <span class="text-muted">Not defined</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>IP Addressing</td>
-                    <td>
-                        {% if circuit.interface %}
-                            {% for ip in circuit.interface.ip_addresses.all %}
-                                {% if not forloop.first %}<br />{% endif %}
-                                <a href="{% url 'ipam:ipaddress' pk=ip.pk %}">{{ ip }}</a> ({{ ip.vrf|default:"Global" }})
-                            {% empty %}
-                                <span class="text-muted">None</span>
-                            {% endfor %}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Cross-Connect</td>
-                    <td>
-                        {% if circuit.xconnect_id %}
-                            {{ circuit.xconnect_id }}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Patch Panel/Port</td>
-                    <td>
-                        {% if circuit.pp_info %}
-                            {{ circuit.pp_info }}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
-                </tr>
-            </table>
-        </div>
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Comments</strong>
@@ -180,6 +109,10 @@
                 {% endif %}
             </div>
         </div>
+	</div>
+	<div class="col-md-6">
+        {% include 'circuits/inc/circuit_termination.html' with termination=termination_a side='A' %}
+        {% include 'circuits/inc/circuit_termination.html' with termination=termination_z side='Z' %}
     </div>
 </div>
 {% endblock %}

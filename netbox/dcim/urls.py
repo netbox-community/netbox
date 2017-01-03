@@ -1,5 +1,6 @@
 from django.conf.urls import url
 
+from ipam.views import ServiceEditView
 from secrets.views import secret_add
 
 from . import views
@@ -104,9 +105,11 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/lldp-neighbors/$', views.device_lldp_neighbors, name='device_lldp_neighbors'),
     url(r'^devices/(?P<pk>\d+)/ip-addresses/assign/$', views.ipaddress_assign, name='ipaddress_assign'),
     url(r'^devices/(?P<pk>\d+)/add-secret/$', secret_add, name='device_addsecret'),
+    url(r'^devices/(?P<device>\d+)/services/assign/$', ServiceEditView.as_view(), name='service_assign'),
 
     # Console ports
-    url(r'^devices/(?P<pk>\d+)/console-ports/add/$', views.consoleport_add, name='consoleport_add'),
+    url(r'^devices/console-ports/add/$', views.DeviceBulkAddConsolePortView.as_view(), name='device_bulk_add_consoleport'),
+    url(r'^devices/(?P<pk>\d+)/console-ports/add/$', views.ConsolePortAddView.as_view(), name='consoleport_add'),
     url(r'^devices/(?P<pk>\d+)/console-ports/delete/$', views.ConsolePortBulkDeleteView.as_view(), name='consoleport_bulk_delete'),
     url(r'^console-ports/(?P<pk>\d+)/connect/$', views.consoleport_connect, name='consoleport_connect'),
     url(r'^console-ports/(?P<pk>\d+)/disconnect/$', views.consoleport_disconnect, name='consoleport_disconnect'),
@@ -114,7 +117,8 @@ urlpatterns = [
     url(r'^console-ports/(?P<pk>\d+)/delete/$', views.ConsolePortDeleteView.as_view(), name='consoleport_delete'),
 
     # Console server ports
-    url(r'^devices/(?P<pk>\d+)/console-server-ports/add/$', views.consoleserverport_add, name='consoleserverport_add'),
+    url(r'^devices/console-server-ports/add/$', views.DeviceBulkAddConsoleServerPortView.as_view(), name='device_bulk_add_consoleserverport'),
+    url(r'^devices/(?P<pk>\d+)/console-server-ports/add/$', views.ConsoleServerPortAddView.as_view(), name='consoleserverport_add'),
     url(r'^devices/(?P<pk>\d+)/console-server-ports/delete/$', views.ConsoleServerPortBulkDeleteView.as_view(), name='consoleserverport_bulk_delete'),
     url(r'^console-server-ports/(?P<pk>\d+)/connect/$', views.consoleserverport_connect, name='consoleserverport_connect'),
     url(r'^console-server-ports/(?P<pk>\d+)/disconnect/$', views.consoleserverport_disconnect, name='consoleserverport_disconnect'),
@@ -122,7 +126,8 @@ urlpatterns = [
     url(r'^console-server-ports/(?P<pk>\d+)/delete/$', views.ConsoleServerPortDeleteView.as_view(), name='consoleserverport_delete'),
 
     # Power ports
-    url(r'^devices/(?P<pk>\d+)/power-ports/add/$', views.powerport_add, name='powerport_add'),
+    url(r'^devices/power-ports/add/$', views.DeviceBulkAddPowerPortView.as_view(), name='device_bulk_add_powerport'),
+    url(r'^devices/(?P<pk>\d+)/power-ports/add/$', views.PowerPortAddView.as_view(), name='powerport_add'),
     url(r'^devices/(?P<pk>\d+)/power-ports/delete/$', views.PowerPortBulkDeleteView.as_view(), name='powerport_bulk_delete'),
     url(r'^power-ports/(?P<pk>\d+)/connect/$', views.powerport_connect, name='powerport_connect'),
     url(r'^power-ports/(?P<pk>\d+)/disconnect/$', views.powerport_disconnect, name='powerport_disconnect'),
@@ -130,15 +135,27 @@ urlpatterns = [
     url(r'^power-ports/(?P<pk>\d+)/delete/$', views.PowerPortDeleteView.as_view(), name='powerport_delete'),
 
     # Power outlets
-    url(r'^devices/(?P<pk>\d+)/power-outlets/add/$', views.poweroutlet_add, name='poweroutlet_add'),
+    url(r'^devices/power-outlets/add/$', views.DeviceBulkAddPowerOutletView.as_view(), name='device_bulk_add_poweroutlet'),
+    url(r'^devices/(?P<pk>\d+)/power-outlets/add/$', views.PowerOutletAddView.as_view(), name='poweroutlet_add'),
     url(r'^devices/(?P<pk>\d+)/power-outlets/delete/$', views.PowerOutletBulkDeleteView.as_view(), name='poweroutlet_bulk_delete'),
     url(r'^power-outlets/(?P<pk>\d+)/connect/$', views.poweroutlet_connect, name='poweroutlet_connect'),
     url(r'^power-outlets/(?P<pk>\d+)/disconnect/$', views.poweroutlet_disconnect, name='poweroutlet_disconnect'),
     url(r'^power-outlets/(?P<pk>\d+)/edit/$', views.PowerOutletEditView.as_view(), name='poweroutlet_edit'),
     url(r'^power-outlets/(?P<pk>\d+)/delete/$', views.PowerOutletDeleteView.as_view(), name='poweroutlet_delete'),
 
+    # Interfaces
+    url(r'^devices/interfaces/add/$', views.DeviceBulkAddInterfaceView.as_view(), name='device_bulk_add_interface'),
+    url(r'^devices/(?P<pk>\d+)/interfaces/add/$', views.InterfaceAddView.as_view(), name='interface_add'),
+    url(r'^devices/(?P<pk>\d+)/interfaces/edit/$', views.InterfaceBulkEditView.as_view(), name='interface_bulk_edit'),
+    url(r'^devices/(?P<pk>\d+)/interfaces/delete/$', views.InterfaceBulkDeleteView.as_view(), name='interface_bulk_delete'),
+    url(r'^devices/(?P<pk>\d+)/interface-connections/add/$', views.interfaceconnection_add, name='interfaceconnection_add'),
+    url(r'^interface-connections/(?P<pk>\d+)/delete/$', views.interfaceconnection_delete, name='interfaceconnection_delete'),
+    url(r'^interfaces/(?P<pk>\d+)/edit/$', views.InterfaceEditView.as_view(), name='interface_edit'),
+    url(r'^interfaces/(?P<pk>\d+)/delete/$', views.InterfaceDeleteView.as_view(), name='interface_delete'),
+
     # Device bays
-    url(r'^devices/(?P<pk>\d+)/bays/add/$', views.devicebay_add, name='devicebay_add'),
+    url(r'^devices/device-bays/add/$', views.DeviceBulkAddDeviceBayView.as_view(), name='device_bulk_add_devicebay'),
+    url(r'^devices/(?P<pk>\d+)/bays/add/$', views.DeviceBayAddView.as_view(), name='devicebay_add'),
     url(r'^devices/(?P<pk>\d+)/bays/delete/$', views.DeviceBayBulkDeleteView.as_view(), name='devicebay_bulk_delete'),
     url(r'^device-bays/(?P<pk>\d+)/edit/$', views.DeviceBayEditView.as_view(), name='devicebay_edit'),
     url(r'^device-bays/(?P<pk>\d+)/delete/$', views.DeviceBayDeleteView.as_view(), name='devicebay_delete'),
@@ -153,18 +170,8 @@ urlpatterns = [
     url(r'^interface-connections/$', views.InterfaceConnectionsListView.as_view(), name='interface_connections_list'),
     url(r'^interface-connections/import/$', views.InterfaceConnectionsBulkImportView.as_view(), name='interface_connections_import'),
 
-    # Interfaces
-    url(r'^devices/interfaces/add/$', views.DeviceBulkAddInterfaceView.as_view(), name='device_bulk_add_interface'),
-    url(r'^devices/(?P<pk>\d+)/interfaces/add/$', views.interface_add, name='interface_add'),
-    url(r'^devices/(?P<pk>\d+)/interfaces/edit/$', views.InterfaceBulkEditView.as_view(), name='interface_bulk_edit'),
-    url(r'^devices/(?P<pk>\d+)/interfaces/delete/$', views.InterfaceBulkDeleteView.as_view(), name='interface_bulk_delete'),
-    url(r'^devices/(?P<pk>\d+)/interface-connections/add/$', views.interfaceconnection_add, name='interfaceconnection_add'),
-    url(r'^interface-connections/(?P<pk>\d+)/delete/$', views.interfaceconnection_delete, name='interfaceconnection_delete'),
-    url(r'^interfaces/(?P<pk>\d+)/edit/$', views.InterfaceEditView.as_view(), name='interface_edit'),
-    url(r'^interfaces/(?P<pk>\d+)/delete/$', views.InterfaceDeleteView.as_view(), name='interface_delete'),
-
     # Modules
-    url(r'^devices/(?P<pk>\d+)/modules/add/$', views.module_add, name='module_add'),
+    url(r'^devices/(?P<device>\d+)/modules/add/$', views.ModuleEditView.as_view(), name='module_add'),
     url(r'^modules/(?P<pk>\d+)/edit/$', views.ModuleEditView.as_view(), name='module_edit'),
     url(r'^modules/(?P<pk>\d+)/delete/$', views.ModuleDeleteView.as_view(), name='module_delete'),
 

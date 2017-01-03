@@ -51,6 +51,7 @@ urlpatterns = [
     # IP addresses
     url(r'^ip-addresses/$', views.IPAddressListView.as_view(), name='ipaddress_list'),
     url(r'^ip-addresses/add/$', views.IPAddressEditView.as_view(), name='ipaddress_add'),
+    url(r'^ip-addresses/bulk-add/$', views.IPAddressBulkAddView.as_view(), name='ipaddress_bulk_add'),
     url(r'^ip-addresses/import/$', views.IPAddressBulkImportView.as_view(), name='ipaddress_import'),
     url(r'^ip-addresses/edit/$', views.IPAddressBulkEditView.as_view(), name='ipaddress_bulk_edit'),
     url(r'^ip-addresses/delete/$', views.IPAddressBulkDeleteView.as_view(), name='ipaddress_bulk_delete'),
@@ -75,5 +76,9 @@ urlpatterns = [
     url(r'^vlans/(?P<pk>\d+)/$', views.vlan, name='vlan'),
     url(r'^vlans/(?P<pk>\d+)/edit/$', views.VLANEditView.as_view(), name='vlan_edit'),
     url(r'^vlans/(?P<pk>\d+)/delete/$', views.VLANDeleteView.as_view(), name='vlan_delete'),
+
+    # Services
+    url(r'^services/(?P<pk>\d+)/edit/$', views.ServiceEditView.as_view(), name='service_edit'),
+    url(r'^services/(?P<pk>\d+)/delete/$', views.ServiceDeleteView.as_view(), name='service_delete'),
 
 ]

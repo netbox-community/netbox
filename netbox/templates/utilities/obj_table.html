@@ -4,7 +4,7 @@
     <form method="post" class="form form-horizontal">
         {% csrf_token %}
         <input type="hidden" name="redirect_url" value="{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" />
-        <input type="hidden" name="pk_all" value="{% for row in table.rows %}{{ row.record.pk|default:'' }}{% if not forloop.last %},{% endif %}{% endfor %}" />
+        <input type="hidden" name="pk_all" value="{% for obj in table.data.queryset %}{{ obj.pk|default:'' }}{% if not forloop.last %},{% endif %}{% endfor %}" />
         {% if table.paginator.num_pages > 1 %}
             <div id="select_all_box" class="hidden alert alert-info">
                 <div class="checkbox-inline">
@@ -31,3 +31,4 @@
 {% else %}
     {% render_table table table_template|default:'table.html' %}
 {% endif %}
+<div class="clearfix"></div>

@@ -86,3 +86,9 @@ One IP address can be designated as the network address translation (NAT) IP add
 A VLAN represents an isolated layer two domain, identified by a name and a numeric ID (1-4094). Note that while it is good practice, neither VLAN names nor IDs must be unique within a site. This is to accommodate the fact that many real-world network use less-than-optimal VLAN allocations and may have overlapping VLAN ID assignments in practice.
 
 Like prefixes, each VLAN is assigned an operational status and (optionally) a functional role.
+
+---
+
+# Services
+
+A service represents a TCP or UDP service available on a device. Each service must be defined with a name, protocol, and port number; for example, SSH (TCP/22). A service may optionally be bound to one or more specific IP addresses belonging to a device. (If no IP addresses are bound, the service is assumed to be reachable via any IP address.)

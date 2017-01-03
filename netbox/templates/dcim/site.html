@@ -7,13 +7,13 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-9">
+    <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'dcim:site_list' %}">Sites</a></li>
             <li>{{ site }}</li>
         </ol>
     </div>
-    <div class="col-md-3">
+    <div class="col-sm-4 col-md-3">
         <form action="{% url 'dcim:site_list' %}" method="get">
             <div class="input-group">
                 <input type="text" name="q" class="form-control" placeholder="Search sites" />
@@ -47,13 +47,14 @@
     {% endif %}
 </div>
 <h1>{{ site.name }}</h1>
+{% include 'inc/created_updated.html' with obj=site %}
 <div class="row">
 	<div class="col-md-7">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Site</strong>
             </div>
-            <table class="table table-hover panel-body">
+            <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Tenant</td>
                     <td>
@@ -109,6 +110,36 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Contact Name</td>
+                    <td>
+                        {% if site.contact_name %}
+                            <span>{{ site.contact_name }}</span>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Contact Phone</td>
+                    <td>
+                        {% if site.contact_phone %}
+                            <a href="tel:{{ site.contact_phone }}">{{ site.contact_phone }}</a>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Contact E-Mail</td>
+                    <td>
+                        {% if site.contact_email %}
+                            <a href="mailto:{{ site.contact_email }}">{{ site.contact_email }}</a>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
             </table>
         </div>
         {% with site.get_custom_fields as custom_fields %}
@@ -126,7 +157,6 @@
                 {% endif %}
             </div>
         </div>
-        {% include 'inc/created_updated.html' with obj=site %}
     </div>
     <div class="col-md-5">
         <div class="panel panel-default">

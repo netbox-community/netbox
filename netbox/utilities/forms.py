@@ -385,7 +385,7 @@ class BootstrapMixin(forms.BaseForm):
                 field.widget.attrs['placeholder'] = field.label
 
 
-class ConfirmationForm(forms.Form, BootstrapMixin):
+class ConfirmationForm(BootstrapMixin, forms.Form):
     confirm = forms.BooleanField(required=True)
 
 

@@ -11,7 +11,7 @@
             <div class="panel-heading">
                 <strong>Prefix</strong>
             </div>
-            <table class="table table-hover panel-body">
+            <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Family</td>
                     <td>{{ prefix.get_family_display }}</td>
@@ -86,6 +86,16 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Is a pool</td>
+                    <td>
+                        {% if prefix.is_pool %}
+                            <i class="glyphicon glyphicon-ok text-success" title="Yes"></i>
+                        {% else %}
+                            <i class="glyphicon glyphicon-remove text-danger" title="No"></i>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Description</td>
                     <td>
                         {% if prefix.description %}
@@ -104,7 +114,6 @@
         {% with prefix.get_custom_fields as custom_fields %}
             {% include 'inc/custom_fields_panel.html' %}
         {% endwith %}
-        {% include 'inc/created_updated.html' with obj=prefix %}
         <br />
 	</div>
 	<div class="col-md-7">

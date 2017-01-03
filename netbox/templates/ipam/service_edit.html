@@ -1,0 +1,26 @@
+{% extends 'utilities/obj_edit.html' %}
+{% load form_helpers %}
+
+{% block form %}
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Service</strong></div>
+        <div class="panel-body">
+            <div class="form-group">
+                <label class="col-md-3 control-label">Device</label>
+                <div class="col-md-9">
+                    <p class="form-control-static">{{ obj.device }}</p>
+                </div>
+            </div>
+            {% render_field form.name %}
+            <div class="form-group form-inline">
+                <label class="col-md-3 control-label required">Port</label>
+                <div class="col-md-9">
+                    {{ form.protocol }}
+                    {{ form.port }}
+                </div>
+            </div>
+            {% render_field form.ipaddresses %}
+            {% render_field form.description %}
+        </div>
+    </div>
+{% endblock %}

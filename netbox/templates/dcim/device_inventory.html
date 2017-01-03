@@ -10,7 +10,7 @@
             <div class="panel-heading">
                 <strong>Chassis</strong>
             </div>
-            <table class="table table-hover panel-body">
+            <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Model</td>
                     <td>{{ device.device_type.full_name }}</td>
@@ -127,7 +127,7 @@
             </table>
         </div>
         {% if perms.dcim.add_module %}
-            <a href="{% url 'dcim:module_add' pk=device.pk %}" class="btn btn-success">
+            <a href="{% url 'dcim:module_add' device=device.pk %}" class="btn btn-success">
                 <span class="fa fa-plus" aria-hidden="true"></span>
                 Add a Module
             </a>

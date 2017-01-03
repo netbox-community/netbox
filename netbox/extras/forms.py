@@ -44,7 +44,7 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
 
         # Date
         elif cf.type == CF_TYPE_DATE:
-            field = forms.DateField(required=cf.required, initial=cf.default)
+            field = forms.DateField(required=cf.required, initial=cf.default, help_text="Date format: YYYY-MM-DD")
 
         # Select
         elif cf.type == CF_TYPE_SELECT:
@@ -63,7 +63,8 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
 
         field.model = cf
         field.label = cf.label if cf.label else cf.name.replace('_', ' ').capitalize()
-        field.help_text = cf.description
+        if cf.description:
+            field.help_text = cf.description
 
         field_dict[field_name] = field
 

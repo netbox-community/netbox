@@ -101,7 +101,7 @@ To enable SSL, consider this guide on [securing Apache with Let's Encrypt](https
 
 # gunicorn Installation
 
-Save the following configuration file in the root netbox installation path (in this example, `/opt/netbox/`) as `gunicorn_config.py`. Be sure to verify the location of the gunicorn executable (e.g. `which gunicorn`) and to update the `pythonpath` variable if needed. If using CentOS/RHEL change the username from `www-data` to `nginx` or `apache`.
+Save the following configuration in the root netbox installation path as `gunicorn_config.py` (e.g. `/opt/netbox/gunicorn_config.py` per our example installation). Be sure to verify the location of the gunicorn executable on your server (e.g. `which gunicorn`) and to update the `pythonpath` variable if needed. If using CentOS/RHEL, change the username from `www-data` to `nginx` or `apache`.
 
 ```no-highlight
 command = '/usr/bin/gunicorn'
@@ -113,7 +113,7 @@ user = 'www-data'
 
 # supervisord Installation
 
-Save the following as `/etc/supervisor/conf.d/netbox.conf`. Update the `command` and `directory` paths as needed.
+Save the following as `/etc/supervisor/conf.d/netbox.conf`. Update the `command` and `directory` paths as needed. If using CentOS/RHEL, change the username from `www-data` to `nginx` or `apache`.
 
 ```no-highlight
 [program:netbox]

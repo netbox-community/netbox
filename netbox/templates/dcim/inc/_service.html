@@ -1,0 +1,26 @@
+<tr>
+    <td>{{ service.name }}</td>
+    <td>
+        {{ service.get_protocol_display }}/{{ service.port }}
+    </td>
+    <td>
+        {% for ip in service.ipaddresses.all %}
+            <span>{{ ip.address.ip }}</span><br />
+        {% empty %}
+            <span class="text-muted">All IPs</span>
+        {% endfor %}
+    </td>
+    <td>{{ service.description }}</td>
+    <td class="text-right">
+        {% if perms.ipam.change_service %}
+            <a href="{% url 'ipam:service_edit' pk=service.pk %}" class="btn btn-info btn-xs" title="Edit service">
+                <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+            </a>
+        {% endif %}
+        {% if perms.ipam.delete_service %}
+            <a href="{% url 'ipam:service_delete' pk=service.pk %}" class="btn btn-danger btn-xs">
+                <i class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete service"></i>
+            </a>
+        {% endif %}
+    </td>
+</tr>

@@ -1,46 +1,33 @@
-{% extends '_base.html' %}
-{% load form_helpers %}
+{% extends 'users/_user.html' %}
 
 {% block title %}User Key{% endblock %}
 
-{% block content %}
-<div class="row">
-    <div class="col-md-8 col-md-offset-2">
-        <h1>User Key</h1>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-2 col-md-offset-2">
-        {% include 'users/inc/profile_nav.html' with active_tab="userkey" %}
-    </div>
-	<div class="col-md-6">
-        {% if userkey %}
-            <h4>
-                Your user key is:
-                {% if userkey.is_active %}
-                    <span class="label label-success">Active</span>
-                {% else %}
-                    <span class="label label-danger">Inactive</span>
-                {% endif %}
-            </h4>
-            <p>Your public key is below.</p>
-            <pre>{{ userkey.public_key }}</pre>
-            <div class="pull-right">
-                <a href="{% url 'users:userkey_edit' %}" class="btn btn-warning">
-                    <span class="fa fa-pencil" aria-hidden="true"></span>
-                    Edit user key
-                </a>
-            </div>
-            {% include 'inc/created_updated.html' with obj=userkey %}
-        {% else %}
-            <p>You don't have a user key on file.</p>
-            <p>
-                <a href="{% url 'users:userkey_edit' %}" class="btn btn-primary">
-                    <span class="fa fa-plus" aria-hidden="true"></span>
-                    Create a User Key
-                </a>
-            </p>
-        {% endif %}
-	</div>
-</div>
+{% block usercontent %}
+    {% if userkey %}
+        <h4>
+            Your user key is:
+            {% if userkey.is_active %}
+                <span class="label label-success">Active</span>
+            {% else %}
+                <span class="label label-danger">Inactive</span>
+            {% endif %}
+        </h4>
+        <p>Your public key is below.</p>
+        <pre>{{ userkey.public_key }}</pre>
+        <div class="pull-right">
+            <a href="{% url 'users:userkey_edit' %}" class="btn btn-warning">
+                <span class="fa fa-pencil" aria-hidden="true"></span>
+                Edit user key
+            </a>
+        </div>
+        {% include 'inc/created_updated.html' with obj=userkey %}
+    {% else %}
+        <p>You don't have a user key on file.</p>
+        <p>
+            <a href="{% url 'users:userkey_edit' %}" class="btn btn-primary">
+                <span class="fa fa-plus" aria-hidden="true"></span>
+                Create a User Key
+            </a>
+        </p>
+    {% endif %}
 {% endblock %}

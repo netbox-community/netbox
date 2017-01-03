@@ -39,7 +39,7 @@
             <div class="panel-heading">
                 <strong>Chassis</strong>
             </div>
-            <table class="table table-hover panel-body">
+            <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Manufacturer</td>
                     <td><a href="{% url 'dcim:devicetype_list' %}?manufacturer={{ devicetype.manufacturer.slug }}">{{ devicetype.manufacturer }}</a></td>
@@ -144,6 +144,21 @@
                     </td>
                 </tr>
             </table>
+        </div>
+        {% with devicetype.get_custom_fields as custom_fields %}
+            {% include 'inc/custom_fields_panel.html' %}
+        {% endwith %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Comments</strong>
+            </div>
+            <div class="panel-body">
+                {% if devicetype.comments %}
+                    {{ devicetype.comments|gfm }}
+                {% else %}
+                    <span class="text-muted">None</span>
+                {% endif %}
+            </div>
         </div>
         {% include 'dcim/inc/devicetype_component_table.html' with table=consoleport_table title='Console Ports' add_url='dcim:devicetype_add_consoleport' delete_url='dcim:devicetype_delete_consoleport' %}
         {% include 'dcim/inc/devicetype_component_table.html' with table=powerport_table title='Power Ports' add_url='dcim:devicetype_add_powerport' delete_url='dcim:devicetype_delete_powerport' %}

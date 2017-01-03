@@ -1,6 +1,6 @@
 from rest_framework import generics
 
-from ipam.models import VRF, Role, RIR, Aggregate, Prefix, IPAddress, VLAN, VLANGroup
+from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from ipam import filters
 
 from extras.api.views import CustomFieldModelAPIView
@@ -177,3 +177,24 @@ class VLANDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
     queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role')\
         .prefetch_related('custom_field_values__field')
     serializer_class = serializers.VLANSerializer
+
+
+#
+# Services
+#
+
+class ServiceListView(generics.ListAPIView):
+    """
+    List services (filterable)
+    """
+    queryset = Service.objects.select_related('device').prefetch_related('ipaddresses')
+    serializer_class = serializers.ServiceSerializer
+    filter_class = filters.ServiceFilter
+
+
+class ServiceDetailView(generics.RetrieveAPIView):
+    """
+    Retrieve a single service
+    """
+    queryset = Service.objects.select_related('device').prefetch_related('ipaddresses')
+    serializer_class = serializers.ServiceSerializer

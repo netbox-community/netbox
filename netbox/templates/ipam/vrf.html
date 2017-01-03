@@ -5,13 +5,13 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-9">
+    <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'ipam:vrf_list' %}">VRFs</a></li>
             <li>{{ vrf }}</li>
         </ol>
     </div>
-    <div class="col-md-3">
+    <div class="col-sm-4 col-md-3">
         <form action="{% url 'ipam:vrf_list' %}" method="get">
             <div class="input-group">
                 <input type="text" name="q" class="form-control" placeholder="Search VRFs" />
@@ -39,13 +39,14 @@
     {% endif %}
 </div>
 <h1>{{ vrf }}</h1>
+{% include 'inc/created_updated.html' with obj=vrf %}
 <div class="row">
 	<div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>VRF</strong>
             </div>
-            <table class="table table-hover panel-body">
+            <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Route Distinguisher</td>
                     <td>{{ vrf.rd }}</td>
@@ -85,7 +86,6 @@
         {% with vrf.get_custom_fields as custom_fields %}
             {% include 'inc/custom_fields_panel.html' %}
         {% endwith %}
-        {% include 'inc/created_updated.html' with obj=vrf %}
 	</div>
 	<div class="col-md-6">
         <div class="panel panel-default">

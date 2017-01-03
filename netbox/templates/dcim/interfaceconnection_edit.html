@@ -28,6 +28,12 @@
             </div>
             <div class="panel-body">
                 <div class="form-group">
+                    <label class="col-md-3 control-label required">Site</label>
+                    <div class="col-md-9">
+                        <p class="form-control-static">{{ device.rack.site }}</p>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="col-md-3 control-label required">Rack</label>
                     <div class="col-md-9">
                         <p class="form-control-static">{{ device.rack }}</p>
@@ -61,6 +67,7 @@
                         {% render_field form.livesearch %}
                     </div>
                     <div class="tab-pane" id="select">
+                        {% render_field form.site_b %}
                         {% render_field form.rack_b %}
                         {% render_field form.device_b %}
                     </div>
@@ -77,8 +84,8 @@
 </div>
 <div class="text-center">
     <div class="form-group">
-        <button type="submit" name="_create" class="btn btn-primary">Create</button>
-        <button type="submit" name="_addanother" class="btn btn-primary">Create and Connect Another</button>
+        <button type="submit" name="_create" class="btn btn-primary">Connect</button>
+        <button type="submit" name="_addanother" class="btn btn-primary">Connect and Add Another</button>
         <a href="{{ cancel_url }}" class="btn btn-default">Cancel</a>
     </div>
 </div>
