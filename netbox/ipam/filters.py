@@ -126,7 +126,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Site (slug)',
     )
-    vlan_id = django_filters.ModelMultipleChoiceFilter(
+    vlan_id = NullableModelMultipleChoiceFilter(
         name='vlan',
         queryset=VLAN.objects.all(),
         label='VLAN (ID)',
