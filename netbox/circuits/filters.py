@@ -96,6 +96,7 @@ class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
     def search(self, queryset, value):
         return queryset.filter(
             Q(cid__icontains=value) |
-            Q(xconnect_id__icontains=value) |
+            Q(terminations__xconnect_id__icontains=value) |
+            Q(terminations__pp_info__icontains=value) |
             Q(comments__icontains=value)
         )

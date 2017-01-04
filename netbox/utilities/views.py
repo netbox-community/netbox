@@ -48,8 +48,6 @@ class ObjectListView(View):
     table: The django-tables2 Table used to render the objects list
     edit_permissions: Editing controls are displayed only if the user has these permissions
     template_name: The name of the template
-    redirect_on_single_result: If True and the queryset returns only a single object, the user is automatically
-                               redirected to that object
     """
     queryset = None
     filter = None
@@ -57,7 +55,6 @@ class ObjectListView(View):
     table = None
     edit_permissions = []
     template_name = None
-    redirect_on_single_result = True
 
     def get(self, request):
 
@@ -94,13 +91,6 @@ class ObjectListView(View):
             response['Content-Disposition'] = 'attachment; filename="netbox_{}.csv"'\
                 .format(self.queryset.model._meta.verbose_name_plural)
             return response
-
-        # Attempt to redirect automatically if the search query returns a single result
-        if self.redirect_on_single_result and self.queryset.count() == 1 and request.GET:
-            try:
-                return HttpResponseRedirect(self.queryset[0].get_absolute_url())
-            except AttributeError:
-                pass
 
         # Provide a hook to tweak the queryset based on the request immediately prior to rendering the object list
         self.queryset = self.alter_queryset(request)

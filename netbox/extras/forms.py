@@ -34,9 +34,9 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
                 (0, 'False'),
             )
             if cf.default.lower() in ['true', 'yes', '1']:
-                initial = True
+                initial = 1
             elif cf.default.lower() in ['false', 'no', '0']:
-                initial = False
+                initial = 0
             else:
                 initial = None
             field = forms.NullBooleanField(required=cf.required, initial=initial,

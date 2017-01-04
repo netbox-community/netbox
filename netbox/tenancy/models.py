@@ -4,6 +4,7 @@ from django.db import models
 
 from extras.models import CustomFieldModel, CustomFieldValue
 from utilities.models import CreatedUpdatedModel
+from utilities.utils import csv_format
 
 
 class TenantGroup(models.Model):
@@ -45,9 +46,9 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
         return reverse('tenancy:tenant', args=[self.slug])
 
     def to_csv(self):
-        return ','.join([
+        return csv_format([
             self.name,
             self.slug,
-            self.group.name if self.group else '',
+            self.group.name if self.group else None,
             self.description,
         ])

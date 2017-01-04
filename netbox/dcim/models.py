@@ -16,6 +16,7 @@ from tenancy.models import Tenant
 from utilities.fields import ColorField, NullableCharField
 from utilities.managers import NaturalOrderByManager
 from utilities.models import CreatedUpdatedModel
+from utilities.utils import csv_format
 
 from .fields import ASNField, MACAddressField
 
@@ -263,12 +264,12 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
         return reverse('dcim:site', args=[self.slug])
 
     def to_csv(self):
-        return ','.join([
+        return csv_format([
             self.name,
             self.slug,
-            self.tenant.name if self.tenant else '',
+            self.tenant.name if self.tenant else None,
             self.facility,
-            str(self.asn) if self.asn else '',
+            self.asn,
             self.contact_name,
             self.contact_phone,
             self.contact_email,
@@ -398,17 +399,17 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
                     })
 
     def to_csv(self):
-        return ','.join([
+        return csv_format([
             self.site.name,
-            self.group.name if self.group else '',
+            self.group.name if self.group else None,
             self.name,
-            self.facility_id or '',
-            self.tenant.name if self.tenant else '',
-            self.role.name if self.role else '',
-            self.get_type_display() if self.type else '',
-            str(self.width),
-            str(self.u_height),
-            'True' if self.desc_units else '',
+            self.facility_id,
+            self.tenant.name if self.tenant else None,
+            self.role.name if self.role else None,
+            self.get_type_display() if self.type else None,
+            self.width,
+            self.u_height,
+            self.desc_units,
         ])
 
     @property
@@ -910,19 +911,19 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         Device.objects.filter(parent_bay__device=self).update(rack=self.rack)
 
     def to_csv(self):
-        return ','.join([
+        return csv_format([
             self.name or '',
             self.device_role.name,
-            self.tenant.name if self.tenant else '',
+            self.tenant.name if self.tenant else None,
             self.device_type.manufacturer.name,
             self.device_type.model,
-            self.platform.name if self.platform else '',
+            self.platform.name if self.platform else None,
             self.serial,
-            self.asset_tag if self.asset_tag else '',
+            self.asset_tag,
             self.rack.site.name,
             self.rack.name,
-            str(self.position) if self.position else '',
-            self.get_face_display() or '',
+            self.position,
+            self.get_face_display(),
         ])
 
     @property
@@ -991,9 +992,9 @@ class ConsolePort(models.Model):
 
     # Used for connections export
     def to_csv(self):
-        return ','.join([
-            self.cs_port.device.identifier if self.cs_port else '',
-            self.cs_port.name if self.cs_port else '',
+        return csv_format([
+            self.cs_port.device.identifier if self.cs_port else None,
+            self.cs_port.name if self.cs_port else None,
             self.device.identifier,
             self.name,
             self.get_connection_status_display(),
@@ -1055,10 +1056,10 @@ class PowerPort(models.Model):
         return self.device.get_absolute_url()
 
     # Used for connections export
-    def to_csv(self):
+    def csv_format(self):
         return ','.join([
-            self.power_outlet.device.identifier if self.power_outlet else '',
-            self.power_outlet.name if self.power_outlet else '',
+            self.power_outlet.device.identifier if self.power_outlet else None,
+            self.power_outlet.name if self.power_outlet else None,
             self.device.identifier,
             self.name,
             self.get_connection_status_display(),
@@ -1196,7 +1197,7 @@ class InterfaceConnection(models.Model):
 
     # Used for connections export
     def to_csv(self):
-        return ','.join([
+        return csv_format([
             self.interface_a.device.identifier,
             self.interface_a.name,
             self.interface_b.device.identifier,
