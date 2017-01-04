@@ -5,6 +5,7 @@ from django.db import models
 from dcim.fields import ASNField
 from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
+from utilities.utils import csv_format
 from utilities.models import CreatedUpdatedModel
 
 
@@ -57,10 +58,10 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
         return reverse('circuits:provider', args=[self.slug])
 
     def to_csv(self):
-        return ','.join([
+        return csv_format([
             self.name,
             self.slug,
-            str(self.asn) if self.asn else '',
+            self.asn,
             self.account,
             self.portal_url,
         ])
@@ -68,7 +69,7 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
 
 class CircuitType(models.Model):
     """
-    Circuits can be orgnanized by their functional role. For example, a user might wish to define CircuitTypes named
+    Circuits can be organized by their functional role. For example, a user might wish to define CircuitTypes named
     "Long Haul," "Metro," or "Out-of-Band".
     """
     name = models.CharField(max_length=50, unique=True)
@@ -110,13 +111,13 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
         return reverse('circuits:circuit', args=[self.pk])
 
     def to_csv(self):
-        return ','.join([
+        return csv_format([
             self.cid,
             self.provider.name,
             self.type.name,
-            self.tenant.name if self.tenant else '',
-            self.install_date.isoformat() if self.install_date else '',
-            str(self.commit_rate) if self.commit_rate else '',
+            self.tenant.name if self.tenant else None,
+            self.install_date.isoformat() if self.install_date else None,
+            self.commit_rate,
         ])
 
     def _get_termination(self, side):

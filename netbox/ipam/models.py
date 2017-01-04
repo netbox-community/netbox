@@ -13,6 +13,7 @@ from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
 from utilities.models import CreatedUpdatedModel
 from utilities.sql import NullsFirstQuerySet
+from utilities.utils import csv_format
 
 from .fields import IPNetworkField, IPAddressField
 
@@ -95,11 +96,11 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
         return reverse('ipam:vrf', args=[self.pk])
 
     def to_csv(self):
-        return ','.join([
+        return csv_format([
             self.name,
             self.rd,
-            self.tenant.name if self.tenant else '',
-            'True' if self.enforce_unique else '',
+            self.tenant.name if self.tenant else None,
+            self.enforce_unique,
             self.description,
         ])
 
@@ -183,10 +184,10 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
         super(Aggregate, self).save(*args, **kwargs)
 
     def to_csv(self):
-        return ','.join([
-            str(self.prefix),
+        return csv_format([
+            self.prefix,
             self.rir.name,
-            self.date_added.isoformat() if self.date_added else '',
+            self.date_added.isoformat() if self.date_added else None,
             self.description,
         ])
 
@@ -319,16 +320,16 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
         super(Prefix, self).save(*args, **kwargs)
 
     def to_csv(self):
-        return ','.join([
-            str(self.prefix),
-            self.vrf.rd if self.vrf else '',
-            self.tenant.name if self.tenant else '',
-            self.site.name if self.site else '',
-            self.vlan.group.name if self.vlan and self.vlan.group else '',
-            str(self.vlan.vid) if self.vlan else '',
+        return csv_format([
+            self.prefix,
+            self.vrf.rd if self.vrf else None,
+            self.tenant.name if self.tenant else None,
+            self.site.name if self.site else None,
+            self.vlan.group.name if self.vlan and self.vlan.group else None,
+            self.vlan.vid if self.vlan else None,
             self.get_status_display(),
-            self.role.name if self.role else '',
-            'True' if self.is_pool else '',
+            self.role.name if self.role else None,
+            self.is_pool,
             self.description,
         ])
 
@@ -432,14 +433,14 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
         elif self.family == 6 and getattr(self, 'primary_ip6_for', False):
             is_primary = True
 
-        return ','.join([
-            str(self.address),
-            self.vrf.rd if self.vrf else '',
-            self.tenant.name if self.tenant else '',
+        return csv_format([
+            self.address,
+            self.vrf.rd if self.vrf else None,
+            self.tenant.name if self.tenant else None,
             self.get_status_display(),
-            self.device.identifier if self.device else '',
-            self.interface.name if self.interface else '',
-            'True' if is_primary else '',
+            self.device.identifier if self.device else None,
+            self.interface.name if self.interface else None,
+            is_primary,
             self.description,
         ])
 
@@ -523,14 +524,14 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
             })
 
     def to_csv(self):
-        return ','.join([
+        return csv_format([
             self.site.name,
-            self.group.name if self.group else '',
-            str(self.vid),
+            self.group.name if self.group else None,
+            self.vid,
             self.name,
-            self.tenant.name if self.tenant else '',
+            self.tenant.name if self.tenant else None,
             self.get_status_display(),
-            self.role.name if self.role else '',
+            self.role.name if self.role else None,
             self.description,
         ])
 
