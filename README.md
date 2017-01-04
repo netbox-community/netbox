@@ -4,7 +4,7 @@ NetBox is an IP address management (IPAM) and data center infrastructure managem
 
 NetBox runs as a web application atop the [Django](https://www.djangoproject.com/) Python framework with a [PostgreSQL](http://www.postgresql.org/) database. For a complete list of requirements, see `requirements.txt`. The code is available [on GitHub](https://github.com/digitalocean/netbox).
 
-The complete documentation for Netbox can be found at [Read the Docs](http://netbox.readthedocs.io/en/latest/).
+The complete documentation for NetBox can be found at [Read the Docs](http://netbox.readthedocs.io/en/stable/).
 
 Questions? Comments? Please subscribe to [the netbox-discuss mailing list](https://groups.google.com/forum/#!forum/netbox-discuss), or join us on IRC in **#netbox** on **irc.freenode.net**!
 
@@ -25,6 +25,9 @@ Questions? Comments? Please subscribe to [the netbox-discuss mailing list](https
 
 # Installation
 
-Please see [the documentation](http://netbox.readthedocs.io/en/latest/) for instructions on installing NetBox.
+Please see [the documentation](http://netbox.readthedocs.io/en/stable/) for instructions on installing NetBox. To upgrade NetBox, please download the [latest release](https://github.com/digitalocean/netbox/releases) and run `upgrade.sh`.
 
-To upgrade NetBox, please download the [latest release](https://github.com/digitalocean/netbox/releases) and run `upgrade.sh`.
+## Alternative Installations
+
+* [Docker container](http://netbox.readthedocs.io/en/stable/installation/docker/)
+* [Heroku deployment](https://heroku.com/deploy?template=https://github.com/BILDQUADRAT/netbox/tree/heroku) (via [@mraerino](https://github.com/BILDQUADRAT/netbox/tree/heroku))
