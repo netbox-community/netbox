@@ -1,0 +1,41 @@
+{
+  "name": "Netbox",
+  "description": "NetBox is an IP address management (IPAM) and data center infrastructure management (DCIM) tool.",
+  "repository": "https://github.com/digitalocean/netbox",
+  "logo": "https://github.com/BILDQUADRAT/netbox/raw/heroku/docs/netbox_logo.png",
+  "keywords": ["netbox", "ipam", "dcim", "digitalocean"],
+  "scripts": {
+    "postdeploy": "./netbox/manage.py migrate && echo \"from django.contrib.auth.models import User; User.objects.create_superuser('${ADMIN_USER}', '${ADMIN_EMAIL}', '${ADMIN_PASSWORD}')\" | ./netbox/manage.py shell"
+  },
+  "env": {
+    "ALLOWED_HOSTS": {
+      "description": "Limit hosts allowed to be used for accessing the app",
+      "value": "*"
+    },
+    "LOGIN_REQUIRED": {
+      "description": "If true, requires a login for every action",
+      "value": "true"
+    },
+    "NETBOX_CONFIG": {
+      "description": "Which config to pick (always 'netbox.configuration_heroku')",
+      "value": "netbox.configuration_heroku"
+    },
+    "SECRET_KEY": {
+      "description": "Secret key for Django cookies",
+      "generator": "secret"
+    },
+    "ADMIN_USER": {
+      "description": "Username for the initial superuser",
+      "value": ""
+    },
+    "ADMIN_EMAIL": {
+      "description": "Email address of the superuser",
+      "value": ""
+    },
+    "ADMIN_PASSWORD": {
+      "description": "Initial password for the superuser",
+      "value": ""
+    }
+  },
+  "addons": ["heroku-postgresql:hobby-dev"]
+}
