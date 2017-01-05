@@ -182,7 +182,7 @@ RPC_CLIENT_CHOICES = [
 ]
 
 
-def order_interfaces(queryset, sql_col, primary_ordering=tuple()):
+def order_interfaces(queryset):
     """
     Attempt to match interface names by their slot/position identifiers and order according. Matching is done using the
     following pattern:
@@ -190,8 +190,8 @@ def order_interfaces(queryset, sql_col, primary_ordering=tuple()):
         {a}/{b}/{c}:{d}
 
     Interfaces are ordered first by field a, then b, then c, and finally d. Leading text (which typically indicates the
-    interface's type) is ignored. If any fields are not contained by an interface name, those fields are treated as
-    None. 'None' is ordered after all other values. For example:
+    interface's type) is then used to order any duplicate slot/position tuples. If any fields are not contained by an
+    interface name, those fields are treated as null. Null values are ordered after all other values. For example:
 
         et-0/0/0
         et-0/0/1
@@ -210,12 +210,9 @@ def order_interfaces(queryset, sql_col, primary_ordering=tuple()):
         ...
         vlan1
         vlan10
-
-    :param queryset: The base queryset to be ordered
-    :param sql_col: Table and name of the SQL column which contains the interface name (ex: ''dcim_interface.name')
-    :param primary_ordering: A tuple of fields which take ordering precedence before the interface name (optional)
     """
-    ordering = primary_ordering + ('_id1', '_id2', '_id3', '_id4')
+    sql_col = '{}.name'.format(queryset.model._meta.db_table)
+    ordering = ('_id1', '_id2', '_id3', '_id4', 'name')
     return queryset.extra(select={
         '_id1': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+\/[0-9]+(:[0-9]+)?$') AS integer)".format(sql_col),
         '_id2': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+(:[0-9]+)?$') AS integer)".format(sql_col),
@@ -701,11 +698,17 @@ class PowerOutletTemplate(models.Model):
         return self.name
 
 
-class InterfaceTemplateManager(models.Manager):
+class InterfaceManager(models.Manager):
 
     def get_queryset(self):
-        qs = super(InterfaceTemplateManager, self).get_queryset()
-        return order_interfaces(qs, 'dcim_interfacetemplate.name', ('device_type',))
+        qs = super(InterfaceManager, self).get_queryset()
+        return order_interfaces(qs)
+
+    def virtual(self):
+        return self.get_queryset().filter(form_factor=IFACE_FF_VIRTUAL)
+
+    def physical(self):
+        return self.get_queryset().exclude(form_factor=IFACE_FF_VIRTUAL)
 
 
 class InterfaceTemplate(models.Model):
@@ -717,7 +720,7 @@ class InterfaceTemplate(models.Model):
     form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_10GE_SFP_PLUS)
     mgmt_only = models.BooleanField(default=False, verbose_name='Management only')
 
-    objects = InterfaceTemplateManager()
+    objects = InterfaceManager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -1092,19 +1095,6 @@ class PowerOutlet(models.Model):
 
     def get_parent_url(self):
         return self.device.get_absolute_url()
-
-
-class InterfaceManager(models.Manager):
-
-    def get_queryset(self):
-        qs = super(InterfaceManager, self).get_queryset()
-        return order_interfaces(qs, 'dcim_interface.name', ('device',))
-
-    def virtual(self):
-        return self.get_queryset().filter(form_factor=IFACE_FF_VIRTUAL)
-
-    def physical(self):
-        return self.get_queryset().exclude(form_factor=IFACE_FF_VIRTUAL)
 
 
 class Interface(models.Model):
