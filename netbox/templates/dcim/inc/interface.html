@@ -1,5 +1,5 @@
 <tr{% if iface.connection and not iface.connection.connection_status %} class="info"{% endif %}>
-    {% if selectable and perms.dcim.delete_interface %}
+    {% if selectable and perms.dcim.change_interface or perms.dcim.delete_interface %}
         <td class="pk">
             <input name="pk" type="checkbox" value="{{ iface.pk }}" />
         </td>

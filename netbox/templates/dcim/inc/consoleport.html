@@ -1,5 +1,5 @@
 <tr{% if cp.cs_port and not cp.connection_status %} class="info"{% endif %}>
-    {% if selectable and perms.dcim.delete_consoleport %}
+    {% if selectable and perms.dcim.change_consoleport or perms.dcim.delete_consoleport %}
         <td class="pk">
             <input name="pk" type="checkbox" value="{{ cp.pk }}" />
         </td>

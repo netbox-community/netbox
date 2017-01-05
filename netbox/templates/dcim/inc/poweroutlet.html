@@ -1,5 +1,5 @@
 <tr{% if po.connected_port and not po.connected_port.connection_status %} class="info"{% endif %}>
-    {% if selectable and perms.dcim.delete_poweroutlet %}
+    {% if selectable and perms.dcim.change_poweroutlet or perms.dcim.delete_poweroutlet %}
         <td class="pk">
             <input name="pk" type="checkbox" value="{{ po.pk }}" />
         </td>

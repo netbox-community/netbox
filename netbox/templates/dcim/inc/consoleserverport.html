@@ -1,5 +1,5 @@
 <tr{% if csp.connected_console and not csp.connected_console.connection_status %} class="info"{% endif %}>
-    {% if selectable and perms.dcim.delete_consoleserverport %}
+    {% if selectable and perms.dcim.change_consoleserverport or perms.dcim.delete_consoleserverport %}
         <td class="pk">
             <input name="pk" type="checkbox" value="{{ csp.pk }}" />
         </td>

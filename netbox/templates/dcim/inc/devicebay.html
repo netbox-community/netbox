@@ -1,5 +1,5 @@
 <tr>
-    {% if selectable and perms.dcim.delete_devicebay %}
+    {% if selectable and perms.dcim.change_devicebay or perms.dcim.delete_devicebay %}
         <td class="pk">
             <input name="pk" type="checkbox" value="{{ devicebay.pk }}" />
         </td>
