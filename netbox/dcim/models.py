@@ -56,6 +56,13 @@ SUBDEVICE_ROLE_CHOICES = (
     (SUBDEVICE_ROLE_CHILD, 'Child'),
 )
 
+IFACE_ORDERING_POSITION = 1
+IFACE_ORDERING_NAME = 2
+IFACE_ORDERING_CHOICES = [
+    [IFACE_ORDERING_POSITION, 'Slot/position'],
+    [IFACE_ORDERING_NAME, 'Name (alphabetically)']
+]
+
 # Virtual
 IFACE_FF_VIRTUAL = 0
 # Ethernet
@@ -180,45 +187,6 @@ RPC_CLIENT_CHOICES = [
     [RPC_CLIENT_CISCO_IOS, 'Cisco IOS (SSH)'],
     [RPC_CLIENT_OPENGEAR, 'Opengear (SSH)'],
 ]
-
-
-def order_interfaces(queryset):
-    """
-    Attempt to match interface names by their slot/position identifiers and order according. Matching is done using the
-    following pattern:
-
-        {a}/{b}/{c}:{d}
-
-    Interfaces are ordered first by field a, then b, then c, and finally d. Leading text (which typically indicates the
-    interface's type) is then used to order any duplicate slot/position tuples. If any fields are not contained by an
-    interface name, those fields are treated as null. Null values are ordered after all other values. For example:
-
-        et-0/0/0
-        et-0/0/1
-        et-0/1/0
-        xe-0/1/1:0
-        xe-0/1/1:1
-        xe-0/1/1:2
-        xe-0/1/1:3
-        et-0/1/2
-        ...
-        et-0/1/9
-        et-0/1/10
-        et-0/1/11
-        et-1/0/0
-        et-1/0/1
-        ...
-        vlan1
-        vlan10
-    """
-    sql_col = '{}.name'.format(queryset.model._meta.db_table)
-    ordering = ('_id1', '_id2', '_id3', '_id4', 'name')
-    return queryset.extra(select={
-        '_id1': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+\/[0-9]+(:[0-9]+)?$') AS integer)".format(sql_col),
-        '_id2': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+(:[0-9]+)?$') AS integer)".format(sql_col),
-        '_id3': "CAST(SUBSTRING({} FROM '([0-9]+)(:[0-9]+)?$') AS integer)".format(sql_col),
-        '_id4': "CAST(SUBSTRING({} FROM ':([0-9]+)$') AS integer)".format(sql_col),
-    }).order_by(*ordering)
 
 
 #
@@ -548,6 +516,8 @@ class DeviceType(models.Model, CustomFieldModel):
     u_height = models.PositiveSmallIntegerField(verbose_name='Height (U)', default=1)
     is_full_depth = models.BooleanField(default=True, verbose_name="Is full depth",
                                         help_text="Device consumes both front and rear rack faces")
+    interface_ordering = models.PositiveSmallIntegerField(choices=IFACE_ORDERING_CHOICES,
+                                                          default=IFACE_ORDERING_POSITION)
     is_console_server = models.BooleanField(default=False, verbose_name='Is a console server',
                                             help_text="This type of device has console server ports")
     is_pdu = models.BooleanField(default=False, verbose_name='Is a PDU',
@@ -700,15 +670,40 @@ class PowerOutletTemplate(models.Model):
 
 class InterfaceManager(models.Manager):
 
-    def get_queryset(self):
-        qs = super(InterfaceManager, self).get_queryset()
-        return order_interfaces(qs)
+    def order_naturally(self, method=IFACE_ORDERING_POSITION):
+        """
+        Naturally order interfaces by their name and numeric position. The sort method must be one of the defined
+        IFACE_ORDERING_CHOICES (typically indicated by a parent Device's DeviceType).
 
-    def virtual(self):
-        return self.get_queryset().filter(form_factor=IFACE_FF_VIRTUAL)
+        To order interfaces naturally, the `name` field is split into five distinct components: leading text (name),
+        slot, subslot, position, and channel:
 
-    def physical(self):
-        return self.get_queryset().exclude(form_factor=IFACE_FF_VIRTUAL)
+            {name}{slot}/{subslot}/{position}:{channel}
+
+        Components absent from the interface name are ignored. For example, an interface named GigabitEthernet0/1 would
+        be parsed as follows:
+
+            name = 'GigabitEthernet'
+            slot =  None
+            subslot = 0
+            position = 1
+            channel = None
+
+        The chosen sorting method will determine which fields are ordered first in the query.
+        """
+        queryset = self.get_queryset()
+        sql_col = '{}.name'.format(queryset.model._meta.db_table)
+        ordering = {
+            IFACE_ORDERING_POSITION: ('_slot', '_subslot', '_position', '_channel', '_name'),
+            IFACE_ORDERING_NAME: ('_name', '_slot', '_subslot', '_position', '_channel'),
+        }[method]
+        return queryset.extra(select={
+            '_name': "SUBSTRING({} FROM '^([^0-9]+)')".format(sql_col),
+            '_slot': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+\/[0-9]+(:[0-9]+)?$') AS integer)".format(sql_col),
+            '_subslot': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+(:[0-9]+)?$') AS integer)".format(sql_col),
+            '_position': "CAST(SUBSTRING({} FROM '([0-9]+)(:[0-9]+)?$') AS integer)".format(sql_col),
+            '_channel': "CAST(SUBSTRING({} FROM ':([0-9]+)$') AS integer)".format(sql_col),
+        }).order_by(*ordering)
 
 
 class InterfaceTemplate(models.Model):

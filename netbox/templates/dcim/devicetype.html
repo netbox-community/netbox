@@ -73,6 +73,10 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Interface Ordering</td>
+                    <td>{{ devicetype.get_interface_ordering_display }}</td>
+                </tr>
+                <tr>
                     <td>Instances</td>
                     <td><a href="{% url 'dcim:device_list' %}?device_type_id={{ devicetype.pk }}">{{ devicetype.instances.count }}</a></td>
                 </tr>

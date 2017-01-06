@@ -358,10 +358,14 @@ def devicetype(request, pk):
     poweroutlet_table = tables.PowerOutletTemplateTable(
         natsorted(PowerOutletTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
     )
-    mgmt_interface_table = tables.InterfaceTemplateTable(InterfaceTemplate.objects.filter(device_type=devicetype,
-                                                                                          mgmt_only=True))
-    interface_table = tables.InterfaceTemplateTable(InterfaceTemplate.objects.filter(device_type=devicetype,
-                                                                                     mgmt_only=False))
+    mgmt_interface_table = tables.InterfaceTemplateTable(
+        InterfaceTemplate.objects.order_naturally(devicetype.interface_ordering).filter(device_type=devicetype,
+                                                                                        mgmt_only=True)
+    )
+    interface_table = tables.InterfaceTemplateTable(
+        InterfaceTemplate.objects.order_naturally(devicetype.interface_ordering).filter(device_type=devicetype,
+                                                                                        mgmt_only=False)
+    )
     devicebay_table = tables.DeviceBayTemplateTable(
         natsorted(DeviceBayTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
     )
@@ -597,16 +601,18 @@ def device(request, pk):
     power_outlets = natsorted(
         PowerOutlet.objects.filter(device=device).select_related('connected_port'), key=attrgetter('name')
     )
-    interfaces = Interface.objects.filter(device=device, mgmt_only=False).select_related(
-        'connected_as_a__interface_b__device',
-        'connected_as_b__interface_a__device',
-        'circuit_termination__circuit',
-    )
-    mgmt_interfaces = Interface.objects.filter(device=device, mgmt_only=True).select_related(
-        'connected_as_a__interface_b__device',
-        'connected_as_b__interface_a__device',
-        'circuit_termination__circuit',
-    )
+    interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering)\
+        .filter(device=device, mgmt_only=False).select_related(
+            'connected_as_a__interface_b__device',
+            'connected_as_b__interface_a__device',
+            'circuit_termination__circuit',
+        )
+    mgmt_interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering)\
+        .filter(device=device, mgmt_only=True).select_related(
+            'connected_as_a__interface_b__device',
+            'connected_as_b__interface_a__device',
+            'circuit_termination__circuit',
+        )
     device_bays = natsorted(
         DeviceBay.objects.filter(device=device).select_related('installed_device__device_type__manufacturer'),
         key=attrgetter('name')

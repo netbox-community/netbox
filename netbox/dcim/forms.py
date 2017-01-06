@@ -17,9 +17,9 @@ from formfields import MACAddressFormField
 from .models import (
     DeviceBay, DeviceBayTemplate, CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_PLANNED, CONNECTION_STATUS_CONNECTED,
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType,
-    Interface, IFACE_FF_CHOICES, IFACE_FF_VIRTUAL, InterfaceConnection, InterfaceTemplate, Manufacturer, Module,
-    Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES,
-    Rack, RackGroup, RackRole, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD
+    Interface, IFACE_FF_CHOICES, IFACE_FF_VIRTUAL, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate,
+    Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES,
+    RACK_WIDTH_CHOICES, Rack, RackGroup, RackRole, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD
 )
 
 
@@ -263,13 +263,17 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
     class Meta:
         model = DeviceType
         fields = ['manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
-                  'is_pdu', 'is_network_device', 'subdevice_role', 'comments']
+                  'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering', 'comments']
+        labels = {
+            'interface_ordering': 'Order interfaces by',
+        }
 
 
 class DeviceTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=DeviceType.objects.all(), widget=forms.MultipleHiddenInput)
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), required=False)
     u_height = forms.IntegerField(min_value=1, required=False)
+    interface_ordering = forms.ChoiceField(choices=add_blank_choice(IFACE_ORDERING_CHOICES), required=False)
 
     class Meta:
         nullable_fields = []

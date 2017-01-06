@@ -232,6 +232,7 @@ class DeviceTypeTest(APITestCase):
         'part_number',
         'u_height',
         'is_full_depth',
+        'interface_ordering',
         'is_console_server',
         'is_pdu',
         'is_network_device',
