@@ -102,8 +102,10 @@ class VRFListView(ObjectListView):
 def vrf(request, pk):
 
     vrf = get_object_or_404(VRF.objects.all(), pk=pk)
-    prefixes = Prefix.objects.filter(vrf=vrf)
-    prefix_table = tables.PrefixBriefTable(prefixes)
+    prefix_table = tables.PrefixBriefTable(
+        list(Prefix.objects.filter(vrf=vrf).select_related('site', 'role'))
+    )
+    prefix_table.exclude = ('vrf',)
 
     return render(request, 'ipam/vrf.html', {
         'vrf': vrf,
@@ -401,7 +403,7 @@ def prefix(request, pk):
     # Duplicate prefixes table
     duplicate_prefixes = Prefix.objects.filter(vrf=prefix.vrf, prefix=str(prefix.prefix)).exclude(pk=prefix.pk)\
         .select_related('site', 'role')
-    duplicate_prefix_table = tables.PrefixBriefTable(duplicate_prefixes)
+    duplicate_prefix_table = tables.PrefixBriefTable(list(duplicate_prefixes))
 
     # Child prefixes table
     if prefix.vrf:
@@ -504,18 +506,20 @@ def ipaddress(request, pk):
     ipaddress = get_object_or_404(IPAddress.objects.select_related('interface__device'), pk=pk)
 
     # Parent prefixes table
-    parent_prefixes = Prefix.objects.filter(vrf=ipaddress.vrf, prefix__net_contains=str(ipaddress.address.ip))
-    parent_prefixes_table = tables.PrefixBriefTable(parent_prefixes)
+    parent_prefixes = Prefix.objects.filter(vrf=ipaddress.vrf, prefix__net_contains=str(ipaddress.address.ip))\
+        .select_related('site', 'role')
+    parent_prefixes_table = tables.PrefixBriefTable(list(parent_prefixes))
+    parent_prefixes_table.exclude = ('vrf',)
 
     # Duplicate IPs table
     duplicate_ips = IPAddress.objects.filter(vrf=ipaddress.vrf, address=str(ipaddress.address))\
         .exclude(pk=ipaddress.pk).select_related('interface__device', 'nat_inside')
-    duplicate_ips_table = tables.IPAddressBriefTable(duplicate_ips)
+    duplicate_ips_table = tables.IPAddressBriefTable(list(duplicate_ips))
 
     # Related IP table
     related_ips = IPAddress.objects.select_related('interface__device').exclude(address=str(ipaddress.address))\
         .filter(vrf=ipaddress.vrf, address__net_contained_or_equal=str(ipaddress.address))
-    related_ips_table = tables.IPAddressBriefTable(related_ips)
+    related_ips_table = tables.IPAddressBriefTable(list(related_ips))
 
     return render(request, 'ipam/ipaddress.html', {
         'ipaddress': ipaddress,
@@ -695,8 +699,8 @@ class VLANListView(ObjectListView):
 def vlan(request, pk):
 
     vlan = get_object_or_404(VLAN.objects.select_related('site', 'role'), pk=pk)
-    prefixes = Prefix.objects.filter(vlan=vlan)
-    prefix_table = tables.PrefixBriefTable(prefixes)
+    prefixes = Prefix.objects.filter(vlan=vlan).select_related('vrf', 'site', 'role')
+    prefix_table = tables.PrefixBriefTable(list(prefixes))
 
     return render(request, 'ipam/vlan.html', {
         'vlan': vlan,

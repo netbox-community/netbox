@@ -359,12 +359,12 @@ def devicetype(request, pk):
         natsorted(PowerOutletTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
     )
     mgmt_interface_table = tables.InterfaceTemplateTable(
-        InterfaceTemplate.objects.order_naturally(devicetype.interface_ordering).filter(device_type=devicetype,
-                                                                                        mgmt_only=True)
+        list(InterfaceTemplate.objects.order_naturally(devicetype.interface_ordering).filter(device_type=devicetype,
+                                                                                             mgmt_only=True))
     )
     interface_table = tables.InterfaceTemplateTable(
-        InterfaceTemplate.objects.order_naturally(devicetype.interface_ordering).filter(device_type=devicetype,
-                                                                                        mgmt_only=False)
+        list(InterfaceTemplate.objects.order_naturally(devicetype.interface_ordering).filter(device_type=devicetype,
+                                                                                             mgmt_only=False))
     )
     devicebay_table = tables.DeviceBayTemplateTable(
         natsorted(DeviceBayTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
