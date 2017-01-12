@@ -197,5 +197,14 @@
         "slug": "opengear",
         "rpc_client": "opengear"
     }
+},
+{
+    "model": "dcim.platform",
+    "pk": 7,
+    "fields": {
+        "name": "SnapRoute FlexSwitch",
+        "slug": "snaproute-flexswitch",
+        "rpc_client": "flexswitch"
+    }
 }
 ]

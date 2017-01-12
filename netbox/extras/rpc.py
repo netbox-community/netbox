@@ -260,10 +260,43 @@ class OpengearSSH(SSHClient):
             'modules': [],
         }
 
+class FlexSwitchSSH(SSHClient):
+    """
+    SSH client for FlexSwitch devices
+    """
+    default_credentials = {
+        'username': 'root',
+        'password': 'snaproute',
+    }
+    def get_lldp_neighbors(self):
+        print 'flexswitch get lldp'
+    ''' 
+        try:
+            stdin, stdout, stderr = self.ssh.exec_command()
+        rpc_reply = self.manager.dispatch('get-lldp-neighbors-information')
+        lldp_neighbors_raw = xmltodict.parse(rpc_reply.xml)['rpc-reply']['lldp-neighbors-information']['lldp-neighbor-information']
+
+        result = []
+        for neighbor_raw in lldp_neighbors_raw:
+            neighbor = dict()
+            neighbor['local-interface'] = neighbor_raw.get('lldp-local-port-id')
+            neighbor['name'] = neighbor_raw.get('lldp-remote-system-name')
+            neighbor['name'] = neighbor['name'].split('.')[0]  # Split hostname from domain if one is present
+            try:
+                neighbor['remote-interface'] = neighbor_raw['lldp-remote-port-description']
+            except KeyError:
+                # Older versions of Junos report on interface ID instead of description
+                neighbor['remote-interface'] = neighbor_raw.get('lldp-remote-port-id')
+            neighbor['chassis-id'] = neighbor_raw.get('lldp-remote-chassis-id')
+            result.append(neighbor)
+
+        return result
+    '''
 
 # For mapping platform -> NC client
 RPC_CLIENTS = {
     'juniper-junos': JunosNC,
     'cisco-ios': IOSSSH,
     'opengear': OpengearSSH,
+    'snaproute-flexswitch': FlexSwitchSSH,
 }
