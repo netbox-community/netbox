@@ -21,7 +21,7 @@ Copy the 'configuration.py' you created when first installing to the new version
 # cp /opt/netbox-X.Y.Z/netbox/netbox/configuration.py /opt/netbox/netbox/netbox/configuration.py
 ```
 
-Incase case you are using LDAP authentication also make sure to copy the LDAP configuration:
+In case you are using LDAP authentication also make sure to copy the LDAP configuration:
 
 ```no-highlight
 # cp /opt/netbox-X.Y.Z/netbox/netbox/ldap_config.py /opt/netbox/netbox/netbox/ldap_config.py
