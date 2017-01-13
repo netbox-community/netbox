@@ -56,7 +56,6 @@ class RPCClient(object):
 
 class SSHClient(RPCClient):
     def __enter__(self):
-	print "trying to connect to %s using %s %s" %(self.host, self.username, self.password)
         self.ssh = paramiko.SSHClient()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
