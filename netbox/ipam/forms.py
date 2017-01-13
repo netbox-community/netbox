@@ -153,7 +153,8 @@ class RoleForm(BootstrapMixin, forms.ModelForm):
 
 class PrefixForm(BootstrapMixin, CustomFieldForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site',
-                                  widget=forms.Select(attrs={'filter-for': 'vlan'}))
+                                  widget=forms.Select(attrs={'filter-for': 'vlan',
+                                                             'default_value': '0'}))
     vlan = forms.ModelChoiceField(queryset=VLAN.objects.all(), required=False, label='VLAN',
                                   widget=APISelect(api_url='/api/ipam/vlans/?site_id={{site}}',
                                                    display_field='display_name'))
@@ -173,7 +174,7 @@ class PrefixForm(BootstrapMixin, CustomFieldForm):
         elif self.initial.get('site'):
             self.fields['vlan'].queryset = VLAN.objects.filter(site=self.initial['site'])
         else:
-            self.fields['vlan'].choices = []
+            self.fields['vlan'].queryset = VLAN.objects.filter(site=None)
 
 
 class PrefixFromCSVForm(forms.ModelForm):
@@ -532,7 +533,7 @@ class VLANForm(BootstrapMixin, CustomFieldForm):
             'role': "The primary function of this VLAN",
         }
         widgets = {
-            'site': forms.Select(attrs={'filter-for': 'group'}),
+            'site': forms.Select(attrs={'filter-for': 'group', 'default_value': '0'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -545,7 +546,7 @@ class VLANForm(BootstrapMixin, CustomFieldForm):
         elif self.initial.get('site'):
             self.fields['group'].queryset = VLANGroup.objects.filter(site=self.initial['site'])
         else:
-            self.fields['group'].choices = []
+            self.fields['group'].queryset = VLANGroup.objects.filter(site=None)
 
 
 class VLANFromCSVForm(forms.ModelForm):
