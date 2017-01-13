@@ -61,6 +61,7 @@ $(document).ready(function() {
 
     // API select widget
     $('select[filter-for]').change(function () {
+        var choice = $(this).val()
 
         // Resolve child field by ID specified in parent
         var child_name = $(this).attr('filter-for');
@@ -70,7 +71,10 @@ $(document).ready(function() {
         child_field.empty();
         child_field.append($("<option></option>").attr("value", "").text(""));
 
-        if ($(this).val()) {
+        if (!choice && $(this).attr('default_value')) {
+            choice = $(this).attr('default_value')
+        }
+        if (choice) {
 
             var api_url = child_field.attr('api-url');
             var disabled_indicator = child_field.attr('disabled-indicator');
@@ -80,8 +84,12 @@ $(document).ready(function() {
             // Gather the values of all other filter fields for this child
             $("select[filter-for='" + child_name + "']").each(function() {
                 var filter_field = $(this);
-                if (filter_field.val()) {
-                    api_url = api_url.replace('{{' + filter_field.attr('name') + '}}', filter_field.val());
+                var choice = filter_field.val()
+                if (!choice && filter_field.attr('default_value')) {
+                    choice = filter_field.attr('default_value')
+                }
+                if (choice) {
+                    api_url = api_url.replace('{{' + filter_field.attr('name') + '}}', choice);
                 } else {
                     // Not all filters have been selected yet
                     return false;
