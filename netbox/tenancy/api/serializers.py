@@ -30,7 +30,7 @@ class TenantSerializer(CustomFieldSerializer, serializers.ModelSerializer):
 
     class Meta:
         model = Tenant
-        fields = ['id', 'name', 'slug', 'group', 'comments', 'custom_fields']
+        fields = ['id', 'name', 'slug', 'group', 'description', 'comments', 'custom_fields']
 
 
 class TenantNestedSerializer(TenantSerializer):
