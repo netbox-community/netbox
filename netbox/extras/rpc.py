@@ -3,7 +3,8 @@ import paramiko
 import re
 import xmltodict
 import time
-
+import requests
+import json
 
 CONNECT_TIMEOUT = 5  # seconds
 
@@ -262,27 +263,41 @@ class OpengearSSH(SSHClient):
 
 class FlexSwitchRPC(RPCClient):
     """
-    SSH client for FlexSwitch devices
-    """
+    RPC client for FlexSwitch devices
     """
     def __init__(self, device, username='', password=''):
-	print 'flexswitch rpc client instantiated'
 	super(FlexSwitchRPC, self).__init__(device, username='', password='')
-    """
+        self.headers = {'Accept' : 'application/json', 'Content-Type' : 'application/json'}
+        self.httpSuccessCodes = [200, 201, 202, 204]
+        self.port = 8080
+        self.timeout = 15
+        self.configUrlBase = 'http://%s:%s/public/v1/config/' % (self.host, self.port)
+        self.stateUrlBase = 'http://%s:%s/public/v1/state/' % (self.host, self.port)
+        self.actionUrlBase = 'http://%s:%s/public/v1/action/' % (self.host, self.port)
     def __enter__(self):
-
-        # Initiate a connection to the device
-        #self.manager = manager.connect(host=self.host, username=self.username, password=self.password,
-        #                               hostkey_verify=False, timeout=CONNECT_TIMEOUT)
-
-        print 'flexswitch rpc enter'
         return self
-    def __exit__(self, exc_type, exc_val, exc_tb):
 
-        # Close the connection to the device
-        print 'flexswitch rpc exit'
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return
+
     def get_lldp_neighbors(self):
-        print 'flexswitch get lldp'
+        reqUrl =  self.stateUrlBase + 'LLDPIntfs'
+        resp = requests.get(reqUrl, timeout=self.timeout)
+        if resp.status_code in self.httpSuccessCodes:
+            data = resp.json()
+            result = []
+            for obj in data['Objects']:
+                lldpInfo = dict()
+                lldpInfo['local-interface'] = obj['Object']['IntfRef']
+                lldpInfo['name'] = obj['Object']['PeerHostName']
+                lldpInfo['remote-interface'] = obj['Object']['PeerPort']
+                lldpInfo['chassis-id'] = obj['Object']['PeerMac']
+                print lldpInfo
+                result.append(lldpInfo)
+            return result
+        else:
+            print 'failed querry %s' %(resp.status_code)
+            return None
 
 # For mapping platform -> NC client
 RPC_CLIENTS = {
