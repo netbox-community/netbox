@@ -55,7 +55,7 @@ class RPCClient(object):
 
 class SSHClient(RPCClient):
     def __enter__(self):
-
+	print "trying to connect to %s using %s %s" %(self.host, self.username, self.password)
         self.ssh = paramiko.SSHClient()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
@@ -260,43 +260,34 @@ class OpengearSSH(SSHClient):
             'modules': [],
         }
 
-class FlexSwitchSSH(SSHClient):
+class FlexSwitchRPC(RPCClient):
     """
     SSH client for FlexSwitch devices
     """
-    default_credentials = {
-        'username': 'root',
-        'password': 'snaproute',
-    }
+    """
+    def __init__(self, device, username='', password=''):
+	print 'flexswitch rpc client instantiated'
+	super(FlexSwitchRPC, self).__init__(device, username='', password='')
+    """
+    def __enter__(self):
+
+        # Initiate a connection to the device
+        #self.manager = manager.connect(host=self.host, username=self.username, password=self.password,
+        #                               hostkey_verify=False, timeout=CONNECT_TIMEOUT)
+
+        print 'flexswitch rpc enter'
+        return self
+    def __exit__(self, exc_type, exc_val, exc_tb):
+
+        # Close the connection to the device
+        print 'flexswitch rpc exit'
     def get_lldp_neighbors(self):
         print 'flexswitch get lldp'
-    ''' 
-        try:
-            stdin, stdout, stderr = self.ssh.exec_command()
-        rpc_reply = self.manager.dispatch('get-lldp-neighbors-information')
-        lldp_neighbors_raw = xmltodict.parse(rpc_reply.xml)['rpc-reply']['lldp-neighbors-information']['lldp-neighbor-information']
-
-        result = []
-        for neighbor_raw in lldp_neighbors_raw:
-            neighbor = dict()
-            neighbor['local-interface'] = neighbor_raw.get('lldp-local-port-id')
-            neighbor['name'] = neighbor_raw.get('lldp-remote-system-name')
-            neighbor['name'] = neighbor['name'].split('.')[0]  # Split hostname from domain if one is present
-            try:
-                neighbor['remote-interface'] = neighbor_raw['lldp-remote-port-description']
-            except KeyError:
-                # Older versions of Junos report on interface ID instead of description
-                neighbor['remote-interface'] = neighbor_raw.get('lldp-remote-port-id')
-            neighbor['chassis-id'] = neighbor_raw.get('lldp-remote-chassis-id')
-            result.append(neighbor)
-
-        return result
-    '''
 
 # For mapping platform -> NC client
 RPC_CLIENTS = {
     'juniper-junos': JunosNC,
     'cisco-ios': IOSSSH,
     'opengear': OpengearSSH,
-    'snaproute-flexswitch': FlexSwitchSSH,
+    'snaproute-flexswitch': FlexSwitchRPC,
 }

@@ -187,7 +187,7 @@ RPC_CLIENT_CHOICES = [
     [RPC_CLIENT_JUNIPER_JUNOS, 'Juniper Junos (NETCONF)'],
     [RPC_CLIENT_CISCO_IOS, 'Cisco IOS (SSH)'],
     [RPC_CLIENT_OPENGEAR, 'Opengear (SSH)'],
-    [RPC_CLIENT_SNAPROUTE_FLEXSWITCH, 'SnapRoute FlexSwitch (SSH)'],
+    [RPC_CLIENT_SNAPROUTE_FLEXSWITCH, 'SnapRoute FlexSwitch (RPC)'],
 ]
 
 
