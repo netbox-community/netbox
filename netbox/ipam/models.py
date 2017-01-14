@@ -552,7 +552,7 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
 
     def to_csv(self):
         return csv_format([
-            self.site.name,
+            self.site.name if self.site else None,
             self.group.name if self.group else None,
             self.vid,
             self.name,
