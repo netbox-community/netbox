@@ -422,19 +422,13 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
         return reverse('ipam:ipaddress', args=[self.pk])
 
     def clean(self):
-        if ((not self.vrf and settings.ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique)):
-            dupes = IPAddress.objects.duplicates(self)
-            if dupes:
-                raise ValidationError({
-                    'address': "Duplicate IP address found in global table: {}".format(dupes.first())
-                })
 
         # Enforce unique IP space if applicable
         if ((not self.vrf and settings.ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique)):
             dupes = IPAddress.objects.duplicates(self)
             if dupes:
                 raise ValidationError({
-                    'address': "Duplicate IP address found in {}: {}".format(
+                    'address': "Duplicate IP Address found in {}: {}".format(
                         "VRF {}".format(self.vrf) if self.vrf else "global table",
                         dupes.first(),
                     )
