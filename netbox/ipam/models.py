@@ -262,12 +262,6 @@ class PrefixQuerySet(NullsFirstQuerySet):
             return queryset
         return filter(lambda p: p.depth <= limit, queryset)
 
-    def duplicates(self, prefix):
-        return self.filter(
-            vrf=prefix.vrf,
-            prefix=str(prefix)
-        ).exclude(pk=prefix.pk)
-
 
 class Prefix(CreatedUpdatedModel, CustomFieldModel):
     """
@@ -304,6 +298,12 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
     def get_absolute_url(self):
         return reverse('ipam:prefix', args=[self.pk])
 
+    def duplicates(self):
+        return Prefix.objects.filter(
+            vrf=self.vrf,
+            prefix=str(self.prefix)
+        ).exclude(pk=self.pk)
+
     def clean(self):
         # Disallow host masks
         if self.prefix:
@@ -317,7 +317,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
                 })
 
         if ((not self.vrf and settings.ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique)):
-            dupes = Prefix.objects.duplicates(self)
+            dupes = self.duplicates()
             if dupes:
                 raise ValidationError({
                     'prefix': "Duplicate prefix found in {}: {}".format(
@@ -376,12 +376,6 @@ class IPAddressManager(models.Manager):
         qs = super(IPAddressManager, self).get_queryset()
         return qs.annotate(host=RawSQL('INET(HOST(ipam_ipaddress.address))', [])).order_by('family', 'host')
 
-    def duplicates(self, ip_obj):
-        return self.filter(
-            vrf=ip_obj.vrf,
-            address__net_host=str(ip_obj.address.ip)
-        ).exclude(pk=ip_obj.pk)
-
 
 class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     """
@@ -421,11 +415,17 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     def get_absolute_url(self):
         return reverse('ipam:ipaddress', args=[self.pk])
 
+    def duplicates(self):
+        return IPAddress.objects.filter(
+            vrf=self.vrf,
+            address__net_host=str(self.address.ip)
+        ).exclude(pk=self.pk)
+
     def clean(self):
 
         # Enforce unique IP space if applicable
         if ((not self.vrf and settings.ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique)):
-            dupes = IPAddress.objects.duplicates(self)
+            dupes = self.duplicates()
             if dupes:
                 raise ValidationError({
                     'address': "Duplicate IP Address found in {}: {}".format(
