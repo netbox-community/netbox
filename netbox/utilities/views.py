@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
 from django.forms import CharField, ModelMultipleChoiceField, MultipleHiddenInput, TypedChoiceField
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import TemplateSyntaxError
 from django.utils.http import is_safe_url
@@ -326,6 +326,8 @@ class BulkAddView(View):
 
             if not form.errors:
                 messages.success(request, u"Added {} {}.".format(len(new_objs), self.model._meta.verbose_name_plural))
+                if '_addanother' in request.POST:
+                    return redirect(request.path)
                 return redirect(self.redirect_url)
 
         return render(request, self.template_name, {
