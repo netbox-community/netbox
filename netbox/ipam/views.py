@@ -444,6 +444,7 @@ class PrefixDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_prefix'
     model = Prefix
     redirect_url = 'ipam:prefix_list'
+    template_name = 'ipam/prefix_delete.html'
 
 
 class PrefixBulkImportView(PermissionRequiredMixin, BulkImportView):
