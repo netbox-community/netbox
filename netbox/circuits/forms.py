@@ -86,7 +86,7 @@ class CircuitForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = Circuit
-        fields = ['cid', 'type', 'provider', 'tenant', 'install_date', 'commit_rate', 'comments']
+        fields = ['cid', 'type', 'provider', 'tenant', 'install_date', 'commit_rate', 'description', 'comments']
         help_texts = {
             'cid': "Unique circuit ID",
             'install_date': "Format: YYYY-MM-DD",
@@ -104,7 +104,7 @@ class CircuitFromCSVForm(forms.ModelForm):
 
     class Meta:
         model = Circuit
-        fields = ['cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate']
+        fields = ['cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description']
 
 
 class CircuitImportForm(BootstrapMixin, BulkImportForm):
@@ -117,10 +117,11 @@ class CircuitBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     provider = forms.ModelChoiceField(queryset=Provider.objects.all(), required=False)
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     commit_rate = forms.IntegerField(required=False, label='Commit rate (Kbps)')
+    description = forms.CharField(max_length=100, required=False)
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ['tenant', 'commit_rate', 'comments']
+        nullable_fields = ['tenant', 'commit_rate', 'description', 'comments']
 
 
 class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):

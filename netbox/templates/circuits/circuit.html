@@ -92,6 +92,16 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Description</td>
+                    <td>
+                        {% if circuit.description %}
+                            {{ circuit.description }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
             </table>
         </div>
         {% with circuit.get_custom_fields as custom_fields %}

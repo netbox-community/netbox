@@ -60,9 +60,8 @@ class CircuitTable(BaseTable):
                                args=[Accessor('termination_a.site.slug')])
     z_side = tables.LinkColumn('dcim:site', accessor=Accessor('termination_z.site'), orderable=False,
                                args=[Accessor('termination_z.site.slug')])
-    commit_rate = tables.Column(accessor=Accessor('commit_rate_human'), order_by=Accessor('commit_rate'),
-                                verbose_name='Commit Rate')
+    description = tables.Column(verbose_name='Description')
 
     class Meta(BaseTable.Meta):
         model = Circuit
-        fields = ('pk', 'cid', 'type', 'provider', 'tenant', 'a_side', 'z_side', 'commit_rate')
+        fields = ('pk', 'cid', 'type', 'provider', 'tenant', 'a_side', 'z_side', 'description')

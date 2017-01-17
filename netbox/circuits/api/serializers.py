@@ -62,7 +62,8 @@ class CircuitSerializer(CustomFieldSerializer, serializers.ModelSerializer):
 
     class Meta:
         model = Circuit
-        fields = ['id', 'cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'comments', 'terminations', 'custom_fields']
+        fields = ['id', 'cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
+                  'terminations', 'custom_fields']
 
 
 class CircuitNestedSerializer(CircuitSerializer):
