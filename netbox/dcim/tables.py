@@ -311,7 +311,8 @@ class DeviceTable(BaseTable):
     status = tables.TemplateColumn(template_code=STATUS_ICON, verbose_name='')
     name = tables.TemplateColumn(template_code=DEVICE_LINK, verbose_name='Name')
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
-    site = tables.Column(accessor=Accessor('rack.site'), verbose_name='Site')
+    site = tables.LinkColumn('dcim:site', accessor=Accessor('rack.site'), args=[Accessor('rack.site.slug')],
+                             verbose_name='Site')
     rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')], verbose_name='Rack')
     device_role = tables.TemplateColumn(DEVICE_ROLE, verbose_name='Role')
     device_type = tables.LinkColumn('dcim:devicetype', args=[Accessor('device_type.pk')], verbose_name='Type',
@@ -327,7 +328,8 @@ class DeviceTable(BaseTable):
 class DeviceImportTable(BaseTable):
     name = tables.TemplateColumn(template_code=DEVICE_LINK, verbose_name='Name')
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
-    site = tables.Column(accessor=Accessor('rack.site'), verbose_name='Site')
+    site = tables.LinkColumn('dcim:site', accessor=Accessor('rack.site'), args=[Accessor('rack.site.slug')],
+                             verbose_name='Site')
     rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')], verbose_name='Rack')
     position = tables.Column(verbose_name='Position')
     device_role = tables.Column(verbose_name='Role')
