@@ -215,6 +215,8 @@ class PrefixFromCSVForm(forms.ModelForm):
         elif vlan_vid and site:
             try:
                 self.instance.vlan = VLAN.objects.get(site=site, vid=vlan_vid)
+            except VLAN.DoesNotExist:
+                self.add_error('vlan_vid', "Invalid VLAN ID ({}) for site {}.".format(vlan_vid, site))
             except VLAN.MultipleObjectsReturned:
                 self.add_error('vlan_vid', "Multiple VLANs found ({} - VID {})".format(site, vlan_vid))
         elif vlan_vid:
