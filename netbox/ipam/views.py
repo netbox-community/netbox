@@ -242,8 +242,9 @@ class RIREditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.change_rir'
     model = RIR
     form_class = forms.RIRForm
-    obj_list_url = 'ipam:rir_list'
-    use_obj_view = False
+
+    def get_return_url(self, obj):
+        return reverse('ipam:rir_list')
 
 
 class RIRBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -353,8 +354,9 @@ class RoleEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.change_role'
     model = Role
     form_class = forms.RoleForm
-    obj_list_url = 'ipam:role_list'
-    use_obj_view = False
+
+    def get_return_url(self, obj):
+        return reverse('ipam:role_list')
 
 
 class RoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -674,8 +676,9 @@ class VLANGroupEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.change_vlangroup'
     model = VLANGroup
     form_class = forms.VLANGroupForm
-    obj_list_url = 'ipam:vlangroup_list'
-    use_obj_view = False
+
+    def get_return_url(self, obj):
+        return reverse('ipam:vlangroup_list')
 
 
 class VLANGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):

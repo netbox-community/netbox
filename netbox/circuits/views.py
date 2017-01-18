@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
@@ -92,8 +93,9 @@ class CircuitTypeEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.change_circuittype'
     model = CircuitType
     form_class = forms.CircuitTypeForm
-    obj_list_url = 'circuits:circuittype_list'
-    use_obj_view = False
+
+    def get_return_url(self, obj):
+        return reverse('circuits:circuittype_list')
 
 
 class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):

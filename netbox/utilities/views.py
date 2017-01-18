@@ -127,15 +127,12 @@ class ObjectEditView(View):
     fields_initial: A set of fields that will be prepopulated in the form from the request parameters
     template_name: The name of the template
     obj_list_url: The name of the URL used to display a list of this object type
-    use_obj_view: If True, the user will be directed to a view of the object after it has been edited. Otherwise, the
-                  user will be directed to the object's list view (defined as `obj_list_url`).
     """
     model = None
     form_class = None
     fields_initial = []
     template_name = 'utilities/obj_edit.html'
     obj_list_url = None
-    use_obj_view = True
 
     def get_object(self, kwargs):
         # Look up object by slug or PK. Return None if neither was provided.
@@ -152,7 +149,7 @@ class ObjectEditView(View):
 
     def get_return_url(self, obj):
         # Determine where to redirect the user after updating an object (or aborting an update).
-        if obj.pk and self.use_obj_view and hasattr(obj, 'get_absolute_url'):
+        if obj.pk and hasattr(obj, 'get_absolute_url'):
             return obj.get_absolute_url()
         if self.obj_list_url is not None:
             return reverse(self.obj_list_url)

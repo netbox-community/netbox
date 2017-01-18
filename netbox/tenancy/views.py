@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.urlresolvers import reverse
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, render
 
@@ -28,8 +29,9 @@ class TenantGroupEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'tenancy.change_tenantgroup'
     model = TenantGroup
     form_class = forms.TenantGroupForm
-    obj_list_url = 'tenancy:tenantgroup_list'
-    use_obj_view = False
+
+    def get_return_url(self, obj):
+        return reverse('tenancy:tenantgroup_list')
 
 
 class TenantGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):

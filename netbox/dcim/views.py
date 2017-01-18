@@ -199,8 +199,9 @@ class RackGroupEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_rackgroup'
     model = RackGroup
     form_class = forms.RackGroupForm
-    obj_list_url = 'dcim:rackgroup_list'
-    use_obj_view = False
+
+    def get_return_url(self, obj):
+        return reverse('dcim:rackgroup_list')
 
 
 class RackGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -224,8 +225,9 @@ class RackRoleEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_rackrole'
     model = RackRole
     form_class = forms.RackRoleForm
-    obj_list_url = 'dcim:rackrole_list'
-    use_obj_view = False
+
+    def get_return_url(self, obj):
+        return reverse('dcim:rackrole_list')
 
 
 class RackRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -318,8 +320,9 @@ class ManufacturerEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_manufacturer'
     model = Manufacturer
     form_class = forms.ManufacturerForm
-    obj_list_url = 'dcim:manufacturer_list'
-    use_obj_view = False
+
+    def get_return_url(self, obj):
+        return reverse('dcim:manufacturer_list')
 
 
 class ManufacturerBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -537,8 +540,9 @@ class DeviceRoleEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_devicerole'
     model = DeviceRole
     form_class = forms.DeviceRoleForm
-    obj_list_url = 'dcim:devicerole_list'
-    use_obj_view = False
+
+    def get_return_url(self, obj):
+        return reverse('dcim:devicerole_list')
 
 
 class DeviceRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -562,8 +566,9 @@ class PlatformEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_platform'
     model = Platform
     form_class = forms.PlatformForm
-    obj_list_url = 'dcim:platform_list'
-    use_obj_view = False
+
+    def get_return_url(self, obj):
+        return reverse('dcim:platform_list')
 
 
 class PlatformBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
