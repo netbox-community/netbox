@@ -303,8 +303,9 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
 
     def clean(self):
 
-        # Disallow host masks
         if self.prefix:
+
+            # Disallow host masks
             if self.prefix.version == 4 and self.prefix.prefixlen == 32:
                 raise ValidationError({
                     'prefix': "Cannot create host addresses (/32) as prefixes. Create an IPv4 address instead."
@@ -314,16 +315,16 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
                     'prefix': "Cannot create host addresses (/128) as prefixes. Create an IPv6 address instead."
                 })
 
-        # Enforce unique IP space if applicable
-        if (self.vrf is None and settings.ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
-            duplicate_prefixes = self.get_duplicates()
-            if duplicate_prefixes:
-                raise ValidationError({
-                    'prefix': "Duplicate prefix found in {}: {}".format(
-                        "VRF {}".format(self.vrf) if self.vrf else "global table",
-                        duplicate_prefixes.first(),
-                    )
-                })
+            # Enforce unique IP space (if applicable)
+            if (self.vrf is None and settings.ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
+                duplicate_prefixes = self.get_duplicates()
+                if duplicate_prefixes:
+                    raise ValidationError({
+                        'prefix': "Duplicate prefix found in {}: {}".format(
+                            "VRF {}".format(self.vrf) if self.vrf else "global table",
+                            duplicate_prefixes.first(),
+                        )
+                    })
 
     def save(self, *args, **kwargs):
         if self.prefix:
@@ -419,16 +420,18 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
 
     def clean(self):
 
-        # Enforce unique IP space if applicable
-        if (self.vrf is None and settings.ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
-            duplicate_ips = self.get_duplicates()
-            if duplicate_ips:
-                raise ValidationError({
-                    'address': "Duplicate IP address found in {}: {}".format(
-                        "VRF {}".format(self.vrf) if self.vrf else "global table",
-                        duplicate_ips.first(),
-                    )
-                })
+        if self.address:
+
+            # Enforce unique IP space (if applicable)
+            if (self.vrf is None and settings.ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
+                duplicate_ips = self.get_duplicates()
+                if duplicate_ips:
+                    raise ValidationError({
+                        'address': "Duplicate IP address found in {}: {}".format(
+                            "VRF {}".format(self.vrf) if self.vrf else "global table",
+                            duplicate_ips.first(),
+                        )
+                    })
 
     def save(self, *args, **kwargs):
         if self.address:
