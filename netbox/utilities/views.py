@@ -150,13 +150,13 @@ class ObjectEditView(View):
         # given some parameter from the request URI.
         return obj
 
-    def get_redirect_url(self, obj):
+    def get_return_url(self, obj):
         # Determine where to redirect the user after updating an object (or aborting an update).
         if obj.pk and self.use_obj_view and hasattr(obj, 'get_absolute_url'):
             return obj.get_absolute_url()
-        if obj and self.use_obj_view and hasattr(obj, 'get_parent_url'):
-            return obj.get_parent_url()
-        return reverse(self.obj_list_url)
+        if self.obj_list_url is not None:
+            return reverse(self.obj_list_url)
+        return reverse('home')
 
     def get(self, request, *args, **kwargs):
 
@@ -169,7 +169,7 @@ class ObjectEditView(View):
             'obj': obj,
             'obj_type': self.model._meta.verbose_name,
             'form': form,
-            'cancel_url': self.get_redirect_url(obj),
+            'cancel_url': self.get_return_url(obj),
         })
 
     def post(self, request, *args, **kwargs):
@@ -200,13 +200,13 @@ class ObjectEditView(View):
 
             if '_addanother' in request.POST:
                 return redirect(request.path)
-            return redirect(self.get_redirect_url(obj))
+            return redirect(self.get_return_url(obj))
 
         return render(request, self.template_name, {
             'obj': obj,
             'obj_type': self.model._meta.verbose_name,
             'form': form,
-            'cancel_url': self.get_redirect_url(obj),
+            'cancel_url': self.get_return_url(obj),
         })
 
 

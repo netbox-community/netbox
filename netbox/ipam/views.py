@@ -760,6 +760,9 @@ class ServiceEditView(PermissionRequiredMixin, ObjectEditView):
             obj.device = get_object_or_404(Device, pk=kwargs['device'])
         return obj
 
+    def get_return_url(self, obj):
+        return obj.device.get_absolute_url()
+
 
 class ServiceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_service'

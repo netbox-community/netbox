@@ -159,9 +159,6 @@ class CircuitTermination(models.Model):
     def __unicode__(self):
         return u'{} (Side {})'.format(self.circuit, self.get_term_side_display())
 
-    def get_parent_url(self):
-        return self.circuit.get_absolute_url()
-
     def get_peer_termination(self):
         peer_side = 'Z' if self.term_side == 'A' else 'A'
         try:

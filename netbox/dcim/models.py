@@ -985,9 +985,6 @@ class ConsolePort(models.Model):
     def __unicode__(self):
         return self.name
 
-    def get_parent_url(self):
-        return self.device.get_absolute_url()
-
     # Used for connections export
     def to_csv(self):
         return csv_format([
@@ -1029,9 +1026,6 @@ class ConsoleServerPort(models.Model):
     def __unicode__(self):
         return self.name
 
-    def get_parent_url(self):
-        return self.device.get_absolute_url()
-
 
 class PowerPort(models.Model):
     """
@@ -1049,9 +1043,6 @@ class PowerPort(models.Model):
 
     def __unicode__(self):
         return self.name
-
-    def get_parent_url(self):
-        return self.device.get_absolute_url()
 
     # Used for connections export
     def csv_format(self):
@@ -1088,9 +1079,6 @@ class PowerOutlet(models.Model):
     def __unicode__(self):
         return self.name
 
-    def get_parent_url(self):
-        return self.device.get_absolute_url()
-
 
 class Interface(models.Model):
     """
@@ -1113,9 +1101,6 @@ class Interface(models.Model):
 
     def __unicode__(self):
         return self.name
-
-    def get_parent_url(self):
-        return self.device.get_absolute_url()
 
     def clean(self):
 
@@ -1207,9 +1192,6 @@ class DeviceBay(models.Model):
     def __unicode__(self):
         return u'{} - {}'.format(self.device.name, self.name)
 
-    def get_parent_url(self):
-        return self.device.get_absolute_url()
-
     def clean(self):
 
         # Validate that the parent Device can have DeviceBays
@@ -1243,6 +1225,3 @@ class Module(models.Model):
 
     def __unicode__(self):
         return self.name
-
-    def get_parent_url(self):
-        return reverse('dcim:device_inventory', args=[self.device.pk])

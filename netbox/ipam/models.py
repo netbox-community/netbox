@@ -578,6 +578,3 @@ class Service(CreatedUpdatedModel):
 
     def __unicode__(self):
         return u'{} ({}/{})'.format(self.name, self.port, self.get_protocol_display())
-
-    def get_parent_url(self):
-        return self.device.get_absolute_url()

@@ -223,9 +223,11 @@ class CircuitTerminationEditView(PermissionRequiredMixin, ObjectEditView):
 
     def alter_obj(self, obj, args, kwargs):
         if 'circuit' in kwargs:
-            circuit = get_object_or_404(Circuit, pk=kwargs['circuit'])
-            obj.circuit = circuit
+            obj.circuit = get_object_or_404(Circuit, pk=kwargs['circuit'])
         return obj
+
+    def get_return_url(self, obj):
+        return obj.circuit.get_absolute_url()
 
 
 class CircuitTerminationDeleteView(PermissionRequiredMixin, ObjectDeleteView):

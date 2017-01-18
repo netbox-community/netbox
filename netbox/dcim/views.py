@@ -1506,9 +1506,11 @@ class ModuleEditView(PermissionRequiredMixin, ObjectEditView):
 
     def alter_obj(self, obj, args, kwargs):
         if 'device' in kwargs:
-            device = get_object_or_404(Device, pk=kwargs['device'])
-            obj.device = device
+            obj.device = get_object_or_404(Device, pk=kwargs['device'])
         return obj
+
+    def get_return_url(self, obj):
+        return obj.device.get_absolute_url()
 
 
 class ModuleDeleteView(PermissionRequiredMixin, ObjectDeleteView):
