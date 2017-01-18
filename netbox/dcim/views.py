@@ -607,17 +607,13 @@ def device(request, pk):
         PowerOutlet.objects.filter(device=device).select_related('connected_port'), key=attrgetter('name')
     )
     interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering)\
-        .filter(device=device, mgmt_only=False).select_related(
-            'connected_as_a__interface_b__device',
-            'connected_as_b__interface_a__device',
-            'circuit_termination__circuit',
-        )
+        .filter(device=device, mgmt_only=False)\
+        .select_related('connected_as_a__interface_b__device', 'connected_as_b__interface_a__device',
+                        'circuit_termination__circuit')
     mgmt_interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering)\
-        .filter(device=device, mgmt_only=True).select_related(
-            'connected_as_a__interface_b__device',
-            'connected_as_b__interface_a__device',
-            'circuit_termination__circuit',
-        )
+        .filter(device=device, mgmt_only=True)\
+        .select_related('connected_as_a__interface_b__device', 'connected_as_b__interface_a__device',
+                        'circuit_termination__circuit')
     device_bays = natsorted(
         DeviceBay.objects.filter(device=device).select_related('installed_device__device_type__manufacturer'),
         key=attrgetter('name')
