@@ -52,7 +52,7 @@ class ProviderEditView(PermissionRequiredMixin, ObjectEditView):
 class ProviderDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'circuits.delete_provider'
     model = Provider
-    redirect_url = 'circuits:provider_list'
+    default_return_url = 'circuits:provider_list'
 
 
 class ProviderBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -140,7 +140,7 @@ class CircuitEditView(PermissionRequiredMixin, ObjectEditView):
 class CircuitDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'circuits.delete_circuit'
     model = Circuit
-    redirect_url = 'circuits:circuit_list'
+    default_return_url = 'circuits:circuit_list'
 
 
 class CircuitBulkImportView(PermissionRequiredMixin, BulkImportView):

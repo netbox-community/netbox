@@ -40,7 +40,7 @@
                     <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </button>
             {% else %}
-                <a href="{% url 'dcim:devicebay_delete' pk=devicebay.pk %}" class="btn btn-danger btn-xs">
+                <a href="{% url 'dcim:devicebay_delete' pk=devicebay.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                     <i class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete device bay"></i>
                 </a>
             {% endif %}

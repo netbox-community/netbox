@@ -89,7 +89,7 @@ class TenantEditView(PermissionRequiredMixin, ObjectEditView):
 class TenantDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'tenancy.delete_tenant'
     model = Tenant
-    redirect_url = 'tenancy:tenant_list'
+    default_return_url = 'tenancy:tenant_list'
 
 
 class TenantBulkImportView(PermissionRequiredMixin, BulkImportView):

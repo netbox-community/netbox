@@ -85,7 +85,7 @@
                     <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </button>
             {% else %}
-                <a href="{% url 'dcim:interface_delete' pk=iface.pk %}" class="btn btn-danger btn-xs" title="Delete interface">
+                <a href="{% url 'dcim:interface_delete' pk=iface.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs" title="Delete interface">
                     <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </a>
             {% endif %}

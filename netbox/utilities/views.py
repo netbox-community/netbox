@@ -216,11 +216,11 @@ class ObjectDeleteView(View):
 
     model: The model of the object being edited
     template_name: The name of the template
-    redirect_url: Name of the URL to which the user is redirected after deleting the object
+    default_return_url: Name of the URL to which the user is redirected after deleting the object
     """
     model = None
     template_name = 'utilities/obj_delete.html'
-    redirect_url = None
+    default_return_url = 'home'
 
     def get_object(self, kwargs):
         # Look up object by slug if one has been provided. Otherwise, use PK.
@@ -232,8 +232,6 @@ class ObjectDeleteView(View):
     def get_cancel_url(self, obj):
         if hasattr(obj, 'get_absolute_url'):
             return obj.get_absolute_url()
-        if hasattr(obj, 'get_parent_url'):
-            return obj.get_parent_url()
         return reverse('home')
 
     def get(self, request, **kwargs):
@@ -256,23 +254,22 @@ class ObjectDeleteView(View):
         obj = self.get_object(kwargs)
         form = ConfirmationForm(request.POST)
         if form.is_valid():
+
             try:
                 obj.delete()
             except ProtectedError as e:
                 handle_protectederror(obj, request, e)
                 return redirect(obj.get_absolute_url())
+
             msg = u'Deleted {} {}'.format(self.model._meta.verbose_name, obj)
             messages.success(request, msg)
             UserAction.objects.log_delete(request.user, obj, msg)
+
             return_url = form.cleaned_data['return_url']
             if return_url and is_safe_url(url=return_url, host=request.get_host()):
                 return redirect(return_url)
-            elif self.redirect_url:
-                return redirect(self.redirect_url)
-            elif hasattr(obj, 'get_parent_url'):
-                return redirect(obj.get_parent_url())
             else:
-                return redirect('home')
+                return redirect(self.default_return_url)
 
         return render(request, self.template_name, {
             'obj': obj,

@@ -124,7 +124,7 @@ class VRFEditView(PermissionRequiredMixin, ObjectEditView):
 class VRFDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_vrf'
     model = VRF
-    redirect_url = 'ipam:vrf_list'
+    default_return_url = 'ipam:vrf_list'
 
 
 class VRFBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -313,7 +313,7 @@ class AggregateEditView(PermissionRequiredMixin, ObjectEditView):
 class AggregateDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_aggregate'
     model = Aggregate
-    redirect_url = 'ipam:aggregate_list'
+    default_return_url = 'ipam:aggregate_list'
 
 
 class AggregateBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -443,7 +443,7 @@ class PrefixEditView(PermissionRequiredMixin, ObjectEditView):
 class PrefixDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_prefix'
     model = Prefix
-    redirect_url = 'ipam:prefix_list'
+    default_return_url = 'ipam:prefix_list'
     template_name = 'ipam/prefix_delete.html'
 
 
@@ -609,7 +609,7 @@ class IPAddressEditView(PermissionRequiredMixin, ObjectEditView):
 class IPAddressDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_ipaddress'
     model = IPAddress
-    redirect_url = 'ipam:ipaddress_list'
+    default_return_url = 'ipam:ipaddress_list'
 
 
 class IPAddressBulkAddView(PermissionRequiredMixin, BulkAddView):
@@ -720,7 +720,7 @@ class VLANEditView(PermissionRequiredMixin, ObjectEditView):
 class VLANDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_vlan'
     model = VLAN
-    redirect_url = 'ipam:vlan_list'
+    default_return_url = 'ipam:vlan_list'
 
 
 class VLANBulkImportView(PermissionRequiredMixin, BulkImportView):
