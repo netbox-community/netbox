@@ -337,9 +337,9 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
     objects = RackManager()
 
     class Meta:
-        ordering = ['site', 'name']
+        ordering = ['site', 'name', 'group']
         unique_together = [
-            ['site', 'name'],
+            ['site', 'name', 'group'],
             ['site', 'facility_id'],
         ]
 
