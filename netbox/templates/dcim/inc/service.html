@@ -18,7 +18,7 @@
             </a>
         {% endif %}
         {% if perms.ipam.delete_service %}
-            <a href="{% url 'ipam:service_delete' pk=service.pk %}" class="btn btn-danger btn-xs">
+            <a href="{% url 'ipam:service_delete' pk=service.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                 <i class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete service"></i>
             </a>
         {% endif %}

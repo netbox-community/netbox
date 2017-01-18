@@ -15,7 +15,7 @@
                 </a>
             {% endif %}
             {% if termination and perms.circuits.delete_circuittermination %}
-                <a href="{% url 'circuits:circuittermination_delete' pk=termination.pk %}" class="btn btn-xs btn-danger">
+                <a href="{% url 'circuits:circuittermination_delete' pk=termination.pk %}?return_url={{ circuit.get_absolute_url }}" class="btn btn-xs btn-danger">
                     <span class="fa fa-trash" aria-hidden="true"></span> Delete
                 </a>
             {% endif %}

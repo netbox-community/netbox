@@ -6,7 +6,7 @@
 {% block title %}{{ device }}{% endblock %}
 
 {% block content %}
-{% include 'dcim/inc/_device_header.html' with active_tab='info' %}
+{% include 'dcim/inc/device_header.html' with active_tab='info' %}
 <div class="row">
 	<div class="col-md-5 col-lg-6">
         <div class="panel panel-default">
@@ -183,7 +183,7 @@
             {% if ip_addresses %}
                 <table class="table table-hover panel-body">
                     {% for ip in ip_addresses %}
-                        {% include 'dcim/inc/_ipaddress.html' %}
+                        {% include 'dcim/inc/ipaddress.html' %}
                     {% endfor %}
                 </table>
             {% elif interfaces or mgmt_interfaces %}
@@ -212,7 +212,7 @@
             {% if services %}
                 <table class="table table-hover panel-body">
                     {% for service in services %}
-                        {% include 'dcim/inc/_service.html' %}
+                        {% include 'dcim/inc/service.html' %}
                     {% endfor %}
                 </table>
             {% else %}
@@ -234,7 +234,7 @@
             </div>
             <table class="table table-hover panel-body">
                 {% for iface in mgmt_interfaces %}
-                    {% include 'dcim/inc/_interface.html' with icon='wrench' %}
+                    {% include 'dcim/inc/interface.html' with icon='wrench' %}
                 {% empty %}
                     <tr>
                         <td colspan="5" class="alert-warning">
@@ -246,7 +246,7 @@
                     </tr>
                 {% endfor %}
                 {% for cp in console_ports %}
-                    {% include 'dcim/inc/_consoleport.html' %}
+                    {% include 'dcim/inc/consoleport.html' %}
                 {% empty %}
                     <tr>
                         <td colspan="5" class="alert-warning">
@@ -258,7 +258,7 @@
                     </tr>
                 {% endfor %}
                 {% for pp in power_ports %}
-                    {% include 'dcim/inc/_powerport.html' %}
+                    {% include 'dcim/inc/powerport.html' %}
                 {% empty %}
                     <tr>
                         <td colspan="5" class="alert-warning">
@@ -349,7 +349,7 @@
                 </div>
                 <table class="table table-hover panel-body">
                     {% for devicebay in device_bays %}
-                        {% include 'dcim/inc/_devicebay.html' with selectable=True %}
+                        {% include 'dcim/inc/devicebay.html' with selectable=True %}
                     {% empty %}
                         <tr>
                             <td colspan="4">No device bays defined</td>
@@ -401,7 +401,7 @@
                 </div>
                 <table class="table table-hover panel-body">
                     {% for iface in interfaces %}
-                        {% include 'dcim/inc/_interface.html' with selectable=True %}
+                        {% include 'dcim/inc/interface.html' with selectable=True %}
                     {% empty %}
                         <tr>
                             <td colspan="4">No interfaces defined</td>
@@ -458,7 +458,7 @@
                 </div>
                 <table class="table table-hover panel-body">
                     {% for csp in cs_ports %}
-                        {% include 'dcim/inc/_consoleserverport.html' with selectable=True %}
+                        {% include 'dcim/inc/consoleserverport.html' with selectable=True %}
                     {% empty %}
                         <tr>
                             <td colspan="4">No console server ports defined</td>
@@ -510,7 +510,7 @@
                 </div>
                 <table class="table table-hover panel-body">
                     {% for po in power_outlets %}
-                        {% include 'dcim/inc/_poweroutlet.html' with selectable=True %}
+                        {% include 'dcim/inc/poweroutlet.html' with selectable=True %}
                     {% empty %}
                         <tr>
                             <td colspan="4">No power outlets defined</td>

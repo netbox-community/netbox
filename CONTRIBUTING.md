@@ -8,10 +8,9 @@ If you encounter any issues installing or using NetBox, try one of the following
 Join the #netbox channel on [Freenode IRC](https://freenode.net/). You can connect to Freenode at irc.freenode.net using
 an IRC client, or you can use their [webchat client](https://webchat.freenode.net/).
 
-### Reddit
+### Mailing List
 
-We have established [/r/netbox](https://www.reddit.com/r/netbox) on Reddit for NetBox issues and general discussion.
-Reddit registration is free and does not require providing an email address (although it is encouraged).
+We have established a Google Groups Mailing List for issues and general discussion. You can find us [here]( https://groups.google.com/forum/#!forum/netbox-discuss).
 
 ## Reporting Bugs
 
@@ -24,7 +23,7 @@ click "add a reaction" in the top right corner of the issue and add a thumbs up 
 comment describing how it's affecting your installation. This will allow us to prioritize bugs based on how many users
 are affected.
 
-* If you haven't found an existing issue that describes your suspected bug, please inquire about it on IRC or Reddit.
+* If you haven't found an existing issue that describes your suspected bug, please inquire about it on IRC or Google Groups.
 **Do not** file an issue until you have received confirmation that it is in fact a bug. Invalid issues are very
 distracting and slow the pace at which NetBox is developed.
 

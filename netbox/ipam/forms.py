@@ -215,6 +215,8 @@ class PrefixFromCSVForm(forms.ModelForm):
         elif vlan_vid and site:
             try:
                 self.instance.vlan = VLAN.objects.get(site=site, vid=vlan_vid)
+            except VLAN.DoesNotExist:
+                self.add_error('vlan_vid', "Invalid VLAN ID ({}) for site {}.".format(vlan_vid, site))
             except VLAN.MultipleObjectsReturned:
                 self.add_error('vlan_vid', "Multiple VLANs found ({} - VID {})".format(site, vlan_vid))
         elif vlan_vid:
@@ -334,7 +336,7 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
 
 class IPAddressBulkAddForm(BootstrapMixin, forms.Form):
     address = ExpandableIPAddressField()
-    vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF')
+    vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF', empty_label='Global')
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     status = forms.ChoiceField(choices=IPADDRESS_STATUS_CHOICES)
     description = forms.CharField(max_length=100, required=False)
@@ -344,9 +346,11 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), label='Site', required=False,
                                   widget=forms.Select(attrs={'filter-for': 'rack'}))
     rack = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
-                                  widget=APISelect(api_url='/api/dcim/racks/?site_id={{site}}', display_field='display_name', attrs={'filter-for': 'device'}))
+                                  widget=APISelect(api_url='/api/dcim/racks/?site_id={{site}}',
+                                                   display_field='display_name', attrs={'filter-for': 'device'}))
     device = forms.ModelChoiceField(queryset=Device.objects.all(), label='Device', required=False,
-                                    widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}', display_field='display_name', attrs={'filter-for': 'interface'}))
+                                    widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}',
+                                                     display_field='display_name', attrs={'filter-for': 'interface'}))
     livesearch = forms.CharField(required=False, label='Device', widget=Livesearch(
         query_key='q', query_url='dcim-api:device_list', field_to_update='device')
     )

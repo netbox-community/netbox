@@ -11,6 +11,12 @@
             {% render_field form.part_number %}
             {% render_field form.u_height %}
             {% render_field form.is_full_depth %}
+            {% render_field form.interface_ordering %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Function</strong></div>
+        <div class="panel-body">
             {% render_field form.is_console_server %}
             {% render_field form.is_pdu %}
             {% render_field form.is_network_device %}

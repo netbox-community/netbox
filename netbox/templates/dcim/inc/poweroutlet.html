@@ -1,5 +1,5 @@
 <tr{% if po.connected_port and not po.connected_port.connection_status %} class="info"{% endif %}>
-    {% if selectable and perms.dcim.delete_poweroutlet %}
+    {% if selectable and perms.dcim.change_poweroutlet or perms.dcim.delete_poweroutlet %}
         <td class="pk">
             <input name="pk" type="checkbox" value="{{ po.pk }}" />
         </td>
@@ -49,7 +49,7 @@
                     <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </button>
             {% else %}
-                <a href="{% url 'dcim:poweroutlet_delete' pk=po.pk %}" class="btn btn-danger btn-xs">
+                <a href="{% url 'dcim:poweroutlet_delete' pk=po.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                     <i class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete outlet"></i>
                 </a>
             {% endif %}

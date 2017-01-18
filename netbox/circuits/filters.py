@@ -98,5 +98,6 @@ class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
             Q(cid__icontains=value) |
             Q(terminations__xconnect_id__icontains=value) |
             Q(terminations__pp_info__icontains=value) |
+            Q(description__icontains=value) |
             Q(comments__icontains=value)
-        )
+        ).distinct()

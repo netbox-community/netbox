@@ -30,8 +30,9 @@ class SecretRoleEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'secrets.change_secretrole'
     model = SecretRole
     form_class = forms.SecretRoleForm
-    obj_list_url = 'secrets:secretrole_list'
-    use_obj_view = False
+
+    def get_return_url(self, obj):
+        return reverse('secrets:secretrole_list')
 
 
 class SecretRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -151,7 +152,7 @@ def secret_edit(request, pk):
 class SecretDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'secrets.delete_secret'
     model = Secret
-    redirect_url = 'secrets:secret_list'
+    default_return_url = 'secrets:secret_list'
 
 
 @permission_required('secrets.add_secret')

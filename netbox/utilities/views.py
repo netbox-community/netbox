@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
 from django.forms import CharField, ModelMultipleChoiceField, MultipleHiddenInput, TypedChoiceField
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import TemplateSyntaxError
 from django.utils.http import is_safe_url
@@ -127,15 +127,12 @@ class ObjectEditView(View):
     fields_initial: A set of fields that will be prepopulated in the form from the request parameters
     template_name: The name of the template
     obj_list_url: The name of the URL used to display a list of this object type
-    use_obj_view: If True, the user will be directed to a view of the object after it has been edited. Otherwise, the
-                  user will be directed to the object's list view (defined as `obj_list_url`).
     """
     model = None
     form_class = None
     fields_initial = []
     template_name = 'utilities/obj_edit.html'
     obj_list_url = None
-    use_obj_view = True
 
     def get_object(self, kwargs):
         # Look up object by slug or PK. Return None if neither was provided.
@@ -150,13 +147,13 @@ class ObjectEditView(View):
         # given some parameter from the request URI.
         return obj
 
-    def get_redirect_url(self, obj):
+    def get_return_url(self, obj):
         # Determine where to redirect the user after updating an object (or aborting an update).
-        if obj.pk and self.use_obj_view and hasattr(obj, 'get_absolute_url'):
+        if obj.pk and hasattr(obj, 'get_absolute_url'):
             return obj.get_absolute_url()
-        if obj and self.use_obj_view and hasattr(obj, 'get_parent_url'):
-            return obj.get_parent_url()
-        return reverse(self.obj_list_url)
+        if self.obj_list_url is not None:
+            return reverse(self.obj_list_url)
+        return reverse('home')
 
     def get(self, request, *args, **kwargs):
 
@@ -169,7 +166,7 @@ class ObjectEditView(View):
             'obj': obj,
             'obj_type': self.model._meta.verbose_name,
             'form': form,
-            'cancel_url': self.get_redirect_url(obj),
+            'cancel_url': self.get_return_url(obj),
         })
 
     def post(self, request, *args, **kwargs):
@@ -200,13 +197,13 @@ class ObjectEditView(View):
 
             if '_addanother' in request.POST:
                 return redirect(request.path)
-            return redirect(self.get_redirect_url(obj))
+            return redirect(self.get_return_url(obj))
 
         return render(request, self.template_name, {
             'obj': obj,
             'obj_type': self.model._meta.verbose_name,
             'form': form,
-            'cancel_url': self.get_redirect_url(obj),
+            'cancel_url': self.get_return_url(obj),
         })
 
 
@@ -216,11 +213,11 @@ class ObjectDeleteView(View):
 
     model: The model of the object being edited
     template_name: The name of the template
-    redirect_url: Name of the URL to which the user is redirected after deleting the object
+    default_return_url: Name of the URL to which the user is redirected after deleting the object
     """
     model = None
     template_name = 'utilities/obj_delete.html'
-    redirect_url = None
+    default_return_url = 'home'
 
     def get_object(self, kwargs):
         # Look up object by slug if one has been provided. Otherwise, use PK.
@@ -232,20 +229,21 @@ class ObjectDeleteView(View):
     def get_cancel_url(self, obj):
         if hasattr(obj, 'get_absolute_url'):
             return obj.get_absolute_url()
-        if hasattr(obj, 'get_parent_url'):
-            return obj.get_parent_url()
         return reverse('home')
 
     def get(self, request, **kwargs):
 
         obj = self.get_object(kwargs)
-        form = ConfirmationForm()
+        initial_data = {
+            'return_url': request.GET.get('return_url'),
+        }
+        form = ConfirmationForm(initial=initial_data)
 
         return render(request, self.template_name, {
             'obj': obj,
             'form': form,
             'obj_type': self.model._meta.verbose_name,
-            'cancel_url': self.get_cancel_url(obj),
+            'cancel_url': request.GET.get('return_url') or self.get_cancel_url(obj),
         })
 
     def post(self, request, **kwargs):
@@ -253,26 +251,28 @@ class ObjectDeleteView(View):
         obj = self.get_object(kwargs)
         form = ConfirmationForm(request.POST)
         if form.is_valid():
+
             try:
                 obj.delete()
             except ProtectedError as e:
                 handle_protectederror(obj, request, e)
                 return redirect(obj.get_absolute_url())
+
             msg = u'Deleted {} {}'.format(self.model._meta.verbose_name, obj)
             messages.success(request, msg)
             UserAction.objects.log_delete(request.user, obj, msg)
-            if self.redirect_url:
-                return redirect(self.redirect_url)
-            elif hasattr(obj, 'get_parent_url'):
-                return redirect(obj.get_parent_url())
+
+            return_url = form.cleaned_data['return_url']
+            if return_url and is_safe_url(url=return_url, host=request.get_host()):
+                return redirect(return_url)
             else:
-                return redirect('home')
+                return redirect(self.default_return_url)
 
         return render(request, self.template_name, {
             'obj': obj,
             'form': form,
             'obj_type': self.model._meta.verbose_name,
-            'cancel_url': self.get_cancel_url(obj),
+            'cancel_url': request.GET.get('return_url') or self.get_cancel_url(obj),
         })
 
 
@@ -326,6 +326,8 @@ class BulkAddView(View):
 
             if not form.errors:
                 messages.success(request, u"Added {} {}.".format(len(new_objs), self.model._meta.verbose_name_plural))
+                if '_addanother' in request.POST:
+                    return redirect(request.path)
                 return redirect(self.redirect_url)
 
         return render(request, self.template_name, {

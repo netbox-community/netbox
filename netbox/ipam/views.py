@@ -102,8 +102,10 @@ class VRFListView(ObjectListView):
 def vrf(request, pk):
 
     vrf = get_object_or_404(VRF.objects.all(), pk=pk)
-    prefixes = Prefix.objects.filter(vrf=vrf)
-    prefix_table = tables.PrefixBriefTable(prefixes)
+    prefix_table = tables.PrefixBriefTable(
+        list(Prefix.objects.filter(vrf=vrf).select_related('site', 'role'))
+    )
+    prefix_table.exclude = ('vrf',)
 
     return render(request, 'ipam/vrf.html', {
         'vrf': vrf,
@@ -122,7 +124,7 @@ class VRFEditView(PermissionRequiredMixin, ObjectEditView):
 class VRFDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_vrf'
     model = VRF
-    redirect_url = 'ipam:vrf_list'
+    default_return_url = 'ipam:vrf_list'
 
 
 class VRFBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -240,8 +242,9 @@ class RIREditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.change_rir'
     model = RIR
     form_class = forms.RIRForm
-    obj_list_url = 'ipam:rir_list'
-    use_obj_view = False
+
+    def get_return_url(self, obj):
+        return reverse('ipam:rir_list')
 
 
 class RIRBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -311,7 +314,7 @@ class AggregateEditView(PermissionRequiredMixin, ObjectEditView):
 class AggregateDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_aggregate'
     model = Aggregate
-    redirect_url = 'ipam:aggregate_list'
+    default_return_url = 'ipam:aggregate_list'
 
 
 class AggregateBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -351,8 +354,9 @@ class RoleEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.change_role'
     model = Role
     form_class = forms.RoleForm
-    obj_list_url = 'ipam:role_list'
-    use_obj_view = False
+
+    def get_return_url(self, obj):
+        return reverse('ipam:role_list')
 
 
 class RoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -401,7 +405,7 @@ def prefix(request, pk):
     # Duplicate prefixes table
     duplicate_prefixes = Prefix.objects.filter(vrf=prefix.vrf, prefix=str(prefix.prefix)).exclude(pk=prefix.pk)\
         .select_related('site', 'role')
-    duplicate_prefix_table = tables.PrefixBriefTable(duplicate_prefixes)
+    duplicate_prefix_table = tables.PrefixBriefTable(list(duplicate_prefixes))
 
     # Child prefixes table
     if prefix.vrf:
@@ -441,7 +445,8 @@ class PrefixEditView(PermissionRequiredMixin, ObjectEditView):
 class PrefixDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_prefix'
     model = Prefix
-    redirect_url = 'ipam:prefix_list'
+    default_return_url = 'ipam:prefix_list'
+    template_name = 'ipam/prefix_delete.html'
 
 
 class PrefixBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -504,18 +509,20 @@ def ipaddress(request, pk):
     ipaddress = get_object_or_404(IPAddress.objects.select_related('interface__device'), pk=pk)
 
     # Parent prefixes table
-    parent_prefixes = Prefix.objects.filter(vrf=ipaddress.vrf, prefix__net_contains=str(ipaddress.address.ip))
-    parent_prefixes_table = tables.PrefixBriefTable(parent_prefixes)
+    parent_prefixes = Prefix.objects.filter(vrf=ipaddress.vrf, prefix__net_contains=str(ipaddress.address.ip))\
+        .select_related('site', 'role')
+    parent_prefixes_table = tables.PrefixBriefTable(list(parent_prefixes))
+    parent_prefixes_table.exclude = ('vrf',)
 
     # Duplicate IPs table
     duplicate_ips = IPAddress.objects.filter(vrf=ipaddress.vrf, address=str(ipaddress.address))\
         .exclude(pk=ipaddress.pk).select_related('interface__device', 'nat_inside')
-    duplicate_ips_table = tables.IPAddressBriefTable(duplicate_ips)
+    duplicate_ips_table = tables.IPAddressBriefTable(list(duplicate_ips))
 
     # Related IP table
     related_ips = IPAddress.objects.select_related('interface__device').exclude(address=str(ipaddress.address))\
         .filter(vrf=ipaddress.vrf, address__net_contained_or_equal=str(ipaddress.address))
-    related_ips_table = tables.IPAddressBriefTable(related_ips)
+    related_ips_table = tables.IPAddressBriefTable(list(related_ips))
 
     return render(request, 'ipam/ipaddress.html', {
         'ipaddress': ipaddress,
@@ -604,7 +611,7 @@ class IPAddressEditView(PermissionRequiredMixin, ObjectEditView):
 class IPAddressDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_ipaddress'
     model = IPAddress
-    redirect_url = 'ipam:ipaddress_list'
+    default_return_url = 'ipam:ipaddress_list'
 
 
 class IPAddressBulkAddView(PermissionRequiredMixin, BulkAddView):
@@ -669,8 +676,9 @@ class VLANGroupEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.change_vlangroup'
     model = VLANGroup
     form_class = forms.VLANGroupForm
-    obj_list_url = 'ipam:vlangroup_list'
-    use_obj_view = False
+
+    def get_return_url(self, obj):
+        return reverse('ipam:vlangroup_list')
 
 
 class VLANGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -695,8 +703,8 @@ class VLANListView(ObjectListView):
 def vlan(request, pk):
 
     vlan = get_object_or_404(VLAN.objects.select_related('site', 'role'), pk=pk)
-    prefixes = Prefix.objects.filter(vlan=vlan)
-    prefix_table = tables.PrefixBriefTable(prefixes)
+    prefixes = Prefix.objects.filter(vlan=vlan).select_related('vrf', 'site', 'role')
+    prefix_table = tables.PrefixBriefTable(list(prefixes))
 
     return render(request, 'ipam/vlan.html', {
         'vlan': vlan,
@@ -715,7 +723,7 @@ class VLANEditView(PermissionRequiredMixin, ObjectEditView):
 class VLANDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_vlan'
     model = VLAN
-    redirect_url = 'ipam:vlan_list'
+    default_return_url = 'ipam:vlan_list'
 
 
 class VLANBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -754,6 +762,9 @@ class ServiceEditView(PermissionRequiredMixin, ObjectEditView):
         if 'device' in kwargs:
             obj.device = get_object_or_404(Device, pk=kwargs['device'])
         return obj
+
+    def get_return_url(self, obj):
+        return obj.device.get_absolute_url()
 
 
 class ServiceDeleteView(PermissionRequiredMixin, ObjectDeleteView):

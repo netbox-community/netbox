@@ -136,7 +136,7 @@ class VRFTable(BaseTable):
     name = tables.LinkColumn('ipam:vrf', args=[Accessor('pk')], verbose_name='Name')
     rd = tables.Column(verbose_name='RD')
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
-    description = tables.Column(orderable=False, verbose_name='Description')
+    description = tables.Column(verbose_name='Description')
 
     class Meta(BaseTable.Meta):
         model = VRF
@@ -182,7 +182,7 @@ class AggregateTable(BaseTable):
     child_count = tables.Column(verbose_name='Prefixes')
     get_utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
     date_added = tables.DateColumn(format="Y-m-d", verbose_name='Added')
-    description = tables.Column(orderable=False, verbose_name='Description')
+    description = tables.Column(verbose_name='Description')
 
     class Meta(BaseTable.Meta):
         model = Aggregate
@@ -219,7 +219,7 @@ class PrefixTable(BaseTable):
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
     vlan = tables.LinkColumn('ipam:vlan', args=[Accessor('vlan.pk')], verbose_name='VLAN')
     role = tables.TemplateColumn(PREFIX_ROLE_LINK, verbose_name='Role')
-    description = tables.Column(orderable=False, verbose_name='Description')
+    description = tables.Column(verbose_name='Description')
 
     class Meta(BaseTable.Meta):
         model = Prefix
@@ -255,7 +255,7 @@ class IPAddressTable(BaseTable):
     device = tables.LinkColumn('dcim:device', args=[Accessor('interface.device.pk')], orderable=False,
                                verbose_name='Device')
     interface = tables.Column(orderable=False, verbose_name='Interface')
-    description = tables.Column(orderable=False, verbose_name='Description')
+    description = tables.Column(verbose_name='Description')
 
     class Meta(BaseTable.Meta):
         model = IPAddress
@@ -310,7 +310,8 @@ class VLANTable(BaseTable):
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
     status = tables.TemplateColumn(STATUS_LABEL, verbose_name='Status')
     role = tables.TemplateColumn(VLAN_ROLE_LINK, verbose_name='Role')
+    description = tables.Column(verbose_name='Description')
 
     class Meta(BaseTable.Meta):
         model = VLAN
-        fields = ('pk', 'vid', 'site', 'group', 'name', 'prefixes', 'tenant', 'status', 'role')
+        fields = ('pk', 'vid', 'site', 'group', 'name', 'prefixes', 'tenant', 'status', 'role', 'description')

@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
@@ -52,7 +53,7 @@ class ProviderEditView(PermissionRequiredMixin, ObjectEditView):
 class ProviderDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'circuits.delete_provider'
     model = Provider
-    redirect_url = 'circuits:provider_list'
+    default_return_url = 'circuits:provider_list'
 
 
 class ProviderBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -92,8 +93,9 @@ class CircuitTypeEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.change_circuittype'
     model = CircuitType
     form_class = forms.CircuitTypeForm
-    obj_list_url = 'circuits:circuittype_list'
-    use_obj_view = False
+
+    def get_return_url(self, obj):
+        return reverse('circuits:circuittype_list')
 
 
 class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -140,7 +142,7 @@ class CircuitEditView(PermissionRequiredMixin, ObjectEditView):
 class CircuitDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'circuits.delete_circuit'
     model = Circuit
-    redirect_url = 'circuits:circuit_list'
+    default_return_url = 'circuits:circuit_list'
 
 
 class CircuitBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -223,9 +225,11 @@ class CircuitTerminationEditView(PermissionRequiredMixin, ObjectEditView):
 
     def alter_obj(self, obj, args, kwargs):
         if 'circuit' in kwargs:
-            circuit = get_object_or_404(Circuit, pk=kwargs['circuit'])
-            obj.circuit = circuit
+            obj.circuit = get_object_or_404(Circuit, pk=kwargs['circuit'])
         return obj
+
+    def get_return_url(self, obj):
+        return obj.circuit.get_absolute_url()
 
 
 class CircuitTerminationDeleteView(PermissionRequiredMixin, ObjectDeleteView):

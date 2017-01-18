@@ -97,6 +97,7 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
     tenant = models.ForeignKey(Tenant, related_name='circuits', blank=True, null=True, on_delete=models.PROTECT)
     install_date = models.DateField(blank=True, null=True, verbose_name='Date installed')
     commit_rate = models.PositiveIntegerField(blank=True, null=True, verbose_name='Commit rate (Kbps)')
+    description = models.CharField(max_length=100, blank=True)
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
@@ -118,6 +119,7 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
             self.tenant.name if self.tenant else None,
             self.install_date.isoformat() if self.install_date else None,
             self.commit_rate,
+            self.description,
         ])
 
     def _get_termination(self, side):
@@ -156,9 +158,6 @@ class CircuitTermination(models.Model):
 
     def __unicode__(self):
         return u'{} (Side {})'.format(self.circuit, self.get_term_side_display())
-
-    def get_parent_url(self):
-        return self.circuit.get_absolute_url()
 
     def get_peer_termination(self):
         peer_side = 'Z' if self.term_side == 'A' else 'A'
