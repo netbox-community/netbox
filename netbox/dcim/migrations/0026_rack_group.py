@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0024_site_add_contact_fields'),
+        ('dcim', '0025_devicetype_add_interface_ordering'),
     ]
 
     operations = [
