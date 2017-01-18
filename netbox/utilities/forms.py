@@ -386,7 +386,12 @@ class BootstrapMixin(forms.BaseForm):
 
 
 class ConfirmationForm(BootstrapMixin, forms.Form):
+    """
+    A generic confirmation form. The form is not valid unless the confirm field is checked. An optional return_url can
+    be specified to direct the user to a specific URL after the action has been taken.
+    """
     confirm = forms.BooleanField(required=True)
+    return_url = forms.CharField(required=False, widget=forms.HiddenInput())
 
 
 class BulkEditForm(forms.Form):

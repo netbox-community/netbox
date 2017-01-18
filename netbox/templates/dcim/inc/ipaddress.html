@@ -13,7 +13,7 @@
     </td>
     <td class="text-right">
         {% if perms.ipam.delete_ipaddress %}
-            <a href="{% url 'ipam:ipaddress_delete' pk=ip.pk %}" class="btn btn-danger btn-xs">
+            <a href="{% url 'ipam:ipaddress_delete' pk=ip.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                 <i class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete IP address"></i>
             </a>
         {% endif %}

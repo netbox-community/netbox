@@ -239,13 +239,16 @@ class ObjectDeleteView(View):
     def get(self, request, **kwargs):
 
         obj = self.get_object(kwargs)
-        form = ConfirmationForm()
+        initial_data = {
+            'return_url': request.GET.get('return_url'),
+        }
+        form = ConfirmationForm(initial=initial_data)
 
         return render(request, self.template_name, {
             'obj': obj,
             'form': form,
             'obj_type': self.model._meta.verbose_name,
-            'cancel_url': self.get_cancel_url(obj),
+            'cancel_url': request.GET.get('return_url') or self.get_cancel_url(obj),
         })
 
     def post(self, request, **kwargs):
@@ -261,7 +264,10 @@ class ObjectDeleteView(View):
             msg = u'Deleted {} {}'.format(self.model._meta.verbose_name, obj)
             messages.success(request, msg)
             UserAction.objects.log_delete(request.user, obj, msg)
-            if self.redirect_url:
+            return_url = form.cleaned_data['return_url']
+            if return_url and is_safe_url(url=return_url, host=request.get_host()):
+                return redirect(return_url)
+            elif self.redirect_url:
                 return redirect(self.redirect_url)
             elif hasattr(obj, 'get_parent_url'):
                 return redirect(obj.get_parent_url())
@@ -272,7 +278,7 @@ class ObjectDeleteView(View):
             'obj': obj,
             'form': form,
             'obj_type': self.model._meta.verbose_name,
-            'cancel_url': self.get_cancel_url(obj),
+            'cancel_url': request.GET.get('return_url') or self.get_cancel_url(obj),
         })
 
 
