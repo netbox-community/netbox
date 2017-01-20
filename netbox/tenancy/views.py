@@ -105,6 +105,7 @@ class TenantBulkImportView(PermissionRequiredMixin, BulkImportView):
 class TenantBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'tenancy.change_tenant'
     cls = Tenant
+    filter = filters.TenantFilter
     form = forms.TenantBulkEditForm
     template_name = 'tenancy/tenant_bulk_edit.html'
     default_redirect_url = 'tenancy:tenant_list'
@@ -113,4 +114,5 @@ class TenantBulkEditView(PermissionRequiredMixin, BulkEditView):
 class TenantBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'tenancy.delete_tenant'
     cls = Tenant
+    filter = filters.TenantFilter
     default_redirect_url = 'tenancy:tenant_list'

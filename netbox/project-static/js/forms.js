@@ -9,6 +9,14 @@ $(document).ready(function() {
             $('#select_all').prop('checked', false);
         }
     });
+    // Enable hidden buttons when "select all" is checked
+    $('#select_all').click(function (event) {
+        if ($(this).is(':checked')) {
+            $('#select_all_box').find('button').prop('disabled', '');
+        } else {
+            $('#select_all_box').find('button').prop('disabled', 'disabled');
+        }
+    });
     // Uncheck the "toggle all" checkbox if an item is unchecked
     $('input:checkbox[name=pk]').click(function (event) {
         if (!$(this).attr('checked')) {

@@ -397,12 +397,14 @@ class BulkEditView(View):
 
     cls: The model of the objects being edited
     parent_cls: The model of the parent object (if any)
+    filter: FilterSet to apply when deleting by QuerySet
     form: The form class used to edit objects in bulk
     template_name: The name of the template
     default_redirect_url: Name of the URL to which the user is redirected after editing the objects
     """
     cls = None
     parent_cls = None
+    filter = None
     form = None
     template_name = None
     default_redirect_url = None
@@ -430,8 +432,8 @@ class BulkEditView(View):
             raise ImproperlyConfigured('No redirect URL has been provided.')
 
         # Are we editing *all* objects in the queryset or just a selected subset?
-        if request.POST.get('_all'):
-            pk_list = [int(pk) for pk in request.POST.get('pk_all').split(',') if pk]
+        if request.POST.get('_all') and self.filter is not None:
+            pk_list = [obj.pk for obj in self.filter(request.GET, self.cls.objects.only('pk'))]
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
@@ -535,12 +537,14 @@ class BulkDeleteView(View):
 
     cls: The model of the objects being deleted
     parent_cls: The model of the parent object (if any)
+    filter: FilterSet to apply when deleting by QuerySet
     form: The form class used to delete objects in bulk
     template_name: The name of the template
     default_redirect_url: Name of the URL to which the user is redirected after deleting the objects
     """
     cls = None
     parent_cls = None
+    filter = None
     form = None
     template_name = 'utilities/confirm_bulk_delete.html'
     default_redirect_url = None
@@ -565,8 +569,8 @@ class BulkDeleteView(View):
             raise ImproperlyConfigured('No redirect URL has been provided.')
 
         # Are we deleting *all* objects in the queryset or just a selected subset?
-        if request.POST.get('_all'):
-            pk_list = [int(pk) for pk in request.POST.get('pk_all').split(',') if pk]
+        if request.POST.get('_all') and self.filter is not None:
+            pk_list = [obj.pk for obj in self.filter(request.GET, self.cls.objects.only('pk'))]
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 

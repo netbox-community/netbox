@@ -177,6 +177,7 @@ class SiteBulkImportView(PermissionRequiredMixin, BulkImportView):
 class SiteBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_site'
     cls = Site
+    filter = filters.SiteFilter
     form = forms.SiteBulkEditForm
     template_name = 'dcim/site_bulk_edit.html'
     default_redirect_url = 'dcim:site_list'
@@ -207,6 +208,7 @@ class RackGroupEditView(PermissionRequiredMixin, ObjectEditView):
 class RackGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rackgroup'
     cls = RackGroup
+    filter = filters.RackGroupFilter
     default_redirect_url = 'dcim:rackgroup_list'
 
 
@@ -294,6 +296,7 @@ class RackBulkImportView(PermissionRequiredMixin, BulkImportView):
 class RackBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_rack'
     cls = Rack
+    filter = filters.RackFilter
     form = forms.RackBulkEditForm
     template_name = 'dcim/rack_bulk_edit.html'
     default_redirect_url = 'dcim:rack_list'
@@ -302,6 +305,7 @@ class RackBulkEditView(PermissionRequiredMixin, BulkEditView):
 class RackBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rack'
     cls = Rack
+    filter = filters.RackFilter
     default_redirect_url = 'dcim:rack_list'
 
 
@@ -410,6 +414,7 @@ class DeviceTypeDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 class DeviceTypeBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_devicetype'
     cls = DeviceType
+    filter = filters.DeviceTypeFilter
     form = forms.DeviceTypeBulkEditForm
     template_name = 'dcim/devicetype_bulk_edit.html'
     default_redirect_url = 'dcim:devicetype_list'
@@ -418,6 +423,7 @@ class DeviceTypeBulkEditView(PermissionRequiredMixin, BulkEditView):
 class DeviceTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_devicetype'
     cls = DeviceType
+    filter = filters.DeviceTypeFilter
     default_redirect_url = 'dcim:devicetype_list'
 
 
@@ -703,6 +709,7 @@ class ChildDeviceBulkImportView(PermissionRequiredMixin, BulkImportView):
 class DeviceBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_device'
     cls = Device
+    filter = filters.DeviceFilter
     form = forms.DeviceBulkEditForm
     template_name = 'dcim/device_bulk_edit.html'
     default_redirect_url = 'dcim:device_list'
@@ -711,6 +718,7 @@ class DeviceBulkEditView(PermissionRequiredMixin, BulkEditView):
 class DeviceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_device'
     cls = Device
+    filter = filters.DeviceFilter
     default_redirect_url = 'dcim:device_list'
 
 
@@ -1245,7 +1253,7 @@ class DeviceBulkAddComponentView(View):
 
         # Are we editing *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all'):
-            pk_list = [int(pk) for pk in request.POST.get('pk_all').split(',') if pk]
+            pk_list = [obj.pk for obj in filters.DeviceFilter(request.GET, Device.objects.all())]
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 

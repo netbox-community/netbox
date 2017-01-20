@@ -67,6 +67,7 @@ class ProviderBulkImportView(PermissionRequiredMixin, BulkImportView):
 class ProviderBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'circuits.change_provider'
     cls = Provider
+    filter = filters.ProviderFilter
     form = forms.ProviderBulkEditForm
     template_name = 'circuits/provider_bulk_edit.html'
     default_redirect_url = 'circuits:provider_list'
@@ -75,6 +76,7 @@ class ProviderBulkEditView(PermissionRequiredMixin, BulkEditView):
 class ProviderBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_provider'
     cls = Provider
+    filter = filters.ProviderFilter
     default_redirect_url = 'circuits:provider_list'
 
 
@@ -156,6 +158,7 @@ class CircuitBulkImportView(PermissionRequiredMixin, BulkImportView):
 class CircuitBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'circuits.change_circuit'
     cls = Circuit
+    filter = filters.CircuitFilter
     form = forms.CircuitBulkEditForm
     template_name = 'circuits/circuit_bulk_edit.html'
     default_redirect_url = 'circuits:circuit_list'
@@ -164,6 +167,7 @@ class CircuitBulkEditView(PermissionRequiredMixin, BulkEditView):
 class CircuitBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_circuit'
     cls = Circuit
+    filter = filters.CircuitFilter
     default_redirect_url = 'circuits:circuit_list'
 
 

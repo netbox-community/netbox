@@ -5,7 +5,7 @@
 
 {% block message %}
     <p>
-        Are you sure you want to delete these {{ obj_type_plural|default:"objects" }}{% if parent_obj %} from <a href="{{ parent_obj.get_absolute_url }}">{{ parent_obj }}</a>{% endif %}?
+        Are you sure you want to delete these {{ selected_objects|length }} {{ obj_type_plural|default:"objects" }}{% if parent_obj %} from <a href="{{ parent_obj.get_absolute_url }}">{{ parent_obj }}</a>{% endif %}?
     </p>
     <ul>
         {% for obj in selected_objects %}

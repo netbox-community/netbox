@@ -202,6 +202,7 @@ def secret_import(request):
 class SecretBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'secrets.change_secret'
     cls = Secret
+    filter = filters.SecretFilter
     form = forms.SecretBulkEditForm
     template_name = 'secrets/secret_bulk_edit.html'
     default_redirect_url = 'secrets:secret_list'
@@ -210,4 +211,5 @@ class SecretBulkEditView(PermissionRequiredMixin, BulkEditView):
 class SecretBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'secrets.delete_secret'
     cls = Secret
+    filter = filters.SecretFilter
     default_redirect_url = 'secrets:secret_list'

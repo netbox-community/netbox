@@ -138,6 +138,7 @@ class VRFBulkImportView(PermissionRequiredMixin, BulkImportView):
 class VRFBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_vrf'
     cls = VRF
+    filter = filters.VRFFilter
     form = forms.VRFBulkEditForm
     template_name = 'ipam/vrf_bulk_edit.html'
     default_redirect_url = 'ipam:vrf_list'
@@ -146,6 +147,7 @@ class VRFBulkEditView(PermissionRequiredMixin, BulkEditView):
 class VRFBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_vrf'
     cls = VRF
+    filter = filters.VRFFilter
     default_redirect_url = 'ipam:vrf_list'
 
 
@@ -250,6 +252,7 @@ class RIREditView(PermissionRequiredMixin, ObjectEditView):
 class RIRBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_rir'
     cls = RIR
+    filter = filters.RIRFilter
     default_redirect_url = 'ipam:rir_list'
 
 
@@ -328,6 +331,7 @@ class AggregateBulkImportView(PermissionRequiredMixin, BulkImportView):
 class AggregateBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_aggregate'
     cls = Aggregate
+    filter = filters.AggregateFilter
     form = forms.AggregateBulkEditForm
     template_name = 'ipam/aggregate_bulk_edit.html'
     default_redirect_url = 'ipam:aggregate_list'
@@ -336,6 +340,7 @@ class AggregateBulkEditView(PermissionRequiredMixin, BulkEditView):
 class AggregateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_aggregate'
     cls = Aggregate
+    filter = filters.AggregateFilter
     default_redirect_url = 'ipam:aggregate_list'
 
 
@@ -460,6 +465,7 @@ class PrefixBulkImportView(PermissionRequiredMixin, BulkImportView):
 class PrefixBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_prefix'
     cls = Prefix
+    filter = filters.PrefixFilter
     form = forms.PrefixBulkEditForm
     template_name = 'ipam/prefix_bulk_edit.html'
     default_redirect_url = 'ipam:prefix_list'
@@ -468,6 +474,7 @@ class PrefixBulkEditView(PermissionRequiredMixin, BulkEditView):
 class PrefixBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_prefix'
     cls = Prefix
+    filter = filters.PrefixFilter
     default_redirect_url = 'ipam:prefix_list'
 
 
@@ -648,6 +655,7 @@ class IPAddressBulkImportView(PermissionRequiredMixin, BulkImportView):
 class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_ipaddress'
     cls = IPAddress
+    filter = filters.IPAddressFilter
     form = forms.IPAddressBulkEditForm
     template_name = 'ipam/ipaddress_bulk_edit.html'
     default_redirect_url = 'ipam:ipaddress_list'
@@ -656,6 +664,7 @@ class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
 class IPAddressBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_ipaddress'
     cls = IPAddress
+    filter = filters.IPAddressFilter
     default_redirect_url = 'ipam:ipaddress_list'
 
 
@@ -684,6 +693,7 @@ class VLANGroupEditView(PermissionRequiredMixin, ObjectEditView):
 class VLANGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_vlangroup'
     cls = VLANGroup
+    filter = filters.VLANGroupFilter
     default_redirect_url = 'ipam:vlangroup_list'
 
 
@@ -737,6 +747,7 @@ class VLANBulkImportView(PermissionRequiredMixin, BulkImportView):
 class VLANBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_vlan'
     cls = VLAN
+    filter = filters.VLANFilter
     form = forms.VLANBulkEditForm
     template_name = 'ipam/vlan_bulk_edit.html'
     default_redirect_url = 'ipam:vlan_list'
@@ -745,6 +756,7 @@ class VLANBulkEditView(PermissionRequiredMixin, BulkEditView):
 class VLANBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_vlan'
     cls = VLAN
+    filter = filters.VLANFilter
     default_redirect_url = 'ipam:vlan_list'
 
 
