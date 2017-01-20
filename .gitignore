@@ -6,3 +6,7 @@
 !upgrade.sh
 fabfile.py
 *.swp
+
+# Heroku
+.env
+venv/

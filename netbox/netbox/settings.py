@@ -1,12 +1,14 @@
 import logging
 import os
 import socket
+import importlib
 
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
 
 try:
-    import configuration
+    mod_name = os.getenv('NETBOX_CONFIG', 'netbox.configuration')
+    configuration = importlib.import_module(mod_name)
 except ImportError:
     raise ImproperlyConfigured("Configuration file is not present. Please define netbox/netbox/configuration.py per "
                                "the documentation.")
