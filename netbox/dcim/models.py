@@ -442,7 +442,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
         devices = self.devices.select_related('device_type').filter(position__gte=1).exclude(pk__in=exclude)
 
         # Initialize the rack unit skeleton
-        units = list(1, self.u_height + 1)
+        units = list(range(1, self.u_height + 1))
 
         # Remove units consumed by installed devices
         for d in devices:

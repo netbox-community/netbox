@@ -64,8 +64,8 @@ class SiteTest(APITestCase):
     ]
 
     def test_get_list(self, endpoint='/{}api/dcim/sites/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for i in content:
             self.assertEqual(
@@ -74,8 +74,8 @@ class SiteTest(APITestCase):
             )
 
     def test_get_detail(self, endpoint='/{}api/dcim/sites/1/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             sorted(content.keys()),
@@ -83,10 +83,10 @@ class SiteTest(APITestCase):
         )
 
     def test_get_site_list_rack(self, endpoint='/{}api/dcim/sites/1/racks/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        for i in json.loads(response.content):
+        for i in json.loads(response.content.decode('utf-8')):
             self.assertEqual(
                 sorted(i.keys()),
                 sorted(self.rack_fields),
@@ -98,10 +98,10 @@ class SiteTest(APITestCase):
             )
 
     def test_get_site_list_graphs(self, endpoint='/{}api/dcim/sites/1/graphs/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        for i in json.loads(response.content):
+        for i in json.loads(response.content.decode('utf-8')):
             self.assertEqual(
                 sorted(i.keys()),
                 sorted(self.graph_fields),
@@ -158,8 +158,8 @@ class RackTest(APITestCase):
     ]
 
     def test_get_list(self, endpoint='/{}api/dcim/racks/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for i in content:
             self.assertEqual(
@@ -172,8 +172,8 @@ class RackTest(APITestCase):
             )
 
     def test_get_detail(self, endpoint='/{}api/dcim/racks/1/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             sorted(content.keys()),
@@ -201,8 +201,8 @@ class ManufacturersTest(APITestCase):
     nested_fields = standard_fields
 
     def test_get_list(self, endpoint='/{}api/dcim/manufacturers/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for i in content:
             self.assertEqual(
@@ -211,8 +211,8 @@ class ManufacturersTest(APITestCase):
             )
 
     def test_get_detail(self, endpoint='/{}api/dcim/manufacturers/1/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             sorted(content.keys()),
@@ -249,8 +249,8 @@ class DeviceTypeTest(APITestCase):
     ]
 
     def test_get_list(self, endpoint='/{}api/dcim/device-types/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for i in content:
             self.assertEqual(
@@ -260,8 +260,8 @@ class DeviceTypeTest(APITestCase):
 
     def test_detail_list(self, endpoint='/{}api/dcim/device-types/1/'.format(settings.BASE_PATH)):
         # TODO: details returns list view.
-        # response = self.client.get(endpoint).decode("utf-8")
-        # content = json.loads(response.content)
+        # response = self.client.get(endpoint)
+        # content = json.loads(response.content.decode('utf-8'))
         # self.assertEqual(response.status_code, status.HTTP_200_OK)
         # self.assertEqual(
         #     sorted(content.keys()),
@@ -283,8 +283,8 @@ class DeviceRolesTest(APITestCase):
     nested_fields = ['id', 'name', 'slug']
 
     def test_get_list(self, endpoint='/{}api/dcim/device-roles/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for i in content:
             self.assertEqual(
@@ -293,8 +293,8 @@ class DeviceRolesTest(APITestCase):
             )
 
     def test_get_detail(self, endpoint='/{}api/dcim/device-roles/1/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             sorted(content.keys()),
@@ -311,8 +311,8 @@ class PlatformsTest(APITestCase):
     nested_fields = ['id', 'name', 'slug']
 
     def test_get_list(self, endpoint='/{}api/dcim/platforms/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for i in content:
             self.assertEqual(
@@ -321,8 +321,8 @@ class PlatformsTest(APITestCase):
             )
 
     def test_get_detail(self, endpoint='/{}api/dcim/platforms/1/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             sorted(content.keys()),
@@ -359,8 +359,8 @@ class DeviceTest(APITestCase):
     nested_fields = ['id', 'name', 'display_name']
 
     def test_get_list(self, endpoint='/{}api/dcim/devices/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for device in content:
             self.assertEqual(
@@ -424,8 +424,8 @@ class DeviceTest(APITestCase):
             'tenant',
         ]
 
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         device = content[0]
         self.assertEqual(
@@ -434,8 +434,8 @@ class DeviceTest(APITestCase):
         )
 
     def test_get_detail(self, endpoint='/{}api/dcim/devices/1/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             sorted(content.keys()),
@@ -452,8 +452,8 @@ class ConsoleServerPortsTest(APITestCase):
     nested_fields = ['id', 'device', 'name']
 
     def test_get_list(self, endpoint='/{}api/dcim/devices/9/console-server-ports/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for console_port in content:
             self.assertEqual(
@@ -474,8 +474,8 @@ class ConsolePortsTest(APITestCase):
     nested_fields = ['id', 'device', 'name']
 
     def test_get_list(self, endpoint='/{}api/dcim/devices/1/console-ports/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for console_port in content:
             self.assertEqual(
@@ -492,8 +492,8 @@ class ConsolePortsTest(APITestCase):
             )
 
     def test_get_detail(self, endpoint='/{}api/dcim/console-ports/1/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             sorted(content.keys()),
@@ -513,8 +513,8 @@ class PowerPortsTest(APITestCase):
     nested_fields = ['id', 'device', 'name']
 
     def test_get_list(self, endpoint='/{}api/dcim/devices/1/power-ports/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for i in content:
             self.assertEqual(
@@ -527,8 +527,8 @@ class PowerPortsTest(APITestCase):
             )
 
     def test_get_detail(self, endpoint='/{}api/dcim/power-ports/1/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             sorted(content.keys()),
@@ -548,8 +548,8 @@ class PowerOutletsTest(APITestCase):
     nested_fields = ['id', 'device', 'name']
 
     def test_get_list(self, endpoint='/{}api/dcim/devices/11/power-outlets/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for i in content:
             self.assertEqual(
@@ -598,8 +598,8 @@ class InterfaceTest(APITestCase):
     ]
 
     def test_get_list(self, endpoint='/{}api/dcim/devices/1/interfaces/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for i in content:
             self.assertEqual(
@@ -612,8 +612,8 @@ class InterfaceTest(APITestCase):
             )
 
     def test_get_detail(self, endpoint='/{}api/dcim/interfaces/1/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             sorted(content.keys()),
@@ -625,8 +625,8 @@ class InterfaceTest(APITestCase):
         )
 
     def test_get_graph_list(self, endpoint='/{}api/dcim/interfaces/1/graphs/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for i in content:
             self.assertEqual(
@@ -636,8 +636,8 @@ class InterfaceTest(APITestCase):
 
     def test_get_interface_connections(self, endpoint='/{}api/dcim/interface-connections/4/'
                                        .format(settings.BASE_PATH)):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             sorted(content.keys()),
@@ -658,8 +658,8 @@ class RelatedConnectionsTest(APITestCase):
 
     def test_get_list(self, endpoint=('/{}api/dcim/related-connections/?peer-device=test1-edge1&peer-interface=xe-0/0/3'
                                       .format(settings.BASE_PATH))):
-        response = self.client.get(endpoint).decode("utf-8")
-        content = json.loads(response.content)
+        response = self.client.get(endpoint)
+        content = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             sorted(content.keys()),
