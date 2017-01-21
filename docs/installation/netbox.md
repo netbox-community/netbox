@@ -3,14 +3,14 @@
 **Debian/Ubuntu**
 
 ```no-highlight
-# apt-get install -y python2.7 python-dev python-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev
+# apt-get install -y python3 python3-dev python3-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev
 ```
 
 **CentOS/RHEL**
 
 ```no-highlight
 # yum install -y epel-release
-# yum install -y gcc python2 python-devel python-pip libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel
+# yum install -y gcc python3 python3-devel python3-pip libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel
 ```
 
 You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.
