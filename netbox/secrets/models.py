@@ -76,7 +76,7 @@ class UserKey(CreatedUpdatedModel):
         self.__initial_public_key = self.public_key
         self.__initial_master_key_cipher = self.master_key_cipher
 
-    def __unicode__(self):
+    def __str__(self):
         return self.user.username
 
     def clean(self, *args, **kwargs):
@@ -186,7 +186,7 @@ class SecretRole(models.Model):
     class Meta:
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -227,7 +227,7 @@ class Secret(CreatedUpdatedModel):
         self.plaintext = kwargs.pop('plaintext', None)
         super(Secret, self).__init__(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.role and self.device:
             return u'{} for {}'.format(self.role, self.device)
         return u'Secret'

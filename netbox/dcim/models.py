@@ -222,7 +222,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     class Meta:
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -282,7 +282,7 @@ class RackGroup(models.Model):
             ['site', 'slug'],
         ]
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} - {}'.format(self.site.name, self.name)
 
     def get_absolute_url(self):
@@ -300,7 +300,7 @@ class RackRole(models.Model):
     class Meta:
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -343,7 +343,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
             ['site', 'facility_id'],
         ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.display_name
 
     def get_absolute_url(self):
@@ -487,7 +487,7 @@ class Manufacturer(models.Model):
     class Meta:
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -538,7 +538,7 @@ class DeviceType(models.Model, CustomFieldModel):
             ['manufacturer', 'slug'],
         ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.model
 
     def __init__(self, *args, **kwargs):
@@ -619,7 +619,7 @@ class ConsolePortTemplate(models.Model):
         ordering = ['device_type', 'name']
         unique_together = ['device_type', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -634,7 +634,7 @@ class ConsoleServerPortTemplate(models.Model):
         ordering = ['device_type', 'name']
         unique_together = ['device_type', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -649,7 +649,7 @@ class PowerPortTemplate(models.Model):
         ordering = ['device_type', 'name']
         unique_together = ['device_type', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -664,7 +664,7 @@ class PowerOutletTemplate(models.Model):
         ordering = ['device_type', 'name']
         unique_together = ['device_type', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -721,7 +721,7 @@ class InterfaceTemplate(models.Model):
         ordering = ['device_type', 'name']
         unique_together = ['device_type', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -736,7 +736,7 @@ class DeviceBayTemplate(models.Model):
         ordering = ['device_type', 'name']
         unique_together = ['device_type', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -756,7 +756,7 @@ class DeviceRole(models.Model):
     class Meta:
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -776,7 +776,7 @@ class Platform(models.Model):
     class Meta:
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -828,7 +828,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         ordering = ['name']
         unique_together = ['rack', 'position', 'face']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.display_name
 
     def get_absolute_url(self):
@@ -982,7 +982,7 @@ class ConsolePort(models.Model):
         ordering = ['device', 'name']
         unique_together = ['device', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     # Used for connections export
@@ -1023,7 +1023,7 @@ class ConsoleServerPort(models.Model):
     class Meta:
         unique_together = ['device', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -1041,7 +1041,7 @@ class PowerPort(models.Model):
         ordering = ['device', 'name']
         unique_together = ['device', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     # Used for connections export
@@ -1076,7 +1076,7 @@ class PowerOutlet(models.Model):
     class Meta:
         unique_together = ['device', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -1099,7 +1099,7 @@ class Interface(models.Model):
         ordering = ['device', 'name']
         unique_together = ['device', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def clean(self):
@@ -1189,7 +1189,7 @@ class DeviceBay(models.Model):
         ordering = ['device', 'name']
         unique_together = ['device', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} - {}'.format(self.device.name, self.name)
 
     def clean(self):
@@ -1223,5 +1223,5 @@ class Module(models.Model):
         ordering = ['device__id', 'parent__id', 'name']
         unique_together = ['device', 'parent', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name

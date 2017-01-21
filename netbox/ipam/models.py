@@ -89,7 +89,7 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
         verbose_name = 'VRF'
         verbose_name_plural = 'VRFs'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -120,7 +120,7 @@ class RIR(models.Model):
         verbose_name = 'RIR'
         verbose_name_plural = 'RIRs'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -142,7 +142,7 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
     class Meta:
         ordering = ['family', 'prefix']
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.prefix)
 
     def get_absolute_url(self):
@@ -216,7 +216,7 @@ class Role(models.Model):
     class Meta:
         ordering = ['weight', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @property
@@ -292,7 +292,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
         ordering = ['vrf', 'family', 'prefix']
         verbose_name_plural = 'prefixes'
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.prefix)
 
     def get_absolute_url(self):
@@ -409,7 +409,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
         verbose_name = 'IP address'
         verbose_name_plural = 'IP addresses'
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.address)
 
     def get_absolute_url(self):
@@ -486,7 +486,7 @@ class VLANGroup(models.Model):
         verbose_name = 'VLAN group'
         verbose_name_plural = 'VLAN groups'
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} - {}'.format(self.site.name, self.name)
 
     def get_absolute_url(self):
@@ -524,7 +524,7 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
         verbose_name = 'VLAN'
         verbose_name_plural = 'VLANs'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.display_name
 
     def get_absolute_url(self):
@@ -576,5 +576,5 @@ class Service(CreatedUpdatedModel):
         ordering = ['device', 'protocol', 'port']
         unique_together = ['device', 'protocol', 'port']
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} ({}/{})'.format(self.name, self.port, self.get_protocol_display())

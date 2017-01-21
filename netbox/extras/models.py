@@ -114,7 +114,7 @@ class CustomField(models.Model):
     class Meta:
         ordering = ['weight', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.label or self.name.replace('_', ' ').capitalize()
 
     def serialize_value(self, value):
@@ -164,7 +164,7 @@ class CustomFieldValue(models.Model):
         ordering = ['obj_type', 'obj_id']
         unique_together = ['field', 'obj_type', 'obj_id']
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} {}'.format(self.obj, self.field)
 
     @property
@@ -193,7 +193,7 @@ class CustomFieldChoice(models.Model):
         ordering = ['field', 'weight', 'value']
         unique_together = ['field', 'value']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.value
 
     def clean(self):
@@ -217,7 +217,7 @@ class Graph(models.Model):
     class Meta:
         ordering = ['type', 'weight', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def embed_url(self, obj):
@@ -245,7 +245,7 @@ class ExportTemplate(models.Model):
             ['content_type', 'name']
         ]
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{}: {}'.format(self.content_type, self.name)
 
     def to_response(self, context_dict, filename):
@@ -278,7 +278,7 @@ class TopologyMap(models.Model):
     class Meta:
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @property
@@ -344,7 +344,7 @@ class UserAction(models.Model):
     class Meta:
         ordering = ['-time']
 
-    def __unicode__(self):
+    def __str__(self):
         if self.message:
             return u'{} {}'.format(self.user, self.message)
         return u'{} {} {}'.format(self.user, self.get_action_display(), self.content_type)

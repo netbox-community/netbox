@@ -51,7 +51,7 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
     class Meta:
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -78,7 +78,7 @@ class CircuitType(models.Model):
     class Meta:
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -105,7 +105,7 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
         ordering = ['provider', 'cid']
         unique_together = ['provider', 'cid']
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} {}'.format(self.provider, self.cid)
 
     def get_absolute_url(self):
@@ -156,7 +156,7 @@ class CircuitTermination(models.Model):
         ordering = ['circuit', 'term_side']
         unique_together = ['circuit', 'term_side']
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} (Side {})'.format(self.circuit, self.get_term_side_display())
 
     def get_peer_termination(self):
