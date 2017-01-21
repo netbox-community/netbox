@@ -5,4 +5,4 @@ import random
 
 charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*(-_=+)'
 random.seed = (os.urandom(2048))
-print ''.join(random.choice(charset) for c in range(50))
+print(''.join(random.choice(charset) for c in range(50)))
