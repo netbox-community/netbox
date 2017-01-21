@@ -13,7 +13,10 @@ ALLOWED_HOSTS = []
 # PostgreSQL database configuration.
 DATABASE = {
     'NAME': 'netbox',         # Database name
-    'USER': 'postgres',               # PostgreSQL username
+    'USER': '',               # PostgreSQL username
+    'PASSWORD': '',           # PostgreSQL password
+    'HOST': 'localhost',      # Database server
+    'PORT': '',               # Database port (leave blank for default)
 }
 
 # This key is used for secure generation of random numbers and strings. It must never be exposed outside of this file.
