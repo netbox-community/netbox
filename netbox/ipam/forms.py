@@ -484,7 +484,7 @@ class VLANForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = VLAN
-        fields = ['site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description']
+        fields = ['site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'service_identifier']
         help_texts = {
             'site': "The site at which this VLAN exists",
             'group': "VLAN group (optional)",
@@ -492,6 +492,7 @@ class VLANForm(BootstrapMixin, CustomFieldForm):
             'name': "Configured VLAN name",
             'status': "Operational status of this VLAN",
             'role': "The primary function of this VLAN",
+            'service_identifier': "Unique identifier: VXLAN or ISID",
         }
         widgets = {
             'site': forms.Select(attrs={'filter-for': 'group'}),
@@ -523,7 +524,7 @@ class VLANFromCSVForm(forms.ModelForm):
 
     class Meta:
         model = VLAN
-        fields = ['site', 'group', 'vid', 'name', 'tenant', 'status_name', 'role', 'description']
+        fields = ['site', 'group', 'vid', 'name', 'tenant', 'status_name', 'role', 'description', 'service_identifier']
 
     def save(self, *args, **kwargs):
         m = super(VLANFromCSVForm, self).save(commit=False)
@@ -548,7 +549,7 @@ class VLANBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     description = forms.CharField(max_length=100, required=False)
 
     class Meta:
-        nullable_fields = ['group', 'tenant', 'role', 'description']
+        nullable_fields = ['group', 'tenant', 'role', 'description', 'service_identifier']
 
 
 def vlan_status_choices():

@@ -109,6 +109,16 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Service Identifier</td>
+                    <td>
+                        {% if vlan.service_identifier %}
+                            {{ vlan.service_identifier }}
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
 		    </table>
         </div>
         {% with vlan.get_custom_fields as custom_fields %}
