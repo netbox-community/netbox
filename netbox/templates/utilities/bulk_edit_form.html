@@ -5,8 +5,8 @@
 <h1>{% block title %}{% endblock %}</h1>
 <form action="." method="post" class="form form-horizontal">
     {% csrf_token %}
-    {% if request.POST.redirect_url %}
-        <input type="hidden" name="redirect_url" value="{{ request.POST.redirect_url }}" />
+    {% if request.POST.return_url %}
+        <input type="hidden" name="return_url" value="{{ request.POST.return_url }}" />
     {% endif %}
     {% for field in form.hidden_fields %}
         {{ field }}
@@ -44,7 +44,7 @@
 		    <div class="form-group text-right">
                 <div class="col-md-12">
                     <button type="submit" name="_apply" class="btn btn-primary">Apply</button>
-                    <a href="{{ cancel_url }}" class="btn btn-default">Cancel</a>
+                    <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
                 </div>
 		    </div>
         </div>

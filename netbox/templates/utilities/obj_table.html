@@ -3,7 +3,7 @@
 {% if table.model|user_can_change:request.user or table.model|user_can_delete:request.user %}
     <form method="post" class="form form-horizontal">
         {% csrf_token %}
-        <input type="hidden" name="redirect_url" value="{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" />
+        <input type="hidden" name="return_url" value="{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" />
         {% if table.paginator.num_pages > 1 %}
             <div id="select_all_box" class="hidden panel panel-default">
                 <div class="panel-body">

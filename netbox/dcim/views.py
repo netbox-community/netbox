@@ -71,7 +71,7 @@ class ComponentCreateView(View):
             'parent': parent,
             'component_type': self.model._meta.verbose_name,
             'form': self.form(initial=request.GET),
-            'cancel_url': parent.get_absolute_url(),
+            'return_url': parent.get_absolute_url(),
         })
 
     def post(self, request, pk):
@@ -112,11 +112,17 @@ class ComponentCreateView(View):
             'parent': parent,
             'component_type': self.model._meta.verbose_name,
             'form': form,
-            'cancel_url': parent.get_absolute_url(),
+            'return_url': parent.get_absolute_url(),
         })
 
 
 class ComponentEditView(ObjectEditView):
+
+    def get_return_url(self, obj):
+        return obj.device.get_absolute_url()
+
+
+class ComponentDeleteView(ObjectDeleteView):
 
     def get_return_url(self, obj):
         return obj.device.get_absolute_url()
@@ -163,7 +169,7 @@ class SiteEditView(PermissionRequiredMixin, ObjectEditView):
     model = Site
     form_class = forms.SiteForm
     template_name = 'dcim/site_edit.html'
-    obj_list_url = 'dcim:site_list'
+    default_return_url = 'dcim:site_list'
 
 
 class SiteDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -177,7 +183,7 @@ class SiteBulkImportView(PermissionRequiredMixin, BulkImportView):
     form = forms.SiteImportForm
     table = tables.SiteTable
     template_name = 'dcim/site_import.html'
-    obj_list_url = 'dcim:site_list'
+    default_return_url = 'dcim:site_list'
 
 
 class SiteBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -186,7 +192,7 @@ class SiteBulkEditView(PermissionRequiredMixin, BulkEditView):
     filter = filters.SiteFilter
     form = forms.SiteBulkEditForm
     template_name = 'dcim/site_bulk_edit.html'
-    default_redirect_url = 'dcim:site_list'
+    default_return_url = 'dcim:site_list'
 
 
 #
@@ -215,7 +221,7 @@ class RackGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rackgroup'
     cls = RackGroup
     filter = filters.RackGroupFilter
-    default_redirect_url = 'dcim:rackgroup_list'
+    default_return_url = 'dcim:rackgroup_list'
 
 
 #
@@ -241,7 +247,7 @@ class RackRoleEditView(PermissionRequiredMixin, ObjectEditView):
 class RackRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rackrole'
     cls = RackRole
-    default_redirect_url = 'dcim:rackrole_list'
+    default_return_url = 'dcim:rackrole_list'
 
 
 #
@@ -282,7 +288,7 @@ class RackEditView(PermissionRequiredMixin, ObjectEditView):
     model = Rack
     form_class = forms.RackForm
     template_name = 'dcim/rack_edit.html'
-    obj_list_url = 'dcim:rack_list'
+    default_return_url = 'dcim:rack_list'
 
 
 class RackDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -296,7 +302,7 @@ class RackBulkImportView(PermissionRequiredMixin, BulkImportView):
     form = forms.RackImportForm
     table = tables.RackImportTable
     template_name = 'dcim/rack_import.html'
-    obj_list_url = 'dcim:rack_list'
+    default_return_url = 'dcim:rack_list'
 
 
 class RackBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -305,14 +311,14 @@ class RackBulkEditView(PermissionRequiredMixin, BulkEditView):
     filter = filters.RackFilter
     form = forms.RackBulkEditForm
     template_name = 'dcim/rack_bulk_edit.html'
-    default_redirect_url = 'dcim:rack_list'
+    default_return_url = 'dcim:rack_list'
 
 
 class RackBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rack'
     cls = Rack
     filter = filters.RackFilter
-    default_redirect_url = 'dcim:rack_list'
+    default_return_url = 'dcim:rack_list'
 
 
 #
@@ -338,7 +344,7 @@ class ManufacturerEditView(PermissionRequiredMixin, ObjectEditView):
 class ManufacturerBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_manufacturer'
     cls = Manufacturer
-    default_redirect_url = 'dcim:manufacturer_list'
+    default_return_url = 'dcim:manufacturer_list'
 
 
 #
@@ -408,7 +414,7 @@ class DeviceTypeEditView(PermissionRequiredMixin, ObjectEditView):
     model = DeviceType
     form_class = forms.DeviceTypeForm
     template_name = 'dcim/devicetype_edit.html'
-    obj_list_url = 'dcim:devicetype_list'
+    default_return_url = 'dcim:devicetype_list'
 
 
 class DeviceTypeDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -423,14 +429,14 @@ class DeviceTypeBulkEditView(PermissionRequiredMixin, BulkEditView):
     filter = filters.DeviceTypeFilter
     form = forms.DeviceTypeBulkEditForm
     template_name = 'dcim/devicetype_bulk_edit.html'
-    default_redirect_url = 'dcim:devicetype_list'
+    default_return_url = 'dcim:devicetype_list'
 
 
 class DeviceTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_devicetype'
     cls = DeviceType
     filter = filters.DeviceTypeFilter
-    default_redirect_url = 'dcim:devicetype_list'
+    default_return_url = 'dcim:devicetype_list'
 
 
 #
@@ -560,7 +566,7 @@ class DeviceRoleEditView(PermissionRequiredMixin, ObjectEditView):
 class DeviceRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_devicerole'
     cls = DeviceRole
-    default_redirect_url = 'dcim:devicerole_list'
+    default_return_url = 'dcim:devicerole_list'
 
 
 #
@@ -586,7 +592,7 @@ class PlatformEditView(PermissionRequiredMixin, ObjectEditView):
 class PlatformBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_platform'
     cls = Platform
-    default_redirect_url = 'dcim:platform_list'
+    default_return_url = 'dcim:platform_list'
 
 
 #
@@ -678,7 +684,7 @@ class DeviceEditView(PermissionRequiredMixin, ObjectEditView):
     form_class = forms.DeviceForm
     fields_initial = ['site', 'rack', 'position', 'face', 'device_bay']
     template_name = 'dcim/device_edit.html'
-    obj_list_url = 'dcim:device_list'
+    default_return_url = 'dcim:device_list'
 
 
 class DeviceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -692,7 +698,7 @@ class DeviceBulkImportView(PermissionRequiredMixin, BulkImportView):
     form = forms.DeviceImportForm
     table = tables.DeviceImportTable
     template_name = 'dcim/device_import.html'
-    obj_list_url = 'dcim:device_list'
+    default_return_url = 'dcim:device_list'
 
 
 class ChildDeviceBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -700,7 +706,7 @@ class ChildDeviceBulkImportView(PermissionRequiredMixin, BulkImportView):
     form = forms.ChildDeviceImportForm
     table = tables.DeviceImportTable
     template_name = 'dcim/device_import_child.html'
-    obj_list_url = 'dcim:device_list'
+    default_return_url = 'dcim:device_list'
 
     def save_obj(self, obj):
         # Inherent rack from parent device
@@ -718,14 +724,14 @@ class DeviceBulkEditView(PermissionRequiredMixin, BulkEditView):
     filter = filters.DeviceFilter
     form = forms.DeviceBulkEditForm
     template_name = 'dcim/device_bulk_edit.html'
-    default_redirect_url = 'dcim:device_list'
+    default_return_url = 'dcim:device_list'
 
 
 class DeviceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_device'
     cls = Device
     filter = filters.DeviceFilter
-    default_redirect_url = 'dcim:device_list'
+    default_return_url = 'dcim:device_list'
 
 
 def device_inventory(request, pk):
@@ -790,7 +796,7 @@ def consoleport_connect(request, pk):
     return render(request, 'dcim/consoleport_connect.html', {
         'consoleport': consoleport,
         'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': consoleport.device.pk}),
+        'return_url': reverse('dcim:device', kwargs={'pk': consoleport.device.pk}),
     })
 
 
@@ -819,7 +825,7 @@ def consoleport_disconnect(request, pk):
     return render(request, 'dcim/consoleport_disconnect.html', {
         'consoleport': consoleport,
         'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': consoleport.device.pk}),
+        'return_url': reverse('dcim:device', kwargs={'pk': consoleport.device.pk}),
     })
 
 
@@ -829,7 +835,7 @@ class ConsolePortEditView(PermissionRequiredMixin, ComponentEditView):
     form_class = forms.ConsolePortForm
 
 
-class ConsolePortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+class ConsolePortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_consoleport'
     model = ConsolePort
 
@@ -886,7 +892,7 @@ def consoleserverport_connect(request, pk):
     return render(request, 'dcim/consoleserverport_connect.html', {
         'consoleserverport': consoleserverport,
         'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': consoleserverport.device.pk}),
+        'return_url': reverse('dcim:device', kwargs={'pk': consoleserverport.device.pk}),
     })
 
 
@@ -916,7 +922,7 @@ def consoleserverport_disconnect(request, pk):
     return render(request, 'dcim/consoleserverport_disconnect.html', {
         'consoleserverport': consoleserverport,
         'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': consoleserverport.device.pk}),
+        'return_url': reverse('dcim:device', kwargs={'pk': consoleserverport.device.pk}),
     })
 
 
@@ -926,7 +932,7 @@ class ConsoleServerPortEditView(PermissionRequiredMixin, ComponentEditView):
     form_class = forms.ConsoleServerPortForm
 
 
-class ConsoleServerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+class ConsoleServerPortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_consoleserverport'
     model = ConsoleServerPort
 
@@ -976,7 +982,7 @@ def powerport_connect(request, pk):
     return render(request, 'dcim/powerport_connect.html', {
         'powerport': powerport,
         'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': powerport.device.pk}),
+        'return_url': reverse('dcim:device', kwargs={'pk': powerport.device.pk}),
     })
 
 
@@ -1005,7 +1011,7 @@ def powerport_disconnect(request, pk):
     return render(request, 'dcim/powerport_disconnect.html', {
         'powerport': powerport,
         'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': powerport.device.pk}),
+        'return_url': reverse('dcim:device', kwargs={'pk': powerport.device.pk}),
     })
 
 
@@ -1015,7 +1021,7 @@ class PowerPortEditView(PermissionRequiredMixin, ComponentEditView):
     form_class = forms.PowerPortForm
 
 
-class PowerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+class PowerPortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_powerport'
     model = PowerPort
 
@@ -1072,7 +1078,7 @@ def poweroutlet_connect(request, pk):
     return render(request, 'dcim/poweroutlet_connect.html', {
         'poweroutlet': poweroutlet,
         'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': poweroutlet.device.pk}),
+        'return_url': reverse('dcim:device', kwargs={'pk': poweroutlet.device.pk}),
     })
 
 
@@ -1101,7 +1107,7 @@ def poweroutlet_disconnect(request, pk):
     return render(request, 'dcim/poweroutlet_disconnect.html', {
         'poweroutlet': poweroutlet,
         'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': poweroutlet.device.pk}),
+        'return_url': reverse('dcim:device', kwargs={'pk': poweroutlet.device.pk}),
     })
 
 
@@ -1111,7 +1117,7 @@ class PowerOutletEditView(PermissionRequiredMixin, ComponentEditView):
     form_class = forms.PowerOutletForm
 
 
-class PowerOutletDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+class PowerOutletDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_poweroutlet'
     model = PowerOutlet
 
@@ -1141,7 +1147,7 @@ class InterfaceEditView(PermissionRequiredMixin, ComponentEditView):
     form_class = forms.InterfaceForm
 
 
-class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+class InterfaceDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_interface'
     model = Interface
 
@@ -1179,7 +1185,7 @@ class DeviceBayEditView(PermissionRequiredMixin, ComponentEditView):
     form_class = forms.DeviceBayForm
 
 
-class DeviceBayDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+class DeviceBayDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_devicebay'
     model = DeviceBay
 
@@ -1206,7 +1212,7 @@ def devicebay_populate(request, pk):
     return render(request, 'dcim/devicebay_populate.html', {
         'device_bay': device_bay,
         'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': device_bay.device.pk}),
+        'return_url': reverse('dcim:device', kwargs={'pk': device_bay.device.pk}),
     })
 
 
@@ -1230,7 +1236,7 @@ def devicebay_depopulate(request, pk):
     return render(request, 'dcim/devicebay_depopulate.html', {
         'device_bay': device_bay,
         'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': device_bay.device.pk}),
+        'return_url': reverse('dcim:device', kwargs={'pk': device_bay.device.pk}),
     })
 
 
@@ -1305,7 +1311,7 @@ class DeviceBulkAddComponentView(View):
             'form': form,
             'component_name': self.model._meta.verbose_name_plural,
             'selected_devices': selected_devices,
-            'cancel_url': reverse('dcim:device_list'),
+            'return_url': reverse('dcim:device_list'),
         })
 
 
@@ -1387,7 +1393,7 @@ def interfaceconnection_add(request, pk):
     return render(request, 'dcim/interfaceconnection_edit.html', {
         'device': device,
         'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
+        'return_url': reverse('dcim:device', kwargs={'pk': device.pk}),
     })
 
 
@@ -1419,15 +1425,15 @@ def interfaceconnection_delete(request, pk):
 
     # Determine where to direct user upon cancellation
     if device_id:
-        cancel_url = reverse('dcim:device', kwargs={'pk': device_id})
+        return_url = reverse('dcim:device', kwargs={'pk': device_id})
     else:
-        cancel_url = reverse('dcim:device_list')
+        return_url = reverse('dcim:device_list')
 
     return render(request, 'dcim/interfaceconnection_delete.html', {
         'interfaceconnection': interfaceconnection,
         'device_id': device_id,
         'form': form,
-        'cancel_url': cancel_url,
+        'return_url': return_url,
     })
 
 
@@ -1506,7 +1512,7 @@ def ipaddress_assign(request, pk):
     return render(request, 'dcim/ipaddress_assign.html', {
         'device': device,
         'form': form,
-        'cancel_url': reverse('dcim:device', kwargs={'pk': device.pk}),
+        'return_url': reverse('dcim:device', kwargs={'pk': device.pk}),
     })
 
 
@@ -1525,6 +1531,6 @@ class ModuleEditView(PermissionRequiredMixin, ComponentEditView):
         return obj
 
 
-class ModuleDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+class ModuleDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_module'
     model = Module

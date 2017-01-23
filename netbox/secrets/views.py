@@ -38,7 +38,7 @@ class SecretRoleEditView(PermissionRequiredMixin, ObjectEditView):
 class SecretRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'secrets.delete_secretrole'
     cls = SecretRole
-    default_redirect_url = 'secrets:secretrole_list'
+    default_return_url = 'secrets:secretrole_list'
 
 
 #
@@ -103,7 +103,7 @@ def secret_add(request, pk):
     return render(request, 'secrets/secret_edit.html', {
         'secret': secret,
         'form': form,
-        'cancel_url': device.get_absolute_url(),
+        'return_url': device.get_absolute_url(),
     })
 
 
@@ -145,7 +145,7 @@ def secret_edit(request, pk):
     return render(request, 'secrets/secret_edit.html', {
         'secret': secret,
         'form': form,
-        'cancel_url': reverse('secrets:secret', kwargs={'pk': secret.pk}),
+        'return_url': reverse('secrets:secret', kwargs={'pk': secret.pk}),
     })
 
 
@@ -195,7 +195,7 @@ def secret_import(request):
 
     return render(request, 'secrets/secret_import.html', {
         'form': form,
-        'cancel_url': reverse('secrets:secret_list'),
+        'return_url': reverse('secrets:secret_list'),
     })
 
 
@@ -205,11 +205,11 @@ class SecretBulkEditView(PermissionRequiredMixin, BulkEditView):
     filter = filters.SecretFilter
     form = forms.SecretBulkEditForm
     template_name = 'secrets/secret_bulk_edit.html'
-    default_redirect_url = 'secrets:secret_list'
+    default_return_url = 'secrets:secret_list'
 
 
 class SecretBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'secrets.delete_secret'
     cls = Secret
     filter = filters.SecretFilter
-    default_redirect_url = 'secrets:secret_list'
+    default_return_url = 'secrets:secret_list'
