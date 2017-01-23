@@ -116,6 +116,12 @@ class ComponentCreateView(View):
         })
 
 
+class ComponentEditView(ObjectEditView):
+
+    def get_return_url(self, obj):
+        return obj.device.get_absolute_url()
+
+
 #
 # Sites
 #
@@ -817,7 +823,7 @@ def consoleport_disconnect(request, pk):
     })
 
 
-class ConsolePortEditView(PermissionRequiredMixin, ObjectEditView):
+class ConsolePortEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_consoleport'
     model = ConsolePort
     form_class = forms.ConsolePortForm
@@ -914,7 +920,7 @@ def consoleserverport_disconnect(request, pk):
     })
 
 
-class ConsoleServerPortEditView(PermissionRequiredMixin, ObjectEditView):
+class ConsoleServerPortEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_consoleserverport'
     model = ConsoleServerPort
     form_class = forms.ConsoleServerPortForm
@@ -1003,7 +1009,7 @@ def powerport_disconnect(request, pk):
     })
 
 
-class PowerPortEditView(PermissionRequiredMixin, ObjectEditView):
+class PowerPortEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_powerport'
     model = PowerPort
     form_class = forms.PowerPortForm
@@ -1099,7 +1105,7 @@ def poweroutlet_disconnect(request, pk):
     })
 
 
-class PowerOutletEditView(PermissionRequiredMixin, ObjectEditView):
+class PowerOutletEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_poweroutlet'
     model = PowerOutlet
     form_class = forms.PowerOutletForm
@@ -1129,7 +1135,7 @@ class InterfaceAddView(PermissionRequiredMixin, ComponentCreateView):
     model_form = forms.InterfaceForm
 
 
-class InterfaceEditView(PermissionRequiredMixin, ObjectEditView):
+class InterfaceEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_interface'
     model = Interface
     form_class = forms.InterfaceForm
@@ -1167,7 +1173,7 @@ class DeviceBayAddView(PermissionRequiredMixin, ComponentCreateView):
     model_form = forms.DeviceBayForm
 
 
-class DeviceBayEditView(PermissionRequiredMixin, ObjectEditView):
+class DeviceBayEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_devicebay'
     model = DeviceBay
     form_class = forms.DeviceBayForm
@@ -1508,7 +1514,7 @@ def ipaddress_assign(request, pk):
 # Modules
 #
 
-class ModuleEditView(PermissionRequiredMixin, ObjectEditView):
+class ModuleEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_module'
     model = Module
     form_class = forms.ModuleForm
@@ -1517,9 +1523,6 @@ class ModuleEditView(PermissionRequiredMixin, ObjectEditView):
         if 'device' in kwargs:
             obj.device = get_object_or_404(Device, pk=kwargs['device'])
         return obj
-
-    def get_return_url(self, obj):
-        return obj.device.get_absolute_url()
 
 
 class ModuleDeleteView(PermissionRequiredMixin, ObjectDeleteView):
