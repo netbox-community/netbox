@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 
 from dcim.fields import ASNField
 from extras.models import CustomFieldModel, CustomFieldValue
@@ -33,6 +34,7 @@ def humanize_speed(speed):
         return '{} Kbps'.format(speed)
 
 
+@python_2_unicode_compatible
 class Provider(CreatedUpdatedModel, CustomFieldModel):
     """
     Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model
@@ -67,6 +69,7 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
         ])
 
 
+@python_2_unicode_compatible
 class CircuitType(models.Model):
     """
     Circuits can be organized by their functional role. For example, a user might wish to define CircuitTypes named
@@ -85,6 +88,7 @@ class CircuitType(models.Model):
         return "{}?type={}".format(reverse('circuits:circuit_list'), self.slug)
 
 
+@python_2_unicode_compatible
 class Circuit(CreatedUpdatedModel, CustomFieldModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
@@ -141,6 +145,7 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
     commit_rate_human.admin_order_field = 'commit_rate'
 
 
+@python_2_unicode_compatible
 class CircuitTermination(models.Model):
     circuit = models.ForeignKey('Circuit', related_name='terminations', on_delete=models.CASCADE)
     term_side = models.CharField(max_length=1, choices=TERM_SIDE_CHOICES, verbose_name='Termination')

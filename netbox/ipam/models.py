@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.expressions import RawSQL
+from django.utils.encoding import python_2_unicode_compatible
 
 from dcim.models import Interface
 from extras.models import CustomFieldModel, CustomFieldValue
@@ -70,6 +71,7 @@ IP_PROTOCOL_CHOICES = (
 )
 
 
+@python_2_unicode_compatible
 class VRF(CreatedUpdatedModel, CustomFieldModel):
     """
     A virtual routing and forwarding (VRF) table represents a discrete layer three forwarding domain (e.g. a routing
@@ -105,6 +107,7 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
         ])
 
 
+@python_2_unicode_compatible
 class RIR(models.Model):
     """
     A Regional Internet Registry (RIR) is responsible for the allocation of a large portion of the global IP address
@@ -127,6 +130,7 @@ class RIR(models.Model):
         return "{}?rir={}".format(reverse('ipam:aggregate_list'), self.slug)
 
 
+@python_2_unicode_compatible
 class Aggregate(CreatedUpdatedModel, CustomFieldModel):
     """
     An aggregate exists at the root level of the IP address space hierarchy in NetBox. Aggregates are used to organize
@@ -204,6 +208,7 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
         return int(children_size / self.prefix.size * 100)
 
 
+@python_2_unicode_compatible
 class Role(models.Model):
     """
     A Role represents the functional role of a Prefix or VLAN; for example, "Customer," "Infrastructure," or
@@ -263,6 +268,7 @@ class PrefixQuerySet(NullsFirstQuerySet):
         return filter(lambda p: p.depth <= limit, queryset)
 
 
+@python_2_unicode_compatible
 class Prefix(CreatedUpdatedModel, CustomFieldModel):
     """
     A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be assigned to Sites and
@@ -377,6 +383,7 @@ class IPAddressManager(models.Manager):
         return qs.annotate(host=RawSQL('INET(HOST(ipam_ipaddress.address))', [])).order_by('family', 'host')
 
 
+@python_2_unicode_compatible
 class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     """
     An IPAddress represents an individual IPv4 or IPv6 address and its mask. The mask length should match what is
@@ -469,6 +476,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
         return STATUS_CHOICE_CLASSES[self.status]
 
 
+@python_2_unicode_compatible
 class VLANGroup(models.Model):
     """
     A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique.
@@ -493,6 +501,7 @@ class VLANGroup(models.Model):
         return "{}?group_id={}".format(reverse('ipam:vlan_list'), self.pk)
 
 
+@python_2_unicode_compatible
 class VLAN(CreatedUpdatedModel, CustomFieldModel):
     """
     A VLAN is a distinct layer two forwarding domain identified by a 12-bit integer (1-4094). Each VLAN must be assigned
@@ -558,6 +567,7 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
         return STATUS_CHOICE_CLASSES[self.status]
 
 
+@python_2_unicode_compatible
 class Service(CreatedUpdatedModel):
     """
     A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device. A Service may optionally be tied

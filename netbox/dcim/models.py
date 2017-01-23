@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, Q, ObjectDoesNotExist
+from django.utils.encoding import python_2_unicode_compatible
 
 from circuits.models import Circuit
 from extras.models import CustomFieldModel, CustomField, CustomFieldValue
@@ -199,6 +200,7 @@ class SiteManager(NaturalOrderByManager):
         return self.natural_order_by('name')
 
 
+@python_2_unicode_compatible
 class Site(CreatedUpdatedModel, CustomFieldModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
@@ -265,6 +267,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
 # Racks
 #
 
+@python_2_unicode_compatible
 class RackGroup(models.Model):
     """
     Racks can be grouped as subsets within a Site. The scope of a group will depend on how Sites are defined. For
@@ -289,6 +292,7 @@ class RackGroup(models.Model):
         return "{}?group_id={}".format(reverse('dcim:rack_list'), self.pk)
 
 
+@python_2_unicode_compatible
 class RackRole(models.Model):
     """
     Racks can be organized by functional role, similar to Devices.
@@ -313,6 +317,7 @@ class RackManager(NaturalOrderByManager):
         return self.natural_order_by('site__name', 'name')
 
 
+@python_2_unicode_compatible
 class Rack(CreatedUpdatedModel, CustomFieldModel):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
@@ -477,6 +482,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
 # Device Types
 #
 
+@python_2_unicode_compatible
 class Manufacturer(models.Model):
     """
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
@@ -494,6 +500,7 @@ class Manufacturer(models.Model):
         return "{}?manufacturer={}".format(reverse('dcim:devicetype_list'), self.slug)
 
 
+@python_2_unicode_compatible
 class DeviceType(models.Model, CustomFieldModel):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
@@ -608,6 +615,7 @@ class DeviceType(models.Model, CustomFieldModel):
         return bool(self.subdevice_role is False)
 
 
+@python_2_unicode_compatible
 class ConsolePortTemplate(models.Model):
     """
     A template for a ConsolePort to be created for a new Device.
@@ -623,6 +631,7 @@ class ConsolePortTemplate(models.Model):
         return self.name
 
 
+@python_2_unicode_compatible
 class ConsoleServerPortTemplate(models.Model):
     """
     A template for a ConsoleServerPort to be created for a new Device.
@@ -638,6 +647,7 @@ class ConsoleServerPortTemplate(models.Model):
         return self.name
 
 
+@python_2_unicode_compatible
 class PowerPortTemplate(models.Model):
     """
     A template for a PowerPort to be created for a new Device.
@@ -653,6 +663,7 @@ class PowerPortTemplate(models.Model):
         return self.name
 
 
+@python_2_unicode_compatible
 class PowerOutletTemplate(models.Model):
     """
     A template for a PowerOutlet to be created for a new Device.
@@ -706,6 +717,7 @@ class InterfaceManager(models.Manager):
         }).order_by(*ordering)
 
 
+@python_2_unicode_compatible
 class InterfaceTemplate(models.Model):
     """
     A template for a physical data interface on a new Device.
@@ -725,6 +737,7 @@ class InterfaceTemplate(models.Model):
         return self.name
 
 
+@python_2_unicode_compatible
 class DeviceBayTemplate(models.Model):
     """
     A template for a DeviceBay to be created for a new parent Device.
@@ -744,6 +757,7 @@ class DeviceBayTemplate(models.Model):
 # Devices
 #
 
+@python_2_unicode_compatible
 class DeviceRole(models.Model):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
@@ -763,6 +777,7 @@ class DeviceRole(models.Model):
         return "{}?role={}".format(reverse('dcim:device_list'), self.slug)
 
 
+@python_2_unicode_compatible
 class Platform(models.Model):
     """
     Platform refers to the software or firmware running on a Device; for example, "Cisco IOS-XR" or "Juniper Junos".
@@ -789,6 +804,7 @@ class DeviceManager(NaturalOrderByManager):
         return self.natural_order_by('name')
 
 
+@python_2_unicode_compatible
 class Device(CreatedUpdatedModel, CustomFieldModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
@@ -968,6 +984,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         return RPC_CLIENTS.get(self.platform.rpc_client)
 
 
+@python_2_unicode_compatible
 class ConsolePort(models.Model):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
@@ -1011,6 +1028,7 @@ class ConsoleServerPortManager(models.Manager):
         }).order_by('device', 'name_as_integer')
 
 
+@python_2_unicode_compatible
 class ConsoleServerPort(models.Model):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
@@ -1027,6 +1045,7 @@ class ConsoleServerPort(models.Model):
         return self.name
 
 
+@python_2_unicode_compatible
 class PowerPort(models.Model):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
@@ -1064,6 +1083,7 @@ class PowerOutletManager(models.Manager):
         }).order_by('device', 'name_padded')
 
 
+@python_2_unicode_compatible
 class PowerOutlet(models.Model):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
@@ -1080,6 +1100,7 @@ class PowerOutlet(models.Model):
         return self.name
 
 
+@python_2_unicode_compatible
 class Interface(models.Model):
     """
     A physical data interface within a Device. An Interface can connect to exactly one other Interface via the creation
@@ -1176,6 +1197,7 @@ class InterfaceConnection(models.Model):
         ])
 
 
+@python_2_unicode_compatible
 class DeviceBay(models.Model):
     """
     An empty space within a Device which can house a child device
@@ -1205,6 +1227,7 @@ class DeviceBay(models.Model):
             raise ValidationError("Cannot install a device into itself.")
 
 
+@python_2_unicode_compatible
 class Module(models.Model):
     """
     A Module represents a piece of hardware within a Device, such as a line card or power supply. Modules are used only

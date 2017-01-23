@@ -8,7 +8,7 @@ from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.utils.encoding import force_bytes
+from django.utils.encoding import force_bytes, python_2_unicode_compatible
 
 from dcim.models import Device
 from utilities.models import CreatedUpdatedModel
@@ -51,6 +51,7 @@ class UserKeyQuerySet(models.QuerySet):
         raise Exception("Bulk deletion has been disabled.")
 
 
+@python_2_unicode_compatible
 class UserKey(CreatedUpdatedModel):
     """
     A UserKey stores a user's personal RSA (public) encryption key, which is used to generate their unique encrypted
@@ -170,6 +171,7 @@ class UserKey(CreatedUpdatedModel):
         self.save()
 
 
+@python_2_unicode_compatible
 class SecretRole(models.Model):
     """
     A SecretRole represents an arbitrary functional classification of Secrets. For example, a user might define roles
@@ -201,6 +203,7 @@ class SecretRole(models.Model):
         return user in self.users.all() or user.groups.filter(pk__in=self.groups.all()).exists()
 
 
+@python_2_unicode_compatible
 class Secret(CreatedUpdatedModel):
     """
     A Secret stores an AES256-encrypted copy of sensitive data, such as passwords or secret keys. An irreversible
