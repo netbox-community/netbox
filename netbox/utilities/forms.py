@@ -61,6 +61,7 @@ def parse_numeric_range(string, base=10):
         values.extend(range(begin, end))
     return list(set(values))
 
+
 def expand_numeric_pattern(string):
     """
     Expand a numeric pattern into a list of strings. Examples:
@@ -75,6 +76,7 @@ def expand_numeric_pattern(string):
                 yield "{}{}{}".format(lead, i, string)
         else:
             yield "{}{}{}".format(lead, i, remnant)
+
 
 def expand_ipaddress_pattern(string, family):
     """
