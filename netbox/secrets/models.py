@@ -8,7 +8,7 @@ from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.utils.encoding import force_bytes
+from django.utils.encoding import force_bytes, python_2_unicode_compatible
 
 from dcim.models import Device
 from utilities.models import CreatedUpdatedModel
@@ -51,6 +51,7 @@ class UserKeyQuerySet(models.QuerySet):
         raise Exception("Bulk deletion has been disabled.")
 
 
+@python_2_unicode_compatible
 class UserKey(CreatedUpdatedModel):
     """
     A UserKey stores a user's personal RSA (public) encryption key, which is used to generate their unique encrypted
@@ -76,7 +77,7 @@ class UserKey(CreatedUpdatedModel):
         self.__initial_public_key = self.public_key
         self.__initial_master_key_cipher = self.master_key_cipher
 
-    def __unicode__(self):
+    def __str__(self):
         return self.user.username
 
     def clean(self, *args, **kwargs):
@@ -170,6 +171,7 @@ class UserKey(CreatedUpdatedModel):
         self.save()
 
 
+@python_2_unicode_compatible
 class SecretRole(models.Model):
     """
     A SecretRole represents an arbitrary functional classification of Secrets. For example, a user might define roles
@@ -186,7 +188,7 @@ class SecretRole(models.Model):
     class Meta:
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -201,6 +203,7 @@ class SecretRole(models.Model):
         return user in self.users.all() or user.groups.filter(pk__in=self.groups.all()).exists()
 
 
+@python_2_unicode_compatible
 class Secret(CreatedUpdatedModel):
     """
     A Secret stores an AES256-encrypted copy of sensitive data, such as passwords or secret keys. An irreversible
@@ -227,7 +230,7 @@ class Secret(CreatedUpdatedModel):
         self.plaintext = kwargs.pop('plaintext', None)
         super(Secret, self).__init__(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.role and self.device:
             return u'{} for {}'.format(self.role, self.device)
         return u'Secret'

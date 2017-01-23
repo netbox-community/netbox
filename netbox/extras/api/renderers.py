@@ -50,7 +50,7 @@ class FlatJSONRenderer(renderers.BaseRenderer):
     def render(self, data, media_type=None, renderer_context=None):
 
         def flatten(entry):
-            for key, val in entry.iteritems():
+            for key, val in entry.items():
                 if isinstance(val, dict):
                     for child_key, child_val in flatten(val):
                         yield "{}_{}".format(key, child_key), child_val

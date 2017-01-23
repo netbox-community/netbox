@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 
-from views import home, handle_500, trigger_500
+from netbox.views import home, handle_500, trigger_500
 from users.views import login, logout
 
 
