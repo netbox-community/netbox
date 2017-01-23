@@ -406,11 +406,13 @@ def prefix(request, pk):
         .filter(prefix__net_contains=str(prefix.prefix))\
         .select_related('site', 'role').annotate_depth()
     parent_prefix_table = tables.PrefixBriefTable(parent_prefixes)
+    parent_prefix_table.exclude = ('vrf',)
 
     # Duplicate prefixes table
     duplicate_prefixes = Prefix.objects.filter(vrf=prefix.vrf, prefix=str(prefix.prefix)).exclude(pk=prefix.pk)\
         .select_related('site', 'role')
     duplicate_prefix_table = tables.PrefixBriefTable(list(duplicate_prefixes))
+    duplicate_prefix_table.exclude = ('vrf',)
 
     # Child prefixes table
     if prefix.vrf:
@@ -715,6 +717,7 @@ def vlan(request, pk):
     vlan = get_object_or_404(VLAN.objects.select_related('site', 'role'), pk=pk)
     prefixes = Prefix.objects.filter(vlan=vlan).select_related('vrf', 'site', 'role')
     prefix_table = tables.PrefixBriefTable(list(prefixes))
+    prefix_table.exclude = ('vlan',)
 
     return render(request, 'ipam/vlan.html', {
         'vlan': vlan,
