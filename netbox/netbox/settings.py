@@ -6,7 +6,7 @@ from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
 
 try:
-    import netbox.configuration
+    from netbox import configuration
 except ImportError:
     raise ImproperlyConfigured("Configuration file is not present. Please define netbox/netbox/configuration.py per "
                                "the documentation.")
@@ -17,34 +17,34 @@ VERSION = '1.8.3-dev'
 # Import local configuration
 for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
     try:
-        globals()[setting] = getattr(netbox.configuration, setting)
+        globals()[setting] = getattr(configuration, setting)
     except AttributeError:
         raise ImproperlyConfigured("Mandatory setting {} is missing from configuration.py. Please define it per the "
                                    "documentation.".format(setting))
 
 # Default configurations
-ADMINS = getattr(netbox.configuration, 'ADMINS', [])
-DEBUG = getattr(netbox.configuration, 'DEBUG', False)
-EMAIL = getattr(netbox.configuration, 'EMAIL', {})
-LOGIN_REQUIRED = getattr(netbox.configuration, 'LOGIN_REQUIRED', False)
-BASE_PATH = getattr(netbox.configuration, 'BASE_PATH', '')
+ADMINS = getattr(configuration, 'ADMINS', [])
+DEBUG = getattr(configuration, 'DEBUG', False)
+EMAIL = getattr(configuration, 'EMAIL', {})
+LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
+BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
-MAINTENANCE_MODE = getattr(netbox.configuration, 'MAINTENANCE_MODE', False)
-PAGINATE_COUNT = getattr(netbox.configuration, 'PAGINATE_COUNT', 50)
-NETBOX_USERNAME = getattr(netbox.configuration, 'NETBOX_USERNAME', '')
-NETBOX_PASSWORD = getattr(netbox.configuration, 'NETBOX_PASSWORD', '')
-TIME_ZONE = getattr(netbox.configuration, 'TIME_ZONE', 'UTC')
-DATE_FORMAT = getattr(netbox.configuration, 'DATE_FORMAT', 'N j, Y')
-SHORT_DATE_FORMAT = getattr(netbox.configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
-TIME_FORMAT = getattr(netbox.configuration, 'TIME_FORMAT', 'g:i a')
-SHORT_TIME_FORMAT = getattr(netbox.configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
-DATETIME_FORMAT = getattr(netbox.configuration, 'DATETIME_FORMAT', 'N j, Y g:i a')
-SHORT_DATETIME_FORMAT = getattr(netbox.configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
-BANNER_TOP = getattr(netbox.configuration, 'BANNER_TOP', False)
-BANNER_BOTTOM = getattr(netbox.configuration, 'BANNER_BOTTOM', False)
-PREFER_IPV4 = getattr(netbox.configuration, 'PREFER_IPV4', False)
-ENFORCE_GLOBAL_UNIQUE = getattr(netbox.configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
+MAINTENANCE_MODE = getattr(configuration, 'MAINTENANCE_MODE', False)
+PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
+NETBOX_USERNAME = getattr(configuration, 'NETBOX_USERNAME', '')
+NETBOX_PASSWORD = getattr(configuration, 'NETBOX_PASSWORD', '')
+TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
+DATE_FORMAT = getattr(configuration, 'DATE_FORMAT', 'N j, Y')
+SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
+TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
+SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
+DATETIME_FORMAT = getattr(configuration, 'DATETIME_FORMAT', 'N j, Y g:i a')
+SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
+BANNER_TOP = getattr(configuration, 'BANNER_TOP', False)
+BANNER_BOTTOM = getattr(configuration, 'BANNER_BOTTOM', False)
+PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
+ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
 # Attempt to import LDAP configuration if it has been defined
@@ -79,9 +79,9 @@ if LDAP_CONFIGURED:
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Database
-netbox.configuration.DATABASE.update({'ENGINE': 'django.db.backends.postgresql'})
+configuration.DATABASE.update({'ENGINE': 'django.db.backends.postgresql'})
 DATABASES = {
-    'default': netbox.configuration.DATABASE,
+    'default': configuration.DATABASE,
 }
 
 # Email
