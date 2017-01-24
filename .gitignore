@@ -7,3 +7,5 @@
 !upgrade.sh
 fabfile.py
 *.swp
+/netbox/netbox/ldap_config.py
+gunicorn_config.py
