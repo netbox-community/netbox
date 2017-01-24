@@ -437,6 +437,7 @@ def prefix(request, pk):
         'parent_prefix_table': parent_prefix_table,
         'child_prefix_table': child_prefix_table,
         'duplicate_prefix_table': duplicate_prefix_table,
+        'return_url': prefix.get_absolute_url(),
     })
 
 

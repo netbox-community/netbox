@@ -3,7 +3,7 @@ from django_tables2 import RequestConfig
 
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
@@ -590,7 +590,7 @@ class BulkDeleteView(View):
                 return redirect(return_url)
 
         else:
-            form = form_cls(initial={'pk': pk_list})
+            form = form_cls(initial={'pk': pk_list, 'return_url': return_url})
 
         selected_objects = self.cls.objects.filter(pk__in=pk_list)
         if not selected_objects:
