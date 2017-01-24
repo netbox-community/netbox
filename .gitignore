@@ -7,3 +7,4 @@
 !upgrade.sh
 fabfile.py
 *.swp
+gunicorn_config.py
