@@ -63,6 +63,7 @@ class VRFBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
 class VRFFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = VRF
+    q = forms.CharField(required=False, label='Search')
     tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('vrfs')), to_field_name='slug',
                                null_option=(0, None))
 
@@ -128,6 +129,7 @@ class AggregateBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
 class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Aggregate
+    q = forms.CharField(required=False, label='Search')
     family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address Family')
     rir = FilterChoiceField(queryset=RIR.objects.annotate(filter_count=Count('aggregates')), to_field_name='slug',
                             label='RIR')
@@ -256,8 +258,9 @@ def prefix_status_choices():
 
 class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Prefix
-    parent = forms.CharField(required=False, label='Search Within', widget=forms.TextInput(attrs={
-        'placeholder': 'Network',
+    q = forms.CharField(required=False, label='Search')
+    parent = forms.CharField(required=False, label='Parent Prefix', widget=forms.TextInput(attrs={
+        'placeholder': 'Prefix',
     }))
     family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address Family')
     vrf = FilterChoiceField(queryset=VRF.objects.annotate(filter_count=Count('prefixes')), to_field_name='rd',
@@ -446,7 +449,8 @@ def ipaddress_status_choices():
 
 class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = IPAddress
-    parent = forms.CharField(required=False, label='Search Within', widget=forms.TextInput(attrs={
+    q = forms.CharField(required=False, label='Search')
+    parent = forms.CharField(required=False, label='Parent Prefix', widget=forms.TextInput(attrs={
         'placeholder': 'Prefix',
     }))
     family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address Family')
@@ -560,6 +564,7 @@ def vlan_status_choices():
 
 class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = VLAN
+    q = forms.CharField(required=False, label='Search')
     site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('vlans')), to_field_name='slug')
     group_id = FilterChoiceField(queryset=VLANGroup.objects.annotate(filter_count=Count('vlans')), label='VLAN group',
                                  null_option=(0, 'None'))

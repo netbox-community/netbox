@@ -101,6 +101,7 @@ class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
 class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Site
+    q = forms.CharField(required=False, label='Search')
     tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('sites')), to_field_name='slug',
                                null_option=(0, 'None'))
 
@@ -232,6 +233,7 @@ class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
 class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Rack
+    q = forms.CharField(required=False, label='Search')
     site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('racks')), to_field_name='slug')
     group_id = FilterChoiceField(queryset=RackGroup.objects.select_related('site')
                                  .annotate(filter_count=Count('racks')), label='Rack group', null_option=(0, 'None'))
@@ -281,6 +283,7 @@ class DeviceTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
 class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = DeviceType
+    q = forms.CharField(required=False, label='Search')
     manufacturer = FilterChoiceField(queryset=Manufacturer.objects.annotate(filter_count=Count('device_types')),
                                      to_field_name='slug')
 
@@ -639,6 +642,7 @@ class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
 class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Device
+    q = forms.CharField(required=False, label='Search')
     site = FilterChoiceField(
         queryset=Site.objects.annotate(filter_count=Count('racks__devices')),
         to_field_name='slug',

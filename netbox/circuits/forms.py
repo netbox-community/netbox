@@ -62,6 +62,7 @@ class ProviderBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
 class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Provider
+    q = forms.CharField(required=False, label='Search')
     site = FilterChoiceField(queryset=Site.objects.all(), to_field_name='slug')
 
 
@@ -126,6 +127,7 @@ class CircuitBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
 class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Circuit
+    q = forms.CharField(required=False, label='Search')
     type = FilterChoiceField(queryset=CircuitType.objects.annotate(filter_count=Count('circuits')),
                              to_field_name='slug')
     provider = FilterChoiceField(queryset=Provider.objects.annotate(filter_count=Count('circuits')),
