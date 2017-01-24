@@ -1,9 +1,9 @@
-from rest_framework import generics
+from rest_framework.viewsets import ModelViewSet
 
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from ipam import filters
 
-from extras.api.views import CustomFieldModelAPIView
+from extras.api.views import CustomFieldModelViewSet
 from . import serializers
 
 
@@ -11,38 +11,22 @@ from . import serializers
 # VRFs
 #
 
-class VRFListView(CustomFieldModelAPIView, generics.ListAPIView):
+class VRFViewSet(CustomFieldModelViewSet):
     """
-    List all VRFs
+    List and retrieve VRFs
     """
-    queryset = VRF.objects.select_related('tenant').prefetch_related('custom_field_values__field')
+    queryset = VRF.objects.select_related('tenant')
     serializer_class = serializers.VRFSerializer
     filter_class = filters.VRFFilter
-
-
-class VRFDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
-    """
-    Retrieve a single VRF
-    """
-    queryset = VRF.objects.select_related('tenant').prefetch_related('custom_field_values__field')
-    serializer_class = serializers.VRFSerializer
 
 
 #
 # Roles
 #
 
-class RoleListView(generics.ListAPIView):
+class RoleViewSet(ModelViewSet):
     """
-    List all roles
-    """
-    queryset = Role.objects.all()
-    serializer_class = serializers.RoleSerializer
-
-
-class RoleDetailView(generics.RetrieveAPIView):
-    """
-    Retrieve a single role
+    List and retrieve prefix/VLAN roles
     """
     queryset = Role.objects.all()
     serializer_class = serializers.RoleSerializer
@@ -52,17 +36,9 @@ class RoleDetailView(generics.RetrieveAPIView):
 # RIRs
 #
 
-class RIRListView(generics.ListAPIView):
+class RIRViewSet(ModelViewSet):
     """
-    List all RIRs
-    """
-    queryset = RIR.objects.all()
-    serializer_class = serializers.RIRSerializer
-
-
-class RIRDetailView(generics.RetrieveAPIView):
-    """
-    Retrieve a single RIR
+    List and retrieve RIRs
     """
     queryset = RIR.objects.all()
     serializer_class = serializers.RIRSerializer
@@ -72,129 +48,75 @@ class RIRDetailView(generics.RetrieveAPIView):
 # Aggregates
 #
 
-class AggregateListView(CustomFieldModelAPIView, generics.ListAPIView):
+class AggregateViewSet(CustomFieldModelViewSet):
     """
-    List aggregates (filterable)
+    List and retrieve aggregates
     """
-    queryset = Aggregate.objects.select_related('rir').prefetch_related('custom_field_values__field')
+    queryset = Aggregate.objects.select_related('rir')
     serializer_class = serializers.AggregateSerializer
     filter_class = filters.AggregateFilter
-
-
-class AggregateDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
-    """
-    Retrieve a single aggregate
-    """
-    queryset = Aggregate.objects.select_related('rir').prefetch_related('custom_field_values__field')
-    serializer_class = serializers.AggregateSerializer
 
 
 #
 # Prefixes
 #
 
-class PrefixListView(CustomFieldModelAPIView, generics.ListAPIView):
+class PrefixViewSet(CustomFieldModelViewSet):
     """
-    List prefixes (filterable)
+    List and retrieve prefixes
     """
-    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')\
-        .prefetch_related('custom_field_values__field')
+    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
     serializer_class = serializers.PrefixSerializer
     filter_class = filters.PrefixFilter
-
-
-class PrefixDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
-    """
-    Retrieve a single prefix
-    """
-    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')\
-        .prefetch_related('custom_field_values__field')
-    serializer_class = serializers.PrefixSerializer
 
 
 #
 # IP addresses
 #
 
-class IPAddressListView(CustomFieldModelAPIView, generics.ListAPIView):
+class IPAddressViewSet(CustomFieldModelViewSet):
     """
-    List IP addresses (filterable)
+    List and retrieve IP addresses
     """
-    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device', 'nat_inside')\
-        .prefetch_related('nat_outside', 'custom_field_values__field')
+    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device', 'nat_inside')
     serializer_class = serializers.IPAddressSerializer
     filter_class = filters.IPAddressFilter
-
-
-class IPAddressDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
-    """
-    Retrieve a single IP address
-    """
-    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device', 'nat_inside')\
-        .prefetch_related('nat_outside', 'custom_field_values__field')
-    serializer_class = serializers.IPAddressSerializer
 
 
 #
 # VLAN groups
 #
 
-class VLANGroupListView(generics.ListAPIView):
+class VLANGroupViewSet(ModelViewSet):
     """
-    List all VLAN groups
+    List and retrieve VLAN groups
     """
     queryset = VLANGroup.objects.select_related('site')
     serializer_class = serializers.VLANGroupSerializer
     filter_class = filters.VLANGroupFilter
 
 
-class VLANGroupDetailView(generics.RetrieveAPIView):
-    """
-    Retrieve a single VLAN group
-    """
-    queryset = VLANGroup.objects.select_related('site')
-    serializer_class = serializers.VLANGroupSerializer
-
-
 #
 # VLANs
 #
 
-class VLANListView(CustomFieldModelAPIView, generics.ListAPIView):
+class VLANViewSet(CustomFieldModelViewSet):
     """
-    List VLANs (filterable)
+    List and retrieve VLANs
     """
-    queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role')\
-        .prefetch_related('custom_field_values__field')
+    queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role')
     serializer_class = serializers.VLANSerializer
     filter_class = filters.VLANFilter
-
-
-class VLANDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
-    """
-    Retrieve a single VLAN
-    """
-    queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role')\
-        .prefetch_related('custom_field_values__field')
-    serializer_class = serializers.VLANSerializer
 
 
 #
 # Services
 #
 
-class ServiceListView(generics.ListAPIView):
+class ServiceViewSet(ModelViewSet):
     """
-    List services (filterable)
+    List and retrieve services
     """
     queryset = Service.objects.select_related('device').prefetch_related('ipaddresses')
     serializer_class = serializers.ServiceSerializer
     filter_class = filters.ServiceFilter
-
-
-class ServiceDetailView(generics.RetrieveAPIView):
-    """
-    Retrieve a single service
-    """
-    queryset = Service.objects.select_related('device').prefetch_related('ipaddresses')
-    serializer_class = serializers.ServiceSerializer

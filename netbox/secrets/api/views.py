@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 
 from extras.api.renderers import FormlessBrowsableAPIRenderer, FreeRADIUSClientsRenderer
 from secrets.filters import SecretFilter
@@ -22,23 +23,22 @@ ERR_USERKEY_INACTIVE = "UserKey has not been activated for decryption."
 ERR_PRIVKEY_INVALID = "Invalid private key."
 
 
-class SecretRoleListView(generics.ListAPIView):
+#
+# Secret Roles
+#
+
+class SecretRoleViewSet(ModelViewSet):
     """
-    List all secret roles
+    List and retrieve secret roles
     """
     queryset = SecretRole.objects.all()
     serializer_class = serializers.SecretRoleSerializer
     permission_classes = [IsAuthenticated]
 
 
-class SecretRoleDetailView(generics.RetrieveAPIView):
-    """
-    Retrieve a single secret role
-    """
-    queryset = SecretRole.objects.all()
-    serializer_class = serializers.SecretRoleSerializer
-    permission_classes = [IsAuthenticated]
-
+#
+# Secrets
+#
 
 class SecretListView(generics.GenericAPIView):
     """

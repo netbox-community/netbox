@@ -12,22 +12,20 @@ class CustomFieldSerializer(serializers.Serializer):
     def get_custom_fields(self, obj):
 
         # Gather all CustomFields applicable to this object
-        fields = {cf.name: None for cf in self.context['view'].custom_fields}
+        fields = {cf.name: None for cf in self.context['custom_fields']}
+        custom_field_choices = self.context['custom_field_choices']
 
         # Attach any defined CustomFieldValues to their respective CustomFields
         for cfv in obj.custom_field_values.all():
 
             # Attempt to suppress database lookups for CustomFieldChoices by using the cached choice set from the view
             # context.
-            if cfv.field.type == CF_TYPE_SELECT and hasattr(self, 'custom_field_choices'):
+            if cfv.field.type == CF_TYPE_SELECT:
                 cfc = {
                     'id': int(cfv.serialized_value),
-                    'value': self.context['view'].custom_field_choices[int(cfv.serialized_value)]
+                    'value': custom_field_choices[int(cfv.serialized_value)]
                 }
                 fields[cfv.field.name] = CustomFieldChoiceSerializer(instance=cfc).data
-            # Fall back to hitting the database in case we're in a view that doesn't inherit CustomFieldModelAPIView.
-            elif cfv.field.type == CF_TYPE_SELECT:
-                fields[cfv.field.name] = CustomFieldChoiceSerializer(instance=cfv.value).data
             else:
                 fields[cfv.field.name] = cfv.value
 

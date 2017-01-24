@@ -1,40 +1,32 @@
-from rest_framework import generics
+from rest_framework.viewsets import ModelViewSet
 
 from tenancy.models import Tenant, TenantGroup
 from tenancy.filters import TenantFilter
 
-from extras.api.views import CustomFieldModelAPIView
+from extras.api.views import CustomFieldModelViewSet
 from . import serializers
 
 
-class TenantGroupListView(generics.ListAPIView):
+#
+# Tenant Groups
+#
+
+class TenantGroupViewSet(ModelViewSet):
     """
-    List all tenant groups
+    List and retrieve tenant groups
     """
     queryset = TenantGroup.objects.all()
     serializer_class = serializers.TenantGroupSerializer
 
 
-class TenantGroupDetailView(generics.RetrieveAPIView):
-    """
-    Retrieve a single circuit type
-    """
-    queryset = TenantGroup.objects.all()
-    serializer_class = serializers.TenantGroupSerializer
+#
+# Tenants
+#
 
-
-class TenantListView(CustomFieldModelAPIView, generics.ListAPIView):
+class TenantViewSet(CustomFieldModelViewSet):
     """
-    List tenants (filterable)
+    List and retrieve tenants
     """
-    queryset = Tenant.objects.select_related('group').prefetch_related('custom_field_values__field')
+    queryset = Tenant.objects.select_related('group')
     serializer_class = serializers.TenantSerializer
     filter_class = TenantFilter
-
-
-class TenantDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
-    """
-    Retrieve a single tenant
-    """
-    queryset = Tenant.objects.select_related('group').prefetch_related('custom_field_values__field')
-    serializer_class = serializers.TenantSerializer

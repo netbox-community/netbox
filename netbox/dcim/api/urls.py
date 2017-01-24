@@ -9,52 +9,50 @@ from .views import *
 urlpatterns = [
 
     # Sites
-    url(r'^sites/$', SiteListView.as_view(), name='site_list'),
-    url(r'^sites/(?P<pk>\d+)/$', SiteDetailView.as_view(), name='site_detail'),
+    url(r'^sites/$', SiteViewSet.as_view({'get': 'list'}), name='site_list'),
+    url(r'^sites/(?P<pk>\d+)/$', SiteViewSet.as_view({'get': 'retrieve'}), name='site_detail'),
     url(r'^sites/(?P<pk>\d+)/graphs/$', GraphListView.as_view(), {'type': GRAPH_TYPE_SITE}, name='site_graphs'),
-    url(r'^sites/(?P<site>\d+)/racks/$', RackListView.as_view(), name='site_racks'),
 
     # Rack groups
-    url(r'^rack-groups/$', RackGroupListView.as_view(), name='rackgroup_list'),
-    url(r'^rack-groups/(?P<pk>\d+)/$', RackGroupDetailView.as_view(), name='rackgroup_detail'),
+    url(r'^rack-groups/$', RackGroupViewSet.as_view({'get': 'list'}), name='rackgroup_list'),
+    url(r'^rack-groups/(?P<pk>\d+)/$', RackGroupViewSet.as_view({'get': 'retrieve'}), name='rackgroup_detail'),
 
     # Rack roles
-    url(r'^rack-roles/$', RackRoleListView.as_view(), name='rackrole_list'),
-    url(r'^rack-roles/(?P<pk>\d+)/$', RackRoleDetailView.as_view(), name='rackrole_detail'),
+    url(r'^rack-roles/$', RackRoleViewSet.as_view({'get': 'list'}), name='rackrole_list'),
+    url(r'^rack-roles/(?P<pk>\d+)/$', RackRoleViewSet.as_view({'get': 'retrieve'}), name='rackrole_detail'),
 
     # Racks
-    url(r'^racks/$', RackListView.as_view(), name='rack_list'),
-    url(r'^racks/(?P<pk>\d+)/$', RackDetailView.as_view(), name='rack_detail'),
+    url(r'^racks/$', RackViewSet.as_view({'get': 'list'}), name='rack_list'),
+    url(r'^racks/(?P<pk>\d+)/$', RackViewSet.as_view({'get': 'retrieve'}), name='rack_detail'),
     url(r'^racks/(?P<pk>\d+)/rack-units/$', RackUnitListView.as_view(), name='rack_units'),
 
     # Manufacturers
-    url(r'^manufacturers/$', ManufacturerListView.as_view(), name='manufacturer_list'),
-    url(r'^manufacturers/(?P<pk>\d+)/$', ManufacturerDetailView.as_view(), name='manufacturer_detail'),
+    url(r'^manufacturers/$', ManufacturerViewSet.as_view({'get': 'list'}), name='manufacturer_list'),
+    url(r'^manufacturers/(?P<pk>\d+)/$', ManufacturerViewSet.as_view({'get': 'retrieve'}), name='manufacturer_detail'),
 
     # Device types
-    url(r'^device-types/$', DeviceTypeListView.as_view(), name='devicetype_list'),
-    url(r'^device-types/(?P<pk>\d+)/$', DeviceTypeDetailView.as_view(), name='devicetype_detail'),
+    url(r'^device-types/$', DeviceTypeViewSet.as_view({'get': 'list'}), name='devicetype_list'),
+    url(r'^device-types/(?P<pk>\d+)/$', DeviceTypeViewSet.as_view({'get': 'retrieve'}), name='devicetype_detail'),
 
     # Device roles
-    url(r'^device-roles/$', DeviceRoleListView.as_view(), name='devicerole_list'),
-    url(r'^device-roles/(?P<pk>\d+)/$', DeviceRoleDetailView.as_view(), name='devicerole_detail'),
+    url(r'^device-roles/$', DeviceRoleViewSet.as_view({'get': 'list'}), name='devicerole_list'),
+    url(r'^device-roles/(?P<pk>\d+)/$', DeviceRoleViewSet.as_view({'get': 'retrieve'}), name='devicerole_detail'),
 
     # Platforms
-    url(r'^platforms/$', PlatformListView.as_view(), name='platform_list'),
-    url(r'^platforms/(?P<pk>\d+)/$', PlatformDetailView.as_view(), name='platform_detail'),
+    url(r'^platforms/$', PlatformViewSet.as_view({'get': 'list'}), name='platform_list'),
+    url(r'^platforms/(?P<pk>\d+)/$', PlatformViewSet.as_view({'get': 'retrieve'}), name='platform_detail'),
 
     # Devices
-    url(r'^devices/$', DeviceListView.as_view(), name='device_list'),
-    url(r'^devices/(?P<pk>\d+)/$', DeviceDetailView.as_view(), name='device_detail'),
+    url(r'^devices/$', DeviceViewSet.as_view({'get': 'list'}), name='device_list'),
+    url(r'^devices/(?P<pk>\d+)/$', DeviceViewSet.as_view({'get': 'retrieve'}), name='device_detail'),
     url(r'^devices/(?P<pk>\d+)/lldp-neighbors/$', LLDPNeighborsView.as_view(), name='device_lldp-neighbors'),
-    url(r'^devices/(?P<pk>\d+)/console-ports/$', ConsolePortListView.as_view(), name='device_consoleports'),
-    url(r'^devices/(?P<pk>\d+)/console-server-ports/$', ConsoleServerPortListView.as_view(),
-        name='device_consoleserverports'),
-    url(r'^devices/(?P<pk>\d+)/power-ports/$', PowerPortListView.as_view(), name='device_powerports'),
-    url(r'^devices/(?P<pk>\d+)/power-outlets/$', PowerOutletListView.as_view(), name='device_poweroutlets'),
-    url(r'^devices/(?P<pk>\d+)/interfaces/$', InterfaceListView.as_view(), name='device_interfaces'),
-    url(r'^devices/(?P<pk>\d+)/device-bays/$', DeviceBayListView.as_view(), name='device_devicebays'),
-    url(r'^devices/(?P<pk>\d+)/modules/$', ModuleListView.as_view(), name='device_modules'),
+    url(r'^devices/(?P<pk>\d+)/console-ports/$', ConsolePortViewSet.as_view({'get': 'list'}), name='device_consoleports'),
+    url(r'^devices/(?P<pk>\d+)/console-server-ports/$', ConsoleServerPortViewSet.as_view({'get': 'list'}), name='device_consoleserverports'),
+    url(r'^devices/(?P<pk>\d+)/power-ports/$', PowerPortViewSet.as_view({'get': 'list'}), name='device_powerports'),
+    url(r'^devices/(?P<pk>\d+)/power-outlets/$', PowerOutletViewSet.as_view({'get': 'list'}), name='device_poweroutlets'),
+    url(r'^devices/(?P<pk>\d+)/interfaces/$', InterfaceViewSet.as_view({'get': 'list'}), name='device_interfaces'),
+    url(r'^devices/(?P<pk>\d+)/device-bays/$', DeviceBayViewSet.as_view({'get': 'list'}), name='device_devicebays'),
+    url(r'^devices/(?P<pk>\d+)/modules/$', ModuleViewSet.as_view({'get': 'list'}), name='device_modules'),
 
     # Console ports
     url(r'^console-ports/(?P<pk>\d+)/$', ConsolePortView.as_view(), name='consoleport'),

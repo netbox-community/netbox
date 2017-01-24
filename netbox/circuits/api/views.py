@@ -1,58 +1,44 @@
-from rest_framework import generics
+from rest_framework.viewsets import ModelViewSet
 
 from circuits.models import Provider, CircuitType, Circuit
 from circuits.filters import CircuitFilter
 
-from extras.api.views import CustomFieldModelAPIView
+from extras.api.views import CustomFieldModelViewSet
 from . import serializers
 
 
-class ProviderListView(CustomFieldModelAPIView, generics.ListAPIView):
+#
+# Providers
+#
+
+class ProviderViewSet(CustomFieldModelViewSet):
     """
-    List all providers
+    List and retrieve circuit providers
     """
-    queryset = Provider.objects.prefetch_related('custom_field_values__field')
+    queryset = Provider.objects.all()
     serializer_class = serializers.ProviderSerializer
 
 
-class ProviderDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
-    """
-    Retrieve a single provider
-    """
-    queryset = Provider.objects.prefetch_related('custom_field_values__field')
-    serializer_class = serializers.ProviderSerializer
+#
+#  Circuit Types
+#
 
-
-class CircuitTypeListView(generics.ListAPIView):
+class CircuitTypeViewSet(ModelViewSet):
     """
-    List all circuit types
+    List and retrieve circuit types
     """
     queryset = CircuitType.objects.all()
     serializer_class = serializers.CircuitTypeSerializer
 
 
-class CircuitTypeDetailView(generics.RetrieveAPIView):
-    """
-    Retrieve a single circuit type
-    """
-    queryset = CircuitType.objects.all()
-    serializer_class = serializers.CircuitTypeSerializer
+#
+# Circuits
+#
 
-
-class CircuitListView(CustomFieldModelAPIView, generics.ListAPIView):
+class CircuitViewSet(CustomFieldModelViewSet):
     """
-    List circuits (filterable)
+    List and retrieve circuits
     """
-    queryset = Circuit.objects.select_related('type', 'tenant', 'provider')\
-        .prefetch_related('custom_field_values__field')
+    queryset = Circuit.objects.select_related('type', 'tenant', 'provider')
     serializer_class = serializers.CircuitSerializer
     filter_class = CircuitFilter
-
-
-class CircuitDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
-    """
-    Retrieve a single circuit
-    """
-    queryset = Circuit.objects.select_related('type', 'tenant', 'provider')\
-        .prefetch_related('custom_field_values__field')
-    serializer_class = serializers.CircuitSerializer

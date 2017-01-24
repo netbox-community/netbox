@@ -82,21 +82,6 @@ class SiteTest(APITestCase):
             sorted(self.standard_fields),
         )
 
-    def test_get_site_list_rack(self, endpoint='/{}api/dcim/sites/1/racks/'.format(settings.BASE_PATH)):
-        response = self.client.get(endpoint)
-        content = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        for i in json.loads(response.content.decode('utf-8')):
-            self.assertEqual(
-                sorted(i.keys()),
-                sorted(self.rack_fields),
-            )
-            # Check Nested Serializer.
-            self.assertEqual(
-                sorted(i.get('site').keys()),
-                sorted(self.nested_fields),
-            )
-
     def test_get_site_list_graphs(self, endpoint='/{}api/dcim/sites/1/graphs/'.format(settings.BASE_PATH)):
         response = self.client.get(endpoint)
         content = json.loads(response.content.decode('utf-8'))
@@ -239,6 +224,7 @@ class DeviceTypeTest(APITestCase):
         'subdevice_role',
         'comments',
         'custom_fields',
+        'instance_count',
     ]
 
     nested_fields = [

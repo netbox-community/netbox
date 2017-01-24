@@ -27,6 +27,8 @@ class BINDZoneRenderer(renderers.BaseRenderer):
 
     def render(self, data, media_type=None, renderer_context=None):
         records = []
+        if not isinstance(data, (list, tuple)):
+            data = (data,)
         for record in data:
             if record.get('name') and record.get('primary_ip'):
                 try:
