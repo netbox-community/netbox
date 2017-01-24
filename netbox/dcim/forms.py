@@ -639,18 +639,45 @@ class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
 class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Device
-    site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('racks__devices')), to_field_name='slug')
-    rack_group_id = FilterChoiceField(queryset=RackGroup.objects.annotate(filter_count=Count('racks__devices')),
-                                      label='Rack Group')
-    role = FilterChoiceField(queryset=DeviceRole.objects.annotate(filter_count=Count('devices')), to_field_name='slug')
-    tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('devices')), to_field_name='slug',
-                               null_option=(0, 'None'))
-    device_type_id = FilterChoiceField(queryset=DeviceType.objects.select_related('manufacturer')
-                                       .annotate(filter_count=Count('instances')), label='Type')
-    platform = FilterChoiceField(queryset=Platform.objects.annotate(filter_count=Count('devices')),
-                                 to_field_name='slug', null_option=(0, 'None'))
-    status = forms.NullBooleanField(required=False, widget=forms.Select(choices=FORM_STATUS_CHOICES))
-    mac_address = forms.CharField(required=False, label='MAC address')
+    site = FilterChoiceField(
+        queryset=Site.objects.annotate(filter_count=Count('racks__devices')),
+        to_field_name='slug',
+    )
+    rack_group_id = FilterChoiceField(
+        queryset=RackGroup.objects.select_related('site').annotate(filter_count=Count('racks__devices')),
+        label='Rack Group',
+    )
+    role = FilterChoiceField(
+        queryset=DeviceRole.objects.annotate(filter_count=Count('devices')),
+        to_field_name='slug',
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.annotate(filter_count=Count('devices')), to_field_name='slug',
+        null_option=(0, 'None'),
+    )
+    manufacturer_id = FilterChoiceField(
+        queryset=Manufacturer.objects.all(),
+        label='Manufacturer',
+    )
+    device_type_id = FilterChoiceField(
+        queryset=DeviceType.objects.select_related('manufacturer').order_by('model').annotate(
+            filter_count=Count('instances'),
+        ),
+        label='Model',
+    )
+    platform = FilterChoiceField(
+        queryset=Platform.objects.annotate(filter_count=Count('devices')),
+        to_field_name='slug',
+        null_option=(0, 'None'),
+    )
+    status = forms.NullBooleanField(
+        required=False,
+        widget=forms.Select(choices=FORM_STATUS_CHOICES),
+    )
+    mac_address = forms.CharField(
+        required=False,
+        label='MAC address',
+    )
 
 
 #
