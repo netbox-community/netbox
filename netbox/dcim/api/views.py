@@ -6,7 +6,6 @@ from rest_framework.views import APIView
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
@@ -332,7 +331,8 @@ class InterfaceListView(generics.ListAPIView):
     def get_queryset(self):
 
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
-        queryset = Interface.objects.filter(device=device).select_related('connected_as_a', 'connected_as_b')
+        queryset = Interface.objects.order_naturally(device.device_type.interface_ordering).filter(device=device)\
+            .select_related('connected_as_a', 'connected_as_b', 'circuit_termination')
 
         # Filter by type (physical or virtual)
         iface_type = self.request.query_params.get('type')
@@ -490,8 +490,8 @@ class RelatedConnectionsView(APIView):
             response['power-ports'].append(data)
 
         # Interface connections
-        interfaces = Interface.objects.filter(device=device).select_related('connected_as_a', 'connected_as_b',
-                                                                            'circuit_termination')
+        interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering).filter(device=device)\
+            .select_related('connected_as_a', 'connected_as_b', 'circuit_termination')
         for iface in interfaces:
             data = serializers.InterfaceDetailSerializer(instance=iface).data
             del(data['device'])

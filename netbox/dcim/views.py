@@ -749,7 +749,8 @@ def device_inventory(request, pk):
 def device_lldp_neighbors(request, pk):
 
     device = get_object_or_404(Device, pk=pk)
-    interfaces = Interface.objects.filter(device=device).select_related('connected_as_a', 'connected_as_b')
+    interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering).filter(device=device)\
+        .select_related('connected_as_a', 'connected_as_b')
 
     return render(request, 'dcim/device_lldp_neighbors.html', {
         'device': device,
