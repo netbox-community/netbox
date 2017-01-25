@@ -239,6 +239,7 @@ class DeviceTypeTest(APITestCase):
         'subdevice_role',
         'comments',
         'custom_fields',
+        'instance_count',
     ]
 
     nested_fields = [
