@@ -1,13 +1,24 @@
-from django.conf.urls import url
+from django.conf.urls import include, url
 
-from .views import *
+from rest_framework import routers
 
+from .views import (
+
+    # Viewsets
+    SecretRoleViewSet,
+
+    # Legacy views
+    RSAKeyGeneratorView, SecretDetailView, SecretListView,
+
+)
+
+
+router = routers.DefaultRouter()
+router.register(r'secret-roles', SecretRoleViewSet)
 
 urlpatterns = [
 
-    # Secret roles
-    url(r'^secret-roles/$', SecretRoleViewSet.as_view({'get': 'list'}), name='secretrole_list'),
-    url(r'^secret-roles/(?P<pk>\d+)/$', SecretRoleViewSet.as_view({'get': 'retrieve'}), name='secretrole_detail'),
+    url(r'', include(router.urls)),
 
     # Secrets
     url(r'^secrets/$', SecretListView.as_view(), name='secret_list'),

@@ -1,50 +1,45 @@
-from django.conf.urls import url
+from django.conf.urls import include, url
+
+from rest_framework import routers
 
 from extras.models import GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from extras.api.views import GraphListView, TopologyMapView
 
-from .views import *
+from .views import (
 
+    # Viewsets
+    ConsolePortViewSet, ConsoleServerPortViewSet, DeviceViewSet, DeviceBayViewSet, DeviceRoleViewSet, DeviceTypeViewSet,
+    InterfaceViewSet, ManufacturerViewSet, ModuleViewSet, PlatformViewSet, PowerPortViewSet, PowerOutletViewSet,
+    RackViewSet, RackGroupViewSet, RackRoleViewSet, SiteViewSet,
+
+    # Legacy views
+    ConsolePortView, InterfaceConnectionView, InterfaceConnectionListView, InterfaceDetailView, PowerPortView,
+    LLDPNeighborsView, RackUnitListView, RelatedConnectionsView,
+)
+
+
+router = routers.DefaultRouter()
+router.register(r'sites', SiteViewSet)
+router.register(r'rack-groups', RackGroupViewSet)
+router.register(r'rack-roles', RackRoleViewSet)
+router.register(r'racks', RackViewSet)
+router.register(r'manufacturers', ManufacturerViewSet)
+router.register(r'device-types', DeviceTypeViewSet)
+router.register(r'device-roles', DeviceRoleViewSet)
+router.register(r'platforms', PlatformViewSet)
+router.register(r'devices', DeviceViewSet)
 
 urlpatterns = [
 
+    url(r'', include(router.urls)),
+
     # Sites
-    url(r'^sites/$', SiteViewSet.as_view({'get': 'list'}), name='site_list'),
-    url(r'^sites/(?P<pk>\d+)/$', SiteViewSet.as_view({'get': 'retrieve'}), name='site_detail'),
     url(r'^sites/(?P<pk>\d+)/graphs/$', GraphListView.as_view(), {'type': GRAPH_TYPE_SITE}, name='site_graphs'),
 
-    # Rack groups
-    url(r'^rack-groups/$', RackGroupViewSet.as_view({'get': 'list'}), name='rackgroup_list'),
-    url(r'^rack-groups/(?P<pk>\d+)/$', RackGroupViewSet.as_view({'get': 'retrieve'}), name='rackgroup_detail'),
-
-    # Rack roles
-    url(r'^rack-roles/$', RackRoleViewSet.as_view({'get': 'list'}), name='rackrole_list'),
-    url(r'^rack-roles/(?P<pk>\d+)/$', RackRoleViewSet.as_view({'get': 'retrieve'}), name='rackrole_detail'),
-
     # Racks
-    url(r'^racks/$', RackViewSet.as_view({'get': 'list'}), name='rack_list'),
-    url(r'^racks/(?P<pk>\d+)/$', RackViewSet.as_view({'get': 'retrieve'}), name='rack_detail'),
     url(r'^racks/(?P<pk>\d+)/rack-units/$', RackUnitListView.as_view(), name='rack_units'),
 
-    # Manufacturers
-    url(r'^manufacturers/$', ManufacturerViewSet.as_view({'get': 'list'}), name='manufacturer_list'),
-    url(r'^manufacturers/(?P<pk>\d+)/$', ManufacturerViewSet.as_view({'get': 'retrieve'}), name='manufacturer_detail'),
-
-    # Device types
-    url(r'^device-types/$', DeviceTypeViewSet.as_view({'get': 'list'}), name='devicetype_list'),
-    url(r'^device-types/(?P<pk>\d+)/$', DeviceTypeViewSet.as_view({'get': 'retrieve'}), name='devicetype_detail'),
-
-    # Device roles
-    url(r'^device-roles/$', DeviceRoleViewSet.as_view({'get': 'list'}), name='devicerole_list'),
-    url(r'^device-roles/(?P<pk>\d+)/$', DeviceRoleViewSet.as_view({'get': 'retrieve'}), name='devicerole_detail'),
-
-    # Platforms
-    url(r'^platforms/$', PlatformViewSet.as_view({'get': 'list'}), name='platform_list'),
-    url(r'^platforms/(?P<pk>\d+)/$', PlatformViewSet.as_view({'get': 'retrieve'}), name='platform_detail'),
-
     # Devices
-    url(r'^devices/$', DeviceViewSet.as_view({'get': 'list'}), name='device_list'),
-    url(r'^devices/(?P<pk>\d+)/$', DeviceViewSet.as_view({'get': 'retrieve'}), name='device_detail'),
     url(r'^devices/(?P<pk>\d+)/lldp-neighbors/$', LLDPNeighborsView.as_view(), name='device_lldp-neighbors'),
     url(r'^devices/(?P<pk>\d+)/console-ports/$', ConsolePortViewSet.as_view({'get': 'list'}), name='device_consoleports'),
     url(r'^devices/(?P<pk>\d+)/console-server-ports/$', ConsoleServerPortViewSet.as_view({'get': 'list'}), name='device_consoleserverports'),
@@ -53,6 +48,7 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/interfaces/$', InterfaceViewSet.as_view({'get': 'list'}), name='device_interfaces'),
     url(r'^devices/(?P<pk>\d+)/device-bays/$', DeviceBayViewSet.as_view({'get': 'list'}), name='device_devicebays'),
     url(r'^devices/(?P<pk>\d+)/modules/$', ModuleViewSet.as_view({'get': 'list'}), name='device_modules'),
+    # TODO: Services
 
     # Console ports
     url(r'^console-ports/(?P<pk>\d+)/$', ConsolePortView.as_view(), name='consoleport'),
