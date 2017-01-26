@@ -134,12 +134,13 @@ class ManufacturerNestedSerializer(ManufacturerSerializer):
 class DeviceTypeSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     manufacturer = ManufacturerNestedSerializer()
     subdevice_role = serializers.SerializerMethodField()
+    instance_count = serializers.IntegerField(source='instances.count', read_only=True)
 
     class Meta:
         model = DeviceType
         fields = ['id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
                   'interface_ordering', 'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role',
-                  'comments', 'custom_fields']
+                  'comments', 'custom_fields', 'instance_count']
 
     def get_subdevice_role(self, obj):
         return {

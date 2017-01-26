@@ -550,7 +550,7 @@
 function toggleConnection(elem, api_url) {
     if (elem.hasClass('connected')) {
         $.ajax({
-            url: api_url + elem.attr('data') + "/",
+            url: netbox_api_path + api_url + elem.attr('data') + "/",
             method: 'PATCH',
             dataType: 'json',
             beforeSend: function(xhr, settings) {
@@ -590,13 +590,13 @@ function toggleConnection(elem, api_url) {
     return false;
 }
 $(".consoleport-toggle").click(function() {
-    return toggleConnection($(this), "/{{ settings.BASE_PATH }}api/dcim/console-ports/");
+    return toggleConnection($(this), "dcim/console-ports/");
 });
 $(".powerport-toggle").click(function() {
-    return toggleConnection($(this), "/{{ settings.BASE_PATH }}api/dcim/power-ports/");
+    return toggleConnection($(this), "dcim/power-ports/");
 });
 $(".interface-toggle").click(function() {
-    return toggleConnection($(this), "/{{ settings.BASE_PATH }}api/dcim/interface-connections/");
+    return toggleConnection($(this), "dcim/interface-connections/");
 });
 </script>
 <script src="{% static 'js/graphs.js' %}"></script>

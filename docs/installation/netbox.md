@@ -2,11 +2,28 @@
 
 **Debian/Ubuntu**
 
+Python 3:
+
+```no-highlight
+# apt-get install -y python3 python3-dev python3-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev
+```
+
+Python 2:
+
 ```no-highlight
 # apt-get install -y python2.7 python-dev python-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev
 ```
 
 **CentOS/RHEL**
+
+Python 3:
+
+```no-highlight
+# yum install -y epel-release
+# yum install -y gcc python3 python3-devel python3-pip libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel
+```
+
+Python 2:
 
 ```no-highlight
 # yum install -y epel-release

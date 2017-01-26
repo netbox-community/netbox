@@ -48,7 +48,7 @@ $(document).ready(function() {
     $('#generate_keypair').click(function() {
         $('#new_keypair_modal').modal('show');
         $.ajax({
-            url: '/api/secrets/generate-keys/',
+            url: netbox_api_path + 'secrets/generate-keys/',
             type: 'GET',
             dataType: 'json',
             success: function (response, status) {
@@ -75,7 +75,7 @@ $(document).ready(function() {
     function unlock_secret(secret_id, private_key) {
         var csrf_token = $('input[name=csrfmiddlewaretoken]').val();
         $.ajax({
-            url: '/api/secrets/secrets/' + secret_id + '/',
+            url: netbox_api_path + 'secrets/secrets/' + secret_id + '/',
             type: 'POST',
             data: {
                 private_key: private_key

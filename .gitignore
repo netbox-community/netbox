@@ -1,8 +1,10 @@
 *.pyc
 /netbox/netbox/configuration.py
+/netbox/netbox/ldap_config.py
 /netbox/static
 .idea
 /*.sh
 !upgrade.sh
 fabfile.py
 *.swp
+gunicorn_config.py

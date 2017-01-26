@@ -37,20 +37,38 @@ COLOR_CHOICES = (
     ('607d8b', 'Dark grey'),
     ('111111', 'Black'),
 )
-NUMERIC_EXPANSION_PATTERN = '\[(\d+-\d+)\]'
-IP4_EXPANSION_PATTERN = '\[([0-9]{1,3}-[0-9]{1,3})\]'
-IP6_EXPANSION_PATTERN = '\[([0-9a-f]{1,4}-[0-9a-f]{1,4})\]'
+NUMERIC_EXPANSION_PATTERN = '\[((?:\d+[?:,-])+\d+)\]'
+IP4_EXPANSION_PATTERN = '\[((?:[0-9]{1,3}[?:,-])+[0-9]{1,3})\]'
+IP6_EXPANSION_PATTERN = '\[((?:[0-9a-f]{1,4}[?:,-])+[0-9a-f]{1,4})\]'
+
+
+def parse_numeric_range(string, base=10):
+    """
+    Expand a numeric range (continuous or not) into a decimal or
+    hexadecimal list, as specified by the base parameter
+      '0-3,5' => [0, 1, 2, 3, 5]
+      '2,8-b,d,f' => [2, 8, 9, a, b, d, f]
+    """
+    values = list()
+    for dash_range in string.split(','):
+        try:
+            begin, end = dash_range.split('-')
+        except ValueError:
+            begin, end = dash_range, dash_range
+        begin, end = int(begin.strip()), int(end.strip(), base=base) + 1
+        values.extend(range(begin, end))
+    return list(set(values))
 
 
 def expand_numeric_pattern(string):
     """
     Expand a numeric pattern into a list of strings. Examples:
-      'ge-0/0/[0-3]' => ['ge-0/0/0', 'ge-0/0/1', 'ge-0/0/2', 'ge-0/0/3']
-      'xe-0/[0-3]/[0-7]' => ['xe-0/0/0', 'xe-0/0/1', 'xe-0/0/2', ... 'xe-0/3/5', 'xe-0/3/6', 'xe-0/3/7']
+      'ge-0/0/[0-3,5]' => ['ge-0/0/0', 'ge-0/0/1', 'ge-0/0/2', 'ge-0/0/3', 'ge-0/0/5']
+      'xe-0/[0,2-3]/[0-7]' => ['xe-0/0/0', 'xe-0/0/1', 'xe-0/0/2', ... 'xe-0/3/5', 'xe-0/3/6', 'xe-0/3/7']
     """
     lead, pattern, remnant = re.split(NUMERIC_EXPANSION_PATTERN, string, maxsplit=1)
-    x, y = pattern.split('-')
-    for i in range(int(x), int(y) + 1):
+    parsed_range = parse_numeric_range(pattern)
+    for i in parsed_range:
         if re.search(NUMERIC_EXPANSION_PATTERN, remnant):
             for string in expand_numeric_pattern(remnant):
                 yield "{}{}{}".format(lead, i, string)
@@ -61,8 +79,8 @@ def expand_numeric_pattern(string):
 def expand_ipaddress_pattern(string, family):
     """
     Expand an IP address pattern into a list of strings. Examples:
-      '192.0.2.[1-254]/24' => ['192.0.2.1/24', '192.0.2.2/24', '192.0.2.3/24' ... '192.0.2.254/24']
-      '2001:db8:0:[0-ff]::/64' => ['2001:db8:0:0::/64', '2001:db8:0:1::/64', ... '2001:db8:0:ff::/64']
+      '192.0.2.[1,2,100-250,254]/24' => ['192.0.2.1/24', '192.0.2.2/24', '192.0.2.100/24' ... '192.0.2.250/24', '192.0.2.254/24']
+      '2001:db8:0:[0,fd-ff]::/64' => ['2001:db8:0:0::/64', '2001:db8:0:fd::/64', ... '2001:db8:0:ff::/64']
     """
     if family not in [4, 6]:
         raise Exception("Invalid IP address family: {}".format(family))
@@ -73,8 +91,8 @@ def expand_ipaddress_pattern(string, family):
         regex = IP6_EXPANSION_PATTERN
         base = 16
     lead, pattern, remnant = re.split(regex, string, maxsplit=1)
-    x, y = pattern.split('-')
-    for i in range(int(x, base), int(y, base) + 1):
+    parsed_range = parse_numeric_range(pattern, base)
+    for i in parsed_range:
         if re.search(regex, remnant):
             for string in expand_ipaddress_pattern(remnant, family):
                 yield ''.join([lead, format(i, 'x' if family == 6 else 'd'), string])
@@ -248,7 +266,7 @@ class ExpandableNameField(forms.CharField):
         super(ExpandableNameField, self).__init__(*args, **kwargs)
         if not self.help_text:
             self.help_text = 'Numeric ranges are supported for bulk creation.<br />'\
-                             'Example: <code>ge-0/0/[0-47]</code>'
+                             'Example: <code>ge-0/0/[0-23,25,30]</code>'
 
     def to_python(self, value):
         if re.search(NUMERIC_EXPANSION_PATTERN, value):
@@ -265,7 +283,7 @@ class ExpandableIPAddressField(forms.CharField):
         super(ExpandableIPAddressField, self).__init__(*args, **kwargs)
         if not self.help_text:
             self.help_text = 'Specify a numeric range to create multiple IPs.<br />'\
-                             'Example: <code>192.0.2.[1-254]/24</code>'
+                             'Example: <code>192.0.2.[1,5,100-254]/24</code>'
 
     def to_python(self, value):
         # Hackish address family detection but it's all we have to work with

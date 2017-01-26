@@ -8,6 +8,7 @@ from django.core.validators import ValidationError
 from django.db import models
 from django.http import HttpResponse
 from django.template import Template, Context
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.safestring import mark_safe
 
 
@@ -93,6 +94,7 @@ class CustomFieldModel(object):
             return OrderedDict([(field, None) for field in fields])
 
 
+@python_2_unicode_compatible
 class CustomField(models.Model):
     obj_type = models.ManyToManyField(ContentType, related_name='custom_fields', verbose_name='Object(s)',
                                       limit_choices_to={'model__in': CUSTOMFIELD_MODELS},
@@ -114,7 +116,7 @@ class CustomField(models.Model):
     class Meta:
         ordering = ['weight', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.label or self.name.replace('_', ' ').capitalize()
 
     def serialize_value(self, value):
@@ -153,6 +155,7 @@ class CustomField(models.Model):
         return serialized_value
 
 
+@python_2_unicode_compatible
 class CustomFieldValue(models.Model):
     field = models.ForeignKey('CustomField', related_name='values')
     obj_type = models.ForeignKey(ContentType, related_name='+', on_delete=models.PROTECT)
@@ -164,7 +167,7 @@ class CustomFieldValue(models.Model):
         ordering = ['obj_type', 'obj_id']
         unique_together = ['field', 'obj_type', 'obj_id']
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} {}'.format(self.obj, self.field)
 
     @property
@@ -183,6 +186,7 @@ class CustomFieldValue(models.Model):
             super(CustomFieldValue, self).save(*args, **kwargs)
 
 
+@python_2_unicode_compatible
 class CustomFieldChoice(models.Model):
     field = models.ForeignKey('CustomField', related_name='choices', limit_choices_to={'type': CF_TYPE_SELECT},
                               on_delete=models.CASCADE)
@@ -193,7 +197,7 @@ class CustomFieldChoice(models.Model):
         ordering = ['field', 'weight', 'value']
         unique_together = ['field', 'value']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.value
 
     def clean(self):
@@ -207,6 +211,7 @@ class CustomFieldChoice(models.Model):
         CustomFieldValue.objects.filter(field__type=CF_TYPE_SELECT, serialized_value=str(pk)).delete()
 
 
+@python_2_unicode_compatible
 class Graph(models.Model):
     type = models.PositiveSmallIntegerField(choices=GRAPH_TYPE_CHOICES)
     weight = models.PositiveSmallIntegerField(default=1000)
@@ -217,7 +222,7 @@ class Graph(models.Model):
     class Meta:
         ordering = ['type', 'weight', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def embed_url(self, obj):
@@ -231,6 +236,7 @@ class Graph(models.Model):
         return template.render(Context({'obj': obj}))
 
 
+@python_2_unicode_compatible
 class ExportTemplate(models.Model):
     content_type = models.ForeignKey(ContentType, limit_choices_to={'model__in': EXPORTTEMPLATE_MODELS})
     name = models.CharField(max_length=100)
@@ -245,7 +251,7 @@ class ExportTemplate(models.Model):
             ['content_type', 'name']
         ]
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{}: {}'.format(self.content_type, self.name)
 
     def to_response(self, context_dict, filename):
@@ -264,6 +270,7 @@ class ExportTemplate(models.Model):
         return response
 
 
+@python_2_unicode_compatible
 class TopologyMap(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
@@ -278,7 +285,7 @@ class TopologyMap(models.Model):
     class Meta:
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @property
@@ -328,6 +335,7 @@ class UserActionManager(models.Manager):
         self.log_bulk_action(user, content_type, ACTION_BULK_DELETE, message)
 
 
+@python_2_unicode_compatible
 class UserAction(models.Model):
     """
     A record of an action (add, edit, or delete) performed on an object by a User.
@@ -344,7 +352,7 @@ class UserAction(models.Model):
     class Meta:
         ordering = ['-time']
 
-    def __unicode__(self):
+    def __str__(self):
         if self.message:
             return u'{} {}'.format(self.user, self.message)
         return u'{} {} {}'.format(self.user, self.get_action_display(), self.content_type)

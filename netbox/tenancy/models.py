@@ -1,12 +1,14 @@
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 
 from extras.models import CustomFieldModel, CustomFieldValue
 from utilities.models import CreatedUpdatedModel
 from utilities.utils import csv_format
 
 
+@python_2_unicode_compatible
 class TenantGroup(models.Model):
     """
     An arbitrary collection of Tenants.
@@ -17,13 +19,14 @@ class TenantGroup(models.Model):
     class Meta:
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
         return "{}?group={}".format(reverse('tenancy:tenant_list'), self.slug)
 
 
+@python_2_unicode_compatible
 class Tenant(CreatedUpdatedModel, CustomFieldModel):
     """
     A Tenant represents an organization served by the NetBox owner. This is typically a customer or an internal
@@ -39,7 +42,7 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
     class Meta:
         ordering = ['group', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):

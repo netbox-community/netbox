@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.expressions import RawSQL
+from django.utils.encoding import python_2_unicode_compatible
 
 from dcim.models import Interface
 from extras.models import CustomFieldModel, CustomFieldValue
@@ -36,10 +37,12 @@ PREFIX_STATUS_CHOICES = (
 
 IPADDRESS_STATUS_ACTIVE = 1
 IPADDRESS_STATUS_RESERVED = 2
+IPADDRESS_STATUS_DEPRECATED = 3
 IPADDRESS_STATUS_DHCP = 5
 IPADDRESS_STATUS_CHOICES = (
     (IPADDRESS_STATUS_ACTIVE, 'Active'),
     (IPADDRESS_STATUS_RESERVED, 'Reserved'),
+    (IPADDRESS_STATUS_DEPRECATED, 'Deprecated'),
     (IPADDRESS_STATUS_DHCP, 'DHCP')
 )
 
@@ -70,6 +73,7 @@ IP_PROTOCOL_CHOICES = (
 )
 
 
+@python_2_unicode_compatible
 class VRF(CreatedUpdatedModel, CustomFieldModel):
     """
     A virtual routing and forwarding (VRF) table represents a discrete layer three forwarding domain (e.g. a routing
@@ -89,7 +93,7 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
         verbose_name = 'VRF'
         verbose_name_plural = 'VRFs'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -105,6 +109,7 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
         ])
 
 
+@python_2_unicode_compatible
 class RIR(models.Model):
     """
     A Regional Internet Registry (RIR) is responsible for the allocation of a large portion of the global IP address
@@ -120,13 +125,14 @@ class RIR(models.Model):
         verbose_name = 'RIR'
         verbose_name_plural = 'RIRs'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
         return "{}?rir={}".format(reverse('ipam:aggregate_list'), self.slug)
 
 
+@python_2_unicode_compatible
 class Aggregate(CreatedUpdatedModel, CustomFieldModel):
     """
     An aggregate exists at the root level of the IP address space hierarchy in NetBox. Aggregates are used to organize
@@ -142,7 +148,7 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
     class Meta:
         ordering = ['family', 'prefix']
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.prefix)
 
     def get_absolute_url(self):
@@ -204,6 +210,7 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
         return int(children_size / self.prefix.size * 100)
 
 
+@python_2_unicode_compatible
 class Role(models.Model):
     """
     A Role represents the functional role of a Prefix or VLAN; for example, "Customer," "Infrastructure," or
@@ -216,7 +223,7 @@ class Role(models.Model):
     class Meta:
         ordering = ['weight', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @property
@@ -263,6 +270,7 @@ class PrefixQuerySet(NullsFirstQuerySet):
         return filter(lambda p: p.depth <= limit, queryset)
 
 
+@python_2_unicode_compatible
 class Prefix(CreatedUpdatedModel, CustomFieldModel):
     """
     A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be assigned to Sites and
@@ -292,7 +300,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
         ordering = ['vrf', 'family', 'prefix']
         verbose_name_plural = 'prefixes'
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.prefix)
 
     def get_absolute_url(self):
@@ -377,6 +385,7 @@ class IPAddressManager(models.Manager):
         return qs.annotate(host=RawSQL('INET(HOST(ipam_ipaddress.address))', [])).order_by('family', 'host')
 
 
+@python_2_unicode_compatible
 class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     """
     An IPAddress represents an individual IPv4 or IPv6 address and its mask. The mask length should match what is
@@ -409,7 +418,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
         verbose_name = 'IP address'
         verbose_name_plural = 'IP addresses'
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.address)
 
     def get_absolute_url(self):
@@ -469,6 +478,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
         return STATUS_CHOICE_CLASSES[self.status]
 
 
+@python_2_unicode_compatible
 class VLANGroup(models.Model):
     """
     A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique.
@@ -486,13 +496,14 @@ class VLANGroup(models.Model):
         verbose_name = 'VLAN group'
         verbose_name_plural = 'VLAN groups'
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} - {}'.format(self.site.name, self.name)
 
     def get_absolute_url(self):
         return "{}?group_id={}".format(reverse('ipam:vlan_list'), self.pk)
 
 
+@python_2_unicode_compatible
 class VLAN(CreatedUpdatedModel, CustomFieldModel):
     """
     A VLAN is a distinct layer two forwarding domain identified by a 12-bit integer (1-4094). Each VLAN must be assigned
@@ -524,7 +535,7 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
         verbose_name = 'VLAN'
         verbose_name_plural = 'VLANs'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.display_name
 
     def get_absolute_url(self):
@@ -558,6 +569,7 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
         return STATUS_CHOICE_CLASSES[self.status]
 
 
+@python_2_unicode_compatible
 class Service(CreatedUpdatedModel):
     """
     A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device. A Service may optionally be tied
@@ -576,5 +588,5 @@ class Service(CreatedUpdatedModel):
         ordering = ['device', 'protocol', 'port']
         unique_together = ['device', 'protocol', 'port']
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} ({}/{})'.format(self.name, self.port, self.get_protocol_display())

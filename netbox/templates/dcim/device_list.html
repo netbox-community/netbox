@@ -24,7 +24,31 @@
     </div>
     <div class="col-md-3">
 		{% include 'inc/search_panel.html' %}
-		{% include 'inc/filter_panel.html' %}
     </div>
 </div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+$(document).ready(function() {
+    var model_list = $('#id_device_type_id');
+    $('#id_manufacturer_id').change(function() {
+        model_list.empty();
+        var selected_manufacturers = $(this).val();
+        if (selected_manufacturers) {
+            var api_url = netbox_api_path + 'dcim/device-types/?manufacturer_id=' + selected_manufacturers.join('&manufacturer_id=');
+            $.ajax({
+                url: api_url,
+                dataType: 'json',
+                success: function (response, status) {
+                    $.each(response, function (index, device_type) {
+                        var option = $("<option></option>").attr("value", device_type.id).text(device_type["model"] + " (" + device_type["instance_count"] + ")");
+                        model_list.append(option);
+                    });
+                }
+            });
+        }
+    });
+});
+</script>
 {% endblock %}
