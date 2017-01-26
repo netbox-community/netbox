@@ -95,7 +95,6 @@ class VRFListView(ObjectListView):
     filter = filters.VRFFilter
     filter_form = forms.VRFFilterForm
     table = tables.VRFTable
-    edit_permissions = ['ipam.change_vrf', 'ipam.delete_vrf']
     template_name = 'ipam/vrf_list.html'
 
 
@@ -160,7 +159,6 @@ class RIRListView(ObjectListView):
     filter = filters.RIRFilter
     filter_form = forms.RIRFilterForm
     table = tables.RIRTable
-    edit_permissions = ['ipam.change_rir', 'ipam.delete_rir']
     template_name = 'ipam/rir_list.html'
 
     def alter_queryset(self, request):
@@ -267,7 +265,6 @@ class AggregateListView(ObjectListView):
     filter = filters.AggregateFilter
     filter_form = forms.AggregateFilterForm
     table = tables.AggregateTable
-    edit_permissions = ['ipam.change_aggregate', 'ipam.delete_aggregate']
     template_name = 'ipam/aggregate_list.html'
 
     def extra_context(self):
@@ -351,7 +348,6 @@ class AggregateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class RoleListView(ObjectListView):
     queryset = Role.objects.all()
     table = tables.RoleTable
-    edit_permissions = ['ipam.change_role', 'ipam.delete_role']
     template_name = 'ipam/role_list.html'
 
 
@@ -379,7 +375,6 @@ class PrefixListView(ObjectListView):
     filter = filters.PrefixFilter
     filter_form = forms.PrefixFilterForm
     table = tables.PrefixTable
-    edit_permissions = ['ipam.change_prefix', 'ipam.delete_prefix']
     template_name = 'ipam/prefix_list.html'
 
     def alter_queryset(self, request):
@@ -510,7 +505,6 @@ class IPAddressListView(ObjectListView):
     filter = filters.IPAddressFilter
     filter_form = forms.IPAddressFilterForm
     table = tables.IPAddressTable
-    edit_permissions = ['ipam.change_ipaddress', 'ipam.delete_ipaddress']
     template_name = 'ipam/ipaddress_list.html'
 
 
@@ -680,7 +674,6 @@ class VLANGroupListView(ObjectListView):
     filter = filters.VLANGroupFilter
     filter_form = forms.VLANGroupFilterForm
     table = tables.VLANGroupTable
-    edit_permissions = ['ipam.change_vlangroup', 'ipam.delete_vlangroup']
     template_name = 'ipam/vlangroup_list.html'
 
 
@@ -709,7 +702,6 @@ class VLANListView(ObjectListView):
     filter = filters.VLANFilter
     filter_form = forms.VLANFilterForm
     table = tables.VLANTable
-    edit_permissions = ['ipam.change_vlan', 'ipam.delete_vlan']
     template_name = 'ipam/vlan_list.html'
 
 

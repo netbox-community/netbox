@@ -21,7 +21,6 @@ from . import filters, forms, tables
 class TenantGroupListView(ObjectListView):
     queryset = TenantGroup.objects.annotate(tenant_count=Count('tenants'))
     table = tables.TenantGroupTable
-    edit_permissions = ['tenancy.change_tenantgroup', 'tenancy.delete_tenantgroup']
     template_name = 'tenancy/tenantgroup_list.html'
 
 
@@ -49,7 +48,6 @@ class TenantListView(ObjectListView):
     filter = filters.TenantFilter
     filter_form = forms.TenantFilterForm
     table = tables.TenantTable
-    edit_permissions = ['tenancy.change_tenant', 'tenancy.delete_tenant']
     template_name = 'tenancy/tenant_list.html'
 
 

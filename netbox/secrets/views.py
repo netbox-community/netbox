@@ -22,7 +22,6 @@ from .models import SecretRole, Secret, UserKey
 class SecretRoleListView(ObjectListView):
     queryset = SecretRole.objects.annotate(secret_count=Count('secrets'))
     table = tables.SecretRoleTable
-    edit_permissions = ['secrets.change_secretrole', 'secrets.delete_secretrole']
     template_name = 'secrets/secretrole_list.html'
 
 
@@ -51,7 +50,6 @@ class SecretListView(ObjectListView):
     filter = filters.SecretFilter
     filter_form = forms.SecretFilterForm
     table = tables.SecretTable
-    edit_permissions = ['secrets.change_secret', 'secrets.delete_secret']
     template_name = 'secrets/secret_list.html'
 
 
