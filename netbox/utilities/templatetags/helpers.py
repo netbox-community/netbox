@@ -44,24 +44,6 @@ def startswith(value, arg):
     return str(value).startswith(arg)
 
 
-@register.filter()
-def user_can_add(model, user):
-    perm_name = '{}:add_{}'.format(model._meta.app_label, model.__class__.__name__.lower())
-    return user.has_perm(perm_name)
-
-
-@register.filter()
-def user_can_change(model, user):
-    perm_name = '{}:change_{}'.format(model._meta.app_label, model.__class__.__name__.lower())
-    return user.has_perm(perm_name)
-
-
-@register.filter()
-def user_can_delete(model, user):
-    perm_name = '{}:delete_{}'.format(model._meta.app_label, model.__class__.__name__.lower())
-    return user.has_perm(perm_name)
-
-
 #
 # Tags
 #

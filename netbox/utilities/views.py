@@ -46,14 +46,12 @@ class ObjectListView(View):
     filter: A django-filter FilterSet that is applied to the queryset
     filter_form: The form used to render filter options
     table: The django-tables2 Table used to render the objects list
-    edit_permissions: Editing controls are displayed only if the user has these permissions
     template_name: The name of the template
     """
     queryset = None
     filter = None
     filter_form = None
     table = None
-    edit_permissions = []
     template_name = None
 
     def get(self, request):
@@ -95,14 +93,19 @@ class ObjectListView(View):
         # Provide a hook to tweak the queryset based on the request immediately prior to rendering the object list
         self.queryset = self.alter_queryset(request)
 
+        # Compile user model permissions for access from within the template
+        perm_base_name = '{}.{{}}_{}'.format(model._meta.app_label, model._meta.model_name)
+        permissions = {p: request.user.has_perm(perm_base_name.format(p)) for p in ['add', 'change', 'delete']}
+
         # Construct the table based on the user's permissions
         table = self.table(self.queryset)
-        if 'pk' in table.base_columns and any([request.user.has_perm(perm) for perm in self.edit_permissions]):
+        if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.base_columns['pk'].visible = True
         RequestConfig(request, paginate={'klass': EnhancedPaginator}).configure(table)
 
         context = {
             'table': table,
+            'permissions': permissions,
             'filter_form': self.filter_form(request.GET, label_suffix='') if self.filter_form else None,
             'export_templates': ExportTemplate.objects.filter(content_type=object_ct),
         }

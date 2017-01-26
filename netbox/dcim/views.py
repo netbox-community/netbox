@@ -137,7 +137,6 @@ class SiteListView(ObjectListView):
     filter = filters.SiteFilter
     filter_form = forms.SiteFilterForm
     table = tables.SiteTable
-    edit_permissions = ['dcim.change_rack', 'dcim.delete_rack']
     template_name = 'dcim/site_list.html'
 
 
@@ -204,7 +203,6 @@ class RackGroupListView(ObjectListView):
     filter = filters.RackGroupFilter
     filter_form = forms.RackGroupFilterForm
     table = tables.RackGroupTable
-    edit_permissions = ['dcim.change_rackgroup', 'dcim.delete_rackgroup']
     template_name = 'dcim/rackgroup_list.html'
 
 
@@ -231,7 +229,6 @@ class RackGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class RackRoleListView(ObjectListView):
     queryset = RackRole.objects.annotate(rack_count=Count('racks'))
     table = tables.RackRoleTable
-    edit_permissions = ['dcim.change_rackrole', 'dcim.delete_rackrole']
     template_name = 'dcim/rackrole_list.html'
 
 
@@ -260,7 +257,6 @@ class RackListView(ObjectListView):
     filter = filters.RackFilter
     filter_form = forms.RackFilterForm
     table = tables.RackTable
-    edit_permissions = ['dcim.change_rack', 'dcim.delete_rack']
     template_name = 'dcim/rack_list.html'
 
 
@@ -328,7 +324,6 @@ class RackBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class ManufacturerListView(ObjectListView):
     queryset = Manufacturer.objects.annotate(devicetype_count=Count('device_types'))
     table = tables.ManufacturerTable
-    edit_permissions = ['dcim.change_manufacturer', 'dcim.delete_manufacturer']
     template_name = 'dcim/manufacturer_list.html'
 
 
@@ -356,7 +351,6 @@ class DeviceTypeListView(ObjectListView):
     filter = filters.DeviceTypeFilter
     filter_form = forms.DeviceTypeFilterForm
     table = tables.DeviceTypeTable
-    edit_permissions = ['dcim.change_devicetype', 'dcim.delete_devicetype']
     template_name = 'dcim/devicetype_list.html'
 
 
@@ -550,7 +544,6 @@ class DeviceBayTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class DeviceRoleListView(ObjectListView):
     queryset = DeviceRole.objects.annotate(device_count=Count('devices'))
     table = tables.DeviceRoleTable
-    edit_permissions = ['dcim.change_devicerole', 'dcim.delete_devicerole']
     template_name = 'dcim/devicerole_list.html'
 
 
@@ -576,7 +569,6 @@ class DeviceRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class PlatformListView(ObjectListView):
     queryset = Platform.objects.annotate(device_count=Count('devices'))
     table = tables.PlatformTable
-    edit_permissions = ['dcim.change_platform', 'dcim.delete_platform']
     template_name = 'dcim/platform_list.html'
 
 
@@ -605,7 +597,6 @@ class DeviceListView(ObjectListView):
     filter = filters.DeviceFilter
     filter_form = forms.DeviceFilterForm
     table = tables.DeviceTable
-    edit_permissions = ['dcim.change_device', 'dcim.delete_device']
     template_name = 'dcim/device_list.html'
 
 

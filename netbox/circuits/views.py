@@ -25,7 +25,6 @@ class ProviderListView(ObjectListView):
     filter = filters.ProviderFilter
     filter_form = forms.ProviderFilterForm
     table = tables.ProviderTable
-    edit_permissions = ['circuits.change_provider', 'circuits.delete_provider']
     template_name = 'circuits/provider_list.html'
 
 
@@ -87,7 +86,6 @@ class ProviderBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class CircuitTypeListView(ObjectListView):
     queryset = CircuitType.objects.annotate(circuit_count=Count('circuits'))
     table = tables.CircuitTypeTable
-    edit_permissions = ['circuits.change_circuittype', 'circuits.delete_circuittype']
     template_name = 'circuits/circuittype_list.html'
 
 
@@ -115,7 +113,6 @@ class CircuitListView(ObjectListView):
     filter = filters.CircuitFilter
     filter_form = forms.CircuitFilterForm
     table = tables.CircuitTable
-    edit_permissions = ['circuits.change_circuit', 'circuits.delete_circuit']
     template_name = 'circuits/circuit_list.html'
 
 
