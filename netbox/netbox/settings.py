@@ -105,7 +105,6 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'django_tables2',
     'rest_framework',
-    'rest_framework_swagger',
     'circuits',
     'dcim',
     'ipam',
@@ -188,11 +187,6 @@ REST_FRAMEWORK = {
 }
 if LOGIN_REQUIRED:
     REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = ('rest_framework.permissions.IsAuthenticated',)
-
-# Swagger settings (API docs)
-SWAGGER_SETTINGS = {
-    'base_path': '{}/{}api/docs'.format(ALLOWED_HOSTS[0], BASE_PATH),
-}
 
 # Django debug toolbar
 INTERNAL_IPS = (
