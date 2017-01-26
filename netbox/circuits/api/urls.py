@@ -5,13 +5,14 @@ from rest_framework import routers
 from extras.models import GRAPH_TYPE_PROVIDER
 from extras.api.views import GraphListView
 
-from .views import CircuitViewSet, CircuitTypeViewSet, ProviderViewSet
+from . import views
 
 
 router = routers.DefaultRouter()
-router.register(r'providers', ProviderViewSet)
-router.register(r'circuit-types', CircuitTypeViewSet)
-router.register(r'circuits', CircuitViewSet)
+router.register(r'providers', views.ProviderViewSet)
+router.register(r'circuit-types', views.CircuitTypeViewSet)
+router.register(r'circuits', views.CircuitViewSet)
+router.register(r'circuit-terminations', views.CircuitTerminationViewSet)
 
 urlpatterns = [
 
@@ -20,5 +21,8 @@ urlpatterns = [
     # Providers
     url(r'^providers/(?P<pk>\d+)/graphs/$', GraphListView.as_view(), {'type': GRAPH_TYPE_PROVIDER},
         name='provider_graphs'),
+
+    # Circuits
+    url(r'^circuits/(?P<pk>\d+)/terminations/$', views.NestedCircuitTerminationViewSet.as_view({'get': 'list'})),
 
 ]
