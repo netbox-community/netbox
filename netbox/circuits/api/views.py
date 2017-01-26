@@ -40,5 +40,9 @@ class CircuitViewSet(CustomFieldModelViewSet):
     List and retrieve circuits
     """
     queryset = Circuit.objects.select_related('type', 'tenant', 'provider')
-    serializer_class = serializers.CircuitSerializer
     filter_class = CircuitFilter
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return serializers.CircuitDetailSerializer
+        return serializers.CircuitSerializer

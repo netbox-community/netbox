@@ -42,7 +42,7 @@ class CircuitTypeNestedSerializer(CircuitTypeSerializer):
 
 
 #
-# Circuits
+# Circuit Terminations
 #
 
 class CircuitTerminationSerializer(serializers.ModelSerializer):
@@ -54,19 +54,31 @@ class CircuitTerminationSerializer(serializers.ModelSerializer):
         fields = ['id', 'term_side', 'site', 'interface', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info']
 
 
+#
+# Circuits
+#
+
+
 class CircuitSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     provider = ProviderNestedSerializer()
     type = CircuitTypeNestedSerializer()
     tenant = TenantNestedSerializer()
-    terminations = CircuitTerminationSerializer(many=True)
 
     class Meta:
         model = Circuit
         fields = ['id', 'cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
-                  'terminations', 'custom_fields']
+                  'custom_fields']
 
 
 class CircuitNestedSerializer(CircuitSerializer):
 
     class Meta(CircuitSerializer.Meta):
         fields = ['id', 'cid']
+
+
+class CircuitDetailSerializer(CircuitSerializer):
+    terminations = CircuitTerminationSerializer(many=True)
+
+    class Meta(CircuitSerializer.Meta):
+        fields = ['id', 'cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
+                  'terminations', 'custom_fields']
