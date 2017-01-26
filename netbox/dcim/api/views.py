@@ -1,9 +1,10 @@
-from rest_framework import generics
-from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
+from rest_framework.mixins import (
+    CreateModelMixin, DestroyModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin,
+)
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -11,8 +12,8 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from dcim.models import (
-    ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, DeviceType, IFACE_FF_VIRTUAL, Interface,
-    InterfaceConnection, Manufacturer, Module, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackRole, Site,
+    ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, DeviceType, Interface, InterfaceConnection,
+    Manufacturer, Module, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackRole, Site,
 )
 from dcim import filters
 from extras.api.views import CustomFieldModelViewSet
@@ -27,9 +28,6 @@ from . import serializers
 #
 
 class SiteViewSet(CustomFieldModelViewSet):
-    """
-    List and retrieve sites
-    """
     queryset = Site.objects.select_related('tenant')
     serializer_class = serializers.SiteSerializer
 
@@ -39,9 +37,6 @@ class SiteViewSet(CustomFieldModelViewSet):
 #
 
 class RackGroupViewSet(ModelViewSet):
-    """
-    List and retrieve rack groups
-    """
     queryset = RackGroup.objects.select_related('site')
     serializer_class = serializers.RackGroupSerializer
     filter_class = filters.RackGroupFilter
@@ -52,9 +47,6 @@ class RackGroupViewSet(ModelViewSet):
 #
 
 class RackRoleViewSet(ModelViewSet):
-    """
-    List and retrieve rack roles
-    """
     queryset = RackRole.objects.all()
     serializer_class = serializers.RackRoleSerializer
 
@@ -64,9 +56,6 @@ class RackRoleViewSet(ModelViewSet):
 #
 
 class RackViewSet(CustomFieldModelViewSet):
-    """
-    List and retrieve racks
-    """
     queryset = Rack.objects.select_related('site', 'group__site', 'tenant')
     filter_class = filters.RackFilter
 
@@ -106,9 +95,6 @@ class RackUnitListView(APIView):
 #
 
 class ManufacturerViewSet(ModelViewSet):
-    """
-    List and retrieve manufacturers
-    """
     queryset = Manufacturer.objects.all()
     serializer_class = serializers.ManufacturerSerializer
 
@@ -118,9 +104,6 @@ class ManufacturerViewSet(ModelViewSet):
 #
 
 class DeviceTypeViewSet(CustomFieldModelViewSet):
-    """
-    List and retrieve device types
-    """
     queryset = DeviceType.objects.select_related('manufacturer')
     filter_class = filters.DeviceTypeFilter
 
@@ -131,13 +114,10 @@ class DeviceTypeViewSet(CustomFieldModelViewSet):
 
 
 #
-# Device roles
+# Device Roles
 #
 
 class DeviceRoleViewSet(ModelViewSet):
-    """
-    List and retrieve device roles
-    """
     queryset = DeviceRole.objects.all()
     serializer_class = serializers.DeviceRoleSerializer
 
@@ -147,9 +127,6 @@ class DeviceRoleViewSet(ModelViewSet):
 #
 
 class PlatformViewSet(ModelViewSet):
-    """
-    List and retrieve platforms
-    """
     queryset = Platform.objects.all()
     serializer_class = serializers.PlatformSerializer
 
@@ -159,9 +136,6 @@ class PlatformViewSet(ModelViewSet):
 #
 
 class DeviceViewSet(CustomFieldModelViewSet):
-    """
-    List and retrieve devices
-    """
     queryset = Device.objects.select_related(
         'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'rack__site', 'parent_bay',
     ).prefetch_related(
@@ -173,13 +147,15 @@ class DeviceViewSet(CustomFieldModelViewSet):
 
 
 #
-# Console ports
+# Console Ports
 #
 
-class ConsolePortViewSet(ModelViewSet):
-    """
-    List and retrieve console ports (by device)
-    """
+class ConsolePortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
+    queryset = ConsolePort.objects.select_related('cs_port')
+    serializer_class = serializers.ConsolePortSerializer
+
+
+class NestedConsolePortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
     serializer_class = serializers.ConsolePortSerializer
 
     def get_queryset(self):
@@ -187,20 +163,16 @@ class ConsolePortViewSet(ModelViewSet):
         return ConsolePort.objects.filter(device=device).select_related('cs_port')
 
 
-class ConsolePortView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
-    serializer_class = serializers.ConsolePortSerializer
-    queryset = ConsolePort.objects.all()
-
-
 #
-# Console server ports
+# Console Server Ports
 #
 
-class ConsoleServerPortViewSet(ModelViewSet):
-    """
-    List and retrieve console server ports (by device)
-    """
+class ConsoleServerPortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
+    queryset = ConsoleServerPort.objects.select_related('connected_console')
+    serializer_class = serializers.ConsoleServerPortSerializer
+
+
+class NestedConsoleServerPortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
     serializer_class = serializers.ConsoleServerPortSerializer
 
     def get_queryset(self):
@@ -209,13 +181,15 @@ class ConsoleServerPortViewSet(ModelViewSet):
 
 
 #
-# Power ports
+# Power Ports
 #
 
-class PowerPortViewSet(ModelViewSet):
-    """
-    List and retrieve power ports (by device)
-    """
+class PowerPortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
+    queryset = PowerPort.objects.select_related('power_outlet')
+    serializer_class = serializers.PowerPortSerializer
+
+
+class NestedPowerPortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
     serializer_class = serializers.PowerPortSerializer
 
     def get_queryset(self):
@@ -223,20 +197,16 @@ class PowerPortViewSet(ModelViewSet):
         return PowerPort.objects.filter(device=device).select_related('power_outlet')
 
 
-class PowerPortView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
-    serializer_class = serializers.PowerPortSerializer
-    queryset = PowerPort.objects.all()
-
-
 #
-# Power outlets
+# Power Outlets
 #
 
-class PowerOutletViewSet(ModelViewSet):
-    """
-    List and retrieve power outlets (by device)
-    """
+class PowerOutletViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
+    queryset = PowerOutlet.objects.select_related('connected_port')
+    serializer_class = serializers.PowerOutletSerializer
+
+
+class NestedPowerOutletViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
     serializer_class = serializers.PowerOutletSerializer
 
     def get_queryset(self):
@@ -248,61 +218,31 @@ class PowerOutletViewSet(ModelViewSet):
 # Interfaces
 #
 
-class InterfaceViewSet(ModelViewSet):
-    """
-    List and retrieve interfaces (by device)
-    """
-    serializer_class = serializers.InterfaceSerializer
-    filter_class = filters.InterfaceFilter
-
-    def get_queryset(self):
-
-        device = get_object_or_404(Device, pk=self.kwargs['pk'])
-        queryset = Interface.objects.order_naturally(device.device_type.interface_ordering).filter(device=device)\
-            .select_related('connected_as_a', 'connected_as_b', 'circuit_termination')
-
-        # Filter by type (physical or virtual)
-        iface_type = self.request.query_params.get('type')
-        if iface_type == 'physical':
-            queryset = queryset.exclude(form_factor=IFACE_FF_VIRTUAL)
-        elif iface_type == 'virtual':
-            queryset = queryset.filter(form_factor=IFACE_FF_VIRTUAL)
-        elif iface_type is not None:
-            queryset = queryset.empty()
-
-        return queryset
-
-
-class InterfaceDetailView(generics.RetrieveAPIView):
-    """
-    Retrieve a single interface
-    """
+class InterfaceViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
     queryset = Interface.objects.select_related('device')
     serializer_class = serializers.InterfaceDetailSerializer
 
 
-class InterfaceConnectionView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
-    serializer_class = serializers.InterfaceConnectionSerializer
-    queryset = InterfaceConnection.objects.all()
+class NestedInterfaceViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
+    serializer_class = serializers.InterfaceSerializer
+    filter_class = filters.InterfaceFilter
 
-
-class InterfaceConnectionListView(generics.ListAPIView):
-    """
-    Retrieve a list of all interface connections
-    """
-    serializer_class = serializers.InterfaceConnectionSerializer
-    queryset = InterfaceConnection.objects.all()
+    def get_queryset(self):
+        device = get_object_or_404(Device, pk=self.kwargs['pk'])
+        return Interface.objects.order_naturally(device.device_type.interface_ordering).filter(device=device)\
+            .select_related('connected_as_a', 'connected_as_b', 'circuit_termination')
 
 
 #
 # Device bays
 #
 
-class DeviceBayViewSet(ModelViewSet):
-    """
-    List and retrieve device bays (by device)
-    """
+class DeviceBayViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
+    queryset = DeviceBay.objects.select_related('installed_device')
+    serializer_class = serializers.DeviceBaySerializer
+
+
+class NestedDeviceBayViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
     serializer_class = serializers.DeviceBayNestedSerializer
 
     def get_queryset(self):
@@ -314,15 +254,26 @@ class DeviceBayViewSet(ModelViewSet):
 # Modules
 #
 
-class ModuleViewSet(ModelViewSet):
-    """
-    List and retrieve modules (by device)
-    """
+class ModuleViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
+    queryset = Module.objects.select_related('device', 'manufacturer')
+    serializer_class = serializers.ModuleSerializer
+
+
+class NestedModuleViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
     serializer_class = serializers.ModuleSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
         return Module.objects.filter(device=device).select_related('device', 'manufacturer')
+
+
+#
+# Interface connections
+#
+
+class InterfaceConnectionViewSet(ModelViewSet):
+    queryset = InterfaceConnection.objects.all()
+    serializer_class = serializers.InterfaceConnectionSerializer
 
 
 #

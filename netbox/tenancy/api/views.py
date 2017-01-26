@@ -12,9 +12,6 @@ from . import serializers
 #
 
 class TenantGroupViewSet(ModelViewSet):
-    """
-    List and retrieve tenant groups
-    """
     queryset = TenantGroup.objects.all()
     serializer_class = serializers.TenantGroupSerializer
 
@@ -24,9 +21,6 @@ class TenantGroupViewSet(ModelViewSet):
 #
 
 class TenantViewSet(CustomFieldModelViewSet):
-    """
-    List and retrieve tenants
-    """
     queryset = Tenant.objects.select_related('group')
     serializer_class = serializers.TenantSerializer
     filter_class = TenantFilter

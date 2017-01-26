@@ -28,9 +28,6 @@ ERR_PRIVKEY_INVALID = "Invalid private key."
 #
 
 class SecretRoleViewSet(ModelViewSet):
-    """
-    List and retrieve secret roles
-    """
     queryset = SecretRole.objects.all()
     serializer_class = serializers.SecretRoleSerializer
     permission_classes = [IsAuthenticated]

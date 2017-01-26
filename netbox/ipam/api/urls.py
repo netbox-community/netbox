@@ -2,22 +2,19 @@ from django.conf.urls import include, url
 
 from rest_framework import routers
 
-from .views import (
-    AggregateViewSet, IPAddressViewSet, PrefixViewSet, RIRViewSet, RoleViewSet, ServiceViewSet, VLANViewSet,
-    VLANGroupViewSet, VRFViewSet,
-)
+from . import views
 
 
 router = routers.DefaultRouter()
-router.register(r'vrfs', VRFViewSet)
-router.register(r'rirs', RIRViewSet)
-router.register(r'aggregates', AggregateViewSet)
-router.register(r'roles', RoleViewSet)
-router.register(r'prefixes', PrefixViewSet)
-router.register(r'ip-addresses', IPAddressViewSet)
-router.register(r'vlan-groups', VLANGroupViewSet)
-router.register(r'vlans', VLANViewSet)
-router.register(r'services', ServiceViewSet)
+router.register(r'vrfs', views.VRFViewSet)
+router.register(r'rirs', views.RIRViewSet)
+router.register(r'aggregates', views.AggregateViewSet)
+router.register(r'roles', views.RoleViewSet)
+router.register(r'prefixes', views.PrefixViewSet)
+router.register(r'ip-addresses', views.IPAddressViewSet)
+router.register(r'vlan-groups', views.VLANGroupViewSet)
+router.register(r'vlans', views.VLANViewSet)
+router.register(r'services', views.ServiceViewSet)
 
 urlpatterns = [
 
