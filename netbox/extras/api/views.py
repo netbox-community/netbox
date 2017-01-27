@@ -33,10 +33,12 @@ class CustomFieldModelViewSet(ModelViewSet):
                 custom_field_choices[cfc.id] = cfc.value
         custom_field_choices = custom_field_choices
 
-        return {
+        context = super(CustomFieldModelViewSet, self).get_serializer_context()
+        context.update({
             'custom_fields': custom_fields,
             'custom_field_choices': custom_field_choices,
-        }
+        })
+        return context
 
     def get_queryset(self):
         # Prefetch custom field values
@@ -55,8 +57,11 @@ class GraphListView(generics.ListAPIView):
             GRAPH_TYPE_PROVIDER: Provider,
             GRAPH_TYPE_SITE: Site,
         }
+        obj = get_object_or_404(cls[self.kwargs.get('type')], pk=self.kwargs['pk'])
         context = super(GraphListView, self).get_serializer_context()
-        context.update({'graphed_object': get_object_or_404(cls[self.kwargs.get('type')], pk=self.kwargs['pk'])})
+        context.update({
+            'graphed_object': obj,
+        })
         return context
 
     def get_queryset(self):

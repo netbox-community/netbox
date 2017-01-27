@@ -15,10 +15,11 @@ class TenantGroupSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug']
 
 
-class TenantGroupNestedSerializer(TenantGroupSerializer):
+class NestedTenantGroupSerializer(serializers.HyperlinkedModelSerializer):
 
-    class Meta(TenantGroupSerializer.Meta):
-        pass
+    class Meta:
+        model = TenantGroup
+        fields = ['id', 'url', 'name', 'slug']
 
 
 #
@@ -26,14 +27,15 @@ class TenantGroupNestedSerializer(TenantGroupSerializer):
 #
 
 class TenantSerializer(CustomFieldSerializer, serializers.ModelSerializer):
-    group = TenantGroupNestedSerializer()
+    group = NestedTenantGroupSerializer()
 
     class Meta:
         model = Tenant
         fields = ['id', 'name', 'slug', 'group', 'description', 'comments', 'custom_fields']
 
 
-class TenantNestedSerializer(TenantSerializer):
+class NestedTenantSerializer(serializers.HyperlinkedModelSerializer):
 
-    class Meta(TenantSerializer.Meta):
-        fields = ['id', 'name', 'slug']
+    class Meta:
+        model = Tenant
+        fields = ['id', 'url', 'name', 'slug']

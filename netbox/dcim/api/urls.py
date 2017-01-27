@@ -35,37 +35,37 @@ urlpatterns = [
 
     # Devices
     url(r'^devices/(?P<pk>\d+)/lldp-neighbors/$', views.LLDPNeighborsView.as_view(), name='device_lldp-neighbors'),
-    url(r'^devices/(?P<pk>\d+)/console-ports/$', views.NestedConsolePortViewSet.as_view({'get': 'list'}), name='device_consoleports'),
-    url(r'^devices/(?P<pk>\d+)/console-server-ports/$', views.NestedConsoleServerPortViewSet.as_view({'get': 'list'}), name='device_consoleserverports'),
-    url(r'^devices/(?P<pk>\d+)/power-ports/$', views.NestedPowerPortViewSet.as_view({'get': 'list'}), name='device_powerports'),
-    url(r'^devices/(?P<pk>\d+)/power-outlets/$', views.NestedPowerOutletViewSet.as_view({'get': 'list'}), name='device_poweroutlets'),
-    url(r'^devices/(?P<pk>\d+)/interfaces/$', views.NestedInterfaceViewSet.as_view({'get': 'list'}), name='device_interfaces'),
-    url(r'^devices/(?P<pk>\d+)/device-bays/$', views.NestedDeviceBayViewSet.as_view({'get': 'list'}), name='device_devicebays'),
-    url(r'^devices/(?P<pk>\d+)/modules/$', views.NestedModuleViewSet.as_view({'get': 'list'}), name='device_modules'),
+    url(r'^devices/(?P<pk>\d+)/console-ports/$', views.ChildConsolePortViewSet.as_view({'get': 'list'}), name='consoleport-list'),
+    url(r'^devices/(?P<pk>\d+)/console-server-ports/$', views.ChildConsoleServerPortViewSet.as_view({'get': 'list'}), name='consoleserverport-list'),
+    url(r'^devices/(?P<pk>\d+)/power-ports/$', views.NestedPowerPortViewSet.as_view({'get': 'list'}), name='powerport-list'),
+    url(r'^devices/(?P<pk>\d+)/power-outlets/$', views.NestedPowerOutletViewSet.as_view({'get': 'list'}), name='poweroutlet-list'),
+    url(r'^devices/(?P<pk>\d+)/interfaces/$', views.NestedInterfaceViewSet.as_view({'get': 'list'}), name='interface-list'),
+    url(r'^devices/(?P<pk>\d+)/device-bays/$', views.NestedDeviceBayViewSet.as_view({'get': 'list'}), name='devicebay-list'),
+    url(r'^devices/(?P<pk>\d+)/modules/$', views.NestedModuleViewSet.as_view({'get': 'list'}), name='module-list'),
     # TODO: Services
 
     # Console ports
-    url(r'^console-ports/(?P<pk>\d+)/$', views.ConsolePortViewSet.as_view({'get': 'retrieve'}), name='consoleport'),
+    url(r'^console-ports/(?P<pk>\d+)/$', views.ConsolePortViewSet.as_view({'get': 'retrieve'}), name='consoleport-detail'),
 
     # Console server ports
-    url(r'^console-server-ports/(?P<pk>\d+)/$', views.ConsoleServerPortViewSet.as_view({'get': 'retrieve'}), name='consoleserverport'),
+    url(r'^console-server-ports/(?P<pk>\d+)/$', views.ConsoleServerPortViewSet.as_view({'get': 'retrieve'}), name='consoleserverport-detail'),
 
     # Power ports
-    url(r'^power-ports/(?P<pk>\d+)/$', views.PowerPortViewSet.as_view({'get': 'retrieve'}), name='powerport'),
+    url(r'^power-ports/(?P<pk>\d+)/$', views.PowerPortViewSet.as_view({'get': 'retrieve'}), name='powerport-detail'),
 
     # Power outlets
-    url(r'^power-outlets/(?P<pk>\d+)/$', views.PowerOutletViewSet.as_view({'get': 'retrieve'}), name='poweroutlet'),
+    url(r'^power-outlets/(?P<pk>\d+)/$', views.PowerOutletViewSet.as_view({'get': 'retrieve'}), name='poweroutlet-detail'),
 
     # Interfaces
-    url(r'^interfaces/(?P<pk>\d+)/$', views.InterfaceViewSet.as_view({'get': 'retrieve'}), name='interface'),
+    url(r'^interfaces/(?P<pk>\d+)/$', views.InterfaceViewSet.as_view({'get': 'retrieve'}), name='interface-detail'),
     url(r'^interfaces/(?P<pk>\d+)/graphs/$', GraphListView.as_view(), {'type': GRAPH_TYPE_INTERFACE},
         name='interface_graphs'),
 
     # Device bays
-    url(r'^device-bays/(?P<pk>\d+)/$', views.DeviceBayViewSet.as_view({'get': 'retrieve'}), name='devicebay'),
+    url(r'^device-bays/(?P<pk>\d+)/$', views.DeviceBayViewSet.as_view({'get': 'retrieve'}), name='devicebay-detail'),
 
     # Modules
-    url(r'^modules/(?P<pk>\d+)/$', views.ModuleViewSet.as_view({'get': 'retrieve'}), name='module'),
+    url(r'^modules/(?P<pk>\d+)/$', views.ModuleViewSet.as_view({'get': 'retrieve'}), name='module-detail'),
 
     # Miscellaneous
     url(r'^related-connections/$', views.RelatedConnectionsView.as_view(), name='related_connections'),

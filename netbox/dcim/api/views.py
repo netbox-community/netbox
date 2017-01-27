@@ -57,12 +57,8 @@ class RackRoleViewSet(ModelViewSet):
 
 class RackViewSet(CustomFieldModelViewSet):
     queryset = Rack.objects.select_related('site', 'group__site', 'tenant')
+    serializer_class = serializers.RackSerializer
     filter_class = filters.RackFilter
-
-    def get_serializer_class(self):
-        if self.action == 'retrieve':
-            return serializers.RackDetailSerializer
-        return serializers.RackSerializer
 
 
 class RackUnitListView(APIView):
@@ -85,7 +81,10 @@ class RackUnitListView(APIView):
         # Serialize Devices within the rack elevation
         for u in elevation:
             if u['device']:
-                u['device'] = serializers.DeviceNestedSerializer(instance=u['device']).data
+                u['device'] = serializers.NestedDeviceSerializer(
+                    instance=u['device'],
+                    context={'request': request},
+                ).data
 
         return Response(elevation)
 
@@ -105,7 +104,7 @@ class ManufacturerViewSet(ModelViewSet):
 
 class DeviceTypeViewSet(CustomFieldModelViewSet):
     queryset = DeviceType.objects.select_related('manufacturer')
-    filter_class = filters.DeviceTypeFilter
+    serializer_class = serializers.DeviceTypeSerializer
 
 
 #
@@ -150,8 +149,8 @@ class ConsolePortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
     serializer_class = serializers.ConsolePortSerializer
 
 
-class NestedConsolePortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.NestedConsolePortSerializer
+class ChildConsolePortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
+    serializer_class = serializers.ChildConsoleServerPortSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
@@ -167,8 +166,8 @@ class ConsoleServerPortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyMode
     serializer_class = serializers.ConsoleServerPortSerializer
 
 
-class NestedConsoleServerPortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.NestedConsoleServerPortSerializer
+class ChildConsoleServerPortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
+    serializer_class = serializers.ChildConsoleServerPortSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
@@ -185,7 +184,7 @@ class PowerPortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
 
 
 class NestedPowerPortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.NestedPowerPortSerializer
+    serializer_class = serializers.ChildPowerPortSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
@@ -202,7 +201,7 @@ class PowerOutletViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 
 
 class NestedPowerOutletViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.NestedPowerOutletSerializer
+    serializer_class = serializers.ChildPowerOutletSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
@@ -219,7 +218,7 @@ class InterfaceViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
 
 
 class NestedInterfaceViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.NestedInterfaceSerializer
+    serializer_class = serializers.ChildInterfaceSerializer
     filter_class = filters.InterfaceFilter
 
     def get_queryset(self):
@@ -238,7 +237,7 @@ class DeviceBayViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
 
 
 class NestedDeviceBayViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.NestedDeviceBaySerializer
+    serializer_class = serializers.ChildDeviceBaySerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
@@ -255,7 +254,7 @@ class ModuleViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, Gen
 
 
 class NestedModuleViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.NestedModuleSerializer
+    serializer_class = serializers.ChildModuleSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
