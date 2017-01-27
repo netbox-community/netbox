@@ -4,6 +4,7 @@ from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, 
 from ipam import filters
 
 from extras.api.views import CustomFieldModelViewSet
+from utilities.api import WritableSerializerMixin
 from . import serializers
 
 
@@ -11,7 +12,7 @@ from . import serializers
 # VRFs
 #
 
-class VRFViewSet(CustomFieldModelViewSet):
+class VRFViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = VRF.objects.select_related('tenant')
     serializer_class = serializers.VRFSerializer
     filter_class = filters.VRFFilter
@@ -39,7 +40,7 @@ class RIRViewSet(ModelViewSet):
 # Aggregates
 #
 
-class AggregateViewSet(CustomFieldModelViewSet):
+class AggregateViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = Aggregate.objects.select_related('rir')
     serializer_class = serializers.AggregateSerializer
     filter_class = filters.AggregateFilter
@@ -49,7 +50,7 @@ class AggregateViewSet(CustomFieldModelViewSet):
 # Prefixes
 #
 
-class PrefixViewSet(CustomFieldModelViewSet):
+class PrefixViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
     serializer_class = serializers.PrefixSerializer
     filter_class = filters.PrefixFilter
@@ -59,7 +60,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
 # IP addresses
 #
 
-class IPAddressViewSet(CustomFieldModelViewSet):
+class IPAddressViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device', 'nat_inside')
     serializer_class = serializers.IPAddressSerializer
     filter_class = filters.IPAddressFilter
@@ -69,7 +70,7 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 # VLAN groups
 #
 
-class VLANGroupViewSet(ModelViewSet):
+class VLANGroupViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = VLANGroup.objects.select_related('site')
     serializer_class = serializers.VLANGroupSerializer
     filter_class = filters.VLANGroupFilter
@@ -79,7 +80,7 @@ class VLANGroupViewSet(ModelViewSet):
 # VLANs
 #
 
-class VLANViewSet(CustomFieldModelViewSet):
+class VLANViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role')
     serializer_class = serializers.VLANSerializer
     filter_class = filters.VLANFilter
@@ -89,7 +90,7 @@ class VLANViewSet(CustomFieldModelViewSet):
 # Services
 #
 
-class ServiceViewSet(ModelViewSet):
+class ServiceViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = Service.objects.select_related('device').prefetch_related('ipaddresses')
     serializer_class = serializers.ServiceSerializer
     filter_class = filters.ServiceFilter

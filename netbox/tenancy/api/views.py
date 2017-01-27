@@ -4,6 +4,7 @@ from tenancy.models import Tenant, TenantGroup
 from tenancy.filters import TenantFilter
 
 from extras.api.views import CustomFieldModelViewSet
+from utilities.api import WritableSerializerMixin
 from . import serializers
 
 
@@ -20,7 +21,7 @@ class TenantGroupViewSet(ModelViewSet):
 # Tenants
 #
 
-class TenantViewSet(CustomFieldModelViewSet):
+class TenantViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = Tenant.objects.select_related('group')
     serializer_class = serializers.TenantSerializer
     filter_class = TenantFilter

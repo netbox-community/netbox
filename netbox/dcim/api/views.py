@@ -18,7 +18,7 @@ from dcim.models import (
 from dcim import filters
 from extras.api.views import CustomFieldModelViewSet
 from extras.api.renderers import BINDZoneRenderer, FlatJSONRenderer
-from utilities.api import ServiceUnavailable
+from utilities.api import ServiceUnavailable, WritableSerializerMixin
 from .exceptions import MissingFilterException
 from . import serializers
 
@@ -27,7 +27,7 @@ from . import serializers
 # Sites
 #
 
-class SiteViewSet(CustomFieldModelViewSet):
+class SiteViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = Site.objects.select_related('tenant')
     serializer_class = serializers.SiteSerializer
 
@@ -36,7 +36,7 @@ class SiteViewSet(CustomFieldModelViewSet):
 # Rack groups
 #
 
-class RackGroupViewSet(ModelViewSet):
+class RackGroupViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = RackGroup.objects.select_related('site')
     serializer_class = serializers.RackGroupSerializer
     filter_class = filters.RackGroupFilter
@@ -55,7 +55,7 @@ class RackRoleViewSet(ModelViewSet):
 # Racks
 #
 
-class RackViewSet(CustomFieldModelViewSet):
+class RackViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = Rack.objects.select_related('site', 'group__site', 'tenant')
     serializer_class = serializers.RackSerializer
     filter_class = filters.RackFilter
@@ -102,7 +102,7 @@ class ManufacturerViewSet(ModelViewSet):
 # Device Types
 #
 
-class DeviceTypeViewSet(CustomFieldModelViewSet):
+class DeviceTypeViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = DeviceType.objects.select_related('manufacturer')
     serializer_class = serializers.DeviceTypeSerializer
 
@@ -129,7 +129,7 @@ class PlatformViewSet(ModelViewSet):
 # Devices
 #
 
-class DeviceViewSet(CustomFieldModelViewSet):
+class DeviceViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = Device.objects.select_related(
         'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'rack__site', 'parent_bay',
     ).prefetch_related(
@@ -144,12 +144,13 @@ class DeviceViewSet(CustomFieldModelViewSet):
 # Console Ports
 #
 
-class ConsolePortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
+class ConsolePortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, WritableSerializerMixin,
+                         GenericViewSet):
     queryset = ConsolePort.objects.select_related('cs_port')
     serializer_class = serializers.ConsolePortSerializer
 
 
-class ChildConsolePortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
+class ChildConsolePortViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
     serializer_class = serializers.ChildConsoleServerPortSerializer
 
     def get_queryset(self):
@@ -161,12 +162,13 @@ class ChildConsolePortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
 # Console Server Ports
 #
 
-class ConsoleServerPortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
+class ConsoleServerPortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, WritableSerializerMixin,
+                               GenericViewSet):
     queryset = ConsoleServerPort.objects.select_related('connected_console')
     serializer_class = serializers.ConsoleServerPortSerializer
 
 
-class ChildConsoleServerPortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
+class ChildConsoleServerPortViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
     serializer_class = serializers.ChildConsoleServerPortSerializer
 
     def get_queryset(self):
@@ -178,12 +180,13 @@ class ChildConsoleServerPortViewSet(CreateModelMixin, ListModelMixin, GenericVie
 # Power Ports
 #
 
-class PowerPortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
+class PowerPortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, WritableSerializerMixin,
+                       GenericViewSet):
     queryset = PowerPort.objects.select_related('power_outlet')
     serializer_class = serializers.PowerPortSerializer
 
 
-class NestedPowerPortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
+class NestedPowerPortViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
     serializer_class = serializers.ChildPowerPortSerializer
 
     def get_queryset(self):
@@ -195,12 +198,13 @@ class NestedPowerPortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
 # Power Outlets
 #
 
-class PowerOutletViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
+class PowerOutletViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, WritableSerializerMixin,
+                         GenericViewSet):
     queryset = PowerOutlet.objects.select_related('connected_port')
     serializer_class = serializers.PowerOutletSerializer
 
 
-class NestedPowerOutletViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
+class NestedPowerOutletViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
     serializer_class = serializers.ChildPowerOutletSerializer
 
     def get_queryset(self):
@@ -212,12 +216,13 @@ class NestedPowerOutletViewSet(CreateModelMixin, ListModelMixin, GenericViewSet)
 # Interfaces
 #
 
-class InterfaceViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
+class InterfaceViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, WritableSerializerMixin,
+                       GenericViewSet):
     queryset = Interface.objects.select_related('device')
     serializer_class = serializers.InterfaceDetailSerializer
 
 
-class NestedInterfaceViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
+class NestedInterfaceViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
     serializer_class = serializers.ChildInterfaceSerializer
     filter_class = filters.InterfaceFilter
 
@@ -231,12 +236,13 @@ class NestedInterfaceViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
 # Device bays
 #
 
-class DeviceBayViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
+class DeviceBayViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, WritableSerializerMixin,
+                       GenericViewSet):
     queryset = DeviceBay.objects.select_related('installed_device')
     serializer_class = serializers.DeviceBaySerializer
 
 
-class NestedDeviceBayViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
+class NestedDeviceBayViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
     serializer_class = serializers.ChildDeviceBaySerializer
 
     def get_queryset(self):
@@ -248,12 +254,12 @@ class NestedDeviceBayViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
 # Modules
 #
 
-class ModuleViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
+class ModuleViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, WritableSerializerMixin, GenericViewSet):
     queryset = Module.objects.select_related('device', 'manufacturer')
     serializer_class = serializers.ModuleSerializer
 
 
-class NestedModuleViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
+class NestedModuleViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
     serializer_class = serializers.ChildModuleSerializer
 
     def get_queryset(self):

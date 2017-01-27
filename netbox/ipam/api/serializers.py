@@ -4,6 +4,7 @@ from dcim.api.serializers import NestedDeviceSerializer, ChildInterfaceSerialize
 from extras.api.serializers import CustomFieldSerializer
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from tenancy.api.serializers import NestedTenantSerializer
+from utilities.api import WritableSerializerMixin
 
 
 #
@@ -84,7 +85,7 @@ class NestedAggregateSerializer(serializers.HyperlinkedModelSerializer):
 # VLAN groups
 #
 
-class VLANGroupSerializer(serializers.ModelSerializer):
+class VLANGroupSerializer(WritableSerializerMixin, serializers.ModelSerializer):
     site = NestedSiteSerializer()
 
     class Meta:

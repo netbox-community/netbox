@@ -9,6 +9,7 @@ from circuits.models import Provider, CircuitTermination, CircuitType, Circuit
 from circuits.filters import CircuitFilter
 
 from extras.api.views import CustomFieldModelViewSet
+from utilities.api import WritableSerializerMixin
 from . import serializers
 
 
@@ -34,26 +35,23 @@ class CircuitTypeViewSet(ModelViewSet):
 # Circuits
 #
 
-class CircuitViewSet(CustomFieldModelViewSet):
+class CircuitViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = Circuit.objects.select_related('type', 'tenant', 'provider')
+    serializer_class = serializers.CircuitSerializer
     filter_class = CircuitFilter
-
-    def get_serializer_class(self):
-        if self.action == 'retrieve':
-            return serializers.CircuitDetailSerializer
-        return serializers.CircuitSerializer
 
 
 #
 # Circuit Terminations
 #
 
-class CircuitTerminationViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
+class CircuitTerminationViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, WritableSerializerMixin,
+                                GenericViewSet):
     queryset = CircuitTermination.objects.select_related('site', 'interface__device')
     serializer_class = serializers.CircuitTerminationSerializer
 
 
-class NestedCircuitTerminationViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
+class NestedCircuitTerminationViewSet(CreateModelMixin, ListModelMixin ,WritableSerializerMixin, GenericViewSet):
     serializer_class = serializers.CircuitTerminationSerializer
 
     def get_queryset(self):
