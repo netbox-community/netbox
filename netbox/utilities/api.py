@@ -21,7 +21,7 @@ class WritableSerializerMixin(object):
         class WritableSerializer(ModelSerializer):
 
             class Meta:
-                model = self.queryset.model
+                model = self.get_queryset().model
                 fields = '__all__'
 
         if self.action in WRITE_OPERATIONS:
