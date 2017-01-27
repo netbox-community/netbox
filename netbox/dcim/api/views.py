@@ -151,7 +151,7 @@ class ConsolePortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 
 
 class ChildConsolePortViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
-    serializer_class = serializers.ChildConsoleServerPortSerializer
+    serializer_class = serializers.ChildConsolePortSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
@@ -186,7 +186,7 @@ class PowerPortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
     serializer_class = serializers.PowerPortSerializer
 
 
-class NestedPowerPortViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
+class ChildPowerPortViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
     serializer_class = serializers.ChildPowerPortSerializer
 
     def get_queryset(self):
@@ -204,7 +204,7 @@ class PowerOutletViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
     serializer_class = serializers.PowerOutletSerializer
 
 
-class NestedPowerOutletViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
+class ChildPowerOutletViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
     serializer_class = serializers.ChildPowerOutletSerializer
 
     def get_queryset(self):
@@ -222,7 +222,7 @@ class InterfaceViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
     serializer_class = serializers.InterfaceDetailSerializer
 
 
-class NestedInterfaceViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
+class ChildInterfaceViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
     serializer_class = serializers.ChildInterfaceSerializer
     filter_class = filters.InterfaceFilter
 
@@ -242,7 +242,7 @@ class DeviceBayViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
     serializer_class = serializers.DeviceBaySerializer
 
 
-class NestedDeviceBayViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
+class ChildDeviceBayViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
     serializer_class = serializers.ChildDeviceBaySerializer
 
     def get_queryset(self):
@@ -259,7 +259,7 @@ class ModuleViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, Wri
     serializer_class = serializers.ModuleSerializer
 
 
-class NestedModuleViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
+class ChildModuleViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
     serializer_class = serializers.ChildModuleSerializer
 
     def get_queryset(self):

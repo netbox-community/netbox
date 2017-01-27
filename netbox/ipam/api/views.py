@@ -1,8 +1,13 @@
-from rest_framework.viewsets import ModelViewSet
+from django.shortcuts import get_object_or_404
 
+from rest_framework.mixins import (
+    CreateModelMixin, DestroyModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin,
+)
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
+
+from dcim.models import Device
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from ipam import filters
-
 from extras.api.views import CustomFieldModelViewSet
 from utilities.api import WritableSerializerMixin
 from . import serializers
@@ -90,7 +95,14 @@ class VLANViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 # Services
 #
 
-class ServiceViewSet(WritableSerializerMixin, ModelViewSet):
-    queryset = Service.objects.select_related('device').prefetch_related('ipaddresses')
+class ServiceViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, WritableSerializerMixin, GenericViewSet):
+    queryset = Service.objects.select_related('device')
     serializer_class = serializers.ServiceSerializer
-    filter_class = filters.ServiceFilter
+
+
+class ChildServiceViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
+    serializer_class = serializers.ChildServiceSerializer
+
+    def get_queryset(self):
+        device = get_object_or_404(Device, pk=self.kwargs['pk'])
+        return Service.objects.filter(device=device).select_related('device')

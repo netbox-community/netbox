@@ -4,6 +4,7 @@ from rest_framework import routers
 
 from extras.models import GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from extras.api.views import GraphListView, TopologyMapView
+from ipam.api.views import ChildServiceViewSet
 
 from . import views
 
@@ -37,12 +38,12 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/lldp-neighbors/$', views.LLDPNeighborsView.as_view(), name='device_lldp-neighbors'),
     url(r'^devices/(?P<pk>\d+)/console-ports/$', views.ChildConsolePortViewSet.as_view({'get': 'list'}), name='consoleport-list'),
     url(r'^devices/(?P<pk>\d+)/console-server-ports/$', views.ChildConsoleServerPortViewSet.as_view({'get': 'list'}), name='consoleserverport-list'),
-    url(r'^devices/(?P<pk>\d+)/power-ports/$', views.NestedPowerPortViewSet.as_view({'get': 'list'}), name='powerport-list'),
-    url(r'^devices/(?P<pk>\d+)/power-outlets/$', views.NestedPowerOutletViewSet.as_view({'get': 'list'}), name='poweroutlet-list'),
-    url(r'^devices/(?P<pk>\d+)/interfaces/$', views.NestedInterfaceViewSet.as_view({'get': 'list'}), name='interface-list'),
-    url(r'^devices/(?P<pk>\d+)/device-bays/$', views.NestedDeviceBayViewSet.as_view({'get': 'list'}), name='devicebay-list'),
-    url(r'^devices/(?P<pk>\d+)/modules/$', views.NestedModuleViewSet.as_view({'get': 'list'}), name='module-list'),
-    # TODO: Services
+    url(r'^devices/(?P<pk>\d+)/power-ports/$', views.ChildPowerPortViewSet.as_view({'get': 'list'}), name='powerport-list'),
+    url(r'^devices/(?P<pk>\d+)/power-outlets/$', views.ChildPowerOutletViewSet.as_view({'get': 'list'}), name='poweroutlet-list'),
+    url(r'^devices/(?P<pk>\d+)/interfaces/$', views.ChildInterfaceViewSet.as_view({'get': 'list'}), name='interface-list'),
+    url(r'^devices/(?P<pk>\d+)/device-bays/$', views.ChildDeviceBayViewSet.as_view({'get': 'list'}), name='devicebay-list'),
+    url(r'^devices/(?P<pk>\d+)/modules/$', views.ChildModuleViewSet.as_view({'get': 'list'}), name='module-list'),
+    url(r'^devices/(?P<pk>\d+)/services/$', ChildServiceViewSet.as_view({'get': 'list'}), name='service-list'),
 
     # Console ports
     url(r'^console-ports/(?P<pk>\d+)/$', views.ConsolePortViewSet.as_view({'get': 'retrieve'}), name='consoleport-detail'),

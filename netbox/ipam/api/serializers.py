@@ -189,3 +189,11 @@ class ServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
         fields = ['id', 'device', 'name', 'port', 'protocol', 'ipaddresses', 'description']
+
+
+class ChildServiceSerializer(serializers.HyperlinkedModelSerializer):
+    ipaddresses = NestedIPAddressSerializer(many=True)
+
+    class Meta:
+        model = Service
+        fields = ['id', 'url', 'name', 'port', 'protocol', 'ipaddresses', 'description']
