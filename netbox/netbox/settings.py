@@ -181,9 +181,11 @@ LOGIN_URL = '/{}login/'.format(BASE_PATH)
 # Secrets
 SECRETS_MIN_PUBKEY_SIZE = 2048
 
-# Django REST framework
+# Django REST framework (API)
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': PAGINATE_COUNT,
 }
 if LOGIN_REQUIRED:
     REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = ('rest_framework.permissions.IsAuthenticated',)
