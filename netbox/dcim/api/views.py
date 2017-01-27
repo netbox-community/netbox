@@ -107,11 +107,6 @@ class DeviceTypeViewSet(CustomFieldModelViewSet):
     queryset = DeviceType.objects.select_related('manufacturer')
     filter_class = filters.DeviceTypeFilter
 
-    def get_serializer_class(self):
-        if self.action == 'retrieve':
-            return serializers.DeviceTypeDetailSerializer
-        return serializers.DeviceTypeSerializer
-
 
 #
 # Device Roles
@@ -156,7 +151,7 @@ class ConsolePortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 
 
 class NestedConsolePortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.ConsolePortSerializer
+    serializer_class = serializers.NestedConsolePortSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
@@ -173,7 +168,7 @@ class ConsoleServerPortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyMode
 
 
 class NestedConsoleServerPortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.ConsoleServerPortSerializer
+    serializer_class = serializers.NestedConsoleServerPortSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
@@ -190,7 +185,7 @@ class PowerPortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
 
 
 class NestedPowerPortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.PowerPortSerializer
+    serializer_class = serializers.NestedPowerPortSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
@@ -207,7 +202,7 @@ class PowerOutletViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 
 
 class NestedPowerOutletViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.PowerOutletSerializer
+    serializer_class = serializers.NestedPowerOutletSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
@@ -224,7 +219,7 @@ class InterfaceViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
 
 
 class NestedInterfaceViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.InterfaceSerializer
+    serializer_class = serializers.NestedInterfaceSerializer
     filter_class = filters.InterfaceFilter
 
     def get_queryset(self):
@@ -243,7 +238,7 @@ class DeviceBayViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
 
 
 class NestedDeviceBayViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.DeviceBayNestedSerializer
+    serializer_class = serializers.NestedDeviceBaySerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
@@ -260,7 +255,7 @@ class ModuleViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, Gen
 
 
 class NestedModuleViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.ModuleSerializer
+    serializer_class = serializers.NestedModuleSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
