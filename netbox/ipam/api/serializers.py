@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from dcim.api.serializers import NestedDeviceSerializer, ChildInterfaceSerializer, NestedSiteSerializer
+from dcim.api.serializers import NestedDeviceSerializer, DeviceInterfaceSerializer, NestedSiteSerializer
 from extras.api.serializers import CustomFieldSerializer
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from tenancy.api.serializers import NestedTenantSerializer
@@ -158,7 +158,7 @@ class NestedPrefixSerializer(serializers.HyperlinkedModelSerializer):
 class IPAddressSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     vrf = NestedVRFSerializer()
     tenant = NestedTenantSerializer()
-    interface = ChildInterfaceSerializer()
+    interface = DeviceInterfaceSerializer()
 
     class Meta:
         model = IPAddress

@@ -313,7 +313,7 @@ class ConsoleServerPortSerializer(serializers.ModelSerializer):
         fields = ['id', 'device', 'name', 'connected_console']
 
 
-class ChildConsoleServerPortSerializer(serializers.HyperlinkedModelSerializer):
+class DeviceConsoleServerPortSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = ConsoleServerPort
@@ -333,7 +333,7 @@ class ConsolePortSerializer(serializers.ModelSerializer):
         fields = ['id', 'device', 'name', 'cs_port', 'connection_status']
 
 
-class ChildConsolePortSerializer(serializers.HyperlinkedModelSerializer):
+class DeviceConsolePortSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = ConsolePort
@@ -352,7 +352,7 @@ class PowerOutletSerializer(serializers.ModelSerializer):
         fields = ['id', 'device', 'name', 'connected_port']
 
 
-class ChildPowerOutletSerializer(serializers.HyperlinkedModelSerializer):
+class DevicePowerOutletSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = PowerOutlet
@@ -372,7 +372,7 @@ class PowerPortSerializer(serializers.ModelSerializer):
         fields = ['id', 'device', 'name', 'power_outlet', 'connection_status']
 
 
-class ChildPowerPortSerializer(serializers.HyperlinkedModelSerializer):
+class DevicePowerPortSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = PowerPort
@@ -383,30 +383,69 @@ class ChildPowerPortSerializer(serializers.HyperlinkedModelSerializer):
 # Interfaces
 #
 
+
 class InterfaceSerializer(serializers.ModelSerializer):
     device = NestedDeviceSerializer()
-    form_factor = serializers.ReadOnlyField(source='get_form_factor_display')
+    connection = serializers.SerializerMethodField(read_only=True)
+    connected_interface = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Interface
-        fields = ['id', 'device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description', 'is_connected']
-
-
-class ChildInterfaceSerializer(serializers.HyperlinkedModelSerializer):
-
-    class Meta:
-        model = Interface
-        fields = ['id', 'url', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description', 'is_connected']
-
-
-# TODO: Remove this
-class InterfaceDetailSerializer(InterfaceSerializer):
-
-    class Meta(InterfaceSerializer.Meta):
         fields = [
-            'id', 'device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description', 'is_connected',
+            'id', 'device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description', 'connection',
             'connected_interface',
         ]
+
+    def get_connection(self, obj):
+        if obj.connection:
+            return NestedInterfaceConnectionSerializer(obj.connection, context=self.context).data
+        return None
+
+    def get_connected_interface(self, obj):
+        if obj.connected_interface:
+            return PeerInterfaceSerializer(obj.connected_interface, context=self.context).data
+        return None
+
+
+class PeerInterfaceSerializer(serializers.HyperlinkedModelSerializer):
+    device = NestedDeviceSerializer()
+
+    class Meta:
+        model = Interface
+        fields = ['id', 'url', 'device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description']
+
+
+class DeviceInterfaceSerializer(serializers.HyperlinkedModelSerializer):
+    connection = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Interface
+        fields = ['id', 'url', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description', 'connection']
+
+    def get_connection(self, obj):
+        if obj.connection:
+            return NestedInterfaceConnectionSerializer(obj.connection, context=self.context).data
+        return None
+
+
+#
+# Interface connections
+#
+
+class InterfaceConnectionSerializer(serializers.ModelSerializer):
+    interface_a = PeerInterfaceSerializer()
+    interface_b = PeerInterfaceSerializer()
+
+    class Meta:
+        model = InterfaceConnection
+        fields = ['id', 'interface_a', 'interface_b', 'connection_status']
+
+
+class NestedInterfaceConnectionSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = InterfaceConnection
+        fields = ['id', 'url', 'connection_status']
 
 
 #
@@ -447,14 +486,3 @@ class ChildModuleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Module
         fields = ['id', 'url', 'parent', 'name', 'manufacturer', 'part_id', 'serial', 'discovered']
-
-
-#
-# Interface connections
-#
-
-class InterfaceConnectionSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = InterfaceConnection
-        fields = ['id', 'interface_a', 'interface_b', 'connection_status']

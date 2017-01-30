@@ -151,7 +151,7 @@ class ConsolePortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 
 
 class ChildConsolePortViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
-    serializer_class = serializers.ChildConsolePortSerializer
+    serializer_class = serializers.DeviceConsolePortSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
@@ -169,7 +169,7 @@ class ConsoleServerPortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyMode
 
 
 class ChildConsoleServerPortViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
-    serializer_class = serializers.ChildConsoleServerPortSerializer
+    serializer_class = serializers.DeviceConsoleServerPortSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
@@ -187,7 +187,7 @@ class PowerPortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
 
 
 class ChildPowerPortViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
-    serializer_class = serializers.ChildPowerPortSerializer
+    serializer_class = serializers.DevicePowerPortSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
@@ -205,7 +205,7 @@ class PowerOutletViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 
 
 class ChildPowerOutletViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
-    serializer_class = serializers.ChildPowerOutletSerializer
+    serializer_class = serializers.DevicePowerOutletSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
@@ -219,11 +219,11 @@ class ChildPowerOutletViewSet(CreateModelMixin, ListModelMixin, WritableSerializ
 class InterfaceViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, WritableSerializerMixin,
                        GenericViewSet):
     queryset = Interface.objects.select_related('device')
-    serializer_class = serializers.InterfaceDetailSerializer
+    serializer_class = serializers.InterfaceSerializer
 
 
 class ChildInterfaceViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
-    serializer_class = serializers.ChildInterfaceSerializer
+    serializer_class = serializers.DeviceInterfaceSerializer
     filter_class = filters.InterfaceFilter
 
     def get_queryset(self):
@@ -380,7 +380,7 @@ class RelatedConnectionsView(APIView):
         interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering).filter(device=device)\
             .select_related('connected_as_a', 'connected_as_b', 'circuit_termination')
         for iface in interfaces:
-            data = serializers.InterfaceDetailSerializer(instance=iface).data
+            data = serializers.InterfaceSerializer(instance=iface).data
             del(data['device'])
             response['interfaces'].append(data)
 
