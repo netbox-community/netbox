@@ -55,12 +55,6 @@ urlpatterns = [
     url(r'', include(router.urls)),
     url(r'^devices/(?P<pk>\d+)/', include(device_router.urls)),
 
-    # Racks
-    url(r'^racks/(?P<pk>\d+)/rack-units/$', views.RackUnitListView.as_view(), name='rack_units'),
-
-    # Devices
-    url(r'^devices/(?P<pk>\d+)/lldp-neighbors/$', views.LLDPNeighborsView.as_view(), name='device_lldp-neighbors'),
-
     # Miscellaneous
     url(r'^related-connections/$', views.RelatedConnectionsView.as_view(), name='related_connections'),
     url(r'^topology-maps/(?P<slug>[\w-]+)/$', TopologyMapView.as_view(), name='topology_map'),

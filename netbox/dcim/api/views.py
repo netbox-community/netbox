@@ -70,14 +70,11 @@ class RackViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     serializer_class = serializers.RackSerializer
     filter_class = filters.RackFilter
 
-
-class RackUnitListView(APIView):
-    """
-    List rack units (by rack)
-    """
-
-    def get(self, request, pk):
-
+    @detail_route(url_path='rack-units')
+    def rack_units(self, request, pk=None):
+        """
+        List rack units (by rack)
+        """
         rack = get_object_or_404(Rack, pk=pk)
         face = request.GET.get('face', 0)
         exclude_pk = request.GET.get('exclude', None)
@@ -148,6 +145,28 @@ class DeviceViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     serializer_class = serializers.DeviceSerializer
     filter_class = filters.DeviceFilter
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES + [BINDZoneRenderer, FlatJSONRenderer]
+
+    @detail_route(url_path='lldp-neighbors')
+    def lldp_neighbors(self, request, pk):
+        """
+        Retrieve live LLDP neighbors of a device
+        """
+        device = get_object_or_404(Device, pk=pk)
+        if not device.primary_ip:
+            raise ServiceUnavailable("No IP configured for this device.")
+
+        RPC = device.get_rpc_client()
+        if not RPC:
+            raise ServiceUnavailable("No RPC client available for this platform ({}).".format(device.platform))
+
+        # Connect to device and retrieve inventory info
+        try:
+            with RPC(device, username=settings.NETBOX_USERNAME, password=settings.NETBOX_PASSWORD) as rpc_client:
+                lldp_neighbors = rpc_client.get_lldp_neighbors()
+        except:
+            raise ServiceUnavailable("Error connecting to the remote device.")
+
+        return Response(lldp_neighbors)
 
 
 #
