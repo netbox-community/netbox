@@ -100,7 +100,7 @@ class ServiceViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, Wr
     serializer_class = serializers.ServiceSerializer
 
 
-class ChildServiceViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
+class DeviceServiceViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
     serializer_class = serializers.ChildServiceSerializer
 
     def get_queryset(self):
