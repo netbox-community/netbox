@@ -37,6 +37,8 @@ router.register(r'device-bays', views.DeviceBayViewSet)
 router.register(r'modules', views.ModuleViewSet)
 router.register(r'services', ServiceViewSet)
 
+# TODO: Device type components
+
 # Device components
 device_router = routers.DefaultRouter()
 device_router.register(r'console-ports', views.DeviceConsolePortViewSet, base_name='consoleport')
@@ -53,21 +55,11 @@ urlpatterns = [
     url(r'', include(router.urls)),
     url(r'^devices/(?P<pk>\d+)/', include(device_router.urls)),
 
-    # Sites
-    url(r'^sites/(?P<pk>\d+)/graphs/$', GraphListView.as_view(), {'type': GRAPH_TYPE_SITE}, name='site_graphs'),
-
     # Racks
     url(r'^racks/(?P<pk>\d+)/rack-units/$', views.RackUnitListView.as_view(), name='rack_units'),
 
-    # Device types
-    # TODO: Nested DeviceType components
-
     # Devices
     url(r'^devices/(?P<pk>\d+)/lldp-neighbors/$', views.LLDPNeighborsView.as_view(), name='device_lldp-neighbors'),
-
-    # Interfaces
-    url(r'^interfaces/(?P<pk>\d+)/graphs/$', GraphListView.as_view(), {'type': GRAPH_TYPE_INTERFACE},
-        name='interface_graphs'),
 
     # Miscellaneous
     url(r'^related-connections/$', views.RelatedConnectionsView.as_view(), name='related_connections'),

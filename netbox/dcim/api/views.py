@@ -1,3 +1,4 @@
+from rest_framework.decorators import detail_route
 from rest_framework.mixins import (
     CreateModelMixin, DestroyModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin,
 )
@@ -16,8 +17,10 @@ from dcim.models import (
     Manufacturer, Module, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackRole, Site,
 )
 from dcim import filters
-from extras.api.views import CustomFieldModelViewSet
 from extras.api.renderers import BINDZoneRenderer, FlatJSONRenderer
+from extras.api.serializers import GraphSerializer
+from extras.api.views import CustomFieldModelViewSet
+from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from utilities.api import ServiceUnavailable, WritableSerializerMixin
 from .exceptions import MissingFilterException
 from . import serializers
@@ -30,6 +33,13 @@ from . import serializers
 class SiteViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = Site.objects.select_related('tenant')
     serializer_class = serializers.SiteSerializer
+
+    @detail_route()
+    def graphs(self, request, pk=None):
+        site = get_object_or_404(Site, pk=pk)
+        queryset = Graph.objects.filter(type=GRAPH_TYPE_SITE)
+        serializer = GraphSerializer(queryset, many=True, context={'graphed_object': site})
+        return Response(serializer.data)
 
 
 #
@@ -221,6 +231,13 @@ class InterfaceViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
     queryset = Interface.objects.select_related('device')
     serializer_class = serializers.InterfaceSerializer
 
+    @detail_route()
+    def graphs(self, request, pk=None):
+        interface = get_object_or_404(Interface, pk=pk)
+        queryset = Graph.objects.filter(type=GRAPH_TYPE_INTERFACE)
+        serializer = GraphSerializer(queryset, many=True, context={'graphed_object': interface})
+        return Response(serializer.data)
+
 
 class DeviceInterfaceViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
     serializer_class = serializers.DeviceInterfaceSerializer
@@ -272,7 +289,7 @@ class DeviceModuleViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMi
 #
 
 class InterfaceConnectionViewSet(ModelViewSet):
-    queryset = InterfaceConnection.objects.all()
+    queryset = InterfaceConnection.objects.select_related('interface_a__device', 'interface_b__device')
     serializer_class = serializers.InterfaceConnectionSerializer
 
 

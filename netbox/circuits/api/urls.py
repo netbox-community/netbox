@@ -18,10 +18,6 @@ urlpatterns = [
 
     url(r'', include(router.urls)),
 
-    # Providers
-    url(r'^providers/(?P<pk>\d+)/graphs/$', GraphListView.as_view(), {'type': GRAPH_TYPE_PROVIDER},
-        name='provider_graphs'),
-
     # Circuits
     url(r'^circuits/(?P<pk>\d+)/terminations/$', views.NestedCircuitTerminationViewSet.as_view({'get': 'list'})),
 
