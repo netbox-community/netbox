@@ -267,7 +267,7 @@ class ObjectDeleteView(View):
             if return_url and is_safe_url(url=return_url, host=request.get_host()):
                 return redirect(return_url)
             else:
-                return redirect(self.default_return_url)
+                return redirect(self.get_return_url(obj))
 
         return render(request, self.template_name, {
             'obj': obj,
