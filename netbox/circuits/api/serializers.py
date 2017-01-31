@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from circuits.models import Provider, Circuit, CircuitTermination, CircuitType
 from dcim.api.serializers import NestedSiteSerializer, DeviceInterfaceSerializer
-from extras.api.serializers import CustomFieldSerializer
+from extras.api.serializers import CustomFieldValueSerializer
 from tenancy.api.serializers import NestedTenantSerializer
 
 
@@ -10,22 +10,32 @@ from tenancy.api.serializers import NestedTenantSerializer
 # Providers
 #
 
-class ProviderSerializer(CustomFieldSerializer, serializers.ModelSerializer):
+class ProviderSerializer(serializers.ModelSerializer):
+    custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
         model = Provider
         fields = [
             'id', 'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
-            'custom_fields',
+            'custom_field_values',
         ]
 
 
-class NestedProviderSerializer(serializers.HyperlinkedModelSerializer):
+class NestedProviderSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provider-detail')
 
     class Meta:
         model = Provider
         fields = ['id', 'url', 'name', 'slug']
+
+
+class WritableProviderSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Provider
+        fields = [
+            'id', 'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
+        ]
 
 
 #
@@ -39,7 +49,7 @@ class CircuitTypeSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug']
 
 
-class NestedCircuitTypeSerializer(serializers.HyperlinkedModelSerializer):
+class NestedCircuitTypeSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittype-detail')
 
     class Meta:
@@ -64,20 +74,21 @@ class CircuitTerminationSerializer(serializers.ModelSerializer):
 # Circuits
 #
 
-class CircuitSerializer(CustomFieldSerializer, serializers.ModelSerializer):
+class CircuitSerializer(serializers.ModelSerializer):
     provider = NestedProviderSerializer()
     type = NestedCircuitTypeSerializer()
     tenant = NestedTenantSerializer()
+    custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
         model = Circuit
         fields = [
             'id', 'cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
-            'custom_fields',
+            'custom_field_values',
         ]
 
 
-class NestedCircuitSerializer(serializers.HyperlinkedModelSerializer):
+class NestedCircuitSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuit-detail')
 
     class Meta:
@@ -85,12 +96,10 @@ class NestedCircuitSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['id', 'url', 'cid']
 
 
-# TODO: Delete this
-class CircuitDetailSerializer(CircuitSerializer):
-    terminations = CircuitTerminationSerializer(many=True)
+class WritableCircuitSerializer(serializers.ModelSerializer):
 
-    class Meta(CircuitSerializer.Meta):
+    class Meta:
+        model = Circuit
         fields = [
             'id', 'cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
-            'terminations', 'custom_fields',
         ]

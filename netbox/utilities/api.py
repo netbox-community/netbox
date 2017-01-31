@@ -12,18 +12,10 @@ class ServiceUnavailable(APIException):
 
 class WritableSerializerMixin(object):
     """
-    Returns a flat Serializer from the given model suitable for write operations (POST, PUT, PATCH). This is necessary
-    to allow write operations on objects which utilize nested serializers.
+    Allow for the use of an alternate, writable serializer class for write operations (e.g. POST, PUT).
     """
 
     def get_serializer_class(self):
-
-        class WritableSerializer(ModelSerializer):
-
-            class Meta(self.serializer_class.Meta):
-                pass
-
-        if self.action in WRITE_OPERATIONS:
-            return WritableSerializer
-
+        if self.action in WRITE_OPERATIONS and hasattr(self, 'write_serializer_class'):
+            return self.write_serializer_class
         return self.serializer_class

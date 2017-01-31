@@ -2,10 +2,8 @@ from django.conf.urls import include, url
 
 from rest_framework import routers
 
-from extras.models import GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
-from extras.api.views import GraphListView, TopologyMapView
+from extras.api.views import TopologyMapView
 from ipam.api.views import ServiceViewSet, DeviceServiceViewSet
-
 from . import views
 
 

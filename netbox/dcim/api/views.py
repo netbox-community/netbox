@@ -33,6 +33,7 @@ from . import serializers
 class SiteViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = Site.objects.select_related('tenant')
     serializer_class = serializers.SiteSerializer
+    write_serializer_class = serializers.WritableSiteSerializer
 
     @detail_route()
     def graphs(self, request, pk=None):
@@ -50,6 +51,7 @@ class RackGroupViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = RackGroup.objects.select_related('site')
     serializer_class = serializers.RackGroupSerializer
     filter_class = filters.RackGroupFilter
+    write_serializer_class = serializers.WritableRackGroupSerializer
 
 
 #
@@ -68,6 +70,7 @@ class RackRoleViewSet(ModelViewSet):
 class RackViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = Rack.objects.select_related('site', 'group__site', 'tenant')
     serializer_class = serializers.RackSerializer
+    write_serializer_class = serializers.WritableRackSerializer
     filter_class = filters.RackFilter
 
     @detail_route(url_path='rack-units')
@@ -112,6 +115,7 @@ class ManufacturerViewSet(ModelViewSet):
 class DeviceTypeViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = DeviceType.objects.select_related('manufacturer')
     serializer_class = serializers.DeviceTypeSerializer
+    write_serializer_class = serializers.WritableDeviceTypeSerializer
 
 
 #
@@ -143,6 +147,7 @@ class DeviceViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
         'primary_ip4__nat_outside', 'primary_ip6__nat_outside',
     )
     serializer_class = serializers.DeviceSerializer
+    write_serializer_class = serializers.WritableDeviceSerializer
     filter_class = filters.DeviceFilter
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES + [BINDZoneRenderer, FlatJSONRenderer]
 
@@ -335,9 +340,10 @@ class DeviceModuleViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
 # Interface connections
 #
 
-class InterfaceConnectionViewSet(ModelViewSet):
+class InterfaceConnectionViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = InterfaceConnection.objects.select_related('interface_a__device', 'interface_b__device')
     serializer_class = serializers.InterfaceConnectionSerializer
+    write_serializer_class = serializers.WritableInterfaceConnectionSerializer
 
 
 #

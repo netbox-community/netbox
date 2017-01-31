@@ -21,9 +21,10 @@ from . import serializers
 # Providers
 #
 
-class ProviderViewSet(CustomFieldModelViewSet):
+class ProviderViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = Provider.objects.all()
     serializer_class = serializers.ProviderSerializer
+    write_serializer_class = serializers.WritableProviderSerializer
 
     @detail_route()
     def graphs(self, request, pk=None):
@@ -49,6 +50,7 @@ class CircuitTypeViewSet(ModelViewSet):
 class CircuitViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = Circuit.objects.select_related('type', 'tenant', 'provider')
     serializer_class = serializers.CircuitSerializer
+    write_serializer_class = serializers.WritableCircuitSerializer
     filter_class = CircuitFilter
 
 

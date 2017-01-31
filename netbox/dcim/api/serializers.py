@@ -4,10 +4,10 @@ from ipam.models import IPAddress
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay, DeviceType,
     DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet,
-    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, RACK_FACE_FRONT, RACK_FACE_REAR, Site,
-    SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
+    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, Site, SUBDEVICE_ROLE_CHILD,
+    SUBDEVICE_ROLE_PARENT,
 )
-from extras.api.serializers import CustomFieldSerializer
+from extras.api.serializers import CustomFieldValueSerializer
 from tenancy.api.serializers import NestedTenantSerializer
 
 
@@ -15,24 +15,35 @@ from tenancy.api.serializers import NestedTenantSerializer
 # Sites
 #
 
-class SiteSerializer(CustomFieldSerializer, serializers.ModelSerializer):
+class SiteSerializer(serializers.ModelSerializer):
     tenant = NestedTenantSerializer()
+    custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
         model = Site
         fields = [
             'id', 'name', 'slug', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address', 'contact_name',
-            'contact_phone', 'contact_email', 'comments', 'custom_fields', 'count_prefixes', 'count_vlans',
+            'contact_phone', 'contact_email', 'comments', 'custom_field_values', 'count_prefixes', 'count_vlans',
             'count_racks', 'count_devices', 'count_circuits',
         ]
 
 
-class NestedSiteSerializer(serializers.HyperlinkedModelSerializer):
+class NestedSiteSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:site-detail')
 
     class Meta:
         model = Site
         fields = ['id', 'url', 'name', 'slug']
+
+
+class WritableSiteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Site
+        fields = [
+            'id', 'name', 'slug', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address', 'contact_name',
+            'contact_phone', 'contact_email', 'comments',
+        ]
 
 
 #
@@ -47,12 +58,19 @@ class RackGroupSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'site']
 
 
-class NestedRackGroupSerializer(serializers.HyperlinkedModelSerializer):
+class NestedRackGroupSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackgroup-detail')
 
     class Meta:
         model = RackGroup
         fields = ['id', 'url', 'name', 'slug']
+
+
+class WritableRackGroupSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RackGroup
+        fields = ['id', 'name', 'slug', 'site']
 
 
 #
@@ -66,7 +84,7 @@ class RackRoleSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'color']
 
 
-class NestedRackRoleSerializer(serializers.HyperlinkedModelSerializer):
+class NestedRackRoleSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackrole-detail')
 
     class Meta:
@@ -79,21 +97,22 @@ class NestedRackRoleSerializer(serializers.HyperlinkedModelSerializer):
 #
 
 
-class RackSerializer(CustomFieldSerializer, serializers.ModelSerializer):
+class RackSerializer(serializers.ModelSerializer):
     site = NestedSiteSerializer()
     group = NestedRackGroupSerializer()
     tenant = NestedTenantSerializer()
     role = NestedRackRoleSerializer()
+    custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
         model = Rack
         fields = [
             'id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'type', 'width', 'u_height',
-            'desc_units', 'comments', 'custom_fields',
+            'desc_units', 'comments', 'custom_field_values',
         ]
 
 
-class NestedRackSerializer(serializers.HyperlinkedModelSerializer):
+class NestedRackSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rack-detail')
 
     class Meta:
@@ -101,27 +120,14 @@ class NestedRackSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['id', 'url', 'name', 'display_name']
 
 
-class RackDetailSerializer(RackSerializer):
-    front_units = serializers.SerializerMethodField()
-    rear_units = serializers.SerializerMethodField()
+class WritableRackSerializer(serializers.ModelSerializer):
 
-    class Meta(RackSerializer.Meta):
+    class Meta:
+        model = Rack
         fields = [
-            'id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'type', 'width', 'u_height',
-            'desc_units', 'comments', 'custom_fields', 'front_units', 'rear_units',
+            'id', 'name', 'facility_id', 'site', 'group', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
+            'comments',
         ]
-
-    def get_front_units(self, obj):
-        units = obj.get_rack_units(face=RACK_FACE_FRONT)
-        for u in units:
-            u['device'] = NestedDeviceSerializer(u['device']).data if u['device'] else None
-        return units
-
-    def get_rear_units(self, obj):
-        units = obj.get_rack_units(face=RACK_FACE_REAR)
-        for u in units:
-            u['device'] = NestedDeviceSerializer(u['device']).data if u['device'] else None
-        return units
 
 
 #
@@ -135,7 +141,7 @@ class ManufacturerSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug']
 
 
-class NestedManufacturerSerializer(serializers.HyperlinkedModelSerializer):
+class NestedManufacturerSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:manufacturer-detail')
 
     class Meta:
@@ -147,16 +153,17 @@ class NestedManufacturerSerializer(serializers.HyperlinkedModelSerializer):
 # Device types
 #
 
-class DeviceTypeSerializer(CustomFieldSerializer, serializers.ModelSerializer):
+class DeviceTypeSerializer(serializers.ModelSerializer):
     manufacturer = NestedManufacturerSerializer()
     subdevice_role = serializers.SerializerMethodField()
     instance_count = serializers.IntegerField(source='instances.count', read_only=True)
+    custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
         model = DeviceType
         fields = [
             'id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'interface_ordering',
-            'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments', 'custom_fields',
+            'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments', 'custom_field_values',
             'instance_count',
         ]
 
@@ -168,13 +175,23 @@ class DeviceTypeSerializer(CustomFieldSerializer, serializers.ModelSerializer):
         }[obj.subdevice_role]
 
 
-class NestedDeviceTypeSerializer(serializers.HyperlinkedModelSerializer):
+class NestedDeviceTypeSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicetype-detail')
     manufacturer = NestedManufacturerSerializer()
 
     class Meta:
         model = DeviceType
         fields = ['id', 'url', 'manufacturer', 'model', 'slug']
+
+
+class WritableDeviceTypeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DeviceType
+        fields = [
+            'id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'interface_ordering',
+            'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments',
+        ]
 
 
 class ConsolePortTemplateSerializer(serializers.ModelSerializer):
@@ -230,7 +247,7 @@ class DeviceRoleSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'color']
 
 
-class NestedDeviceRoleSerializer(serializers.HyperlinkedModelSerializer):
+class NestedDeviceRoleSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicerole-detail')
 
     class Meta:
@@ -249,7 +266,7 @@ class PlatformSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'rpc_client']
 
 
-class NestedPlatformSerializer(serializers.HyperlinkedModelSerializer):
+class NestedPlatformSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:platform-detail')
 
     class Meta:
@@ -262,7 +279,7 @@ class NestedPlatformSerializer(serializers.HyperlinkedModelSerializer):
 #
 
 # Cannot import ipam.api.NestedIPAddressSerializer due to circular dependency
-class DeviceIPAddressSerializer(serializers.HyperlinkedModelSerializer):
+class DeviceIPAddressSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:ipaddress-detail')
 
     class Meta:
@@ -270,7 +287,7 @@ class DeviceIPAddressSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['id', 'url', 'family', 'address']
 
 
-class DeviceSerializer(CustomFieldSerializer, serializers.ModelSerializer):
+class DeviceSerializer(serializers.ModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     device_role = NestedDeviceRoleSerializer()
     tenant = NestedTenantSerializer()
@@ -280,13 +297,14 @@ class DeviceSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     primary_ip4 = DeviceIPAddressSerializer()
     primary_ip6 = DeviceIPAddressSerializer()
     parent_device = serializers.SerializerMethodField()
+    custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
         model = Device
         fields = [
             'id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial',  'asset_tag',
             'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4', 'primary_ip6',
-            'comments', 'custom_fields',
+            'comments', 'custom_field_values',
         ]
 
     def get_parent_device(self, obj):
@@ -304,7 +322,7 @@ class DeviceSerializer(CustomFieldSerializer, serializers.ModelSerializer):
         }
 
 
-class NestedDeviceSerializer(serializers.HyperlinkedModelSerializer):
+class NestedDeviceSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:device-detail')
 
     class Meta:
@@ -312,19 +330,29 @@ class NestedDeviceSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['id', 'url', 'name', 'display_name']
 
 
+class WritableDeviceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Device
+        fields = [
+            'id', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial',  'asset_tag', 'rack',
+            'position', 'face', 'status', 'primary_ip4', 'primary_ip6', 'comments',
+        ]
+
+
 #
 # Console server ports
 #
 
 class ConsoleServerPortSerializer(serializers.ModelSerializer):
-    device = NestedDeviceSerializer()
+    device = NestedDeviceSerializer(read_only=True)
 
     class Meta:
         model = ConsoleServerPort
         fields = ['id', 'device', 'name', 'connected_console']
 
 
-class DeviceConsoleServerPortSerializer(serializers.HyperlinkedModelSerializer):
+class DeviceConsoleServerPortSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleserverport-detail')
 
     class Meta:
@@ -338,7 +366,7 @@ class DeviceConsoleServerPortSerializer(serializers.HyperlinkedModelSerializer):
 #
 
 class ConsolePortSerializer(serializers.ModelSerializer):
-    device = NestedDeviceSerializer()
+    device = NestedDeviceSerializer(read_only=True)
     cs_port = ConsoleServerPortSerializer()
 
     class Meta:
@@ -346,7 +374,7 @@ class ConsolePortSerializer(serializers.ModelSerializer):
         fields = ['id', 'device', 'name', 'cs_port', 'connection_status']
 
 
-class DeviceConsolePortSerializer(serializers.HyperlinkedModelSerializer):
+class DeviceConsolePortSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleport-detail')
 
     class Meta:
@@ -360,14 +388,14 @@ class DeviceConsolePortSerializer(serializers.HyperlinkedModelSerializer):
 #
 
 class PowerOutletSerializer(serializers.ModelSerializer):
-    device = NestedDeviceSerializer()
+    device = NestedDeviceSerializer(read_only=True)
 
     class Meta:
         model = PowerOutlet
         fields = ['id', 'device', 'name', 'connected_port']
 
 
-class DevicePowerOutletSerializer(serializers.HyperlinkedModelSerializer):
+class DevicePowerOutletSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:poweroutlet-detail')
 
     class Meta:
@@ -381,7 +409,7 @@ class DevicePowerOutletSerializer(serializers.HyperlinkedModelSerializer):
 #
 
 class PowerPortSerializer(serializers.ModelSerializer):
-    device = NestedDeviceSerializer()
+    device = NestedDeviceSerializer(read_only=True)
     power_outlet = PowerOutletSerializer()
 
     class Meta:
@@ -389,7 +417,7 @@ class PowerPortSerializer(serializers.ModelSerializer):
         fields = ['id', 'device', 'name', 'power_outlet', 'connection_status']
 
 
-class DevicePowerPortSerializer(serializers.HyperlinkedModelSerializer):
+class DevicePowerPortSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerport-detail')
 
     class Meta:
@@ -404,7 +432,7 @@ class DevicePowerPortSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class InterfaceSerializer(serializers.ModelSerializer):
-    device = NestedDeviceSerializer()
+    device = NestedDeviceSerializer(read_only=True)
     connection = serializers.SerializerMethodField(read_only=True)
     connected_interface = serializers.SerializerMethodField(read_only=True)
 
@@ -426,7 +454,7 @@ class InterfaceSerializer(serializers.ModelSerializer):
         return None
 
 
-class PeerInterfaceSerializer(serializers.HyperlinkedModelSerializer):
+class PeerInterfaceSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interface-detail')
     device = NestedDeviceSerializer()
 
@@ -435,7 +463,7 @@ class PeerInterfaceSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['id', 'url', 'device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description']
 
 
-class DeviceInterfaceSerializer(serializers.HyperlinkedModelSerializer):
+class DeviceInterfaceSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interface-detail')
     connection = serializers.SerializerMethodField()
 
@@ -462,7 +490,7 @@ class InterfaceConnectionSerializer(serializers.ModelSerializer):
         fields = ['id', 'interface_a', 'interface_b', 'connection_status']
 
 
-class NestedInterfaceConnectionSerializer(serializers.HyperlinkedModelSerializer):
+class NestedInterfaceConnectionSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interfaceconnection-detail')
 
     class Meta:
@@ -470,12 +498,19 @@ class NestedInterfaceConnectionSerializer(serializers.HyperlinkedModelSerializer
         fields = ['id', 'url', 'connection_status']
 
 
+class WritableInterfaceConnectionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = InterfaceConnection
+        fields = ['id', 'interface_a', 'interface_b', 'connection_status']
+
+
 #
 # Device bays
 #
 
 class DeviceBaySerializer(serializers.ModelSerializer):
-    device = NestedDeviceSerializer()
+    device = NestedDeviceSerializer(read_only=True)
     installed_device = NestedDeviceSerializer()
 
     class Meta:
@@ -483,7 +518,7 @@ class DeviceBaySerializer(serializers.ModelSerializer):
         fields = ['id', 'device', 'name', 'installed_device']
 
 
-class DeviceDeviceBaySerializer(serializers.HyperlinkedModelSerializer):
+class DeviceDeviceBaySerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicebay-detail')
 
     class Meta:
@@ -497,7 +532,7 @@ class DeviceDeviceBaySerializer(serializers.HyperlinkedModelSerializer):
 #
 
 class ModuleSerializer(serializers.ModelSerializer):
-    device = NestedDeviceSerializer()
+    device = NestedDeviceSerializer(read_only=True)
     manufacturer = NestedManufacturerSerializer()
 
     class Meta:
@@ -505,7 +540,7 @@ class ModuleSerializer(serializers.ModelSerializer):
         fields = ['id', 'device', 'parent', 'name', 'manufacturer', 'part_id', 'serial', 'discovered']
 
 
-class DeviceModuleSerializer(serializers.HyperlinkedModelSerializer):
+class DeviceModuleSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:module-detail')
     manufacturer = NestedManufacturerSerializer()
 

@@ -2,9 +2,6 @@ from django.conf.urls import include, url
 
 from rest_framework import routers
 
-from extras.models import GRAPH_TYPE_PROVIDER
-from extras.api.views import GraphListView
-
 from . import views
 
 
