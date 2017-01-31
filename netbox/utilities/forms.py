@@ -252,6 +252,7 @@ class CSVDataField(forms.CharField):
                 elif len(row) > len(self.columns):
                     raise forms.ValidationError("Line {}: Too many fields (found {}; expected {})"
                                                 .format(i, len(row), len(self.columns)))
+                row = [col.strip() for col in row]
                 record = dict(zip(self.columns, row))
                 records.append(record)
         return records
