@@ -20,9 +20,8 @@ class WritableSerializerMixin(object):
 
         class WritableSerializer(ModelSerializer):
 
-            class Meta:
-                model = self.get_queryset().model
-                fields = '__all__'
+            class Meta(self.serializer_class.Meta):
+                pass
 
         if self.action in WRITE_OPERATIONS:
             return WritableSerializer

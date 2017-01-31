@@ -330,6 +330,7 @@ class DeviceConsoleServerPortSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ConsoleServerPort
         fields = ['id', 'url', 'name', 'connected_console']
+        read_only_fields = ['connected_console']
 
 
 #
@@ -351,6 +352,7 @@ class DeviceConsolePortSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ConsolePort
         fields = ['id', 'url', 'name', 'cs_port', 'connection_status']
+        read_only_fields = ['cs_port', 'connection_status']
 
 
 #
@@ -371,6 +373,7 @@ class DevicePowerOutletSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = PowerOutlet
         fields = ['id', 'url', 'name', 'connected_port']
+        read_only_fields = ['connected_port']
 
 
 #
@@ -392,6 +395,7 @@ class DevicePowerPortSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = PowerPort
         fields = ['id', 'url', 'name', 'power_outlet', 'connection_status']
+        read_only_fields = ['power_outlet', 'connection_status']
 
 
 #
@@ -485,6 +489,7 @@ class DeviceDeviceBaySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = DeviceBay
         fields = ['id', 'url', 'name', 'installed_device']
+        read_only_fields = ['installed_device']
 
 
 #
@@ -502,7 +507,8 @@ class ModuleSerializer(serializers.ModelSerializer):
 
 class DeviceModuleSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:module-detail')
+    manufacturer = NestedManufacturerSerializer()
 
     class Meta:
         model = Module
-        fields = ['id', 'url', 'parent', 'name', 'manufacturer', 'part_id', 'serial', 'discovered']
+        fields = ['id', 'url', 'name', 'manufacturer', 'part_id', 'serial', 'discovered']
