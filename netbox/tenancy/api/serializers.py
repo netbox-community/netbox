@@ -16,6 +16,7 @@ class TenantGroupSerializer(serializers.ModelSerializer):
 
 
 class NestedTenantGroupSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenantgroup-detail')
 
     class Meta:
         model = TenantGroup
@@ -35,6 +36,7 @@ class TenantSerializer(CustomFieldSerializer, serializers.ModelSerializer):
 
 
 class NestedTenantSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenant-detail')
 
     class Meta:
         model = Tenant

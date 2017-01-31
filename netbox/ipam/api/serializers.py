@@ -20,6 +20,7 @@ class VRFSerializer(CustomFieldSerializer, serializers.ModelSerializer):
 
 
 class NestedVRFSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vrf-detail')
 
     class Meta:
         model = VRF
@@ -38,6 +39,7 @@ class RoleSerializer(serializers.ModelSerializer):
 
 
 class NestedRoleSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:role-detail')
 
     class Meta:
         model = Role
@@ -56,6 +58,7 @@ class RIRSerializer(serializers.ModelSerializer):
 
 
 class NestedRIRSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:rir-detail')
 
     class Meta:
         model = RIR
@@ -75,6 +78,7 @@ class AggregateSerializer(CustomFieldSerializer, serializers.ModelSerializer):
 
 
 class NestedAggregateSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:aggregate-detail')
 
     class Meta(AggregateSerializer.Meta):
         model = Aggregate
@@ -94,6 +98,7 @@ class VLANGroupSerializer(WritableSerializerMixin, serializers.ModelSerializer):
 
 
 class NestedVLANGroupSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlangroup-detail')
 
     class Meta:
         model = VLANGroup
@@ -119,6 +124,7 @@ class VLANSerializer(CustomFieldSerializer, serializers.ModelSerializer):
 
 
 class NestedVLANSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlan-detail')
 
     class Meta:
         model = VLAN
@@ -145,6 +151,7 @@ class PrefixSerializer(CustomFieldSerializer, serializers.ModelSerializer):
 
 
 class NestedPrefixSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:prefix-detail')
 
     class Meta:
         model = Prefix
@@ -169,6 +176,7 @@ class IPAddressSerializer(CustomFieldSerializer, serializers.ModelSerializer):
 
 
 class NestedIPAddressSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:ipaddress-detail')
 
     class Meta:
         model = IPAddress
@@ -191,7 +199,8 @@ class ServiceSerializer(serializers.ModelSerializer):
         fields = ['id', 'device', 'name', 'port', 'protocol', 'ipaddresses', 'description']
 
 
-class ChildServiceSerializer(serializers.HyperlinkedModelSerializer):
+class DeviceServiceSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:service-detail')
     ipaddresses = NestedIPAddressSerializer(many=True)
 
     class Meta:

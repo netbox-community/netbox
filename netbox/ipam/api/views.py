@@ -101,7 +101,7 @@ class ServiceViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, Wr
 
 
 class DeviceServiceViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
-    serializer_class = serializers.ChildServiceSerializer
+    serializer_class = serializers.DeviceServiceSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])

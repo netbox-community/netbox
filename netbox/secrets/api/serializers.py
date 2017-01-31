@@ -16,6 +16,7 @@ class SecretRoleSerializer(serializers.ModelSerializer):
 
 
 class NestedSecretRoleSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='secrets-api:secretrole-detail')
 
     class Meta:
         model = SecretRole

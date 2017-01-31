@@ -279,7 +279,7 @@ class DeviceBayViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
 
 
 class DeviceDeviceBayViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
-    serializer_class = serializers.ChildDeviceBaySerializer
+    serializer_class = serializers.DeviceDeviceBaySerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])
@@ -296,7 +296,7 @@ class ModuleViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, Wri
 
 
 class DeviceModuleViewSet(CreateModelMixin, ListModelMixin, WritableSerializerMixin, GenericViewSet):
-    serializer_class = serializers.ChildModuleSerializer
+    serializer_class = serializers.DeviceModuleSerializer
 
     def get_queryset(self):
         device = get_object_or_404(Device, pk=self.kwargs['pk'])

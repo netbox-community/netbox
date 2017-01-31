@@ -21,6 +21,7 @@ class ProviderSerializer(CustomFieldSerializer, serializers.ModelSerializer):
 
 
 class NestedProviderSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provider-detail')
 
     class Meta:
         model = Provider
@@ -39,6 +40,7 @@ class CircuitTypeSerializer(serializers.ModelSerializer):
 
 
 class NestedCircuitTypeSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittype-detail')
 
     class Meta:
         model = CircuitType
@@ -76,6 +78,7 @@ class CircuitSerializer(CustomFieldSerializer, serializers.ModelSerializer):
 
 
 class NestedCircuitSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuit-detail')
 
     class Meta:
         model = Circuit
