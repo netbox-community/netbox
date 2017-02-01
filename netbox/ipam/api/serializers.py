@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from dcim.api.serializers import NestedDeviceSerializer, DeviceInterfaceSerializer, NestedSiteSerializer
+from dcim.api.serializers import NestedDeviceSerializer, InterfaceSerializer, NestedSiteSerializer
 from extras.api.serializers import CustomFieldValueSerializer
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from tenancy.api.serializers import NestedTenantSerializer
@@ -207,7 +207,7 @@ class WritablePrefixSerializer(serializers.ModelSerializer):
 class IPAddressSerializer(serializers.ModelSerializer):
     vrf = NestedVRFSerializer()
     tenant = NestedTenantSerializer()
-    interface = DeviceInterfaceSerializer()
+    interface = InterfaceSerializer()
     custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
@@ -249,10 +249,8 @@ class ServiceSerializer(serializers.ModelSerializer):
         fields = ['id', 'device', 'name', 'port', 'protocol', 'ipaddresses', 'description']
 
 
-class DeviceServiceSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:service-detail')
-    ipaddresses = NestedIPAddressSerializer(many=True)
+class WritableServiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Service
-        fields = ['id', 'url', 'name', 'port', 'protocol', 'ipaddresses', 'description']
+        fields = ['id', 'device', 'name', 'port', 'protocol', 'ipaddresses', 'description']

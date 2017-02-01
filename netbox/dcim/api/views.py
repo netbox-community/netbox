@@ -1,11 +1,8 @@
 from rest_framework.decorators import detail_route
-from rest_framework.mixins import (
-    CreateModelMixin, DestroyModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin,
-)
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from rest_framework.viewsets import ModelViewSet
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -175,101 +172,42 @@ class DeviceViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 
 
 #
-# Console Ports
+# Device components
 #
 
-class ConsolePortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, WritableSerializerMixin,
-                         GenericViewSet):
-    queryset = ConsolePort.objects.select_related('cs_port')
+class ConsolePortViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = ConsolePort.objects.select_related('device', 'cs_port__device')
     serializer_class = serializers.ConsolePortSerializer
+    write_serializer_class= serializers.WritableConsolePortSerializer
+    filter_class = filters.ConsolePortFilter
 
 
-class DeviceConsolePortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.DeviceConsolePortSerializer
-
-    def get_queryset(self):
-        device = get_object_or_404(Device, pk=self.kwargs['pk'])
-        return ConsolePort.objects.filter(device=device).select_related('cs_port')
-
-    def perform_create(self, serializer):
-        device = get_object_or_404(Device, pk=self.kwargs['pk'])
-        serializer.save(device=device)
-
-
-#
-# Console Server Ports
-#
-
-class ConsoleServerPortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, WritableSerializerMixin,
-                               GenericViewSet):
-    queryset = ConsoleServerPort.objects.select_related('connected_console')
+class ConsoleServerPortViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = ConsoleServerPort.objects.select_related('device', 'connected_console__device')
     serializer_class = serializers.ConsoleServerPortSerializer
+    write_serializer_class= serializers.WritableConsoleServerPortSerializer
+    filter_class = filters.ConsoleServerPortFilter
 
 
-class DeviceConsoleServerPortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.DeviceConsoleServerPortSerializer
-
-    def get_queryset(self):
-        device = get_object_or_404(Device, pk=self.kwargs['pk'])
-        return ConsoleServerPort.objects.filter(device=device).select_related('connected_console')
-
-    def perform_create(self, serializer):
-        device = get_object_or_404(Device, pk=self.kwargs['pk'])
-        serializer.save(device=device)
-
-
-#
-# Power Ports
-#
-
-class PowerPortViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, WritableSerializerMixin,
-                       GenericViewSet):
-    queryset = PowerPort.objects.select_related('power_outlet')
+class PowerPortViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = PowerPort.objects.select_related('device', 'power_outlet__device')
     serializer_class = serializers.PowerPortSerializer
+    write_serializer_class= serializers.WritablePowerPortSerializer
+    filter_class = filters.PowerPortFilter
 
 
-class DevicePowerPortViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.DevicePowerPortSerializer
-
-    def get_queryset(self):
-        device = get_object_or_404(Device, pk=self.kwargs['pk'])
-        return PowerPort.objects.filter(device=device).select_related('power_outlet')
-
-    def perform_create(self, serializer):
-        device = get_object_or_404(Device, pk=self.kwargs['pk'])
-        serializer.save(device=device)
-
-
-#
-# Power Outlets
-#
-
-class PowerOutletViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, WritableSerializerMixin,
-                         GenericViewSet):
-    queryset = PowerOutlet.objects.select_related('connected_port')
+class PowerOutletViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = PowerOutlet.objects.select_related('device', 'connected_port__device')
     serializer_class = serializers.PowerOutletSerializer
+    write_serializer_class= serializers.WritablePowerOutletSerializer
+    filter_class = filters.PowerOutletFilter
 
 
-class DevicePowerOutletViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.DevicePowerOutletSerializer
-
-    def get_queryset(self):
-        device = get_object_or_404(Device, pk=self.kwargs['pk'])
-        return PowerOutlet.objects.filter(device=device).select_related('connected_port')
-
-    def perform_create(self, serializer):
-        device = get_object_or_404(Device, pk=self.kwargs['pk'])
-        serializer.save(device=device)
-
-
-#
-# Interfaces
-#
-
-class InterfaceViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, WritableSerializerMixin,
-                       GenericViewSet):
+class InterfaceViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = Interface.objects.select_related('device')
     serializer_class = serializers.InterfaceSerializer
+    write_serializer_class= serializers.WritableInterfaceSerializer
+    filter_class = filters.InterfaceFilter
 
     @detail_route()
     def graphs(self, request, pk=None):
@@ -279,61 +217,18 @@ class InterfaceViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, 
         return Response(serializer.data)
 
 
-class DeviceInterfaceViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.DeviceInterfaceSerializer
-    filter_class = filters.InterfaceFilter
-
-    def get_queryset(self):
-        device = get_object_or_404(Device, pk=self.kwargs['pk'])
-        return Interface.objects.order_naturally(device.device_type.interface_ordering).filter(device=device)\
-            .select_related('connected_as_a', 'connected_as_b', 'circuit_termination')
-
-    def perform_create(self, serializer):
-        device = get_object_or_404(Device, pk=self.kwargs['pk'])
-        serializer.save(device=device)
-
-
-#
-# Device bays
-#
-
-class DeviceBayViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, WritableSerializerMixin,
-                       GenericViewSet):
+class DeviceBayViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = DeviceBay.objects.select_related('installed_device')
     serializer_class = serializers.DeviceBaySerializer
+    write_serializer_class= serializers.WritableDeviceBaySerializer
+    filter_class = filters.DeviceBayFilter
 
 
-class DeviceDeviceBayViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.DeviceDeviceBaySerializer
-
-    def get_queryset(self):
-        device = get_object_or_404(Device, pk=self.kwargs['pk'])
-        return DeviceBay.objects.filter(device=device).select_related('installed_device')
-
-    def perform_create(self, serializer):
-        device = get_object_or_404(Device, pk=self.kwargs['pk'])
-        serializer.save(device=device)
-
-
-#
-# Modules
-#
-
-class ModuleViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, WritableSerializerMixin, GenericViewSet):
+class ModuleViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = Module.objects.select_related('device', 'manufacturer')
     serializer_class = serializers.ModuleSerializer
-
-
-class DeviceModuleViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    serializer_class = serializers.DeviceModuleSerializer
-
-    def get_queryset(self):
-        device = get_object_or_404(Device, pk=self.kwargs['pk'])
-        return Module.objects.filter(device=device).select_related('device', 'manufacturer')
-
-    def perform_create(self, serializer):
-        device = get_object_or_404(Device, pk=self.kwargs['pk'])
-        serializer.save(device=device)
+    write_serializer_class= serializers.WritableModuleSerializer
+    filter_class = filters.ModuleFilter
 
 
 #

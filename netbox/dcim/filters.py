@@ -7,8 +7,8 @@ from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NullableModelMultipleChoiceFilter
 from .models import (
-    ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, Interface, InterfaceConnection, Manufacturer,
-    Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackRole, Site,
+    ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, DeviceType, Interface, InterfaceConnection,
+    Manufacturer, Module, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackRole, Site,
 )
 
 
@@ -365,6 +365,42 @@ class InterfaceFilter(django_filters.FilterSet):
 
     class Meta:
         model = Interface
+        fields = ['name']
+
+
+class DeviceBayFilter(django_filters.FilterSet):
+    device_id = django_filters.ModelMultipleChoiceFilter(
+        name='device',
+        queryset=Device.objects.all(),
+        label='Device (ID)',
+    )
+    device = django_filters.ModelMultipleChoiceFilter(
+        name='device',
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        label='Device (name)',
+    )
+
+    class Meta:
+        model = DeviceBay
+        fields = ['name']
+
+
+class ModuleFilter(django_filters.FilterSet):
+    device_id = django_filters.ModelMultipleChoiceFilter(
+        name='device',
+        queryset=Device.objects.all(),
+        label='Device (ID)',
+    )
+    device = django_filters.ModelMultipleChoiceFilter(
+        name='device',
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        label='Device (name)',
+    )
+
+    class Meta:
+        model = Module
         fields = ['name']
 
 

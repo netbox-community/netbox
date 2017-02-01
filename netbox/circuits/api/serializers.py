@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from circuits.models import Provider, Circuit, CircuitTermination, CircuitType
-from dcim.api.serializers import NestedSiteSerializer, DeviceInterfaceSerializer
+from dcim.api.serializers import NestedSiteSerializer, InterfaceSerializer
 from extras.api.serializers import CustomFieldValueSerializer
 from tenancy.api.serializers import NestedTenantSerializer
 
@@ -63,7 +63,7 @@ class NestedCircuitTypeSerializer(serializers.ModelSerializer):
 
 class CircuitTerminationSerializer(serializers.ModelSerializer):
     site = NestedSiteSerializer()
-    interface = DeviceInterfaceSerializer()
+    interface = InterfaceSerializer()
 
     class Meta:
         model = CircuitTermination
