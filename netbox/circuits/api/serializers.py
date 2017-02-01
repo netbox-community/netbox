@@ -58,19 +58,6 @@ class NestedCircuitTypeSerializer(serializers.ModelSerializer):
 
 
 #
-# Circuit Terminations
-#
-
-class CircuitTerminationSerializer(serializers.ModelSerializer):
-    site = NestedSiteSerializer()
-    interface = InterfaceSerializer()
-
-    class Meta:
-        model = CircuitTermination
-        fields = ['id', 'term_side', 'site', 'interface', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info']
-
-
-#
 # Circuits
 #
 
@@ -102,4 +89,29 @@ class WritableCircuitSerializer(serializers.ModelSerializer):
         model = Circuit
         fields = [
             'id', 'cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
+        ]
+
+
+#
+# Circuit Terminations
+#
+
+class CircuitTerminationSerializer(serializers.ModelSerializer):
+    circuit = NestedCircuitSerializer()
+    site = NestedSiteSerializer()
+    interface = InterfaceSerializer()
+
+    class Meta:
+        model = CircuitTermination
+        fields = [
+            'id', 'circuit', 'term_side', 'site', 'interface', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
+        ]
+
+
+class WritableCircuitTerminationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CircuitTermination
+        fields = [
+            'id', 'circuit', 'term_side', 'site', 'interface', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
         ]

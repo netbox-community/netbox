@@ -15,7 +15,4 @@ urlpatterns = [
 
     url(r'', include(router.urls)),
 
-    # Circuits
-    url(r'^circuits/(?P<pk>\d+)/terminations/$', views.NestedCircuitTerminationViewSet.as_view({'get': 'list'})),
-
 ]
