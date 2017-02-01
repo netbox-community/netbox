@@ -189,11 +189,6 @@ REST_FRAMEWORK = {
 if LOGIN_REQUIRED:
     REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = ('rest_framework.permissions.IsAuthenticated',)
 
-# Swagger settings (API docs)
-SWAGGER_SETTINGS = {
-    'base_path': '{}/{}api/docs'.format(ALLOWED_HOSTS[0], BASE_PATH),
-}
-
 # Django debug toolbar
 INTERNAL_IPS = (
     '127.0.0.1',
