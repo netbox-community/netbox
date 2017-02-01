@@ -228,7 +228,7 @@ class ObjectDeleteView(View):
             return get_object_or_404(self.model, pk=kwargs['pk'])
 
     def get_return_url(self, obj):
-        if hasattr(obj, 'get_absolute_url'):
+        if obj.pk and hasattr(obj, 'get_absolute_url'):
             return obj.get_absolute_url()
         return reverse(self.default_return_url)
 
