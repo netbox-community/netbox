@@ -19,6 +19,8 @@ pages:
         - 'Secrets': 'data-model/secrets.md'
         - 'Tenancy': 'data-model/tenancy.md'
         - 'Extras': 'data-model/extras.md'
+    - 'API':
+        - 'Structure': 'api/structure.md'
     - 'API Integration': 'api-integration.md'
 
 markdown_extensions:
