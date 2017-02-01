@@ -105,6 +105,7 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'django_tables2',
     'rest_framework',
+    'rest_framework_swagger',
     'circuits',
     'dcim',
     'ipam',

@@ -31,6 +31,7 @@ _patterns = [
     url(r'^api/ipam/', include('ipam.api.urls', namespace='ipam-api')),
     url(r'^api/secrets/', include('secrets.api.urls', namespace='secrets-api')),
     url(r'^api/tenancy/', include('tenancy.api.urls', namespace='tenancy-api')),
+    url(r'^api/docs/', include('rest_framework_swagger.urls')),
     url(r'^api-auth/', include('rest_framework.urls')),
 
     # Error testing
