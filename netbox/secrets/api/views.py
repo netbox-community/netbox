@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
 from rest_framework import status
+from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
@@ -14,6 +15,7 @@ from rest_framework.viewsets import ModelViewSet
 from extras.api.renderers import FormlessBrowsableAPIRenderer, FreeRADIUSClientsRenderer
 from secrets.filters import SecretFilter
 from secrets.models import Secret, SecretRole, UserKey
+from utilities.api import WritableSerializerMixin
 
 from . import serializers
 
@@ -37,6 +39,25 @@ class SecretRoleViewSet(ModelViewSet):
 # Secrets
 #
 
+# TODO: Need to implement custom create() and update() methods to handle secret encryption, and custom list() and
+# retrieve() methods to handle decryption.
+class SecretViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = Secret.objects.select_related(
+        'device__primary_ip4', 'device__primary_ip6', 'role',
+    ).prefetch_related(
+        'role__users', 'role__groups',
+    )
+    serializer_class = serializers.SecretSerializer
+    write_serializer_class = serializers.WritableSecretSerializer
+    filter_class = SecretFilter
+    # DRF's BrowsableAPIRenderer can't support passing the secret key as a header, so we disable it.
+    renderer_classes = [FormlessBrowsableAPIRenderer, JSONRenderer, FreeRADIUSClientsRenderer]
+    # Enabled BasicAuthentication for testing (until we have TokenAuthentication implemented)
+    authentication_classes = [BasicAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+
+# TODO: Delete
 class SecretListView(generics.GenericAPIView):
     """
     List secrets (filterable). If a private key is POSTed, attempt to decrypt each Secret.
@@ -83,6 +104,7 @@ class SecretListView(generics.GenericAPIView):
         return self.get(request, private_key=request.POST.get('private_key'))
 
 
+# TODO: Delete
 class SecretDetailView(generics.GenericAPIView):
     """
     Retrieve a single Secret. If a private key is POSTed, attempt to decrypt the Secret.

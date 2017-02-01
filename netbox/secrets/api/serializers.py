@@ -34,3 +34,11 @@ class SecretSerializer(serializers.ModelSerializer):
     class Meta:
         model = Secret
         fields = ['id', 'device', 'role', 'name', 'plaintext', 'hash', 'created', 'last_updated']
+
+
+class WritableSecretSerializer(serializers.ModelSerializer):
+    plaintext = serializers.CharField()
+
+    class Meta:
+        model = Secret
+        fields = ['id', 'device', 'role', 'name', 'plaintext']
