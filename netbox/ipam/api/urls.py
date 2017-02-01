@@ -1,5 +1,3 @@
-from django.conf.urls import include, url
-
 from rest_framework import routers
 
 from . import views
@@ -15,9 +13,3 @@ router.register(r'ip-addresses', views.IPAddressViewSet)
 router.register(r'vlan-groups', views.VLANGroupViewSet)
 router.register(r'vlans', views.VLANViewSet)
 router.register(r'services', views.ServiceViewSet)
-
-urlpatterns = [
-
-    url(r'', include(router.urls)),
-
-]
