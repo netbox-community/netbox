@@ -1,15 +1,26 @@
+import six
+
+
 def csv_format(data):
     """
     Encapsulate any data which contains a comma within double quotes.
     """
     csv = []
-    for d in data:
-        if d in [None, False]:
+    for value in data:
+
+        # Represent None or False with empty string
+        if value in [None, False]:
             csv.append(u'')
-        elif type(d) not in (str, unicode):
-            csv.append(u'{}'.format(d))
-        elif u',' in d:
-            csv.append(u'"{}"'.format(d))
+            continue
+
+        # Force conversion to string first so we can check for any commas
+        if not isinstance(value, six.string_types):
+            value = u'{}'.format(value)
+
+        # Double-quote the value if it contains a comma
+        if u',' in value:
+            csv.append(u'"{}"'.format(value))
         else:
-            csv.append(d)
+            csv.append(u'{}'.format(value))
+
     return u','.join(csv)
