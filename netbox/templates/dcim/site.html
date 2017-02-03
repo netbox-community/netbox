@@ -28,7 +28,7 @@
 </div>
 <div class="pull-right">
     {% if show_graphs %}
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ site.name }}" data-url="{% url 'dcim-api:site_graphs' pk=site.pk %}" title="Show graphs">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ site.name }}" data-url="{% url 'dcim-api:site-graphs' pk=site.pk %}" title="Show graphs">
             <i class="fa fa-signal" aria-hidden="true"></i>
             Graphs
         </button>
