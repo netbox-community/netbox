@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'', include(router.urls)),
 
     # Miscellaneous
+    url(r'^get-session-key/$', views.GetSessionKey.as_view(), name='get_session_key'),
     url(r'^generate-keys/$', views.RSAKeyGeneratorView.as_view(), name='generate_keys'),
 
 ]
