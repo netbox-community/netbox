@@ -2,10 +2,10 @@ from rest_framework import serializers
 
 from ipam.models import IPAddress
 from dcim.models import (
-    ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay, DeviceType,
-    DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet,
-    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, Site, SUBDEVICE_ROLE_CHILD,
-    SUBDEVICE_ROLE_PARENT,
+    ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    DeviceBayTemplate, DeviceType, DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module,
+    Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, Site,
+    SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
 )
 from extras.api.serializers import CustomFieldValueSerializer
 from tenancy.api.serializers import NestedTenantSerializer
@@ -194,46 +194,118 @@ class WritableDeviceTypeSerializer(serializers.ModelSerializer):
         ]
 
 
+#
+# Console port templates
+#
+
 class ConsolePortTemplateSerializer(serializers.ModelSerializer):
+    device_type = NestedDeviceTypeSerializer()
 
     class Meta:
         model = ConsolePortTemplate
-        fields = ['id', 'name']
+        fields = ['id', 'device_type', 'name']
 
+
+class WritableConsolePortTemplateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ConsolePortTemplate
+        fields = ['id', 'device_type', 'name']
+
+
+#
+# Console server port templates
+#
 
 class ConsoleServerPortTemplateSerializer(serializers.ModelSerializer):
+    device_type = NestedDeviceTypeSerializer()
 
     class Meta:
         model = ConsoleServerPortTemplate
-        fields = ['id', 'name']
+        fields = ['id', 'device_type', 'name']
 
+
+class WritableConsoleServerPortTemplateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ConsoleServerPortTemplate
+        fields = ['id', 'device_type', 'name']
+
+
+#
+# Power port templates
+#
 
 class PowerPortTemplateSerializer(serializers.ModelSerializer):
+    device_type = NestedDeviceTypeSerializer()
 
     class Meta:
         model = PowerPortTemplate
-        fields = ['id', 'name']
+        fields = ['id', 'device_type', 'name']
 
+
+class WritablePowerPortTemplateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PowerPortTemplate
+        fields = ['id', 'device_type', 'name']
+
+
+#
+# Power outlet templates
+#
 
 class PowerOutletTemplateSerializer(serializers.ModelSerializer):
+    device_type = NestedDeviceTypeSerializer()
 
     class Meta:
         model = PowerOutletTemplate
-        fields = ['id', 'name']
+        fields = ['id', 'device_type', 'name']
 
+
+class WritablePowerOutletTemplateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PowerOutletTemplate
+        fields = ['id', 'device_type', 'name']
+
+
+#
+# Interface templates
+#
 
 class InterfaceTemplateSerializer(serializers.ModelSerializer):
+    device_type = NestedDeviceTypeSerializer()
 
     class Meta:
         model = InterfaceTemplate
-        fields = ['id', 'name', 'form_factor', 'mgmt_only']
+        fields = ['id', 'device_type', 'name', 'form_factor', 'mgmt_only']
 
 
-class DeviceBayTemplateSerializer(serializers.ModelSerializer):
+class WritableInterfaceTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = DeviceBay
-        fields = ['id', 'name',]
+        model = InterfaceTemplate
+        fields = ['id', 'device_type', 'name', 'form_factor', 'mgmt_only']
+
+
+#
+# Device bay templates
+#
+
+class DeviceBayTemplateSerializer(serializers.ModelSerializer):
+    device_type = NestedDeviceTypeSerializer()
+
+    class Meta:
+        model = DeviceBayTemplate
+        fields = ['id', 'device_type', 'name']
+
+
+class WritableDeviceBayTemplateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DeviceBayTemplate
+        fields = ['id', 'device_type', 'name']
 
 
 #
@@ -302,7 +374,7 @@ class DeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
         fields = [
-            'id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial',  'asset_tag',
+            'id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4', 'primary_ip6',
             'comments', 'custom_field_values',
         ]
@@ -335,8 +407,8 @@ class WritableDeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
         fields = [
-            'id', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial',  'asset_tag', 'rack',
-            'position', 'face', 'status', 'primary_ip4', 'primary_ip6', 'comments',
+            'id', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag', 'rack', 'position',
+            'face', 'status', 'primary_ip4', 'primary_ip6', 'comments',
         ]
 
 

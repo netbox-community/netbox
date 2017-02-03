@@ -21,7 +21,13 @@ router.register(r'racks', views.RackViewSet)
 router.register(r'manufacturers', views.ManufacturerViewSet)
 router.register(r'device-types', views.DeviceTypeViewSet)
 
-# TODO: Device type components
+# Device type components
+router.register(r'console-port-templates', views.ConsolePortTemplateViewSet)
+router.register(r'console-server-port-templates', views.ConsoleServerPortTemplateViewSet)
+router.register(r'power-port-templates', views.PowerPortTemplateViewSet)
+router.register(r'power-outlet-templates', views.PowerOutletTemplateViewSet)
+router.register(r'interface-templates', views.InterfaceTemplateViewSet)
+router.register(r'device-bay-templates', views.DeviceBayTemplateViewSet)
 
 # Devices
 router.register(r'device-roles', views.DeviceRoleViewSet)

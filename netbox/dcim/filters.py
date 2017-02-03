@@ -7,8 +7,9 @@ from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NullableModelMultipleChoiceFilter
 from .models import (
-    ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, DeviceType, Interface, InterfaceConnection,
-    Manufacturer, Module, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackRole, Site,
+    ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module,
+    Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, Site,
 )
 
 
@@ -153,6 +154,62 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
         )
 
 
+class DeviceTypeComponentFilterSet(django_filters.FilterSet):
+    devicetype_id = django_filters.ModelMultipleChoiceFilter(
+        name='device_type',
+        queryset=DeviceType.objects.all(),
+        label='Device type (ID)',
+    )
+    devicetype = django_filters.ModelMultipleChoiceFilter(
+        name='device_type',
+        queryset=DeviceType.objects.all(),
+        to_field_name='name',
+        label='Device type (name)',
+    )
+
+
+class ConsolePortTemplateFilter(DeviceTypeComponentFilterSet):
+
+    class Meta:
+        model = ConsolePortTemplate
+        fields = ['name']
+
+
+class ConsoleServerPortTemplateFilter(DeviceTypeComponentFilterSet):
+
+    class Meta:
+        model = ConsoleServerPortTemplate
+        fields = ['name']
+
+
+class PowerPortTemplateFilter(DeviceTypeComponentFilterSet):
+
+    class Meta:
+        model = PowerPortTemplate
+        fields = ['name']
+
+
+class PowerOutletTemplateFilter(DeviceTypeComponentFilterSet):
+
+    class Meta:
+        model = PowerOutletTemplate
+        fields = ['name']
+
+
+class InterfaceTemplateFilter(DeviceTypeComponentFilterSet):
+
+    class Meta:
+        model = InterfaceTemplate
+        fields = ['name']
+
+
+class DeviceBayTemplateFilter(DeviceTypeComponentFilterSet):
+
+    class Meta:
+        model = DeviceBayTemplate
+        fields = ['name']
+
+
 class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
     q = django_filters.MethodFilter(
         action='search',
@@ -278,7 +335,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
             return queryset.none()
 
 
-class ConsolePortFilter(django_filters.FilterSet):
+class DeviceComponentFilterSet(django_filters.FilterSet):
     device_id = django_filters.ModelMultipleChoiceFilter(
         name='device',
         queryset=Device.objects.all(),
@@ -290,114 +347,51 @@ class ConsolePortFilter(django_filters.FilterSet):
         to_field_name='name',
         label='Device (name)',
     )
+
+
+class ConsolePortFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = ConsolePort
         fields = ['name']
 
 
-class ConsoleServerPortFilter(django_filters.FilterSet):
-    device_id = django_filters.ModelMultipleChoiceFilter(
-        name='device',
-        queryset=Device.objects.all(),
-        label='Device (ID)',
-    )
-    device = django_filters.ModelMultipleChoiceFilter(
-        name='device',
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        label='Device (name)',
-    )
+class ConsoleServerPortFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = ConsoleServerPort
         fields = ['name']
 
 
-class PowerPortFilter(django_filters.FilterSet):
-    device_id = django_filters.ModelMultipleChoiceFilter(
-        name='device',
-        queryset=Device.objects.all(),
-        label='Device (ID)',
-    )
-    device = django_filters.ModelMultipleChoiceFilter(
-        name='device',
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        label='Device (name)',
-    )
+class PowerPortFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = PowerPort
         fields = ['name']
 
 
-class PowerOutletFilter(django_filters.FilterSet):
-    device_id = django_filters.ModelMultipleChoiceFilter(
-        name='device',
-        queryset=Device.objects.all(),
-        label='Device (ID)',
-    )
-    device = django_filters.ModelMultipleChoiceFilter(
-        name='device',
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        label='Device (name)',
-    )
+class PowerOutletFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = PowerOutlet
         fields = ['name']
 
 
-class InterfaceFilter(django_filters.FilterSet):
-    device_id = django_filters.ModelMultipleChoiceFilter(
-        name='device',
-        queryset=Device.objects.all(),
-        label='Device (ID)',
-    )
-    device = django_filters.ModelMultipleChoiceFilter(
-        name='device',
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        label='Device (name)',
-    )
+class InterfaceFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = Interface
         fields = ['name']
 
 
-class DeviceBayFilter(django_filters.FilterSet):
-    device_id = django_filters.ModelMultipleChoiceFilter(
-        name='device',
-        queryset=Device.objects.all(),
-        label='Device (ID)',
-    )
-    device = django_filters.ModelMultipleChoiceFilter(
-        name='device',
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        label='Device (name)',
-    )
+class DeviceBayFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = DeviceBay
         fields = ['name']
 
 
-class ModuleFilter(django_filters.FilterSet):
-    device_id = django_filters.ModelMultipleChoiceFilter(
-        name='device',
-        queryset=Device.objects.all(),
-        label='Device (ID)',
-    )
-    device = django_filters.ModelMultipleChoiceFilter(
-        name='device',
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        label='Device (name)',
-    )
+class ModuleFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = Module

@@ -10,8 +10,9 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from dcim.models import (
-    ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, DeviceType, Interface, InterfaceConnection,
-    Manufacturer, Module, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackRole, Site,
+    ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module,
+    Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, Site,
 )
 from dcim import filters
 from extras.api.renderers import BINDZoneRenderer, FlatJSONRenderer
@@ -106,7 +107,7 @@ class ManufacturerViewSet(ModelViewSet):
 
 
 #
-# Device Types
+# Device types
 #
 
 class DeviceTypeViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
@@ -116,7 +117,53 @@ class DeviceTypeViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 
 
 #
-# Device Roles
+# Device type components
+#
+
+class ConsolePortTemplateViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = ConsolePortTemplate.objects.select_related('device_type__manufacturer')
+    serializer_class = serializers.ConsolePortTemplateSerializer
+    write_serializer_class = serializers.WritableConsolePortTemplateSerializer
+    filter_class = filters.ConsolePortTemplateFilter
+
+
+class ConsoleServerPortTemplateViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = ConsoleServerPortTemplate.objects.select_related('device_type__manufacturer')
+    serializer_class = serializers.ConsoleServerPortTemplateSerializer
+    write_serializer_class = serializers.WritableConsoleServerPortTemplateSerializer
+    filter_class = filters.ConsoleServerPortTemplateFilter
+
+
+class PowerPortTemplateViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = PowerPortTemplate.objects.select_related('device_type__manufacturer')
+    serializer_class = serializers.PowerPortTemplateSerializer
+    write_serializer_class = serializers.WritablePowerPortTemplateSerializer
+    filter_class = filters.PowerPortTemplateFilter
+
+
+class PowerOutletTemplateViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = PowerOutletTemplate.objects.select_related('device_type__manufacturer')
+    serializer_class = serializers.PowerOutletTemplateSerializer
+    write_serializer_class = serializers.WritablePowerOutletTemplateSerializer
+    filter_class = filters.PowerOutletTemplateFilter
+
+
+class InterfaceTemplateViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = InterfaceTemplate.objects.select_related('device_type__manufacturer')
+    serializer_class = serializers.InterfaceTemplateSerializer
+    write_serializer_class = serializers.WritableInterfaceTemplateSerializer
+    filter_class = filters.InterfaceTemplateFilter
+
+
+class DeviceBayTemplateViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = DeviceBayTemplate.objects.select_related('device_type__manufacturer')
+    serializer_class = serializers.DeviceBayTemplateSerializer
+    write_serializer_class = serializers.WritableDeviceBayTemplateSerializer
+    filter_class = filters.DeviceBayTemplateFilter
+
+
+#
+# Device roles
 #
 
 class DeviceRoleViewSet(ModelViewSet):
@@ -178,35 +225,35 @@ class DeviceViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 class ConsolePortViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = ConsolePort.objects.select_related('device', 'cs_port__device')
     serializer_class = serializers.ConsolePortSerializer
-    write_serializer_class= serializers.WritableConsolePortSerializer
+    write_serializer_class = serializers.WritableConsolePortSerializer
     filter_class = filters.ConsolePortFilter
 
 
 class ConsoleServerPortViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = ConsoleServerPort.objects.select_related('device', 'connected_console__device')
     serializer_class = serializers.ConsoleServerPortSerializer
-    write_serializer_class= serializers.WritableConsoleServerPortSerializer
+    write_serializer_class = serializers.WritableConsoleServerPortSerializer
     filter_class = filters.ConsoleServerPortFilter
 
 
 class PowerPortViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = PowerPort.objects.select_related('device', 'power_outlet__device')
     serializer_class = serializers.PowerPortSerializer
-    write_serializer_class= serializers.WritablePowerPortSerializer
+    write_serializer_class = serializers.WritablePowerPortSerializer
     filter_class = filters.PowerPortFilter
 
 
 class PowerOutletViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = PowerOutlet.objects.select_related('device', 'connected_port__device')
     serializer_class = serializers.PowerOutletSerializer
-    write_serializer_class= serializers.WritablePowerOutletSerializer
+    write_serializer_class = serializers.WritablePowerOutletSerializer
     filter_class = filters.PowerOutletFilter
 
 
 class InterfaceViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = Interface.objects.select_related('device')
     serializer_class = serializers.InterfaceSerializer
-    write_serializer_class= serializers.WritableInterfaceSerializer
+    write_serializer_class = serializers.WritableInterfaceSerializer
     filter_class = filters.InterfaceFilter
 
     @detail_route()
@@ -220,14 +267,14 @@ class InterfaceViewSet(WritableSerializerMixin, ModelViewSet):
 class DeviceBayViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = DeviceBay.objects.select_related('installed_device')
     serializer_class = serializers.DeviceBaySerializer
-    write_serializer_class= serializers.WritableDeviceBaySerializer
+    write_serializer_class = serializers.WritableDeviceBaySerializer
     filter_class = filters.DeviceBayFilter
 
 
 class ModuleViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = Module.objects.select_related('device', 'manufacturer')
     serializer_class = serializers.ModuleSerializer
-    write_serializer_class= serializers.WritableModuleSerializer
+    write_serializer_class = serializers.WritableModuleSerializer
     filter_class = filters.ModuleFilter
 
 
