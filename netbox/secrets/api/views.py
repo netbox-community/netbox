@@ -1,7 +1,5 @@
 import base64
-from Crypto.Cipher import XOR
 from Crypto.PublicKey import RSA
-import os
 
 from django.http import HttpResponseBadRequest
 
@@ -14,7 +12,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from extras.api.renderers import FormlessBrowsableAPIRenderer, FreeRADIUSClientsRenderer
 from secrets.filters import SecretFilter
-from secrets.models import Secret, SecretRole, UserKey
+from secrets.models import Secret, SecretRole, SessionKey, UserKey
 from utilities.api import WritableSerializerMixin
 
 from . import serializers
@@ -57,16 +55,25 @@ class SecretViewSet(WritableSerializerMixin, ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def _get_master_key(self, request):
-        cached_key = request.session.get('cached_key', None)
-        session_key = request.COOKIES.get('session_key', None)
-        if cached_key is None or session_key is None:
+
+        # Check for a session key provided as a cookie or header
+        if 'session_key' in request.COOKIES:
+            session_key = base64.b64decode(request.COOKIES['session_key'])
+        elif 'HTTP_X_SESSION_KEY' in request.META:
+            session_key = base64.b64decode(request.META['HTTP_X_SESSION_KEY'])
+        else:
             return None
 
-        cached_key = base64.b64decode(cached_key)
-        session_key = base64.b64decode(session_key)
+        # Retrieve session key cipher (if any) for the current user
+        try:
+            sk = SessionKey.objects.get(user=request.user)
+        except SessionKey.DoesNotExist:
+            return None
 
-        xor = XOR.new(session_key)
-        master_key = xor.encrypt(cached_key)
+        # Recover master key
+        # TODO: Exception handling
+        master_key = sk.get_master_key(session_key)
+
         return master_key
 
     def retrieve(self, request, *args, **kwargs):
@@ -100,30 +107,6 @@ class SecretViewSet(WritableSerializerMixin, ModelViewSet):
         return Response(serializer.data)
 
 
-class RSAKeyGeneratorView(APIView):
-    """
-    Generate a new RSA key pair for a user. Authenticated because it's a ripe avenue for DoS.
-    """
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-
-        # Determine what size key to generate
-        key_size = request.GET.get('key_size', 2048)
-        if key_size not in range(2048, 4097, 256):
-            key_size = 2048
-
-        # Export RSA private and public keys in PEM format
-        key = RSA.generate(key_size)
-        private_key = key.exportKey('PEM')
-        public_key = key.publickey().exportKey('PEM')
-
-        return Response({
-            'private_key': private_key,
-            'public_key': public_key,
-        })
-
-
 class GetSessionKey(APIView):
     """
     Cache an encrypted copy of the master key derived from the submitted private key.
@@ -150,16 +133,42 @@ class GetSessionKey(APIView):
         if master_key is None:
             return HttpResponseBadRequest(ERR_PRIVKEY_INVALID)
 
-        # Generate a random 256-bit encryption key
-        session_key = os.urandom(32)
-        xor = XOR.new(session_key)
-        cached_key = xor.encrypt(master_key)
+        # Delete the existing SessionKey for this user if one exists
+        SessionKey.objects.filter(user=request.user).delete()
 
-        # Save XORed copy of the master key
-        request.session['cached_key'] = base64.b64encode(cached_key)
+        # Create a new SessionKey
+        sk = SessionKey(user=request.user)
+        sk.save(master_key=master_key)
 
+        # Return the session key both as JSON and as a cookie
         response = Response({
-            'session_key': base64.b64encode(session_key),
+            'session_key': base64.b64encode(sk.key),
+            'expiration_time': sk.expiration_time,
         })
-        response.set_cookie('session_key', base64.b64encode(session_key))
+        # TODO: Limit cookie path to secrets API URLs
+        response.set_cookie('session_key', base64.b64encode(sk.key), expires=sk.expiration_time)
         return response
+
+
+class RSAKeyGeneratorView(APIView):
+    """
+    Generate a new RSA key pair for a user. Authenticated because it's a ripe avenue for DoS.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        # Determine what size key to generate
+        key_size = request.GET.get('key_size', 2048)
+        if key_size not in range(2048, 4097, 256):
+            key_size = 2048
+
+        # Export RSA private and public keys in PEM format
+        key = RSA.generate(key_size)
+        private_key = key.exportKey('PEM')
+        public_key = key.publickey().exportKey('PEM')
+
+        return Response({
+            'private_key': private_key,
+            'public_key': public_key,
+        })

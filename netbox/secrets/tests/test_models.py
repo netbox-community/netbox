@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from secrets.models import UserKey, Secret, generate_master_key, encrypt_master_key, decrypt_master_key
+from secrets.models import UserKey, Secret, encrypt_master_key, decrypt_master_key, generate_random_key
 from secrets.hashers import SecretValidationHasher
 
 
@@ -33,7 +33,7 @@ class UserKeyTestCase(TestCase):
         """
         Validate the activation of a UserKey.
         """
-        master_key = generate_master_key()
+        master_key = generate_random_key()
         alice_uk = UserKey(user=User.objects.get(username='alice'), public_key=self.TEST_KEYS['alice_public'])
         self.assertFalse(alice_uk.is_active(), "Inactive UserKey is_active() did not return False")
         alice_uk.activate(master_key)
@@ -62,7 +62,7 @@ class UserKeyTestCase(TestCase):
         """
         Test the decryption of a master key using the user's private key.
         """
-        master_key = generate_master_key()
+        master_key = generate_random_key()
         alice_uk = UserKey(user=User.objects.get(username='alice'), public_key=self.TEST_KEYS['alice_public'])
         alice_uk.activate(master_key)
         retrieved_master_key = alice_uk.get_master_key(self.TEST_KEYS['alice_private'])
@@ -72,7 +72,7 @@ class UserKeyTestCase(TestCase):
         """
         Ensure that an exception is raised when attempting to retrieve a secret key using an invalid private key.
         """
-        secret_key = generate_master_key()
+        secret_key = generate_random_key()
         secret_key_cipher = encrypt_master_key(secret_key, self.TEST_KEYS['alice_public'])
         try:
             decrypted_secret_key = decrypt_master_key(secret_key_cipher, self.TEST_KEYS['bob_private'])
@@ -88,7 +88,7 @@ class SecretTestCase(TestCase):
         Test basic encryption and decryption functionality using a random master key.
         """
         plaintext = "FooBar123"
-        secret_key = generate_master_key()
+        secret_key = generate_random_key()
         s = Secret(plaintext=plaintext)
         s.encrypt(secret_key)
 
@@ -118,7 +118,7 @@ class SecretTestCase(TestCase):
         Generate 50 Secrets using the same plaintext and check for duplicate IVs or payloads.
         """
         plaintext = "1234567890abcdef"
-        secret_key = generate_master_key()
+        secret_key = generate_random_key()
         ivs = []
         ciphertexts = []
         for i in range(1, 51):

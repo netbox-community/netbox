@@ -1,5 +1,6 @@
+import datetime
 import os
-from Crypto.Cipher import AES, PKCS1_OAEP
+from Crypto.Cipher import AES, PKCS1_OAEP, XOR
 from Crypto.PublicKey import RSA
 
 from django.conf import settings
@@ -8,6 +9,7 @@ from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.utils import timezone
 from django.utils.encoding import force_bytes, python_2_unicode_compatible
 
 from dcim.models import Device
@@ -16,11 +18,13 @@ from utilities.models import CreatedUpdatedModel
 from .hashers import SecretValidationHasher
 
 
-def generate_master_key():
+def generate_random_key(bits=256):
     """
-    Generate a new 256-bit (32 bytes) AES key to be used for symmetric encryption of secrets.
+    Generate a random encryption key. Sizes is given in bits and must be in increments of 32.
     """
-    return os.urandom(32)
+    if bits % 32:
+        raise Exception("Invalid key size ({}). Key sizes must be in increments of 32 bits.".format(bits))
+    return os.urandom(bits / 8)
 
 
 def encrypt_master_key(master_key, public_key):
@@ -41,6 +45,14 @@ def decrypt_master_key(master_key_cipher, private_key):
     return cipher.decrypt(master_key_cipher)
 
 
+def xor_keys(key_a, key_b):
+    """
+    Return the binary XOR of two given keys.
+    """
+    xor = XOR.new(key_a)
+    return xor.encrypt(key_b)
+
+
 class UserKeyQuerySet(models.QuerySet):
 
     def active(self):
@@ -58,7 +70,7 @@ class UserKey(CreatedUpdatedModel):
     copy of the master encryption key. The encrypted instance of the master key can be decrypted only with the user's
     matching (private) decryption key.
     """
-    user = models.OneToOneField(User, related_name='user_key', verbose_name='User')
+    user = models.OneToOneField(User, related_name='user_key', editable=False)
     public_key = models.TextField(verbose_name='RSA public key')
     master_key_cipher = models.BinaryField(max_length=512, blank=True, null=True, editable=False)
 
@@ -121,7 +133,7 @@ class UserKey(CreatedUpdatedModel):
 
         # If no other active UserKeys exist, generate a new master key and use it to activate this UserKey.
         if self.is_filled() and not self.is_active() and not UserKey.objects.active().count():
-            master_key = generate_master_key()
+            master_key = generate_random_key()
             self.master_key_cipher = encrypt_master_key(master_key, self.public_key)
 
         super(UserKey, self).save(*args, **kwargs)
@@ -169,6 +181,58 @@ class UserKey(CreatedUpdatedModel):
             raise Exception("Cannot activate UserKey: Its public key must be filled first.")
         self.master_key_cipher = encrypt_master_key(master_key, self.public_key)
         self.save()
+
+
+@python_2_unicode_compatible
+class SessionKey(models.Model):
+    """
+    A SessionKey stores a User's temporary key to be used for the encryption and decryption of secrets.
+    """
+    user = models.OneToOneField(User, related_name='session_key', editable=False)
+    cipher = models.BinaryField(max_length=512, editable=False)
+    hash = models.CharField(max_length=128, editable=False)
+    created = models.DateTimeField(auto_now_add=True)
+    expiration_time = models.DateTimeField(blank=True, null=True, editable=False)
+
+    key = None
+
+    class Meta:
+        ordering = ['user__username']
+
+    def __str__(self):
+        return self.user.username
+
+    def save(self, master_key=None, *args, **kwargs):
+
+        if master_key is None:
+            raise Exception("The master key must be provided to save a session key.")
+
+        # Generate a random 256-bit session key if one is not already defined
+        if self.key is None:
+            self.key = generate_random_key()
+
+        # Generate SHA256 hash using Django's built-in password hashing mechanism
+        self.hash = make_password(self.key)
+
+        # Encrypt master key using the session key
+        self.cipher = xor_keys(self.key, master_key)
+
+        # Calculate expiration time
+        # TODO: Define a SESSION_KEY_MAX_AGE configuration setting
+        self.expiration_time = timezone.now() + datetime.timedelta(hours=12)
+
+        super(SessionKey, self).save(*args, **kwargs)
+
+    def get_master_key(self, session_key):
+
+        # Validate the provided session key
+        if not check_password(session_key, self.hash):
+            raise Exception("Invalid session key")
+
+        # Decrypt master key using provided session key
+        master_key = xor_keys(session_key, self.cipher)
+
+        return master_key
 
 
 @python_2_unicode_compatible
