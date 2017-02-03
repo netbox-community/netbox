@@ -548,9 +548,10 @@
 {% block javascript %}
 <script type="text/javascript">
 function toggleConnection(elem, api_url) {
+    var url = netbox_api_path + api_url + elem.attr('data') + "/";
     if (elem.hasClass('connected')) {
         $.ajax({
-            url: netbox_api_path + api_url + elem.attr('data') + "/",
+            url: url,
             method: 'PATCH',
             dataType: 'json',
             beforeSend: function(xhr, settings) {
@@ -569,7 +570,7 @@ function toggleConnection(elem, api_url) {
         });
     } else {
         $.ajax({
-            url: api_url + elem.attr('data') + "/",
+            url: url,
             method: 'PATCH',
             dataType: 'json',
             beforeSend: function(xhr, settings) {

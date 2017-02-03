@@ -228,7 +228,7 @@ class ObjectDeleteView(View):
             return get_object_or_404(self.model, pk=kwargs['pk'])
 
     def get_return_url(self, obj):
-        if hasattr(obj, 'get_absolute_url'):
+        if obj.pk and hasattr(obj, 'get_absolute_url'):
             return obj.get_absolute_url()
         return reverse(self.default_return_url)
 
@@ -267,7 +267,7 @@ class ObjectDeleteView(View):
             if return_url and is_safe_url(url=return_url, host=request.get_host()):
                 return redirect(return_url)
             else:
-                return redirect(self.default_return_url)
+                return redirect(self.get_return_url(obj))
 
         return render(request, self.template_name, {
             'obj': obj,

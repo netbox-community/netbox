@@ -236,14 +236,15 @@ class CSVDataField(forms.CharField):
         if not self.help_text:
             self.help_text = 'Enter one line per record in CSV format.'
 
-    def utf_8_encoder(self, unicode_csv_data):
-        for line in unicode_csv_data:
-            yield line.encode('utf-8')
-
     def to_python(self, value):
-        # Return a list of dictionaries, each representing an individual record
+        """
+        Return a list of dictionaries, each representing an individual record
+        """
+        # Python 2's csv module has problems with Unicode
+        if not isinstance(value, str):
+            value = value.encode('utf-8')
         records = []
-        reader = csv.reader(self.utf_8_encoder(value.splitlines()))
+        reader = csv.reader(value.splitlines())
         for i, row in enumerate(reader, start=1):
             if row:
                 if len(row) < len(self.columns):
@@ -252,6 +253,7 @@ class CSVDataField(forms.CharField):
                 elif len(row) > len(self.columns):
                     raise forms.ValidationError("Line {}: Too many fields (found {}; expected {})"
                                                 .format(i, len(row), len(self.columns)))
+                row = [col.strip() for col in row]
                 record = dict(zip(self.columns, row))
                 records.append(record)
         return records
