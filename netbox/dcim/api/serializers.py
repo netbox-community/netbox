@@ -2,13 +2,15 @@ from rest_framework import serializers
 
 from ipam.models import IPAddress
 from dcim.models import (
-    ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceType, DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module,
-    Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, Site,
-    SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
+    CONNECTION_STATUS_CHOICES, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
+    DeviceBay, DeviceBayTemplate, DeviceType, DeviceRole, IFACE_FF_CHOICES, IFACE_ORDERING_CHOICES, Interface,
+    InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
+    PowerPortTemplate, Rack, RackGroup, RackRole, RACK_FACE_CHOICES, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, Site,
+    STATUS_CHOICES, SUBDEVICE_ROLE_CHOICES,
 )
 from extras.api.serializers import CustomFieldValueSerializer
 from tenancy.api.serializers import NestedTenantSerializer
+from utilities.api import ChoiceFieldSerializer
 
 
 #
@@ -102,6 +104,8 @@ class RackSerializer(serializers.ModelSerializer):
     group = NestedRackGroupSerializer()
     tenant = NestedTenantSerializer()
     role = NestedRackRoleSerializer()
+    type = ChoiceFieldSerializer(choices=RACK_TYPE_CHOICES)
+    width = ChoiceFieldSerializer(choices=RACK_WIDTH_CHOICES)
     custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
@@ -155,7 +159,8 @@ class NestedManufacturerSerializer(serializers.ModelSerializer):
 
 class DeviceTypeSerializer(serializers.ModelSerializer):
     manufacturer = NestedManufacturerSerializer()
-    subdevice_role = serializers.SerializerMethodField()
+    interface_ordering = ChoiceFieldSerializer(choices=IFACE_ORDERING_CHOICES)
+    subdevice_role = ChoiceFieldSerializer(choices=SUBDEVICE_ROLE_CHOICES)
     instance_count = serializers.IntegerField(source='instances.count', read_only=True)
     custom_field_values = CustomFieldValueSerializer(many=True)
 
@@ -166,13 +171,6 @@ class DeviceTypeSerializer(serializers.ModelSerializer):
             'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments', 'custom_field_values',
             'instance_count',
         ]
-
-    def get_subdevice_role(self, obj):
-        return {
-            SUBDEVICE_ROLE_PARENT: 'parent',
-            SUBDEVICE_ROLE_CHILD: 'child',
-            None: None,
-        }[obj.subdevice_role]
 
 
 class NestedDeviceTypeSerializer(serializers.ModelSerializer):
@@ -276,6 +274,7 @@ class WritablePowerOutletTemplateSerializer(serializers.ModelSerializer):
 
 class InterfaceTemplateSerializer(serializers.ModelSerializer):
     device_type = NestedDeviceTypeSerializer()
+    form_factor = ChoiceFieldSerializer(choices=IFACE_FF_CHOICES)
 
     class Meta:
         model = InterfaceTemplate
@@ -365,6 +364,8 @@ class DeviceSerializer(serializers.ModelSerializer):
     tenant = NestedTenantSerializer()
     platform = NestedPlatformSerializer()
     rack = NestedRackSerializer()
+    face = ChoiceFieldSerializer(choices=RACK_FACE_CHOICES)
+    status = ChoiceFieldSerializer(choices=STATUS_CHOICES)
     primary_ip = DeviceIPAddressSerializer()
     primary_ip4 = DeviceIPAddressSerializer()
     primary_ip6 = DeviceIPAddressSerializer()
@@ -497,6 +498,7 @@ class WritablePowerPortSerializer(serializers.ModelSerializer):
 
 class InterfaceSerializer(serializers.ModelSerializer):
     device = NestedDeviceSerializer()
+    form_factor = ChoiceFieldSerializer(choices=IFACE_FF_CHOICES)
     connection = serializers.SerializerMethodField(read_only=True)
     connected_interface = serializers.SerializerMethodField(read_only=True)
 
@@ -581,6 +583,7 @@ class WritableModuleSerializer(serializers.ModelSerializer):
 class InterfaceConnectionSerializer(serializers.ModelSerializer):
     interface_a = PeerInterfaceSerializer()
     interface_b = PeerInterfaceSerializer()
+    connection_status = ChoiceFieldSerializer(choices=CONNECTION_STATUS_CHOICES)
 
     class Meta:
         model = InterfaceConnection

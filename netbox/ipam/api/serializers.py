@@ -2,8 +2,12 @@ from rest_framework import serializers
 
 from dcim.api.serializers import NestedDeviceSerializer, InterfaceSerializer, NestedSiteSerializer
 from extras.api.serializers import CustomFieldValueSerializer
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from ipam.models import (
+    Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, IP_PROTOCOL_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role,
+    Service, VLAN, VLAN_STATUS_CHOICES, VLANGroup, VRF,
+)
 from tenancy.api.serializers import NestedTenantSerializer
+from utilities.api import ChoiceFieldSerializer
 
 
 #
@@ -135,6 +139,7 @@ class VLANSerializer(serializers.ModelSerializer):
     site = NestedSiteSerializer()
     group = NestedVLANGroupSerializer()
     tenant = NestedTenantSerializer()
+    status = ChoiceFieldSerializer(choices=VLAN_STATUS_CHOICES)
     role = NestedRoleSerializer()
     custom_field_values = CustomFieldValueSerializer(many=True)
 
@@ -172,6 +177,7 @@ class PrefixSerializer(serializers.ModelSerializer):
     vrf = NestedVRFSerializer()
     tenant = NestedTenantSerializer()
     vlan = NestedVLANSerializer()
+    status = ChoiceFieldSerializer(choices=PREFIX_STATUS_CHOICES)
     role = NestedRoleSerializer()
     custom_field_values = CustomFieldValueSerializer(many=True)
 
@@ -207,6 +213,7 @@ class WritablePrefixSerializer(serializers.ModelSerializer):
 class IPAddressSerializer(serializers.ModelSerializer):
     vrf = NestedVRFSerializer()
     tenant = NestedTenantSerializer()
+    status = ChoiceFieldSerializer(choices=IPADDRESS_STATUS_CHOICES)
     interface = InterfaceSerializer()
     custom_field_values = CustomFieldValueSerializer(many=True)
 
@@ -242,6 +249,7 @@ class WritableIPAddressSerializer(serializers.ModelSerializer):
 
 class ServiceSerializer(serializers.ModelSerializer):
     device = NestedDeviceSerializer()
+    protocol = ChoiceFieldSerializer(choices=IP_PROTOCOL_CHOICES)
     ipaddresses = NestedIPAddressSerializer(many=True)
 
     class Meta:
