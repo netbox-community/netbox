@@ -8,7 +8,7 @@ from dcim.models import (
     PowerPortTemplate, Rack, RackGroup, RackRole, RACK_FACE_CHOICES, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, Site,
     STATUS_CHOICES, SUBDEVICE_ROLE_CHOICES,
 )
-from extras.api.serializers import CustomFieldValueSerializer
+from extras.api.serializers import CustomFieldModelSerializer
 from tenancy.api.serializers import NestedTenantSerializer
 from utilities.api import ChoiceFieldSerializer
 
@@ -17,15 +17,14 @@ from utilities.api import ChoiceFieldSerializer
 # Sites
 #
 
-class SiteSerializer(serializers.ModelSerializer):
+class SiteSerializer(CustomFieldModelSerializer):
     tenant = NestedTenantSerializer()
-    custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
         model = Site
         fields = [
             'id', 'name', 'slug', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address', 'contact_name',
-            'contact_phone', 'contact_email', 'comments', 'custom_field_values', 'count_prefixes', 'count_vlans',
+            'contact_phone', 'contact_email', 'comments', 'custom_fields', 'count_prefixes', 'count_vlans',
             'count_racks', 'count_devices', 'count_circuits',
         ]
 
@@ -99,20 +98,19 @@ class NestedRackRoleSerializer(serializers.ModelSerializer):
 #
 
 
-class RackSerializer(serializers.ModelSerializer):
+class RackSerializer(CustomFieldModelSerializer):
     site = NestedSiteSerializer()
     group = NestedRackGroupSerializer()
     tenant = NestedTenantSerializer()
     role = NestedRackRoleSerializer()
     type = ChoiceFieldSerializer(choices=RACK_TYPE_CHOICES)
     width = ChoiceFieldSerializer(choices=RACK_WIDTH_CHOICES)
-    custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
         model = Rack
         fields = [
             'id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'type', 'width', 'u_height',
-            'desc_units', 'comments', 'custom_field_values',
+            'desc_units', 'comments', 'custom_fields',
         ]
 
 
@@ -157,18 +155,17 @@ class NestedManufacturerSerializer(serializers.ModelSerializer):
 # Device types
 #
 
-class DeviceTypeSerializer(serializers.ModelSerializer):
+class DeviceTypeSerializer(CustomFieldModelSerializer):
     manufacturer = NestedManufacturerSerializer()
     interface_ordering = ChoiceFieldSerializer(choices=IFACE_ORDERING_CHOICES)
     subdevice_role = ChoiceFieldSerializer(choices=SUBDEVICE_ROLE_CHOICES)
     instance_count = serializers.IntegerField(source='instances.count', read_only=True)
-    custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
         model = DeviceType
         fields = [
             'id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'interface_ordering',
-            'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments', 'custom_field_values',
+            'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments', 'custom_fields',
             'instance_count',
         ]
 
@@ -358,7 +355,7 @@ class DeviceIPAddressSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'family', 'address']
 
 
-class DeviceSerializer(serializers.ModelSerializer):
+class DeviceSerializer(CustomFieldModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     device_role = NestedDeviceRoleSerializer()
     tenant = NestedTenantSerializer()
@@ -370,14 +367,13 @@ class DeviceSerializer(serializers.ModelSerializer):
     primary_ip4 = DeviceIPAddressSerializer()
     primary_ip6 = DeviceIPAddressSerializer()
     parent_device = serializers.SerializerMethodField()
-    custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
         model = Device
         fields = [
             'id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4', 'primary_ip6',
-            'comments', 'custom_field_values',
+            'comments', 'custom_fields',
         ]
 
     def get_parent_device(self, obj):

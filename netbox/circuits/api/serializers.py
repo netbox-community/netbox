@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from circuits.models import Provider, Circuit, CircuitTermination, CircuitType
 from dcim.api.serializers import NestedSiteSerializer, InterfaceSerializer
-from extras.api.serializers import CustomFieldValueSerializer
+from extras.api.serializers import CustomFieldModelSerializer
 from tenancy.api.serializers import NestedTenantSerializer
 
 
@@ -10,14 +10,13 @@ from tenancy.api.serializers import NestedTenantSerializer
 # Providers
 #
 
-class ProviderSerializer(serializers.ModelSerializer):
-    custom_field_values = CustomFieldValueSerializer(many=True)
+class ProviderSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = Provider
         fields = [
             'id', 'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
-            'custom_field_values',
+            'custom_fields',
         ]
 
 
@@ -61,17 +60,16 @@ class NestedCircuitTypeSerializer(serializers.ModelSerializer):
 # Circuits
 #
 
-class CircuitSerializer(serializers.ModelSerializer):
+class CircuitSerializer(CustomFieldModelSerializer):
     provider = NestedProviderSerializer()
     type = NestedCircuitTypeSerializer()
     tenant = NestedTenantSerializer()
-    custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
         model = Circuit
         fields = [
             'id', 'cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
-            'custom_field_values',
+            'custom_fields',
         ]
 
 

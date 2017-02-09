@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from dcim.api.serializers import NestedDeviceSerializer, InterfaceSerializer, NestedSiteSerializer
-from extras.api.serializers import CustomFieldValueSerializer
+from extras.api.serializers import CustomFieldModelSerializer
 from ipam.models import (
     Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, IP_PROTOCOL_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role,
     Service, VLAN, VLAN_STATUS_CHOICES, VLANGroup, VRF,
@@ -14,13 +14,12 @@ from utilities.api import ChoiceFieldSerializer
 # VRFs
 #
 
-class VRFSerializer(serializers.ModelSerializer):
+class VRFSerializer(CustomFieldModelSerializer):
     tenant = NestedTenantSerializer()
-    custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
         model = VRF
-        fields = ['id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'custom_field_values']
+        fields = ['id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'custom_fields']
 
 
 class NestedVRFSerializer(serializers.ModelSerializer):
@@ -80,13 +79,12 @@ class NestedRIRSerializer(serializers.ModelSerializer):
 # Aggregates
 #
 
-class AggregateSerializer(serializers.ModelSerializer):
+class AggregateSerializer(CustomFieldModelSerializer):
     rir = NestedRIRSerializer()
-    custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
         model = Aggregate
-        fields = ['id', 'family', 'prefix', 'rir', 'date_added', 'description', 'custom_field_values']
+        fields = ['id', 'family', 'prefix', 'rir', 'date_added', 'description', 'custom_fields']
 
 
 class NestedAggregateSerializer(serializers.ModelSerializer):
@@ -135,19 +133,18 @@ class WritableVLANGroupSerializer(serializers.ModelSerializer):
 # VLANs
 #
 
-class VLANSerializer(serializers.ModelSerializer):
+class VLANSerializer(CustomFieldModelSerializer):
     site = NestedSiteSerializer()
     group = NestedVLANGroupSerializer()
     tenant = NestedTenantSerializer()
     status = ChoiceFieldSerializer(choices=VLAN_STATUS_CHOICES)
     role = NestedRoleSerializer()
-    custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
         model = VLAN
         fields = [
             'id', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'display_name',
-            'custom_field_values',
+            'custom_fields',
         ]
 
 
@@ -172,20 +169,19 @@ class WritableVLANSerializer(serializers.ModelSerializer):
 # Prefixes
 #
 
-class PrefixSerializer(serializers.ModelSerializer):
+class PrefixSerializer(CustomFieldModelSerializer):
     site = NestedSiteSerializer()
     vrf = NestedVRFSerializer()
     tenant = NestedTenantSerializer()
     vlan = NestedVLANSerializer()
     status = ChoiceFieldSerializer(choices=PREFIX_STATUS_CHOICES)
     role = NestedRoleSerializer()
-    custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
         model = Prefix
         fields = [
             'id', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description',
-            'custom_field_values',
+            'custom_fields',
         ]
 
 
@@ -210,18 +206,17 @@ class WritablePrefixSerializer(serializers.ModelSerializer):
 # IP addresses
 #
 
-class IPAddressSerializer(serializers.ModelSerializer):
+class IPAddressSerializer(CustomFieldModelSerializer):
     vrf = NestedVRFSerializer()
     tenant = NestedTenantSerializer()
     status = ChoiceFieldSerializer(choices=IPADDRESS_STATUS_CHOICES)
     interface = InterfaceSerializer()
-    custom_field_values = CustomFieldValueSerializer(many=True)
 
     class Meta:
         model = IPAddress
         fields = [
             'id', 'family', 'address', 'vrf', 'tenant', 'status', 'interface', 'description', 'nat_inside',
-            'nat_outside', 'custom_field_values',
+            'nat_outside', 'custom_fields',
         ]
 
 

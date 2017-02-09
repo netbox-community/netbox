@@ -1,42 +1,37 @@
+from django.contrib.contenttypes.models import ContentType
+
 from rest_framework import serializers
 
-from extras.models import CF_TYPE_SELECT, CustomFieldChoice, CustomFieldValue, Graph
+from extras.models import CustomField, CustomFieldChoice, Graph
 
 
-# class CustomFieldSerializer(serializers.ModelSerializer):
-#     """
-#     Extends ModelSerializer to render any CustomFields and their values associated with an object.
-#     """
-#     custom_fields = serializers.SerializerMethodField()
-#
-#     def get_custom_fields(self, obj):
-#
-#         # Gather all CustomFields applicable to this object
-#         fields = {cf.name: None for cf in self.context['custom_fields']}
-#         custom_field_choices = self.context['custom_field_choices']
-#
-#         # Attach any defined CustomFieldValues to their respective CustomFields
-#         for cfv in obj.custom_field_values.all():
-#
-#             # Attempt to suppress database lookups for CustomFieldChoices by using the cached choice set from the view
-#             # context.
-#             if cfv.field.type == CF_TYPE_SELECT:
-#                 cfc = {
-#                     'id': int(cfv.serialized_value),
-#                     'value': custom_field_choices[int(cfv.serialized_value)]
-#                 }
-#                 fields[cfv.field.name] = CustomFieldChoiceSerializer(instance=cfc).data
-#             else:
-#                 fields[cfv.field.name] = cfv.value
-#
-#         return fields
+class CustomFieldSerializer(serializers.BaseSerializer):
+    """
+    Extends ModelSerializer to render any CustomFields and their values associated with an object.
+    """
+
+    def to_representation(self, manager):
+
+        # Initialize custom fields dictionary
+        data = {f.name: None for f in self.parent._custom_fields}
+
+        # Assign CustomFieldValues from database
+        for cfv in manager.all():
+            data[cfv.field.name] = cfv.value
+
+        return data
 
 
-class CustomFieldValueSerializer(serializers.ModelSerializer):
+class CustomFieldModelSerializer(serializers.ModelSerializer):
+    custom_fields = CustomFieldSerializer(source='custom_field_values')
 
-    class Meta:
-        model = CustomFieldValue
-        fields = ['field', 'serialized_value']
+    def __init__(self, *args, **kwargs):
+
+        super(CustomFieldModelSerializer, self).__init__(*args, **kwargs)
+
+        # Cache the list of custom fields for this model
+        content_type = ContentType.objects.get_for_model(self.Meta.model)
+        self._custom_fields = CustomField.objects.filter(obj_type=content_type)
 
 
 class CustomFieldChoiceSerializer(serializers.ModelSerializer):
