@@ -27,6 +27,12 @@ If you followed the original installation guide to set up gunicorn, be sure to c
 # cp /opt/netbox-X.Y.Z/gunicorn_config.py /opt/netbox/gunicorn_config.py
 ```
 
+Copy the LDAP configuration if using LDAP:
+
+```no-highlight
+# cp /opt/netbox-X.Y.Z/netbox/netbox/ldap_config.py /opt/netbox/netbox/netbox/ldap_config.py
+```
+
 ## Option B: Clone the Git Repository (latest master release)
 
 This guide assumes that NetBox is installed at `/opt/netbox`. Pull down the most recent iteration of the master branch:
