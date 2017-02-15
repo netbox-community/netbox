@@ -31,6 +31,7 @@ urlpatterns = [
 
     # Rack reservations
     url(r'^rack-reservations/(?P<pk>\d+)/edit/$', views.RackReservationEditView.as_view(), name='rackreservation_edit'),
+    url(r'^rack-reservations/(?P<pk>\d+)/delete/$', views.RackReservationDeleteView.as_view(), name='rackreservation_delete'),
 
     # Racks
     url(r'^racks/$', views.RackListView.as_view(), name='rack_list'),

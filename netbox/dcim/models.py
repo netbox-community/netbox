@@ -488,7 +488,7 @@ class RackReservation(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, editable=False, on_delete=models.PROTECT)
     rack = models.ForeignKey('Rack', related_name='reservations', editable=False, on_delete=models.CASCADE)
-    units = ArrayField(models.PositiveSmallIntegerField(validators=[MinValueValidator(1)]))
+    units = ArrayField(models.PositiveSmallIntegerField())
     description = models.CharField(max_length=100)
 
     class Meta:
@@ -496,6 +496,32 @@ class RackReservation(models.Model):
 
     def __str__(self):
         return u"Reservation for rack {}".format(self.rack)
+
+    def clean(self):
+
+        if self.units:
+
+            # Validate that all specified units exist in the Rack.
+            invalid_units = [u for u in self.units if u not in self.rack.units]
+            if invalid_units:
+                raise ValidationError({
+                    'units': u"Invalid unit(s) for {}U rack: {}".format(
+                        self.rack.u_height,
+                        ', '.join([str(u) for u in invalid_units]),
+                    ),
+                })
+
+            # Check that none of the units has already been reserved for this Rack.
+            reserved_units = []
+            for resv in self.rack.reservations.exclude(pk=self.pk):
+                reserved_units += resv.units
+            conflicting_units = [u for u in self.units if u in reserved_units]
+            if conflicting_units:
+                raise ValidationError({
+                    'units': 'The following units have already been reserved: {}'.format(
+                        ', '.join([str(u) for u in conflicting_units]),
+                    )
+                })
 
 
 #

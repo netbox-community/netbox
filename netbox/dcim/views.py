@@ -334,10 +334,19 @@ class RackReservationEditView(PermissionRequiredMixin, ObjectEditView):
     model = RackReservation
     form_class = forms.RackReservationForm
 
-    def alter_obj(self, obj, args, kwargs):
-        if 'rack' in kwargs:
+    def alter_obj(self, obj, request, args, kwargs):
+        if not obj.pk:
             obj.rack = get_object_or_404(Rack, pk=kwargs['rack'])
+            obj.user = request.user
         return obj
+
+    def get_return_url(self, obj):
+        return obj.rack.get_absolute_url()
+
+
+class RackReservationDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_rackreservation'
+    model = RackReservation
 
     def get_return_url(self, obj):
         return obj.rack.get_absolute_url()
