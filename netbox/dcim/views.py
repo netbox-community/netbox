@@ -1517,9 +1517,9 @@ class ModuleEditView(PermissionRequiredMixin, ComponentEditView):
     model = Module
     form_class = forms.ModuleForm
 
-    def alter_obj(self, obj, args, kwargs):
-        if 'device' in kwargs:
-            obj.device = get_object_or_404(Device, pk=kwargs['device'])
+    def alter_obj(self, obj, request, url_args, url_kwargs):
+        if 'device' in url_kwargs:
+            obj.device = get_object_or_404(Device, pk=url_kwargs['device'])
         return obj
 
 

@@ -224,9 +224,9 @@ class CircuitTerminationEditView(PermissionRequiredMixin, ObjectEditView):
     fields_initial = ['term_side']
     template_name = 'circuits/circuittermination_edit.html'
 
-    def alter_obj(self, obj, args, kwargs):
-        if 'circuit' in kwargs:
-            obj.circuit = get_object_or_404(Circuit, pk=kwargs['circuit'])
+    def alter_obj(self, obj, request, url_args, url_kwargs):
+        if 'circuit' in url_kwargs:
+            obj.circuit = get_object_or_404(Circuit, pk=url_kwargs['circuit'])
         return obj
 
     def get_return_url(self, obj):
