@@ -264,6 +264,15 @@ ul.rack_far_face li.blocked {
         #ffc7c7 14px
     );
 }
+ul.rack_near_face li.reserved {
+    background: repeating-linear-gradient(
+        45deg,
+        #f7f7f7,
+        #f7f7f7 7px,
+        #c7c7ff 7px,
+        #c7c7ff 14px
+    );
+}
 ul.rack_near_face {
     z-index: 200;
 }

@@ -1,8 +1,10 @@
 from collections import OrderedDict
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -476,6 +478,24 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
         """
         u_available = len(self.get_available_units())
         return int(float(self.u_height - u_available) / self.u_height * 100)
+
+
+@python_2_unicode_compatible
+class RackReservation(models.Model):
+    """
+    One or more reserved units within a Rack.
+    """
+    created = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, editable=False, on_delete=models.PROTECT)
+    rack = models.ForeignKey('Rack', related_name='reservations', editable=False, on_delete=models.CASCADE)
+    units = ArrayField(models.PositiveSmallIntegerField(validators=[MinValueValidator(1)]))
+    description = models.CharField(max_length=100)
+
+    class Meta:
+        ordering = ['created']
+
+    def __str__(self):
+        return u"Reservation for rack {}".format(self.rack)
 
 
 #

@@ -19,7 +19,7 @@ from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType,
     Interface, IFACE_FF_CHOICES, IFACE_FF_VIRTUAL, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate,
     Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES,
-    RACK_WIDTH_CHOICES, Rack, RackGroup, RackRole, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD
+    RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD
 )
 
 
@@ -241,6 +241,17 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
                                null_option=(0, 'None'))
     role = FilterChoiceField(queryset=RackRole.objects.annotate(filter_count=Count('racks')), to_field_name='slug',
                              null_option=(0, 'None'))
+
+
+#
+# Rack reservations
+#
+
+class RackReservationForm(BootstrapMixin, forms.ModelForm):
+
+    class Meta:
+        model = RackReservation
+        fields = ['units', 'description']
 
 
 #
