@@ -4,8 +4,8 @@ from ipam.models import IPAddress
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay, DeviceType,
     DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet,
-    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, RACK_FACE_FRONT, RACK_FACE_REAR, Site,
-    SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
+    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RACK_FACE_FRONT,
+    RACK_FACE_REAR, Site, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
 )
 from extras.api.serializers import CustomFieldSerializer
 from tenancy.api.serializers import TenantNestedSerializer
@@ -70,6 +70,12 @@ class RackRoleNestedSerializer(RackRoleSerializer):
 # Racks
 #
 
+class RackReservationNestedSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RackReservation
+        fields = ['id', 'units', 'created', 'user', 'description']
+
 
 class RackSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     site = SiteNestedSerializer()
@@ -92,10 +98,11 @@ class RackNestedSerializer(RackSerializer):
 class RackDetailSerializer(RackSerializer):
     front_units = serializers.SerializerMethodField()
     rear_units = serializers.SerializerMethodField()
+    reservations = RackReservationNestedSerializer(many=True)
 
     class Meta(RackSerializer.Meta):
         fields = ['id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'type', 'width',
-                  'u_height', 'desc_units', 'comments', 'custom_fields', 'front_units', 'rear_units']
+                  'u_height', 'desc_units', 'reservations', 'comments', 'custom_fields', 'front_units', 'rear_units']
 
     def get_front_units(self, obj):
         units = obj.get_rack_units(face=RACK_FACE_FRONT)
@@ -108,6 +115,18 @@ class RackDetailSerializer(RackSerializer):
         for u in units:
             u['device'] = DeviceNestedSerializer(u['device']).data if u['device'] else None
         return units
+
+
+#
+# Rack reservations
+#
+
+class RackReservationSerializer(serializers.ModelSerializer):
+    rack = RackNestedSerializer()
+
+    class Meta:
+        model = RackReservation
+        fields = ['id', 'rack', 'units', 'created', 'user', 'description']
 
 
 #

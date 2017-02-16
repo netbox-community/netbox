@@ -1,6 +1,7 @@
 import re
 
 from django import forms
+from django.contrib.postgres.forms.array import SimpleArrayField
 from django.core.exceptions import ValidationError
 from django.db.models import Count, Q
 
@@ -8,9 +9,9 @@ from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFi
 from ipam.models import IPAddress
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, add_blank_choice, BootstrapMixin, BulkEditForm, BulkImportForm, CommentField, CSVDataField,
-    ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea,
-    SlugField,
+    APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkImportForm, CommentField,
+    CSVDataField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled,
+    SmallTextarea, SlugField,
 )
 
 from .formfields import MACAddressFormField
@@ -19,7 +20,7 @@ from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType,
     Interface, IFACE_FF_CHOICES, IFACE_FF_VIRTUAL, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate,
     Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES,
-    RACK_WIDTH_CHOICES, Rack, RackGroup, RackRole, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD
+    RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD
 )
 
 
@@ -241,6 +242,34 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
                                null_option=(0, 'None'))
     role = FilterChoiceField(queryset=RackRole.objects.annotate(filter_count=Count('racks')), to_field_name='slug',
                              null_option=(0, 'None'))
+
+
+#
+# Rack reservations
+#
+
+class RackReservationForm(BootstrapMixin, forms.ModelForm):
+    units = SimpleArrayField(forms.IntegerField(), widget=ArrayFieldSelectMultiple(attrs={'size': 10}))
+
+    class Meta:
+        model = RackReservation
+        fields = ['units', 'description']
+
+    def __init__(self, *args, **kwargs):
+
+        super(RackReservationForm, self).__init__(*args, **kwargs)
+
+        # Populate rack unit choices
+        self.fields['units'].widget.choices = self._get_unit_choices()
+
+    def _get_unit_choices(self):
+        rack = self.instance.rack
+        reserved_units = []
+        for resv in rack.reservations.exclude(pk=self.instance.pk):
+            for u in resv.units:
+                reserved_units.append(u)
+        unit_choices = [(u, {'label': str(u), 'disabled': u in reserved_units}) for u in rack.units]
+        return unit_choices
 
 
 #

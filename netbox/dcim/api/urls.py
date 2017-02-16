@@ -27,6 +27,10 @@ urlpatterns = [
     url(r'^racks/(?P<pk>\d+)/$', RackDetailView.as_view(), name='rack_detail'),
     url(r'^racks/(?P<pk>\d+)/rack-units/$', RackUnitListView.as_view(), name='rack_units'),
 
+    # Rack reservations
+    url(r'^rack-reservations/$', RackReservationListView.as_view(), name='rackreservation_list'),
+    url(r'^rack-reservations/(?P<pk>\d+)/$', RackReservationDetailView.as_view(), name='rackreservation_detail'),
+
     # Manufacturers
     url(r'^manufacturers/$', ManufacturerListView.as_view(), name='manufacturer_list'),
     url(r'^manufacturers/(?P<pk>\d+)/$', ManufacturerDetailView.as_view(), name='manufacturer_detail'),
