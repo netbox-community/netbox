@@ -485,10 +485,10 @@ class RackReservation(models.Model):
     """
     One or more reserved units within a Rack.
     """
-    created = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, editable=False, on_delete=models.PROTECT)
     rack = models.ForeignKey('Rack', related_name='reservations', editable=False, on_delete=models.CASCADE)
     units = ArrayField(models.PositiveSmallIntegerField())
+    created = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, editable=False, on_delete=models.PROTECT)
     description = models.CharField(max_length=100)
 
     class Meta:

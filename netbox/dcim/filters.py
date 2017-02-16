@@ -8,7 +8,7 @@ from tenancy.models import Tenant
 from utilities.filters import NullableModelMultipleChoiceFilter
 from .models import (
     ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, Interface, InterfaceConnection, Manufacturer,
-    Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackRole, Site,
+    Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackReservation, RackRole, Site,
 )
 
 
@@ -120,6 +120,18 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
             Q(facility_id__icontains=value) |
             Q(comments__icontains=value)
         )
+
+
+class RackReservationFilter(django_filters.FilterSet):
+    rack_id = django_filters.ModelMultipleChoiceFilter(
+        name='rack',
+        queryset=Rack.objects.all(),
+        label='Rack (ID)',
+    )
+
+    class Meta:
+        model = RackReservation
+        fields = ['rack', 'user']
 
 
 class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):

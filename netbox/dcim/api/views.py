@@ -11,7 +11,8 @@ from django.shortcuts import get_object_or_404
 
 from dcim.models import (
     ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, DeviceType, IFACE_FF_VIRTUAL, Interface,
-    InterfaceConnection, Manufacturer, Module, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackRole, Site,
+    InterfaceConnection, Manufacturer, Module, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackReservation,
+    RackRole, Site,
 )
 from dcim import filters
 from extras.api.views import CustomFieldModelAPIView
@@ -132,6 +133,27 @@ class RackUnitListView(APIView):
                 u['device'] = serializers.DeviceNestedSerializer(instance=u['device']).data
 
         return Response(elevation)
+
+
+#
+# Rack reservations
+#
+
+class RackReservationListView(generics.ListAPIView):
+    """
+    List all rack reservation
+    """
+    queryset = RackReservation.objects.all()
+    serializer_class = serializers.RackReservationSerializer
+    filter_class = filters.RackReservationFilter
+
+
+class RackReservationDetailView(generics.RetrieveAPIView):
+    """
+    Retrieve a single rack reservation
+    """
+    queryset = RackReservation.objects.all()
+    serializer_class = serializers.RackReservationSerializer
 
 
 #
