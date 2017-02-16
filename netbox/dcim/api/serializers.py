@@ -103,7 +103,7 @@ class RackSerializer(CustomFieldModelSerializer):
     tenant = NestedTenantSerializer()
     role = NestedRackRoleSerializer()
     type = ChoiceFieldSerializer(choices=RACK_TYPE_CHOICES)
-    # width = ChoiceFieldSerializer(choices=RACK_WIDTH_CHOICES)
+    width = ChoiceFieldSerializer(choices=RACK_WIDTH_CHOICES)
 
     class Meta:
         model = Rack

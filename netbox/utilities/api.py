@@ -12,18 +12,18 @@ class ServiceUnavailable(APIException):
 
 class ChoiceFieldSerializer(Field):
     """
-    Represent a ChoiceField as a list of (value, label) tuples.
+    Represent a ChoiceField as (value, label).
     """
 
     def __init__(self, choices, **kwargs):
-        self._choices = choices
+        self._choices = {k: v for k, v in choices}
         super(ChoiceFieldSerializer, self).__init__(**kwargs)
 
     def to_representation(self, obj):
-        return self._choices[obj]
+        return obj, self._choices[obj]
 
     def to_internal_value(self, data):
-        return getattr(self._choices, data)
+        return self._choices.get(data)
 
 
 class WritableSerializerMixin(object):
