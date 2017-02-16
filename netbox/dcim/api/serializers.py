@@ -5,8 +5,8 @@ from dcim.models import (
     CONNECTION_STATUS_CHOICES, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
     DeviceBay, DeviceBayTemplate, DeviceType, DeviceRole, IFACE_FF_CHOICES, IFACE_ORDERING_CHOICES, Interface,
     InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
-    PowerPortTemplate, Rack, RackGroup, RackRole, RACK_FACE_CHOICES, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, Site,
-    STATUS_CHOICES, SUBDEVICE_ROLE_CHOICES,
+    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RACK_FACE_CHOICES, RACK_TYPE_CHOICES,
+    RACK_WIDTH_CHOICES, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHOICES,
 )
 from extras.api.serializers import CustomFieldModelSerializer
 from tenancy.api.serializers import NestedTenantSerializer
@@ -97,14 +97,13 @@ class NestedRackRoleSerializer(serializers.ModelSerializer):
 # Racks
 #
 
-
 class RackSerializer(CustomFieldModelSerializer):
     site = NestedSiteSerializer()
     group = NestedRackGroupSerializer()
     tenant = NestedTenantSerializer()
     role = NestedRackRoleSerializer()
     type = ChoiceFieldSerializer(choices=RACK_TYPE_CHOICES)
-    width = ChoiceFieldSerializer(choices=RACK_WIDTH_CHOICES)
+    # width = ChoiceFieldSerializer(choices=RACK_WIDTH_CHOICES)
 
     class Meta:
         model = Rack
@@ -130,6 +129,18 @@ class WritableRackSerializer(serializers.ModelSerializer):
             'id', 'name', 'facility_id', 'site', 'group', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
             'comments',
         ]
+
+
+#
+# Rack reservations
+#
+
+class RackReservationSerializer(serializers.ModelSerializer):
+    rack = NestedRackSerializer()
+
+    class Meta:
+        model = RackReservation
+        fields = ['id', 'rack', 'units', 'created', 'user', 'description']
 
 
 #

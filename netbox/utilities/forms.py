@@ -169,6 +169,27 @@ class SelectWithDisabled(forms.Select):
                            force_text(option_label))
 
 
+class ArrayFieldSelectMultiple(SelectWithDisabled, forms.SelectMultiple):
+    """
+    MultiSelect widgets for a SimpleArrayField. Choices must be populated on the widget.
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.delimiter = kwargs.pop('delimiter', ',')
+        super(ArrayFieldSelectMultiple, self).__init__(*args, **kwargs)
+
+    def render_options(self, selected_choices):
+        # Split the delimited string of values into a list
+        if selected_choices:
+            selected_choices = selected_choices.split(self.delimiter)
+        return super(ArrayFieldSelectMultiple, self).render_options(selected_choices)
+
+    def value_from_datadict(self, data, files, name):
+        # Condense the list of selected choices into a delimited string
+        data = super(ArrayFieldSelectMultiple, self).value_from_datadict(data, files, name)
+        return self.delimiter.join(data)
+
+
 class APISelect(SelectWithDisabled):
     """
     A select widget populated via an API call

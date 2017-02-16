@@ -764,9 +764,9 @@ class ServiceEditView(PermissionRequiredMixin, ObjectEditView):
     form_class = forms.ServiceForm
     template_name = 'ipam/service_edit.html'
 
-    def alter_obj(self, obj, args, kwargs):
-        if 'device' in kwargs:
-            obj.device = get_object_or_404(Device, pk=kwargs['device'])
+    def alter_obj(self, obj, request, url_args, url_kwargs):
+        if 'device' in url_kwargs:
+            obj.device = get_object_or_404(Device, pk=url_kwargs['device'])
         return obj
 
     def get_return_url(self, obj):

@@ -136,6 +136,7 @@ class RackTest(APITestCase):
         'width',
         'u_height',
         'desc_units',
+        'reservations',
         'comments',
         'custom_fields',
         'front_units',

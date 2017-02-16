@@ -12,7 +12,8 @@ from django.shortcuts import get_object_or_404
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module,
-    Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, Site,
+    Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation,
+    RackRole, Site,
 )
 from dcim import filters
 from extras.api.renderers import BINDZoneRenderer, FlatJSONRenderer
@@ -95,6 +96,16 @@ class RackViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
                 ).data
 
         return Response(elevation)
+
+
+#
+# Rack reservations
+#
+
+class RackReservationViewSet(ModelViewSet):
+    queryset = RackReservation.objects.all()
+    serializer_class = serializers.RackReservationSerializer
+    filter_class = filters.RackReservationFilter
 
 
 #

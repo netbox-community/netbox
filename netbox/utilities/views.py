@@ -145,9 +145,9 @@ class ObjectEditView(View):
             return get_object_or_404(self.model, pk=kwargs['pk'])
         return self.model()
 
-    def alter_obj(self, obj, args, kwargs):
+    def alter_obj(self, obj, request, url_args, url_kwargs):
         # Allow views to add extra info to an object before it is processed. For example, a parent object can be defined
-        # given some parameter from the request URI.
+        # given some parameter from the request URL.
         return obj
 
     def get_return_url(self, obj):
@@ -159,7 +159,7 @@ class ObjectEditView(View):
     def get(self, request, *args, **kwargs):
 
         obj = self.get_object(kwargs)
-        obj = self.alter_obj(obj, args, kwargs)
+        obj = self.alter_obj(obj, request, args, kwargs)
         initial_data = {k: request.GET[k] for k in self.fields_initial if k in request.GET}
         form = self.form_class(instance=obj, initial=initial_data)
 
@@ -173,7 +173,7 @@ class ObjectEditView(View):
     def post(self, request, *args, **kwargs):
 
         obj = self.get_object(kwargs)
-        obj = self.alter_obj(obj, args, kwargs)
+        obj = self.alter_obj(obj, request, args, kwargs)
         form = self.form_class(request.POST, instance=obj)
 
         if form.is_valid():

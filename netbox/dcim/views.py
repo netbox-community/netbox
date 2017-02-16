@@ -26,7 +26,7 @@ from .models import (
     CONNECTION_STATUS_CONNECTED, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
     DeviceBay, DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate,
     Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackRole, Site,
+    RackReservation, RackRole, Site,
 )
 
 
@@ -269,8 +269,16 @@ def rack(request, pk):
     next_rack = Rack.objects.filter(site=rack.site, name__gt=rack.name).order_by('name').first()
     prev_rack = Rack.objects.filter(site=rack.site, name__lt=rack.name).order_by('-name').first()
 
+    reservations = RackReservation.objects.filter(rack=rack)
+    reserved_units = {}
+    for r in reservations:
+        for u in r.units:
+            reserved_units[u] = r
+
     return render(request, 'dcim/rack.html', {
         'rack': rack,
+        'reservations': reservations,
+        'reserved_units': reserved_units,
         'nonracked_devices': nonracked_devices,
         'next_rack': next_rack,
         'prev_rack': prev_rack,
@@ -315,6 +323,33 @@ class RackBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     cls = Rack
     filter = filters.RackFilter
     default_return_url = 'dcim:rack_list'
+
+
+#
+# Rack reservations
+#
+
+class RackReservationEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_rackreservation'
+    model = RackReservation
+    form_class = forms.RackReservationForm
+
+    def alter_obj(self, obj, request, args, kwargs):
+        if not obj.pk:
+            obj.rack = get_object_or_404(Rack, pk=kwargs['rack'])
+            obj.user = request.user
+        return obj
+
+    def get_return_url(self, obj):
+        return obj.rack.get_absolute_url()
+
+
+class RackReservationDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_rackreservation'
+    model = RackReservation
+
+    def get_return_url(self, obj):
+        return obj.rack.get_absolute_url()
 
 
 #
@@ -1517,9 +1552,9 @@ class ModuleEditView(PermissionRequiredMixin, ComponentEditView):
     model = Module
     form_class = forms.ModuleForm
 
-    def alter_obj(self, obj, args, kwargs):
-        if 'device' in kwargs:
-            obj.device = get_object_or_404(Device, pk=kwargs['device'])
+    def alter_obj(self, obj, request, url_args, url_kwargs):
+        if 'device' in url_kwargs:
+            obj.device = get_object_or_404(Device, pk=url_kwargs['device'])
         return obj
 
 

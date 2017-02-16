@@ -9,7 +9,8 @@ from utilities.filters import NullableModelMultipleChoiceFilter
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module,
-    Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, Site,
+    Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation,
+    RackRole, Site,
 )
 
 
@@ -121,6 +122,18 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
             Q(facility_id__icontains=value) |
             Q(comments__icontains=value)
         )
+
+
+class RackReservationFilter(django_filters.FilterSet):
+    rack_id = django_filters.ModelMultipleChoiceFilter(
+        name='rack',
+        queryset=Rack.objects.all(),
+        label='Rack (ID)',
+    )
+
+    class Meta:
+        model = RackReservation
+        fields = ['rack', 'user']
 
 
 class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):

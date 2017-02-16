@@ -73,6 +73,7 @@ $(document).ready(function() {
         // Resolve child field by ID specified in parent
         var child_name = $(this).attr('filter-for');
         var child_field = $('#id_' + child_name);
+        var child_selected = child_field.val();
 
         // Wipe out any existing options within the child field
         child_field.empty();
@@ -106,7 +107,9 @@ $(document).ready(function() {
                         $.each(response, function (index, choice) {
                             var option = $("<option></option>").attr("value", choice.id).text(choice[display_field]);
                             if (disabled_indicator && choice[disabled_indicator] && choice.id != initial_value) {
-                                option.attr("disabled", "disabled")
+                                option.attr("disabled", "disabled");
+                            } else if (choice.id == child_selected) {
+                                option.attr("selected", "selected");
                             }
                             child_field.append(option);
                         });
