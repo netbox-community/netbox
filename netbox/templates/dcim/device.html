@@ -27,13 +27,17 @@
                 <tr>
                     <td>Site</td>
                     <td>
-                        <a href="{% url 'dcim:site' slug=device.rack.site.slug %}">{{ device.rack.site }}</a>
+                        <a href="{% url 'dcim:site' slug=device.site.slug %}">{{ device.site }}</a>
                     </td>
                 </tr>
                 <tr>
                     <td>Rack</td>
                     <td>
-                        <span><a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack.name }}</a>{% if device.rack.facility_id %} ({{ device.rack.facility_id }}){% endif %}</span>
+                        {% if device.rack %}
+                            <span><a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack.name }}</a>{% if device.rack.facility_id %} ({{ device.rack.facility_id }}){% endif %}</span>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
                     </td>
                 </tr>
                 <tr>
@@ -44,9 +48,9 @@
                                 <span>U{{ parent.position }} / {{ parent.get_face_display }}
                                 (<a href="{{ parent.get_absolute_url }}">{{ parent }}</a> - {{ device.parent_bay.name }})</span>
                             {% endwith %}
-                        {% elif device.position %}
+                        {% elif device.rack and device.position %}
                             <span>U{{ device.position }} / {{ device.get_face_display }}</span>
-                        {% elif device.device_type.u_height %}
+                        {% elif device.rack and device.device_type.u_height %}
                             <span class="label label-warning">Not racked</span>
                         {% else %}
                             <span class="text-muted">N/A</span>
@@ -314,7 +318,11 @@
                                 <a href="{% url 'dcim:device' pk=rd.pk %}">{{ rd }}</a>
                             </td>
                             <td>
-                                <a href="{% url 'dcim:rack' pk=rd.rack.pk %}">Rack {{ rd.rack }}</a>
+                                {% if rd.rack %}
+                                    <a href="{% url 'dcim:rack' pk=rd.rack.pk %}">Rack {{ rd.rack }}</a>
+                                {% else %}
+                                    <span class="text-muted">&mdash;</span>
+                                {% endif %}
                             </td>
                             <td>{{ rd.device_type.full_name }}</td>
                         </tr>

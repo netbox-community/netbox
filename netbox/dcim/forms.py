@@ -445,7 +445,7 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
 
 class DeviceForm(BootstrapMixin, CustomFieldForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs={'filter-for': 'rack'}))
-    rack = forms.ModelChoiceField(queryset=Rack.objects.all(), widget=APISelect(
+    rack = forms.ModelChoiceField(queryset=Rack.objects.all(), required=False, widget=APISelect(
         api_url='/api/dcim/racks/?site_id={{site}}',
         display_field='display_name',
         attrs={'filter-for': 'position'}
@@ -585,7 +585,7 @@ class DeviceFromCSVForm(BaseDeviceFromCSVForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), to_field_name='name', error_messages={
         'invalid_choice': 'Invalid site name.',
     })
-    rack_name = forms.CharField()
+    rack_name = forms.CharField(required=False)
     face = forms.CharField(required=False)
 
     class Meta(BaseDeviceFromCSVForm.Meta):
