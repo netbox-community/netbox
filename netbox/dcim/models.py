@@ -1110,8 +1110,8 @@ class PowerPort(models.Model):
         return self.name
 
     # Used for connections export
-    def csv_format(self):
-        return ','.join([
+    def to_csv(self):
+        return csv_format([
             self.power_outlet.device.identifier if self.power_outlet else None,
             self.power_outlet.name if self.power_outlet else None,
             self.device.identifier,
