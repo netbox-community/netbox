@@ -31,7 +31,8 @@ class ProviderListView(ObjectListView):
 def provider(request, slug):
 
     provider = get_object_or_404(Provider, slug=slug)
-    circuits = Circuit.objects.filter(provider=provider)
+    circuits = Circuit.objects.filter(provider=provider).select_related('type', 'tenant')\
+        .prefetch_related('terminations__site')
     show_graphs = Graph.objects.filter(type=GRAPH_TYPE_PROVIDER).exists()
 
     return render(request, 'circuits/provider.html', {
