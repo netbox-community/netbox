@@ -233,12 +233,12 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='MAC address',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
-        name='rack__site',
+        name='site',
         queryset=Site.objects.all(),
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='rack__site__slug',
+        name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site name (slug)',
@@ -248,7 +248,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         queryset=RackGroup.objects.all(),
         label='Rack group (ID)',
     )
-    rack_id = django_filters.ModelMultipleChoiceFilter(
+    rack_id = NullableModelMultipleChoiceFilter(
         name='rack',
         queryset=Rack.objects.all(),
         label='Rack (ID)',

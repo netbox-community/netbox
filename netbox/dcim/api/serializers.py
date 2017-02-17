@@ -371,6 +371,7 @@ class DeviceSerializer(CustomFieldModelSerializer):
     device_role = NestedDeviceRoleSerializer()
     tenant = NestedTenantSerializer()
     platform = NestedPlatformSerializer()
+    site = NestedSiteSerializer()
     rack = NestedRackSerializer()
     face = ChoiceFieldSerializer(choices=RACK_FACE_CHOICES)
     status = ChoiceFieldSerializer(choices=STATUS_CHOICES)
@@ -383,7 +384,7 @@ class DeviceSerializer(CustomFieldModelSerializer):
         model = Device
         fields = [
             'id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
-            'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4', 'primary_ip6',
+            'site', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4', 'primary_ip6',
             'comments', 'custom_fields',
         ]
 

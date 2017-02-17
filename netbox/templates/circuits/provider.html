@@ -48,7 +48,7 @@
 <h1>{{ provider }}</h1>
 {% include 'inc/created_updated.html' with obj=provider %}
 <div class="row">
-	<div class="col-md-6">
+	<div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Provider</strong>
@@ -104,6 +104,12 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Circuits</td>
+                    <td>
+                        <a href="{% url 'circuits:circuit_list' %}?provider={{ provider.slug }}">{{ provider.circuits.count }}</a>
+                    </td>
+                </tr>
             </table>
         </div>
         {% with provider.get_custom_fields as custom_fields %}
@@ -122,12 +128,20 @@
             </div>
         </div>
 	</div>
-	<div class="col-md-6">
+	<div class="col-md-8">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Circuits</strong>
             </div>
             <table class="table table-hover panel-body">
+                <tr>
+                    <th>Circuit ID</th>
+                    <th>Type</th>
+                    <th>Tenant</th>
+                    <th>A Side</th>
+                    <th>Z Side</th>
+                    <th>Description</th>
+                </tr>
                 {% for c in circuits %}
                     <tr>
                         <td>
@@ -135,6 +149,34 @@
                         </td>
                         <td>
                             <a href="{% url 'circuits:circuit_list' %}?type={{ c.type.slug }}">{{ c.type }}</a>
+                        </td>
+                        <td>
+                            {% if c.tenant %}
+                                <a href="{% url 'tenants:tenant' slug=c.tenant.slug %}">{{ c.tenant }}</a>
+                            {% else %}
+                                <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if c.termination_a %}
+                                <a href="{% url 'dcim:site' slug=c.termination_a.site.slug %}">{{ c.termination_a.site }}</a>
+                            {% else %}
+                                <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if c.termination_z %}
+                                <a href="{% url 'dcim:site' slug=c.termination_z.site.slug %}">{{ c.termination_z.site }}</a>
+                            {% else %}
+                                <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if c.description %}
+                                {{ c.description }}
+                            {% else %}
+                                <span class="text-muted">&mdash;</span>
+                            {% endif %}
                         </td>
                     </tr>
                 {% empty %}

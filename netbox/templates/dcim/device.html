@@ -27,13 +27,17 @@
                 <tr>
                     <td>Site</td>
                     <td>
-                        <a href="{% url 'dcim:site' slug=device.rack.site.slug %}">{{ device.rack.site }}</a>
+                        <a href="{% url 'dcim:site' slug=device.site.slug %}">{{ device.site }}</a>
                     </td>
                 </tr>
                 <tr>
                     <td>Rack</td>
                     <td>
-                        <span><a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack.name }}</a>{% if device.rack.facility_id %} ({{ device.rack.facility_id }}){% endif %}</span>
+                        {% if device.rack %}
+                            <span><a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack.name }}</a>{% if device.rack.facility_id %} ({{ device.rack.facility_id }}){% endif %}</span>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
                     </td>
                 </tr>
                 <tr>
@@ -44,9 +48,9 @@
                                 <span>U{{ parent.position }} / {{ parent.get_face_display }}
                                 (<a href="{{ parent.get_absolute_url }}">{{ parent }}</a> - {{ device.parent_bay.name }})</span>
                             {% endwith %}
-                        {% elif device.position %}
+                        {% elif device.rack and device.position %}
                             <span>U{{ device.position }} / {{ device.get_face_display }}</span>
-                        {% elif device.device_type.u_height %}
+                        {% elif device.rack and device.device_type.u_height %}
                             <span class="label label-warning">Not racked</span>
                         {% else %}
                             <span class="text-muted">N/A</span>
@@ -236,38 +240,44 @@
                 {% for iface in mgmt_interfaces %}
                     {% include 'dcim/inc/interface.html' with icon='wrench' %}
                 {% empty %}
-                    <tr>
-                        <td colspan="5" class="alert-warning">
-                            <i class="fa fa-fw fa-warning"></i> No management interfaces defined
-                            {% if perms.dcim.add_interface %}
-                                <a href="{% url 'dcim:interface_add' pk=device.pk %}?mgmt_only=1" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
-                            {% endif %}
-                        </td>
-                    </tr>
+                    {% if device.device_type.interface_templates.exists %}
+                        <tr>
+                            <td colspan="6" class="alert-warning">
+                                <i class="fa fa-fw fa-warning"></i> No management interfaces defined
+                                {% if perms.dcim.add_interface %}
+                                    <a href="{% url 'dcim:interface_add' pk=device.pk %}?mgmt_only=1" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
                 {% endfor %}
                 {% for cp in console_ports %}
                     {% include 'dcim/inc/consoleport.html' %}
                 {% empty %}
-                    <tr>
-                        <td colspan="5" class="alert-warning">
-                            <i class="fa fa-fw fa-warning"></i> No console ports defined
-                            {% if perms.dcim.add_consoleport %}
-                                <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
-                            {% endif %}
-                        </td>
-                    </tr>
+                    {% if device.device_type.console_port_templates.exists %}
+                        <tr>
+                            <td colspan="6" class="alert-warning">
+                                <i class="fa fa-fw fa-warning"></i> No console ports defined
+                                {% if perms.dcim.add_consoleport %}
+                                    <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
                 {% endfor %}
                 {% for pp in power_ports %}
                     {% include 'dcim/inc/powerport.html' %}
                 {% empty %}
-                    <tr>
-                        <td colspan="5" class="alert-warning">
-                            <i class="fa fa-fw fa-warning"></i> No power ports defined
-                            {% if perms.dcim.add_powerport %}
-                                <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
-                            {% endif %}
-                        </td>
-                    </tr>
+                    {% if device.device_type.power_port_templates.exists %}
+                        <tr>
+                            <td colspan="6" class="alert-warning">
+                                <i class="fa fa-fw fa-warning"></i> No power ports defined
+                                {% if perms.dcim.add_powerport %}
+                                    <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
                 {% endfor %}
             </table>
             {% if perms.dcim.add_interface or perms.dcim.add_consoleport or perms.dcim.add_powerport %}
@@ -314,7 +324,11 @@
                                 <a href="{% url 'dcim:device' pk=rd.pk %}">{{ rd }}</a>
                             </td>
                             <td>
-                                <a href="{% url 'dcim:rack' pk=rd.rack.pk %}">Rack {{ rd.rack }}</a>
+                                {% if rd.rack %}
+                                    <a href="{% url 'dcim:rack' pk=rd.rack.pk %}">Rack {{ rd.rack }}</a>
+                                {% else %}
+                                    <span class="text-muted">&mdash;</span>
+                                {% endif %}
                             </td>
                             <td>{{ rd.device_type.full_name }}</td>
                         </tr>

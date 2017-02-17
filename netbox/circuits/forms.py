@@ -143,19 +143,49 @@ class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
 #
 
 class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs={'filter-for': 'rack'}))
-    rack = forms.ModelChoiceField(queryset=Rack.objects.all(), required=False, label='Rack',
-                                  widget=APISelect(api_url='/api/dcim/racks/?site_id={{site}}',
-                                                   attrs={'filter-for': 'device'}))
-    device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False, label='Device',
-                                    widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}',
-                                                     display_field='display_name', attrs={'filter-for': 'interface'}))
-    livesearch = forms.CharField(required=False, label='Device', widget=Livesearch(
-        query_key='q', query_url='dcim-api:device_list', field_to_update='device')
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        widget=forms.Select(
+            attrs={'filter-for': 'rack'}
+        )
     )
-    interface = forms.ModelChoiceField(queryset=Interface.objects.all(), required=False, label='Interface',
-                                       widget=APISelect(api_url='/api/dcim/devices/{{device}}/interfaces/?type=physical',
-                                                        disabled_indicator='is_connected'))
+    rack = forms.ModelChoiceField(
+        queryset=Rack.objects.all(),
+        required=False,
+        label='Rack',
+        widget=APISelect(
+            api_url='/api/dcim/racks/?site_id={{site}}',
+            attrs={'filter-for': 'device', 'nullable': 'true'}
+        )
+    )
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label='Device',
+        widget=APISelect(
+            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
+            display_field='display_name',
+            attrs={'filter-for': 'interface'}
+        )
+    )
+    livesearch = forms.CharField(
+        required=False,
+        label='Device',
+        widget=Livesearch(
+            query_key='q',
+            query_url='dcim-api:device_list',
+            field_to_update='device'
+        )
+    )
+    interface = forms.ModelChoiceField(
+        queryset=Interface.objects.all(),
+        required=False,
+        label='Interface',
+        widget=APISelect(
+            api_url='/api/dcim/devices/{{device}}/interfaces/?type=physical',
+            disabled_indicator='is_connected'
+        )
+    )
 
     class Meta:
         model = CircuitTermination

@@ -370,6 +370,19 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
                         )
                     })
 
+    def save(self, *args, **kwargs):
+
+        # Record the original site assignment for this rack.
+        _site_id = None
+        if self.pk:
+            _site_id = Rack.objects.get(pk=self.pk).site_id
+
+        super(Rack, self).save(*args, **kwargs)
+
+        # Update racked devices if the assigned Site has been changed.
+        if _site_id is not None and self.site_id != _site_id:
+            Device.objects.filter(rack=self).update(site_id=self.site.pk)
+
     def to_csv(self):
         return csv_format([
             self.site.name,
@@ -871,7 +884,8 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     serial = models.CharField(max_length=50, blank=True, verbose_name='Serial number')
     asset_tag = NullableCharField(max_length=50, blank=True, null=True, unique=True, verbose_name='Asset tag',
                                   help_text='A unique tag used to identify this device')
-    rack = models.ForeignKey('Rack', related_name='devices', on_delete=models.PROTECT)
+    site = models.ForeignKey('Site', related_name='devices', on_delete=models.PROTECT)
+    rack = models.ForeignKey('Rack', related_name='devices', blank=True, null=True, on_delete=models.PROTECT)
     position = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1)],
                                                 verbose_name='Position (U)',
                                                 help_text='The lowest-numbered unit occupied by the device')
@@ -898,41 +912,59 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
 
     def clean(self):
 
+        # Validate site/rack combination
+        if self.rack and self.site != self.rack.site:
+            raise ValidationError({
+                'rack': "Rack {} does not belong to site {}.".format(self.rack, self.site),
+            })
+
+        if self.rack is None:
+            if self.face is not None:
+                raise ValidationError({
+                    'face': "Cannot select a rack face without assigning a rack.",
+                })
+            if self.position:
+                raise ValidationError({
+                    'face': "Cannot select a rack position without assigning a rack.",
+                })
+
         # Validate position/face combination
         if self.position and self.face is None:
             raise ValidationError({
-                'face': "Must specify rack face when defining rack position."
+                'face': "Must specify rack face when defining rack position.",
             })
 
-        try:
-            # Child devices cannot be assigned to a rack face/unit
-            if self.device_type.is_child_device and self.face is not None:
-                raise ValidationError({
-                    'face': "Child device types cannot be assigned to a rack face. This is an attribute of the parent "
-                            "device."
-                })
-            if self.device_type.is_child_device and self.position:
-                raise ValidationError({
-                    'position': "Child device types cannot be assigned to a rack position. This is an attribute of the "
-                                "parent device."
-                })
+        if self.rack:
 
-            # Validate rack space
-            rack_face = self.face if not self.device_type.is_full_depth else None
-            exclude_list = [self.pk] if self.pk else []
             try:
-                available_units = self.rack.get_available_units(u_height=self.device_type.u_height, rack_face=rack_face,
-                                                                exclude=exclude_list)
-                if self.position and self.position not in available_units:
+                # Child devices cannot be assigned to a rack face/unit
+                if self.device_type.is_child_device and self.face is not None:
                     raise ValidationError({
-                        'position': "U{} is already occupied or does not have sufficient space to accommodate a(n) {} "
-                                    "({}U).".format(self.position, self.device_type, self.device_type.u_height)
+                        'face': "Child device types cannot be assigned to a rack face. This is an attribute of the parent "
+                                "device."
                     })
-            except Rack.DoesNotExist:
-                pass
+                if self.device_type.is_child_device and self.position:
+                    raise ValidationError({
+                        'position': "Child device types cannot be assigned to a rack position. This is an attribute of the "
+                                    "parent device."
+                    })
 
-        except DeviceType.DoesNotExist:
-            pass
+                # Validate rack space
+                rack_face = self.face if not self.device_type.is_full_depth else None
+                exclude_list = [self.pk] if self.pk else []
+                try:
+                    available_units = self.rack.get_available_units(u_height=self.device_type.u_height, rack_face=rack_face,
+                                                                    exclude=exclude_list)
+                    if self.position and self.position not in available_units:
+                        raise ValidationError({
+                            'position': "U{} is already occupied or does not have sufficient space to accommodate a(n) {} "
+                                        "({}U).".format(self.position, self.device_type, self.device_type.u_height)
+                        })
+                except Rack.DoesNotExist:
+                    pass
+
+            except DeviceType.DoesNotExist:
+                pass
 
     def save(self, *args, **kwargs):
 
@@ -980,8 +1012,8 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
             self.platform.name if self.platform else None,
             self.serial,
             self.asset_tag,
-            self.rack.site.name,
-            self.rack.name,
+            self.site.name,
+            self.rack.name if self.rack else None,
             self.position,
             self.get_face_display(),
         ])
@@ -1110,8 +1142,8 @@ class PowerPort(models.Model):
         return self.name
 
     # Used for connections export
-    def csv_format(self):
-        return ','.join([
+    def to_csv(self):
+        return csv_format([
             self.power_outlet.device.identifier if self.power_outlet else None,
             self.power_outlet.name if self.power_outlet else None,
             self.device.identifier,
