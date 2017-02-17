@@ -1411,7 +1411,7 @@ def interfaceconnection_add(request, pk):
     else:
         form = forms.InterfaceConnectionForm(device, initial={
             'interface_a': request.GET.get('interface_a', None),
-            'site_b': request.GET.get('site_b', device.rack.site),
+            'site_b': request.GET.get('site_b', device.site),
             'rack_b': request.GET.get('rack_b', None),
             'device_b': request.GET.get('device_b', None),
             'interface_b': request.GET.get('interface_b', None),

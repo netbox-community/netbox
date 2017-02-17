@@ -307,10 +307,10 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
             nat_inside = self.instance.nat_inside
             # If the IP is assigned to an interface, populate site/device fields accordingly
             if self.instance.nat_inside.interface:
-                self.initial['nat_site'] = self.instance.nat_inside.interface.device.rack.site.pk
+                self.initial['nat_site'] = self.instance.nat_inside.interface.device.site.pk
                 self.initial['nat_device'] = self.instance.nat_inside.interface.device.pk
                 self.fields['nat_device'].queryset = Device.objects.filter(
-                    rack__site=nat_inside.interface.device.rack.site)
+                    rack__site=nat_inside.interface.device.site)
                 self.fields['nat_inside'].queryset = IPAddress.objects.filter(
                     interface__device=nat_inside.interface.device)
             else:
