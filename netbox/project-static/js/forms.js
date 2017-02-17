@@ -77,11 +77,7 @@ $(document).ready(function() {
 
         // Wipe out any existing options within the child field and create a default option
         child_field.empty();
-        var default_option = $("<option></option>").attr("value", "").text("---------");
-        if (child_field.attr('nullable') == 'true') {
-            default_option.attr("value", "0");
-        }
-        child_field.append(default_option);
+        child_field.append($("<option></option>").attr("value", "").text("---------"));
 
         if ($(this).val() || $(this).attr('nullable') == 'true') {
             var api_url = child_field.attr('api-url');
@@ -96,7 +92,7 @@ $(document).ready(function() {
                 var filter_field = $('#id_' + match[1]);
                 if (filter_field.val()) {
                     api_url = api_url.replace(match[0], filter_field.val());
-                } else {
+                } else if ($(this).attr('nullable') == 'true') {
                     api_url = api_url.replace(match[0], '0');
                 }
             }
