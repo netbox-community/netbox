@@ -627,7 +627,7 @@ class PlatformBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class DeviceListView(ObjectListView):
-    queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'tenant', 'rack__site',
+    queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'tenant', 'site', 'rack',
                                              'primary_ip4', 'primary_ip6')
     filter = filters.DeviceFilter
     filter_form = forms.DeviceFilterForm
@@ -1411,7 +1411,7 @@ def interfaceconnection_add(request, pk):
     else:
         form = forms.InterfaceConnectionForm(device, initial={
             'interface_a': request.GET.get('interface_a', None),
-            'site_b': request.GET.get('site_b', device.rack.site),
+            'site_b': request.GET.get('site_b', device.site),
             'rack_b': request.GET.get('rack_b', None),
             'device_b': request.GET.get('device_b', None),
             'interface_b': request.GET.get('interface_b', None),

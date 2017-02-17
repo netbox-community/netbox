@@ -307,10 +307,10 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
             nat_inside = self.instance.nat_inside
             # If the IP is assigned to an interface, populate site/device fields accordingly
             if self.instance.nat_inside.interface:
-                self.initial['nat_site'] = self.instance.nat_inside.interface.device.rack.site.pk
+                self.initial['nat_site'] = self.instance.nat_inside.interface.device.site.pk
                 self.initial['nat_device'] = self.instance.nat_inside.interface.device.pk
                 self.fields['nat_device'].queryset = Device.objects.filter(
-                    rack__site=nat_inside.interface.device.rack.site)
+                    rack__site=nat_inside.interface.device.site)
                 self.fields['nat_inside'].queryset = IPAddress.objects.filter(
                     interface__device=nat_inside.interface.device)
             else:
@@ -346,20 +346,54 @@ class IPAddressBulkAddForm(BootstrapMixin, forms.Form):
 
 
 class IPAddressAssignForm(BootstrapMixin, forms.Form):
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), label='Site', required=False,
-                                  widget=forms.Select(attrs={'filter-for': 'rack'}))
-    rack = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
-                                  widget=APISelect(api_url='/api/dcim/racks/?site_id={{site}}',
-                                                   display_field='display_name', attrs={'filter-for': 'device'}))
-    device = forms.ModelChoiceField(queryset=Device.objects.all(), label='Device', required=False,
-                                    widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}',
-                                                     display_field='display_name', attrs={'filter-for': 'interface'}))
-    livesearch = forms.CharField(required=False, label='Device', widget=Livesearch(
-        query_key='q', query_url='dcim-api:device_list', field_to_update='device')
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        label='Site',
+        required=False,
+        widget=forms.Select(
+            attrs={'filter-for': 'rack'}
+        )
     )
-    interface = forms.ModelChoiceField(queryset=Interface.objects.all(), label='Interface',
-                                       widget=APISelect(api_url='/api/dcim/devices/{{device}}/interfaces/'))
-    set_as_primary = forms.BooleanField(label='Set as primary IP for device', required=False)
+    rack = forms.ModelChoiceField(
+        queryset=Rack.objects.all(),
+        label='Rack',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/racks/?site_id={{site}}',
+            display_field='display_name',
+            attrs={'filter-for': 'device', 'nullable': 'true'}
+        )
+    )
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        label='Device',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
+            display_field='display_name',
+            attrs={'filter-for': 'interface'}
+        )
+    )
+    livesearch = forms.CharField(
+        required=False,
+        label='Device',
+        widget=Livesearch(
+            query_key='q',
+            query_url='dcim-api:device_list',
+            field_to_update='device'
+        )
+    )
+    interface = forms.ModelChoiceField(
+        queryset=Interface.objects.all(),
+        label='Interface',
+        widget=APISelect(
+            api_url='/api/dcim/devices/{{device}}/interfaces/'
+        )
+    )
+    set_as_primary = forms.BooleanField(
+        label='Set as primary IP for device',
+        required=False
+    )
 
     def __init__(self, *args, **kwargs):
 

@@ -559,6 +559,8 @@ def ipaddress_assign(request, pk):
                 device.save()
 
             return redirect('ipam:ipaddress', pk=ipaddress.pk)
+        else:
+            assert False, form.errors
 
     else:
         form = forms.IPAddressAssignForm()

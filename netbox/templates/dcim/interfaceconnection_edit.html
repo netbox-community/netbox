@@ -7,88 +7,88 @@
 {% block content %}
 <h1>Connect Interfaces</h1>
 <form action="." method="post" class="form form-horizontal">
-{% csrf_token %}
-<div class="row">
-    <div class="col-md-6 col-md-offset-3">
-        {% if form.non_field_errors %}
-            <div class="panel panel-danger">
-                <div class="panel-heading"><strong>Errors</strong></div>
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            {% if form.non_field_errors %}
+                <div class="panel panel-danger">
+                    <div class="panel-heading"><strong>Errors</strong></div>
+                    <div class="panel-body">
+                        {{ form.non_field_errors }}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-5">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <strong>A Side</strong>
+                </div>
                 <div class="panel-body">
-                    {{ form.non_field_errors }}
-                </div>
-            </div>
-        {% endif %}
-    </div>
-</div>
-<div class="row">
-	<div class="col-md-5">
-        <div class="panel panel-default">
-            <div class="panel-heading text-center">
-                <strong>A Side</strong>
-            </div>
-            <div class="panel-body">
-                <div class="form-group">
-                    <label class="col-md-3 control-label required">Site</label>
-                    <div class="col-md-9">
-                        <p class="form-control-static">{{ device.rack.site }}</p>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label required">Site</label>
+                        <div class="col-md-9">
+                            <p class="form-control-static">{{ device.site }}</p>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-md-3 control-label required">Rack</label>
-                    <div class="col-md-9">
-                        <p class="form-control-static">{{ device.rack }}</p>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label required">Rack</label>
+                        <div class="col-md-9">
+                            <p class="form-control-static">{{ device.rack|default:"None" }}</p>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-md-3 control-label required">Device</label>
-                    <div class="col-md-9">
-                        <p class="form-control-static">{{ device }}</p>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label required">Device</label>
+                        <div class="col-md-9">
+                            <p class="form-control-static">{{ device }}</p>
+                        </div>
                     </div>
+                    {% render_field form.interface_a %}
                 </div>
-                {% render_field form.interface_a %}
             </div>
         </div>
-	</div>
-	<div class="col-md-2 text-center" style="padding-top: 90px;">
-        <i class="fa fa-exchange fa-4x"></i>
-    </div>
-	<div class="col-md-5">
-        <div class="panel panel-default">
-            <div class="panel-heading text-center">
-                <strong>B Side</strong>
-            </div>
-            <div class="panel-body">
-                <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active"><a href="#search" aria-controls="search" role="tab" data-toggle="tab">Search</a></li>
-                    <li role="presentation"><a href="#select" aria-controls="home" role="tab" data-toggle="tab">Select</a></li>
-                </ul>
-                <div class="tab-content">
-                    <div class="tab-pane active" id="search">
-                        {% render_field form.livesearch %}
-                    </div>
-                    <div class="tab-pane" id="select">
-                        {% render_field form.site_b %}
-                        {% render_field form.rack_b %}
-                        {% render_field form.device_b %}
-                    </div>
+        <div class="col-md-2 text-center" style="padding-top: 90px;">
+            <i class="fa fa-exchange fa-4x"></i>
+        </div>
+        <div class="col-md-5">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <strong>B Side</strong>
                 </div>
-                {% render_field form.interface_b %}
+                <div class="panel-body">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#search" aria-controls="search" role="tab" data-toggle="tab">Search</a></li>
+                        <li role="presentation"><a href="#select" aria-controls="home" role="tab" data-toggle="tab">Select</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="search">
+                            {% render_field form.livesearch %}
+                        </div>
+                        <div class="tab-pane" id="select">
+                            {% render_field form.site_b %}
+                            {% render_field form.rack_b %}
+                            {% render_field form.device_b %}
+                        </div>
+                    </div>
+                    {% render_field form.interface_b %}
+                </div>
             </div>
         </div>
-	</div>
-</div>
-<div class="row">
-    <div class="col-md-4 col-md-offset-4">
-        {% render_field form.connection_status %}
     </div>
-</div>
-<div class="text-center">
-    <div class="form-group">
-        <button type="submit" name="_create" class="btn btn-primary">Connect</button>
-        <button type="submit" name="_addanother" class="btn btn-primary">Connect and Add Another</button>
-        <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+            {% render_field form.connection_status %}
+        </div>
     </div>
-</div>
+    <div class="text-center">
+        <div class="form-group">
+            <button type="submit" name="_create" class="btn btn-primary">Connect</button>
+            <button type="submit" name="_addanother" class="btn btn-primary">Connect and Add Another</button>
+            <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
+        </div>
+    </div>
 </form>
 {% endblock %}
 

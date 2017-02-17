@@ -1,17 +1,17 @@
 <div class="row">
     <div class="col-sm-8 col-md-9">
-    {% if device.rack %}
-        <ol class="breadcrumb">
-            <li><a href="{% url 'dcim:site' slug=device.rack.site.slug %}">{{ device.rack.site }}</a></li>
-            <li><a href="{% url 'dcim:rack_list' %}?site={{ device.rack.site.slug }}">Racks</a></li>
+    <ol class="breadcrumb">
+        <li><a href="{% url 'dcim:site' slug=device.site.slug %}">{{ device.site }}</a></li>
+        {% if device.rack %}
+            <li><a href="{% url 'dcim:rack_list' %}?site={{ device.site.slug }}">Racks</a></li>
             <li><a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack }}</a></li>
-            {% if device.parent_bay %}
-                <li><a href="{% url 'dcim:device' pk=device.parent_bay.device.pk %}">{{ device.parent_bay.device }}</a></li>
-                <li>{{ device.parent_bay.name }}</li>
-            {% endif %}
-            <li>{{ device }}</li>
-        </ol>
-    {% endif %}
+        {% endif %}
+        {% if device.parent_bay %}
+            <li><a href="{% url 'dcim:device' pk=device.parent_bay.device.pk %}">{{ device.parent_bay.device }}</a></li>
+            <li>{{ device.parent_bay.name }}</li>
+        {% endif %}
+        <li>{{ device }}</li>
+    </ol>
     </div>
     <div class="col-sm-4 col-md-3">
         <form action="{% url 'dcim:device_list' %}" method="get">
