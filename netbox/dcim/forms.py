@@ -931,17 +931,41 @@ class ConsoleServerPortConnectionForm(BootstrapMixin, forms.Form):
             attrs={'filter-for': 'device', 'nullable': 'true'}
         )
     )
-    device = forms.ModelChoiceField(queryset=Device.objects.all(), label='Device', required=False,
-                                    widget=APISelect(api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
-                                                     display_field='display_name', attrs={'filter-for': 'port'}))
-    livesearch = forms.CharField(required=False, label='Device', widget=Livesearch(
-        query_key='q', query_url='dcim-api:device_list', field_to_update='device')
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        label='Device',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
+            display_field='display_name',
+            attrs={'filter-for': 'port'}
+        )
     )
-    port = forms.ModelChoiceField(queryset=ConsolePort.objects.all(), label='Port',
-                                  widget=APISelect(api_url='/api/dcim/devices/{{device}}/console-ports/',
-                                                   disabled_indicator='cs_port'))
-    connection_status = forms.BooleanField(required=False, initial=CONNECTION_STATUS_CONNECTED, label='Status',
-                                           widget=forms.Select(choices=CONNECTION_STATUS_CHOICES))
+    livesearch = forms.CharField(
+        required=False,
+        label='Device',
+        widget=Livesearch(
+            query_key='q',
+            query_url='dcim-api:device_list',
+            field_to_update='device'
+        )
+    )
+    port = forms.ModelChoiceField(
+        queryset=ConsolePort.objects.all(),
+        label='Port',
+        widget=APISelect(
+            api_url='/api/dcim/devices/{{device}}/console-ports/',
+            disabled_indicator='cs_port'
+        )
+    )
+    connection_status = forms.BooleanField(
+        required=False,
+        initial=CONNECTION_STATUS_CONNECTED,
+        label='Status',
+        widget=forms.Select(
+            choices=CONNECTION_STATUS_CHOICES
+        )
+    )
 
     class Meta:
         fields = ['site', 'rack', 'device', 'livesearch', 'port', 'connection_status']
