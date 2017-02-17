@@ -482,7 +482,7 @@ class DeviceForm(BootstrapMixin, CustomFieldForm):
         if self.instance.pk:
 
             # Initialize helper selections
-            self.initial['site'] = self.instance.rack.site
+            self.initial['site'] = self.instance.site
             self.initial['manufacturer'] = self.instance.device_type.manufacturer
 
             # Compile list of choices for primary IPv4 and IPv6 addresses
