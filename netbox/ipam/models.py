@@ -524,10 +524,14 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
     status = models.PositiveSmallIntegerField('Status', choices=VLAN_STATUS_CHOICES, default=1)
     role = models.ForeignKey('Role', related_name='vlans', on_delete=models.SET_NULL, blank=True, null=True)
     description = models.CharField(max_length=100, blank=True)
+    service_identifier = models.PositiveIntegerField(null=True, blank=True, default=None, verbose_name='Service Identifier', validators=[
+        MinValueValidator(1),
+        MaxValueValidator(16777215)
+    ])
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:
-        ordering = ['site', 'group', 'vid']
+        ordering = ['site', 'group', 'vid', 'service_identifier']
         unique_together = [
             ['group', 'vid'],
             ['group', 'name'],
@@ -559,6 +563,7 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
             self.get_status_display(),
             self.role.name if self.role else None,
             self.description,
+            self.service_identifier
         ])
 
     @property

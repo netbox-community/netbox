@@ -72,9 +72,9 @@ class VLANGroupAdmin(admin.ModelAdmin):
 
 @admin.register(VLAN)
 class VLANAdmin(admin.ModelAdmin):
-    list_display = ['site', 'vid', 'name', 'tenant', 'status', 'role']
+    list_display = ['site', 'vid', 'name', 'tenant', 'status', 'role', 'service_identifier']
     list_filter = ['site', 'tenant', 'status', 'role']
-    search_fields = ['vid', 'name']
+    search_fields = ['vid', 'name', 'service_identifier']
 
     def get_queryset(self, request):
         qs = super(VLANAdmin, self).get_queryset(request)

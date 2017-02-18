@@ -312,7 +312,8 @@ class VLANTable(BaseTable):
     status = tables.TemplateColumn(STATUS_LABEL, verbose_name='Status')
     role = tables.TemplateColumn(VLAN_ROLE_LINK, verbose_name='Role')
     description = tables.Column(verbose_name='Description')
+    service_identifier = tables.Column(verbose_name='Service Identifier')
 
     class Meta(BaseTable.Meta):
         model = VLAN
-        fields = ('pk', 'vid', 'site', 'group', 'name', 'prefixes', 'tenant', 'status', 'role', 'description')
+        fields = ('pk', 'vid', 'site', 'group', 'name', 'prefixes', 'tenant', 'status', 'role', 'description', 'service_identifier')
