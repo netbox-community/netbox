@@ -262,20 +262,28 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
 
 class VLANGroupFilter(django_filters.FilterSet):
-    site_id = django_filters.ModelMultipleChoiceFilter(
+    site_id = NullableModelMultipleChoiceFilter(
         name='site',
         queryset=Site.objects.all(),
         label='Site (ID)',
+        method='site_search',
     )
-    site = django_filters.ModelMultipleChoiceFilter(
+    site = NullableModelMultipleChoiceFilter(
         name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
+        method='site_search',
     )
 
     class Meta:
         model = VLANGroup
+
+    def site_search(self, queryset, name, value):
+        q = Q(**{name: None})
+        for v in value:
+            q |= Q(**{name: v})
+        return queryset.filter(q)
 
 
 class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
@@ -283,16 +291,18 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         action='search',
         label='Search',
     )
-    site_id = django_filters.ModelMultipleChoiceFilter(
+    site_id = NullableModelMultipleChoiceFilter(
         name='site',
         queryset=Site.objects.all(),
         label='Site (ID)',
+        method='site_search',
     )
-    site = django_filters.ModelMultipleChoiceFilter(
+    site = NullableModelMultipleChoiceFilter(
         name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
+        method='site_search',
     )
     group_id = NullableModelMultipleChoiceFilter(
         name='group',
@@ -348,6 +358,12 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         except ValueError:
             pass
         return queryset.filter(qs_filter)
+
+    def site_search(self, queryset, name, value):
+        q = Q(**{name: None})
+        for v in value:
+            q |= Q(**{name: v})
+        return queryset.filter(q)
 
 
 class ServiceFilter(django_filters.FilterSet):
