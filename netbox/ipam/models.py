@@ -485,7 +485,7 @@ class VLANGroup(models.Model):
     """
     name = models.CharField(max_length=50)
     slug = models.SlugField()
-    site = models.ForeignKey('dcim.Site', related_name='vlan_groups')
+    site = models.ForeignKey('dcim.Site', related_name='vlan_groups', on_delete=models.SET_NULL, blank=True, null=True)
 
     class Meta:
         ordering = ['site', 'name']
@@ -497,7 +497,8 @@ class VLANGroup(models.Model):
         verbose_name_plural = 'VLAN groups'
 
     def __str__(self):
-        return u'{} - {}'.format(self.site.name, self.name)
+        site_name = self.site.name if self.site else '__global'
+        return u'{} - {}'.format(site_name, self.name)
 
     def get_absolute_url(self):
         return "{}?group_id={}".format(reverse('ipam:vlan_list'), self.pk)
@@ -513,7 +514,7 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
     Like Prefixes, each VLAN is assigned an operational status and optionally a user-defined Role. A VLAN can have zero
     or more Prefixes assigned to it.
     """
-    site = models.ForeignKey('dcim.Site', related_name='vlans', on_delete=models.PROTECT)
+    site = models.ForeignKey('dcim.Site', related_name='vlans', on_delete=models.PROTECT, blank=True, null=True)
     group = models.ForeignKey('VLANGroup', related_name='vlans', blank=True, null=True, on_delete=models.PROTECT)
     vid = models.PositiveSmallIntegerField(verbose_name='ID', validators=[
         MinValueValidator(1),
@@ -551,7 +552,7 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
 
     def to_csv(self):
         return csv_format([
-            self.site.name,
+            self.site.name if self.site else None,
             self.group.name if self.group else None,
             self.vid,
             self.name,
