@@ -9,6 +9,14 @@ $(document).ready(function() {
             $('#select_all').prop('checked', false);
         }
     });
+    // Enable hidden buttons when "select all" is checked
+    $('#select_all').click(function (event) {
+        if ($(this).is(':checked')) {
+            $('#select_all_box').find('button').prop('disabled', '');
+        } else {
+            $('#select_all_box').find('button').prop('disabled', 'disabled');
+        }
+    });
     // Uncheck the "toggle all" checkbox if an item is unchecked
     $('input:checkbox[name=pk]').click(function (event) {
         if (!$(this).attr('checked')) {
@@ -60,45 +68,38 @@ $(document).ready(function() {
     });
 
     // API select widget
-    $('select[filter-for]').change(function () {
-        var choice = $(this).val()
+    $('select[filter-for]').change(function() {
 
         // Resolve child field by ID specified in parent
         var child_name = $(this).attr('filter-for');
         var child_field = $('#id_' + child_name);
+        var child_selected = child_field.val();
 
-        // Wipe out any existing options within the child field
+        // Wipe out any existing options within the child field and create a default option
         child_field.empty();
-        child_field.append($("<option></option>").attr("value", "").text(""));
+        child_field.append($("<option></option>").attr("value", "").text("---------"));
 
-        if (!choice && $(this).attr('default_value')) {
-            choice = $(this).attr('default_value')
-        }
-        if (choice) {
-
+        if ($(this).val() || $(this).attr('nullable') == 'true') {
             var api_url = child_field.attr('api-url');
             var disabled_indicator = child_field.attr('disabled-indicator');
             var initial_value = child_field.attr('initial');
             var display_field = child_field.attr('display-field') || 'name';
 
-            // Gather the values of all other filter fields for this child
-            $("select[filter-for='" + child_name + "']").each(function() {
-                var filter_field = $(this);
-                var choice = filter_field.val()
-                if (!choice && filter_field.attr('default_value')) {
-                    choice = filter_field.attr('default_value')
+            // Determine the filter fields needed to make an API call
+            var filter_regex = /\{\{([a-z_]+)\}\}/g;
+            var match;
+            while (match = filter_regex.exec(api_url)) {
+                var filter_field = $('#id_' + match[1]);
+                if (filter_field.val()) {
+                    api_url = api_url.replace(match[0], filter_field.val());
+                } else if ($(this).attr('nullable') == 'true') {
+                    api_url = api_url.replace(match[0], '0');
                 }
-                if (choice) {
-                    api_url = api_url.replace('{{' + filter_field.attr('name') + '}}', choice);
-                } else {
-                    // Not all filters have been selected yet
-                    return false;
-                }
-
-            });
+            }
 
             // If all URL variables have been replaced, make the API call
             if (api_url.search('{{') < 0) {
+                console.log(child_name + ": Fetching " + api_url);
                 $.ajax({
                     url: api_url,
                     dataType: 'json',
@@ -106,7 +107,9 @@ $(document).ready(function() {
                         $.each(response, function (index, choice) {
                             var option = $("<option></option>").attr("value", choice.id).text(choice[display_field]);
                             if (disabled_indicator && choice[disabled_indicator] && choice.id != initial_value) {
-                                option.attr("disabled", "disabled")
+                                option.attr("disabled", "disabled");
+                            } else if (choice.id == child_selected) {
+                                option.attr("selected", "selected");
                             }
                             child_field.append(option);
                         });

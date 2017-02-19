@@ -514,7 +514,7 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
     Like Prefixes, each VLAN is assigned an operational status and optionally a user-defined Role. A VLAN can have zero
     or more Prefixes assigned to it.
     """
-    site = models.ForeignKey('dcim.Site', related_name='vlans', on_delete=models.SET_NULL, blank=True, null=True)
+    site = models.ForeignKey('dcim.Site', related_name='vlans', on_delete=models.PROTECT, blank=True, null=True)
     group = models.ForeignKey('VLANGroup', related_name='vlans', blank=True, null=True, on_delete=models.PROTECT)
     vid = models.PositiveSmallIntegerField(verbose_name='ID', validators=[
         MinValueValidator(1),

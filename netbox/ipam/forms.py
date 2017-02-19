@@ -518,8 +518,6 @@ class VLANGroupFilterForm(BootstrapMixin, forms.Form):
 #
 
 class VLANForm(BootstrapMixin, CustomFieldForm):
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site',
-                                  widget=forms.Select(attrs={'filter-for': 'group', 'default_value': '0'}))
     group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False, label='Group', widget=APISelect(
         api_url='/api/ipam/vlan-groups/?site_id={{site}}',
     ))
@@ -534,6 +532,9 @@ class VLANForm(BootstrapMixin, CustomFieldForm):
             'name': "Configured VLAN name",
             'status': "Operational status of this VLAN",
             'role': "The primary function of this VLAN",
+        }
+        widgets = {
+            'site': forms.Select(attrs={'filter-for': 'group', 'default_value': '0'}),
         }
 
     def __init__(self, *args, **kwargs):
