@@ -8,7 +8,11 @@
     <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'ipam:vlan_list' %}">VLANs</a></li>
-            <li><a href="{% url 'ipam:vlan_list' %}?site={{ vlan.site.slug }}">{{ vlan.site }}</a></li>
+            {% if vlan.site %}
+                <li><a href="{% url 'ipam:vlan_list' %}?site={{ vlan.site.slug }}">{{ vlan.site }}</a></li>
+            {% else %}
+                <li><a href="{% url 'ipam:vlan_list' %}?site_id=0">Global</a></li>
+            {% endif %}
             {% if vlan.group %}
                 <li><a href="{% url 'ipam:vlan_list' %}?site={{ vlan.site.slug }}&group={{ vlan.group.slug }}">{{ vlan.group.name }}</a></li>
             {% endif %}
@@ -53,7 +57,13 @@
             <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Site</td>
-                    <td><a href="{% url 'dcim:site' slug=vlan.site.slug %}">{{ vlan.site }}</a></td>
+                    <td>
+                        {% if vlan.site %}
+                            <a href="{% url 'dcim:site' slug=vlan.site.slug %}">{{ vlan.site }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Group</td>
