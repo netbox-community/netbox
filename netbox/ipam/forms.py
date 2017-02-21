@@ -153,7 +153,7 @@ class RoleForm(BootstrapMixin, forms.ModelForm):
 
 class PrefixForm(BootstrapMixin, CustomFieldForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site',
-                                  widget=forms.Select(attrs={'filter-for': 'vlan'}))
+                                  widget=forms.Select(attrs={'filter-for': 'vlan', 'nullable': 'true'}))
     vlan = forms.ModelChoiceField(queryset=VLAN.objects.all(), required=False, label='VLAN',
                                   widget=APISelect(api_url='/api/ipam/vlans/?site_id={{site}}',
                                                    display_field='display_name'))
@@ -173,7 +173,7 @@ class PrefixForm(BootstrapMixin, CustomFieldForm):
         elif self.initial.get('site'):
             self.fields['vlan'].queryset = VLAN.objects.filter(site=self.initial['site'])
         else:
-            self.fields['vlan'].choices = []
+            self.fields['vlan'].queryset = VLAN.objects.filter(site=None)
 
 
 class PrefixFromCSVForm(forms.ModelForm):
@@ -508,7 +508,11 @@ class VLANGroupForm(BootstrapMixin, forms.ModelForm):
 
 
 class VLANGroupFilterForm(BootstrapMixin, forms.Form):
-    site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('vlan_groups')), to_field_name='slug')
+    site = FilterChoiceField(
+        queryset=Site.objects.annotate(filter_count=Count('vlan_groups')),
+        to_field_name='slug',
+        null_option=(0, 'Global')
+    )
 
 
 #
@@ -524,7 +528,7 @@ class VLANForm(BootstrapMixin, CustomFieldForm):
         model = VLAN
         fields = ['site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description']
         help_texts = {
-            'site': "The site at which this VLAN exists",
+            'site': "Leave blank if this VLAN spans multiple sites",
             'group': "VLAN group (optional)",
             'vid': "Configured VLAN ID",
             'name': "Configured VLAN name",
@@ -532,7 +536,7 @@ class VLANForm(BootstrapMixin, CustomFieldForm):
             'role': "The primary function of this VLAN",
         }
         widgets = {
-            'site': forms.Select(attrs={'filter-for': 'group'}),
+            'site': forms.Select(attrs={'filter-for': 'group', 'nullable': 'true'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -545,11 +549,11 @@ class VLANForm(BootstrapMixin, CustomFieldForm):
         elif self.initial.get('site'):
             self.fields['group'].queryset = VLANGroup.objects.filter(site=self.initial['site'])
         else:
-            self.fields['group'].choices = []
+            self.fields['group'].queryset = VLANGroup.objects.filter(site=None)
 
 
 class VLANFromCSVForm(forms.ModelForm):
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), to_field_name='name',
+    site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, to_field_name='name',
                                   error_messages={'invalid_choice': 'Site not found.'})
     group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False, to_field_name='name',
                                    error_messages={'invalid_choice': 'VLAN group not found.'})
@@ -599,7 +603,8 @@ def vlan_status_choices():
 class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = VLAN
     q = forms.CharField(required=False, label='Search')
-    site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('vlans')), to_field_name='slug')
+    site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('vlans')), to_field_name='slug',
+                             null_option=(0, 'Global'))
     group_id = FilterChoiceField(queryset=VLANGroup.objects.annotate(filter_count=Count('vlans')), label='VLAN group',
                                  null_option=(0, 'None'))
     tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('vlans')), to_field_name='slug',
