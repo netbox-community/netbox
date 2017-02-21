@@ -153,8 +153,7 @@ class RoleForm(BootstrapMixin, forms.ModelForm):
 
 class PrefixForm(BootstrapMixin, CustomFieldForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site',
-                                  widget=forms.Select(attrs={'filter-for': 'vlan',
-                                                             'default_value': '0'}))
+                                  widget=forms.Select(attrs={'filter-for': 'vlan', 'nullable': 'true'}))
     vlan = forms.ModelChoiceField(queryset=VLAN.objects.all(), required=False, label='VLAN',
                                   widget=APISelect(api_url='/api/ipam/vlans/?site_id={{site}}',
                                                    display_field='display_name'))
@@ -509,8 +508,11 @@ class VLANGroupForm(BootstrapMixin, forms.ModelForm):
 
 
 class VLANGroupFilterForm(BootstrapMixin, forms.Form):
-    site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('vlan_groups')), to_field_name='slug',
-                             null_option=(0, 'Global'))
+    site = FilterChoiceField(
+        queryset=Site.objects.annotate(filter_count=Count('vlan_groups')),
+        to_field_name='slug',
+        null_option=(0, 'Global')
+    )
 
 
 #
@@ -526,7 +528,7 @@ class VLANForm(BootstrapMixin, CustomFieldForm):
         model = VLAN
         fields = ['site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description']
         help_texts = {
-            'site': "The site at which this VLAN exists",
+            'site': "Leave blank if this VLAN spans multiple sites",
             'group': "VLAN group (optional)",
             'vid': "Configured VLAN ID",
             'name': "Configured VLAN name",
@@ -534,7 +536,7 @@ class VLANForm(BootstrapMixin, CustomFieldForm):
             'role': "The primary function of this VLAN",
         }
         widgets = {
-            'site': forms.Select(attrs={'filter-for': 'group', 'default_value': '0'}),
+            'site': forms.Select(attrs={'filter-for': 'group', 'nullable': 'true'}),
         }
 
     def __init__(self, *args, **kwargs):

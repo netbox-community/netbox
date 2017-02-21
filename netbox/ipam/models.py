@@ -485,7 +485,7 @@ class VLANGroup(models.Model):
     """
     name = models.CharField(max_length=50)
     slug = models.SlugField()
-    site = models.ForeignKey('dcim.Site', related_name='vlan_groups', on_delete=models.SET_NULL, blank=True, null=True)
+    site = models.ForeignKey('dcim.Site', related_name='vlan_groups', on_delete=models.PROTECT, blank=True, null=True)
 
     class Meta:
         ordering = ['site', 'name']
@@ -497,8 +497,9 @@ class VLANGroup(models.Model):
         verbose_name_plural = 'VLAN groups'
 
     def __str__(self):
-        site_name = self.site.name if self.site else '__global'
-        return u'{} - {}'.format(site_name, self.name)
+        if self.site is None:
+            return self.name
+        return u'{} - {}'.format(self.site.name, self.name)
 
     def get_absolute_url(self):
         return "{}?group_id={}".format(reverse('ipam:vlan_list'), self.pk)

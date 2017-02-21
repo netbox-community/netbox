@@ -83,9 +83,11 @@ One IP address can be designated as the network address translation (NAT) IP add
 
 # VLANs
 
-A VLAN represents an isolated layer two domain, identified by a name and a numeric ID (1-4094). Note that while it is good practice, neither VLAN names nor IDs must be unique within a site. This is to accommodate the fact that many real-world network use less-than-optimal VLAN allocations and may have overlapping VLAN ID assignments in practice.
+A VLAN represents an isolated layer two domain, identified by a name and a numeric ID (1-4094) as defined in [IEEE 802.1Q](https://en.wikipedia.org/wiki/IEEE_802.1Q). VLANs may be assigned to a site and/or VLAN group. Like prefixes, each VLAN is assigned an operational status and (optionally) a functional role.
 
-Like prefixes, each VLAN is assigned an operational status and (optionally) a functional role.
+### VLAN Groups
+
+VLAN groups can be employed for administrative organization within NetBox. Each VLAN within a group must have a unique ID and name. VLANs which are not assigned to a group may have overlapping names and IDs, including within a site.
 
 ---
 
