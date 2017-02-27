@@ -1248,8 +1248,8 @@ class Interface(models.Model):
                 )
             })
 
-        # A LAG interface cannot have a parent LAG
-        if self.form_factor == IFACE_FF_LAG and self.lag is not None:
+        # A virtual interface cannot have a parent LAG
+        if self.form_factor in VIRTUAL_IFACE_TYPES and self.lag is not None:
             raise ValidationError({
                 'lag': u"{} interfaces cannot have a parent LAG interface.".format(self.get_form_factor_display())
             })
