@@ -393,7 +393,7 @@
             {% endif %}
         {% endif %}
         {% if interfaces or device.device_type.is_network_device %}
-            {% if perms.dcim.delete_interface %}
+            {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
                 <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="device" value="{{ device.pk }}" />
