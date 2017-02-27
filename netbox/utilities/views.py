@@ -471,7 +471,9 @@ class BulkEditView(View):
                 return redirect(return_url)
 
         else:
-            form = self.form(self.cls, initial={'pk': pk_list})
+            initial_data = request.POST.copy()
+            initial_data['pk'] = pk_list
+            form = self.form(self.cls, initial=initial_data)
 
         selected_objects = self.cls.objects.filter(pk__in=pk_list)
         if not selected_objects:

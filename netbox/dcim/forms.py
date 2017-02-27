@@ -18,9 +18,10 @@ from .formfields import MACAddressFormField
 from .models import (
     DeviceBay, DeviceBayTemplate, CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_PLANNED, CONNECTION_STATUS_CONNECTED,
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType,
-    Interface, IFACE_FF_CHOICES, IFACE_FF_VIRTUAL, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate,
+    Interface, IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate,
     Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES,
-    RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD
+    RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD,
+    VIRTUAL_IFACE_TYPES
 )
 
 
@@ -51,6 +52,15 @@ def validate_connection_status(value):
     """
     if value.lower() not in ['planned', 'connected']:
         raise ValidationError('Invalid connection status ({}); must be either "planned" or "connected".'.format(value))
+
+
+class DeviceComponentForm(BootstrapMixin, forms.Form):
+    """
+    Allow inclusion of the parent device as context for limiting field choices.
+    """
+    def __init__(self, device, *args, **kwargs):
+        self.device = device
+        super(DeviceComponentForm, self).__init__(*args, **kwargs)
 
 
 #
@@ -331,7 +341,7 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsolePortTemplateCreateForm(BootstrapMixin, forms.Form):
+class ConsolePortTemplateCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -345,7 +355,7 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsoleServerPortTemplateCreateForm(BootstrapMixin, forms.Form):
+class ConsoleServerPortTemplateCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -359,7 +369,7 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerPortTemplateCreateForm(BootstrapMixin, forms.Form):
+class PowerPortTemplateCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -373,7 +383,7 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerOutletTemplateCreateForm(BootstrapMixin, forms.Form):
+class PowerOutletTemplateCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -387,7 +397,7 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class InterfaceTemplateCreateForm(BootstrapMixin, forms.Form):
+class InterfaceTemplateCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
     form_factor = forms.ChoiceField(choices=IFACE_FF_CHOICES)
     mgmt_only = forms.BooleanField(required=False, label='OOB Management')
@@ -411,7 +421,7 @@ class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class DeviceBayTemplateCreateForm(BootstrapMixin, forms.Form):
+class DeviceBayTemplateCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -743,7 +753,7 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsolePortCreateForm(BootstrapMixin, forms.Form):
+class ConsolePortCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -914,7 +924,7 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsoleServerPortCreateForm(BootstrapMixin, forms.Form):
+class ConsoleServerPortCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -1012,7 +1022,7 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerPortCreateForm(BootstrapMixin, forms.Form):
+class PowerPortCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -1181,7 +1191,7 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerOutletCreateForm(BootstrapMixin, forms.Form):
+class PowerOutletCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -1273,27 +1283,65 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Interface
-        fields = ['device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description']
+        fields = ['device', 'name', 'form_factor', 'lag', 'mac_address', 'mgmt_only', 'description']
         widgets = {
             'device': forms.HiddenInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(InterfaceForm, self).__init__(*args, **kwargs)
 
-class InterfaceCreateForm(BootstrapMixin, forms.Form):
+        # Limit LAG choices to interfaces belonging to this device
+        if self.is_bound:
+            self.fields['lag'].queryset = Interface.objects.order_naturally().filter(
+                device_id=self.data['device'], form_factor=IFACE_FF_LAG
+            )
+        else:
+            self.fields['lag'].queryset = Interface.objects.order_naturally().filter(
+                device=self.instance.device, form_factor=IFACE_FF_LAG
+            )
+
+
+class InterfaceCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
     form_factor = forms.ChoiceField(choices=IFACE_FF_CHOICES)
+    lag = forms.ModelChoiceField(queryset=Interface.objects.all(), required=False, label='Parent LAG')
     mac_address = MACAddressFormField(required=False, label='MAC Address')
     mgmt_only = forms.BooleanField(required=False, label='OOB Management')
     description = forms.CharField(max_length=100, required=False)
 
+    def __init__(self, *args, **kwargs):
+        super(InterfaceCreateForm, self).__init__(*args, **kwargs)
+
+        # Limit LAG choices to interfaces belonging to this device
+        if self.device is not None:
+            self.fields['lag'].queryset = Interface.objects.order_naturally().filter(
+                device=self.device, form_factor=IFACE_FF_LAG
+            )
+        else:
+            self.fields['lag'].queryset = Interface.objects.none()
+
 
 class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
+    device = forms.ModelChoiceField(queryset=Device.objects.all(), widget=forms.HiddenInput)
+    lag = forms.ModelChoiceField(queryset=Interface.objects.all(), required=False, label='Parent LAG')
     form_factor = forms.ChoiceField(choices=add_blank_choice(IFACE_FF_CHOICES), required=False)
     description = forms.CharField(max_length=100, required=False)
 
     class Meta:
-        nullable_fields = ['description']
+        nullable_fields = ['lag', 'description']
+
+    def __init__(self, *args, **kwargs):
+        super(InterfaceBulkEditForm, self).__init__(*args, **kwargs)
+
+        # Limit LAG choices to interfaces which belong to the parent device.
+        if self.initial.get('device'):
+            self.fields['lag'].queryset = Interface.objects.filter(
+                device=self.initial['device'], form_factor=IFACE_FF_LAG
+            )
+        else:
+            self.fields['lag'].choices = []
 
 
 #
@@ -1360,8 +1408,11 @@ class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
         super(InterfaceConnectionForm, self).__init__(*args, **kwargs)
 
         # Initialize interface A choices
-        device_a_interfaces = Interface.objects.filter(device=device_a).exclude(form_factor=IFACE_FF_VIRTUAL)\
-            .select_related('circuit_termination', 'connected_as_a', 'connected_as_b')
+        device_a_interfaces = Interface.objects.filter(device=device_a).exclude(
+            form_factor__in=VIRTUAL_IFACE_TYPES
+        ).select_related(
+            'circuit_termination', 'connected_as_a', 'connected_as_b'
+        )
         self.fields['interface_a'].choices = [
             (iface.id, {'label': iface.name, 'disabled': iface.is_connected}) for iface in device_a_interfaces
         ]
@@ -1388,13 +1439,17 @@ class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
 
         # Initialize interface_b choices if device_b is set
         if self.is_bound:
-            device_b_interfaces = Interface.objects.filter(device=self.data['device_b'])\
-                .exclude(form_factor=IFACE_FF_VIRTUAL)\
-                .select_related('circuit_termination', 'connected_as_a', 'connected_as_b')
+            device_b_interfaces = Interface.objects.filter(device=self.data['device_b']).exclude(
+                form_factor__in=VIRTUAL_IFACE_TYPES
+            ).select_related(
+                'circuit_termination', 'connected_as_a', 'connected_as_b'
+            )
         elif self.initial.get('device_b'):
-            device_b_interfaces = Interface.objects.filter(device=self.initial['device_b'])\
-                .exclude(form_factor=IFACE_FF_VIRTUAL)\
-                .select_related('circuit_termination', 'connected_as_a', 'connected_as_b')
+            device_b_interfaces = Interface.objects.filter(device=self.initial['device_b']).exclude(
+                form_factor__in=VIRTUAL_IFACE_TYPES
+            ).select_related(
+                'circuit_termination', 'connected_as_a', 'connected_as_b'
+            )
         else:
             device_b_interfaces = []
         self.fields['interface_b'].choices = [
@@ -1512,7 +1567,7 @@ class DeviceBayForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class DeviceBayCreateForm(BootstrapMixin, forms.Form):
+class DeviceBayCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 

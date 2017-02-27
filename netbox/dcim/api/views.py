@@ -10,9 +10,9 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from dcim.models import (
-    ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, DeviceType, IFACE_FF_VIRTUAL, Interface,
-    InterfaceConnection, Manufacturer, Module, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackReservation,
-    RackRole, Site,
+    ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, DeviceType, Interface, InterfaceConnection,
+    Manufacturer, Module, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackReservation, RackRole, Site,
+    VIRTUAL_IFACE_TYPES,
 )
 from dcim import filters
 from extras.api.views import CustomFieldModelAPIView
@@ -359,9 +359,9 @@ class InterfaceListView(generics.ListAPIView):
         # Filter by type (physical or virtual)
         iface_type = self.request.query_params.get('type')
         if iface_type == 'physical':
-            queryset = queryset.exclude(form_factor=IFACE_FF_VIRTUAL)
+            queryset = queryset.exclude(form_factor__in=VIRTUAL_IFACE_TYPES)
         elif iface_type == 'virtual':
-            queryset = queryset.filter(form_factor=IFACE_FF_VIRTUAL)
+            queryset = queryset.filter(form_factor__in=VIRTUAL_IFACE_TYPES)
         elif iface_type is not None:
             queryset = queryset.empty()
 

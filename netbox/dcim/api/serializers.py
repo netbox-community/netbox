@@ -390,13 +390,24 @@ class PowerPortNestedSerializer(PowerPortSerializer):
 # Interfaces
 #
 
-class InterfaceSerializer(serializers.ModelSerializer):
-    device = DeviceNestedSerializer()
+class LAGInterfaceNestedSerializer(serializers.ModelSerializer):
     form_factor = serializers.ReadOnlyField(source='get_form_factor_display')
 
     class Meta:
         model = Interface
-        fields = ['id', 'device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description', 'is_connected']
+        fields = ['id', 'name', 'form_factor']
+
+
+class InterfaceSerializer(serializers.ModelSerializer):
+    device = DeviceNestedSerializer()
+    form_factor = serializers.ReadOnlyField(source='get_form_factor_display')
+    lag = LAGInterfaceNestedSerializer()
+
+    class Meta:
+        model = Interface
+        fields = [
+            'id', 'device', 'name', 'form_factor', 'lag', 'mac_address', 'mgmt_only', 'description', 'is_connected',
+        ]
 
 
 class InterfaceNestedSerializer(InterfaceSerializer):
@@ -410,8 +421,10 @@ class InterfaceDetailSerializer(InterfaceSerializer):
     connected_interface = InterfaceSerializer()
 
     class Meta(InterfaceSerializer.Meta):
-        fields = ['id', 'device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description', 'is_connected',
-                  'connected_interface']
+        fields = [
+            'id', 'device', 'name', 'form_factor', 'lag', 'mac_address', 'mgmt_only', 'description', 'is_connected',
+            'connected_interface',
+        ]
 
 
 #
