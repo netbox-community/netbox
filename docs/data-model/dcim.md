@@ -24,7 +24,7 @@ Each group is assigned to a parent site for easy navigation. Hierarchical recurs
 
 ### Rack Roles
 
-Each rak can optionally be assigned to a functional role. For example, you might designate a rack for compute or storage resources, or to house colocated customer devices.
+Each rack can optionally be assigned to a functional role. For example, you might designate a rack for compute or storage resources, or to house colocated customer devices.
 
 ---
 

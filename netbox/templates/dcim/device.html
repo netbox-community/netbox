@@ -396,6 +396,7 @@
             {% if perms.dcim.delete_interface %}
                 <form method="post">
                 {% csrf_token %}
+                <input type="hidden" name="device" value="{{ device.pk }}" />
             {% endif %}
             <div class="panel panel-default">
                 <div class="panel-heading">

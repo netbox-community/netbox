@@ -262,13 +262,13 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
 
 class VLANGroupFilter(django_filters.FilterSet):
-    site_id = django_filters.ModelMultipleChoiceFilter(
+    site_id = NullableModelMultipleChoiceFilter(
         name='site',
         queryset=Site.objects.all(),
         label='Site (ID)',
     )
-    site = django_filters.ModelMultipleChoiceFilter(
-        name='site__slug',
+    site = NullableModelMultipleChoiceFilter(
+        name='site',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
@@ -283,13 +283,13 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         action='search',
         label='Search',
     )
-    site_id = django_filters.ModelMultipleChoiceFilter(
+    site_id = NullableModelMultipleChoiceFilter(
         name='site',
         queryset=Site.objects.all(),
         label='Site (ID)',
     )
-    site = django_filters.ModelMultipleChoiceFilter(
-        name='site__slug',
+    site = NullableModelMultipleChoiceFilter(
+        name='site',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',

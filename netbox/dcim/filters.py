@@ -8,9 +8,9 @@ from tenancy.models import Tenant
 from utilities.filters import NullableModelMultipleChoiceFilter
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module,
-    Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation,
-    RackRole, Site,
+    DeviceBayTemplate, DeviceRole, DeviceType, IFACE_FF_LAG, Interface, InterfaceConnection, InterfaceTemplate,
+    Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
+    RackReservation, RackRole, Site, VIRTUAL_IFACE_TYPES,
 )
 
 
@@ -391,10 +391,24 @@ class PowerOutletFilter(DeviceComponentFilterSet):
 
 
 class InterfaceFilter(DeviceComponentFilterSet):
+    type = django_filters.MethodFilter(
+        action='filter_type',
+        label='Interface type',
+    )
 
     class Meta:
         model = Interface
         fields = ['name']
+
+    def filter_type(self, queryset, value):
+        value = value.strip().lower()
+        if value == 'physical':
+            return queryset.exclude(form_factor__in=VIRTUAL_IFACE_TYPES)
+        elif value == 'virtual':
+            return queryset.filter(form_factor__in=VIRTUAL_IFACE_TYPES)
+        elif value == 'lag':
+            return queryset.filter(form_factor=IFACE_FF_LAG)
+        return queryset
 
 
 class DeviceBayFilter(DeviceComponentFilterSet):

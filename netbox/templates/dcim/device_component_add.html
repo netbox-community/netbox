@@ -3,7 +3,7 @@
 
 {% block title %}Create {{ component_type }} ({{ parent }}){% endblock %}
 
-{% block content %}{{ form.errors }}
+{% block content %}
 <form action="." method="post" class="form form-horizontal">
     {% csrf_token %}
     <div class="row">

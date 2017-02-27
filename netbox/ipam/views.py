@@ -297,9 +297,17 @@ def aggregate(request, pk):
         prefix_table.base_columns['pk'].visible = True
     RequestConfig(request, paginate={'klass': EnhancedPaginator}).configure(prefix_table)
 
+    # Compile permissions list for rendering the object table
+    permissions = {
+        'add': request.user.has_perm('ipam.add_prefix'),
+        'change': request.user.has_perm('ipam.change_prefix'),
+        'delete': request.user.has_perm('ipam.delete_prefix'),
+    }
+
     return render(request, 'ipam/aggregate.html', {
         'aggregate': aggregate,
         'prefix_table': prefix_table,
+        'permissions': permissions,
     })
 
 
@@ -425,6 +433,13 @@ def prefix(request, pk):
         child_prefix_table.base_columns['pk'].visible = True
     RequestConfig(request, paginate={'klass': EnhancedPaginator}).configure(child_prefix_table)
 
+    # Compile permissions list for rendering the object table
+    permissions = {
+        'add': request.user.has_perm('ipam.add_prefix'),
+        'change': request.user.has_perm('ipam.change_prefix'),
+        'delete': request.user.has_perm('ipam.delete_prefix'),
+    }
+
     return render(request, 'ipam/prefix.html', {
         'prefix': prefix,
         'aggregate': aggregate,
@@ -432,6 +447,7 @@ def prefix(request, pk):
         'parent_prefix_table': parent_prefix_table,
         'child_prefix_table': child_prefix_table,
         'duplicate_prefix_table': duplicate_prefix_table,
+        'permissions': permissions,
         'return_url': prefix.get_absolute_url(),
     })
 
@@ -490,9 +506,17 @@ def prefix_ipaddresses(request, pk):
         ip_table.base_columns['pk'].visible = True
     RequestConfig(request, paginate={'klass': EnhancedPaginator}).configure(ip_table)
 
+    # Compile permissions list for rendering the object table
+    permissions = {
+        'add': request.user.has_perm('ipam.add_ipaddress'),
+        'change': request.user.has_perm('ipam.change_ipaddress'),
+        'delete': request.user.has_perm('ipam.delete_ipaddress'),
+    }
+
     return render(request, 'ipam/prefix_ipaddresses.html', {
         'prefix': prefix,
         'ip_table': ip_table,
+        'permissions': permissions,
     })
 
 

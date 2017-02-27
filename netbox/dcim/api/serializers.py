@@ -503,7 +503,6 @@ class WritablePowerPortSerializer(serializers.ModelSerializer):
 # Interfaces
 #
 
-
 class InterfaceSerializer(serializers.ModelSerializer):
     device = NestedDeviceSerializer()
     form_factor = ChoiceFieldSerializer(choices=IFACE_FF_CHOICES)
@@ -513,7 +512,7 @@ class InterfaceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Interface
         fields = [
-            'id', 'device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description', 'connection',
+            'id', 'device', 'name', 'form_factor', 'lag', 'mac_address', 'mgmt_only', 'description', 'connection',
             'connected_interface',
         ]
 
@@ -541,7 +540,7 @@ class WritableInterfaceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Interface
-        fields = ['id', 'device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description']
+        fields = ['id', 'device', 'name', 'form_factor', 'lag', 'mac_address', 'mgmt_only', 'description']
 
 
 #

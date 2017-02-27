@@ -307,11 +307,12 @@ class BulkAddView(View):
         if form.is_valid():
 
             # The first field will be used as the pattern
-            pattern_field = form.fields.keys()[0]
+            field_names = list(form.fields.keys())
+            pattern_field = field_names[0]
             pattern = form.cleaned_data[pattern_field]
 
             # All other fields will be copied as object attributes
-            kwargs = {k: form.cleaned_data[k] for k in form.fields.keys()[1:]}
+            kwargs = {k: form.cleaned_data[k] for k in field_names[1:]}
 
             new_objs = []
             try:
@@ -470,7 +471,9 @@ class BulkEditView(View):
                 return redirect(return_url)
 
         else:
-            form = self.form(self.cls, initial={'pk': pk_list})
+            initial_data = request.POST.copy()
+            initial_data['pk'] = pk_list
+            form = self.form(self.cls, initial=initial_data)
 
         selected_objects = self.cls.objects.filter(pk__in=pk_list)
         if not selected_objects:

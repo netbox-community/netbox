@@ -6,14 +6,20 @@
     {% endif %}
     <td>
         <i class="fa fa-fw fa-{{ icon|default:"exchange" }}"></i> <span title="{{ iface.get_form_factor_display }}">{{ iface.name }}</span>
+        {% if iface.lag %}
+            <span class="label label-primary">{{ iface.lag.name }}</span>
+        {% endif %}
         {% if iface.description %}
             <i class="fa fa-fw fa-comment-o" title="{{ iface.description }}"></i>
+        {% endif %}
+        {% if iface.is_lag %}
+            <br /><small class="text-muted">{{ iface.member_interfaces.all|join:", "|default:"No members" }}</small>
         {% endif %}
     </td>
     <td>
         <small>{{ iface.mac_address|default:'' }}</small>
     </td>
-    {% if not iface.is_physical %}
+    {% if iface.is_virtual %}
         <td colspan="2" class="text-muted">Virtual interface</td>
     {% elif iface.connection %}
         {% with iface.connected_interface as connected_iface %}
@@ -48,7 +54,7 @@
             {% endif %}
         {% endif %}
         {% if perms.dcim.change_interface %}
-            {% if iface.is_physical %}
+            {% if not iface.is_virtual %}
                 {% if iface.connection %}
                     {% if iface.connection.connection_status %}
                         <a href="#" class="btn btn-warning btn-xs interface-toggle connected" data="{{ iface.connection.pk }}" title="Mark planned">

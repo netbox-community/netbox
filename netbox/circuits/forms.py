@@ -1,7 +1,7 @@
 from django import forms
 from django.db.models import Count
 
-from dcim.models import Site, Device, Interface, Rack, IFACE_FF_VIRTUAL
+from dcim.models import Site, Device, Interface, Rack, VIRTUAL_IFACE_TYPES
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -227,14 +227,18 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
 
         # Limit interface choices
         if self.is_bound and self.data.get('device'):
-            interfaces = Interface.objects.filter(device=self.data['device'])\
-                .exclude(form_factor=IFACE_FF_VIRTUAL).select_related('circuit_termination', 'connected_as_a',
-                                                                      'connected_as_b')
+            interfaces = Interface.objects.filter(device=self.data['device']).exclude(
+                form_factor__in=VIRTUAL_IFACE_TYPES
+            ).select_related(
+                'circuit_termination', 'connected_as_a', 'connected_as_b'
+            )
             self.fields['interface'].widget.attrs['initial'] = self.data.get('interface')
         elif self.initial.get('device'):
-            interfaces = Interface.objects.filter(device=self.initial['device'])\
-                .exclude(form_factor=IFACE_FF_VIRTUAL).select_related('circuit_termination', 'connected_as_a',
-                                                                      'connected_as_b')
+            interfaces = Interface.objects.filter(device=self.initial['device']).exclude(
+                form_factor__in=VIRTUAL_IFACE_TYPES
+            ).select_related(
+                'circuit_termination', 'connected_as_a', 'connected_as_b'
+            )
             self.fields['interface'].widget.attrs['initial'] = self.initial.get('interface')
         else:
             interfaces = []

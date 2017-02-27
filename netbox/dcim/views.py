@@ -66,11 +66,12 @@ class ComponentCreateView(View):
     def get(self, request, pk):
 
         parent = get_object_or_404(self.parent_model, pk=pk)
+        form = self.form(parent, initial=request.GET)
 
         return render(request, 'dcim/device_component_add.html', {
             'parent': parent,
             'component_type': self.model._meta.verbose_name,
-            'form': self.form(initial=request.GET),
+            'form': form,
             'return_url': parent.get_absolute_url(),
         })
 
@@ -78,7 +79,7 @@ class ComponentCreateView(View):
 
         parent = get_object_or_404(self.parent_model, pk=pk)
 
-        form = self.form(request.POST)
+        form = self.form(parent, request.POST)
         if form.is_valid():
 
             new_components = []
