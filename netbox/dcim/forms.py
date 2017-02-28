@@ -1,5 +1,7 @@
 import re
 
+from mptt.forms import TreeNodeChoiceField
+
 from django import forms
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.core.exceptions import ValidationError
@@ -11,7 +13,7 @@ from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkImportForm, CommentField,
     CSVDataField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled,
-    SmallTextarea, SlugField,
+    SmallTextarea, SlugField, FilterTreeNodeMultipleChoiceField,
 )
 
 from .formfields import MACAddressFormField
@@ -20,7 +22,7 @@ from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType,
     Interface, IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate,
     Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES,
-    RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD,
+    RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD,
     VIRTUAL_IFACE_TYPES
 )
 
@@ -64,17 +66,32 @@ class DeviceComponentForm(BootstrapMixin, forms.Form):
 
 
 #
+# Regions
+#
+
+class RegionForm(BootstrapMixin, forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = Region
+        fields = ['parent', 'name', 'slug']
+
+
+#
 # Sites
 #
 
 class SiteForm(BootstrapMixin, CustomFieldForm):
+    region = TreeNodeChoiceField(queryset=Region.objects.all())
     slug = SlugField()
     comments = CommentField()
 
     class Meta:
         model = Site
-        fields = ['name', 'slug', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address', 'contact_name',
-                  'contact_phone', 'contact_email', 'comments']
+        fields = [
+            'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
+            'contact_name', 'contact_phone', 'contact_email', 'comments',
+        ]
         widgets = {
             'physical_address': SmallTextarea(attrs={'rows': 3}),
             'shipping_address': SmallTextarea(attrs={'rows': 3}),
@@ -89,12 +106,22 @@ class SiteForm(BootstrapMixin, CustomFieldForm):
 
 
 class SiteFromCSVForm(forms.ModelForm):
-    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
-                                    error_messages={'invalid_choice': 'Tenant not found.'})
+    region = forms.ModelChoiceField(
+        Region.objects.all(), to_field_name='name', required=False, error_messages={
+            'invalid_choice': 'Tenant not found.'
+        }
+    )
+    tenant = forms.ModelChoiceField(
+        Tenant.objects.all(), to_field_name='name', required=False, error_messages={
+            'invalid_choice': 'Tenant not found.'
+        }
+    )
 
     class Meta:
         model = Site
-        fields = ['name', 'slug', 'tenant', 'facility', 'asn', 'contact_name', 'contact_phone', 'contact_email']
+        fields = [
+            'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'contact_name', 'contact_phone', 'contact_email',
+        ]
 
 
 class SiteImportForm(BootstrapMixin, BulkImportForm):
@@ -103,18 +130,27 @@ class SiteImportForm(BootstrapMixin, BulkImportForm):
 
 class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Site.objects.all(), widget=forms.MultipleHiddenInput)
+    region = TreeNodeChoiceField(queryset=Region.objects.all(), required=False)
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     asn = forms.IntegerField(min_value=1, max_value=4294967295, required=False, label='ASN')
 
     class Meta:
-        nullable_fields = ['tenant', 'asn']
+        nullable_fields = ['region', 'tenant', 'asn']
 
 
 class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Site
     q = forms.CharField(required=False, label='Search')
-    tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('sites')), to_field_name='slug',
-                               null_option=(0, 'None'))
+    region = FilterTreeNodeMultipleChoiceField(
+        queryset=Region.objects.annotate(filter_count=Count('sites')),
+        to_field_name='slug',
+        required=False,
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.annotate(filter_count=Count('sites')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
 
 
 #

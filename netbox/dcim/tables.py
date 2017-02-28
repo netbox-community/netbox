@@ -6,9 +6,27 @@ from utilities.tables import BaseTable, ToggleColumn
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPortTemplate, Device, DeviceBayTemplate, DeviceRole, DeviceType,
     Interface, InterfaceTemplate, Manufacturer, Platform, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
-    RackGroup, Site,
+    RackGroup, Region, Site,
 )
 
+
+REGION_LINK = """
+{% if record.get_children %}
+    <span style="padding-left: {{ record.get_ancestors|length }}0px "><i class="fa fa-caret-right"></i></a>
+{% else %}
+    <span style="padding-left: {{ record.get_ancestors|length }}9px">
+{% endif %}
+    {{ record.name }}
+</span>
+"""
+
+SITE_REGION_LINK = """
+{% if record.region %}
+    <a href="{% url 'dcim:site_list' %}?region={{ record.region.slug }}">{{ record.region }}</a>
+{% else %}
+    &mdash;
+{% endif %}
+"""
 
 COLOR_LABEL = """
 <label class="label" style="background-color: #{{ record.color }}">{{ record }}</label>
@@ -18,6 +36,12 @@ DEVICE_LINK = """
 <a href="{% url 'dcim:device' pk=record.pk %}">
     {{ record.name|default:'<span class="label label-info">Unnamed device</span>' }}
 </a>
+"""
+
+REGION_ACTIONS = """
+{% if perms.dcim.change_region %}
+    <a href="{% url 'dcim:region_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+{% endif %}
 """
 
 RACKGROUP_ACTIONS = """
@@ -77,6 +101,27 @@ UTILIZATION_GRAPH = """
 
 
 #
+# Regions
+#
+
+class RegionTable(BaseTable):
+    pk = ToggleColumn()
+    # name = tables.LinkColumn(verbose_name='Name')
+    name = tables.TemplateColumn(template_code=REGION_LINK, orderable=False)
+    site_count = tables.Column(verbose_name='Sites')
+    slug = tables.Column(verbose_name='Slug')
+    actions = tables.TemplateColumn(
+        template_code=REGION_ACTIONS,
+        attrs={'td': {'class': 'text-right'}},
+        verbose_name=''
+    )
+
+    class Meta(BaseTable.Meta):
+        model = Region
+        fields = ('pk', 'name', 'site_count', 'slug', 'actions')
+
+
+#
 # Sites
 #
 
@@ -84,6 +129,7 @@ class SiteTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn('dcim:site', args=[Accessor('slug')], verbose_name='Name')
     facility = tables.Column(verbose_name='Facility')
+    region = tables.TemplateColumn(template_code=SITE_REGION_LINK, verbose_name='Region')
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
     asn = tables.Column(verbose_name='ASN')
     rack_count = tables.Column(accessor=Accessor('count_racks'), orderable=False, verbose_name='Racks')
@@ -94,8 +140,10 @@ class SiteTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Site
-        fields = ('pk', 'name', 'facility', 'tenant', 'asn', 'rack_count', 'device_count', 'prefix_count',
-                  'vlan_count', 'circuit_count')
+        fields = (
+            'pk', 'name', 'facility', 'region', 'tenant', 'asn', 'rack_count', 'device_count', 'prefix_count',
+            'vlan_count', 'circuit_count',
+        )
 
 
 #

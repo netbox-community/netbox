@@ -1,5 +1,7 @@
 from collections import OrderedDict
 
+from mptt.models import MPTTModel, TreeForeignKey
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -201,6 +203,29 @@ RPC_CLIENT_CHOICES = [
 
 
 #
+# Regions
+#
+
+@python_2_unicode_compatible
+class Region(MPTTModel):
+    """
+    Sites can be grouped within geographic Regions.
+    """
+    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(unique=True)
+
+    class MPTTMeta:
+        order_insertion_by = ['name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return "{}?region={}".format(reverse('dcim:site_list'), self.slug)
+
+
+#
 # Sites
 #
 
@@ -218,7 +243,8 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
-    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='sites', on_delete=models.PROTECT)
+    region = models.ForeignKey('Region', related_name='sites', blank=True, null=True, on_delete=models.SET_NULL)
+    tenant = models.ForeignKey(Tenant, related_name='sites', blank=True, null=True, on_delete=models.PROTECT)
     facility = models.CharField(max_length=50, blank=True)
     asn = ASNField(blank=True, null=True, verbose_name='ASN')
     physical_address = models.CharField(max_length=200, blank=True)
@@ -244,6 +270,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
         return csv_format([
             self.name,
             self.slug,
+            self.region.name if self.region else None,
             self.tenant.name if self.tenant else None,
             self.facility,
             self.asn,
@@ -1248,8 +1275,8 @@ class Interface(models.Model):
                 )
             })
 
-        # A LAG interface cannot have a parent LAG
-        if self.form_factor == IFACE_FF_LAG and self.lag is not None:
+        # A virtual interface cannot have a parent LAG
+        if self.form_factor in VIRTUAL_IFACE_TYPES and self.lag is not None:
             raise ValidationError({
                 'lag': u"{} interfaces cannot have a parent LAG interface.".format(self.get_form_factor_display())
             })

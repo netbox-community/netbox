@@ -17,6 +17,7 @@ class SiteTest(APITestCase):
         'id',
         'name',
         'slug',
+        'region',
         'tenant',
         'facility',
         'asn',

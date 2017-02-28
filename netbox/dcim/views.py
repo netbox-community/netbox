@@ -26,7 +26,7 @@ from .models import (
     CONNECTION_STATUS_CONNECTED, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
     DeviceBay, DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate,
     Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Site,
+    RackReservation, RackRole, Region, Site,
 )
 
 
@@ -130,11 +130,36 @@ class ComponentDeleteView(ObjectDeleteView):
 
 
 #
+# Regions
+#
+
+class RegionListView(ObjectListView):
+    queryset = Region.objects.annotate(site_count=Count('sites'))
+    table = tables.RegionTable
+    template_name = 'dcim/region_list.html'
+
+
+class RegionEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_region'
+    model = Region
+    form_class = forms.RegionForm
+
+    def get_return_url(self, obj):
+        return reverse('dcim:region_list')
+
+
+class RegionBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_region'
+    cls = Region
+    default_return_url = 'dcim:region_list'
+
+
+#
 # Sites
 #
 
 class SiteListView(ObjectListView):
-    queryset = Site.objects.select_related('tenant')
+    queryset = Site.objects.select_related('region', 'tenant')
     filter = filters.SiteFilter
     filter_form = forms.SiteFilterForm
     table = tables.SiteTable
@@ -143,7 +168,7 @@ class SiteListView(ObjectListView):
 
 def site(request, slug):
 
-    site = get_object_or_404(Site, slug=slug)
+    site = get_object_or_404(Site.objects.select_related('region', 'tenant__group'), slug=slug)
     stats = {
         'rack_count': Rack.objects.filter(site=site).count(),
         'device_count': Device.objects.filter(rack__site=site).count(),
@@ -263,7 +288,7 @@ class RackListView(ObjectListView):
 
 def rack(request, pk):
 
-    rack = get_object_or_404(Rack, pk=pk)
+    rack = get_object_or_404(Rack.objects.select_related('site__region', 'tenant__group', 'group', 'role'), pk=pk)
 
     nonracked_devices = Device.objects.filter(rack=rack, position__isnull=True, parent_bay__isnull=True)\
         .select_related('device_type__manufacturer')
@@ -638,7 +663,9 @@ class DeviceListView(ObjectListView):
 
 def device(request, pk):
 
-    device = get_object_or_404(Device, pk=pk)
+    device = get_object_or_404(Device.objects.select_related(
+        'site__region', 'rack__group', 'tenant__group', 'device_role', 'platform'
+    ), pk=pk)
     console_ports = natsorted(
         ConsolePort.objects.filter(device=device).select_related('cs_port__device'), key=attrgetter('name')
     )

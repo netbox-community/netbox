@@ -64,6 +64,10 @@
                 <tr>
                     <td>Site</td>
                     <td>
+                        {% if rack.site.region %}
+                            <a href="{{ rack.site.region.get_absolute_url }}">{{ rack.site.region }}</a>
+                            <i class="fa fa-angle-right"></i>
+                        {% endif %}
                         <a href="{% url 'dcim:site' slug=rack.site.slug %}">{{ rack.site }}</a>
                     </td>
                 </tr>
@@ -91,6 +95,10 @@
                     <td>Tenant</td>
                     <td>
                         {% if rack.tenant %}
+                            {% if rack.tenant.group %}
+                                <a href="{{ rack.tenant.group.get_absolute_url }}">{{ rack.tenant.group.name }}</a>
+                                <i class="fa fa-angle-right"></i>
+                            {% endif %}
                             <a href="{{ rack.tenant.get_absolute_url }}">{{ rack.tenant }}</a>
                         {% else %}
                             <span class="text-muted">None</span>

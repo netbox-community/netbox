@@ -10,6 +10,7 @@ from . import views
 router = routers.DefaultRouter()
 
 # Sites
+router.register(r'regions', views.RegionViewSet)
 router.register(r'sites', views.SiteViewSet)
 
 # Racks

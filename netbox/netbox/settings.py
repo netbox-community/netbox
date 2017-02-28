@@ -104,6 +104,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'debug_toolbar',
     'django_tables2',
+    'mptt',
     'rest_framework',
     'rest_framework_swagger',
     'circuits',

@@ -6,7 +6,7 @@ from dcim.models import (
     DeviceBay, DeviceBayTemplate, DeviceType, DeviceRole, IFACE_FF_CHOICES, IFACE_ORDERING_CHOICES, Interface,
     InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RACK_FACE_CHOICES, RACK_TYPE_CHOICES,
-    RACK_WIDTH_CHOICES, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHOICES,
+    RACK_WIDTH_CHOICES, Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHOICES,
 )
 from extras.api.serializers import CustomFieldModelSerializer
 from tenancy.api.serializers import NestedTenantSerializer
@@ -14,10 +14,38 @@ from utilities.api import ChoiceFieldSerializer
 
 
 #
+# Regions
+#
+
+class NestedRegionSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:region-detail')
+
+    class Meta:
+        model = Region
+        fields = ['id', 'url', 'name', 'slug']
+
+
+class RegionSerializer(serializers.ModelSerializer):
+    parent = NestedRegionSerializer()
+
+    class Meta:
+        model = Region
+        fields = ['id', 'url', 'name', 'slug', 'parent']
+
+
+class WritableRegionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Region
+        fields = ['id', 'name', 'slug', 'parent']
+
+
+#
 # Sites
 #
 
 class SiteSerializer(CustomFieldModelSerializer):
+    region = NestedRegionSerializer()
     tenant = NestedTenantSerializer()
 
     class Meta:

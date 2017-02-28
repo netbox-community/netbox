@@ -10,7 +10,7 @@ from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, IFACE_FF_LAG, Interface, InterfaceConnection, InterfaceTemplate,
     Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Site, VIRTUAL_IFACE_TYPES,
+    RackReservation, RackRole, Region, Site, VIRTUAL_IFACE_TYPES,
 )
 
 
@@ -18,6 +18,17 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
     q = django_filters.MethodFilter(
         action='search',
         label='Search',
+    )
+    region_id = NullableModelMultipleChoiceFilter(
+        name='region',
+        queryset=Region.objects.all(),
+        label='Region (ID)',
+    )
+    region = NullableModelMultipleChoiceFilter(
+        name='region',
+        queryset=Region.objects.all(),
+        to_field_name='slug',
+        label='Region (slug)',
     )
     tenant_id = NullableModelMultipleChoiceFilter(
         name='tenant',

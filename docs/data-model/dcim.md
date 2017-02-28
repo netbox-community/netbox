@@ -6,6 +6,10 @@ How you define sites will depend on the nature of your organization, but typical
 
 Sites can be assigned an optional facility ID to identify the actual facility housing colocated equipment.
 
+### Regions
+
+Sites can optionally be arranged by geographic region. A region might represent a continent, country, city, campus, or other area depending on your use case. Regions can be nested recursively to construct a hierarchy.
+
 ---
 
 # Racks

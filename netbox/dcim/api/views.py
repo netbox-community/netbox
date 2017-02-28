@@ -13,7 +13,7 @@ from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module,
     Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation,
-    RackRole, Site,
+    RackRole, Region, Site,
 )
 from dcim import filters
 from extras.api.renderers import BINDZoneRenderer, FlatJSONRenderer
@@ -23,6 +23,16 @@ from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from utilities.api import ServiceUnavailable, WritableSerializerMixin
 from .exceptions import MissingFilterException
 from . import serializers
+
+
+#
+# Regions
+#
+
+class RegionViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
+    queryset = Region.objects.all()
+    serializer_class = serializers.RegionSerializer
+    write_serializer_class = serializers.WritableRegionSerializer
 
 
 #

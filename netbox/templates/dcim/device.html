@@ -15,18 +15,12 @@
             </div>
             <table class="table table-hover panel-body attr-table">
                 <tr>
-                    <td>Tenant</td>
-                    <td>
-                        {% if device.tenant %}
-                            <a href="{{ device.tenant.get_absolute_url }}">{{ device.tenant }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
                     <td>Site</td>
                     <td>
+                        {% if device.site.region %}
+                            <a href="{{ device.site.region.get_absolute_url }}">{{ device.site.region }}</a>
+                            <i class="fa fa-angle-right"></i>
+                        {% endif %}
                         <a href="{% url 'dcim:site' slug=device.site.slug %}">{{ device.site }}</a>
                     </td>
                 </tr>
@@ -34,7 +28,11 @@
                     <td>Rack</td>
                     <td>
                         {% if device.rack %}
-                            <span><a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack.name }}</a>{% if device.rack.facility_id %} ({{ device.rack.facility_id }}){% endif %}</span>
+                            {% if device.rack.group %}
+                                <a href="{{ device.rack.group.get_absolute_url }}">{{ device.rack.group.name }}</a>
+                                <i class="fa fa-angle-right"></i>
+                            {% endif %}
+                            <a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack.name }}</a>{% if device.rack.facility_id %} ({{ device.rack.facility_id }}){% endif %}
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -54,6 +52,20 @@
                             <span class="label label-warning">Not racked</span>
                         {% else %}
                             <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Tenant</td>
+                    <td>
+                        {% if device.tenant %}
+                            {% if device.tenant.group %}
+                                <a href="{{ device.tenant.group.get_absolute_url }}">{{ device.tenant.group.name }}</a>
+                                <i class="fa fa-angle-right"></i>
+                            {% endif %}
+                            <a href="{{ device.tenant.get_absolute_url }}">{{ device.tenant }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -393,7 +405,7 @@
             {% endif %}
         {% endif %}
         {% if interfaces or device.device_type.is_network_device %}
-            {% if perms.dcim.delete_interface %}
+            {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
                 <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="device" value="{{ device.pk }}" />
