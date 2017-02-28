@@ -30,7 +30,7 @@ class RegionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Region
-        fields = ['id', 'url', 'name', 'slug', 'parent']
+        fields = ['id', 'name', 'slug', 'parent']
 
 
 class WritableRegionSerializer(serializers.ModelSerializer):
@@ -51,9 +51,9 @@ class SiteSerializer(CustomFieldModelSerializer):
     class Meta:
         model = Site
         fields = [
-            'id', 'name', 'slug', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address', 'contact_name',
-            'contact_phone', 'contact_email', 'comments', 'custom_fields', 'count_prefixes', 'count_vlans',
-            'count_racks', 'count_devices', 'count_circuits',
+            'id', 'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
+            'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields', 'count_prefixes',
+            'count_vlans', 'count_racks', 'count_devices', 'count_circuits',
         ]
 
 

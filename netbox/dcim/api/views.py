@@ -29,7 +29,7 @@ from . import serializers
 # Regions
 #
 
-class RegionViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
+class RegionViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = Region.objects.all()
     serializer_class = serializers.RegionSerializer
     write_serializer_class = serializers.WritableRegionSerializer
@@ -40,8 +40,9 @@ class RegionViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 #
 
 class SiteViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
-    queryset = Site.objects.select_related('tenant')
+    queryset = Site.objects.select_related('region', 'tenant')
     serializer_class = serializers.SiteSerializer
+    filter_class = filters.SiteFilter
     write_serializer_class = serializers.WritableSiteSerializer
 
     @detail_route()
