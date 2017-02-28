@@ -10,6 +10,24 @@ from .models import (
 )
 
 
+REGION_LINK = """
+{% if record.get_children %}
+    <span style="padding-left: {{ record.get_ancestors|length }}0px "><i class="fa fa-caret-right"></i></a>
+{% else %}
+    <span style="padding-left: {{ record.get_ancestors|length }}9px">
+{% endif %}
+    {{ record.name }}
+</span>
+"""
+
+SITE_REGION_LINK = """
+{% if record.region %}
+    <a href="{% url 'dcim:site_list' %}?region={{ record.region.slug }}">{{ record.region }}</a>
+{% else %}
+    &mdash;
+{% endif %}
+"""
+
 COLOR_LABEL = """
 <label class="label" style="background-color: #{{ record.color }}">{{ record }}</label>
 """
@@ -88,7 +106,8 @@ UTILIZATION_GRAPH = """
 
 class RegionTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(verbose_name='Name')
+    # name = tables.LinkColumn(verbose_name='Name')
+    name = tables.TemplateColumn(template_code=REGION_LINK, orderable=False)
     site_count = tables.Column(verbose_name='Sites')
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(
@@ -110,7 +129,7 @@ class SiteTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn('dcim:site', args=[Accessor('slug')], verbose_name='Name')
     facility = tables.Column(verbose_name='Facility')
-    region = tables.LinkColumn(verbose_name='Region')
+    region = tables.TemplateColumn(template_code=SITE_REGION_LINK, verbose_name='Region')
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
     asn = tables.Column(verbose_name='ASN')
     rack_count = tables.Column(accessor=Accessor('count_racks'), orderable=False, verbose_name='Racks')

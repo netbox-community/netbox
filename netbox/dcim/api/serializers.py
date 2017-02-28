@@ -15,17 +15,18 @@ from tenancy.api.serializers import TenantNestedSerializer
 # Regions
 #
 
-class RegionSerializer(serializers.ModelSerializer):
+class RegionNestedSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = RackGroup
+        model = Region
         fields = ['id', 'name', 'slug']
 
 
-class RegionNestedSerializer(RegionSerializer):
+class RegionSerializer(serializers.ModelSerializer):
 
-    class Meta(RegionSerializer.Meta):
-        pass
+    class Meta:
+        model = Region
+        fields = ['id', 'name', 'slug', 'parent']
 
 
 #

@@ -9,9 +9,11 @@
 <div class="row">
     <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
-            <li><a href="{% url 'dcim:site_list' %}">Sites</a></li>
             {% if site.region %}
-                <li> <a href="{{ site.region.get_absolute_url }}">{{ site.region }}</a></li>
+                {% for region in site.region.get_ancestors %}
+                    <li><a href="{{ region.get_absolute_url }}">{{ region }}</a></li>
+                {% endfor %}
+                <li><a href="{{ site.region.get_absolute_url }}">{{ site.region }}</a></li>
             {% endif %}
             <li>{{ site }}</li>
         </ol>
@@ -62,6 +64,10 @@
                     <td>Region</td>
                     <td>
                         {% if site.region %}
+                            {% for region in site.region.get_ancestors %}
+                                <a href="{{ region.get_absolute_url }}">{{ region }}</a>
+                                <i class="fa fa-angle-right"></i>
+                            {% endfor %}
                             <a href="{{ site.region.get_absolute_url }}">{{ site.region }}</a>
                         {% else %}
                             <span class="text-muted">None</span>

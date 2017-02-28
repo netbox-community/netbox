@@ -1,5 +1,7 @@
 from collections import OrderedDict
 
+from mptt.models import MPTTModel, TreeForeignKey
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -205,15 +207,16 @@ RPC_CLIENT_CHOICES = [
 #
 
 @python_2_unicode_compatible
-class Region(models.Model):
+class Region(MPTTModel):
     """
     Sites can be grouped within geographic Regions.
     """
+    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
 
-    class Meta:
-        ordering = ['name']
+    class MPTTMeta:
+        order_insertion_by = ['name']
 
     def __str__(self):
         return self.name
@@ -267,6 +270,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
         return csv_format([
             self.name,
             self.slug,
+            self.region.name if self.region else None,
             self.tenant.name if self.tenant else None,
             self.facility,
             self.asn,

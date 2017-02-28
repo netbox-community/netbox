@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.db.models import Count
 
+from mptt.admin import MPTTModelAdmin
+
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceTemplate, Manufacturer, Module, Platform,
@@ -10,8 +12,8 @@ from .models import (
 
 
 @admin.register(Region)
-class RegionAdmin(admin.ModelAdmin):
-    list_display = ['name', 'slug']
+class RegionAdmin(MPTTModelAdmin):
+    list_display = ['name', 'parent', 'slug']
     prepopulated_fields = {
         'slug': ['name'],
     }

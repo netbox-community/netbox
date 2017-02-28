@@ -1,5 +1,7 @@
 import re
 
+from mptt.forms import TreeNodeChoiceField
+
 from django import forms
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.core.exceptions import ValidationError
@@ -11,7 +13,7 @@ from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkImportForm, CommentField,
     CSVDataField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled,
-    SmallTextarea, SlugField,
+    SmallTextarea, SlugField, FilterTreeNodeMultipleChoiceField,
 )
 
 from .formfields import MACAddressFormField
@@ -72,7 +74,7 @@ class RegionForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Region
-        fields = ['name', 'slug']
+        fields = ['parent', 'name', 'slug']
 
 
 #
@@ -80,6 +82,7 @@ class RegionForm(BootstrapMixin, forms.ModelForm):
 #
 
 class SiteForm(BootstrapMixin, CustomFieldForm):
+    region = TreeNodeChoiceField(queryset=Region.objects.all())
     slug = SlugField()
     comments = CommentField()
 
@@ -127,7 +130,7 @@ class SiteImportForm(BootstrapMixin, BulkImportForm):
 
 class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Site.objects.all(), widget=forms.MultipleHiddenInput)
-    region = forms.ModelChoiceField(queryset=Region.objects.all(), required=False)
+    region = TreeNodeChoiceField(queryset=Region.objects.all(), required=False)
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     asn = forms.IntegerField(min_value=1, max_value=4294967295, required=False, label='ASN')
 
@@ -138,10 +141,10 @@ class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Site
     q = forms.CharField(required=False, label='Search')
-    region = FilterChoiceField(
+    region = FilterTreeNodeMultipleChoiceField(
         queryset=Region.objects.annotate(filter_count=Count('sites')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        required=False,
     )
     tenant = FilterChoiceField(
         queryset=Tenant.objects.annotate(filter_count=Count('sites')),

@@ -2,6 +2,8 @@ import csv
 import itertools
 import re
 
+from mptt.forms import TreeNodeMultipleChoiceField
+
 from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse_lazy
@@ -365,7 +367,7 @@ class SlugField(forms.SlugField):
         self.widget.attrs['slug-source'] = slug_source
 
 
-class FilterChoiceField(forms.ModelMultipleChoiceField):
+class FilterChoiceFieldMixin(object):
     iterator = forms.models.ModelChoiceIterator
 
     def __init__(self, null_option=None, *args, **kwargs):
@@ -374,12 +376,13 @@ class FilterChoiceField(forms.ModelMultipleChoiceField):
             kwargs['required'] = False
         if 'widget' not in kwargs:
             kwargs['widget'] = forms.SelectMultiple(attrs={'size': 6})
-        super(FilterChoiceField, self).__init__(*args, **kwargs)
+        super(FilterChoiceFieldMixin, self).__init__(*args, **kwargs)
 
     def label_from_instance(self, obj):
+        label = super(FilterChoiceFieldMixin, self).label_from_instance(obj)
         if hasattr(obj, 'filter_count'):
-            return u'{} ({})'.format(obj, obj.filter_count)
-        return force_text(obj)
+            return u'{} ({})'.format(label, obj.filter_count)
+        return label
 
     def _get_choices(self):
         if hasattr(self, '_choices'):
@@ -389,6 +392,14 @@ class FilterChoiceField(forms.ModelMultipleChoiceField):
         return self.iterator(self)
 
     choices = property(_get_choices, forms.ChoiceField._set_choices)
+
+
+class FilterChoiceField(FilterChoiceFieldMixin, forms.ModelMultipleChoiceField):
+    pass
+
+
+class FilterTreeNodeMultipleChoiceField(FilterChoiceFieldMixin, TreeNodeMultipleChoiceField):
+    pass
 
 
 class LaxURLField(forms.URLField):
