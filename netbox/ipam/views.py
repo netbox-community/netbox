@@ -393,7 +393,9 @@ class PrefixListView(ObjectListView):
 
 def prefix(request, pk):
 
-    prefix = get_object_or_404(Prefix.objects.select_related('site', 'vlan', 'role'), pk=pk)
+    prefix = get_object_or_404(Prefix.objects.select_related(
+        'vrf', 'site__region', 'tenant__group', 'vlan__group', 'role'
+    ), pk=pk)
 
     try:
         aggregate = Aggregate.objects.get(prefix__net_contains_or_equals=str(prefix.prefix))
@@ -731,7 +733,7 @@ class VLANListView(ObjectListView):
 
 def vlan(request, pk):
 
-    vlan = get_object_or_404(VLAN.objects.select_related('site', 'role'), pk=pk)
+    vlan = get_object_or_404(VLAN.objects.select_related('site__region', 'tenant__group', 'role'), pk=pk)
     prefixes = Prefix.objects.filter(vlan=vlan).select_related('vrf', 'site', 'role')
     prefix_table = tables.PrefixBriefTable(list(prefixes))
     prefix_table.exclude = ('vlan',)

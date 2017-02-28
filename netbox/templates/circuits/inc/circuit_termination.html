@@ -27,6 +27,10 @@
             <tr>
                 <td>Site</td>
                 <td>
+                    {% if termination.site.region %}
+                        <a href="{{ termination.site.region.get_absolute_url }}">{{ termination.site.region }}</a>
+                        <i class="fa fa-angle-right"></i>
+                    {% endif %}
                     <a href="{% url 'dcim:site' slug=termination.site.slug %}">{{ termination.site }}</a>
                 </td>
             </tr>
@@ -34,7 +38,8 @@
                 <td>Termination</td>
                 <td>
                     {% if termination.interface %}
-                        <span><a href="{% url 'dcim:device' pk=termination.interface.device.pk %}">{{ termination.interface.device }}</a> {{ termination.interface }}</span>
+                        <a href="{% url 'dcim:device' pk=termination.interface.device.pk %}">{{ termination.interface.device }}</a>
+                        <i class="fa fa-angle-right"></i> {{ termination.interface }}
                     {% else %}
                         <span class="text-muted">Not defined</span>
                     {% endif %}

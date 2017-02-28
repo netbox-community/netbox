@@ -10,6 +10,9 @@
     <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'dcim:site_list' %}">Sites</a></li>
+            {% if site.region %}
+                <li> <a href="{{ site.region.get_absolute_url }}">{{ site.region }}</a></li>
+            {% endif %}
             <li>{{ site }}</li>
         </ol>
     </div>
@@ -56,9 +59,23 @@
             </div>
             <table class="table table-hover panel-body attr-table">
                 <tr>
+                    <td>Region</td>
+                    <td>
+                        {% if site.region %}
+                            <a href="{{ site.region.get_absolute_url }}">{{ site.region }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Tenant</td>
                     <td>
                         {% if site.tenant %}
+                            {% if site.tenant.group %}
+                                <a href="{{ site.tenant.group.get_absolute_url }}">{{ site.tenant.group.name }}</a>
+                                <i class="fa fa-angle-right"></i>
+                            {% endif %}
                             <a href="{{ site.tenant.get_absolute_url }}">{{ site.tenant }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
@@ -85,6 +102,13 @@
                         {% endif %}
                     </td>
                 </tr>
+            </table>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Contact Info</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Physical Address</td>
                     <td>

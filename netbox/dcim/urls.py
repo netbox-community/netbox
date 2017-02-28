@@ -8,6 +8,12 @@ from . import views
 
 urlpatterns = [
 
+    # Regions
+    url(r'^regions/$', views.RegionListView.as_view(), name='region_list'),
+    url(r'^regions/add/$', views.RegionEditView.as_view(), name='region_add'),
+    url(r'^regions/delete/$', views.RegionBulkDeleteView.as_view(), name='region_bulk_delete'),
+    url(r'^regions/(?P<pk>\d+)/edit/$', views.RegionEditView.as_view(), name='region_edit'),
+
     # Sites
     url(r'^sites/$', views.SiteListView.as_view(), name='site_list'),
     url(r'^sites/add/$', views.SiteEditView.as_view(), name='site_add'),

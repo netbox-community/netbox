@@ -57,6 +57,10 @@
                     <td>Site</td>
                     <td>
                         {% if vlan.site %}
+                            {% if vlan.site.region %}
+                                <a href="{{ vlan.site.region.get_absolute_url }}">{{ vlan.site.region }}</a>
+                                <i class="fa fa-angle-right"></i>
+                            {% endif %}
                             <a href="{% url 'dcim:site' slug=vlan.site.slug %}">{{ vlan.site }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
@@ -85,6 +89,10 @@
                     <td>Tenant</td>
                     <td>
                         {% if vlan.tenant %}
+                            {% if vlan.tenant.group %}
+                                <a href="{{ vlan.tenant.group.get_absolute_url }}">{{ vlan.tenant.group.name }}</a>
+                                <i class="fa fa-angle-right"></i>
+                            {% endif %}
                             <a href="{{ vlan.tenant.get_absolute_url }}">{{ vlan.tenant }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
@@ -101,7 +109,7 @@
                     <td>Role</td>
                     <td>
                         {% if vlan.role %}
-                            <span>{{ vlan.role }}</span>
+                            <a href="{% url 'ipam:vlan_list' %}?role={{ vlan.role.slug }}">{{ vlan.role }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}

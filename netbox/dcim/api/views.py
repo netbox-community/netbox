@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404
 
 from dcim.models import (
     ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceRole, DeviceType, Interface, InterfaceConnection,
-    Manufacturer, Module, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackReservation, RackRole, Site,
+    Manufacturer, Module, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackReservation, RackRole, Region, Site,
     VIRTUAL_IFACE_TYPES,
 )
 from dcim import filters
@@ -20,6 +20,26 @@ from extras.api.renderers import BINDZoneRenderer, FlatJSONRenderer
 from utilities.api import ServiceUnavailable
 from .exceptions import MissingFilterException
 from . import serializers
+
+
+#
+# Regions
+#
+
+class RegionListView(generics.ListAPIView):
+    """
+    List all regions
+    """
+    queryset = Region.objects.all()
+    serializer_class = serializers.RegionSerializer
+
+
+class RegionDetailView(generics.RetrieveAPIView):
+    """
+    Retrieve a single region
+    """
+    queryset = Region.objects.all()
+    serializer_class = serializers.RegionSerializer
 
 
 #

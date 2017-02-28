@@ -201,6 +201,28 @@ RPC_CLIENT_CHOICES = [
 
 
 #
+# Regions
+#
+
+@python_2_unicode_compatible
+class Region(models.Model):
+    """
+    Sites can be grouped within geographic Regions.
+    """
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(unique=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return "{}?region={}".format(reverse('dcim:site_list'), self.slug)
+
+
+#
 # Sites
 #
 
@@ -218,7 +240,8 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
-    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='sites', on_delete=models.PROTECT)
+    region = models.ForeignKey('Region', related_name='sites', blank=True, null=True, on_delete=models.SET_NULL)
+    tenant = models.ForeignKey(Tenant, related_name='sites', blank=True, null=True, on_delete=models.PROTECT)
     facility = models.CharField(max_length=50, blank=True)
     asn = ASNField(blank=True, null=True, verbose_name='ASN')
     physical_address = models.CharField(max_length=200, blank=True)

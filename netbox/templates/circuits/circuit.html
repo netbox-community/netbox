@@ -66,6 +66,10 @@
                     <td>Tenant</td>
                     <td>
                         {% if circuit.tenant %}
+                            {% if circuit.tenant.group %}
+                                <a href="{{ circuit.tenant.group.get_absolute_url }}">{{ circuit.tenant.group.name }}</a>
+                                <i class="fa fa-angle-right"></i>
+                            {% endif %}
                             <a href="{{ circuit.tenant.get_absolute_url }}">{{ circuit.tenant }}</a>
                         {% else %}
                             <span class="text-muted">None</span>

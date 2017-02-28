@@ -5,10 +5,27 @@ from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay, DeviceType,
     DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet,
     PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RACK_FACE_FRONT,
-    RACK_FACE_REAR, Site, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
+    RACK_FACE_REAR, Region, Site, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
 )
 from extras.api.serializers import CustomFieldSerializer
 from tenancy.api.serializers import TenantNestedSerializer
+
+
+#
+# Regions
+#
+
+class RegionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RackGroup
+        fields = ['id', 'name', 'slug']
+
+
+class RegionNestedSerializer(RegionSerializer):
+
+    class Meta(RegionSerializer.Meta):
+        pass
 
 
 #
@@ -16,11 +33,12 @@ from tenancy.api.serializers import TenantNestedSerializer
 #
 
 class SiteSerializer(CustomFieldSerializer, serializers.ModelSerializer):
+    region = RegionNestedSerializer()
     tenant = TenantNestedSerializer()
 
     class Meta:
         model = Site
-        fields = ['id', 'name', 'slug', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
+        fields = ['id', 'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
                   'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields', 'count_prefixes',
                   'count_vlans', 'count_racks', 'count_devices', 'count_circuits']
 

@@ -119,9 +119,17 @@ class CircuitListView(ObjectListView):
 
 def circuit(request, pk):
 
-    circuit = get_object_or_404(Circuit, pk=pk)
-    termination_a = CircuitTermination.objects.filter(circuit=circuit, term_side=TERM_SIDE_A).first()
-    termination_z = CircuitTermination.objects.filter(circuit=circuit, term_side=TERM_SIDE_Z).first()
+    circuit = get_object_or_404(Circuit.objects.select_related('provider', 'type', 'tenant__group'), pk=pk)
+    termination_a = CircuitTermination.objects.select_related(
+        'site__region', 'interface__device'
+    ).filter(
+        circuit=circuit, term_side=TERM_SIDE_A
+    ).first()
+    termination_z = CircuitTermination.objects.select_related(
+        'site__region', 'interface__device'
+    ).filter(
+        circuit=circuit, term_side=TERM_SIDE_Z
+    ).first()
 
     return render(request, 'circuits/circuit.html', {
         'circuit': circuit,
