@@ -94,6 +94,12 @@ STATUS_ICON = """
 {% endif %}
 """
 
+DEVICE_PRIMARY_IP = """
+{{ record.primary_ip6.address.ip|default:"" }}
+{% if record.primary_ip6 and record.primary_ip4 %}<br />{% endif %}
+{{ record.primary_ip4.address.ip|default:"" }}
+"""
+
 UTILIZATION_GRAPH = """
 {% load helpers %}
 {% utilization_graph value %}
@@ -106,7 +112,6 @@ UTILIZATION_GRAPH = """
 
 class RegionTable(BaseTable):
     pk = ToggleColumn()
-    # name = tables.LinkColumn(verbose_name='Name')
     name = tables.TemplateColumn(template_code=REGION_LINK, orderable=False)
     site_count = tables.Column(verbose_name='Sites')
     slug = tables.Column(verbose_name='Slug')
@@ -365,7 +370,7 @@ class DeviceTable(BaseTable):
     device_type = tables.LinkColumn('dcim:devicetype', args=[Accessor('device_type.pk')], verbose_name='Type',
                                     text=lambda record: record.device_type.full_name)
     primary_ip = tables.TemplateColumn(orderable=False, verbose_name='IP Address',
-                                       template_code="{{ record.primary_ip.address.ip }}")
+                                       template_code=DEVICE_PRIMARY_IP)
 
     class Meta(BaseTable.Meta):
         model = Device
