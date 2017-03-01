@@ -92,6 +92,10 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         method='search_by_parent',
         label='Parent prefix',
     )
+    mask_length = django_filters.NumberFilter(
+        method='filter_mask_length',
+        label='Mask length',
+    )
     vrf_id = NullableModelMultipleChoiceFilter(
         name='vrf_id',
         queryset=VRF.objects.all(),
@@ -171,6 +175,11 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         except AddrFormatError:
             return queryset.none()
 
+    def filter_mask_length(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(prefix__net_mask_length=value)
+
 
 class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
     q = django_filters.CharFilter(
@@ -180,6 +189,10 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
     parent = django_filters.CharFilter(
         method='search_by_parent',
         label='Parent prefix',
+    )
+    mask_length = django_filters.NumberFilter(
+        method='filter_mask_length',
+        label='Mask length',
     )
     vrf_id = NullableModelMultipleChoiceFilter(
         name='vrf_id',
@@ -244,6 +257,11 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
             return queryset.filter(address__net_contained_or_equal=query)
         except AddrFormatError:
             return queryset.none()
+
+    def filter_mask_length(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(address__net_mask_length=value)
 
 
 class VLANGroupFilter(django_filters.FilterSet):

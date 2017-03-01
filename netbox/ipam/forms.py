@@ -21,6 +21,12 @@ IP_FAMILY_CHOICES = [
     (6, 'IPv6'),
 ]
 
+PREFIX_MASK_LENGTH_CHOICES = [
+    ('', '---------'),
+] + [(i, i) for i in range(1, 128)]
+
+IPADDRESS_MASK_LENGTH_CHOICES = PREFIX_MASK_LENGTH_CHOICES + [(128, 128)]
+
 
 #
 # VRFs
@@ -266,6 +272,7 @@ class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
         'placeholder': 'Prefix',
     }))
     family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address family')
+    mask_length = forms.ChoiceField(required=False, choices=PREFIX_MASK_LENGTH_CHOICES, label='Mask length')
     vrf = FilterChoiceField(
         queryset=VRF.objects.annotate(filter_count=Count('prefixes')),
         to_field_name='rd',
@@ -503,7 +510,8 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
     parent = forms.CharField(required=False, label='Parent Prefix', widget=forms.TextInput(attrs={
         'placeholder': 'Prefix',
     }))
-    family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address Family')
+    family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address family')
+    mask_length = forms.ChoiceField(required=False, choices=IPADDRESS_MASK_LENGTH_CHOICES, label='Mask length')
     vrf = FilterChoiceField(
         queryset=VRF.objects.annotate(filter_count=Count('ip_addresses')),
         to_field_name='rd',
