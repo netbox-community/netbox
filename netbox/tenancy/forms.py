@@ -56,5 +56,8 @@ class TenantBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Tenant
     q = forms.CharField(required=False, label='Search')
-    group = FilterChoiceField(queryset=TenantGroup.objects.annotate(filter_count=Count('tenants')),
-                              to_field_name='slug', null_option=(0, 'None'))
+    group = FilterChoiceField(
+        queryset=TenantGroup.objects.annotate(filter_count=Count('tenants')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )

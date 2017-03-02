@@ -10,8 +10,8 @@ from .models import Provider, Circuit, CircuitTermination, CircuitType
 
 
 class ProviderFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    q = django_filters.MethodFilter(
-        action='search',
+    q = django_filters.CharFilter(
+        method='search',
         label='Search',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
@@ -30,7 +30,9 @@ class ProviderFilter(CustomFieldFilterSet, django_filters.FilterSet):
         model = Provider
         fields = ['name', 'account', 'asn']
 
-    def search(self, queryset, value):
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
         return queryset.filter(
             Q(name__icontains=value) |
             Q(account__icontains=value) |
@@ -39,8 +41,8 @@ class ProviderFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
 
 class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    q = django_filters.MethodFilter(
-        action='search',
+    q = django_filters.CharFilter(
+        method='search',
         label='Search',
     )
     provider_id = django_filters.ModelMultipleChoiceFilter(
@@ -92,7 +94,9 @@ class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
         model = Circuit
         fields = ['install_date']
 
-    def search(self, queryset, value):
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
         return queryset.filter(
             Q(cid__icontains=value) |
             Q(terminations__xconnect_id__icontains=value) |

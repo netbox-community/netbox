@@ -21,6 +21,12 @@ IP_FAMILY_CHOICES = [
     (6, 'IPv6'),
 ]
 
+PREFIX_MASK_LENGTH_CHOICES = [
+    ('', '---------'),
+] + [(i, i) for i in range(1, 128)]
+
+IPADDRESS_MASK_LENGTH_CHOICES = PREFIX_MASK_LENGTH_CHOICES + [(128, 128)]
+
 
 #
 # VRFs
@@ -131,8 +137,11 @@ class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Aggregate
     q = forms.CharField(required=False, label='Search')
     family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address Family')
-    rir = FilterChoiceField(queryset=RIR.objects.annotate(filter_count=Count('aggregates')), to_field_name='slug',
-                            label='RIR')
+    rir = FilterChoiceField(
+        queryset=RIR.objects.annotate(filter_count=Count('aggregates')),
+        to_field_name='slug',
+        label='RIR'
+    )
 
 
 #
@@ -259,19 +268,33 @@ def prefix_status_choices():
 class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Prefix
     q = forms.CharField(required=False, label='Search')
-    parent = forms.CharField(required=False, label='Parent Prefix', widget=forms.TextInput(attrs={
+    parent = forms.CharField(required=False, label='Parent prefix', widget=forms.TextInput(attrs={
         'placeholder': 'Prefix',
     }))
-    family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address Family')
-    vrf = FilterChoiceField(queryset=VRF.objects.annotate(filter_count=Count('prefixes')), to_field_name='rd',
-                            label='VRF', null_option=(0, 'Global'))
-    tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('prefixes')), to_field_name='slug',
-                               null_option=(0, 'None'))
+    family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address family')
+    mask_length = forms.ChoiceField(required=False, choices=PREFIX_MASK_LENGTH_CHOICES, label='Mask length')
+    vrf = FilterChoiceField(
+        queryset=VRF.objects.annotate(filter_count=Count('prefixes')),
+        to_field_name='rd',
+        label='VRF',
+        null_option=(0, 'Global')
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.annotate(filter_count=Count('prefixes')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
     status = forms.MultipleChoiceField(choices=prefix_status_choices, required=False)
-    site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('prefixes')), to_field_name='slug',
-                             null_option=(0, 'None'))
-    role = FilterChoiceField(queryset=Role.objects.annotate(filter_count=Count('prefixes')), to_field_name='slug',
-                             null_option=(0, 'None'))
+    site = FilterChoiceField(
+        queryset=Site.objects.annotate(filter_count=Count('prefixes')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
+    role = FilterChoiceField(
+        queryset=Role.objects.annotate(filter_count=Count('prefixes')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
     expand = forms.BooleanField(required=False, label='Expand prefix hierarchy')
 
 
@@ -487,11 +510,19 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
     parent = forms.CharField(required=False, label='Parent Prefix', widget=forms.TextInput(attrs={
         'placeholder': 'Prefix',
     }))
-    family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address Family')
-    vrf = FilterChoiceField(queryset=VRF.objects.annotate(filter_count=Count('ip_addresses')), to_field_name='rd',
-                            label='VRF', null_option=(0, 'Global'))
-    tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('ip_addresses')),
-                               to_field_name='slug', null_option=(0, 'None'))
+    family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address family')
+    mask_length = forms.ChoiceField(required=False, choices=IPADDRESS_MASK_LENGTH_CHOICES, label='Mask length')
+    vrf = FilterChoiceField(
+        queryset=VRF.objects.annotate(filter_count=Count('ip_addresses')),
+        to_field_name='rd',
+        label='VRF',
+        null_option=(0, 'Global')
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.annotate(filter_count=Count('ip_addresses')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
     status = forms.MultipleChoiceField(choices=ipaddress_status_choices, required=False)
 
 
@@ -603,15 +634,27 @@ def vlan_status_choices():
 class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = VLAN
     q = forms.CharField(required=False, label='Search')
-    site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('vlans')), to_field_name='slug',
-                             null_option=(0, 'Global'))
-    group_id = FilterChoiceField(queryset=VLANGroup.objects.annotate(filter_count=Count('vlans')), label='VLAN group',
-                                 null_option=(0, 'None'))
-    tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('vlans')), to_field_name='slug',
-                               null_option=(0, 'None'))
+    site = FilterChoiceField(
+        queryset=Site.objects.annotate(filter_count=Count('vlans')),
+        to_field_name='slug',
+        null_option=(0, 'Global')
+    )
+    group_id = FilterChoiceField(
+        queryset=VLANGroup.objects.annotate(filter_count=Count('vlans')),
+        label='VLAN group',
+        null_option=(0, 'None')
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.annotate(filter_count=Count('vlans')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
     status = forms.MultipleChoiceField(choices=vlan_status_choices, required=False)
-    role = FilterChoiceField(queryset=Role.objects.annotate(filter_count=Count('vlans')), to_field_name='slug',
-                             null_option=(0, 'None'))
+    role = FilterChoiceField(
+        queryset=Role.objects.annotate(filter_count=Count('vlans')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
 
 
 #

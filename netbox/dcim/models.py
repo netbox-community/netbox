@@ -915,7 +915,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     device_role = models.ForeignKey('DeviceRole', related_name='devices', on_delete=models.PROTECT)
     tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='devices', on_delete=models.PROTECT)
     platform = models.ForeignKey('Platform', related_name='devices', blank=True, null=True, on_delete=models.SET_NULL)
-    name = NullableCharField(max_length=50, blank=True, null=True, unique=True)
+    name = NullableCharField(max_length=64, blank=True, null=True, unique=True)
     serial = models.CharField(max_length=50, blank=True, verbose_name='Serial number')
     asset_tag = NullableCharField(max_length=50, blank=True, null=True, unique=True, verbose_name='Asset tag',
                                   help_text='A unique tag used to identify this device')

@@ -1,4 +1,4 @@
-from django.db.models import Lookup
+from django.db.models import Lookup, Transform, IntegerField
 from django.db.models.lookups import BuiltinLookup
 
 
@@ -87,3 +87,12 @@ class NetHost(Lookup):
             rhs_params[0] = rhs_params[0].split('/')[0]
         params = lhs_params + rhs_params
         return 'HOST(%s) = %s' % (lhs, rhs), params
+
+
+class NetMaskLength(Transform):
+    lookup_name = 'net_mask_length'
+    function = 'MASKLEN'
+
+    @property
+    def output_field(self):
+        return IntegerField()

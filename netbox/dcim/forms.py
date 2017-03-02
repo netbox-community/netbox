@@ -281,13 +281,25 @@ class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Rack
     q = forms.CharField(required=False, label='Search')
-    site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('racks')), to_field_name='slug')
-    group_id = FilterChoiceField(queryset=RackGroup.objects.select_related('site')
-                                 .annotate(filter_count=Count('racks')), label='Rack group', null_option=(0, 'None'))
-    tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('racks')), to_field_name='slug',
-                               null_option=(0, 'None'))
-    role = FilterChoiceField(queryset=RackRole.objects.annotate(filter_count=Count('racks')), to_field_name='slug',
-                             null_option=(0, 'None'))
+    site = FilterChoiceField(
+        queryset=Site.objects.annotate(filter_count=Count('racks')),
+        to_field_name='slug'
+    )
+    group_id = FilterChoiceField(
+        queryset=RackGroup.objects.select_related('site').annotate(filter_count=Count('racks')),
+        label='Rack group',
+        null_option=(0, 'None')
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.annotate(filter_count=Count('racks')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
+    role = FilterChoiceField(
+        queryset=RackRole.objects.annotate(filter_count=Count('racks')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
 
 
 #
@@ -359,8 +371,10 @@ class DeviceTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = DeviceType
     q = forms.CharField(required=False, label='Search')
-    manufacturer = FilterChoiceField(queryset=Manufacturer.objects.annotate(filter_count=Count('device_types')),
-                                     to_field_name='slug')
+    manufacturer = FilterChoiceField(
+        queryset=Manufacturer.objects.annotate(filter_count=Count('device_types')),
+        to_field_name='slug'
+    )
 
 
 #
@@ -724,7 +738,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     )
     rack_group_id = FilterChoiceField(
         queryset=RackGroup.objects.select_related('site').annotate(filter_count=Count('racks__devices')),
-        label='Rack Group',
+        label='Rack group',
     )
     role = FilterChoiceField(
         queryset=DeviceRole.objects.annotate(filter_count=Count('devices')),

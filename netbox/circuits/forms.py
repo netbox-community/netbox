@@ -64,6 +64,7 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Provider
     q = forms.CharField(required=False, label='Search')
     site = FilterChoiceField(queryset=Site.objects.all(), to_field_name='slug')
+    asn = forms.IntegerField(required=False, label='ASN')
 
 
 #
@@ -128,14 +129,23 @@ class CircuitBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Circuit
     q = forms.CharField(required=False, label='Search')
-    type = FilterChoiceField(queryset=CircuitType.objects.annotate(filter_count=Count('circuits')),
-                             to_field_name='slug')
-    provider = FilterChoiceField(queryset=Provider.objects.annotate(filter_count=Count('circuits')),
-                                 to_field_name='slug')
-    tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('circuits')), to_field_name='slug',
-                               null_option=(0, 'None'))
-    site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('circuit_terminations')),
-                             to_field_name='slug')
+    type = FilterChoiceField(
+        queryset=CircuitType.objects.annotate(filter_count=Count('circuits')),
+        to_field_name='slug'
+    )
+    provider = FilterChoiceField(
+        queryset=Provider.objects.annotate(filter_count=Count('circuits')),
+        to_field_name='slug'
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.annotate(filter_count=Count('circuits')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
+    site = FilterChoiceField(
+        queryset=Site.objects.annotate(filter_count=Count('circuit_terminations')),
+        to_field_name='slug'
+    )
 
 
 #

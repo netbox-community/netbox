@@ -15,8 +15,8 @@ from .models import (
 
 
 class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    q = django_filters.MethodFilter(
-        action='search',
+    q = django_filters.CharFilter(
+        method='search',
         label='Search',
     )
     region_id = NullableModelMultipleChoiceFilter(
@@ -46,9 +46,16 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         model = Site
         fields = ['q', 'name', 'facility', 'asn']
 
-    def search(self, queryset, value):
-        qs_filter = Q(name__icontains=value) | Q(facility__icontains=value) | Q(physical_address__icontains=value) | \
-            Q(shipping_address__icontains=value) | Q(comments__icontains=value)
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(name__icontains=value) |
+            Q(facility__icontains=value) |
+            Q(physical_address__icontains=value) |
+            Q(shipping_address__icontains=value) |
+            Q(comments__icontains=value)
+        )
         try:
             qs_filter |= Q(asn=int(value.strip()))
         except ValueError:
@@ -71,11 +78,12 @@ class RackGroupFilter(django_filters.FilterSet):
 
     class Meta:
         model = RackGroup
+        fields = ['name']
 
 
 class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    q = django_filters.MethodFilter(
-        action='search',
+    q = django_filters.CharFilter(
+        method='search',
         label='Search',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
@@ -127,7 +135,9 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         model = Rack
         fields = ['u_height']
 
-    def search(self, queryset, value):
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
         return queryset.filter(
             Q(name__icontains=value) |
             Q(facility_id__icontains=value) |
@@ -148,8 +158,8 @@ class RackReservationFilter(django_filters.FilterSet):
 
 
 class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    q = django_filters.MethodFilter(
-        action='search',
+    q = django_filters.CharFilter(
+        method='search',
         label='Search',
     )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
@@ -166,10 +176,13 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = DeviceType
-        fields = ['model', 'part_number', 'u_height', 'is_console_server', 'is_pdu', 'is_network_device',
-                  'subdevice_role']
+        fields = [
+            'model', 'part_number', 'u_height', 'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role',
+        ]
 
-    def search(self, queryset, value):
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
         return queryset.filter(
             Q(manufacturer__name__icontains=value) |
             Q(model__icontains=value) |
@@ -235,12 +248,12 @@ class DeviceBayTemplateFilter(DeviceTypeComponentFilterSet):
 
 
 class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    q = django_filters.MethodFilter(
-        action='search',
+    q = django_filters.CharFilter(
+        method='search',
         label='Search',
     )
-    mac_address = django_filters.MethodFilter(
-        action='_mac_address',
+    mac_address = django_filters.CharFilter(
+        method='_mac_address',
         label='MAC address',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
@@ -340,7 +353,9 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         model = Device
         fields = ['name', 'serial', 'asset_tag']
 
-    def search(self, queryset, value):
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
         return queryset.filter(
             Q(name__icontains=value) |
             Q(serial__icontains=value.strip()) |
@@ -349,7 +364,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
             Q(comments__icontains=value)
         ).distinct()
 
-    def _mac_address(self, queryset, value):
+    def _mac_address(self, queryset, name, value):
         value = value.strip()
         if not value:
             return queryset
@@ -402,8 +417,8 @@ class PowerOutletFilter(DeviceComponentFilterSet):
 
 
 class InterfaceFilter(DeviceComponentFilterSet):
-    type = django_filters.MethodFilter(
-        action='filter_type',
+    type = django_filters.CharFilter(
+        method='filter_type',
         label='Interface type',
     )
 
@@ -411,7 +426,7 @@ class InterfaceFilter(DeviceComponentFilterSet):
         model = Interface
         fields = ['name']
 
-    def filter_type(self, queryset, value):
+    def filter_type(self, queryset, name, value):
         value = value.strip().lower()
         if value == 'physical':
             return queryset.exclude(form_factor__in=VIRTUAL_IFACE_TYPES)
@@ -437,51 +452,51 @@ class ModuleFilter(DeviceComponentFilterSet):
 
 
 class ConsoleConnectionFilter(django_filters.FilterSet):
-    site = django_filters.MethodFilter(
-        action='filter_site',
+    site = django_filters.CharFilter(
+        method='filter_site',
         label='Site (slug)',
     )
 
     class Meta:
         model = ConsoleServerPort
+        fields = []
 
-    def filter_site(self, queryset, value):
-        value = value.strip()
-        if not value:
+    def filter_site(self, queryset, name, value):
+        if not value.strip():
             return queryset
-        return queryset.filter(cs_port__device__rack__site__slug=value)
+        return queryset.filter(cs_port__device__site__slug=value)
 
 
 class PowerConnectionFilter(django_filters.FilterSet):
-    site = django_filters.MethodFilter(
-        action='filter_site',
+    site = django_filters.CharFilter(
+        method='filter_site',
         label='Site (slug)',
     )
 
     class Meta:
         model = PowerOutlet
+        fields = []
 
-    def filter_site(self, queryset, value):
-        value = value.strip()
-        if not value:
+    def filter_site(self, queryset, name, value):
+        if not value.strip():
             return queryset
-        return queryset.filter(power_outlet__device__rack__site__slug=value)
+        return queryset.filter(power_outlet__device__site__slug=value)
 
 
 class InterfaceConnectionFilter(django_filters.FilterSet):
-    site = django_filters.MethodFilter(
-        action='filter_site',
+    site = django_filters.CharFilter(
+        method='filter_site',
         label='Site (slug)',
     )
 
     class Meta:
         model = InterfaceConnection
+        fields = []
 
-    def filter_site(self, queryset, value):
-        value = value.strip()
-        if not value:
+    def filter_site(self, queryset, name, value):
+        if not value.strip():
             return queryset
         return queryset.filter(
-            Q(interface_a__device__rack__site__slug=value) |
-            Q(interface_b__device__rack__site__slug=value)
+            Q(interface_a__device__site__slug=value) |
+            Q(interface_b__device__site__slug=value)
         )

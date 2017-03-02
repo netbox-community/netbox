@@ -96,7 +96,10 @@ class SecretBulkEditForm(BootstrapMixin, BulkEditForm):
 
 class SecretFilterForm(BootstrapMixin, forms.Form):
     q = forms.CharField(required=False, label='Search')
-    role = FilterChoiceField(queryset=SecretRole.objects.annotate(filter_count=Count('secrets')), to_field_name='slug')
+    role = FilterChoiceField(
+        queryset=SecretRole.objects.annotate(filter_count=Count('secrets')),
+        to_field_name='slug'
+    )
 
 
 #
