@@ -12,7 +12,7 @@ except ImportError:
                                "the documentation.")
 
 
-VERSION = '1.9.1-dev'
+VERSION = '2.0.0-dev'
 
 # Import local configuration
 for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
@@ -187,6 +187,8 @@ SECRETS_MIN_PUBKEY_SIZE = 2048
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_VERSION': VERSION.rsplit('.', 1)[0],  # Use major.minor as API version
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'PAGE_SIZE': PAGINATE_COUNT,
 }
 if LOGIN_REQUIRED:
