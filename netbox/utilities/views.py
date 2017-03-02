@@ -145,9 +145,9 @@ class ObjectEditView(View):
             return get_object_or_404(self.model, pk=kwargs['pk'])
         return self.model()
 
-    def alter_obj(self, obj, args, kwargs):
+    def alter_obj(self, obj, request, url_args, url_kwargs):
         # Allow views to add extra info to an object before it is processed. For example, a parent object can be defined
-        # given some parameter from the request URI.
+        # given some parameter from the request URL.
         return obj
 
     def get_return_url(self, obj):
@@ -159,7 +159,7 @@ class ObjectEditView(View):
     def get(self, request, *args, **kwargs):
 
         obj = self.get_object(kwargs)
-        obj = self.alter_obj(obj, args, kwargs)
+        obj = self.alter_obj(obj, request, args, kwargs)
         initial_data = {k: request.GET[k] for k in self.fields_initial if k in request.GET}
         form = self.form_class(instance=obj, initial=initial_data)
 
@@ -173,7 +173,7 @@ class ObjectEditView(View):
     def post(self, request, *args, **kwargs):
 
         obj = self.get_object(kwargs)
-        obj = self.alter_obj(obj, args, kwargs)
+        obj = self.alter_obj(obj, request, args, kwargs)
         form = self.form_class(request.POST, instance=obj)
 
         if form.is_valid():
@@ -307,11 +307,12 @@ class BulkAddView(View):
         if form.is_valid():
 
             # The first field will be used as the pattern
-            pattern_field = form.fields.keys()[0]
+            field_names = list(form.fields.keys())
+            pattern_field = field_names[0]
             pattern = form.cleaned_data[pattern_field]
 
             # All other fields will be copied as object attributes
-            kwargs = {k: form.cleaned_data[k] for k in form.fields.keys()[1:]}
+            kwargs = {k: form.cleaned_data[k] for k in field_names[1:]}
 
             new_objs = []
             try:
@@ -470,7 +471,9 @@ class BulkEditView(View):
                 return redirect(return_url)
 
         else:
-            form = self.form(self.cls, initial={'pk': pk_list})
+            initial_data = request.POST.copy()
+            initial_data['pk'] = pk_list
+            form = self.form(self.cls, initial=initial_data)
 
         selected_objects = self.cls.objects.filter(pk__in=pk_list)
         if not selected_objects:

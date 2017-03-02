@@ -31,7 +31,8 @@ class ProviderListView(ObjectListView):
 def provider(request, slug):
 
     provider = get_object_or_404(Provider, slug=slug)
-    circuits = Circuit.objects.filter(provider=provider)
+    circuits = Circuit.objects.filter(provider=provider).select_related('type', 'tenant')\
+        .prefetch_related('terminations__site')
     show_graphs = Graph.objects.filter(type=GRAPH_TYPE_PROVIDER).exists()
 
     return render(request, 'circuits/provider.html', {
@@ -118,9 +119,17 @@ class CircuitListView(ObjectListView):
 
 def circuit(request, pk):
 
-    circuit = get_object_or_404(Circuit, pk=pk)
-    termination_a = CircuitTermination.objects.filter(circuit=circuit, term_side=TERM_SIDE_A).first()
-    termination_z = CircuitTermination.objects.filter(circuit=circuit, term_side=TERM_SIDE_Z).first()
+    circuit = get_object_or_404(Circuit.objects.select_related('provider', 'type', 'tenant__group'), pk=pk)
+    termination_a = CircuitTermination.objects.select_related(
+        'site__region', 'interface__device'
+    ).filter(
+        circuit=circuit, term_side=TERM_SIDE_A
+    ).first()
+    termination_z = CircuitTermination.objects.select_related(
+        'site__region', 'interface__device'
+    ).filter(
+        circuit=circuit, term_side=TERM_SIDE_Z
+    ).first()
 
     return render(request, 'circuits/circuit.html', {
         'circuit': circuit,
@@ -224,9 +233,9 @@ class CircuitTerminationEditView(PermissionRequiredMixin, ObjectEditView):
     fields_initial = ['term_side']
     template_name = 'circuits/circuittermination_edit.html'
 
-    def alter_obj(self, obj, args, kwargs):
-        if 'circuit' in kwargs:
-            obj.circuit = get_object_or_404(Circuit, pk=kwargs['circuit'])
+    def alter_obj(self, obj, request, url_args, url_kwargs):
+        if 'circuit' in url_kwargs:
+            obj.circuit = get_object_or_404(Circuit, pk=url_kwargs['circuit'])
         return obj
 
     def get_return_url(self, obj):

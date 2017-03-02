@@ -1,10 +1,8 @@
-NetBox supports the concept of individual tenants within its parent organization. Typically, these are used to represent individual customers or internal departments.
+NetBox supports the assignment of resources to tenant organizations. Typically, these are used to represent individual customers of or internal departments within the organization using NetBox.
 
 # Tenants
 
-A tenant represents a discrete organization. Certain resources within NetBox can be assigned to a tenant. This makes it very convenient to track which resources are assigned to which customers, for instance.
-
-The following objects can be assigned to tenants:
+A tenant represents a discrete organization. The following objects can be assigned to tenants:
 
 * Sites
 * Racks

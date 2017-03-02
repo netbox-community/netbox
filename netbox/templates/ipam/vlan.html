@@ -8,9 +8,11 @@
     <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
             <li><a href="{% url 'ipam:vlan_list' %}">VLANs</a></li>
-            <li><a href="{% url 'ipam:vlan_list' %}?site={{ vlan.site.slug }}">{{ vlan.site }}</a></li>
+            {% if vlan.site %}
+                <li><a href="{% url 'ipam:vlan_list' %}?site={{ vlan.site.slug }}">{{ vlan.site }}</a></li>
+            {% endif %}
             {% if vlan.group %}
-                <li><a href="{% url 'ipam:vlan_list' %}?site={{ vlan.site.slug }}&group={{ vlan.group.slug }}">{{ vlan.group.name }}</a></li>
+                <li><a href="{% url 'ipam:vlan_list' %}?group={{ vlan.group.slug }}">{{ vlan.group.name }}</a></li>
             {% endif %}
             <li>{{ vlan.name }} ({{ vlan.vid }})</li>
         </ol>
@@ -53,7 +55,17 @@
             <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Site</td>
-                    <td><a href="{% url 'dcim:site' slug=vlan.site.slug %}">{{ vlan.site }}</a></td>
+                    <td>
+                        {% if vlan.site %}
+                            {% if vlan.site.region %}
+                                <a href="{{ vlan.site.region.get_absolute_url }}">{{ vlan.site.region }}</a>
+                                <i class="fa fa-angle-right"></i>
+                            {% endif %}
+                            <a href="{% url 'dcim:site' slug=vlan.site.slug %}">{{ vlan.site }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Group</td>
@@ -77,6 +89,10 @@
                     <td>Tenant</td>
                     <td>
                         {% if vlan.tenant %}
+                            {% if vlan.tenant.group %}
+                                <a href="{{ vlan.tenant.group.get_absolute_url }}">{{ vlan.tenant.group.name }}</a>
+                                <i class="fa fa-angle-right"></i>
+                            {% endif %}
                             <a href="{{ vlan.tenant.get_absolute_url }}">{{ vlan.tenant }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
@@ -93,7 +109,7 @@
                     <td>Role</td>
                     <td>
                         {% if vlan.role %}
-                            <span>{{ vlan.role }}</span>
+                            <a href="{% url 'ipam:vlan_list' %}?role={{ vlan.role.slug }}">{{ vlan.role }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}

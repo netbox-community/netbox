@@ -2,7 +2,8 @@ cffi>=1.8
 cryptography>=1.4
 Django>=1.10
 django-debug-toolbar>=1.6
-django-filter==0.15.3
+django-filter>=1.0.1
+django-mptt==0.8.7
 django-rest-swagger==0.3.10
 django-tables2>=1.2.5
 djangorestframework>=3.5.0

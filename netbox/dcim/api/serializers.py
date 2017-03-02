@@ -4,11 +4,29 @@ from ipam.models import IPAddress
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay, DeviceType,
     DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet,
-    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, RACK_FACE_FRONT, RACK_FACE_REAR, Site,
-    SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
+    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RACK_FACE_FRONT,
+    RACK_FACE_REAR, Region, Site, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
 )
 from extras.api.serializers import CustomFieldSerializer
 from tenancy.api.serializers import TenantNestedSerializer
+
+
+#
+# Regions
+#
+
+class RegionNestedSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Region
+        fields = ['id', 'name', 'slug']
+
+
+class RegionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Region
+        fields = ['id', 'name', 'slug', 'parent']
 
 
 #
@@ -16,11 +34,12 @@ from tenancy.api.serializers import TenantNestedSerializer
 #
 
 class SiteSerializer(CustomFieldSerializer, serializers.ModelSerializer):
+    region = RegionNestedSerializer()
     tenant = TenantNestedSerializer()
 
     class Meta:
         model = Site
-        fields = ['id', 'name', 'slug', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
+        fields = ['id', 'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
                   'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields', 'count_prefixes',
                   'count_vlans', 'count_racks', 'count_devices', 'count_circuits']
 
@@ -70,6 +89,12 @@ class RackRoleNestedSerializer(RackRoleSerializer):
 # Racks
 #
 
+class RackReservationNestedSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RackReservation
+        fields = ['id', 'units', 'created', 'user', 'description']
+
 
 class RackSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     site = SiteNestedSerializer()
@@ -92,10 +117,11 @@ class RackNestedSerializer(RackSerializer):
 class RackDetailSerializer(RackSerializer):
     front_units = serializers.SerializerMethodField()
     rear_units = serializers.SerializerMethodField()
+    reservations = RackReservationNestedSerializer(many=True)
 
     class Meta(RackSerializer.Meta):
         fields = ['id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'type', 'width',
-                  'u_height', 'desc_units', 'comments', 'custom_fields', 'front_units', 'rear_units']
+                  'u_height', 'desc_units', 'reservations', 'comments', 'custom_fields', 'front_units', 'rear_units']
 
     def get_front_units(self, obj):
         units = obj.get_rack_units(face=RACK_FACE_FRONT)
@@ -108,6 +134,18 @@ class RackDetailSerializer(RackSerializer):
         for u in units:
             u['device'] = DeviceNestedSerializer(u['device']).data if u['device'] else None
         return units
+
+
+#
+# Rack reservations
+#
+
+class RackReservationSerializer(serializers.ModelSerializer):
+    rack = RackNestedSerializer()
+
+    class Meta:
+        model = RackReservation
+        fields = ['id', 'rack', 'units', 'created', 'user', 'description']
 
 
 #
@@ -256,6 +294,7 @@ class DeviceSerializer(CustomFieldSerializer, serializers.ModelSerializer):
     device_role = DeviceRoleNestedSerializer()
     tenant = TenantNestedSerializer()
     platform = PlatformNestedSerializer()
+    site = SiteNestedSerializer()
     rack = RackNestedSerializer()
     primary_ip = DeviceIPAddressNestedSerializer()
     primary_ip4 = DeviceIPAddressNestedSerializer()
@@ -264,9 +303,11 @@ class DeviceSerializer(CustomFieldSerializer, serializers.ModelSerializer):
 
     class Meta:
         model = Device
-        fields = ['id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial',
-                  'asset_tag', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4',
-                  'primary_ip6', 'comments', 'custom_fields']
+        fields = [
+            'id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
+            'site', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4', 'primary_ip6',
+            'comments', 'custom_fields',
+        ]
 
     def get_parent_device(self, obj):
         try:
@@ -368,13 +409,24 @@ class PowerPortNestedSerializer(PowerPortSerializer):
 # Interfaces
 #
 
-class InterfaceSerializer(serializers.ModelSerializer):
-    device = DeviceNestedSerializer()
+class LAGInterfaceNestedSerializer(serializers.ModelSerializer):
     form_factor = serializers.ReadOnlyField(source='get_form_factor_display')
 
     class Meta:
         model = Interface
-        fields = ['id', 'device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description', 'is_connected']
+        fields = ['id', 'name', 'form_factor']
+
+
+class InterfaceSerializer(serializers.ModelSerializer):
+    device = DeviceNestedSerializer()
+    form_factor = serializers.ReadOnlyField(source='get_form_factor_display')
+    lag = LAGInterfaceNestedSerializer()
+
+    class Meta:
+        model = Interface
+        fields = [
+            'id', 'device', 'name', 'form_factor', 'lag', 'mac_address', 'mgmt_only', 'description', 'is_connected',
+        ]
 
 
 class InterfaceNestedSerializer(InterfaceSerializer):
@@ -388,8 +440,10 @@ class InterfaceDetailSerializer(InterfaceSerializer):
     connected_interface = InterfaceSerializer()
 
     class Meta(InterfaceSerializer.Meta):
-        fields = ['id', 'device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description', 'is_connected',
-                  'connected_interface']
+        fields = [
+            'id', 'device', 'name', 'form_factor', 'lag', 'mac_address', 'mgmt_only', 'description', 'is_connected',
+            'connected_interface',
+        ]
 
 
 #

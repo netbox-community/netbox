@@ -21,6 +21,12 @@ IP_FAMILY_CHOICES = [
     (6, 'IPv6'),
 ]
 
+PREFIX_MASK_LENGTH_CHOICES = [
+    ('', '---------'),
+] + [(i, i) for i in range(1, 128)]
+
+IPADDRESS_MASK_LENGTH_CHOICES = PREFIX_MASK_LENGTH_CHOICES + [(128, 128)]
+
 
 #
 # VRFs
@@ -131,8 +137,11 @@ class AggregateFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Aggregate
     q = forms.CharField(required=False, label='Search')
     family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address Family')
-    rir = FilterChoiceField(queryset=RIR.objects.annotate(filter_count=Count('aggregates')), to_field_name='slug',
-                            label='RIR')
+    rir = FilterChoiceField(
+        queryset=RIR.objects.annotate(filter_count=Count('aggregates')),
+        to_field_name='slug',
+        label='RIR'
+    )
 
 
 #
@@ -153,7 +162,7 @@ class RoleForm(BootstrapMixin, forms.ModelForm):
 
 class PrefixForm(BootstrapMixin, CustomFieldForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site',
-                                  widget=forms.Select(attrs={'filter-for': 'vlan'}))
+                                  widget=forms.Select(attrs={'filter-for': 'vlan', 'nullable': 'true'}))
     vlan = forms.ModelChoiceField(queryset=VLAN.objects.all(), required=False, label='VLAN',
                                   widget=APISelect(api_url='/api/ipam/vlans/?site_id={{site}}',
                                                    display_field='display_name'))
@@ -173,7 +182,7 @@ class PrefixForm(BootstrapMixin, CustomFieldForm):
         elif self.initial.get('site'):
             self.fields['vlan'].queryset = VLAN.objects.filter(site=self.initial['site'])
         else:
-            self.fields['vlan'].choices = []
+            self.fields['vlan'].queryset = VLAN.objects.filter(site=None)
 
 
 class PrefixFromCSVForm(forms.ModelForm):
@@ -259,19 +268,33 @@ def prefix_status_choices():
 class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Prefix
     q = forms.CharField(required=False, label='Search')
-    parent = forms.CharField(required=False, label='Parent Prefix', widget=forms.TextInput(attrs={
+    parent = forms.CharField(required=False, label='Parent prefix', widget=forms.TextInput(attrs={
         'placeholder': 'Prefix',
     }))
-    family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address Family')
-    vrf = FilterChoiceField(queryset=VRF.objects.annotate(filter_count=Count('prefixes')), to_field_name='rd',
-                            label='VRF', null_option=(0, 'Global'))
-    tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('prefixes')), to_field_name='slug',
-                               null_option=(0, 'None'))
+    family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address family')
+    mask_length = forms.ChoiceField(required=False, choices=PREFIX_MASK_LENGTH_CHOICES, label='Mask length')
+    vrf = FilterChoiceField(
+        queryset=VRF.objects.annotate(filter_count=Count('prefixes')),
+        to_field_name='rd',
+        label='VRF',
+        null_option=(0, 'Global')
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.annotate(filter_count=Count('prefixes')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
     status = forms.MultipleChoiceField(choices=prefix_status_choices, required=False)
-    site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('prefixes')), to_field_name='slug',
-                             null_option=(0, 'None'))
-    role = FilterChoiceField(queryset=Role.objects.annotate(filter_count=Count('prefixes')), to_field_name='slug',
-                             null_option=(0, 'None'))
+    site = FilterChoiceField(
+        queryset=Site.objects.annotate(filter_count=Count('prefixes')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
+    role = FilterChoiceField(
+        queryset=Role.objects.annotate(filter_count=Count('prefixes')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
     expand = forms.BooleanField(required=False, label='Expand prefix hierarchy')
 
 
@@ -307,10 +330,10 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
             nat_inside = self.instance.nat_inside
             # If the IP is assigned to an interface, populate site/device fields accordingly
             if self.instance.nat_inside.interface:
-                self.initial['nat_site'] = self.instance.nat_inside.interface.device.rack.site.pk
+                self.initial['nat_site'] = self.instance.nat_inside.interface.device.site.pk
                 self.initial['nat_device'] = self.instance.nat_inside.interface.device.pk
                 self.fields['nat_device'].queryset = Device.objects.filter(
-                    rack__site=nat_inside.interface.device.rack.site)
+                    rack__site=nat_inside.interface.device.site)
                 self.fields['nat_inside'].queryset = IPAddress.objects.filter(
                     interface__device=nat_inside.interface.device)
             else:
@@ -346,20 +369,54 @@ class IPAddressBulkAddForm(BootstrapMixin, forms.Form):
 
 
 class IPAddressAssignForm(BootstrapMixin, forms.Form):
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), label='Site', required=False,
-                                  widget=forms.Select(attrs={'filter-for': 'rack'}))
-    rack = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
-                                  widget=APISelect(api_url='/api/dcim/racks/?site_id={{site}}',
-                                                   display_field='display_name', attrs={'filter-for': 'device'}))
-    device = forms.ModelChoiceField(queryset=Device.objects.all(), label='Device', required=False,
-                                    widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}',
-                                                     display_field='display_name', attrs={'filter-for': 'interface'}))
-    livesearch = forms.CharField(required=False, label='Device', widget=Livesearch(
-        query_key='q', query_url='dcim-api:device_list', field_to_update='device')
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        label='Site',
+        required=False,
+        widget=forms.Select(
+            attrs={'filter-for': 'rack'}
+        )
     )
-    interface = forms.ModelChoiceField(queryset=Interface.objects.all(), label='Interface',
-                                       widget=APISelect(api_url='/api/dcim/devices/{{device}}/interfaces/'))
-    set_as_primary = forms.BooleanField(label='Set as primary IP for device', required=False)
+    rack = forms.ModelChoiceField(
+        queryset=Rack.objects.all(),
+        label='Rack',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/racks/?site_id={{site}}',
+            display_field='display_name',
+            attrs={'filter-for': 'device', 'nullable': 'true'}
+        )
+    )
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        label='Device',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
+            display_field='display_name',
+            attrs={'filter-for': 'interface'}
+        )
+    )
+    livesearch = forms.CharField(
+        required=False,
+        label='Device',
+        widget=Livesearch(
+            query_key='q',
+            query_url='dcim-api:device_list',
+            field_to_update='device'
+        )
+    )
+    interface = forms.ModelChoiceField(
+        queryset=Interface.objects.all(),
+        label='Interface',
+        widget=APISelect(
+            api_url='/api/dcim/devices/{{device}}/interfaces/'
+        )
+    )
+    set_as_primary = forms.BooleanField(
+        label='Set as primary IP for device',
+        required=False
+    )
 
     def __init__(self, *args, **kwargs):
 
@@ -453,11 +510,19 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
     parent = forms.CharField(required=False, label='Parent Prefix', widget=forms.TextInput(attrs={
         'placeholder': 'Prefix',
     }))
-    family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address Family')
-    vrf = FilterChoiceField(queryset=VRF.objects.annotate(filter_count=Count('ip_addresses')), to_field_name='rd',
-                            label='VRF', null_option=(0, 'Global'))
-    tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('ip_addresses')),
-                               to_field_name='slug', null_option=(0, 'None'))
+    family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address family')
+    mask_length = forms.ChoiceField(required=False, choices=IPADDRESS_MASK_LENGTH_CHOICES, label='Mask length')
+    vrf = FilterChoiceField(
+        queryset=VRF.objects.annotate(filter_count=Count('ip_addresses')),
+        to_field_name='rd',
+        label='VRF',
+        null_option=(0, 'Global')
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.annotate(filter_count=Count('ip_addresses')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
     status = forms.MultipleChoiceField(choices=ipaddress_status_choices, required=False)
 
 
@@ -474,7 +539,11 @@ class VLANGroupForm(BootstrapMixin, forms.ModelForm):
 
 
 class VLANGroupFilterForm(BootstrapMixin, forms.Form):
-    site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('vlan_groups')), to_field_name='slug')
+    site = FilterChoiceField(
+        queryset=Site.objects.annotate(filter_count=Count('vlan_groups')),
+        to_field_name='slug',
+        null_option=(0, 'Global')
+    )
 
 
 #
@@ -490,7 +559,7 @@ class VLANForm(BootstrapMixin, CustomFieldForm):
         model = VLAN
         fields = ['site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description']
         help_texts = {
-            'site': "The site at which this VLAN exists",
+            'site': "Leave blank if this VLAN spans multiple sites",
             'group': "VLAN group (optional)",
             'vid': "Configured VLAN ID",
             'name': "Configured VLAN name",
@@ -498,7 +567,7 @@ class VLANForm(BootstrapMixin, CustomFieldForm):
             'role': "The primary function of this VLAN",
         }
         widgets = {
-            'site': forms.Select(attrs={'filter-for': 'group'}),
+            'site': forms.Select(attrs={'filter-for': 'group', 'nullable': 'true'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -511,11 +580,11 @@ class VLANForm(BootstrapMixin, CustomFieldForm):
         elif self.initial.get('site'):
             self.fields['group'].queryset = VLANGroup.objects.filter(site=self.initial['site'])
         else:
-            self.fields['group'].choices = []
+            self.fields['group'].queryset = VLANGroup.objects.filter(site=None)
 
 
 class VLANFromCSVForm(forms.ModelForm):
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), to_field_name='name',
+    site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, to_field_name='name',
                                   error_messages={'invalid_choice': 'Site not found.'})
     group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False, to_field_name='name',
                                    error_messages={'invalid_choice': 'VLAN group not found.'})
@@ -565,14 +634,27 @@ def vlan_status_choices():
 class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = VLAN
     q = forms.CharField(required=False, label='Search')
-    site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('vlans')), to_field_name='slug')
-    group_id = FilterChoiceField(queryset=VLANGroup.objects.annotate(filter_count=Count('vlans')), label='VLAN group',
-                                 null_option=(0, 'None'))
-    tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('vlans')), to_field_name='slug',
-                               null_option=(0, 'None'))
+    site = FilterChoiceField(
+        queryset=Site.objects.annotate(filter_count=Count('vlans')),
+        to_field_name='slug',
+        null_option=(0, 'Global')
+    )
+    group_id = FilterChoiceField(
+        queryset=VLANGroup.objects.annotate(filter_count=Count('vlans')),
+        label='VLAN group',
+        null_option=(0, 'None')
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.annotate(filter_count=Count('vlans')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
     status = forms.MultipleChoiceField(choices=vlan_status_choices, required=False)
-    role = FilterChoiceField(queryset=Role.objects.annotate(filter_count=Count('vlans')), to_field_name='slug',
-                             null_option=(0, 'None'))
+    role = FilterChoiceField(
+        queryset=Role.objects.annotate(filter_count=Count('vlans')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
 
 
 #

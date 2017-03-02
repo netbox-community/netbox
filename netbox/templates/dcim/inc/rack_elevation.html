@@ -1,3 +1,5 @@
+{% load helpers %}
+
 <ul class="rack_legend">
     {% for u in rack.units %}
         <li>{{ u }}</li>
@@ -35,9 +37,14 @@
                     {% endifequal %}
                 </li>
             {% else %}
-                <li class="available">
+                <li class="available{% if u.id in reserved_units.keys %} reserved{% endif %}">
                     {% if perms.dcim.add_device %}
-                        <a href="{% url 'dcim:device_add' %}?site={{ rack.site.pk }}&rack={{ rack.pk }}&face={{ face_id }}&position={{ u.id }}" class="add_device" >add device</a>
+                        <a href="{% url 'dcim:device_add' %}?site={{ rack.site.pk }}&rack={{ rack.pk }}&face={{ face_id }}&position={{ u.id }}" class="add_device"
+                       {% if u.id in reserved_units.keys %}{% with reserved_units|getkey:u.id as resv %}
+                           data-toggle="popover" data-trigger="hover" data-container="body" data-html="true"
+                           data-content="{{ resv.description }}<br/><small>{{ resv.user }} &middot; {{ resv.created }}</small>"
+                       {% endwith %}{% endif %}
+                        >add device</a>
                     {% endif %}
                 </li>
             {% endif %}

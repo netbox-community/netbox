@@ -8,6 +8,12 @@ from . import views
 
 urlpatterns = [
 
+    # Regions
+    url(r'^regions/$', views.RegionListView.as_view(), name='region_list'),
+    url(r'^regions/add/$', views.RegionEditView.as_view(), name='region_add'),
+    url(r'^regions/delete/$', views.RegionBulkDeleteView.as_view(), name='region_bulk_delete'),
+    url(r'^regions/(?P<pk>\d+)/edit/$', views.RegionEditView.as_view(), name='region_edit'),
+
     # Sites
     url(r'^sites/$', views.SiteListView.as_view(), name='site_list'),
     url(r'^sites/add/$', views.SiteEditView.as_view(), name='site_add'),
@@ -29,6 +35,10 @@ urlpatterns = [
     url(r'^rack-roles/delete/$', views.RackRoleBulkDeleteView.as_view(), name='rackrole_bulk_delete'),
     url(r'^rack-roles/(?P<pk>\d+)/edit/$', views.RackRoleEditView.as_view(), name='rackrole_edit'),
 
+    # Rack reservations
+    url(r'^rack-reservations/(?P<pk>\d+)/edit/$', views.RackReservationEditView.as_view(), name='rackreservation_edit'),
+    url(r'^rack-reservations/(?P<pk>\d+)/delete/$', views.RackReservationDeleteView.as_view(), name='rackreservation_delete'),
+
     # Racks
     url(r'^racks/$', views.RackListView.as_view(), name='rack_list'),
     url(r'^racks/add/$', views.RackEditView.as_view(), name='rack_add'),
@@ -38,6 +48,7 @@ urlpatterns = [
     url(r'^racks/(?P<pk>\d+)/$', views.rack, name='rack'),
     url(r'^racks/(?P<pk>\d+)/edit/$', views.RackEditView.as_view(), name='rack_edit'),
     url(r'^racks/(?P<pk>\d+)/delete/$', views.RackDeleteView.as_view(), name='rack_delete'),
+    url(r'^racks/(?P<rack>\d+)/reservations/add/$', views.RackReservationEditView.as_view(), name='rack_add_reservation'),
 
     # Manufacturers
     url(r'^manufacturers/$', views.ManufacturerListView.as_view(), name='manufacturer_list'),

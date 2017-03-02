@@ -8,6 +8,10 @@ from .views import *
 
 urlpatterns = [
 
+    # Regions
+    url(r'^regions/$', RegionListView.as_view(), name='region_list'),
+    url(r'^regions/(?P<pk>\d+)/$', RegionDetailView.as_view(), name='region_detail'),
+
     # Sites
     url(r'^sites/$', SiteListView.as_view(), name='site_list'),
     url(r'^sites/(?P<pk>\d+)/$', SiteDetailView.as_view(), name='site_detail'),
@@ -26,6 +30,10 @@ urlpatterns = [
     url(r'^racks/$', RackListView.as_view(), name='rack_list'),
     url(r'^racks/(?P<pk>\d+)/$', RackDetailView.as_view(), name='rack_detail'),
     url(r'^racks/(?P<pk>\d+)/rack-units/$', RackUnitListView.as_view(), name='rack_units'),
+
+    # Rack reservations
+    url(r'^rack-reservations/$', RackReservationListView.as_view(), name='rackreservation_list'),
+    url(r'^rack-reservations/(?P<pk>\d+)/$', RackReservationDetailView.as_view(), name='rackreservation_detail'),
 
     # Manufacturers
     url(r'^manufacturers/$', ManufacturerListView.as_view(), name='manufacturer_list'),

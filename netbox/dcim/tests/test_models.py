@@ -6,14 +6,14 @@ class RackTestCase(TestCase):
 
     def setUp(self):
 
-        site = Site.objects.create(
+        self.site = Site.objects.create(
             name='TestSite1',
             slug='my-test-site'
         )
         self.rack = Rack.objects.create(
             name='TestRack1',
             facility_id='A101',
-            site=site,
+            site=self.site,
             u_height=42
         )
         self.manufacturer = Manufacturer.objects.create(
@@ -56,29 +56,29 @@ class RackTestCase(TestCase):
 
     def test_mount_single_device(self):
 
-        rack1 = Rack.objects.get(name='TestRack1')
         device1 = Device(
             name='TestSwitch1',
             device_type=DeviceType.objects.get(manufacturer__slug='acme', slug='ff2048'),
             device_role=DeviceRole.objects.get(slug='switch'),
-            rack=rack1,
+            site=self.site,
+            rack=self.rack,
             position=10,
             face=RACK_FACE_REAR,
         )
         device1.save()
 
         # Validate rack height
-        self.assertEqual(list(rack1.units), list(reversed(range(1, 43))))
+        self.assertEqual(list(self.rack.units), list(reversed(range(1, 43))))
 
         # Validate inventory (front face)
-        rack1_inventory_front = rack1.get_front_elevation()
+        rack1_inventory_front = self.rack.get_front_elevation()
         self.assertEqual(rack1_inventory_front[-10]['device'], device1)
         del(rack1_inventory_front[-10])
         for u in rack1_inventory_front:
             self.assertIsNone(u['device'])
 
         # Validate inventory (rear face)
-        rack1_inventory_rear = rack1.get_rear_elevation()
+        rack1_inventory_rear = self.rack.get_rear_elevation()
         self.assertEqual(rack1_inventory_rear[-10]['device'], device1)
         del(rack1_inventory_rear[-10])
         for u in rack1_inventory_rear:
@@ -89,6 +89,7 @@ class RackTestCase(TestCase):
             name='TestPDU',
             device_role=self.role.get('PDU'),
             device_type=self.device_type.get('cc5000'),
+            site=self.site,
             rack=self.rack,
             position=None,
             face=None,

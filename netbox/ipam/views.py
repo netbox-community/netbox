@@ -297,9 +297,17 @@ def aggregate(request, pk):
         prefix_table.base_columns['pk'].visible = True
     RequestConfig(request, paginate={'klass': EnhancedPaginator}).configure(prefix_table)
 
+    # Compile permissions list for rendering the object table
+    permissions = {
+        'add': request.user.has_perm('ipam.add_prefix'),
+        'change': request.user.has_perm('ipam.change_prefix'),
+        'delete': request.user.has_perm('ipam.delete_prefix'),
+    }
+
     return render(request, 'ipam/aggregate.html', {
         'aggregate': aggregate,
         'prefix_table': prefix_table,
+        'permissions': permissions,
     })
 
 
@@ -385,7 +393,9 @@ class PrefixListView(ObjectListView):
 
 def prefix(request, pk):
 
-    prefix = get_object_or_404(Prefix.objects.select_related('site', 'vlan', 'role'), pk=pk)
+    prefix = get_object_or_404(Prefix.objects.select_related(
+        'vrf', 'site__region', 'tenant__group', 'vlan__group', 'role'
+    ), pk=pk)
 
     try:
         aggregate = Aggregate.objects.get(prefix__net_contains_or_equals=str(prefix.prefix))
@@ -425,6 +435,13 @@ def prefix(request, pk):
         child_prefix_table.base_columns['pk'].visible = True
     RequestConfig(request, paginate={'klass': EnhancedPaginator}).configure(child_prefix_table)
 
+    # Compile permissions list for rendering the object table
+    permissions = {
+        'add': request.user.has_perm('ipam.add_prefix'),
+        'change': request.user.has_perm('ipam.change_prefix'),
+        'delete': request.user.has_perm('ipam.delete_prefix'),
+    }
+
     return render(request, 'ipam/prefix.html', {
         'prefix': prefix,
         'aggregate': aggregate,
@@ -432,6 +449,7 @@ def prefix(request, pk):
         'parent_prefix_table': parent_prefix_table,
         'child_prefix_table': child_prefix_table,
         'duplicate_prefix_table': duplicate_prefix_table,
+        'permissions': permissions,
         'return_url': prefix.get_absolute_url(),
     })
 
@@ -490,9 +508,17 @@ def prefix_ipaddresses(request, pk):
         ip_table.base_columns['pk'].visible = True
     RequestConfig(request, paginate={'klass': EnhancedPaginator}).configure(ip_table)
 
+    # Compile permissions list for rendering the object table
+    permissions = {
+        'add': request.user.has_perm('ipam.add_ipaddress'),
+        'change': request.user.has_perm('ipam.change_ipaddress'),
+        'delete': request.user.has_perm('ipam.delete_ipaddress'),
+    }
+
     return render(request, 'ipam/prefix_ipaddresses.html', {
         'prefix': prefix,
         'ip_table': ip_table,
+        'permissions': permissions,
     })
 
 
@@ -559,6 +585,8 @@ def ipaddress_assign(request, pk):
                 device.save()
 
             return redirect('ipam:ipaddress', pk=ipaddress.pk)
+        else:
+            assert False, form.errors
 
     else:
         form = forms.IPAddressAssignForm()
@@ -705,7 +733,7 @@ class VLANListView(ObjectListView):
 
 def vlan(request, pk):
 
-    vlan = get_object_or_404(VLAN.objects.select_related('site', 'role'), pk=pk)
+    vlan = get_object_or_404(VLAN.objects.select_related('site__region', 'tenant__group', 'role'), pk=pk)
     prefixes = Prefix.objects.filter(vlan=vlan).select_related('vrf', 'site', 'role')
     prefix_table = tables.PrefixBriefTable(list(prefixes))
     prefix_table.exclude = ('vlan',)
@@ -764,9 +792,9 @@ class ServiceEditView(PermissionRequiredMixin, ObjectEditView):
     form_class = forms.ServiceForm
     template_name = 'ipam/service_edit.html'
 
-    def alter_obj(self, obj, args, kwargs):
-        if 'device' in kwargs:
-            obj.device = get_object_or_404(Device, pk=kwargs['device'])
+    def alter_obj(self, obj, request, url_args, url_kwargs):
+        if 'device' in url_kwargs:
+            obj.device = get_object_or_404(Device, pk=url_kwargs['device'])
         return obj
 
     def get_return_url(self, obj):

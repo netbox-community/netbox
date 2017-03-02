@@ -27,6 +27,14 @@ def getlist(value, arg):
     return value.getlist(arg)
 
 
+@register.filter
+def getkey(value, key):
+    """
+    Return a dictionary item specified by key
+    """
+    return value[key]
+
+
 @register.filter(is_safe=True)
 def gfm(value):
     """

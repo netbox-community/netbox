@@ -1,8 +1,12 @@
 from collections import OrderedDict
 
+from mptt.models import MPTTModel, TreeForeignKey
+
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -66,6 +70,7 @@ IFACE_ORDERING_CHOICES = [
 
 # Virtual
 IFACE_FF_VIRTUAL = 0
+IFACE_FF_LAG = 200
 # Ethernet
 IFACE_FF_100ME_FIXED = 800
 IFACE_FF_1GE_FIXED = 1000
@@ -104,6 +109,7 @@ IFACE_FF_CHOICES = [
         'Virtual interfaces',
         [
             [IFACE_FF_VIRTUAL, 'Virtual'],
+            [IFACE_FF_LAG, 'Link Aggregation Group (LAG)'],
         ]
     ],
     [
@@ -146,6 +152,7 @@ IFACE_FF_CHOICES = [
             [IFACE_FF_E1, 'E1 (2.048 Mbps)'],
             [IFACE_FF_T3, 'T3 (45 Mbps)'],
             [IFACE_FF_E3, 'E3 (34 Mbps)'],
+            [IFACE_FF_E3, 'E3 (34 Mbps)'],
         ]
     ],
     [
@@ -163,6 +170,11 @@ IFACE_FF_CHOICES = [
             [IFACE_FF_OTHER, 'Other'],
         ]
     ],
+]
+
+VIRTUAL_IFACE_TYPES = [
+    IFACE_FF_VIRTUAL,
+    IFACE_FF_LAG,
 ]
 
 STATUS_ACTIVE = True
@@ -191,6 +203,29 @@ RPC_CLIENT_CHOICES = [
 
 
 #
+# Regions
+#
+
+@python_2_unicode_compatible
+class Region(MPTTModel):
+    """
+    Sites can be grouped within geographic Regions.
+    """
+    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(unique=True)
+
+    class MPTTMeta:
+        order_insertion_by = ['name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return "{}?region={}".format(reverse('dcim:site_list'), self.slug)
+
+
+#
 # Sites
 #
 
@@ -208,7 +243,8 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
-    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='sites', on_delete=models.PROTECT)
+    region = models.ForeignKey('Region', related_name='sites', blank=True, null=True, on_delete=models.SET_NULL)
+    tenant = models.ForeignKey(Tenant, related_name='sites', blank=True, null=True, on_delete=models.PROTECT)
     facility = models.CharField(max_length=50, blank=True)
     asn = ASNField(blank=True, null=True, verbose_name='ASN')
     physical_address = models.CharField(max_length=200, blank=True)
@@ -234,6 +270,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
         return csv_format([
             self.name,
             self.slug,
+            self.region.name if self.region else None,
             self.tenant.name if self.tenant else None,
             self.facility,
             self.asn,
@@ -368,6 +405,19 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
                         )
                     })
 
+    def save(self, *args, **kwargs):
+
+        # Record the original site assignment for this rack.
+        _site_id = None
+        if self.pk:
+            _site_id = Rack.objects.get(pk=self.pk).site_id
+
+        super(Rack, self).save(*args, **kwargs)
+
+        # Update racked devices if the assigned Site has been changed.
+        if _site_id is not None and self.site_id != _site_id:
+            Device.objects.filter(rack=self).update(site_id=self.site.pk)
+
     def to_csv(self):
         return csv_format([
             self.site.name,
@@ -476,6 +526,50 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
         """
         u_available = len(self.get_available_units())
         return int(float(self.u_height - u_available) / self.u_height * 100)
+
+
+@python_2_unicode_compatible
+class RackReservation(models.Model):
+    """
+    One or more reserved units within a Rack.
+    """
+    rack = models.ForeignKey('Rack', related_name='reservations', editable=False, on_delete=models.CASCADE)
+    units = ArrayField(models.PositiveSmallIntegerField())
+    created = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, editable=False, on_delete=models.PROTECT)
+    description = models.CharField(max_length=100)
+
+    class Meta:
+        ordering = ['created']
+
+    def __str__(self):
+        return u"Reservation for rack {}".format(self.rack)
+
+    def clean(self):
+
+        if self.units:
+
+            # Validate that all specified units exist in the Rack.
+            invalid_units = [u for u in self.units if u not in self.rack.units]
+            if invalid_units:
+                raise ValidationError({
+                    'units': u"Invalid unit(s) for {}U rack: {}".format(
+                        self.rack.u_height,
+                        ', '.join([str(u) for u in invalid_units]),
+                    ),
+                })
+
+            # Check that none of the units has already been reserved for this Rack.
+            reserved_units = []
+            for resv in self.rack.reservations.exclude(pk=self.pk):
+                reserved_units += resv.units
+            conflicting_units = [u for u in self.units if u in reserved_units]
+            if conflicting_units:
+                raise ValidationError({
+                    'units': 'The following units have already been reserved: {}'.format(
+                        ', '.join([str(u) for u in conflicting_units]),
+                    )
+                })
 
 
 #
@@ -821,11 +915,12 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     device_role = models.ForeignKey('DeviceRole', related_name='devices', on_delete=models.PROTECT)
     tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='devices', on_delete=models.PROTECT)
     platform = models.ForeignKey('Platform', related_name='devices', blank=True, null=True, on_delete=models.SET_NULL)
-    name = NullableCharField(max_length=50, blank=True, null=True, unique=True)
+    name = NullableCharField(max_length=64, blank=True, null=True, unique=True)
     serial = models.CharField(max_length=50, blank=True, verbose_name='Serial number')
     asset_tag = NullableCharField(max_length=50, blank=True, null=True, unique=True, verbose_name='Asset tag',
                                   help_text='A unique tag used to identify this device')
-    rack = models.ForeignKey('Rack', related_name='devices', on_delete=models.PROTECT)
+    site = models.ForeignKey('Site', related_name='devices', on_delete=models.PROTECT)
+    rack = models.ForeignKey('Rack', related_name='devices', blank=True, null=True, on_delete=models.PROTECT)
     position = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1)],
                                                 verbose_name='Position (U)',
                                                 help_text='The lowest-numbered unit occupied by the device')
@@ -852,41 +947,59 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
 
     def clean(self):
 
+        # Validate site/rack combination
+        if self.rack and self.site != self.rack.site:
+            raise ValidationError({
+                'rack': "Rack {} does not belong to site {}.".format(self.rack, self.site),
+            })
+
+        if self.rack is None:
+            if self.face is not None:
+                raise ValidationError({
+                    'face': "Cannot select a rack face without assigning a rack.",
+                })
+            if self.position:
+                raise ValidationError({
+                    'face': "Cannot select a rack position without assigning a rack.",
+                })
+
         # Validate position/face combination
         if self.position and self.face is None:
             raise ValidationError({
-                'face': "Must specify rack face when defining rack position."
+                'face': "Must specify rack face when defining rack position.",
             })
 
-        try:
-            # Child devices cannot be assigned to a rack face/unit
-            if self.device_type.is_child_device and self.face is not None:
-                raise ValidationError({
-                    'face': "Child device types cannot be assigned to a rack face. This is an attribute of the parent "
-                            "device."
-                })
-            if self.device_type.is_child_device and self.position:
-                raise ValidationError({
-                    'position': "Child device types cannot be assigned to a rack position. This is an attribute of the "
-                                "parent device."
-                })
+        if self.rack:
 
-            # Validate rack space
-            rack_face = self.face if not self.device_type.is_full_depth else None
-            exclude_list = [self.pk] if self.pk else []
             try:
-                available_units = self.rack.get_available_units(u_height=self.device_type.u_height, rack_face=rack_face,
-                                                                exclude=exclude_list)
-                if self.position and self.position not in available_units:
+                # Child devices cannot be assigned to a rack face/unit
+                if self.device_type.is_child_device and self.face is not None:
                     raise ValidationError({
-                        'position': "U{} is already occupied or does not have sufficient space to accommodate a(n) {} "
-                                    "({}U).".format(self.position, self.device_type, self.device_type.u_height)
+                        'face': "Child device types cannot be assigned to a rack face. This is an attribute of the parent "
+                                "device."
                     })
-            except Rack.DoesNotExist:
-                pass
+                if self.device_type.is_child_device and self.position:
+                    raise ValidationError({
+                        'position': "Child device types cannot be assigned to a rack position. This is an attribute of the "
+                                    "parent device."
+                    })
 
-        except DeviceType.DoesNotExist:
-            pass
+                # Validate rack space
+                rack_face = self.face if not self.device_type.is_full_depth else None
+                exclude_list = [self.pk] if self.pk else []
+                try:
+                    available_units = self.rack.get_available_units(u_height=self.device_type.u_height, rack_face=rack_face,
+                                                                    exclude=exclude_list)
+                    if self.position and self.position not in available_units:
+                        raise ValidationError({
+                            'position': "U{} is already occupied or does not have sufficient space to accommodate a(n) {} "
+                                        "({}U).".format(self.position, self.device_type, self.device_type.u_height)
+                        })
+                except Rack.DoesNotExist:
+                    pass
+
+            except DeviceType.DoesNotExist:
+                pass
 
     def save(self, *args, **kwargs):
 
@@ -934,8 +1047,8 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
             self.platform.name if self.platform else None,
             self.serial,
             self.asset_tag,
-            self.rack.site.name,
-            self.rack.name,
+            self.site.name,
+            self.rack.name if self.rack else None,
             self.position,
             self.get_face_display(),
         ])
@@ -984,6 +1097,10 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         return RPC_CLIENTS.get(self.platform.rpc_client)
 
 
+#
+# Console ports
+#
+
 @python_2_unicode_compatible
 class ConsolePort(models.Model):
     """
@@ -1012,6 +1129,10 @@ class ConsolePort(models.Model):
             self.get_connection_status_display(),
         ])
 
+
+#
+# Console server ports
+#
 
 class ConsoleServerPortManager(models.Manager):
 
@@ -1045,6 +1166,10 @@ class ConsoleServerPort(models.Model):
         return self.name
 
 
+#
+# Power ports
+#
+
 @python_2_unicode_compatible
 class PowerPort(models.Model):
     """
@@ -1064,8 +1189,8 @@ class PowerPort(models.Model):
         return self.name
 
     # Used for connections export
-    def csv_format(self):
-        return ','.join([
+    def to_csv(self):
+        return csv_format([
             self.power_outlet.device.identifier if self.power_outlet else None,
             self.power_outlet.name if self.power_outlet else None,
             self.device.identifier,
@@ -1073,6 +1198,10 @@ class PowerPort(models.Model):
             self.get_connection_status_display(),
         ])
 
+
+#
+# Power outlets
+#
 
 class PowerOutletManager(models.Manager):
 
@@ -1100,6 +1229,10 @@ class PowerOutlet(models.Model):
         return self.name
 
 
+#
+# Interfaces
+#
+
 @python_2_unicode_compatible
 class Interface(models.Model):
     """
@@ -1107,6 +1240,8 @@ class Interface(models.Model):
     of an InterfaceConnection.
     """
     device = models.ForeignKey('Device', related_name='interfaces', on_delete=models.CASCADE)
+    lag = models.ForeignKey('self', related_name='member_interfaces', null=True, blank=True, on_delete=models.SET_NULL,
+                            verbose_name='Parent LAG')
     name = models.CharField(max_length=30)
     form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_10GE_SFP_PLUS)
     mac_address = MACAddressField(null=True, blank=True, verbose_name='MAC Address')
@@ -1125,15 +1260,42 @@ class Interface(models.Model):
 
     def clean(self):
 
-        if self.form_factor == IFACE_FF_VIRTUAL and self.is_connected:
+        # Virtual interfaces cannot be connected
+        if self.form_factor in VIRTUAL_IFACE_TYPES and self.is_connected:
             raise ValidationError({
                 'form_factor': "Virtual interfaces cannot be connected to another interface or circuit. Disconnect the "
                                "interface or choose a physical form factor."
             })
 
+        # An interface's LAG must belong to the same device
+        if self.lag and self.lag.device != self.device:
+            raise ValidationError({
+                'lag': u"The selected LAG interface ({}) belongs to a different device ({}).".format(
+                    self.lag.name, self.lag.device.name
+                )
+            })
+
+        # A virtual interface cannot have a parent LAG
+        if self.form_factor in VIRTUAL_IFACE_TYPES and self.lag is not None:
+            raise ValidationError({
+                'lag': u"{} interfaces cannot have a parent LAG interface.".format(self.get_form_factor_display())
+            })
+
+        # Only a LAG can have LAG members
+        if self.form_factor != IFACE_FF_LAG and self.member_interfaces.exists():
+            raise ValidationError({
+                'form_factor': "Cannot change interface form factor; it has LAG members ({}).".format(
+                    u", ".join([iface.name for iface in self.member_interfaces.all()])
+                )
+            })
+
     @property
-    def is_physical(self):
-        return self.form_factor != IFACE_FF_VIRTUAL
+    def is_virtual(self):
+        return self.form_factor in VIRTUAL_IFACE_TYPES
+
+    @property
+    def is_lag(self):
+        return self.form_factor == IFACE_FF_LAG
 
     @property
     def is_connected(self):
@@ -1197,6 +1359,10 @@ class InterfaceConnection(models.Model):
         ])
 
 
+#
+# Device bays
+#
+
 @python_2_unicode_compatible
 class DeviceBay(models.Model):
     """
@@ -1226,6 +1392,10 @@ class DeviceBay(models.Model):
         if self.device == self.installed_device:
             raise ValidationError("Cannot install a device into itself.")
 
+
+#
+# Modules
+#
 
 @python_2_unicode_compatible
 class Module(models.Model):

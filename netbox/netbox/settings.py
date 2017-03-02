@@ -12,7 +12,7 @@ except ImportError:
                                "the documentation.")
 
 
-VERSION = '1.8.4'
+VERSION = '1.9.0'
 
 # Import local configuration
 for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
@@ -104,6 +104,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'debug_toolbar',
     'django_tables2',
+    'mptt',
     'rest_framework',
     'rest_framework_swagger',
     'circuits',

@@ -1,11 +1,22 @@
 from django.contrib import admin
 from django.db.models import Count
 
+from mptt.admin import MPTTModelAdmin
+
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceTemplate, Manufacturer, Module, Platform,
-    PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackRole, Site,
+    PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, Region,
+    Site,
 )
+
+
+@admin.register(Region)
+class RegionAdmin(MPTTModelAdmin):
+    list_display = ['name', 'parent', 'slug']
+    prepopulated_fields = {
+        'slug': ['name'],
+    }
 
 
 @admin.register(Site)
@@ -35,6 +46,11 @@ class RackRoleAdmin(admin.ModelAdmin):
 @admin.register(Rack)
 class RackAdmin(admin.ModelAdmin):
     list_display = ['name', 'facility_id', 'site', 'group', 'tenant', 'role', 'type', 'width', 'u_height']
+
+
+@admin.register(RackReservation)
+class RackRackReservationAdmin(admin.ModelAdmin):
+    list_display = ['rack', 'units', 'description', 'user', 'created']
 
 
 #

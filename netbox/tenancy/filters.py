@@ -8,8 +8,8 @@ from .models import Tenant, TenantGroup
 
 
 class TenantFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    q = django_filters.MethodFilter(
-        action='search',
+    q = django_filters.CharFilter(
+        method='search',
         label='Search',
     )
     group_id = NullableModelMultipleChoiceFilter(
@@ -26,9 +26,11 @@ class TenantFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Tenant
-        fields = ['q', 'group_id', 'group', 'name']
+        fields = ['name']
 
-    def search(self, queryset, value):
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
         return queryset.filter(
             Q(name__icontains=value) |
             Q(description__icontains=value) |

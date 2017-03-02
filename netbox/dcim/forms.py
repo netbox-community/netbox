@@ -1,6 +1,9 @@
 import re
 
+from mptt.forms import TreeNodeChoiceField
+
 from django import forms
+from django.contrib.postgres.forms.array import SimpleArrayField
 from django.core.exceptions import ValidationError
 from django.db.models import Count, Q
 
@@ -8,18 +11,19 @@ from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFi
 from ipam.models import IPAddress
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, add_blank_choice, BootstrapMixin, BulkEditForm, BulkImportForm, CommentField, CSVDataField,
-    ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea,
-    SlugField,
+    APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkImportForm, CommentField,
+    CSVDataField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled,
+    SmallTextarea, SlugField, FilterTreeNodeMultipleChoiceField,
 )
 
 from .formfields import MACAddressFormField
 from .models import (
     DeviceBay, DeviceBayTemplate, CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_PLANNED, CONNECTION_STATUS_CONNECTED,
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType,
-    Interface, IFACE_FF_CHOICES, IFACE_FF_VIRTUAL, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate,
+    Interface, IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate,
     Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES,
-    RACK_WIDTH_CHOICES, Rack, RackGroup, RackRole, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD
+    RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD,
+    VIRTUAL_IFACE_TYPES
 )
 
 
@@ -52,18 +56,42 @@ def validate_connection_status(value):
         raise ValidationError('Invalid connection status ({}); must be either "planned" or "connected".'.format(value))
 
 
+class DeviceComponentForm(BootstrapMixin, forms.Form):
+    """
+    Allow inclusion of the parent device as context for limiting field choices.
+    """
+    def __init__(self, device, *args, **kwargs):
+        self.device = device
+        super(DeviceComponentForm, self).__init__(*args, **kwargs)
+
+
+#
+# Regions
+#
+
+class RegionForm(BootstrapMixin, forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = Region
+        fields = ['parent', 'name', 'slug']
+
+
 #
 # Sites
 #
 
 class SiteForm(BootstrapMixin, CustomFieldForm):
+    region = TreeNodeChoiceField(queryset=Region.objects.all())
     slug = SlugField()
     comments = CommentField()
 
     class Meta:
         model = Site
-        fields = ['name', 'slug', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address', 'contact_name',
-                  'contact_phone', 'contact_email', 'comments']
+        fields = [
+            'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
+            'contact_name', 'contact_phone', 'contact_email', 'comments',
+        ]
         widgets = {
             'physical_address': SmallTextarea(attrs={'rows': 3}),
             'shipping_address': SmallTextarea(attrs={'rows': 3}),
@@ -78,12 +106,22 @@ class SiteForm(BootstrapMixin, CustomFieldForm):
 
 
 class SiteFromCSVForm(forms.ModelForm):
-    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
-                                    error_messages={'invalid_choice': 'Tenant not found.'})
+    region = forms.ModelChoiceField(
+        Region.objects.all(), to_field_name='name', required=False, error_messages={
+            'invalid_choice': 'Tenant not found.'
+        }
+    )
+    tenant = forms.ModelChoiceField(
+        Tenant.objects.all(), to_field_name='name', required=False, error_messages={
+            'invalid_choice': 'Tenant not found.'
+        }
+    )
 
     class Meta:
         model = Site
-        fields = ['name', 'slug', 'tenant', 'facility', 'asn', 'contact_name', 'contact_phone', 'contact_email']
+        fields = [
+            'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'contact_name', 'contact_phone', 'contact_email',
+        ]
 
 
 class SiteImportForm(BootstrapMixin, BulkImportForm):
@@ -92,18 +130,27 @@ class SiteImportForm(BootstrapMixin, BulkImportForm):
 
 class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Site.objects.all(), widget=forms.MultipleHiddenInput)
+    region = TreeNodeChoiceField(queryset=Region.objects.all(), required=False)
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     asn = forms.IntegerField(min_value=1, max_value=4294967295, required=False, label='ASN')
 
     class Meta:
-        nullable_fields = ['tenant', 'asn']
+        nullable_fields = ['region', 'tenant', 'asn']
 
 
 class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Site
     q = forms.CharField(required=False, label='Search')
-    tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('sites')), to_field_name='slug',
-                               null_option=(0, 'None'))
+    region = FilterTreeNodeMultipleChoiceField(
+        queryset=Region.objects.annotate(filter_count=Count('sites')),
+        to_field_name='slug',
+        required=False,
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.annotate(filter_count=Count('sites')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
 
 
 #
@@ -234,13 +281,53 @@ class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Rack
     q = forms.CharField(required=False, label='Search')
-    site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('racks')), to_field_name='slug')
-    group_id = FilterChoiceField(queryset=RackGroup.objects.select_related('site')
-                                 .annotate(filter_count=Count('racks')), label='Rack group', null_option=(0, 'None'))
-    tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('racks')), to_field_name='slug',
-                               null_option=(0, 'None'))
-    role = FilterChoiceField(queryset=RackRole.objects.annotate(filter_count=Count('racks')), to_field_name='slug',
-                             null_option=(0, 'None'))
+    site = FilterChoiceField(
+        queryset=Site.objects.annotate(filter_count=Count('racks')),
+        to_field_name='slug'
+    )
+    group_id = FilterChoiceField(
+        queryset=RackGroup.objects.select_related('site').annotate(filter_count=Count('racks')),
+        label='Rack group',
+        null_option=(0, 'None')
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.annotate(filter_count=Count('racks')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
+    role = FilterChoiceField(
+        queryset=RackRole.objects.annotate(filter_count=Count('racks')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
+
+
+#
+# Rack reservations
+#
+
+class RackReservationForm(BootstrapMixin, forms.ModelForm):
+    units = SimpleArrayField(forms.IntegerField(), widget=ArrayFieldSelectMultiple(attrs={'size': 10}))
+
+    class Meta:
+        model = RackReservation
+        fields = ['units', 'description']
+
+    def __init__(self, *args, **kwargs):
+
+        super(RackReservationForm, self).__init__(*args, **kwargs)
+
+        # Populate rack unit choices
+        self.fields['units'].widget.choices = self._get_unit_choices()
+
+    def _get_unit_choices(self):
+        rack = self.instance.rack
+        reserved_units = []
+        for resv in rack.reservations.exclude(pk=self.instance.pk):
+            for u in resv.units:
+                reserved_units.append(u)
+        unit_choices = [(u, {'label': str(u), 'disabled': u in reserved_units}) for u in rack.units]
+        return unit_choices
 
 
 #
@@ -284,8 +371,10 @@ class DeviceTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = DeviceType
     q = forms.CharField(required=False, label='Search')
-    manufacturer = FilterChoiceField(queryset=Manufacturer.objects.annotate(filter_count=Count('device_types')),
-                                     to_field_name='slug')
+    manufacturer = FilterChoiceField(
+        queryset=Manufacturer.objects.annotate(filter_count=Count('device_types')),
+        to_field_name='slug'
+    )
 
 
 #
@@ -302,7 +391,7 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsolePortTemplateCreateForm(BootstrapMixin, forms.Form):
+class ConsolePortTemplateCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -316,7 +405,7 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsoleServerPortTemplateCreateForm(BootstrapMixin, forms.Form):
+class ConsoleServerPortTemplateCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -330,7 +419,7 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerPortTemplateCreateForm(BootstrapMixin, forms.Form):
+class PowerPortTemplateCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -344,7 +433,7 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerOutletTemplateCreateForm(BootstrapMixin, forms.Form):
+class PowerOutletTemplateCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -358,7 +447,7 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class InterfaceTemplateCreateForm(BootstrapMixin, forms.Form):
+class InterfaceTemplateCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
     form_factor = forms.ChoiceField(choices=IFACE_FF_CHOICES)
     mgmt_only = forms.BooleanField(required=False, label='OOB Management')
@@ -382,7 +471,7 @@ class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class DeviceBayTemplateCreateForm(BootstrapMixin, forms.Form):
+class DeviceBayTemplateCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -416,7 +505,7 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
 
 class DeviceForm(BootstrapMixin, CustomFieldForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs={'filter-for': 'rack'}))
-    rack = forms.ModelChoiceField(queryset=Rack.objects.all(), widget=APISelect(
+    rack = forms.ModelChoiceField(queryset=Rack.objects.all(), required=False, widget=APISelect(
         api_url='/api/dcim/racks/?site_id={{site}}',
         display_field='display_name',
         attrs={'filter-for': 'position'}
@@ -453,7 +542,7 @@ class DeviceForm(BootstrapMixin, CustomFieldForm):
         if self.instance.pk:
 
             # Initialize helper selections
-            self.initial['site'] = self.instance.rack.site
+            self.initial['site'] = self.instance.site
             self.initial['manufacturer'] = self.instance.device_type.manufacturer
 
             # Compile list of choices for primary IPv4 and IPv6 addresses
@@ -520,7 +609,7 @@ class DeviceForm(BootstrapMixin, CustomFieldForm):
         if pk and self.instance.device_type.is_child_device and hasattr(self.instance, 'parent_bay'):
             self.fields['site'].disabled = True
             self.fields['rack'].disabled = True
-            self.initial['site'] = self.instance.parent_bay.device.rack.site_id
+            self.initial['site'] = self.instance.parent_bay.device.site_id
             self.initial['rack'] = self.instance.parent_bay.device.rack_id
 
 
@@ -556,7 +645,7 @@ class DeviceFromCSVForm(BaseDeviceFromCSVForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), to_field_name='name', error_messages={
         'invalid_choice': 'Invalid site name.',
     })
-    rack_name = forms.CharField()
+    rack_name = forms.CharField(required=False)
     face = forms.CharField(required=False)
 
     class Meta(BaseDeviceFromCSVForm.Meta):
@@ -649,7 +738,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     )
     rack_group_id = FilterChoiceField(
         queryset=RackGroup.objects.select_related('site').annotate(filter_count=Count('racks__devices')),
-        label='Rack Group',
+        label='Rack group',
     )
     role = FilterChoiceField(
         queryset=DeviceRole.objects.annotate(filter_count=Count('devices')),
@@ -714,14 +803,18 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsolePortCreateForm(BootstrapMixin, forms.Form):
+class ConsolePortCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
 class ConsoleConnectionCSVForm(forms.Form):
-    console_server = FlexibleModelChoiceField(queryset=Device.objects.filter(device_type__is_console_server=True),
-                                              to_field_name='name',
-                                              error_messages={'invalid_choice': 'Console server not found'})
+    console_server = FlexibleModelChoiceField(
+        queryset=Device.objects.filter(device_type__is_console_server=True),
+        to_field_name='name',
+        error_messages={
+            'invalid_choice': 'Console server not found',
+        }
+    )
     cs_port = forms.CharField()
     device = FlexibleModelChoiceField(queryset=Device.objects.all(), to_field_name='name',
                                       error_messages={'invalid_choice': 'Device not found'})
@@ -786,22 +879,49 @@ class ConsoleConnectionImportForm(BootstrapMixin, BulkImportForm):
 
 
 class ConsolePortConnectionForm(BootstrapMixin, forms.ModelForm):
-    rack = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
-                                  widget=forms.Select(attrs={'filter-for': 'console_server'}))
-    console_server = forms.ModelChoiceField(queryset=Device.objects.all(), label='Console Server', required=False,
-                                            widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}&is_console_server=True',
-                                                             display_field='display_name',
-                                                             attrs={'filter-for': 'cs_port'}))
-    livesearch = forms.CharField(required=False, label='Console Server', widget=Livesearch(
-        query_key='q', query_url='dcim-api:device_list', field_to_update='console_server')
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        widget=forms.HiddenInput(),
     )
-    cs_port = forms.ModelChoiceField(queryset=ConsoleServerPort.objects.all(), label='Port',
-                                     widget=APISelect(api_url='/api/dcim/devices/{{console_server}}/console-server-ports/',
-                                                      disabled_indicator='connected_console'))
+    rack = forms.ModelChoiceField(
+        queryset=Rack.objects.all(),
+        label='Rack',
+        required=False,
+        widget=forms.Select(
+            attrs={'filter-for': 'console_server', 'nullable': 'true'}
+        )
+    )
+    console_server = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        label='Console Server',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}&is_console_server=True',
+            display_field='display_name',
+            attrs={'filter-for': 'cs_port'}
+        )
+    )
+    livesearch = forms.CharField(
+        required=False,
+        label='Console Server',
+        widget=Livesearch(
+            query_key='q',
+            query_url='dcim-api:device_list',
+            field_to_update='console_server',
+        )
+    )
+    cs_port = forms.ModelChoiceField(
+        queryset=ConsoleServerPort.objects.all(),
+        label='Port',
+        widget=APISelect(
+            api_url='/api/dcim/devices/{{console_server}}/console-server-ports/',
+            disabled_indicator='connected_console',
+        )
+    )
 
     class Meta:
         model = ConsolePort
-        fields = ['rack', 'console_server', 'livesearch', 'cs_port', 'connection_status']
+        fields = ['site', 'rack', 'console_server', 'livesearch', 'cs_port', 'connection_status']
         labels = {
             'cs_port': 'Port',
             'connection_status': 'Status',
@@ -814,17 +934,22 @@ class ConsolePortConnectionForm(BootstrapMixin, forms.ModelForm):
         if not self.instance.pk:
             raise RuntimeError("ConsolePortConnectionForm must be initialized with an existing ConsolePort instance.")
 
-        self.fields['rack'].queryset = Rack.objects.filter(site=self.instance.device.rack.site)
+        self.initial['site'] = self.instance.device.site
+        self.fields['rack'].queryset = Rack.objects.filter(site=self.instance.device.site)
         self.fields['cs_port'].required = True
         self.fields['connection_status'].choices = CONNECTION_STATUS_CHOICES
 
         # Initialize console server choices
         if self.is_bound and self.data.get('rack'):
-            self.fields['console_server'].queryset = Device.objects.filter(rack=self.data['rack'], device_type__is_console_server=True)
+            self.fields['console_server'].queryset = Device.objects.filter(rack=self.data['rack'],
+                                                                           device_type__is_console_server=True)
         elif self.initial.get('rack'):
-            self.fields['console_server'].queryset = Device.objects.filter(rack=self.initial['rack'], device_type__is_console_server=True)
+            self.fields['console_server'].queryset = Device.objects.filter(rack=self.initial['rack'],
+                                                                           device_type__is_console_server=True)
         else:
-            self.fields['console_server'].choices = []
+            self.fields['console_server'].queryset = Device.objects.filter(site=self.instance.device.site,
+                                                                           rack__isnull=True,
+                                                                           device_type__is_console_server=True)
 
         # Initialize CS port choices
         if self.is_bound:
@@ -849,27 +974,61 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsoleServerPortCreateForm(BootstrapMixin, forms.Form):
+class ConsoleServerPortCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
 class ConsoleServerPortConnectionForm(BootstrapMixin, forms.Form):
-    rack = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
-                                  widget=forms.Select(attrs={'filter-for': 'device'}))
-    device = forms.ModelChoiceField(queryset=Device.objects.all(), label='Device', required=False,
-                                    widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}',
-                                                     display_field='display_name', attrs={'filter-for': 'port'}))
-    livesearch = forms.CharField(required=False, label='Device', widget=Livesearch(
-        query_key='q', query_url='dcim-api:device_list', field_to_update='device')
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        widget=forms.HiddenInput(),
     )
-    port = forms.ModelChoiceField(queryset=ConsolePort.objects.all(), label='Port',
-                                  widget=APISelect(api_url='/api/dcim/devices/{{device}}/console-ports/',
-                                                   disabled_indicator='cs_port'))
-    connection_status = forms.BooleanField(required=False, initial=CONNECTION_STATUS_CONNECTED, label='Status',
-                                           widget=forms.Select(choices=CONNECTION_STATUS_CHOICES))
+    rack = forms.ModelChoiceField(
+        queryset=Rack.objects.all(),
+        label='Rack',
+        required=False,
+        widget=forms.Select(
+            attrs={'filter-for': 'device', 'nullable': 'true'}
+        )
+    )
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        label='Device',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
+            display_field='display_name',
+            attrs={'filter-for': 'port'}
+        )
+    )
+    livesearch = forms.CharField(
+        required=False,
+        label='Device',
+        widget=Livesearch(
+            query_key='q',
+            query_url='dcim-api:device_list',
+            field_to_update='device'
+        )
+    )
+    port = forms.ModelChoiceField(
+        queryset=ConsolePort.objects.all(),
+        label='Port',
+        widget=APISelect(
+            api_url='/api/dcim/devices/{{device}}/console-ports/',
+            disabled_indicator='cs_port'
+        )
+    )
+    connection_status = forms.BooleanField(
+        required=False,
+        initial=CONNECTION_STATUS_CONNECTED,
+        label='Status',
+        widget=forms.Select(
+            choices=CONNECTION_STATUS_CHOICES
+        )
+    )
 
     class Meta:
-        fields = ['rack', 'device', 'livesearch', 'port', 'connection_status']
+        fields = ['site', 'rack', 'device', 'livesearch', 'port', 'connection_status']
         labels = {
             'connection_status': 'Status',
         }
@@ -878,7 +1037,8 @@ class ConsoleServerPortConnectionForm(BootstrapMixin, forms.Form):
 
         super(ConsoleServerPortConnectionForm, self).__init__(*args, **kwargs)
 
-        self.fields['rack'].queryset = Rack.objects.filter(site=consoleserverport.device.rack.site)
+        self.initial['site'] = consoleserverport.device.site
+        self.fields['rack'].queryset = Rack.objects.filter(site=consoleserverport.device.site)
 
         # Initialize device choices
         if self.is_bound and self.data.get('rack'):
@@ -886,7 +1046,8 @@ class ConsoleServerPortConnectionForm(BootstrapMixin, forms.Form):
         elif self.initial.get('rack', None):
             self.fields['device'].queryset = Device.objects.filter(rack=self.initial['rack'])
         else:
-            self.fields['device'].choices = []
+            self.fields['device'].queryset = Device.objects.filter(site=consoleserverport.device.site,
+                                                                   rack__isnull=True)
 
         # Initialize port choices
         if self.is_bound:
@@ -911,13 +1072,18 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerPortCreateForm(BootstrapMixin, forms.Form):
+class PowerPortCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
 class PowerConnectionCSVForm(forms.Form):
-    pdu = FlexibleModelChoiceField(queryset=Device.objects.filter(device_type__is_pdu=True), to_field_name='name',
-                                   error_messages={'invalid_choice': 'PDU not found.'})
+    pdu = FlexibleModelChoiceField(
+        queryset=Device.objects.filter(device_type__is_pdu=True),
+        to_field_name='name',
+        error_messages={
+            'invalid_choice': 'PDU not found.',
+        }
+    )
     power_outlet = forms.CharField()
     device = FlexibleModelChoiceField(queryset=Device.objects.all(), to_field_name='name',
                                       error_messages={'invalid_choice': 'Device not found'})
@@ -983,21 +1149,46 @@ class PowerConnectionImportForm(BootstrapMixin, BulkImportForm):
 
 
 class PowerPortConnectionForm(BootstrapMixin, forms.ModelForm):
-    rack = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
-                                  widget=forms.Select(attrs={'filter-for': 'pdu'}))
-    pdu = forms.ModelChoiceField(queryset=Device.objects.all(), label='PDU', required=False,
-                                 widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}&is_pdu=True',
-                                                  display_field='display_name', attrs={'filter-for': 'power_outlet'}))
-    livesearch = forms.CharField(required=False, label='PDU', widget=Livesearch(
-        query_key='q', query_url='dcim-api:device_list', field_to_update='pdu')
+    site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.HiddenInput())
+    rack = forms.ModelChoiceField(
+        queryset=Rack.objects.all(),
+        label='Rack',
+        required=False,
+        widget=forms.Select(
+            attrs={'filter-for': 'pdu', 'nullable': 'true'}
+        )
     )
-    power_outlet = forms.ModelChoiceField(queryset=PowerOutlet.objects.all(), label='Outlet',
-                                          widget=APISelect(api_url='/api/dcim/devices/{{pdu}}/power-outlets/',
-                                                           disabled_indicator='connected_port'))
+    pdu = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        label='PDU',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}&is_pdu=True',
+            display_field='display_name',
+            attrs={'filter-for': 'power_outlet'}
+        )
+    )
+    livesearch = forms.CharField(
+        required=False,
+        label='PDU',
+        widget=Livesearch(
+            query_key='q',
+            query_url='dcim-api:device_list',
+            field_to_update='pdu'
+        )
+    )
+    power_outlet = forms.ModelChoiceField(
+        queryset=PowerOutlet.objects.all(),
+        label='Outlet',
+        widget=APISelect(
+            api_url='/api/dcim/devices/{{pdu}}/power-outlets/',
+            disabled_indicator='connected_port'
+        )
+    )
 
     class Meta:
         model = PowerPort
-        fields = ['rack', 'pdu', 'livesearch', 'power_outlet', 'connection_status']
+        fields = ['site', 'rack', 'pdu', 'livesearch', 'power_outlet', 'connection_status']
         labels = {
             'power_outlet': 'Outlet',
             'connection_status': 'Status',
@@ -1010,17 +1201,22 @@ class PowerPortConnectionForm(BootstrapMixin, forms.ModelForm):
         if not self.instance.pk:
             raise RuntimeError("PowerPortConnectionForm must be initialized with an existing PowerPort instance.")
 
-        self.fields['rack'].queryset = Rack.objects.filter(site=self.instance.device.rack.site)
+        self.initial['site'] = self.instance.device.site
+        self.fields['rack'].queryset = Rack.objects.filter(site=self.instance.device.site)
         self.fields['power_outlet'].required = True
         self.fields['connection_status'].choices = CONNECTION_STATUS_CHOICES
 
         # Initialize PDU choices
         if self.is_bound and self.data.get('rack'):
-            self.fields['pdu'].queryset = Device.objects.filter(rack=self.data['rack'], device_type__is_pdu=True)
+            self.fields['pdu'].queryset = Device.objects.filter(rack=self.data['rack'],
+                                                                device_type__is_pdu=True)
         elif self.initial.get('rack', None):
-            self.fields['pdu'].queryset = Device.objects.filter(rack=self.initial['rack'], device_type__is_pdu=True)
+            self.fields['pdu'].queryset = Device.objects.filter(rack=self.initial['rack'],
+                                                                device_type__is_pdu=True)
         else:
-            self.fields['pdu'].choices = []
+            self.fields['pdu'].queryset = Device.objects.filter(site=self.instance.device.site,
+                                                                rack__isnull=True,
+                                                                device_type__is_pdu=True)
 
         # Initialize power outlet choices
         if self.is_bound:
@@ -1045,27 +1241,61 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerOutletCreateForm(BootstrapMixin, forms.Form):
+class PowerOutletCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
 class PowerOutletConnectionForm(BootstrapMixin, forms.Form):
-    rack = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
-                                  widget=forms.Select(attrs={'filter-for': 'device'}))
-    device = forms.ModelChoiceField(queryset=Device.objects.all(), label='Device', required=False,
-                                    widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack}}',
-                                                     display_field='display_name', attrs={'filter-for': 'port'}))
-    livesearch = forms.CharField(required=False, label='Device', widget=Livesearch(
-        query_key='q', query_url='dcim-api:device_list', field_to_update='device')
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        widget=forms.HiddenInput()
     )
-    port = forms.ModelChoiceField(queryset=PowerPort.objects.all(), label='Port',
-                                  widget=APISelect(api_url='/api/dcim/devices/{{device}}/power-ports/',
-                                                   disabled_indicator='power_outlet'))
-    connection_status = forms.BooleanField(required=False, initial=CONNECTION_STATUS_CONNECTED, label='Status',
-                                           widget=forms.Select(choices=CONNECTION_STATUS_CHOICES))
+    rack = forms.ModelChoiceField(
+        queryset=Rack.objects.all(),
+        label='Rack',
+        required=False,
+        widget=forms.Select(
+            attrs={'filter-for': 'device', 'nullable': 'true'}
+        )
+    )
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        label='Device',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
+            display_field='display_name',
+            attrs={'filter-for': 'port'}
+        )
+    )
+    livesearch = forms.CharField(
+        required=False,
+        label='Device',
+        widget=Livesearch(
+            query_key='q',
+            query_url='dcim-api:device_list',
+            field_to_update='device'
+        )
+    )
+    port = forms.ModelChoiceField(
+        queryset=PowerPort.objects.all(),
+        label='Port',
+        widget=APISelect(
+            api_url='/api/dcim/devices/{{device}}/power-ports/',
+            disabled_indicator='power_outlet'
+        )
+    )
+    connection_status = forms.BooleanField(
+        required=False,
+        initial=CONNECTION_STATUS_CONNECTED,
+        label='Status',
+        widget=forms.Select(
+            choices=CONNECTION_STATUS_CHOICES
+        )
+    )
 
     class Meta:
-        fields = ['rack', 'device', 'livesearch', 'port', 'connection_status']
+        fields = ['site', 'rack', 'device', 'livesearch', 'port', 'connection_status']
         labels = {
             'connection_status': 'Status',
         }
@@ -1074,7 +1304,8 @@ class PowerOutletConnectionForm(BootstrapMixin, forms.Form):
 
         super(PowerOutletConnectionForm, self).__init__(*args, **kwargs)
 
-        self.fields['rack'].queryset = Rack.objects.filter(site=poweroutlet.device.rack.site)
+        self.initial['site'] = poweroutlet.device.site
+        self.fields['rack'].queryset = Rack.objects.filter(site=poweroutlet.device.site)
 
         # Initialize device choices
         if self.is_bound and self.data.get('rack'):
@@ -1082,7 +1313,8 @@ class PowerOutletConnectionForm(BootstrapMixin, forms.Form):
         elif self.initial.get('rack', None):
             self.fields['device'].queryset = Device.objects.filter(rack=self.initial['rack'])
         else:
-            self.fields['device'].choices = []
+            self.fields['device'].queryset = Device.objects.filter(site=poweroutlet.device.site,
+                                                                   rack__isnull=True)
 
         # Initialize port choices
         if self.is_bound:
@@ -1101,27 +1333,65 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Interface
-        fields = ['device', 'name', 'form_factor', 'mac_address', 'mgmt_only', 'description']
+        fields = ['device', 'name', 'form_factor', 'lag', 'mac_address', 'mgmt_only', 'description']
         widgets = {
             'device': forms.HiddenInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(InterfaceForm, self).__init__(*args, **kwargs)
 
-class InterfaceCreateForm(BootstrapMixin, forms.Form):
+        # Limit LAG choices to interfaces belonging to this device
+        if self.is_bound:
+            self.fields['lag'].queryset = Interface.objects.order_naturally().filter(
+                device_id=self.data['device'], form_factor=IFACE_FF_LAG
+            )
+        else:
+            self.fields['lag'].queryset = Interface.objects.order_naturally().filter(
+                device=self.instance.device, form_factor=IFACE_FF_LAG
+            )
+
+
+class InterfaceCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
     form_factor = forms.ChoiceField(choices=IFACE_FF_CHOICES)
+    lag = forms.ModelChoiceField(queryset=Interface.objects.all(), required=False, label='Parent LAG')
     mac_address = MACAddressFormField(required=False, label='MAC Address')
     mgmt_only = forms.BooleanField(required=False, label='OOB Management')
     description = forms.CharField(max_length=100, required=False)
 
+    def __init__(self, *args, **kwargs):
+        super(InterfaceCreateForm, self).__init__(*args, **kwargs)
+
+        # Limit LAG choices to interfaces belonging to this device
+        if self.device is not None:
+            self.fields['lag'].queryset = Interface.objects.order_naturally().filter(
+                device=self.device, form_factor=IFACE_FF_LAG
+            )
+        else:
+            self.fields['lag'].queryset = Interface.objects.none()
+
 
 class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
+    device = forms.ModelChoiceField(queryset=Device.objects.all(), widget=forms.HiddenInput)
+    lag = forms.ModelChoiceField(queryset=Interface.objects.all(), required=False, label='Parent LAG')
     form_factor = forms.ChoiceField(choices=add_blank_choice(IFACE_FF_CHOICES), required=False)
     description = forms.CharField(max_length=100, required=False)
 
     class Meta:
-        nullable_fields = ['description']
+        nullable_fields = ['lag', 'description']
+
+    def __init__(self, *args, **kwargs):
+        super(InterfaceBulkEditForm, self).__init__(*args, **kwargs)
+
+        # Limit LAG choices to interfaces which belong to the parent device.
+        if self.initial.get('device'):
+            self.fields['lag'].queryset = Interface.objects.filter(
+                device=self.initial['device'], form_factor=IFACE_FF_LAG
+            )
+        else:
+            self.fields['lag'].choices = []
 
 
 #
@@ -1129,22 +1399,55 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
 #
 
 class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
-    interface_a = forms.ChoiceField(choices=[], widget=SelectWithDisabled, label='Interface')
-    site_b = forms.ModelChoiceField(queryset=Site.objects.all(), label='Site', required=False,
-                                    widget=forms.Select(attrs={'filter-for': 'rack_b'}))
-    rack_b = forms.ModelChoiceField(queryset=Rack.objects.all(), label='Rack', required=False,
-                                    widget=APISelect(api_url='/api/dcim/racks/?site_id={{site_b}}',
-                                                     attrs={'filter-for': 'device_b'}))
-    device_b = forms.ModelChoiceField(queryset=Device.objects.all(), label='Device', required=False,
-                                      widget=APISelect(api_url='/api/dcim/devices/?rack_id={{rack_b}}',
-                                                       display_field='display_name',
-                                                       attrs={'filter-for': 'interface_b'}))
-    livesearch = forms.CharField(required=False, label='Device', widget=Livesearch(
-        query_key='q', query_url='dcim-api:device_list', field_to_update='device_b')
+    interface_a = forms.ChoiceField(
+        choices=[],
+        widget=SelectWithDisabled,
+        label='Interface'
     )
-    interface_b = forms.ModelChoiceField(queryset=Interface.objects.all(), label='Interface',
-                                         widget=APISelect(api_url='/api/dcim/devices/{{device_b}}/interfaces/?type=physical',
-                                                          disabled_indicator='is_connected'))
+    site_b = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        label='Site',
+        required=False,
+        widget=forms.Select(
+            attrs={'filter-for': 'rack_b'}
+        )
+    )
+    rack_b = forms.ModelChoiceField(
+        queryset=Rack.objects.all(),
+        label='Rack',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/racks/?site_id={{site_b}}',
+            attrs={'filter-for': 'device_b', 'nullable': 'true'}
+        )
+    )
+    device_b = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        label='Device',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/devices/?site_id={{site_b}}&rack_id={{rack_b}}',
+            display_field='display_name',
+            attrs={'filter-for': 'interface_b'}
+        )
+    )
+    livesearch = forms.CharField(
+        required=False,
+        label='Device',
+        widget=Livesearch(
+            query_key='q',
+            query_url='dcim-api:device_list',
+            field_to_update='device_b'
+        )
+    )
+    interface_b = forms.ModelChoiceField(
+        queryset=Interface.objects.all(),
+        label='Interface',
+        widget=APISelect(
+            api_url='/api/dcim/devices/{{device_b}}/interfaces/?type=physical',
+            disabled_indicator='is_connected'
+        )
+    )
 
     class Meta:
         model = InterfaceConnection
@@ -1155,8 +1458,11 @@ class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
         super(InterfaceConnectionForm, self).__init__(*args, **kwargs)
 
         # Initialize interface A choices
-        device_a_interfaces = Interface.objects.filter(device=device_a).exclude(form_factor=IFACE_FF_VIRTUAL)\
-            .select_related('circuit_termination', 'connected_as_a', 'connected_as_b')
+        device_a_interfaces = Interface.objects.filter(device=device_a).exclude(
+            form_factor__in=VIRTUAL_IFACE_TYPES
+        ).select_related(
+            'circuit_termination', 'connected_as_a', 'connected_as_b'
+        )
         self.fields['interface_a'].choices = [
             (iface.id, {'label': iface.name, 'disabled': iface.is_connected}) for iface in device_a_interfaces
         ]
@@ -1169,23 +1475,31 @@ class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
         else:
             self.fields['rack_b'].choices = []
 
-        # Initialize device_b choices if rack_b is set
+        # Initialize device_b choices if rack_b or site_b is set
         if self.is_bound and self.data.get('rack_b'):
             self.fields['device_b'].queryset = Device.objects.filter(rack__pk=self.data['rack_b'])
+        elif self.is_bound and self.data.get('site_b'):
+            self.fields['device_b'].queryset = Device.objects.filter(site__pk=self.data['site_b'], rack__isnull=True)
         elif self.initial.get('rack_b'):
             self.fields['device_b'].queryset = Device.objects.filter(rack=self.initial['rack_b'])
+        elif self.initial.get('site_b'):
+            self.fields['device_b'].queryset = Device.objects.filter(site=self.initial['site_b'], rack__isnull=True)
         else:
             self.fields['device_b'].choices = []
 
         # Initialize interface_b choices if device_b is set
         if self.is_bound:
-            device_b_interfaces = Interface.objects.filter(device=self.data['device_b'])\
-                .exclude(form_factor=IFACE_FF_VIRTUAL)\
-                .select_related('circuit_termination', 'connected_as_a', 'connected_as_b')
+            device_b_interfaces = Interface.objects.filter(device=self.data['device_b']).exclude(
+                form_factor__in=VIRTUAL_IFACE_TYPES
+            ).select_related(
+                'circuit_termination', 'connected_as_a', 'connected_as_b'
+            )
         elif self.initial.get('device_b'):
-            device_b_interfaces = Interface.objects.filter(device=self.initial['device_b'])\
-                .exclude(form_factor=IFACE_FF_VIRTUAL)\
-                .select_related('circuit_termination', 'connected_as_a', 'connected_as_b')
+            device_b_interfaces = Interface.objects.filter(device=self.initial['device_b']).exclude(
+                form_factor__in=VIRTUAL_IFACE_TYPES
+            ).select_related(
+                'circuit_termination', 'connected_as_a', 'connected_as_b'
+            )
         else:
             device_b_interfaces = []
         self.fields['interface_b'].choices = [
@@ -1194,13 +1508,21 @@ class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
 
 
 class InterfaceConnectionCSVForm(forms.Form):
-    device_a = FlexibleModelChoiceField(queryset=Device.objects.all(), to_field_name='name',
-                                        error_messages={'invalid_choice': 'Device A not found.'})
+    device_a = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        error_messages={'invalid_choice': 'Device A not found.'}
+    )
     interface_a = forms.CharField()
-    device_b = FlexibleModelChoiceField(queryset=Device.objects.all(), to_field_name='name',
-                                        error_messages={'invalid_choice': 'Device B not found.'})
+    device_b = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        error_messages={'invalid_choice': 'Device B not found.'}
+    )
     interface_b = forms.CharField()
-    status = forms.CharField(validators=[validate_connection_status])
+    status = forms.CharField(
+        validators=[validate_connection_status]
+    )
 
     def clean(self):
 
@@ -1295,7 +1617,7 @@ class DeviceBayForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class DeviceBayCreateForm(BootstrapMixin, forms.Form):
+class DeviceBayCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
