@@ -2,7 +2,7 @@ This section entails features of NetBox which are not crucial to its primary fun
 
 # Custom Fields
 
-Each object in NetBox is represented in the database as a discrete table, and each attribute of an object exists as a column within its table. For example, sites are stored in the `dcim_site` table, which has columns named `name`, `facility`, `physical_address` and so on. As new attributes are added to objects throughout the development of NetBox, tables are expanded to include new rows.
+Each object in NetBox is represented in the database as a discrete table, and each attribute of an object exists as a column within its table. For example, sites are stored in the `dcim_site` table, which has columns named `name`, `facility`, `physical_address`, and so on. As new attributes are added to objects throughout the development of NetBox, tables are expanded to include new rows.
 
 However, some users might want to associate with objects attributes that are somewhat esoteric in nature, and that would not make sense to include in the core NetBox database schema. For instance, suppose your organization needs to associate each device with a ticket number pointing to the support ticket that was opened to have it installed. This is certainly a legitimate use for NetBox, but it's perhaps not a common enough need to warrant expanding the internal data schema. Instead, you can create a custom field to hold this data.
 
@@ -33,7 +33,15 @@ NetBox allows users to define custom templates that can be used when exporting o
 
 Each export template is associated with a certain type of object. For instance, if you create an export template for VLANs, your custom template will appear under the "Export" button on the VLANs list.
 
-Export templates are written in [Django's template language](https://docs.djangoproject.com/en/1.9/ref/templates/language/), which is very similar to Jinja2. The list of objects returned from the database is stored in the `queryset` variable. Typically, you'll want to iterate through this list using a for loop.
+Export templates are written in [Django's template language](https://docs.djangoproject.com/en/1.9/ref/templates/language/), which is very similar to Jinja2. The list of objects returned from the database is stored in the `queryset` variable, which you'll typically want to iterate through using a `for` loop. Object properties can be access by name. For example:
+
+```
+{% for rack in queryset %}
+Rack: {{ rack.name }}
+Site: {{ rack.site.name }}
+Height: {{ rack.u_height }}U
+{% endfor %}
+```
 
 To access custom fields of an object within a template, use the `cf` attribute. For example, `{{ obj.cf.color }}` will return the value (if any) for a custom field named `color` on `obj`.
 
@@ -44,10 +52,10 @@ A MIME type and file extension can optionally be defined for each export templat
 Here's an example device export template that will generate a simple Nagios configuration from a list of devices.
 
 ```
-{% for d in queryset %}{% if d.status and d.primary_ip %}define host{
+{% for device in queryset %}{% if device.status and device.primary_ip %}define host{
         use                     generic-switch
-        host_name               {{ d.name }}
-        address                 {{ d.primary_ip.address.ip }}
+        host_name               {{ device.name }}
+        address                 {{ device.primary_ip.address.ip }}
 }
 {% endif %}{% endfor %}
 ```
@@ -74,9 +82,9 @@ define host{
 
 # Graphs
 
-NetBox does not generate graphs itself. This feature allows you to embed contextual graphs from an external resources inside certain NetBox views. Each embedded graph must be defined with the following parameters:
+NetBox does not have the ability to generate graphs natively, but this feature allows you to embed contextual graphs from an external resources (such as a monitoring system) inside the site, provider, and interface views. Each embedded graph must be defined with the following parameters:
 
-* **Type:** Interface, provider, or site. This determines where the graph will be displayed.
+* **Type:** Site, provider, or interface. This determines in which view the graph will be displayed.
 * **Weight:** Determines the order in which graphs are displayed (lower weights are displayed first). Graphs with equal weights will be ordered alphabetically by name.
 * **Name:** The title to display above the graph.
 * **Source URL:** The source of the image to be embedded. The associated object will be available as a template variable named `obj`.
@@ -86,7 +94,7 @@ NetBox does not generate graphs itself. This feature allows you to embed context
 
 NetBox can generate simple topology maps from the physical network connections recorded in its database. First, you'll need to create a topology map definition under the admin UI at Extras > Topology Maps.
 
-Each topology map is associated with a site. A site can have multiple topology maps, which might each illustrate a different aspect of its infrastructure (for example, production versus backend connectivity).
+Each topology map is associated with a site. A site can have multiple topology maps, which might each illustrate a different aspect of its infrastructure (for example, production versus backend infrastructure).
 
 To define the scope of a topology map, decide which devices you want to include. The map will only include interface connections with both points terminated on an included device. Specify the devices to include in the **device patterns** field by entering a list of [regular expressions](https://en.wikipedia.org/wiki/Regular_expression) matching device names. For example, if you wanted to include "mgmt-switch1" through "mgmt-switch99", you might use the regex `mgmt-switch\d+`.
 

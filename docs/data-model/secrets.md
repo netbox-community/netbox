@@ -24,11 +24,11 @@ Roles are also used to control access to secrets. Each role is assigned an arbit
 
 Each user within NetBox can associate his or her account with an RSA public key. If activated by an administrator, this user key will contain a unique, encrypted copy of the AES master key needed to retrieve secret data.
 
-User keys may be created by users individually, however they are of no use until they have been activated by a user who already has access to retrieve secret data.
+User keys may be created by users individually, however they are of no use until they have been activated by a user who already possesses an active user key.
 
 ## Creating the First User Key
 
-When NetBox is first installed, it contains no encryption keys. Before it can store secrets, a user (typically the super user) must create a user key. This can be done by navigating to Profile > User Key.
+When NetBox is first installed, it contains no encryption keys. Before it can store secrets, a user (typically the superuser) must create a user key. This can be done by navigating to Profile > User Key.
 
 To create a user key, you can either generate a new RSA key pair, or upload the public key belonging to a pair you already have. If generating a new key pair, **you must save the private key** locally before saving your new user key. Once your user key has been created, its public key will be displayed under your profile.
 
