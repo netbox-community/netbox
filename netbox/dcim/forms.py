@@ -82,7 +82,7 @@ class RegionForm(BootstrapMixin, forms.ModelForm):
 #
 
 class SiteForm(BootstrapMixin, CustomFieldForm):
-    region = TreeNodeChoiceField(queryset=Region.objects.all())
+    region = TreeNodeChoiceField(queryset=Region.objects.all(), required=False)
     slug = SlugField()
     comments = CommentField()
 
@@ -1468,19 +1468,13 @@ class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
         ]
 
         # Initialize rack_b choices if site_b is set
-        if self.is_bound and self.data.get('site_b'):
-            self.fields['rack_b'].queryset = Rack.objects.filter(site__pk=self.data['site_b'])
-        elif self.initial.get('site_b'):
+        if self.initial.get('site_b'):
             self.fields['rack_b'].queryset = Rack.objects.filter(site=self.initial['site_b'])
         else:
             self.fields['rack_b'].choices = []
 
         # Initialize device_b choices if rack_b or site_b is set
-        if self.is_bound and self.data.get('rack_b'):
-            self.fields['device_b'].queryset = Device.objects.filter(rack__pk=self.data['rack_b'])
-        elif self.is_bound and self.data.get('site_b'):
-            self.fields['device_b'].queryset = Device.objects.filter(site__pk=self.data['site_b'], rack__isnull=True)
-        elif self.initial.get('rack_b'):
+        if self.initial.get('rack_b'):
             self.fields['device_b'].queryset = Device.objects.filter(rack=self.initial['rack_b'])
         elif self.initial.get('site_b'):
             self.fields['device_b'].queryset = Device.objects.filter(site=self.initial['site_b'], rack__isnull=True)
@@ -1488,13 +1482,7 @@ class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
             self.fields['device_b'].choices = []
 
         # Initialize interface_b choices if device_b is set
-        if self.is_bound:
-            device_b_interfaces = Interface.objects.filter(device=self.data['device_b']).exclude(
-                form_factor__in=VIRTUAL_IFACE_TYPES
-            ).select_related(
-                'circuit_termination', 'connected_as_a', 'connected_as_b'
-            )
-        elif self.initial.get('device_b'):
+        if self.initial.get('device_b'):
             device_b_interfaces = Interface.objects.filter(device=self.initial['device_b']).exclude(
                 form_factor__in=VIRTUAL_IFACE_TYPES
             ).select_related(
