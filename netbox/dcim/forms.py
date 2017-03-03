@@ -82,7 +82,7 @@ class RegionForm(BootstrapMixin, forms.ModelForm):
 #
 
 class SiteForm(BootstrapMixin, CustomFieldForm):
-    region = TreeNodeChoiceField(queryset=Region.objects.all())
+    region = TreeNodeChoiceField(queryset=Region.objects.all(), required=False)
     slug = SlugField()
     comments = CommentField()
 
