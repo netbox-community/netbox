@@ -171,7 +171,7 @@ def site(request, slug):
     site = get_object_or_404(Site.objects.select_related('region', 'tenant__group'), slug=slug)
     stats = {
         'rack_count': Rack.objects.filter(site=site).count(),
-        'device_count': Device.objects.filter(rack__site=site).count(),
+        'device_count': Device.objects.filter(site=site).count(),
         'prefix_count': Prefix.objects.filter(site=site).count(),
         'vlan_count': VLAN.objects.filter(site=site).count(),
         'circuit_count': Circuit.objects.filter(terminations__site=site).count(),

@@ -293,7 +293,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
 
     @property
     def count_devices(self):
-        return Device.objects.filter(rack__site=self).count()
+        return Device.objects.filter(site=self).count()
 
     @property
     def count_circuits(self):
