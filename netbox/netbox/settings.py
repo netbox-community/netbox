@@ -185,14 +185,21 @@ SECRETS_MIN_PUBKEY_SIZE = 2048
 
 # Django REST framework (API)
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'utilities.api.TokenAuthentication',
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.DjangoFilterBackend',
+    ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_PERMISSION_CLASSES': (
+        'utilities.api.TokenPermissions',
+    ),
     'DEFAULT_VERSION': VERSION.rsplit('.', 1)[0],  # Use major.minor as API version
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'PAGE_SIZE': PAGINATE_COUNT,
 }
-if LOGIN_REQUIRED:
-    REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = ('rest_framework.permissions.IsAuthenticated',)
 
 # Django debug toolbar
 INTERNAL_IPS = (
