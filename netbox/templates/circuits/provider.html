@@ -152,7 +152,7 @@
                         </td>
                         <td>
                             {% if c.tenant %}
-                                <a href="{% url 'tenants:tenant' slug=c.tenant.slug %}">{{ c.tenant }}</a>
+                                <a href="{% url 'tenancy:tenant' slug=c.tenant.slug %}">{{ c.tenant }}</a>
                             {% else %}
                                 <span class="text-muted">&mdash;</span>
                             {% endif %}
