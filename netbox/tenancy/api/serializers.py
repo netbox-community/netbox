@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from extras.api.serializers import CustomFieldModelSerializer
+from extras.api.customfields import CustomFieldModelSerializer
 from tenancy.models import Tenant, TenantGroup
 
 

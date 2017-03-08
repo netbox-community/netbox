@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from circuits.models import Provider, Circuit, CircuitTermination, CircuitType
 from dcim.api.serializers import NestedSiteSerializer, InterfaceSerializer
-from extras.api.serializers import CustomFieldModelSerializer
+from extras.api.customfields import CustomFieldModelSerializer
 from tenancy.api.serializers import NestedTenantSerializer
 
 

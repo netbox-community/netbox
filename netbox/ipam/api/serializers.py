@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from dcim.api.serializers import NestedDeviceSerializer, InterfaceSerializer, NestedSiteSerializer
-from extras.api.serializers import CustomFieldModelSerializer
+from extras.api.customfields import CustomFieldModelSerializer
 from ipam.models import (
     Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, IP_PROTOCOL_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role,
     Service, VLAN, VLAN_STATUS_CHOICES, VLANGroup, VRF,
