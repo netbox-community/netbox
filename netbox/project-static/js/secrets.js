@@ -92,7 +92,7 @@ $(document).ready(function() {
     $('#generate_keypair').click(function() {
         $('#new_keypair_modal').modal('show');
         $.ajax({
-            url: netbox_api_path + 'secrets/generate-keys/',
+            url: netbox_api_path + 'secrets/generate-rsa-key-pair/',
             type: 'GET',
             dataType: 'json',
             success: function (response, status) {

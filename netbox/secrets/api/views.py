@@ -7,14 +7,12 @@ from rest_framework.authentication import BasicAuthentication, SessionAuthentica
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ViewSet, ModelViewSet
 
 from extras.api.renderers import FormlessBrowsableAPIRenderer, FreeRADIUSClientsRenderer
 from secrets.filters import SecretFilter
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
 from utilities.api import WritableSerializerMixin
-
 from . import serializers
 
 
@@ -107,13 +105,25 @@ class SecretViewSet(WritableSerializerMixin, ModelViewSet):
         return Response(serializer.data)
 
 
-class GetSessionKey(APIView):
+class GetSessionKeyViewSet(ViewSet):
     """
-    Cache an encrypted copy of the master key derived from the submitted private key.
+    Retrieve a temporary session key to use for encrypting and decrypting secrets via the API. The user's private RSA
+    key is POSTed with the name `private_key`. An example:
+
+        curl -v -X POST -H "Authorization: Token <token>" -H "Accept: application/json; indent=4" \\
+        --data-urlencode "private_key@<filename>" https://netbox/api/secrets/get-session-key/
+
+    This request will yield a session key to be included in an `X-Session-Key` header in future requests, as well as its
+    expiration time:
+
+        {
+            "expiration_time": "2017-03-09T10:42:23.095267Z",
+            "session_key": "+8t4SI6XikgVmB5+/urhozx9O5qCQANyOk1MNe6taRf="
+        }
     """
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    def create(self, request):
 
         # Read private key
         private_key = request.POST.get('private_key', None)
@@ -150,13 +160,18 @@ class GetSessionKey(APIView):
         return response
 
 
-class RSAKeyGeneratorView(APIView):
+class GenerateRSAKeyPairViewSet(ViewSet):
     """
-    Generate a new RSA key pair for a user. Authenticated because it's a ripe avenue for DoS.
+    This endpoint can be used to generate a new RSA key pair. The keys are returned in PEM format.
+
+        {
+            "public_key": "<public key>",
+            "private_key": "<private key>"
+        }
     """
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def list(self, request):
 
         # Determine what size key to generate
         key_size = request.GET.get('key_size', 2048)
