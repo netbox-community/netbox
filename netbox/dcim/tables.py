@@ -12,11 +12,11 @@ from .models import (
 
 REGION_LINK = """
 {% if record.get_children %}
-    <span style="padding-left: {{ record.get_ancestors|length }}0px "><i class="fa fa-caret-right"></i></a>
+    <span style="padding-left: {{ record.get_ancestors|length }}0px "><i class="fa fa-caret-right"></i>
 {% else %}
     <span style="padding-left: {{ record.get_ancestors|length }}9px">
 {% endif %}
-    {{ record.name }}
+    <a href="{% url 'dcim:site_list' %}?region={{ record.slug }}">{{ record.name }}</a>
 </span>
 """
 
