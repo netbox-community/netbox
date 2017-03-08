@@ -1,11 +1,13 @@
 from collections import OrderedDict
 from datetime import date
+import graphviz
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
 from django.db import models
+from django.db.models import Q
 from django.http import HttpResponse
 from django.template import Template, Context
 from django.utils.encoding import python_2_unicode_compatible
@@ -65,6 +67,10 @@ ACTION_CHOICES = (
     (ACTION_BULK_DELETE, 'bulk deleted')
 )
 
+
+#
+# Custom fields
+#
 
 class CustomFieldModel(object):
 
@@ -211,6 +217,10 @@ class CustomFieldChoice(models.Model):
         CustomFieldValue.objects.filter(field__type=CF_TYPE_SELECT, serialized_value=str(pk)).delete()
 
 
+#
+# Graphs
+#
+
 @python_2_unicode_compatible
 class Graph(models.Model):
     type = models.PositiveSmallIntegerField(choices=GRAPH_TYPE_CHOICES)
@@ -235,6 +245,10 @@ class Graph(models.Model):
         template = Template(self.link)
         return template.render(Context({'obj': obj}))
 
+
+#
+# Export templates
+#
 
 @python_2_unicode_compatible
 class ExportTemplate(models.Model):
@@ -270,6 +284,10 @@ class ExportTemplate(models.Model):
         return response
 
 
+#
+# Topology maps
+#
+
 @python_2_unicode_compatible
 class TopologyMap(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -294,6 +312,56 @@ class TopologyMap(models.Model):
             return None
         return [line.strip() for line in self.device_patterns.split('\n')]
 
+    def render(self, format='png'):
+
+        from dcim.models import Device, InterfaceConnection
+
+        # Construct the graph
+        graph = graphviz.Graph()
+        graph.graph_attr['ranksep'] = '1'
+        for i, device_set in enumerate(self.device_sets):
+
+            subgraph = graphviz.Graph(name='sg{}'.format(i))
+            subgraph.graph_attr['rank'] = 'same'
+
+            # Add a pseudonode for each device_set to enforce hierarchical layout
+            subgraph.node('set{}'.format(i), label='', shape='none', width='0')
+            if i:
+                graph.edge('set{}'.format(i - 1), 'set{}'.format(i), style='invis')
+
+            # Add each device to the graph
+            devices = []
+            for query in device_set.split(';'):  # Split regexes on semicolons
+                devices += Device.objects.filter(name__regex=query)
+            for d in devices:
+                subgraph.node(d.name)
+
+            # Add an invisible connection to each successive device in a set to enforce horizontal order
+            for j in range(0, len(devices) - 1):
+                subgraph.edge(devices[j].name, devices[j + 1].name, style='invis')
+
+            graph.subgraph(subgraph)
+
+        # Compile list of all devices
+        device_superset = Q()
+        for device_set in self.device_sets:
+            for query in device_set.split(';'):  # Split regexes on semicolons
+                device_superset = device_superset | Q(name__regex=query)
+
+        # Add all connections to the graph
+        devices = Device.objects.filter(*(device_superset,))
+        connections = InterfaceConnection.objects.filter(
+            interface_a__device__in=devices, interface_b__device__in=devices
+        )
+        for c in connections:
+            graph.edge(c.interface_a.device.name, c.interface_b.device.name)
+
+        return graph.pipe(format=format)
+
+
+#
+# User actions
+#
 
 class UserActionManager(models.Manager):
 

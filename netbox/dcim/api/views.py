@@ -208,7 +208,7 @@ class PlatformViewSet(ModelViewSet):
 
 class DeviceViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = Device.objects.select_related(
-        'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'rack__site', 'parent_bay',
+        'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'rack', 'parent_bay',
     ).prefetch_related(
         'primary_ip4__nat_outside', 'primary_ip6__nat_outside',
     )
@@ -308,35 +308,6 @@ class InterfaceConnectionViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = InterfaceConnection.objects.select_related('interface_a__device', 'interface_b__device')
     serializer_class = serializers.InterfaceConnectionSerializer
     write_serializer_class = serializers.WritableInterfaceConnectionSerializer
-
-
-#
-# Live queries
-#
-
-class LLDPNeighborsView(APIView):
-    """
-    Retrieve live LLDP neighbors of a device
-    """
-
-    def get(self, request, pk):
-
-        device = get_object_or_404(Device, pk=pk)
-        if not device.primary_ip:
-            raise ServiceUnavailable(detail="No IP configured for this device.")
-
-        RPC = device.get_rpc_client()
-        if not RPC:
-            raise ServiceUnavailable(detail="No RPC client available for this platform ({}).".format(device.platform))
-
-        # Connect to device and retrieve inventory info
-        try:
-            with RPC(device, username=settings.NETBOX_USERNAME, password=settings.NETBOX_PASSWORD) as rpc_client:
-                lldp_neighbors = rpc_client.get_lldp_neighbors()
-        except:
-            raise ServiceUnavailable(detail="Error connecting to the remote device.")
-
-        return Response(lldp_neighbors)
 
 
 #

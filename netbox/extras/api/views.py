@@ -1,6 +1,6 @@
 import graphviz
 from rest_framework import generics
-from rest_framework.views import APIView
+from rest_framework.decorators import detail_route
 from rest_framework.viewsets import ModelViewSet
 
 from django.contrib.contenttypes.models import ContentType
@@ -10,9 +10,10 @@ from django.shortcuts import get_object_or_404
 
 from circuits.models import Provider
 from dcim.models import Site, Device, Interface, InterfaceConnection
+from extras import filters
 from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_PROVIDER, GRAPH_TYPE_SITE
-
-from .serializers import GraphSerializer
+from utilities.api import WritableSerializerMixin
+from . import serializers
 
 
 class CustomFieldModelViewSet(ModelViewSet):
@@ -49,7 +50,7 @@ class GraphListView(generics.ListAPIView):
     """
     Returns a list of relevant graphs
     """
-    serializer_class = GraphSerializer
+    serializer_class = serializers.GraphSerializer
 
     def get_serializer_context(self):
         cls = {
@@ -72,60 +73,27 @@ class GraphListView(generics.ListAPIView):
         return queryset
 
 
-class TopologyMapView(APIView):
-    """
-    Generate a topology diagram
-    """
+class TopologyMapViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = TopologyMap.objects.select_related('site')
+    serializer_class = serializers.TopologyMapSerializer
+    write_serializer_class = serializers.WritableTopologyMapSerializer
+    filter_class = filters.TopologyMapFilter
 
-    def get(self, request, slug):
+    @detail_route()
+    def render(self, request, pk):
 
-        tmap = get_object_or_404(TopologyMap, slug=slug)
+        tmap = get_object_or_404(TopologyMap, pk=pk)
+        format = 'png'
 
-        # Construct the graph
-        graph = graphviz.Graph()
-        graph.graph_attr['ranksep'] = '1'
-        for i, device_set in enumerate(tmap.device_sets):
-
-            subgraph = graphviz.Graph(name='sg{}'.format(i))
-            subgraph.graph_attr['rank'] = 'same'
-
-            # Add a pseudonode for each device_set to enforce hierarchical layout
-            subgraph.node('set{}'.format(i), label='', shape='none', width='0')
-            if i:
-                graph.edge('set{}'.format(i - 1), 'set{}'.format(i), style='invis')
-
-            # Add each device to the graph
-            devices = []
-            for query in device_set.split(';'):  # Split regexes on semicolons
-                devices += Device.objects.filter(name__regex=query)
-            for d in devices:
-                subgraph.node(d.name)
-
-            # Add an invisible connection to each successive device in a set to enforce horizontal order
-            for j in range(0, len(devices) - 1):
-                subgraph.edge(devices[j].name, devices[j + 1].name, style='invis')
-
-            graph.subgraph(subgraph)
-
-        # Compile list of all devices
-        device_superset = Q()
-        for device_set in tmap.device_sets:
-            for query in device_set.split(';'):  # Split regexes on semicolons
-                device_superset = device_superset | Q(name__regex=query)
-
-        # Add all connections to the graph
-        devices = Device.objects.filter(*(device_superset,))
-        connections = InterfaceConnection.objects.filter(interface_a__device__in=devices,
-                                                         interface_b__device__in=devices)
-        for c in connections:
-            graph.edge(c.interface_a.device.name, c.interface_b.device.name)
-
-        # Get the image data and return
         try:
-            topo_data = graph.pipe(format='png')
+            data = tmap.render(format=format)
         except:
-            return HttpResponse("There was an error generating the requested graph. Ensure that the GraphViz "
-                                "executables have been installed correctly.")
-        response = HttpResponse(topo_data, content_type='image/png')
+            return HttpResponse(
+                "There was an error generating the requested graph. Ensure that the GraphViz executables have been "
+                "installed correctly."
+            )
+
+        response = HttpResponse(data, content_type='image/{}'.format(format))
+        response['Content-Disposition'] = 'inline; filename="{}.{}"'.format(tmap.slug, format)
 
         return response

@@ -2,7 +2,8 @@ import django_filters
 
 from django.contrib.contenttypes.models import ContentType
 
-from .models import CF_TYPE_SELECT, CustomField
+from dcim.models import Site
+from .models import CF_TYPE_SELECT, CustomField, TopologyMap
 
 
 class CustomFieldFilter(django_filters.Filter):
@@ -44,3 +45,21 @@ class CustomFieldFilterSet(django_filters.FilterSet):
         custom_fields = CustomField.objects.filter(obj_type=obj_type, is_filterable=True)
         for cf in custom_fields:
             self.filters['cf_{}'.format(cf.name)] = CustomFieldFilter(name=cf.name, cf_type=cf.type)
+
+
+class TopologyMapFilter(django_filters.FilterSet):
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        name='site',
+        queryset=Site.objects.all(),
+        label='Site',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        name='site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site (slug)',
+    )
+
+    class Meta:
+        model = TopologyMap
+        fields = ['name', 'slug']

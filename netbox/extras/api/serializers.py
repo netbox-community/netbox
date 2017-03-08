@@ -2,8 +2,13 @@ from django.contrib.contenttypes.models import ContentType
 
 from rest_framework import serializers
 
-from extras.models import CustomField, CustomFieldChoice, Graph
+# from dcim.api.serializers import NestedSiteSerializer
+from extras.models import CustomField, CustomFieldChoice, Graph, TopologyMap
 
+
+#
+# Custom fields
+#
 
 class CustomFieldSerializer(serializers.BaseSerializer):
     """
@@ -41,6 +46,10 @@ class CustomFieldChoiceSerializer(serializers.ModelSerializer):
         fields = ['id', 'value']
 
 
+#
+# Graphs
+#
+
 class GraphSerializer(serializers.ModelSerializer):
     embed_url = serializers.SerializerMethodField()
     embed_link = serializers.SerializerMethodField()
@@ -54,3 +63,22 @@ class GraphSerializer(serializers.ModelSerializer):
 
     def get_embed_link(self, obj):
         return obj.embed_link(self.context['graphed_object'])
+
+
+#
+# Topology maps
+#
+
+class TopologyMapSerializer(CustomFieldModelSerializer):
+    # site = NestedSiteSerializer()
+
+    class Meta:
+        model = TopologyMap
+        fields = ['id', 'name', 'slug', 'site', 'device_patterns', 'description']
+
+
+class WritableTopologyMapSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TopologyMap
+        fields = ['name', 'slug', 'site', 'device_patterns', 'description']
