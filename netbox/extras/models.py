@@ -312,7 +312,7 @@ class TopologyMap(models.Model):
             return None
         return [line.strip() for line in self.device_patterns.split('\n')]
 
-    def render(self, format='png'):
+    def render(self, img_format='png'):
 
         from dcim.models import Device, InterfaceConnection
 
@@ -356,7 +356,7 @@ class TopologyMap(models.Model):
         for c in connections:
             graph.edge(c.interface_a.device.name, c.interface_b.device.name)
 
-        return graph.pipe(format=format)
+        return graph.pipe(format=img_format)
 
 
 #

@@ -1,15 +1,13 @@
-import graphviz
 from rest_framework import generics
 from rest_framework.decorators import detail_route
 from rest_framework.viewsets import ModelViewSet
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 
 from circuits.models import Provider
-from dcim.models import Site, Device, Interface, InterfaceConnection
+from dcim.models import Site, Interface
 from extras import filters
 from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_PROVIDER, GRAPH_TYPE_SITE
 from utilities.api import WritableSerializerMixin
@@ -83,17 +81,17 @@ class TopologyMapViewSet(WritableSerializerMixin, ModelViewSet):
     def render(self, request, pk):
 
         tmap = get_object_or_404(TopologyMap, pk=pk)
-        format = 'png'
+        img_format = 'png'
 
         try:
-            data = tmap.render(format=format)
+            data = tmap.render(img_format=img_format)
         except:
             return HttpResponse(
                 "There was an error generating the requested graph. Ensure that the GraphViz executables have been "
                 "installed correctly."
             )
 
-        response = HttpResponse(data, content_type='image/{}'.format(format))
-        response['Content-Disposition'] = 'inline; filename="{}.{}"'.format(tmap.slug, format)
+        response = HttpResponse(data, content_type='image/{}'.format(img_format))
+        response['Content-Disposition'] = 'inline; filename="{}.{}"'.format(tmap.slug, img_format)
 
         return response
