@@ -2,6 +2,7 @@ import binascii
 import os
 
 from django.contrib.auth.models import User
+from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils import timezone
@@ -16,7 +17,7 @@ class Token(models.Model):
     user = models.ForeignKey(User, related_name='tokens', on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     expires = models.DateTimeField(blank=True, null=True)
-    key = models.CharField(max_length=40, unique=True)
+    key = models.CharField(max_length=40, unique=True, validators=[MinLengthValidator(40)])
     write_enabled = models.BooleanField(default=True, help_text="Permit create/update/delete operations using this key")
     description = models.CharField(max_length=100, blank=True)
 
@@ -24,7 +25,8 @@ class Token(models.Model):
         default_permissions = []
 
     def __str__(self):
-        return u"API key for {}".format(self.user)
+        # Only display the last 24 bits of the token to avoid accidental exposure.
+        return u"{} ({})".format(self.key[-6:], self.user)
 
     def save(self, *args, **kwargs):
         if not self.key:

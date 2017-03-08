@@ -4,13 +4,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import is_safe_url
 from django.views.generic import View
 
 from secrets.forms import UserKeyForm
 from secrets.models import UserKey
-from .forms import LoginForm, PasswordChangeForm
+from utilities.forms import ConfirmationForm
+from .forms import LoginForm, PasswordChangeForm, TokenForm
 from .models import Token
 
 
@@ -136,7 +137,7 @@ def recent_activity(request):
 # API tokens
 #
 
-class TokenList(LoginRequiredMixin, View):
+class TokenListView(LoginRequiredMixin, View):
 
     def get(self, request):
 
@@ -145,4 +146,75 @@ class TokenList(LoginRequiredMixin, View):
         return render(request, 'users/api_tokens.html', {
             'tokens': tokens,
             'active_tab': 'api_tokens',
+        })
+
+
+class TokenEditView(LoginRequiredMixin, View):
+
+    def get(self, request, pk=None):
+
+        if pk is not None:
+            token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
+        else:
+            token = Token(user=request.user)
+
+        form = TokenForm(instance=token)
+
+        return render(request, 'utilities/obj_edit.html', {
+            'obj': token,
+            'obj_type': token._meta.verbose_name,
+            'form': form,
+            'return_url': reverse('users:token_list'),
+        })
+
+    def post(self, request, pk=None):
+
+        if pk is not None:
+            token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
+            form = TokenForm(request.POST, instance=token)
+        else:
+            form = TokenForm(request.POST)
+
+        if form.is_valid():
+            token = form.save(commit=False)
+            token.user = request.user
+            token.save()
+
+            msg = "Token updated" if pk else "New token created"
+            messages.success(request, msg)
+
+            return redirect('users:token_list')
+
+
+class TokenDeleteView(LoginRequiredMixin, View):
+
+    def get(self, request, pk):
+
+        token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
+        initial_data = {
+            'return_url': reverse('users:token_list'),
+        }
+        form = ConfirmationForm(initial=initial_data)
+
+        return render(request, 'utilities/obj_delete.html', {
+            'obj': token,
+            'obj_type': token._meta.verbose_name,
+            'form': form,
+            'return_url': reverse('users:token_list'),
+        })
+
+    def post(self, request, pk):
+
+        token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+            token.delete()
+            messages.success(request, "Token deleted")
+            return redirect('users:token_list')
+
+        return render(request, 'utilities/obj_delete.html', {
+            'obj': token,
+            'obj_type': token._meta.verbose_name,
+            'form': form,
+            'return_url': reverse('users:token_list'),
         })

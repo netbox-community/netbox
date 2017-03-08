@@ -9,11 +9,21 @@
 <div class="row">
     <div class="col-sm-3 col-md-2 col-md-offset-2">
         <ul class="nav nav-pills nav-stacked">
-            <li{% ifequal active_tab "profile" %} class="active"{% endifequal %}><a href="{% url 'users:profile' %}">Profile</a></li>
-            <li{% ifequal active_tab "change_password" %} class="active"{% endifequal %}><a href="{% url 'users:change_password' %}">Change Password</a></li>
-            <li{% ifequal active_tab "api_tokens" %} class="active"{% endifequal %}><a href="{% url 'users:api_tokens' %}">API Tokens</a></li>
-            <li{% ifequal active_tab "userkey" %} class="active"{% endifequal %}><a href="{% url 'users:userkey' %}">User Key</a></li>
-            <li{% ifequal active_tab "recent_activity" %} class="active"{% endifequal %}><a href="{% url 'users:recent_activity' %}">Recent Activity</a></li>
+            <li{% ifequal active_tab "profile" %} class="active"{% endifequal %}>
+                <a href="{% url 'users:profile' %}">Profile</a>
+            </li>
+            <li{% ifequal active_tab "change_password" %} class="active"{% endifequal %}>
+                <a href="{% url 'users:change_password' %}">Change Password</a>
+            </li>
+            <li{% ifequal active_tab "api_tokens" %} class="active"{% endifequal %}>
+                <a href="{% url 'users:token_list' %}">API Tokens</a>
+            </li>
+            <li{% ifequal active_tab "userkey" %} class="active"{% endifequal %}>
+                <a href="{% url 'users:userkey' %}">User Key</a>
+            </li>
+            <li{% ifequal active_tab "recent_activity" %} class="active"{% endifequal %}>
+                <a href="{% url 'users:recent_activity' %}">Recent Activity</a>
+            </li>
         </ul>
     </div>
 	<div class="col-sm-9 col-md-6">
