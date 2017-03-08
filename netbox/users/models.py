@@ -4,6 +4,7 @@ import os
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils import timezone
 
 
 @python_2_unicode_compatible
@@ -33,3 +34,9 @@ class Token(models.Model):
     def generate_key(self):
         # Generate a random 160-bit key expressed in hexadecimal.
         return binascii.hexlify(os.urandom(20)).decode()
+
+    @property
+    def is_expired(self):
+        if self.expires is not None and timezone.now() > self.expires:
+            return True
+        return False

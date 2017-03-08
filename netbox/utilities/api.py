@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.utils import timezone
 
 from rest_framework import authentication, exceptions
 from rest_framework.exceptions import APIException
@@ -31,7 +30,7 @@ class TokenAuthentication(authentication.TokenAuthentication):
             raise exceptions.AuthenticationFailed("Invalid token")
 
         # Enforce the Token's expiration time, if one has been set.
-        if token.expires and token.expires < timezone.now():
+        if token.expires and not token.is_expired:
             raise exceptions.AuthenticationFailed("Token expired")
 
         if not token.user.is_active:
