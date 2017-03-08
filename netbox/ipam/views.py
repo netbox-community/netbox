@@ -403,7 +403,7 @@ def prefix(request, pk):
         aggregate = None
 
     # Count child IP addresses
-    ipaddress_count = IPAddress.objects.filter(vrf=prefix.vrf, address__net_contained_or_equal=str(prefix.prefix))\
+    ipaddress_count = IPAddress.objects.filter(vrf=prefix.vrf, address__net_host_contained=str(prefix.prefix))\
         .count()
 
     # Parent prefixes table
@@ -420,13 +420,7 @@ def prefix(request, pk):
     duplicate_prefix_table.exclude = ('vrf',)
 
     # Child prefixes table
-    if prefix.vrf:
-        # If the prefix is in a VRF, show child prefixes only within that VRF.
-        child_prefixes = Prefix.objects.filter(vrf=prefix.vrf)
-    else:
-        # If the prefix is in the global table, show child prefixes from all VRFs.
-        child_prefixes = Prefix.objects.all()
-    child_prefixes = child_prefixes.filter(prefix__net_contained=str(prefix.prefix))\
+    child_prefixes = Prefix.objects.filter(vrf=prefix.vrf, prefix__net_contained=str(prefix.prefix))\
         .select_related('site', 'role').annotate_depth(limit=0)
     if child_prefixes:
         child_prefixes = add_available_prefixes(prefix.prefix, child_prefixes)
@@ -499,7 +493,7 @@ def prefix_ipaddresses(request, pk):
     prefix = get_object_or_404(Prefix.objects.all(), pk=pk)
 
     # Find all IPAddresses belonging to this Prefix
-    ipaddresses = IPAddress.objects.filter(vrf=prefix.vrf, address__net_contained_or_equal=str(prefix.prefix))\
+    ipaddresses = IPAddress.objects.filter(vrf=prefix.vrf, address__net_host_contained=str(prefix.prefix))\
         .select_related('vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for')
     ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses, prefix.is_pool)
 
