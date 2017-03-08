@@ -245,7 +245,7 @@
                         {% if request.user.is_staff %}
                             <li><a href="{% url 'admin:index' %}"><i class="fa fa-cogs" aria-hidden="true"></i> Admin</a></li>
                         {% endif %}
-                        <li><a href="{% url 'users:profile' %}"><i class="fa fa-user" aria-hidden="true"></i> Profile</a></li>
+                        <li><a href="{% url 'users:profile' %}"><i class="fa fa-user" aria-hidden="true"></i> {{ request.user }}</a></li>
                         <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out" aria-hidden="true"></i> Log out</a></li>
                     {% else %}
                         <li><a href="{% url 'login' %}?next={{ request.path }}"><i class="fa fa-sign-in" aria-hidden="true"></i> Log in</a></li>
