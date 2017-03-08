@@ -19,6 +19,9 @@ class Token(models.Model):
     write_enabled = models.BooleanField(default=True, help_text="Permit create/update/delete operations using this key")
     description = models.CharField(max_length=100, blank=True)
 
+    class Meta:
+        default_permissions = []
+
     def __str__(self):
         return u"API key for {}".format(self.user)
 
