@@ -403,7 +403,7 @@ def prefix(request, pk):
         aggregate = None
 
     # Count child IP addresses
-    ipaddress_count = IPAddress.objects.filter(vrf=prefix.vrf, address__net_contained_or_equal=str(prefix.prefix))\
+    ipaddress_count = IPAddress.objects.filter(vrf=prefix.vrf, address__net_host_contained=str(prefix.prefix))\
         .count()
 
     # Parent prefixes table
@@ -499,7 +499,7 @@ def prefix_ipaddresses(request, pk):
     prefix = get_object_or_404(Prefix.objects.all(), pk=pk)
 
     # Find all IPAddresses belonging to this Prefix
-    ipaddresses = IPAddress.objects.filter(vrf=prefix.vrf, address__net_contained_or_equal=str(prefix.prefix))\
+    ipaddresses = IPAddress.objects.filter(vrf=prefix.vrf, address__net_host_contained=str(prefix.prefix))\
         .select_related('vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for')
     ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses, prefix.is_pool)
 
