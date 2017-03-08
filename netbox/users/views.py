@@ -1,15 +1,17 @@
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.utils.http import is_safe_url
+from django.views.generic import View
 
 from secrets.forms import UserKeyForm
 from secrets.models import UserKey
-
 from .forms import LoginForm, PasswordChangeForm
+from .models import Token
 
 
 #
@@ -128,3 +130,19 @@ def recent_activity(request):
         'recent_activity': request.user.actions.all()[:50],
         'active_tab': 'recent_activity',
     })
+
+
+#
+# API tokens
+#
+
+class TokenList(LoginRequiredMixin, View):
+
+    def get(self, request):
+
+        tokens = Token.objects.filter(user=request.user)
+
+        return render(request, 'users/api_tokens.html', {
+            'tokens': tokens,
+            'active_tab': 'api_tokens',
+        })

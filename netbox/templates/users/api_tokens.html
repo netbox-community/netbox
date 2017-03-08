@@ -1,0 +1,44 @@
+{% extends 'users/_user.html' %}
+{% load helpers %}
+
+{% block title %}API Tokens{% endblock %}
+
+{% block usercontent %}
+    <div class="row">
+        <div class="col-md-12">
+            {% for token in tokens %}
+                <div class="panel panel-{% if token.is_expired %}danger{% else %}default{% endif %}">
+                    <div class="panel-heading">
+                        {% if token.is_expired %}
+                            <div class="pull-right">
+                                <span class="label label-danger">Expired</span>
+                            </div>
+                        {% endif %}
+                        <i class="fa fa-key"></i> {{ token.key }}
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                Created: {{ token.created|date }}
+                            </div>
+                            <div class="col-md-4">
+                                Expires: {{ token.expires|default:"Never" }}
+                            </div>
+                            <div class="col-md-4">
+                                Write operations:
+                                {% if token.write_enabled %}
+                                    <span class="label label-success">Enabled</span>
+                                {% else %}
+                                    <span class="label label-danger">Disabled</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if token.description %}
+                            <br /><span>{{ token.description }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
