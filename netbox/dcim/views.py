@@ -171,7 +171,7 @@ def site(request, slug):
     site = get_object_or_404(Site.objects.select_related('region', 'tenant__group'), slug=slug)
     stats = {
         'rack_count': Rack.objects.filter(site=site).count(),
-        'device_count': Device.objects.filter(rack__site=site).count(),
+        'device_count': Device.objects.filter(site=site).count(),
         'prefix_count': Prefix.objects.filter(site=site).count(),
         'vlan_count': VLAN.objects.filter(site=site).count(),
         'circuit_count': Circuit.objects.filter(terminations__site=site).count(),
@@ -844,7 +844,9 @@ def consoleport_connect(request, pk):
 
     else:
         form = forms.ConsolePortConnectionForm(instance=consoleport, initial={
-            'rack': consoleport.device.rack,
+            'site': request.GET.get('site', consoleport.device.site),
+            'rack': request.GET.get('rack', None),
+            'console_server': request.GET.get('console_server', None),
             'connection_status': CONNECTION_STATUS_CONNECTED,
         })
 
@@ -927,7 +929,7 @@ def consoleserverport_connect(request, pk):
     consoleserverport = get_object_or_404(ConsoleServerPort, pk=pk)
 
     if request.method == 'POST':
-        form = forms.ConsoleServerPortConnectionForm(consoleserverport, request.POST)
+        form = forms.ConsoleServerPortConnectionForm(request.POST)
         if form.is_valid():
             consoleport = form.cleaned_data['port']
             consoleport.cs_port = consoleserverport
@@ -942,7 +944,12 @@ def consoleserverport_connect(request, pk):
             return redirect('dcim:device', pk=consoleserverport.device.pk)
 
     else:
-        form = forms.ConsoleServerPortConnectionForm(consoleserverport, initial={'rack': consoleserverport.device.rack})
+        form = forms.ConsoleServerPortConnectionForm(initial={
+            'site': request.GET.get('site', consoleserverport.device.site),
+            'rack': request.GET.get('rack', None),
+            'device': request.GET.get('device', None),
+            'connection_status': CONNECTION_STATUS_CONNECTED,
+        })
 
     return render(request, 'dcim/consoleserverport_connect.html', {
         'consoleserverport': consoleserverport,
@@ -1030,7 +1037,9 @@ def powerport_connect(request, pk):
 
     else:
         form = forms.PowerPortConnectionForm(instance=powerport, initial={
-            'rack': powerport.device.rack,
+            'site': request.GET.get('site', powerport.device.site),
+            'rack': request.GET.get('rack', None),
+            'pdu': request.GET.get('pdu', None),
             'connection_status': CONNECTION_STATUS_CONNECTED,
         })
 
@@ -1113,7 +1122,7 @@ def poweroutlet_connect(request, pk):
     poweroutlet = get_object_or_404(PowerOutlet, pk=pk)
 
     if request.method == 'POST':
-        form = forms.PowerOutletConnectionForm(poweroutlet, request.POST)
+        form = forms.PowerOutletConnectionForm(request.POST)
         if form.is_valid():
             powerport = form.cleaned_data['port']
             powerport.power_outlet = poweroutlet
@@ -1128,7 +1137,12 @@ def poweroutlet_connect(request, pk):
             return redirect('dcim:device', pk=poweroutlet.device.pk)
 
     else:
-        form = forms.PowerOutletConnectionForm(poweroutlet, initial={'rack': poweroutlet.device.rack})
+        form = forms.PowerOutletConnectionForm(initial={
+            'site': request.GET.get('site', poweroutlet.device.site),
+            'rack': request.GET.get('rack', None),
+            'device': request.GET.get('device', None),
+            'connection_status': CONNECTION_STATUS_CONNECTED,
+        })
 
     return render(request, 'dcim/poweroutlet_connect.html', {
         'poweroutlet': poweroutlet,

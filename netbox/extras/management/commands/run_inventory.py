@@ -49,7 +49,7 @@ class Command(BaseCommand):
                 self.stdout.write("Running inventory for these sites: {}".format(', '.join(site_names)))
             else:
                 raise CommandError("One or more sites specified but none found.")
-            device_list = device_list.filter(rack__site__in=sites)
+            device_list = device_list.filter(site__in=sites)
 
         # --name: Filter devices by name matching a regex
         if options['name']:

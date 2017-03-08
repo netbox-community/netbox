@@ -333,9 +333,11 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
                 self.initial['nat_site'] = self.instance.nat_inside.interface.device.site.pk
                 self.initial['nat_device'] = self.instance.nat_inside.interface.device.pk
                 self.fields['nat_device'].queryset = Device.objects.filter(
-                    rack__site=nat_inside.interface.device.site)
+                    site=nat_inside.interface.device.site
+                )
                 self.fields['nat_inside'].queryset = IPAddress.objects.filter(
-                    interface__device=nat_inside.interface.device)
+                    interface__device=nat_inside.interface.device
+                )
             else:
                 self.fields['nat_inside'].queryset = IPAddress.objects.filter(pk=nat_inside.pk)
 
@@ -343,9 +345,9 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
 
             # Initialize nat_device choices if nat_site is set
             if self.is_bound and self.data.get('nat_site'):
-                self.fields['nat_device'].queryset = Device.objects.filter(rack__site__pk=self.data['nat_site'])
+                self.fields['nat_device'].queryset = Device.objects.filter(site__pk=self.data['nat_site'])
             elif self.initial.get('nat_site'):
-                self.fields['nat_device'].queryset = Device.objects.filter(rack__site=self.initial['nat_site'])
+                self.fields['nat_device'].queryset = Device.objects.filter(site=self.initial['nat_site'])
             else:
                 self.fields['nat_device'].choices = []
 

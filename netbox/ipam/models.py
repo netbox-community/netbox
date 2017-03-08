@@ -267,7 +267,7 @@ class PrefixQuerySet(NullsFirstQuerySet):
             p.depth = len(stack) - 1
         if limit is None:
             return queryset
-        return filter(lambda p: p.depth <= limit, queryset)
+        return list(filter(lambda p: p.depth <= limit, queryset))
 
 
 @python_2_unicode_compatible

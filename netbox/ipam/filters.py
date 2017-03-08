@@ -254,7 +254,7 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
             return queryset
         try:
             query = str(IPNetwork(value.strip()).cidr)
-            return queryset.filter(address__net_contained_or_equal=query)
+            return queryset.filter(address__net_host_contained=query)
         except AddrFormatError:
             return queryset.none()
 

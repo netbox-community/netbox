@@ -265,10 +265,11 @@ class DeviceListView(CustomFieldModelAPIView, generics.ListAPIView):
     """
     List devices (filterable)
     """
-    queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'tenant', 'platform',
-                                             'rack__site', 'parent_bay').prefetch_related('primary_ip4__nat_outside',
-                                                                                          'primary_ip6__nat_outside',
-                                                                                          'custom_field_values__field')
+    queryset = Device.objects.select_related(
+        'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'rack', 'parent_bay'
+    ).prefetch_related(
+        'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'custom_field_values__field'
+    )
     serializer_class = serializers.DeviceSerializer
     filter_class = filters.DeviceFilter
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES + [BINDZoneRenderer, FlatJSONRenderer]
@@ -278,8 +279,9 @@ class DeviceDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
     """
     Retrieve a single device
     """
-    queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'tenant', 'platform',
-                                             'rack__site', 'parent_bay').prefetch_related('custom_field_values__field')
+    queryset = Device.objects.select_related(
+        'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'rack', 'parent_bay'
+    ).prefetch_related('custom_field_values__field')
     serializer_class = serializers.DeviceSerializer
 
 
