@@ -15,7 +15,7 @@ class Token(models.Model):
     user = models.ForeignKey(User, related_name='tokens', on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     expires = models.DateTimeField(blank=True, null=True)
-    key = models.CharField(max_length=64, unique=True)
+    key = models.CharField(max_length=40, unique=True)
     write_enabled = models.BooleanField(default=True, help_text="Permit create/update/delete operations using this key")
     description = models.CharField(max_length=100, blank=True)
 
@@ -31,5 +31,5 @@ class Token(models.Model):
         return super(Token, self).save(*args, **kwargs)
 
     def generate_key(self):
-        # Generate a random 256-bit key expressed in hexadecimal.
-        return binascii.hexlify(os.urandom(32)).decode()
+        # Generate a random 160-bit key expressed in hexadecimal.
+        return binascii.hexlify(os.urandom(20)).decode()
