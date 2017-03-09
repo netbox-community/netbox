@@ -53,7 +53,8 @@ def home(request):
 
 
 class APIRootView(APIView):
-    permission_classes = [IsAuthenticated]
+    _ignore_model_permissions = True
+    exclude_from_schema = True
 
     def get_view_name(self):
         return u"API Root"
