@@ -1,7 +1,9 @@
 from rest_framework import serializers
 
 from dcim.api.serializers import NestedSiteSerializer
-from extras.models import Graph, TopologyMap
+from extras.models import ACTION_CHOICES, Graph, TopologyMap, UserAction
+from users.api.serializers import NestedUserSerializer
+from utilities.api import ChoiceFieldSerializer
 
 
 #
@@ -40,3 +42,16 @@ class WritableTopologyMapSerializer(serializers.ModelSerializer):
     class Meta:
         model = TopologyMap
         fields = ['name', 'slug', 'site', 'device_patterns', 'description']
+
+
+#
+# User actions
+#
+
+class UserActionSerializer(serializers.ModelSerializer):
+    user = NestedUserSerializer()
+    action = ChoiceFieldSerializer(choices=ACTION_CHOICES)
+
+    class Meta:
+        model = UserAction
+        fields = ['id', 'time', 'user', 'action', 'message']

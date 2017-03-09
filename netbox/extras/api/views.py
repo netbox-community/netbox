@@ -1,6 +1,6 @@
 from rest_framework import generics
 from rest_framework.decorators import detail_route
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponse
@@ -9,14 +9,14 @@ from django.shortcuts import get_object_or_404
 from circuits.models import Provider
 from dcim.models import Site, Interface
 from extras import filters
-from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_PROVIDER, GRAPH_TYPE_SITE
+from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_PROVIDER, GRAPH_TYPE_SITE, UserAction
 from utilities.api import WritableSerializerMixin
 from . import serializers
 
 
 class CustomFieldModelViewSet(ModelViewSet):
     """
-    Include the applicable set of CustomField in the ModelViewSet context.
+    Include the applicable set of CustomFields in the ModelViewSet context.
     """
 
     def get_serializer_context(self):
@@ -95,3 +95,12 @@ class TopologyMapViewSet(WritableSerializerMixin, ModelViewSet):
         response['Content-Disposition'] = 'inline; filename="{}.{}"'.format(tmap.slug, img_format)
 
         return response
+
+
+class RecentActivityViewSet(ReadOnlyModelViewSet):
+    """
+    List all UserActions to provide a log of recent activity.
+    """
+    queryset = UserAction.objects.all()
+    serializer_class = serializers.UserActionSerializer
+    filter_class = filters.UserActionFilter

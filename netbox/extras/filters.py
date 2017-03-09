@@ -1,9 +1,10 @@
 import django_filters
 
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from dcim.models import Site
-from .models import CF_TYPE_SELECT, CustomField, TopologyMap
+from .models import CF_TYPE_SELECT, CustomField, TopologyMap, UserAction
 
 
 class CustomFieldFilter(django_filters.Filter):
@@ -63,3 +64,15 @@ class TopologyMapFilter(django_filters.FilterSet):
     class Meta:
         model = TopologyMap
         fields = ['name', 'slug']
+
+
+class UserActionFilter(django_filters.FilterSet):
+    username = django_filters.ModelMultipleChoiceFilter(
+        name='user__username',
+        queryset=User.objects.all(),
+        to_field_name='username',
+    )
+
+    class Meta:
+        model = UserAction
+        fields = ['user']
