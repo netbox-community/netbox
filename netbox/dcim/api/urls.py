@@ -48,11 +48,12 @@ router.register(r'services', ServiceViewSet)
 # Interface connections
 router.register(r'interface-connections', views.InterfaceConnectionViewSet)
 
+# Miscellaneous
+router.register(r'connected-device', views.ConnectedDeviceViewSet, base_name='connected-device')
+
+
 urlpatterns = [
 
     url(r'', include(router.urls)),
-
-    # Miscellaneous
-    url(r'^related-connections/$', views.RelatedConnectionsView.as_view(), name='related_connections'),
 
 ]

@@ -1,8 +1,9 @@
 from rest_framework.decorators import detail_route
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ViewSet
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -314,79 +315,29 @@ class InterfaceConnectionViewSet(WritableSerializerMixin, ModelViewSet):
 # Miscellaneous
 #
 
-class RelatedConnectionsView(APIView):
+class ConnectedDeviceViewSet(ViewSet):
     """
-    Retrieve all connections related to a given console/power/interface connection
+    This endpoint allows a user to determine what device (if any) is connected to a given peer device and peer
+    interface. This is useful in a situation where a device boots with no configuration, but can detect its neighbors
+    via a protocol such as LLDP. Two query parameters must be included in the request:
+
+    * `peer-device`: The name of the peer device
+    * `peer-interface`: The name of the peer interface
     """
+    permission_classes = [IsAuthenticated]
 
-    def __init__(self):
-        super(RelatedConnectionsView, self).__init__()
+    def list(self, request):
 
-        # Custom fields
-        content_type = ContentType.objects.get_for_model(Device)
-        custom_fields = content_type.custom_fields.prefetch_related('choices')
+        peer_device_name = request.query_params.get('peer-device')
+        peer_interface_name = request.query_params.get('peer-interface')
+        if not peer_device_name or not peer_interface_name:
+            raise MissingFilterException(detail='Request must include "peer-device" and "peer-interface" filters.')
 
-        # Cache all relevant CustomFieldChoices. This saves us from having to do a lookup per select field per object.
-        custom_field_choices = {}
-        for field in custom_fields:
-            for cfc in field.choices.all():
-                custom_field_choices[cfc.id] = cfc.value
+        # Determine local interface from peer interface's connection
+        peer_interface = get_object_or_404(Interface, device__name=peer_device_name, name=peer_interface_name)
+        local_interface = peer_interface.connected_interface
 
-        self.context = {
-            'custom_fields': custom_fields,
-            'custom_field_choices': custom_field_choices,
-        }
+        if local_interface is None:
+            return Response()
 
-    def get(self, request):
-
-        peer_device = request.GET.get('peer-device')
-        peer_interface = request.GET.get('peer-interface')
-
-        # Search by interface
-        if peer_device and peer_interface:
-
-            # Determine local interface from peer interface's connection
-            try:
-                peer_iface = Interface.objects.get(device__name=peer_device, name=peer_interface)
-            except Interface.DoesNotExist:
-                raise Http404()
-            local_iface = peer_iface.connected_interface
-            if local_iface:
-                device = local_iface.device
-            else:
-                return Response()
-
-        else:
-            raise MissingFilterException(detail='Must specify search parameters "peer-device" and "peer-interface".')
-
-        # Initialize response skeleton
-        response = {
-            'device': serializers.DeviceSerializer(device, context=self.context).data,
-            'console-ports': [],
-            'power-ports': [],
-            'interfaces': [],
-        }
-
-        # Console connections
-        console_ports = ConsolePort.objects.filter(device=device).select_related('cs_port__device')
-        for cp in console_ports:
-            data = serializers.ConsolePortSerializer(instance=cp).data
-            del(data['device'])
-            response['console-ports'].append(data)
-
-        # Power connections
-        power_ports = PowerPort.objects.filter(device=device).select_related('power_outlet__device')
-        for pp in power_ports:
-            data = serializers.PowerPortSerializer(instance=pp).data
-            del(data['device'])
-            response['power-ports'].append(data)
-
-        # Interface connections
-        interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering).filter(device=device)\
-            .select_related('connected_as_a', 'connected_as_b', 'circuit_termination')
-        for iface in interfaces:
-            data = serializers.InterfaceSerializer(instance=iface).data
-            del(data['device'])
-            response['interfaces'].append(data)
-
-        return Response(response)
+        return Response(serializers.DeviceSerializer(local_interface.device, context={'request': request}).data)
