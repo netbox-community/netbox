@@ -2,7 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from rest_framework import serializers
 
-from extras.models import CustomField, CustomFieldChoice
+from extras.models import CF_TYPE_SELECT, CustomField, CustomFieldChoice
 
 
 #
@@ -21,7 +21,10 @@ class CustomFieldSerializer(serializers.BaseSerializer):
 
         # Assign CustomFieldValues from database
         for cfv in manager.all():
-            data[cfv.field.name] = cfv.value
+            if cfv.field.type == CF_TYPE_SELECT:
+                data[cfv.field.name] = CustomFieldChoiceSerializer(cfv.value).data
+            else:
+                data[cfv.field.name] = cfv.value
 
         return data
 
