@@ -1,5 +1,10 @@
 import sys
 
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+
 from django.shortcuts import render
 
 from circuits.models import Provider, Circuit
@@ -45,6 +50,24 @@ def home(request):
         'stats': stats,
         'recent_activity': UserAction.objects.select_related('user')[:50]
     })
+
+
+class APIRootView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_view_name(self):
+        return u"API Root"
+
+    def get(self, request, format=None):
+
+        return Response({
+            'circuits': reverse('circuits-api:api-root', request=request, format=format),
+            'dcim': reverse('dcim-api:api-root', request=request, format=format),
+            'extras': reverse('extras-api:api-root', request=request, format=format),
+            'ipam': reverse('ipam-api:api-root', request=request, format=format),
+            'secrets': reverse('secrets-api:api-root', request=request, format=format),
+            'tenancy': reverse('tenancy-api:api-root', request=request, format=format),
+        })
 
 
 def handle_500(request):

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 
-from netbox.views import home, handle_500, trigger_500
+from netbox.views import APIRootView, home, handle_500, trigger_500
 from users.views import login, logout
 
 
@@ -26,6 +26,7 @@ _patterns = [
     url(r'^profile/', include('users.urls', namespace='users')),
 
     # API
+    url(r'^api/$', APIRootView.as_view()),
     url(r'^api/circuits/', include('circuits.api.urls', namespace='circuits-api')),
     url(r'^api/dcim/', include('dcim.api.urls', namespace='dcim-api')),
     url(r'^api/extras/', include('extras.api.urls', namespace='extras-api')),
