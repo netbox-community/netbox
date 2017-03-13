@@ -733,7 +733,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Device
     q = forms.CharField(required=False, label='Search')
     site = FilterChoiceField(
-        queryset=Site.objects.annotate(filter_count=Count('racks__devices')),
+        queryset=Site.objects.annotate(filter_count=Count('devices')),
         to_field_name='slug',
     )
     rack_group_id = FilterChoiceField(
