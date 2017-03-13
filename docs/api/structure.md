@@ -1,21 +1,23 @@
 # URL Hierarchy
 
-The API's URL structure is divided at the root level by application: circuits, DCIM, IPAM, secrets, and tenancy. Within each application, each model has its own path. For example:
+NetBox's entire REST API is housed under the API root, `/api/`. The API's URL structure is divided at the root level by application: circuits, DCIM, extras, IPAM, secrets, and tenancy. Within each application, each model has its own path. For example:
 
-* /api/circuits/circuits/
 * /api/circuits/providers/
+* /api/circuits/circuits/
 * /api/dcim/sites/
 * /api/dcim/racks/
 * /api/dcim/devices/
 
-Each model generally has two URLs associated with it: a list URL, and a detail URL. the list URL is used to request a list of multiple objects or to create a new object. The detail URL is used to retrieve, update, or delete an existing object.
+Each model generally has two URLs associated with it: a list URL and a detail URL. The list URL is used to request a list of multiple objects or to create a new object. The detail URL is used to retrieve, update, or delete an existing object.
 
 * /api/dcim/devices/ - List devices or create a new device
 * /api/dcim/devices/123/ - Retrieve, update, or delete the device with ID 123
 
 Lists of objects can be filtered using a set of query parameters. For example, to find all interfaces belonging to the device with ID 123:
 
-* /api/dcim/interfaces/?device_id=123
+```
+GET /api/dcim/interfaces/?device_id=123
+```
 
 # Serializers
 
