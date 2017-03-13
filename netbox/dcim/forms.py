@@ -680,13 +680,21 @@ class DeviceFromCSVForm(BaseDeviceFromCSVForm):
 
 
 class ChildDeviceFromCSVForm(BaseDeviceFromCSVForm):
-    parent = FlexibleModelChoiceField(queryset=Device.objects.all(), to_field_name='name', required=False,
-                                      error_messages={'invalid_choice': 'Parent device not found.'})
+    parent = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        required=False,
+        error_messages={
+            'invalid_choice': 'Parent device not found.'
+        }
+    )
     device_bay_name = forms.CharField(required=False)
 
     class Meta(BaseDeviceFromCSVForm.Meta):
-        fields = ['name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag',
-                  'parent', 'device_bay_name']
+        fields = [
+            'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'parent',
+            'device_bay_name',
+        ]
 
     def clean(self):
 
