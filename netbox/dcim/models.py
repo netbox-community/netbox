@@ -1059,8 +1059,10 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
             return self.name
         elif self.position:
             return u"{} ({} U{})".format(self.device_type, self.rack.name, self.position)
-        else:
+        elif self.rack:
             return u"{} ({})".format(self.device_type, self.rack.name)
+        else:
+            return u"{} ({})".format(self.device_type, self.site.name)
 
     @property
     def identifier(self):
