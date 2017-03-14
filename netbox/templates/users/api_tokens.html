@@ -10,8 +10,8 @@
                 <div class="panel panel-{% if token.is_expired %}danger{% else %}default{% endif %}">
                     <div class="panel-heading">
                         <div class="pull-right">
-                            <a href="{% url 'users:token_edit' pk=token.pk %}" class="btn btn-xs btn-warning">Edit</a>
-                            <a href="{% url 'users:token_delete' pk=token.pk %}" class="btn btn-xs btn-danger">Delete</a>
+                            <a href="{% url 'user:token_edit' pk=token.pk %}" class="btn btn-xs btn-warning">Edit</a>
+                            <a href="{% url 'user:token_delete' pk=token.pk %}" class="btn btn-xs btn-danger">Delete</a>
                         </div>
                         <i class="fa fa-key"></i> {{ token.key }}
                         {% if token.is_expired %}
@@ -49,7 +49,7 @@
             {% empty %}
                 <p>You do not have any API tokens.</p>
             {% endfor %}
-            <a href="{% url 'users:token_add' %}" class="btn btn-primary">
+            <a href="{% url 'user:token_add' %}" class="btn btn-primary">
                 <span class="fa fa-plus" aria-hidden="true"></span>
                 Add a token
             </a>

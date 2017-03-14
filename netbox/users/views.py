@@ -164,7 +164,7 @@ class TokenEditView(LoginRequiredMixin, View):
             'obj': token,
             'obj_type': token._meta.verbose_name,
             'form': form,
-            'return_url': reverse('users:token_list'),
+            'return_url': reverse('user:token_list'),
         })
 
     def post(self, request, pk=None):
@@ -183,7 +183,7 @@ class TokenEditView(LoginRequiredMixin, View):
             msg = "Token updated" if pk else "New token created"
             messages.success(request, msg)
 
-            return redirect('users:token_list')
+            return redirect('user:token_list')
 
 
 class TokenDeleteView(LoginRequiredMixin, View):
@@ -192,7 +192,7 @@ class TokenDeleteView(LoginRequiredMixin, View):
 
         token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
         initial_data = {
-            'return_url': reverse('users:token_list'),
+            'return_url': reverse('user:token_list'),
         }
         form = ConfirmationForm(initial=initial_data)
 
@@ -200,7 +200,7 @@ class TokenDeleteView(LoginRequiredMixin, View):
             'obj': token,
             'obj_type': token._meta.verbose_name,
             'form': form,
-            'return_url': reverse('users:token_list'),
+            'return_url': reverse('user:token_list'),
         })
 
     def post(self, request, pk):
@@ -210,11 +210,11 @@ class TokenDeleteView(LoginRequiredMixin, View):
         if form.is_valid():
             token.delete()
             messages.success(request, "Token deleted")
-            return redirect('users:token_list')
+            return redirect('user:token_list')
 
         return render(request, 'utilities/obj_delete.html', {
             'obj': token,
             'obj_type': token._meta.verbose_name,
             'form': form,
-            'return_url': reverse('users:token_list'),
+            'return_url': reverse('user:token_list'),
         })
