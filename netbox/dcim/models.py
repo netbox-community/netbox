@@ -975,25 +975,26 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
                 # Child devices cannot be assigned to a rack face/unit
                 if self.device_type.is_child_device and self.face is not None:
                     raise ValidationError({
-                        'face': "Child device types cannot be assigned to a rack face. This is an attribute of the parent "
-                                "device."
+                        'face': "Child device types cannot be assigned to a rack face. This is an attribute of the "
+                                "parent device."
                     })
                 if self.device_type.is_child_device and self.position:
                     raise ValidationError({
-                        'position': "Child device types cannot be assigned to a rack position. This is an attribute of the "
-                                    "parent device."
+                        'position': "Child device types cannot be assigned to a rack position. This is an attribute of "
+                                    "the parent device."
                     })
 
                 # Validate rack space
                 rack_face = self.face if not self.device_type.is_full_depth else None
                 exclude_list = [self.pk] if self.pk else []
                 try:
-                    available_units = self.rack.get_available_units(u_height=self.device_type.u_height, rack_face=rack_face,
-                                                                    exclude=exclude_list)
+                    available_units = self.rack.get_available_units(
+                        u_height=self.device_type.u_height, rack_face=rack_face, exclude=exclude_list
+                    )
                     if self.position and self.position not in available_units:
                         raise ValidationError({
-                            'position': "U{} is already occupied or does not have sufficient space to accommodate a(n) {} "
-                                        "({}U).".format(self.position, self.device_type, self.device_type.u_height)
+                            'position': "U{} is already occupied or does not have sufficient space to accommodate a(n) "
+                                        "{} ({}U).".format(self.position, self.device_type, self.device_type.u_height)
                         })
                 except Rack.DoesNotExist:
                     pass
@@ -1034,8 +1035,8 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
                  self.device_type.device_bay_templates.all()]
             )
 
-        # Update Rack assignment for any child Devices
-        Device.objects.filter(parent_bay__device=self).update(rack=self.rack)
+        # Update Site and Rack assignment for any child Devices
+        Device.objects.filter(parent_bay__device=self).update(site=self.site, rack=self.rack)
 
     def to_csv(self):
         return csv_format([
@@ -1059,8 +1060,10 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
             return self.name
         elif self.position:
             return u"{} ({} U{})".format(self.device_type, self.rack.name, self.position)
-        else:
+        elif self.rack:
             return u"{} ({})".format(self.device_type, self.rack.name)
+        else:
+            return u"{} ({})".format(self.device_type, self.site.name)
 
     @property
     def identifier(self):

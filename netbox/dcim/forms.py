@@ -680,13 +680,21 @@ class DeviceFromCSVForm(BaseDeviceFromCSVForm):
 
 
 class ChildDeviceFromCSVForm(BaseDeviceFromCSVForm):
-    parent = FlexibleModelChoiceField(queryset=Device.objects.all(), to_field_name='name', required=False,
-                                      error_messages={'invalid_choice': 'Parent device not found.'})
+    parent = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        required=False,
+        error_messages={
+            'invalid_choice': 'Parent device not found.'
+        }
+    )
     device_bay_name = forms.CharField(required=False)
 
     class Meta(BaseDeviceFromCSVForm.Meta):
-        fields = ['name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag',
-                  'parent', 'device_bay_name']
+        fields = [
+            'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'parent',
+            'device_bay_name',
+        ]
 
     def clean(self):
 
@@ -733,7 +741,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Device
     q = forms.CharField(required=False, label='Search')
     site = FilterChoiceField(
-        queryset=Site.objects.annotate(filter_count=Count('racks__devices')),
+        queryset=Site.objects.annotate(filter_count=Count('devices')),
         to_field_name='slug',
     )
     rack_group_id = FilterChoiceField(
@@ -1610,20 +1618,23 @@ class DeviceBayCreateForm(DeviceComponentForm):
 
 
 class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
-    installed_device = forms.ModelChoiceField(queryset=Device.objects.all(), label='Child Device',
-                                              help_text="Child devices must first be created within the rack occupied "
-                                                        "by the parent device. Then they can be assigned to a bay.")
+    installed_device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        label='Child Device',
+        help_text="Child devices must first be created and assigned to the site/rack of the parent device."
+    )
 
     def __init__(self, device_bay, *args, **kwargs):
 
         super(PopulateDeviceBayForm, self).__init__(*args, **kwargs)
 
-        children_queryset = Device.objects.filter(rack=device_bay.device.rack,
-                                                  parent_bay__isnull=True,
-                                                  device_type__u_height=0,
-                                                  device_type__subdevice_role=SUBDEVICE_ROLE_CHILD)\
-            .exclude(pk=device_bay.device.pk)
-        self.fields['installed_device'].queryset = children_queryset
+        self.fields['installed_device'].queryset = Device.objects.filter(
+            site=device_bay.device.site,
+            rack=device_bay.device.rack,
+            parent_bay__isnull=True,
+            device_type__u_height=0,
+            device_type__subdevice_role=SUBDEVICE_ROLE_CHILD
+        ).exclude(pk=device_bay.device.pk)
 
 
 #

@@ -763,9 +763,12 @@ class ChildDeviceBulkImportView(PermissionRequiredMixin, BulkImportView):
     default_return_url = 'dcim:device_list'
 
     def save_obj(self, obj):
-        # Inherent rack from parent device
+
+        # Inherit site and rack from parent device
+        obj.site = obj.parent_bay.device.site
         obj.rack = obj.parent_bay.device.rack
         obj.save()
+
         # Save the reverse relation
         device_bay = obj.parent_bay
         device_bay.installed_device = obj
