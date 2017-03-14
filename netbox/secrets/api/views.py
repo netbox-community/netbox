@@ -1,6 +1,7 @@
 import base64
 from Crypto.PublicKey import RSA
 
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseBadRequest
 
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
@@ -113,11 +114,9 @@ class GetSessionKeyViewSet(ViewSet):
         curl -v -X POST -H "Authorization: Token <token>" -H "Accept: application/json; indent=4" \\
         --data-urlencode "private_key@<filename>" https://netbox/api/secrets/get-session-key/
 
-    This request will yield a session key to be included in an `X-Session-Key` header in future requests, as well as its
-    expiration time:
+    This request will yield a base64-encoded session key to be included in an `X-Session-Key` header in future requests:
 
         {
-            "expiration_time": "2017-03-09T10:42:23.095267Z",
             "session_key": "+8t4SI6XikgVmB5+/urhozx9O5qCQANyOk1MNe6taRf="
         }
     """
@@ -149,14 +148,17 @@ class GetSessionKeyViewSet(ViewSet):
         # Create a new SessionKey
         sk = SessionKey(user=request.user)
         sk.save(master_key=master_key)
+        encoded_key = base64.b64encode(sk.key)
 
-        # Return the session key both as JSON and as a cookie
+        # Craft the response
         response = Response({
-            'session_key': base64.b64encode(sk.key),
-            'expiration_time': sk.expiration_time,
+            'session_key': encoded_key,
         })
-        # TODO: Limit cookie path to secrets API URLs
-        response.set_cookie('session_key', base64.b64encode(sk.key), expires=sk.expiration_time)
+
+        # If token authentication is not in use, assign the session key as a cookie
+        if request.auth is None:
+            response.set_cookie('session_key', value=encoded_key, path=reverse('secrets-api:secret-list'))
+
         return response
 
 

@@ -1,4 +1,3 @@
-import datetime
 import os
 from Crypto.Cipher import AES, PKCS1_OAEP, XOR
 from Crypto.PublicKey import RSA
@@ -9,7 +8,6 @@ from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.utils import timezone
 from django.utils.encoding import force_bytes, python_2_unicode_compatible
 
 from dcim.models import Device
@@ -192,7 +190,6 @@ class SessionKey(models.Model):
     cipher = models.BinaryField(max_length=512, editable=False)
     hash = models.CharField(max_length=128, editable=False)
     created = models.DateTimeField(auto_now_add=True)
-    expiration_time = models.DateTimeField(blank=True, null=True, editable=False)
 
     key = None
 
@@ -216,10 +213,6 @@ class SessionKey(models.Model):
 
         # Encrypt master key using the session key
         self.cipher = xor_keys(self.key, master_key)
-
-        # Calculate expiration time
-        # TODO: Define a SESSION_KEY_MAX_AGE configuration setting
-        self.expiration_time = timezone.now() + datetime.timedelta(hours=12)
 
         super(SessionKey, self).save(*args, **kwargs)
 
