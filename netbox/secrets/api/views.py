@@ -71,7 +71,7 @@ class SecretViewSet(WritableSerializerMixin, ModelViewSet):
         # Retrieve session key cipher (if any) for the current user
         if session_key is not None:
             try:
-                sk = SessionKey.objects.get(user=request.user)
+                sk = SessionKey.objects.get(userkey__user=request.user)
                 master_key = sk.get_master_key(session_key)
                 secret.decrypt(master_key)
             except SessionKey.DoesNotExist:
@@ -152,10 +152,10 @@ class GetSessionKeyViewSet(ViewSet):
             return HttpResponseBadRequest(ERR_PRIVKEY_INVALID)
 
         # Delete the existing SessionKey for this user if one exists
-        SessionKey.objects.filter(user=request.user).delete()
+        SessionKey.objects.filter(userkey__user=request.user).delete()
 
         # Create a new SessionKey
-        sk = SessionKey(user=request.user)
+        sk = SessionKey(userkey=user_key)
         sk.save(master_key=master_key)
         encoded_key = base64.b64encode(sk.key)
 

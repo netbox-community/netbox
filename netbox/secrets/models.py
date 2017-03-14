@@ -187,7 +187,7 @@ class SessionKey(models.Model):
     """
     A SessionKey stores a User's temporary key to be used for the encryption and decryption of secrets.
     """
-    user = models.OneToOneField(User, related_name='session_key', editable=False)
+    userkey = models.OneToOneField(UserKey, related_name='session_key', on_delete=models.CASCADE, editable=False)
     cipher = models.BinaryField(max_length=512, editable=False)
     hash = models.CharField(max_length=128, editable=False)
     created = models.DateTimeField(auto_now_add=True)
