@@ -69,7 +69,7 @@ def change_password(request):
             form.save()
             update_session_auth_hash(request, form.user)
             messages.success(request, u"Your password has been changed successfully.")
-            return redirect('users:profile')
+            return redirect('user:profile')
 
     else:
         form = PasswordChangeForm(user=request.user)
@@ -109,7 +109,7 @@ def userkey_edit(request):
             uk.user = request.user
             uk.save()
             messages.success(request, u"Your user key has been saved.")
-            return redirect('users:userkey')
+            return redirect('user:userkey')
 
     else:
         form = UserKeyForm(instance=userkey)
