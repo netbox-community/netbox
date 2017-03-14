@@ -14,8 +14,10 @@ $(document).ready(function() {
 
     // Retrieve a session key
     $('#request_session_key').click(function() {
-        var private_key = $('#user_privkey').val();
+        var private_key_field = $('#user_privkey');
+        var private_key = private_key_field.val();
         get_session_key(private_key);
+        private_key_field.val("");
     });
 
     // Retrieve a secret via the API

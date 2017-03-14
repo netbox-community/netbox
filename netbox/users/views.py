@@ -9,7 +9,7 @@ from django.utils.http import is_safe_url
 from django.views.generic import View
 
 from secrets.forms import UserKeyForm
-from secrets.models import UserKey
+from secrets.models import SessionKey, UserKey
 from utilities.forms import ConfirmationForm
 from .forms import LoginForm, PasswordChangeForm, TokenForm
 from .models import Token
@@ -122,6 +122,42 @@ def userkey_edit(request):
         'form': form,
         'active_tab': 'userkey',
     })
+
+
+class SessionKeyDeleteView(LoginRequiredMixin, View):
+
+    def get(self, request):
+
+        sessionkey = get_object_or_404(SessionKey, userkey__user=request.user)
+        form = ConfirmationForm()
+
+        return render(request, 'users/sessionkey_delete.html', {
+            'obj_type': sessionkey._meta.verbose_name,
+            'form': form,
+            'return_url': reverse('user:userkey'),
+        })
+
+    def post(self, request):
+
+        sessionkey = get_object_or_404(SessionKey, userkey__user=request.user)
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+
+            # Delete session key
+            sessionkey.delete()
+            messages.success(request, "Session key deleted")
+
+            # Delete cookie
+            response = redirect('user:userkey')
+            response.delete_cookie('session_key', path=reverse('secrets-api:secret-list'))
+
+            return response
+
+        return render(request, 'users/sessionkey_delete.html', {
+            'obj_type': sessionkey._meta.verbose_name,
+            'form': form,
+            'return_url': reverse('user:userkey'),
+        })
 
 
 @login_required()

@@ -23,7 +23,7 @@
         <hr />
         {% if userkey.session_key %}
             <div class="pull-right">
-                <a href="#" class="btn btn-danger">
+                <a href="{% url 'user:sessionkey_delete' %}" class="btn btn-danger">
                     <span class="fa fa-trash" aria-hidden="true"></span>
                     Delete session key
                 </a>

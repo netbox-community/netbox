@@ -198,7 +198,7 @@ class SessionKey(models.Model):
         ordering = ['user__username']
 
     def __str__(self):
-        return self.user.username
+        return self.userkey.user.username
 
     def save(self, master_key=None, *args, **kwargs):
 
