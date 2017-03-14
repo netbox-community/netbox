@@ -15,7 +15,7 @@
         <p>Your public key is below.</p>
         <pre>{{ userkey.public_key }}</pre>
         <div class="pull-right">
-            <a href="{% url 'users:userkey_edit' %}" class="btn btn-warning">
+            <a href="{% url 'user:userkey_edit' %}" class="btn btn-warning">
                 <span class="fa fa-pencil" aria-hidden="true"></span>
                 Edit user key
             </a>
@@ -24,7 +24,7 @@
     {% else %}
         <p>You don't have a user key on file.</p>
         <p>
-            <a href="{% url 'users:userkey_edit' %}" class="btn btn-primary">
+            <a href="{% url 'user:userkey_edit' %}" class="btn btn-primary">
                 <span class="fa fa-plus" aria-hidden="true"></span>
                 Create a User Key
             </a>

@@ -23,7 +23,7 @@ _patterns = [
     url(r'^ipam/', include('ipam.urls', namespace='ipam')),
     url(r'^secrets/', include('secrets.urls', namespace='secrets')),
     url(r'^tenancy/', include('tenancy.urls', namespace='tenancy')),
-    url(r'^profile/', include('users.urls', namespace='users')),
+    url(r'^user/', include('users.urls', namespace='user')),
 
     # API
     url(r'^api/$', APIRootView.as_view()),
