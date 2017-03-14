@@ -13,6 +13,7 @@ from django.utils.encoding import force_bytes, python_2_unicode_compatible
 from dcim.models import Device
 from utilities.models import CreatedUpdatedModel
 
+from .exceptions import InvalidSessionKey
 from .hashers import SecretValidationHasher
 
 
@@ -220,7 +221,7 @@ class SessionKey(models.Model):
 
         # Validate the provided session key
         if not check_password(session_key, self.hash):
-            raise Exception("Invalid session key")
+            raise InvalidSessionKey()
 
         # Decrypt master key using provided session key
         master_key = xor_keys(session_key, self.cipher)

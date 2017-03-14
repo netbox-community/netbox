@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet, ModelViewSet
 
 from extras.api.renderers import FormlessBrowsableAPIRenderer, FreeRADIUSClientsRenderer
+from secrets.exceptions import InvalidSessionKey
 from secrets.filters import SecretFilter
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
 from utilities.api import WritableSerializerMixin
@@ -53,41 +54,49 @@ class SecretViewSet(WritableSerializerMixin, ModelViewSet):
     authentication_classes = [BasicAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def _get_master_key(self, request):
+    def _read_session_key(self, request):
 
         # Check for a session key provided as a cookie or header
         if 'session_key' in request.COOKIES:
-            session_key = base64.b64decode(request.COOKIES['session_key'])
+            return base64.b64decode(request.COOKIES['session_key'])
         elif 'HTTP_X_SESSION_KEY' in request.META:
-            session_key = base64.b64decode(request.META['HTTP_X_SESSION_KEY'])
-        else:
-            return None
-
-        # Retrieve session key cipher (if any) for the current user
-        try:
-            sk = SessionKey.objects.get(user=request.user)
-        except SessionKey.DoesNotExist:
-            return None
-
-        # Recover master key
-        # TODO: Exception handling
-        master_key = sk.get_master_key(session_key)
-
-        return master_key
+            return base64.b64decode(request.META['HTTP_X_SESSION_KEY'])
+        return None
 
     def retrieve(self, request, *args, **kwargs):
-        master_key = self._get_master_key(request)
-        secret = self.get_object()
 
-        if master_key is not None:
-            secret.decrypt(master_key)
+        secret = self.get_object()
+        session_key = self._read_session_key(request)
+
+        # Retrieve session key cipher (if any) for the current user
+        if session_key is not None:
+            try:
+                sk = SessionKey.objects.get(user=request.user)
+                master_key = sk.get_master_key(session_key)
+                secret.decrypt(master_key)
+            except SessionKey.DoesNotExist:
+                return HttpResponseBadRequest("No active session key for current user.")
+            except InvalidSessionKey:
+                return HttpResponseBadRequest("Invalid session key.")
 
         serializer = self.get_serializer(secret)
         return Response(serializer.data)
 
     def list(self, request, *args, **kwargs):
-        master_key = self._get_master_key(request)
+
         queryset = self.filter_queryset(self.get_queryset())
+
+        # Attempt to retrieve the master key for decryption
+        session_key = self._read_session_key(request)
+        master_key = None
+        if session_key is not None:
+            try:
+                sk = SessionKey.objects.get(user=request.user)
+                master_key = sk.get_master_key(session_key)
+            except SessionKey.DoesNotExist:
+                return HttpResponseBadRequest("No active session key for current user.")
+            except InvalidSessionKey:
+                return HttpResponseBadRequest("Invalid session key.")
 
         # Pagination
         page = self.paginate_queryset(queryset)

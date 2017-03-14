@@ -1,38 +1,20 @@
 $(document).ready(function() {
 
     // Unlocking a secret
-    $('button.unlock-secret').click(function (event) {
+    $('button.unlock-secret').click(function() {
         var secret_id = $(this).attr('secret-id');
-
-        // If we have an active cookie containing a session key, send the API request.
-        if (document.cookie.indexOf('session_key') > 0) {
-            console.log("Retrieving secret...");
-            unlock_secret(secret_id);
-        // Otherwise, prompt the user for a private key so we can request a session key.
-        } else {
-            console.log("No session key found. Prompt user for private key.");
-            $('#privkey_modal').modal('show');
-        }
-
+        unlock_secret(secret_id);
     });
 
     // Locking a secret
-    $('button.lock-secret').click(function (event) {
+    $('button.lock-secret').click(function() {
         var secret_id = $(this).attr('secret-id');
-        var secret_div = $('#secret_' + secret_id);
-
-        // Delete the plaintext from the DOM element.
-        secret_div.html('********');
-        $(this).hide();
-        $(this).siblings('button.unlock-secret').show();
+        lock_secret(secret_id);
     });
 
     // Retrieve a session key
     $('#request_session_key').click(function() {
         var private_key = $('#user_privkey').val();
-
-        // POST the user's private key to request a temporary session key.
-        console.log("Requesting a session key...");
         get_session_key(private_key);
     });
 
@@ -43,21 +25,33 @@ $(document).ready(function() {
             type: 'GET',
             dataType: 'json',
             success: function (response, status) {
-                console.log("Secret retrieved successfully");
-                $('#secret_' + secret_id).html(response.plaintext);
-                $('button.unlock-secret[secret-id=' + secret_id + ']').hide();
-                $('button.lock-secret[secret-id=' + secret_id + ']').show();
+                if (response.plaintext) {
+                    console.log("Secret retrieved successfully");
+                    $('#secret_' + secret_id).html(response.plaintext);
+                    $('button.unlock-secret[secret-id=' + secret_id + ']').hide();
+                    $('button.lock-secret[secret-id=' + secret_id + ']').show();
+                } else {
+                    console.log("Secret was not decrypted. Prompt user for private key.");
+                    $('#privkey_modal').modal('show');
+                }
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 console.log("Error: " + xhr.responseText);
                 if (xhr.status == 403) {
                     alert("Permission denied");
                 } else {
-                    var json = jQuery.parseJSON(xhr.responseText);
-                    alert("Secret retrieval failed: " + json['error']);
+                    alert(xhr.responseText);
                 }
             }
         });
+    }
+
+    // Remove secret data from the DOM
+    function lock_secret(secret_id) {
+        var secret_div = $('#secret_' + secret_id);
+        secret_div.html('********');
+        $('button.lock-secret[secret-id=' + secret_id + ']').hide();
+        $('button.unlock-secret[secret-id=' + secret_id + ']').show();
     }
 
     // Request a session key via the API
@@ -74,7 +68,7 @@ $(document).ready(function() {
                 xhr.setRequestHeader("X-CSRFToken", csrf_token);
             },
             success: function (response, status) {
-                console.log("Received a new session key; valid until " + response.expiration_time);
+                console.log("Received a new session key");
                 alert('Session key received! You may now unlock secrets.');
             },
             error: function (xhr, ajaxOptions, thrownError) {
