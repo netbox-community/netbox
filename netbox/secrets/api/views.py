@@ -4,13 +4,11 @@ from Crypto.PublicKey import RSA
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseBadRequest
 
-from rest_framework.authentication import BasicAuthentication, SessionAuthentication
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet, ModelViewSet, ViewSet
+from rest_framework.viewsets import ModelViewSet, ViewSet
 
-from extras.api.renderers import FormlessBrowsableAPIRenderer, FreeRADIUSClientsRenderer
 from secrets.exceptions import InvalidSessionKey
 from secrets.filters import SecretFilter
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
@@ -38,7 +36,6 @@ class SecretRoleViewSet(ModelViewSet):
 # Secrets
 #
 
-# TODO: Need to implement custom create() and update() methods to handle secret encryption.
 class SecretViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = Secret.objects.select_related(
         'device__primary_ip4', 'device__primary_ip6', 'role',
@@ -48,10 +45,20 @@ class SecretViewSet(WritableSerializerMixin, ModelViewSet):
     serializer_class = serializers.SecretSerializer
     write_serializer_class = serializers.WritableSecretSerializer
     filter_class = SecretFilter
-    # DRF's BrowsableAPIRenderer can't support passing the secret key as a header, so we disable it.
-    renderer_classes = [FormlessBrowsableAPIRenderer, JSONRenderer, FreeRADIUSClientsRenderer]
 
     master_key = None
+
+    def _get_encrypted_fields(self, serializer):
+        """
+        Since we can't call encrypt() on the serializer like we can on the Secret model, we need to calculate the
+        ciphertext and hash values by encrypting a dummy copy. These can be passed to the serializer's save() method.
+        """
+        s = Secret(plaintext=serializer.validated_data['plaintext'])
+        s.encrypt(self.master_key)
+        return ({
+            'ciphertext': s.ciphertext,
+            'hash': s.hash,
+        })
 
     def initial(self, request, *args, **kwargs):
 
@@ -66,13 +73,18 @@ class SecretViewSet(WritableSerializerMixin, ModelViewSet):
         else:
             session_key = None
 
+        # We can't encrypt secret plaintext without a session key.
+        # assert False, self.action
+        if self.action in ['create', 'update'] and session_key is None:
+            raise ValidationError("A session key must be provided when creating or updating secrets.")
+
         # Attempt to retrieve the master key for encryption/decryption if a session key has been provided.
         if session_key is not None:
             try:
                 sk = SessionKey.objects.get(userkey__user=request.user)
                 self.master_key = sk.get_master_key(session_key)
             except (SessionKey.DoesNotExist, InvalidSessionKey):
-                return HttpResponseBadRequest("Invalid session key.")
+                raise ValidationError("Invalid session key.")
 
     def retrieve(self, request, *args, **kwargs):
 
@@ -106,6 +118,12 @@ class SecretViewSet(WritableSerializerMixin, ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    def perform_create(self, serializer):
+        serializer.save(**self._get_encrypted_fields(serializer))
+
+    def perform_update(self, serializer):
+        serializer.save(**self._get_encrypted_fields(serializer))
 
 
 class GetSessionKeyViewSet(ViewSet):
