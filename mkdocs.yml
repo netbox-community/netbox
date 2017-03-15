@@ -21,7 +21,6 @@ pages:
         - 'Extras': 'data-model/extras.md'
     - 'API':
         - 'Structure': 'api/structure.md'
-    - 'API Integration': 'api-integration.md'
 
 markdown_extensions:
     - admonition:
