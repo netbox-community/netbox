@@ -62,7 +62,14 @@ class ChoiceFieldSerializer(Field):
     Represent a ChoiceField as (value, label).
     """
     def __init__(self, choices, **kwargs):
-        self._choices = {k: v for k, v in choices}
+        self._choices = dict()
+        for k, v in choices:
+            # Unpack grouped choices
+            if type(v) in [list, tuple]:
+                for k2, v2 in v:
+                    self._choices[k2] = v2
+            else:
+                self._choices[k] = v
         super(ChoiceFieldSerializer, self).__init__(**kwargs)
 
     def to_representation(self, obj):

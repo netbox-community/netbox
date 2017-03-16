@@ -70,8 +70,8 @@ class WritableSiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Site
         fields = [
-            'id', 'name', 'slug', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address', 'contact_name',
-            'contact_phone', 'contact_email', 'comments',
+            'id', 'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
+            'contact_name', 'contact_phone', 'contact_email', 'comments',
         ]
 
 
@@ -169,6 +169,13 @@ class RackReservationSerializer(serializers.ModelSerializer):
     class Meta:
         model = RackReservation
         fields = ['id', 'rack', 'units', 'created', 'user', 'description']
+
+
+class WritableRackReservationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RackReservation
+        fields = ['id', 'rack', 'units', 'user', 'description']
 
 
 #

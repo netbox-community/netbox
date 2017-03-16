@@ -114,9 +114,10 @@ class RackViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 # Rack reservations
 #
 
-class RackReservationViewSet(ModelViewSet):
-    queryset = RackReservation.objects.all()
+class RackReservationViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = RackReservation.objects.select_related('rack')
     serializer_class = serializers.RackReservationSerializer
+    write_serializer_class = serializers.WritableRackReservationSerializer
     filter_class = filters.RackReservationFilter
 
 
