@@ -47,6 +47,9 @@ class ProviderTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Provider.objects.count(), 4)
+        provider4 = Provider.objects.get(pk=response.data['id'])
+        self.assertEqual(provider4.name, data['name'])
+        self.assertEqual(provider4.slug, data['slug'])
 
     def test_update_provider(self):
 
@@ -60,8 +63,9 @@ class ProviderTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Provider.objects.count(), 3)
-        self.assertEqual(Provider.objects.get(pk=self.provider1.pk).name, data['name'])
-        self.assertEqual(Provider.objects.get(pk=self.provider1.pk).slug, data['slug'])
+        provider1 = Provider.objects.get(pk=response.data['id'])
+        self.assertEqual(provider1.name, data['name'])
+        self.assertEqual(provider1.slug, data['slug'])
 
     def test_delete_provider(self):
 
@@ -110,6 +114,9 @@ class CircuitTypeTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(CircuitType.objects.count(), 4)
+        circuittype4 = CircuitType.objects.get(pk=response.data['id'])
+        self.assertEqual(circuittype4.name, data['name'])
+        self.assertEqual(circuittype4.slug, data['slug'])
 
     def test_update_circuittype(self):
 
@@ -123,8 +130,9 @@ class CircuitTypeTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(CircuitType.objects.count(), 3)
-        self.assertEqual(CircuitType.objects.get(pk=self.circuittype1.pk).name, data['name'])
-        self.assertEqual(CircuitType.objects.get(pk=self.circuittype1.pk).slug, data['slug'])
+        circuittype1 = CircuitType.objects.get(pk=response.data['id'])
+        self.assertEqual(circuittype1.name, data['name'])
+        self.assertEqual(circuittype1.slug, data['slug'])
 
     def test_delete_circuittype(self):
 
@@ -178,6 +186,10 @@ class CircuitTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Circuit.objects.count(), 4)
+        circuit4 = Circuit.objects.get(pk=response.data['id'])
+        self.assertEqual(circuit4.cid, data['cid'])
+        self.assertEqual(circuit4.provider_id, data['provider'])
+        self.assertEqual(circuit4.type_id, data['type'])
 
     def test_update_circuit(self):
 
@@ -192,9 +204,10 @@ class CircuitTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Circuit.objects.count(), 3)
-        self.assertEqual(Circuit.objects.get(pk=self.circuit1.pk).cid, data['cid'])
-        self.assertEqual(Circuit.objects.get(pk=self.circuit1.pk).provider_id, data['provider'])
-        self.assertEqual(Circuit.objects.get(pk=self.circuit1.pk).type_id, data['type'])
+        circuit1 = Circuit.objects.get(pk=response.data['id'])
+        self.assertEqual(circuit1.cid, data['cid'])
+        self.assertEqual(circuit1.provider_id, data['provider'])
+        self.assertEqual(circuit1.type_id, data['type'])
 
     def test_delete_circuit(self):
 
@@ -258,6 +271,11 @@ class CircuitTerminationTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(CircuitTermination.objects.count(), 4)
+        circuittermination4 = CircuitTermination.objects.get(pk=response.data['id'])
+        self.assertEqual(circuittermination4.circuit_id, data['circuit'])
+        self.assertEqual(circuittermination4.term_side, data['term_side'])
+        self.assertEqual(circuittermination4.site_id, data['site'])
+        self.assertEqual(circuittermination4.port_speed, data['port_speed'])
 
     def test_update_circuittermination(self):
 
@@ -273,8 +291,11 @@ class CircuitTerminationTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(CircuitTermination.objects.count(), 3)
-        self.assertEqual(CircuitTermination.objects.get(pk=self.circuittermination1.pk).site_id, data['site'])
-        self.assertEqual(CircuitTermination.objects.get(pk=self.circuittermination1.pk).term_side, data['term_side'])
+        circuittermination1 = CircuitTermination.objects.get(pk=response.data['id'])
+        self.assertEqual(circuittermination1.circuit_id, data['circuit'])
+        self.assertEqual(circuittermination1.term_side, data['term_side'])
+        self.assertEqual(circuittermination1.site_id, data['site'])
+        self.assertEqual(circuittermination1.port_speed, data['port_speed'])
 
     def test_delete_circuittermination(self):
 
