@@ -310,7 +310,7 @@ class RackTest(APITestCase):
         self.rackrole1 = RackRole.objects.create(name='Test Rack Role 1', slug='test-rack-role-1', color='ff0000')
         self.rackrole2 = RackRole.objects.create(name='Test Rack Role 2', slug='test-rack-role-2', color='00ff00')
         self.rack1 = Rack.objects.create(
-            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 1'
+            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 1',
         )
         self.rack2 = Rack.objects.create(
             site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 2'

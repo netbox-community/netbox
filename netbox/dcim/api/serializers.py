@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from ipam.models import IPAddress
 from dcim.models import (
@@ -157,6 +158,21 @@ class WritableRackSerializer(serializers.ModelSerializer):
             'id', 'name', 'facility_id', 'site', 'group', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
             'comments',
         ]
+        # Omit the UniqueTogetherValidator that would be automatically added to validate facility_id. This prevents
+        # facility_id from being interpreted as a required field.
+        validators = [
+            UniqueTogetherValidator(queryset=Rack.objects.all(), fields=('site', 'name'))
+        ]
+
+    def validate(self, data):
+
+        # Validate uniqueness of facility_id (if set) since we omitted the automatically-created validator from Meta.
+        if data.get('facility_id', None):
+            validator = UniqueTogetherValidator(queryset=Rack.objects.all(), fields=('site', 'facility_id'))
+            validator.set_context(self)
+            validator(data)
+
+        return data
 
 
 #
