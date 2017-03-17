@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from dcim.api.serializers import NestedDeviceSerializer, InterfaceSerializer, NestedSiteSerializer
 from extras.api.customfields import CustomFieldModelSerializer
@@ -99,7 +100,7 @@ class WritableAggregateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Aggregate
-        fields = ['id', 'family', 'prefix', 'rir', 'date_added', 'description']
+        fields = ['id', 'prefix', 'rir', 'date_added', 'description']
 
 
 #
@@ -127,6 +128,18 @@ class WritableVLANGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = VLANGroup
         fields = ['id', 'name', 'slug', 'site']
+        validators = []
+
+    def validate(self, data):
+
+        # Validate uniqueness of name and slug if a site has been assigned.
+        if data.get('site', None):
+            for field in ['name', 'slug']:
+                validator = UniqueTogetherValidator(queryset=VLAN.objects.all(), fields=('site', field))
+                validator.set_context(self)
+                validator(data)
+
+        return data
 
 
 #
@@ -163,6 +176,18 @@ class WritableVLANSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description',
         ]
+        validators = []
+
+    def validate(self, data):
+
+        # Validate uniqueness of vid and name if a group has been assigned.
+        if data.get('group', None):
+            for field in ['vid', 'name']:
+                validator = UniqueTogetherValidator(queryset=VLAN.objects.all(), fields=('group', field))
+                validator.set_context(self)
+                validator(data)
+
+        return data
 
 
 #
@@ -198,7 +223,7 @@ class WritablePrefixSerializer(serializers.ModelSerializer):
     class Meta:
         model = Prefix
         fields = [
-            'id', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description',
+            'id', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description',
         ]
 
 
@@ -235,7 +260,7 @@ class WritableIPAddressSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IPAddress
-        fields = ['id', 'family', 'address', 'vrf', 'tenant', 'status', 'interface', 'description', 'nat_inside']
+        fields = ['id', 'address', 'vrf', 'tenant', 'status', 'interface', 'description', 'nat_inside']
 
 
 #
