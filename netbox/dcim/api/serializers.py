@@ -191,7 +191,7 @@ class WritableRackReservationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RackReservation
-        fields = ['id', 'rack', 'units', 'user', 'description']
+        fields = ['id', 'rack', 'units', 'description']
 
 
 #
