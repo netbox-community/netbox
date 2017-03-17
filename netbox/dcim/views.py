@@ -90,7 +90,12 @@ class ComponentCreateView(View):
                     self.parent_field: parent.pk,
                     'name': name,
                 }
-                component_data.update(data)
+                # Replace objects with their primary key to keep component_form.clean() happy
+                for k, v in data.items():
+                    if hasattr(v, 'pk'):
+                        component_data[k] = v.pk
+                    else:
+                        component_data[k] = v
                 component_form = self.model_form(component_data)
                 if component_form.is_valid():
                     new_components.append(component_form.save(commit=False))
