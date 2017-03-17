@@ -1,6 +1,5 @@
 from rest_framework import routers
 
-from ipam.api.views import ServiceViewSet
 from . import views
 
 
@@ -41,7 +40,6 @@ router.register(r'power-outlets', views.PowerOutletViewSet)
 router.register(r'interfaces', views.InterfaceViewSet)
 router.register(r'device-bays', views.DeviceBayViewSet)
 router.register(r'modules', views.ModuleViewSet)
-router.register(r'services', ServiceViewSet)
 
 # Interface connections
 router.register(r'interface-connections', views.InterfaceConnectionViewSet)
