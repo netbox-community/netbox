@@ -5,8 +5,10 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 from dcim.models import (
-    ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, DeviceType, InterfaceTemplate, Manufacturer,
-    PowerPortTemplate, PowerOutletTemplate, Rack, RackGroup, RackReservation, RackRole, Region, Site,
+    ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    DeviceBayTemplate, DeviceRole, DeviceType, IFACE_FF_LAG, Interface, InterfaceConnection, InterfaceTemplate,
+    Manufacturer, Module, Platform, PowerPort, PowerPortTemplate, PowerOutlet, PowerOutletTemplate, Rack, RackGroup,
+    RackReservation, RackRole, Region, Site, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
 )
 from users.models import Token
 
@@ -1064,3 +1066,914 @@ class DeviceBayTemplateTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(DeviceBayTemplate.objects.count(), 2)
+
+
+class DeviceRoleTest(APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        self.devicerole1 = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        self.devicerole2 = DeviceRole.objects.create(
+            name='Test Device Role 2', slug='test-device-role-2', color='00ff00'
+        )
+        self.devicerole3 = DeviceRole.objects.create(
+            name='Test Device Role 3', slug='test-device-role-3', color='0000ff'
+        )
+
+    def test_get_devicerole(self):
+
+        url = reverse('dcim-api:devicerole-detail', kwargs={'pk': self.devicerole1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.devicerole1.name)
+
+    def test_list_deviceroles(self):
+
+        url = reverse('dcim-api:devicerole-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_create_devicerole(self):
+
+        data = {
+            'name': 'Test Device Role 4',
+            'slug': 'test-device-role-4',
+            'color': 'ffff00',
+        }
+
+        url = reverse('dcim-api:devicerole-list')
+        response = self.client.post(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(DeviceRole.objects.count(), 4)
+        devicerole4 = DeviceRole.objects.get(pk=response.data['id'])
+        self.assertEqual(devicerole4.name, data['name'])
+        self.assertEqual(devicerole4.slug, data['slug'])
+        self.assertEqual(devicerole4.color, data['color'])
+
+    def test_update_devicerole(self):
+
+        data = {
+            'name': 'Test Device Role X',
+            'slug': 'test-device-role-x',
+            'color': '00ffff',
+        }
+
+        url = reverse('dcim-api:devicerole-detail', kwargs={'pk': self.devicerole1.pk})
+        response = self.client.put(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(DeviceRole.objects.count(), 3)
+        devicerole1 = DeviceRole.objects.get(pk=response.data['id'])
+        self.assertEqual(devicerole1.name, data['name'])
+        self.assertEqual(devicerole1.slug, data['slug'])
+        self.assertEqual(devicerole1.color, data['color'])
+
+    def test_delete_devicerole(self):
+
+        url = reverse('dcim-api:devicerole-detail', kwargs={'pk': self.devicerole1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(DeviceRole.objects.count(), 2)
+
+
+class PlatformTest(APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        self.platform1 = Platform.objects.create(name='Test Platform 1', slug='test-platform-1')
+        self.platform2 = Platform.objects.create(name='Test Platform 2', slug='test-platform-2')
+        self.platform3 = Platform.objects.create(name='Test Platform 3', slug='test-platform-3')
+
+    def test_get_platform(self):
+
+        url = reverse('dcim-api:platform-detail', kwargs={'pk': self.platform1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.platform1.name)
+
+    def test_list_platforms(self):
+
+        url = reverse('dcim-api:platform-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_create_platform(self):
+
+        data = {
+            'name': 'Test Platform 4',
+            'slug': 'test-platform-4',
+        }
+
+        url = reverse('dcim-api:platform-list')
+        response = self.client.post(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Platform.objects.count(), 4)
+        platform4 = Platform.objects.get(pk=response.data['id'])
+        self.assertEqual(platform4.name, data['name'])
+        self.assertEqual(platform4.slug, data['slug'])
+
+    def test_update_platform(self):
+
+        data = {
+            'name': 'Test Platform X',
+            'slug': 'test-platform-x',
+        }
+
+        url = reverse('dcim-api:platform-detail', kwargs={'pk': self.platform1.pk})
+        response = self.client.put(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Platform.objects.count(), 3)
+        platform1 = Platform.objects.get(pk=response.data['id'])
+        self.assertEqual(platform1.name, data['name'])
+        self.assertEqual(platform1.slug, data['slug'])
+
+    def test_delete_platform(self):
+
+        url = reverse('dcim-api:platform-detail', kwargs={'pk': self.platform1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Platform.objects.count(), 2)
+
+
+class DeviceTest(APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        self.site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        self.devicetype1 = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        self.devicetype2 = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 2', slug='test-device-type-2'
+        )
+        self.devicerole1 = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        self.devicerole2 = DeviceRole.objects.create(
+            name='Test Device Role 2', slug='test-device-role-2', color='00ff00'
+        )
+        self.device1 = Device.objects.create(
+            device_type=self.devicetype1, device_role=self.devicerole1, name='Test Device 1', site=self.site1
+        )
+        self.device2 = Device.objects.create(
+            device_type=self.devicetype1, device_role=self.devicerole1, name='Test Device 2', site=self.site1
+        )
+        self.device3 = Device.objects.create(
+            device_type=self.devicetype1, device_role=self.devicerole1, name='Test Device 3', site=self.site1
+        )
+
+    def test_get_device(self):
+
+        url = reverse('dcim-api:device-detail', kwargs={'pk': self.device1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.device1.name)
+
+    def test_list_devices(self):
+
+        url = reverse('dcim-api:device-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_create_device(self):
+
+        data = {
+            'device_type': self.devicetype1.pk,
+            'device_role': self.devicerole1.pk,
+            'name': 'Test Device 4',
+            'site': self.site1.pk,
+        }
+
+        url = reverse('dcim-api:device-list')
+        response = self.client.post(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Device.objects.count(), 4)
+        device4 = Device.objects.get(pk=response.data['id'])
+        self.assertEqual(device4.device_type_id, data['device_type'])
+        self.assertEqual(device4.device_role_id, data['device_role'])
+        self.assertEqual(device4.name, data['name'])
+        self.assertEqual(device4.site_id, data['site'])
+
+    def test_update_device(self):
+
+        data = {
+            'device_type': self.devicetype2.pk,
+            'device_role': self.devicerole2.pk,
+            'name': 'Test Device X',
+            'site': self.site2.pk,
+        }
+
+        url = reverse('dcim-api:device-detail', kwargs={'pk': self.device1.pk})
+        response = self.client.put(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Device.objects.count(), 3)
+        device1 = Device.objects.get(pk=response.data['id'])
+        self.assertEqual(device1.device_type_id, data['device_type'])
+        self.assertEqual(device1.device_role_id, data['device_role'])
+        self.assertEqual(device1.name, data['name'])
+        self.assertEqual(device1.site_id, data['site'])
+
+    def test_delete_device(self):
+
+        url = reverse('dcim-api:device-detail', kwargs={'pk': self.device1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Device.objects.count(), 2)
+
+
+class ConsolePortTest(APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        devicerole = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        self.device = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
+        )
+        self.consoleport1 = ConsolePort.objects.create(device=self.device, name='Test Console Port 1')
+        self.consoleport2 = ConsolePort.objects.create(device=self.device, name='Test Console Port 2')
+        self.consoleport3 = ConsolePort.objects.create(device=self.device, name='Test Console Port 3')
+
+    def test_get_consoleport(self):
+
+        url = reverse('dcim-api:consoleport-detail', kwargs={'pk': self.consoleport1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.consoleport1.name)
+
+    def test_list_consoleports(self):
+
+        url = reverse('dcim-api:consoleport-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_create_consoleport(self):
+
+        data = {
+            'device': self.device.pk,
+            'name': 'Test Console Port 4',
+        }
+
+        url = reverse('dcim-api:consoleport-list')
+        response = self.client.post(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(ConsolePort.objects.count(), 4)
+        consoleport4 = ConsolePort.objects.get(pk=response.data['id'])
+        self.assertEqual(consoleport4.device_id, data['device'])
+        self.assertEqual(consoleport4.name, data['name'])
+
+    def test_update_consoleport(self):
+
+        consoleserverport = ConsoleServerPort.objects.create(device=self.device, name='Test CS Port 1')
+
+        data = {
+            'device': self.device.pk,
+            'name': 'Test Console Port X',
+            'cs_port': consoleserverport.pk,
+        }
+
+        url = reverse('dcim-api:consoleport-detail', kwargs={'pk': self.consoleport1.pk})
+        response = self.client.put(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(ConsolePort.objects.count(), 3)
+        consoleport1 = ConsolePort.objects.get(pk=response.data['id'])
+        self.assertEqual(consoleport1.name, data['name'])
+        self.assertEqual(consoleport1.cs_port_id, data['cs_port'])
+
+    def test_delete_consoleport(self):
+
+        url = reverse('dcim-api:consoleport-detail', kwargs={'pk': self.consoleport1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(ConsolePort.objects.count(), 2)
+
+
+class ConsoleServerPortTest(APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        devicerole = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        self.device = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
+        )
+        self.consoleserverport1 = ConsoleServerPort.objects.create(device=self.device, name='Test CS Port 1')
+        self.consoleserverport2 = ConsoleServerPort.objects.create(device=self.device, name='Test CS Port 2')
+        self.consoleserverport3 = ConsoleServerPort.objects.create(device=self.device, name='Test CS Port 3')
+
+    def test_get_consoleserverport(self):
+
+        url = reverse('dcim-api:consoleserverport-detail', kwargs={'pk': self.consoleserverport1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.consoleserverport1.name)
+
+    def test_list_consoleserverports(self):
+
+        url = reverse('dcim-api:consoleserverport-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_create_consoleserverport(self):
+
+        data = {
+            'device': self.device.pk,
+            'name': 'Test CS Port 4',
+        }
+
+        url = reverse('dcim-api:consoleserverport-list')
+        response = self.client.post(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(ConsoleServerPort.objects.count(), 4)
+        consoleserverport4 = ConsoleServerPort.objects.get(pk=response.data['id'])
+        self.assertEqual(consoleserverport4.device_id, data['device'])
+        self.assertEqual(consoleserverport4.name, data['name'])
+
+    def test_update_consoleserverport(self):
+
+        data = {
+            'device': self.device.pk,
+            'name': 'Test CS Port X',
+        }
+
+        url = reverse('dcim-api:consoleserverport-detail', kwargs={'pk': self.consoleserverport1.pk})
+        response = self.client.put(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(ConsoleServerPort.objects.count(), 3)
+        consoleserverport1 = ConsoleServerPort.objects.get(pk=response.data['id'])
+        self.assertEqual(consoleserverport1.name, data['name'])
+
+    def test_delete_consoleserverport(self):
+
+        url = reverse('dcim-api:consoleserverport-detail', kwargs={'pk': self.consoleserverport1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(ConsoleServerPort.objects.count(), 2)
+
+
+class PowerPortTest(APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        devicerole = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        self.device = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
+        )
+        self.powerport1 = PowerPort.objects.create(device=self.device, name='Test Power Port 1')
+        self.powerport2 = PowerPort.objects.create(device=self.device, name='Test Power Port 2')
+        self.powerport3 = PowerPort.objects.create(device=self.device, name='Test Power Port 3')
+
+    def test_get_powerport(self):
+
+        url = reverse('dcim-api:powerport-detail', kwargs={'pk': self.powerport1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.powerport1.name)
+
+    def test_list_powerports(self):
+
+        url = reverse('dcim-api:powerport-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_create_powerport(self):
+
+        data = {
+            'device': self.device.pk,
+            'name': 'Test Power Port 4',
+        }
+
+        url = reverse('dcim-api:powerport-list')
+        response = self.client.post(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(PowerPort.objects.count(), 4)
+        powerport4 = PowerPort.objects.get(pk=response.data['id'])
+        self.assertEqual(powerport4.device_id, data['device'])
+        self.assertEqual(powerport4.name, data['name'])
+
+    def test_update_powerport(self):
+
+        poweroutlet = PowerOutlet.objects.create(device=self.device, name='Test Power Outlet 1')
+
+        data = {
+            'device': self.device.pk,
+            'name': 'Test Power Port X',
+            'power_outlet': poweroutlet.pk,
+        }
+
+        url = reverse('dcim-api:powerport-detail', kwargs={'pk': self.powerport1.pk})
+        response = self.client.put(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(PowerPort.objects.count(), 3)
+        powerport1 = PowerPort.objects.get(pk=response.data['id'])
+        self.assertEqual(powerport1.name, data['name'])
+        self.assertEqual(powerport1.power_outlet_id, data['power_outlet'])
+
+    def test_delete_powerport(self):
+
+        url = reverse('dcim-api:powerport-detail', kwargs={'pk': self.powerport1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(PowerPort.objects.count(), 2)
+
+
+class PowerOutletTest(APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        devicerole = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        self.device = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
+        )
+        self.poweroutlet1 = PowerOutlet.objects.create(device=self.device, name='Test Power Outlet 1')
+        self.poweroutlet2 = PowerOutlet.objects.create(device=self.device, name='Test Power Outlet 2')
+        self.poweroutlet3 = PowerOutlet.objects.create(device=self.device, name='Test Power Outlet 3')
+
+    def test_get_poweroutlet(self):
+
+        url = reverse('dcim-api:poweroutlet-detail', kwargs={'pk': self.poweroutlet1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.poweroutlet1.name)
+
+    def test_list_poweroutlets(self):
+
+        url = reverse('dcim-api:poweroutlet-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_create_poweroutlet(self):
+
+        data = {
+            'device': self.device.pk,
+            'name': 'Test Power Outlet 4',
+        }
+
+        url = reverse('dcim-api:poweroutlet-list')
+        response = self.client.post(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(PowerOutlet.objects.count(), 4)
+        poweroutlet4 = PowerOutlet.objects.get(pk=response.data['id'])
+        self.assertEqual(poweroutlet4.device_id, data['device'])
+        self.assertEqual(poweroutlet4.name, data['name'])
+
+    def test_update_poweroutlet(self):
+
+        data = {
+            'device': self.device.pk,
+            'name': 'Test Power Outlet X',
+        }
+
+        url = reverse('dcim-api:poweroutlet-detail', kwargs={'pk': self.poweroutlet1.pk})
+        response = self.client.put(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(PowerOutlet.objects.count(), 3)
+        poweroutlet1 = PowerOutlet.objects.get(pk=response.data['id'])
+        self.assertEqual(poweroutlet1.name, data['name'])
+
+    def test_delete_poweroutlet(self):
+
+        url = reverse('dcim-api:poweroutlet-detail', kwargs={'pk': self.poweroutlet1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(PowerOutlet.objects.count(), 2)
+
+
+class InterfaceTest(APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        devicerole = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        self.device = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
+        )
+        self.interface1 = Interface.objects.create(device=self.device, name='Test Interface 1')
+        self.interface2 = Interface.objects.create(device=self.device, name='Test Interface 2')
+        self.interface3 = Interface.objects.create(device=self.device, name='Test Interface 3')
+
+    def test_get_interface(self):
+
+        url = reverse('dcim-api:interface-detail', kwargs={'pk': self.interface1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.interface1.name)
+
+    def test_list_interfaces(self):
+
+        url = reverse('dcim-api:interface-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_create_interface(self):
+
+        data = {
+            'device': self.device.pk,
+            'name': 'Test Interface 4',
+        }
+
+        url = reverse('dcim-api:interface-list')
+        response = self.client.post(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Interface.objects.count(), 4)
+        interface4 = Interface.objects.get(pk=response.data['id'])
+        self.assertEqual(interface4.device_id, data['device'])
+        self.assertEqual(interface4.name, data['name'])
+
+    def test_update_interface(self):
+
+        lag_interface = Interface.objects.create(
+            device=self.device, name='Test LAG Interface', form_factor=IFACE_FF_LAG
+        )
+
+        data = {
+            'device': self.device.pk,
+            'name': 'Test Interface X',
+            'lag': lag_interface.pk,
+        }
+
+        url = reverse('dcim-api:interface-detail', kwargs={'pk': self.interface1.pk})
+        response = self.client.put(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Interface.objects.count(), 4)
+        interface1 = Interface.objects.get(pk=response.data['id'])
+        self.assertEqual(interface1.name, data['name'])
+        self.assertEqual(interface1.lag_id, data['lag'])
+
+    def test_delete_interface(self):
+
+        url = reverse('dcim-api:interface-detail', kwargs={'pk': self.interface1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Interface.objects.count(), 2)
+
+
+class DeviceBayTest(APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        self.devicetype1 = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Parent Device Type', slug='parent-device-type',
+            subdevice_role=SUBDEVICE_ROLE_PARENT
+        )
+        self.devicetype2 = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Child Device Type', slug='child-device-type',
+            subdevice_role=SUBDEVICE_ROLE_CHILD
+        )
+        devicerole = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        self.parent_device = Device.objects.create(
+            device_type=self.devicetype1, device_role=devicerole, name='Parent Device 1', site=site
+        )
+        self.child_device = Device.objects.create(
+            device_type=self.devicetype2, device_role=devicerole, name='Child Device 1', site=site
+        )
+        self.devicebay1 = DeviceBay.objects.create(device=self.parent_device, name='Test Device Bay 1')
+        self.devicebay2 = DeviceBay.objects.create(device=self.parent_device, name='Test Device Bay 2')
+        self.devicebay3 = DeviceBay.objects.create(device=self.parent_device, name='Test Device Bay 3')
+
+    def test_get_devicebay(self):
+
+        url = reverse('dcim-api:devicebay-detail', kwargs={'pk': self.devicebay1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.devicebay1.name)
+
+    def test_list_devicebays(self):
+
+        url = reverse('dcim-api:devicebay-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_create_devicebay(self):
+
+        data = {
+            'device': self.parent_device.pk,
+            'name': 'Test Device Bay 4',
+            'installed_device': self.child_device.pk,
+        }
+
+        url = reverse('dcim-api:devicebay-list')
+        response = self.client.post(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(DeviceBay.objects.count(), 4)
+        devicebay4 = DeviceBay.objects.get(pk=response.data['id'])
+        self.assertEqual(devicebay4.device_id, data['device'])
+        self.assertEqual(devicebay4.name, data['name'])
+        self.assertEqual(devicebay4.installed_device_id, data['installed_device'])
+
+    def test_update_devicebay(self):
+
+        data = {
+            'device': self.parent_device.pk,
+            'name': 'Test Device Bay X',
+            'installed_device': self.child_device.pk,
+        }
+
+        url = reverse('dcim-api:devicebay-detail', kwargs={'pk': self.devicebay1.pk})
+        response = self.client.put(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(DeviceBay.objects.count(), 3)
+        devicebay1 = DeviceBay.objects.get(pk=response.data['id'])
+        self.assertEqual(devicebay1.name, data['name'])
+        self.assertEqual(devicebay1.installed_device_id, data['installed_device'])
+
+    def test_delete_devicebay(self):
+
+        url = reverse('dcim-api:devicebay-detail', kwargs={'pk': self.devicebay1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(DeviceBay.objects.count(), 2)
+
+
+class ModuleTest(APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        devicerole = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        self.device = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
+        )
+        self.module1 = Module.objects.create(device=self.device, name='Test Module 1')
+        self.module2 = Module.objects.create(device=self.device, name='Test Module 2')
+        self.module3 = Module.objects.create(device=self.device, name='Test Module 3')
+
+    def test_get_module(self):
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': self.module1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.module1.name)
+
+    def test_list_modules(self):
+
+        url = reverse('dcim-api:module-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_create_module(self):
+
+        data = {
+            'device': self.device.pk,
+            'parent': self.module1.pk,
+            'name': 'Test Module 4',
+            'manufacturer': self.manufacturer.pk,
+        }
+
+        url = reverse('dcim-api:module-list')
+        response = self.client.post(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Module.objects.count(), 4)
+        module4 = Module.objects.get(pk=response.data['id'])
+        self.assertEqual(module4.device_id, data['device'])
+        self.assertEqual(module4.parent_id, data['parent'])
+        self.assertEqual(module4.name, data['name'])
+        self.assertEqual(module4.manufacturer_id, data['manufacturer'])
+
+    def test_update_module(self):
+
+        data = {
+            'device': self.device.pk,
+            'parent': self.module1.pk,
+            'name': 'Test Module X',
+            'manufacturer': self.manufacturer.pk,
+        }
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': self.module1.pk})
+        response = self.client.put(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Module.objects.count(), 3)
+        module1 = Module.objects.get(pk=response.data['id'])
+        self.assertEqual(module1.device_id, data['device'])
+        self.assertEqual(module1.parent_id, data['parent'])
+        self.assertEqual(module1.name, data['name'])
+        self.assertEqual(module1.manufacturer_id, data['manufacturer'])
+
+    def test_delete_module(self):
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': self.module1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Module.objects.count(), 2)
+
+
+class InterfaceConnectionTest(APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        devicerole = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        self.device = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
+        )
+        self.interface1 = Interface.objects.create(device=self.device, name='Test Interface 1')
+        self.interface2 = Interface.objects.create(device=self.device, name='Test Interface 2')
+        self.interface3 = Interface.objects.create(device=self.device, name='Test Interface 3')
+        self.interface4 = Interface.objects.create(device=self.device, name='Test Interface 4')
+        self.interface5 = Interface.objects.create(device=self.device, name='Test Interface 5')
+        self.interface6 = Interface.objects.create(device=self.device, name='Test Interface 6')
+        self.interface7 = Interface.objects.create(device=self.device, name='Test Interface 7')
+        self.interface8 = Interface.objects.create(device=self.device, name='Test Interface 8')
+        self.interfaceconnection1 = InterfaceConnection.objects.create(
+            interface_a=self.interface1, interface_b=self.interface2
+        )
+        self.interfaceconnection2 = InterfaceConnection.objects.create(
+            interface_a=self.interface3, interface_b=self.interface4
+        )
+        self.interfaceconnection3 = InterfaceConnection.objects.create(
+            interface_a=self.interface5, interface_b=self.interface6
+        )
+
+    def test_get_interfaceconnection(self):
+
+        url = reverse('dcim-api:interfaceconnection-detail', kwargs={'pk': self.interfaceconnection1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['interface_a']['id'], self.interfaceconnection1.interface_a_id)
+        self.assertEqual(response.data['interface_b']['id'], self.interfaceconnection1.interface_b_id)
+
+    def test_list_interfaceconnections(self):
+
+        url = reverse('dcim-api:interfaceconnection-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_create_interfaceconnection(self):
+
+        data = {
+            'interface_a': self.interface7.pk,
+            'interface_b': self.interface8.pk,
+        }
+
+        url = reverse('dcim-api:interfaceconnection-list')
+        response = self.client.post(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(InterfaceConnection.objects.count(), 4)
+        interfaceconnection4 = InterfaceConnection.objects.get(pk=response.data['id'])
+        self.assertEqual(interfaceconnection4.interface_a_id, data['interface_a'])
+        self.assertEqual(interfaceconnection4.interface_b_id, data['interface_b'])
+
+    def test_update_interfaceconnection(self):
+
+        new_connection_status = not self.interfaceconnection1.connection_status
+
+        data = {
+            'interface_a': self.interface7.pk,
+            'interface_b': self.interface8.pk,
+            'connection_status': new_connection_status,
+        }
+
+        url = reverse('dcim-api:interfaceconnection-detail', kwargs={'pk': self.interfaceconnection1.pk})
+        response = self.client.put(url, data, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(InterfaceConnection.objects.count(), 3)
+        interfaceconnection1 = InterfaceConnection.objects.get(pk=response.data['id'])
+        self.assertEqual(interfaceconnection1.interface_a_id, data['interface_a'])
+        self.assertEqual(interfaceconnection1.interface_b_id, data['interface_b'])
+        self.assertEqual(interfaceconnection1.connection_status, data['connection_status'])
+
+    def test_delete_interfaceconnection(self):
+
+        url = reverse('dcim-api:interfaceconnection-detail', kwargs={'pk': self.interfaceconnection1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(InterfaceConnection.objects.count(), 2)

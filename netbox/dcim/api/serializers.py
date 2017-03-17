@@ -158,15 +158,15 @@ class WritableRackSerializer(serializers.ModelSerializer):
             'id', 'name', 'facility_id', 'site', 'group', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
             'comments',
         ]
-        # Omit the UniqueTogetherValidator that would be automatically added to validate facility_id. This prevents
-        # facility_id from being interpreted as a required field.
+        # Omit the UniqueTogetherValidator that would be automatically added to validate (site, facility_id). This
+        # prevents facility_id from being interpreted as a required field.
         validators = [
             UniqueTogetherValidator(queryset=Rack.objects.all(), fields=('site', 'name'))
         ]
 
     def validate(self, data):
 
-        # Validate uniqueness of facility_id (if set) since we omitted the automatically-created validator from Meta.
+        # Validate uniqueness of (site, facility_id) since we omitted the automatically-created validator from Meta.
         if data.get('facility_id', None):
             validator = UniqueTogetherValidator(queryset=Rack.objects.all(), fields=('site', 'facility_id'))
             validator.set_context(self)
@@ -467,9 +467,20 @@ class WritableDeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
         fields = [
-            'id', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag', 'rack', 'position',
-            'face', 'status', 'primary_ip4', 'primary_ip6', 'comments',
+            'id', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag', 'site', 'rack',
+            'position', 'face', 'status', 'primary_ip4', 'primary_ip6', 'comments',
         ]
+        validators = []
+
+    def validate(self, data):
+
+        # Validate uniqueness of (rack, position, face) since we omitted the automatically-created validator from Meta.
+        if data.get('rack') and data.get('position') and data.get('face'):
+            validator = UniqueTogetherValidator(queryset=Rack.objects.all(), fields=('rack', 'position', 'face'))
+            validator.set_context(self)
+            validator(data)
+
+        return data
 
 
 #
@@ -482,13 +493,14 @@ class ConsoleServerPortSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConsoleServerPort
         fields = ['id', 'device', 'name', 'connected_console']
+        read_only_fields = ['connected_console']
 
 
 class WritableConsoleServerPortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['id', 'device', 'name', 'connected_console']
+        fields = ['id', 'device', 'name']
 
 
 #
@@ -521,13 +533,14 @@ class PowerOutletSerializer(serializers.ModelSerializer):
     class Meta:
         model = PowerOutlet
         fields = ['id', 'device', 'name', 'connected_port']
+        read_only_fields = ['connected_port']
 
 
 class WritablePowerOutletSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PowerOutlet
-        fields = ['id', 'device', 'name', 'connected_port']
+        fields = ['id', 'device', 'name']
 
 
 #
@@ -611,7 +624,7 @@ class WritableDeviceBaySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DeviceBay
-        fields = ['id', 'device', 'name']
+        fields = ['id', 'device', 'name', 'installed_device']
 
 
 #
