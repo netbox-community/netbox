@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from dcim.api.serializers import NestedDeviceSerializer
 from secrets.models import Secret, SecretRole
@@ -42,3 +43,14 @@ class WritableSecretSerializer(serializers.ModelSerializer):
     class Meta:
         model = Secret
         fields = ['id', 'device', 'role', 'name', 'plaintext']
+        validators = []
+
+    def validate(self, data):
+
+        # Validate uniqueness of name if one has been provided.
+        if data.get('name', None):
+            validator = UniqueTogetherValidator(queryset=Secret.objects.all(), fields=('device', 'role', 'name'))
+            validator.set_context(self)
+            validator(data)
+
+        return data
