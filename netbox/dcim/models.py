@@ -533,7 +533,7 @@ class RackReservation(models.Model):
     """
     One or more reserved units within a Rack.
     """
-    rack = models.ForeignKey('Rack', related_name='reservations', editable=False, on_delete=models.CASCADE)
+    rack = models.ForeignKey('Rack', related_name='reservations', on_delete=models.CASCADE)
     units = ArrayField(models.PositiveSmallIntegerField())
     created = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, editable=False, on_delete=models.PROTECT)
