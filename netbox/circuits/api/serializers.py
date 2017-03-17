@@ -32,9 +32,7 @@ class WritableProviderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Provider
-        fields = [
-            'id', 'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
-        ]
+        fields = ['name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments']
 
 
 #
@@ -85,9 +83,7 @@ class WritableCircuitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Circuit
-        fields = [
-            'id', 'cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
-        ]
+        fields = ['cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments']
 
 
 #
@@ -111,5 +107,5 @@ class WritableCircuitTerminationSerializer(serializers.ModelSerializer):
     class Meta:
         model = CircuitTermination
         fields = [
-            'id', 'circuit', 'term_side', 'site', 'interface', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
+            'circuit', 'term_side', 'site', 'interface', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
         ]
