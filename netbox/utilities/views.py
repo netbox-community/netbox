@@ -434,7 +434,7 @@ class BulkEditView(View):
 
         # Are we editing *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all') and self.filter is not None:
-            pk_list = [obj.pk for obj in self.filter(request.GET, self.cls.objects.only('pk'))]
+            pk_list = [obj.pk for obj in self.filter(request.GET, self.cls.objects.only('pk')).qs]
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
@@ -572,7 +572,7 @@ class BulkDeleteView(View):
 
         # Are we deleting *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all') and self.filter is not None:
-            pk_list = [obj.pk for obj in self.filter(request.GET, self.cls.objects.only('pk'))]
+            pk_list = [obj.pk for obj in self.filter(request.GET, self.cls.objects.only('pk')).qs]
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 

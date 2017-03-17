@@ -57,7 +57,7 @@ def parse_numeric_range(string, base=10):
             begin, end = dash_range.split('-')
         except ValueError:
             begin, end = dash_range, dash_range
-        begin, end = int(begin.strip()), int(end.strip(), base=base) + 1
+        begin, end = int(begin.strip(), base=base), int(end.strip(), base=base) + 1
         values.extend(range(begin, end))
     return list(set(values))
 
