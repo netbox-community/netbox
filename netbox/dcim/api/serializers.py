@@ -38,7 +38,7 @@ class WritableRegionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Region
-        fields = ['name', 'slug', 'parent']
+        fields = ['id', 'name', 'slug', 'parent']
 
 
 #
@@ -71,7 +71,7 @@ class WritableSiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Site
         fields = [
-            'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
+            'id', 'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
             'contact_name', 'contact_phone', 'contact_email', 'comments',
         ]
 
@@ -100,7 +100,7 @@ class WritableRackGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RackGroup
-        fields = ['name', 'slug', 'site']
+        fields = ['id', 'name', 'slug', 'site']
 
 
 #
@@ -155,7 +155,7 @@ class WritableRackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rack
         fields = [
-            'name', 'facility_id', 'site', 'group', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
+            'id', 'name', 'facility_id', 'site', 'group', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
             'comments',
         ]
         # Omit the UniqueTogetherValidator that would be automatically added to validate (site, facility_id). This
@@ -191,7 +191,7 @@ class WritableRackReservationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RackReservation
-        fields = ['rack', 'units', 'description']
+        fields = ['id', 'rack', 'units', 'description']
 
 
 #
@@ -246,7 +246,7 @@ class WritableDeviceTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeviceType
         fields = [
-            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'interface_ordering',
+            'id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'interface_ordering',
             'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments',
         ]
 
@@ -267,7 +267,7 @@ class WritableConsolePortTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConsolePortTemplate
-        fields = ['device_type', 'name']
+        fields = ['id', 'device_type', 'name']
 
 
 #
@@ -286,7 +286,7 @@ class WritableConsoleServerPortTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConsoleServerPortTemplate
-        fields = ['device_type', 'name']
+        fields = ['id', 'device_type', 'name']
 
 
 #
@@ -305,7 +305,7 @@ class WritablePowerPortTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PowerPortTemplate
-        fields = ['device_type', 'name']
+        fields = ['id', 'device_type', 'name']
 
 
 #
@@ -324,7 +324,7 @@ class WritablePowerOutletTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PowerOutletTemplate
-        fields = ['device_type', 'name']
+        fields = ['id', 'device_type', 'name']
 
 
 #
@@ -344,7 +344,7 @@ class WritableInterfaceTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InterfaceTemplate
-        fields = ['device_type', 'name', 'form_factor', 'mgmt_only']
+        fields = ['id', 'device_type', 'name', 'form_factor', 'mgmt_only']
 
 
 #
@@ -363,7 +363,7 @@ class WritableDeviceBayTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DeviceBayTemplate
-        fields = ['device_type', 'name']
+        fields = ['id', 'device_type', 'name']
 
 
 #
@@ -467,7 +467,7 @@ class WritableDeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
         fields = [
-            'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag', 'site', 'rack',
+            'id', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag', 'site', 'rack',
             'position', 'face', 'status', 'primary_ip4', 'primary_ip6', 'comments',
         ]
         validators = []
@@ -500,7 +500,7 @@ class WritableConsoleServerPortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['device', 'name']
+        fields = ['id', 'device', 'name']
 
 
 #
@@ -520,7 +520,7 @@ class WritableConsolePortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConsolePort
-        fields = ['device', 'name', 'cs_port', 'connection_status']
+        fields = ['id', 'device', 'name', 'cs_port', 'connection_status']
 
 
 #
@@ -540,7 +540,7 @@ class WritablePowerOutletSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PowerOutlet
-        fields = ['device', 'name']
+        fields = ['id', 'device', 'name']
 
 
 #
@@ -560,7 +560,7 @@ class WritablePowerPortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PowerPort
-        fields = ['device', 'name', 'power_outlet', 'connection_status']
+        fields = ['id', 'device', 'name', 'power_outlet', 'connection_status']
 
 
 #
@@ -604,7 +604,7 @@ class WritableInterfaceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Interface
-        fields = ['device', 'name', 'form_factor', 'lag', 'mac_address', 'mgmt_only', 'description']
+        fields = ['id', 'device', 'name', 'form_factor', 'lag', 'mac_address', 'mgmt_only', 'description']
 
 
 #
@@ -624,7 +624,7 @@ class WritableDeviceBaySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DeviceBay
-        fields = ['device', 'name', 'installed_device']
+        fields = ['id', 'device', 'name', 'installed_device']
 
 
 #
@@ -644,7 +644,7 @@ class WritableModuleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Module
-        fields = ['device', 'parent', 'name', 'manufacturer', 'part_id', 'serial', 'discovered']
+        fields = ['id', 'device', 'parent', 'name', 'manufacturer', 'part_id', 'serial', 'discovered']
 
 
 #
@@ -673,4 +673,4 @@ class WritableInterfaceConnectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InterfaceConnection
-        fields = ['interface_a', 'interface_b', 'connection_status']
+        fields = ['id', 'interface_a', 'interface_b', 'connection_status']

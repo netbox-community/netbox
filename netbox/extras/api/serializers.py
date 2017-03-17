@@ -41,7 +41,7 @@ class WritableTopologyMapSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TopologyMap
-        fields = ['name', 'slug', 'site', 'device_patterns', 'description']
+        fields = ['id', 'name', 'slug', 'site', 'device_patterns', 'description']
 
 
 #

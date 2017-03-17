@@ -35,7 +35,7 @@ class WritableVRFSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VRF
-        fields = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
+        fields = ['id', 'name', 'rd', 'tenant', 'enforce_unique', 'description']
 
 
 #
@@ -100,7 +100,7 @@ class WritableAggregateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Aggregate
-        fields = ['prefix', 'rir', 'date_added', 'description']
+        fields = ['id', 'prefix', 'rir', 'date_added', 'description']
 
 
 #
@@ -127,7 +127,7 @@ class WritableVLANGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VLANGroup
-        fields = ['name', 'slug', 'site']
+        fields = ['id', 'name', 'slug', 'site']
         validators = []
 
     def validate(self, data):
@@ -173,7 +173,7 @@ class WritableVLANSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VLAN
-        fields = ['site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description']
+        fields = ['id', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description']
         validators = []
 
     def validate(self, data):
@@ -220,7 +220,7 @@ class WritablePrefixSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Prefix
-        fields = ['prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description']
+        fields = ['id', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description']
 
 
 #
@@ -256,7 +256,7 @@ class WritableIPAddressSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IPAddress
-        fields = ['address', 'vrf', 'tenant', 'status', 'interface', 'description', 'nat_inside']
+        fields = ['id', 'address', 'vrf', 'tenant', 'status', 'interface', 'description', 'nat_inside']
 
 
 #
@@ -277,4 +277,4 @@ class WritableServiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Service
-        fields = ['device', 'name', 'port', 'protocol', 'ipaddresses', 'description']
+        fields = ['id', 'device', 'name', 'port', 'protocol', 'ipaddresses', 'description']

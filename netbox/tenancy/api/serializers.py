@@ -47,4 +47,4 @@ class WritableTenantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tenant
-        fields = ['name', 'slug', 'group', 'description', 'comments']
+        fields = ['id', 'name', 'slug', 'group', 'description', 'comments']
