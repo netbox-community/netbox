@@ -405,6 +405,10 @@ class InterfaceFilter(django_filters.FilterSet):
         method='filter_type',
         label='Interface type',
     )
+    mac_address = django_filters.CharFilter(
+        method='_mac_address',
+        label='MAC address',
+    )
 
     class Meta:
         model = Interface
@@ -420,6 +424,14 @@ class InterfaceFilter(django_filters.FilterSet):
             return queryset.filter(form_factor=IFACE_FF_LAG)
         return queryset
 
+    def _mac_address(self, queryset, name, value):
+        value = value.strip()
+        if not value:
+            return queryset
+        try:
+            return queryset.filter(mac_address=value).distinct()
+        except AddrFormatError:
+            return queryset.none()
 
 class ConsoleConnectionFilter(django_filters.FilterSet):
     site = django_filters.CharFilter(
