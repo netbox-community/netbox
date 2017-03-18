@@ -433,6 +433,7 @@ class InterfaceFilter(django_filters.FilterSet):
         except AddrFormatError:
             return queryset.none()
 
+        
 class ConsoleConnectionFilter(django_filters.FilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
