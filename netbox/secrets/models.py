@@ -23,7 +23,7 @@ def generate_random_key(bits=256):
     """
     if bits % 32:
         raise Exception("Invalid key size ({}). Key sizes must be in increments of 32 bits.".format(bits))
-    return os.urandom(bits / 8)
+    return os.urandom(int(bits / 8))
 
 
 def encrypt_master_key(master_key, public_key):
@@ -224,7 +224,7 @@ class SessionKey(models.Model):
             raise InvalidSessionKey()
 
         # Decrypt master key using provided session key
-        master_key = xor_keys(session_key, self.cipher)
+        master_key = xor_keys(session_key, bytes(self.cipher))
 
         return master_key
 
@@ -361,9 +361,10 @@ class Secret(CreatedUpdatedModel):
             raise Exception("Must define ciphertext before unlocking.")
 
         # Decrypt ciphertext and remove padding
-        iv = self.ciphertext[0:16]
+        iv = bytes(self.ciphertext[0:16])
+        ciphertext = bytes(self.ciphertext[16:])
         aes = AES.new(secret_key, AES.MODE_CFB, iv)
-        plaintext = self._unpad(aes.decrypt(self.ciphertext[16:]))
+        plaintext = self._unpad(aes.decrypt(ciphertext))
 
         # Verify decrypted plaintext against hash
         if not self.validate(plaintext):
