@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
 from extras import filters
-from extras.models import Graph, TopologyMap, UserAction
+from extras.models import ExportTemplate, Graph, TopologyMap, UserAction
 from utilities.api import WritableSerializerMixin
 from . import serializers
 
@@ -46,6 +46,13 @@ class GraphViewSet(WritableSerializerMixin, ModelViewSet):
     serializer_class = serializers.GraphSerializer
     write_serializer_class = serializers.WritableGraphSerializer
     filter_class = filters.GraphFilter
+
+
+class ExportTemplateViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = ExportTemplate.objects.all()
+    serializer_class = serializers.ExportTemplateSerializer
+    # write_serializer_class = serializers.WritableExportTemplateSerializer
+    filter_class = filters.ExportTemplateFilter
 
 
 class TopologyMapViewSet(WritableSerializerMixin, ModelViewSet):

@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from dcim.models import Site
-from .models import CF_TYPE_SELECT, CustomField, Graph, TopologyMap, UserAction
+from .models import CF_TYPE_SELECT, CustomField, Graph, ExportTemplate, TopologyMap, UserAction
 
 
 class CustomFieldFilter(django_filters.Filter):
@@ -53,6 +53,13 @@ class GraphFilter(django_filters.FilterSet):
     class Meta:
         model = Graph
         fields = ['type', 'name']
+
+
+class ExportTemplateFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = ExportTemplate
+        fields = ['content_type', 'name']
 
 
 class TopologyMapFilter(django_filters.FilterSet):

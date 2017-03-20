@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from dcim.api.serializers import NestedSiteSerializer
-from extras.models import ACTION_CHOICES, Graph, GRAPH_TYPE_CHOICES, TopologyMap, UserAction
+from extras.models import ACTION_CHOICES, Graph, GRAPH_TYPE_CHOICES, ExportTemplate, TopologyMap, UserAction
 from users.api.serializers import NestedUserSerializer
 from utilities.api import ChoiceFieldSerializer
 
@@ -39,6 +39,17 @@ class RenderedGraphSerializer(serializers.ModelSerializer):
 
     def get_embed_link(self, obj):
         return obj.embed_link(self.context['graphed_object'])
+
+
+#
+# Export templates
+#
+
+class ExportTemplateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ExportTemplate
+        fields = ['id', 'content_type', 'name', 'description', 'template_code', 'mime_type', 'file_extension']
 
 
 #
