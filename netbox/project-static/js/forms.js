@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
     // "Toggle all" checkbox (table header)
-    $('#toggle_all').click(function (event) {
+    $('#toggle_all').click(function() {
         $('td input:checkbox[name=pk]').prop('checked', $(this).prop('checked'));
         if ($(this).is(':checked')) {
             $('#select_all_box').removeClass('hidden');
@@ -10,7 +10,7 @@ $(document).ready(function() {
         }
     });
     // Enable hidden buttons when "select all" is checked
-    $('#select_all').click(function (event) {
+    $('#select_all').click(function() {
         if ($(this).is(':checked')) {
             $('#select_all_box').find('button').prop('disabled', '');
         } else {
@@ -25,7 +25,7 @@ $(document).ready(function() {
     });
 
     // Simple "Toggle all" button (panel)
-    $('button.toggle').click(function (event) {
+    $('button.toggle').click(function() {
         var selected = $(this).attr('selected');
         $(this).closest('form').find('input:checkbox[name=pk]').prop('checked', !selected);
         $(this).attr('selected', !selected);
@@ -55,12 +55,12 @@ $(document).ready(function() {
     }
 
     // Bulk edit nullification
-    $('input:checkbox[name=_nullify]').click(function (event) {
+    $('input:checkbox[name=_nullify]').click(function() {
         $('#id_' + this.value).toggle('disabled');
     });
 
     // Set formaction and submit using a link
-    $('a.formaction').click(function (event) {
+    $('a.formaction').click(function(event) {
         event.preventDefault();
         var form = $(this).closest('form');
         form.attr('action', $(this).attr('href'));
@@ -103,8 +103,8 @@ $(document).ready(function() {
                 $.ajax({
                     url: api_url,
                     dataType: 'json',
-                    success: function (response, status) {
-                        $.each(response, function (index, choice) {
+                    success: function(response, status) {
+                        $.each(response.results, function(index, choice) {
                             var option = $("<option></option>").attr("value", choice.id).text(choice[display_field]);
                             if (disabled_indicator && choice[disabled_indicator] && choice.id != initial_value) {
                                 option.attr("disabled", "disabled");
