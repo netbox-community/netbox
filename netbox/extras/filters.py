@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from dcim.models import Site
-from .models import CF_TYPE_SELECT, CustomField, TopologyMap, UserAction
+from .models import CF_TYPE_SELECT, CustomField, Graph, TopologyMap, UserAction
 
 
 class CustomFieldFilter(django_filters.Filter):
@@ -46,6 +46,13 @@ class CustomFieldFilterSet(django_filters.FilterSet):
         custom_fields = CustomField.objects.filter(obj_type=obj_type, is_filterable=True)
         for cf in custom_fields:
             self.filters['cf_{}'.format(cf.name)] = CustomFieldFilter(name=cf.name, cf_type=cf.type)
+
+
+class GraphFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = Graph
+        fields = ['type', 'name']
 
 
 class TopologyMapFilter(django_filters.FilterSet):

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from dcim.api.serializers import NestedSiteSerializer
-from extras.models import ACTION_CHOICES, Graph, TopologyMap, UserAction
+from extras.models import ACTION_CHOICES, Graph, GRAPH_TYPE_CHOICES, TopologyMap, UserAction
 from users.api.serializers import NestedUserSerializer
 from utilities.api import ChoiceFieldSerializer
 
@@ -11,12 +11,28 @@ from utilities.api import ChoiceFieldSerializer
 #
 
 class GraphSerializer(serializers.ModelSerializer):
-    embed_url = serializers.SerializerMethodField()
-    embed_link = serializers.SerializerMethodField()
+    type = ChoiceFieldSerializer(choices=GRAPH_TYPE_CHOICES)
 
     class Meta:
         model = Graph
-        fields = ['name', 'embed_url', 'embed_link']
+        fields = ['id', 'type', 'weight', 'name', 'source', 'link']
+
+
+class WritableGraphSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Graph
+        fields = ['id', 'type', 'weight', 'name', 'source', 'link']
+
+
+class RenderedGraphSerializer(serializers.ModelSerializer):
+    embed_url = serializers.SerializerMethodField()
+    embed_link = serializers.SerializerMethodField()
+    type = ChoiceFieldSerializer(choices=GRAPH_TYPE_CHOICES)
+
+    class Meta:
+        model = Graph
+        fields = ['id', 'type', 'weight', 'name', 'embed_url', 'embed_link']
 
     def get_embed_url(self, obj):
         return obj.embed_url(self.context['graphed_object'])

@@ -5,6 +5,9 @@ from . import views
 
 router = routers.DefaultRouter()
 
+# Graphs
+router.register(r'graphs', views.GraphViewSet)
+
 # Topology maps
 router.register(r'topology-maps', views.TopologyMapViewSet)
 

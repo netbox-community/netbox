@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 from dcim.models import Site
+from extras.models import Graph, GRAPH_TYPE_PROVIDER
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider, TERM_SIDE_A, TERM_SIDE_Z
 from users.models import Token
 from utilities.tests import HttpStatusMixin
@@ -28,6 +29,27 @@ class ProviderTest(HttpStatusMixin, APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['name'], self.provider1.name)
+
+    def test_get_provider_graphs(self):
+
+        self.graph1 = Graph.objects.create(
+            type=GRAPH_TYPE_PROVIDER, name='Test Graph 1',
+            source='http://example.com/graphs.py?provider={{ obj.slug }}&foo=1'
+        )
+        self.graph2 = Graph.objects.create(
+            type=GRAPH_TYPE_PROVIDER, name='Test Graph 2',
+            source='http://example.com/graphs.py?provider={{ obj.slug }}&foo=2'
+        )
+        self.graph3 = Graph.objects.create(
+            type=GRAPH_TYPE_PROVIDER, name='Test Graph 3',
+            source='http://example.com/graphs.py?provider={{ obj.slug }}&foo=3'
+        )
+
+        url = reverse('circuits-api:provider-graphs', kwargs={'pk': self.provider1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(len(response.data), 3)
+        self.assertEqual(response.data[0]['embed_url'], 'http://example.com/graphs.py?provider=test-provider-1&foo=1')
 
     def test_list_providers(self):
 

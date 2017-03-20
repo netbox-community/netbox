@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
 from extras import filters
-from extras.models import TopologyMap, UserAction
+from extras.models import Graph, TopologyMap, UserAction
 from utilities.api import WritableSerializerMixin
 from . import serializers
 
@@ -39,6 +39,13 @@ class CustomFieldModelViewSet(ModelViewSet):
     def get_queryset(self):
         # Prefetch custom field values
         return super(CustomFieldModelViewSet, self).get_queryset().prefetch_related('custom_field_values__field')
+
+
+class GraphViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = Graph.objects.all()
+    serializer_class = serializers.GraphSerializer
+    write_serializer_class = serializers.WritableGraphSerializer
+    filter_class = filters.GraphFilter
 
 
 class TopologyMapViewSet(WritableSerializerMixin, ModelViewSet):

@@ -10,6 +10,7 @@ from dcim.models import (
     Manufacturer, Module, Platform, PowerPort, PowerPortTemplate, PowerOutlet, PowerOutletTemplate, Rack, RackGroup,
     RackReservation, RackRole, Region, Site, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
 )
+from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from users.models import Token
 from utilities.tests import HttpStatusMixin
 
@@ -101,6 +102,27 @@ class SiteTest(HttpStatusMixin, APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['name'], self.site1.name)
+
+    def test_get_site_graphs(self):
+
+        self.graph1 = Graph.objects.create(
+            type=GRAPH_TYPE_SITE, name='Test Graph 1',
+            source='http://example.com/graphs.py?site={{ obj.slug }}&foo=1'
+        )
+        self.graph2 = Graph.objects.create(
+            type=GRAPH_TYPE_SITE, name='Test Graph 2',
+            source='http://example.com/graphs.py?site={{ obj.slug }}&foo=2'
+        )
+        self.graph3 = Graph.objects.create(
+            type=GRAPH_TYPE_SITE, name='Test Graph 3',
+            source='http://example.com/graphs.py?site={{ obj.slug }}&foo=3'
+        )
+
+        url = reverse('dcim-api:site-graphs', kwargs={'pk': self.site1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(len(response.data), 3)
+        self.assertEqual(response.data[0]['embed_url'], 'http://example.com/graphs.py?site=test-site-1&foo=1')
 
     def test_list_sites(self):
 
@@ -1654,6 +1676,27 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['name'], self.interface1.name)
+
+    def test_get_interface_graphs(self):
+
+        self.graph1 = Graph.objects.create(
+            type=GRAPH_TYPE_INTERFACE, name='Test Graph 1',
+            source='http://example.com/graphs.py?interface={{ obj.name }}&foo=1'
+        )
+        self.graph2 = Graph.objects.create(
+            type=GRAPH_TYPE_INTERFACE, name='Test Graph 2',
+            source='http://example.com/graphs.py?interface={{ obj.name }}&foo=2'
+        )
+        self.graph3 = Graph.objects.create(
+            type=GRAPH_TYPE_INTERFACE, name='Test Graph 3',
+            source='http://example.com/graphs.py?interface={{ obj.name }}&foo=3'
+        )
+
+        url = reverse('dcim-api:interface-graphs', kwargs={'pk': self.interface1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(len(response.data), 3)
+        self.assertEqual(response.data[0]['embed_url'], 'http://example.com/graphs.py?interface=Test Interface 1&foo=1')
 
     def test_list_interfaces(self):
 

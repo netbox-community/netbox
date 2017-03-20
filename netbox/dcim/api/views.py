@@ -15,7 +15,7 @@ from dcim.models import (
 )
 from dcim import filters
 from extras.api.renderers import BINDZoneRenderer, FlatJSONRenderer
-from extras.api.serializers import GraphSerializer
+from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
 from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from utilities.api import ServiceUnavailable, WritableSerializerMixin
@@ -45,9 +45,12 @@ class SiteViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 
     @detail_route()
     def graphs(self, request, pk=None):
+        """
+        A convenience method for rendering graphs for a particular site.
+        """
         site = get_object_or_404(Site, pk=pk)
         queryset = Graph.objects.filter(type=GRAPH_TYPE_SITE)
-        serializer = GraphSerializer(queryset, many=True, context={'graphed_object': site})
+        serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': site})
         return Response(serializer.data)
 
 
@@ -278,9 +281,12 @@ class InterfaceViewSet(WritableSerializerMixin, ModelViewSet):
 
     @detail_route()
     def graphs(self, request, pk=None):
+        """
+        A convenience method for rendering graphs for a particular interface.
+        """
         interface = get_object_or_404(Interface, pk=pk)
         queryset = Graph.objects.filter(type=GRAPH_TYPE_INTERFACE)
-        serializer = GraphSerializer(queryset, many=True, context={'graphed_object': interface})
+        serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': interface})
         return Response(serializer.data)
 
 
