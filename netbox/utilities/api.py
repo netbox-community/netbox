@@ -59,7 +59,7 @@ class TokenPermissions(DjangoModelPermissions):
 
 class ChoiceFieldSerializer(Field):
     """
-    Represent a ChoiceField as (value, label).
+    Represent a ChoiceField as {'value': <DB value>, 'label': <string>}.
     """
     def __init__(self, choices, **kwargs):
         self._choices = dict()
@@ -73,7 +73,7 @@ class ChoiceFieldSerializer(Field):
         super(ChoiceFieldSerializer, self).__init__(**kwargs)
 
     def to_representation(self, obj):
-        return obj, self._choices[obj]
+        return {'value': obj, 'label': self._choices[obj]}
 
     def to_internal_value(self, data):
         return self._choices.get(data)
