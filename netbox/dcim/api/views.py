@@ -96,15 +96,10 @@ class RackViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
                 exclude_pk = None
         elevation = rack.get_rack_units(face, exclude_pk)
 
-        # Serialize Devices within the rack elevation
-        for u in elevation:
-            if u['device']:
-                u['device'] = serializers.NestedDeviceSerializer(
-                    instance=u['device'],
-                    context={'request': request},
-                ).data
-
-        return Response(elevation)
+        page = self.paginate_queryset(elevation)
+        if page is not None:
+            rack_units = serializers.RackUnitSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(rack_units.data)
 
 
 #

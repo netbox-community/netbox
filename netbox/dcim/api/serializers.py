@@ -176,6 +176,28 @@ class WritableRackSerializer(serializers.ModelSerializer):
 
 
 #
+# Rack units
+#
+
+class NestedDeviceSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:device-detail')
+
+    class Meta:
+        model = Device
+        fields = ['id', 'url', 'name', 'display_name']
+
+
+class RackUnitSerializer(serializers.Serializer):
+    """
+    A rack unit is an abstraction formed by the set (rack, position, face); it does not exist as a row in the database.
+    """
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(read_only=True)
+    face = serializers.IntegerField(read_only=True)
+    device = NestedDeviceSerializer(read_only=True)
+
+
+#
 # Rack reservations
 #
 
@@ -452,14 +474,6 @@ class DeviceSerializer(CustomFieldModelSerializer):
                 'name': device_bay.name,
             }
         }
-
-
-class NestedDeviceSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:device-detail')
-
-    class Meta:
-        model = Device
-        fields = ['id', 'url', 'name', 'display_name']
 
 
 class WritableDeviceSerializer(serializers.ModelSerializer):
