@@ -1,7 +1,6 @@
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.settings import api_settings
 from rest_framework.viewsets import ModelViewSet, ViewSet
 
 from django.conf import settings
@@ -14,7 +13,6 @@ from dcim.models import (
     RackRole, Region, Site,
 )
 from dcim import filters
-from extras.api.renderers import BINDZoneRenderer, FlatJSONRenderer
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
 from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
@@ -216,7 +214,6 @@ class DeviceViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     serializer_class = serializers.DeviceSerializer
     write_serializer_class = serializers.WritableDeviceSerializer
     filter_class = filters.DeviceFilter
-    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES + [BINDZoneRenderer, FlatJSONRenderer]
 
     @detail_route(url_path='lldp-neighbors')
     def lldp_neighbors(self, request, pk):
