@@ -27,9 +27,7 @@ class BINDZoneRenderer(renderers.BaseRenderer):
 
     def render(self, data, media_type=None, renderer_context=None):
         records = []
-        if not isinstance(data, (list, tuple)):
-            data = (data,)
-        for record in data:
+        for record in data['results']:
             if record.get('name') and record.get('primary_ip'):
                 try:
                     records.append("{} IN {} {}".format(
@@ -59,7 +57,7 @@ class FlatJSONRenderer(renderers.BaseRenderer):
                 else:
                     yield key, val
 
-        return json.dumps([dict(flatten(i)) for i in data])
+        return json.dumps([dict(flatten(i)) for i in data['results']])
 
 
 class FreeRADIUSClientsRenderer(renderers.BaseRenderer):
@@ -77,7 +75,7 @@ class FreeRADIUSClientsRenderer(renderers.BaseRenderer):
     def render(self, data, media_type=None, renderer_context=None):
         clients = []
         try:
-            for secret in data:
+            for secret in data['results']:
                 if secret['device']['primary_ip'] and secret['plaintext']:
                     client = self.CLIENT_TEMPLATE.format(
                         name=secret['device']['name'],
