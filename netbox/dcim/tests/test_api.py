@@ -11,9 +11,10 @@ from dcim.models import (
     RackReservation, RackRole, Region, Site, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
 )
 from users.models import Token
+from utilities.tests import HttpStatusMixin
 
 
-class RegionTest(APITestCase):
+class RegionTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -49,7 +50,7 @@ class RegionTest(APITestCase):
         url = reverse('dcim-api:region-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Region.objects.count(), 4)
         region4 = Region.objects.get(pk=response.data['id'])
         self.assertEqual(region4.name, data['name'])
@@ -65,7 +66,7 @@ class RegionTest(APITestCase):
         url = reverse('dcim-api:region-detail', kwargs={'pk': self.region1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Region.objects.count(), 3)
         region1 = Region.objects.get(pk=response.data['id'])
         self.assertEqual(region1.name, data['name'])
@@ -76,11 +77,11 @@ class RegionTest(APITestCase):
         url = reverse('dcim-api:region-detail', kwargs={'pk': self.region1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Region.objects.count(), 2)
 
 
-class SiteTest(APITestCase):
+class SiteTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -119,7 +120,7 @@ class SiteTest(APITestCase):
         url = reverse('dcim-api:site-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Site.objects.count(), 4)
         site4 = Site.objects.get(pk=response.data['id'])
         self.assertEqual(site4.name, data['name'])
@@ -137,7 +138,7 @@ class SiteTest(APITestCase):
         url = reverse('dcim-api:site-detail', kwargs={'pk': self.site1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Site.objects.count(), 3)
         site1 = Site.objects.get(pk=response.data['id'])
         self.assertEqual(site1.name, data['name'])
@@ -149,11 +150,11 @@ class SiteTest(APITestCase):
         url = reverse('dcim-api:site-detail', kwargs={'pk': self.site1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Site.objects.count(), 2)
 
 
-class RackGroupTest(APITestCase):
+class RackGroupTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -192,7 +193,7 @@ class RackGroupTest(APITestCase):
         url = reverse('dcim-api:rackgroup-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(RackGroup.objects.count(), 4)
         rackgroup4 = RackGroup.objects.get(pk=response.data['id'])
         self.assertEqual(rackgroup4.name, data['name'])
@@ -210,7 +211,7 @@ class RackGroupTest(APITestCase):
         url = reverse('dcim-api:rackgroup-detail', kwargs={'pk': self.rackgroup1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(RackGroup.objects.count(), 3)
         rackgroup1 = RackGroup.objects.get(pk=response.data['id'])
         self.assertEqual(rackgroup1.name, data['name'])
@@ -222,11 +223,11 @@ class RackGroupTest(APITestCase):
         url = reverse('dcim-api:rackgroup-detail', kwargs={'pk': self.rackgroup1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(RackGroup.objects.count(), 2)
 
 
-class RackRoleTest(APITestCase):
+class RackRoleTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -263,7 +264,7 @@ class RackRoleTest(APITestCase):
         url = reverse('dcim-api:rackrole-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(RackRole.objects.count(), 4)
         rackrole1 = RackRole.objects.get(pk=response.data['id'])
         self.assertEqual(rackrole1.name, data['name'])
@@ -281,7 +282,7 @@ class RackRoleTest(APITestCase):
         url = reverse('dcim-api:rackrole-detail', kwargs={'pk': self.rackrole1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(RackRole.objects.count(), 3)
         rackrole1 = RackRole.objects.get(pk=response.data['id'])
         self.assertEqual(rackrole1.name, data['name'])
@@ -293,11 +294,11 @@ class RackRoleTest(APITestCase):
         url = reverse('dcim-api:rackrole-detail', kwargs={'pk': self.rackrole1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(RackRole.objects.count(), 2)
 
 
-class RackTest(APITestCase):
+class RackTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -347,7 +348,7 @@ class RackTest(APITestCase):
         url = reverse('dcim-api:rack-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Rack.objects.count(), 4)
         rack4 = Rack.objects.get(pk=response.data['id'])
         self.assertEqual(rack4.name, data['name'])
@@ -367,7 +368,7 @@ class RackTest(APITestCase):
         url = reverse('dcim-api:rack-detail', kwargs={'pk': self.rack1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Rack.objects.count(), 3)
         rack1 = Rack.objects.get(pk=response.data['id'])
         self.assertEqual(rack1.name, data['name'])
@@ -380,11 +381,11 @@ class RackTest(APITestCase):
         url = reverse('dcim-api:rack-detail', kwargs={'pk': self.rack1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Rack.objects.count(), 2)
 
 
-class RackReservationTest(APITestCase):
+class RackReservationTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -431,7 +432,7 @@ class RackReservationTest(APITestCase):
         url = reverse('dcim-api:rackreservation-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(RackReservation.objects.count(), 4)
         rackreservation4 = RackReservation.objects.get(pk=response.data['id'])
         self.assertEqual(rackreservation4.rack_id, data['rack'])
@@ -451,7 +452,7 @@ class RackReservationTest(APITestCase):
         url = reverse('dcim-api:rackreservation-detail', kwargs={'pk': self.rackreservation1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(RackReservation.objects.count(), 3)
         rackreservation1 = RackReservation.objects.get(pk=response.data['id'])
         self.assertEqual(rackreservation1.units, data['units'])
@@ -462,11 +463,11 @@ class RackReservationTest(APITestCase):
         url = reverse('dcim-api:rackreservation-detail', kwargs={'pk': self.rackreservation1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(RackReservation.objects.count(), 2)
 
 
-class ManufacturerTest(APITestCase):
+class ManufacturerTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -502,7 +503,7 @@ class ManufacturerTest(APITestCase):
         url = reverse('dcim-api:manufacturer-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Manufacturer.objects.count(), 4)
         manufacturer4 = Manufacturer.objects.get(pk=response.data['id'])
         self.assertEqual(manufacturer4.name, data['name'])
@@ -518,7 +519,7 @@ class ManufacturerTest(APITestCase):
         url = reverse('dcim-api:manufacturer-detail', kwargs={'pk': self.manufacturer1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Manufacturer.objects.count(), 3)
         manufacturer1 = Manufacturer.objects.get(pk=response.data['id'])
         self.assertEqual(manufacturer1.name, data['name'])
@@ -529,11 +530,11 @@ class ManufacturerTest(APITestCase):
         url = reverse('dcim-api:manufacturer-detail', kwargs={'pk': self.manufacturer1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Manufacturer.objects.count(), 2)
 
 
-class DeviceTypeTest(APITestCase):
+class DeviceTypeTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -578,7 +579,7 @@ class DeviceTypeTest(APITestCase):
         url = reverse('dcim-api:devicetype-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(DeviceType.objects.count(), 4)
         devicetype4 = DeviceType.objects.get(pk=response.data['id'])
         self.assertEqual(devicetype4.manufacturer_id, data['manufacturer'])
@@ -596,7 +597,7 @@ class DeviceTypeTest(APITestCase):
         url = reverse('dcim-api:devicetype-detail', kwargs={'pk': self.devicetype1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(DeviceType.objects.count(), 3)
         devicetype1 = DeviceType.objects.get(pk=response.data['id'])
         self.assertEqual(devicetype1.manufacturer_id, data['manufacturer'])
@@ -608,11 +609,11 @@ class DeviceTypeTest(APITestCase):
         url = reverse('dcim-api:devicetype-detail', kwargs={'pk': self.devicetype1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(DeviceType.objects.count(), 2)
 
 
-class ConsolePortTemplateTest(APITestCase):
+class ConsolePortTemplateTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -658,7 +659,7 @@ class ConsolePortTemplateTest(APITestCase):
         url = reverse('dcim-api:consoleporttemplate-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(ConsolePortTemplate.objects.count(), 4)
         consoleporttemplate4 = ConsolePortTemplate.objects.get(pk=response.data['id'])
         self.assertEqual(consoleporttemplate4.device_type_id, data['device_type'])
@@ -674,7 +675,7 @@ class ConsolePortTemplateTest(APITestCase):
         url = reverse('dcim-api:consoleporttemplate-detail', kwargs={'pk': self.consoleporttemplate1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(ConsolePortTemplate.objects.count(), 3)
         consoleporttemplate1 = ConsolePortTemplate.objects.get(pk=response.data['id'])
         self.assertEqual(consoleporttemplate1.name, data['name'])
@@ -684,11 +685,11 @@ class ConsolePortTemplateTest(APITestCase):
         url = reverse('dcim-api:consoleporttemplate-detail', kwargs={'pk': self.consoleporttemplate1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ConsolePortTemplate.objects.count(), 2)
 
 
-class ConsoleServerPortTemplateTest(APITestCase):
+class ConsoleServerPortTemplateTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -734,7 +735,7 @@ class ConsoleServerPortTemplateTest(APITestCase):
         url = reverse('dcim-api:consoleserverporttemplate-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(ConsoleServerPortTemplate.objects.count(), 4)
         consoleserverporttemplate4 = ConsoleServerPortTemplate.objects.get(pk=response.data['id'])
         self.assertEqual(consoleserverporttemplate4.device_type_id, data['device_type'])
@@ -750,7 +751,7 @@ class ConsoleServerPortTemplateTest(APITestCase):
         url = reverse('dcim-api:consoleserverporttemplate-detail', kwargs={'pk': self.consoleserverporttemplate1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(ConsoleServerPortTemplate.objects.count(), 3)
         consoleserverporttemplate1 = ConsoleServerPortTemplate.objects.get(pk=response.data['id'])
         self.assertEqual(consoleserverporttemplate1.name, data['name'])
@@ -760,11 +761,11 @@ class ConsoleServerPortTemplateTest(APITestCase):
         url = reverse('dcim-api:consoleserverporttemplate-detail', kwargs={'pk': self.consoleserverporttemplate1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ConsoleServerPortTemplate.objects.count(), 2)
 
 
-class PowerPortTemplateTest(APITestCase):
+class PowerPortTemplateTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -810,7 +811,7 @@ class PowerPortTemplateTest(APITestCase):
         url = reverse('dcim-api:powerporttemplate-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(PowerPortTemplate.objects.count(), 4)
         powerporttemplate4 = PowerPortTemplate.objects.get(pk=response.data['id'])
         self.assertEqual(powerporttemplate4.device_type_id, data['device_type'])
@@ -826,7 +827,7 @@ class PowerPortTemplateTest(APITestCase):
         url = reverse('dcim-api:powerporttemplate-detail', kwargs={'pk': self.powerporttemplate1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(PowerPortTemplate.objects.count(), 3)
         powerporttemplate1 = PowerPortTemplate.objects.get(pk=response.data['id'])
         self.assertEqual(powerporttemplate1.name, data['name'])
@@ -836,11 +837,11 @@ class PowerPortTemplateTest(APITestCase):
         url = reverse('dcim-api:powerporttemplate-detail', kwargs={'pk': self.powerporttemplate1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(PowerPortTemplate.objects.count(), 2)
 
 
-class PowerOutletTemplateTest(APITestCase):
+class PowerOutletTemplateTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -886,7 +887,7 @@ class PowerOutletTemplateTest(APITestCase):
         url = reverse('dcim-api:poweroutlettemplate-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(PowerOutletTemplate.objects.count(), 4)
         poweroutlettemplate4 = PowerOutletTemplate.objects.get(pk=response.data['id'])
         self.assertEqual(poweroutlettemplate4.device_type_id, data['device_type'])
@@ -902,7 +903,7 @@ class PowerOutletTemplateTest(APITestCase):
         url = reverse('dcim-api:poweroutlettemplate-detail', kwargs={'pk': self.poweroutlettemplate1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(PowerOutletTemplate.objects.count(), 3)
         poweroutlettemplate1 = PowerOutletTemplate.objects.get(pk=response.data['id'])
         self.assertEqual(poweroutlettemplate1.name, data['name'])
@@ -912,11 +913,11 @@ class PowerOutletTemplateTest(APITestCase):
         url = reverse('dcim-api:poweroutlettemplate-detail', kwargs={'pk': self.poweroutlettemplate1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(PowerOutletTemplate.objects.count(), 2)
 
 
-class InterfaceTemplateTest(APITestCase):
+class InterfaceTemplateTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -962,7 +963,7 @@ class InterfaceTemplateTest(APITestCase):
         url = reverse('dcim-api:interfacetemplate-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(InterfaceTemplate.objects.count(), 4)
         interfacetemplate4 = InterfaceTemplate.objects.get(pk=response.data['id'])
         self.assertEqual(interfacetemplate4.device_type_id, data['device_type'])
@@ -978,7 +979,7 @@ class InterfaceTemplateTest(APITestCase):
         url = reverse('dcim-api:interfacetemplate-detail', kwargs={'pk': self.interfacetemplate1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(InterfaceTemplate.objects.count(), 3)
         interfacetemplate1 = InterfaceTemplate.objects.get(pk=response.data['id'])
         self.assertEqual(interfacetemplate1.name, data['name'])
@@ -988,11 +989,11 @@ class InterfaceTemplateTest(APITestCase):
         url = reverse('dcim-api:interfacetemplate-detail', kwargs={'pk': self.interfacetemplate1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(InterfaceTemplate.objects.count(), 2)
 
 
-class DeviceBayTemplateTest(APITestCase):
+class DeviceBayTemplateTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -1038,7 +1039,7 @@ class DeviceBayTemplateTest(APITestCase):
         url = reverse('dcim-api:devicebaytemplate-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(DeviceBayTemplate.objects.count(), 4)
         devicebaytemplate4 = DeviceBayTemplate.objects.get(pk=response.data['id'])
         self.assertEqual(devicebaytemplate4.device_type_id, data['device_type'])
@@ -1054,7 +1055,7 @@ class DeviceBayTemplateTest(APITestCase):
         url = reverse('dcim-api:devicebaytemplate-detail', kwargs={'pk': self.devicebaytemplate1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(DeviceBayTemplate.objects.count(), 3)
         devicebaytemplate1 = DeviceBayTemplate.objects.get(pk=response.data['id'])
         self.assertEqual(devicebaytemplate1.name, data['name'])
@@ -1064,11 +1065,11 @@ class DeviceBayTemplateTest(APITestCase):
         url = reverse('dcim-api:devicebaytemplate-detail', kwargs={'pk': self.devicebaytemplate1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(DeviceBayTemplate.objects.count(), 2)
 
 
-class DeviceRoleTest(APITestCase):
+class DeviceRoleTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -1111,7 +1112,7 @@ class DeviceRoleTest(APITestCase):
         url = reverse('dcim-api:devicerole-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(DeviceRole.objects.count(), 4)
         devicerole4 = DeviceRole.objects.get(pk=response.data['id'])
         self.assertEqual(devicerole4.name, data['name'])
@@ -1129,7 +1130,7 @@ class DeviceRoleTest(APITestCase):
         url = reverse('dcim-api:devicerole-detail', kwargs={'pk': self.devicerole1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(DeviceRole.objects.count(), 3)
         devicerole1 = DeviceRole.objects.get(pk=response.data['id'])
         self.assertEqual(devicerole1.name, data['name'])
@@ -1141,11 +1142,11 @@ class DeviceRoleTest(APITestCase):
         url = reverse('dcim-api:devicerole-detail', kwargs={'pk': self.devicerole1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(DeviceRole.objects.count(), 2)
 
 
-class PlatformTest(APITestCase):
+class PlatformTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -1181,7 +1182,7 @@ class PlatformTest(APITestCase):
         url = reverse('dcim-api:platform-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Platform.objects.count(), 4)
         platform4 = Platform.objects.get(pk=response.data['id'])
         self.assertEqual(platform4.name, data['name'])
@@ -1197,7 +1198,7 @@ class PlatformTest(APITestCase):
         url = reverse('dcim-api:platform-detail', kwargs={'pk': self.platform1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Platform.objects.count(), 3)
         platform1 = Platform.objects.get(pk=response.data['id'])
         self.assertEqual(platform1.name, data['name'])
@@ -1208,11 +1209,11 @@ class PlatformTest(APITestCase):
         url = reverse('dcim-api:platform-detail', kwargs={'pk': self.platform1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Platform.objects.count(), 2)
 
 
-class DeviceTest(APITestCase):
+class DeviceTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -1271,7 +1272,7 @@ class DeviceTest(APITestCase):
         url = reverse('dcim-api:device-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Device.objects.count(), 4)
         device4 = Device.objects.get(pk=response.data['id'])
         self.assertEqual(device4.device_type_id, data['device_type'])
@@ -1291,7 +1292,7 @@ class DeviceTest(APITestCase):
         url = reverse('dcim-api:device-detail', kwargs={'pk': self.device1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Device.objects.count(), 3)
         device1 = Device.objects.get(pk=response.data['id'])
         self.assertEqual(device1.device_type_id, data['device_type'])
@@ -1304,11 +1305,11 @@ class DeviceTest(APITestCase):
         url = reverse('dcim-api:device-detail', kwargs={'pk': self.device1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Device.objects.count(), 2)
 
 
-class ConsolePortTest(APITestCase):
+class ConsolePortTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -1355,7 +1356,7 @@ class ConsolePortTest(APITestCase):
         url = reverse('dcim-api:consoleport-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(ConsolePort.objects.count(), 4)
         consoleport4 = ConsolePort.objects.get(pk=response.data['id'])
         self.assertEqual(consoleport4.device_id, data['device'])
@@ -1374,7 +1375,7 @@ class ConsolePortTest(APITestCase):
         url = reverse('dcim-api:consoleport-detail', kwargs={'pk': self.consoleport1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(ConsolePort.objects.count(), 3)
         consoleport1 = ConsolePort.objects.get(pk=response.data['id'])
         self.assertEqual(consoleport1.name, data['name'])
@@ -1385,11 +1386,11 @@ class ConsolePortTest(APITestCase):
         url = reverse('dcim-api:consoleport-detail', kwargs={'pk': self.consoleport1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ConsolePort.objects.count(), 2)
 
 
-class ConsoleServerPortTest(APITestCase):
+class ConsoleServerPortTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -1436,7 +1437,7 @@ class ConsoleServerPortTest(APITestCase):
         url = reverse('dcim-api:consoleserverport-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(ConsoleServerPort.objects.count(), 4)
         consoleserverport4 = ConsoleServerPort.objects.get(pk=response.data['id'])
         self.assertEqual(consoleserverport4.device_id, data['device'])
@@ -1452,7 +1453,7 @@ class ConsoleServerPortTest(APITestCase):
         url = reverse('dcim-api:consoleserverport-detail', kwargs={'pk': self.consoleserverport1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(ConsoleServerPort.objects.count(), 3)
         consoleserverport1 = ConsoleServerPort.objects.get(pk=response.data['id'])
         self.assertEqual(consoleserverport1.name, data['name'])
@@ -1462,11 +1463,11 @@ class ConsoleServerPortTest(APITestCase):
         url = reverse('dcim-api:consoleserverport-detail', kwargs={'pk': self.consoleserverport1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ConsoleServerPort.objects.count(), 2)
 
 
-class PowerPortTest(APITestCase):
+class PowerPortTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -1513,7 +1514,7 @@ class PowerPortTest(APITestCase):
         url = reverse('dcim-api:powerport-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(PowerPort.objects.count(), 4)
         powerport4 = PowerPort.objects.get(pk=response.data['id'])
         self.assertEqual(powerport4.device_id, data['device'])
@@ -1532,7 +1533,7 @@ class PowerPortTest(APITestCase):
         url = reverse('dcim-api:powerport-detail', kwargs={'pk': self.powerport1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(PowerPort.objects.count(), 3)
         powerport1 = PowerPort.objects.get(pk=response.data['id'])
         self.assertEqual(powerport1.name, data['name'])
@@ -1543,11 +1544,11 @@ class PowerPortTest(APITestCase):
         url = reverse('dcim-api:powerport-detail', kwargs={'pk': self.powerport1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(PowerPort.objects.count(), 2)
 
 
-class PowerOutletTest(APITestCase):
+class PowerOutletTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -1594,7 +1595,7 @@ class PowerOutletTest(APITestCase):
         url = reverse('dcim-api:poweroutlet-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(PowerOutlet.objects.count(), 4)
         poweroutlet4 = PowerOutlet.objects.get(pk=response.data['id'])
         self.assertEqual(poweroutlet4.device_id, data['device'])
@@ -1610,7 +1611,7 @@ class PowerOutletTest(APITestCase):
         url = reverse('dcim-api:poweroutlet-detail', kwargs={'pk': self.poweroutlet1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(PowerOutlet.objects.count(), 3)
         poweroutlet1 = PowerOutlet.objects.get(pk=response.data['id'])
         self.assertEqual(poweroutlet1.name, data['name'])
@@ -1620,11 +1621,11 @@ class PowerOutletTest(APITestCase):
         url = reverse('dcim-api:poweroutlet-detail', kwargs={'pk': self.poweroutlet1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(PowerOutlet.objects.count(), 2)
 
 
-class InterfaceTest(APITestCase):
+class InterfaceTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -1671,7 +1672,7 @@ class InterfaceTest(APITestCase):
         url = reverse('dcim-api:interface-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Interface.objects.count(), 4)
         interface4 = Interface.objects.get(pk=response.data['id'])
         self.assertEqual(interface4.device_id, data['device'])
@@ -1692,7 +1693,7 @@ class InterfaceTest(APITestCase):
         url = reverse('dcim-api:interface-detail', kwargs={'pk': self.interface1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Interface.objects.count(), 4)
         interface1 = Interface.objects.get(pk=response.data['id'])
         self.assertEqual(interface1.name, data['name'])
@@ -1703,11 +1704,11 @@ class InterfaceTest(APITestCase):
         url = reverse('dcim-api:interface-detail', kwargs={'pk': self.interface1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Interface.objects.count(), 2)
 
 
-class DeviceBayTest(APITestCase):
+class DeviceBayTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -1763,7 +1764,7 @@ class DeviceBayTest(APITestCase):
         url = reverse('dcim-api:devicebay-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(DeviceBay.objects.count(), 4)
         devicebay4 = DeviceBay.objects.get(pk=response.data['id'])
         self.assertEqual(devicebay4.device_id, data['device'])
@@ -1781,7 +1782,7 @@ class DeviceBayTest(APITestCase):
         url = reverse('dcim-api:devicebay-detail', kwargs={'pk': self.devicebay1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(DeviceBay.objects.count(), 3)
         devicebay1 = DeviceBay.objects.get(pk=response.data['id'])
         self.assertEqual(devicebay1.name, data['name'])
@@ -1792,11 +1793,11 @@ class DeviceBayTest(APITestCase):
         url = reverse('dcim-api:devicebay-detail', kwargs={'pk': self.devicebay1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(DeviceBay.objects.count(), 2)
 
 
-class ModuleTest(APITestCase):
+class ModuleTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -1845,7 +1846,7 @@ class ModuleTest(APITestCase):
         url = reverse('dcim-api:module-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Module.objects.count(), 4)
         module4 = Module.objects.get(pk=response.data['id'])
         self.assertEqual(module4.device_id, data['device'])
@@ -1865,7 +1866,7 @@ class ModuleTest(APITestCase):
         url = reverse('dcim-api:module-detail', kwargs={'pk': self.module1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Module.objects.count(), 3)
         module1 = Module.objects.get(pk=response.data['id'])
         self.assertEqual(module1.device_id, data['device'])
@@ -1878,11 +1879,11 @@ class ModuleTest(APITestCase):
         url = reverse('dcim-api:module-detail', kwargs={'pk': self.module1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Module.objects.count(), 2)
 
 
-class InterfaceConnectionTest(APITestCase):
+class InterfaceConnectionTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -1944,7 +1945,7 @@ class InterfaceConnectionTest(APITestCase):
         url = reverse('dcim-api:interfaceconnection-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(InterfaceConnection.objects.count(), 4)
         interfaceconnection4 = InterfaceConnection.objects.get(pk=response.data['id'])
         self.assertEqual(interfaceconnection4.interface_a_id, data['interface_a'])
@@ -1963,7 +1964,7 @@ class InterfaceConnectionTest(APITestCase):
         url = reverse('dcim-api:interfaceconnection-detail', kwargs={'pk': self.interfaceconnection1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(InterfaceConnection.objects.count(), 3)
         interfaceconnection1 = InterfaceConnection.objects.get(pk=response.data['id'])
         self.assertEqual(interfaceconnection1.interface_a_id, data['interface_a'])
@@ -1975,5 +1976,5 @@ class InterfaceConnectionTest(APITestCase):
         url = reverse('dcim-api:interfaceconnection-detail', kwargs={'pk': self.interfaceconnection1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(InterfaceConnection.objects.count(), 2)

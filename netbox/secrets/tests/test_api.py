@@ -8,6 +8,7 @@ from django.urls import reverse
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
 from users.models import Token
+from utilities.tests import HttpStatusMixin
 
 
 # Dummy RSA key pair for testing use only
@@ -50,7 +51,7 @@ qQIDAQAB
 -----END PUBLIC KEY-----"""
 
 
-class SecretRoleTest(APITestCase):
+class SecretRoleTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -86,7 +87,7 @@ class SecretRoleTest(APITestCase):
         url = reverse('secrets-api:secretrole-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(SecretRole.objects.count(), 4)
         secretrole4 = SecretRole.objects.get(pk=response.data['id'])
         self.assertEqual(secretrole4.name, data['name'])
@@ -102,7 +103,7 @@ class SecretRoleTest(APITestCase):
         url = reverse('secrets-api:secretrole-detail', kwargs={'pk': self.secretrole1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(SecretRole.objects.count(), 3)
         secretrole1 = SecretRole.objects.get(pk=response.data['id'])
         self.assertEqual(secretrole1.name, data['name'])
@@ -113,11 +114,11 @@ class SecretRoleTest(APITestCase):
         url = reverse('secrets-api:secretrole-detail', kwargs={'pk': self.secretrole1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(SecretRole.objects.count(), 2)
 
 
-class SecretTest(APITestCase):
+class SecretTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -191,7 +192,7 @@ class SecretTest(APITestCase):
         url = reverse('secrets-api:secret-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(response.data['plaintext'], data['plaintext'])
         self.assertEqual(Secret.objects.count(), 4)
         secret4 = Secret.objects.get(pk=response.data['id'])
@@ -210,7 +211,7 @@ class SecretTest(APITestCase):
         url = reverse('secrets-api:secret-detail', kwargs={'pk': self.secret1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['plaintext'], data['plaintext'])
         self.assertEqual(Secret.objects.count(), 3)
         secret1 = Secret.objects.get(pk=response.data['id'])
@@ -223,5 +224,5 @@ class SecretTest(APITestCase):
         url = reverse('secrets-api:secret-detail', kwargs={'pk': self.secret1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Secret.objects.count(), 2)

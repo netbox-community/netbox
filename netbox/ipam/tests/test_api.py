@@ -11,9 +11,10 @@ from ipam.models import (
     Aggregate, IPAddress, IP_PROTOCOL_TCP, IP_PROTOCOL_UDP, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF,
 )
 from users.models import Token
+from utilities.tests import HttpStatusMixin
 
 
-class VRFTest(APITestCase):
+class VRFTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -49,7 +50,7 @@ class VRFTest(APITestCase):
         url = reverse('ipam-api:vrf-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(VRF.objects.count(), 4)
         vrf4 = VRF.objects.get(pk=response.data['id'])
         self.assertEqual(vrf4.name, data['name'])
@@ -65,7 +66,7 @@ class VRFTest(APITestCase):
         url = reverse('ipam-api:vrf-detail', kwargs={'pk': self.vrf1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(VRF.objects.count(), 3)
         vrf1 = VRF.objects.get(pk=response.data['id'])
         self.assertEqual(vrf1.name, data['name'])
@@ -76,11 +77,11 @@ class VRFTest(APITestCase):
         url = reverse('ipam-api:vrf-detail', kwargs={'pk': self.vrf1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(VRF.objects.count(), 2)
 
 
-class RIRTest(APITestCase):
+class RIRTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -116,7 +117,7 @@ class RIRTest(APITestCase):
         url = reverse('ipam-api:rir-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(RIR.objects.count(), 4)
         rir4 = RIR.objects.get(pk=response.data['id'])
         self.assertEqual(rir4.name, data['name'])
@@ -132,7 +133,7 @@ class RIRTest(APITestCase):
         url = reverse('ipam-api:rir-detail', kwargs={'pk': self.rir1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(RIR.objects.count(), 3)
         rir1 = RIR.objects.get(pk=response.data['id'])
         self.assertEqual(rir1.name, data['name'])
@@ -143,11 +144,11 @@ class RIRTest(APITestCase):
         url = reverse('ipam-api:rir-detail', kwargs={'pk': self.rir1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(RIR.objects.count(), 2)
 
 
-class AggregateTest(APITestCase):
+class AggregateTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -185,7 +186,7 @@ class AggregateTest(APITestCase):
         url = reverse('ipam-api:aggregate-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Aggregate.objects.count(), 4)
         aggregate4 = Aggregate.objects.get(pk=response.data['id'])
         self.assertEqual(str(aggregate4.prefix), data['prefix'])
@@ -201,7 +202,7 @@ class AggregateTest(APITestCase):
         url = reverse('ipam-api:aggregate-detail', kwargs={'pk': self.aggregate1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Aggregate.objects.count(), 3)
         aggregate1 = Aggregate.objects.get(pk=response.data['id'])
         self.assertEqual(str(aggregate1.prefix), data['prefix'])
@@ -212,11 +213,11 @@ class AggregateTest(APITestCase):
         url = reverse('ipam-api:aggregate-detail', kwargs={'pk': self.aggregate1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Aggregate.objects.count(), 2)
 
 
-class RoleTest(APITestCase):
+class RoleTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -252,7 +253,7 @@ class RoleTest(APITestCase):
         url = reverse('ipam-api:role-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Role.objects.count(), 4)
         role4 = Role.objects.get(pk=response.data['id'])
         self.assertEqual(role4.name, data['name'])
@@ -268,7 +269,7 @@ class RoleTest(APITestCase):
         url = reverse('ipam-api:role-detail', kwargs={'pk': self.role1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Role.objects.count(), 3)
         role1 = Role.objects.get(pk=response.data['id'])
         self.assertEqual(role1.name, data['name'])
@@ -279,11 +280,11 @@ class RoleTest(APITestCase):
         url = reverse('ipam-api:role-detail', kwargs={'pk': self.role1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Role.objects.count(), 2)
 
 
-class PrefixTest(APITestCase):
+class PrefixTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -326,7 +327,7 @@ class PrefixTest(APITestCase):
         url = reverse('ipam-api:prefix-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Prefix.objects.count(), 4)
         prefix4 = Prefix.objects.get(pk=response.data['id'])
         self.assertEqual(str(prefix4.prefix), data['prefix'])
@@ -348,7 +349,7 @@ class PrefixTest(APITestCase):
         url = reverse('ipam-api:prefix-detail', kwargs={'pk': self.prefix1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Prefix.objects.count(), 3)
         prefix1 = Prefix.objects.get(pk=response.data['id'])
         self.assertEqual(str(prefix1.prefix), data['prefix'])
@@ -362,11 +363,11 @@ class PrefixTest(APITestCase):
         url = reverse('ipam-api:prefix-detail', kwargs={'pk': self.prefix1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Prefix.objects.count(), 2)
 
 
-class IPAddressTest(APITestCase):
+class IPAddressTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -403,7 +404,7 @@ class IPAddressTest(APITestCase):
         url = reverse('ipam-api:ipaddress-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(IPAddress.objects.count(), 4)
         ipaddress4 = IPAddress.objects.get(pk=response.data['id'])
         self.assertEqual(str(ipaddress4.address), data['address'])
@@ -419,7 +420,7 @@ class IPAddressTest(APITestCase):
         url = reverse('ipam-api:ipaddress-detail', kwargs={'pk': self.ipaddress1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(IPAddress.objects.count(), 3)
         ipaddress1 = IPAddress.objects.get(pk=response.data['id'])
         self.assertEqual(str(ipaddress1.address), data['address'])
@@ -430,11 +431,11 @@ class IPAddressTest(APITestCase):
         url = reverse('ipam-api:ipaddress-detail', kwargs={'pk': self.ipaddress1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(IPAddress.objects.count(), 2)
 
 
-class VLANGroupTest(APITestCase):
+class VLANGroupTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -470,7 +471,7 @@ class VLANGroupTest(APITestCase):
         url = reverse('ipam-api:vlangroup-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(VLANGroup.objects.count(), 4)
         vlangroup4 = VLANGroup.objects.get(pk=response.data['id'])
         self.assertEqual(vlangroup4.name, data['name'])
@@ -486,7 +487,7 @@ class VLANGroupTest(APITestCase):
         url = reverse('ipam-api:vlangroup-detail', kwargs={'pk': self.vlangroup1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(VLANGroup.objects.count(), 3)
         vlangroup1 = VLANGroup.objects.get(pk=response.data['id'])
         self.assertEqual(vlangroup1.name, data['name'])
@@ -497,11 +498,11 @@ class VLANGroupTest(APITestCase):
         url = reverse('ipam-api:vlangroup-detail', kwargs={'pk': self.vlangroup1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(VLANGroup.objects.count(), 2)
 
 
-class VLANTest(APITestCase):
+class VLANTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -537,7 +538,7 @@ class VLANTest(APITestCase):
         url = reverse('ipam-api:vlan-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(VLAN.objects.count(), 4)
         vlan4 = VLAN.objects.get(pk=response.data['id'])
         self.assertEqual(vlan4.vid, data['vid'])
@@ -553,7 +554,7 @@ class VLANTest(APITestCase):
         url = reverse('ipam-api:vlan-detail', kwargs={'pk': self.vlan1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(VLAN.objects.count(), 3)
         vlan1 = VLAN.objects.get(pk=response.data['id'])
         self.assertEqual(vlan1.vid, data['vid'])
@@ -564,11 +565,11 @@ class VLANTest(APITestCase):
         url = reverse('ipam-api:vlan-detail', kwargs={'pk': self.vlan1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(VLAN.objects.count(), 2)
 
 
-class ServiceTest(APITestCase):
+class ServiceTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -622,7 +623,7 @@ class ServiceTest(APITestCase):
         url = reverse('ipam-api:service-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Service.objects.count(), 4)
         service4 = Service.objects.get(pk=response.data['id'])
         self.assertEqual(service4.device_id, data['device'])
@@ -642,7 +643,7 @@ class ServiceTest(APITestCase):
         url = reverse('ipam-api:service-detail', kwargs={'pk': self.service1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Service.objects.count(), 3)
         service1 = Service.objects.get(pk=response.data['id'])
         self.assertEqual(service1.device_id, data['device'])
@@ -655,5 +656,5 @@ class ServiceTest(APITestCase):
         url = reverse('ipam-api:service-detail', kwargs={'pk': self.service1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Service.objects.count(), 2)

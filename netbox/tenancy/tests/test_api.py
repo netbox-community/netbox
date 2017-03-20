@@ -6,9 +6,10 @@ from django.urls import reverse
 
 from tenancy.models import Tenant, TenantGroup
 from users.models import Token
+from utilities.tests import HttpStatusMixin
 
 
-class TenantGroupTest(APITestCase):
+class TenantGroupTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -44,7 +45,7 @@ class TenantGroupTest(APITestCase):
         url = reverse('tenancy-api:tenantgroup-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(TenantGroup.objects.count(), 4)
         tenantgroup4 = TenantGroup.objects.get(pk=response.data['id'])
         self.assertEqual(tenantgroup4.name, data['name'])
@@ -60,7 +61,7 @@ class TenantGroupTest(APITestCase):
         url = reverse('tenancy-api:tenantgroup-detail', kwargs={'pk': self.tenantgroup1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(TenantGroup.objects.count(), 3)
         tenantgroup1 = TenantGroup.objects.get(pk=response.data['id'])
         self.assertEqual(tenantgroup1.name, data['name'])
@@ -71,11 +72,11 @@ class TenantGroupTest(APITestCase):
         url = reverse('tenancy-api:tenantgroup-detail', kwargs={'pk': self.tenantgroup1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(TenantGroup.objects.count(), 2)
 
 
-class TenantTest(APITestCase):
+class TenantTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -114,7 +115,7 @@ class TenantTest(APITestCase):
         url = reverse('tenancy-api:tenant-list')
         response = self.client.post(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Tenant.objects.count(), 4)
         tenant4 = Tenant.objects.get(pk=response.data['id'])
         self.assertEqual(tenant4.name, data['name'])
@@ -132,7 +133,7 @@ class TenantTest(APITestCase):
         url = reverse('tenancy-api:tenant-detail', kwargs={'pk': self.tenant1.pk})
         response = self.client.put(url, data, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Tenant.objects.count(), 3)
         tenant1 = Tenant.objects.get(pk=response.data['id'])
         self.assertEqual(tenant1.name, data['name'])
@@ -144,5 +145,5 @@ class TenantTest(APITestCase):
         url = reverse('tenancy-api:tenant-detail', kwargs={'pk': self.tenant1.pk})
         response = self.client.delete(url, **self.header)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Tenant.objects.count(), 2)
