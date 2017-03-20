@@ -20,7 +20,9 @@ pages:
         - 'Tenancy': 'data-model/tenancy.md'
         - 'Extras': 'data-model/extras.md'
     - 'API':
-        - 'Structure': 'api/structure.md'
+        - 'Overview': 'api/overview.md'
+        - 'Authentication': 'api/authentication.md'
+        - 'Examples': 'api/examples.md'
 
 markdown_extensions:
     - admonition:
