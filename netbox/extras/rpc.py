@@ -33,14 +33,14 @@ class RPCClient(object):
 
     def get_inventory(self):
         """
-        Returns a dictionary representing the device chassis and installed modules.
+        Returns a dictionary representing the device chassis and installed inventory items.
 
         {
             'chassis': {
                 'serial': <str>,
                 'description': <str>,
             }
-            'modules': [
+            'items': [
                 {
                     'name': <str>,
                     'part_id': <str>,
@@ -144,23 +144,23 @@ class JunosNC(RPCClient):
 
     def get_inventory(self):
 
-        def glean_modules(node, depth=0):
-            modules = []
-            modules_list = node.get('chassis{}-module'.format('-sub' * depth), [])
+        def glean_items(node, depth=0):
+            items = []
+            items_list = node.get('chassis{}-module'.format('-sub' * depth), [])
             # Junos like to return single children directly instead of as a single-item list
-            if hasattr(modules_list, 'items'):
-                modules_list = [modules_list]
-            for module in modules_list:
+            if hasattr(items_list, 'items'):
+                items_list = [items_list]
+            for item in items_list:
                 m = {
-                    'name': module['name'],
-                    'part_id': module.get('model-number') or module.get('part-number', ''),
-                    'serial': module.get('serial-number', ''),
+                    'name': item['name'],
+                    'part_id': item.get('model-number') or item.get('part-number', ''),
+                    'serial': item.get('serial-number', ''),
                 }
-                submodules = glean_modules(module, depth + 1)
-                if submodules:
-                    m['modules'] = submodules
-                modules.append(m)
-            return modules
+                child_items = glean_items(item, depth + 1)
+                if child_items:
+                    m['items'] = child_items
+                items.append(m)
+            return items
 
         rpc_reply = self.manager.dispatch('get-chassis-inventory')
         inventory_raw = xmltodict.parse(rpc_reply.xml)['rpc-reply']['chassis-inventory']['chassis']
@@ -173,8 +173,8 @@ class JunosNC(RPCClient):
             'description': inventory_raw['description'],
         }
 
-        # Gather modules
-        result['modules'] = glean_modules(inventory_raw)
+        # Gather inventory items
+        result['items'] = glean_items(inventory_raw)
 
         return result
 
@@ -199,7 +199,7 @@ class IOSSSH(SSHClient):
                 'description': parse(sh_ver, 'cisco ([^\s]+)')
             }
 
-        def modules(chassis_serial=None):
+        def items(chassis_serial=None):
             cmd = self._send('show inventory').split('\r\n\r\n')
             for i in cmd:
                 i_fmt = i.replace('\r\n', ' ')
@@ -207,7 +207,7 @@ class IOSSSH(SSHClient):
                     m_name = re.search('NAME: "([^"]+)"', i_fmt).group(1)
                     m_pid = re.search('PID: ([^\s]+)', i_fmt).group(1)
                     m_serial = re.search('SN: ([^\s]+)', i_fmt).group(1)
-                    # Omit built-in modules and those with no PID
+                    # Omit built-in items and those with no PID
                     if m_serial != chassis_serial and m_pid.lower() != 'unspecified':
                         yield {
                             'name': m_name,
@@ -222,7 +222,7 @@ class IOSSSH(SSHClient):
 
         return {
             'chassis': sh_version,
-            'modules': list(modules(chassis_serial=sh_version.get('serial')))
+            'items': list(items(chassis_serial=sh_version.get('serial')))
         }
 
 
@@ -257,7 +257,7 @@ class OpengearSSH(SSHClient):
                 'serial': serial,
                 'description': description,
             },
-            'modules': [],
+            'items': [],
         }
 
 

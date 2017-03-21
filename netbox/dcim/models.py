@@ -1397,19 +1397,19 @@ class DeviceBay(models.Model):
 
 
 #
-# Modules
+# Inventory items
 #
 
 @python_2_unicode_compatible
-class Module(models.Model):
+class InventoryItem(models.Model):
     """
-    A Module represents a piece of hardware within a Device, such as a line card or power supply. Modules are used only
-    for inventory purposes.
+    An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply.
+    InventoryItems are used only for inventory purposes.
     """
-    device = models.ForeignKey('Device', related_name='modules', on_delete=models.CASCADE)
-    parent = models.ForeignKey('self', related_name='submodules', blank=True, null=True, on_delete=models.CASCADE)
+    device = models.ForeignKey('Device', related_name='inventory_items', on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', related_name='child_items', blank=True, null=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, verbose_name='Name')
-    manufacturer = models.ForeignKey('Manufacturer', related_name='modules', blank=True, null=True,
+    manufacturer = models.ForeignKey('Manufacturer', related_name='inventory_items', blank=True, null=True,
                                      on_delete=models.PROTECT)
     part_id = models.CharField(max_length=50, verbose_name='Part ID', blank=True)
     serial = models.CharField(max_length=50, verbose_name='Serial number', blank=True)

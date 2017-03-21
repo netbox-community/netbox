@@ -93,9 +93,12 @@ A device's platform is used to denote the type of software running on it. This c
 
 The assignment of platforms to devices is an optional feature, and may be disregarded if not desired.
 
-### Modules
+### Inventory Items
 
-A device can be assigned modules which represent internal components. Currently, these are used merely for inventory tracking, although future development might see their functionality expand. Each module can optionally be assigned to a manufacturer.
+Inventory items represent hardware components installed within a device, such as a power supply or CPU. Currently, these are used merely for inventory tracking, although future development might see their functionality expand. Each item can optionally be assigned a manufacturer.
+
+!!! note
+    Prior to version 2.0, inventory items were called modules.
 
 ### Components
 
@@ -113,6 +116,3 @@ Console ports connect only to console server ports, and power ports connect only
 Each interface is a assigned a form factor denoting its physical properties. Two special form factors exist: the "virtual" form factor can be used to designate logical interfaces (such as SVIs), and the "LAG" form factor can be used to desinate link aggregation groups to which physical interfaces can be assigned. Each interface can also be designated as management-only (for out-of-band management) and assigned a short description.
 
 Device bays represent the ability of a device to house child devices. For example, you might install four blade servers into a 2U chassis. The chassis would appear in the rack elevation as a 2U device with four device bays. Each server within it would be defined as a 0U device installed in one of the device bays. Child devices do not appear on rack elevations, but they are included in the "Non-Racked Devices" list within the rack view.
-
-!!! note
-    Child devices differ from modules in that they are still treated as independent devices, with their own console/power/data components, modules, and IP addresses. Modules, on the other hand, are parts within a device, such as a hard disk or power supply, which do not provide their own management plane.

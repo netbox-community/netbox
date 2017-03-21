@@ -48,7 +48,7 @@ router.register(r'power-ports', views.PowerPortViewSet)
 router.register(r'power-outlets', views.PowerOutletViewSet)
 router.register(r'interfaces', views.InterfaceViewSet)
 router.register(r'device-bays', views.DeviceBayViewSet)
-router.register(r'modules', views.ModuleViewSet)
+router.register(r'inventory-items', views.InventoryItemViewSet)
 
 # Interface connections
 router.register(r'interface-connections', views.InterfaceConnectionViewSet)

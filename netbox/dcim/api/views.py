@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, Module,
+    DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, InventoryItem,
     Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation,
     RackRole, Region, Site,
 )
@@ -294,11 +294,11 @@ class DeviceBayViewSet(WritableSerializerMixin, ModelViewSet):
     filter_class = filters.DeviceBayFilter
 
 
-class ModuleViewSet(WritableSerializerMixin, ModelViewSet):
-    queryset = Module.objects.select_related('device', 'manufacturer')
-    serializer_class = serializers.ModuleSerializer
-    write_serializer_class = serializers.WritableModuleSerializer
-    filter_class = filters.ModuleFilter
+class InventoryItemViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = InventoryItem.objects.select_related('device', 'manufacturer')
+    serializer_class = serializers.InventoryItemSerializer
+    write_serializer_class = serializers.WritableInventoryItemSerializer
+    filter_class = filters.InventoryItemFilter
 
 
 #

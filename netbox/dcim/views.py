@@ -25,7 +25,7 @@ from . import filters, forms, tables
 from .models import (
     CONNECTION_STATUS_CONNECTED, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
     DeviceBay, DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate,
-    Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
+    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
     RackReservation, RackRole, Region, Site,
 )
 
@@ -799,12 +799,12 @@ class DeviceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 def device_inventory(request, pk):
 
     device = get_object_or_404(Device, pk=pk)
-    modules = Module.objects.filter(device=device, parent=None).select_related('manufacturer')\
-        .prefetch_related('submodules')
+    inventory_items = InventoryItem.objects.filter(device=device, parent=None).select_related('manufacturer')\
+        .prefetch_related('child_items')
 
     return render(request, 'dcim/device_inventory.html', {
         'device': device,
-        'modules': modules,
+        'inventory_items': inventory_items,
     })
 
 
@@ -1594,13 +1594,13 @@ def ipaddress_assign(request, pk):
 
 
 #
-# Modules
+# Inventory items
 #
 
-class ModuleEditView(PermissionRequiredMixin, ComponentEditView):
-    permission_required = 'dcim.change_module'
-    model = Module
-    form_class = forms.ModuleForm
+class InventoryItemEditView(PermissionRequiredMixin, ComponentEditView):
+    permission_required = 'dcim.change_inventoryitem'
+    model = InventoryItem
+    form_class = forms.InventoryItemForm
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
         if 'device' in url_kwargs:
@@ -1608,6 +1608,6 @@ class ModuleEditView(PermissionRequiredMixin, ComponentEditView):
         return obj
 
 
-class ModuleDeleteView(PermissionRequiredMixin, ComponentDeleteView):
-    permission_required = 'dcim.delete_module'
-    model = Module
+class InventoryItemDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+    permission_required = 'dcim.delete_inventoryitem'
+    model = InventoryItem

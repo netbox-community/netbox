@@ -7,7 +7,7 @@ from django.urls import reverse
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, IFACE_FF_LAG, Interface, InterfaceConnection, InterfaceTemplate,
-    Manufacturer, Module, Platform, PowerPort, PowerPortTemplate, PowerOutlet, PowerOutletTemplate, Rack, RackGroup,
+    Manufacturer, InventoryItem, Platform, PowerPort, PowerPortTemplate, PowerOutlet, PowerOutletTemplate, Rack, RackGroup,
     RackReservation, RackRole, Region, Site, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
 )
 from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
@@ -1847,7 +1847,7 @@ class DeviceBayTest(HttpStatusMixin, APITestCase):
         self.assertEqual(DeviceBay.objects.count(), 2)
 
 
-class ModuleTest(HttpStatusMixin, APITestCase):
+class InventoryItemTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
 
@@ -1866,71 +1866,71 @@ class ModuleTest(HttpStatusMixin, APITestCase):
         self.device = Device.objects.create(
             device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
         )
-        self.module1 = Module.objects.create(device=self.device, name='Test Module 1')
-        self.module2 = Module.objects.create(device=self.device, name='Test Module 2')
-        self.module3 = Module.objects.create(device=self.device, name='Test Module 3')
+        self.inventoryitem1 = InventoryItem.objects.create(device=self.device, name='Test Inventory Item 1')
+        self.inventoryitem2 = InventoryItem.objects.create(device=self.device, name='Test Inventory Item 2')
+        self.inventoryitem3 = InventoryItem.objects.create(device=self.device, name='Test Inventory Item 3')
 
-    def test_get_module(self):
+    def test_get_inventoryitem(self):
 
-        url = reverse('dcim-api:module-detail', kwargs={'pk': self.module1.pk})
+        url = reverse('dcim-api:inventoryitem-detail', kwargs={'pk': self.inventoryitem1.pk})
         response = self.client.get(url, **self.header)
 
-        self.assertEqual(response.data['name'], self.module1.name)
+        self.assertEqual(response.data['name'], self.inventoryitem1.name)
 
-    def test_list_modules(self):
+    def test_list_inventoryitems(self):
 
-        url = reverse('dcim-api:module-list')
+        url = reverse('dcim-api:inventoryitem-list')
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
 
-    def test_create_module(self):
+    def test_create_inventoryitem(self):
 
         data = {
             'device': self.device.pk,
-            'parent': self.module1.pk,
-            'name': 'Test Module 4',
+            'parent': self.inventoryitem1.pk,
+            'name': 'Test Inventory Item 4',
             'manufacturer': self.manufacturer.pk,
         }
 
-        url = reverse('dcim-api:module-list')
+        url = reverse('dcim-api:inventoryitem-list')
         response = self.client.post(url, data, **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Module.objects.count(), 4)
-        module4 = Module.objects.get(pk=response.data['id'])
-        self.assertEqual(module4.device_id, data['device'])
-        self.assertEqual(module4.parent_id, data['parent'])
-        self.assertEqual(module4.name, data['name'])
-        self.assertEqual(module4.manufacturer_id, data['manufacturer'])
+        self.assertEqual(InventoryItem.objects.count(), 4)
+        inventoryitem4 = InventoryItem.objects.get(pk=response.data['id'])
+        self.assertEqual(inventoryitem4.device_id, data['device'])
+        self.assertEqual(inventoryitem4.parent_id, data['parent'])
+        self.assertEqual(inventoryitem4.name, data['name'])
+        self.assertEqual(inventoryitem4.manufacturer_id, data['manufacturer'])
 
-    def test_update_module(self):
+    def test_update_inventoryitem(self):
 
         data = {
             'device': self.device.pk,
-            'parent': self.module1.pk,
-            'name': 'Test Module X',
+            'parent': self.inventoryitem1.pk,
+            'name': 'Test Inventory Item X',
             'manufacturer': self.manufacturer.pk,
         }
 
-        url = reverse('dcim-api:module-detail', kwargs={'pk': self.module1.pk})
+        url = reverse('dcim-api:inventoryitem-detail', kwargs={'pk': self.inventoryitem1.pk})
         response = self.client.put(url, data, **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(Module.objects.count(), 3)
-        module1 = Module.objects.get(pk=response.data['id'])
-        self.assertEqual(module1.device_id, data['device'])
-        self.assertEqual(module1.parent_id, data['parent'])
-        self.assertEqual(module1.name, data['name'])
-        self.assertEqual(module1.manufacturer_id, data['manufacturer'])
+        self.assertEqual(InventoryItem.objects.count(), 3)
+        inventoryitem1 = InventoryItem.objects.get(pk=response.data['id'])
+        self.assertEqual(inventoryitem1.device_id, data['device'])
+        self.assertEqual(inventoryitem1.parent_id, data['parent'])
+        self.assertEqual(inventoryitem1.name, data['name'])
+        self.assertEqual(inventoryitem1.manufacturer_id, data['manufacturer'])
 
-    def test_delete_module(self):
+    def test_delete_inventoryitem(self):
 
-        url = reverse('dcim-api:module-detail', kwargs={'pk': self.module1.pk})
+        url = reverse('dcim-api:inventoryitem-detail', kwargs={'pk': self.inventoryitem1.pk})
         response = self.client.delete(url, **self.header)
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Module.objects.count(), 2)
+        self.assertEqual(InventoryItem.objects.count(), 2)
 
 
 class InterfaceConnectionTest(HttpStatusMixin, APITestCase):

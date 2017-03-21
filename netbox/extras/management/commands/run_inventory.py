@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from dcim.models import Device, Module, Site
+from dcim.models import Device, InventoryItem, Site
 
 
 class Command(BaseCommand):
@@ -25,12 +25,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        def create_modules(modules, parent=None):
-            for module in modules:
-                m = Module(device=device, parent=parent, name=module['name'], part_id=module['part_id'],
-                           serial=module['serial'], discovered=True)
-                m.save()
-                create_modules(module.get('modules', []), parent=m)
+        def create_inventory_items(inventory_items, parent=None):
+            for item in inventory_items:
+                i = InventoryItem(device=device, parent=parent, name=item['name'], part_id=item['part_id'],
+                                  serial=item['serial'], discovered=True)
+                i.save()
+                create_inventory_items(item.get('items', []), parent=i)
 
         # Credentials
         if options['username']:
@@ -107,9 +107,9 @@ class Command(BaseCommand):
                 self.stdout.write("")
                 self.stdout.write("\tSerial: {}".format(inventory['chassis']['serial']))
                 self.stdout.write("\tDescription: {}".format(inventory['chassis']['description']))
-                for module in inventory['modules']:
-                    self.stdout.write("\tModule: {} / {} ({})".format(module['name'], module['part_id'],
-                                                                      module['serial']))
+                for item in inventory['items']:
+                    self.stdout.write("\tItem: {} / {} ({})".format(item['name'], item['part_id'],
+                                                                    item['serial']))
             else:
                 self.stdout.write("{} ({})".format(inventory['chassis']['description'], inventory['chassis']['serial']))
 
@@ -119,7 +119,7 @@ class Command(BaseCommand):
                     if device.serial != inventory['chassis']['serial']:
                         device.serial = inventory['chassis']['serial']
                         device.save()
-                    Module.objects.filter(device=device, discovered=True).delete()
-                    create_modules(inventory.get('modules', []))
+                    InventoryItem.objects.filter(device=device, discovered=True).delete()
+                    create_inventory_items(inventory.get('items', []))
 
         self.stdout.write("Finished!")

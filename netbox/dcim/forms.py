@@ -21,7 +21,7 @@ from .models import (
     DeviceBay, DeviceBayTemplate, CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_PLANNED, CONNECTION_STATUS_CONNECTED,
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType,
     Interface, IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate,
-    Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES,
+    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES,
     RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD,
     VIRTUAL_IFACE_TYPES
 )
@@ -1684,11 +1684,11 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
 
 
 #
-# Modules
+# Inventory items
 #
 
-class ModuleForm(BootstrapMixin, forms.ModelForm):
+class InventoryItemForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
-        model = Module
+        model = InventoryItem
         fields = ['name', 'manufacturer', 'part_id', 'serial']

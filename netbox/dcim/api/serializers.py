@@ -5,7 +5,7 @@ from ipam.models import IPAddress
 from dcim.models import (
     CONNECTION_STATUS_CHOICES, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
     DeviceBay, DeviceBayTemplate, DeviceType, DeviceRole, IFACE_FF_CHOICES, IFACE_ORDERING_CHOICES, Interface,
-    InterfaceConnection, InterfaceTemplate, Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
+    InterfaceConnection, InterfaceTemplate, Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RACK_FACE_CHOICES, RACK_TYPE_CHOICES,
     RACK_WIDTH_CHOICES, Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHOICES,
 )
@@ -642,22 +642,22 @@ class WritableDeviceBaySerializer(serializers.ModelSerializer):
 
 
 #
-# Modules
+# Inventory items
 #
 
-class ModuleSerializer(serializers.ModelSerializer):
+class InventoryItemSerializer(serializers.ModelSerializer):
     device = NestedDeviceSerializer()
     manufacturer = NestedManufacturerSerializer()
 
     class Meta:
-        model = Module
+        model = InventoryItem
         fields = ['id', 'device', 'parent', 'name', 'manufacturer', 'part_id', 'serial', 'discovered']
 
 
-class WritableModuleSerializer(serializers.ModelSerializer):
+class WritableInventoryItemSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Module
+        model = InventoryItem
         fields = ['id', 'device', 'parent', 'name', 'manufacturer', 'part_id', 'serial', 'discovered']
 
 

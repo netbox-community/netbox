@@ -173,6 +173,11 @@ urlpatterns = [
     url(r'^device-bays/(?P<pk>\d+)/populate/$', views.devicebay_populate, name='devicebay_populate'),
     url(r'^device-bays/(?P<pk>\d+)/depopulate/$', views.devicebay_depopulate, name='devicebay_depopulate'),
 
+    # Inventory items
+    url(r'^devices/(?P<device>\d+)/inventory-items/add/$', views.InventoryItemEditView.as_view(), name='inventoryitem_add'),
+    url(r'^inventory-items/(?P<pk>\d+)/edit/$', views.InventoryItemEditView.as_view(), name='inventoryitem_edit'),
+    url(r'^inventory-items/(?P<pk>\d+)/delete/$', views.InventoryItemDeleteView.as_view(), name='inventoryitem_delete'),
+
     # Console/power/interface connections
     url(r'^console-connections/$', views.ConsoleConnectionsListView.as_view(), name='console_connections_list'),
     url(r'^console-connections/import/$', views.ConsoleConnectionsBulkImportView.as_view(), name='console_connections_import'),
@@ -180,10 +185,5 @@ urlpatterns = [
     url(r'^power-connections/import/$', views.PowerConnectionsBulkImportView.as_view(), name='power_connections_import'),
     url(r'^interface-connections/$', views.InterfaceConnectionsListView.as_view(), name='interface_connections_list'),
     url(r'^interface-connections/import/$', views.InterfaceConnectionsBulkImportView.as_view(), name='interface_connections_import'),
-
-    # Modules
-    url(r'^devices/(?P<device>\d+)/modules/add/$', views.ModuleEditView.as_view(), name='module_add'),
-    url(r'^modules/(?P<pk>\d+)/edit/$', views.ModuleEditView.as_view(), name='module_edit'),
-    url(r'^modules/(?P<pk>\d+)/delete/$', views.ModuleDeleteView.as_view(), name='module_delete'),
 
 ]

@@ -9,7 +9,7 @@ from utilities.filters import NullableModelMultipleChoiceFilter
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, IFACE_FF_LAG, Interface, InterfaceConnection, InterfaceTemplate,
-    Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
+    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
     RackReservation, RackRole, Region, Site, VIRTUAL_IFACE_TYPES,
 )
 
@@ -359,7 +359,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         return queryset.filter(
             Q(name__icontains=value) |
             Q(serial__icontains=value.strip()) |
-            Q(modules__serial__icontains=value.strip()) |
+            Q(inventory_items__serial__icontains=value.strip()) |
             Q(asset_tag=value.strip()) |
             Q(comments__icontains=value)
         ).distinct()
@@ -444,10 +444,10 @@ class DeviceBayFilter(DeviceComponentFilterSet):
         fields = ['name']
 
 
-class ModuleFilter(DeviceComponentFilterSet):
+class InventoryItemFilter(DeviceComponentFilterSet):
 
     class Meta:
-        model = Module
+        model = InventoryItem
         fields = ['name']
 
 

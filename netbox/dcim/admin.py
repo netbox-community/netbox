@@ -5,7 +5,7 @@ from mptt.admin import MPTTModelAdmin
 
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceTemplate, Manufacturer, Module, Platform,
+    DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceTemplate, Manufacturer, InventoryItem, Platform,
     PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, Region,
     Site,
 )
@@ -183,8 +183,8 @@ class DeviceBayAdmin(admin.TabularInline):
     readonly_fields = ['installed_device']
 
 
-class ModuleAdmin(admin.TabularInline):
-    model = Module
+class InventoryItemAdmin(admin.TabularInline):
+    model = InventoryItem
     readonly_fields = ['parent', 'discovered']
 
 
@@ -197,7 +197,7 @@ class DeviceAdmin(admin.ModelAdmin):
         PowerOutletAdmin,
         InterfaceAdmin,
         DeviceBayAdmin,
-        ModuleAdmin,
+        InventoryItemAdmin,
     ]
     list_display = ['display_name', 'device_type_full_name', 'device_role', 'primary_ip', 'rack', 'position', 'asset_tag',
                     'serial']
