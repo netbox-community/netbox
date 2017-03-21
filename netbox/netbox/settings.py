@@ -184,7 +184,7 @@ LOGIN_URL = '/{}login/'.format(BASE_PATH)
 SECRETS_MIN_PUBKEY_SIZE = 2048
 
 # Django REST framework (API)
-REST_FRAMEWORK_VERSION = VERSION.rsplit('.', 1)[0],  # Use major.minor as API version
+REST_FRAMEWORK_VERSION = VERSION[0:3]  # Use major.minor as API version
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
@@ -198,7 +198,7 @@ REST_FRAMEWORK = {
         'utilities.api.TokenPermissions',
     ),
     'DEFAULT_VERSION': REST_FRAMEWORK_VERSION,
-    'ALLOWED_VERSIONS': REST_FRAMEWORK_VERSION,
+    'ALLOWED_VERSIONS': [REST_FRAMEWORK_VERSION],
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'PAGE_SIZE': PAGINATE_COUNT,
 }
