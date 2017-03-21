@@ -169,6 +169,9 @@ class GetSessionKeyViewSet(ViewSet):
         sk = SessionKey(userkey=user_key)
         sk.save(master_key=master_key)
         encoded_key = base64.b64encode(sk.key)
+        # b64decode() returns a bytestring under Python 3
+        if not isinstance(encoded_key, str):
+            encoded_key = encoded_key.decode()
 
         # Craft the response
         response = Response({
@@ -177,7 +180,7 @@ class GetSessionKeyViewSet(ViewSet):
 
         # If token authentication is not in use, assign the session key as a cookie
         if request.auth is None:
-            response.set_cookie('session_key', value=encoded_key, path=reverse('secrets-api:secret-list'))
+            response.set_cookie('session_key', value=encoded_key)
 
         return response
 

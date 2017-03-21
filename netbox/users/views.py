@@ -149,7 +149,7 @@ class SessionKeyDeleteView(LoginRequiredMixin, View):
 
             # Delete cookie
             response = redirect('user:userkey')
-            response.delete_cookie('session_key', path=reverse('secrets-api:secret-list'))
+            response.delete_cookie('session_key')
 
             return response
 

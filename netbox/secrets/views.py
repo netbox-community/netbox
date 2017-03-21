@@ -79,23 +79,30 @@ def secret_add(request, pk):
         form = forms.SecretForm(request.POST, instance=secret)
         if form.is_valid():
 
-            # Retrieve the master key from the current user's UserKey
-            master_key = uk.get_master_key(form.cleaned_data['private_key'])
-            if master_key is None:
-                form.add_error(None, "Invalid private key! Unable to encrypt secret data.")
+            # We need a valid session key in order to create a Secret
+            session_key = base64.b64decode(request.COOKIES.get('session_key', None))
+            if session_key is None:
+                form.add_error(None, "No session key was provided with the request. Unable to encrypt secret data.")
 
             # Create and encrypt the new Secret
             else:
-                secret = form.save(commit=False)
-                secret.plaintext = str(form.cleaned_data['plaintext'])
-                secret.encrypt(master_key)
-                secret.save()
+                master_key = None
+                try:
+                    sk = SessionKey.objects.get(userkey__user=request.user)
+                    master_key = sk.get_master_key(session_key)
+                except SessionKey.DoesNotExist:
+                    form.add_error(None, "No session key found for this user.")
 
-                messages.success(request, u"Added new secret: {}.".format(secret))
-                if '_addanother' in request.POST:
-                    return redirect('dcim:device_addsecret', pk=device.pk)
-                else:
-                    return redirect('secrets:secret', pk=secret.pk)
+                if master_key is not None:
+                    secret = form.save(commit=False)
+                    secret.plaintext = str(form.cleaned_data['plaintext'])
+                    secret.encrypt(master_key)
+                    secret.save()
+                    messages.success(request, u"Added new secret: {}.".format(secret))
+                    if '_addanother' in request.POST:
+                        return redirect('dcim:device_addsecret', pk=device.pk)
+                    else:
+                        return redirect('secrets:secret', pk=secret.pk)
 
     else:
         form = forms.SecretForm(instance=secret)
@@ -118,14 +125,13 @@ def secret_edit(request, pk):
         if form.is_valid():
 
             # Re-encrypt the Secret if a plaintext and session key have been provided.
-            session_key = request.COOKIES.get('session_key', None)
+            session_key = base64.b64decode(request.COOKIES.get('session_key', None))
             if form.cleaned_data['plaintext'] and session_key is not None:
 
                 # Retrieve the master key using the provided session key
-                session_key = base64.b64decode(session_key)
                 master_key = None
                 try:
-                    sk = SessionKey.objects.get(user=request.user)
+                    sk = SessionKey.objects.get(userkey__user=request.user)
                     master_key = sk.get_master_key(session_key)
                 except SessionKey.DoesNotExist:
                     form.add_error(None, "No session key found for this user.")
@@ -186,7 +192,7 @@ def secret_import(request):
             session_key = base64.b64decode(session_key)
             master_key = None
             try:
-                sk = SessionKey.objects.get(user=request.user)
+                sk = SessionKey.objects.get(userkey__user=request.user)
                 master_key = sk.get_master_key(session_key)
             except SessionKey.DoesNotExist:
                 form.add_error(None, "No session key found for this user.")
