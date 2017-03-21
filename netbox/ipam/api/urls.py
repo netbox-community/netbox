@@ -3,7 +3,16 @@ from rest_framework import routers
 from . import views
 
 
+class IPAMRootView(routers.APIRootView):
+    """
+    IPAM API root view
+    """
+    def get_view_name(self):
+        return 'IPAM'
+
+
 router = routers.DefaultRouter()
+router.APIRootView = IPAMRootView
 
 # VRFs
 router.register(r'vrfs', views.VRFViewSet)

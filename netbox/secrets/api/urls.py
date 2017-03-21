@@ -3,7 +3,16 @@ from rest_framework import routers
 from . import views
 
 
+class SecretsRootView(routers.APIRootView):
+    """
+    Secrets API root view
+    """
+    def get_view_name(self):
+        return 'Secrets'
+
+
 router = routers.DefaultRouter()
+router.APIRootView = SecretsRootView
 
 # Secrets
 router.register(r'secret-roles', views.SecretRoleViewSet)

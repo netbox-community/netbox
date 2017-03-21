@@ -3,7 +3,16 @@ from rest_framework import routers
 from . import views
 
 
+class DCIMRootView(routers.APIRootView):
+    """
+    DCIM API root view
+    """
+    def get_view_name(self):
+        return 'DCIM'
+
+
 router = routers.DefaultRouter()
+router.APIRootView = DCIMRootView
 
 # Sites
 router.register(r'regions', views.RegionViewSet)
