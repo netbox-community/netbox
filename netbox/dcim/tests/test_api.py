@@ -2028,3 +2028,45 @@ class InterfaceConnectionTest(HttpStatusMixin, APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(InterfaceConnection.objects.count(), 2)
+
+
+class ConnectedDeviceTest(HttpStatusMixin, APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        self.site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        self.devicetype1 = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        self.devicetype2 = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 2', slug='test-device-type-2'
+        )
+        self.devicerole1 = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        self.devicerole2 = DeviceRole.objects.create(
+            name='Test Device Role 2', slug='test-device-role-2', color='00ff00'
+        )
+        self.device1 = Device.objects.create(
+            device_type=self.devicetype1, device_role=self.devicerole1, name='TestDevice1', site=self.site1
+        )
+        self.device2 = Device.objects.create(
+            device_type=self.devicetype1, device_role=self.devicerole1, name='TestDevice2', site=self.site1
+        )
+        self.interface1 = Interface.objects.create(device=self.device1, name='eth0')
+        self.interface2 = Interface.objects.create(device=self.device2, name='eth0')
+        InterfaceConnection.objects.create(interface_a=self.interface1, interface_b=self.interface2)
+
+    def test_get_connected_device(self):
+
+        url = reverse('dcim-api:connected-device-list')
+        response = self.client.get(url + '?peer-device=TestDevice2&peer-interface=eth0', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], self.device1.name)
