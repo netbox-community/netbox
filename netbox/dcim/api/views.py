@@ -326,6 +326,9 @@ class ConnectedDeviceViewSet(ViewSet):
     """
     permission_classes = [IsAuthenticated]
 
+    def get_view_name(self):
+        return "Connected Device Locator"
+
     def list(self, request):
 
         peer_device_name = request.query_params.get('peer-device')
