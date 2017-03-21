@@ -335,13 +335,13 @@ class RackTest(HttpStatusMixin, APITestCase):
         self.rackrole1 = RackRole.objects.create(name='Test Rack Role 1', slug='test-rack-role-1', color='ff0000')
         self.rackrole2 = RackRole.objects.create(name='Test Rack Role 2', slug='test-rack-role-2', color='00ff00')
         self.rack1 = Rack.objects.create(
-            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 1',
+            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 1', u_height=42,
         )
         self.rack2 = Rack.objects.create(
-            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 2'
+            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 2', u_height=42,
         )
         self.rack3 = Rack.objects.create(
-            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 3'
+            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 3', u_height=42,
         )
 
     def test_get_rack(self):
@@ -350,6 +350,13 @@ class RackTest(HttpStatusMixin, APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['name'], self.rack1.name)
+
+    def test_get_rack_units(self):
+
+        url = reverse('dcim-api:rack-units', kwargs={'pk': self.rack1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 42)
 
     def test_list_racks(self):
 

@@ -82,8 +82,8 @@ class RackViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     write_serializer_class = serializers.WritableRackSerializer
     filter_class = filters.RackFilter
 
-    @detail_route(url_path='rack-units')
-    def rack_units(self, request, pk=None):
+    @detail_route()
+    def units(self, request, pk=None):
         """
         List rack units (by rack)
         """

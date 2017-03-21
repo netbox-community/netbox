@@ -512,7 +512,7 @@ class DeviceForm(BootstrapMixin, CustomFieldForm):
     ))
     position = forms.TypedChoiceField(required=False, empty_value=None,
                                       help_text="The lowest-numbered unit occupied by the device",
-                                      widget=APISelect(api_url='/api/dcim/racks/{{rack}}/rack-units/?face={{face}}',
+                                      widget=APISelect(api_url='/api/dcim/racks/{{rack}}/units/?face={{face}}',
                                                        disabled_indicator='device'))
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(),
                                           widget=forms.Select(attrs={'filter-for': 'device_type'}))
