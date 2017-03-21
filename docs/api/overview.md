@@ -87,3 +87,52 @@ When a base serializer includes one or more nested serializers, the hierarchical
     "description": ""
 }
 ```
+
+# Pagination
+
+API responses which contain a list of objects (for example, a request to `/api/dcim/devices/`) will be paginated to avoid unnecessary overhead. The root JSON object will contain the following attributes:
+
+* `count`: The total count of all objects matching the query
+* `next`: A hyperlink to the next page of results (if applicable)
+* `previous`: A hyperlink to the previous page of results (if applicable)
+* `results`: The list of returned objects
+
+Here is an example of a paginated response:
+
+```
+HTTP 200 OK
+Allow: GET, POST, OPTIONS
+Content-Type: application/json
+Vary: Accept
+
+{
+    "count": 2861,
+    "next": "http://localhost:8000/api/dcim/devices/?limit=50&offset=50",
+    "previous": null,
+    "results": [
+        {
+            "id": 123,
+            "name": "DeviceName123",
+            ...
+        },
+        ...
+    ]
+}
+```
+
+The default page size derives from the `[PAGINATE_COUNT](../configuration/optional-settings/#paginate_count)` configuration setting, which defaults to 50. However, this can be overridden per request by specifying the desired `offset` and `limit` query parameters. For example, if you wish to retrieve a hundred devices at a time, you would make a request for:
+
+```
+http://localhost:8000/api/dcim/devices/?limit=100
+```
+
+The response will return devices 1 through 100. The URL provided in the `next` attribute of the response will return devices 101 through 200:
+
+```
+{
+    "count": 2861,
+    "next": "http://localhost:8000/api/dcim/devices/?limit=100&offset=100",
+    "previous": null,
+    "results": [...]
+}
+```
