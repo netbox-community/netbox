@@ -22,6 +22,7 @@ pages:
     - 'API':
         - 'Overview': 'api/overview.md'
         - 'Authentication': 'api/authentication.md'
+        - 'Working with Secrets': 'api/working-with-secrets.md'
         - 'Examples': 'api/examples.md'
 
 markdown_extensions:
