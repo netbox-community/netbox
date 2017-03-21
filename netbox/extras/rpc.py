@@ -130,8 +130,11 @@ class JunosNC(RPCClient):
         for neighbor_raw in lldp_neighbors_raw:
             neighbor = dict()
             neighbor['local-interface'] = neighbor_raw.get('lldp-local-port-id')
-            neighbor['name'] = neighbor_raw.get('lldp-remote-system-name')
-            neighbor['name'] = neighbor['name'].split('.')[0]  # Split hostname from domain if one is present
+            name = neighbor_raw.get('lldp-remote-system-name')
+            if name:
+                neighbor['name'] = name.split('.')[0]  # Split hostname from domain if one is present
+            else:
+                neighbor['name'] = ''
             try:
                 neighbor['remote-interface'] = neighbor_raw['lldp-remote-port-description']
             except KeyError:

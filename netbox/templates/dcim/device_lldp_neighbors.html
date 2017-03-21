@@ -47,7 +47,7 @@
 <script type="text/javascript">
 $(document).ready(function() {
     $.ajax({
-        url: "{% url 'dcim-api:device_lldp-neighbors' pk=device.pk %}",
+        url: "{% url 'dcim-api:device-lldp-neighbors' pk=device.pk %}",
         dataType: 'json',
         success: function(json) {
             $.each(json, function(i, neighbor) {
@@ -66,6 +66,9 @@ $(document).ready(function() {
                     row.addClass('danger');
                 }
             });
+        },
+        error: function(xhr) {
+            alert(xhr.responseText);
         }
     });
 });
