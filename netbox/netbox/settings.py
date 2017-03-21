@@ -8,19 +8,22 @@ from django.core.exceptions import ImproperlyConfigured
 try:
     from netbox import configuration
 except ImportError:
-    raise ImproperlyConfigured("Configuration file is not present. Please define netbox/netbox/configuration.py per "
-                               "the documentation.")
+    raise ImproperlyConfigured(
+        "Configuration file is not present. Please define netbox/netbox/configuration.py per the documentation."
+    )
 
 
 VERSION = '2.0.0-dev'
 
 # Import local configuration
+ALLOWED_HOSTS = DATABASE = SECRET_KEY = None
 for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
     try:
         globals()[setting] = getattr(configuration, setting)
     except AttributeError:
-        raise ImproperlyConfigured("Mandatory setting {} is missing from configuration.py. Please define it per the "
-                                   "documentation.".format(setting))
+        raise ImproperlyConfigured(
+            "Mandatory setting {} is missing from configuration.py.".format(setting)
+        )
 
 # Default configurations
 ADMINS = getattr(configuration, 'ADMINS', [])
@@ -45,6 +48,9 @@ BANNER_TOP = getattr(configuration, 'BANNER_TOP', False)
 BANNER_BOTTOM = getattr(configuration, 'BANNER_BOTTOM', False)
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
 ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
+CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
+CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
+CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
 # Attempt to import LDAP configuration if it has been defined
@@ -73,8 +79,10 @@ if LDAP_CONFIGURED:
         logger.addHandler(logging.StreamHandler())
         logger.setLevel(logging.DEBUG)
     except ImportError:
-        raise ImproperlyConfigured("LDAP authentication has been configured, but django-auth-ldap is not installed. "
-                                   "You can remove netbox/ldap_config.py to disable LDAP.")
+        raise ImproperlyConfigured(
+            "LDAP authentication has been configured, but django-auth-ldap is not installed. You can remove "
+            "netbox/ldap_config.py to disable LDAP."
+        )
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -102,6 +110,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'corsheaders',
     'debug_toolbar',
     'django_tables2',
     'mptt',
@@ -120,6 +129,7 @@ INSTALLED_APPS = (
 # Middleware
 MIDDLEWARE = (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
