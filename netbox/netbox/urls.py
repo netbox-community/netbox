@@ -26,7 +26,7 @@ _patterns = [
     url(r'^user/', include('users.urls', namespace='user')),
 
     # API
-    url(r'^api/$', APIRootView.as_view()),
+    url(r'^api/$', APIRootView.as_view(), name='api-root'),
     url(r'^api/circuits/', include('circuits.api.urls', namespace='circuits-api')),
     url(r'^api/dcim/', include('dcim.api.urls', namespace='dcim-api')),
     url(r'^api/extras/', include('extras.api.urls', namespace='extras-api')),

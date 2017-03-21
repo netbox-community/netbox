@@ -129,6 +129,7 @@ MIDDLEWARE = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'utilities.middleware.LoginRequiredMiddleware',
+    'utilities.middleware.APIVersionMiddleware',
 )
 
 ROOT_URLCONF = 'netbox.urls'
