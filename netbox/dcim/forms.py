@@ -496,7 +496,7 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Platform
-        fields = ['name', 'slug']
+        fields = ['name', 'slug', 'rpc_client']
 
 
 #
