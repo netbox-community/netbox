@@ -120,7 +120,7 @@ Vary: Accept
 }
 ```
 
-The default page size derives from the `[PAGINATE_COUNT](../configuration/optional-settings/#paginate_count)` configuration setting, which defaults to 50. However, this can be overridden per request by specifying the desired `offset` and `limit` query parameters. For example, if you wish to retrieve a hundred devices at a time, you would make a request for:
+The default page size derives from the [`PAGINATE_COUNT`](../configuration/optional-settings/#paginate_count) configuration setting, which defaults to 50. However, this can be overridden per request by specifying the desired `offset` and `limit` query parameters. For example, if you wish to retrieve a hundred devices at a time, you would make a request for:
 
 ```
 http://localhost:8000/api/dcim/devices/?limit=100
