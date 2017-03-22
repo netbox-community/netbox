@@ -3,11 +3,12 @@ import django_filters
 from django.db.models import Q
 
 from extras.filters import CustomFieldFilterSet
-from utilities.filters import NullableModelMultipleChoiceFilter
+from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
 from .models import Tenant, TenantGroup
 
 
 class TenantFilter(CustomFieldFilterSet, django_filters.FilterSet):
+    id__in = NumericInFilter(name='id', lookup_expr='in')
     q = django_filters.CharFilter(
         method='search',
         label='Search',

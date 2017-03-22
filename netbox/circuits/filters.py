@@ -5,12 +5,13 @@ from django.db.models import Q
 from dcim.models import Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
-from utilities.filters import NullableModelMultipleChoiceFilter
+from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
 
 from .models import Provider, Circuit, CircuitType
 
 
 class ProviderFilter(CustomFieldFilterSet, django_filters.FilterSet):
+    id__in = NumericInFilter(name='id', lookup_expr='in')
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -42,6 +43,7 @@ class ProviderFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
 
 class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
+    id__in = NumericInFilter(name='id', lookup_expr='in')
     q = django_filters.CharFilter(
         method='search',
         label='Search',

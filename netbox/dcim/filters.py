@@ -5,7 +5,7 @@ from django.db.models import Q
 
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
-from utilities.filters import NullableModelMultipleChoiceFilter
+from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
 from .models import (
     ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, IFACE_FF_LAG, Interface, InterfaceConnection,
     Manufacturer, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackReservation, RackRole, Region, Site,
@@ -14,6 +14,7 @@ from .models import (
 
 
 class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
+    id__in = NumericInFilter(name='id', lookup_expr='in')
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -81,6 +82,7 @@ class RackGroupFilter(django_filters.FilterSet):
 
 
 class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
+    id__in = NumericInFilter(name='id', lookup_expr='in')
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -157,6 +159,7 @@ class RackReservationFilter(django_filters.FilterSet):
 
 
 class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
+    id__in = NumericInFilter(name='id', lookup_expr='in')
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -191,6 +194,7 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
 
 class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
+    id__in = NumericInFilter(name='id', lookup_expr='in')
     q = django_filters.CharFilter(
         method='search',
         label='Search',
