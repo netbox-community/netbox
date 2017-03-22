@@ -348,6 +348,10 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         name='device_type__is_network_device',
         label='Is a network device',
     )
+    has_primary_ip = django_filters.BooleanFilter(
+        method='_has_primary_ip',
+        label='Has a primary IP',
+    )
 
     class Meta:
         model = Device
@@ -372,6 +376,18 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
             return queryset.filter(interfaces__mac_address=value).distinct()
         except AddrFormatError:
             return queryset.none()
+
+    def _has_primary_ip(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                Q(primary_ip4__isnull=False) |
+                Q(primary_ip6__isnull=False)
+            )
+        else:
+            return queryset.exclude(
+                Q(primary_ip4__isnull=False) |
+                Q(primary_ip6__isnull=False)
+            )
 
 
 class DeviceComponentFilterSet(django_filters.FilterSet):
