@@ -4,9 +4,11 @@ from django.db.models import Q
 
 from .models import Secret, SecretRole
 from dcim.models import Device
+from utilities.filters import NumericInFilter
 
 
 class SecretFilter(django_filters.FilterSet):
+    id__in = NumericInFilter(name='id', lookup_expr='in')
     q = django_filters.CharFilter(
         method='search',
         label='Search',
