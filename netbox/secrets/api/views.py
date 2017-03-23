@@ -64,27 +64,28 @@ class SecretViewSet(WritableSerializerMixin, ModelViewSet):
 
         super(SecretViewSet, self).initial(request, *args, **kwargs)
 
-        # Read session key from HTTP cookie or header if it has been provided. The session key must be provided in order
-        # to encrypt/decrypt secrets.
-        if 'session_key' in request.COOKIES:
-            session_key = base64.b64decode(request.COOKIES['session_key'])
-        elif 'HTTP_X_SESSION_KEY' in request.META:
-            session_key = base64.b64decode(request.META['HTTP_X_SESSION_KEY'])
-        else:
-            session_key = None
+        if request.user.is_authenticated():
 
-        # We can't encrypt secret plaintext without a session key.
-        # assert False, self.action
-        if self.action in ['create', 'update'] and session_key is None:
-            raise ValidationError("A session key must be provided when creating or updating secrets.")
+            # Read session key from HTTP cookie or header if it has been provided. The session key must be provided in
+            # order to encrypt/decrypt secrets.
+            if 'session_key' in request.COOKIES:
+                session_key = base64.b64decode(request.COOKIES['session_key'])
+            elif 'HTTP_X_SESSION_KEY' in request.META:
+                session_key = base64.b64decode(request.META['HTTP_X_SESSION_KEY'])
+            else:
+                session_key = None
 
-        # Attempt to retrieve the master key for encryption/decryption if a session key has been provided.
-        if session_key is not None:
-            try:
-                sk = SessionKey.objects.get(userkey__user=request.user)
-                self.master_key = sk.get_master_key(session_key)
-            except (SessionKey.DoesNotExist, InvalidSessionKey):
-                raise ValidationError("Invalid session key.")
+            # We can't encrypt secret plaintext without a session key.
+            if self.action in ['create', 'update'] and session_key is None:
+                raise ValidationError("A session key must be provided when creating or updating secrets.")
+
+            # Attempt to retrieve the master key for encryption/decryption if a session key has been provided.
+            if session_key is not None:
+                try:
+                    sk = SessionKey.objects.get(userkey__user=request.user)
+                    self.master_key = sk.get_master_key(session_key)
+                except (SessionKey.DoesNotExist, InvalidSessionKey):
+                    raise ValidationError("Invalid session key.")
 
     def retrieve(self, request, *args, **kwargs):
 
