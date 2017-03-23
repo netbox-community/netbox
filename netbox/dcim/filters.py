@@ -441,6 +441,10 @@ class InterfaceFilter(DeviceComponentFilterSet):
         method='filter_type',
         label='Interface type',
     )
+    mac_address = django_filters.CharFilter(
+        method='_mac_address',
+        label='MAC address',
+    )
 
     class Meta:
         model = Interface
@@ -455,6 +459,15 @@ class InterfaceFilter(DeviceComponentFilterSet):
         elif value == 'lag':
             return queryset.filter(form_factor=IFACE_FF_LAG)
         return queryset
+
+    def _mac_address(self, queryset, name, value):
+        value = value.strip()
+        if not value:
+            return queryset
+        try:
+            return queryset.filter(mac_address=value)
+        except AddrFormatError:
+            return queryset.none()
 
 
 class DeviceBayFilter(DeviceComponentFilterSet):
@@ -476,15 +489,23 @@ class ConsoleConnectionFilter(django_filters.FilterSet):
         method='filter_site',
         label='Site (slug)',
     )
-
-    class Meta:
-        model = ConsoleServerPort
-        fields = []
+    device = django_filters.CharFilter(
+        method='filter_device',
+        label='Device',
+    )
 
     def filter_site(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(cs_port__device__site__slug=value)
+
+    def filter_device(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(device__name__icontains=value) |
+            Q(cs_port__device__name__icontains=value)
+        )
 
 
 class PowerConnectionFilter(django_filters.FilterSet):
@@ -492,15 +513,23 @@ class PowerConnectionFilter(django_filters.FilterSet):
         method='filter_site',
         label='Site (slug)',
     )
-
-    class Meta:
-        model = PowerOutlet
-        fields = []
+    device = django_filters.CharFilter(
+        method='filter_device',
+        label='Device',
+    )
 
     def filter_site(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(power_outlet__device__site__slug=value)
+
+    def filter_device(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(device__name__icontains=value) |
+            Q(power_outlet__device__name__icontains=value)
+        )
 
 
 class InterfaceConnectionFilter(django_filters.FilterSet):
@@ -508,10 +537,10 @@ class InterfaceConnectionFilter(django_filters.FilterSet):
         method='filter_site',
         label='Site (slug)',
     )
-
-    class Meta:
-        model = InterfaceConnection
-        fields = []
+    device = django_filters.CharFilter(
+        method='filter_device',
+        label='Device',
+    )
 
     def filter_site(self, queryset, name, value):
         if not value.strip():
@@ -519,4 +548,12 @@ class InterfaceConnectionFilter(django_filters.FilterSet):
         return queryset.filter(
             Q(interface_a__device__site__slug=value) |
             Q(interface_b__device__site__slug=value)
+        )
+
+    def filter_device(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(interface_a__device__name__icontains=value) |
+            Q(interface_b__device__name__icontains=value)
         )
