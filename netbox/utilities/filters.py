@@ -6,6 +6,17 @@ from django.db.models import Q
 from django.utils.encoding import force_text
 
 
+#
+# Filters
+#
+
+class NumericInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
+    """
+    Filters for a set of numeric values. Example: id__in=100,200,300
+    """
+    pass
+
+
 class NullableModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     """
     This field operates like a normal ModelMultipleChoiceField except that it allows for one additional choice which is

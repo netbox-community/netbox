@@ -100,6 +100,10 @@ DEVICE_PRIMARY_IP = """
 {{ record.primary_ip4.address.ip|default:"" }}
 """
 
+SUBDEVICE_ROLE_TEMPLATE = """
+{% if record.subdevice_role == True %}Parent{% elif record.subdevice_role == False %}Child{% else %}&mdash;{% endif %}
+"""
+
 UTILIZATION_GRAPH = """
 {% load helpers %}
 {% utilization_graph value %}
@@ -249,11 +253,18 @@ class DeviceTypeTable(BaseTable):
     model = tables.LinkColumn('dcim:devicetype', args=[Accessor('pk')], verbose_name='Device Type')
     part_number = tables.Column(verbose_name='Part Number')
     is_full_depth = tables.BooleanColumn(verbose_name='Full Depth')
+    is_console_server = tables.BooleanColumn(verbose_name='CS')
+    is_pdu = tables.BooleanColumn(verbose_name='PDU')
+    is_network_device = tables.BooleanColumn(verbose_name='Net')
+    subdevice_role = tables.TemplateColumn(SUBDEVICE_ROLE_TEMPLATE, verbose_name='Subdevice Role')
     instance_count = tables.Column(verbose_name='Instances')
 
     class Meta(BaseTable.Meta):
         model = DeviceType
-        fields = ('pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'instance_count')
+        fields = (
+            'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
+            'is_network_device', 'subdevice_role', 'instance_count'
+        )
 
 
 #

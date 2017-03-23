@@ -23,7 +23,7 @@ from .models import (
     Interface, IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate,
     Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES,
     RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD,
-    VIRTUAL_IFACE_TYPES
+    SUBDEVICE_ROLE_PARENT, VIRTUAL_IFACE_TYPES
 )
 
 
@@ -374,6 +374,21 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
     manufacturer = FilterChoiceField(
         queryset=Manufacturer.objects.annotate(filter_count=Count('device_types')),
         to_field_name='slug'
+    )
+    is_console_server = forms.BooleanField(
+        required=False, label='Is a console server', widget=forms.CheckboxInput(attrs={'value': 'True'}))
+    is_pdu = forms.BooleanField(
+        required=False, label='Is a PDU', widget=forms.CheckboxInput(attrs={'value': 'True'})
+    )
+    is_network_device = forms.BooleanField(
+        required=False, label='Is a network device', widget=forms.CheckboxInput(attrs={'value': 'True'})
+    )
+    subdevice_role = forms.NullBooleanField(
+        required=False, label='Subdevice role', widget=forms.Select(choices=(
+            ('', '---------'),
+            (SUBDEVICE_ROLE_PARENT, 'Parent'),
+            (SUBDEVICE_ROLE_CHILD, 'Child'),
+        ))
     )
 
 
@@ -1643,14 +1658,17 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
 
 class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
+    device = forms.CharField(required=False, label='Device name')
 
 
 class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
+    device = forms.CharField(required=False, label='Device name')
 
 
 class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
+    device = forms.CharField(required=False, label='Device name')
 
 
 #
