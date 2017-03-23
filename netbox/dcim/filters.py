@@ -429,7 +429,7 @@ class InterfaceFilter(django_filters.FilterSet):
         if not value:
             return queryset
         try:
-            return queryset.filter(mac_address=value).distinct()
+            return queryset.filter(mac_address=value)
         except AddrFormatError:
             return queryset.none()
 
