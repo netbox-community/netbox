@@ -412,7 +412,7 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
         queryset=Interface.objects.all(),
         label='Interface',
         widget=APISelect(
-            api_url='/api/dcim/devices/{{device}}/interfaces/'
+            api_url='/api/dcim/interfaces/?device_id={{device}}'
         )
     )
     set_as_primary = forms.BooleanField(
