@@ -192,7 +192,7 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
         required=False,
         label='Interface',
         widget=APISelect(
-            api_url='/api/dcim/devices/{{device}}/interfaces/?type=physical',
+            api_url='/api/dcim/interfaces/?device_id={{device}}&type=physical',
             disabled_indicator='is_connected'
         )
     )
