@@ -929,7 +929,7 @@ class ConsolePortConnectionForm(BootstrapMixin, forms.ModelForm):
         label='Console Server',
         widget=Livesearch(
             query_key='q',
-            query_url='dcim-api:device_list',
+            query_url='dcim-api:device-list',
             field_to_update='console_server',
         )
     )
@@ -1030,7 +1030,7 @@ class ConsoleServerPortConnectionForm(BootstrapMixin, forms.Form):
         label='Device',
         widget=Livesearch(
             query_key='q',
-            query_url='dcim-api:device_list',
+            query_url='dcim-api:device-list',
             field_to_update='device'
         )
     )
@@ -1197,7 +1197,7 @@ class PowerPortConnectionForm(BootstrapMixin, forms.ModelForm):
         label='PDU',
         widget=Livesearch(
             query_key='q',
-            query_url='dcim-api:device_list',
+            query_url='dcim-api:device-list',
             field_to_update='pdu'
         )
     )
@@ -1296,7 +1296,7 @@ class PowerOutletConnectionForm(BootstrapMixin, forms.Form):
         label='Device',
         widget=Livesearch(
             query_key='q',
-            query_url='dcim-api:device_list',
+            query_url='dcim-api:device-list',
             field_to_update='device'
         )
     )
@@ -1459,7 +1459,7 @@ class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
         label='Device',
         widget=Livesearch(
             query_key='q',
-            query_url='dcim-api:device_list',
+            query_url='dcim-api:device-list',
             field_to_update='device_b'
         )
     )
