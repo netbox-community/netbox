@@ -929,7 +929,7 @@ class ConsolePortConnectionForm(BootstrapMixin, forms.ModelForm):
         label='Console Server',
         widget=Livesearch(
             query_key='q',
-            query_url='dcim-api:device_list',
+            query_url='dcim-api:device-list',
             field_to_update='console_server',
         )
     )
@@ -937,7 +937,7 @@ class ConsolePortConnectionForm(BootstrapMixin, forms.ModelForm):
         queryset=ConsoleServerPort.objects.all(),
         label='Port',
         widget=APISelect(
-            api_url='/api/dcim/devices/{{console_server}}/console-server-ports/',
+            api_url='/api/dcim/console-server-ports/?device_id={{device}}',
             disabled_indicator='connected_console',
         )
     )
@@ -1030,7 +1030,7 @@ class ConsoleServerPortConnectionForm(BootstrapMixin, forms.Form):
         label='Device',
         widget=Livesearch(
             query_key='q',
-            query_url='dcim-api:device_list',
+            query_url='dcim-api:device-list',
             field_to_update='device'
         )
     )
@@ -1038,7 +1038,7 @@ class ConsoleServerPortConnectionForm(BootstrapMixin, forms.Form):
         queryset=ConsolePort.objects.all(),
         label='Port',
         widget=APISelect(
-            api_url='/api/dcim/devices/{{device}}/console-ports/',
+            api_url='/api/dcim/console-ports/?device_id={{device}}',
             disabled_indicator='cs_port'
         )
     )
@@ -1197,7 +1197,7 @@ class PowerPortConnectionForm(BootstrapMixin, forms.ModelForm):
         label='PDU',
         widget=Livesearch(
             query_key='q',
-            query_url='dcim-api:device_list',
+            query_url='dcim-api:device-list',
             field_to_update='pdu'
         )
     )
@@ -1205,7 +1205,7 @@ class PowerPortConnectionForm(BootstrapMixin, forms.ModelForm):
         queryset=PowerOutlet.objects.all(),
         label='Outlet',
         widget=APISelect(
-            api_url='/api/dcim/devices/{{pdu}}/power-outlets/',
+            api_url='/api/dcim/power-outlets/?device_id={{device}}',
             disabled_indicator='connected_port'
         )
     )
@@ -1296,7 +1296,7 @@ class PowerOutletConnectionForm(BootstrapMixin, forms.Form):
         label='Device',
         widget=Livesearch(
             query_key='q',
-            query_url='dcim-api:device_list',
+            query_url='dcim-api:device-list',
             field_to_update='device'
         )
     )
@@ -1304,7 +1304,7 @@ class PowerOutletConnectionForm(BootstrapMixin, forms.Form):
         queryset=PowerPort.objects.all(),
         label='Port',
         widget=APISelect(
-            api_url='/api/dcim/devices/{{device}}/power-ports/',
+            api_url='/api/dcim/power-ports/?device_id={{device}}',
             disabled_indicator='power_outlet'
         )
     )
@@ -1459,7 +1459,7 @@ class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
         label='Device',
         widget=Livesearch(
             query_key='q',
-            query_url='dcim-api:device_list',
+            query_url='dcim-api:device-list',
             field_to_update='device_b'
         )
     )
@@ -1467,7 +1467,7 @@ class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
         queryset=Interface.objects.all(),
         label='Interface',
         widget=APISelect(
-            api_url='/api/dcim/devices/{{device_b}}/interfaces/?type=physical',
+            api_url='/api/dcim/interfaces/?device_id={{device_b}}&type=physical',
             disabled_indicator='is_connected'
         )
     )

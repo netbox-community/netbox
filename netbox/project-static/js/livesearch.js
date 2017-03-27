@@ -27,7 +27,7 @@ $(document).ready(function() {
                 data: search_key + '=' + request.term,
                 success: function(data) {
                     var choices = [];
-                    $.each(data, function (index, choice) {
+                    $.each(data.results, function (index, choice) {
                         choices.push({
                             value: choice.id,
                             label: choice[label]
