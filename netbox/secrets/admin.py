@@ -54,18 +54,3 @@ class UserKeyAdmin(admin.ModelAdmin):
             'form': form,
         })
     activate_selected.short_description = "Activate selected user keys"
-
-
-@admin.register(SecretRole)
-class SecretRoleAdmin(admin.ModelAdmin):
-    list_display = ['name', 'slug']
-    prepopulated_fields = {
-        'slug': ['name'],
-    }
-
-
-@admin.register(Secret)
-class SecretAdmin(admin.ModelAdmin):
-    list_display = ['device', 'role', 'name', 'created', 'last_updated']
-    fields = ['device', 'role', 'name', 'hash', 'created', 'last_updated']
-    readonly_fields = ['device', 'hash', 'created', 'last_updated']
