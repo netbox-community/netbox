@@ -226,3 +226,46 @@ class SecretTest(HttpStatusMixin, APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Secret.objects.count(), 2)
+
+
+class GetSessionKeyTest(HttpStatusMixin, APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+
+        userkey = UserKey(user=user, public_key=PUBLIC_KEY)
+        userkey.save()
+        master_key = userkey.get_master_key(PRIVATE_KEY)
+        self.session_key = SessionKey(userkey=userkey)
+        self.session_key.save(master_key)
+
+        self.header = {
+            'HTTP_AUTHORIZATION': 'Token {}'.format(token.key),
+        }
+
+    def test_get_session_key(self):
+
+        url = reverse('secrets-api:get-session-key-list')
+        data = {
+            'private_key': PRIVATE_KEY,
+        }
+        response = self.client.post(url, data, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNotNone(response.data.get('session_key'))
+        self.assertNotEqual(response.data.get('session_key'), self.session_key.key)
+
+    def test_get_session_key_preserved(self):
+
+        encoded_session_key = base64.b64encode(self.session_key.key)
+
+        url = reverse('secrets-api:get-session-key-list') + '?preserve_key=True'
+        data = {
+            'private_key': PRIVATE_KEY,
+        }
+        response = self.client.post(url, data, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('session_key'), encoded_session_key)
