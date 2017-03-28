@@ -1,7 +1,6 @@
 import base64
 from Crypto.PublicKey import RSA
 
-from django.core.urlresolvers import reverse
 from django.http import HttpResponseBadRequest
 
 from rest_framework.exceptions import ValidationError
@@ -9,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
 
-from secrets.exceptions import InvalidSessionKey
+from secrets.exceptions import InvalidKey
 from secrets.filters import SecretFilter
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
 from utilities.api import WritableSerializerMixin
@@ -84,7 +83,7 @@ class SecretViewSet(WritableSerializerMixin, ModelViewSet):
                 try:
                     sk = SessionKey.objects.get(userkey__user=request.user)
                     self.master_key = sk.get_master_key(session_key)
-                except (SessionKey.DoesNotExist, InvalidSessionKey):
+                except (SessionKey.DoesNotExist, InvalidKey):
                     raise ValidationError("Invalid session key.")
 
     def retrieve(self, request, *args, **kwargs):
@@ -140,6 +139,9 @@ class GetSessionKeyViewSet(ViewSet):
         {
             "session_key": "+8t4SI6XikgVmB5+/urhozx9O5qCQANyOk1MNe6taRf="
         }
+
+    This endpoint accepts one optional parameter: `preserve_key`. If True and a session key exists, the existing session
+    key will be returned instead of a new one.
     """
     permission_classes = [IsAuthenticated]
 
@@ -163,14 +165,26 @@ class GetSessionKeyViewSet(ViewSet):
         if master_key is None:
             return HttpResponseBadRequest(ERR_PRIVKEY_INVALID)
 
-        # Delete the existing SessionKey for this user if one exists
-        SessionKey.objects.filter(userkey__user=request.user).delete()
+        try:
+            current_session_key = SessionKey.objects.get(userkey__user_id=request.user.pk)
+        except SessionKey.DoesNotExist:
+            current_session_key = None
 
-        # Create a new SessionKey
-        sk = SessionKey(userkey=user_key)
-        sk.save(master_key=master_key)
-        encoded_key = base64.b64encode(sk.key)
-        # b64decode() returns a bytestring under Python 3
+        if current_session_key and request.GET.get('preserve_key', False):
+
+            # Retrieve the existing session key
+            key = current_session_key.get_session_key(master_key)
+
+        else:
+
+            # Create a new SessionKey
+            SessionKey.objects.filter(userkey__user=request.user).delete()
+            sk = SessionKey(userkey=user_key)
+            sk.save(master_key=master_key)
+            key = sk.key
+
+        # Encode the key using base64. (b64decode() returns a bytestring under Python 3.)
+        encoded_key = base64.b64encode(key)
         if not isinstance(encoded_key, str):
             encoded_key = encoded_key.decode()
 
