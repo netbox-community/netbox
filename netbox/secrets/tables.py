@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from utilities.tables import BaseTable, ToggleColumn
+from utilities.tables import BaseTable, SearchTable, ToggleColumn
 
 from .models import SecretRole, Secret
 
@@ -36,11 +36,15 @@ class SecretRoleTable(BaseTable):
 
 class SecretTable(BaseTable):
     pk = ToggleColumn()
-    device = tables.LinkColumn('secrets:secret', args=[Accessor('pk')], verbose_name='Device')
-    role = tables.Column(verbose_name='Role')
-    name = tables.Column(verbose_name='Name')
-    last_updated = tables.DateTimeColumn(verbose_name='Last updated')
+    device = tables.LinkColumn()
 
     class Meta(BaseTable.Meta):
         model = Secret
         fields = ('pk', 'device', 'role', 'name', 'last_updated')
+
+
+class SecretSearchTable(SearchTable):
+
+    class Meta(SearchTable.Meta):
+        model = Secret
+        fields = ('device', 'role', 'name', 'last_updated')

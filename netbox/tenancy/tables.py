@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from utilities.tables import BaseTable, ToggleColumn
+from utilities.tables import BaseTable, SearchTable, ToggleColumn
 
 from .models import Tenant, TenantGroup
 
@@ -36,10 +36,15 @@ class TenantGroupTable(BaseTable):
 
 class TenantTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn('tenancy:tenant', args=[Accessor('slug')], verbose_name='Name')
-    group = tables.Column(verbose_name='Group')
-    description = tables.Column(verbose_name='Description')
+    name = tables.LinkColumn()
 
     class Meta(BaseTable.Meta):
         model = Tenant
         fields = ('pk', 'name', 'group', 'description')
+
+
+class TenantSearchTable(SearchTable):
+
+    class Meta(SearchTable.Meta):
+        model = Tenant
+        fields = ('name', 'group', 'description')

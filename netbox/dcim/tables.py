@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from utilities.tables import BaseTable, ToggleColumn
+from utilities.tables import BaseTable, SearchTable, ToggleColumn
 
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPortTemplate, Device, DeviceBayTemplate, DeviceRole, DeviceType,
@@ -136,11 +136,9 @@ class RegionTable(BaseTable):
 
 class SiteTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn('dcim:site', args=[Accessor('slug')], verbose_name='Name')
-    facility = tables.Column(verbose_name='Facility')
-    region = tables.TemplateColumn(template_code=SITE_REGION_LINK, verbose_name='Region')
-    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
-    asn = tables.Column(verbose_name='ASN')
+    name = tables.LinkColumn()
+    region = tables.TemplateColumn(template_code=SITE_REGION_LINK)
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
     rack_count = tables.Column(accessor=Accessor('count_racks'), orderable=False, verbose_name='Racks')
     device_count = tables.Column(accessor=Accessor('count_devices'), orderable=False, verbose_name='Devices')
     prefix_count = tables.Column(accessor=Accessor('count_prefixes'), orderable=False, verbose_name='Prefixes')
@@ -153,6 +151,16 @@ class SiteTable(BaseTable):
             'pk', 'name', 'facility', 'region', 'tenant', 'asn', 'rack_count', 'device_count', 'prefix_count',
             'vlan_count', 'circuit_count',
         )
+
+
+class SiteSearchTable(SearchTable):
+    name = tables.LinkColumn()
+    region = tables.TemplateColumn(template_code=SITE_REGION_LINK)
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
+
+    class Meta(SearchTable.Meta):
+        model = Site
+        fields = ('name', 'facility', 'region', 'tenant', 'asn')
 
 
 #
@@ -197,20 +205,33 @@ class RackRoleTable(BaseTable):
 
 class RackTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn('dcim:rack', args=[Accessor('pk')], verbose_name='Name')
-    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
+    name = tables.LinkColumn()
+    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
-    facility_id = tables.Column(verbose_name='Facility ID')
-    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
-    role = tables.TemplateColumn(RACK_ROLE, verbose_name='Role')
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
+    role = tables.TemplateColumn(RACK_ROLE)
     u_height = tables.TemplateColumn("{{ record.u_height }}U", verbose_name='Height')
-    devices = tables.Column(accessor=Accessor('device_count'), verbose_name='Devices')
+    devices = tables.Column(accessor=Accessor('device_count'))
     get_utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
 
     class Meta(BaseTable.Meta):
         model = Rack
-        fields = ('pk', 'name', 'site', 'group', 'facility_id', 'tenant', 'role', 'u_height', 'devices',
-                  'get_utilization')
+        fields = (
+            'pk', 'name', 'site', 'group', 'facility_id', 'tenant', 'role', 'u_height', 'devices', 'get_utilization'
+        )
+
+
+class RackSearchTable(SearchTable):
+    name = tables.LinkColumn()
+    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
+    group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
+    role = tables.TemplateColumn(RACK_ROLE)
+    u_height = tables.TemplateColumn("{{ record.u_height }}U", verbose_name='Height')
+
+    class Meta(SearchTable.Meta):
+        model = Rack
+        fields = ('name', 'site', 'group', 'facility_id', 'tenant', 'role', 'u_height')
 
 
 class RackImportTable(BaseTable):
@@ -249,9 +270,7 @@ class ManufacturerTable(BaseTable):
 
 class DeviceTypeTable(BaseTable):
     pk = ToggleColumn()
-    manufacturer = tables.Column(verbose_name='Manufacturer')
     model = tables.LinkColumn('dcim:devicetype', args=[Accessor('pk')], verbose_name='Device Type')
-    part_number = tables.Column(verbose_name='Part Number')
     is_full_depth = tables.BooleanColumn(verbose_name='Full Depth')
     is_console_server = tables.BooleanColumn(verbose_name='CS')
     is_pdu = tables.BooleanColumn(verbose_name='PDU')
@@ -264,6 +283,22 @@ class DeviceTypeTable(BaseTable):
         fields = (
             'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
             'is_network_device', 'subdevice_role', 'instance_count'
+        )
+
+
+class DeviceTypeSearchTable(SearchTable):
+    model = tables.LinkColumn('dcim:devicetype', args=[Accessor('pk')], verbose_name='Device Type')
+    is_full_depth = tables.BooleanColumn(verbose_name='Full Depth')
+    is_console_server = tables.BooleanColumn(verbose_name='CS')
+    is_pdu = tables.BooleanColumn(verbose_name='PDU')
+    is_network_device = tables.BooleanColumn(verbose_name='Net')
+    subdevice_role = tables.TemplateColumn(SUBDEVICE_ROLE_TEMPLATE, verbose_name='Subdevice Role')
+
+    class Meta(SearchTable.Meta):
+        model = DeviceType
+        fields = (
+            'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
+            'is_network_device', 'subdevice_role',
         )
 
 
@@ -373,20 +408,40 @@ class PlatformTable(BaseTable):
 
 class DeviceTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.TemplateColumn(template_code=DEVICE_LINK)
     status = tables.TemplateColumn(template_code=STATUS_ICON, verbose_name='')
-    name = tables.TemplateColumn(template_code=DEVICE_LINK, verbose_name='Name')
-    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
-    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
-    rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')], verbose_name='Rack')
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
+    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
+    rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')])
     device_role = tables.TemplateColumn(DEVICE_ROLE, verbose_name='Role')
-    device_type = tables.LinkColumn('dcim:devicetype', args=[Accessor('device_type.pk')], verbose_name='Type',
-                                    text=lambda record: record.device_type.full_name)
-    primary_ip = tables.TemplateColumn(orderable=False, verbose_name='IP Address',
-                                       template_code=DEVICE_PRIMARY_IP)
+    device_type = tables.LinkColumn(
+        'dcim:devicetype', args=[Accessor('device_type.pk')], verbose_name='Type',
+        text=lambda record: record.device_type.full_name
+    )
+    primary_ip = tables.TemplateColumn(
+        orderable=False, verbose_name='IP Address', template_code=DEVICE_PRIMARY_IP
+    )
 
     class Meta(BaseTable.Meta):
         model = Device
         fields = ('pk', 'name', 'status', 'tenant', 'site', 'rack', 'device_role', 'device_type', 'primary_ip')
+
+
+class DeviceSearchTable(SearchTable):
+    name = tables.TemplateColumn(template_code=DEVICE_LINK)
+    status = tables.TemplateColumn(template_code=STATUS_ICON, verbose_name='')
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
+    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
+    rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')])
+    device_role = tables.TemplateColumn(DEVICE_ROLE, verbose_name='Role')
+    device_type = tables.LinkColumn(
+        'dcim:devicetype', args=[Accessor('device_type.pk')], verbose_name='Type',
+        text=lambda record: record.device_type.full_name
+    )
+
+    class Meta(SearchTable.Meta):
+        model = Device
+        fields = ('name', 'status', 'tenant', 'site', 'rack', 'device_role', 'device_type')
 
 
 class DeviceImportTable(BaseTable):

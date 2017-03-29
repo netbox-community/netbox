@@ -4,7 +4,9 @@ from django.utils.safestring import mark_safe
 
 
 class BaseTable(tables.Table):
-
+    """
+    Default table for object lists
+    """
     def __init__(self, *args, **kwargs):
         super(BaseTable, self).__init__(*args, **kwargs)
 
@@ -16,6 +18,17 @@ class BaseTable(tables.Table):
         attrs = {
             'class': 'table table-hover',
         }
+
+
+class SearchTable(tables.Table):
+    """
+    Default table for search results
+    """
+    class Meta:
+        attrs = {
+            'class': 'table table-hover',
+        }
+        orderable = False
 
 
 class ToggleColumn(tables.CheckBoxColumn):
