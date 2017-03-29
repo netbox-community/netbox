@@ -33,7 +33,7 @@ OBJ_TYPE_CHOICES = (
 
 class SearchForm(BootstrapMixin, forms.Form):
     q = forms.CharField(
-        label='Query'
+        label='Query', widget=forms.TextInput(attrs={'style': 'width: 350px'})
     )
     obj_type = forms.ChoiceField(
         choices=OBJ_TYPE_CHOICES, required=False, label='Type'

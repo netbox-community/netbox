@@ -3,52 +3,43 @@
 
 {% block content %}
     {% if request.GET.q %}
-        <div class="row">
-            <div class="col-md-4 col-md-offset-4">
-                {# Compressed search form #}
-                <form action="{% url 'search' %}" method="get" class="form form-inline pull-right">
-                    {{ form.q }}
-                    {{ form.obj_type }}
-                    <button type="submit" class="btn btn-primary">
-                        <span class="fa fa-search" aria-hidden="true"></span> Search
-                    </button>
-                </form>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-10">
-                {% for obj_type in results %}
-                    <h3 id="{{ obj_type.name }}">{{ obj_type.name|title }}</h3>
-                    {% include 'table.html' with table=obj_type.table %}
-                    {% if obj_type.total > obj_type.table.rows|length %}
-                        <a href="{{ obj_type.url }}" class="btn btn-primary pull-right">
-                            <span class="fa fa-search" aria-hidden="true"></span>
-                            All {{ obj_type.total }} results
-                        </a>
+        {% include 'search_form.html' with search_form=form %}
+        {% if results %}
+            <div class="row">
+                <div class="col-md-10">
+                    {% for obj_type in results %}
+                        <h3 id="{{ obj_type.name }}">{{ obj_type.name|title }}</h3>
+                        {% include 'table.html' with table=obj_type.table %}
+                        {% if obj_type.total > obj_type.table.rows|length %}
+                            <a href="{{ obj_type.url }}" class="btn btn-primary pull-right">
+                                <span class="fa fa-search" aria-hidden="true"></span>
+                                All {{ obj_type.total }} results
+                            </a>
+                        {% endif %}
+                    <div class="clearfix"></div>
+                    {% endfor %}
+                </div>
+                <div class="col-md-2" style="padding-top: 20px;">
+                    {% if results %}
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <strong>Search Results</strong>
+                            </div>
+                            <div class="list-group">
+                                {% for obj_type in results %}
+                                    <a href="#{{ obj_type.name }}" class="list-group-item">
+                                        {{ obj_type.name|title }}
+                                        <span class="badge">{{ obj_type.total }}</span>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
                     {% endif %}
-                <div class="clearfix"></div>
-                {% empty %}
-                    <h3 class="text-muted">No results found</h3>
-                {% endfor %}
+                </div>
             </div>
-            <div class="col-md-2" style="padding-top: 20px;">
-                {% if results %}
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <strong>Search Results</strong>
-                        </div>
-                        <div class="list-group">
-                            {% for obj_type in results %}
-                                <a href="#{{ obj_type.name }}" class="list-group-item">
-                                    {{ obj_type.name|title }}
-                                    <span class="badge">{{ obj_type.total }}</span>
-                                </a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+        {% else %}
+            <h3 class="text-muted text-center">No results found</h3>
+        {% endif %}
     {% else %}
         {# Larger search form #}
         <div class="row" style="margin-top: 150px;">
