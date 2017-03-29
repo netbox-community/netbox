@@ -51,6 +51,13 @@ def startswith(value, arg):
     """
     return str(value).startswith(arg)
 
+@register.filter()
+def bettertitle(value):
+    """
+    Alternative to the builtin title(); uppercases words without replacing letters that are already uppercase.
+    """
+    return ' '.join([w[0].upper() + w[1:] for w in value.split()])
+
 
 #
 # Tags

@@ -199,7 +199,6 @@ class SearchView(View):
         })
 
 
-
 class APIRootView(APIView):
     _ignore_model_permissions = True
     exclude_from_schema = True

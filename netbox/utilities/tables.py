@@ -26,7 +26,7 @@ class SearchTable(tables.Table):
     """
     class Meta:
         attrs = {
-            'class': 'table table-hover',
+            'class': 'table table-hover table-headings',
         }
         orderable = False
 
