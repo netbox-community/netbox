@@ -48,7 +48,7 @@ class SecretRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 @method_decorator(login_required, name='dispatch')
 class SecretListView(ObjectListView):
-    queryset = Secret.objects.select_related('role').prefetch_related('device')
+    queryset = Secret.objects.select_related('role', 'device')
     filter = filters.SecretFilter
     filter_form = forms.SecretFilterForm
     table = tables.SecretTable
