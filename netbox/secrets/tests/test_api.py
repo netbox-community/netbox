@@ -247,6 +247,8 @@ class GetSessionKeyTest(HttpStatusMixin, APITestCase):
 
     def test_get_session_key(self):
 
+        encoded_session_key = base64.b64encode(self.session_key.key).decode()
+
         url = reverse('secrets-api:get-session-key-list')
         data = {
             'private_key': PRIVATE_KEY,
@@ -255,11 +257,11 @@ class GetSessionKeyTest(HttpStatusMixin, APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertIsNotNone(response.data.get('session_key'))
-        self.assertNotEqual(response.data.get('session_key'), self.session_key.key)
+        self.assertNotEqual(response.data.get('session_key'), encoded_session_key)
 
     def test_get_session_key_preserved(self):
 
-        encoded_session_key = base64.b64encode(self.session_key.key)
+        encoded_session_key = base64.b64encode(self.session_key.key).decode()
 
         url = reverse('secrets-api:get-session-key-list') + '?preserve_key=True'
         data = {

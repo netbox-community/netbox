@@ -184,9 +184,7 @@ class GetSessionKeyViewSet(ViewSet):
             key = sk.key
 
         # Encode the key using base64. (b64decode() returns a bytestring under Python 3.)
-        encoded_key = base64.b64encode(key)
-        if not isinstance(encoded_key, str):
-            encoded_key = encoded_key.decode()
+        encoded_key = base64.b64encode(key).decode()
 
         # Craft the response
         response = Response({
