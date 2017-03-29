@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 
-from netbox.views import APIRootView, home, handle_500, trigger_500
+from netbox.views import APIRootView, home, handle_500, SearchView, trigger_500
 from users.views import login, logout
 
 
@@ -10,8 +10,9 @@ handler500 = handle_500
 
 _patterns = [
 
-    # Default page
+    # Base views
     url(r'^$', home, name='home'),
+    url(r'^search/$', SearchView.as_view(), name='search'),
 
     # Login/logout
     url(r'^login/$', login, name='login'),
