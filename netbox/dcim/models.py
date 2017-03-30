@@ -904,11 +904,11 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
     DeviceRole, and (optionally) a Platform. Device names are not required, however if one is set it must be unique.
 
-    Each Device must be assigned to a Rack, although associating it with a particular rack face or unit is optional (for
-    example, vertically mounted PDUs do not consume rack units).
+    Each Device must be assigned to a site, and optionally to a rack within that site. Associating a device with a
+    particular rack face or unit is optional (for example, vertically mounted PDUs do not consume rack units).
 
-    When a new Device is created, console/power/interface components are created along with it as dictated by the
-    component templates assigned to its DeviceType. Components can also be added, modified, or deleted after the
+    When a new Device is created, console/power/interface/device bay components are created along with it as dictated
+    by the component templates assigned to its DeviceType. Components can also be added, modified, or deleted after the
     creation of a Device.
     """
     device_type = models.ForeignKey('DeviceType', related_name='instances', on_delete=models.PROTECT)
