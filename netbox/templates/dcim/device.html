@@ -629,6 +629,6 @@ $(".interface-toggle").click(function() {
     return toggleConnection($(this), "dcim/interface-connections/");
 });
 </script>
-<script src="{% static 'js/graphs.js' %}"></script>
-<script src="{% static 'js/secrets.js' %}"></script>
+<script src="{% static 'js/graphs.js' %}?v{{ settings.VERSION }}"></script>
+<script src="{% static 'js/secrets.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}
