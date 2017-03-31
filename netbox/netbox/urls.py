@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.views.static import serve
 
 from netbox.views import APIRootView, home, handle_500, SearchView, trigger_500
 from users.views import login, logout
@@ -21,6 +22,7 @@ _patterns = [
     # Apps
     url(r'^circuits/', include('circuits.urls', namespace='circuits')),
     url(r'^dcim/', include('dcim.urls', namespace='dcim')),
+    url(r'^extras/', include('extras.urls', namespace='extras')),
     url(r'^ipam/', include('ipam.urls', namespace='ipam')),
     url(r'^secrets/', include('secrets.urls', namespace='secrets')),
     url(r'^tenancy/', include('tenancy.urls', namespace='tenancy')),
@@ -48,6 +50,7 @@ if settings.DEBUG:
     import debug_toolbar
     _patterns += [
         url(r'^__debug__/', include(debug_toolbar.urls)),
+        url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     ]
 
 # Prepend BASE_PATH

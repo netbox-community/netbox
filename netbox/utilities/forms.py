@@ -425,12 +425,13 @@ class BootstrapMixin(forms.BaseForm):
 
     def __init__(self, *args, **kwargs):
         super(BootstrapMixin, self).__init__(*args, **kwargs)
+
+        exempt_widgets = [forms.CheckboxInput, forms.ClearableFileInput, forms.FileInput, forms.RadioSelect]
+
         for field_name, field in self.fields.items():
-            if type(field.widget) not in [type(forms.CheckboxInput()), type(forms.RadioSelect())]:
-                try:
-                    field.widget.attrs['class'] += ' form-control'
-                except KeyError:
-                    field.widget.attrs['class'] = 'form-control'
+            if field.widget.__class__ not in exempt_widgets:
+                css = field.widget.attrs.get('class', '')
+                field.widget.attrs['class'] = ' '.join([css, 'form-control']).strip()
             if field.required:
                 field.widget.attrs['required'] = 'required'
             if 'placeholder' not in field.widget.attrs:

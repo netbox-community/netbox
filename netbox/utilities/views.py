@@ -174,7 +174,7 @@ class ObjectEditView(View):
 
         obj = self.get_object(kwargs)
         obj = self.alter_obj(obj, request, args, kwargs)
-        form = self.form_class(request.POST, instance=obj)
+        form = self.form_class(request.POST, request.FILES, instance=obj)
 
         if form.is_valid():
             obj = form.save(commit=False)

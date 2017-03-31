@@ -3,6 +3,8 @@ from django.conf.urls import url
 from ipam.views import ServiceEditView
 from secrets.views import secret_add
 
+from extras.views import ImageAttachmentEditView
+from .models import Rack
 from . import views
 
 
@@ -49,6 +51,7 @@ urlpatterns = [
     url(r'^racks/(?P<pk>\d+)/edit/$', views.RackEditView.as_view(), name='rack_edit'),
     url(r'^racks/(?P<pk>\d+)/delete/$', views.RackDeleteView.as_view(), name='rack_delete'),
     url(r'^racks/(?P<rack>\d+)/reservations/add/$', views.RackReservationEditView.as_view(), name='rack_add_reservation'),
+    url(r'^racks/(?P<object_id>\d+)/images/add/$', ImageAttachmentEditView.as_view(), name='rack_add_image', kwargs={'model': Rack}),
 
     # Manufacturers
     url(r'^manufacturers/$', views.ManufacturerListView.as_view(), name='manufacturer_list'),
