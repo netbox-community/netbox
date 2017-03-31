@@ -254,6 +254,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     contact_email = models.EmailField(blank=True, verbose_name="Contact E-mail")
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+    images = GenericRelation(ImageAttachment)
 
     objects = SiteManager()
 
@@ -933,6 +934,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
                                        blank=True, null=True, verbose_name='Primary IPv6')
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+    images = GenericRelation(ImageAttachment)
 
     objects = DeviceManager()
 

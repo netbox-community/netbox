@@ -4,7 +4,7 @@ from ipam.views import ServiceEditView
 from secrets.views import secret_add
 
 from extras.views import ImageAttachmentEditView
-from .models import Rack
+from .models import Device, Rack, Site
 from . import views
 
 
@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^sites/(?P<slug>[\w-]+)/$', views.site, name='site'),
     url(r'^sites/(?P<slug>[\w-]+)/edit/$', views.SiteEditView.as_view(), name='site_edit'),
     url(r'^sites/(?P<slug>[\w-]+)/delete/$', views.SiteDeleteView.as_view(), name='site_delete'),
+    url(r'^sites/(?P<object_id>\d+)/images/add/$', ImageAttachmentEditView.as_view(), name='site_add_image', kwargs={'model': Site}),
 
     # Rack groups
     url(r'^rack-groups/$', views.RackGroupListView.as_view(), name='rackgroup_list'),
@@ -120,6 +121,7 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/ip-addresses/assign/$', views.ipaddress_assign, name='ipaddress_assign'),
     url(r'^devices/(?P<pk>\d+)/add-secret/$', secret_add, name='device_addsecret'),
     url(r'^devices/(?P<device>\d+)/services/assign/$', ServiceEditView.as_view(), name='service_assign'),
+    url(r'^devices/(?P<object_id>\d+)/images/add/$', ImageAttachmentEditView.as_view(), name='device_add_image', kwargs={'model': Device}),
 
     # Console ports
     url(r'^devices/console-ports/add/$', views.DeviceBulkAddConsolePortView.as_view(), name='device_bulk_add_consoleport'),
