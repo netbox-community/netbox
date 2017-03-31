@@ -38,6 +38,9 @@ _patterns = [
     url(r'^api/tenancy/', include('tenancy.api.urls', namespace='tenancy-api')),
     url(r'^api/docs/', include('rest_framework_swagger.urls')),
 
+    # Serving static media in Django to pipe it through LoginRequiredMiddleware
+    url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+
     # Error testing
     url(r'^500/$', trigger_500),
 
@@ -50,7 +53,6 @@ if settings.DEBUG:
     import debug_toolbar
     _patterns += [
         url(r'^__debug__/', include(debug_toolbar.urls)),
-        url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     ]
 
 # Prepend BASE_PATH
