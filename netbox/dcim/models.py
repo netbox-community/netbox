@@ -1421,3 +1421,42 @@ class InventoryItem(models.Model):
 
     def __str__(self):
         return self.name
+
+
+#
+# History
+#
+
+@python_2_unicode_compatible
+class HistoryRole(models.Model):
+    """
+    Grouping the history activity type
+    """
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(unique=True)
+    color = ColorField()
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+@python_2_unicode_compatible
+class HistoryLog(models.Model):
+    """
+    A history is a free text form which gives capability to store any comment or change in time based view.
+    """
+    time = models.DateTimeField(auto_now_add=True, editable=False)
+    user = models.ForeignKey(User, related_name='history_log', blank=True, null=True, on_delete=models.SET_NULL)
+    device = models.ForeignKey('Device', related_name='history_log', on_delete=models.CASCADE)
+
+    role = models.ForeignKey('HistoryRole', related_name='history_log', blank=True, null=True, on_delete=models.SET_NULL)
+    message = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['-time']
+
+    def __str__(self):
+        return self.message

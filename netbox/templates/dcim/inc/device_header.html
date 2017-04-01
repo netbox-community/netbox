@@ -48,4 +48,5 @@
     {% if device.status %}
         <li role="presentation"{% if active_tab == 'lldp-neighbors' %} class="active"{% endif %}><a href="{% url 'dcim:device_lldp_neighbors' pk=device.pk %}">LLDP Neighbors</a></li>
     {% endif %}
+    <li role="presentation"{% if active_tab == 'historylog' %} class="active"{% endif %}><a href="{% url 'dcim:device_historylog' pk=device.pk %}">History Log</a></li>
 </ul>

@@ -484,6 +484,12 @@ class InventoryItemFilter(DeviceComponentFilterSet):
         fields = ['name']
 
 
+class HistoryLogFilter(DeviceComponentFilterSet):
+
+    class Meta:
+        model = InventoryItem
+        fields = ['name']
+
 class ConsoleConnectionFilter(django_filters.FilterSet):
     site = django_filters.CharFilter(
         method='filter_site',

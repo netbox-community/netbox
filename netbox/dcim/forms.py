@@ -23,7 +23,7 @@ from .models import (
     Interface, IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate,
     Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES,
     RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD,
-    SUBDEVICE_ROLE_PARENT, VIRTUAL_IFACE_TYPES
+    SUBDEVICE_ROLE_PARENT, VIRTUAL_IFACE_TYPES, HistoryRole, HistoryLog
 )
 
 
@@ -1710,3 +1710,26 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InventoryItem
         fields = ['name', 'manufacturer', 'part_id', 'serial']
+
+
+#
+# HistoryRole
+#
+
+class HistoryRoleForm(BootstrapMixin, forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = HistoryRole
+        fields = ['name', 'slug', 'color']
+
+
+#
+# HistoryLog
+#
+
+class HistoryLogForm(BootstrapMixin, forms.ModelForm):
+
+    class Meta:
+        model = HistoryLog
+        fields = ['device', 'role', 'message']
