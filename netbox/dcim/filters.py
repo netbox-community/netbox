@@ -10,7 +10,7 @@ from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, IFACE_FF_LAG, Interface, InterfaceTemplate, Manufacturer, InventoryItem,
     Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation,
-    RackRole, Region, Site, VIRTUAL_IFACE_TYPES,
+    RackRole, Region, Site, VIRTUAL_IFACE_TYPES, HistoryLog
 )
 
 
@@ -487,8 +487,8 @@ class InventoryItemFilter(DeviceComponentFilterSet):
 class HistoryLogFilter(DeviceComponentFilterSet):
 
     class Meta:
-        model = InventoryItem
-        fields = ['name']
+        model = HistoryLog
+        fields = ['role']
 
 class ConsoleConnectionFilter(django_filters.FilterSet):
     site = django_filters.CharFilter(
