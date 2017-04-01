@@ -505,6 +505,7 @@ class InterfaceConnectionTable(BaseTable):
         model = Interface
         fields = ('device_a', 'interface_a', 'device_b', 'interface_b')
 
+
 #
 # HistoryLog roles
 #

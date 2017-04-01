@@ -51,6 +51,7 @@ def startswith(value, arg):
     """
     return str(value).startswith(arg)
 
+
 @register.filter()
 def bettertitle(value):
     """

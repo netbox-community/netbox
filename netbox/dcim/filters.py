@@ -490,6 +490,7 @@ class HistoryLogFilter(DeviceComponentFilterSet):
         model = HistoryLog
         fields = ['role']
 
+
 class ConsoleConnectionFilter(django_filters.FilterSet):
     site = django_filters.CharFilter(
         method='filter_site',
