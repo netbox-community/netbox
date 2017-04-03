@@ -15,11 +15,11 @@ class ImageAttachmentEditView(PermissionRequiredMixin, ObjectEditView):
         if not imageattachment.pk:
             # Assign the parent object based on URL kwargs
             model = kwargs.get('model')
-            imageattachment.obj = get_object_or_404(model, pk=kwargs['object_id'])
+            imageattachment.parent = get_object_or_404(model, pk=kwargs['object_id'])
         return imageattachment
 
     def get_return_url(self, imageattachment):
-        return imageattachment.obj.get_absolute_url()
+        return imageattachment.parent.get_absolute_url()
 
 
 class ImageAttachmentDeleteView(PermissionRequiredMixin, ObjectDeleteView):
