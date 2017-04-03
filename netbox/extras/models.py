@@ -384,7 +384,7 @@ class ImageAttachment(models.Model):
     """
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    obj = GenericForeignKey('content_type', 'object_id')
+    parent = GenericForeignKey('content_type', 'object_id')
     image = models.ImageField(upload_to=image_upload, height_field='image_height', width_field='image_width')
     image_height = models.PositiveSmallIntegerField()
     image_width = models.PositiveSmallIntegerField()
