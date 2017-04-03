@@ -135,6 +135,7 @@ class DeviceTypeViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = DeviceType.objects.select_related('manufacturer')
     serializer_class = serializers.DeviceTypeSerializer
     write_serializer_class = serializers.WritableDeviceTypeSerializer
+    filter_class = filters.DeviceTypeFilter
 
 
 #
