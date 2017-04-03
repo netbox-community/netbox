@@ -257,7 +257,7 @@
                 <table class="table table-hover panel-body">
                     {% for tm in topology_maps %}
                         <tr>
-                            <td><i class="fa fa-fw fa-map"></i> <a href="{% url 'dcim-api:topology_map' slug=tm.slug %}" target="_blank">{{ tm }}</a></td>
+                            <td><i class="fa fa-fw fa-map"></i> <a href="{% url 'extras-api:topologymap-render' pk=tm.pk %}" target="_blank">{{ tm }}</a></td>
                             <td>{{ tm.description }}</td>
                         </tr>
                     {% endfor %}
