@@ -56,13 +56,15 @@ ACTION_EDIT = 3
 ACTION_BULK_EDIT = 4
 ACTION_DELETE = 5
 ACTION_BULK_DELETE = 6
+ACTION_BULK_CREATE = 7
 ACTION_CHOICES = (
     (ACTION_CREATE, 'created'),
+    (ACTION_BULK_CREATE, 'bulk created'),
     (ACTION_IMPORT, 'imported'),
     (ACTION_EDIT, 'modified'),
     (ACTION_BULK_EDIT, 'bulk edited'),
     (ACTION_DELETE, 'deleted'),
-    (ACTION_BULK_DELETE, 'bulk deleted')
+    (ACTION_BULK_DELETE, 'bulk deleted'),
 )
 
 
@@ -328,6 +330,9 @@ class UserActionManager(models.Manager):
     def log_import(self, user, content_type, message=''):
         self.log_bulk_action(user, content_type, ACTION_IMPORT, message)
 
+    def log_bulk_create(self, user, content_type, message=''):
+        self.log_bulk_action(user, content_type, ACTION_BULK_CREATE, message)
+
     def log_bulk_edit(self, user, content_type, message=''):
         self.log_bulk_action(user, content_type, ACTION_BULK_EDIT, message)
 
@@ -358,7 +363,7 @@ class UserAction(models.Model):
         return u'{} {} {}'.format(self.user, self.get_action_display(), self.content_type)
 
     def icon(self):
-        if self.action in [ACTION_CREATE, ACTION_IMPORT]:
+        if self.action in [ACTION_CREATE, ACTION_BULK_CREATE, ACTION_IMPORT]:
             return mark_safe('<i class="glyphicon glyphicon-plus text-success"></i>')
         elif self.action in [ACTION_EDIT, ACTION_BULK_EDIT]:
             return mark_safe('<i class="glyphicon glyphicon-pencil text-warning"></i>')
