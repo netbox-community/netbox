@@ -123,3 +123,10 @@ access-switch\d+,oob-switch\d+
 ```
 
 Note that you can combine multiple regexes onto one line using semicolons. The order in which regexes are listed on a line is significant: devices matching the first regex will be rendered first, and subsequent groups will be rendered to the right of those.
+
+# Image Attachments
+
+Certain objects within NetBox (namely sites, racks, and devices) can have photos or other images attached to them. (Note that _only_ image files are supported.) Each attachment may optionally be assigned a name; if omitted, the attachment will be represented by its file name.
+
+!!! note
+    If you experience a server error while attempting to upload an image attachment, verify that the system user NetBox runs as has write permission to the media root directory (`netbox/media/`).
