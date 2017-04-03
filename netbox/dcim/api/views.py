@@ -1,4 +1,4 @@
-from rest_framework.decorators import detail_route, list_route
+from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
@@ -38,8 +38,8 @@ class RegionViewSet(WritableSerializerMixin, ModelViewSet):
 class SiteViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = Site.objects.select_related('region', 'tenant')
     serializer_class = serializers.SiteSerializer
-    filter_class = filters.SiteFilter
     write_serializer_class = serializers.WritableSiteSerializer
+    filter_class = filters.SiteFilter
 
     @detail_route()
     def graphs(self, request, pk=None):
@@ -59,8 +59,8 @@ class SiteViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 class RackGroupViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = RackGroup.objects.select_related('site')
     serializer_class = serializers.RackGroupSerializer
-    filter_class = filters.RackGroupFilter
     write_serializer_class = serializers.WritableRackGroupSerializer
+    filter_class = filters.RackGroupFilter
 
 
 #
@@ -135,6 +135,7 @@ class DeviceTypeViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = DeviceType.objects.select_related('manufacturer')
     serializer_class = serializers.DeviceTypeSerializer
     write_serializer_class = serializers.WritableDeviceTypeSerializer
+    filter_class = filters.DeviceTypeFilter
 
 
 #

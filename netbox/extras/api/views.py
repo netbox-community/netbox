@@ -51,7 +51,6 @@ class GraphViewSet(WritableSerializerMixin, ModelViewSet):
 class ExportTemplateViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = ExportTemplate.objects.all()
     serializer_class = serializers.ExportTemplateSerializer
-    # write_serializer_class = serializers.WritableExportTemplateSerializer
     filter_class = filters.ExportTemplateFilter
 
 

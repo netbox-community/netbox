@@ -8,8 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
 
+from secrets import filters
 from secrets.exceptions import InvalidKey
-from secrets.filters import SecretFilter
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
 from utilities.api import WritableSerializerMixin
 from . import serializers
@@ -43,7 +43,7 @@ class SecretViewSet(WritableSerializerMixin, ModelViewSet):
     )
     serializer_class = serializers.SecretSerializer
     write_serializer_class = serializers.WritableSecretSerializer
-    filter_class = SecretFilter
+    filter_class = filters.SecretFilter
 
     master_key = None
 

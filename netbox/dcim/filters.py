@@ -240,7 +240,7 @@ class InterfaceTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = InterfaceTemplate
-        fields = ['name']
+        fields = ['name', 'form_factor']
 
 
 class DeviceBayTemplateFilter(DeviceTypeComponentFilterSet):
@@ -448,7 +448,7 @@ class InterfaceFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = Interface
-        fields = ['name']
+        fields = ['name', 'form_factor']
 
     def filter_type(self, queryset, name, value):
         value = value.strip().lower()
