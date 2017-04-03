@@ -328,6 +328,20 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
+                <strong>Images</strong>
+            </div>
+            {% include 'inc/image_attachments.html' with images=device.images.all %}
+            {% if perms.extras.add_imageattachment %}
+                <div class="panel-footer text-right">
+                    <a href="{% url 'dcim:device_add_image' object_id=device.pk %}" class="btn btn-primary btn-xs">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        Attach an image
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
                 <strong>Related Devices</strong>
             </div>
             {% if related_devices %}

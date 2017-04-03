@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
 from extras import filters
-from extras.models import ExportTemplate, Graph, TopologyMap, UserAction
+from extras.models import ExportTemplate, Graph, ImageAttachment, TopologyMap, UserAction
 from utilities.api import WritableSerializerMixin
 from . import serializers
 
@@ -78,6 +78,12 @@ class TopologyMapViewSet(WritableSerializerMixin, ModelViewSet):
         response['Content-Disposition'] = 'inline; filename="{}.{}"'.format(tmap.slug, img_format)
 
         return response
+
+
+class ImageAttachmentViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = ImageAttachment.objects.all()
+    serializer_class = serializers.ImageAttachmentSerializer
+    write_serializer_class = serializers.WritableImageAttachmentSerializer
 
 
 class RecentActivityViewSet(ReadOnlyModelViewSet):

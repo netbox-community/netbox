@@ -360,6 +360,61 @@ class TopologyMap(models.Model):
 
 
 #
+# Image attachments
+#
+
+def image_upload(instance, filename):
+
+    path = 'image-attachments/'
+
+    # Rename the file to the provided name, if any. Attempt to preserve the file extension.
+    extension = filename.rsplit('.')[-1]
+    if instance.name and extension in ['bmp', 'gif', 'jpeg', 'jpg', 'png']:
+        filename = '.'.join([instance.name, extension])
+    elif instance.name:
+        filename = instance.name
+
+    return '{}{}_{}_{}'.format(path, instance.content_type.name, instance.object_id, filename)
+
+
+@python_2_unicode_compatible
+class ImageAttachment(models.Model):
+    """
+    An uploaded image which is associated with an object.
+    """
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    parent = GenericForeignKey('content_type', 'object_id')
+    image = models.ImageField(upload_to=image_upload, height_field='image_height', width_field='image_width')
+    image_height = models.PositiveSmallIntegerField()
+    image_width = models.PositiveSmallIntegerField()
+    name = models.CharField(max_length=50, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        if self.name:
+            return self.name
+        filename = self.image.name.rsplit('/', 1)[-1]
+        return filename.split('_', 2)[2]
+
+    def delete(self, *args, **kwargs):
+
+        _name = self.image.name
+
+        super(ImageAttachment, self).delete(*args, **kwargs)
+
+        # Delete file from disk
+        self.image.delete(save=False)
+
+        # Deleting the file erases its name. We restore the image's filename here in case we still need to reference it
+        # before the request finishes. (For example, to display a message indicating the ImageAttachment was deleted.)
+        self.image.name = _name
+
+
+#
 # User actions
 #
 
