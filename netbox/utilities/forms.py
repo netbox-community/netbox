@@ -133,32 +133,7 @@ class SelectWithDisabled(forms.Select):
     Modified the stock Select widget to accept choices using a dict() for a label. The dict for each option must include
     'label' (string) and 'disabled' (boolean).
     """
-
-    def render_option(self, selected_choices, option_value, option_label):
-
-        # Determine if option has been selected
-        option_value = force_text(option_value)
-        if option_value in selected_choices:
-            selected_html = mark_safe(' selected="selected"')
-            if not self.allow_multiple_selected:
-                # Only allow for a single selection.
-                selected_choices.remove(option_value)
-        else:
-            selected_html = ''
-
-        # Determine if option has been disabled
-        option_disabled = False
-        exempt_value = force_text(self.attrs.get('exempt', None))
-        if isinstance(option_label, dict):
-            option_disabled = option_label['disabled'] if option_value != exempt_value else False
-            option_label = option_label['label']
-        disabled_html = ' disabled="disabled"' if option_disabled else ''
-
-        return format_html(u'<option value="{}"{}{}>{}</option>',
-                           option_value,
-                           selected_html,
-                           disabled_html,
-                           force_text(option_label))
+    option_template_name = 'selectwithdisabled_option.html'
 
 
 class ArrayFieldSelectMultiple(SelectWithDisabled, forms.SelectMultiple):
