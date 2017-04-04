@@ -8,9 +8,6 @@ from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse_lazy
 from django.core.validators import URLValidator
-from django.utils.encoding import force_text
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 
 
 COLOR_CHOICES = (
@@ -138,18 +135,16 @@ class SelectWithDisabled(forms.Select):
 
 class ArrayFieldSelectMultiple(SelectWithDisabled, forms.SelectMultiple):
     """
-    MultiSelect widgets for a SimpleArrayField. Choices must be populated on the widget.
+    MultiSelect widget for a SimpleArrayField. Choices must be populated on the widget.
     """
-
     def __init__(self, *args, **kwargs):
         self.delimiter = kwargs.pop('delimiter', ',')
         super(ArrayFieldSelectMultiple, self).__init__(*args, **kwargs)
 
-    def render_options(self, selected_choices):
+    def optgroups(self, name, value, attrs=None):
         # Split the delimited string of values into a list
-        if selected_choices:
-            selected_choices = selected_choices.split(self.delimiter)
-        return super(ArrayFieldSelectMultiple, self).render_options(selected_choices)
+        value = value[0].split(self.delimiter)
+        return super(ArrayFieldSelectMultiple, self).optgroups(name, value, attrs)
 
     def value_from_datadict(self, data, files, name):
         # Condense the list of selected choices into a delimited string
