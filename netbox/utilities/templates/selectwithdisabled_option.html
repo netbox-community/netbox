@@ -1,1 +1,1 @@
-<option value="{{ widget.value }}"{% include "django/forms/widgets/attrs.html" %}{% if widget.label.disabled %} disabled="disabled"{% endif %}>{{ widget.label.label }}</option>
+<option value="{{ widget.value }}"{% include "django/forms/widgets/attrs.html" %}{% if widget.label.disabled %} disabled="disabled"{% endif %}>{{ widget.label.label|default:widget.label }}</option>
