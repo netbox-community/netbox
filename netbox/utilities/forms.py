@@ -118,24 +118,14 @@ class SmallTextarea(forms.Textarea):
 
 
 class ColorSelect(forms.Select):
+    """
+    Extends the built-in Select widget to colorize each <option>.
+    """
+    option_template_name = 'colorselect_option.html'
 
     def __init__(self, *args, **kwargs):
         kwargs['choices'] = COLOR_CHOICES
         super(ColorSelect, self).__init__(*args, **kwargs)
-
-    def render_option(self, selected_choices, option_value, option_label):
-        if option_value is None:
-            option_value = ''
-        option_value = force_text(option_value)
-        if option_value in selected_choices:
-            selected_html = mark_safe(' selected')
-            if not self.allow_multiple_selected:
-                # Only allow for a single selection.
-                selected_choices.remove(option_value)
-        else:
-            selected_html = ''
-        return format_html('<option value="{}"{} style="background-color: #{}">{}</option>',
-                           option_value, selected_html, option_value, force_text(option_label))
 
 
 class SelectWithDisabled(forms.Select):
