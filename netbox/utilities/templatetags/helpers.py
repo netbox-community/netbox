@@ -45,11 +45,11 @@ def gfm(value):
 
 
 @register.filter()
-def startswith(value, arg):
+def contains(value, arg):
     """
-    Test whether a string starts with the given argument
+    Test whether a value contains any of a given set of strings. `arg` should be a comma-separated list of strings.
     """
-    return str(value).startswith(arg)
+    return any(s in value for s in arg.split(','))
 
 
 @register.filter()

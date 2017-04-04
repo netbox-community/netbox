@@ -43,12 +43,14 @@
                     {% render_field form.set_as_primary %}
                 </div>
             </div>
+            {% if form.custom_fields %}
             <div class="panel panel-default">
                 <div class="panel-heading"><strong>Custom Fields</strong></div>
                 <div class="panel-body">
                     {% render_custom_fields form %}
                 </div>
             </div>
+            {% endif %}
 		    <div class="form-group">
                 <div class="col-md-9 col-md-offset-3">
                     <button type="submit" name="_create" class="btn btn-primary">Create</button>

@@ -1481,7 +1481,7 @@ class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
         super(InterfaceConnectionForm, self).__init__(*args, **kwargs)
 
         # Initialize interface A choices
-        device_a_interfaces = Interface.objects.filter(device=device_a).exclude(
+        device_a_interfaces = Interface.objects.order_naturally().filter(device=device_a).exclude(
             form_factor__in=VIRTUAL_IFACE_TYPES
         ).select_related(
             'circuit_termination', 'connected_as_a', 'connected_as_b'

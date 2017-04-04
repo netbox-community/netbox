@@ -1450,9 +1450,10 @@ def interfaceconnection_add(request, pk):
             ))
             if '_addanother' in request.POST:
                 base_url = reverse('dcim:interfaceconnection_add', kwargs={'pk': device.pk})
+                device_b = interfaceconnection.interface_b.device
                 params = urlencode({
-                    'rack_b': interfaceconnection.interface_b.device.rack.pk,
-                    'device_b': interfaceconnection.interface_b.device.pk,
+                    'rack_b': device_b.rack.pk if device_b.rack else '',
+                    'device_b': device_b.pk,
                 })
                 return HttpResponseRedirect('{}?{}'.format(base_url, params))
             else:
