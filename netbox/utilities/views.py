@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from django_tables2 import RequestConfig
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -101,7 +102,13 @@ class ObjectListView(View):
         table = self.table(self.queryset)
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.base_columns['pk'].visible = True
-        RequestConfig(request, paginate={'klass': EnhancedPaginator}).configure(table)
+
+        # Apply the request context
+        paginate = {
+            'klass': EnhancedPaginator,
+            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+        }
+        RequestConfig(request, paginate).configure(table)
 
         context = {
             'table': table,
@@ -327,7 +334,9 @@ class BulkAddView(View):
                 form.add_error(None, e)
 
             if not form.errors:
-                messages.success(request, u"Added {} {}.".format(len(new_objs), self.model._meta.verbose_name_plural))
+                msg = u"Added {} {}".format(len(new_objs), self.model._meta.verbose_name_plural)
+                messages.success(request, msg)
+                UserAction.objects.log_bulk_create(request.user, ContentType.objects.get_for_model(self.model), msg)
                 if '_addanother' in request.POST:
                     return redirect(request.path)
                 return redirect(self.default_return_url)
