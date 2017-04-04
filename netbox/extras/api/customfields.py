@@ -23,20 +23,27 @@ class CustomFieldModelSerializer(serializers.ModelSerializer):
 
     def __init__(self, *args, **kwargs):
 
+        def _populate_custom_fields(instance, fields):
+            custom_fields = {f.name: None for f in fields}
+            for cfv in instance.custom_field_values.all():
+                if cfv.field.type == CF_TYPE_SELECT:
+                    custom_fields[cfv.field.name] = CustomFieldChoiceSerializer(cfv.value).data
+                else:
+                    custom_fields[cfv.field.name] = cfv.value
+            instance.custom_fields = custom_fields
+
         super(CustomFieldModelSerializer, self).__init__(*args, **kwargs)
 
         # Retrieve the set of CustomFields which apply to this type of object
         content_type = ContentType.objects.get_for_model(self.Meta.model)
-        custom_fields = {f.name: None for f in CustomField.objects.filter(obj_type=content_type)}
+        fields = CustomField.objects.filter(obj_type=content_type)
 
-        # Assign CustomFieldValues from database
-        for cfv in self.instance.custom_field_values.all():
-            if cfv.field.type == CF_TYPE_SELECT:
-                custom_fields[cfv.field.name] = CustomFieldChoiceSerializer(cfv.value).data
-            else:
-                custom_fields[cfv.field.name] = cfv.value
-
-        self.instance.custom_fields = custom_fields
+        # Populate CustomFieldValues for each instance from database
+        try:
+            for obj in self.instance:
+                _populate_custom_fields(obj, fields)
+        except TypeError:
+            _populate_custom_fields(self.instance, fields)
 
 
 class CustomFieldChoiceSerializer(serializers.ModelSerializer):
