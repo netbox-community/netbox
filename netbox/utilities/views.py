@@ -334,7 +334,9 @@ class BulkAddView(View):
                 form.add_error(None, e)
 
             if not form.errors:
-                messages.success(request, u"Added {} {}.".format(len(new_objs), self.model._meta.verbose_name_plural))
+                msg = u"Added {} {}".format(len(new_objs), self.model._meta.verbose_name_plural)
+                messages.success(request, msg)
+                UserAction.objects.log_bulk_create(request.user, ContentType.objects.get_for_model(self.model), msg)
                 if '_addanother' in request.POST:
                     return redirect(request.path)
                 return redirect(self.default_return_url)
