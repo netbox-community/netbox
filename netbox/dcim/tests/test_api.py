@@ -1933,6 +1933,92 @@ class InventoryItemTest(HttpStatusMixin, APITestCase):
         self.assertEqual(InventoryItem.objects.count(), 2)
 
 
+class ConsoleConnectionTest(HttpStatusMixin, APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        devicerole = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        device1 = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
+        )
+        device2 = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Device 2', site=site
+        )
+        cs_port1 = ConsoleServerPort.objects.create(device=device1, name='Test CS Port 1')
+        cs_port2 = ConsoleServerPort.objects.create(device=device1, name='Test CS Port 2')
+        cs_port3 = ConsoleServerPort.objects.create(device=device1, name='Test CS Port 3')
+        ConsolePort.objects.create(
+            device=device2, cs_port=cs_port1, name='Test Console Port 1', connection_status=True
+        )
+        ConsolePort.objects.create(
+            device=device2, cs_port=cs_port2, name='Test Console Port 2', connection_status=True
+        )
+        ConsolePort.objects.create(
+            device=device2, cs_port=cs_port3, name='Test Console Port 3', connection_status=True
+        )
+
+    def test_list_consoleconnections(self):
+
+        url = reverse('dcim-api:consoleconnections-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+
+class PowerConnectionTest(HttpStatusMixin, APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        devicerole = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        device1 = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
+        )
+        device2 = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Device 2', site=site
+        )
+        power_outlet1 = PowerOutlet.objects.create(device=device1, name='Test Power Outlet 1')
+        power_outlet2 = PowerOutlet.objects.create(device=device1, name='Test Power Outlet 2')
+        power_outlet3 = PowerOutlet.objects.create(device=device1, name='Test Power Outlet 3')
+        PowerPort.objects.create(
+            device=device2, power_outlet=power_outlet1, name='Test Power Port 1', connection_status=True
+        )
+        PowerPort.objects.create(
+            device=device2, power_outlet=power_outlet2, name='Test Power Port 2', connection_status=True
+        )
+        PowerPort.objects.create(
+            device=device2, power_outlet=power_outlet3, name='Test Power Port 3', connection_status=True
+        )
+
+    def test_list_powerconnections(self):
+
+        url = reverse('dcim-api:powerconnections-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+
 class InterfaceConnectionTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):

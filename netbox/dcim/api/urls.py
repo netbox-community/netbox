@@ -50,7 +50,9 @@ router.register(r'interfaces', views.InterfaceViewSet)
 router.register(r'device-bays', views.DeviceBayViewSet)
 router.register(r'inventory-items', views.InventoryItemViewSet)
 
-# Interface connections
+# Connections
+router.register(r'console-connections', views.ConsoleConnectionViewSet, base_name='consoleconnections')
+router.register(r'power-connections', views.PowerConnectionViewSet, base_name='powerconnections')
 router.register(r'interface-connections', views.InterfaceConnectionViewSet)
 
 # Miscellaneous

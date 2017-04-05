@@ -494,6 +494,10 @@ class ConsoleConnectionFilter(django_filters.FilterSet):
         label='Device',
     )
 
+    class Meta:
+        model = ConsolePort
+        fields = ['name', 'connection_status']
+
     def filter_site(self, queryset, name, value):
         if not value.strip():
             return queryset
@@ -517,6 +521,10 @@ class PowerConnectionFilter(django_filters.FilterSet):
         method='filter_device',
         label='Device',
     )
+
+    class Meta:
+        model = PowerPort
+        fields = ['name', 'connection_status']
 
     def filter_site(self, queryset, name, value):
         if not value.strip():
