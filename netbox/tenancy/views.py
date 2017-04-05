@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.core.urlresolvers import reverse
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
 
 from circuits.models import Circuit
 from dcim.models import Site, Rack, Device

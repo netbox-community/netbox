@@ -1,6 +1,6 @@
 from django.http import HttpResponseRedirect
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 BASE_PATH = getattr(settings, 'BASE_PATH', False)

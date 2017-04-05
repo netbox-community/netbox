@@ -3,10 +3,10 @@ import base64
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.core.urlresolvers import reverse
 from django.db import transaction, IntegrityError
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 
 from dcim.models import Device

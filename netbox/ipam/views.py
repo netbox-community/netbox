@@ -5,9 +5,9 @@ from django.conf import settings
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib import messages
-from django.core.urlresolvers import reverse
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from dcim.models import Device
 from utilities.forms import ConfirmationForm

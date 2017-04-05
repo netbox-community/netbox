@@ -8,10 +8,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, Q, ObjectDoesNotExist
+from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 
 from circuits.models import Circuit
@@ -211,7 +211,9 @@ class Region(MPTTModel):
     """
     Sites can be grouped within geographic Regions.
     """
-    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    parent = TreeForeignKey(
+        'self', null=True, blank=True, related_name='children', db_index=True, on_delete=models.CASCADE
+    )
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
 
@@ -314,7 +316,7 @@ class RackGroup(models.Model):
     """
     name = models.CharField(max_length=50)
     slug = models.SlugField()
-    site = models.ForeignKey('Site', related_name='rack_groups')
+    site = models.ForeignKey('Site', related_name='rack_groups', on_delete=models.CASCADE)
 
     class Meta:
         ordering = ['site', 'name']

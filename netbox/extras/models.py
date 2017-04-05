@@ -165,7 +165,7 @@ class CustomField(models.Model):
 
 @python_2_unicode_compatible
 class CustomFieldValue(models.Model):
-    field = models.ForeignKey('CustomField', related_name='values')
+    field = models.ForeignKey('CustomField', related_name='values', on_delete=models.CASCADE)
     obj_type = models.ForeignKey(ContentType, related_name='+', on_delete=models.PROTECT)
     obj_id = models.PositiveIntegerField()
     obj = GenericForeignKey('obj_type', 'obj_id')
@@ -254,7 +254,9 @@ class Graph(models.Model):
 
 @python_2_unicode_compatible
 class ExportTemplate(models.Model):
-    content_type = models.ForeignKey(ContentType, limit_choices_to={'model__in': EXPORTTEMPLATE_MODELS})
+    content_type = models.ForeignKey(
+        ContentType, limit_choices_to={'model__in': EXPORTTEMPLATE_MODELS}, on_delete=models.CASCADE
+    )
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=200, blank=True)
     template_code = models.TextField()
@@ -294,7 +296,7 @@ class ExportTemplate(models.Model):
 class TopologyMap(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
-    site = models.ForeignKey('dcim.Site', related_name='topology_maps', blank=True, null=True)
+    site = models.ForeignKey('dcim.Site', related_name='topology_maps', blank=True, null=True, on_delete=models.CASCADE)
     device_patterns = models.TextField(
         help_text="Identify devices to include in the diagram using regular expressions, one per line. Each line will "
                   "result in a new tier of the drawing. Separate multiple regexes within a line using semicolons. "
@@ -384,7 +386,7 @@ class ImageAttachment(models.Model):
     """
     An uploaded image which is associated with an object.
     """
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     parent = GenericForeignKey('content_type', 'object_id')
     image = models.ImageField(upload_to=image_upload, height_field='image_height', width_field='image_width')

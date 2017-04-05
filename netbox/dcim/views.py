@@ -6,10 +6,10 @@ from operator import attrgetter
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.http import urlencode
 from django.views.generic import View
 

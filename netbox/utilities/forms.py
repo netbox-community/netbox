@@ -6,8 +6,8 @@ from mptt.forms import TreeNodeMultipleChoiceField
 
 from django import forms
 from django.conf import settings
-from django.core.urlresolvers import reverse_lazy
 from django.core.validators import URLValidator
+from django.urls import reverse_lazy
 
 
 COLOR_CHOICES = (
