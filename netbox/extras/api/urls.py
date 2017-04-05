@@ -29,4 +29,5 @@ router.register(r'image-attachments', views.ImageAttachmentViewSet)
 # Recent activity
 router.register(r'recent-activity', views.RecentActivityViewSet)
 
+app_name = 'extras-api'
 urlpatterns = router.urls

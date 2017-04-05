@@ -58,4 +58,5 @@ router.register(r'interface-connections', views.InterfaceConnectionViewSet)
 # Miscellaneous
 router.register(r'connected-device', views.ConnectedDeviceViewSet, base_name='connected-device')
 
+app_name = 'dcim-api'
 urlpatterns = router.urls

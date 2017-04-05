@@ -18,4 +18,5 @@ router.APIRootView = TenancyRootView
 router.register(r'tenant-groups', views.TenantGroupViewSet)
 router.register(r'tenants', views.TenantViewSet)
 
+app_name = 'tenancy-api'
 urlpatterns = router.urls

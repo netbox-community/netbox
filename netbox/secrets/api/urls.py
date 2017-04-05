@@ -22,4 +22,5 @@ router.register(r'secrets', views.SecretViewSet)
 router.register(r'get-session-key', views.GetSessionKeyViewSet, base_name='get-session-key')
 router.register(r'generate-rsa-key-pair', views.GenerateRSAKeyPairViewSet, base_name='generate-rsa-key-pair')
 
+app_name = 'secrets-api'
 urlpatterns = router.urls

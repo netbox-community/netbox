@@ -8,6 +8,7 @@ from .models import Device, Rack, Site
 from . import views
 
 
+app_name = 'dcim'
 urlpatterns = [
 
     # Regions
