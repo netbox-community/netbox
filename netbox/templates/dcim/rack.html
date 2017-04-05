@@ -199,6 +199,20 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
+                <strong>Images</strong>
+            </div>
+            {% include 'inc/image_attachments.html' with images=rack.images.all %}
+            {% if perms.extras.add_imageattachment %}
+                <div class="panel-footer text-right">
+                    <a href="{% url 'dcim:rack_add_image' object_id=rack.pk %}" class="btn btn-primary btn-xs">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        Attach an image
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
                 <strong>Reservations</strong>
             </div>
             {% if reservations %}
@@ -216,12 +230,12 @@
                                 <small>{{ resv.user }} &middot; {{ resv.created }}</small>
                             </td>
                             <td class="text-right">
-                                {% if perms.change_rackreservation %}
+                                {% if perms.dcim.change_rackreservation %}
                                     <a href="{% url 'dcim:rackreservation_edit' pk=resv.pk %}" class="btn btn-warning btn-xs" title="Edit reservation">
                                         <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
                                     </a>
                                 {% endif %}
-                                {% if perms.delete_rackreservation %}
+                                {% if perms.dcim.delete_rackreservation %}
                                     <a href="{% url 'dcim:rackreservation_delete' pk=resv.pk %}" class="btn btn-danger btn-xs" title="Delete reservation">
                                         <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                                     </a>

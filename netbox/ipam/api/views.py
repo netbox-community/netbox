@@ -34,6 +34,7 @@ class RoleViewSet(ModelViewSet):
 class RIRViewSet(ModelViewSet):
     queryset = RIR.objects.all()
     serializer_class = serializers.RIRSerializer
+    filter_class = filters.RIRFilter
 
 
 #
@@ -99,3 +100,4 @@ class ServiceViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = Service.objects.select_related('device')
     serializer_class = serializers.ServiceSerializer
     write_serializer_class = serializers.WritableServiceSerializer
+    filter_class = filters.ServiceFilter

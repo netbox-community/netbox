@@ -4,10 +4,10 @@
 <html lang="en">
 <head>
 	<title>NetBox - {% block title %}Home{% endblock %}</title>
-	<link rel="stylesheet" href="{% static 'bootstrap-3.3.6-dist/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'font-awesome-4.6.3/css/font-awesome.min.css' %}">
-    <link rel="stylesheet" href="{% static 'jquery-ui-1.11.4/jquery-ui.css' %}">
-	<link rel="stylesheet" href="{% static 'css/base.css' %}">
+	<link rel="stylesheet" href="{% static 'bootstrap-3.3.7-dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'font-awesome-4.7.0/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'jquery-ui-1.12.1/jquery-ui.css' %}">
+	<link rel="stylesheet" href="{% static 'css/base.css' %}?v{{ settings.VERSION }}">
     <link rel="icon" type="image/png" href="{% static 'img/netbox.ico' %}" />
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
 </head>
@@ -28,7 +28,7 @@
             <div id="navbar" class="navbar-collapse collapse">
                 {% if request.user.is_authenticated or not settings.LOGIN_REQUIRED %}
                 <ul class="nav navbar-nav">
-                    <li class="dropdown{% if request.path|startswith:'/dcim/sites/' or 'tenancy' in request.path %} active{% endif %}">
+                    <li class="dropdown{% if request.path|contains:'/dcim/sites/,/dcim/regions/,/tenancy/' %} active{% endif %}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Organization <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="{% url 'dcim:site_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Sites</a></li>
@@ -54,7 +54,7 @@
                             {% endif %}
                         </ul>
                     </li>
-                    <li class="dropdown{% if request.path|startswith:'/dcim/rack' %} active{% endif %}">
+                    <li class="dropdown{% if request.path|contains:'/dcim/rack' %} active{% endif %}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Racks <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="{% url 'dcim:rack_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Racks</a></li>
@@ -74,7 +74,7 @@
                             {% endif %}
                         </ul>
                     </li>
-                    <li class="dropdown{% if request.path|startswith:'/dcim/device' or request.path|startswith:'/dcim/manufacturers/' or request.path|startswith:'/dcim/platforms/' %} active{% endif %}">
+                    <li class="dropdown{% if request.path|contains:'/dcim/device,/dcim/manufacturers/,/dcim/platforms/' %} active{% endif %}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Devices <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="{% url 'dcim:device_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Devices</a></li>
@@ -110,7 +110,7 @@
                             {% endif %}
                         </ul>
                     </li>
-                    <li class="dropdown{% if request.path|startswith:'/dcim/console-connections/' or request.path|startswith:'/dcim/power-connections/' or request.path|startswith:'/dcim/interface-connections/' %} active{% endif %}">
+                    <li class="dropdown{% if request.path|contains:'/dcim/console-connections/,/dcim/power-connections/,/dcim/interface-connections/' %} active{% endif %}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Connections <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="{% url 'dcim:console_connections_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Console Connections</a></li>
@@ -133,7 +133,7 @@
                             {% endif %}
                         </ul>
                     </li>
-                    <li class="dropdown{% if request.path|startswith:'/ipam/' and not request.path|startswith:'/ipam/vlan' %} active{% endif %}">
+                    <li class="dropdown{% if request.path|contains:'/ipam/' and not request.path|contains:'/ipam/vlan' %} active{% endif %}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">IP Space <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="{% url 'ipam:ipaddress_list' %}"><i class="fa fa-search" aria-hidden="true"></i> IP Addresses</a></li>
@@ -179,7 +179,7 @@
                             {% endif %}
                         </ul>
                     </li>
-                    <li class="dropdown{% if request.path|startswith:'/ipam/vlan' %} active{% endif %}">
+                    <li class="dropdown{% if request.path|contains:'/ipam/vlan' %} active{% endif %}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">VLANs <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="{% url 'ipam:vlan_list' %}"><i class="fa fa-search" aria-hidden="true"></i> VLANs</a></li>
@@ -199,7 +199,7 @@
                             {% endif %}
                         </ul>
                     </li>
-                    <li class="dropdown{% if request.path|startswith:'/circuits/' %} active{% endif %}">
+                    <li class="dropdown{% if request.path|contains:'/circuits/' %} active{% endif %}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Circuits <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="{% url 'circuits:provider_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Providers</a></li>
@@ -223,7 +223,7 @@
                         </ul>
                     </li>
                     {% if request.user.is_authenticated %}
-                        <li class="dropdown{% if request.path|startswith:'/secrets/' %} active{% endif %}">
+                        <li class="dropdown{% if request.path|contains:'/secrets/' %} active{% endif %}">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Secrets <span class="caret"></span></a>
                             <ul class="dropdown-menu">
                                 <li><a href="{% url 'secrets:secret_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Secrets</a></li>
@@ -240,13 +240,31 @@
                     {% endif %}
                 </ul>
                 {% endif %}
+                <form action="{% url 'search' %}" method="get" class="navbar-form navbar-right" role="search">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Search">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-search" aria-hidden="true"></i>
+                            </button>
+                        </span>
+                    </div>
+                </form>
                 <ul class="nav navbar-nav navbar-right">
                     {% if request.user.is_authenticated %}
-                        {% if request.user.is_staff %}
-                            <li><a href="{% url 'admin:index' %}"><i class="fa fa-cogs" aria-hidden="true"></i> Admin</a></li>
-                        {% endif %}
-                        <li><a href="{% url 'user:profile' %}"><i class="fa fa-user" aria-hidden="true"></i> {{ request.user }}</a></li>
-                        <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out" aria-hidden="true"></i> Log out</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                {{ request.user }} <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url 'user:profile' %}"><i class="fa fa-user" aria-hidden="true"></i> Profile</a></li>
+                                {% if request.user.is_staff %}
+                                    <li><a href="{% url 'admin:index' %}"><i class="fa fa-cogs" aria-hidden="true"></i> Admin</a></li>
+                                {% endif %}
+                                <li class="divider"></li>
+                                <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out" aria-hidden="true"></i> Log out</a></li>
+                            </ul>
+                        </li>
                     {% else %}
                         <li><a href="{% url 'login' %}?next={{ request.path }}"><i class="fa fa-sign-in" aria-hidden="true"></i> Log in</a></li>
                     {% endif %}
@@ -305,10 +323,10 @@
 <script type="text/javascript">
     var netbox_api_path = "/{{ settings.BASE_PATH }}api/";
 </script>
-<script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
-<script src="{% static 'jquery-ui-1.11.4/jquery-ui.min.js' %}"></script>
-<script src="{% static 'bootstrap-3.3.6-dist/js/bootstrap.min.js' %}"></script>
-<script src="{% static 'js/forms.js' %}"></script>
+<script src="{% static 'js/jquery-3.2.0.min.js' %}"></script>
+<script src="{% static 'jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
+<script src="{% static 'bootstrap-3.3.7-dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/forms.js' %}?v{{ settings.VERSION }}"></script>
 {% block javascript %}{% endblock %}
 </body>
 </html>

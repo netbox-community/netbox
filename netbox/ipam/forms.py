@@ -310,7 +310,7 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
                                                          display_field='display_name',
                                                          attrs={'filter-for': 'nat_inside'}))
     livesearch = forms.CharField(required=False, label='IP Address', widget=Livesearch(
-        query_key='q', query_url='ipam-api:ipaddress_list', field_to_update='nat_inside', obj_label='address')
+        query_key='q', query_url='ipam-api:ipaddress-list', field_to_update='nat_inside', obj_label='address')
     )
 
     class Meta:
@@ -404,7 +404,7 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
         label='Device',
         widget=Livesearch(
             query_key='q',
-            query_url='dcim-api:device_list',
+            query_url='dcim-api:device-list',
             field_to_update='device'
         )
     )
@@ -412,7 +412,7 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
         queryset=Interface.objects.all(),
         label='Interface',
         widget=APISelect(
-            api_url='/api/dcim/devices/{{device}}/interfaces/'
+            api_url='/api/dcim/interfaces/?device_id={{device}}'
         )
     )
     set_as_primary = forms.BooleanField(

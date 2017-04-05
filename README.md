@@ -1,7 +1,3 @@
-**The [2017 NetBox User Survey](https://goo.gl/forms/75HnNS2iE0Y1hVFH3) is open!** Please consider taking a moment to respond. Your feedback helps shape the pace and focus of NetBox development. The survey will remain open until 2017-03-31. Results will be published on the mailing list.
-
----
-
 ![NetBox](docs/netbox_logo.png "NetBox logo")
 
 NetBox is an IP address management (IPAM) and data center infrastructure management (DCIM) tool. Initially conceived by the network engineering team at [DigitalOcean](https://www.digitalocean.com/), NetBox was developed specifically to address the needs of network and infrastructure engineers.

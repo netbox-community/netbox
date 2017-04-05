@@ -35,7 +35,13 @@
             <td colspan="2">
                 <i class="fa fa-fw fa-globe" title="Circuit"></i>
                 {% if peer_termination %}
-                    <a href="{% url 'dcim:site' slug=peer_termination.site.slug %}">{{ peer_termination.site }}</a> via
+                    {% if peer_termination.interface %}
+                        <a href="{% url 'dcim:device' pk=peer_termination.interface.device.pk %}">{{ peer_termination.interface.device }}</a>
+                        (<a href="{% url 'dcim:site' slug=peer_termination.site.slug %}">{{ peer_termination.site }}</a>)
+                    {% else %}
+                        <a href="{% url 'dcim:site' slug=peer_termination.site.slug %}">{{ peer_termination.site }}</a>
+                    {% endif %}
+                    via
                 {% endif %}
                 <a href="{% url 'circuits:circuit' pk=iface.circuit_termination.circuit_id %}">{{ iface.circuit_termination.circuit }}</a>
             </td>

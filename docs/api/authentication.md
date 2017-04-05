@@ -24,7 +24,7 @@ $ curl -H "Accept: application/json; indent=4" http://localhost/api/dcim/sites/
 }
 ```
 
-However, if the `[LOGIN_REQUIRED](../configuration/optional-settings/#login_required)` configuration setting has been set to `True`, all requests must be authenticated.
+However, if the [`LOGIN_REQUIRED`](../configuration/optional-settings/#login_required) configuration setting has been set to `True`, all requests must be authenticated.
 
 ```
 $ curl -H "Accept: application/json; indent=4" http://localhost/api/dcim/sites/

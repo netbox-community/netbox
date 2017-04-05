@@ -1,6 +1,7 @@
 from django_tables2 import RequestConfig
 import netaddr
 
+from django.conf import settings
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib import messages
@@ -295,7 +296,12 @@ def aggregate(request, pk):
     prefix_table = tables.PrefixTable(child_prefixes)
     if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
         prefix_table.base_columns['pk'].visible = True
-    RequestConfig(request, paginate={'klass': EnhancedPaginator}).configure(prefix_table)
+
+    paginate = {
+        'klass': EnhancedPaginator,
+        'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+    }
+    RequestConfig(request, paginate).configure(prefix_table)
 
     # Compile permissions list for rendering the object table
     permissions = {
@@ -427,7 +433,12 @@ def prefix(request, pk):
     child_prefix_table = tables.PrefixTable(child_prefixes)
     if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
         child_prefix_table.base_columns['pk'].visible = True
-    RequestConfig(request, paginate={'klass': EnhancedPaginator}).configure(child_prefix_table)
+
+    paginate = {
+        'klass': EnhancedPaginator,
+        'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+    }
+    RequestConfig(request, paginate).configure(child_prefix_table)
 
     # Compile permissions list for rendering the object table
     permissions = {
@@ -500,7 +511,12 @@ def prefix_ipaddresses(request, pk):
     ip_table = tables.IPAddressTable(ipaddresses)
     if request.user.has_perm('ipam.change_ipaddress') or request.user.has_perm('ipam.delete_ipaddress'):
         ip_table.base_columns['pk'].visible = True
-    RequestConfig(request, paginate={'klass': EnhancedPaginator}).configure(ip_table)
+
+    paginate = {
+        'klass': EnhancedPaginator,
+        'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+    }
+    RequestConfig(request, paginate).configure(ip_table)
 
     # Compile permissions list for rendering the object table
     permissions = {

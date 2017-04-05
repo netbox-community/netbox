@@ -20,6 +20,7 @@
 {% endblock %}
 
 {% block pagination %}
-    {% include 'paginator.html' %}
+    {% if not hide_paginator %}
+        {% include 'paginator.html' %}
+    {% endif %}
 {% endblock pagination %}
-

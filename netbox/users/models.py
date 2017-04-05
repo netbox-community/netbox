@@ -39,6 +39,6 @@ class Token(models.Model):
 
     @property
     def is_expired(self):
-        if self.expires is not None and timezone.now() > self.expires:
-            return True
-        return False
+        if self.expires is None or timezone.now() < self.expires:
+            return False
+        return True

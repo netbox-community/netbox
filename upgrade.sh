@@ -25,3 +25,6 @@ eval $COMMAND
 
 # Collect static files
 ./netbox/manage.py collectstatic --noinput
+
+# Delete old bytecode
+find . -name "*.pyc" -delete

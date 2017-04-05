@@ -1,9 +1,10 @@
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 
 from rest_framework import authentication, exceptions
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import DjangoModelPermissions, SAFE_METHODS
-from rest_framework.serializers import Field
+from rest_framework.serializers import Field, ValidationError
 
 from users.models import Token
 
@@ -30,7 +31,7 @@ class TokenAuthentication(authentication.TokenAuthentication):
             raise exceptions.AuthenticationFailed("Invalid token")
 
         # Enforce the Token's expiration time, if one has been set.
-        if token.expires and not token.is_expired:
+        if token.is_expired:
             raise exceptions.AuthenticationFailed("Token expired")
 
         if not token.user.is_active:
@@ -77,6 +78,21 @@ class ChoiceFieldSerializer(Field):
 
     def to_internal_value(self, data):
         return self._choices.get(data)
+
+
+class ContentTypeFieldSerializer(Field):
+    """
+    Represent a ContentType as '<app_label>.<model>'
+    """
+    def to_representation(self, obj):
+        return "{}.{}".format(obj.app_label, obj.model)
+
+    def to_internal_value(self, data):
+        app_label, model = data.split('.')
+        try:
+            return ContentType.objects.get_by_natural_key(app_label=app_label, model=model)
+        except ContentType.DoesNotExist:
+            raise ValidationError("Invalid content type")
 
 
 class WritableSerializerMixin(object):

@@ -1,7 +1,6 @@
 import base64
 from Crypto.PublicKey import RSA
 
-from django.core.urlresolvers import reverse
 from django.http import HttpResponseBadRequest
 
 from rest_framework.exceptions import ValidationError
@@ -9,8 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
 
-from secrets.exceptions import InvalidSessionKey
-from secrets.filters import SecretFilter
+from secrets import filters
+from secrets.exceptions import InvalidKey
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
 from utilities.api import WritableSerializerMixin
 from . import serializers
@@ -44,7 +43,7 @@ class SecretViewSet(WritableSerializerMixin, ModelViewSet):
     )
     serializer_class = serializers.SecretSerializer
     write_serializer_class = serializers.WritableSecretSerializer
-    filter_class = SecretFilter
+    filter_class = filters.SecretFilter
 
     master_key = None
 
@@ -64,27 +63,28 @@ class SecretViewSet(WritableSerializerMixin, ModelViewSet):
 
         super(SecretViewSet, self).initial(request, *args, **kwargs)
 
-        # Read session key from HTTP cookie or header if it has been provided. The session key must be provided in order
-        # to encrypt/decrypt secrets.
-        if 'session_key' in request.COOKIES:
-            session_key = base64.b64decode(request.COOKIES['session_key'])
-        elif 'HTTP_X_SESSION_KEY' in request.META:
-            session_key = base64.b64decode(request.META['HTTP_X_SESSION_KEY'])
-        else:
-            session_key = None
+        if request.user.is_authenticated():
 
-        # We can't encrypt secret plaintext without a session key.
-        # assert False, self.action
-        if self.action in ['create', 'update'] and session_key is None:
-            raise ValidationError("A session key must be provided when creating or updating secrets.")
+            # Read session key from HTTP cookie or header if it has been provided. The session key must be provided in
+            # order to encrypt/decrypt secrets.
+            if 'session_key' in request.COOKIES:
+                session_key = base64.b64decode(request.COOKIES['session_key'])
+            elif 'HTTP_X_SESSION_KEY' in request.META:
+                session_key = base64.b64decode(request.META['HTTP_X_SESSION_KEY'])
+            else:
+                session_key = None
 
-        # Attempt to retrieve the master key for encryption/decryption if a session key has been provided.
-        if session_key is not None:
-            try:
-                sk = SessionKey.objects.get(userkey__user=request.user)
-                self.master_key = sk.get_master_key(session_key)
-            except (SessionKey.DoesNotExist, InvalidSessionKey):
-                raise ValidationError("Invalid session key.")
+            # We can't encrypt secret plaintext without a session key.
+            if self.action in ['create', 'update'] and session_key is None:
+                raise ValidationError("A session key must be provided when creating or updating secrets.")
+
+            # Attempt to retrieve the master key for encryption/decryption if a session key has been provided.
+            if session_key is not None:
+                try:
+                    sk = SessionKey.objects.get(userkey__user=request.user)
+                    self.master_key = sk.get_master_key(session_key)
+                except (SessionKey.DoesNotExist, InvalidKey):
+                    raise ValidationError("Invalid session key.")
 
     def retrieve(self, request, *args, **kwargs):
 
@@ -139,6 +139,9 @@ class GetSessionKeyViewSet(ViewSet):
         {
             "session_key": "+8t4SI6XikgVmB5+/urhozx9O5qCQANyOk1MNe6taRf="
         }
+
+    This endpoint accepts one optional parameter: `preserve_key`. If True and a session key exists, the existing session
+    key will be returned instead of a new one.
     """
     permission_classes = [IsAuthenticated]
 
@@ -162,16 +165,26 @@ class GetSessionKeyViewSet(ViewSet):
         if master_key is None:
             return HttpResponseBadRequest(ERR_PRIVKEY_INVALID)
 
-        # Delete the existing SessionKey for this user if one exists
-        SessionKey.objects.filter(userkey__user=request.user).delete()
+        try:
+            current_session_key = SessionKey.objects.get(userkey__user_id=request.user.pk)
+        except SessionKey.DoesNotExist:
+            current_session_key = None
 
-        # Create a new SessionKey
-        sk = SessionKey(userkey=user_key)
-        sk.save(master_key=master_key)
-        encoded_key = base64.b64encode(sk.key)
-        # b64decode() returns a bytestring under Python 3
-        if not isinstance(encoded_key, str):
-            encoded_key = encoded_key.decode()
+        if current_session_key and request.GET.get('preserve_key', False):
+
+            # Retrieve the existing session key
+            key = current_session_key.get_session_key(master_key)
+
+        else:
+
+            # Create a new SessionKey
+            SessionKey.objects.filter(userkey__user=request.user).delete()
+            sk = SessionKey(userkey=user_key)
+            sk.save(master_key=master_key)
+            key = sk.key
+
+        # Encode the key using base64. (b64decode() returns a bytestring under Python 3.)
+        encoded_key = base64.b64encode(key).decode()
 
         # Craft the response
         response = Response({

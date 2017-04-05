@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from utilities.tables import BaseTable, ToggleColumn
+from utilities.tables import BaseTable, SearchTable, ToggleColumn
 
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, VLAN, VLANGroup, VRF
 
@@ -133,14 +133,23 @@ TENANT_LINK = """
 
 class VRFTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn('ipam:vrf', args=[Accessor('pk')], verbose_name='Name')
+    name = tables.LinkColumn()
     rd = tables.Column(verbose_name='RD')
-    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
-    description = tables.Column(verbose_name='Description')
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
 
     class Meta(BaseTable.Meta):
         model = VRF
         fields = ('pk', 'name', 'rd', 'tenant', 'description')
+
+
+class VRFSearchTable(SearchTable):
+    name = tables.LinkColumn()
+    rd = tables.Column(verbose_name='RD')
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
+
+    class Meta(SearchTable.Meta):
+        model = VRF
+        fields = ('name', 'rd', 'tenant', 'description')
 
 
 #
@@ -177,16 +186,23 @@ class RIRTable(BaseTable):
 
 class AggregateTable(BaseTable):
     pk = ToggleColumn()
-    prefix = tables.LinkColumn('ipam:aggregate', args=[Accessor('pk')], verbose_name='Aggregate')
-    rir = tables.Column(verbose_name='RIR')
+    prefix = tables.LinkColumn(verbose_name='Aggregate')
     child_count = tables.Column(verbose_name='Prefixes')
     get_utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
     date_added = tables.DateColumn(format="Y-m-d", verbose_name='Added')
-    description = tables.Column(verbose_name='Description')
 
     class Meta(BaseTable.Meta):
         model = Aggregate
         fields = ('pk', 'prefix', 'rir', 'child_count', 'get_utilization', 'date_added', 'description')
+
+
+class AggregateSearchTable(SearchTable):
+    prefix = tables.LinkColumn(verbose_name='Aggregate')
+    date_added = tables.DateColumn(format="Y-m-d", verbose_name='Added')
+
+    class Meta(SearchTable.Meta):
+        model = Aggregate
+        fields = ('prefix', 'rir', 'date_added', 'description')
 
 
 #
@@ -212,14 +228,13 @@ class RoleTable(BaseTable):
 
 class PrefixTable(BaseTable):
     pk = ToggleColumn()
-    status = tables.TemplateColumn(STATUS_LABEL, verbose_name='Status')
-    prefix = tables.TemplateColumn(PREFIX_LINK, verbose_name='Prefix', attrs={'th': {'style': 'padding-left: 17px'}})
+    prefix = tables.TemplateColumn(PREFIX_LINK, attrs={'th': {'style': 'padding-left: 17px'}})
+    status = tables.TemplateColumn(STATUS_LABEL)
     vrf = tables.TemplateColumn(VRF_LINK, verbose_name='VRF')
-    tenant = tables.TemplateColumn(TENANT_LINK, verbose_name='Tenant')
-    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
+    tenant = tables.TemplateColumn(TENANT_LINK)
+    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
     vlan = tables.LinkColumn('ipam:vlan', args=[Accessor('vlan.pk')], verbose_name='VLAN')
-    role = tables.TemplateColumn(PREFIX_ROLE_LINK, verbose_name='Role')
-    description = tables.Column(verbose_name='Description')
+    role = tables.TemplateColumn(PREFIX_ROLE_LINK)
 
     class Meta(BaseTable.Meta):
         model = Prefix
@@ -230,17 +245,30 @@ class PrefixTable(BaseTable):
 
 
 class PrefixBriefTable(BaseTable):
-    prefix = tables.TemplateColumn(PREFIX_LINK_BRIEF, verbose_name='Prefix')
-    vrf = tables.LinkColumn('ipam:vrf', args=[Accessor('vrf.pk')], default='Global', verbose_name='VRF')
-    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
-    status = tables.TemplateColumn(STATUS_LABEL, verbose_name='Status')
-    vlan = tables.LinkColumn('ipam:vlan', args=[Accessor('vlan.pk')], verbose_name='VLAN')
-    role = tables.Column(verbose_name='Role')
+    prefix = tables.TemplateColumn(PREFIX_LINK_BRIEF)
+    vrf = tables.LinkColumn('ipam:vrf', args=[Accessor('vrf.pk')], default='Global')
+    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
+    status = tables.TemplateColumn(STATUS_LABEL)
+    vlan = tables.LinkColumn('ipam:vlan', args=[Accessor('vlan.pk')])
 
     class Meta(BaseTable.Meta):
         model = Prefix
         fields = ('prefix', 'vrf', 'status', 'site', 'vlan', 'role')
         orderable = False
+
+
+class PrefixSearchTable(SearchTable):
+    prefix = tables.TemplateColumn(PREFIX_LINK, attrs={'th': {'style': 'padding-left: 17px'}})
+    status = tables.TemplateColumn(STATUS_LABEL)
+    vrf = tables.TemplateColumn(VRF_LINK, verbose_name='VRF')
+    tenant = tables.TemplateColumn(TENANT_LINK)
+    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
+    vlan = tables.LinkColumn('ipam:vlan', args=[Accessor('vlan.pk')], verbose_name='VLAN')
+    role = tables.TemplateColumn(PREFIX_ROLE_LINK)
+
+    class Meta(SearchTable.Meta):
+        model = Prefix
+        fields = ('prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'description')
 
 
 #
@@ -250,13 +278,11 @@ class PrefixBriefTable(BaseTable):
 class IPAddressTable(BaseTable):
     pk = ToggleColumn()
     address = tables.TemplateColumn(IPADDRESS_LINK, verbose_name='IP Address')
-    status = tables.TemplateColumn(STATUS_LABEL, verbose_name='Status')
+    status = tables.TemplateColumn(STATUS_LABEL)
     vrf = tables.TemplateColumn(VRF_LINK, verbose_name='VRF')
-    tenant = tables.TemplateColumn(TENANT_LINK, verbose_name='Tenant')
-    device = tables.LinkColumn('dcim:device', args=[Accessor('interface.device.pk')], orderable=False,
-                               verbose_name='Device')
-    interface = tables.Column(orderable=False, verbose_name='Interface')
-    description = tables.Column(verbose_name='Description')
+    tenant = tables.TemplateColumn(TENANT_LINK)
+    device = tables.LinkColumn('dcim:device', args=[Accessor('interface.device.pk')], orderable=False)
+    interface = tables.Column(orderable=False)
 
     class Meta(BaseTable.Meta):
         model = IPAddress
@@ -268,15 +294,28 @@ class IPAddressTable(BaseTable):
 
 class IPAddressBriefTable(BaseTable):
     address = tables.LinkColumn('ipam:ipaddress', args=[Accessor('pk')], verbose_name='IP Address')
-    device = tables.LinkColumn('dcim:device', args=[Accessor('interface.device.pk')], orderable=False,
-                               verbose_name='Device')
-    interface = tables.Column(orderable=False, verbose_name='Interface')
-    nat_inside = tables.LinkColumn('ipam:ipaddress', args=[Accessor('nat_inside.pk')], orderable=False,
-                                   verbose_name='NAT (Inside)')
+    device = tables.LinkColumn('dcim:device', args=[Accessor('interface.device.pk')], orderable=False)
+    interface = tables.Column(orderable=False)
+    nat_inside = tables.LinkColumn(
+        'ipam:ipaddress', args=[Accessor('nat_inside.pk')], orderable=False, verbose_name='NAT (Inside)'
+    )
 
     class Meta(BaseTable.Meta):
         model = IPAddress
         fields = ('address', 'device', 'interface', 'nat_inside')
+
+
+class IPAddressSearchTable(SearchTable):
+    address = tables.TemplateColumn(IPADDRESS_LINK, verbose_name='IP Address')
+    status = tables.TemplateColumn(STATUS_LABEL)
+    vrf = tables.TemplateColumn(VRF_LINK, verbose_name='VRF')
+    tenant = tables.TemplateColumn(TENANT_LINK)
+    device = tables.LinkColumn('dcim:device', args=[Accessor('interface.device.pk')], orderable=False)
+    interface = tables.Column(orderable=False)
+
+    class Meta(SearchTable.Meta):
+        model = IPAddress
+        fields = ('address', 'status', 'vrf', 'tenant', 'device', 'interface', 'description')
 
 
 #
@@ -304,15 +343,26 @@ class VLANGroupTable(BaseTable):
 class VLANTable(BaseTable):
     pk = ToggleColumn()
     vid = tables.LinkColumn('ipam:vlan', args=[Accessor('pk')], verbose_name='ID')
-    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
+    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
-    name = tables.Column(verbose_name='Name')
     prefixes = tables.TemplateColumn(VLAN_PREFIXES, orderable=False, verbose_name='Prefixes')
-    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
-    status = tables.TemplateColumn(STATUS_LABEL, verbose_name='Status')
-    role = tables.TemplateColumn(VLAN_ROLE_LINK, verbose_name='Role')
-    description = tables.Column(verbose_name='Description')
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
+    status = tables.TemplateColumn(STATUS_LABEL)
+    role = tables.TemplateColumn(VLAN_ROLE_LINK)
 
     class Meta(BaseTable.Meta):
         model = VLAN
         fields = ('pk', 'vid', 'site', 'group', 'name', 'prefixes', 'tenant', 'status', 'role', 'description')
+
+
+class VLANSearchTable(SearchTable):
+    vid = tables.LinkColumn('ipam:vlan', args=[Accessor('pk')], verbose_name='ID')
+    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
+    group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
+    status = tables.TemplateColumn(STATUS_LABEL)
+    role = tables.TemplateColumn(VLAN_ROLE_LINK)
+
+    class Meta(SearchTable.Meta):
+        model = VLAN
+        fields = ('vid', 'site', 'group', 'name', 'tenant', 'status', 'role', 'description')

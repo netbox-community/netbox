@@ -58,13 +58,15 @@ ACTION_EDIT = 3
 ACTION_BULK_EDIT = 4
 ACTION_DELETE = 5
 ACTION_BULK_DELETE = 6
+ACTION_BULK_CREATE = 7
 ACTION_CHOICES = (
     (ACTION_CREATE, 'created'),
+    (ACTION_BULK_CREATE, 'bulk created'),
     (ACTION_IMPORT, 'imported'),
     (ACTION_EDIT, 'modified'),
     (ACTION_BULK_EDIT, 'bulk edited'),
     (ACTION_DELETE, 'deleted'),
-    (ACTION_BULK_DELETE, 'bulk deleted')
+    (ACTION_BULK_DELETE, 'bulk deleted'),
 )
 
 
@@ -360,6 +362,61 @@ class TopologyMap(models.Model):
 
 
 #
+# Image attachments
+#
+
+def image_upload(instance, filename):
+
+    path = 'image-attachments/'
+
+    # Rename the file to the provided name, if any. Attempt to preserve the file extension.
+    extension = filename.rsplit('.')[-1]
+    if instance.name and extension in ['bmp', 'gif', 'jpeg', 'jpg', 'png']:
+        filename = '.'.join([instance.name, extension])
+    elif instance.name:
+        filename = instance.name
+
+    return '{}{}_{}_{}'.format(path, instance.content_type.name, instance.object_id, filename)
+
+
+@python_2_unicode_compatible
+class ImageAttachment(models.Model):
+    """
+    An uploaded image which is associated with an object.
+    """
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    parent = GenericForeignKey('content_type', 'object_id')
+    image = models.ImageField(upload_to=image_upload, height_field='image_height', width_field='image_width')
+    image_height = models.PositiveSmallIntegerField()
+    image_width = models.PositiveSmallIntegerField()
+    name = models.CharField(max_length=50, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        if self.name:
+            return self.name
+        filename = self.image.name.rsplit('/', 1)[-1]
+        return filename.split('_', 2)[2]
+
+    def delete(self, *args, **kwargs):
+
+        _name = self.image.name
+
+        super(ImageAttachment, self).delete(*args, **kwargs)
+
+        # Delete file from disk
+        self.image.delete(save=False)
+
+        # Deleting the file erases its name. We restore the image's filename here in case we still need to reference it
+        # before the request finishes. (For example, to display a message indicating the ImageAttachment was deleted.)
+        self.image.name = _name
+
+
+#
 # User actions
 #
 
@@ -396,6 +453,9 @@ class UserActionManager(models.Manager):
     def log_import(self, user, content_type, message=''):
         self.log_bulk_action(user, content_type, ACTION_IMPORT, message)
 
+    def log_bulk_create(self, user, content_type, message=''):
+        self.log_bulk_action(user, content_type, ACTION_BULK_CREATE, message)
+
     def log_bulk_edit(self, user, content_type, message=''):
         self.log_bulk_action(user, content_type, ACTION_BULK_EDIT, message)
 
@@ -426,7 +486,7 @@ class UserAction(models.Model):
         return u'{} {} {}'.format(self.user, self.get_action_display(), self.content_type)
 
     def icon(self):
-        if self.action in [ACTION_CREATE, ACTION_IMPORT]:
+        if self.action in [ACTION_CREATE, ACTION_BULK_CREATE, ACTION_IMPORT]:
             return mark_safe('<i class="glyphicon glyphicon-plus text-success"></i>')
         elif self.action in [ACTION_EDIT, ACTION_BULK_EDIT]:
             return mark_safe('<i class="glyphicon glyphicon-pencil text-warning"></i>')

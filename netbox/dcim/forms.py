@@ -23,7 +23,7 @@ from .models import (
     Interface, IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate,
     Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES,
     RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD,
-    VIRTUAL_IFACE_TYPES
+    SUBDEVICE_ROLE_PARENT, VIRTUAL_IFACE_TYPES
 )
 
 
@@ -374,6 +374,21 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
     manufacturer = FilterChoiceField(
         queryset=Manufacturer.objects.annotate(filter_count=Count('device_types')),
         to_field_name='slug'
+    )
+    is_console_server = forms.BooleanField(
+        required=False, label='Is a console server', widget=forms.CheckboxInput(attrs={'value': 'True'}))
+    is_pdu = forms.BooleanField(
+        required=False, label='Is a PDU', widget=forms.CheckboxInput(attrs={'value': 'True'})
+    )
+    is_network_device = forms.BooleanField(
+        required=False, label='Is a network device', widget=forms.CheckboxInput(attrs={'value': 'True'})
+    )
+    subdevice_role = forms.NullBooleanField(
+        required=False, label='Subdevice role', widget=forms.Select(choices=(
+            ('', '---------'),
+            (SUBDEVICE_ROLE_PARENT, 'Parent'),
+            (SUBDEVICE_ROLE_CHILD, 'Child'),
+        ))
     )
 
 
@@ -914,7 +929,7 @@ class ConsolePortConnectionForm(BootstrapMixin, forms.ModelForm):
         label='Console Server',
         widget=Livesearch(
             query_key='q',
-            query_url='dcim-api:device_list',
+            query_url='dcim-api:device-list',
             field_to_update='console_server',
         )
     )
@@ -922,7 +937,7 @@ class ConsolePortConnectionForm(BootstrapMixin, forms.ModelForm):
         queryset=ConsoleServerPort.objects.all(),
         label='Port',
         widget=APISelect(
-            api_url='/api/dcim/devices/{{console_server}}/console-server-ports/',
+            api_url='/api/dcim/console-server-ports/?device_id={{device}}',
             disabled_indicator='connected_console',
         )
     )
@@ -1015,7 +1030,7 @@ class ConsoleServerPortConnectionForm(BootstrapMixin, forms.Form):
         label='Device',
         widget=Livesearch(
             query_key='q',
-            query_url='dcim-api:device_list',
+            query_url='dcim-api:device-list',
             field_to_update='device'
         )
     )
@@ -1023,7 +1038,7 @@ class ConsoleServerPortConnectionForm(BootstrapMixin, forms.Form):
         queryset=ConsolePort.objects.all(),
         label='Port',
         widget=APISelect(
-            api_url='/api/dcim/devices/{{device}}/console-ports/',
+            api_url='/api/dcim/console-ports/?device_id={{device}}',
             disabled_indicator='cs_port'
         )
     )
@@ -1182,7 +1197,7 @@ class PowerPortConnectionForm(BootstrapMixin, forms.ModelForm):
         label='PDU',
         widget=Livesearch(
             query_key='q',
-            query_url='dcim-api:device_list',
+            query_url='dcim-api:device-list',
             field_to_update='pdu'
         )
     )
@@ -1190,7 +1205,7 @@ class PowerPortConnectionForm(BootstrapMixin, forms.ModelForm):
         queryset=PowerOutlet.objects.all(),
         label='Outlet',
         widget=APISelect(
-            api_url='/api/dcim/devices/{{pdu}}/power-outlets/',
+            api_url='/api/dcim/power-outlets/?device_id={{device}}',
             disabled_indicator='connected_port'
         )
     )
@@ -1281,7 +1296,7 @@ class PowerOutletConnectionForm(BootstrapMixin, forms.Form):
         label='Device',
         widget=Livesearch(
             query_key='q',
-            query_url='dcim-api:device_list',
+            query_url='dcim-api:device-list',
             field_to_update='device'
         )
     )
@@ -1289,7 +1304,7 @@ class PowerOutletConnectionForm(BootstrapMixin, forms.Form):
         queryset=PowerPort.objects.all(),
         label='Port',
         widget=APISelect(
-            api_url='/api/dcim/devices/{{device}}/power-ports/',
+            api_url='/api/dcim/power-ports/?device_id={{device}}',
             disabled_indicator='power_outlet'
         )
     )
@@ -1444,7 +1459,7 @@ class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
         label='Device',
         widget=Livesearch(
             query_key='q',
-            query_url='dcim-api:device_list',
+            query_url='dcim-api:device-list',
             field_to_update='device_b'
         )
     )
@@ -1452,7 +1467,7 @@ class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
         queryset=Interface.objects.all(),
         label='Interface',
         widget=APISelect(
-            api_url='/api/dcim/devices/{{device_b}}/interfaces/?type=physical',
+            api_url='/api/dcim/interfaces/?device_id={{device_b}}&type=physical',
             disabled_indicator='is_connected'
         )
     )
@@ -1466,7 +1481,7 @@ class InterfaceConnectionForm(BootstrapMixin, forms.ModelForm):
         super(InterfaceConnectionForm, self).__init__(*args, **kwargs)
 
         # Initialize interface A choices
-        device_a_interfaces = Interface.objects.filter(device=device_a).exclude(
+        device_a_interfaces = Interface.objects.order_naturally().filter(device=device_a).exclude(
             form_factor__in=VIRTUAL_IFACE_TYPES
         ).select_related(
             'circuit_termination', 'connected_as_a', 'connected_as_b'
@@ -1643,14 +1658,17 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
 
 class ConsoleConnectionFilterForm(BootstrapMixin, forms.Form):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
+    device = forms.CharField(required=False, label='Device name')
 
 
 class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
+    device = forms.CharField(required=False, label='Device name')
 
 
 class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
+    device = forms.CharField(required=False, label='Device name')
 
 
 #

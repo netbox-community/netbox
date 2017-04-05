@@ -13,7 +13,7 @@ from django.utils.encoding import force_bytes, python_2_unicode_compatible
 from dcim.models import Device
 from utilities.models import CreatedUpdatedModel
 
-from .exceptions import InvalidSessionKey
+from .exceptions import InvalidKey
 from .hashers import SecretValidationHasher
 
 
@@ -221,12 +221,23 @@ class SessionKey(models.Model):
 
         # Validate the provided session key
         if not check_password(session_key, self.hash):
-            raise InvalidSessionKey()
+            raise InvalidKey("Invalid session key")
 
         # Decrypt master key using provided session key
         master_key = xor_keys(session_key, bytes(self.cipher))
 
         return master_key
+
+    def get_session_key(self, master_key):
+
+        # Recover session key using the master key
+        session_key = xor_keys(master_key, bytes(self.cipher))
+
+        # Validate the recovered session key
+        if not check_password(session_key, self.hash):
+            raise InvalidKey("Invalid master key")
+
+        return session_key
 
 
 @python_2_unicode_compatible

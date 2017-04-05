@@ -15,7 +15,7 @@ from django.db.models import Count, Q, ObjectDoesNotExist
 from django.utils.encoding import python_2_unicode_compatible
 
 from circuits.models import Circuit
-from extras.models import CustomFieldModel, CustomField, CustomFieldValue
+from extras.models import CustomFieldModel, CustomField, CustomFieldValue, ImageAttachment
 from extras.rpc import RPC_CLIENTS
 from tenancy.models import Tenant
 from utilities.fields import ColorField, NullableCharField
@@ -254,6 +254,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     contact_email = models.EmailField(blank=True, verbose_name="Contact E-mail")
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+    images = GenericRelation(ImageAttachment)
 
     objects = SiteManager()
 
@@ -375,6 +376,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
                                      help_text='Units are numbered top-to-bottom')
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+    images = GenericRelation(ImageAttachment)
 
     objects = RackManager()
 
@@ -904,11 +906,11 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
     DeviceRole, and (optionally) a Platform. Device names are not required, however if one is set it must be unique.
 
-    Each Device must be assigned to a Rack, although associating it with a particular rack face or unit is optional (for
-    example, vertically mounted PDUs do not consume rack units).
+    Each Device must be assigned to a site, and optionally to a rack within that site. Associating a device with a
+    particular rack face or unit is optional (for example, vertically mounted PDUs do not consume rack units).
 
-    When a new Device is created, console/power/interface components are created along with it as dictated by the
-    component templates assigned to its DeviceType. Components can also be added, modified, or deleted after the
+    When a new Device is created, console/power/interface/device bay components are created along with it as dictated
+    by the component templates assigned to its DeviceType. Components can also be added, modified, or deleted after the
     creation of a Device.
     """
     device_type = models.ForeignKey('DeviceType', related_name='instances', on_delete=models.PROTECT)
@@ -932,6 +934,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
                                        blank=True, null=True, verbose_name='Primary IPv6')
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+    images = GenericRelation(ImageAttachment)
 
     objects = DeviceManager()
 
