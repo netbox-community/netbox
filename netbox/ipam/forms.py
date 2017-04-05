@@ -586,27 +586,51 @@ class VLANForm(BootstrapMixin, CustomFieldForm):
 
 
 class VLANFromCSVForm(forms.ModelForm):
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, to_field_name='name',
-                                  error_messages={'invalid_choice': 'Site not found.'})
-    group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False, to_field_name='name',
-                                   error_messages={'invalid_choice': 'VLAN group not found.'})
-    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
-                                    error_messages={'invalid_choice': 'Tenant not found.'})
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(), required=False, to_field_name='name',
+        error_messages={'invalid_choice': 'Site not found.'}
+    )
+    group_name = forms.CharField(required=False)
+    tenant = forms.ModelChoiceField(
+        Tenant.objects.all(), to_field_name='name', required=False,
+        error_messages={'invalid_choice': 'Tenant not found.'}
+    )
     status_name = forms.ChoiceField(choices=[(s[1], s[0]) for s in VLAN_STATUS_CHOICES])
-    role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False, to_field_name='name',
-                                  error_messages={'invalid_choice': 'Invalid role.'})
+    role = forms.ModelChoiceField(
+        queryset=Role.objects.all(), required=False, to_field_name='name',
+        error_messages={'invalid_choice': 'Invalid role.'}
+    )
 
     class Meta:
         model = VLAN
-        fields = ['site', 'group', 'vid', 'name', 'tenant', 'status_name', 'role', 'description']
+        fields = ['site', 'group_name', 'vid', 'name', 'tenant', 'status_name', 'role', 'description']
+
+    def clean(self):
+
+        super(VLANFromCSVForm, self).clean()
+
+        # Validate VLANGroup
+        group_name = self.cleaned_data.get('group_name')
+        if group_name:
+            try:
+                vlan_group = VLANGroup.objects.get(site=self.cleaned_data.get('site'), name=group_name)
+            except VLANGroup.DoesNotExist:
+                self.add_error('group_name', "Invalid VLAN group {}.".format(group_name))
 
     def save(self, *args, **kwargs):
-        m = super(VLANFromCSVForm, self).save(commit=False)
+
+        vlan = super(VLANFromCSVForm, self).save(commit=False)
+
+        # Assign VLANGroup by site and name
+        if self.cleaned_data['group_name']:
+            vlan.group = VLANGroup.objects.get(site=self.cleaned_data['site'], name=self.cleaned_data['group_name'])
+
         # Assign VLAN status by name
-        m.status = dict(self.fields['status_name'].choices)[self.cleaned_data['status_name']]
+        vlan.status = dict(self.fields['status_name'].choices)[self.cleaned_data['status_name']]
+
         if kwargs.get('commit'):
-            m.save()
-        return m
+            vlan.save()
+        return vlan
 
 
 class VLANImportForm(BootstrapMixin, BulkImportForm):
