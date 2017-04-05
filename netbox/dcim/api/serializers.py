@@ -490,7 +490,7 @@ class WritableDeviceSerializer(serializers.ModelSerializer):
 
         # Validate uniqueness of (rack, position, face) since we omitted the automatically-created validator from Meta.
         if data.get('rack') and data.get('position') and data.get('face'):
-            validator = UniqueTogetherValidator(queryset=Rack.objects.all(), fields=('rack', 'position', 'face'))
+            validator = UniqueTogetherValidator(queryset=Device.objects.all(), fields=('rack', 'position', 'face'))
             validator.set_context(self)
             validator(data)
 
