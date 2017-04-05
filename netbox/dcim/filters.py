@@ -401,7 +401,7 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         label='Device (ID)',
     )
     device = django_filters.ModelMultipleChoiceFilter(
-        name='device',
+        name='device__name',
         queryset=Device.objects.all(),
         to_field_name='name',
         label='Device (name)',
