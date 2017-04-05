@@ -6,7 +6,7 @@ from utilities.tables import BaseTable, SearchTable, ToggleColumn
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPortTemplate, Device, DeviceBayTemplate, DeviceRole, DeviceType,
     Interface, InterfaceTemplate, Manufacturer, Platform, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
-    RackGroup, Region, Site,
+    RackGroup, Region, Site, HistoryRole,
 )
 
 
@@ -67,6 +67,12 @@ RACK_ROLE = """
 DEVICEROLE_ACTIONS = """
 {% if perms.dcim.change_devicerole %}
     <a href="{% url 'dcim:devicerole_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+{% endif %}
+"""
+
+HISTORYLOGROLE_ACTIONS = """
+{% if perms.dcim.change_historylogrole %}
+    <a href="{% url 'dcim:historylogrole_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
@@ -498,3 +504,20 @@ class InterfaceConnectionTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Interface
         fields = ('device_a', 'interface_a', 'device_b', 'interface_b')
+
+
+#
+# HistoryLog roles
+#
+
+class HistoryLogRoleTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.Column(verbose_name='Name')
+    color = tables.TemplateColumn(COLOR_LABEL, verbose_name='Color')
+    slug = tables.Column(verbose_name='Slug')
+    actions = tables.TemplateColumn(template_code=HISTORYLOGROLE_ACTIONS, attrs={'td': {'class': 'text-right'}},
+                                    verbose_name='')
+
+    class Meta(BaseTable.Meta):
+        model = HistoryRole
+        fields = ('pk', 'name', 'color', 'slug', 'actions')

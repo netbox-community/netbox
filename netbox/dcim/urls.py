@@ -117,6 +117,7 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/edit/$', views.DeviceEditView.as_view(), name='device_edit'),
     url(r'^devices/(?P<pk>\d+)/delete/$', views.DeviceDeleteView.as_view(), name='device_delete'),
     url(r'^devices/(?P<pk>\d+)/inventory/$', views.device_inventory, name='device_inventory'),
+    url(r'^devices/(?P<pk>\d+)/history-log/$', views.device_historylog, name='device_historylog'),
     url(r'^devices/(?P<pk>\d+)/lldp-neighbors/$', views.device_lldp_neighbors, name='device_lldp_neighbors'),
     url(r'^devices/(?P<pk>\d+)/ip-addresses/assign/$', views.ipaddress_assign, name='ipaddress_assign'),
     url(r'^devices/(?P<pk>\d+)/add-secret/$', secret_add, name='device_addsecret'),
@@ -182,6 +183,18 @@ urlpatterns = [
     url(r'^devices/(?P<device>\d+)/inventory-items/add/$', views.InventoryItemEditView.as_view(), name='inventoryitem_add'),
     url(r'^inventory-items/(?P<pk>\d+)/edit/$', views.InventoryItemEditView.as_view(), name='inventoryitem_edit'),
     url(r'^inventory-items/(?P<pk>\d+)/delete/$', views.InventoryItemDeleteView.as_view(), name='inventoryitem_delete'),
+
+    # HistoryLog
+    url(r'^devices/(?P<device>\d+)/history-log/add/$', views.HistoryLogEditView.as_view(),
+        name='historylog_add'),
+    url(r'^history-log/(?P<pk>\d+)/edit/$', views.HistoryLogEditView.as_view(), name='historylog_edit'),
+    url(r'^history-log/(?P<pk>\d+)/delete/$', views.HistoryLogDeleteView.as_view(), name='historylog_delete'),
+
+    # HistoryLogRoles
+    url(r'^history-log-roles/$', views.HistoryLogRoleListView.as_view(), name='historylogrole_list'),
+    url(r'^history-log-roles/add/$', views.HistoryLogRoleEditView.as_view(), name='historylogrole_add'),
+    url(r'^history-log-roles/delete/$', views.HistoryLogRoleBulkDeleteView.as_view(), name='historylogrole_bulk_delete'),
+    url(r'^history-log-roles/(?P<pk>\d+)/edit/$', views.HistoryLogRoleEditView.as_view(), name='historylogrole_edit'),
 
     # Console/power/interface connections
     url(r'^console-connections/$', views.ConsoleConnectionsListView.as_view(), name='console_connections_list'),

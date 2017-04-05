@@ -11,7 +11,7 @@ from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, InventoryItem,
     Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation,
-    RackRole, Region, Site,
+    RackRole, Region, Site, HistoryLog, HistoryRole,
 )
 from dcim import filters
 from extras.api.serializers import RenderedGraphSerializer
@@ -301,6 +301,18 @@ class InventoryItemViewSet(WritableSerializerMixin, ModelViewSet):
     serializer_class = serializers.InventoryItemSerializer
     write_serializer_class = serializers.WritableInventoryItemSerializer
     filter_class = filters.InventoryItemFilter
+
+
+class HistoryLogViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = HistoryLog.objects.select_related('device')
+    serializer_class = serializers.HistoryLogSerializer
+    write_serializer_class = serializers.WritableHistoryLogSerializer
+    filter_class = filters.HistoryLogFilter
+
+
+class HistoryRoleViewSet(ModelViewSet):
+    queryset = HistoryRole.objects.all()
+    serializer_class = serializers.HistoryRoleSerializer
 
 
 #

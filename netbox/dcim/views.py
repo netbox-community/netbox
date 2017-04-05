@@ -26,7 +26,7 @@ from .models import (
     CONNECTION_STATUS_CONNECTED, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
     DeviceBay, DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate,
     Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site,
+    RackReservation, RackRole, Region, Site, HistoryLog, HistoryRole,
 )
 
 
@@ -805,6 +805,17 @@ def device_inventory(request, pk):
     return render(request, 'dcim/device_inventory.html', {
         'device': device,
         'inventory_items': inventory_items,
+    })
+
+
+def device_historylog(request, pk):
+
+    device = get_object_or_404(Device, pk=pk)
+    historylog_items = HistoryLog.objects.filter(device=device)
+
+    return render(request, 'dcim/device_historylog.html', {
+        'device': device,
+        'historylog_items': historylog_items,
     })
 
 
@@ -1612,3 +1623,49 @@ class InventoryItemEditView(PermissionRequiredMixin, ComponentEditView):
 class InventoryItemDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_inventoryitem'
     model = InventoryItem
+
+
+#
+# HistoryLog
+#
+
+class HistoryLogEditView(PermissionRequiredMixin, ComponentEditView):
+    permission_required = 'dcim.change_historylog'
+    model = HistoryLog
+    form_class = forms.HistoryLogForm
+
+    def alter_obj(self, obj, request, url_args, url_kwargs):
+        if 'device' in url_kwargs:
+            obj.device = get_object_or_404(Device, pk=url_kwargs['device'])
+            obj.user = request.user
+        return obj
+
+
+class HistoryLogDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+    permission_required = 'dcim.delete_historylog'
+    model = HistoryLog
+
+
+#
+# HistoryLogRole
+#
+
+class HistoryLogRoleListView(ObjectListView):
+    queryset = HistoryRole.objects.annotate(historylog_count=Count('history_log'))
+    table = tables.HistoryLogRoleTable
+    template_name = 'dcim/historylogrole_list.html'
+
+
+class HistoryLogRoleEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_historylogrole'
+    model = HistoryRole
+    form_class = forms.HistoryRoleForm
+
+    def get_return_url(self, obj):
+        return reverse('dcim:historylogrole_list')
+
+
+class HistoryLogRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_historylogrole'
+    cls = HistoryRole
+    default_return_url = 'dcim:historylogrole_list'

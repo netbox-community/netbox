@@ -7,7 +7,7 @@ from dcim.models import (
     DeviceBay, DeviceBayTemplate, DeviceType, DeviceRole, IFACE_FF_CHOICES, IFACE_ORDERING_CHOICES, Interface,
     InterfaceConnection, InterfaceTemplate, Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RACK_FACE_CHOICES, RACK_TYPE_CHOICES,
-    RACK_WIDTH_CHOICES, Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHOICES,
+    RACK_WIDTH_CHOICES, Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHOICES, HistoryLog, HistoryRole,
 )
 from extras.api.customfields import CustomFieldModelSerializer
 from tenancy.api.serializers import NestedTenantSerializer
@@ -688,3 +688,47 @@ class WritableInterfaceConnectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = InterfaceConnection
         fields = ['id', 'interface_a', 'interface_b', 'connection_status']
+
+
+#
+# Device History Logs
+#
+
+class HistoryRoleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = HistoryRole
+        fields = ['id', 'name', 'slug', 'color']
+
+
+class NestedHistoryRoleSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:historyrole-detail')
+
+    class Meta:
+        model = HistoryRole
+        fields = ['id', 'url', 'name', 'slug']
+
+
+class HistoryLogSerializer(CustomFieldModelSerializer):
+    role = NestedHistoryRoleSerializer()
+    device = NestedDeviceSerializer()
+
+    class Meta:
+        model = HistoryLog
+        fields = ['id', 'time', 'device', 'user', 'role', 'message']
+
+
+class NestedHistoryLogSerializer(serializers.ModelSerializer):
+    role = NestedHistoryRoleSerializer()
+    device = NestedDeviceSerializer()
+
+    class Meta:
+        model = HistoryLog
+        fields = ['id', 'role', 'device', 'message']
+
+
+class WritableHistoryLogSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = HistoryLog
+        fields = ['id', 'time', 'device', 'user', 'role', 'message']

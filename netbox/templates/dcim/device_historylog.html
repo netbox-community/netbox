@@ -1,0 +1,46 @@
+{% extends '_base.html' %}
+
+{% block title %}{{ device }} - Inventory{% endblock %}
+
+{% block content %}
+{% include 'dcim/inc/device_header.html' with active_tab='historylog' %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>History Log</strong>
+            </div>
+            <table class="table table-hover table-condensed panel-body" id="hardware">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Message</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in historylog_items %}
+                        {% with template_name='dcim/inc/historylog.html' indent=0 %}
+                            {% include template_name %}
+                        {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if perms.dcim.add_historylog %}
+            <a href="{% url 'dcim:historylog_add' device=device.pk %}" class="btn btn-success">
+                <span class="fa fa-plus" aria-hidden="true"></span>
+                Add History Log
+            </a>
+        {% endif %}
+        {% if perms.dcim.add_historylogrole %}
+            <a href="{% url 'dcim:historylogrole_list' %}" class="btn btn-success">
+                <span class="fa fa-plus" aria-hidden="true"></span>
+                History Log Roles
+            </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
