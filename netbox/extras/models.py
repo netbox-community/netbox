@@ -318,6 +318,7 @@ class TopologyMap(models.Model):
 
     def render(self, img_format='png'):
 
+        from circuits.models import CircuitTermination
         from dcim.models import Device, InterfaceConnection
 
         # Construct the graph
@@ -352,13 +353,19 @@ class TopologyMap(models.Model):
             for query in device_set.split(';'):  # Split regexes on semicolons
                 device_superset = device_superset | Q(name__regex=query)
 
-        # Add all connections to the graph
+        # Add all interface connections to the graph
         devices = Device.objects.filter(*(device_superset,))
         connections = InterfaceConnection.objects.filter(
             interface_a__device__in=devices, interface_b__device__in=devices
         )
         for c in connections:
             graph.edge(c.interface_a.device.name, c.interface_b.device.name)
+
+        # Add all circuits to the graph
+        for termination in CircuitTermination.objects.filter(term_side='A', interface__device__in=devices):
+            peer_termination = termination.get_peer_termination()
+            if peer_termination is not None and peer_termination.interface.device in devices:
+                graph.edge(termination.interface.device.name, peer_termination.interface.device.name, color='blue')
 
         return graph.pipe(format=img_format)
 
