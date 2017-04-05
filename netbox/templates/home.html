@@ -48,6 +48,20 @@
                 </div>
             </div>
         </div>
+        {% if perms.secrets %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Secrets</strong>
+                </div>
+                <div class="list-group">
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.secret_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'secrets:secret_list' %}">Secrets</a></h4>
+                        <p class="list-group-item-text text-muted">Sensitive data (such as passwords) which has been stored securely</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     </div>
     <div class="col-sm-6 col-md-4">
         <div class="panel panel-default">
@@ -101,20 +115,25 @@
         </div>
     </div>
     <div class="col-sm-6 col-md-4">
-        {% if perms.secrets %}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Secrets</strong>
-                </div>
-                <div class="list-group">
-                    <div class="list-group-item">
-                        <span class="badge pull-right">{{ stats.secret_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'secrets:secret_list' %}">Secrets</a></h4>
-                        <p class="list-group-item-text text-muted">Sensitive data (such as passwords) which has been stored securely</p>
-                    </div>
-                </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Global Topology Maps</strong>
             </div>
-        {% endif %}
+            {% if topology_maps %}
+                <table class="table table-hover panel-body">
+                    {% for tm in topology_maps %}
+                        <tr>
+                            <td><i class="fa fa-fw fa-map-o"></i> <a href="{% url 'extras-api:topologymap-render' pk=tm.pk %}" target="_blank">{{ tm }}</a></td>
+                            <td>{{ tm.description }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <div class="panel-body text-muted">
+                    None
+                </div>
+            {% endif %}
+        </div>
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Recent Activity</strong>

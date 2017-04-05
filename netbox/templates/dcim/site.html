@@ -224,7 +224,7 @@
                 <table class="table table-hover panel-body">
                     {% for rg in rack_groups %}
                         <tr>
-                            <td><i class="fa fa-fw fa-folder"></i> <a href="{{ rg.get_absolute_url }}">{{ rg.name }}</a></td>
+                            <td><i class="fa fa-fw fa-folder-o"></i> <a href="{{ rg.get_absolute_url }}">{{ rg.name }}</a></td>
                             <td>{{ rg.rack_count }}</td>
                         </tr>
                     {% endfor %}
@@ -257,7 +257,7 @@
                 <table class="table table-hover panel-body">
                     {% for tm in topology_maps %}
                         <tr>
-                            <td><i class="fa fa-fw fa-map"></i> <a href="{% url 'extras-api:topologymap-render' pk=tm.pk %}" target="_blank">{{ tm }}</a></td>
+                            <td><i class="fa fa-fw fa-map-o"></i> <a href="{% url 'extras-api:topologymap-render' pk=tm.pk %}" target="_blank">{{ tm }}</a></td>
                             <td>{{ tm.description }}</td>
                         </tr>
                     {% endfor %}

@@ -13,7 +13,7 @@ from circuits.tables import CircuitSearchTable, ProviderSearchTable
 from dcim.filters import DeviceFilter, DeviceTypeFilter, RackFilter, SiteFilter
 from dcim.models import ConsolePort, Device, DeviceType, InterfaceConnection, PowerPort, Rack, Site
 from dcim.tables import DeviceSearchTable, DeviceTypeSearchTable, RackSearchTable, SiteSearchTable
-from extras.models import UserAction
+from extras.models import TopologyMap, UserAction
 from ipam.filters import AggregateFilter, IPAddressFilter, PrefixFilter, VLANFilter, VRFFilter
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from ipam.tables import AggregateSearchTable, IPAddressSearchTable, PrefixSearchTable, VLANSearchTable, VRFSearchTable
@@ -148,6 +148,7 @@ def home(request):
     return render(request, 'home.html', {
         'search_form': SearchForm(),
         'stats': stats,
+        'topology_maps': TopologyMap.objects.filter(site__isnull=True),
         'recent_activity': UserAction.objects.select_related('user')[:50]
     })
 
