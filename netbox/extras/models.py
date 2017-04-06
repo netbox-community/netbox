@@ -337,9 +337,10 @@ class TopologyMap(models.Model):
             # Add each device to the graph
             devices = []
             for query in device_set.split(';'):  # Split regexes on semicolons
-                devices += Device.objects.filter(name__regex=query)
+                devices += Device.objects.filter(name__regex=query).select_related('device_role')
             for d in devices:
-                subgraph.node(d.name)
+                fillcolor = '#{}'.format(d.device_role.color)
+                subgraph.node(d.name, style='filled', fillcolor=fillcolor)
 
             # Add an invisible connection to each successive device in a set to enforce horizontal order
             for j in range(0, len(devices) - 1):
