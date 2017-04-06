@@ -210,7 +210,7 @@
                     </tr>
                     {% for resv in reservations %}
                         <tr>
-                            <td>{{ resv.units|join:', ' }}</td>
+                            <td>{{ resv.unit_list }}</td>
                             <td>
                                 {{ resv.description }}<br />
                                 <small>{{ resv.user }} &middot; {{ resv.created }}</small>

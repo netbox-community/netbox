@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from itertools import count, groupby
 
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -571,6 +572,15 @@ class RackReservation(models.Model):
                     )
                 })
 
+    @property
+    def unit_list(self):
+        """
+        Express the assigned units as a string of summarized ranges. For example:
+            [0, 1, 2, 10, 14, 15, 16] => "0-2, 10, 14-16"
+        """
+        group = (list(x) for _, x in groupby(sorted(self.units), lambda x, c=count(): next(c) - x))
+        return ', '.join('-'.join(map(str, (g[0], g[-1])[:len(g)])) for g in group)
+
 
 #
 # Device Types
@@ -781,9 +791,9 @@ class InterfaceManager(models.Manager):
         IFACE_ORDERING_CHOICES (typically indicated by a parent Device's DeviceType).
 
         To order interfaces naturally, the `name` field is split into five distinct components: leading text (name),
-        slot, subslot, position, and channel:
+        slot, subslot, position, channel, and virtual circuit:
 
-            {name}{slot}/{subslot}/{position}:{channel}
+            {name}{slot}/{subslot}/{position}:{channel}.{vc}
 
         Components absent from the interface name are ignored. For example, an interface named GigabitEthernet0/1 would
         be parsed as follows:
@@ -793,21 +803,23 @@ class InterfaceManager(models.Manager):
             subslot = 0
             position = 1
             channel = None
+            vc = 0
 
         The chosen sorting method will determine which fields are ordered first in the query.
         """
         queryset = self.get_queryset()
         sql_col = '{}.name'.format(queryset.model._meta.db_table)
         ordering = {
-            IFACE_ORDERING_POSITION: ('_slot', '_subslot', '_position', '_channel', '_name'),
-            IFACE_ORDERING_NAME: ('_name', '_slot', '_subslot', '_position', '_channel'),
+            IFACE_ORDERING_POSITION: ('_slot', '_subslot', '_position', '_channel', '_vc', '_name'),
+            IFACE_ORDERING_NAME: ('_name', '_slot', '_subslot', '_position', '_channel', '_vc'),
         }[method]
         return queryset.extra(select={
             '_name': "SUBSTRING({} FROM '^([^0-9]+)')".format(sql_col),
-            '_slot': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+\/[0-9]+(:[0-9]+)?$') AS integer)".format(sql_col),
-            '_subslot': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+(:[0-9]+)?$') AS integer)".format(sql_col),
-            '_position': "CAST(SUBSTRING({} FROM '([0-9]+)(:[0-9]+)?$') AS integer)".format(sql_col),
-            '_channel': "CAST(SUBSTRING({} FROM ':([0-9]+)$') AS integer)".format(sql_col),
+            '_slot': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+\/[0-9]+(:[0-9]+)?(\.[0-9]+)?$') AS integer)".format(sql_col),
+            '_subslot': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+(:[0-9]+)?(\.[0-9]+)?$') AS integer)".format(sql_col),
+            '_position': "CAST(SUBSTRING({} FROM '([0-9]+)(:[0-9]+)?(\.[0-9]+)?$') AS integer)".format(sql_col),
+            '_channel': "COALESCE(CAST(SUBSTRING({} FROM ':([0-9]+)(\.[0-9]+)?$') AS integer), 0)".format(sql_col),
+            '_vc': "COALESCE(CAST(SUBSTRING({} FROM '\.([0-9]+)$') AS integer), 0)".format(sql_col),
         }).order_by(*ordering)
 
 

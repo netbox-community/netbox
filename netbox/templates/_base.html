@@ -72,6 +72,8 @@
                             {% if perms.dcim.add_rackrole %}
                                 <li><a href="{% url 'dcim:rackrole_add' %}"><i class="fa fa-plus" aria-hidden="true"></i> Add a Rack Role</a></li>
                             {% endif %}
+                            <li class="divider"></li>
+                            <li><a href="{% url 'dcim:rackreservation_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Rack Reservations</a></li>
                         </ul>
                     </li>
                     <li class="dropdown{% if request.path|contains:'/dcim/device,/dcim/manufacturers/,/dcim/platforms/' %} active{% endif %}">
@@ -294,7 +296,7 @@
                 <div class="col-xs-4 text-right">
                     <p class="text-muted">
                         <i class="fa fa-fw fa-book text-primary"></i> <a href="http://netbox.readthedocs.io/" target="_blank">Docs</a> &middot;
-                        <i class="fa fa-fw fa-cloud text-primary"></i> <a href="{% url 'django.swagger.base.view' %}">API</a> &middot;
+                        <i class="fa fa-fw fa-cloud text-primary"></i> <a href="{% url 'api_docs' %}">API</a> &middot;
                         <i class="fa fa-fw fa-code text-primary"></i> <a href="https://github.com/digitalocean/netbox">Code</a> &middot;
                         <i class="fa fa-fw fa-support text-primary"></i> <a href="https://github.com/digitalocean/netbox/wiki">Help</a>
                     </p>

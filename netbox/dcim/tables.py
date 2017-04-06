@@ -6,7 +6,7 @@ from utilities.tables import BaseTable, ToggleColumn
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPortTemplate, Device, DeviceBayTemplate, DeviceRole, DeviceType,
     Interface, InterfaceTemplate, Manufacturer, Platform, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
-    RackGroup, Region, Site,
+    RackGroup, RackReservation, Region, Site,
 )
 
 
@@ -61,6 +61,12 @@ RACK_ROLE = """
     <label class="label" style="background-color: #{{ record.role.color }}">{{ value }}</label>
 {% else %}
     &mdash;
+{% endif %}
+"""
+
+RACKRESERVATION_ACTIONS = """
+{% if perms.dcim.change_rackreservation %}
+    <a href="{% url 'dcim:rackreservation_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
@@ -224,6 +230,23 @@ class RackImportTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Rack
         fields = ('site', 'group', 'name', 'facility_id', 'tenant', 'u_height')
+
+
+#
+# Rack reservations
+#
+
+class RackReservationTable(BaseTable):
+    pk = ToggleColumn()
+    rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')])
+    unit_list = tables.Column(orderable=False, verbose_name='Units')
+    actions = tables.TemplateColumn(
+        template_code=RACKRESERVATION_ACTIONS, attrs={'td': {'class': 'text-right'}}, verbose_name=''
+    )
+
+    class Meta(BaseTable.Meta):
+        model = RackReservation
+        fields = ('pk', 'rack', 'unit_list', 'user', 'created', 'description', 'actions')
 
 
 #

@@ -330,6 +330,19 @@ class RackReservationForm(BootstrapMixin, forms.ModelForm):
         return unit_choices
 
 
+class RackReservationFilterForm(BootstrapMixin, forms.Form):
+    q = forms.CharField(required=False, label='Search')
+    site = FilterChoiceField(
+        queryset=Site.objects.annotate(filter_count=Count('racks__reservations')),
+        to_field_name='slug'
+    )
+    group_id = FilterChoiceField(
+        queryset=RackGroup.objects.select_related('site').annotate(filter_count=Count('racks__reservations')),
+        label='Rack group',
+        null_option=(0, 'None')
+    )
+
+
 #
 # Manufacturers
 #
