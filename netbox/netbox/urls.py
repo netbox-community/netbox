@@ -1,3 +1,5 @@
+from rest_framework_swagger.views import get_swagger_view
+
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
@@ -8,6 +10,7 @@ from users.views import login, logout
 
 
 handler500 = handle_500
+swagger_view = get_swagger_view(title='NetBox API')
 
 _patterns = [
 
@@ -36,7 +39,7 @@ _patterns = [
     url(r'^api/ipam/', include('ipam.api.urls')),
     url(r'^api/secrets/', include('secrets.api.urls')),
     url(r'^api/tenancy/', include('tenancy.api.urls')),
-    url(r'^api/docs/', include('rest_framework_swagger.urls')),
+    url(r'^api/docs/', swagger_view, name='api_docs'),
 
     # Serving static media in Django to pipe it through LoginRequiredMiddleware
     url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
