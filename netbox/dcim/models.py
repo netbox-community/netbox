@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from itertools import count, groupby
 
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -570,6 +571,15 @@ class RackReservation(models.Model):
                         ', '.join([str(u) for u in conflicting_units]),
                     )
                 })
+
+    @property
+    def unit_list(self):
+        """
+        Express the assigned units as a string of summarized ranges. For example:
+            [0, 1, 2, 10, 14, 15, 16] => "0-2, 10, 14-16"
+        """
+        group = (list(x) for _, x in groupby(sorted(self.units), lambda x, c=count(): next(c) - x))
+        return ', '.join('-'.join(map(str, (g[0], g[-1])[:len(g)])) for g in group)
 
 
 #
