@@ -14,7 +14,17 @@ from utilities.views import BulkDeleteView, BulkEditView, ObjectDeleteView, Obje
 
 from . import filters, forms, tables
 from .decorators import userkey_required
-from .models import SecretRole, Secret, SessionKey, UserKey
+from .models import SecretRole, Secret, SessionKey
+
+
+def get_session_key(request):
+    """
+    Extract and decode the session key sent with a request. Returns None if no session key was provided.
+    """
+    session_key = request.COOKIES.get('session_key', None)
+    if session_key is not None:
+        return base64.b64decode(session_key)
+    return session_key
 
 
 #
@@ -73,14 +83,13 @@ def secret_add(request, pk):
     device = get_object_or_404(Device, pk=pk)
 
     secret = Secret(device=device)
-    uk = UserKey.objects.get(user=request.user)
+    session_key = get_session_key(request)
 
     if request.method == 'POST':
         form = forms.SecretForm(request.POST, instance=secret)
         if form.is_valid():
 
             # We need a valid session key in order to create a Secret
-            session_key = base64.b64decode(request.COOKIES.get('session_key', None))
             if session_key is None:
                 form.add_error(None, "No session key was provided with the request. Unable to encrypt secret data.")
 
@@ -119,13 +128,13 @@ def secret_add(request, pk):
 def secret_edit(request, pk):
 
     secret = get_object_or_404(Secret, pk=pk)
+    session_key = get_session_key(request)
 
     if request.method == 'POST':
         form = forms.SecretForm(request.POST, instance=secret)
         if form.is_valid():
 
             # Re-encrypt the Secret if a plaintext and session key have been provided.
-            session_key = base64.b64decode(request.COOKIES.get('session_key', None))
             if form.cleaned_data['plaintext'] and session_key is not None:
 
                 # Retrieve the master key using the provided session key

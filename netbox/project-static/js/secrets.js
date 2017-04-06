@@ -1,15 +1,25 @@
 $(document).ready(function() {
 
     // Unlocking a secret
-    $('button.unlock-secret').click(function() {
+    $('button.unlock-secret').click(function(event) {
         var secret_id = $(this).attr('secret-id');
         unlock_secret(secret_id);
+        event.preventDefault();
     });
 
     // Locking a secret
-    $('button.lock-secret').click(function() {
+    $('button.lock-secret').click(function(event) {
         var secret_id = $(this).attr('secret-id');
         lock_secret(secret_id);
+        event.preventDefault();
+    });
+
+    // Adding/editing a secret
+    $('form.requires-session-key').submit(function(event) {
+        if ($('#id_plaintext').val() && document.cookie.indexOf('session_key') == -1) {
+            $('#privkey_modal').modal('show');
+            event.preventDefault();
+        }
     });
 
     // Retrieve a session key
