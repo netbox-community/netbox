@@ -4,7 +4,7 @@ Django>=1.10,<1.11
 django-debug-toolbar>=1.6
 django-filter>=1.0.1
 django-mptt==0.8.7
-django-rest-swagger==0.3.10
+django-rest-swagger>=2.1.0
 django-tables2>=1.2.5
 djangorestframework>=3.5.0
 graphviz>=0.4.10
