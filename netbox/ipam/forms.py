@@ -210,28 +210,33 @@ class PrefixFromCSVForm(forms.ModelForm):
         site = self.cleaned_data.get('site')
         vlan_group_name = self.cleaned_data.get('vlan_group_name')
         vlan_vid = self.cleaned_data.get('vlan_vid')
-
-        # Validate VLAN
         vlan_group = None
+        vlan = None
+
+        # Validate VLAN group
         if vlan_group_name:
             try:
                 vlan_group = VLANGroup.objects.get(site=site, name=vlan_group_name)
             except VLANGroup.DoesNotExist:
-                self.add_error('vlan_group_name', "Invalid VLAN group ({} - {}).".format(site, vlan_group_name))
-        if vlan_vid and vlan_group:
+                if site:
+                    self.add_error('vlan_group_name', "Invalid VLAN group ({} - {}).".format(site, vlan_group_name))
+                else:
+                    self.add_error('vlan_group_name', "Invalid global VLAN group ({}).".format(vlan_group_name))
+
+        # Validate VLAN
+        if vlan_vid:
             try:
-                self.instance.vlan = VLAN.objects.get(group=vlan_group, vid=vlan_vid)
+                self.instance.vlan = VLAN.objects.get(site=site, group=vlan_group, vid=vlan_vid)
             except VLAN.DoesNotExist:
-                self.add_error('vlan_vid', "Invalid VLAN ID ({} - {}).".format(vlan_group, vlan_vid))
-        elif vlan_vid and site:
-            try:
-                self.instance.vlan = VLAN.objects.get(site=site, vid=vlan_vid)
-            except VLAN.DoesNotExist:
-                self.add_error('vlan_vid', "Invalid VLAN ID ({}) for site {}.".format(vlan_vid, site))
+                if site:
+                    self.add_error('vlan_vid', "Invalid VLAN ID ({}) for site {}.".format(vlan_vid, site))
+                elif vlan_group:
+                    self.add_error('vlan_vid', "Invalid VLAN ID ({}) for group {}.".format(vlan_vid, vlan_group_name))
+                elif not vlan_group_name:
+                    self.add_error('vlan_vid', "Invalid global VLAN ID ({}).".format(vlan_vid))
             except VLAN.MultipleObjectsReturned:
                 self.add_error('vlan_vid', "Multiple VLANs found ({} - VID {})".format(site, vlan_vid))
-        elif vlan_vid:
-            self.add_error('vlan_vid', "Must specify site and/or VLAN group when assigning a VLAN.")
+            self.instance.vlan = vlan
 
     def save(self, *args, **kwargs):
 
