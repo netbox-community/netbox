@@ -323,6 +323,7 @@ class InterfaceConnectionViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = InterfaceConnection.objects.select_related('interface_a__device', 'interface_b__device')
     serializer_class = serializers.InterfaceConnectionSerializer
     write_serializer_class = serializers.WritableInterfaceConnectionSerializer
+    filter_class = filters.InterfaceConnectionFilter
 
 
 #

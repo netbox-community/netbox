@@ -8,9 +8,9 @@ from tenancy.models import Tenant
 from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, IFACE_FF_LAG, Interface, InterfaceTemplate, Manufacturer, InventoryItem,
-    Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation,
-    RackRole, Region, Site, VIRTUAL_IFACE_TYPES,
+    DeviceBayTemplate, DeviceRole, DeviceType, IFACE_FF_LAG, Interface, InterfaceConnection, InterfaceTemplate,
+    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
+    RackGroup, RackReservation, RackRole, Region, Site, VIRTUAL_IFACE_TYPES,
 )
 
 
@@ -586,6 +586,10 @@ class InterfaceConnectionFilter(django_filters.FilterSet):
         method='filter_device',
         label='Device',
     )
+
+    class Meta:
+        model = InterfaceConnection
+        fields = ['connection_status']
 
     def filter_site(self, queryset, name, value):
         if not value.strip():
