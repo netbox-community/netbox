@@ -14,6 +14,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template import TemplateSyntaxError
 from django.utils.html import escape
 from django.utils.http import is_safe_url
+from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from extras.forms import CustomFieldForm
@@ -198,7 +199,7 @@ class ObjectEditView(View):
                 msg = u'{} <a href="{}">{}</a>'.format(msg, obj.get_absolute_url(), escape(obj))
             else:
                 msg = u'{} {}'.format(msg, escape(obj))
-            messages.success(request, msg)
+            messages.success(request, mark_safe(msg))
             if obj_created:
                 UserAction.objects.log_create(request.user, obj, msg)
             else:
@@ -267,7 +268,7 @@ class ObjectDeleteView(View):
                 handle_protectederror(obj, request, e)
                 return redirect(obj.get_absolute_url())
 
-            msg = u'Deleted {} {}'.format(self.model._meta.verbose_name, escape(obj))
+            msg = u'Deleted {} {}'.format(self.model._meta.verbose_name, obj)
             messages.success(request, msg)
             UserAction.objects.log_delete(request.user, obj, msg)
 
