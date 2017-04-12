@@ -20,7 +20,8 @@ Python 3:
 
 ```no-highlight
 # yum install -y epel-release
-# yum install -y gcc python3 python3-devel python3-pip libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel
+# yum install -y gcc python34 python34-devel python34-setuptools libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel
+# easy_install-3.4 pip
 ```
 
 Python 2:
