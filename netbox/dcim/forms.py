@@ -1422,9 +1422,16 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
         super(InterfaceBulkEditForm, self).__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces which belong to the parent device.
+        device = None
         if self.initial.get('device'):
-            self.fields['lag'].queryset = Interface.objects.filter(
-                device=self.initial['device'], form_factor=IFACE_FF_LAG
+            try:
+                device = Device.objects.get(pk=self.initial.get('device'))
+            except Device.DoesNotExist:
+                pass
+        if device is not None:
+            interface_ordering = device.device_type.interface_ordering
+            self.fields['lag'].queryset = Interface.objects.order_naturally(method=interface_ordering).filter(
+                device=device, form_factor=IFACE_FF_LAG
             )
         else:
             self.fields['lag'].choices = []
