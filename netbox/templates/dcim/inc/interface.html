@@ -19,7 +19,9 @@
     <td>
         <small>{{ iface.mac_address|default:'' }}</small>
     </td>
-    {% if iface.is_virtual %}
+    {% if iface.is_lag %}
+        <td colspan="2" class="text-muted">LAG interface</td>
+    {% elif iface.is_virtual %}
         <td colspan="2" class="text-muted">Virtual interface</td>
     {% elif iface.connection %}
         {% with iface.connected_interface as connected_iface %}
