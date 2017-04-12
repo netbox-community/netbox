@@ -207,7 +207,12 @@ class ObjectEditView(View):
 
             if '_addanother' in request.POST:
                 return redirect(request.path)
-            return redirect(self.get_return_url(obj))
+
+            return_url = form.cleaned_data['return_url']
+            if return_url and is_safe_url(url=return_url, host=request.get_host()):
+                return redirect(return_url)
+            else:
+                return redirect(self.get_return_url(obj))
 
         return render(request, self.template_name, {
             'obj': obj,

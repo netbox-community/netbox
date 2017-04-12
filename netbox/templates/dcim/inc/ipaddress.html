@@ -12,6 +12,11 @@
         {% endif %}
     </td>
     <td class="text-right">
+        {% if perms.ipam.change_ipaddress %}
+        <a href="{% url 'ipam:ipaddress_edit' pk=ip.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-info btn-xs" title="Edit interface">
+            <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+        </a>
+        {% endif %}
         {% if perms.ipam.delete_ipaddress %}
             <a href="{% url 'ipam:ipaddress_delete' pk=ip.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                 <i class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete IP address"></i>

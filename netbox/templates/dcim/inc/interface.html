@@ -61,6 +61,11 @@
                 </button>
             {% endif %}
         {% endif %}
+        {% if perms.ipam.add_ipaddress %}
+            <a href="{% url 'dcim:ipaddress_assign' pk=device.pk %}?interface={{ iface.pk }}" class="btn btn-xs btn-primary">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+            </a>
+        {% endif %}
         {% if perms.dcim.change_interface %}
             {% if not iface.is_virtual %}
                 {% if iface.connection %}
@@ -74,7 +79,7 @@
                         </a>
                     {% endif %}
                     <a href="{% url 'dcim:interfaceconnection_delete' pk=iface.connection.pk %}?device={{ device.pk }}" class="btn btn-danger btn-xs" title="Delete connection">
-                        <i class="glyphicon glyphicon-remove" aria-hidden="true"></i>
+                        <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
                     </a>
                 {% elif iface.circuit_termination and perms.circuits.change_circuittermination %}
                     <button class="btn btn-warning btn-xs interface-toggle connected" disabled="disabled" title="Circuits cannot be marked as planned or connected">
@@ -85,7 +90,7 @@
                     </a>
                 {% else %}
                     <a href="{% url 'dcim:interfaceconnection_add' pk=device.pk %}?interface_a={{ iface.pk }}" class="btn btn-success btn-xs" title="Connect">
-                        <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+                        <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
                     </a>
                 {% endif %}
             {% endif %}
@@ -106,3 +111,19 @@
         {% endif %}
     </td>
 </tr>
+{% if ip_addresses %}
+    {% for ip in ip_addresses %}
+        {% if ip.interface_id == iface.id %}
+        <tr style="background: #eff">
+            <td></td>
+            <td><a href="{% url 'ipam:ipaddress' pk=ip.pk %}">{{ ip }}</a></td>
+            <td>{{ ip.vrf|default:"Global" }}</td>
+            <td>{% if device.primary_ip4 == ip or device.primary_ip6 == ip %}
+                    <span class="label label-success">Primary</span>
+                {% endif %}
+            </td>
+          <td colspan="2">{{ ip.description }}</td>
+        </tr>
+        {% endif %}
+    {% endfor %}
+{% endif %}
