@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import urlencode
 from django.views.generic import View
 
-from ipam.models import Prefix, IPAddress, Service, VLAN
+from ipam.models import Prefix, Service, VLAN
 from circuits.models import Circuit
 from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from utilities.forms import ConfirmationForm
@@ -700,19 +700,15 @@ def device(request, pk):
     interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering)\
         .filter(device=device, mgmt_only=False)\
         .select_related('connected_as_a__interface_b__device', 'connected_as_b__interface_a__device',
-                        'circuit_termination__circuit')
+                        'circuit_termination__circuit').prefetch_related('ip_addresses')
     mgmt_interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering)\
         .filter(device=device, mgmt_only=True)\
         .select_related('connected_as_a__interface_b__device', 'connected_as_b__interface_a__device',
-                        'circuit_termination__circuit')
+                        'circuit_termination__circuit').prefetch_related('ip_addresses')
     device_bays = natsorted(
         DeviceBay.objects.filter(device=device).select_related('installed_device__device_type__manufacturer'),
         key=attrgetter('name')
     )
-
-    # Gather relevant device objects
-    ip_addresses = IPAddress.objects.filter(interface__device=device).select_related('interface', 'vrf')\
-        .order_by('address')
     services = Service.objects.filter(device=device)
     secrets = device.secrets.all()
 
@@ -743,7 +739,6 @@ def device(request, pk):
         'interfaces': interfaces,
         'mgmt_interfaces': mgmt_interfaces,
         'device_bays': device_bays,
-        'ip_addresses': ip_addresses,
         'services': services,
         'secrets': secrets,
         'related_devices': related_devices,
@@ -1599,7 +1594,7 @@ def ipaddress_assign(request, pk):
                 return redirect('dcim:device', pk=device.pk)
 
     else:
-        form = forms.IPAddressForm(device)
+        form = forms.IPAddressForm(device, initial=request.GET)
 
     return render(request, 'dcim/ipaddress_assign.html', {
         'device': device,

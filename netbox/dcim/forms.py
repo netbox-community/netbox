@@ -1713,7 +1713,7 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
         self.fields['interface'].required = True
 
         # If this device has only one interface, select it by default.
-        if len(interfaces) == 1:
+        if 'interface' not in self.initial and len(interfaces) == 1:
             self.fields['interface'].initial = interfaces[0]
 
         # If this device does not have any IP addresses assigned, default to setting the first IP as its primary.

@@ -196,35 +196,6 @@
         {% endif %}
         <div class="panel panel-default">
             <div class="panel-heading">
-                <strong>IP Addresses</strong>
-            </div>
-            {% if ip_addresses %}
-                <table class="table table-hover panel-body">
-                    {% for ip in ip_addresses %}
-                        {% include 'dcim/inc/ipaddress.html' %}
-                    {% endfor %}
-                </table>
-            {% elif interfaces or mgmt_interfaces %}
-                <div class="panel-body text-muted">
-                    None assigned
-                </div>
-            {% else %}
-                <div class="panel-body">
-                    <a href="{% url 'dcim:interface_add' pk=device.pk %}">Create an interface</a> to assign an IP.
-                </div>
-            {% endif %}
-            {% if perms.ipam.add_ipaddress %}
-                {% if interfaces or mgmt_interfaces %}
-                    <div class="panel-footer text-right">
-                        <a href="{% url 'dcim:ipaddress_assign' pk=device.pk %}" class="btn btn-xs btn-primary">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Assign IP address
-                        </a>
-                    </div>
-                {% endif %}
-            {% endif %}
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
                 <strong>Services</strong>
             </div>
             {% if services %}
@@ -250,7 +221,7 @@
             <div class="panel-heading">
                 <strong>Critical Connections</strong>
             </div>
-            <table class="table table-hover panel-body">
+            <table class="table table-hover panel-body component-list">
                 {% for iface in mgmt_interfaces %}
                     {% include 'dcim/inc/interface.html' with icon='wrench' %}
                 {% empty %}
@@ -375,7 +346,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <table class="table table-hover panel-body">
+                <table class="table table-hover panel-body component-list">
                     {% for devicebay in device_bays %}
                         {% include 'dcim/inc/devicebay.html' with selectable=True %}
                     {% empty %}
@@ -416,6 +387,9 @@
                 <div class="panel-heading">
                     <strong>Interfaces</strong>
                     <div class="pull-right">
+                        <button class="btn btn-default btn-xs toggle-ips" selected="selected">
+                            <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Show IPs
+                        </button>
                         {% if perms.dcim.change_interface and interfaces|length > 1 %}
                             <button class="btn btn-default btn-xs toggle">
                                 <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
@@ -428,7 +402,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <table class="table table-hover panel-body">
+                <table class="table table-hover panel-body component-list">
                     {% for iface in interfaces %}
                         {% include 'dcim/inc/interface.html' with selectable=True %}
                     {% empty %}
@@ -485,7 +459,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <table class="table table-hover panel-body">
+                <table class="table table-hover panel-body component-list">
                     {% for csp in cs_ports %}
                         {% include 'dcim/inc/consoleserverport.html' with selectable=True %}
                     {% empty %}
@@ -537,7 +511,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <table class="table table-hover panel-body">
+                <table class="table table-hover panel-body component-list">
                     {% for po in power_outlets %}
                         {% include 'dcim/inc/poweroutlet.html' with selectable=True %}
                     {% empty %}
@@ -627,6 +601,18 @@ $(".powerport-toggle").click(function() {
 });
 $(".interface-toggle").click(function() {
     return toggleConnection($(this), "dcim/interface-connections/");
+});
+// Toggle the display of IP addresses under interfaces
+$('button.toggle-ips').click(function() {
+    var selected = $(this).attr('selected');
+    if (selected) {
+        $('table.component-list tr.ipaddress').hide();
+    } else {
+        $('table.component-list tr.ipaddress').show();
+    }
+    $(this).attr('selected', !selected);
+    $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');
+    return false;
 });
 </script>
 <script src="{% static 'js/graphs.js' %}"></script>
