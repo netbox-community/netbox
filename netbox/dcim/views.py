@@ -1562,47 +1562,6 @@ class InterfaceConnectionsListView(ObjectListView):
 
 
 #
-# IP addresses
-#
-
-@permission_required(['dcim.change_device', 'ipam.add_ipaddress'])
-def ipaddress_assign(request, pk):
-
-    device = get_object_or_404(Device, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.IPAddressForm(device, request.POST)
-        if form.is_valid():
-
-            ipaddress = form.save(commit=False)
-            ipaddress.interface = form.cleaned_data['interface']
-            ipaddress.save()
-            form.save_custom_fields()
-            messages.success(request, u"Added new IP address {} to interface {}.".format(ipaddress, ipaddress.interface))
-
-            if form.cleaned_data['set_as_primary']:
-                if ipaddress.family == 4:
-                    device.primary_ip4 = ipaddress
-                elif ipaddress.family == 6:
-                    device.primary_ip6 = ipaddress
-                device.save()
-
-            if '_addanother' in request.POST:
-                return redirect('dcim:ipaddress_assign', pk=device.pk)
-            else:
-                return redirect('dcim:device', pk=device.pk)
-
-    else:
-        form = forms.IPAddressForm(device, initial=request.GET)
-
-    return render(request, 'dcim/ipaddress_assign.html', {
-        'device': device,
-        'form': form,
-        'return_url': reverse('dcim:device', kwargs={'pk': device.pk}),
-    })
-
-
-#
 # Modules
 #
 

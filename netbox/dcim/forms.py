@@ -1692,36 +1692,6 @@ class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
 
 
 #
-# IP addresses
-#
-
-class IPAddressForm(BootstrapMixin, CustomFieldForm):
-    set_as_primary = forms.BooleanField(label='Set as primary IP for device', required=False)
-
-    class Meta:
-        model = IPAddress
-        fields = ['address', 'vrf', 'tenant', 'status', 'interface', 'description']
-
-    def __init__(self, device, *args, **kwargs):
-
-        super(IPAddressForm, self).__init__(*args, **kwargs)
-
-        self.fields['vrf'].empty_label = 'Global'
-
-        interfaces = device.interfaces.order_naturally(method=device.device_type.interface_ordering)
-        self.fields['interface'].queryset = interfaces
-        self.fields['interface'].required = True
-
-        # If this device has only one interface, select it by default.
-        if 'interface' not in self.initial and len(interfaces) == 1:
-            self.fields['interface'].initial = interfaces[0]
-
-        # If this device does not have any IP addresses assigned, default to setting the first IP as its primary.
-        if not IPAddress.objects.filter(interface__device=device).count():
-            self.fields['set_as_primary'].initial = True
-
-
-#
 # Modules
 #
 

@@ -177,7 +177,9 @@ class ObjectEditView(GetReturnURLMixin, View):
 
         obj = self.get_object(kwargs)
         obj = self.alter_obj(obj, request, args, kwargs)
-        form = self.form_class(instance=obj, initial=request.GET)
+        # Parse initial data manually to avoid setting field values as lists
+        initial_data = {k: request.GET[k] for k in request.GET}
+        form = self.form_class(instance=obj, initial=initial_data)
 
         return render(request, self.template_name, {
             'obj': obj,

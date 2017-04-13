@@ -59,7 +59,7 @@
             {% endif %}
         {% endif %}
         {% if perms.ipam.add_ipaddress %}
-            <a href="{% url 'dcim:ipaddress_assign' pk=device.pk %}?interface={{ iface.pk }}" class="btn btn-xs btn-success" title="Assign IP address">
+            <a href="{% url 'ipam:ipaddress_add' %}?interface_site={{ device.site.pk }}&interface_rack={{ device.rack.pk }}&interface_device={{ device.pk }}&interface={{ iface.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-xs btn-success" title="Add IP address">
                 <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
             </a>
         {% endif %}

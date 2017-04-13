@@ -6,7 +6,7 @@ from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFi
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, BootstrapMixin, BulkImportForm, CSVDataField, ExpandableIPAddressField, FilterChoiceField, Livesearch,
-    SlugField, add_blank_choice,
+    ReturnURLForm, SlugField, add_blank_choice,
 )
 
 from .models import (
@@ -307,21 +307,46 @@ class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # IP addresses
 #
 
-class IPAddressForm(BootstrapMixin, CustomFieldForm):
-    nat_site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site',
-                                      widget=forms.Select(attrs={'filter-for': 'nat_device'}))
-    nat_device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False, label='Device',
-                                        widget=APISelect(api_url='/api/dcim/devices/?site_id={{nat_site}}',
-                                                         display_field='display_name',
-                                                         attrs={'filter-for': 'nat_inside'}))
-    livesearch = forms.CharField(required=False, label='IP Address', widget=Livesearch(
-        query_key='q', query_url='ipam-api:ipaddress_list', field_to_update='nat_inside', obj_label='address')
+class IPAddressForm(BootstrapMixin, ReturnURLForm, CustomFieldForm):
+    interface_site = forms.ModelChoiceField(
+        queryset=Site.objects.all(), required=False, label='Site', widget=forms.Select(
+            attrs={'filter-for': 'interface_rack'}
+        )
+    )
+    interface_rack = forms.ModelChoiceField(
+        queryset=Rack.objects.all(), required=False, label='Rack', widget=APISelect(
+            api_url='/api/dcim/racks/?site_id={{interface_site}}', display_field='display_name',
+            attrs={'filter-for': 'interface_device'}
+        )
+    )
+    interface_device = forms.ModelChoiceField(
+        queryset=Device.objects.all(), required=False, label='Device', widget=APISelect(
+            api_url='/api/dcim/devices/?site_id={{interface_site}}&rack_id={{interface_rack}}',
+            display_field='display_name', attrs={'filter-for': 'interface'}
+        )
+    )
+    nat_site = forms.ModelChoiceField(
+        queryset=Site.objects.all(), required=False, label='Site', widget=forms.Select(
+            attrs={'filter-for': 'nat_device'}
+        )
+    )
+    nat_device = forms.ModelChoiceField(
+        queryset=Device.objects.all(), required=False, label='Device', widget=APISelect(
+            api_url='/api/dcim/devices/?site_id={{nat_site}}', display_field='display_name',
+            attrs={'filter-for': 'nat_inside'}
+        )
+    )
+    livesearch = forms.CharField(
+        required=False, label='IP Address', widget=Livesearch(
+            query_key='q', query_url='ipam-api:ipaddress_list', field_to_update='nat_inside', obj_label='address'
+        )
     )
 
     class Meta:
         model = IPAddress
-        fields = ['address', 'vrf', 'tenant', 'status', 'nat_inside', 'description']
+        fields = ['address', 'vrf', 'tenant', 'status', 'interface', 'nat_inside', 'description']
         widgets = {
+            'interface': APISelect(api_url='/api/dcim/devices/{{interface_device}}/interfaces/'),
             'nat_inside': APISelect(api_url='/api/ipam/ip-addresses/?device_id={{nat_device}}', display_field='address')
         }
 
@@ -330,8 +355,37 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
 
         self.fields['vrf'].empty_label = 'Global'
 
-        if self.instance.nat_inside:
+        # If an interface has been assigned, initialize site, rack, and device
+        if self.instance.interface:
+            self.initial['interface_site'] = self.instance.interface.device.site
+            self.initial['interface_rack'] = self.instance.interface.device.rack
+            self.initial['interface_device'] = self.instance.interface.device
 
+        # Limit rack choices
+        if self.is_bound and self.data.get('interface_site'):
+            self.fields['interface_rack'].queryset = Rack.objects.filter(site__pk=self.data['interface_site'])
+        elif self.initial.get('interface_site'):
+            self.fields['interface_rack'].queryset = Rack.objects.filter(site=self.initial['interface_site'])
+        else:
+            self.fields['interface_rack'].choices = []
+
+        # Limit device choices
+        if self.is_bound and self.data.get('interface_rack'):
+            self.fields['interface_device'].queryset = Device.objects.filter(rack=self.data['interface_rack'])
+        elif self.initial.get('interface_rack'):
+            self.fields['interface_device'].queryset = Device.objects.filter(rack=self.initial['interface_rack'])
+        else:
+            self.fields['interface_device'].choices = []
+
+        # Limit interface choices
+        if self.is_bound and self.data.get('interface_device'):
+            self.fields['interface'].queryset = Interface.objects.filter(device=self.data['interface_device'])
+        elif self.initial.get('interface_device'):
+            self.fields['interface'].queryset = Interface.objects.filter(device=self.initial['interface_device'])
+        else:
+            self.fields['interface'].choices = []
+
+        if self.instance.nat_inside:
             nat_inside = self.instance.nat_inside
             # If the IP is assigned to an interface, populate site/device fields accordingly
             if self.instance.nat_inside.interface:
@@ -345,9 +399,7 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
                 )
             else:
                 self.fields['nat_inside'].queryset = IPAddress.objects.filter(pk=nat_inside.pk)
-
         else:
-
             # Initialize nat_device choices if nat_site is set
             if self.is_bound and self.data.get('nat_site'):
                 self.fields['nat_device'].queryset = Device.objects.filter(site__pk=self.data['nat_site'])
@@ -355,7 +407,6 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
                 self.fields['nat_device'].queryset = Device.objects.filter(site=self.initial['nat_site'])
             else:
                 self.fields['nat_device'].choices = []
-
             # Initialize nat_inside choices if nat_device is set
             if self.is_bound and self.data.get('nat_device'):
                 self.fields['nat_inside'].queryset = IPAddress.objects.filter(
