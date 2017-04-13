@@ -1708,7 +1708,7 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
 
         self.fields['vrf'].empty_label = 'Global'
 
-        interfaces = device.interfaces.all()
+        interfaces = device.interfaces.order_naturally(method=device.device_type.interface_ordering)
         self.fields['interface'].queryset = interfaces
         self.fields['interface'].required = True
 

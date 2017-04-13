@@ -124,13 +124,13 @@ class ComponentCreateView(View):
 
 class ComponentEditView(ObjectEditView):
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return obj.device.get_absolute_url()
 
 
 class ComponentDeleteView(ObjectDeleteView):
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return obj.device.get_absolute_url()
 
 
@@ -149,7 +149,7 @@ class RegionEditView(PermissionRequiredMixin, ObjectEditView):
     model = Region
     form_class = forms.RegionForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('dcim:region_list')
 
 
@@ -242,7 +242,7 @@ class RackGroupEditView(PermissionRequiredMixin, ObjectEditView):
     model = RackGroup
     form_class = forms.RackGroupForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('dcim:rackgroup_list')
 
 
@@ -268,7 +268,7 @@ class RackRoleEditView(PermissionRequiredMixin, ObjectEditView):
     model = RackRole
     form_class = forms.RackRoleForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('dcim:rackrole_list')
 
 
@@ -379,7 +379,7 @@ class RackReservationEditView(PermissionRequiredMixin, ObjectEditView):
             obj.user = request.user
         return obj
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return obj.rack.get_absolute_url()
 
 
@@ -387,7 +387,7 @@ class RackReservationDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_rackreservation'
     model = RackReservation
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return obj.rack.get_absolute_url()
 
 
@@ -412,7 +412,7 @@ class ManufacturerEditView(PermissionRequiredMixin, ObjectEditView):
     model = Manufacturer
     form_class = forms.ManufacturerForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('dcim:manufacturer_list')
 
 
@@ -632,7 +632,7 @@ class DeviceRoleEditView(PermissionRequiredMixin, ObjectEditView):
     model = DeviceRole
     form_class = forms.DeviceRoleForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('dcim:devicerole_list')
 
 
@@ -657,7 +657,7 @@ class PlatformEditView(PermissionRequiredMixin, ObjectEditView):
     model = Platform
     form_class = forms.PlatformForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('dcim:platform_list')
 
 
@@ -750,7 +750,6 @@ class DeviceEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_device'
     model = Device
     form_class = forms.DeviceForm
-    fields_initial = ['site', 'rack', 'position', 'face', 'device_bay']
     template_name = 'dcim/device_edit.html'
     default_return_url = 'dcim:device_list'
 

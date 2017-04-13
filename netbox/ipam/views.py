@@ -244,7 +244,7 @@ class RIREditView(PermissionRequiredMixin, ObjectEditView):
     model = RIR
     form_class = forms.RIRForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('ipam:rir_list')
 
 
@@ -370,7 +370,7 @@ class RoleEditView(PermissionRequiredMixin, ObjectEditView):
     model = Role
     form_class = forms.RoleForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('ipam:role_list')
 
 
@@ -464,7 +464,6 @@ class PrefixEditView(PermissionRequiredMixin, ObjectEditView):
     model = Prefix
     form_class = forms.PrefixForm
     template_name = 'ipam/prefix_edit.html'
-    fields_initial = ['vrf', 'tenant', 'site', 'prefix', 'vlan']
     default_return_url = 'ipam:prefix_list'
 
 
@@ -645,7 +644,6 @@ class IPAddressEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.change_ipaddress'
     model = IPAddress
     form_class = forms.IPAddressForm
-    fields_initial = ['address', 'vrf']
     template_name = 'ipam/ipaddress_edit.html'
     default_return_url = 'ipam:ipaddress_list'
 
@@ -718,7 +716,7 @@ class VLANGroupEditView(PermissionRequiredMixin, ObjectEditView):
     model = VLANGroup
     form_class = forms.VLANGroupForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('ipam:vlangroup_list')
 
 
@@ -807,7 +805,7 @@ class ServiceEditView(PermissionRequiredMixin, ObjectEditView):
             obj.device = get_object_or_404(Device, pk=url_kwargs['device'])
         return obj
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return obj.device.get_absolute_url()
 
 
