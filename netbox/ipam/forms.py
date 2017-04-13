@@ -308,6 +308,8 @@ class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
 #
 
 class IPAddressForm(BootstrapMixin, CustomFieldForm):
+    interface = forms.ModelChoiceField(queryset=Interface.objects.all(), label='Interface',
+                                       widget=APISelect(api_url='/api/dcim/devices/{{device}}/interfaces/'))
     nat_site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site',
                                       widget=forms.Select(attrs={'filter-for': 'nat_device'}))
     nat_device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False, label='Device',
@@ -317,10 +319,11 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
     livesearch = forms.CharField(required=False, label='IP Address', widget=Livesearch(
         query_key='q', query_url='ipam-api:ipaddress_list', field_to_update='nat_inside', obj_label='address')
     )
+    return_url = forms.CharField(required=False, widget=forms.HiddenInput())
 
     class Meta:
         model = IPAddress
-        fields = ['address', 'vrf', 'tenant', 'status', 'nat_inside', 'description']
+        fields = ['address', 'vrf', 'tenant', 'status', 'interface', 'nat_inside', 'description']
         widgets = {
             'nat_inside': APISelect(api_url='/api/ipam/ip-addresses/?device_id={{nat_device}}', display_field='address')
         }
@@ -329,6 +332,12 @@ class IPAddressForm(BootstrapMixin, CustomFieldForm):
         super(IPAddressForm, self).__init__(*args, **kwargs)
 
         self.fields['vrf'].empty_label = 'Global'
+
+        interfaces = Interface.objects.filter(device=self.instance.device)
+
+        self.fields['interface'].choices = [
+            (iface.id, {'label': iface.name, 'disabled': ''}) for iface in interfaces
+        ]
 
         if self.instance.nat_inside:
 
