@@ -1,4 +1,4 @@
-<tr{% if csp.connected_console and not csp.connected_console.connection_status %} class="info"{% endif %}>
+<tr class="consoleserverport{% if csp.connected_console and not csp.connected_console.connection_status %} info{% endif %}">
     {% if selectable and perms.dcim.change_consoleserverport or perms.dcim.delete_consoleserverport %}
         <td class="pk">
             <input name="pk" type="checkbox" value="{{ csp.pk }}" />
@@ -19,7 +19,7 @@
             <span class="text-muted">Not connected</span>
         </td>
     {% endif %}
-    <td class="text-right">
+    <td colspan="2" class="text-right">
         {% if perms.dcim.change_consoleserverport %}
             {% if csp.connected_console %}
                 {% if csp.connected_console.connection_status %}

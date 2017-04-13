@@ -402,7 +402,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <table class="table table-hover panel-body component-list">
+                <table id="interfaces_table" class="table table-hover panel-body component-list">
                     {% for iface in interfaces %}
                         {% include 'dcim/inc/interface.html' with selectable=True %}
                     {% empty %}
@@ -606,9 +606,9 @@ $(".interface-toggle").click(function() {
 $('button.toggle-ips').click(function() {
     var selected = $(this).attr('selected');
     if (selected) {
-        $('table.component-list tr.ipaddress').hide();
+        $('#interfaces_table tr.ipaddress').hide();
     } else {
-        $('table.component-list tr.ipaddress').show();
+        $('#interfaces_table tr.ipaddress').show();
     }
     $(this).attr('selected', !selected);
     $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');
