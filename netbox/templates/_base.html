@@ -274,10 +274,10 @@
             </div>
         </div>
     </nav>
-	<div class="container wrapper">
+    <div class="container wrapper">
         {% if settings.BANNER_TOP %}
             <div class="alert alert-info text-center" role="alert">
-				{{ settings.BANNER_TOP|safe }}
+                {{ settings.BANNER_TOP|safe }}
             </div>
         {% endif %}
         {% if settings.MAINTENANCE_MODE %}
@@ -286,24 +286,24 @@
                 <p>NetBox is currently in maintenance mode. Functionality may be limited.</p>
             </div>
         {% endif %}
-	    {% for message in messages %}
-	    	<div class="alert alert-{{ message.tags }} alert-dismissable" role="alert">
-	    		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-	    			<span aria-hidden="true">&times;</span>
-	    		</button>
-	    		{{ message|safe }}
-	    	</div>
-	    {% endfor %}
-		{% block content %}{% endblock %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissable" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                {{ message }}
+            </div>
+        {% endfor %}
+        {% block content %}{% endblock %}
         <div class="push"></div>
- 		{% if settings.BANNER_BOTTOM %}
-        	<div class="alert alert-info text-center banner-bottom" role="alert">
+         {% if settings.BANNER_BOTTOM %}
+            <div class="alert alert-info text-center banner-bottom" role="alert">
                  {{ settings.BANNER_BOTTOM|safe }}
             </div>
         {% endif %}
-	</div>
-	<footer class="footer">
-		<div class="container">
+    </div>
+    <footer class="footer">
+        <div class="container">
             <div class="row">
                 <div class="col-xs-4">
                     <p class="text-muted">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</p>
@@ -320,8 +320,8 @@
                     </p>
                 </div>
             </div>
-		</div>
-	</footer>
+        </div>
+    </footer>
 <script type="text/javascript">
     var netbox_api_path = "/{{ settings.BASE_PATH }}api/";
 </script>

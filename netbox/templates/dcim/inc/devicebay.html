@@ -1,4 +1,4 @@
-<tr>
+<tr class="devicebay">
     {% if selectable and perms.dcim.change_devicebay or perms.dcim.delete_devicebay %}
         <td class="pk">
             <input name="pk" type="checkbox" value="{{ devicebay.pk }}" />
@@ -19,7 +19,7 @@
             <span class="text-muted">Vacant</span>
         </td>
     {% endif %}
-    <td class="text-right">
+    <td colspan="2" class="text-right">
         {% if perms.dcim.change_devicebay %}
             {% if devicebay.installed_device %}
                 <a href="{% url 'dcim:devicebay_depopulate' pk=devicebay.pk %}" class="btn btn-danger btn-xs">

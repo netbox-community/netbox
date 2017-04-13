@@ -1422,9 +1422,16 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
         super(InterfaceBulkEditForm, self).__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces which belong to the parent device.
+        device = None
         if self.initial.get('device'):
-            self.fields['lag'].queryset = Interface.objects.filter(
-                device=self.initial['device'], form_factor=IFACE_FF_LAG
+            try:
+                device = Device.objects.get(pk=self.initial.get('device'))
+            except Device.DoesNotExist:
+                pass
+        if device is not None:
+            interface_ordering = device.device_type.interface_ordering
+            self.fields['lag'].queryset = Interface.objects.order_naturally(method=interface_ordering).filter(
+                device=device, form_factor=IFACE_FF_LAG
             )
         else:
             self.fields['lag'].choices = []
@@ -1682,36 +1689,6 @@ class PowerConnectionFilterForm(BootstrapMixin, forms.Form):
 class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
     device = forms.CharField(required=False, label='Device name')
-
-
-#
-# IP addresses
-#
-
-class IPAddressForm(BootstrapMixin, CustomFieldForm):
-    set_as_primary = forms.BooleanField(label='Set as primary IP for device', required=False)
-
-    class Meta:
-        model = IPAddress
-        fields = ['address', 'vrf', 'tenant', 'status', 'interface', 'description']
-
-    def __init__(self, device, *args, **kwargs):
-
-        super(IPAddressForm, self).__init__(*args, **kwargs)
-
-        self.fields['vrf'].empty_label = 'Global'
-
-        interfaces = device.interfaces.all()
-        self.fields['interface'].queryset = interfaces
-        self.fields['interface'].required = True
-
-        # If this device has only one interface, select it by default.
-        if len(interfaces) == 1:
-            self.fields['interface'].initial = interfaces[0]
-
-        # If this device does not have any IP addresses assigned, default to setting the first IP as its primary.
-        if not IPAddress.objects.filter(interface__device=device).count():
-            self.fields['set_as_primary'].initial = True
 
 
 #

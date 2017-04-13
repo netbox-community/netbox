@@ -12,7 +12,9 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import TemplateSyntaxError
 from django.urls import reverse
+from django.utils.html import escape
 from django.utils.http import is_safe_url
+from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from extras.forms import CustomFieldForm
@@ -37,6 +39,23 @@ class CustomFieldQueryset:
             values_dict = {cfv.field_id: cfv.value for cfv in obj.custom_field_values.all()}
             obj.custom_fields = OrderedDict([(field, values_dict.get(field.pk)) for field in self.custom_fields])
             yield obj
+
+
+class GetReturnURLMixin(object):
+    """
+    Provides logic for determining where a user should be redirected after processing a form.
+    """
+    default_return_url = None
+
+    def get_return_url(self, request, obj):
+        query_param = request.GET.get('return_url')
+        if query_param and is_safe_url(url=query_param, host=request.get_host()):
+            return query_param
+        elif obj.pk and hasattr(obj, 'get_absolute_url'):
+            return obj.get_absolute_url()
+        elif self.default_return_url is not None:
+            return reverse(self.default_return_url)
+        return reverse('home')
 
 
 class ObjectListView(View):
@@ -128,21 +147,18 @@ class ObjectListView(View):
         return {}
 
 
-class ObjectEditView(View):
+class ObjectEditView(GetReturnURLMixin, View):
     """
     Create or edit a single object.
 
     model: The model of the object being edited
     form_class: The form used to create or edit the object
-    fields_initial: A set of fields that will be prepopulated in the form from the request parameters
     template_name: The name of the template
     default_return_url: The name of the URL used to display a list of this object type
     """
     model = None
     form_class = None
-    fields_initial = []
     template_name = 'utilities/obj_edit.html'
-    default_return_url = 'home'
 
     def get_object(self, kwargs):
         # Look up object by slug or PK. Return None if neither was provided.
@@ -157,24 +173,19 @@ class ObjectEditView(View):
         # given some parameter from the request URL.
         return obj
 
-    def get_return_url(self, obj):
-        # Determine where to redirect the user after updating an object (or aborting an update).
-        if obj.pk and hasattr(obj, 'get_absolute_url'):
-            return obj.get_absolute_url()
-        return reverse(self.default_return_url)
-
     def get(self, request, *args, **kwargs):
 
         obj = self.get_object(kwargs)
         obj = self.alter_obj(obj, request, args, kwargs)
-        initial_data = {k: request.GET[k] for k in self.fields_initial if k in request.GET}
+        # Parse initial data manually to avoid setting field values as lists
+        initial_data = {k: request.GET[k] for k in request.GET}
         form = self.form_class(instance=obj, initial=initial_data)
 
         return render(request, self.template_name, {
             'obj': obj,
             'obj_type': self.model._meta.verbose_name,
             'form': form,
-            'return_url': self.get_return_url(obj),
+            'return_url': self.get_return_url(request, obj),
         })
 
     def post(self, request, *args, **kwargs):
@@ -194,10 +205,10 @@ class ObjectEditView(View):
             msg = u'Created ' if obj_created else u'Modified '
             msg += self.model._meta.verbose_name
             if hasattr(obj, 'get_absolute_url'):
-                msg = u'{} <a href="{}">{}</a>'.format(msg, obj.get_absolute_url(), obj)
+                msg = u'{} <a href="{}">{}</a>'.format(msg, obj.get_absolute_url(), escape(obj))
             else:
-                msg = u'{} {}'.format(msg, obj)
-            messages.success(request, msg)
+                msg = u'{} {}'.format(msg, escape(obj))
+            messages.success(request, mark_safe(msg))
             if obj_created:
                 UserAction.objects.log_create(request.user, obj, msg)
             else:
@@ -205,17 +216,22 @@ class ObjectEditView(View):
 
             if '_addanother' in request.POST:
                 return redirect(request.path)
-            return redirect(self.get_return_url(obj))
+
+            return_url = form.cleaned_data.get('return_url')
+            if return_url is not None and is_safe_url(url=return_url, host=request.get_host()):
+                return redirect(return_url)
+            else:
+                return redirect(self.get_return_url(request, obj))
 
         return render(request, self.template_name, {
             'obj': obj,
             'obj_type': self.model._meta.verbose_name,
             'form': form,
-            'return_url': self.get_return_url(obj),
+            'return_url': self.get_return_url(request, obj),
         })
 
 
-class ObjectDeleteView(View):
+class ObjectDeleteView(GetReturnURLMixin, View):
     """
     Delete a single object.
 
@@ -225,7 +241,6 @@ class ObjectDeleteView(View):
     """
     model = None
     template_name = 'utilities/obj_delete.html'
-    default_return_url = 'home'
 
     def get_object(self, kwargs):
         # Look up object by slug if one has been provided. Otherwise, use PK.
@@ -234,24 +249,16 @@ class ObjectDeleteView(View):
         else:
             return get_object_or_404(self.model, pk=kwargs['pk'])
 
-    def get_return_url(self, obj):
-        if obj.pk and hasattr(obj, 'get_absolute_url'):
-            return obj.get_absolute_url()
-        return reverse(self.default_return_url)
-
     def get(self, request, **kwargs):
 
         obj = self.get_object(kwargs)
-        initial_data = {
-            'return_url': request.GET.get('return_url'),
-        }
-        form = ConfirmationForm(initial=initial_data)
+        form = ConfirmationForm(initial=request.GET)
 
         return render(request, self.template_name, {
             'obj': obj,
             'form': form,
             'obj_type': self.model._meta.verbose_name,
-            'return_url': request.GET.get('return_url') or self.get_return_url(obj),
+            'return_url': self.get_return_url(request, obj),
         })
 
     def post(self, request, **kwargs):
@@ -270,17 +277,17 @@ class ObjectDeleteView(View):
             messages.success(request, msg)
             UserAction.objects.log_delete(request.user, obj, msg)
 
-            return_url = form.cleaned_data['return_url']
-            if return_url and is_safe_url(url=return_url, host=request.get_host()):
+            return_url = form.cleaned_data.get('return_url')
+            if return_url is not None and is_safe_url(url=return_url, host=request.get_host()):
                 return redirect(return_url)
             else:
-                return redirect(self.get_return_url(obj))
+                return redirect(self.get_return_url(request, obj))
 
         return render(request, self.template_name, {
             'obj': obj,
             'form': form,
             'obj_type': self.model._meta.verbose_name,
-            'return_url': request.GET.get('return_url') or self.get_return_url(obj),
+            'return_url': self.get_return_url(request, obj),
         })
 
 

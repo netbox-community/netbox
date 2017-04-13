@@ -29,7 +29,7 @@ class TenantGroupEditView(PermissionRequiredMixin, ObjectEditView):
     model = TenantGroup
     form_class = forms.TenantGroupForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('tenancy:tenantgroup_list')
 
 
@@ -81,7 +81,6 @@ class TenantEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'tenancy.change_tenant'
     model = Tenant
     form_class = forms.TenantForm
-    fields_initial = ['group']
     template_name = 'tenancy/tenant_edit.html'
     default_return_url = 'tenancy:tenant_list'
 

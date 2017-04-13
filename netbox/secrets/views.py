@@ -42,7 +42,7 @@ class SecretRoleEditView(PermissionRequiredMixin, ObjectEditView):
     model = SecretRole
     form_class = forms.SecretRoleForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('secrets:secretrole_list')
 
 

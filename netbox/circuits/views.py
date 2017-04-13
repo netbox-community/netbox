@@ -95,7 +95,7 @@ class CircuitTypeEditView(PermissionRequiredMixin, ObjectEditView):
     model = CircuitType
     form_class = forms.CircuitTypeForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('circuits:circuittype_list')
 
 
@@ -142,7 +142,6 @@ class CircuitEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.change_circuit'
     model = Circuit
     form_class = forms.CircuitForm
-    fields_initial = ['provider']
     template_name = 'circuits/circuit_edit.html'
     default_return_url = 'circuits:circuit_list'
 
@@ -230,7 +229,6 @@ class CircuitTerminationEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.change_circuittermination'
     model = CircuitTermination
     form_class = forms.CircuitTerminationForm
-    fields_initial = ['term_side']
     template_name = 'circuits/circuittermination_edit.html'
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
@@ -238,7 +236,7 @@ class CircuitTerminationEditView(PermissionRequiredMixin, ObjectEditView):
             obj.circuit = get_object_or_404(Circuit, pk=url_kwargs['circuit'])
         return obj
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return obj.circuit.get_absolute_url()
 
 

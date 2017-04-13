@@ -11,7 +11,7 @@ djangorestframework>=3.6.2
 graphviz>=0.6
 Markdown>=2.6.7
 natsort>=5.0.0
-ncclient==0.5.2
+ncclient==0.5.3
 netaddr==0.7.18
 paramiko>=2.0.0
 Pillow>=4.0.0

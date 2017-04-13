@@ -398,13 +398,18 @@ class BootstrapMixin(forms.BaseForm):
                 field.widget.attrs['placeholder'] = field.label
 
 
-class ConfirmationForm(BootstrapMixin, forms.Form):
+class ReturnURLForm(forms.Form):
     """
-    A generic confirmation form. The form is not valid unless the confirm field is checked. An optional return_url can
-    be specified to direct the user to a specific URL after the action has been taken.
+    Provides a hidden return URL field to control where the user is directed after the form is submitted.
+    """
+    return_url = forms.CharField(required=False, widget=forms.HiddenInput())
+
+
+class ConfirmationForm(BootstrapMixin, ReturnURLForm):
+    """
+    A generic confirmation form. The form is not valid unless the confirm field is checked.
     """
     confirm = forms.BooleanField(required=True)
-    return_url = forms.CharField(required=False, widget=forms.HiddenInput())
 
 
 class BulkEditForm(forms.Form):
