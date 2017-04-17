@@ -338,7 +338,7 @@ class IPAddressForm(BootstrapMixin, ReturnURLForm, CustomFieldForm):
     )
     livesearch = forms.CharField(
         required=False, label='IP Address', widget=Livesearch(
-            query_key='q', query_url='ipam-api:ipaddress_list', field_to_update='nat_inside', obj_label='address'
+            query_key='q', query_url='ipam-api:ipaddress-list', field_to_update='nat_inside', obj_label='address'
         )
     )
 
