@@ -80,7 +80,7 @@ $(document).ready(function() {
         child_field.append($("<option></option>").attr("value", "").text("---------"));
 
         if ($(this).val() || $(this).attr('nullable') == 'true') {
-            var api_url = child_field.attr('api-url');
+            var api_url = child_field.attr('api-url') + '&limit=1000';
             var disabled_indicator = child_field.attr('disabled-indicator');
             var initial_value = child_field.attr('initial');
             var display_field = child_field.attr('display-field') || 'name';
