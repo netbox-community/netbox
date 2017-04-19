@@ -8,7 +8,6 @@ pages:
         - 'Web Server': 'installation/web-server.md'
         - 'LDAP (Optional)': 'installation/ldap.md'
         - 'Upgrading': 'installation/upgrading.md'
-        - 'Alternate Install: Docker': 'installation/docker.md'
     - 'Configuration':
         - 'Mandatory Settings': 'configuration/mandatory-settings.md'
         - 'Optional Settings': 'configuration/optional-settings.md'

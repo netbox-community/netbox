@@ -29,5 +29,5 @@ Please see [the documentation](http://netbox.readthedocs.io/en/stable/) for inst
 
 ## Alternative Installations
 
-* [Docker container](http://netbox.readthedocs.io/en/stable/installation/docker/)
+* [Docker container](https://github.com/digitalocean/netbox-docker)
 * [Heroku deployment](https://heroku.com/deploy?template=https://github.com/BILDQUADRAT/netbox/tree/heroku) (via [@mraerino](https://github.com/BILDQUADRAT/netbox/tree/heroku))
