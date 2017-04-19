@@ -296,12 +296,12 @@ class BulkAddView(View):
     Create new objects in bulk.
 
     form: Form class
-    model: The model of the objects being created
+    model_form: The ModelForm used to create individual objects
     template_name: The name of the template
     default_return_url: Name of the URL to which the user is redirected after creating the objects
     """
     form = None
-    model = None
+    model_form = None
     template_name = None
     default_return_url = 'home'
 
@@ -310,47 +310,44 @@ class BulkAddView(View):
         form = self.form()
 
         return render(request, self.template_name, {
-            'obj_type': self.model._meta.verbose_name,
+            'obj_type': self.model_form._meta.model._meta.verbose_name,
             'form': form,
             'return_url': reverse(self.default_return_url),
         })
 
     def post(self, request):
 
+        model = self.model_form._meta.model
         form = self.form(request.POST)
         if form.is_valid():
 
-            # The first field will be used as the pattern
-            field_names = list(form.fields.keys())
-            pattern_field = field_names[0]
+            # Read the pattern field and target from the form's pattern_map
+            pattern_field, pattern_target = form.pattern_map
             pattern = form.cleaned_data[pattern_field]
-
-            # All other fields will be copied as object attributes
-            kwargs = {k: form.cleaned_data[k] for k in field_names[1:]}
+            model_form_data = form.cleaned_data
 
             new_objs = []
             try:
                 with transaction.atomic():
                     for value in pattern:
-                        obj = self.model(**kwargs)
-                        setattr(obj, pattern_field, value)
-                        obj.full_clean()
-                        obj.save()
+                        model_form_data[pattern_target] = value
+                        model_form = self.model_form(model_form_data)
+                        obj = model_form.save()
                         new_objs.append(obj)
             except ValidationError as e:
                 form.add_error(None, e)
 
             if not form.errors:
-                msg = u"Added {} {}".format(len(new_objs), self.model._meta.verbose_name_plural)
+                msg = u"Added {} {}".format(len(new_objs), model._meta.verbose_name_plural)
                 messages.success(request, msg)
-                UserAction.objects.log_bulk_create(request.user, ContentType.objects.get_for_model(self.model), msg)
+                UserAction.objects.log_bulk_create(request.user, ContentType.objects.get_for_model(model), msg)
                 if '_addanother' in request.POST:
                     return redirect(request.path)
                 return redirect(self.default_return_url)
 
         return render(request, self.template_name, {
             'form': form,
-            'obj_type': self.model._meta.verbose_name,
+            'obj_type': model._meta.verbose_name,
             'return_url': reverse(self.default_return_url),
         })
 

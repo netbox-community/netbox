@@ -418,12 +418,15 @@ class IPAddressForm(BootstrapMixin, ReturnURLForm, CustomFieldForm):
                 self.fields['nat_inside'].choices = []
 
 
-class IPAddressBulkAddForm(BootstrapMixin, forms.Form):
-    address = ExpandableIPAddressField()
+class IPAddressBulkAddForm(BootstrapMixin, CustomFieldForm):
+    address_pattern = ExpandableIPAddressField(label='Address Pattern')
     vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF', empty_label='Global')
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
-    status = forms.ChoiceField(choices=IPADDRESS_STATUS_CHOICES)
-    description = forms.CharField(max_length=100, required=False)
+
+    pattern_map = ('address_pattern', 'address')
+
+    class Meta:
+        model = IPAddress
+        fields = ['address_pattern', 'vrf', 'tenant', 'status', 'description']
 
 
 class IPAddressAssignForm(BootstrapMixin, forms.Form):
