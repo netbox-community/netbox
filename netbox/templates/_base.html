@@ -58,6 +58,7 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Racks <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="{% url 'dcim:rack_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Racks</a></li>
+                            <li><a href="{% url 'dcim:rack_elevation_list' %}"><i class="fa fa-bars" aria-hidden="true"></i> Rack Elevations</a></li>
                             {% if perms.dcim.add_rack %}
                                 <li><a href="{% url 'dcim:rack_add' %}"><i class="fa fa-plus" aria-hidden="true"></i> Add a Rack</a></li>
                                 <li><a href="{% url 'dcim:rack_import' %}"><i class="fa fa-download" aria-hidden="true"></i> Import Racks</a></li>

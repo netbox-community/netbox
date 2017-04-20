@@ -6,15 +6,10 @@
 
 {% block content %}
 <div class="pull-right">
-    <a href="{% url 'ipam:prefix_list' %}{% querystring_toggle request expand='on' %}" class="btn btn-default">
-        {% if 'expand' in request.GET %}
-            <span class="fa fa-chevron-right" aria-hidden="true"></span>
-            Collapse all
-        {% else %}
-            <span class="fa fa-chevron-down" aria-hidden="true"></span>
-            Expand all
-        {% endif %}
-    </a>
+    <div class="btn-group" role="group">
+        <a href="{% url 'ipam:prefix_list' %}{% querystring request expand=None page=1 %}" class="btn btn-default{% if not request.GET.expand %} active{% endif %}">Collapse</a>
+        <a href="{% url 'ipam:prefix_list' %}{% querystring request expand='on' page=1 %}" class="btn btn-default{% if request.GET.expand %} active{% endif %}">Expand</a>
+    </div>
     {% if perms.ipam.add_prefix %}
 		<a href="{% url 'ipam:prefix_add' %}" class="btn btn-primary">
 			<span class="fa fa-plus" aria-hidden="true"></span>

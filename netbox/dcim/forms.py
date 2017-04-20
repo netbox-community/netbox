@@ -1,6 +1,5 @@
-import re
-
 from mptt.forms import TreeNodeChoiceField
+import re
 
 from django import forms
 from django.contrib.postgres.forms.array import SimpleArrayField
@@ -21,9 +20,9 @@ from .models import (
     DeviceBay, DeviceBayTemplate, CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_PLANNED, CONNECTION_STATUS_CONNECTED,
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType,
     Interface, IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate,
-    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_TYPE_CHOICES,
-    RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD,
-    SUBDEVICE_ROLE_PARENT, VIRTUAL_IFACE_TYPES
+    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate,
+    RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, Region, Site, STATUS_CHOICES,
+    SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT, VIRTUAL_IFACE_TYPES,
 )
 
 

@@ -47,6 +47,7 @@ urlpatterns = [
 
     # Racks
     url(r'^racks/$', views.RackListView.as_view(), name='rack_list'),
+    url(r'^rack-elevations/$', views.RackElevationListView.as_view(), name='rack_elevation_list'),
     url(r'^racks/add/$', views.RackEditView.as_view(), name='rack_add'),
     url(r'^racks/import/$', views.RackBulkImportView.as_view(), name='rack_import'),
     url(r'^racks/edit/$', views.RackBulkEditView.as_view(), name='rack_bulk_edit'),
