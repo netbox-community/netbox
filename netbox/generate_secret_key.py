@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # This script will generate a random 50-character string suitable for use as a SECRET_KEY.
 import os
-import random
+import base64
 
-charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*(-_=+)'
-random.seed = (os.urandom(2048))
-print(''.join(random.choice(charset) for c in range(50)))
+print(base64.urlsafe_b64encode(os.urandom(64))[:50])
