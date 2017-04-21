@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import urlencode
 from django.views.generic import View
 
-from ipam.models import Prefix, IPAddress, Service, VLAN
+from ipam.models import Prefix, Service, VLAN
 from circuits.models import Circuit
 from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from utilities.forms import ConfirmationForm
@@ -124,13 +124,13 @@ class ComponentCreateView(View):
 
 class ComponentEditView(ObjectEditView):
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return obj.device.get_absolute_url()
 
 
 class ComponentDeleteView(ObjectDeleteView):
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return obj.device.get_absolute_url()
 
 
@@ -149,7 +149,7 @@ class RegionEditView(PermissionRequiredMixin, ObjectEditView):
     model = Region
     form_class = forms.RegionForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('dcim:region_list')
 
 
@@ -242,7 +242,7 @@ class RackGroupEditView(PermissionRequiredMixin, ObjectEditView):
     model = RackGroup
     form_class = forms.RackGroupForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('dcim:rackgroup_list')
 
 
@@ -268,7 +268,7 @@ class RackRoleEditView(PermissionRequiredMixin, ObjectEditView):
     model = RackRole
     form_class = forms.RackRoleForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('dcim:rackrole_list')
 
 
@@ -379,7 +379,7 @@ class RackReservationEditView(PermissionRequiredMixin, ObjectEditView):
             obj.user = request.user
         return obj
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return obj.rack.get_absolute_url()
 
 
@@ -387,7 +387,7 @@ class RackReservationDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_rackreservation'
     model = RackReservation
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return obj.rack.get_absolute_url()
 
 
@@ -412,7 +412,7 @@ class ManufacturerEditView(PermissionRequiredMixin, ObjectEditView):
     model = Manufacturer
     form_class = forms.ManufacturerForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('dcim:manufacturer_list')
 
 
@@ -632,7 +632,7 @@ class DeviceRoleEditView(PermissionRequiredMixin, ObjectEditView):
     model = DeviceRole
     form_class = forms.DeviceRoleForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('dcim:devicerole_list')
 
 
@@ -657,7 +657,7 @@ class PlatformEditView(PermissionRequiredMixin, ObjectEditView):
     model = Platform
     form_class = forms.PlatformForm
 
-    def get_return_url(self, obj):
+    def get_return_url(self, request, obj):
         return reverse('dcim:platform_list')
 
 
@@ -700,19 +700,15 @@ def device(request, pk):
     interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering)\
         .filter(device=device, mgmt_only=False)\
         .select_related('connected_as_a__interface_b__device', 'connected_as_b__interface_a__device',
-                        'circuit_termination__circuit')
+                        'circuit_termination__circuit').prefetch_related('ip_addresses')
     mgmt_interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering)\
         .filter(device=device, mgmt_only=True)\
         .select_related('connected_as_a__interface_b__device', 'connected_as_b__interface_a__device',
-                        'circuit_termination__circuit')
+                        'circuit_termination__circuit').prefetch_related('ip_addresses')
     device_bays = natsorted(
         DeviceBay.objects.filter(device=device).select_related('installed_device__device_type__manufacturer'),
         key=attrgetter('name')
     )
-
-    # Gather relevant device objects
-    ip_addresses = IPAddress.objects.filter(interface__device=device).select_related('interface', 'vrf')\
-        .order_by('address')
     services = Service.objects.filter(device=device)
     secrets = device.secrets.all()
 
@@ -743,7 +739,6 @@ def device(request, pk):
         'interfaces': interfaces,
         'mgmt_interfaces': mgmt_interfaces,
         'device_bays': device_bays,
-        'ip_addresses': ip_addresses,
         'services': services,
         'secrets': secrets,
         'related_devices': related_devices,
@@ -755,7 +750,6 @@ class DeviceEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_device'
     model = Device
     form_class = forms.DeviceForm
-    fields_initial = ['site', 'rack', 'position', 'face', 'device_bay']
     template_name = 'dcim/device_edit.html'
     default_return_url = 'dcim:device_list'
 
@@ -1565,47 +1559,6 @@ class InterfaceConnectionsListView(ObjectListView):
     filter_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable
     template_name = 'dcim/interface_connections_list.html'
-
-
-#
-# IP addresses
-#
-
-@permission_required(['dcim.change_device', 'ipam.add_ipaddress'])
-def ipaddress_assign(request, pk):
-
-    device = get_object_or_404(Device, pk=pk)
-
-    if request.method == 'POST':
-        form = forms.IPAddressForm(device, request.POST)
-        if form.is_valid():
-
-            ipaddress = form.save(commit=False)
-            ipaddress.interface = form.cleaned_data['interface']
-            ipaddress.save()
-            form.save_custom_fields()
-            messages.success(request, u"Added new IP address {} to interface {}.".format(ipaddress, ipaddress.interface))
-
-            if form.cleaned_data['set_as_primary']:
-                if ipaddress.family == 4:
-                    device.primary_ip4 = ipaddress
-                elif ipaddress.family == 6:
-                    device.primary_ip6 = ipaddress
-                device.save()
-
-            if '_addanother' in request.POST:
-                return redirect('dcim:ipaddress_assign', pk=device.pk)
-            else:
-                return redirect('dcim:device', pk=device.pk)
-
-    else:
-        form = forms.IPAddressForm(device)
-
-    return render(request, 'dcim/ipaddress_assign.html', {
-        'device': device,
-        'form': form,
-        'return_url': reverse('dcim:device', kwargs={'pk': device.pk}),
-    })
 
 
 #

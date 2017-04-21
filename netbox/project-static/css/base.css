@@ -313,6 +313,16 @@ li.occupied + li.available {
     border-top: 1px solid #474747;
 }
 
+/* Devices */
+table.component-list tr.ipaddress td {
+    background-color: #eeffff;
+    padding-bottom: 4px;
+    padding-top: 4px;
+}
+table.component-list tr.ipaddress:hover td {
+    background-color: #e6f7f7;
+}
+
 /* Misc */
 .banner-bottom {
     margin-bottom: 50px;

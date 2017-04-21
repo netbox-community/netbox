@@ -1,4 +1,4 @@
-<tr{% if pp.power_outlet and not pp.connection_status %} class="info"{% endif %}>
+<tr class="powerport{% if pp.power_outlet and not pp.connection_status %} info{% endif %}">
     {% if selectable and perms.dcim.change_powerport or perms.dcim.delete_powerport %}
         <td class="pk">
             <input name="pk" type="checkbox" value="{{ pp.pk }}" />
@@ -7,7 +7,6 @@
     <td>
         <i class="fa fa-fw fa-bolt"></i> {{ pp.name }}
     </td>
-    <td></td>
     {% if pp.power_outlet %}
         <td>
             <a href="{% url 'dcim:device' pk=pp.power_outlet.device.pk %}">{{ pp.power_outlet.device }}</a>
@@ -20,7 +19,7 @@
             <span class="text-muted">Not connected</span>
         </td>
     {% endif %}
-    <td class="text-right">
+    <td colspan="2" class="text-right">
         {% if perms.dcim.change_powerport %}
             {% if pp.power_outlet %}
                 {% if pp.connection_status %}
