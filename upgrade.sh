@@ -28,4 +28,4 @@ eval $COMMAND
 ./netbox/manage.py migrate
 
 # Collect static files
-./netbox/manage.py collectstatic --noinput
+./netbox/manage.py collectstatic --no-input

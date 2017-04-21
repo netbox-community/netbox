@@ -6,14 +6,8 @@ Python 3:
 
 ```no-highlight
 # apt-get install -y python3 python3-dev python3-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev
+# update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 ```
-
-!!! warning
-    On Ubuntu, installing only Python3 will not create a symlink for the interpreter at `/usr/bin/python`: scripts need to be called using the `python3` binary explicitly. As a workaround, you can create this symlink using the `update-alternatives` utility:
-
-        # update-alternatives --install /usr/bin/python python /usr/bin/python3 1
-
-    This will allow calling the `python3` binary as `python`.
 
 Python 2:
 
@@ -29,6 +23,7 @@ Python 3:
 # yum install -y epel-release
 # yum install -y gcc python34 python34-devel python34-setuptools libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel
 # easy_install-3.4 pip
+# ln -s -f python3.4 /usr/bin/python
 ```
 
 Python 2:
@@ -188,7 +183,7 @@ Superuser created successfully.
 # Collect Static Files
 
 ```no-highlight
-# ./manage.py collectstatic
+# ./manage.py collectstatic --no-input
 
 You have requested to collect static files at the destination
 location as specified in your settings:
