@@ -15,8 +15,12 @@ if [ "$(whoami)" = "root" ]; then
 	PREFIX=""
 fi
 
+# Fall back to pip3 if pip is missing
+PIP="pip"
+type $PIP >/dev/null 2>&1 || PIP="pip3"
+
 # Install any new Python packages
-COMMAND="${PREFIX}pip install -r requirements.txt --upgrade"
+COMMAND="${PREFIX}${PIP} install -r requirements.txt --upgrade"
 echo "Updating required Python packages ($COMMAND)..."
 eval $COMMAND
 
@@ -24,7 +28,7 @@ eval $COMMAND
 ./netbox/manage.py migrate
 
 # Collect static files
-./netbox/manage.py collectstatic --noinput
+./netbox/manage.py collectstatic --no-input
 
 # Delete old bytecode
 find . -name "*.pyc" -delete

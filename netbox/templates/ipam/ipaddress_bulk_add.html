@@ -10,13 +10,21 @@
 
 {% block form %}
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>IP Address</strong></div>
+        <div class="panel-heading"><strong>IP Addresses</strong></div>
         <div class="panel-body">
-            {% render_field form.address %}
+            {% render_field form.address_pattern %}
             {% render_field form.vrf %}
             {% render_field form.tenant %}
             {% render_field form.status %}
             {% render_field form.description %}
         </div>
     </div>
+    {% if form.custom_fields %}
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>Custom Fields</strong></div>
+            <div class="panel-body">
+                {% render_custom_fields form %}
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}

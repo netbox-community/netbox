@@ -151,11 +151,13 @@ class CircuitTermination(models.Model):
     term_side = models.CharField(max_length=1, choices=TERM_SIDE_CHOICES, verbose_name='Termination')
     site = models.ForeignKey('dcim.Site', related_name='circuit_terminations', on_delete=models.PROTECT)
     interface = models.OneToOneField(
-        'dcim.Interface', related_name='circuit_termination', blank=True, null=True, on_delete=models.CASCADE
+        'dcim.Interface', related_name='circuit_termination', blank=True, null=True, on_delete=models.PROTECT
     )
     port_speed = models.PositiveIntegerField(verbose_name='Port speed (Kbps)')
-    upstream_speed = models.PositiveIntegerField(blank=True, null=True, verbose_name='Upstream speed (Kbps)',
-                                                 help_text='Upstream speed, if different from port speed')
+    upstream_speed = models.PositiveIntegerField(
+        blank=True, null=True, verbose_name='Upstream speed (Kbps)',
+        help_text='Upstream speed, if different from port speed'
+    )
     xconnect_id = models.CharField(max_length=50, blank=True, verbose_name='Cross-connect ID')
     pp_info = models.CharField(max_length=100, blank=True, verbose_name='Patch panel/port(s)')
 
