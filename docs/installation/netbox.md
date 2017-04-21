@@ -8,6 +8,13 @@ Python 3:
 # apt-get install -y python3 python3-dev python3-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev
 ```
 
+!!! warning
+    On Ubuntu, installing only Python3 will not create a symlink for the interpreter at `/usr/bin/python`: scripts need to be called using the `python3` binary explicitly. As a workaround, you can create this symlink using the `update-alternatives` utility:
+
+        # update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+
+    This will allow calling the `python3` binary as `python`.
+
 Python 2:
 
 ```no-highlight
@@ -83,6 +90,14 @@ Checking connectivity... done.
 ## Install Python Packages
 
 Install the required Python packages using pip. (If you encounter any compilation errors during this step, ensure that you've installed all of the system dependencies listed above.)
+
+Python 3:
+
+```no-highlight
+# pip3 install -r requirements.txt
+```
+
+Python 2:
 
 ```no-highlight
 # pip install -r requirements.txt
