@@ -156,10 +156,7 @@ class CustomField(models.Model):
             # Read date as YYYY-MM-DD
             return date(*[int(n) for n in serialized_value.split('-')])
         if self.type == CF_TYPE_SELECT:
-            try:
-                return self.choices.get(pk=int(serialized_value))
-            except CustomFieldChoice.DoesNotExist:
-                return None
+            return self.choices.get(pk=int(serialized_value))
         return serialized_value
 
 

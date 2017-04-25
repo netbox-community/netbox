@@ -32,6 +32,12 @@ class CustomFieldsSerializer(serializers.BaseSerializer):
             if parent_content_type not in cf.obj_type.all():
                 raise ValidationError(u"Invalid custom field for {} objects".format(parent_content_type))
 
+            # Validate selected choice
+            if cf.type == CF_TYPE_SELECT:
+                valid_choices = [c.pk for c in cf.choices.all()]
+                if value not in valid_choices:
+                    raise ValidationError(u"Invalid choice ({}) for field {}".format(value, custom_field))
+
         return data
 
 
