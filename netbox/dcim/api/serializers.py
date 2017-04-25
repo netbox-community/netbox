@@ -66,13 +66,13 @@ class NestedSiteSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'name', 'slug']
 
 
-class WritableSiteSerializer(serializers.ModelSerializer):
+class WritableSiteSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = Site
         fields = [
             'id', 'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
-            'contact_name', 'contact_phone', 'contact_email', 'comments',
+            'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields',
         ]
 
 
