@@ -329,13 +329,21 @@ class BulkAddView(View):
             new_objs = []
             try:
                 with transaction.atomic():
+                    # Validate and save each object individually
                     for value in pattern:
                         model_form_data[pattern_target] = value
                         model_form = self.model_form(model_form_data)
-                        obj = model_form.save()
-                        new_objs.append(obj)
-            except ValidationError as e:
-                form.add_error(None, e)
+                        if model_form.is_valid():
+                            obj = model_form.save()
+                            new_objs.append(obj)
+                        else:
+                            for error in model_form.errors.as_data().values():
+                                form.add_error(None, error)
+                    # Abort the creation of all objects if errors exist
+                    if form.errors:
+                        raise ValidationError("Validation of one or more model forms failed.")
+            except ValidationError:
+                pass
 
             if not form.errors:
                 msg = u"Added {} {}".format(len(new_objs), model._meta.verbose_name_plural)
