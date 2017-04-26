@@ -236,7 +236,6 @@ class PrefixFromCSVForm(forms.ModelForm):
                     self.add_error('vlan_vid', "Invalid global VLAN ID ({}).".format(vlan_vid))
             except VLAN.MultipleObjectsReturned:
                 self.add_error('vlan_vid', "Multiple VLANs found ({} - VID {})".format(site, vlan_vid))
-            self.instance.vlan = vlan
 
     def save(self, *args, **kwargs):
 
