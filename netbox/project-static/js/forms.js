@@ -88,20 +88,21 @@ $(document).ready(function() {
             // Determine the filter fields needed to make an API call
             var filter_regex = /\{\{([a-z_]+)\}\}/g;
             var match;
+            var rendered_url = api_url;
             while (match = filter_regex.exec(api_url)) {
                 var filter_field = $('#id_' + match[1]);
                 if (filter_field.val()) {
-                    api_url = api_url.replace(match[0], filter_field.val());
-                } else if ($(this).attr('nullable') == 'true') {
-                    api_url = api_url.replace(match[0], '0');
+                    rendered_url = rendered_url.replace(match[0], filter_field.val());
+                } else if (filter_field.attr('nullable') == 'true') {
+                    rendered_url = rendered_url.replace(match[0], '0');
                 }
             }
 
             // If all URL variables have been replaced, make the API call
-            if (api_url.search('{{') < 0) {
-                console.log(child_name + ": Fetching " + api_url);
+            if (rendered_url.search('{{') < 0) {
+                console.log(child_name + ": Fetching " + rendered_url);
                 $.ajax({
-                    url: api_url,
+                    url: rendered_url,
                     dataType: 'json',
                     success: function (response, status) {
                         $.each(response, function (index, choice) {

@@ -316,7 +316,7 @@ class IPAddressForm(BootstrapMixin, ReturnURLForm, CustomFieldForm):
     interface_rack = forms.ModelChoiceField(
         queryset=Rack.objects.all(), required=False, label='Rack', widget=APISelect(
             api_url='/api/dcim/racks/?site_id={{interface_site}}', display_field='display_name',
-            attrs={'filter-for': 'interface_device'}
+            attrs={'filter-for': 'interface_device', 'nullable': 'true'}
         )
     )
     interface_device = forms.ModelChoiceField(
