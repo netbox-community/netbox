@@ -43,8 +43,8 @@ class NestedTenantSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'name', 'slug']
 
 
-class WritableTenantSerializer(serializers.ModelSerializer):
+class WritableTenantSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = Tenant
-        fields = ['id', 'name', 'slug', 'group', 'description', 'comments']
+        fields = ['id', 'name', 'slug', 'group', 'description', 'comments', 'custom_fields']

@@ -150,13 +150,13 @@ class NestedRackSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'name', 'display_name']
 
 
-class WritableRackSerializer(serializers.ModelSerializer):
+class WritableRackSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = Rack
         fields = [
             'id', 'name', 'facility_id', 'site', 'group', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
-            'comments',
+            'comments', 'custom_fields',
         ]
         # Omit the UniqueTogetherValidator that would be automatically added to validate (site, facility_id). This
         # prevents facility_id from being interpreted as a required field.
@@ -263,13 +263,13 @@ class NestedDeviceTypeSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'manufacturer', 'model', 'slug']
 
 
-class WritableDeviceTypeSerializer(serializers.ModelSerializer):
+class WritableDeviceTypeSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = DeviceType
         fields = [
             'id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'interface_ordering',
-            'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments',
+            'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments', 'custom_fields',
         ]
 
 
@@ -476,13 +476,13 @@ class DeviceSerializer(CustomFieldModelSerializer):
         }
 
 
-class WritableDeviceSerializer(serializers.ModelSerializer):
+class WritableDeviceSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = Device
         fields = [
             'id', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag', 'site', 'rack',
-            'position', 'face', 'status', 'primary_ip4', 'primary_ip6', 'comments',
+            'position', 'face', 'status', 'primary_ip4', 'primary_ip6', 'comments', 'custom_fields',
         ]
         validators = []
 

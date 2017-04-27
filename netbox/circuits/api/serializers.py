@@ -28,11 +28,14 @@ class NestedProviderSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'name', 'slug']
 
 
-class WritableProviderSerializer(serializers.ModelSerializer):
+class WritableProviderSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = Provider
-        fields = ['id', 'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments']
+        fields = [
+            'id', 'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
+            'custom_fields',
+        ]
 
 
 #
@@ -79,11 +82,14 @@ class NestedCircuitSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'cid']
 
 
-class WritableCircuitSerializer(serializers.ModelSerializer):
+class WritableCircuitSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = Circuit
-        fields = ['id', 'cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments']
+        fields = [
+            'id', 'cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
+            'custom_fields',
+        ]
 
 
 #

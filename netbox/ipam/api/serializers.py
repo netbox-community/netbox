@@ -31,11 +31,11 @@ class NestedVRFSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'name', 'rd']
 
 
-class WritableVRFSerializer(serializers.ModelSerializer):
+class WritableVRFSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = VRF
-        fields = ['id', 'name', 'rd', 'tenant', 'enforce_unique', 'description']
+        fields = ['id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'custom_fields']
 
 
 #
@@ -96,11 +96,11 @@ class NestedAggregateSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'family', 'prefix']
 
 
-class WritableAggregateSerializer(serializers.ModelSerializer):
+class WritableAggregateSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = Aggregate
-        fields = ['id', 'prefix', 'rir', 'date_added', 'description']
+        fields = ['id', 'prefix', 'rir', 'date_added', 'description', 'custom_fields']
 
 
 #
@@ -169,11 +169,11 @@ class NestedVLANSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'vid', 'name', 'display_name']
 
 
-class WritableVLANSerializer(serializers.ModelSerializer):
+class WritableVLANSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = VLAN
-        fields = ['id', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description']
+        fields = ['id', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'custom_fields']
         validators = []
 
     def validate(self, data):
@@ -216,11 +216,14 @@ class NestedPrefixSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'family', 'prefix']
 
 
-class WritablePrefixSerializer(serializers.ModelSerializer):
+class WritablePrefixSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = Prefix
-        fields = ['id', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description']
+        fields = [
+            'id', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description',
+            'custom_fields',
+        ]
 
 
 #
@@ -252,11 +255,11 @@ IPAddressSerializer._declared_fields['nat_inside'] = NestedIPAddressSerializer()
 IPAddressSerializer._declared_fields['nat_outside'] = NestedIPAddressSerializer()
 
 
-class WritableIPAddressSerializer(serializers.ModelSerializer):
+class WritableIPAddressSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = IPAddress
-        fields = ['id', 'address', 'vrf', 'tenant', 'status', 'interface', 'description', 'nat_inside']
+        fields = ['id', 'address', 'vrf', 'tenant', 'status', 'interface', 'description', 'nat_inside', 'custom_fields']
 
 
 #
