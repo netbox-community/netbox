@@ -195,7 +195,7 @@ class SessionKey(models.Model):
     key = None
 
     class Meta:
-        ordering = ['user__username']
+        ordering = ['userkey__user__username']
 
     def __str__(self):
         return self.userkey.user.username
