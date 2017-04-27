@@ -243,16 +243,6 @@
                     {% endif %}
                 </ul>
                 {% endif %}
-                <form action="{% url 'search' %}" method="get" class="navbar-form navbar-right" role="search">
-                    <div class="input-group">
-                        <input type="text" name="q" class="form-control" placeholder="Search">
-                        <span class="input-group-btn">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-search" aria-hidden="true"></i>
-                            </button>
-                        </span>
-                    </div>
-                </form>
                 <ul class="nav navbar-nav navbar-right">
                     {% if request.user.is_authenticated %}
                         <li class="dropdown">
@@ -272,6 +262,16 @@
                         <li><a href="{% url 'login' %}?next={{ request.path }}"><i class="fa fa-sign-in" aria-hidden="true"></i> Log in</a></li>
                     {% endif %}
                 </ul>
+                <form action="{% url 'search' %}" method="get" class="navbar-form navbar-right" role="search">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Search">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-search" aria-hidden="true"></i>
+                            </button>
+                        </span>
+                    </div>
+                </form>
             </div>
         </div>
     </nav>
