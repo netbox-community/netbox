@@ -243,7 +243,7 @@ class CustomFieldAPITest(HttpStatusMixin, APITestCase):
             'name': 'Test Site 1',
             'slug': 'test-site-1',
             'custom_fields': {
-                'is_magic': False,
+                'is_magic': 0,
             }
         }
 
@@ -261,7 +261,7 @@ class CustomFieldAPITest(HttpStatusMixin, APITestCase):
             'name': 'Test Site 1',
             'slug': 'test-site-1',
             'custom_fields': {
-                'magic_date': date(2017, 4, 25),
+                'magic_date': '2017-04-25',
             }
         }
 
@@ -271,7 +271,7 @@ class CustomFieldAPITest(HttpStatusMixin, APITestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['custom_fields'].get('magic_date'), data['custom_fields']['magic_date'])
         cfv = self.site.custom_field_values.get(field=self.cf_date)
-        self.assertEqual(cfv.value, data['custom_fields']['magic_date'])
+        self.assertEqual(cfv.value.isoformat(), data['custom_fields']['magic_date'])
 
     def test_set_custom_field_url(self):
 
