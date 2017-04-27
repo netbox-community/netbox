@@ -18,7 +18,7 @@ class ImageAttachmentEditView(PermissionRequiredMixin, ObjectEditView):
             imageattachment.parent = get_object_or_404(model, pk=kwargs['object_id'])
         return imageattachment
 
-    def get_return_url(self, imageattachment):
+    def get_return_url(self, request, imageattachment):
         return imageattachment.parent.get_absolute_url()
 
 
@@ -26,5 +26,5 @@ class ImageAttachmentDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_imageattachment'
     model = ImageAttachment
 
-    def get_return_url(self, imageattachment):
+    def get_return_url(self, request, imageattachment):
         return imageattachment.obj.get_absolute_url()
