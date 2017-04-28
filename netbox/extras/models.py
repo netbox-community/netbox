@@ -422,6 +422,16 @@ class ImageAttachment(models.Model):
         # before the request finishes. (For example, to display a message indicating the ImageAttachment was deleted.)
         self.image.name = _name
 
+    @property
+    def size(self):
+        """
+        Wrapper around `image.size` to suppress an OSError in case the file is inaccessible.
+        """
+        try:
+            return self.image.size
+        except OSError:
+            return None
+
 
 #
 # User actions

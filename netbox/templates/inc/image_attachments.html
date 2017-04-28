@@ -7,12 +7,12 @@
             <th></th>
         </tr>
         {% for attachment in images %}
-            <tr>
+            <tr{% if not attachment.size %} class="danger"{% endif %}>
                 <td>
                     <i class="fa fa-image"></i>
                     <a href="{{ attachment.image.url }}" target="_blank">{{ attachment }}</a>
                 </td>
-                <td>{{ attachment.image.size|filesizeformat }}</td>
+                <td>{{ attachment.size|filesizeformat }}</td>
                 <td>{{ attachment.created }}</td>
                 <td class="text-right">
                     {% if perms.extras.change_imageattachment %}
