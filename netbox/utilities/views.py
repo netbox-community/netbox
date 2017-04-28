@@ -423,7 +423,7 @@ class BulkEditView(View):
     filter: FilterSet to apply when deleting by QuerySet
     form: The form class used to edit objects in bulk
     template_name: The name of the template
-    default_return_url: Name of the URL to which the user is redirected after editing the objects (can be overriden by
+    default_return_url: Name of the URL to which the user is redirected after editing the objects (can be overridden by
                         POSTing return_url)
     """
     cls = None
@@ -475,7 +475,7 @@ class BulkEditView(View):
                             fields_to_update[field] = ''
                         else:
                             fields_to_update[field] = None
-                    elif form.cleaned_data[field]:
+                    elif form.cleaned_data[field] not in (None, ''):
                         fields_to_update[field] = form.cleaned_data[field]
                 updated_count = self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
 

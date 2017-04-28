@@ -5,8 +5,8 @@ from dcim.models import Site, Rack, Device, Interface
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, BootstrapMixin, BulkImportForm, CSVDataField, ExpandableIPAddressField, FilterChoiceField, Livesearch,
-    ReturnURLForm, SlugField, add_blank_choice,
+    APISelect, BootstrapMixin, BulkEditNullBooleanSelect, BulkImportForm, CSVDataField, ExpandableIPAddressField,
+    FilterChoiceField, Livesearch, ReturnURLForm, SlugField, add_blank_choice,
 )
 
 from .models import (
@@ -61,6 +61,9 @@ class VRFImportForm(BootstrapMixin, BulkImportForm):
 class VRFBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VRF.objects.all(), widget=forms.MultipleHiddenInput)
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
+    enforce_unique = forms.NullBooleanField(
+        required=False, widget=BulkEditNullBooleanSelect, label='Enforce unique space'
+    )
     description = forms.CharField(max_length=100, required=False)
 
     class Meta:
@@ -256,6 +259,7 @@ class PrefixBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     status = forms.ChoiceField(choices=add_blank_choice(PREFIX_STATUS_CHOICES), required=False)
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False)
+    is_pool = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect, label='Is a pool')
     description = forms.CharField(max_length=100, required=False)
 
     class Meta:
