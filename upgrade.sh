@@ -18,7 +18,7 @@ fi
 # Delete stale bytecode
 COMMAND="${PREFIX}find . -name \"*.pyc\" -delete"
 echo "Cleaning up stale Python bytecode ($COMMAND)..."
-#eval $COMMAND
+eval $COMMAND
 
 # Fall back to pip3 if pip is missing
 PIP="pip"
