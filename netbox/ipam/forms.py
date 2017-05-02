@@ -344,10 +344,11 @@ class IPAddressForm(BootstrapMixin, ReturnURLForm, CustomFieldForm):
             query_key='q', query_url='ipam-api:ipaddress_list', field_to_update='nat_inside', obj_label='address'
         )
     )
+    primary_for_device = forms.BooleanField(required=False, label='Make this the primary IP for the device')
 
     class Meta:
         model = IPAddress
-        fields = ['address', 'vrf', 'tenant', 'status', 'interface', 'nat_inside', 'description']
+        fields = ['address', 'vrf', 'tenant', 'status', 'description', 'interface', 'primary_for_device', 'nat_inside']
         widgets = {
             'interface': APISelect(api_url='/api/dcim/devices/{{interface_device}}/interfaces/'),
             'nat_inside': APISelect(api_url='/api/ipam/ip-addresses/?device_id={{nat_device}}', display_field='address')
@@ -388,6 +389,15 @@ class IPAddressForm(BootstrapMixin, ReturnURLForm, CustomFieldForm):
         else:
             self.fields['interface'].choices = []
 
+        # Initialize primary_for_device if IP address is already assigned
+        if self.instance.interface is not None:
+            device = self.instance.interface.device
+            if (
+                self.instance.address.version == 4 and device.primary_ip4 == self.instance or
+                self.instance.address.version == 6 and device.primary_ip6 == self.instance
+            ):
+                self.initial['primary_for_device'] = True
+
         if self.instance.nat_inside:
             nat_inside = self.instance.nat_inside
             # If the IP is assigned to an interface, populate site/device fields accordingly
@@ -419,6 +429,43 @@ class IPAddressForm(BootstrapMixin, ReturnURLForm, CustomFieldForm):
                     interface__device__pk=self.initial['nat_device'])
             else:
                 self.fields['nat_inside'].choices = []
+
+    def clean(self):
+        super(IPAddressForm, self).clean()
+
+        # Primary IP assignment is only available if an interface has been assigned.
+        if self.cleaned_data.get('primary_for_device') and not self.cleaned_data.get('interface'):
+            self.add_error(
+                'primary_for_device', "Only IP addresses assigned to an interface can be designated as primary IPs."
+            )
+
+    def save(self, *args, **kwargs):
+
+        ipaddress = super(IPAddressForm, self).save(*args, **kwargs)
+
+        # Assign this IPAddress as the primary for the associated Device.
+        if self.cleaned_data['primary_for_device']:
+            device = self.cleaned_data['interface'].device
+            if ipaddress.address.version == 4:
+                device.primary_ip4 = ipaddress
+            else:
+                device.primary_ip6 = ipaddress
+            device.save()
+
+        # Clear assignment as primary for device if set.
+        else:
+            try:
+                if ipaddress.address.version == 4:
+                    device = ipaddress.primary_ip4_for
+                    device.primary_ip4 = None
+                else:
+                    device = ipaddress.primary_ip6_for
+                    device.primary_ip6 = None
+                device.save()
+            except Device.DoesNotExist:
+                pass
+
+        return ipaddress
 
 
 class IPAddressBulkAddForm(BootstrapMixin, CustomFieldForm):

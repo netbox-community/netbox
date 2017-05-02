@@ -17,7 +17,6 @@ from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
-from extras.forms import CustomFieldForm
 from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
 
 from .error_handlers import handle_protectederror
@@ -195,12 +194,8 @@ class ObjectEditView(GetReturnURLMixin, View):
         form = self.form_class(request.POST, instance=obj)
 
         if form.is_valid():
-            obj = form.save(commit=False)
-            obj_created = not obj.pk
-            obj.save()
-            form.save_m2m()
-            if isinstance(form, CustomFieldForm):
-                form.save_custom_fields()
+            obj_created = not form.instance.pk
+            obj = form.save()
 
             msg = u'Created ' if obj_created else u'Modified '
             msg += self.model._meta.verbose_name
