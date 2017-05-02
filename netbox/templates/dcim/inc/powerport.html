@@ -7,6 +7,7 @@
     <td>
         <i class="fa fa-fw fa-bolt"></i> {{ pp.name }}
     </td>
+    <td></td>
     {% if pp.power_outlet %}
         <td>
             <a href="{% url 'dcim:device' pk=pp.power_outlet.device.pk %}">{{ pp.power_outlet.device }}</a>

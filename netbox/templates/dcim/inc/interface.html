@@ -16,6 +16,7 @@
             <br /><small class="text-muted">{{ iface.member_interfaces.all|join:", "|default:"No members" }}</small>
         {% endif %}
     </td>
+    <td>{{ iface.mac_address|default:"" }}</td>
     {% if iface.is_lag %}
         <td colspan="2" class="text-muted">LAG interface</td>
     {% elif iface.is_virtual %}

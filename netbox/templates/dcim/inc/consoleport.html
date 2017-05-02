@@ -7,6 +7,7 @@
     <td>
         <i class="fa fa-fw fa-keyboard-o"></i> {{ cp.name }}
     </td>
+    <td></td>
     {% if cp.cs_port %}
         <td>
             <a href="{% url 'dcim:device' pk=cp.cs_port.device.pk %}">{{ cp.cs_port.device }}</a>
