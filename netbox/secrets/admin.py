@@ -2,7 +2,7 @@ from django.contrib import admin, messages
 from django.shortcuts import redirect, render
 
 from .forms import ActivateUserKeyForm
-from .models import UserKey, SecretRole, Secret
+from .models import UserKey
 
 
 @admin.register(UserKey)
@@ -10,7 +10,7 @@ class UserKeyAdmin(admin.ModelAdmin):
     actions = ['activate_selected']
     list_display = ['user', 'is_filled', 'is_active', 'created']
     fields = ['user', 'public_key', 'is_active', 'last_updated']
-    readonly_fields = ['is_active', 'last_updated']
+    readonly_fields = ['user', 'is_active', 'last_updated']
 
     def get_readonly_fields(self, request, obj=None):
         # Don't allow a user to modify an existing public key directly.
