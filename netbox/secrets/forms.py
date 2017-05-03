@@ -48,7 +48,7 @@ class SecretRoleForm(BootstrapMixin, forms.ModelForm):
 
 class SecretForm(BootstrapMixin, forms.ModelForm):
     plaintext = forms.CharField(max_length=65535, required=False, label='Plaintext',
-                                widget=forms.PasswordInput())
+                                widget=forms.PasswordInput(attrs={'class': 'requires-session-key'}))
     plaintext2 = forms.CharField(max_length=65535, required=False, label='Plaintext (verify)',
                                  widget=forms.PasswordInput())
 
@@ -82,7 +82,7 @@ class SecretFromCSVForm(forms.ModelForm):
 
 
 class SecretImportForm(BootstrapMixin, BulkImportForm):
-    csv = CSVDataField(csv_form=SecretFromCSVForm)
+    csv = CSVDataField(csv_form=SecretFromCSVForm, widget=forms.Textarea(attrs={'class': 'requires-session-key'}))
 
 
 class SecretBulkEditForm(BootstrapMixin, BulkEditForm):
