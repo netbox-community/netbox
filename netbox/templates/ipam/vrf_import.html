@@ -1,62 +1,47 @@
-{% extends '_base.html' %}
+{% extends 'utilities/obj_import.html' %}
 {% load render_table from django_tables2 %}
 {% load form_helpers %}
 
 {% block title %}VRF Import{% endblock %}
 
-{% block content %}
-<h1>VRF Import</h1>
-<div class="row">
-	<div class="col-md-6">
-		<form action="." method="post" class="form">
-		    {% csrf_token %}
-		    {% render_form form %}
-		    <div class="form-group">
-		        <button type="submit" class="btn btn-primary">Submit</button>
-		        <a href="{% url return_url %}" class="btn btn-default">Cancel</a>
-		    </div>
-		</form>
-	</div>
-	<div class="col-md-6">
-		<h4>CSV Format</h4>
-		<table class="table">
-			<thead>
-				<tr>
-					<th>Field</th>
-					<th>Description</th>
-					<th>Example</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td>Name</td>
-					<td>Name of VRF</td>
-					<td>Customer_ABC</td>
-				</tr>
-				<tr>
-					<td>RD</td>
-					<td>Route distinguisher</td>
-					<td>65000:123456</td>
-				</tr>
-				<tr>
-					<td>Tenant</td>
-					<td>Name of tenant (optional)</td>
-					<td>ABC01</td>
-				</tr>
-				<tr>
-					<td>Enforce uniqueness</td>
-					<td>Prevent duplicate prefixes/IP addresses</td>
-					<td>True</td>
-				</tr>
-				<tr>
-					<td>Description</td>
-					<td>Short description (optional)</td>
-					<td>Native VRF for customer ABC</td>
-				</tr>
-			</tbody>
-		</table>
-		<h4>Example</h4>
-		<pre>Customer_ABC,65000:123456,ABC01,True,Native VRF for customer ABC</pre>
-	</div>
-</div>
+{% block instructions %}
+    <h4>CSV Format</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Field</th>
+                <th>Description</th>
+                <th>Example</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Name</td>
+                <td>Name of VRF</td>
+                <td>Customer_ABC</td>
+            </tr>
+            <tr>
+                <td>RD</td>
+                <td>Route distinguisher</td>
+                <td>65000:123456</td>
+            </tr>
+            <tr>
+                <td>Tenant</td>
+                <td>Name of tenant (optional)</td>
+                <td>ABC01</td>
+            </tr>
+            <tr>
+                <td>Enforce uniqueness</td>
+                <td>Prevent duplicate prefixes/IP addresses</td>
+                <td>True</td>
+            </tr>
+            <tr>
+                <td>Description</td>
+                <td>Short description (optional)</td>
+                <td>Native VRF for customer ABC</td>
+            </tr>
+        </tbody>
+    </table>
+    <h4>Example</h4>
+    <pre>Customer_ABC,65000:123456,ABC01,True,Native VRF for customer ABC</pre>
 {% endblock %}

@@ -12,8 +12,12 @@
 		    {% csrf_token %}
 		    {% render_form form %}
             <div class="form-group">
-                <button type="submit" class="btn btn-primary">Submit</button>
-                <a href="{% url return_url %}" class="btn btn-default">Cancel</a>
+                <div class="col-md-12 text-right">
+		            <button type="submit" class="btn btn-primary">Submit</button>
+		            {% if return_url %}
+                        <a href="{% url return_url %}" class="btn btn-default">Cancel</a>
+                    {% endif %}
+                </div>
             </div>
 		</form>
 		<h4>CSV Format</h4>
