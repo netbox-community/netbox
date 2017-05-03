@@ -10,12 +10,14 @@ from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.html import escape
 from django.utils.http import urlencode
+from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from ipam.models import Prefix, Service, VLAN
 from circuits.models import Circuit
-from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
+from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE, UserAction
 from utilities.forms import ConfirmationForm
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -850,12 +852,16 @@ def consoleport_connect(request, pk):
         form = forms.ConsolePortConnectionForm(request.POST, instance=consoleport)
         if form.is_valid():
             consoleport = form.save()
-            messages.success(request, u"Connected {} {} to {} {}.".format(
-                consoleport.device,
-                consoleport.name,
-                consoleport.cs_port.device,
-                consoleport.cs_port.name,
-            ))
+            msg = u'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
+                consoleport.device.get_absolute_url(),
+                escape(consoleport.device),
+                escape(consoleport.name),
+                consoleport.cs_port.device.get_absolute_url(),
+                escape(consoleport.cs_port.device),
+                escape(consoleport.cs_port.name),
+            )
+            messages.success(request, mark_safe(msg))
+            UserAction.objects.log_edit(request.user, consoleport, msg)
             return redirect('dcim:device', pk=consoleport.device.pk)
 
     else:
@@ -879,17 +885,28 @@ def consoleport_disconnect(request, pk):
     consoleport = get_object_or_404(ConsolePort, pk=pk)
 
     if not consoleport.cs_port:
-        messages.warning(request, u"Cannot disconnect console port {}: It is not connected to anything."
-                         .format(consoleport))
+        messages.warning(
+            request, u"Cannot disconnect console port {}: It is not connected to anything.".format(consoleport)
+        )
         return redirect('dcim:device', pk=consoleport.device.pk)
 
     if request.method == 'POST':
         form = ConfirmationForm(request.POST)
         if form.is_valid():
+            cs_port = consoleport.cs_port
             consoleport.cs_port = None
             consoleport.connection_status = None
             consoleport.save()
-            messages.success(request, u"Console port {} has been disconnected.".format(consoleport))
+            msg = u'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
+                consoleport.device.get_absolute_url(),
+                escape(consoleport.device),
+                escape(consoleport.name),
+                cs_port.device.get_absolute_url(),
+                escape(cs_port.device),
+                escape(cs_port.name),
+            )
+            messages.success(request, mark_safe(msg))
+            UserAction.objects.log_edit(request.user, consoleport, msg)
             return redirect('dcim:device', pk=consoleport.device.pk)
 
     else:
@@ -952,12 +969,16 @@ def consoleserverport_connect(request, pk):
             consoleport.cs_port = consoleserverport
             consoleport.connection_status = form.cleaned_data['connection_status']
             consoleport.save()
-            messages.success(request, u"Connected {} {} to {} {}.".format(
-                consoleport.device,
-                consoleport.name,
-                consoleserverport.device,
-                consoleserverport.name,
-            ))
+            msg = u'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
+                consoleport.device.get_absolute_url(),
+                escape(consoleport.device),
+                escape(consoleport.name),
+                consoleserverport.device.get_absolute_url(),
+                escape(consoleserverport.device),
+                escape(consoleserverport.name),
+            )
+            messages.success(request, mark_safe(msg))
+            UserAction.objects.log_edit(request.user, consoleport, msg)
             return redirect('dcim:device', pk=consoleserverport.device.pk)
 
     else:
@@ -981,8 +1002,9 @@ def consoleserverport_disconnect(request, pk):
     consoleserverport = get_object_or_404(ConsoleServerPort, pk=pk)
 
     if not hasattr(consoleserverport, 'connected_console'):
-        messages.warning(request, u"Cannot disconnect console server port {}: Nothing is connected to it."
-                         .format(consoleserverport))
+        messages.warning(
+            request, u"Cannot disconnect console server port {}: Nothing is connected to it.".format(consoleserverport)
+        )
         return redirect('dcim:device', pk=consoleserverport.device.pk)
 
     if request.method == 'POST':
@@ -992,7 +1014,16 @@ def consoleserverport_disconnect(request, pk):
             consoleport.cs_port = None
             consoleport.connection_status = None
             consoleport.save()
-            messages.success(request, u"Console server port {} has been disconnected.".format(consoleserverport))
+            msg = u'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
+                consoleport.device.get_absolute_url(),
+                escape(consoleport.device),
+                escape(consoleport.name),
+                consoleserverport.device.get_absolute_url(),
+                escape(consoleserverport.device),
+                escape(consoleserverport.name),
+            )
+            messages.success(request, mark_safe(msg))
+            UserAction.objects.log_edit(request.user, consoleport, msg)
             return redirect('dcim:device', pk=consoleserverport.device.pk)
 
     else:
@@ -1044,12 +1075,16 @@ def powerport_connect(request, pk):
         form = forms.PowerPortConnectionForm(request.POST, instance=powerport)
         if form.is_valid():
             powerport = form.save()
-            messages.success(request, u"Connected {} {} to {} {}.".format(
-                powerport.device,
-                powerport.name,
-                powerport.power_outlet.device,
-                powerport.power_outlet.name,
-            ))
+            msg = u'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
+                powerport.device.get_absolute_url(),
+                escape(powerport.device),
+                escape(powerport.name),
+                powerport.power_outlet.device.get_absolute_url(),
+                escape(powerport.power_outlet.device),
+                escape(powerport.power_outlet.name),
+            )
+            messages.success(request, mark_safe(msg))
+            UserAction.objects.log_edit(request.user, powerport, msg)
             return redirect('dcim:device', pk=powerport.device.pk)
 
     else:
@@ -1073,17 +1108,28 @@ def powerport_disconnect(request, pk):
     powerport = get_object_or_404(PowerPort, pk=pk)
 
     if not powerport.power_outlet:
-        messages.warning(request, u"Cannot disconnect power port {}: It is not connected to an outlet."
-                         .format(powerport))
+        messages.warning(
+            request, u"Cannot disconnect power port {}: It is not connected to an outlet.".format(powerport)
+        )
         return redirect('dcim:device', pk=powerport.device.pk)
 
     if request.method == 'POST':
         form = ConfirmationForm(request.POST)
         if form.is_valid():
+            power_outlet = powerport.power_outlet
             powerport.power_outlet = None
             powerport.connection_status = None
             powerport.save()
-            messages.success(request, u"Power port {} has been disconnected.".format(powerport))
+            msg = u'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
+                powerport.device.get_absolute_url(),
+                escape(powerport.device),
+                escape(powerport.name),
+                power_outlet.device.get_absolute_url(),
+                escape(power_outlet.device),
+                escape(power_outlet.name),
+            )
+            messages.success(request, mark_safe(msg))
+            UserAction.objects.log_edit(request.user, powerport, msg)
             return redirect('dcim:device', pk=powerport.device.pk)
 
     else:
@@ -1146,12 +1192,16 @@ def poweroutlet_connect(request, pk):
             powerport.power_outlet = poweroutlet
             powerport.connection_status = form.cleaned_data['connection_status']
             powerport.save()
-            messages.success(request, u"Connected {} {} to {} {}.".format(
-                powerport.device,
-                powerport.name,
-                poweroutlet.device,
-                poweroutlet.name,
-            ))
+            msg = u'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
+                powerport.device.get_absolute_url(),
+                escape(powerport.device),
+                escape(powerport.name),
+                poweroutlet.device.get_absolute_url(),
+                escape(poweroutlet.device),
+                escape(poweroutlet.name),
+            )
+            messages.success(request, mark_safe(msg))
+            UserAction.objects.log_edit(request.user, powerport, msg)
             return redirect('dcim:device', pk=poweroutlet.device.pk)
 
     else:
@@ -1175,7 +1225,9 @@ def poweroutlet_disconnect(request, pk):
     poweroutlet = get_object_or_404(PowerOutlet, pk=pk)
 
     if not hasattr(poweroutlet, 'connected_port'):
-        messages.warning(request, u"Cannot disconnect power outlet {}: Nothing is connected to it.".format(poweroutlet))
+        messages.warning(
+            request, u"Cannot disconnect power outlet {}: Nothing is connected to it.".format(poweroutlet)
+        )
         return redirect('dcim:device', pk=poweroutlet.device.pk)
 
     if request.method == 'POST':
@@ -1185,7 +1237,16 @@ def poweroutlet_disconnect(request, pk):
             powerport.power_outlet = None
             powerport.connection_status = None
             powerport.save()
-            messages.success(request, u"Power outlet {} has been disconnected.".format(poweroutlet))
+            msg = u'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
+                powerport.device.get_absolute_url(),
+                escape(powerport.device),
+                escape(powerport.name),
+                poweroutlet.device.get_absolute_url(),
+                escape(poweroutlet.device),
+                escape(poweroutlet.name),
+            )
+            messages.success(request, mark_safe(msg))
+            UserAction.objects.log_edit(request.user, powerport, msg)
             return redirect('dcim:device', pk=poweroutlet.device.pk)
 
     else:
@@ -1451,13 +1512,19 @@ def interfaceconnection_add(request, pk):
     if request.method == 'POST':
         form = forms.InterfaceConnectionForm(device, request.POST)
         if form.is_valid():
+
             interfaceconnection = form.save()
-            messages.success(request, u"Connected {} {} to {} {}.".format(
-                interfaceconnection.interface_a.device,
-                interfaceconnection.interface_a,
-                interfaceconnection.interface_b.device,
-                interfaceconnection.interface_b,
-            ))
+            msg = u'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
+                interfaceconnection.interface_a.device.get_absolute_url(),
+                escape(interfaceconnection.interface_a.device),
+                escape(interfaceconnection.interface_a.name),
+                interfaceconnection.interface_b.device.get_absolute_url(),
+                escape(interfaceconnection.interface_b.device),
+                escape(interfaceconnection.interface_b.name),
+            )
+            messages.success(request, mark_safe(msg))
+            UserAction.objects.log_edit(request.user, interfaceconnection, msg)
+
             if '_addanother' in request.POST:
                 base_url = reverse('dcim:interfaceconnection_add', kwargs={'pk': device.pk})
                 device_b = interfaceconnection.interface_b.device
@@ -1495,12 +1562,16 @@ def interfaceconnection_delete(request, pk):
         form = forms.InterfaceConnectionDeletionForm(request.POST)
         if form.is_valid():
             interfaceconnection.delete()
-            messages.success(request, u"Deleted the connection between {} {} and {} {}.".format(
-                interfaceconnection.interface_a.device,
-                interfaceconnection.interface_a,
-                interfaceconnection.interface_b.device,
-                interfaceconnection.interface_b,
-            ))
+            msg = u'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
+                interfaceconnection.interface_a.device.get_absolute_url(),
+                escape(interfaceconnection.interface_a.device),
+                escape(interfaceconnection.interface_a.name),
+                interfaceconnection.interface_b.device.get_absolute_url(),
+                escape(interfaceconnection.interface_b.device),
+                escape(interfaceconnection.interface_b.name),
+            )
+            messages.success(request, mark_safe(msg))
+            UserAction.objects.log_edit(request.user, interfaceconnection, msg)
             if form.cleaned_data['device']:
                 return redirect('dcim:device', pk=form.cleaned_data['device'].pk)
             else:
