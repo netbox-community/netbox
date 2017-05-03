@@ -33,11 +33,11 @@
                     </a>
                 {% endif %}
             <a href="{% url 'dcim:powerport_disconnect' pk=pp.pk %}" class="btn btn-danger btn-xs">
-                <i class="glyphicon glyphicon-remove" aria-hidden="true" title="Delete connection"></i>
+                <i class="glyphicon glyphicon-resize-full" aria-hidden="true" title="Delete connection"></i>
             </a>
             {% else %}
                 <a href="{% url 'dcim:powerport_connect' pk=pp.pk %}" class="btn btn-success btn-xs">
-                    <i class="glyphicon glyphicon-plus" aria-hidden="true" title="Connect"></i>
+                    <i class="glyphicon glyphicon-resize-small" aria-hidden="true" title="Connect"></i>
                 </a>
             {% endif %}
             <a href="{% url 'dcim:powerport_edit' pk=pp.pk %}" class="btn btn-info btn-xs">
