@@ -4,10 +4,13 @@
 {% block title %}Import Completed{% endblock %}
 
 {% block content %}
-<h1>Import Completed</h1>
-{% render_table table %}
-<a href="{{ request.path }}" class="btn btn-primary">
-	<span class="fa fa-download" aria-hidden="true"></span>
-	Import more
-</a>
+    <h1>{% block title %}Import Completed{% endblock %}</h1>
+    {% render_table table %}
+    <a href="{{ request.path }}" class="btn btn-primary">
+        <span class="fa fa-download" aria-hidden="true"></span>
+        Import more
+    </a>
+    {% if return_url %}
+        <a href="{% url return_url %}" class="btn btn-default">View All</a>
+    {% endif %}
 {% endblock %}

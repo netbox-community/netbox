@@ -395,6 +395,7 @@ class BulkImportView(View):
 
                 return render(request, "import_success.html", {
                     'table': obj_table,
+                    'return_url': self.default_return_url,
                 })
 
             except IntegrityError as e:

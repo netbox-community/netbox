@@ -924,6 +924,7 @@ class ConsoleConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
     form = forms.ConsoleConnectionImportForm
     table = tables.ConsoleConnectionTable
     template_name = 'dcim/console_connections_import.html'
+    default_return_url = 'dcim:console_connections_list'
 
 
 #
@@ -1117,6 +1118,7 @@ class PowerConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
     form = forms.PowerConnectionImportForm
     table = tables.PowerConnectionTable
     template_name = 'dcim/power_connections_import.html'
+    default_return_url = 'dcim:power_connections_list'
 
 
 #
@@ -1528,6 +1530,7 @@ class InterfaceConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView
     form = forms.InterfaceConnectionImportForm
     table = tables.InterfaceConnectionTable
     template_name = 'dcim/interface_connections_import.html'
+    default_return_url = 'dcim:interface_connections_list'
 
 
 #
