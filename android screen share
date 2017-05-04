@@ -1,0 +1,16 @@
+sudo apt-get install android-tools-adb qt4-qmake libqt4-dev libqtcore4 libqtgui4
+
+cd;wget https://github.com/yangh/sevensquare/archive/master.zip
+
+unzip master.zip;cd sevensquare-master;make
+
+sudo make install;cd;rm -rf sevensquare-master master.zip
+
+
+Once installed run following command in terminal to run this application:
+Terminal Commands:
+
+seven-square &
+
+
+Now in your Android device go to Settings > Developer Tools > and enable USB Debugging, and now connect your Android device to your computer using USB cable to mirror its screen.
