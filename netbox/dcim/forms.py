@@ -532,27 +532,32 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
 
 class DeviceForm(BootstrapMixin, CustomFieldForm):
     site = forms.ModelChoiceField(queryset=Site.objects.all(), widget=forms.Select(attrs={'filter-for': 'rack'}))
-    rack = forms.ModelChoiceField(queryset=Rack.objects.all(), required=False, widget=APISelect(
-        api_url='/api/dcim/racks/?site_id={{site}}',
-        display_field='display_name',
-        attrs={'filter-for': 'position'}
-    ))
-    position = forms.TypedChoiceField(required=False, empty_value=None,
-                                      help_text="The lowest-numbered unit occupied by the device",
-                                      widget=APISelect(api_url='/api/dcim/racks/{{rack}}/units/?face={{face}}',
-                                                       disabled_indicator='device'))
-    manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(),
-                                          widget=forms.Select(attrs={'filter-for': 'device_type'}))
-    device_type = forms.ModelChoiceField(queryset=DeviceType.objects.all(), label='Device type', widget=APISelect(
-        api_url='/api/dcim/device-types/?manufacturer_id={{manufacturer}}',
-        display_field='model'
-    ))
+    rack = forms.ModelChoiceField(
+        queryset=Rack.objects.all(), required=False, widget=APISelect(
+            api_url='/api/dcim/racks/?site_id={{site}}',
+            display_field='display_name',
+            attrs={'filter-for': 'position'}
+        )
+    )
+    position = forms.TypedChoiceField(
+        required=False, empty_value=None, help_text="The lowest-numbered unit occupied by the device",
+        widget=APISelect(api_url='/api/dcim/racks/{{rack}}/units/?face={{face}}', disabled_indicator='device')
+    )
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(), widget=forms.Select(attrs={'filter-for': 'device_type'})
+    )
+    device_type = forms.ModelChoiceField(
+        queryset=DeviceType.objects.all(), label='Device type',
+        widget=APISelect(api_url='/api/dcim/device-types/?manufacturer_id={{manufacturer}}', display_field='model')
+    )
     comments = CommentField()
 
     class Meta:
         model = Device
-        fields = ['name', 'device_role', 'tenant', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'position',
-                  'face', 'status', 'platform', 'primary_ip4', 'primary_ip6', 'comments']
+        fields = [
+            'name', 'device_role', 'tenant', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'position', 'face',
+            'status', 'platform', 'primary_ip4', 'primary_ip6', 'comments',
+        ]
         help_texts = {
             'device_role': "The function this device serves",
             'serial': "Chassis serial number",
@@ -764,6 +769,13 @@ class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['tenant', 'platform']
 
 
+def device_status_choices():
+    status_counts = {}
+    for status in Device.objects.values('status').annotate(count=Count('status')).order_by('status'):
+        status_counts[status['status']] = status['count']
+    return [(s[0], u'{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in STATUS_CHOICES]
+
+
 class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Device
     q = forms.CharField(required=False, label='Search')
@@ -783,10 +795,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=Tenant.objects.annotate(filter_count=Count('devices')), to_field_name='slug',
         null_option=(0, 'None'),
     )
-    manufacturer_id = FilterChoiceField(
-        queryset=Manufacturer.objects.all(),
-        label='Manufacturer',
-    )
+    manufacturer_id = FilterChoiceField(queryset=Manufacturer.objects.all(), label='Manufacturer')
     device_type_id = FilterChoiceField(
         queryset=DeviceType.objects.select_related('manufacturer').order_by('model').annotate(
             filter_count=Count('instances'),
@@ -798,14 +807,8 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
         to_field_name='slug',
         null_option=(0, 'None'),
     )
-    status = forms.NullBooleanField(
-        required=False,
-        widget=forms.Select(choices=FORM_STATUS_CHOICES),
-    )
-    mac_address = forms.CharField(
-        required=False,
-        label='MAC address',
-    )
+    status = forms.ChoiceField(required=False, choices=device_status_choices)
+    mac_address = forms.CharField(required=False, label='MAC address')
 
 
 #

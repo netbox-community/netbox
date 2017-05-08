@@ -373,10 +373,6 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Platform (slug)',
     )
-    status = django_filters.BooleanFilter(
-        name='status',
-        label='Status',
-    )
     is_console_server = django_filters.BooleanFilter(
         name='device_type__is_console_server',
         label='Is a console server',
@@ -396,7 +392,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Device
-        fields = ['name', 'serial', 'asset_tag']
+        fields = ['name', 'serial', 'asset_tag', 'status']
 
     def search(self, queryset, name, value):
         if not value.strip():

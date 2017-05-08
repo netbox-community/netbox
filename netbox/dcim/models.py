@@ -178,12 +178,29 @@ VIRTUAL_IFACE_TYPES = [
     IFACE_FF_LAG,
 ]
 
-STATUS_ACTIVE = True
-STATUS_OFFLINE = False
+STATUS_OFFLINE = 0
+STATUS_ACTIVE = 1
+STATUS_PLANNED = 2
+STATUS_STAGED = 3
+STATUS_FAILED = 4
+STATUS_INVENTORY = 5
 STATUS_CHOICES = [
     [STATUS_ACTIVE, 'Active'],
     [STATUS_OFFLINE, 'Offline'],
+    [STATUS_PLANNED, 'Planned'],
+    [STATUS_STAGED, 'Staged'],
+    [STATUS_FAILED, 'Failed'],
+    [STATUS_INVENTORY, 'Inventory'],
 ]
+
+DEVICE_STATUS_CLASSES = {
+    0: 'warning',
+    1: 'success',
+    2: 'info',
+    3: 'primary',
+    4: 'danger',
+    5: 'default',
+}
 
 CONNECTION_STATUS_PLANNED = False
 CONNECTION_STATUS_CONNECTED = True
@@ -933,19 +950,26 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     platform = models.ForeignKey('Platform', related_name='devices', blank=True, null=True, on_delete=models.SET_NULL)
     name = NullableCharField(max_length=64, blank=True, null=True, unique=True)
     serial = models.CharField(max_length=50, blank=True, verbose_name='Serial number')
-    asset_tag = NullableCharField(max_length=50, blank=True, null=True, unique=True, verbose_name='Asset tag',
-                                  help_text='A unique tag used to identify this device')
+    asset_tag = NullableCharField(
+        max_length=50, blank=True, null=True, unique=True, verbose_name='Asset tag',
+        help_text='A unique tag used to identify this device'
+    )
     site = models.ForeignKey('Site', related_name='devices', on_delete=models.PROTECT)
     rack = models.ForeignKey('Rack', related_name='devices', blank=True, null=True, on_delete=models.PROTECT)
-    position = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1)],
-                                                verbose_name='Position (U)',
-                                                help_text='The lowest-numbered unit occupied by the device')
+    position = models.PositiveSmallIntegerField(
+        blank=True, null=True, validators=[MinValueValidator(1)], verbose_name='Position (U)',
+        help_text='The lowest-numbered unit occupied by the device'
+    )
     face = models.PositiveSmallIntegerField(blank=True, null=True, choices=RACK_FACE_CHOICES, verbose_name='Rack face')
-    status = models.BooleanField(choices=STATUS_CHOICES, default=STATUS_ACTIVE, verbose_name='Status')
-    primary_ip4 = models.OneToOneField('ipam.IPAddress', related_name='primary_ip4_for', on_delete=models.SET_NULL,
-                                       blank=True, null=True, verbose_name='Primary IPv4')
-    primary_ip6 = models.OneToOneField('ipam.IPAddress', related_name='primary_ip6_for', on_delete=models.SET_NULL,
-                                       blank=True, null=True, verbose_name='Primary IPv6')
+    status = models.PositiveSmallIntegerField(choices=STATUS_CHOICES, default=STATUS_ACTIVE, verbose_name='Status')
+    primary_ip4 = models.OneToOneField(
+        'ipam.IPAddress', related_name='primary_ip4_for', on_delete=models.SET_NULL, blank=True, null=True,
+        verbose_name='Primary IPv4'
+    )
+    primary_ip6 = models.OneToOneField(
+        'ipam.IPAddress', related_name='primary_ip6_for', on_delete=models.SET_NULL, blank=True, null=True,
+        verbose_name='Primary IPv6'
+    )
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
     images = GenericRelation(ImageAttachment)
@@ -1107,6 +1131,9 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         Return the set of child Devices installed in DeviceBays within this Device.
         """
         return Device.objects.filter(parent_bay__device=self.pk)
+
+    def get_status_class(self):
+        return DEVICE_STATUS_CLASSES[self.status]
 
     def get_rpc_client(self):
         """

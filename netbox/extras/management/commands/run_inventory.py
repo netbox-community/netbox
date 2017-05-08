@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from dcim.models import Device, InventoryItem, Site
+from dcim.models import Device, InventoryItem, Site, STATUS_ACTIVE
 
 
 class Command(BaseCommand):
@@ -39,7 +39,7 @@ class Command(BaseCommand):
             self.password = getpass("Password: ")
 
         # Attempt to inventory only active devices
-        device_list = Device.objects.filter(status=True)
+        device_list = Device.objects.filter(status=STATUS_ACTIVE)
 
         # --site: Include only devices belonging to specified site(s)
         if options['site']:
@@ -72,7 +72,7 @@ class Command(BaseCommand):
 
             # Skip inactive devices
             if not device.status:
-                self.stdout.write("Skipped (inactive)")
+                self.stdout.write("Skipped (not active)")
                 continue
 
             # Skip devices without primary_ip set

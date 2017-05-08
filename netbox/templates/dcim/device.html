@@ -123,11 +123,7 @@
                 <tr>
                     <td>Status</td>
                     <td>
-                        {% if device.status %}
-                            <span class="label label-success">{{ device.get_status_display }}</span>
-                        {% else %}
-                            <span class="label label-danger">{{ device.get_status_display }}</span>
-                        {% endif %}
+                        <span class="label label-{{ device.get_status_class }}">{{ device.get_status_display }}</span>
                     </td>
                 </tr>
                 <tr>

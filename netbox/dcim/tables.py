@@ -92,12 +92,8 @@ DEVICE_ROLE = """
 <label class="label" style="background-color: #{{ record.device_role.color }}">{{ value }}</label>
 """
 
-STATUS_ICON = """
-{% if record.status %}
-    <span class="glyphicon glyphicon-ok-sign text-success" title="Active" aria-hidden="true"></span>
-{% else %}
-    <span class="glyphicon glyphicon-minus-sign text-danger" title="Offline" aria-hidden="true"></span>
-{% endif %}
+DEVICE_STATUS = """
+<span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
 """
 
 DEVICE_PRIMARY_IP = """
@@ -432,7 +428,7 @@ class PlatformTable(BaseTable):
 class DeviceTable(BaseTable):
     pk = ToggleColumn()
     name = tables.TemplateColumn(template_code=DEVICE_LINK)
-    status = tables.TemplateColumn(template_code=STATUS_ICON, verbose_name='')
+    status = tables.TemplateColumn(template_code=DEVICE_STATUS, verbose_name='Status')
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
     rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')])
@@ -452,7 +448,7 @@ class DeviceTable(BaseTable):
 
 class DeviceSearchTable(SearchTable):
     name = tables.TemplateColumn(template_code=DEVICE_LINK)
-    status = tables.TemplateColumn(template_code=STATUS_ICON, verbose_name='')
+    status = tables.TemplateColumn(template_code=DEVICE_STATUS, verbose_name='Status')
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
     rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')])
