@@ -221,6 +221,7 @@ def secret_import(request):
 
                     return render(request, 'import_success.html', {
                         'table': table,
+                        'return_url': 'secrets:secret_list',
                     })
 
                 except IntegrityError as e:
@@ -231,7 +232,7 @@ def secret_import(request):
 
     return render(request, 'secrets/secret_import.html', {
         'form': form,
-        'return_url': reverse('secrets:secret_list'),
+        'return_url': 'secrets:secret_list',
     })
 
 

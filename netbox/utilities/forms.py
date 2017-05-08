@@ -125,6 +125,19 @@ class ColorSelect(forms.Select):
         super(ColorSelect, self).__init__(*args, **kwargs)
 
 
+class BulkEditNullBooleanSelect(forms.NullBooleanSelect):
+
+    def __init__(self, *args, **kwargs):
+        super(BulkEditNullBooleanSelect, self).__init__(*args, **kwargs)
+
+        # Override the built-in choice labels
+        self.choices = (
+            ('1', '---------'),
+            ('2', 'Yes'),
+            ('3', 'No'),
+        )
+
+
 class SelectWithDisabled(forms.Select):
     """
     Modified the stock Select widget to accept choices using a dict() for a label. The dict for each option must include

@@ -10,9 +10,9 @@ from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFi
 from ipam.models import IPAddress
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkImportForm, CommentField,
-    CSVDataField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled,
-    SmallTextarea, SlugField, FilterTreeNodeMultipleChoiceField,
+    APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
+    BulkImportForm, CommentField, CSVDataField, ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField,
+    Livesearch, SelectWithDisabled, SmallTextarea, SlugField, FilterTreeNodeMultipleChoiceField,
 )
 
 from .formfields import MACAddressFormField
@@ -271,6 +271,7 @@ class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     type = forms.ChoiceField(choices=add_blank_choice(RACK_TYPE_CHOICES), required=False, label='Type')
     width = forms.ChoiceField(choices=add_blank_choice(RACK_WIDTH_CHOICES), required=False, label='Width')
     u_height = forms.IntegerField(required=False, label='Height (U)')
+    desc_units = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect, label='Descending units')
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
@@ -374,7 +375,13 @@ class DeviceTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=DeviceType.objects.all(), widget=forms.MultipleHiddenInput)
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), required=False)
     u_height = forms.IntegerField(min_value=1, required=False)
+    is_full_depth = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect, label='Is full depth')
     interface_ordering = forms.ChoiceField(choices=add_blank_choice(IFACE_ORDERING_CHOICES), required=False)
+    is_console_server = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect, label='Is full depth')
+    is_pdu = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect, label='Is a PDU')
+    is_network_device = forms.NullBooleanField(
+        required=False, widget=BulkEditNullBooleanSelect, label='Is a network device'
+    )
 
     class Meta:
         nullable_fields = []
@@ -483,6 +490,7 @@ class InterfaceTemplateCreateForm(DeviceComponentForm):
 class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=InterfaceTemplate.objects.all(), widget=forms.MultipleHiddenInput)
     form_factor = forms.ChoiceField(choices=add_blank_choice(IFACE_FF_CHOICES), required=False)
+    mgmt_only = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect, label='Management only')
 
     class Meta:
         nullable_fields = []
@@ -1415,6 +1423,7 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
     device = forms.ModelChoiceField(queryset=Device.objects.all(), widget=forms.HiddenInput)
     lag = forms.ModelChoiceField(queryset=Interface.objects.all(), required=False, label='Parent LAG')
     form_factor = forms.ChoiceField(choices=add_blank_choice(IFACE_FF_CHOICES), required=False)
+    mgmt_only = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect, label='Management only')
     description = forms.CharField(max_length=100, required=False)
 
     class Meta:

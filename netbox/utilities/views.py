@@ -17,7 +17,6 @@ from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
-from extras.forms import CustomFieldForm
 from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
 
 from .error_handlers import handle_protectederror
@@ -195,12 +194,8 @@ class ObjectEditView(GetReturnURLMixin, View):
         form = self.form_class(request.POST, request.FILES, instance=obj)
 
         if form.is_valid():
-            obj = form.save(commit=False)
-            obj_created = not obj.pk
-            obj.save()
-            form.save_m2m()
-            if isinstance(form, CustomFieldForm):
-                form.save_custom_fields()
+            obj_created = not form.instance.pk
+            obj = form.save()
 
             msg = u'Created ' if obj_created else u'Modified '
             msg += self.model._meta.verbose_name
@@ -400,6 +395,7 @@ class BulkImportView(View):
 
                 return render(request, "import_success.html", {
                     'table': obj_table,
+                    'return_url': self.default_return_url,
                 })
 
             except IntegrityError as e:
@@ -423,7 +419,7 @@ class BulkEditView(View):
     filter: FilterSet to apply when deleting by QuerySet
     form: The form class used to edit objects in bulk
     template_name: The name of the template
-    default_return_url: Name of the URL to which the user is redirected after editing the objects (can be overriden by
+    default_return_url: Name of the URL to which the user is redirected after editing the objects (can be overridden by
                         POSTing return_url)
     """
     cls = None
@@ -475,7 +471,7 @@ class BulkEditView(View):
                             fields_to_update[field] = ''
                         else:
                             fields_to_update[field] = None
-                    elif form.cleaned_data[field]:
+                    elif form.cleaned_data[field] not in (None, ''):
                         fields_to_update[field] = form.cleaned_data[field]
                 updated_count = self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
 

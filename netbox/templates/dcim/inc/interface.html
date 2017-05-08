@@ -12,12 +12,13 @@
         {% if iface.description %}
             <i class="fa fa-fw fa-comment-o" title="{{ iface.description }}"></i>
         {% endif %}
-        {% if iface.is_lag %}
-            <br /><small class="text-muted">{{ iface.member_interfaces.all|join:", "|default:"No members" }}</small>
-        {% endif %}
     </td>
+    <td>{{ iface.mac_address|default:"" }}</td>
     {% if iface.is_lag %}
-        <td colspan="2" class="text-muted">LAG interface</td>
+        <td colspan="2" class="text-muted">
+            LAG interface<br />
+            <small class="text-muted">{{ iface.member_interfaces.all|join:", "|default:"No members" }}</small>
+        </td>
     {% elif iface.is_virtual %}
         <td colspan="2" class="text-muted">Virtual interface</td>
     {% elif iface.connection %}

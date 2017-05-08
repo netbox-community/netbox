@@ -1,87 +1,72 @@
-{% extends '_base.html' %}
+{% extends 'utilities/obj_import.html' %}
 {% load render_table from django_tables2 %}
 {% load form_helpers %}
 
 {% block title %}Prefix Import{% endblock %}
 
-{% block content %}
-<h1>Prefix Import</h1>
-<div class="row">
-	<div class="col-md-6">
-		<form action="." method="post" class="form">
-		    {% csrf_token %}
-		    {% render_form form %}
-		    <div class="form-group">
-		        <button type="submit" class="btn btn-primary">Submit</button>
-		        <a href="{% url return_url %}" class="btn btn-default">Cancel</a>
-		    </div>
-		</form>
-	</div>
-	<div class="col-md-6">
-		<h4>CSV Format</h4>
-		<table class="table">
-			<thead>
-				<tr>
-					<th>Field</th>
-					<th>Description</th>
-					<th>Example</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td>Prefix</td>
-					<td>IPv4 or IPv6 network</td>
-					<td>192.168.42.0/24</td>
-				</tr>
-				<tr>
-					<td>VRF</td>
-					<td>VRF route distinguisher (optional)</td>
-					<td>65000:123</td>
-				</tr>
-				<tr>
-					<td>Tenant</td>
-					<td>Name of tenant (optional)</td>
-					<td>ABC01</td>
-				</tr>
-				<tr>
-					<td>Site</td>
-					<td>Name of assigned site (optional)</td>
-					<td>HQ</td>
-				</tr>
-				<tr>
-					<td>VLAN Group</td>
-					<td>Name of group for VLAN selection (optional)</td>
-					<td>Customers</td>
-				</tr>
-				<tr>
-					<td>VLAN ID</td>
-					<td>Numeric VLAN ID (optional)</td>
-					<td>801</td>
-				</tr>
-				<tr>
-					<td>Status</td>
-					<td>Current status</td>
-					<td>Active</td>
-				</tr>
-				<tr>
-					<td>Role</td>
-					<td>Functional role (optional)</td>
-					<td>Customer</td>
-				</tr>
-				<tr>
-					<td>Is a pool</td>
-					<td>True if all IPs are considered usable</td>
-					<td>False</td>
-				</tr>
-				<tr>
-					<td>Description</td>
-					<td>Short description (optional)</td>
-					<td>7th floor WiFi</td>
-				</tr>
-			</tbody>
-		</table>
-		<h4>Example</h4>
-		<pre>192.168.42.0/24,65000:123,ABC01,HQ,Customers,801,Active,Customer,False,7th floor WiFi</pre>
-	</div>
-</div>
+{% block instructions %}
+    <h4>CSV Format</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Field</th>
+                <th>Description</th>
+                <th>Example</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Prefix</td>
+                <td>IPv4 or IPv6 network</td>
+                <td>192.168.42.0/24</td>
+            </tr>
+            <tr>
+                <td>VRF</td>
+                <td>VRF route distinguisher (optional)</td>
+                <td>65000:123</td>
+            </tr>
+            <tr>
+                <td>Tenant</td>
+                <td>Name of tenant (optional)</td>
+                <td>ABC01</td>
+            </tr>
+            <tr>
+                <td>Site</td>
+                <td>Name of assigned site (optional)</td>
+                <td>HQ</td>
+            </tr>
+            <tr>
+                <td>VLAN Group</td>
+                <td>Name of group for VLAN selection (optional)</td>
+                <td>Customers</td>
+            </tr>
+            <tr>
+                <td>VLAN ID</td>
+                <td>Numeric VLAN ID (optional)</td>
+                <td>801</td>
+            </tr>
+            <tr>
+                <td>Status</td>
+                <td>Current status</td>
+                <td>Active</td>
+            </tr>
+            <tr>
+                <td>Role</td>
+                <td>Functional role (optional)</td>
+                <td>Customer</td>
+            </tr>
+            <tr>
+                <td>Is a pool</td>
+                <td>True if all IPs are considered usable</td>
+                <td>False</td>
+            </tr>
+            <tr>
+                <td>Description</td>
+                <td>Short description (optional)</td>
+                <td>7th floor WiFi</td>
+            </tr>
+        </tbody>
+    </table>
+    <h4>Example</h4>
+    <pre>192.168.42.0/24,65000:123,ABC01,HQ,Customers,801,Active,Customer,False,7th floor WiFi</pre>
 {% endblock %}
