@@ -9,7 +9,10 @@ from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
 
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from .models import (
+    Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, Service, VLAN,
+    VLAN_STATUS_CHOICES, VLANGroup, VRF,
+)
 
 
 class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
@@ -153,10 +156,13 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Role (slug)',
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=PREFIX_STATUS_CHOICES
+    )
 
     class Meta:
         model = Prefix
-        fields = ['family', 'status']
+        fields = ['family']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -237,10 +243,13 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         queryset=Interface.objects.all(),
         label='Interface (ID)',
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=IPADDRESS_STATUS_CHOICES
+    )
 
     class Meta:
         model = IPAddress
-        fields = ['family', 'status']
+        fields = ['family']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -337,10 +346,13 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Role (slug)',
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=VLAN_STATUS_CHOICES
+    )
 
     class Meta:
         model = VLAN
-        fields = ['name', 'vid', 'status']
+        fields = ['name', 'vid']
 
     def search(self, queryset, name, value):
         if not value.strip():
