@@ -807,7 +807,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
         to_field_name='slug',
         null_option=(0, 'None'),
     )
-    status = forms.ChoiceField(required=False, choices=device_status_choices)
+    status = forms.MultipleChoiceField(choices=device_status_choices, required=False)
     mac_address = forms.CharField(required=False, label='MAC address')
 
 

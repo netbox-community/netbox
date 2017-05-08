@@ -8,9 +8,9 @@ from tenancy.models import Tenant
 from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, IFACE_FF_LAG, Interface, InterfaceConnection, InterfaceTemplate,
-    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
-    RackGroup, RackReservation, RackRole, Region, Site, VIRTUAL_IFACE_TYPES,
+    DeviceBayTemplate, DeviceRole, DeviceType, STATUS_CHOICES, IFACE_FF_LAG, Interface, InterfaceConnection,
+    InterfaceTemplate, Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
+    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, Region, Site, VIRTUAL_IFACE_TYPES,
 )
 
 
@@ -389,10 +389,13 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         method='_has_primary_ip',
         label='Has a primary IP',
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=STATUS_CHOICES
+    )
 
     class Meta:
         model = Device
-        fields = ['name', 'serial', 'asset_tag', 'status']
+        fields = ['name', 'serial', 'asset_tag']
 
     def search(self, queryset, name, value):
         if not value.strip():
