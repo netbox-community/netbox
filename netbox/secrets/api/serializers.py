@@ -1,7 +1,7 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
-from dcim.models import Device
-from ipam.api.serializers import IPAddressNestedSerializer
+from dcim.api.serializers import NestedDeviceSerializer
 from secrets.models import Secret, SecretRole
 
 
@@ -16,34 +16,41 @@ class SecretRoleSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug']
 
 
-class SecretRoleNestedSerializer(SecretRoleSerializer):
+class NestedSecretRoleSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='secrets-api:secretrole-detail')
 
-    class Meta(SecretRoleSerializer.Meta):
-        pass
+    class Meta:
+        model = SecretRole
+        fields = ['id', 'url', 'name', 'slug']
 
 
 #
 # Secrets
 #
 
-class SecretDeviceSerializer(serializers.ModelSerializer):
-    primary_ip = IPAddressNestedSerializer()
-
-    class Meta:
-        model = Device
-        fields = ['id', 'name', 'primary_ip']
-
-
 class SecretSerializer(serializers.ModelSerializer):
-    device = SecretDeviceSerializer()
-    role = SecretRoleNestedSerializer()
+    device = NestedDeviceSerializer()
+    role = NestedSecretRoleSerializer()
 
     class Meta:
         model = Secret
         fields = ['id', 'device', 'role', 'name', 'plaintext', 'hash', 'created', 'last_updated']
 
 
-class SecretNestedSerializer(SecretSerializer):
+class WritableSecretSerializer(serializers.ModelSerializer):
+    plaintext = serializers.CharField()
 
-    class Meta(SecretSerializer.Meta):
-        fields = ['id', 'name']
+    class Meta:
+        model = Secret
+        fields = ['id', 'device', 'role', 'name', 'plaintext']
+        validators = []
+
+    def validate(self, data):
+
+        # Validate uniqueness of name if one has been provided.
+        if data.get('name', None):
+            validator = UniqueTogetherValidator(queryset=Secret.objects.all(), fields=('device', 'role', 'name'))
+            validator.set_context(self)
+            validator(data)
+
+        return data

@@ -1,44 +1,41 @@
-from django.conf.urls import url
+from rest_framework import routers
 
-from .views import *
+from . import views
 
 
-urlpatterns = [
+class IPAMRootView(routers.APIRootView):
+    """
+    IPAM API root view
+    """
+    def get_view_name(self):
+        return 'IPAM'
 
-    # VRFs
-    url(r'^vrfs/$', VRFListView.as_view(), name='vrf_list'),
-    url(r'^vrfs/(?P<pk>\d+)/$', VRFDetailView.as_view(), name='vrf_detail'),
 
-    # Roles
-    url(r'^roles/$', RoleListView.as_view(), name='role_list'),
-    url(r'^roles/(?P<pk>\d+)/$', RoleDetailView.as_view(), name='role_detail'),
+router = routers.DefaultRouter()
+router.APIRootView = IPAMRootView
 
-    # RIRs
-    url(r'^rirs/$', RIRListView.as_view(), name='rir_list'),
-    url(r'^rirs/(?P<pk>\d+)/$', RIRDetailView.as_view(), name='rir_detail'),
+# VRFs
+router.register(r'vrfs', views.VRFViewSet)
 
-    # Aggregates
-    url(r'^aggregates/$', AggregateListView.as_view(), name='aggregate_list'),
-    url(r'^aggregates/(?P<pk>\d+)/$', AggregateDetailView.as_view(), name='aggregate_detail'),
+# RIRs
+router.register(r'rirs', views.RIRViewSet)
 
-    # Prefixes
-    url(r'^prefixes/$', PrefixListView.as_view(), name='prefix_list'),
-    url(r'^prefixes/(?P<pk>\d+)/$', PrefixDetailView.as_view(), name='prefix_detail'),
+# Aggregates
+router.register(r'aggregates', views.AggregateViewSet)
 
-    # IP addresses
-    url(r'^ip-addresses/$', IPAddressListView.as_view(), name='ipaddress_list'),
-    url(r'^ip-addresses/(?P<pk>\d+)/$', IPAddressDetailView.as_view(), name='ipaddress_detail'),
+# Prefixes
+router.register(r'roles', views.RoleViewSet)
+router.register(r'prefixes', views.PrefixViewSet)
 
-    # VLAN groups
-    url(r'^vlan-groups/$', VLANGroupListView.as_view(), name='vlangroup_list'),
-    url(r'^vlan-groups/(?P<pk>\d+)/$', VLANGroupDetailView.as_view(), name='vlangroup_detail'),
+# IP addresses
+router.register(r'ip-addresses', views.IPAddressViewSet)
 
-    # VLANs
-    url(r'^vlans/$', VLANListView.as_view(), name='vlan_list'),
-    url(r'^vlans/(?P<pk>\d+)/$', VLANDetailView.as_view(), name='vlan_detail'),
+# VLANs
+router.register(r'vlan-groups', views.VLANGroupViewSet)
+router.register(r'vlans', views.VLANViewSet)
 
-    # Services
-    url(r'^services/$', ServiceListView.as_view(), name='service_list'),
-    url(r'^services/(?P<pk>\d+)/$', ServiceDetailView.as_view(), name='service_detail'),
+# Services
+router.register(r'services', views.ServiceViewSet)
 
-]
+app_name = 'ipam-api'
+urlpatterns = router.urls

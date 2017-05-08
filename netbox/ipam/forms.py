@@ -341,7 +341,7 @@ class IPAddressForm(BootstrapMixin, ReturnURLForm, CustomFieldForm):
     )
     livesearch = forms.CharField(
         required=False, label='IP Address', widget=Livesearch(
-            query_key='q', query_url='ipam-api:ipaddress_list', field_to_update='nat_inside', obj_label='address'
+            query_key='q', query_url='ipam-api:ipaddress-list', field_to_update='nat_inside', obj_label='address'
         )
     )
     primary_for_device = forms.BooleanField(required=False, label='Make this the primary IP for the device')
@@ -350,7 +350,7 @@ class IPAddressForm(BootstrapMixin, ReturnURLForm, CustomFieldForm):
         model = IPAddress
         fields = ['address', 'vrf', 'tenant', 'status', 'description', 'interface', 'primary_for_device', 'nat_inside']
         widgets = {
-            'interface': APISelect(api_url='/api/dcim/devices/{{interface_device}}/interfaces/'),
+            'interface': APISelect(api_url='/api/dcim/devices/interfaces/?device_id={{interface_device}}'),
             'nat_inside': APISelect(api_url='/api/ipam/ip-addresses/?device_id={{nat_device}}', display_field='address')
         }
 

@@ -1,8 +1,10 @@
 import django_filters
 
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from .models import CF_TYPE_SELECT, CustomField
+from dcim.models import Site
+from .models import CF_TYPE_SELECT, CustomField, Graph, ExportTemplate, TopologyMap, UserAction
 
 
 class CustomFieldFilter(django_filters.Filter):
@@ -44,3 +46,47 @@ class CustomFieldFilterSet(django_filters.FilterSet):
         custom_fields = CustomField.objects.filter(obj_type=obj_type, is_filterable=True)
         for cf in custom_fields:
             self.filters['cf_{}'.format(cf.name)] = CustomFieldFilter(name=cf.name, cf_type=cf.type)
+
+
+class GraphFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = Graph
+        fields = ['type', 'name']
+
+
+class ExportTemplateFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = ExportTemplate
+        fields = ['content_type', 'name']
+
+
+class TopologyMapFilter(django_filters.FilterSet):
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        name='site',
+        queryset=Site.objects.all(),
+        label='Site',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        name='site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site (slug)',
+    )
+
+    class Meta:
+        model = TopologyMap
+        fields = ['name', 'slug']
+
+
+class UserActionFilter(django_filters.FilterSet):
+    username = django_filters.ModelMultipleChoiceFilter(
+        name='user__username',
+        queryset=User.objects.all(),
+        to_field_name='username',
+    )
+
+    class Meta:
+        model = UserAction
+        fields = ['user']

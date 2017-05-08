@@ -1,58 +1,65 @@
-from rest_framework import generics
+from django.shortcuts import get_object_or_404
 
-from circuits.models import Provider, CircuitType, Circuit
-from circuits.filters import CircuitFilter
+from rest_framework.decorators import detail_route
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 
-from extras.api.views import CustomFieldModelAPIView
+from circuits import filters
+from circuits.models import Provider, CircuitTermination, CircuitType, Circuit
+from extras.models import Graph, GRAPH_TYPE_PROVIDER
+from extras.api.serializers import RenderedGraphSerializer
+from extras.api.views import CustomFieldModelViewSet
+from utilities.api import WritableSerializerMixin
 from . import serializers
 
 
-class ProviderListView(CustomFieldModelAPIView, generics.ListAPIView):
-    """
-    List all providers
-    """
-    queryset = Provider.objects.prefetch_related('custom_field_values__field')
+#
+# Providers
+#
+
+class ProviderViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
+    queryset = Provider.objects.all()
     serializer_class = serializers.ProviderSerializer
+    write_serializer_class = serializers.WritableProviderSerializer
+    filter_class = filters.ProviderFilter
+
+    @detail_route()
+    def graphs(self, request, pk=None):
+        """
+        A convenience method for rendering graphs for a particular provider.
+        """
+        provider = get_object_or_404(Provider, pk=pk)
+        queryset = Graph.objects.filter(type=GRAPH_TYPE_PROVIDER)
+        serializer = RenderedGraphSerializer(queryset, many=True, context={'graphed_object': provider})
+        return Response(serializer.data)
 
 
-class ProviderDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
-    """
-    Retrieve a single provider
-    """
-    queryset = Provider.objects.prefetch_related('custom_field_values__field')
-    serializer_class = serializers.ProviderSerializer
+#
+#  Circuit Types
+#
 
-
-class CircuitTypeListView(generics.ListAPIView):
-    """
-    List all circuit types
-    """
+class CircuitTypeViewSet(ModelViewSet):
     queryset = CircuitType.objects.all()
     serializer_class = serializers.CircuitTypeSerializer
 
 
-class CircuitTypeDetailView(generics.RetrieveAPIView):
-    """
-    Retrieve a single circuit type
-    """
-    queryset = CircuitType.objects.all()
-    serializer_class = serializers.CircuitTypeSerializer
+#
+# Circuits
+#
 
-
-class CircuitListView(CustomFieldModelAPIView, generics.ListAPIView):
-    """
-    List circuits (filterable)
-    """
-    queryset = Circuit.objects.select_related('type', 'tenant', 'provider')\
-        .prefetch_related('custom_field_values__field')
+class CircuitViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
+    queryset = Circuit.objects.select_related('type', 'tenant', 'provider')
     serializer_class = serializers.CircuitSerializer
-    filter_class = CircuitFilter
+    write_serializer_class = serializers.WritableCircuitSerializer
+    filter_class = filters.CircuitFilter
 
 
-class CircuitDetailView(CustomFieldModelAPIView, generics.RetrieveAPIView):
-    """
-    Retrieve a single circuit
-    """
-    queryset = Circuit.objects.select_related('type', 'tenant', 'provider')\
-        .prefetch_related('custom_field_values__field')
-    serializer_class = serializers.CircuitSerializer
+#
+# Circuit Terminations
+#
+
+class CircuitTerminationViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = CircuitTermination.objects.select_related('circuit', 'site', 'interface__device')
+    serializer_class = serializers.CircuitTerminationSerializer
+    write_serializer_class = serializers.WritableCircuitTerminationSerializer
+    filter_class = filters.CircuitTerminationFilter

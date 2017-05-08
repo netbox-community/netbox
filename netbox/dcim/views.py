@@ -6,11 +6,11 @@ from operator import attrgetter
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.core.urlresolvers import reverse
+from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.html import escape
+from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.views.generic import View
@@ -19,6 +19,7 @@ from ipam.models import Prefix, Service, VLAN
 from circuits.models import Circuit
 from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE, UserAction
 from utilities.forms import ConfirmationForm
+from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
@@ -27,7 +28,7 @@ from . import filters, forms, tables
 from .models import (
     CONNECTION_STATUS_CONNECTED, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
     DeviceBay, DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate,
-    Manufacturer, Module, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
+    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
     RackReservation, RackRole, Region, Site,
 )
 
@@ -291,6 +292,46 @@ class RackListView(ObjectListView):
     filter_form = forms.RackFilterForm
     table = tables.RackTable
     template_name = 'dcim/rack_list.html'
+
+
+class RackElevationListView(View):
+    """
+    Display a set of rack elevations side-by-side.
+    """
+
+    def get(self, request):
+
+        racks = Rack.objects.select_related(
+            'site', 'group', 'tenant', 'role'
+        ).prefetch_related(
+            'devices__device_type'
+        )
+        racks = filters.RackFilter(request.GET, racks).qs
+        total_count = racks.count()
+
+        # Pagination
+        paginator = EnhancedPaginator(racks, 25)
+        page_number = request.GET.get('page', 1)
+        try:
+            page = paginator.page(page_number)
+        except PageNotAnInteger:
+            page = paginator.page(1)
+        except EmptyPage:
+            page = paginator.page(paginator.num_pages)
+
+        # Determine rack face
+        if request.GET.get('face') == '1':
+            face_id = 1
+        else:
+            face_id = 0
+
+        return render(request, 'dcim/rack_elevation_list.html', {
+            'paginator': paginator,
+            'page': page,
+            'total_count': total_count,
+            'face_id': face_id,
+            'filter_form': forms.RackFilterForm(request.GET),
+        })
 
 
 def rack(request, pk):
@@ -809,12 +850,12 @@ class DeviceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 def device_inventory(request, pk):
 
     device = get_object_or_404(Device, pk=pk)
-    modules = Module.objects.filter(device=device, parent=None).select_related('manufacturer')\
-        .prefetch_related('submodules')
+    inventory_items = InventoryItem.objects.filter(device=device, parent=None).select_related('manufacturer')\
+        .prefetch_related('child_items')
 
     return render(request, 'dcim/device_inventory.html', {
         'device': device,
-        'modules': modules,
+        'inventory_items': inventory_items,
     })
 
 
@@ -1636,13 +1677,13 @@ class InterfaceConnectionsListView(ObjectListView):
 
 
 #
-# Modules
+# Inventory items
 #
 
-class ModuleEditView(PermissionRequiredMixin, ComponentEditView):
-    permission_required = 'dcim.change_module'
-    model = Module
-    form_class = forms.ModuleForm
+class InventoryItemEditView(PermissionRequiredMixin, ComponentEditView):
+    permission_required = 'dcim.change_inventoryitem'
+    model = InventoryItem
+    form_class = forms.InventoryItemForm
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
         if 'device' in url_kwargs:
@@ -1650,6 +1691,6 @@ class ModuleEditView(PermissionRequiredMixin, ComponentEditView):
         return obj
 
 
-class ModuleDeleteView(PermissionRequiredMixin, ComponentDeleteView):
-    permission_required = 'dcim.delete_module'
-    model = Module
+class InventoryItemDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+    permission_required = 'dcim.delete_inventoryitem'
+    model = InventoryItem

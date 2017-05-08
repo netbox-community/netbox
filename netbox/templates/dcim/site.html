@@ -33,7 +33,7 @@
 </div>
 <div class="pull-right">
     {% if show_graphs %}
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ site.name }}" data-url="{% url 'dcim-api:site_graphs' pk=site.pk %}" title="Show graphs">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ site.name }}" data-url="{% url 'dcim-api:site-graphs' pk=site.pk %}" title="Show graphs">
             <i class="fa fa-signal" aria-hidden="true"></i>
             Graphs
         </button>
@@ -224,7 +224,7 @@
                 <table class="table table-hover panel-body">
                     {% for rg in rack_groups %}
                         <tr>
-                            <td><i class="fa fa-fw fa-folder"></i> <a href="{{ rg.get_absolute_url }}">{{ rg.name }}</a></td>
+                            <td><i class="fa fa-fw fa-folder-o"></i> <a href="{{ rg.get_absolute_url }}">{{ rg.name }}</a></td>
                             <td>{{ rg.rack_count }}</td>
                         </tr>
                     {% endfor %}
@@ -237,13 +237,27 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
+                <strong>Images</strong>
+            </div>
+            {% include 'inc/image_attachments.html' with images=site.images.all %}
+            {% if perms.extras.add_imageattachment %}
+                <div class="panel-footer text-right">
+                    <a href="{% url 'dcim:site_add_image' object_id=site.pk %}" class="btn btn-primary btn-xs">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        Attach an image
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
                 <strong>Topology Maps</strong>
             </div>
             {% if topology_maps %}
                 <table class="table table-hover panel-body">
                     {% for tm in topology_maps %}
                         <tr>
-                            <td><i class="fa fa-fw fa-map"></i> <a href="{% url 'dcim-api:topology_map' slug=tm.slug %}" target="_blank">{{ tm }}</a></td>
+                            <td><i class="fa fa-fw fa-map-o"></i> <a href="{% url 'extras-api:topologymap-render' pk=tm.pk %}" target="_blank">{{ tm }}</a></td>
                             <td>{{ tm.description }}</td>
                         </tr>
                     {% endfor %}
@@ -260,5 +274,5 @@
 {% endblock %}
 
 {% block javascript %}
-<script src="{% static 'js/graphs.js' %}"></script>
+<script src="{% static 'js/graphs.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

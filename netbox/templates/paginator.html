@@ -1,34 +1,27 @@
-{% load django_tables2 %}
+{% load helpers %}
 
-{# Custom pagination controls to render nicely with Bootstrap CSS. smart_pages requires EnhancedPaginator. #}
-
-<div class="paginator pull-right">
-    {% if table.paginator.num_pages > 1 %}
+<div class="paginator pull-right" style="margin-top: 20px">
+    {% if paginator.num_pages > 1 %}
         <nav>
             <ul class="pagination pull-right">
-                {% if table.page.has_previous %}
-                    <li><a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">&laquo;</a></li>
+                {% if page.has_previous %}
+                    <li><a href="{% querystring request page=page.previous_page_number %}">&laquo;</a></li>
                 {% endif %}
-                {% for p in table.page.smart_pages %}
+                {% for p in page.smart_pages %}
                     {% if p %}
-                        <li{% ifequal table.page.number p %} class="active"{% endifequal %}><a href="{% querystring table.prefixed_page_field=p %}">{{ p }}</a></li>
+                        <li{% ifequal page.number p %} class="active"{% endifequal %}><a href="{% querystring request page=p %}">{{ p }}</a></li>
                     {% else %}
                         <li class="disabled"><span>&hellip;</span></li>
                     {% endif %}
                 {% endfor %}
-                {% if table.page.has_next %}
-                    <li><a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}">&raquo;</a></li>
+                {% if page.has_next %}
+                    <li><a href="{% querystring request page=page.next_page_number %}">&raquo;</a></li>
                 {% endif %}
             </ul>
         </nav>
     {% endif %}
     <div class="clearfix"></div>
     <div class="text-right text-muted">
-        Showing {{ table.page.start_index }}-{{ table.page.end_index }} of {{ total }}
-        {% if total == 1 %}
-            {{ table.data.verbose_name }}
-        {% else %}
-            {{ table.data.verbose_name_plural }}
-        {% endif %}
+        Showing {{ page.start_index }}-{{ page.end_index }} of {{ total_count }}
     </div>
 </div>

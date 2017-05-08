@@ -1,0 +1,36 @@
+{% if images %}
+    <table class="table table-hover panel-body">
+        <tr>
+            <th>Name</th>
+            <th>Size</th>
+            <th>Created</th>
+            <th></th>
+        </tr>
+        {% for attachment in images %}
+            <tr{% if not attachment.size %} class="danger"{% endif %}>
+                <td>
+                    <i class="fa fa-image"></i>
+                    <a href="{{ attachment.image.url }}" target="_blank">{{ attachment }}</a>
+                </td>
+                <td>{{ attachment.size|filesizeformat }}</td>
+                <td>{{ attachment.created }}</td>
+                <td class="text-right">
+                    {% if perms.extras.change_imageattachment %}
+                        <a href="{% url 'extras:imageattachment_edit' pk=attachment.pk %}" class="btn btn-warning btn-xs" title="Edit image">
+                            <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+                        </a>
+                    {% endif %}
+                    {% if perms.extras.delete_imageattachment %}
+                        <a href="{% url 'extras:imageattachment_delete' pk=attachment.pk %}" class="btn btn-danger btn-xs" title="Delete image">
+                            <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+                        </a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <div class="panel-body">
+        <span class="text-muted">None</span>
+    </div>
+{% endif %}

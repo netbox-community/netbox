@@ -6,11 +6,8 @@ from mptt.forms import TreeNodeMultipleChoiceField
 
 from django import forms
 from django.conf import settings
-from django.core.urlresolvers import reverse_lazy
 from django.core.validators import URLValidator
-from django.utils.encoding import force_text
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
+from django.urls import reverse_lazy
 
 
 COLOR_CHOICES = (
@@ -118,24 +115,14 @@ class SmallTextarea(forms.Textarea):
 
 
 class ColorSelect(forms.Select):
+    """
+    Extends the built-in Select widget to colorize each <option>.
+    """
+    option_template_name = 'colorselect_option.html'
 
     def __init__(self, *args, **kwargs):
         kwargs['choices'] = COLOR_CHOICES
         super(ColorSelect, self).__init__(*args, **kwargs)
-
-    def render_option(self, selected_choices, option_value, option_label):
-        if option_value is None:
-            option_value = ''
-        option_value = force_text(option_value)
-        if option_value in selected_choices:
-            selected_html = mark_safe(' selected')
-            if not self.allow_multiple_selected:
-                # Only allow for a single selection.
-                selected_choices.remove(option_value)
-        else:
-            selected_html = ''
-        return format_html('<option value="{}"{} style="background-color: #{}">{}</option>',
-                           option_value, selected_html, option_value, force_text(option_label))
 
 
 class BulkEditNullBooleanSelect(forms.NullBooleanSelect):
@@ -156,48 +143,21 @@ class SelectWithDisabled(forms.Select):
     Modified the stock Select widget to accept choices using a dict() for a label. The dict for each option must include
     'label' (string) and 'disabled' (boolean).
     """
-
-    def render_option(self, selected_choices, option_value, option_label):
-
-        # Determine if option has been selected
-        option_value = force_text(option_value)
-        if option_value in selected_choices:
-            selected_html = mark_safe(' selected="selected"')
-            if not self.allow_multiple_selected:
-                # Only allow for a single selection.
-                selected_choices.remove(option_value)
-        else:
-            selected_html = ''
-
-        # Determine if option has been disabled
-        option_disabled = False
-        exempt_value = force_text(self.attrs.get('exempt', None))
-        if isinstance(option_label, dict):
-            option_disabled = option_label['disabled'] if option_value != exempt_value else False
-            option_label = option_label['label']
-        disabled_html = ' disabled="disabled"' if option_disabled else ''
-
-        return format_html(u'<option value="{}"{}{}>{}</option>',
-                           option_value,
-                           selected_html,
-                           disabled_html,
-                           force_text(option_label))
+    option_template_name = 'selectwithdisabled_option.html'
 
 
 class ArrayFieldSelectMultiple(SelectWithDisabled, forms.SelectMultiple):
     """
-    MultiSelect widgets for a SimpleArrayField. Choices must be populated on the widget.
+    MultiSelect widget for a SimpleArrayField. Choices must be populated on the widget.
     """
-
     def __init__(self, *args, **kwargs):
         self.delimiter = kwargs.pop('delimiter', ',')
         super(ArrayFieldSelectMultiple, self).__init__(*args, **kwargs)
 
-    def render_options(self, selected_choices):
+    def optgroups(self, name, value, attrs=None):
         # Split the delimited string of values into a list
-        if selected_choices:
-            selected_choices = selected_choices.split(self.delimiter)
-        return super(ArrayFieldSelectMultiple, self).render_options(selected_choices)
+        value = value[0].split(self.delimiter)
+        return super(ArrayFieldSelectMultiple, self).optgroups(name, value, attrs)
 
     def value_from_datadict(self, data, files, name):
         # Condense the list of selected choices into a delimited string
@@ -438,12 +398,13 @@ class BootstrapMixin(forms.BaseForm):
 
     def __init__(self, *args, **kwargs):
         super(BootstrapMixin, self).__init__(*args, **kwargs)
+
+        exempt_widgets = [forms.CheckboxInput, forms.ClearableFileInput, forms.FileInput, forms.RadioSelect]
+
         for field_name, field in self.fields.items():
-            if type(field.widget) not in [type(forms.CheckboxInput()), type(forms.RadioSelect())]:
-                try:
-                    field.widget.attrs['class'] += ' form-control'
-                except KeyError:
-                    field.widget.attrs['class'] = 'form-control'
+            if field.widget.__class__ not in exempt_widgets:
+                css = field.widget.attrs.get('class', '')
+                field.widget.attrs['class'] = ' '.join([css, 'form-control']).strip()
             if field.required:
                 field.widget.attrs['required'] = 'required'
             if 'placeholder' not in field.widget.attrs:

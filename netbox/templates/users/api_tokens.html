@@ -1,0 +1,58 @@
+{% extends 'users/_user.html' %}
+{% load helpers %}
+
+{% block title %}API Tokens{% endblock %}
+
+{% block usercontent %}
+    <div class="row">
+        <div class="col-md-12">
+            {% for token in tokens %}
+                <div class="panel panel-{% if token.is_expired %}danger{% else %}default{% endif %}">
+                    <div class="panel-heading">
+                        <div class="pull-right">
+                            <a href="{% url 'user:token_edit' pk=token.pk %}" class="btn btn-xs btn-warning">Edit</a>
+                            <a href="{% url 'user:token_delete' pk=token.pk %}" class="btn btn-xs btn-danger">Delete</a>
+                        </div>
+                        <i class="fa fa-key"></i> {{ token.key }}
+                        {% if token.is_expired %}
+                            <span class="label label-danger">Expired</span>
+                        {% endif %}
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <span title="{{ token.created }}">{{ token.created|date }}</span><br />
+                                <small class="text-muted">Created</small>
+                            </div>
+                            <div class="col-md-4">
+                                {% if token.expires %}
+                                    <span title="{{ token.expires }}">{{ token.expires|date }}</span><br />
+                                {% else %}
+                                    <span>Never</span><br />
+                                {% endif %}
+                                <small class="text-muted">Expires</small>
+                            </div>
+                            <div class="col-md-4">
+                                {% if token.write_enabled %}
+                                    <span class="label label-success">Enabled</span>
+                                {% else %}
+                                    <span class="label label-danger">Disabled</span>
+                                {% endif %}<br />
+                                <small class="text-muted">Create/edit/delete operations</small>
+                            </div>
+                        </div>
+                        {% if token.description %}
+                            <br /><span>{{ token.description }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p>You do not have any API tokens.</p>
+            {% endfor %}
+            <a href="{% url 'user:token_add' %}" class="btn btn-primary">
+                <span class="fa fa-plus" aria-hidden="true"></span>
+                Add a token
+            </a>
+        </div>
+    </div>
+{% endblock %}

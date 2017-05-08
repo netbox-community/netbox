@@ -27,7 +27,7 @@
 </div>
 <div class="pull-right">
     {% if show_graphs %}
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ provider.name }}" data-url="{% url 'circuits-api:provider_graphs' pk=provider.pk %}" title="Show graphs">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ provider.name }}" data-url="{% url 'circuits-api:provider-graphs' pk=provider.pk %}" title="Show graphs">
             <i class="fa fa-signal" aria-hidden="true"></i>
             Graphs
         </button>
@@ -199,5 +199,5 @@
 {% endblock %}
 
 {% block javascript %}
-<script src="{% static 'js/graphs.js' %}"></script>
+<script src="{% static 'js/graphs.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

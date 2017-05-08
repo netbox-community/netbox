@@ -4,5 +4,7 @@
 {# Extends the stock django_tables2 template to provide custom formatting of the pagination controls #}
 
 {% block pagination %}
-    {% include 'paginator.html' %}
+    {% if not hide_paginator %}
+        {% include 'table_paginator.html' %}
+    {% endif %}
 {% endblock pagination %}

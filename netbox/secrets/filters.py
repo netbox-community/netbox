@@ -24,11 +24,16 @@ class SecretFilter(django_filters.FilterSet):
         to_field_name='slug',
         label='Role (slug)',
     )
+    device_id = django_filters.ModelMultipleChoiceFilter(
+        name='device',
+        queryset=Device.objects.all(),
+        label='Device (ID)',
+    )
     device = django_filters.ModelMultipleChoiceFilter(
         name='device',
         queryset=Device.objects.all(),
         to_field_name='name',
-        label='Device (Name)',
+        label='Device (name)',
     )
 
     class Meta:

@@ -6,8 +6,7 @@ from dcim.models import Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
-
-from .models import Provider, Circuit, CircuitType
+from .models import Provider, Circuit, CircuitTermination, CircuitType
 
 
 class ProviderFilter(CustomFieldFilterSet, django_filters.FilterSet):
@@ -107,3 +106,15 @@ class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
             Q(description__icontains=value) |
             Q(comments__icontains=value)
         ).distinct()
+
+
+class CircuitTerminationFilter(django_filters.FilterSet):
+    circuit_id = django_filters.ModelMultipleChoiceFilter(
+        name='circuit',
+        queryset=Circuit.objects.all(),
+        label='Circuit',
+    )
+
+    class Meta:
+        model = CircuitTermination
+        fields = ['term_side', 'site']

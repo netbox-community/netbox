@@ -1,0 +1,65 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% load form_helpers %}
+
+{% block title %}Search{% endblock %}
+
+{% block content %}
+    {% if request.GET.q %}
+        {% include 'search_form.html' with search_form=form %}
+        {% if results %}
+            <div class="row">
+                <div class="col-md-10">
+                    {% for obj_type in results %}
+                        <h3 id="{{ obj_type.name|lower }}">{{ obj_type.name|bettertitle }}</h3>
+                        {% include 'panel_table.html' with table=obj_type.table hide_paginator=True %}
+                        {% if obj_type.table.page.has_next %}
+                            <a href="{{ obj_type.url }}" class="btn btn-primary pull-right">
+                                <span class="fa fa-arrow-right" aria-hidden="true"></span>
+                                See all {{ obj_type.table.page.paginator.count }} results
+                            </a>
+                        {% endif %}
+                    <div class="clearfix"></div>
+                    {% endfor %}
+                </div>
+                <div class="col-md-2" style="padding-top: 20px;">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <strong>Search Results</strong>
+                        </div>
+                        <div class="list-group">
+                            {% for obj_type in results %}
+                                <a href="#{{ obj_type.name|lower }}" class="list-group-item">
+                                    {{ obj_type.name|bettertitle }}
+                                    <span class="badge">{{ obj_type.table.page.paginator.count }}</span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <h3 class="text-muted text-center">No results found</h3>
+        {% endif %}
+    {% else %}
+        <div class="row" style="margin-top: 150px;">
+            <div class="col-sm-4 col-sm-offset-4">
+                <form action="{% url 'search' %}" method="get" class="form form-horizontal">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <strong>Search</strong>
+                        </div>
+                        <div class="panel-body">
+                            {% render_form form %}
+                        </div>
+                        <div class="panel-footer text-right">
+                            <button type="submit" class="btn btn-primary">
+                                <span class="fa fa-search" aria-hidden="true"></span> Search
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

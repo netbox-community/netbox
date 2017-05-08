@@ -183,7 +183,7 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
         label='Device',
         widget=Livesearch(
             query_key='q',
-            query_url='dcim-api:device_list',
+            query_url='dcim-api:device-list',
             field_to_update='device'
         )
     )
@@ -192,7 +192,7 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
         required=False,
         label='Interface',
         widget=APISelect(
-            api_url='/api/dcim/devices/{{device}}/interfaces/?type=physical',
+            api_url='/api/dcim/interfaces/?device_id={{device}}&type=physical',
             disabled_indicator='is_connected'
         )
     )

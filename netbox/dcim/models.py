@@ -9,14 +9,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, Q, ObjectDoesNotExist
+from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 
 from circuits.models import Circuit
-from extras.models import CustomFieldModel, CustomField, CustomFieldValue
+from extras.models import CustomFieldModel, CustomField, CustomFieldValue, ImageAttachment
 from extras.rpc import RPC_CLIENTS
 from tenancy.models import Tenant
 from utilities.fields import ColorField, NullableCharField
@@ -178,12 +178,29 @@ VIRTUAL_IFACE_TYPES = [
     IFACE_FF_LAG,
 ]
 
-STATUS_ACTIVE = True
-STATUS_OFFLINE = False
+STATUS_OFFLINE = 0
+STATUS_ACTIVE = 1
+STATUS_PLANNED = 2
+STATUS_STAGED = 3
+STATUS_FAILED = 4
+STATUS_INVENTORY = 5
 STATUS_CHOICES = [
     [STATUS_ACTIVE, 'Active'],
     [STATUS_OFFLINE, 'Offline'],
+    [STATUS_PLANNED, 'Planned'],
+    [STATUS_STAGED, 'Staged'],
+    [STATUS_FAILED, 'Failed'],
+    [STATUS_INVENTORY, 'Inventory'],
 ]
+
+DEVICE_STATUS_CLASSES = {
+    0: 'warning',
+    1: 'success',
+    2: 'info',
+    3: 'primary',
+    4: 'danger',
+    5: 'default',
+}
 
 CONNECTION_STATUS_PLANNED = False
 CONNECTION_STATUS_CONNECTED = True
@@ -212,7 +229,9 @@ class Region(MPTTModel):
     """
     Sites can be grouped within geographic Regions.
     """
-    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    parent = TreeForeignKey(
+        'self', null=True, blank=True, related_name='children', db_index=True, on_delete=models.CASCADE
+    )
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
 
@@ -255,6 +274,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     contact_email = models.EmailField(blank=True, verbose_name="Contact E-mail")
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+    images = GenericRelation(ImageAttachment)
 
     objects = SiteManager()
 
@@ -314,7 +334,7 @@ class RackGroup(models.Model):
     """
     name = models.CharField(max_length=50)
     slug = models.SlugField()
-    site = models.ForeignKey('Site', related_name='rack_groups')
+    site = models.ForeignKey('Site', related_name='rack_groups', on_delete=models.CASCADE)
 
     class Meta:
         ordering = ['site', 'name']
@@ -376,6 +396,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
                                      help_text='Units are numbered top-to-bottom')
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+    images = GenericRelation(ImageAttachment)
 
     objects = RackManager()
 
@@ -534,7 +555,7 @@ class RackReservation(models.Model):
     """
     One or more reserved units within a Rack.
     """
-    rack = models.ForeignKey('Rack', related_name='reservations', editable=False, on_delete=models.CASCADE)
+    rack = models.ForeignKey('Rack', related_name='reservations', on_delete=models.CASCADE)
     units = ArrayField(models.PositiveSmallIntegerField())
     created = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, editable=False, on_delete=models.PROTECT)
@@ -916,11 +937,11 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
     DeviceRole, and (optionally) a Platform. Device names are not required, however if one is set it must be unique.
 
-    Each Device must be assigned to a Rack, although associating it with a particular rack face or unit is optional (for
-    example, vertically mounted PDUs do not consume rack units).
+    Each Device must be assigned to a site, and optionally to a rack within that site. Associating a device with a
+    particular rack face or unit is optional (for example, vertically mounted PDUs do not consume rack units).
 
-    When a new Device is created, console/power/interface components are created along with it as dictated by the
-    component templates assigned to its DeviceType. Components can also be added, modified, or deleted after the
+    When a new Device is created, console/power/interface/device bay components are created along with it as dictated
+    by the component templates assigned to its DeviceType. Components can also be added, modified, or deleted after the
     creation of a Device.
     """
     device_type = models.ForeignKey('DeviceType', related_name='instances', on_delete=models.PROTECT)
@@ -929,21 +950,29 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     platform = models.ForeignKey('Platform', related_name='devices', blank=True, null=True, on_delete=models.SET_NULL)
     name = NullableCharField(max_length=64, blank=True, null=True, unique=True)
     serial = models.CharField(max_length=50, blank=True, verbose_name='Serial number')
-    asset_tag = NullableCharField(max_length=50, blank=True, null=True, unique=True, verbose_name='Asset tag',
-                                  help_text='A unique tag used to identify this device')
+    asset_tag = NullableCharField(
+        max_length=50, blank=True, null=True, unique=True, verbose_name='Asset tag',
+        help_text='A unique tag used to identify this device'
+    )
     site = models.ForeignKey('Site', related_name='devices', on_delete=models.PROTECT)
     rack = models.ForeignKey('Rack', related_name='devices', blank=True, null=True, on_delete=models.PROTECT)
-    position = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1)],
-                                                verbose_name='Position (U)',
-                                                help_text='The lowest-numbered unit occupied by the device')
+    position = models.PositiveSmallIntegerField(
+        blank=True, null=True, validators=[MinValueValidator(1)], verbose_name='Position (U)',
+        help_text='The lowest-numbered unit occupied by the device'
+    )
     face = models.PositiveSmallIntegerField(blank=True, null=True, choices=RACK_FACE_CHOICES, verbose_name='Rack face')
-    status = models.BooleanField(choices=STATUS_CHOICES, default=STATUS_ACTIVE, verbose_name='Status')
-    primary_ip4 = models.OneToOneField('ipam.IPAddress', related_name='primary_ip4_for', on_delete=models.SET_NULL,
-                                       blank=True, null=True, verbose_name='Primary IPv4')
-    primary_ip6 = models.OneToOneField('ipam.IPAddress', related_name='primary_ip6_for', on_delete=models.SET_NULL,
-                                       blank=True, null=True, verbose_name='Primary IPv6')
+    status = models.PositiveSmallIntegerField(choices=STATUS_CHOICES, default=STATUS_ACTIVE, verbose_name='Status')
+    primary_ip4 = models.OneToOneField(
+        'ipam.IPAddress', related_name='primary_ip4_for', on_delete=models.SET_NULL, blank=True, null=True,
+        verbose_name='Primary IPv4'
+    )
+    primary_ip6 = models.OneToOneField(
+        'ipam.IPAddress', related_name='primary_ip6_for', on_delete=models.SET_NULL, blank=True, null=True,
+        verbose_name='Primary IPv6'
+    )
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+    images = GenericRelation(ImageAttachment)
 
     objects = DeviceManager()
 
@@ -1102,6 +1131,9 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         Return the set of child Devices installed in DeviceBays within this Device.
         """
         return Device.objects.filter(parent_bay__device=self.pk)
+
+    def get_status_class(self):
+        return DEVICE_STATUS_CLASSES[self.status]
 
     def get_rpc_client(self):
         """
@@ -1409,19 +1441,19 @@ class DeviceBay(models.Model):
 
 
 #
-# Modules
+# Inventory items
 #
 
 @python_2_unicode_compatible
-class Module(models.Model):
+class InventoryItem(models.Model):
     """
-    A Module represents a piece of hardware within a Device, such as a line card or power supply. Modules are used only
-    for inventory purposes.
+    An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply.
+    InventoryItems are used only for inventory purposes.
     """
-    device = models.ForeignKey('Device', related_name='modules', on_delete=models.CASCADE)
-    parent = models.ForeignKey('self', related_name='submodules', blank=True, null=True, on_delete=models.CASCADE)
+    device = models.ForeignKey('Device', related_name='inventory_items', on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', related_name='child_items', blank=True, null=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, verbose_name='Name')
-    manufacturer = models.ForeignKey('Manufacturer', related_name='modules', blank=True, null=True,
+    manufacturer = models.ForeignKey('Manufacturer', related_name='inventory_items', blank=True, null=True,
                                      on_delete=models.PROTECT)
     part_id = models.CharField(max_length=50, verbose_name='Part ID', blank=True)
     serial = models.CharField(max_length=50, verbose_name='Serial number', blank=True)
