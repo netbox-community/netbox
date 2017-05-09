@@ -668,8 +668,8 @@ class BaseDeviceFromCSVForm(forms.ModelForm):
     )
     model_name = forms.CharField()
     platform = forms.ModelChoiceField(
-        queryset=Platform.objects.all(), required=False, to_field_name='name'
-        , error_messages={'invalid_choice': 'Invalid platform.'}
+        queryset=Platform.objects.all(), required=False, to_field_name='name',
+        error_messages={'invalid_choice': 'Invalid platform.'}
     )
     status_name = forms.ChoiceField(choices=[(s[1], s[0]) for s in STATUS_CHOICES])
 
