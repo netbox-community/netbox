@@ -350,7 +350,7 @@ class IPAddressForm(BootstrapMixin, ReturnURLForm, CustomFieldForm):
         model = IPAddress
         fields = ['address', 'vrf', 'tenant', 'status', 'description', 'interface', 'primary_for_device', 'nat_inside']
         widgets = {
-            'interface': APISelect(api_url='/api/dcim/devices/interfaces/?device_id={{interface_device}}'),
+            'interface': APISelect(api_url='/api/dcim/interfaces/?device_id={{interface_device}}'),
             'nat_inside': APISelect(api_url='/api/ipam/ip-addresses/?device_id={{nat_device}}', display_field='address')
         }
 
