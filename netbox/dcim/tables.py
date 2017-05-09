@@ -465,6 +465,7 @@ class DeviceSearchTable(SearchTable):
 
 class DeviceImportTable(BaseTable):
     name = tables.TemplateColumn(template_code=DEVICE_LINK, verbose_name='Name')
+    status = tables.TemplateColumn(template_code=DEVICE_STATUS, verbose_name='Status')
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
     rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')], verbose_name='Rack')
@@ -474,7 +475,7 @@ class DeviceImportTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Device
-        fields = ('name', 'tenant', 'site', 'rack', 'position', 'device_role', 'device_type')
+        fields = ('name', 'status', 'tenant', 'site', 'rack', 'position', 'device_role', 'device_type')
         empty_text = False
 
 

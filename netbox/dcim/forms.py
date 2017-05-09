@@ -654,15 +654,24 @@ class DeviceForm(BootstrapMixin, CustomFieldForm):
 
 
 class BaseDeviceFromCSVForm(forms.ModelForm):
-    device_role = forms.ModelChoiceField(queryset=DeviceRole.objects.all(), to_field_name='name',
-                                         error_messages={'invalid_choice': 'Invalid device role.'})
-    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
-                                    error_messages={'invalid_choice': 'Tenant not found.'})
-    manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), to_field_name='name',
-                                          error_messages={'invalid_choice': 'Invalid manufacturer.'})
+    device_role = forms.ModelChoiceField(
+        queryset=DeviceRole.objects.all(), to_field_name='name',
+        error_messages={'invalid_choice': 'Invalid device role.'}
+    )
+    tenant = forms.ModelChoiceField(
+        Tenant.objects.all(), to_field_name='name', required=False,
+        error_messages={'invalid_choice': 'Tenant not found.'}
+    )
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(), to_field_name='name',
+        error_messages={'invalid_choice': 'Invalid manufacturer.'}
+    )
     model_name = forms.CharField()
-    platform = forms.ModelChoiceField(queryset=Platform.objects.all(), required=False, to_field_name='name',
-                                      error_messages={'invalid_choice': 'Invalid platform.'})
+    platform = forms.ModelChoiceField(
+        queryset=Platform.objects.all(), required=False, to_field_name='name'
+        , error_messages={'invalid_choice': 'Invalid platform.'}
+    )
+    status_name = forms.ChoiceField(choices=[(s[1], s[0]) for s in STATUS_CHOICES])
 
     class Meta:
         fields = []
@@ -680,17 +689,24 @@ class BaseDeviceFromCSVForm(forms.ModelForm):
             except DeviceType.DoesNotExist:
                 self.add_error('model_name', "Invalid device type ({} {})".format(manufacturer, model_name))
 
+    def clean_status_name(self):
+        return dict(self.fields['status_name'].choices)[self.cleaned_data['status_name']]
+
 
 class DeviceFromCSVForm(BaseDeviceFromCSVForm):
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), to_field_name='name', error_messages={
-        'invalid_choice': 'Invalid site name.',
-    })
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(), to_field_name='name', error_messages={
+            'invalid_choice': 'Invalid site name.',
+        }
+    )
     rack_name = forms.CharField(required=False)
     face = forms.CharField(required=False)
 
     class Meta(BaseDeviceFromCSVForm.Meta):
-        fields = ['name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag',
-                  'site', 'rack_name', 'position', 'face']
+        fields = [
+            'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag',
+            'status_name', 'site', 'rack_name', 'position', 'face',
+        ]
 
     def clean(self):
 
@@ -732,8 +748,8 @@ class ChildDeviceFromCSVForm(BaseDeviceFromCSVForm):
 
     class Meta(BaseDeviceFromCSVForm.Meta):
         fields = [
-            'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'parent',
-            'device_bay_name',
+            'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag',
+            'status_name', 'parent', 'device_bay_name',
         ]
 
     def clean(self):
