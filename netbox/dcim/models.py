@@ -102,6 +102,7 @@ IFACE_FF_STACKWISE = 5000
 IFACE_FF_STACKWISE_PLUS = 5050
 IFACE_FF_FLEXSTACK = 5100
 IFACE_FF_FLEXSTACK_PLUS = 5150
+IFACE_FF_JUNIPER_VCP = 5200
 # Other
 IFACE_FF_OTHER = 32767
 
@@ -163,6 +164,7 @@ IFACE_FF_CHOICES = [
             [IFACE_FF_STACKWISE_PLUS, 'Cisco StackWise Plus'],
             [IFACE_FF_FLEXSTACK, 'Cisco FlexStack'],
             [IFACE_FF_FLEXSTACK_PLUS, 'Cisco FlexStack Plus'],
+            [IFACE_FF_JUNIPER_VCP, 'Juniper VCP'],
         ]
     ],
     [
