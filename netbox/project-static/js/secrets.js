@@ -16,13 +16,14 @@ $(document).ready(function() {
 
     // Adding/editing a secret
     $('form').submit(function(event) {
-        if (
-            $(this).find('input.requires-session-key').filter(function() {return this.value == ""}) &&
-            document.cookie.indexOf('session_key') == -1
-        ) {
-            $('#privkey_modal').modal('show');
-            event.preventDefault();
-        }
+        $(this).find('input.requires-session-key').each(function() {
+            if (this.value && document.cookie.indexOf('session_key') == -1) {
+                console.log('Field ' + this.value + ' requires a session key');
+                $('#privkey_modal').modal('show');
+                event.preventDefault();
+                return false;
+            }
+        });
     });
 
     // Retrieve a session key
