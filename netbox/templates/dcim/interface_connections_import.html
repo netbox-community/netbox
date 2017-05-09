@@ -1,69 +1,47 @@
-{% extends '_base.html' %}
+{% extends 'utilities/obj_import.html' %}
 {% load render_table from django_tables2 %}
 {% load form_helpers %}
 
 {% block title %}Interface Connections Import{% endblock %}
 
-{% block content %}
-<h1>Interface Connections Import</h1>
-<div class="row">
-	<div class="col-md-6">
-        {% if form.non_field_errors %}
-            <div class="panel panel-danger">
-                <div class="panel-heading"><strong>Errors</strong></div>
-                <div class="panel-body">
-                    {{ form.non_field_errors }}
-                </div>
-            </div>
-        {% endif %}
-		<form action="." method="post" class="form">
-		    {% csrf_token %}
-		    {% render_form form %}
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </div>
-		</form>
-    </div>
-    <div class="col-md-6">
-		<h4>CSV Format</h4>
-		<table class="table">
-			<thead>
-				<tr>
-					<th>Field</th>
-					<th>Description</th>
-					<th>Example</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td>Device A</td>
-					<td>Device name or {ID}</td>
-					<td>abc1-core1</td>
-				</tr>
-				<tr>
-					<td>Interface A</td>
-					<td>Interface name</td>
-					<td>xe-0/0/6</td>
-				</tr>
-				<tr>
-					<td>Device B</td>
-					<td>Device name or {ID}</td>
-					<td>abc1-switch7</td>
-				</tr>
-				<tr>
-					<td>Interface B</td>
-					<td>Interface name</td>
-					<td>xe-0/0/0</td>
-				</tr>
-				<tr>
-					<td>Connection Status</td>
-					<td>"planned" or "connected"</td>
-					<td>planned</td>
-				</tr>
-			</tbody>
-		</table>
-		<h4>Example</h4>
-		<pre>abc1-core1,xe-0/0/6,abc1-switch7,xe-0/0/0,planned</pre>
-	</div>
-</div>
+{% block instructions %}
+    <h4>CSV Format</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Field</th>
+                <th>Description</th>
+                <th>Example</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Device A</td>
+                <td>Device name or {ID}</td>
+                <td>abc1-core1</td>
+            </tr>
+            <tr>
+                <td>Interface A</td>
+                <td>Interface name</td>
+                <td>xe-0/0/6</td>
+            </tr>
+            <tr>
+                <td>Device B</td>
+                <td>Device name or {ID}</td>
+                <td>abc1-switch7</td>
+            </tr>
+            <tr>
+                <td>Interface B</td>
+                <td>Interface name</td>
+                <td>xe-0/0/0</td>
+            </tr>
+            <tr>
+                <td>Connection Status</td>
+                <td>"planned" or "connected"</td>
+                <td>planned</td>
+            </tr>
+        </tbody>
+    </table>
+    <h4>Example</h4>
+    <pre>abc1-core1,xe-0/0/6,abc1-switch7,xe-0/0/0,planned</pre>
 {% endblock %}

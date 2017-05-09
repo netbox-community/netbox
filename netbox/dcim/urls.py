@@ -3,9 +3,12 @@ from django.conf.urls import url
 from ipam.views import ServiceEditView
 from secrets.views import secret_add
 
+from extras.views import ImageAttachmentEditView
+from .models import Device, Rack, Site
 from . import views
 
 
+app_name = 'dcim'
 urlpatterns = [
 
     # Regions
@@ -22,6 +25,7 @@ urlpatterns = [
     url(r'^sites/(?P<slug>[\w-]+)/$', views.site, name='site'),
     url(r'^sites/(?P<slug>[\w-]+)/edit/$', views.SiteEditView.as_view(), name='site_edit'),
     url(r'^sites/(?P<slug>[\w-]+)/delete/$', views.SiteDeleteView.as_view(), name='site_delete'),
+    url(r'^sites/(?P<object_id>\d+)/images/add/$', ImageAttachmentEditView.as_view(), name='site_add_image', kwargs={'model': Site}),
 
     # Rack groups
     url(r'^rack-groups/$', views.RackGroupListView.as_view(), name='rackgroup_list'),
@@ -43,6 +47,7 @@ urlpatterns = [
 
     # Racks
     url(r'^racks/$', views.RackListView.as_view(), name='rack_list'),
+    url(r'^rack-elevations/$', views.RackElevationListView.as_view(), name='rack_elevation_list'),
     url(r'^racks/add/$', views.RackEditView.as_view(), name='rack_add'),
     url(r'^racks/import/$', views.RackBulkImportView.as_view(), name='rack_import'),
     url(r'^racks/edit/$', views.RackBulkEditView.as_view(), name='rack_bulk_edit'),
@@ -51,6 +56,7 @@ urlpatterns = [
     url(r'^racks/(?P<pk>\d+)/edit/$', views.RackEditView.as_view(), name='rack_edit'),
     url(r'^racks/(?P<pk>\d+)/delete/$', views.RackDeleteView.as_view(), name='rack_delete'),
     url(r'^racks/(?P<rack>\d+)/reservations/add/$', views.RackReservationEditView.as_view(), name='rack_add_reservation'),
+    url(r'^racks/(?P<object_id>\d+)/images/add/$', ImageAttachmentEditView.as_view(), name='rack_add_image', kwargs={'model': Rack}),
 
     # Manufacturers
     url(r'^manufacturers/$', views.ManufacturerListView.as_view(), name='manufacturer_list'),
@@ -118,6 +124,7 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/lldp-neighbors/$', views.device_lldp_neighbors, name='device_lldp_neighbors'),
     url(r'^devices/(?P<pk>\d+)/add-secret/$', secret_add, name='device_addsecret'),
     url(r'^devices/(?P<device>\d+)/services/assign/$', ServiceEditView.as_view(), name='service_assign'),
+    url(r'^devices/(?P<object_id>\d+)/images/add/$', ImageAttachmentEditView.as_view(), name='device_add_image', kwargs={'model': Device}),
 
     # Console ports
     url(r'^devices/console-ports/add/$', views.DeviceBulkAddConsolePortView.as_view(), name='device_bulk_add_consoleport'),
@@ -174,6 +181,11 @@ urlpatterns = [
     url(r'^device-bays/(?P<pk>\d+)/populate/$', views.devicebay_populate, name='devicebay_populate'),
     url(r'^device-bays/(?P<pk>\d+)/depopulate/$', views.devicebay_depopulate, name='devicebay_depopulate'),
 
+    # Inventory items
+    url(r'^devices/(?P<device>\d+)/inventory-items/add/$', views.InventoryItemEditView.as_view(), name='inventoryitem_add'),
+    url(r'^inventory-items/(?P<pk>\d+)/edit/$', views.InventoryItemEditView.as_view(), name='inventoryitem_edit'),
+    url(r'^inventory-items/(?P<pk>\d+)/delete/$', views.InventoryItemDeleteView.as_view(), name='inventoryitem_delete'),
+
     # Console/power/interface connections
     url(r'^console-connections/$', views.ConsoleConnectionsListView.as_view(), name='console_connections_list'),
     url(r'^console-connections/import/$', views.ConsoleConnectionsBulkImportView.as_view(), name='console_connections_import'),
@@ -181,10 +193,5 @@ urlpatterns = [
     url(r'^power-connections/import/$', views.PowerConnectionsBulkImportView.as_view(), name='power_connections_import'),
     url(r'^interface-connections/$', views.InterfaceConnectionsListView.as_view(), name='interface_connections_list'),
     url(r'^interface-connections/import/$', views.InterfaceConnectionsBulkImportView.as_view(), name='interface_connections_import'),
-
-    # Modules
-    url(r'^devices/(?P<device>\d+)/modules/add/$', views.ModuleEditView.as_view(), name='module_add'),
-    url(r'^modules/(?P<pk>\d+)/edit/$', views.ModuleEditView.as_view(), name='module_edit'),
-    url(r'^modules/(?P<pk>\d+)/delete/$', views.ModuleDeleteView.as_view(), name='module_delete'),
 
 ]

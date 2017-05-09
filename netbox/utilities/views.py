@@ -5,19 +5,18 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
 from django.forms import CharField, ModelMultipleChoiceField, MultipleHiddenInput, TypedChoiceField
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import TemplateSyntaxError
+from django.urls import reverse
 from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
-from extras.forms import CustomFieldForm
 from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
 
 from .error_handlers import handle_protectederror
@@ -192,15 +191,11 @@ class ObjectEditView(GetReturnURLMixin, View):
 
         obj = self.get_object(kwargs)
         obj = self.alter_obj(obj, request, args, kwargs)
-        form = self.form_class(request.POST, instance=obj)
+        form = self.form_class(request.POST, request.FILES, instance=obj)
 
         if form.is_valid():
-            obj = form.save(commit=False)
-            obj_created = not obj.pk
-            obj.save()
-            form.save_m2m()
-            if isinstance(form, CustomFieldForm):
-                form.save_custom_fields()
+            obj_created = not form.instance.pk
+            obj = form.save()
 
             msg = u'Created ' if obj_created else u'Modified '
             msg += self.model._meta.verbose_name
@@ -329,13 +324,21 @@ class BulkAddView(View):
             new_objs = []
             try:
                 with transaction.atomic():
+                    # Validate and save each object individually
                     for value in pattern:
                         model_form_data[pattern_target] = value
                         model_form = self.model_form(model_form_data)
-                        obj = model_form.save()
-                        new_objs.append(obj)
-            except ValidationError as e:
-                form.add_error(None, e)
+                        if model_form.is_valid():
+                            obj = model_form.save()
+                            new_objs.append(obj)
+                        else:
+                            for error in model_form.errors.as_data().values():
+                                form.add_error(None, error)
+                    # Abort the creation of all objects if errors exist
+                    if form.errors:
+                        raise ValidationError("Validation of one or more model forms failed.")
+            except ValidationError:
+                pass
 
             if not form.errors:
                 msg = u"Added {} {}".format(len(new_objs), model._meta.verbose_name_plural)
@@ -392,6 +395,7 @@ class BulkImportView(View):
 
                 return render(request, "import_success.html", {
                     'table': obj_table,
+                    'return_url': self.default_return_url,
                 })
 
             except IntegrityError as e:
@@ -415,7 +419,7 @@ class BulkEditView(View):
     filter: FilterSet to apply when deleting by QuerySet
     form: The form class used to edit objects in bulk
     template_name: The name of the template
-    default_return_url: Name of the URL to which the user is redirected after editing the objects (can be overriden by
+    default_return_url: Name of the URL to which the user is redirected after editing the objects (can be overridden by
                         POSTing return_url)
     """
     cls = None
@@ -467,7 +471,7 @@ class BulkEditView(View):
                             fields_to_update[field] = ''
                         else:
                             fields_to_update[field] = None
-                    elif form.cleaned_data[field]:
+                    elif form.cleaned_data[field] not in (None, ''):
                         fields_to_update[field] = form.cleaned_data[field]
                 updated_count = self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
 

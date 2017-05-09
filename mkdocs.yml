@@ -8,7 +8,6 @@ pages:
         - 'Web Server': 'installation/web-server.md'
         - 'LDAP (Optional)': 'installation/ldap.md'
         - 'Upgrading': 'installation/upgrading.md'
-        - 'Alternate Install: Docker': 'installation/docker.md'
     - 'Configuration':
         - 'Mandatory Settings': 'configuration/mandatory-settings.md'
         - 'Optional Settings': 'configuration/optional-settings.md'
@@ -19,7 +18,11 @@ pages:
         - 'Secrets': 'data-model/secrets.md'
         - 'Tenancy': 'data-model/tenancy.md'
         - 'Extras': 'data-model/extras.md'
-    - 'API Integration': 'api-integration.md'
+    - 'API':
+        - 'Overview': 'api/overview.md'
+        - 'Authentication': 'api/authentication.md'
+        - 'Working with Secrets': 'api/working-with-secrets.md'
+        - 'Examples': 'api/examples.md'
 
 markdown_extensions:
     - admonition:

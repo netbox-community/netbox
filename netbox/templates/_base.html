@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>NetBox - {% block title %}Home{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'bootstrap-3.3.6-dist/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'font-awesome-4.6.3/css/font-awesome.min.css' %}">
-    <link rel="stylesheet" href="{% static 'jquery-ui-1.11.4/jquery-ui.css' %}">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+	<title>NetBox - {% block title %}Home{% endblock %}</title>
+	<link rel="stylesheet" href="{% static 'bootstrap-3.3.7-dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'font-awesome-4.7.0/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'jquery-ui-1.12.1/jquery-ui.css' %}">
+	<link rel="stylesheet" href="{% static 'css/base.css' %}?v{{ settings.VERSION }}">
     <link rel="icon" type="image/png" href="{% static 'img/netbox.ico' %}" />
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
 </head>
@@ -58,6 +58,7 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Racks <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="{% url 'dcim:rack_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Racks</a></li>
+                            <li><a href="{% url 'dcim:rack_elevation_list' %}"><i class="fa fa-bars" aria-hidden="true"></i> Rack Elevations</a></li>
                             {% if perms.dcim.add_rack %}
                                 <li><a href="{% url 'dcim:rack_add' %}"><i class="fa fa-plus" aria-hidden="true"></i> Add a Rack</a></li>
                                 <li><a href="{% url 'dcim:rack_import' %}"><i class="fa fa-download" aria-hidden="true"></i> Import Racks</a></li>
@@ -244,15 +245,33 @@
                 {% endif %}
                 <ul class="nav navbar-nav navbar-right">
                     {% if request.user.is_authenticated %}
-                        {% if request.user.is_staff %}
-                            <li><a href="{% url 'admin:index' %}"><i class="fa fa-cogs" aria-hidden="true"></i> Admin</a></li>
-                        {% endif %}
-                        <li><a href="{% url 'user:profile' %}"><i class="fa fa-user" aria-hidden="true"></i> {{ request.user }}</a></li>
-                        <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out" aria-hidden="true"></i> Log out</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                {{ request.user }} <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url 'user:profile' %}"><i class="fa fa-user" aria-hidden="true"></i> Profile</a></li>
+                                {% if request.user.is_staff %}
+                                    <li><a href="{% url 'admin:index' %}"><i class="fa fa-cogs" aria-hidden="true"></i> Admin</a></li>
+                                {% endif %}
+                                <li class="divider"></li>
+                                <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out" aria-hidden="true"></i> Log out</a></li>
+                            </ul>
+                        </li>
                     {% else %}
                         <li><a href="{% url 'login' %}?next={{ request.path }}"><i class="fa fa-sign-in" aria-hidden="true"></i> Log in</a></li>
                     {% endif %}
                 </ul>
+                <form action="{% url 'search' %}" method="get" class="navbar-form navbar-right" role="search">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Search">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-search" aria-hidden="true"></i>
+                            </button>
+                        </span>
+                    </div>
+                </form>
             </div>
         </div>
     </nav>
@@ -307,10 +326,10 @@
 <script type="text/javascript">
     var netbox_api_path = "/{{ settings.BASE_PATH }}api/";
 </script>
-<script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
-<script src="{% static 'jquery-ui-1.11.4/jquery-ui.min.js' %}"></script>
-<script src="{% static 'bootstrap-3.3.6-dist/js/bootstrap.min.js' %}"></script>
-<script src="{% static 'js/forms.js' %}"></script>
+<script src="{% static 'js/jquery-3.2.0.min.js' %}"></script>
+<script src="{% static 'jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
+<script src="{% static 'bootstrap-3.3.7-dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/forms.js' %}?v{{ settings.VERSION }}"></script>
 {% block javascript %}{% endblock %}
 </body>
 </html>

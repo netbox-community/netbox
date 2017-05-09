@@ -47,9 +47,8 @@ class SecretRoleForm(BootstrapMixin, forms.ModelForm):
 #
 
 class SecretForm(BootstrapMixin, forms.ModelForm):
-    private_key = forms.CharField(required=False, widget=forms.HiddenInput())
     plaintext = forms.CharField(max_length=65535, required=False, label='Plaintext',
-                                widget=forms.PasswordInput(attrs={'class': 'requires-private-key'}))
+                                widget=forms.PasswordInput(attrs={'class': 'requires-session-key'}))
     plaintext2 = forms.CharField(max_length=65535, required=False, label='Plaintext (verify)',
                                  widget=forms.PasswordInput())
 
@@ -58,9 +57,6 @@ class SecretForm(BootstrapMixin, forms.ModelForm):
         fields = ['role', 'name', 'plaintext', 'plaintext2']
 
     def clean(self):
-
-        if self.cleaned_data['plaintext']:
-            validate_rsa_key(self.cleaned_data['private_key'])
 
         if self.cleaned_data['plaintext'] != self.cleaned_data['plaintext2']:
             raise forms.ValidationError({
@@ -86,8 +82,7 @@ class SecretFromCSVForm(forms.ModelForm):
 
 
 class SecretImportForm(BootstrapMixin, BulkImportForm):
-    private_key = forms.CharField(widget=forms.HiddenInput())
-    csv = CSVDataField(csv_form=SecretFromCSVForm, widget=forms.Textarea(attrs={'class': 'requires-private-key'}))
+    csv = CSVDataField(csv_form=SecretFromCSVForm, widget=forms.Textarea(attrs={'class': 'requires-session-key'}))
 
 
 class SecretBulkEditForm(BootstrapMixin, BulkEditForm):

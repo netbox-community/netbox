@@ -28,6 +28,7 @@
             {% render_field form.interface_rack %}
             {% render_field form.interface_device %}
             {% render_field form.interface %}
+            {% render_field form.primary_for_device %}
         </div>
     </div>
     <div class="panel panel-default">
@@ -60,5 +61,5 @@
 {% endblock %}
 
 {% block javascript %}
-<script src="{% static 'js/livesearch.js' %}"></script>
+<script src="{% static 'js/livesearch.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

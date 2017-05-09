@@ -1,25 +1,26 @@
-from django.conf.urls import url
+from rest_framework import routers
 
-from extras.models import GRAPH_TYPE_PROVIDER
-from extras.api.views import GraphListView
-
-from .views import *
+from . import views
 
 
-urlpatterns = [
+class CircuitsRootView(routers.APIRootView):
+    """
+    Circuits API root view
+    """
+    def get_view_name(self):
+        return 'Circuits'
 
-    # Providers
-    url(r'^providers/$', ProviderListView.as_view(), name='provider_list'),
-    url(r'^providers/(?P<pk>\d+)/$', ProviderDetailView.as_view(), name='provider_detail'),
-    url(r'^providers/(?P<pk>\d+)/graphs/$', GraphListView.as_view(), {'type': GRAPH_TYPE_PROVIDER},
-        name='provider_graphs'),
 
-    # Circuit types
-    url(r'^circuit-types/$', CircuitTypeListView.as_view(), name='circuittype_list'),
-    url(r'^circuit-types/(?P<pk>\d+)/$', CircuitTypeDetailView.as_view(), name='circuittype_detail'),
+router = routers.DefaultRouter()
+router.APIRootView = CircuitsRootView
 
-    # Circuits
-    url(r'^circuits/$', CircuitListView.as_view(), name='circuit_list'),
-    url(r'^circuits/(?P<pk>\d+)/$', CircuitDetailView.as_view(), name='circuit_detail'),
+# Providers
+router.register(r'providers', views.ProviderViewSet)
 
-]
+# Circuits
+router.register(r'circuit-types', views.CircuitTypeViewSet)
+router.register(r'circuits', views.CircuitViewSet)
+router.register(r'circuit-terminations', views.CircuitTerminationViewSet)
+
+app_name = 'circuits-api'
+urlpatterns = router.urls

@@ -46,7 +46,7 @@
             <table class="table table-hover table-condensed panel-body" id="hardware">
                 <thead>
                     <tr>
-                        <th>Module</th>
+                        <th>Name</th>
                         <th></th>
                         <th>Manufacturer</th>
                         <th>Part Number</th>
@@ -55,81 +55,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for m in modules %}
-                        <tr>
-                            <td>{{ m.name }}</td>
-                            <td>{% if not m.discovered %}<i class="fa fa-asterisk" title="Manually created"></i>{% endif %}</td>
-                            <td>{{ m.manufacturer|default:'' }}</td>
-                            <td>{{ m.part_id }}</td>
-                            <td>{{ m.serial }}</td>
-                            <td class="text-right">
-                                {% if perms.dcim.change_module %}
-                                    <a href="{% url 'dcim:module_edit' pk=m.pk %}" class="btn btn-xs btn-warning"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
-                                {% endif %}
-                                {% if perms.dcim.delete_module %}
-                                    <a href="{% url 'dcim:module_delete' pk=m.pk %}?return_url={% url 'dcim:device_inventory' pk=device.pk %}" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% for m2 in m.submodules.all %}
-                            <tr>
-                                <td style="padding-left: 20px">{{ m2.name }}</td>
-                                <td>{% if not m2.discovered %}<i class="fa fa-asterisk" title="Manually created"></i>{% endif %}</td>
-                                <td>{{ m2.manufacturer|default:'' }}</td>
-                                <td>{{ m2.part_id }}</td>
-                                <td>{{ m2.serial }}</td>
-                                <td class="text-right">
-                                    {% if perms.dcim.change_module %}
-                                        <a href="{% url 'dcim:module_edit' pk=m2.pk %}" class="btn btn-xs btn-warning"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
-                                    {% endif %}
-                                    {% if perms.dcim.delete_module %}
-                                        <a href="{% url 'dcim:module_delete' pk=m2.pk %}?return_url={% url 'dcim:device_inventory' pk=device.pk %}" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% for m3 in m2.submodules.all %}
-                                <tr>
-                                    <td style="padding-left: 40px">{{ m3.name }}</td>
-                                    <td>{% if not m3.discovered %}<i class="fa fa-asterisk" title="Manually created"></i>{% endif %}</td>
-                                    <td>{{ m3.manufacturer|default:'' }}</td>
-                                    <td>{{ m3.part_id }}</td>
-                                    <td>{{ m3.serial }}</td>
-                                    <td class="text-right">
-                                        {% if perms.dcim.change_module %}
-                                            <a href="{% url 'dcim:module_edit' pk=m3.pk %}" class="btn btn-xs btn-warning"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
-                                        {% endif %}
-                                        {% if perms.dcim.delete_module %}
-                                            <a href="{% url 'dcim:module_delete' pk=m3.pk %}?return_url={% url 'dcim:device_inventory' pk=device.pk %}" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% for m4 in m3.submodules.all %}
-                                    <tr>
-                                        <td style="padding-left: 60px">{{ m4.name }}</td>
-                                        <td>{% if not m4.discovered %}<i class="fa fa-asterisk" title="Manually created"></i>{% endif %}</td>
-                                        <td>{{ m4.manufacturer|default:'' }}</td>
-                                        <td>{{ m4.part_id }}</td>
-                                        <td>{{ m4.serial }}</td>
-                                        <td class="text-right">
-                                            {% if perms.dcim.change_module %}
-                                                <a href="{% url 'dcim:module_edit' pk=m4.pk %}" class="btn btn-xs btn-warning"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
-                                            {% endif %}
-                                            {% if perms.dcim.delete_module %}
-                                                <a href="{% url 'dcim:module_delete' pk=m4.pk %}?return_url={% url 'dcim:device_inventory' pk=device.pk %}" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            {% endfor %}
-                        {% endfor %}
+                    {% for item in inventory_items %}
+                        {% with template_name='dcim/inc/inventoryitem.html' indent=0 %}
+                            {% include template_name %}
+                        {% endwith %}
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-        {% if perms.dcim.add_module %}
-            <a href="{% url 'dcim:module_add' device=device.pk %}" class="btn btn-success">
+        {% if perms.dcim.add_inventoryitem %}
+            <a href="{% url 'dcim:inventoryitem_add' device=device.pk %}" class="btn btn-success">
                 <span class="fa fa-plus" aria-hidden="true"></span>
-                Add a Module
+                Add Inventory Item
             </a>
         {% endif %}
     </div>

@@ -7,6 +7,7 @@
     <td>
         <i class="fa fa-fw fa-bolt"></i> {{ po.name }}
     </td>
+    <td></td>
     {% if po.connected_port %}
         <td>
             <a href="{% url 'dcim:device' pk=po.connected_port.device.pk %}">{{ po.connected_port.device }}</a>
@@ -32,11 +33,11 @@
                     </a>
                 {% endif %}
                 <a href="{% url 'dcim:poweroutlet_disconnect' pk=po.pk %}" class="btn btn-danger btn-xs">
-                    <i class="glyphicon glyphicon-remove" aria-hidden="true" title="Delete connection"></i>
+                    <i class="glyphicon glyphicon-resize-full" aria-hidden="true" title="Delete connection"></i>
                 </a>
             {% else %}
                 <a href="{% url 'dcim:poweroutlet_connect' pk=po.pk %}" class="btn btn-success btn-xs">
-                    <i class="glyphicon glyphicon-plus" aria-hidden="true" title="Connect"></i>
+                    <i class="glyphicon glyphicon-resize-small" aria-hidden="true" title="Connect"></i>
                 </a>
             {% endif %}
             <a href="{% url 'dcim:poweroutlet_edit' pk=po.pk %}" class="btn btn-info btn-xs">

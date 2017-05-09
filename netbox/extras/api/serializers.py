@@ -1,56 +1,135 @@
 from rest_framework import serializers
 
-from extras.models import CF_TYPE_SELECT, CustomFieldChoice, Graph
+from django.core.exceptions import ObjectDoesNotExist
+
+from dcim.api.serializers import NestedDeviceSerializer, NestedRackSerializer, NestedSiteSerializer
+from dcim.models import Device, Rack, Site
+from extras.models import (
+    ACTION_CHOICES, ExportTemplate, Graph, GRAPH_TYPE_CHOICES, ImageAttachment, TopologyMap, UserAction,
+)
+from users.api.serializers import NestedUserSerializer
+from utilities.api import ChoiceFieldSerializer, ContentTypeFieldSerializer
 
 
-class CustomFieldSerializer(serializers.Serializer):
-    """
-    Extends a ModelSerializer to render any CustomFields and their values associated with an object.
-    """
-    custom_fields = serializers.SerializerMethodField()
-
-    def get_custom_fields(self, obj):
-
-        # Gather all CustomFields applicable to this object
-        fields = {cf.name: None for cf in self.context['view'].custom_fields}
-
-        # Attach any defined CustomFieldValues to their respective CustomFields
-        for cfv in obj.custom_field_values.all():
-
-            # Attempt to suppress database lookups for CustomFieldChoices by using the cached choice set from the view
-            # context.
-            if cfv.field.type == CF_TYPE_SELECT and hasattr(self, 'custom_field_choices'):
-                cfc = {
-                    'id': int(cfv.serialized_value),
-                    'value': self.context['view'].custom_field_choices[int(cfv.serialized_value)]
-                }
-                fields[cfv.field.name] = CustomFieldChoiceSerializer(instance=cfc).data
-            # Fall back to hitting the database in case we're in a view that doesn't inherit CustomFieldModelAPIView.
-            elif cfv.field.type == CF_TYPE_SELECT:
-                fields[cfv.field.name] = CustomFieldChoiceSerializer(instance=cfv.value).data
-            else:
-                fields[cfv.field.name] = cfv.value
-
-        return fields
-
-
-class CustomFieldChoiceSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = CustomFieldChoice
-        fields = ['id', 'value']
-
+#
+# Graphs
+#
 
 class GraphSerializer(serializers.ModelSerializer):
-    embed_url = serializers.SerializerMethodField()
-    embed_link = serializers.SerializerMethodField()
+    type = ChoiceFieldSerializer(choices=GRAPH_TYPE_CHOICES)
 
     class Meta:
         model = Graph
-        fields = ['name', 'embed_url', 'embed_link']
+        fields = ['id', 'type', 'weight', 'name', 'source', 'link']
+
+
+class WritableGraphSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Graph
+        fields = ['id', 'type', 'weight', 'name', 'source', 'link']
+
+
+class RenderedGraphSerializer(serializers.ModelSerializer):
+    embed_url = serializers.SerializerMethodField()
+    embed_link = serializers.SerializerMethodField()
+    type = ChoiceFieldSerializer(choices=GRAPH_TYPE_CHOICES)
+
+    class Meta:
+        model = Graph
+        fields = ['id', 'type', 'weight', 'name', 'embed_url', 'embed_link']
 
     def get_embed_url(self, obj):
         return obj.embed_url(self.context['graphed_object'])
 
     def get_embed_link(self, obj):
         return obj.embed_link(self.context['graphed_object'])
+
+
+#
+# Export templates
+#
+
+class ExportTemplateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ExportTemplate
+        fields = ['id', 'content_type', 'name', 'description', 'template_code', 'mime_type', 'file_extension']
+
+
+#
+# Topology maps
+#
+
+class TopologyMapSerializer(serializers.ModelSerializer):
+    site = NestedSiteSerializer()
+
+    class Meta:
+        model = TopologyMap
+        fields = ['id', 'name', 'slug', 'site', 'device_patterns', 'description']
+
+
+class WritableTopologyMapSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TopologyMap
+        fields = ['id', 'name', 'slug', 'site', 'device_patterns', 'description']
+
+
+#
+# Image attachments
+#
+
+class ImageAttachmentSerializer(serializers.ModelSerializer):
+    parent = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ImageAttachment
+        fields = ['id', 'parent', 'name', 'image', 'image_height', 'image_width', 'created']
+
+    def get_parent(self, obj):
+
+        # Static mapping of models to their nested serializers
+        if isinstance(obj.parent, Device):
+            serializer = NestedDeviceSerializer
+        elif isinstance(obj.parent, Rack):
+            serializer = NestedRackSerializer
+        elif isinstance(obj.parent, Site):
+            serializer = NestedSiteSerializer
+        else:
+            raise Exception("Unexpected type of parent object for ImageAttachment")
+
+        return serializer(obj.parent, context={'request': self.context['request']}).data
+
+
+class WritableImageAttachmentSerializer(serializers.ModelSerializer):
+    content_type = ContentTypeFieldSerializer()
+
+    class Meta:
+        model = ImageAttachment
+        fields = ['id', 'content_type', 'object_id', 'name', 'image']
+
+    def validate(self, data):
+
+        # Validate that the parent object exists
+        try:
+            data['content_type'].get_object_for_this_type(id=data['object_id'])
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError(
+                "Invalid parent object: {} ID {}".format(data['content_type'], data['object_id'])
+            )
+
+        return data
+
+
+#
+# User actions
+#
+
+class UserActionSerializer(serializers.ModelSerializer):
+    user = NestedUserSerializer()
+    action = ChoiceFieldSerializer(choices=ACTION_CHOICES)
+
+    class Meta:
+        model = UserAction
+        fields = ['id', 'time', 'user', 'action', 'message']

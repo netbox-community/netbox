@@ -123,11 +123,7 @@
                 <tr>
                     <td>Status</td>
                     <td>
-                        {% if device.status %}
-                            <span class="label label-success">{{ device.get_status_display }}</span>
-                        {% else %}
-                            <span class="label label-danger">{{ device.get_status_display }}</span>
-                        {% endif %}
+                        <span class="label label-{{ device.get_status_class }}">{{ device.get_status_display }}</span>
                     </td>
                 </tr>
                 <tr>
@@ -296,6 +292,20 @@
                     <span class="text-muted">None</span>
                 {% endif %}
             </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Images</strong>
+            </div>
+            {% include 'inc/image_attachments.html' with images=device.images.all %}
+            {% if perms.extras.add_imageattachment %}
+                <div class="panel-footer text-right">
+                    <a href="{% url 'dcim:device_add_image' object_id=device.pk %}" class="btn btn-primary btn-xs">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        Attach an image
+                    </a>
+                </div>
+            {% endif %}
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -615,6 +625,6 @@ $('button.toggle-ips').click(function() {
     return false;
 });
 </script>
-<script src="{% static 'js/graphs.js' %}"></script>
-<script src="{% static 'js/secrets.js' %}"></script>
+<script src="{% static 'js/graphs.js' %}?v{{ settings.VERSION }}"></script>
+<script src="{% static 'js/secrets.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}

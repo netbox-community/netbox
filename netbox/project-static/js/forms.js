@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
     // "Toggle all" checkbox (table header)
-    $('#toggle_all').click(function (event) {
+    $('#toggle_all').click(function() {
         $('td input:checkbox[name=pk]').prop('checked', $(this).prop('checked'));
         if ($(this).is(':checked')) {
             $('#select_all_box').removeClass('hidden');
@@ -10,7 +10,7 @@ $(document).ready(function() {
         }
     });
     // Enable hidden buttons when "select all" is checked
-    $('#select_all').click(function (event) {
+    $('#select_all').click(function() {
         if ($(this).is(':checked')) {
             $('#select_all_box').find('button').prop('disabled', '');
         } else {
@@ -25,7 +25,7 @@ $(document).ready(function() {
     });
 
     // Simple "Toggle all" button (panel)
-    $('button.toggle').click(function (event) {
+    $('button.toggle').click(function() {
         var selected = $(this).attr('selected');
         $(this).closest('form').find('input:checkbox[name=pk]').prop('checked', !selected);
         $(this).attr('selected', !selected);
@@ -55,12 +55,12 @@ $(document).ready(function() {
     }
 
     // Bulk edit nullification
-    $('input:checkbox[name=_nullify]').click(function (event) {
+    $('input:checkbox[name=_nullify]').click(function() {
         $('#id_' + this.value).toggle('disabled');
     });
 
     // Set formaction and submit using a link
-    $('a.formaction').click(function (event) {
+    $('a.formaction').click(function(event) {
         event.preventDefault();
         var form = $(this).closest('form');
         form.attr('action', $(this).attr('href'));
@@ -80,7 +80,7 @@ $(document).ready(function() {
         child_field.append($("<option></option>").attr("value", "").text("---------"));
 
         if ($(this).val() || $(this).attr('nullable') == 'true') {
-            var api_url = child_field.attr('api-url');
+            var api_url = child_field.attr('api-url') + '&limit=1000';
             var disabled_indicator = child_field.attr('disabled-indicator');
             var initial_value = child_field.attr('initial');
             var display_field = child_field.attr('display-field') || 'name';
@@ -88,23 +88,24 @@ $(document).ready(function() {
             // Determine the filter fields needed to make an API call
             var filter_regex = /\{\{([a-z_]+)\}\}/g;
             var match;
+            var rendered_url = api_url;
             while (match = filter_regex.exec(api_url)) {
                 var filter_field = $('#id_' + match[1]);
                 if (filter_field.val()) {
-                    api_url = api_url.replace(match[0], filter_field.val());
-                } else if ($(this).attr('nullable') == 'true') {
-                    api_url = api_url.replace(match[0], '0');
+                    rendered_url = rendered_url.replace(match[0], filter_field.val());
+                } else if (filter_field.attr('nullable') == 'true') {
+                    rendered_url = rendered_url.replace(match[0], '0');
                 }
             }
 
             // If all URL variables have been replaced, make the API call
-            if (api_url.search('{{') < 0) {
-                console.log(child_name + ": Fetching " + api_url);
+            if (rendered_url.search('{{') < 0) {
+                console.log(child_name + ": Fetching " + rendered_url);
                 $.ajax({
-                    url: api_url,
+                    url: rendered_url,
                     dataType: 'json',
-                    success: function (response, status) {
-                        $.each(response, function (index, choice) {
+                    success: function(response, status) {
+                        $.each(response.results, function(index, choice) {
                             var option = $("<option></option>").attr("value", choice.id).text(choice[display_field]);
                             if (disabled_indicator && choice[disabled_indicator] && choice.id != initial_value) {
                                 option.attr("disabled", "disabled");

@@ -1,15 +1,18 @@
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.http import is_safe_url
+from django.views.generic import View
 
 from secrets.forms import UserKeyForm
-from secrets.models import UserKey
-
-from .forms import LoginForm, PasswordChangeForm
+from secrets.models import SessionKey, UserKey
+from utilities.forms import ConfirmationForm
+from .forms import LoginForm, PasswordChangeForm, TokenForm
+from .models import Token
 
 
 #
@@ -121,6 +124,42 @@ def userkey_edit(request):
     })
 
 
+class SessionKeyDeleteView(LoginRequiredMixin, View):
+
+    def get(self, request):
+
+        sessionkey = get_object_or_404(SessionKey, userkey__user=request.user)
+        form = ConfirmationForm()
+
+        return render(request, 'users/sessionkey_delete.html', {
+            'obj_type': sessionkey._meta.verbose_name,
+            'form': form,
+            'return_url': reverse('user:userkey'),
+        })
+
+    def post(self, request):
+
+        sessionkey = get_object_or_404(SessionKey, userkey__user=request.user)
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+
+            # Delete session key
+            sessionkey.delete()
+            messages.success(request, "Session key deleted")
+
+            # Delete cookie
+            response = redirect('user:userkey')
+            response.delete_cookie('session_key')
+
+            return response
+
+        return render(request, 'users/sessionkey_delete.html', {
+            'obj_type': sessionkey._meta.verbose_name,
+            'form': form,
+            'return_url': reverse('user:userkey'),
+        })
+
+
 @login_required()
 def recent_activity(request):
 
@@ -128,3 +167,90 @@ def recent_activity(request):
         'recent_activity': request.user.actions.all()[:50],
         'active_tab': 'recent_activity',
     })
+
+
+#
+# API tokens
+#
+
+class TokenListView(LoginRequiredMixin, View):
+
+    def get(self, request):
+
+        tokens = Token.objects.filter(user=request.user)
+
+        return render(request, 'users/api_tokens.html', {
+            'tokens': tokens,
+            'active_tab': 'api_tokens',
+        })
+
+
+class TokenEditView(LoginRequiredMixin, View):
+
+    def get(self, request, pk=None):
+
+        if pk is not None:
+            token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
+        else:
+            token = Token(user=request.user)
+
+        form = TokenForm(instance=token)
+
+        return render(request, 'utilities/obj_edit.html', {
+            'obj': token,
+            'obj_type': token._meta.verbose_name,
+            'form': form,
+            'return_url': reverse('user:token_list'),
+        })
+
+    def post(self, request, pk=None):
+
+        if pk is not None:
+            token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
+            form = TokenForm(request.POST, instance=token)
+        else:
+            form = TokenForm(request.POST)
+
+        if form.is_valid():
+            token = form.save(commit=False)
+            token.user = request.user
+            token.save()
+
+            msg = "Token updated" if pk else "New token created"
+            messages.success(request, msg)
+
+            return redirect('user:token_list')
+
+
+class TokenDeleteView(LoginRequiredMixin, View):
+
+    def get(self, request, pk):
+
+        token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
+        initial_data = {
+            'return_url': reverse('user:token_list'),
+        }
+        form = ConfirmationForm(initial=initial_data)
+
+        return render(request, 'utilities/obj_delete.html', {
+            'obj': token,
+            'obj_type': token._meta.verbose_name,
+            'form': form,
+            'return_url': reverse('user:token_list'),
+        })
+
+    def post(self, request, pk):
+
+        token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+            token.delete()
+            messages.success(request, "Token deleted")
+            return redirect('user:token_list')
+
+        return render(request, 'utilities/obj_delete.html', {
+            'obj': token,
+            'obj_type': token._meta.verbose_name,
+            'form': form,
+            'return_url': reverse('user:token_list'),
+        })

@@ -38,6 +38,22 @@ BASE_PATH = 'netbox/'
 
 ---
 
+## CORS_ORIGIN_ALLOW_ALL
+
+Default: False
+
+If True, cross-origin resource sharing (CORS) requests will be accepted from all origins. If False, a whitelist will be used (see below).
+
+---
+
+## CORS_ORIGIN_WHITELIST
+
+## CORS_ORIGIN_REGEX_WHITELIST
+
+These settings specify a list of origins that are authorized to make cross-site API requests. Use `CORS_ORIGIN_WHITELIST` to define a list of exact hostnames, or `CORS_ORIGIN_REGEX_WHITELIST` to define a set of regular expressions. (These settings have no effect if `CORS_ORIGIN_ALLOW_ALL` is True.)
+
+---
+
 ## DEBUG
 
 Default: False

@@ -1,16 +1,22 @@
-from django.conf.urls import url
+from rest_framework import routers
 
-from .views import *
+from . import views
 
 
-urlpatterns = [
+class TenancyRootView(routers.APIRootView):
+    """
+    Tenancy API root view
+    """
+    def get_view_name(self):
+        return 'Tenancy'
 
-    # Tenant groups
-    url(r'^tenant-groups/$', TenantGroupListView.as_view(), name='tenantgroup_list'),
-    url(r'^tenant-groups/(?P<pk>\d+)/$', TenantGroupDetailView.as_view(), name='tenantgroup_detail'),
 
-    # Tenants
-    url(r'^tenants/$', TenantListView.as_view(), name='tenant_list'),
-    url(r'^tenants/(?P<pk>\d+)/$', TenantDetailView.as_view(), name='tenant_detail'),
+router = routers.DefaultRouter()
+router.APIRootView = TenancyRootView
 
-]
+# Tenants
+router.register(r'tenant-groups', views.TenantGroupViewSet)
+router.register(r'tenants', views.TenantViewSet)
+
+app_name = 'tenancy-api'
+urlpatterns = router.urls

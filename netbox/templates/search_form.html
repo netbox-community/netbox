@@ -1,0 +1,9 @@
+<div class="row" style="padding-bottom: 20px">
+    <div class="col-md-12 text-center">
+        <form action="{% url 'search' %}" method="get" class="form-inline">
+            {{ search_form.q }}
+            {{ search_form.obj_type }}
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+</div>

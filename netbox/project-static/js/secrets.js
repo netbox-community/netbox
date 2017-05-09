@@ -1,54 +1,107 @@
 $(document).ready(function() {
 
     // Unlocking a secret
-    $('button.unlock-secret').click(function (event) {
+    $('button.unlock-secret').click(function(event) {
         var secret_id = $(this).attr('secret-id');
-
-        // Retrieve from storage or prompt for private key
-        var private_key = sessionStorage.getItem('private_key');
-        if (!private_key) {
-            $('#privkey_modal').modal('show');
-        } else {
-            unlock_secret(secret_id, private_key);
-        }
+        unlock_secret(secret_id);
+        event.preventDefault();
     });
 
     // Locking a secret
-    $('button.lock-secret').click(function (event) {
+    $('button.lock-secret').click(function(event) {
         var secret_id = $(this).attr('secret-id');
-        var secret_div = $('#secret_' + secret_id);
-
-        // Delete the plaintext
-        secret_div.html('********');
-        $(this).hide();
-        $(this).siblings('button.unlock-secret').show();
+        lock_secret(secret_id);
+        event.preventDefault();
     });
 
     // Adding/editing a secret
-    private_key_field = $('#id_private_key');
-    private_key_field.parents('form').submit(function(event) {
-        console.log("form submitted");
-        var private_key = sessionStorage.getItem('private_key');
-        if (private_key) {
-            private_key_field.val(private_key);
-        } else if ($('form .requires-private-key:first').val()) {
-            console.log("we need a key!");
+    $('form').submit(function(event) {
+        if (
+            $(this).find('input.requires-session-key').filter(function() {return this.value == ""}) &&
+            document.cookie.indexOf('session_key') == -1
+        ) {
             $('#privkey_modal').modal('show');
-            return false;
+            event.preventDefault();
         }
     });
 
-    // Saving a private RSA key locally
-    $('#submit_privkey').click(function() {
-        var private_key = $('#user_privkey').val();
-        sessionStorage.setItem('private_key', private_key);
+    // Retrieve a session key
+    $('#request_session_key').click(function() {
+        var private_key_field = $('#user_privkey');
+        var private_key = private_key_field.val();
+        get_session_key(private_key);
+        private_key_field.val("");
     });
+
+    // Retrieve a secret via the API
+    function unlock_secret(secret_id) {
+        $.ajax({
+            url: netbox_api_path + 'secrets/secrets/' + secret_id + '/',
+            type: 'GET',
+            dataType: 'json',
+            success: function (response, status) {
+                if (response.plaintext) {
+                    console.log("Secret retrieved successfully");
+                    $('#secret_' + secret_id).html(response.plaintext);
+                    $('button.unlock-secret[secret-id=' + secret_id + ']').hide();
+                    $('button.lock-secret[secret-id=' + secret_id + ']').show();
+                } else {
+                    console.log("Secret was not decrypted. Prompt user for private key.");
+                    $('#privkey_modal').modal('show');
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log("Error: " + xhr.responseText);
+                if (xhr.status == 403) {
+                    alert("Permission denied");
+                } else {
+                    alert(xhr.responseText);
+                }
+            }
+        });
+    }
+
+    // Remove secret data from the DOM
+    function lock_secret(secret_id) {
+        var secret_div = $('#secret_' + secret_id);
+        secret_div.html('********');
+        $('button.lock-secret[secret-id=' + secret_id + ']').hide();
+        $('button.unlock-secret[secret-id=' + secret_id + ']').show();
+    }
+
+    // Request a session key via the API
+    function get_session_key(private_key) {
+        var csrf_token = $('input[name=csrfmiddlewaretoken]').val();
+        $.ajax({
+            url: netbox_api_path + 'secrets/get-session-key/',
+            type: 'POST',
+            data: {
+                private_key: private_key
+            },
+            dataType: 'json',
+            beforeSend: function(xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            },
+            success: function (response, status) {
+                console.log("Received a new session key");
+                alert('Session key received! You may now unlock secrets.');
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                if (xhr.status == 403) {
+                    alert("Permission denied");
+                } else {
+                    var json = jQuery.parseJSON(xhr.responseText);
+                    alert("Failed to retrieve a session key: " + json['error']);
+                }
+            }
+        });
+    }
 
     // Generate a new public/private key pair via the API
     $('#generate_keypair').click(function() {
         $('#new_keypair_modal').modal('show');
         $.ajax({
-            url: netbox_api_path + 'secrets/generate-keys/',
+            url: netbox_api_path + 'secrets/generate-rsa-key-pair/',
             type: 'GET',
             dataType: 'json',
             success: function (response, status) {
@@ -63,41 +116,13 @@ $(document).ready(function() {
         });
     });
 
-    // Enter a newly generated public key
+    // Accept a new RSA key pair generated via the API
     $('#use_new_pubkey').click(function() {
         var new_pubkey = $('#new_pubkey');
+
         if (new_pubkey.val()) {
             $('#id_public_key').val(new_pubkey.val());
         }
     });
-
-    // Retrieve a secret via the API
-    function unlock_secret(secret_id, private_key) {
-        var csrf_token = $('input[name=csrfmiddlewaretoken]').val();
-        $.ajax({
-            url: netbox_api_path + 'secrets/secrets/' + secret_id + '/',
-            type: 'POST',
-            data: {
-                private_key: private_key
-            },
-            dataType: 'json',
-            beforeSend: function(xhr, settings) {
-                xhr.setRequestHeader("X-CSRFToken", csrf_token);
-            },
-            success: function (response, status) {
-                $('#secret_' + secret_id).html(response.plaintext);
-                $('button.unlock-secret[secret-id=' + secret_id + ']').hide();
-                $('button.lock-secret[secret-id=' + secret_id + ']').show();
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                if (xhr.status == 403) {
-                    alert("Permission denied");
-                } else {
-                    var json = jQuery.parseJSON(xhr.responseText);
-                    alert("Decryption failed: " + json['error']);
-                }
-            }
-        });
-    }
 
 });

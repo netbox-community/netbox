@@ -1,10 +1,12 @@
+import base64
+
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.core.urlresolvers import reverse
 from django.db import transaction, IntegrityError
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 
 from dcim.models import Device
@@ -12,7 +14,17 @@ from utilities.views import BulkDeleteView, BulkEditView, ObjectDeleteView, Obje
 
 from . import filters, forms, tables
 from .decorators import userkey_required
-from .models import SecretRole, Secret, UserKey
+from .models import SecretRole, Secret, SessionKey
+
+
+def get_session_key(request):
+    """
+    Extract and decode the session key sent with a request. Returns None if no session key was provided.
+    """
+    session_key = request.COOKIES.get('session_key', None)
+    if session_key is not None:
+        return base64.b64decode(session_key)
+    return session_key
 
 
 #
@@ -46,7 +58,7 @@ class SecretRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 @method_decorator(login_required, name='dispatch')
 class SecretListView(ObjectListView):
-    queryset = Secret.objects.select_related('role').prefetch_related('device')
+    queryset = Secret.objects.select_related('role', 'device')
     filter = filters.SecretFilter
     filter_form = forms.SecretFilterForm
     table = tables.SecretTable
@@ -71,29 +83,35 @@ def secret_add(request, pk):
     device = get_object_or_404(Device, pk=pk)
 
     secret = Secret(device=device)
-    uk = UserKey.objects.get(user=request.user)
+    session_key = get_session_key(request)
 
     if request.method == 'POST':
         form = forms.SecretForm(request.POST, instance=secret)
         if form.is_valid():
 
-            # Retrieve the master key from the current user's UserKey
-            master_key = uk.get_master_key(form.cleaned_data['private_key'])
-            if master_key is None:
-                form.add_error(None, "Invalid private key! Unable to encrypt secret data.")
+            # We need a valid session key in order to create a Secret
+            if session_key is None:
+                form.add_error(None, "No session key was provided with the request. Unable to encrypt secret data.")
 
             # Create and encrypt the new Secret
             else:
-                secret = form.save(commit=False)
-                secret.plaintext = str(form.cleaned_data['plaintext'])
-                secret.encrypt(master_key)
-                secret.save()
+                master_key = None
+                try:
+                    sk = SessionKey.objects.get(userkey__user=request.user)
+                    master_key = sk.get_master_key(session_key)
+                except SessionKey.DoesNotExist:
+                    form.add_error(None, "No session key found for this user.")
 
-                messages.success(request, u"Added new secret: {}.".format(secret))
-                if '_addanother' in request.POST:
-                    return redirect('dcim:device_addsecret', pk=device.pk)
-                else:
-                    return redirect('secrets:secret', pk=secret.pk)
+                if master_key is not None:
+                    secret = form.save(commit=False)
+                    secret.plaintext = str(form.cleaned_data['plaintext'])
+                    secret.encrypt(master_key)
+                    secret.save()
+                    messages.success(request, u"Added new secret: {}.".format(secret))
+                    if '_addanother' in request.POST:
+                        return redirect('dcim:device_addsecret', pk=device.pk)
+                    else:
+                        return redirect('secrets:secret', pk=secret.pk)
 
     else:
         form = forms.SecretForm(instance=secret)
@@ -110,32 +128,43 @@ def secret_add(request, pk):
 def secret_edit(request, pk):
 
     secret = get_object_or_404(Secret, pk=pk)
-    uk = UserKey.objects.get(user=request.user)
+    session_key = get_session_key(request)
 
     if request.method == 'POST':
         form = forms.SecretForm(request.POST, instance=secret)
         if form.is_valid():
 
-            # Re-encrypt the Secret if a plaintext has been specified.
-            if form.cleaned_data['plaintext']:
+            # Re-encrypt the Secret if a plaintext and session key have been provided.
+            if form.cleaned_data['plaintext'] and session_key is not None:
 
-                # Retrieve the master key from the current user's UserKey
-                master_key = uk.get_master_key(form.cleaned_data['private_key'])
-                if master_key is None:
-                    form.add_error(None, "Invalid private key! Unable to encrypt secret data.")
+                # Retrieve the master key using the provided session key
+                master_key = None
+                try:
+                    sk = SessionKey.objects.get(userkey__user=request.user)
+                    master_key = sk.get_master_key(session_key)
+                except SessionKey.DoesNotExist:
+                    form.add_error(None, "No session key found for this user.")
 
                 # Create and encrypt the new Secret
-                else:
+                if master_key is not None:
                     secret = form.save(commit=False)
                     secret.plaintext = str(form.cleaned_data['plaintext'])
                     secret.encrypt(master_key)
                     secret.save()
+                    messages.success(request, u"Modified secret {}.".format(secret))
+                    return redirect('secrets:secret', pk=secret.pk)
+                else:
+                    form.add_error(None, "Invalid session key. Unable to encrypt secret data.")
 
+            # We can't save the plaintext without a session key.
+            elif form.cleaned_data['plaintext']:
+                form.add_error(None, "No session key was provided with the request. Unable to encrypt secret data.")
+
+            # If no new plaintext was specified, a session key is not needed.
             else:
                 secret = form.save()
-
-            messages.success(request, u"Modified secret {}.".format(secret))
-            return redirect('secrets:secret', pk=secret.pk)
+                messages.success(request, u"Modified secret {}.".format(secret))
+                return redirect('secrets:secret', pk=secret.pk)
 
     else:
         form = forms.SecretForm(instance=secret)
@@ -157,19 +186,28 @@ class SecretDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 @userkey_required()
 def secret_import(request):
 
-    uk = UserKey.objects.get(user=request.user)
+    session_key = request.COOKIES.get('session_key', None)
 
     if request.method == 'POST':
         form = forms.SecretImportForm(request.POST)
+
+        if session_key is None:
+            form.add_error(None, "No session key was provided with the request. Unable to encrypt secret data.")
+
         if form.is_valid():
 
             new_secrets = []
 
-            # Retrieve the master key from the current user's UserKey
-            master_key = uk.get_master_key(form.cleaned_data['private_key'])
+            session_key = base64.b64decode(session_key)
+            master_key = None
+            try:
+                sk = SessionKey.objects.get(userkey__user=request.user)
+                master_key = sk.get_master_key(session_key)
+            except SessionKey.DoesNotExist:
+                form.add_error(None, "No session key found for this user.")
+
             if master_key is None:
                 form.add_error(None, "Invalid private key! Unable to encrypt secret data.")
-
             else:
                 try:
                     with transaction.atomic():
@@ -183,6 +221,7 @@ def secret_import(request):
 
                     return render(request, 'import_success.html', {
                         'table': table,
+                        'return_url': 'secrets:secret_list',
                     })
 
                 except IntegrityError as e:
@@ -193,7 +232,7 @@ def secret_import(request):
 
     return render(request, 'secrets/secret_import.html', {
         'form': form,
-        'return_url': reverse('secrets:secret_list'),
+        'return_url': 'secrets:secret_list',
     })
 
 

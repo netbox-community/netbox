@@ -92,6 +92,9 @@ tfoot td {
 table.attr-table td:nth-child(1) {
     width: 25%;
 }
+.table-headings th {
+    background-color: #f5f5f5;
+}
 
 /* Paginator */
 div.paginator {
