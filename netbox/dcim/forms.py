@@ -976,7 +976,7 @@ class ConsolePortConnectionForm(BootstrapMixin, forms.ModelForm):
         queryset=ConsoleServerPort.objects.all(),
         label='Port',
         widget=APISelect(
-            api_url='/api/dcim/console-server-ports/?device_id={{device}}',
+            api_url='/api/dcim/console-server-ports/?device_id={{console_server}}',
             disabled_indicator='connected_console',
         )
     )
@@ -1244,7 +1244,7 @@ class PowerPortConnectionForm(BootstrapMixin, forms.ModelForm):
         queryset=PowerOutlet.objects.all(),
         label='Outlet',
         widget=APISelect(
-            api_url='/api/dcim/power-outlets/?device_id={{device}}',
+            api_url='/api/dcim/power-outlets/?device_id={{pdu}}',
             disabled_indicator='connected_port'
         )
     )
