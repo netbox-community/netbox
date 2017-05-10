@@ -44,6 +44,7 @@ class TenantTable(BaseTable):
 
 
 class TenantSearchTable(SearchTable):
+    name = tables.LinkColumn()
 
     class Meta(SearchTable.Meta):
         model = Tenant
