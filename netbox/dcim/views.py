@@ -105,6 +105,9 @@ class ComponentCreateView(View):
                     new_components.append(component_form.save(commit=False))
                 else:
                     for field, errors in component_form.errors.as_data().items():
+                        # Assign errors on the child form's name field to name_pattern on the parent form
+                        if field == 'name':
+                            field = 'name_pattern'
                         for e in errors:
                             form.add_error(field, u'{}: {}'.format(name, ', '.join(e)))
 
