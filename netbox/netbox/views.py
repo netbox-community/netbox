@@ -191,7 +191,7 @@ class SearchView(View):
                     results.append({
                         'name': queryset.model._meta.verbose_name_plural,
                         'table': table,
-                        'url': '{}?q={}'.format(reverse(url), form.cleaned_data['q'])
+                        'url': u'{}?q={}'.format(reverse(url), form.cleaned_data['q'])
                     })
 
         return render(request, 'search.html', {
