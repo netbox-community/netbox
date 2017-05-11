@@ -6,11 +6,22 @@
         <div class="panel-heading"><strong>Rack</strong></div>
         <div class="panel-body">
             {% render_field form.site %}
-            {% render_field form.group %}
             {% render_field form.name %}
             {% render_field form.facility_id %}
-            {% render_field form.tenant %}
+            {% render_field form.group %}
             {% render_field form.role %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Tenancy</strong></div>
+        <div class="panel-body">
+            {% render_field form.tenant_group %}
+            {% render_field form.tenant %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Dimensions</strong></div>
+        <div class="panel-body">
             {% render_field form.type %}
             {% render_field form.width %}
             {% render_field form.u_height %}

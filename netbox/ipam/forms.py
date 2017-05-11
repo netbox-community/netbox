@@ -3,10 +3,11 @@ from django.db.models import Count
 
 from dcim.models import Site, Rack, Device, Interface
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
+from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, BootstrapMixin, BulkEditNullBooleanSelect, BulkImportForm, ChainedFieldsMixin, ChainedModelChoiceField,
-    CSVDataField, ExpandableIPAddressField, FilterChoiceField, Livesearch, ReturnURLForm, SlugField, add_blank_choice,
+    APISelect, BootstrapMixin, BulkEditNullBooleanSelect, BulkImportForm, ChainedModelChoiceField, CSVDataField,
+    ExpandableIPAddressField, FilterChoiceField, Livesearch, ReturnURLForm, SlugField, add_blank_choice,
 )
 
 from .models import (
@@ -32,11 +33,11 @@ IPADDRESS_MASK_LENGTH_CHOICES = PREFIX_MASK_LENGTH_CHOICES + [(128, 128)]
 # VRFs
 #
 
-class VRFForm(BootstrapMixin, CustomFieldForm):
+class VRFForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
     class Meta:
         model = VRF
-        fields = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
+        fields = ['name', 'rd', 'enforce_unique', 'description', 'tenant_group', 'tenant']
         labels = {
             'rd': "RD",
         }
@@ -163,7 +164,7 @@ class RoleForm(BootstrapMixin, forms.ModelForm):
 # Prefixes
 #
 
-class PrefixForm(BootstrapMixin, ChainedFieldsMixin, CustomFieldForm):
+class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(), required=False, label='Site', widget=forms.Select(
             attrs={'filter-for': 'vlan', 'nullable': 'true'}
@@ -177,7 +178,7 @@ class PrefixForm(BootstrapMixin, ChainedFieldsMixin, CustomFieldForm):
 
     class Meta:
         model = Prefix
-        fields = ['prefix', 'vrf', 'tenant', 'site', 'vlan', 'status', 'role', 'is_pool', 'description']
+        fields = ['prefix', 'vrf', 'site', 'vlan', 'status', 'role', 'is_pool', 'description', 'tenant_group', 'tenant']
 
     def __init__(self, *args, **kwargs):
         super(PrefixForm, self).__init__(*args, **kwargs)
@@ -306,7 +307,7 @@ class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # IP addresses
 #
 
-class IPAddressForm(BootstrapMixin, ChainedFieldsMixin, ReturnURLForm, CustomFieldForm):
+class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm):
     interface_site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
@@ -399,7 +400,10 @@ class IPAddressForm(BootstrapMixin, ChainedFieldsMixin, ReturnURLForm, CustomFie
 
     class Meta:
         model = IPAddress
-        fields = ['address', 'vrf', 'tenant', 'status', 'description', 'interface', 'primary_for_device', 'nat_inside']
+        fields = [
+            'address', 'vrf', 'status', 'description', 'interface', 'primary_for_device', 'nat_inside', 'tenant_group',
+            'tenant',
+        ]
 
     def __init__(self, instance=None, initial=None, *args, **kwargs):
 
@@ -600,7 +604,7 @@ class VLANGroupFilterForm(BootstrapMixin, forms.Form):
 # VLANs
 #
 
-class VLANForm(BootstrapMixin, ChainedFieldsMixin, CustomFieldForm):
+class VLANForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         widget=forms.Select(
@@ -619,7 +623,7 @@ class VLANForm(BootstrapMixin, ChainedFieldsMixin, CustomFieldForm):
 
     class Meta:
         model = VLAN
-        fields = ['site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description']
+        fields = ['site', 'group', 'vid', 'name', 'status', 'role', 'description', 'tenant_group', 'tenant']
         help_texts = {
             'site': "Leave blank if this VLAN spans multiple sites",
             'group': "VLAN group (optional)",

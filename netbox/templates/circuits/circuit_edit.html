@@ -8,10 +8,16 @@
             {% render_field form.provider %}
             {% render_field form.cid %}
             {% render_field form.type %}
-            {% render_field form.tenant %}
             {% render_field form.install_date %}
             {% render_field form.commit_rate %}
             {% render_field form.description %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Tenancy</strong></div>
+        <div class="panel-body">
+            {% render_field form.tenant_group %}
+            {% render_field form.tenant %}
         </div>
     </div>
     {% if form.custom_fields %}

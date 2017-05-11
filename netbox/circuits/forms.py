@@ -3,6 +3,7 @@ from django.db.models import Count
 
 from dcim.models import Site, Device, Interface, Rack, VIRTUAL_IFACE_TYPES
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
+from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, BootstrapMixin, BulkImportForm, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, CSVDataField,
@@ -83,12 +84,15 @@ class CircuitTypeForm(BootstrapMixin, forms.ModelForm):
 # Circuits
 #
 
-class CircuitForm(BootstrapMixin, CustomFieldForm):
+class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     comments = CommentField()
 
     class Meta:
         model = Circuit
-        fields = ['cid', 'type', 'provider', 'tenant', 'install_date', 'commit_rate', 'description', 'comments']
+        fields = [
+            'cid', 'type', 'provider', 'install_date', 'commit_rate', 'description', 'tenant_group', 'tenant',
+            'comments',
+        ]
         help_texts = {
             'cid': "Unique circuit ID",
             'install_date': "Format: YYYY-MM-DD",

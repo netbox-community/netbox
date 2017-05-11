@@ -8,6 +8,7 @@ from django.db.models import Count, Q
 
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from ipam.models import IPAddress
+from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
@@ -81,7 +82,7 @@ class RegionForm(BootstrapMixin, forms.ModelForm):
 # Sites
 #
 
-class SiteForm(BootstrapMixin, CustomFieldForm):
+class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     region = TreeNodeChoiceField(queryset=Region.objects.all(), required=False)
     slug = SlugField()
     comments = CommentField()
@@ -89,8 +90,8 @@ class SiteForm(BootstrapMixin, CustomFieldForm):
     class Meta:
         model = Site
         fields = [
-            'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
-            'contact_name', 'contact_phone', 'contact_email', 'comments',
+            'name', 'slug', 'region', 'tenant_group', 'tenant', 'facility', 'asn', 'physical_address',
+            'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments',
         ]
         widgets = {
             'physical_address': SmallTextarea(attrs={'rows': 3}),
@@ -185,7 +186,7 @@ class RackRoleForm(BootstrapMixin, forms.ModelForm):
 # Racks
 #
 
-class RackForm(BootstrapMixin, ChainedFieldsMixin, CustomFieldForm):
+class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     group = ChainedModelChoiceField(
         queryset=RackGroup.objects.all(),
         chains={'site': 'site'},
@@ -199,8 +200,8 @@ class RackForm(BootstrapMixin, ChainedFieldsMixin, CustomFieldForm):
     class Meta:
         model = Rack
         fields = [
-            'site', 'group', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
-            'comments',
+            'site', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'role', 'type', 'width', 'u_height',
+            'desc_units', 'comments',
         ]
         help_texts = {
             'site': "The site at which the rack exists",
@@ -534,7 +535,7 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
 # Devices
 #
 
-class DeviceForm(BootstrapMixin, ChainedFieldsMixin, CustomFieldForm):
+class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         widget=forms.Select(
@@ -580,8 +581,8 @@ class DeviceForm(BootstrapMixin, ChainedFieldsMixin, CustomFieldForm):
     class Meta:
         model = Device
         fields = [
-            'name', 'device_role', 'tenant', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'position', 'face',
-            'status', 'platform', 'primary_ip4', 'primary_ip6', 'comments',
+            'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'position', 'face', 'status',
+            'platform', 'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant', 'comments',
         ]
         help_texts = {
             'device_role': "The function this device serves",

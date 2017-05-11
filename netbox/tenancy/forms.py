@@ -2,8 +2,10 @@ from django import forms
 from django.db.models import Count
 
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
-from utilities.forms import BootstrapMixin, BulkImportForm, CommentField, CSVDataField, FilterChoiceField, SlugField
-
+from utilities.forms import (
+    APISelect, BootstrapMixin, BulkImportForm, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, CSVDataField,
+    FilterChoiceField, SlugField,
+)
 from .models import Tenant, TenantGroup
 
 
@@ -61,3 +63,37 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
         to_field_name='slug',
         null_option=(0, 'None')
     )
+
+
+#
+# Tenancy form extension
+#
+
+class TenancyForm(ChainedFieldsMixin, forms.Form):
+    tenant_group = forms.ModelChoiceField(
+        queryset=TenantGroup.objects.all(),
+        required=False,
+        widget=forms.Select(
+            attrs={'filter-for': 'tenant', 'nullable': 'true'}
+        )
+    )
+    tenant = ChainedModelChoiceField(
+        queryset=Tenant.objects.all(),
+        chains={'group': 'tenant_group'},
+        required=False,
+        widget=APISelect(
+            api_url='/api/tenancy/tenants/?group_id={{tenant_group}}'
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+
+        # Initialize helper selector
+        instance = kwargs.get('instance')
+        if instance and instance.tenant is not None:
+            try:
+                kwargs['initial']['tenant_group'] = instance.tenant.group
+            except KeyError:
+                kwargs['initial'] = {'tenant_group': instance.tenant.group}
+
+        super(TenancyForm, self).__init__(*args, **kwargs)
