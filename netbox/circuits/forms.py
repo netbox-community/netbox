@@ -219,14 +219,17 @@ class CircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm
             'term_side': forms.HiddenInput(),
         }
 
-    def __init__(self, instance=None, initial=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
 
         # Initialize helper selectors
+        instance = kwargs.get('instance')
         if instance and instance.interface is not None:
+            initial = kwargs.get('initial', {})
             initial['rack'] = instance.interface.device.rack
             initial['device'] = instance.interface.device
+            kwargs['initial'] = initial
 
-        super(CircuitTerminationForm, self).__init__(instance=instance, initial=initial, *args, **kwargs)
+        super(CircuitTerminationForm, self).__init__(*args, **kwargs)
 
         # Mark connected interfaces as disabled
         self.fields['interface'].choices = [

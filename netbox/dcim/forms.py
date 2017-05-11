@@ -592,13 +592,16 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             'face': forms.Select(attrs={'filter-for': 'position'}),
         }
 
-    def __init__(self, instance=None, initial=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
 
-        # Initialize helper selections
+        # Initialize helper selectors
+        instance = kwargs.get('instance')
         if instance and instance.device_type is not None:
+            initial = kwargs.get('initial', {})
             initial['manufacturer'] = instance.device_type.manufacturer
+            kwargs['initial'] = initial
 
-        super(DeviceForm, self).__init__(instance=instance, initial=initial, *args, **kwargs)
+        super(DeviceForm, self).__init__(*args, **kwargs)
 
         if self.instance.pk:
 

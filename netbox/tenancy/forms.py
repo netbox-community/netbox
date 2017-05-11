@@ -91,9 +91,8 @@ class TenancyForm(ChainedFieldsMixin, forms.Form):
         # Initialize helper selector
         instance = kwargs.get('instance')
         if instance and instance.tenant is not None:
-            try:
-                kwargs['initial']['tenant_group'] = instance.tenant.group
-            except KeyError:
-                kwargs['initial'] = {'tenant_group': instance.tenant.group}
+            initial = kwargs.get('initial', {})
+            initial['tenant_group'] = instance.tenant.group
+            kwargs['initial'] = initial
 
         super(TenancyForm, self).__init__(*args, **kwargs)

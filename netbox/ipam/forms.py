@@ -405,21 +405,22 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
             'tenant',
         ]
 
-    def __init__(self, instance=None, initial=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
 
-        # Initialize interface selectors
+        # Initialize helper selectors
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {})
         if instance and instance.interface is not None:
             initial['interface_site'] = instance.interface.device.site
             initial['interface_rack'] = instance.interface.device.rack
             initial['interface_device'] = instance.interface.device
-
-        # Initialize NAT selectors
         if instance and instance.nat_inside is not None:
             initial['nat_site'] = instance.nat_inside.device.site
             initial['nat_rack'] = instance.nat_inside.device.rack
             initial['nat_device'] = instance.nat_inside.device
+        kwargs['initial'] = initial
 
-        super(IPAddressForm, self).__init__(instance=instance, initial=initial, *args, **kwargs)
+        super(IPAddressForm, self).__init__(*args, **kwargs)
 
         self.fields['vrf'].empty_label = 'Global'
 
