@@ -8,6 +8,7 @@ from django.views.static import serve
 from netbox.views import APIRootView, home, handle_500, SearchView, trigger_500
 from users.views import login, logout
 
+from graphene_django.views import GraphQLView
 
 handler500 = handle_500
 swagger_view = get_swagger_view(title='NetBox API')
@@ -49,6 +50,9 @@ _patterns = [
 
     # Admin
     url(r'^admin/', admin.site.urls),
+
+    #GrapQL
+    url(r'^graphql', GraphQLView.as_view(graphiql=True)),
 
 ]
 

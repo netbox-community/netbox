@@ -1,0 +1,90 @@
+[
+  {
+    "model": "circuits.provider",
+    "pk": 1,
+    "fields": {
+      "created": "2017-05-10",
+      "last_updated": "2017-05-10T10:51:03.925Z",
+      "name": "Nine.ch",
+      "slug": "ninech",
+      "asn": 1,
+      "account": "0001",
+      "portal_url": "http://nine.ch",
+      "noc_contact": "noc contact",
+      "admin_contact": "Admin Contact",
+      "comments": "Comments bla bla"
+    }
+  },
+  {
+    "model": "circuits.provider",
+    "pk": 2,
+    "fields": {
+      "created": "2017-05-10",
+      "last_updated": "2017-05-10T10:51:49.872Z",
+      "name": "Telenor",
+      "slug": "telenor",
+      "asn": 2,
+      "account": "0002",
+      "portal_url": "http://www.telenor.com",
+      "noc_contact": "telenor noc",
+      "admin_contact": "telenor admin contact",
+      "comments": "some telenor comments"
+    }
+  },
+  {
+    "model": "circuits.circuittype",
+    "pk": 1,
+    "fields": {
+      "name": "Internet",
+      "slug": "internet"
+    }
+  },
+  {
+    "model": "circuits.circuittype",
+    "pk": 2,
+    "fields": {
+      "name": "Private WAN",
+      "slug": "private-wan"
+    }
+  },
+  {
+    "model": "circuits.circuittype",
+    "pk": 3,
+    "fields": {
+      "name": "Out-of-Band",
+      "slug": "out-of-band"
+    }
+  },
+  {
+    "model": "circuits.circuit",
+    "pk": 1,
+    "fields": {
+      "created": "2017-05-10",
+      "last_updated": "2017-05-10T10:52:56.278Z",
+      "cid": "Circuit1",
+      "provider": 1,
+      "type": 1,
+      "tenant": null,
+      "install_date": "2017-05-10",
+      "commit_rate": 126,
+      "description": "Description",
+      "comments": "C1 comments"
+    }
+  },
+  {
+    "model": "circuits.circuit",
+    "pk": 2,
+    "fields": {
+      "created": "2017-05-10",
+      "last_updated": "2017-05-10T10:53:19.204Z",
+      "cid": "Circuit2",
+      "provider": 2,
+      "type": 3,
+      "tenant": null,
+      "install_date": "2017-05-12",
+      "commit_rate": 4096,
+      "description": "Circuit2",
+      "comments": "Circuit2 comments"
+    }
+  }
+]

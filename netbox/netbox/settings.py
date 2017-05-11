@@ -27,7 +27,7 @@ for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
 
 # Default configurations
 ADMINS = getattr(configuration, 'ADMINS', [])
-DEBUG = getattr(configuration, 'DEBUG', False)
+DEBUG = getattr(configuration, 'DEBUG', True)
 EMAIL = getattr(configuration, 'EMAIL', {})
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
 BASE_PATH = getattr(configuration, 'BASE_PATH', '')
@@ -124,6 +124,12 @@ INSTALLED_APPS = (
     'tenancy',
     'users',
     'utilities',
+
+    # test
+    'graphene_django',
+    'ninech',
+
+
 )
 
 # Middleware
@@ -236,3 +242,8 @@ try:
     HOSTNAME = socket.gethostname()
 except:
     HOSTNAME = 'localhost'
+
+GRAPHENE = {
+    'SCHEMA' : 'ninech.schema.schema', #points to the schema variable in schema.py
+    'SCHEMA_INDENT': 2, #defines the indentation space in the output
+}
