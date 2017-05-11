@@ -31,6 +31,10 @@ host    all             all             ::1/128                 md5
 Then, start the service:
 
 ```no-highlight
+CentOS/RHEL6
+# service postgresql start
+
+CentOS/RHEL7
 # systemctl start postgresql
 ```
 
