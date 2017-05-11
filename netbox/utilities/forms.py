@@ -335,14 +335,14 @@ class ChainedModelChoiceField(forms.ModelChoiceField):
     """
     A ModelChoiceField which is initialized based on the values of other fields within a form. `chains` is a dictionary
     mapping of model fields to peer fields within the form. For example:
-    
+
         country1 = forms.ModelChoiceField(queryset=Country.objects.all())
         city1 = ChainedModelChoiceField(queryset=City.objects.all(), chains={'country': 'country1'}
-    
+
     The queryset of the `city1` field will be modified as
-    
+
         .filter(country=<value>)
-    
+
     where <value> is the value of the `country1` field. (Note: The form must inherit from ChainedFieldsMixin.)
     """
     def __init__(self, chains=None, *args, **kwargs):

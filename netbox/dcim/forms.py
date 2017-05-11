@@ -1400,7 +1400,7 @@ class InterfaceConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
     )
     rack_b = ChainedModelChoiceField(
         queryset=Rack.objects.all(),
-        chains = {'site': 'site_b'},
+        chains={'site': 'site_b'},
         label='Rack',
         required=False,
         widget=APISelect(
@@ -1410,7 +1410,7 @@ class InterfaceConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
     )
     device_b = ChainedModelChoiceField(
         queryset=Device.objects.all(),
-        chains = {'site': 'site_b', 'rack': 'rack_b'},
+        chains={'site': 'site_b', 'rack': 'rack_b'},
         label='Device',
         required=False,
         widget=APISelect(
@@ -1432,7 +1432,7 @@ class InterfaceConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
         queryset=Interface.objects.exclude(form_factor__in=VIRTUAL_IFACE_TYPES).select_related(
             'circuit_termination', 'connected_as_a', 'connected_as_b'
         ),
-        chains = {'device': 'device_b'},
+        chains={'device': 'device_b'},
         label='Interface',
         widget=APISelect(
             api_url='/api/dcim/interfaces/?device_id={{device_b}}&type=physical',
