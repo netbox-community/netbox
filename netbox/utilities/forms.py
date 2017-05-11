@@ -443,8 +443,8 @@ class ChainedFieldsMixin(forms.BaseForm):
 
                 filters_dict = {}
                 for db_field, parent_field in field.chains.items():
-                    if self.is_bound and self.data.get(parent_field):
-                        filters_dict[db_field] = self.data.get(parent_field)
+                    if self.is_bound:
+                        filters_dict[db_field] = self.data.get(parent_field) or None
                     elif self.initial.get(parent_field):
                         filters_dict[db_field] = self.initial[parent_field]
                     else:
