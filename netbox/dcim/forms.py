@@ -596,7 +596,8 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
         # Initialize helper selectors
         instance = kwargs.get('instance')
-        if instance and instance.device_type is not None:
+        # Using hasattr() instead of "is not None" to avoid RelatedObjectDoesNotExist on required field
+        if instance and hasattr(instance, 'device_type'):
             initial = kwargs.get('initial', {})
             initial['manufacturer'] = instance.device_type.manufacturer
             kwargs['initial'] = initial
