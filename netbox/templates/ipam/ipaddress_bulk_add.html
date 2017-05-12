@@ -15,8 +15,14 @@
             {% render_field pattern_form.pattern %}
             {% render_field model_form.status %}
             {% render_field model_form.vrf %}
-            {% render_field model_form.tenant %}
             {% render_field model_form.description %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Tenancy</strong></div>
+        <div class="panel-body">
+            {% render_field model_form.tenant_group %}
+            {% render_field model_form.tenant %}
         </div>
     </div>
     {% if model_form.custom_fields %}

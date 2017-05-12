@@ -475,11 +475,11 @@ class IPAddressPatternForm(BootstrapMixin, forms.Form):
     pattern = ExpandableIPAddressField(label='Address pattern')
 
 
-class IPAddressBulkAddForm(BootstrapMixin, CustomFieldForm):
+class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
     class Meta:
         model = IPAddress
-        fields = ['address', 'status', 'vrf', 'tenant', 'description']
+        fields = ['address', 'status', 'vrf', 'description', 'tenant_group', 'tenant']
 
     def __init__(self, *args, **kwargs):
         super(IPAddressBulkAddForm, self).__init__(*args, **kwargs)
