@@ -701,7 +701,7 @@ class VLANBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     description = forms.CharField(max_length=100, required=False)
 
     class Meta:
-        nullable_fields = ['group', 'tenant', 'role', 'description']
+        nullable_fields = ['site', 'group', 'tenant', 'role', 'description']
 
 
 def vlan_status_choices():
