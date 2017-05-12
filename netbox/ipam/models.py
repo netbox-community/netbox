@@ -538,7 +538,7 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
         verbose_name_plural = 'VLANs'
 
     def __str__(self):
-        return self.display_name
+        return self.display_name or super(VLAN, self).__str__()
 
     def get_absolute_url(self):
         return reverse('ipam:vlan', args=[self.pk])
@@ -565,7 +565,9 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
 
     @property
     def display_name(self):
-        return u'{} ({})'.format(self.vid, self.name)
+        if self.vid and self.name:
+            return u"{} ({})".format(self.vid, self.name)
+        return None
 
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]

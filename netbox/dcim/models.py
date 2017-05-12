@@ -410,7 +410,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
         ]
 
     def __str__(self):
-        return self.display_name
+        return self.display_name or super(Rack, self).__str__()
 
     def get_absolute_url(self):
         return reverse('dcim:rack', args=[self.pk])
@@ -467,7 +467,9 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
     def display_name(self):
         if self.facility_id:
             return u"{} ({})".format(self.name, self.facility_id)
-        return self.name
+        elif self.name:
+            return self.name
+        return u""
 
     def get_rack_units(self, face=RACK_FACE_FRONT, exclude=None, remove_redundant=False):
         """
@@ -983,7 +985,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         unique_together = ['rack', 'position', 'face']
 
     def __str__(self):
-        return self.display_name
+        return self.display_name or super(Device, self).__str__()
 
     def get_absolute_url(self):
         return reverse('dcim:device', args=[self.pk])
@@ -1102,12 +1104,9 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     def display_name(self):
         if self.name:
             return self.name
-        elif self.position:
-            return u"{} ({} U{})".format(self.device_type, self.rack.name, self.position)
-        elif self.rack:
-            return u"{} ({})".format(self.device_type, self.rack.name)
-        else:
-            return u"{} ({})".format(self.device_type, self.site.name)
+        elif hasattr(self, 'device_type'):
+            return u"{}".format(self.device_type)
+        return u""
 
     @property
     def identifier(self):
