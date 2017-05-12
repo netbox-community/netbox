@@ -471,15 +471,19 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
         return ipaddress
 
 
-class IPAddressBulkAddForm(BootstrapMixin, CustomFieldForm):
-    address_pattern = ExpandableIPAddressField(label='Address Pattern')
-    vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF', empty_label='Global')
+class IPAddressPatternForm(BootstrapMixin, forms.Form):
+    pattern = ExpandableIPAddressField(label='Address pattern')
 
-    pattern_map = ('address_pattern', 'address')
+
+class IPAddressBulkAddForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = IPAddress
-        fields = ['address_pattern', 'vrf', 'tenant', 'status', 'description']
+        fields = ['address', 'status', 'vrf', 'tenant', 'description']
+
+    def __init__(self, *args, **kwargs):
+        super(IPAddressBulkAddForm, self).__init__(*args, **kwargs)
+        self.fields['vrf'].empty_label = 'Global'
 
 
 class IPAddressFromCSVForm(forms.ModelForm):

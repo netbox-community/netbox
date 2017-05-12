@@ -12,18 +12,18 @@
     <div class="panel panel-default">
         <div class="panel-heading"><strong>IP Addresses</strong></div>
         <div class="panel-body">
-            {% render_field form.address_pattern %}
-            {% render_field form.vrf %}
-            {% render_field form.tenant %}
-            {% render_field form.status %}
-            {% render_field form.description %}
+            {% render_field pattern_form.pattern %}
+            {% render_field model_form.status %}
+            {% render_field model_form.vrf %}
+            {% render_field model_form.tenant %}
+            {% render_field model_form.description %}
         </div>
     </div>
-    {% if form.custom_fields %}
+    {% if model_form.custom_fields %}
         <div class="panel panel-default">
             <div class="panel-heading"><strong>Custom Fields</strong></div>
             <div class="panel-body">
-                {% render_custom_fields form %}
+                {% render_custom_fields model_form %}
             </div>
         </div>
     {% endif %}

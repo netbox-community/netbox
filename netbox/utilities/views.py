@@ -290,66 +290,78 @@ class BulkAddView(View):
     """
     Create new objects in bulk.
 
-    form: Form class
+    pattern_form: Form class which provides the `pattern` field
     model_form: The ModelForm used to create individual objects
     template_name: The name of the template
     default_return_url: Name of the URL to which the user is redirected after creating the objects
     """
-    form = None
+    pattern_form = None
     model_form = None
+    pattern_target = ''
     template_name = None
     default_return_url = 'home'
 
     def get(self, request):
 
-        form = self.form()
+        pattern_form = self.pattern_form()
+        model_form = self.model_form()
 
         return render(request, self.template_name, {
             'obj_type': self.model_form._meta.model._meta.verbose_name,
-            'form': form,
+            'pattern_form': pattern_form,
+            'model_form': model_form,
             'return_url': reverse(self.default_return_url),
         })
 
     def post(self, request):
 
         model = self.model_form._meta.model
-        form = self.form(request.POST)
-        if form.is_valid():
+        pattern_form = self.pattern_form(request.POST)
+        model_form = self.model_form(request.POST)
 
-            # Read the pattern field and target from the form's pattern_map
-            pattern_field, pattern_target = form.pattern_map
-            pattern = form.cleaned_data[pattern_field]
-            model_form_data = form.cleaned_data
+        if pattern_form.is_valid():
 
+            pattern = pattern_form.cleaned_data['pattern']
             new_objs = []
+
             try:
                 with transaction.atomic():
-                    # Validate and save each object individually
+
+                    # Create objects from the expanded. Abort the transaction on the first validation error.
                     for value in pattern:
-                        model_form_data[pattern_target] = value
-                        model_form = self.model_form(model_form_data)
+
+                        # Reinstantiate the model form each time to avoid overwriting the same instance. Use a mutable
+                        # copy of the POST QueryDict so that we can update the target field value.
+                        model_form = self.model_form(request.POST.copy())
+                        model_form.data[self.pattern_target] = value
+
+                        # Validate each new object independently.
                         if model_form.is_valid():
                             obj = model_form.save()
                             new_objs.append(obj)
                         else:
-                            for error in model_form.errors.as_data().values():
-                                form.add_error(None, error)
-                    # Abort the creation of all objects if errors exist
-                    if form.errors:
-                        raise ValidationError("Validation of one or more model forms failed.")
-            except ValidationError:
+                            # Copy any errors on the pattern target field to the pattern form.
+                            errors = model_form.errors.as_data()
+                            if errors.get(self.pattern_target):
+                                pattern_form.add_error('pattern', errors[self.pattern_target])
+                            # Raise an IntegrityError to break the for loop and abort the transaction.
+                            raise IntegrityError()
+
+                    # If we make it to this point, validation has succeeded on all new objects.
+                    msg = u"Added {} {}".format(len(new_objs), model._meta.verbose_name_plural)
+                    messages.success(request, msg)
+                    UserAction.objects.log_bulk_create(request.user, ContentType.objects.get_for_model(model), msg)
+
+                    if '_addanother' in request.POST:
+                        return redirect(request.path)
+                    return redirect(self.default_return_url)
+
+            except IntegrityError:
                 pass
 
-            if not form.errors:
-                msg = u"Added {} {}".format(len(new_objs), model._meta.verbose_name_plural)
-                messages.success(request, msg)
-                UserAction.objects.log_bulk_create(request.user, ContentType.objects.get_for_model(model), msg)
-                if '_addanother' in request.POST:
-                    return redirect(request.path)
-                return redirect(self.default_return_url)
-
         return render(request, self.template_name, {
-            'form': form,
+            'pattern_form': pattern_form,
+            'model_form': model_form,
             'obj_type': model._meta.verbose_name,
             'return_url': reverse(self.default_return_url),
         })

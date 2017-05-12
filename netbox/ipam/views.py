@@ -584,8 +584,9 @@ class IPAddressDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class IPAddressBulkAddView(PermissionRequiredMixin, BulkAddView):
     permission_required = 'ipam.add_ipaddress'
-    form = forms.IPAddressBulkAddForm
-    model_form = forms.IPAddressForm
+    pattern_form = forms.IPAddressPatternForm
+    model_form = forms.IPAddressBulkAddForm
+    pattern_target = 'address'
     template_name = 'ipam/ipaddress_bulk_add.html'
     default_return_url = 'ipam:ipaddress_list'
 
