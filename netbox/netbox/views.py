@@ -36,7 +36,7 @@ SEARCH_TYPES = {
         'url': 'circuits:provider_list',
     },
     'circuit': {
-        'queryset': Circuit.objects.select_related('type', 'provider', 'tenant'),
+        'queryset': Circuit.objects.select_related('type', 'provider', 'tenant').prefetch_related('terminations__site'),
         'filter': CircuitFilter,
         'table': CircuitSearchTable,
         'url': 'circuits:circuit_list',
