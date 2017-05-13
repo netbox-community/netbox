@@ -41,7 +41,7 @@ $(document).ready(function() {
                 url: api_url,
                 dataType: 'json',
                 success: function (response, status) {
-                    $.each(response, function (index, device_type) {
+                    $.each(response["results"], function (index, device_type) {
                         var option = $("<option></option>").attr("value", device_type.id).text(device_type["model"] + " (" + device_type["instance_count"] + ")");
                         model_list.append(option);
                     });
