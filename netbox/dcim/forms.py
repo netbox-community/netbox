@@ -814,6 +814,10 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=RackGroup.objects.select_related('site').annotate(filter_count=Count('racks__devices')),
         label='Rack group',
     )
+    rack_id = FilterChoiceField(
+        queryset=Rack.objects.annotate(filter_count=Count('devices')),
+        label='Rack',
+    )
     role = FilterChoiceField(
         queryset=DeviceRole.objects.annotate(filter_count=Count('devices')),
         to_field_name='slug',
