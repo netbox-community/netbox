@@ -13,7 +13,7 @@ except ImportError:
     )
 
 
-VERSION = '2.0.2'
+VERSION = '2.0.3-dev'
 
 # Import local configuration
 ALLOWED_HOSTS = DATABASE = SECRET_KEY = None
