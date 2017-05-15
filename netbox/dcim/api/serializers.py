@@ -608,6 +608,7 @@ class InterfaceSerializer(serializers.ModelSerializer):
 class PeerInterfaceSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interface-detail')
     device = NestedDeviceSerializer()
+    form_factor = ChoiceFieldSerializer(choices=IFACE_FF_CHOICES)
 
     class Meta:
         model = Interface
