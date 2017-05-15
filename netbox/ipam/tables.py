@@ -76,6 +76,15 @@ IPADDRESS_LINK = """
 {% endif %}
 """
 
+IPADDRESS_DEVICE = """
+{% if record.interface %}
+    <a href="{{ record.interface.device.get_absolute_url }}">{{ record.interface.device }}</a>
+    ({{ record.interface.name }})
+{% else %}
+    &mdash;
+{% endif %}
+"""
+
 VRF_LINK = """
 {% if record.vrf %}
     <a href="{{ record.vrf.get_absolute_url }}">{{ record.vrf }}</a>
@@ -281,12 +290,14 @@ class IPAddressTable(BaseTable):
     status = tables.TemplateColumn(STATUS_LABEL)
     vrf = tables.TemplateColumn(VRF_LINK, verbose_name='VRF')
     tenant = tables.TemplateColumn(TENANT_LINK)
-    device = tables.LinkColumn('dcim:device', args=[Accessor('interface.device.pk')], orderable=False)
-    interface = tables.Column(orderable=False)
+    nat_inside = tables.LinkColumn(
+        'ipam:ipaddress', args=[Accessor('nat_inside.pk')], orderable=False, verbose_name='NAT (Inside)'
+    )
+    device = tables.TemplateColumn(IPADDRESS_DEVICE, orderable=False)
 
     class Meta(BaseTable.Meta):
         model = IPAddress
-        fields = ('pk', 'address', 'status', 'vrf', 'tenant', 'device', 'interface', 'description')
+        fields = ('pk', 'address', 'status', 'vrf', 'tenant', 'nat_inside', 'device', 'description')
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, IPAddress) else '',
         }

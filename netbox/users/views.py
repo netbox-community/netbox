@@ -216,10 +216,13 @@ class TokenEditView(LoginRequiredMixin, View):
             token.user = request.user
             token.save()
 
-            msg = "Token updated" if pk else "New token created"
+            msg = "Modified token {}".format(token) if pk else "Created token {}".format(token)
             messages.success(request, msg)
 
-            return redirect('user:token_list')
+            if '_addanother' in request.POST:
+                return redirect(request.path)
+            else:
+                return redirect('user:token_list')
 
 
 class TokenDeleteView(LoginRequiredMixin, View):

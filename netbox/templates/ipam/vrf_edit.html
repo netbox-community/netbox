@@ -7,9 +7,15 @@
         <div class="panel-body">
             {% render_field form.name %}
             {% render_field form.rd %}
-            {% render_field form.tenant %}
             {% render_field form.enforce_unique %}
             {% render_field form.description %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Tenancy</strong></div>
+        <div class="panel-body">
+            {% render_field form.tenant_group %}
+            {% render_field form.tenant %}
         </div>
     </div>
     {% if form.custom_fields %}

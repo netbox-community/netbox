@@ -7,7 +7,7 @@
         <nav>
             <ul class="pagination pull-right">
                 {% if table.page.has_previous %}
-                    <li><a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">&laquo;</a></li>
+                    <li><a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}"><i class="fa fa-angle-double-left"></i></a></li>
                 {% endif %}
                 {% for p in table.page.smart_pages %}
                     {% if p %}
@@ -17,18 +17,20 @@
                     {% endif %}
                 {% endfor %}
                 {% if table.page.has_next %}
-                    <li><a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}">&raquo;</a></li>
+                    <li><a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}"><i class="fa fa-angle-double-right"></i></a></li>
                 {% endif %}
             </ul>
         </nav>
     {% endif %}
     <div class="clearfix"></div>
     <div class="text-right text-muted">
-        Showing {{ table.page.start_index }}-{{ table.page.end_index }} of {{ total }}
-        {% if total == 1 %}
-            {{ table.data.verbose_name }}
-        {% else %}
-            {{ table.data.verbose_name_plural }}
-        {% endif %}
+        {% with table.page.paginator.count as total %}
+            Showing {{ table.page.start_index }}-{{ table.page.end_index }} of {{ total }}
+            {% if total == 1 %}
+                {{ table.data.verbose_name }}
+            {% else %}
+                {{ table.data.verbose_name_plural }}
+            {% endif %}
+        {% endwith %}
     </div>
 </div>

@@ -134,7 +134,7 @@
             <span class="label label-{{ ip.get_status_class }}">{{ ip.get_status_display }}</span>
         </td>
         <td class="text-right">
-            {% if perms.ipam.edit_ipaddress %}
+            {% if perms.ipam.change_ipaddress %}
                 <a href="{% url 'ipam:ipaddress_edit' pk=ip.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-info btn-xs">
                     <i class="glyphicon glyphicon-pencil" aria-hidden="true" title="Edit IP address"></i>
                 </a>

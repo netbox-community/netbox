@@ -7,7 +7,6 @@
         <div class="panel-body">
             {% render_field form.name %}
             {% render_field form.device_role %}
-            {% render_field form.tenant %}
         </div>
     </div>
     <div class="panel panel-default">
@@ -61,6 +60,13 @@
                 {% render_field form.primary_ip4 %}
                 {% render_field form.primary_ip6 %}
             {% endif %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Tenancy</strong></div>
+        <div class="panel-body">
+            {% render_field form.tenant_group %}
+            {% render_field form.tenant %}
         </div>
     </div>
     {% if form.custom_fields %}

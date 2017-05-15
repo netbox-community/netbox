@@ -31,24 +31,83 @@
 {% block javascript %}
 <script type="text/javascript">
 $(document).ready(function() {
+
+    var site_list = $('#id_site');
+    var rack_group_list = $('#id_rack_group_id');
+    var rack_list = $('#id_rack_id');
+    var manufacturer_list = $('#id_manufacturer_id');
     var model_list = $('#id_device_type_id');
-    $('#id_manufacturer_id').change(function() {
-        model_list.empty();
+
+    // Update device type options based on selected manufacturer
+    manufacturer_list.change(function() {
         var selected_manufacturers = $(this).val();
         if (selected_manufacturers) {
-            var api_url = netbox_api_path + 'dcim/device-types/?manufacturer_id=' + selected_manufacturers.join('&manufacturer_id=');
+            model_list.empty();
             $.ajax({
-                url: api_url,
+                url: netbox_api_path + 'dcim/device-types/?limit=500&manufacturer_id=' + selected_manufacturers.join('&manufacturer_id='),
                 dataType: 'json',
                 success: function (response, status) {
-                    $.each(response, function (index, device_type) {
-                        var option = $("<option></option>").attr("value", device_type.id).text(device_type["model"] + " (" + device_type["instance_count"] + ")");
+                    $.each(response["results"], function (index, device_type) {
+                        var option = $("<option></option>").attr("value", device_type.id).text(device_type.model + " (" + device_type.instance_count + ")");
                         model_list.append(option);
                     });
                 }
             });
         }
     });
+
+    // Update rack group and rack options based on selected site
+    site_list.change(function() {
+        var selected_sites = $(this).val();
+        if (selected_sites) {
+
+            // Update rack group options
+            rack_group_list.empty();
+            $.ajax({
+                url: netbox_api_path + 'dcim/rack-groups/?limit=500&site=' + selected_sites.join('&site='),
+                dataType: 'json',
+                success: function (response, status) {
+                    $.each(response["results"], function (index, group) {
+                        var option = $("<option></option>").attr("value", group.id).text(group.name);
+                        rack_group_list.append(option);
+                    });
+                }
+            });
+
+            // Update rack options
+            rack_list.empty();
+            $.ajax({
+                url: netbox_api_path + 'dcim/racks/?limit=500&site=' + selected_sites.join('&site='),
+                dataType: 'json',
+                success: function (response, status) {
+                    $.each(response["results"], function (index, rack) {
+                        var option = $("<option></option>").attr("value", rack.id).text(rack.display_name);
+                        rack_list.append(option);
+                    });
+                }
+            });
+
+        }
+    });
+
+    // Update rack options based on selected rack group
+    rack_group_list.change(function() {
+        var selected_rack_groups = $(this).val();
+        if (selected_rack_groups) {
+            rack_list.empty();
+            $.ajax({
+                url: netbox_api_path + 'dcim/racks/?limit=500&group_id=' + selected_rack_groups.join('&group_id='),
+                dataType: 'json',
+                success: function (response, status) {
+                    $.each(response["results"], function (index, rack) {
+                        var option = $("<option></option>").attr("value", rack.id).text(rack.display_name);
+                        rack_list.append(option);
+                    });
+                }
+            });
+        }
+    });
+
 });
 </script>
 {% endblock %}

@@ -44,6 +44,7 @@ class SecretTable(BaseTable):
 
 
 class SecretSearchTable(SearchTable):
+    device = tables.LinkColumn()
 
     class Meta(SearchTable.Meta):
         model = Secret

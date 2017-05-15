@@ -2,15 +2,12 @@ from django_tables2 import RequestConfig
 import netaddr
 
 from django.conf import settings
-from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.contrib import messages
 from django.db.models import Count, Q
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
 from dcim.models import Device
-from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkAddView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -536,7 +533,7 @@ def prefix_ipaddresses(request, pk):
 #
 
 class IPAddressListView(ObjectListView):
-    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device')
+    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device', 'nat_inside')
     filter = filters.IPAddressFilter
     filter_form = forms.IPAddressFilterForm
     table = tables.IPAddressTable
@@ -587,8 +584,9 @@ class IPAddressDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class IPAddressBulkAddView(PermissionRequiredMixin, BulkAddView):
     permission_required = 'ipam.add_ipaddress'
-    form = forms.IPAddressBulkAddForm
-    model_form = forms.IPAddressForm
+    pattern_form = forms.IPAddressPatternForm
+    model_form = forms.IPAddressBulkAddForm
+    pattern_target = 'address'
     template_name = 'ipam/ipaddress_bulk_add.html'
     default_return_url = 'ipam:ipaddress_list'
 

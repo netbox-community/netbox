@@ -25,7 +25,7 @@ server {
 
     server_name netbox.example.com;
 
-    access_log off;
+    client_max_body_size 25m;
 
     location /static/ {
         alias /opt/netbox/netbox/static/;

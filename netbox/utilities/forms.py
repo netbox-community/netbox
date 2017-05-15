@@ -331,6 +331,25 @@ class FlexibleModelChoiceField(forms.ModelChoiceField):
         return value
 
 
+class ChainedModelChoiceField(forms.ModelChoiceField):
+    """
+    A ModelChoiceField which is initialized based on the values of other fields within a form. `chains` is a dictionary
+    mapping of model fields to peer fields within the form. For example:
+
+        country1 = forms.ModelChoiceField(queryset=Country.objects.all())
+        city1 = ChainedModelChoiceField(queryset=City.objects.all(), chains={'country': 'country1'}
+
+    The queryset of the `city1` field will be modified as
+
+        .filter(country=<value>)
+
+    where <value> is the value of the `country1` field. (Note: The form must inherit from ChainedFieldsMixin.)
+    """
+    def __init__(self, chains=None, *args, **kwargs):
+        self.chains = chains
+        super(ChainedModelChoiceField, self).__init__(*args, **kwargs)
+
+
 class SlugField(forms.SlugField):
 
     def __init__(self, slug_source='name', *args, **kwargs):
@@ -409,6 +428,32 @@ class BootstrapMixin(forms.BaseForm):
                 field.widget.attrs['required'] = 'required'
             if 'placeholder' not in field.widget.attrs:
                 field.widget.attrs['placeholder'] = field.label
+
+
+class ChainedFieldsMixin(forms.BaseForm):
+    """
+    Iterate through all ChainedModelChoiceFields in the form and modify their querysets based on chained fields.
+    """
+    def __init__(self, *args, **kwargs):
+        super(ChainedFieldsMixin, self).__init__(*args, **kwargs)
+
+        for field_name, field in self.fields.items():
+
+            if isinstance(field, ChainedModelChoiceField):
+
+                filters_dict = {}
+                for db_field, parent_field in field.chains.items():
+                    if self.is_bound:
+                        filters_dict[db_field] = self.data.get(parent_field) or None
+                    elif self.initial.get(parent_field):
+                        filters_dict[db_field] = self.initial[parent_field]
+                    else:
+                        filters_dict[db_field] = None
+
+                if filters_dict:
+                    field.queryset = field.queryset.filter(**filters_dict)
+                else:
+                    field.queryset = field.queryset.none()
 
 
 class ReturnURLForm(forms.Form):

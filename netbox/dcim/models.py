@@ -410,7 +410,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
         ]
 
     def __str__(self):
-        return self.display_name
+        return self.display_name or super(Rack, self).__str__()
 
     def get_absolute_url(self):
         return reverse('dcim:rack', args=[self.pk])
@@ -467,7 +467,9 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
     def display_name(self):
         if self.facility_id:
             return u"{} ({})".format(self.name, self.facility_id)
-        return self.name
+        elif self.name:
+            return self.name
+        return u""
 
     def get_rack_units(self, face=RACK_FACE_FRONT, exclude=None, remove_redundant=False):
         """
@@ -810,13 +812,13 @@ class InterfaceManager(models.Manager):
 
     def order_naturally(self, method=IFACE_ORDERING_POSITION):
         """
-        Naturally order interfaces by their name and numeric position. The sort method must be one of the defined
+        Naturally order interfaces by their type and numeric position. The sort method must be one of the defined
         IFACE_ORDERING_CHOICES (typically indicated by a parent Device's DeviceType).
 
-        To order interfaces naturally, the `name` field is split into five distinct components: leading text (name),
+        To order interfaces naturally, the `name` field is split into six distinct components: leading text (type),
         slot, subslot, position, channel, and virtual circuit:
 
-            {name}{slot}/{subslot}/{position}:{channel}.{vc}
+            {type}{slot}/{subslot}/{position}:{channel}.{vc}
 
         Components absent from the interface name are ignored. For example, an interface named GigabitEthernet0/1 would
         be parsed as follows:
@@ -828,16 +830,17 @@ class InterfaceManager(models.Manager):
             channel = None
             vc = 0
 
-        The chosen sorting method will determine which fields are ordered first in the query.
+        The original `name` field is taken as a whole to serve as a fallback in the event interfaces do not match any of
+        the prescribed fields.
         """
         queryset = self.get_queryset()
         sql_col = '{}.name'.format(queryset.model._meta.db_table)
         ordering = {
-            IFACE_ORDERING_POSITION: ('_slot', '_subslot', '_position', '_channel', '_vc', '_name'),
-            IFACE_ORDERING_NAME: ('_name', '_slot', '_subslot', '_position', '_channel', '_vc'),
+            IFACE_ORDERING_POSITION: ('_slot', '_subslot', '_position', '_channel', '_vc', '_type', 'name'),
+            IFACE_ORDERING_NAME: ('_type', '_slot', '_subslot', '_position', '_channel', '_vc', 'name'),
         }[method]
         return queryset.extra(select={
-            '_name': "SUBSTRING({} FROM '^([^0-9]+)')".format(sql_col),
+            '_type': "SUBSTRING({} FROM '^([^0-9]+)')".format(sql_col),
             '_slot': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+\/[0-9]+(:[0-9]+)?(\.[0-9]+)?$') AS integer)".format(sql_col),
             '_subslot': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+(:[0-9]+)?(\.[0-9]+)?$') AS integer)".format(sql_col),
             '_position': "CAST(SUBSTRING({} FROM '([0-9]+)(:[0-9]+)?(\.[0-9]+)?$') AS integer)".format(sql_col),
@@ -983,7 +986,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         unique_together = ['rack', 'position', 'face']
 
     def __str__(self):
-        return self.display_name
+        return self.display_name or super(Device, self).__str__()
 
     def get_absolute_url(self):
         return reverse('dcim:device', args=[self.pk])
@@ -1102,12 +1105,9 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     def display_name(self):
         if self.name:
             return self.name
-        elif self.position:
-            return u"{} ({} U{})".format(self.device_type, self.rack.name, self.position)
-        elif self.rack:
-            return u"{} ({})".format(self.device_type, self.rack.name)
-        else:
-            return u"{} ({})".format(self.device_type, self.site.name)
+        elif hasattr(self, 'device_type'):
+            return u"{}".format(self.device_type)
+        return u""
 
     @property
     def identifier(self):
