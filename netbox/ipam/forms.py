@@ -612,6 +612,7 @@ class VLANGroupFilterForm(BootstrapMixin, forms.Form):
 class VLANForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
+        required=False,
         widget=forms.Select(
             attrs={'filter-for': 'group', 'nullable': 'true'}
         )
