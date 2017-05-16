@@ -1,4 +1,3 @@
-{% load render_table from django_tables2 %}
 {% if perms.dcim.change_devicetype %}
     <form method="post">
         {% csrf_token %}
@@ -19,7 +18,7 @@
                     {% endif %}
                 </div>
             </div>
-            {% render_table table 'table.html' %}
+            {% include 'responsive_table.html' %}
             <div class="panel-footer">
                 {% if table.rows %}
                     {% if edit_url %}
@@ -48,6 +47,6 @@
         <div class="panel-heading">
             <strong>{{ title }}</strong>
         </div>
-        {% render_table table 'table.html' %}
+        {% include 'responsive_table.html' %}
     </div>
 {% endif %}

@@ -1,10 +1,5 @@
-{% extends 'django_tables2/table.html' %}
-{% load django_tables2 %}
-{% load i18n %}
+{% load render_table from django_tables2 %}
 
-{# Wraps a table inside a Bootstrap panel and includes custom pagination rendering #}
-
-{% block table %}
 <div class="panel panel-{{ panel_class|default:'default' }}">
     {% if heading %}
         <div class="panel-heading">
@@ -12,15 +7,14 @@
         </div>
     {% endif %}
     {% if table.rows %}
-        {{ block.super }}
+        {% render_table table 'inc/table.html' %}
     {% else %}
         <div class="panel-body text-muted">None</div>
     {% endif %}
 </div>
-{% endblock %}
 
-{% block pagination %}
-    {% if not hide_paginator %}
-        {% include 'table_paginator.html' %}
-    {% endif %}
-{% endblock pagination %}
+{% if table.rows %}
+    {% with paginator=table.paginator page=table.page %}
+        {% include 'inc/paginator.html' %}
+    {% endwith %}
+{% endif %}

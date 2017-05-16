@@ -1,4 +1,3 @@
-{% load render_table from django_tables2 %}
 {% load helpers %}
 {% if permissions.change or permissions.delete %}
     <form method="post" class="form form-horizontal">
@@ -28,7 +27,7 @@
                 </div>
             </div>
         {% endif %}
-        {% render_table table table_template|default:'table.html' %}
+        {% include table_template|default:'responsive_table.html' %}
         {% block extra_actions %}{% endblock %}
         {% if bulk_edit_url and permissions.change %}
             <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm">
@@ -42,6 +41,6 @@
         {% endif %}
     </form>
 {% else %}
-    {% render_table table table_template|default:'table.html' %}
+    {% include table_template|default:'responsive_table.html' %}
 {% endif %}
 <div class="clearfix"></div>
