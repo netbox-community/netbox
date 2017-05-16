@@ -33,3 +33,4 @@ Please see [the documentation](http://netbox.readthedocs.io/en/stable/) for inst
 
 * [Docker container](https://github.com/digitalocean/netbox-docker)
 * [Heroku deployment](https://heroku.com/deploy?template=https://github.com/BILDQUADRAT/netbox/tree/heroku) (via [@mraerino](https://github.com/BILDQUADRAT/netbox/tree/heroku))
+* [Vagrant deployment](https://github.com/ryanmerolle/netbox-vagrant)
