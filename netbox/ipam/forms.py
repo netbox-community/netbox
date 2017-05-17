@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.db.models import Count
 
 from dcim.models import Site, Rack, Device, Interface
@@ -195,14 +196,16 @@ class PrefixFromCSVForm(forms.ModelForm):
                                   error_messages={'invalid_choice': 'Site not found.'})
     vlan_group_name = forms.CharField(required=False)
     vlan_vid = forms.IntegerField(required=False)
-    status_name = forms.ChoiceField(choices=[(s[1], s[0]) for s in PREFIX_STATUS_CHOICES])
+    status = forms.CharField()
     role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False, to_field_name='name',
                                   error_messages={'invalid_choice': 'Invalid role.'})
 
     class Meta:
         model = Prefix
-        fields = ['prefix', 'vrf', 'tenant', 'site', 'vlan_group_name', 'vlan_vid', 'status_name', 'role', 'is_pool',
-                  'description']
+        fields = [
+            'prefix', 'vrf', 'tenant', 'site', 'vlan_group_name', 'vlan_vid', 'status', 'role', 'is_pool',
+            'description',
+        ]
 
     def clean(self):
 
@@ -237,12 +240,12 @@ class PrefixFromCSVForm(forms.ModelForm):
             except VLAN.MultipleObjectsReturned:
                 self.add_error('vlan_vid', "Multiple VLANs found ({} - VID {})".format(site, vlan_vid))
 
-    def save(self, *args, **kwargs):
-
-        # Assign Prefix status by name
-        self.instance.status = dict(self.fields['status_name'].choices)[self.cleaned_data['status_name']]
-
-        return super(PrefixFromCSVForm, self).save(*args, **kwargs)
+    def clean_status(self):
+        status_choices = {s[1].lower(): s[0] for s in PREFIX_STATUS_CHOICES}
+        try:
+            return status_choices[self.cleaned_data['status'].lower()]
+        except KeyError:
+            raise ValidationError("Invalid status: {}".format(self.cleaned_data['status']))
 
 
 class PrefixImportForm(BootstrapMixin, BulkImportForm):
@@ -491,7 +494,7 @@ class IPAddressFromCSVForm(forms.ModelForm):
                                  error_messages={'invalid_choice': 'VRF not found.'})
     tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
                                     error_messages={'invalid_choice': 'Tenant not found.'})
-    status_name = forms.ChoiceField(choices=[(s[1], s[0]) for s in IPADDRESS_STATUS_CHOICES])
+    status = forms.CharField()
     device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False, to_field_name='name',
                                     error_messages={'invalid_choice': 'Device not found.'})
     interface_name = forms.CharField(required=False)
@@ -499,7 +502,7 @@ class IPAddressFromCSVForm(forms.ModelForm):
 
     class Meta:
         model = IPAddress
-        fields = ['address', 'vrf', 'tenant', 'status_name', 'device', 'interface_name', 'is_primary', 'description']
+        fields = ['address', 'vrf', 'tenant', 'status', 'device', 'interface_name', 'is_primary', 'description']
 
     def clean(self):
 
@@ -522,10 +525,14 @@ class IPAddressFromCSVForm(forms.ModelForm):
         if is_primary and not device:
             self.add_error('is_primary', "No device specified; cannot set as primary IP")
 
-    def save(self, *args, **kwargs):
+    def clean_status(self):
+        status_choices = {s[1].lower(): s[0] for s in IPADDRESS_STATUS_CHOICES}
+        try:
+            return status_choices[self.cleaned_data['status'].lower()]
+        except KeyError:
+            raise ValidationError("Invalid status: {}".format(self.cleaned_data['status']))
 
-        # Assign status by name
-        self.instance.status = dict(self.fields['status_name'].choices)[self.cleaned_data['status_name']]
+    def save(self, *args, **kwargs):
 
         # Set interface
         if self.cleaned_data['device'] and self.cleaned_data['interface_name']:
@@ -650,7 +657,7 @@ class VLANFromCSVForm(forms.ModelForm):
         Tenant.objects.all(), to_field_name='name', required=False,
         error_messages={'invalid_choice': 'Tenant not found.'}
     )
-    status_name = forms.ChoiceField(choices=[(s[1], s[0]) for s in VLAN_STATUS_CHOICES])
+    status = forms.CharField()
     role = forms.ModelChoiceField(
         queryset=Role.objects.all(), required=False, to_field_name='name',
         error_messages={'invalid_choice': 'Invalid role.'}
@@ -658,7 +665,7 @@ class VLANFromCSVForm(forms.ModelForm):
 
     class Meta:
         model = VLAN
-        fields = ['site', 'group_name', 'vid', 'name', 'tenant', 'status_name', 'role', 'description']
+        fields = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
 
     def clean(self):
 
@@ -672,6 +679,13 @@ class VLANFromCSVForm(forms.ModelForm):
             except VLANGroup.DoesNotExist:
                 self.add_error('group_name', "Invalid VLAN group {}.".format(group_name))
 
+    def clean_status(self):
+        status_choices = {s[1].lower(): s[0] for s in VLAN_STATUS_CHOICES}
+        try:
+            return status_choices[self.cleaned_data['status'].lower()]
+        except KeyError:
+            raise ValidationError("Invalid status: {}".format(self.cleaned_data['status']))
+
     def save(self, *args, **kwargs):
 
         vlan = super(VLANFromCSVForm, self).save(commit=False)
@@ -679,9 +693,6 @@ class VLANFromCSVForm(forms.ModelForm):
         # Assign VLANGroup by site and name
         if self.cleaned_data['group_name']:
             vlan.group = VLANGroup.objects.get(site=self.cleaned_data['site'], name=self.cleaned_data['group_name'])
-
-        # Assign VLAN status by name
-        vlan.status = dict(self.fields['status_name'].choices)[self.cleaned_data['status_name']]
 
         if kwargs.get('commit'):
             vlan.save()

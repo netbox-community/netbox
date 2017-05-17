@@ -674,7 +674,7 @@ class BaseDeviceFromCSVForm(forms.ModelForm):
         queryset=Platform.objects.all(), required=False, to_field_name='name',
         error_messages={'invalid_choice': 'Invalid platform.'}
     )
-    status_name = forms.ChoiceField(choices=[(s[1], s[0]) for s in STATUS_CHOICES])
+    status = forms.CharField()
 
     class Meta:
         fields = []
@@ -692,8 +692,12 @@ class BaseDeviceFromCSVForm(forms.ModelForm):
             except DeviceType.DoesNotExist:
                 self.add_error('model_name', "Invalid device type ({} {})".format(manufacturer, model_name))
 
-    def clean_status_name(self):
-        return dict(self.fields['status_name'].choices)[self.cleaned_data['status_name']]
+    def clean_status(self):
+        status_choices = {s[1].lower(): s[0] for s in STATUS_CHOICES}
+        try:
+            return status_choices[self.cleaned_data['status'].lower()]
+        except KeyError:
+            raise ValidationError("Invalid status: {}".format(self.cleaned_data['status']))
 
 
 class DeviceFromCSVForm(BaseDeviceFromCSVForm):
@@ -707,8 +711,8 @@ class DeviceFromCSVForm(BaseDeviceFromCSVForm):
 
     class Meta(BaseDeviceFromCSVForm.Meta):
         fields = [
-            'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag',
-            'status_name', 'site', 'rack_name', 'position', 'face',
+            'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
+            'site', 'rack_name', 'position', 'face',
         ]
 
     def clean(self):
@@ -751,8 +755,8 @@ class ChildDeviceFromCSVForm(BaseDeviceFromCSVForm):
 
     class Meta(BaseDeviceFromCSVForm.Meta):
         fields = [
-            'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag',
-            'status_name', 'parent', 'device_bay_name',
+            'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
+            'parent', 'device_bay_name',
         ]
 
     def clean(self):
