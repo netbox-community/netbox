@@ -246,8 +246,8 @@
                 <ul class="nav navbar-nav navbar-right">
                     {% if request.user.is_authenticated %}
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                {{ request.user }} <span class="caret"></span>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="{{ request.user }}" role="button" aria-haspopup="true" aria-expanded="false">
+                                {{ request.user|truncatechars:"30" }} <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a href="{% url 'user:profile' %}"><i class="fa fa-user" aria-hidden="true"></i> Profile</a></li>
@@ -262,7 +262,7 @@
                         <li><a href="{% url 'login' %}?next={{ request.path }}"><i class="fa fa-sign-in" aria-hidden="true"></i> Log in</a></li>
                     {% endif %}
                 </ul>
-                <form action="{% url 'search' %}" method="get" class="navbar-form navbar-right" role="search">
+                <form action="{% url 'search' %}" method="get" class="navbar-form navbar-right" id="navbar_search" role="search">
                     <div class="input-group">
                         <input type="text" name="q" class="form-control" placeholder="Search">
                         <span class="input-group-btn">
