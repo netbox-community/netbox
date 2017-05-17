@@ -4,7 +4,6 @@ from django_tables2 import RequestConfig
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
 from django.forms import CharField, ModelMultipleChoiceField, MultipleHiddenInput, TypedChoiceField
