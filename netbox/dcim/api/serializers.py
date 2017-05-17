@@ -581,9 +581,18 @@ class WritablePowerPortSerializer(serializers.ModelSerializer):
 # Interfaces
 #
 
+class NestedInterfaceSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interface-detail')
+
+    class Meta:
+        model = Interface
+        fields = ['id', 'url', 'name']
+
+
 class InterfaceSerializer(serializers.ModelSerializer):
     device = NestedDeviceSerializer()
     form_factor = ChoiceFieldSerializer(choices=IFACE_FF_CHOICES)
+    lag = NestedInterfaceSerializer()
     connection = serializers.SerializerMethodField(read_only=True)
     connected_interface = serializers.SerializerMethodField(read_only=True)
 
