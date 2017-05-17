@@ -13,7 +13,7 @@
     {% endif %}
 </div>
 
-{% if table.rows %}
+{% if table.rows and not hide_paginator %}
     {% with paginator=table.paginator page=table.page %}
         {% include 'inc/paginator.html' %}
     {% endwith %}
