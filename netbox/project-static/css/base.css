@@ -74,6 +74,13 @@ footer p {
     }
 }
 
+/* Hide the nav search bar on displays less than 1600px wide */
+@media (max-width: 1599px) {
+    #navbar_search {
+        display: none;
+    }
+}
+
 /* Forms */
 label {
     font-weight: normal;

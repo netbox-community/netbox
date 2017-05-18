@@ -73,6 +73,9 @@ Once Apache is installed, proceed with the following configuration (Be sure to m
 
     Alias /static /opt/netbox/netbox/static
 
+    # Needed to allow token-based API authentication
+    WSGIPassAuthorization on
+
     <Directory /opt/netbox/netbox/static>
         Options Indexes FollowSymLinks MultiViews
         AllowOverride None

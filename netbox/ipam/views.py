@@ -525,6 +525,7 @@ def prefix_ipaddresses(request, pk):
         'prefix': prefix,
         'ip_table': ip_table,
         'permissions': permissions,
+        'bulk_querystring': 'vrf_id={}&parent={}'.format(prefix.vrf or '0', prefix.prefix),
     })
 
 

@@ -1,9 +1,8 @@
 {% extends '_base.html' %}
-{% load render_table from django_tables2 %}
 
 {% block content %}
     <h1>{% block title %}Import Completed{% endblock %}</h1>
-    {% render_table table %}
+    {% include 'responsive_table.html' %}
     <a href="{{ request.path }}" class="btn btn-primary">
         <span class="fa fa-download" aria-hidden="true"></span>
         Import more

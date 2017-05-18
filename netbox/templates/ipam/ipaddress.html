@@ -1,5 +1,4 @@
 {% extends '_base.html' %}
-{% load render_table from django_tables2 %}
 
 {% block title %}{{ ipaddress }}{% endblock %}
 
@@ -133,17 +132,11 @@
         {% endwith %}
 	</div>
 	<div class="col-md-6">
-        {% with heading='Parent Prefixes' %}
-            {% render_table parent_prefixes_table 'panel_table.html' %}
-        {% endwith %}
+        {% include 'panel_table.html' with table=parent_prefixes_table heading='Parent Prefixes' %}
         {% if duplicate_ips_table.rows %}
-            {% with heading='Duplicate IP Addresses' panel_class='danger' %}
-                {% render_table duplicate_ips_table 'panel_table.html' %}
-            {% endwith %}
+            {% include 'panel_table.html' with table=duplicate_ips_table heading='Duplicate IP Addresses' panel_class='danger' %}
         {% endif %}
-        {% with heading='Related IP Addresses' %}
-            {% render_table related_ips_table 'panel_table.html' %}
-        {% endwith %}
+        {% include 'panel_table.html' with table=related_ips_table heading='Related IP Addresses' %}
 	</div>
 </div>
 {% endblock %}

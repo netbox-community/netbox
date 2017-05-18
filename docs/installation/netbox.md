@@ -5,14 +5,14 @@
 Python 3:
 
 ```no-highlight
-# apt-get install -y python3 python3-dev python3-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev
+# apt-get install -y python3 python3-dev python3-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev zlib1g-dev
 # update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 ```
 
 Python 2:
 
 ```no-highlight
-# apt-get install -y python2.7 python-dev python-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev
+# apt-get install -y python2.7 python-dev python-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev zlib1g-dev
 ```
 
 **CentOS/RHEL**

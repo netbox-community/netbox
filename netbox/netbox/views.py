@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import sys
 
 from rest_framework.views import APIView
@@ -27,91 +28,91 @@ from .forms import SearchForm
 
 
 SEARCH_MAX_RESULTS = 15
-SEARCH_TYPES = {
+SEARCH_TYPES = OrderedDict((
     # Circuits
-    'provider': {
+    ('provider', {
         'queryset': Provider.objects.all(),
         'filter': ProviderFilter,
         'table': ProviderSearchTable,
         'url': 'circuits:provider_list',
-    },
-    'circuit': {
+    }),
+    ('circuit', {
         'queryset': Circuit.objects.select_related('type', 'provider', 'tenant').prefetch_related('terminations__site'),
         'filter': CircuitFilter,
         'table': CircuitSearchTable,
         'url': 'circuits:circuit_list',
-    },
+    }),
     # DCIM
-    'site': {
+    ('site', {
         'queryset': Site.objects.select_related('region', 'tenant'),
         'filter': SiteFilter,
         'table': SiteSearchTable,
         'url': 'dcim:site_list',
-    },
-    'rack': {
+    }),
+    ('rack', {
         'queryset': Rack.objects.select_related('site', 'group', 'tenant', 'role'),
         'filter': RackFilter,
         'table': RackSearchTable,
         'url': 'dcim:rack_list',
-    },
-    'devicetype': {
+    }),
+    ('devicetype', {
         'queryset': DeviceType.objects.select_related('manufacturer'),
         'filter': DeviceTypeFilter,
         'table': DeviceTypeSearchTable,
         'url': 'dcim:devicetype_list',
-    },
-    'device': {
+    }),
+    ('device', {
         'queryset': Device.objects.select_related('device_type__manufacturer', 'device_role', 'tenant', 'site', 'rack'),
         'filter': DeviceFilter,
         'table': DeviceSearchTable,
         'url': 'dcim:device_list',
-    },
+    }),
     # IPAM
-    'vrf': {
+    ('vrf', {
         'queryset': VRF.objects.select_related('tenant'),
         'filter': VRFFilter,
         'table': VRFSearchTable,
         'url': 'ipam:vrf_list',
-    },
-    'aggregate': {
+    }),
+    ('aggregate', {
         'queryset': Aggregate.objects.select_related('rir'),
         'filter': AggregateFilter,
         'table': AggregateSearchTable,
         'url': 'ipam:aggregate_list',
-    },
-    'prefix': {
+    }),
+    ('prefix', {
         'queryset': Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role'),
         'filter': PrefixFilter,
         'table': PrefixSearchTable,
         'url': 'ipam:prefix_list',
-    },
-    'ipaddress': {
+    }),
+    ('ipaddress', {
         'queryset': IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device'),
         'filter': IPAddressFilter,
         'table': IPAddressSearchTable,
         'url': 'ipam:ipaddress_list',
-    },
-    'vlan': {
+    }),
+    ('vlan', {
         'queryset': VLAN.objects.select_related('site', 'group', 'tenant', 'role'),
         'filter': VLANFilter,
         'table': VLANSearchTable,
         'url': 'ipam:vlan_list',
-    },
+    }),
     # Secrets
-    'secret': {
+    ('secret', {
         'queryset': Secret.objects.select_related('role', 'device'),
         'filter': SecretFilter,
         'table': SecretSearchTable,
         'url': 'secrets:secret_list',
-    },
+    }),
     # Tenancy
-    'tenant': {
+    ('tenant', {
         'queryset': Tenant.objects.select_related('group'),
         'filter': TenantFilter,
         'table': TenantSearchTable,
         'url': 'tenancy:tenant_list',
-    },
-}
+    }),
+))
 
 
 def home(request):
