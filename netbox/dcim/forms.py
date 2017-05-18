@@ -821,13 +821,15 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     rack_id = FilterChoiceField(
         queryset=Rack.objects.annotate(filter_count=Count('devices')),
         label='Rack',
+        null_option=(0, 'None'),
     )
     role = FilterChoiceField(
         queryset=DeviceRole.objects.annotate(filter_count=Count('devices')),
         to_field_name='slug',
     )
     tenant = FilterChoiceField(
-        queryset=Tenant.objects.annotate(filter_count=Count('devices')), to_field_name='slug',
+        queryset=Tenant.objects.annotate(filter_count=Count('devices')),
+        to_field_name='slug',
         null_option=(0, 'None'),
     )
     manufacturer_id = FilterChoiceField(queryset=Manufacturer.objects.all(), label='Manufacturer')

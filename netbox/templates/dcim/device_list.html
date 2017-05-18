@@ -76,6 +76,7 @@ $(document).ready(function() {
 
             // Update rack options
             rack_list.empty();
+            rack_list.append($("<option></option>").attr("value", "0").text("None"));
             $.ajax({
                 url: netbox_api_path + 'dcim/racks/?limit=500&site=' + selected_sites.join('&site='),
                 dataType: 'json',
