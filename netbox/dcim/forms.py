@@ -1211,7 +1211,7 @@ class PowerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
     )
     power_outlet = ChainedModelChoiceField(
         queryset=PowerOutlet.objects.all(),
-        chains={'device': 'device'},
+        chains={'device': 'pdu'},
         label='Outlet',
         widget=APISelect(
             api_url='/api/dcim/power-outlets/?device_id={{pdu}}',
