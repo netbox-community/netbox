@@ -16,7 +16,7 @@ $(document).ready(function() {
 
     // Adding/editing a secret
     $('form').submit(function(event) {
-        $(this).find('input.requires-session-key').each(function() {
+        $(this).find('.requires-session-key').each(function() {
             if (this.value && document.cookie.indexOf('session_key') == -1) {
                 console.log('Field ' + this.value + ' requires a session key');
                 $('#privkey_modal').modal('show');
