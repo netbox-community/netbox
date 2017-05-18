@@ -178,27 +178,29 @@ class SiteListView(ObjectListView):
     template_name = 'dcim/site_list.html'
 
 
-def site(request, slug):
+class SiteView(View):
 
-    site = get_object_or_404(Site.objects.select_related('region', 'tenant__group'), slug=slug)
-    stats = {
-        'rack_count': Rack.objects.filter(site=site).count(),
-        'device_count': Device.objects.filter(site=site).count(),
-        'prefix_count': Prefix.objects.filter(site=site).count(),
-        'vlan_count': VLAN.objects.filter(site=site).count(),
-        'circuit_count': Circuit.objects.filter(terminations__site=site).count(),
-    }
-    rack_groups = RackGroup.objects.filter(site=site).annotate(rack_count=Count('racks'))
-    topology_maps = TopologyMap.objects.filter(site=site)
-    show_graphs = Graph.objects.filter(type=GRAPH_TYPE_SITE).exists()
+    def get(self, request, slug):
 
-    return render(request, 'dcim/site.html', {
-        'site': site,
-        'stats': stats,
-        'rack_groups': rack_groups,
-        'topology_maps': topology_maps,
-        'show_graphs': show_graphs,
-    })
+        site = get_object_or_404(Site.objects.select_related('region', 'tenant__group'), slug=slug)
+        stats = {
+            'rack_count': Rack.objects.filter(site=site).count(),
+            'device_count': Device.objects.filter(site=site).count(),
+            'prefix_count': Prefix.objects.filter(site=site).count(),
+            'vlan_count': VLAN.objects.filter(site=site).count(),
+            'circuit_count': Circuit.objects.filter(terminations__site=site).count(),
+        }
+        rack_groups = RackGroup.objects.filter(site=site).annotate(rack_count=Count('racks'))
+        topology_maps = TopologyMap.objects.filter(site=site)
+        show_graphs = Graph.objects.filter(type=GRAPH_TYPE_SITE).exists()
+
+        return render(request, 'dcim/site.html', {
+            'site': site,
+            'stats': stats,
+            'rack_groups': rack_groups,
+            'topology_maps': topology_maps,
+            'show_graphs': show_graphs,
+        })
 
 
 class SiteEditView(PermissionRequiredMixin, ObjectEditView):
@@ -290,8 +292,13 @@ class RackRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class RackListView(ObjectListView):
-    queryset = Rack.objects.select_related('site', 'group', 'tenant', 'role').prefetch_related('devices__device_type')\
-        .annotate(device_count=Count('devices', distinct=True))
+    queryset = Rack.objects.select_related(
+        'site', 'group', 'tenant', 'role'
+    ).prefetch_related(
+        'devices__device_type'
+    ).annotate(
+        device_count=Count('devices', distinct=True)
+    )
     filter = filters.RackFilter
     filter_form = forms.RackFilterForm
     table = tables.RackTable
@@ -338,31 +345,33 @@ class RackElevationListView(View):
         })
 
 
-def rack(request, pk):
+class RackView(View):
 
-    rack = get_object_or_404(Rack.objects.select_related('site__region', 'tenant__group', 'group', 'role'), pk=pk)
+    def get(self, request, pk):
 
-    nonracked_devices = Device.objects.filter(rack=rack, position__isnull=True, parent_bay__isnull=True)\
-        .select_related('device_type__manufacturer')
-    next_rack = Rack.objects.filter(site=rack.site, name__gt=rack.name).order_by('name').first()
-    prev_rack = Rack.objects.filter(site=rack.site, name__lt=rack.name).order_by('-name').first()
+        rack = get_object_or_404(Rack.objects.select_related('site__region', 'tenant__group', 'group', 'role'), pk=pk)
 
-    reservations = RackReservation.objects.filter(rack=rack)
-    reserved_units = {}
-    for r in reservations:
-        for u in r.units:
-            reserved_units[u] = r
+        nonracked_devices = Device.objects.filter(rack=rack, position__isnull=True, parent_bay__isnull=True)\
+            .select_related('device_type__manufacturer')
+        next_rack = Rack.objects.filter(site=rack.site, name__gt=rack.name).order_by('name').first()
+        prev_rack = Rack.objects.filter(site=rack.site, name__lt=rack.name).order_by('-name').first()
 
-    return render(request, 'dcim/rack.html', {
-        'rack': rack,
-        'reservations': reservations,
-        'reserved_units': reserved_units,
-        'nonracked_devices': nonracked_devices,
-        'next_rack': next_rack,
-        'prev_rack': prev_rack,
-        'front_elevation': rack.get_front_elevation(),
-        'rear_elevation': rack.get_rear_elevation(),
-    })
+        reservations = RackReservation.objects.filter(rack=rack)
+        reserved_units = {}
+        for r in reservations:
+            for u in r.units:
+                reserved_units[u] = r
+
+        return render(request, 'dcim/rack.html', {
+            'rack': rack,
+            'reservations': reservations,
+            'reserved_units': reserved_units,
+            'nonracked_devices': nonracked_devices,
+            'next_rack': next_rack,
+            'prev_rack': prev_rack,
+            'front_elevation': rack.get_front_elevation(),
+            'rear_elevation': rack.get_rear_elevation(),
+        })
 
 
 class RackEditView(PermissionRequiredMixin, ObjectEditView):
@@ -481,53 +490,57 @@ class DeviceTypeListView(ObjectListView):
     template_name = 'dcim/devicetype_list.html'
 
 
-def devicetype(request, pk):
+class DeviceTypeView(View):
 
-    devicetype = get_object_or_404(DeviceType, pk=pk)
+    def get(self, request, pk):
 
-    # Component tables
-    consoleport_table = tables.ConsolePortTemplateTable(
-        natsorted(ConsolePortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
-    )
-    consoleserverport_table = tables.ConsoleServerPortTemplateTable(
-        natsorted(ConsoleServerPortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
-    )
-    powerport_table = tables.PowerPortTemplateTable(
-        natsorted(PowerPortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
-    )
-    poweroutlet_table = tables.PowerOutletTemplateTable(
-        natsorted(PowerOutletTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
-    )
-    mgmt_interface_table = tables.InterfaceTemplateTable(
-        list(InterfaceTemplate.objects.order_naturally(devicetype.interface_ordering).filter(device_type=devicetype,
-                                                                                             mgmt_only=True))
-    )
-    interface_table = tables.InterfaceTemplateTable(
-        list(InterfaceTemplate.objects.order_naturally(devicetype.interface_ordering).filter(device_type=devicetype,
-                                                                                             mgmt_only=False))
-    )
-    devicebay_table = tables.DeviceBayTemplateTable(
-        natsorted(DeviceBayTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
-    )
-    if request.user.has_perm('dcim.change_devicetype'):
-        consoleport_table.base_columns['pk'].visible = True
-        consoleserverport_table.base_columns['pk'].visible = True
-        powerport_table.base_columns['pk'].visible = True
-        poweroutlet_table.base_columns['pk'].visible = True
-        mgmt_interface_table.base_columns['pk'].visible = True
-        interface_table.base_columns['pk'].visible = True
-        devicebay_table.base_columns['pk'].visible = True
+        devicetype = get_object_or_404(DeviceType, pk=pk)
 
-    return render(request, 'dcim/devicetype.html', {
-        'devicetype': devicetype,
-        'consoleport_table': consoleport_table,
-        'consoleserverport_table': consoleserverport_table,
-        'powerport_table': powerport_table,
-        'poweroutlet_table': poweroutlet_table,
-        'mgmt_interface_table': mgmt_interface_table,
-        'interface_table': interface_table,
-        'devicebay_table': devicebay_table,
-    })
+        # Component tables
+        consoleport_table = tables.ConsolePortTemplateTable(
+            natsorted(ConsolePortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
+        )
+        consoleserverport_table = tables.ConsoleServerPortTemplateTable(
+            natsorted(ConsoleServerPortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
+        )
+        powerport_table = tables.PowerPortTemplateTable(
+            natsorted(PowerPortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
+        )
+        poweroutlet_table = tables.PowerOutletTemplateTable(
+            natsorted(PowerOutletTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
+        )
+        mgmt_interface_table = tables.InterfaceTemplateTable(
+            list(InterfaceTemplate.objects.order_naturally(devicetype.interface_ordering).filter(
+                device_type=devicetype, mgmt_only=True
+            ))
+        )
+        interface_table = tables.InterfaceTemplateTable(
+            list(InterfaceTemplate.objects.order_naturally(devicetype.interface_ordering).filter(
+                device_type=devicetype, mgmt_only=False
+            ))
+        )
+        devicebay_table = tables.DeviceBayTemplateTable(
+            natsorted(DeviceBayTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
+        )
+        if request.user.has_perm('dcim.change_devicetype'):
+            consoleport_table.base_columns['pk'].visible = True
+            consoleserverport_table.base_columns['pk'].visible = True
+            powerport_table.base_columns['pk'].visible = True
+            poweroutlet_table.base_columns['pk'].visible = True
+            mgmt_interface_table.base_columns['pk'].visible = True
+            interface_table.base_columns['pk'].visible = True
+            devicebay_table.base_columns['pk'].visible = True
+
+        return render(request, 'dcim/devicetype.html', {
+            'devicetype': devicetype,
+            'consoleport_table': consoleport_table,
+            'consoleserverport_table': consoleserverport_table,
+            'powerport_table': powerport_table,
+            'poweroutlet_table': poweroutlet_table,
+            'mgmt_interface_table': mgmt_interface_table,
+            'interface_table': interface_table,
+            'devicebay_table': devicebay_table,
+        })
 
 
 class DeviceTypeEditView(PermissionRequiredMixin, ObjectEditView):
@@ -727,70 +740,114 @@ class DeviceListView(ObjectListView):
     template_name = 'dcim/device_list.html'
 
 
-def device(request, pk):
+class DeviceView(View):
 
-    device = get_object_or_404(Device.objects.select_related(
-        'site__region', 'rack__group', 'tenant__group', 'device_role', 'platform'
-    ), pk=pk)
-    console_ports = natsorted(
-        ConsolePort.objects.filter(device=device).select_related('cs_port__device'), key=attrgetter('name')
-    )
-    cs_ports = natsorted(
-        ConsoleServerPort.objects.filter(device=device).select_related('connected_console'), key=attrgetter('name')
-    )
-    power_ports = natsorted(
-        PowerPort.objects.filter(device=device).select_related('power_outlet__device'), key=attrgetter('name')
-    )
-    power_outlets = natsorted(
-        PowerOutlet.objects.filter(device=device).select_related('connected_port'), key=attrgetter('name')
-    )
-    interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering)\
-        .filter(device=device, mgmt_only=False)\
-        .select_related('connected_as_a__interface_b__device', 'connected_as_b__interface_a__device',
-                        'circuit_termination__circuit').prefetch_related('ip_addresses')
-    mgmt_interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering)\
-        .filter(device=device, mgmt_only=True)\
-        .select_related('connected_as_a__interface_b__device', 'connected_as_b__interface_a__device',
-                        'circuit_termination__circuit').prefetch_related('ip_addresses')
-    device_bays = natsorted(
-        DeviceBay.objects.filter(device=device).select_related('installed_device__device_type__manufacturer'),
-        key=attrgetter('name')
-    )
-    services = Service.objects.filter(device=device)
-    secrets = device.secrets.all()
+    def get(self, request, pk):
 
-    # Find any related devices for convenient linking in the UI
-    related_devices = []
-    if device.name:
-        if re.match('.+[0-9]+$', device.name):
-            # Strip 1 or more trailing digits (e.g. core-switch1)
-            base_name = re.match('(.*?)[0-9]+$', device.name).group(1)
-        elif re.match('.+\d[a-z]$', device.name.lower()):
-            # Strip a trailing letter if preceded by a digit (e.g. dist-switch3a -> dist-switch3)
-            base_name = re.match('(.*\d+)[a-z]$', device.name.lower()).group(1)
-        else:
-            base_name = None
-        if base_name:
-            related_devices = Device.objects.filter(name__istartswith=base_name).exclude(pk=device.pk)\
-                .select_related('rack', 'device_type__manufacturer')[:10]
+        device = get_object_or_404(Device.objects.select_related(
+            'site__region', 'rack__group', 'tenant__group', 'device_role', 'platform'
+        ), pk=pk)
+        console_ports = natsorted(
+            ConsolePort.objects.filter(device=device).select_related('cs_port__device'), key=attrgetter('name')
+        )
+        cs_ports = natsorted(
+            ConsoleServerPort.objects.filter(device=device).select_related('connected_console'), key=attrgetter('name')
+        )
+        power_ports = natsorted(
+            PowerPort.objects.filter(device=device).select_related('power_outlet__device'), key=attrgetter('name')
+        )
+        power_outlets = natsorted(
+            PowerOutlet.objects.filter(device=device).select_related('connected_port'), key=attrgetter('name')
+        )
+        interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering).filter(
+            device=device, mgmt_only=False
+        ).select_related(
+            'connected_as_a__interface_b__device', 'connected_as_b__interface_a__device',
+            'circuit_termination__circuit'
+        ).prefetch_related('ip_addresses')
+        mgmt_interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering).filter(
+            device=device, mgmt_only=True
+        ).select_related(
+            'connected_as_a__interface_b__device', 'connected_as_b__interface_a__device',
+            'circuit_termination__circuit'
+        ).prefetch_related('ip_addresses')
+        device_bays = natsorted(
+            DeviceBay.objects.filter(device=device).select_related('installed_device__device_type__manufacturer'),
+            key=attrgetter('name')
+        )
+        services = Service.objects.filter(device=device)
+        secrets = device.secrets.all()
 
-    # Show graph button on interfaces only if at least one graph has been created.
-    show_graphs = Graph.objects.filter(type=GRAPH_TYPE_INTERFACE).exists()
+        # Find any related devices for convenient linking in the UI
+        related_devices = []
+        if device.name:
+            if re.match('.+[0-9]+$', device.name):
+                # Strip 1 or more trailing digits (e.g. core-switch1)
+                base_name = re.match('(.*?)[0-9]+$', device.name).group(1)
+            elif re.match('.+\d[a-z]$', device.name.lower()):
+                # Strip a trailing letter if preceded by a digit (e.g. dist-switch3a -> dist-switch3)
+                base_name = re.match('(.*\d+)[a-z]$', device.name.lower()).group(1)
+            else:
+                base_name = None
+            if base_name:
+                related_devices = Device.objects.filter(name__istartswith=base_name).exclude(pk=device.pk)\
+                    .select_related('rack', 'device_type__manufacturer')[:10]
 
-    return render(request, 'dcim/device.html', {
-        'device': device,
-        'console_ports': console_ports,
-        'cs_ports': cs_ports,
-        'power_ports': power_ports,
-        'power_outlets': power_outlets,
-        'interfaces': interfaces,
-        'mgmt_interfaces': mgmt_interfaces,
-        'device_bays': device_bays,
-        'services': services,
-        'secrets': secrets,
-        'related_devices': related_devices,
-        'show_graphs': show_graphs,
-    })
+        # Show graph button on interfaces only if at least one graph has been created.
+        show_graphs = Graph.objects.filter(type=GRAPH_TYPE_INTERFACE).exists()
+
+        return render(request, 'dcim/device.html', {
+            'device': device,
+            'console_ports': console_ports,
+            'cs_ports': cs_ports,
+            'power_ports': power_ports,
+            'power_outlets': power_outlets,
+            'interfaces': interfaces,
+            'mgmt_interfaces': mgmt_interfaces,
+            'device_bays': device_bays,
+            'services': services,
+            'secrets': secrets,
+            'related_devices': related_devices,
+            'show_graphs': show_graphs,
+        })
+
+
+class DeviceInventoryView(View):
+
+    def get(self, request, pk):
+
+        device = get_object_or_404(Device, pk=pk)
+        inventory_items = InventoryItem.objects.filter(
+            device=device, parent=None
+        ).select_related(
+            'manufacturer'
+        ).prefetch_related(
+            'child_items'
+        )
+
+        return render(request, 'dcim/device_inventory.html', {
+            'device': device,
+            'inventory_items': inventory_items,
+        })
+
+
+class DeviceLLDPNeighborsView(View):
+
+    def get(self, request, pk):
+
+        device = get_object_or_404(Device, pk=pk)
+        interfaces = Interface.objects.order_naturally(
+            device.device_type.interface_ordering
+        ).filter(
+            device=device
+        ).select_related(
+            'connected_as_a', 'connected_as_b'
+        )
+
+        return render(request, 'dcim/device_lldp_neighbors.html', {
+            'device': device,
+            'interfaces': interfaces,
+        })
 
 
 class DeviceEditView(PermissionRequiredMixin, ObjectEditView):
@@ -849,30 +906,6 @@ class DeviceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     cls = Device
     filter = filters.DeviceFilter
     default_return_url = 'dcim:device_list'
-
-
-def device_inventory(request, pk):
-
-    device = get_object_or_404(Device, pk=pk)
-    inventory_items = InventoryItem.objects.filter(device=device, parent=None).select_related('manufacturer')\
-        .prefetch_related('child_items')
-
-    return render(request, 'dcim/device_inventory.html', {
-        'device': device,
-        'inventory_items': inventory_items,
-    })
-
-
-def device_lldp_neighbors(request, pk):
-
-    device = get_object_or_404(Device, pk=pk)
-    interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering).filter(device=device)\
-        .select_related('connected_as_a', 'connected_as_b')
-
-    return render(request, 'dcim/device_lldp_neighbors.html', {
-        'device': device,
-        'interfaces': interfaces,
-    })
 
 
 #

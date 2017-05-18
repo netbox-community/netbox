@@ -8,6 +8,7 @@ from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.views.generic import View
 
 from dcim.models import Device
 from utilities.views import BulkDeleteView, BulkEditView, ObjectDeleteView, ObjectEditView, ObjectListView
@@ -65,14 +66,16 @@ class SecretListView(ObjectListView):
     template_name = 'secrets/secret_list.html'
 
 
-@login_required
-def secret(request, pk):
+@method_decorator(login_required, name='dispatch')
+class SecretView(View):
 
-    secret = get_object_or_404(Secret, pk=pk)
+    def get(self, request, pk):
 
-    return render(request, 'secrets/secret.html', {
-        'secret': secret,
-    })
+        secret = get_object_or_404(Secret, pk=pk)
+
+        return render(request, 'secrets/secret.html', {
+            'secret': secret,
+        })
 
 
 @permission_required('secrets.add_secret')

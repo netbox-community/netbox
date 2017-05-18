@@ -18,7 +18,7 @@ urlpatterns = [
     url(r'^tenants/import/$', views.TenantBulkImportView.as_view(), name='tenant_import'),
     url(r'^tenants/edit/$', views.TenantBulkEditView.as_view(), name='tenant_bulk_edit'),
     url(r'^tenants/delete/$', views.TenantBulkDeleteView.as_view(), name='tenant_bulk_delete'),
-    url(r'^tenants/(?P<slug>[\w-]+)/$', views.tenant, name='tenant'),
+    url(r'^tenants/(?P<slug>[\w-]+)/$', views.TenantView.as_view(), name='tenant'),
     url(r'^tenants/(?P<slug>[\w-]+)/edit/$', views.TenantEditView.as_view(), name='tenant_edit'),
     url(r'^tenants/(?P<slug>[\w-]+)/delete/$', views.TenantDeleteView.as_view(), name='tenant_delete'),
 

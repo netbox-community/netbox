@@ -5,6 +5,7 @@ from django.db import transaction
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views.generic import View
 
 from extras.models import Graph, GRAPH_TYPE_PROVIDER
 from utilities.forms import ConfirmationForm
@@ -28,18 +29,23 @@ class ProviderListView(ObjectListView):
     template_name = 'circuits/provider_list.html'
 
 
-def provider(request, slug):
+class ProviderView(View):
 
-    provider = get_object_or_404(Provider, slug=slug)
-    circuits = Circuit.objects.filter(provider=provider).select_related('type', 'tenant')\
-        .prefetch_related('terminations__site')
-    show_graphs = Graph.objects.filter(type=GRAPH_TYPE_PROVIDER).exists()
+    def get(self, request, slug):
 
-    return render(request, 'circuits/provider.html', {
-        'provider': provider,
-        'circuits': circuits,
-        'show_graphs': show_graphs,
-    })
+        provider = get_object_or_404(Provider, slug=slug)
+        circuits = Circuit.objects.filter(provider=provider).select_related(
+            'type', 'tenant'
+        ).prefetch_related(
+            'terminations__site'
+        )
+        show_graphs = Graph.objects.filter(type=GRAPH_TYPE_PROVIDER).exists()
+
+        return render(request, 'circuits/provider.html', {
+            'provider': provider,
+            'circuits': circuits,
+            'show_graphs': show_graphs,
+        })
 
 
 class ProviderEditView(PermissionRequiredMixin, ObjectEditView):
@@ -117,25 +123,27 @@ class CircuitListView(ObjectListView):
     template_name = 'circuits/circuit_list.html'
 
 
-def circuit(request, pk):
+class CircuitView(View):
 
-    circuit = get_object_or_404(Circuit.objects.select_related('provider', 'type', 'tenant__group'), pk=pk)
-    termination_a = CircuitTermination.objects.select_related(
-        'site__region', 'interface__device'
-    ).filter(
-        circuit=circuit, term_side=TERM_SIDE_A
-    ).first()
-    termination_z = CircuitTermination.objects.select_related(
-        'site__region', 'interface__device'
-    ).filter(
-        circuit=circuit, term_side=TERM_SIDE_Z
-    ).first()
+    def get(self, request, pk):
 
-    return render(request, 'circuits/circuit.html', {
-        'circuit': circuit,
-        'termination_a': termination_a,
-        'termination_z': termination_z,
-    })
+        circuit = get_object_or_404(Circuit.objects.select_related('provider', 'type', 'tenant__group'), pk=pk)
+        termination_a = CircuitTermination.objects.select_related(
+            'site__region', 'interface__device'
+        ).filter(
+            circuit=circuit, term_side=TERM_SIDE_A
+        ).first()
+        termination_z = CircuitTermination.objects.select_related(
+            'site__region', 'interface__device'
+        ).filter(
+            circuit=circuit, term_side=TERM_SIDE_Z
+        ).first()
+
+        return render(request, 'circuits/circuit.html', {
+            'circuit': circuit,
+            'termination_a': termination_a,
+            'termination_z': termination_z,
+        })
 
 
 class CircuitEditView(PermissionRequiredMixin, ObjectEditView):
