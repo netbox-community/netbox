@@ -1445,7 +1445,7 @@ class InterfaceConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
         label='Interface',
         widget=APISelect(
             api_url='/api/dcim/interfaces/?device_id={{device_b}}&type=physical',
-            disabled_indicator='is_connected'
+            disabled_indicator='connection'
         )
     )
 
