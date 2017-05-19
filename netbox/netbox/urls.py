@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.views.static import serve
 
 from netbox.views import APIRootView, home, handle_500, SearchView, trigger_500
-from users.views import login, logout
+from users.views import LoginView, LogoutView
 
 
 handler500 = handle_500
@@ -19,8 +19,8 @@ _patterns = [
     url(r'^search/$', SearchView.as_view(), name='search'),
 
     # Login/logout
-    url(r'^login/$', login, name='login'),
-    url(r'^logout/$', logout, name='logout'),
+    url(r'^login/$', LoginView.as_view(), name='login'),
+    url(r'^logout/$', LogoutView.as_view(), name='logout'),
 
     # Apps
     url(r'^circuits/', include('circuits.urls')),
