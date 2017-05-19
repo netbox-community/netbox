@@ -5,7 +5,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.static import serve
 
-from netbox.views import APIRootView, home, handle_500, SearchView, trigger_500
+from netbox.views import APIRootView, handle_500, HomeView, SearchView, trigger_500
 from users.views import LoginView, LogoutView
 
 
@@ -15,7 +15,7 @@ swagger_view = get_swagger_view(title='NetBox API')
 _patterns = [
 
     # Base views
-    url(r'^$', home, name='home'),
+    url(r'^$', HomeView.as_view(), name='home'),
     url(r'^search/$', SearchView.as_view(), name='search'),
 
     # Login/logout
