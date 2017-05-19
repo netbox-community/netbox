@@ -145,6 +145,14 @@
     }
 },
 {
+    "model": "dcim.manufacturer",
+    "pk": 9,
+    "fields": {
+        "name": "Accton",
+        "slug": "accton"
+    }
+},
+{
     "model": "dcim.platform",
     "pk": 1,
     "fields": {
@@ -196,6 +204,15 @@
         "name": "Opengear",
         "slug": "opengear",
         "rpc_client": "opengear"
+    }
+},
+{
+    "model": "dcim.platform",
+    "pk": 7,
+    "fields": {
+        "name": "SnapRoute FlexSwitch",
+        "slug": "snaproute-flexswitch",
+        "rpc_client": "snaproute-flexswitch"
     }
 }
 ]

@@ -16,6 +16,7 @@
                 <th>Configured Interface</th>
                 <th>LLDP Device</th>
                 <th>LLDP Interface</th>
+                <th>LLDP Chassis-Id</th>
             </tr>
         </thead>
         <tbody>
@@ -36,6 +37,7 @@
                     {% endif %}
                     <td class="device"></td>
                     <td class="interface"></td>
+                    <td class="chassis-id"></td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -57,6 +59,7 @@ $(document).ready(function() {
                 // Add LLDP neighbors to table
                 row.children('td.device').html(neighbor['name']);
                 row.children('td.interface').html(neighbor['remote-interface']);
+                row.children('td.chassis-id').html(neighbor['chassis-id']);
                 // Apply colors to rows
                 if (!configured_device && neighbor['name']) {
                     row.addClass('info');

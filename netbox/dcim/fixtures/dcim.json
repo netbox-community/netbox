@@ -1905,6 +1905,15 @@
     }
 },
 {
+    "model": "dcim.platform",
+    "pk": 3,
+    "fields": {
+        "name": "SnapRoute FlexSwitch",
+        "slug": "snaproute-flexswitch",
+        "rpc_client": "flexswitch"
+    }
+},
+{
     "model": "dcim.device",
     "pk": 1,
     "fields": {
