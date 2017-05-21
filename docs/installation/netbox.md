@@ -13,6 +13,8 @@ Python 2:
 
 ```no-highlight
 # apt-get install -y python2.7 python-dev python-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev zlib1g-dev
+# apt install libjpeg62-turbo-dev python-pyparsing python-appdirs python-pyasn1 -y
+
 ```
 
 **CentOS/RHEL**
@@ -95,6 +97,7 @@ Python 3:
 Python 2:
 
 ```no-highlight
+# pip install -U appdirs
 # pip install -r requirements.txt
 ```
 
