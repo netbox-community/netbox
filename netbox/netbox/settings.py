@@ -112,6 +112,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'corsheaders',
     'debug_toolbar',
+    'django_filters',
     'django_tables2',
     'mptt',
     'rest_framework',
