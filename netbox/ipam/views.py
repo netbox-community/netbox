@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django_tables2 import RequestConfig
 import netaddr
 
@@ -13,7 +15,6 @@ from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkAddView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
-
 from . import filters, forms, tables
 from .models import (
     Aggregate, IPAddress, PREFIX_STATUS_ACTIVE, PREFIX_STATUS_DEPRECATED, PREFIX_STATUS_RESERVED, Prefix, RIR, Role,

@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import base64
 
 from django.contrib import messages
@@ -12,7 +13,6 @@ from django.views.generic import View
 
 from dcim.models import Device
 from utilities.views import BulkDeleteView, BulkEditView, ObjectDeleteView, ObjectEditView, ObjectListView
-
 from . import filters, forms, tables
 from .decorators import userkey_required
 from .models import SecretRole, Secret, SessionKey
@@ -110,7 +110,7 @@ def secret_add(request, pk):
                     secret.plaintext = str(form.cleaned_data['plaintext'])
                     secret.encrypt(master_key)
                     secret.save()
-                    messages.success(request, u"Added new secret: {}.".format(secret))
+                    messages.success(request, "Added new secret: {}.".format(secret))
                     if '_addanother' in request.POST:
                         return redirect('dcim:device_addsecret', pk=device.pk)
                     else:
@@ -154,7 +154,7 @@ def secret_edit(request, pk):
                     secret.plaintext = str(form.cleaned_data['plaintext'])
                     secret.encrypt(master_key)
                     secret.save()
-                    messages.success(request, u"Modified secret {}.".format(secret))
+                    messages.success(request, "Modified secret {}.".format(secret))
                     return redirect('secrets:secret', pk=secret.pk)
                 else:
                     form.add_error(None, "Invalid session key. Unable to encrypt secret data.")
@@ -166,7 +166,7 @@ def secret_edit(request, pk):
             # If no new plaintext was specified, a session key is not needed.
             else:
                 secret = form.save()
-                messages.success(request, u"Modified secret {}.".format(secret))
+                messages.success(request, "Modified secret {}.".format(secret))
                 return redirect('secrets:secret', pk=secret.pk)
 
     else:
@@ -220,7 +220,7 @@ def secret_import(request):
                             new_secrets.append(secret)
 
                     table = tables.SecretTable(new_secrets)
-                    messages.success(request, u"Imported {} new secrets.".format(len(new_secrets)))
+                    messages.success(request, "Imported {} new secrets.".format(len(new_secrets)))
 
                     return render(request, 'import_success.html', {
                         'table': table,

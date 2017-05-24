@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from getpass import getpass
 from ncclient.transport.errors import AuthenticationError
 from paramiko import AuthenticationException

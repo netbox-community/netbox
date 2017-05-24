@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from collections import OrderedDict
 from datetime import date
 import graphviz
@@ -175,7 +176,7 @@ class CustomFieldValue(models.Model):
         unique_together = ['field', 'obj_type', 'obj_id']
 
     def __str__(self):
-        return u'{} {}'.format(self.obj, self.field)
+        return '{} {}'.format(self.obj, self.field)
 
     @property
     def value(self):
@@ -269,7 +270,7 @@ class ExportTemplate(models.Model):
         ]
 
     def __str__(self):
-        return u'{}: {}'.format(self.content_type, self.name)
+        return '{}: {}'.format(self.content_type, self.name)
 
     def to_response(self, context_dict, filename):
         """
@@ -387,7 +388,7 @@ def image_upload(instance, filename):
     elif instance.name:
         filename = instance.name
 
-    return u'{}{}_{}_{}'.format(path, instance.content_type.name, instance.object_id, filename)
+    return '{}{}_{}_{}'.format(path, instance.content_type.name, instance.object_id, filename)
 
 
 @python_2_unicode_compatible
@@ -503,8 +504,8 @@ class UserAction(models.Model):
 
     def __str__(self):
         if self.message:
-            return u'{} {}'.format(self.user, self.message)
-        return u'{} {} {}'.format(self.user, self.get_action_display(), self.content_type)
+            return '{} {}'.format(self.user, self.message)
+        return '{} {} {}'.format(self.user, self.get_action_display(), self.content_type)
 
     def icon(self):
         if self.action in [ACTION_CREATE, ACTION_BULK_CREATE, ACTION_IMPORT]:

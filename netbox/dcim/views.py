@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from copy import deepcopy
 import re
 from natsort import natsorted
@@ -24,7 +25,6 @@ from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
-
 from . import filters, forms, tables
 from .models import (
     CONNECTION_STATUS_CONNECTED, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
@@ -109,11 +109,11 @@ class ComponentCreateView(View):
                         if field == 'name':
                             field = 'name_pattern'
                         for e in errors:
-                            form.add_error(field, u'{}: {}'.format(name, ', '.join(e)))
+                            form.add_error(field, '{}: {}'.format(name, ', '.join(e)))
 
             if not form.errors:
                 self.model.objects.bulk_create(new_components)
-                messages.success(request, u"Added {} {} to {}.".format(
+                messages.success(request, "Added {} {} to {}.".format(
                     len(new_components), self.model._meta.verbose_name_plural, parent
                 ))
                 if '_addanother' in request.POST:
@@ -930,7 +930,7 @@ def consoleport_connect(request, pk):
         form = forms.ConsolePortConnectionForm(request.POST, instance=consoleport)
         if form.is_valid():
             consoleport = form.save()
-            msg = u'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
+            msg = 'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
                 consoleport.device.get_absolute_url(),
                 escape(consoleport.device),
                 escape(consoleport.name),
@@ -964,7 +964,7 @@ def consoleport_disconnect(request, pk):
 
     if not consoleport.cs_port:
         messages.warning(
-            request, u"Cannot disconnect console port {}: It is not connected to anything.".format(consoleport)
+            request, "Cannot disconnect console port {}: It is not connected to anything.".format(consoleport)
         )
         return redirect('dcim:device', pk=consoleport.device.pk)
 
@@ -975,7 +975,7 @@ def consoleport_disconnect(request, pk):
             consoleport.cs_port = None
             consoleport.connection_status = None
             consoleport.save()
-            msg = u'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
+            msg = 'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
                 consoleport.device.get_absolute_url(),
                 escape(consoleport.device),
                 escape(consoleport.name),
@@ -1047,7 +1047,7 @@ def consoleserverport_connect(request, pk):
             consoleport.cs_port = consoleserverport
             consoleport.connection_status = form.cleaned_data['connection_status']
             consoleport.save()
-            msg = u'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
+            msg = 'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
                 consoleport.device.get_absolute_url(),
                 escape(consoleport.device),
                 escape(consoleport.name),
@@ -1081,7 +1081,7 @@ def consoleserverport_disconnect(request, pk):
 
     if not hasattr(consoleserverport, 'connected_console'):
         messages.warning(
-            request, u"Cannot disconnect console server port {}: Nothing is connected to it.".format(consoleserverport)
+            request, "Cannot disconnect console server port {}: Nothing is connected to it.".format(consoleserverport)
         )
         return redirect('dcim:device', pk=consoleserverport.device.pk)
 
@@ -1092,7 +1092,7 @@ def consoleserverport_disconnect(request, pk):
             consoleport.cs_port = None
             consoleport.connection_status = None
             consoleport.save()
-            msg = u'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
+            msg = 'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
                 consoleport.device.get_absolute_url(),
                 escape(consoleport.device),
                 escape(consoleport.name),
@@ -1153,7 +1153,7 @@ def powerport_connect(request, pk):
         form = forms.PowerPortConnectionForm(request.POST, instance=powerport)
         if form.is_valid():
             powerport = form.save()
-            msg = u'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
+            msg = 'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
                 powerport.device.get_absolute_url(),
                 escape(powerport.device),
                 escape(powerport.name),
@@ -1187,7 +1187,7 @@ def powerport_disconnect(request, pk):
 
     if not powerport.power_outlet:
         messages.warning(
-            request, u"Cannot disconnect power port {}: It is not connected to an outlet.".format(powerport)
+            request, "Cannot disconnect power port {}: It is not connected to an outlet.".format(powerport)
         )
         return redirect('dcim:device', pk=powerport.device.pk)
 
@@ -1198,7 +1198,7 @@ def powerport_disconnect(request, pk):
             powerport.power_outlet = None
             powerport.connection_status = None
             powerport.save()
-            msg = u'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
+            msg = 'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
                 powerport.device.get_absolute_url(),
                 escape(powerport.device),
                 escape(powerport.name),
@@ -1270,7 +1270,7 @@ def poweroutlet_connect(request, pk):
             powerport.power_outlet = poweroutlet
             powerport.connection_status = form.cleaned_data['connection_status']
             powerport.save()
-            msg = u'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
+            msg = 'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
                 powerport.device.get_absolute_url(),
                 escape(powerport.device),
                 escape(powerport.name),
@@ -1304,7 +1304,7 @@ def poweroutlet_disconnect(request, pk):
 
     if not hasattr(poweroutlet, 'connected_port'):
         messages.warning(
-            request, u"Cannot disconnect power outlet {}: Nothing is connected to it.".format(poweroutlet)
+            request, "Cannot disconnect power outlet {}: Nothing is connected to it.".format(poweroutlet)
         )
         return redirect('dcim:device', pk=poweroutlet.device.pk)
 
@@ -1315,7 +1315,7 @@ def poweroutlet_disconnect(request, pk):
             powerport.power_outlet = None
             powerport.connection_status = None
             powerport.save()
-            msg = u'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
+            msg = 'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
                 powerport.device.get_absolute_url(),
                 escape(powerport.device),
                 escape(powerport.name),
@@ -1429,7 +1429,7 @@ def devicebay_populate(request, pk):
             device_bay.save()
 
             if not form.errors:
-                messages.success(request, u"Added {} to {}.".format(device_bay.installed_device, device_bay))
+                messages.success(request, "Added {} to {}.".format(device_bay.installed_device, device_bay))
                 return redirect('dcim:device', pk=device_bay.device.pk)
 
     else:
@@ -1453,7 +1453,7 @@ def devicebay_depopulate(request, pk):
             removed_device = device_bay.installed_device
             device_bay.installed_device = None
             device_bay.save()
-            messages.success(request, u"{} has been removed from {}.".format(removed_device, device_bay))
+            messages.success(request, "{} has been removed from {}.".format(removed_device, device_bay))
             return redirect('dcim:device', pk=device_bay.device.pk)
 
     else:
@@ -1516,11 +1516,11 @@ class DeviceBulkAddComponentView(View):
                         else:
                             for field, errors in component_form.errors.as_data().items():
                                 for e in errors:
-                                    form.add_error(field, u'{} {}: {}'.format(device, name, ', '.join(e)))
+                                    form.add_error(field, '{} {}: {}'.format(device, name, ', '.join(e)))
 
                 if not form.errors:
                     self.model.objects.bulk_create(new_components)
-                    messages.success(request, u"Added {} {} to {} devices.".format(
+                    messages.success(request, "Added {} {} to {} devices.".format(
                         len(new_components), self.model._meta.verbose_name_plural, len(form.cleaned_data['pk'])
                     ))
                     return redirect('dcim:device_list')
@@ -1530,7 +1530,7 @@ class DeviceBulkAddComponentView(View):
 
         selected_devices = Device.objects.filter(pk__in=pk_list)
         if not selected_devices:
-            messages.warning(request, u"No devices were selected.")
+            messages.warning(request, "No devices were selected.")
             return redirect('dcim:device_list')
 
         return render(request, 'dcim/device_bulk_add_component.html', {
@@ -1592,7 +1592,7 @@ def interfaceconnection_add(request, pk):
         if form.is_valid():
 
             interfaceconnection = form.save()
-            msg = u'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
+            msg = 'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
                 interfaceconnection.interface_a.device.get_absolute_url(),
                 escape(interfaceconnection.interface_a.device),
                 escape(interfaceconnection.interface_a.name),
@@ -1640,7 +1640,7 @@ def interfaceconnection_delete(request, pk):
         form = forms.InterfaceConnectionDeletionForm(request.POST)
         if form.is_valid():
             interfaceconnection.delete()
-            msg = u'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
+            msg = 'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
                 interfaceconnection.interface_a.device.get_absolute_url(),
                 escape(interfaceconnection.interface_a.device),
                 escape(interfaceconnection.interface_a.name),

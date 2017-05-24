@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from rest_framework.decorators import detail_route
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 

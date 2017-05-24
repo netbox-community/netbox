@@ -1,9 +1,11 @@
+from __future__ import unicode_literals
+
 import netaddr
 
+from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 
 from ipam.models import IPAddress, Prefix, VRF
-from django.core.exceptions import ValidationError
 
 
 class TestPrefix(TestCase):

@@ -1,9 +1,10 @@
+from __future__ import unicode_literals
+
 from rest_framework.viewsets import ModelViewSet
 
+from extras.api.views import CustomFieldModelViewSet
 from tenancy.models import Tenant, TenantGroup
 from tenancy.filters import TenantFilter
-
-from extras.api.views import CustomFieldModelViewSet
 from utilities.api import WritableSerializerMixin
 from . import serializers
 

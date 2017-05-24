@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import csv
 import itertools
 import re
@@ -373,7 +374,7 @@ class FilterChoiceFieldMixin(object):
     def label_from_instance(self, obj):
         label = super(FilterChoiceFieldMixin, self).label_from_instance(obj)
         if hasattr(obj, 'filter_count'):
-            return u'{} ({})'.format(label, obj.filter_count)
+            return '{} ({})'.format(label, obj.filter_count)
         return label
 
     def _get_choices(self):

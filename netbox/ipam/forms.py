@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Count
@@ -10,7 +12,6 @@ from utilities.forms import (
     APISelect, BootstrapMixin, BulkEditNullBooleanSelect, BulkImportForm, ChainedModelChoiceField, CSVDataField,
     ExpandableIPAddressField, FilterChoiceField, Livesearch, ReturnURLForm, SlugField, add_blank_choice,
 )
-
 from .models import (
     Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, Service, VLAN,
     VLANGroup, VLAN_STATUS_CHOICES, VRF,
@@ -270,7 +271,7 @@ def prefix_status_choices():
     status_counts = {}
     for status in Prefix.objects.values('status').annotate(count=Count('status')).order_by('status'):
         status_counts[status['status']] = status['count']
-    return [(s[0], u'{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in PREFIX_STATUS_CHOICES]
+    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in PREFIX_STATUS_CHOICES]
 
 
 class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -567,7 +568,7 @@ def ipaddress_status_choices():
     status_counts = {}
     for status in IPAddress.objects.values('status').annotate(count=Count('status')).order_by('status'):
         status_counts[status['status']] = status['count']
-    return [(s[0], u'{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in IPADDRESS_STATUS_CHOICES]
+    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in IPADDRESS_STATUS_CHOICES]
 
 
 class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -720,7 +721,7 @@ def vlan_status_choices():
     status_counts = {}
     for status in VLAN.objects.values('status').annotate(count=Count('status')).order_by('status'):
         status_counts[status['status']] = status['count']
-    return [(s[0], u'{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in VLAN_STATUS_CHOICES]
+    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in VLAN_STATUS_CHOICES]
 
 
 class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):

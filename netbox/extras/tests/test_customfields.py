@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from datetime import date
 
 from rest_framework import status
@@ -9,7 +10,6 @@ from django.test import TestCase
 from django.urls import reverse
 
 from dcim.models import Site
-
 from extras.models import (
     CustomField, CustomFieldValue, CustomFieldChoice, CF_TYPE_TEXT, CF_TYPE_INTEGER, CF_TYPE_BOOLEAN, CF_TYPE_DATE,
     CF_TYPE_SELECT, CF_TYPE_URL,

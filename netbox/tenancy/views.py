@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, render
@@ -10,7 +12,6 @@ from ipam.models import IPAddress, Prefix, VLAN, VRF
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
-
 from .models import Tenant, TenantGroup
 from . import filters, forms, tables
 

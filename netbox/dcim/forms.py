@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from mptt.forms import TreeNodeChoiceField
 import re
 
@@ -16,7 +18,6 @@ from utilities.forms import (
     FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
     FilterTreeNodeMultipleChoiceField,
 )
-
 from .formfields import MACAddressFormField
 from .models import (
     DeviceBay, DeviceBayTemplate, CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_PLANNED, CONNECTION_STATUS_CONNECTED,
@@ -610,10 +611,10 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             for family in [4, 6]:
                 ip_choices = []
                 interface_ips = IPAddress.objects.filter(family=family, interface__device=self.instance)
-                ip_choices += [(ip.id, u'{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips]
+                ip_choices += [(ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips]
                 nat_ips = IPAddress.objects.filter(family=family, nat_inside__interface__device=self.instance)\
                     .select_related('nat_inside__interface')
-                ip_choices += [(ip.id, u'{} ({} NAT)'.format(ip.address, ip.nat_inside.interface)) for ip in nat_ips]
+                ip_choices += [(ip.id, '{} ({} NAT)'.format(ip.address, ip.nat_inside.interface)) for ip in nat_ips]
                 self.fields['primary_ip{}'.format(family)].choices = [(None, '---------')] + ip_choices
 
             # If editing an existing device, exclude it from the list of occupied rack units. This ensures that a device
@@ -804,7 +805,7 @@ def device_status_choices():
     status_counts = {}
     for status in Device.objects.values('status').annotate(count=Count('status')).order_by('status'):
         status_counts[status['status']] = status['count']
-    return [(s[0], u'{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in STATUS_CHOICES]
+    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in STATUS_CHOICES]
 
 
 class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):

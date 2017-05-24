@@ -1,8 +1,10 @@
-from django.contrib.contenttypes.models import ContentType
-from django.db import transaction
+from __future__ import unicode_literals
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+
+from django.contrib.contenttypes.models import ContentType
+from django.db import transaction
 
 from extras.models import CF_TYPE_SELECT, CustomField, CustomFieldChoice, CustomFieldValue
 
@@ -25,14 +27,14 @@ class CustomFieldsSerializer(serializers.BaseSerializer):
 
             # Validate custom field name
             if field_name not in custom_fields:
-                raise ValidationError(u"Invalid custom field for {} objects: {}".format(content_type, field_name))
+                raise ValidationError("Invalid custom field for {} objects: {}".format(content_type, field_name))
 
             # Validate selected choice
             cf = custom_fields[field_name]
             if cf.type == CF_TYPE_SELECT:
                 valid_choices = [c.pk for c in cf.choices.all()]
                 if value not in valid_choices:
-                    raise ValidationError(u"Invalid choice ({}) for field {}".format(value, field_name))
+                    raise ValidationError("Invalid choice ({}) for field {}".format(value, field_name))
 
         # Check for missing required fields
         missing_fields = []
@@ -40,7 +42,7 @@ class CustomFieldsSerializer(serializers.BaseSerializer):
             if field.required and field_name not in data:
                 missing_fields.append(field_name)
         if missing_fields:
-            raise ValidationError(u"Missing required fields: {}".format(u", ".join(missing_fields)))
+            raise ValidationError("Missing required fields: {}".format(u", ".join(missing_fields)))
 
         return data
 

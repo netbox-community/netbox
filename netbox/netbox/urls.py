@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from rest_framework_swagger.views import get_swagger_view
 
 from django.conf import settings

@@ -1,9 +1,10 @@
+from __future__ import unicode_literals
+
 from django.conf.urls import url
 
+from extras.views import ImageAttachmentEditView
 from ipam.views import ServiceEditView
 from secrets.views import secret_add
-
-from extras.views import ImageAttachmentEditView
 from .models import Device, Rack, Site
 from . import views
 

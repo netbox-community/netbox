@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from rest_framework.viewsets import ModelViewSet
 
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF

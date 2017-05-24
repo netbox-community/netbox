@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from collections import OrderedDict
 import sys
 
@@ -195,7 +196,7 @@ class SearchView(View):
                     results.append({
                         'name': queryset.model._meta.verbose_name_plural,
                         'table': table,
-                        'url': u'{}?q={}'.format(reverse(url), form.cleaned_data['q'])
+                        'url': '{}?q={}'.format(reverse(url), form.cleaned_data['q'])
                     })
 
         return render(request, 'search.html', {
@@ -209,7 +210,7 @@ class APIRootView(APIView):
     exclude_from_schema = True
 
     def get_view_name(self):
-        return u"API Root"
+        return "API Root"
 
     def get(self, request, format=None):
 

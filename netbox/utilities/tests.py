@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 class HttpStatusMixin(object):
     """
     Custom mixin to provide more detail in the event of an unexpected HTTP response.

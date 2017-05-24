@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -41,7 +43,7 @@ class LoginView(View):
 
             # Authenticate user
             auth_login(request, form.get_user())
-            messages.info(request, u"Logged in as {}.".format(request.user))
+            messages.info(request, "Logged in as {}.".format(request.user))
 
             return HttpResponseRedirect(redirect_to)
 
@@ -54,7 +56,7 @@ class LogoutView(View):
 
     def get(self, request):
         auth_logout(request)
-        messages.info(request, u"You have logged out.")
+        messages.info(request, "You have logged out.")
 
         return HttpResponseRedirect(reverse('home'))
 
@@ -91,7 +93,7 @@ class ChangePasswordView(View):
         if form.is_valid():
             form.save()
             update_session_auth_hash(request, form.user)
-            messages.success(request, u"Your password has been changed successfully.")
+            messages.success(request, "Your password has been changed successfully.")
             return redirect('user:profile')
 
         return render(request, self.template_name, {
@@ -143,7 +145,7 @@ class UserKeyEditView(View):
             uk = form.save(commit=False)
             uk.user = request.user
             uk.save()
-            messages.success(request, u"Your user key has been saved.")
+            messages.success(request, "Your user key has been saved.")
             return redirect('user:userkey')
 
         return render(request, self.template_name, {

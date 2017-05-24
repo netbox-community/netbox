@@ -1,4 +1,6 @@
+from __future__ import unicode_literals
 import os
+
 from Crypto.Cipher import AES, PKCS1_OAEP, XOR
 from Crypto.PublicKey import RSA
 
@@ -12,7 +14,6 @@ from django.utils.encoding import force_bytes, python_2_unicode_compatible
 
 from dcim.models import Device
 from utilities.models import CreatedUpdatedModel
-
 from .exceptions import InvalidKey
 from .hashers import SecretValidationHasher
 
@@ -301,8 +302,8 @@ class Secret(CreatedUpdatedModel):
 
     def __str__(self):
         if self.role and self.device:
-            return u'{} for {}'.format(self.role, self.device)
-        return u'Secret'
+            return '{} for {}'.format(self.role, self.device)
+        return 'Secret'
 
     def get_absolute_url(self):
         return reverse('secrets:secret', args=[self.pk])
