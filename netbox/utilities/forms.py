@@ -447,6 +447,8 @@ class ChainedFieldsMixin(forms.BaseForm):
                         filters_dict[db_field] = self.data[parent_field]
                     elif self.initial.get(parent_field):
                         filters_dict[db_field] = self.initial[parent_field]
+                    elif self.fields[parent_field].widget.attrs.get('nullable'):
+                        filters_dict[db_field] = None
 
                 if filters_dict:
                     field.queryset = field.queryset.filter(**filters_dict)
