@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import csv
 import itertools
 import re
@@ -373,7 +374,7 @@ class FilterChoiceFieldMixin(object):
     def label_from_instance(self, obj):
         label = super(FilterChoiceFieldMixin, self).label_from_instance(obj)
         if hasattr(obj, 'filter_count'):
-            return u'{} ({})'.format(label, obj.filter_count)
+            return '{} ({})'.format(label, obj.filter_count)
         return label
 
     def _get_choices(self):
@@ -442,15 +443,19 @@ class ChainedFieldsMixin(forms.BaseForm):
             if isinstance(field, ChainedModelChoiceField):
 
                 filters_dict = {}
-                for db_field, parent_field in field.chains.items():
+                for (db_field, parent_field) in field.chains:
                     if self.is_bound and self.data.get(parent_field):
                         filters_dict[db_field] = self.data[parent_field]
                     elif self.initial.get(parent_field):
                         filters_dict[db_field] = self.initial[parent_field]
+                    elif self.fields[parent_field].widget.attrs.get('nullable'):
+                        filters_dict[db_field] = None
+                    else:
+                        break
 
                 if filters_dict:
                     field.queryset = field.queryset.filter(**filters_dict)
-                else:
+                elif not self.is_bound:
                     field.queryset = field.queryset.none()
 
 

@@ -1,12 +1,13 @@
+from __future__ import unicode_literals
 import base64
+
 from Crypto.PublicKey import RSA
-
-from django.http import HttpResponseBadRequest
-
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
+
+from django.http import HttpResponseBadRequest
 
 from secrets import filters
 from secrets.exceptions import InvalidKey

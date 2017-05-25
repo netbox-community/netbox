@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from collections import OrderedDict
 import sys
 
@@ -115,43 +116,46 @@ SEARCH_TYPES = OrderedDict((
 ))
 
 
-def home(request):
+class HomeView(View):
+    template_name = 'home.html'
 
-    stats = {
+    def get(self, request):
 
-        # Organization
-        'site_count': Site.objects.count(),
-        'tenant_count': Tenant.objects.count(),
+        stats = {
 
-        # DCIM
-        'rack_count': Rack.objects.count(),
-        'device_count': Device.objects.count(),
-        'interface_connections_count': InterfaceConnection.objects.count(),
-        'console_connections_count': ConsolePort.objects.filter(cs_port__isnull=False).count(),
-        'power_connections_count': PowerPort.objects.filter(power_outlet__isnull=False).count(),
+            # Organization
+            'site_count': Site.objects.count(),
+            'tenant_count': Tenant.objects.count(),
 
-        # IPAM
-        'vrf_count': VRF.objects.count(),
-        'aggregate_count': Aggregate.objects.count(),
-        'prefix_count': Prefix.objects.count(),
-        'ipaddress_count': IPAddress.objects.count(),
-        'vlan_count': VLAN.objects.count(),
+            # DCIM
+            'rack_count': Rack.objects.count(),
+            'device_count': Device.objects.count(),
+            'interface_connections_count': InterfaceConnection.objects.count(),
+            'console_connections_count': ConsolePort.objects.filter(cs_port__isnull=False).count(),
+            'power_connections_count': PowerPort.objects.filter(power_outlet__isnull=False).count(),
 
-        # Circuits
-        'provider_count': Provider.objects.count(),
-        'circuit_count': Circuit.objects.count(),
+            # IPAM
+            'vrf_count': VRF.objects.count(),
+            'aggregate_count': Aggregate.objects.count(),
+            'prefix_count': Prefix.objects.count(),
+            'ipaddress_count': IPAddress.objects.count(),
+            'vlan_count': VLAN.objects.count(),
 
-        # Secrets
-        'secret_count': Secret.objects.count(),
+            # Circuits
+            'provider_count': Provider.objects.count(),
+            'circuit_count': Circuit.objects.count(),
 
-    }
+            # Secrets
+            'secret_count': Secret.objects.count(),
 
-    return render(request, 'home.html', {
-        'search_form': SearchForm(),
-        'stats': stats,
-        'topology_maps': TopologyMap.objects.filter(site__isnull=True),
-        'recent_activity': UserAction.objects.select_related('user')[:50]
-    })
+        }
+
+        return render(request, self.template_name, {
+            'search_form': SearchForm(),
+            'stats': stats,
+            'topology_maps': TopologyMap.objects.filter(site__isnull=True),
+            'recent_activity': UserAction.objects.select_related('user')[:50]
+        })
 
 
 class SearchView(View):
@@ -192,7 +196,7 @@ class SearchView(View):
                     results.append({
                         'name': queryset.model._meta.verbose_name_plural,
                         'table': table,
-                        'url': u'{}?q={}'.format(reverse(url), form.cleaned_data['q'])
+                        'url': '{}?q={}'.format(reverse(url), form.cleaned_data['q'])
                     })
 
         return render(request, 'search.html', {
@@ -206,7 +210,7 @@ class APIRootView(APIView):
     exclude_from_schema = True
 
     def get_view_name(self):
-        return u"API Root"
+        return "API Root"
 
     def get(self, request, format=None):
 
@@ -235,5 +239,6 @@ def trigger_500(request):
     """
     Hot-wired method of triggering a server error to test reporting
     """
-    raise Exception("Congratulations, you've triggered an exception! Go tell all your friends what an exceptional "
-                    "person you are.")
+    raise Exception(
+        "Congratulations, you've triggered an exception! Go tell all your friends what an exceptional person you are."
+    )

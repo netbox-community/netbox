@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from collections import OrderedDict
 
 from django import forms
@@ -104,7 +105,7 @@ class CustomFieldForm(forms.ModelForm):
                                                                            obj_id=self.instance.pk)
             except CustomFieldValue.DoesNotExist:
                 # Skip this field if none exists already and its value is empty
-                if self.cleaned_data[field_name] in [None, u'']:
+                if self.cleaned_data[field_name] in [None, '']:
                     continue
                 cfv = CustomFieldValue(
                     field=self.fields[field_name].model,

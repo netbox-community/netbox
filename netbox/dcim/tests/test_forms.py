@@ -1,4 +1,7 @@
+from __future__ import unicode_literals
+
 from django.test import TestCase
+
 from dcim.forms import *
 from dcim.models import *
 

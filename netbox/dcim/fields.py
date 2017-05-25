@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from netaddr import EUI, mac_unix_expanded
 
 from django.core.exceptions import ValidationError

@@ -1,8 +1,10 @@
-from django.shortcuts import get_object_or_404
+from __future__ import unicode_literals
 
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+
+from django.shortcuts import get_object_or_404
 
 from circuits import filters
 from circuits.models import Provider, CircuitTermination, CircuitType, Circuit

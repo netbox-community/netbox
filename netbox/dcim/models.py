@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from collections import OrderedDict
 from itertools import count, groupby
 
@@ -23,7 +24,6 @@ from utilities.fields import ColorField, NullableCharField
 from utilities.managers import NaturalOrderByManager
 from utilities.models import CreatedUpdatedModel
 from utilities.utils import csv_format
-
 from .fields import ASNField, MACAddressField
 
 
@@ -346,7 +346,7 @@ class RackGroup(models.Model):
         ]
 
     def __str__(self):
-        return u'{} - {}'.format(self.site.name, self.name)
+        return '{} - {}'.format(self.site.name, self.name)
 
     def get_absolute_url(self):
         return "{}?group_id={}".format(reverse('dcim:rack_list'), self.pk)
@@ -466,10 +466,10 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
     @property
     def display_name(self):
         if self.facility_id:
-            return u"{} ({})".format(self.name, self.facility_id)
+            return "{} ({})".format(self.name, self.facility_id)
         elif self.name:
             return self.name
-        return u""
+        return ""
 
     def get_rack_units(self, face=RACK_FACE_FRONT, exclude=None, remove_redundant=False):
         """
@@ -569,7 +569,7 @@ class RackReservation(models.Model):
         ordering = ['created']
 
     def __str__(self):
-        return u"Reservation for rack {}".format(self.rack)
+        return "Reservation for rack {}".format(self.rack)
 
     def clean(self):
 
@@ -579,7 +579,7 @@ class RackReservation(models.Model):
             invalid_units = [u for u in self.units if u not in self.rack.units]
             if invalid_units:
                 raise ValidationError({
-                    'units': u"Invalid unit(s) for {}U rack: {}".format(
+                    'units': "Invalid unit(s) for {}U rack: {}".format(
                         self.rack.u_height,
                         ', '.join([str(u) for u in invalid_units]),
                     ),
@@ -733,7 +733,7 @@ class DeviceType(models.Model, CustomFieldModel):
 
     @property
     def full_name(self):
-        return u'{} {}'.format(self.manufacturer.name, self.model)
+        return '{} {}'.format(self.manufacturer.name, self.model)
 
     @property
     def is_parent_device(self):
@@ -1106,8 +1106,8 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         if self.name:
             return self.name
         elif hasattr(self, 'device_type'):
-            return u"{}".format(self.device_type)
-        return u""
+            return "{}".format(self.device_type)
+        return ""
 
     @property
     def identifier(self):
@@ -1320,7 +1320,7 @@ class Interface(models.Model):
         # An interface's LAG must belong to the same device
         if self.lag and self.lag.device != self.device:
             raise ValidationError({
-                'lag': u"The selected LAG interface ({}) belongs to a different device ({}).".format(
+                'lag': "The selected LAG interface ({}) belongs to a different device ({}).".format(
                     self.lag.name, self.lag.device.name
                 )
             })
@@ -1328,14 +1328,14 @@ class Interface(models.Model):
         # A virtual interface cannot have a parent LAG
         if self.form_factor in VIRTUAL_IFACE_TYPES and self.lag is not None:
             raise ValidationError({
-                'lag': u"{} interfaces cannot have a parent LAG interface.".format(self.get_form_factor_display())
+                'lag': "{} interfaces cannot have a parent LAG interface.".format(self.get_form_factor_display())
             })
 
         # Only a LAG can have LAG members
         if self.form_factor != IFACE_FF_LAG and self.member_interfaces.exists():
             raise ValidationError({
                 'form_factor': "Cannot change interface form factor; it has LAG members ({}).".format(
-                    u", ".join([iface.name for iface in self.member_interfaces.all()])
+                    ", ".join([iface.name for iface in self.member_interfaces.all()])
                 )
             })
 
@@ -1428,7 +1428,7 @@ class DeviceBay(models.Model):
         unique_together = ['device', 'name']
 
     def __str__(self):
-        return u'{} - {}'.format(self.device.name, self.name)
+        return '{} - {}'.format(self.device.name, self.name)
 
     def clean(self):
 

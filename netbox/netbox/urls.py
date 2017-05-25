@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from rest_framework_swagger.views import get_swagger_view
 
 from django.conf import settings
@@ -5,8 +7,8 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.static import serve
 
-from netbox.views import APIRootView, home, handle_500, SearchView, trigger_500
-from users.views import login, logout
+from netbox.views import APIRootView, handle_500, HomeView, SearchView, trigger_500
+from users.views import LoginView, LogoutView
 
 
 handler500 = handle_500
@@ -15,12 +17,12 @@ swagger_view = get_swagger_view(title='NetBox API')
 _patterns = [
 
     # Base views
-    url(r'^$', home, name='home'),
+    url(r'^$', HomeView.as_view(), name='home'),
     url(r'^search/$', SearchView.as_view(), name='search'),
 
     # Login/logout
-    url(r'^login/$', login, name='login'),
-    url(r'^logout/$', logout, name='logout'),
+    url(r'^login/$', LoginView.as_view(), name='login'),
+    url(r'^logout/$', LogoutView.as_view(), name='logout'),
 
     # Apps
     url(r'^circuits/', include('circuits.urls')),

@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 
@@ -6,7 +8,6 @@ from django.db.models import Count
 
 from dcim.models import Device
 from utilities.forms import BootstrapMixin, BulkEditForm, BulkImportForm, CSVDataField, FilterChoiceField, SlugField
-
 from .models import Secret, SecretRole, UserKey
 
 

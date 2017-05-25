@@ -1,37 +1,40 @@
+{% load static from staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
 	<title>Server Error</title>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="{% static 'bootstrap-3.3.7-dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'font-awesome-4.7.0/css/font-awesome.min.css' %}">
 </head>
 
 <body>
-	<div class="row">
-        <div class="col-md-4 col-md-offset-4">
-            <div class="panel panel-danger" style="margin-top: 200px">
-                <div class="panel-heading">
-                    <strong>
-                        <i class="fa fa-warning"></i>
-                        Server Error
-                    </strong>
-                </div>
-                <div class="panel-body">
-                    <p>There was a problem with your request. This error has been logged and administrative staff have
-                    been notified. Please return to the home page and try again.</p>
-                    <p>If you are responsible for this installation, please consider
-                    <a href="https://github.com/digitalocean/netbox/issues">filing a bug report</a>. Additional
-                    information is provided below:</p>
-                    <pre><strong>{{ exception }}</strong><br />
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-4 col-md-offset-4">
+                <div class="panel panel-danger" style="margin-top: 200px">
+                    <div class="panel-heading">
+                        <strong>
+                            <i class="fa fa-warning"></i>
+                            Server Error
+                        </strong>
+                    </div>
+                    <div class="panel-body">
+                        <p>There was a problem with your request. This error has been logged and administrative staff have
+                        been notified. Please return to the home page and try again.</p>
+                        <p>If you are responsible for this installation, please consider
+                        <a href="https://github.com/digitalocean/netbox/issues">filing a bug report</a>. Additional
+                        information is provided below:</p>
+<pre><strong>{{ exception }}</strong><br />
 {{ error }}</pre>
-                    <div class="text-right">
-                        <a href="{% url 'home' %}" class="btn btn-primary">Home Page</a>
+                        <div class="text-right">
+                            <a href="{% url 'home' %}" class="btn btn-primary">Home Page</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-	</div>
+    </div>
 </body>
 
 </html>

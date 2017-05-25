@@ -58,6 +58,14 @@ This script:
 * Applies any database migrations that were included in the release
 * Collects all static files to be served by the HTTP service
 
+!!! note
+    It's possible that the upgrade script will display a notice warning of unreflected database migrations:
+
+        Your models have changes that are not yet reflected in a migration, and so won't be applied.
+        Run 'manage.py makemigrations' to make new migrations, and then re-run 'manage.py migrate' to apply them.
+
+    This may occur due to semantic differences in environment, and can be safely ignored. Never attempt to create new migrations unless you are inentionally modifying the database schema.
+
 # Restart the WSGI Service
 
 Finally, restart the WSGI service to run the new code. If you followed this guide for the initial installation, this is done using `supervisorctl`:

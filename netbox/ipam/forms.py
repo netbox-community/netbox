@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Count
@@ -10,7 +12,6 @@ from utilities.forms import (
     APISelect, BootstrapMixin, BulkEditNullBooleanSelect, BulkImportForm, ChainedModelChoiceField, CSVDataField,
     ExpandableIPAddressField, FilterChoiceField, Livesearch, ReturnURLForm, SlugField, add_blank_choice,
 )
-
 from .models import (
     Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, Service, VLAN,
     VLANGroup, VLAN_STATUS_CHOICES, VRF,
@@ -167,12 +168,21 @@ class RoleForm(BootstrapMixin, forms.ModelForm):
 
 class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     site = forms.ModelChoiceField(
-        queryset=Site.objects.all(), required=False, label='Site', widget=forms.Select(
+        queryset=Site.objects.all(),
+        required=False,
+        label='Site',
+        widget=forms.Select(
             attrs={'filter-for': 'vlan', 'nullable': 'true'}
         )
     )
     vlan = ChainedModelChoiceField(
-        queryset=VLAN.objects.all(), chains={'site': 'site'}, required=False, label='VLAN', widget=APISelect(
+        queryset=VLAN.objects.all(),
+        chains=(
+            ('site', 'site'),
+        ),
+        required=False,
+        label='VLAN',
+        widget=APISelect(
             api_url='/api/ipam/vlans/?site_id={{site}}', display_field='display_name'
         )
     )
@@ -270,7 +280,7 @@ def prefix_status_choices():
     status_counts = {}
     for status in Prefix.objects.values('status').annotate(count=Count('status')).order_by('status'):
         status_counts[status['status']] = status['count']
-    return [(s[0], u'{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in PREFIX_STATUS_CHOICES]
+    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in PREFIX_STATUS_CHOICES]
 
 
 class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -321,7 +331,9 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
     )
     interface_rack = ChainedModelChoiceField(
         queryset=Rack.objects.all(),
-        chains={'site': 'interface_site'},
+        chains=(
+            ('site', 'interface_site'),
+        ),
         required=False,
         label='Rack',
         widget=APISelect(
@@ -332,7 +344,10 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
     )
     interface_device = ChainedModelChoiceField(
         queryset=Device.objects.all(),
-        chains={'site': 'interface_site', 'rack': 'interface_rack'},
+        chains=(
+            ('site', 'interface_site'),
+            ('rack', 'interface_rack'),
+        ),
         required=False,
         label='Device',
         widget=APISelect(
@@ -343,7 +358,9 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
     )
     interface = ChainedModelChoiceField(
         queryset=Interface.objects.all(),
-        chains={'device': 'interface_device'},
+        chains=(
+            ('device', 'interface_device'),
+        ),
         required=False,
         widget=APISelect(
             api_url='/api/dcim/interfaces/?device_id={{interface_device}}'
@@ -354,34 +371,41 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
         required=False,
         label='Site',
         widget=forms.Select(
-            attrs={'filter-for': 'nat_device'}
+            attrs={'filter-for': 'nat_rack'}
         )
     )
     nat_rack = ChainedModelChoiceField(
         queryset=Rack.objects.all(),
-        chains={'site': 'nat_site'},
+        chains=(
+            ('site', 'nat_site'),
+        ),
         required=False,
         label='Rack',
         widget=APISelect(
-            api_url='/api/dcim/racks/?site_id={{interface_site}}',
+            api_url='/api/dcim/racks/?site_id={{nat_site}}',
             display_field='display_name',
             attrs={'filter-for': 'nat_device', 'nullable': 'true'}
         )
     )
     nat_device = ChainedModelChoiceField(
         queryset=Device.objects.all(),
-        chains={'site': 'nat_site'},
+        chains=(
+            ('site', 'nat_site'),
+            ('rack', 'nat_rack'),
+        ),
         required=False,
         label='Device',
         widget=APISelect(
-            api_url='/api/dcim/devices/?site_id={{nat_site}}',
+            api_url='/api/dcim/devices/?site_id={{nat_site}}&rack_id={{nat_rack}}',
             display_field='display_name',
             attrs={'filter-for': 'nat_inside'}
         )
     )
     nat_inside = ChainedModelChoiceField(
         queryset=IPAddress.objects.all(),
-        chains={'interface__device': 'nat_device'},
+        chains=(
+            ('interface__device', 'nat_device'),
+        ),
         required=False,
         label='IP Address',
         widget=APISelect(
@@ -391,7 +415,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
     )
     livesearch = forms.CharField(
         required=False,
-        label='IP Address',
+        label='Search',
         widget=Livesearch(
             query_key='q',
             query_url='ipam-api:ipaddress-list',
@@ -404,8 +428,8 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'status', 'description', 'interface', 'primary_for_device', 'nat_inside', 'tenant_group',
-            'tenant',
+            'address', 'vrf', 'status', 'description', 'interface', 'primary_for_device', 'nat_site', 'nat_rack',
+            'nat_inside', 'tenant_group', 'tenant',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -567,7 +591,7 @@ def ipaddress_status_choices():
     status_counts = {}
     for status in IPAddress.objects.values('status').annotate(count=Count('status')).order_by('status'):
         status_counts[status['status']] = status['count']
-    return [(s[0], u'{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in IPADDRESS_STATUS_CHOICES]
+    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in IPADDRESS_STATUS_CHOICES]
 
 
 class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -626,7 +650,9 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     )
     group = ChainedModelChoiceField(
         queryset=VLANGroup.objects.all(),
-        chains={'site': 'site'},
+        chains=(
+            ('site', 'site'),
+        ),
         required=False,
         label='Group',
         widget=APISelect(
@@ -720,7 +746,7 @@ def vlan_status_choices():
     status_counts = {}
     for status in VLAN.objects.values('status').annotate(count=Count('status')).order_by('status'):
         status_counts[status['status']] = status['count']
-    return [(s[0], u'{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in VLAN_STATUS_CHOICES]
+    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in VLAN_STATUS_CHOICES]
 
 
 class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):

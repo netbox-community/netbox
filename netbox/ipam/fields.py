@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from netaddr import IPNetwork
 
 from django.core.exceptions import ValidationError

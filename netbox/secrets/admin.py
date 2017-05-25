@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.contrib import admin, messages
 from django.shortcuts import redirect, render
 
@@ -34,8 +36,8 @@ class UserKeyAdmin(admin.ModelAdmin):
         try:
             my_userkey = UserKey.objects.get(user=request.user)
         except UserKey.DoesNotExist:
-            messages.error(request, u"You do not have an active User Key.")
-            return redirect('/admin/secrets/userkey/')
+            messages.error(request, "You do not have an active User Key.")
+            return redirect('admin:secrets_userkey_changelist')
 
         if 'activate' in request.POST:
             form = ActivateUserKeyForm(request.POST)
@@ -44,9 +46,9 @@ class UserKeyAdmin(admin.ModelAdmin):
                     master_key = my_userkey.get_master_key(form.cleaned_data['secret_key'])
                     for uk in form.cleaned_data['_selected_action']:
                         uk.activate(master_key)
-                    return redirect('/admin/secrets/userkey/')
+                    return redirect('admin:secrets_userkey_changelist')
                 except ValueError:
-                    messages.error(request, u"Invalid private key provided. Unable to retrieve master key.")
+                    messages.error(request, "Invalid private key provided. Unable to retrieve master key.")
         else:
             form = ActivateUserKeyForm(initial={'_selected_action': request.POST.getlist(admin.ACTION_CHECKBOX_NAME)})
 

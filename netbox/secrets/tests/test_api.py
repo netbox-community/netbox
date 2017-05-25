@@ -1,4 +1,6 @@
+from __future__ import unicode_literals
 import base64
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 

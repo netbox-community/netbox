@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django import forms
 from django.db.models import Count
 
@@ -79,7 +81,9 @@ class TenancyForm(ChainedFieldsMixin, forms.Form):
     )
     tenant = ChainedModelChoiceField(
         queryset=Tenant.objects.all(),
-        chains={'group': 'tenant_group'},
+        chains=(
+            ('group', 'tenant_group'),
+        ),
         required=False,
         widget=APISelect(
             api_url='/api/tenancy/tenants/?group_id={{tenant_group}}'

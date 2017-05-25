@@ -1,8 +1,9 @@
+from __future__ import unicode_literals
+
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from utilities.tables import BaseTable, SearchTable, ToggleColumn
-
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPortTemplate, Device, DeviceBayTemplate, DeviceRole, DeviceType,
     Interface, InterfaceTemplate, Manufacturer, Platform, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,

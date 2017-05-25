@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
@@ -110,7 +112,7 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
         unique_together = ['provider', 'cid']
 
     def __str__(self):
-        return u'{} {}'.format(self.provider, self.cid)
+        return '{} {}'.format(self.provider, self.cid)
 
     def get_absolute_url(self):
         return reverse('circuits:circuit', args=[self.pk])
@@ -166,7 +168,7 @@ class CircuitTermination(models.Model):
         unique_together = ['circuit', 'term_side']
 
     def __str__(self):
-        return u'{} (Side {})'.format(self.circuit, self.get_term_side_display())
+        return '{} (Side {})'.format(self.circuit, self.get_term_side_display())
 
     def get_peer_termination(self):
         peer_side = 'Z' if self.term_side == 'A' else 'A'

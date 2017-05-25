@@ -31,7 +31,7 @@ eval $COMMAND
 
 # Apply any database migrations
 COMMAND="./netbox/manage.py migrate"
-echo "Updating required Python packages ($COMMAND)..."
+echo "Applying database migrations ($COMMAND)..."
 eval $COMMAND
 
 # Collect static files

@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.utils import timezone

@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.db.models import Lookup, Transform, IntegerField
 from django.db.models.lookups import BuiltinLookup
 

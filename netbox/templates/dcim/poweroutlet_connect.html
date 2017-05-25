@@ -32,12 +32,7 @@
                             {% render_field form.livesearch %}
                         </div>
                         <div class="tab-pane" id="select">
-                            <div class="form-group">
-                                <label class="col-md-3 control-label">Site</label>
-                                <div class="col-md-9">
-                                    <p class="form-control-static">{{ poweroutlet.device.site }}</p>
-                                </div>
-                            </div>
+                            {% render_field form.site %}
                             {% render_field form.rack %}
                             {% render_field form.device %}
                         </div>

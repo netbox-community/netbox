@@ -13,7 +13,7 @@ except ImportError:
     )
 
 
-VERSION = '2.0.3'
+VERSION = '2.0.4'
 
 # Import local configuration
 ALLOWED_HOSTS = DATABASE = SECRET_KEY = None
@@ -112,6 +112,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'corsheaders',
     'debug_toolbar',
+    'django_filters',
     'django_tables2',
     'mptt',
     'rest_framework',
@@ -180,8 +181,8 @@ STATICFILES_DIRS = (
 )
 
 # Media
-MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/{}media/'.format(BASE_PATH)
 
 # Disable default limit of 1000 fields per request. Needed for bulk deletion of objects. (Added in Django 1.10.)
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None

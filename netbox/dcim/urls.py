@@ -1,9 +1,10 @@
+from __future__ import unicode_literals
+
 from django.conf.urls import url
 
+from extras.views import ImageAttachmentEditView
 from ipam.views import ServiceEditView
 from secrets.views import secret_add
-
-from extras.views import ImageAttachmentEditView
 from .models import Device, Rack, Site
 from . import views
 
@@ -22,7 +23,7 @@ urlpatterns = [
     url(r'^sites/add/$', views.SiteEditView.as_view(), name='site_add'),
     url(r'^sites/import/$', views.SiteBulkImportView.as_view(), name='site_import'),
     url(r'^sites/edit/$', views.SiteBulkEditView.as_view(), name='site_bulk_edit'),
-    url(r'^sites/(?P<slug>[\w-]+)/$', views.site, name='site'),
+    url(r'^sites/(?P<slug>[\w-]+)/$', views.SiteView.as_view(), name='site'),
     url(r'^sites/(?P<slug>[\w-]+)/edit/$', views.SiteEditView.as_view(), name='site_edit'),
     url(r'^sites/(?P<slug>[\w-]+)/delete/$', views.SiteDeleteView.as_view(), name='site_delete'),
     url(r'^sites/(?P<object_id>\d+)/images/add/$', ImageAttachmentEditView.as_view(), name='site_add_image', kwargs={'model': Site}),
@@ -52,7 +53,7 @@ urlpatterns = [
     url(r'^racks/import/$', views.RackBulkImportView.as_view(), name='rack_import'),
     url(r'^racks/edit/$', views.RackBulkEditView.as_view(), name='rack_bulk_edit'),
     url(r'^racks/delete/$', views.RackBulkDeleteView.as_view(), name='rack_bulk_delete'),
-    url(r'^racks/(?P<pk>\d+)/$', views.rack, name='rack'),
+    url(r'^racks/(?P<pk>\d+)/$', views.RackView.as_view(), name='rack'),
     url(r'^racks/(?P<pk>\d+)/edit/$', views.RackEditView.as_view(), name='rack_edit'),
     url(r'^racks/(?P<pk>\d+)/delete/$', views.RackDeleteView.as_view(), name='rack_delete'),
     url(r'^racks/(?P<rack>\d+)/reservations/add/$', views.RackReservationEditView.as_view(), name='rack_add_reservation'),
@@ -69,7 +70,7 @@ urlpatterns = [
     url(r'^device-types/add/$', views.DeviceTypeEditView.as_view(), name='devicetype_add'),
     url(r'^device-types/edit/$', views.DeviceTypeBulkEditView.as_view(), name='devicetype_bulk_edit'),
     url(r'^device-types/delete/$', views.DeviceTypeBulkDeleteView.as_view(), name='devicetype_bulk_delete'),
-    url(r'^device-types/(?P<pk>\d+)/$', views.devicetype, name='devicetype'),
+    url(r'^device-types/(?P<pk>\d+)/$', views.DeviceTypeView.as_view(), name='devicetype'),
     url(r'^device-types/(?P<pk>\d+)/edit/$', views.DeviceTypeEditView.as_view(), name='devicetype_edit'),
     url(r'^device-types/(?P<pk>\d+)/delete/$', views.DeviceTypeDeleteView.as_view(), name='devicetype_delete'),
 
@@ -117,11 +118,11 @@ urlpatterns = [
     url(r'^devices/import/child-devices/$', views.ChildDeviceBulkImportView.as_view(), name='device_import_child'),
     url(r'^devices/edit/$', views.DeviceBulkEditView.as_view(), name='device_bulk_edit'),
     url(r'^devices/delete/$', views.DeviceBulkDeleteView.as_view(), name='device_bulk_delete'),
-    url(r'^devices/(?P<pk>\d+)/$', views.device, name='device'),
+    url(r'^devices/(?P<pk>\d+)/$', views.DeviceView.as_view(), name='device'),
     url(r'^devices/(?P<pk>\d+)/edit/$', views.DeviceEditView.as_view(), name='device_edit'),
     url(r'^devices/(?P<pk>\d+)/delete/$', views.DeviceDeleteView.as_view(), name='device_delete'),
-    url(r'^devices/(?P<pk>\d+)/inventory/$', views.device_inventory, name='device_inventory'),
-    url(r'^devices/(?P<pk>\d+)/lldp-neighbors/$', views.device_lldp_neighbors, name='device_lldp_neighbors'),
+    url(r'^devices/(?P<pk>\d+)/inventory/$', views.DeviceInventoryView.as_view(), name='device_inventory'),
+    url(r'^devices/(?P<pk>\d+)/lldp-neighbors/$', views.DeviceLLDPNeighborsView.as_view(), name='device_lldp_neighbors'),
     url(r'^devices/(?P<pk>\d+)/add-secret/$', secret_add, name='device_addsecret'),
     url(r'^devices/(?P<device>\d+)/services/assign/$', ServiceEditView.as_view(), name='service_assign'),
     url(r'^devices/(?P<object_id>\d+)/images/add/$', ImageAttachmentEditView.as_view(), name='device_add_image', kwargs={'model': Device}),
