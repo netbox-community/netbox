@@ -944,9 +944,9 @@ def consoleport_connect(request, pk):
 
     else:
         form = forms.ConsolePortConnectionForm(instance=consoleport, initial={
-            'site': request.GET.get('site', consoleport.device.site),
-            'rack': request.GET.get('rack', None),
-            'console_server': request.GET.get('console_server', None),
+            'site': request.GET.get('site'),
+            'rack': request.GET.get('rack'),
+            'console_server': request.GET.get('console_server'),
             'connection_status': CONNECTION_STATUS_CONNECTED,
         })
 
@@ -1061,9 +1061,9 @@ def consoleserverport_connect(request, pk):
 
     else:
         form = forms.ConsoleServerPortConnectionForm(initial={
-            'site': request.GET.get('site', consoleserverport.device.site),
-            'rack': request.GET.get('rack', None),
-            'device': request.GET.get('device', None),
+            'site': request.GET.get('site'),
+            'rack': request.GET.get('rack'),
+            'device': request.GET.get('device'),
             'connection_status': CONNECTION_STATUS_CONNECTED,
         })
 
@@ -1167,9 +1167,9 @@ def powerport_connect(request, pk):
 
     else:
         form = forms.PowerPortConnectionForm(instance=powerport, initial={
-            'site': request.GET.get('site', powerport.device.site),
-            'rack': request.GET.get('rack', None),
-            'pdu': request.GET.get('pdu', None),
+            'site': request.GET.get('site'),
+            'rack': request.GET.get('rack'),
+            'pdu': request.GET.get('pdu'),
             'connection_status': CONNECTION_STATUS_CONNECTED,
         })
 
@@ -1284,9 +1284,9 @@ def poweroutlet_connect(request, pk):
 
     else:
         form = forms.PowerOutletConnectionForm(initial={
-            'site': request.GET.get('site', poweroutlet.device.site),
-            'rack': request.GET.get('rack', None),
-            'device': request.GET.get('device', None),
+            'site': request.GET.get('site'),
+            'rack': request.GET.get('rack'),
+            'device': request.GET.get('device'),
             'connection_status': CONNECTION_STATUS_CONNECTED,
         })
 
@@ -1616,11 +1616,11 @@ def interfaceconnection_add(request, pk):
 
     else:
         form = forms.InterfaceConnectionForm(device, initial={
-            'interface_a': request.GET.get('interface_a', None),
-            'site_b': request.GET.get('site_b', device.site),
-            'rack_b': request.GET.get('rack_b', None),
-            'device_b': request.GET.get('device_b', None),
-            'interface_b': request.GET.get('interface_b', None),
+            'interface_a': request.GET.get('interface_a'),
+            'site_b': request.GET.get('site_b'),
+            'rack_b': request.GET.get('rack_b'),
+            'device_b': request.GET.get('device_b'),
+            'interface_b': request.GET.get('interface_b'),
         })
 
     return render(request, 'dcim/interfaceconnection_edit.html', {

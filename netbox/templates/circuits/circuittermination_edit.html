@@ -45,23 +45,8 @@
                             </div>
                         </div>
                         {% render_field form.site %}
-                        <div class="row">
-                            <div class="col-md-9 col-md-offset-3">
-                                <ul class="nav nav-tabs" role="tablist">
-                                    <li role="presentation" class="active"><a href="#select" aria-controls="home" role="tab" data-toggle="tab">Select</a></li>
-                                    <li role="presentation"><a href="#search" aria-controls="search" role="tab" data-toggle="tab">Search</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="tab-content">
-                            <div class="tab-pane active" id="select">
-                                {% render_field form.rack %}
-                                {% render_field form.device %}
-                            </div>
-                            <div class="tab-pane" id="search">
-                                {% render_field form.livesearch %}
-                            </div>
-                        </div>
+                        {% render_field form.rack %}
+                        {% render_field form.device %}
                         {% render_field form.interface %}
                     </div>
                 </div>

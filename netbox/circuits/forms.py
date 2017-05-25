@@ -167,7 +167,9 @@ class CircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm
     )
     rack = ChainedModelChoiceField(
         queryset=Rack.objects.all(),
-        chains={'site': 'site'},
+        chains=(
+            ('site', 'site'),
+        ),
         required=False,
         label='Rack',
         widget=APISelect(
@@ -177,7 +179,10 @@ class CircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm
     )
     device = ChainedModelChoiceField(
         queryset=Device.objects.all(),
-        chains={'site': 'site', 'rack': 'rack'},
+        chains=(
+            ('site', 'site'),
+            ('rack', 'rack'),
+        ),
         required=False,
         label='Device',
         widget=APISelect(
@@ -186,20 +191,13 @@ class CircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm
             attrs={'filter-for': 'interface'}
         )
     )
-    livesearch = forms.CharField(
-        required=False,
-        label='Device',
-        widget=Livesearch(
-            query_key='q',
-            query_url='dcim-api:device-list',
-            field_to_update='device'
-        )
-    )
     interface = ChainedModelChoiceField(
         queryset=Interface.objects.exclude(form_factor__in=VIRTUAL_IFACE_TYPES).select_related(
             'circuit_termination', 'connected_as_a', 'connected_as_b'
         ),
-        chains={'device': 'device'},
+        chains=(
+            ('device', 'device'),
+        ),
         required=False,
         label='Interface',
         widget=APISelect(
@@ -210,8 +208,10 @@ class CircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm
 
     class Meta:
         model = CircuitTermination
-        fields = ['term_side', 'site', 'rack', 'device', 'livesearch', 'interface', 'port_speed', 'upstream_speed',
-                  'xconnect_id', 'pp_info']
+        fields = [
+            'term_side', 'site', 'rack', 'device', 'interface', 'port_speed', 'upstream_speed', 'xconnect_id',
+            'pp_info',
+        ]
         help_texts = {
             'port_speed': "Physical circuit speed",
             'xconnect_id': "ID of the local cross-connect",

@@ -81,7 +81,9 @@ class TenancyForm(ChainedFieldsMixin, forms.Form):
     )
     tenant = ChainedModelChoiceField(
         queryset=Tenant.objects.all(),
-        chains={'group': 'tenant_group'},
+        chains=(
+            ('group', 'tenant_group'),
+        ),
         required=False,
         widget=APISelect(
             api_url='/api/tenancy/tenants/?group_id={{tenant_group}}'
