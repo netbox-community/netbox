@@ -45,6 +45,10 @@ sure to include:
     * Any error messages generated
     * Screenshots (if applicable)
 
+* Please avoid prepending any sort of tag (e.g. "[Bug]") to the issue title.
+The issue will be reviewed by a moderator after submission and the appropriate
+labels will be applied.
+
 * Keep in mind that we prioritize bugs based on their severity and how
 much work is required to resolve them. It may take some time for someone
 to address your issue.
@@ -90,6 +94,10 @@ following:
       (if applicable)
     * Any third-party libraries or other resources which would be
       involved
+
+* Please avoid prepending any sort of tag (e.g. "[Feature]") to the issue title.
+The issue will be reviewed by a moderator after submission and the appropriate
+labels will be applied.
 
 ## Submitting Pull Requests
 
