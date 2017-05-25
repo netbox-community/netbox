@@ -20,9 +20,17 @@ COMMAND="${PREFIX}find . -name \"*.pyc\" -delete"
 echo "Cleaning up stale Python bytecode ($COMMAND)..."
 eval $COMMAND
 
-# Fall back to pip3 if pip is missing
-PIP="pip"
-type $PIP >/dev/null 2>&1 || PIP="pip3"
+# Prefer Python 3
+PIP=pip
+if type -P pip3 >/dev/null 2>&1; then
+	# We're likely on something Debian-based with numbered coexistent pythons.
+	# If we're running 3.4 or better, use pip3 and invoke scripts with python3
+	pip_version=$(pip3 --version | sed -e 's/.*(python \(.*\))/\1/')
+	if [[ ${pip_version:0:1} == 3 && ${pip_version:2:1} -gt 3 ]]; then
+		PIP=pip3
+		find . -type f -name '*.py' -execdir sed -i -e '1s/python/python3/' {} +
+	fi
+fi
 
 # Install any new Python packages
 COMMAND="${PREFIX}${PIP} install -r requirements.txt --upgrade"
