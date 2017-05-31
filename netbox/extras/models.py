@@ -139,7 +139,11 @@ class CustomField(models.Model):
         if self.type == CF_TYPE_BOOLEAN:
             return str(int(bool(value)))
         if self.type == CF_TYPE_DATE:
-            return value.strftime('%Y-%m-%d')
+            # Could be date/datetime object or string
+            try:
+                return value.strftime('%Y-%m-%d')
+            except AttributeError:
+                return value
         if self.type == CF_TYPE_SELECT:
             # Could be ModelChoiceField or TypedChoiceField
             return str(value.id) if hasattr(value, 'id') else str(value)
