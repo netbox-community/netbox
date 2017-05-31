@@ -10,7 +10,7 @@ from circuits.models import Circuit
 from dcim.models import Site, Rack, Device
 from ipam.models import IPAddress, Prefix, VLAN, VRF
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkDeleteView, BulkEditView, BulkImportView, BulkImportView2, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from .models import Tenant, TenantGroup
 from . import filters, forms, tables
@@ -95,9 +95,9 @@ class TenantDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'tenancy:tenant_list'
 
 
-class TenantBulkImportView(PermissionRequiredMixin, BulkImportView):
+class TenantBulkImportView(PermissionRequiredMixin, BulkImportView2):
     permission_required = 'tenancy.add_tenant'
-    form = forms.TenantImportForm
+    model_form = forms.TenantCSVForm
     table = tables.TenantTable
     template_name = 'tenancy/tenant_import.html'
     default_return_url = 'tenancy:tenant_list'

@@ -256,6 +256,60 @@ class CSVDataField(forms.CharField):
         return records
 
 
+class CSVDataField2(forms.CharField):
+    """
+    A CharField (rendered as a Textarea) which accepts CSV-formatted data. It returns a list of dictionaries mapping
+    column headers to values. Each dictionary represents an individual record.
+    """
+    widget = forms.Textarea
+
+    def __init__(self, fields, required_fields=[], *args, **kwargs):
+
+        self.fields = fields
+        self.required_fields = required_fields
+
+        super(CSVDataField2, self).__init__(*args, **kwargs)
+
+        self.strip = False
+        if not self.label:
+            self.label = 'CSV Data'
+        if not self.initial:
+            self.initial = ','.join(required_fields) + '\n'
+        if not self.help_text:
+            self.help_text = 'Enter one line per record. Use commas to separate values.'
+
+    def to_python(self, value):
+
+        # Python 2's csv module has problems with Unicode
+        if not isinstance(value, str):
+            value = value.encode('utf-8')
+
+        records = []
+        reader = csv.reader(value.splitlines())
+
+        # Consume and valdiate the first line of CSV data as column headers
+        headers = reader.next()
+        for f in self.required_fields:
+            if f not in headers:
+                raise forms.ValidationError('Required column header "{}" not found.'.format(f))
+        for f in headers:
+            if f not in self.fields:
+                raise forms.ValidationError('Unexpected column header "{}" found.'.format(f))
+
+        # Parse CSV data
+        for i, row in enumerate(reader, start=1):
+            if row:
+                if len(row) != len(headers):
+                    raise forms.ValidationError(
+                        "Row {}: Expected {} columns but found {}".format(i, len(headers), len(row))
+                    )
+                row = [col.strip() for col in row]
+                record = dict(zip(headers, row))
+                records.append(record)
+
+        return records
+
+
 class ExpandableNameField(forms.CharField):
     """
     A field which allows for numeric range expansion
@@ -488,7 +542,7 @@ class BulkEditForm(forms.Form):
 class BulkImportForm(forms.Form):
 
     def clean(self):
-        records = self.cleaned_data.get('csv')
+        fields, records = self.cleaned_data.get('csv').split('\n', 1)
         if not records:
             return
 

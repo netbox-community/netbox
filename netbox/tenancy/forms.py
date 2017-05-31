@@ -5,8 +5,7 @@ from django.db.models import Count
 
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from utilities.forms import (
-    APISelect, BootstrapMixin, BulkImportForm, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, CSVDataField,
-    FilterChoiceField, SlugField,
+    APISelect, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, FilterChoiceField, SlugField,
 )
 from .models import Tenant, TenantGroup
 
@@ -36,17 +35,19 @@ class TenantForm(BootstrapMixin, CustomFieldForm):
         fields = ['name', 'slug', 'group', 'description', 'comments']
 
 
-class TenantFromCSVForm(forms.ModelForm):
-    group = forms.ModelChoiceField(TenantGroup.objects.all(), required=False, to_field_name='name',
-                                   error_messages={'invalid_choice': 'Group not found.'})
+class TenantCSVForm(forms.ModelForm):
+    group = forms.ModelChoiceField(
+        queryset=TenantGroup.objects.all(),
+        required=False,
+        to_field_name='name',
+        error_messages={
+            'invalid_choice': 'Group not found.'
+        }
+    )
 
     class Meta:
         model = Tenant
-        fields = ['name', 'slug', 'group', 'description']
-
-
-class TenantImportForm(BootstrapMixin, BulkImportForm):
-    csv = CSVDataField(csv_form=TenantFromCSVForm)
+        fields = ['name', 'slug', 'group', 'description', 'comments']
 
 
 class TenantBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):

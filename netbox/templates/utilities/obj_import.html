@@ -28,6 +28,23 @@
 	</div>
 	<div class="col-md-6">
         {% block instructions %}{% endblock %}
+        {% if fields %}
+            <h4>CSV Format</h4>
+            <table class="table">
+                <tr>
+                    <th>Field</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+                {% for name, field in fields.items %}
+                    <tr>
+                        <td><code>{{ name }}</code></td>
+                        <td>{% if field.required %}<i class="glyphicon glyphicon-ok" title="Required"></i>{% endif %}</td>
+                        <td>{{ field.help_text }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
 	</div>
 </div>
 {% endblock %}
