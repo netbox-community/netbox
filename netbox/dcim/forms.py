@@ -107,27 +107,32 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class SiteFromCSVForm(forms.ModelForm):
+class SiteCSVForm(forms.ModelForm):
     region = forms.ModelChoiceField(
-        Region.objects.all(), to_field_name='name', required=False, error_messages={
-            'invalid_choice': 'Tenant not found.'
+        queryset=Region.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of assigned region',
+        error_messages={
+            'invalid_choice': 'Region not found.',
         }
     )
     tenant = forms.ModelChoiceField(
-        Tenant.objects.all(), to_field_name='name', required=False, error_messages={
-            'invalid_choice': 'Tenant not found.'
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of assigned tenant',
+        error_messages={
+            'invalid_choice': 'Tenant not found.',
         }
     )
 
     class Meta:
         model = Site
         fields = [
-            'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'contact_name', 'contact_phone', 'contact_email',
+            'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
+            'contact_name', 'contact_phone', 'contact_email', 'comments',
         ]
-
-
-class SiteImportForm(BootstrapMixin, BulkImportForm):
-    csv = CSVDataField(csv_form=SiteFromCSVForm)
 
 
 class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -217,35 +222,62 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class RackFromCSVForm(forms.ModelForm):
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), to_field_name='name',
-                                  error_messages={'invalid_choice': 'Site not found.'})
-    group_name = forms.CharField(required=False)
-    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
-                                    error_messages={'invalid_choice': 'Tenant not found.'})
-    role = forms.ModelChoiceField(RackRole.objects.all(), to_field_name='name', required=False,
-                                  error_messages={'invalid_choice': 'Role not found.'})
+class RackCSVForm(forms.ModelForm):
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='name',
+        help_text='Name of parent site',
+        error_messages={
+            'invalid_choice': 'Site not found.',
+        }
+    )
+    group = forms.ModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Name of parent group',
+        error_messages={
+            'invalid_choice': 'Rack group not found.',
+        }
+    )
+    tenant = forms.ModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of assigned tenant',
+        error_messages={
+            'invalid_choice': 'Tenant not found.',
+        }
+    )
+    role = forms.ModelChoiceField(
+        queryset=RackRole.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of assigned role',
+        error_messages={
+            'invalid_choice': 'Role not found.',
+        }
+    )
     type = forms.CharField(required=False)
 
     class Meta:
         model = Rack
-        fields = ['site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height',
-                  'desc_units']
+        fields = [
+            'site', 'group', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
+        ]
 
-    def clean(self):
+    def clean_group(self):
 
         site = self.cleaned_data.get('site')
-        group = self.cleaned_data.get('group_name')
+        group = self.cleaned_data.get('group')
 
-        # Validate rack group
-        if site and group:
-            try:
-                self.instance.group = RackGroup.objects.get(site=site, name=group)
-            except RackGroup.DoesNotExist:
-                self.add_error('group_name', "Invalid rack group ({})".format(group))
+        if group and group.site != site:
+            raise ValidationError("Invalid group for site {}: {}".format(site, group))
 
     def clean_type(self):
+
         rack_type = self.cleaned_data['type']
+
         if not rack_type:
             return None
         try:
@@ -256,10 +288,6 @@ class RackFromCSVForm(forms.ModelForm):
                 rack_type,
                 ', '.join({v: k for k, v in RACK_TYPE_CHOICES}),
             ))
-
-
-class RackImportForm(BootstrapMixin, BulkImportForm):
-    csv = CSVDataField(csv_form=RackFromCSVForm)
 
 
 class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -663,25 +691,47 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             self.initial['rack'] = self.instance.parent_bay.device.rack_id
 
 
-class BaseDeviceFromCSVForm(forms.ModelForm):
+class BaseDeviceCSVForm(forms.ModelForm):
     device_role = forms.ModelChoiceField(
-        queryset=DeviceRole.objects.all(), to_field_name='name',
-        error_messages={'invalid_choice': 'Invalid device role.'}
+        queryset=DeviceRole.objects.all(),
+        to_field_name='name',
+        help_text='Name of assigned role',
+        error_messages={
+            'invalid_choice': 'Invalid device role.',
+        }
     )
     tenant = forms.ModelChoiceField(
-        Tenant.objects.all(), to_field_name='name', required=False,
-        error_messages={'invalid_choice': 'Tenant not found.'}
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of assigned tenant',
+        error_messages={
+            'invalid_choice': 'Tenant not found.',
+        }
     )
     manufacturer = forms.ModelChoiceField(
-        queryset=Manufacturer.objects.all(), to_field_name='name',
-        error_messages={'invalid_choice': 'Invalid manufacturer.'}
+        queryset=Manufacturer.objects.all(),
+        to_field_name='name',
+        help_text='Manufacturer name',
+        error_messages={
+            'invalid_choice': 'Invalid manufacturer.',
+        }
     )
-    model_name = forms.CharField()
+    model_name = forms.CharField(
+        help_text='Model name'
+    )
     platform = forms.ModelChoiceField(
-        queryset=Platform.objects.all(), required=False, to_field_name='name',
-        error_messages={'invalid_choice': 'Invalid platform.'}
+        queryset=Platform.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of assigned platform',
+        error_messages={
+            'invalid_choice': 'Invalid platform.',
+        }
     )
-    status = forms.CharField()
+    status = forms.CharField(
+        help_text='Status name'
+    )
 
     class Meta:
         fields = []
@@ -707,16 +757,25 @@ class BaseDeviceFromCSVForm(forms.ModelForm):
             raise ValidationError("Invalid status: {}".format(self.cleaned_data['status']))
 
 
-class DeviceFromCSVForm(BaseDeviceFromCSVForm):
+class DeviceCSVForm(BaseDeviceCSVForm):
     site = forms.ModelChoiceField(
-        queryset=Site.objects.all(), to_field_name='name', error_messages={
+        queryset=Site.objects.all(),
+        to_field_name='name',
+        help_text='Name of parent site',
+        error_messages={
             'invalid_choice': 'Invalid site name.',
         }
     )
-    rack_name = forms.CharField(required=False)
-    face = forms.CharField(required=False)
+    rack_name = forms.CharField(
+        required=False,
+        help_text='Name of parent rack'
+    )
+    face = forms.CharField(
+        required=False,
+        help_text='Mounted rack face (front or rear)'
+    )
 
-    class Meta(BaseDeviceFromCSVForm.Meta):
+    class Meta(BaseDeviceCSVForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
             'site', 'rack_name', 'position', 'face',
@@ -724,7 +783,7 @@ class DeviceFromCSVForm(BaseDeviceFromCSVForm):
 
     def clean(self):
 
-        super(DeviceFromCSVForm, self).clean()
+        super(DeviceCSVForm, self).clean()
 
         site = self.cleaned_data.get('site')
         rack_name = self.cleaned_data.get('rack_name')
@@ -749,18 +808,20 @@ class DeviceFromCSVForm(BaseDeviceFromCSVForm):
             raise forms.ValidationError('Invalid rack face ({}); must be "front" or "rear".'.format(face))
 
 
-class ChildDeviceFromCSVForm(BaseDeviceFromCSVForm):
+class ChildDeviceCSVForm(BaseDeviceCSVForm):
     parent = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        required=False,
+        help_text='Name of parent device',
         error_messages={
-            'invalid_choice': 'Parent device not found.'
+            'invalid_choice': 'Parent device not found.',
         }
     )
-    device_bay_name = forms.CharField(required=False)
+    device_bay_name = forms.CharField(
+        help_text='Name of device bay',
+    )
 
-    class Meta(BaseDeviceFromCSVForm.Meta):
+    class Meta(BaseDeviceCSVForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
             'parent', 'device_bay_name',
@@ -768,7 +829,7 @@ class ChildDeviceFromCSVForm(BaseDeviceFromCSVForm):
 
     def clean(self):
 
-        super(ChildDeviceFromCSVForm, self).clean()
+        super(ChildDeviceCSVForm, self).clean()
 
         parent = self.cleaned_data.get('parent')
         device_bay_name = self.cleaned_data.get('device_bay_name')
@@ -778,20 +839,15 @@ class ChildDeviceFromCSVForm(BaseDeviceFromCSVForm):
             try:
                 device_bay = DeviceBay.objects.get(device=parent, name=device_bay_name)
                 if device_bay.installed_device:
-                    self.add_error('device_bay_name',
-                                   "Device bay ({} {}) is already occupied".format(parent, device_bay_name))
+                    self.add_error(
+                        'device_bay_name', "Device bay ({} {}) is already occupied".format(parent, device_bay_name)
+                    )
                 else:
                     self.instance.parent_bay = device_bay
             except DeviceBay.DoesNotExist:
-                self.add_error('device_bay_name', "Parent device/bay ({} {}) not found".format(parent, device_bay_name))
-
-
-class DeviceImportForm(BootstrapMixin, BulkImportForm):
-    csv = CSVDataField(csv_form=DeviceFromCSVForm)
-
-
-class ChildDeviceImportForm(BootstrapMixin, BulkImportForm):
-    csv = CSVDataField(csv_form=ChildDeviceFromCSVForm)
+                self.add_error(
+                    'device_bay_name', "Parent device/bay ({} {}) not found".format(parent, device_bay_name)
+                )
 
 
 class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):

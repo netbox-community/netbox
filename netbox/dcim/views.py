@@ -23,14 +23,14 @@ from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_S
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkDeleteView, BulkEditView, BulkImportView, BulkImportView2, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
 from .models import (
     CONNECTION_STATUS_CONNECTED, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
     DeviceBay, DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate,
-    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site,
+    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
+    RackGroup, RackReservation, RackRole, Region, Site,
 )
 
 
@@ -217,11 +217,10 @@ class SiteDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'dcim:site_list'
 
 
-class SiteBulkImportView(PermissionRequiredMixin, BulkImportView):
+class SiteBulkImportView(PermissionRequiredMixin, BulkImportView2):
     permission_required = 'dcim.add_site'
-    form = forms.SiteImportForm
+    model_form = forms.SiteCSVForm
     table = tables.SiteTable
-    template_name = 'dcim/site_import.html'
     default_return_url = 'dcim:site_list'
 
 
@@ -388,11 +387,10 @@ class RackDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'dcim:rack_list'
 
 
-class RackBulkImportView(PermissionRequiredMixin, BulkImportView):
+class RackBulkImportView(PermissionRequiredMixin, BulkImportView2):
     permission_required = 'dcim.add_rack'
-    form = forms.RackImportForm
+    model_form = forms.RackCSVForm
     table = tables.RackImportTable
-    template_name = 'dcim/rack_import.html'
     default_return_url = 'dcim:rack_list'
 
 
@@ -864,17 +862,17 @@ class DeviceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'dcim:device_list'
 
 
-class DeviceBulkImportView(PermissionRequiredMixin, BulkImportView):
+class DeviceBulkImportView(PermissionRequiredMixin, BulkImportView2):
     permission_required = 'dcim.add_device'
-    form = forms.DeviceImportForm
+    model_form = forms.DeviceCSVForm
     table = tables.DeviceImportTable
     template_name = 'dcim/device_import.html'
     default_return_url = 'dcim:device_list'
 
 
-class ChildDeviceBulkImportView(PermissionRequiredMixin, BulkImportView):
+class ChildDeviceBulkImportView(PermissionRequiredMixin, BulkImportView2):
     permission_required = 'dcim.add_device'
-    form = forms.ChildDeviceImportForm
+    model_form = forms.ChildDeviceCSVForm
     table = tables.DeviceImportTable
     template_name = 'dcim/device_import_child.html'
     default_return_url = 'dcim:device_list'
