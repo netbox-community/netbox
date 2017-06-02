@@ -448,6 +448,12 @@ class BulkImportView2(View):
 
         return ImportForm(*args, **kwargs)
 
+    def _save_obj(self, obj_form):
+        """
+        Provide a hook to modify the object immediately before saving it (e.g. to encrypt secret data).
+        """
+        return obj_form.save()
+
     def get(self, request):
 
         return render(request, self.template_name, {
@@ -471,7 +477,7 @@ class BulkImportView2(View):
                     for row, data in enumerate(form.cleaned_data['csv'], start=1):
                         obj_form = self.model_form(data)
                         if obj_form.is_valid():
-                            obj = obj_form.save()
+                            obj = self._save_obj(obj_form)
                             new_objs.append(obj)
                         else:
                             for field, err in obj_form.errors.items():
@@ -500,9 +506,6 @@ class BulkImportView2(View):
             'obj_type': self.model_form._meta.model._meta.verbose_name,
             'return_url': self.default_return_url,
         })
-
-    def save_obj(self, obj):
-        obj.save()
 
 
 class BulkEditView(View):
