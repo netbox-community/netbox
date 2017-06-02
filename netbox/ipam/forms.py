@@ -9,8 +9,8 @@ from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFi
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, BootstrapMixin, BulkEditNullBooleanSelect, BulkImportForm, ChainedModelChoiceField, CSVDataField,
-    ExpandableIPAddressField, FilterChoiceField, Livesearch, ReturnURLForm, SlugField, add_blank_choice,
+    APISelect, BootstrapMixin, BulkEditNullBooleanSelect, ChainedModelChoiceField, ExpandableIPAddressField,
+    FilterChoiceField, Livesearch, ReturnURLForm, SlugField, add_blank_choice,
 )
 from .models import (
     Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, Service, VLAN,
@@ -48,17 +48,20 @@ class VRFForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class VRFFromCSVForm(forms.ModelForm):
-    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
-                                    error_messages={'invalid_choice': 'Tenant not found.'})
+class VRFCSVForm(forms.ModelForm):
+    tenant = forms.ModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of assigned tenant',
+        error_messages={
+            'invalid_choice': 'Tenant not found.',
+        }
+    )
 
     class Meta:
         model = VRF
         fields = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
-
-
-class VRFImportForm(BootstrapMixin, BulkImportForm):
-    csv = CSVDataField(csv_form=VRFFromCSVForm)
 
 
 class VRFBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -116,17 +119,19 @@ class AggregateForm(BootstrapMixin, CustomFieldForm):
         }
 
 
-class AggregateFromCSVForm(forms.ModelForm):
-    rir = forms.ModelChoiceField(queryset=RIR.objects.all(), to_field_name='name',
-                                 error_messages={'invalid_choice': 'RIR not found.'})
+class AggregateCSVForm(forms.ModelForm):
+    rir = forms.ModelChoiceField(
+        queryset=RIR.objects.all(),
+        to_field_name='name',
+        help_text='Name of parent RIR',
+        error_messages={
+            'invalid_choice': 'RIR not found.',
+        }
+    )
 
     class Meta:
         model = Aggregate
         fields = ['prefix', 'rir', 'date_added', 'description']
-
-
-class AggregateImportForm(BootstrapMixin, BulkImportForm):
-    csv = CSVDataField(csv_form=AggregateFromCSVForm)
 
 
 class AggregateBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -197,18 +202,54 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         self.fields['vrf'].empty_label = 'Global'
 
 
-class PrefixFromCSVForm(forms.ModelForm):
-    vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, to_field_name='rd',
-                                 error_messages={'invalid_choice': 'VRF not found.'})
-    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
-                                    error_messages={'invalid_choice': 'Tenant not found.'})
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, to_field_name='name',
-                                  error_messages={'invalid_choice': 'Site not found.'})
-    vlan_group_name = forms.CharField(required=False)
-    vlan_vid = forms.IntegerField(required=False)
-    status = forms.CharField()
-    role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False, to_field_name='name',
-                                  error_messages={'invalid_choice': 'Invalid role.'})
+class PrefixCSVForm(forms.ModelForm):
+    vrf = forms.ModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        to_field_name='rd',
+        help_text='Route distinguisher of parent VRF',
+        error_messages={
+            'invalid_choice': 'VRF not found.',
+        }
+    )
+    tenant = forms.ModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of assigned tenant',
+        error_messages={
+            'invalid_choice': 'Tenant not found.',
+        }
+    )
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of parent site',
+        error_messages={
+            'invalid_choice': 'Site not found.',
+        }
+    )
+    vlan_group_name = forms.CharField(
+        help_text='Group name of assigned VLAN',
+        required=False
+    )
+    vlan_vid = forms.IntegerField(
+        help_text='Numeric ID of assigned VLAN',
+        required=False
+    )
+    status = forms.CharField(
+        help_text='Status name'
+    )
+    role = forms.ModelChoiceField(
+        queryset=Role.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Role name',
+        error_messages={
+            'invalid_choice': 'Invalid role.',
+        }
+    )
 
     class Meta:
         model = Prefix
@@ -218,8 +259,6 @@ class PrefixFromCSVForm(forms.ModelForm):
         ]
 
     def clean(self):
-
-        super(PrefixFromCSVForm, self).clean()
 
         site = self.cleaned_data.get('site')
         vlan_group_name = self.cleaned_data.get('vlan_group_name')
@@ -256,10 +295,6 @@ class PrefixFromCSVForm(forms.ModelForm):
             return status_choices[self.cleaned_data['status'].lower()]
         except KeyError:
             raise ValidationError("Invalid status: {}".format(self.cleaned_data['status']))
-
-
-class PrefixImportForm(BootstrapMixin, BulkImportForm):
-    csv = CSVDataField(csv_form=PrefixFromCSVForm)
 
 
 class PrefixBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -513,16 +548,45 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         self.fields['vrf'].empty_label = 'Global'
 
 
-class IPAddressFromCSVForm(forms.ModelForm):
-    vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, to_field_name='rd',
-                                 error_messages={'invalid_choice': 'VRF not found.'})
-    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
-                                    error_messages={'invalid_choice': 'Tenant not found.'})
-    status = forms.CharField()
-    device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False, to_field_name='name',
-                                    error_messages={'invalid_choice': 'Device not found.'})
-    interface_name = forms.CharField(required=False)
-    is_primary = forms.BooleanField(required=False)
+class IPAddressCSVForm(forms.ModelForm):
+    vrf = forms.ModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        to_field_name='rd',
+        help_text='Route distinguisher of the assigned VRF',
+        error_messages={
+            'invalid_choice': 'VRF not found.',
+        }
+    )
+    tenant = forms.ModelChoiceField(
+        queryset=Tenant.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Name of the assigned tenant',
+        error_messages={
+            'invalid_choice': 'Tenant not found.',
+        }
+    )
+    status = forms.CharField(
+        help_text='Status name'
+    )
+    device = forms.ModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of assigned Device',
+        error_messages={
+            'invalid_choice': 'Device not found.',
+        }
+    )
+    interface_name = forms.CharField(
+        help_text='Name of assigned interface',
+        required=False
+    )
+    is_primary = forms.BooleanField(
+        help_text='This is the primary IP for the assigned device',
+        required=False
+    )
 
     class Meta:
         model = IPAddress
@@ -569,11 +633,7 @@ class IPAddressFromCSVForm(forms.ModelForm):
             elif self.instance.address.version == 6:
                 self.instance.primary_ip6_for = self.cleaned_data['device']
 
-        return super(IPAddressFromCSVForm, self).save(*args, **kwargs)
-
-
-class IPAddressImportForm(BootstrapMixin, BulkImportForm):
-    csv = CSVDataField(csv_form=IPAddressFromCSVForm)
+        return super(IPAddressCSVForm, self).save(*args, **kwargs)
 
 
 class IPAddressBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -673,20 +733,40 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class VLANFromCSVForm(forms.ModelForm):
+class VLANCSVForm(forms.ModelForm):
     site = forms.ModelChoiceField(
-        queryset=Site.objects.all(), required=False, to_field_name='name',
-        error_messages={'invalid_choice': 'Site not found.'}
+        queryset=Site.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of parent site',
+        error_messages={
+            'invalid_choice': 'Site not found.',
+        }
     )
-    group_name = forms.CharField(required=False)
+    group_name = forms.CharField(
+        help_text='Name of parent VLAN group',
+        required=False
+    )
     tenant = forms.ModelChoiceField(
-        Tenant.objects.all(), to_field_name='name', required=False,
-        error_messages={'invalid_choice': 'Tenant not found.'}
+        queryset=Tenant.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Name of assigned tenant',
+        error_messages={
+            'invalid_choice': 'Tenant not found.',
+        }
     )
-    status = forms.CharField()
+    status = forms.CharField(
+        help_text='Status name'
+    )
     role = forms.ModelChoiceField(
-        queryset=Role.objects.all(), required=False, to_field_name='name',
-        error_messages={'invalid_choice': 'Invalid role.'}
+        queryset=Role.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of assigned role',
+        error_messages={
+            'invalid_choice': 'Invalid role.',
+        }
     )
 
     class Meta:
@@ -694,8 +774,6 @@ class VLANFromCSVForm(forms.ModelForm):
         fields = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
 
     def clean(self):
-
-        super(VLANFromCSVForm, self).clean()
 
         # Validate VLANGroup
         group_name = self.cleaned_data.get('group_name')
@@ -714,7 +792,7 @@ class VLANFromCSVForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
 
-        vlan = super(VLANFromCSVForm, self).save(commit=False)
+        vlan = super(VLANCSVForm, self).save(commit=False)
 
         # Assign VLANGroup by site and name
         if self.cleaned_data['group_name']:
@@ -723,10 +801,6 @@ class VLANFromCSVForm(forms.ModelForm):
         if kwargs.get('commit'):
             vlan.save()
         return vlan
-
-
-class VLANImportForm(BootstrapMixin, BulkImportForm):
-    csv = CSVDataField(csv_form=VLANFromCSVForm)
 
 
 class VLANBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):

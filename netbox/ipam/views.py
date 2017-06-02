@@ -13,7 +13,8 @@ from django.views.generic import View
 from dcim.models import Device
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkAddView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkAddView, BulkDeleteView, BulkEditView, BulkImportView, BulkImportView2, ObjectDeleteView, ObjectEditView,
+    ObjectListView,
 )
 from . import filters, forms, tables
 from .models import (
@@ -128,11 +129,10 @@ class VRFDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'ipam:vrf_list'
 
 
-class VRFBulkImportView(PermissionRequiredMixin, BulkImportView):
+class VRFBulkImportView(PermissionRequiredMixin, BulkImportView2):
     permission_required = 'ipam.add_vrf'
-    form = forms.VRFImportForm
+    model_form = forms.VRFCSVForm
     table = tables.VRFTable
-    template_name = 'ipam/vrf_import.html'
     default_return_url = 'ipam:vrf_list'
 
 
@@ -339,11 +339,10 @@ class AggregateDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'ipam:aggregate_list'
 
 
-class AggregateBulkImportView(PermissionRequiredMixin, BulkImportView):
+class AggregateBulkImportView(PermissionRequiredMixin, BulkImportView2):
     permission_required = 'ipam.add_aggregate'
-    form = forms.AggregateImportForm
+    model_form = forms.AggregateCSVForm
     table = tables.AggregateTable
-    template_name = 'ipam/aggregate_import.html'
     default_return_url = 'ipam:aggregate_list'
 
 
@@ -536,11 +535,10 @@ class PrefixDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'ipam:prefix_list'
 
 
-class PrefixBulkImportView(PermissionRequiredMixin, BulkImportView):
+class PrefixBulkImportView(PermissionRequiredMixin, BulkImportView2):
     permission_required = 'ipam.add_prefix'
-    form = forms.PrefixImportForm
+    model_form = forms.PrefixCSVForm
     table = tables.PrefixTable
-    template_name = 'ipam/prefix_import.html'
     default_return_url = 'ipam:prefix_list'
 
 
@@ -638,11 +636,10 @@ class IPAddressBulkAddView(PermissionRequiredMixin, BulkAddView):
     default_return_url = 'ipam:ipaddress_list'
 
 
-class IPAddressBulkImportView(PermissionRequiredMixin, BulkImportView):
+class IPAddressBulkImportView(PermissionRequiredMixin, BulkImportView2):
     permission_required = 'ipam.add_ipaddress'
-    form = forms.IPAddressImportForm
+    model_form = forms.IPAddressCSVForm
     table = tables.IPAddressTable
-    template_name = 'ipam/ipaddress_import.html'
     default_return_url = 'ipam:ipaddress_list'
 
     def save_obj(self, obj):
@@ -746,11 +743,10 @@ class VLANDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'ipam:vlan_list'
 
 
-class VLANBulkImportView(PermissionRequiredMixin, BulkImportView):
+class VLANBulkImportView(PermissionRequiredMixin, BulkImportView2):
     permission_required = 'ipam.add_vlan'
-    form = forms.VLANImportForm
+    model_form = forms.VLANCSVForm
     table = tables.VLANTable
-    template_name = 'ipam/vlan_import.html'
     default_return_url = 'ipam:vlan_list'
 
 
