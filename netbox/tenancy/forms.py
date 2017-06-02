@@ -36,10 +36,12 @@ class TenantForm(BootstrapMixin, CustomFieldForm):
 
 
 class TenantCSVForm(forms.ModelForm):
+    slug = SlugField()
     group = forms.ModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
+        help_text='Name of parent group',
         error_messages={
             'invalid_choice': 'Group not found.'
         }
@@ -48,6 +50,10 @@ class TenantCSVForm(forms.ModelForm):
     class Meta:
         model = Tenant
         fields = ['name', 'slug', 'group', 'description', 'comments']
+        help_texts = {
+            'name': 'Tenant name',
+            'comments': 'Free-form comments'
+        }
 
 
 class TenantBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):

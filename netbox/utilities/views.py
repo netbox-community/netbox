@@ -435,8 +435,8 @@ class BulkImportView2(View):
     """
     model_form = None
     table = None
-    template_name = None
     default_return_url = None
+    template_name = 'utilities/obj_import.html'
 
     def _import_form(self, *args, **kwargs):
 
@@ -453,6 +453,7 @@ class BulkImportView2(View):
         return render(request, self.template_name, {
             'form': self._import_form(),
             'fields': self.model_form().fields,
+            'obj_type': self.model_form._meta.model._meta.verbose_name,
             'return_url': self.default_return_url,
         })
 
@@ -496,6 +497,7 @@ class BulkImportView2(View):
         return render(request, self.template_name, {
             'form': form,
             'fields': self.model_form().fields,
+            'obj_type': self.model_form._meta.model._meta.verbose_name,
             'return_url': self.default_return_url,
         })
 

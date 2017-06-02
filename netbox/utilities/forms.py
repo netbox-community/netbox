@@ -276,7 +276,9 @@ class CSVDataField2(forms.CharField):
         if not self.initial:
             self.initial = ','.join(required_fields) + '\n'
         if not self.help_text:
-            self.help_text = 'Enter one line per record. Use commas to separate values.'
+            self.help_text = 'Enter the list of column headers followed by one line per record to be imported. Use ' \
+                             'commas to separate values. Multi-line data and values containing commas may be wrapped ' \
+                             'in double quotes.'
 
     def to_python(self, value):
 

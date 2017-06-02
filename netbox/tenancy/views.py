@@ -99,7 +99,6 @@ class TenantBulkImportView(PermissionRequiredMixin, BulkImportView2):
     permission_required = 'tenancy.add_tenant'
     model_form = forms.TenantCSVForm
     table = tables.TenantTable
-    template_name = 'tenancy/tenant_import.html'
     default_return_url = 'tenancy:tenant_list'
 
 

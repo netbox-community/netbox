@@ -1,8 +1,9 @@
 {% extends '_base.html' %}
+{% load helpers %}
 {% load form_helpers %}
 
 {% block content %}
-<h1>{% block title %}{% endblock %}</h1>
+<h1>{% block title %}{{ obj_type|bettertitle }} Import{% endblock %}</h1>
 <div class="row">
 	<div class="col-md-6">
         {% if form.non_field_errors %}
@@ -40,7 +41,7 @@
                     <tr>
                         <td><code>{{ name }}</code></td>
                         <td>{% if field.required %}<i class="glyphicon glyphicon-ok" title="Required"></i>{% endif %}</td>
-                        <td>{{ field.help_text }}</td>
+                        <td>{{ field.help_text|default:field.label }}</td>
                     </tr>
                 {% endfor %}
             </table>
