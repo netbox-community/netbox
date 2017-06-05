@@ -23,7 +23,7 @@ from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_S
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, BulkImportView2, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkDeleteView, BulkEditView, BulkImportView2, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
 from .models import (
@@ -1012,11 +1012,10 @@ class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     parent_cls = Device
 
 
-class ConsoleConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
+class ConsoleConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView2):
     permission_required = 'dcim.change_consoleport'
-    form = forms.ConsoleConnectionImportForm
+    model_form = forms.ConsoleConnectionCSVForm
     table = tables.ConsoleConnectionTable
-    template_name = 'dcim/console_connections_import.html'
     default_return_url = 'dcim:console_connections_list'
 
 
@@ -1235,11 +1234,10 @@ class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     parent_cls = Device
 
 
-class PowerConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
+class PowerConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView2):
     permission_required = 'dcim.change_powerport'
-    form = forms.PowerConnectionImportForm
+    model_form = forms.PowerConnectionCSVForm
     table = tables.PowerConnectionTable
-    template_name = 'dcim/power_connections_import.html'
     default_return_url = 'dcim:power_connections_list'
 
 

@@ -369,61 +369,6 @@ class BulkAddView(View):
         })
 
 
-class BulkImportView(View):
-    """
-    Import objects in bulk (CSV format).
-
-    form: Form class
-    table: The django-tables2 Table used to render the list of imported objects
-    template_name: The name of the template
-    default_return_url: The name of the URL to use for the cancel button
-    """
-    form = None
-    table = None
-    template_name = None
-    default_return_url = None
-
-    def get(self, request):
-
-        return render(request, self.template_name, {
-            'form': self.form(),
-            'return_url': self.default_return_url,
-        })
-
-    def post(self, request):
-
-        form = self.form(request.POST)
-        if form.is_valid():
-            new_objs = []
-            try:
-                with transaction.atomic():
-                    for obj in form.cleaned_data['csv']:
-                        self.save_obj(obj)
-                        new_objs.append(obj)
-
-                obj_table = self.table(new_objs)
-                if new_objs:
-                    msg = 'Imported {} {}'.format(len(new_objs), new_objs[0]._meta.verbose_name_plural)
-                    messages.success(request, msg)
-                    UserAction.objects.log_import(request.user, ContentType.objects.get_for_model(new_objs[0]), msg)
-
-                return render(request, "import_success.html", {
-                    'table': obj_table,
-                    'return_url': self.default_return_url,
-                })
-
-            except IntegrityError as e:
-                form.add_error('csv', "Record {}: {}".format(len(new_objs) + 1, e.__cause__))
-
-        return render(request, self.template_name, {
-            'form': form,
-            'return_url': self.default_return_url,
-        })
-
-    def save_obj(self, obj):
-        obj.save()
-
-
 class BulkImportView2(View):
     """
     Import objects in bulk (CSV format).

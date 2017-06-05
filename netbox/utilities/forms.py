@@ -539,28 +539,3 @@ class BulkEditForm(forms.Form):
             self.nullable_fields = [field for field in self.Meta.nullable_fields]
         else:
             self.nullable_fields = []
-
-
-class BulkImportForm(forms.Form):
-
-    def clean(self):
-        fields, records = self.cleaned_data.get('csv').split('\n', 1)
-        if not records:
-            return
-
-        obj_list = []
-
-        for i, record in enumerate(records, start=1):
-            obj_form = self.fields['csv'].csv_form(data=record)
-            if obj_form.is_valid():
-                obj = obj_form.save(commit=False)
-                obj_list.append(obj)
-            else:
-                for field, errors in obj_form.errors.items():
-                    for e in errors:
-                        if field == '__all__':
-                            self.add_error('csv', "Record {}: {}".format(i, e))
-                        else:
-                            self.add_error('csv', "Record {} ({}): {}".format(i, field, e))
-
-        self.cleaned_data['csv'] = obj_list

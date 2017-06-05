@@ -14,8 +14,8 @@ from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    BulkImportForm, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, CSVDataField, ExpandableNameField,
-    FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
+    ChainedFieldsMixin, ChainedModelChoiceField, CommentField, ExpandableNameField, FilterChoiceField,
+    FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
     FilterTreeNodeMultipleChoiceField,
 )
 from .formfields import MACAddressFormField
@@ -945,75 +945,81 @@ class ConsolePortCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
-class ConsoleConnectionCSVForm(forms.Form):
+class ConsoleConnectionCSVForm(forms.ModelForm):
     console_server = FlexibleModelChoiceField(
         queryset=Device.objects.filter(device_type__is_console_server=True),
         to_field_name='name',
+        help_text='Console server name or PK',
         error_messages={
             'invalid_choice': 'Console server not found',
         }
     )
-    cs_port = forms.CharField()
-    device = FlexibleModelChoiceField(queryset=Device.objects.all(), to_field_name='name',
-                                      error_messages={'invalid_choice': 'Device not found'})
-    console_port = forms.CharField()
+    cs_port = forms.CharField(
+        help_text='Console server port name'
+    )
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Device name or PK',
+        error_messages={
+            'invalid_choice': 'Device not found',
+        }
+    )
+    console_port = forms.CharField(
+        help_text='Console port name'
+    )
     status = forms.CharField(validators=[validate_connection_status])
 
-    def clean(self):
+    class Meta:
+        model = ConsolePort
+        fields = ['console_server', 'cs_port', 'device', 'console_port']
 
-        # Validate console server port
-        if self.cleaned_data.get('console_server'):
-            try:
-                cs_port = ConsoleServerPort.objects.get(device=self.cleaned_data['console_server'],
-                                                        name=self.cleaned_data['cs_port'])
-                if ConsolePort.objects.filter(cs_port=cs_port):
-                    raise forms.ValidationError("Console server port is already occupied (by {} {})"
-                                                .format(cs_port.connected_console.device, cs_port.connected_console))
-            except ConsoleServerPort.DoesNotExist:
-                raise forms.ValidationError("Invalid console server port ({} {})"
-                                            .format(self.cleaned_data['console_server'], self.cleaned_data['cs_port']))
+    def clean_console_port(self):
 
-        # Validate console port
-        if self.cleaned_data.get('device'):
-            try:
-                console_port = ConsolePort.objects.get(device=self.cleaned_data['device'],
-                                                       name=self.cleaned_data['console_port'])
-                if console_port.cs_port:
-                    raise forms.ValidationError("Console port is already connected (to {} {})"
-                                                .format(console_port.cs_port.device, console_port.cs_port))
-            except ConsolePort.DoesNotExist:
-                raise forms.ValidationError("Invalid console port ({} {})"
-                                            .format(self.cleaned_data['device'], self.cleaned_data['console_port']))
+        console_port_name = self.cleaned_data.get('console_port')
+        if not self.cleaned_data.get('device') or not console_port_name:
+            return None
 
+        try:
+            # Retrieve console port by name
+            consoleport = ConsolePort.objects.get(
+                device=self.cleaned_data['device'], name=console_port_name
+            )
+            # Check if the console port is already connected
+            if consoleport.cs_port is not None:
+                raise forms.ValidationError("{} {} is already connected".format(
+                    self.cleaned_data['device'], console_port_name
+                ))
+        except ConsolePort.DoesNotExist:
+            raise forms.ValidationError("Invalid console port ({} {})".format(
+                self.cleaned_data['device'], console_port_name
+            ))
 
-class ConsoleConnectionImportForm(BootstrapMixin, BulkImportForm):
-    csv = CSVDataField(csv_form=ConsoleConnectionCSVForm)
+        self.instance = consoleport
+        return consoleport
 
-    def clean(self):
-        records = self.cleaned_data.get('csv')
-        if not records:
-            return
+    def clean_cs_port(self):
 
-        connection_list = []
+        cs_port_name = self.cleaned_data.get('cs_port')
+        if not self.cleaned_data.get('console_server') or not cs_port_name:
+            return None
 
-        for i, record in enumerate(records, start=1):
-            form = self.fields['csv'].csv_form(data=record)
-            if form.is_valid():
-                console_port = ConsolePort.objects.get(device=form.cleaned_data['device'],
-                                                       name=form.cleaned_data['console_port'])
-                console_port.cs_port = ConsoleServerPort.objects.get(device=form.cleaned_data['console_server'],
-                                                                     name=form.cleaned_data['cs_port'])
-                if form.cleaned_data['status'] == 'planned':
-                    console_port.connection_status = CONNECTION_STATUS_PLANNED
-                else:
-                    console_port.connection_status = CONNECTION_STATUS_CONNECTED
-                connection_list.append(console_port)
-            else:
-                for field, errors in form.errors.items():
-                    for e in errors:
-                        self.add_error('csv', "Record {} {}: {}".format(i, field, e))
+        try:
+            # Retrieve console server port by name
+            cs_port = ConsoleServerPort.objects.get(
+                device=self.cleaned_data['console_server'], name=cs_port_name
+            )
+            # Check if the console server port is already connected
+            if ConsolePort.objects.filter(cs_port=cs_port).count():
+                raise forms.ValidationError("{} {} is already connected".format(
+                    self.cleaned_data['console_server'], cs_port_name
+                ))
+        except ConsoleServerPort.DoesNotExist:
+            raise forms.ValidationError("Invalid console server port ({} {})".format(
+                self.cleaned_data['console_server'], cs_port_name
+            ))
 
-        self.cleaned_data['csv'] = connection_list
+        return cs_port
 
 
 class ConsolePortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
@@ -1193,76 +1199,81 @@ class PowerPortCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
-class PowerConnectionCSVForm(forms.Form):
+class PowerConnectionCSVForm(forms.ModelForm):
     pdu = FlexibleModelChoiceField(
         queryset=Device.objects.filter(device_type__is_pdu=True),
         to_field_name='name',
+        help_text='PDU name or PK',
         error_messages={
             'invalid_choice': 'PDU not found.',
         }
     )
-    power_outlet = forms.CharField()
-    device = FlexibleModelChoiceField(queryset=Device.objects.all(), to_field_name='name',
-                                      error_messages={'invalid_choice': 'Device not found'})
-    power_port = forms.CharField()
+    power_outlet = forms.CharField(
+        help_text='Power outlet name'
+    )
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Device name or PK',
+        error_messages={
+            'invalid_choice': 'Device not found',
+        }
+    )
+    power_port = forms.CharField(
+        help_text='Power port name'
+    )
     status = forms.CharField(validators=[validate_connection_status])
 
-    def clean(self):
+    class Meta:
+        model = PowerPort
+        fields = ['pdu', 'power_outlet', 'device', 'power_port']
 
-        # Validate power outlet
-        if self.cleaned_data.get('pdu'):
-            try:
-                power_outlet = PowerOutlet.objects.get(device=self.cleaned_data['pdu'],
-                                                       name=self.cleaned_data['power_outlet'])
-                if PowerPort.objects.filter(power_outlet=power_outlet):
-                    raise forms.ValidationError("Power outlet is already occupied (by {} {})"
-                                                .format(power_outlet.connected_port.device,
-                                                        power_outlet.connected_port))
-            except PowerOutlet.DoesNotExist:
-                raise forms.ValidationError("Invalid PDU port ({} {})"
-                                            .format(self.cleaned_data['pdu'], self.cleaned_data['power_outlet']))
+    def clean_power_port(self):
 
-        # Validate power port
-        if self.cleaned_data.get('device'):
-            try:
-                power_port = PowerPort.objects.get(device=self.cleaned_data['device'],
-                                                   name=self.cleaned_data['power_port'])
-                if power_port.power_outlet:
-                    raise forms.ValidationError("Power port is already connected (to {} {})"
-                                                .format(power_port.power_outlet.device, power_port.power_outlet))
-            except PowerPort.DoesNotExist:
-                raise forms.ValidationError("Invalid power port ({} {})"
-                                            .format(self.cleaned_data['device'], self.cleaned_data['power_port']))
+        power_port_name = self.cleaned_data.get('power_port')
+        if not self.cleaned_data.get('device') or not power_port_name:
+            return None
 
+        try:
+            # Retrieve power port by name
+            powerport = PowerPort.objects.get(
+                device=self.cleaned_data['device'], name=power_port_name
+            )
+            # Check if the power port is already connected
+            if powerport.power_outlet is not None:
+                raise forms.ValidationError("{} {} is already connected".format(
+                    self.cleaned_data['device'], power_port_name
+                ))
+        except PowerPort.DoesNotExist:
+            raise forms.ValidationError("Invalid power port ({} {})".format(
+                self.cleaned_data['device'], power_port_name
+            ))
 
-class PowerConnectionImportForm(BootstrapMixin, BulkImportForm):
-    csv = CSVDataField(csv_form=PowerConnectionCSVForm)
+        self.instance = powerport
+        return powerport
 
-    def clean(self):
-        records = self.cleaned_data.get('csv')
-        if not records:
-            return
+    def clean_power_outlet(self):
 
-        connection_list = []
+        power_outlet_name = self.cleaned_data.get('power_outlet')
+        if not self.cleaned_data.get('pdu') or not power_outlet_name:
+            return None
 
-        for i, record in enumerate(records, start=1):
-            form = self.fields['csv'].csv_form(data=record)
-            if form.is_valid():
-                power_port = PowerPort.objects.get(device=form.cleaned_data['device'],
-                                                   name=form.cleaned_data['power_port'])
-                power_port.power_outlet = PowerOutlet.objects.get(device=form.cleaned_data['pdu'],
-                                                                  name=form.cleaned_data['power_outlet'])
-                if form.cleaned_data['status'] == 'planned':
-                    power_port.connection_status = CONNECTION_STATUS_PLANNED
-                else:
-                    power_port.connection_status = CONNECTION_STATUS_CONNECTED
-                connection_list.append(power_port)
-            else:
-                for field, errors in form.errors.items():
-                    for e in errors:
-                        self.add_error('csv', "Record {} {}: {}".format(i, field, e))
+        try:
+            # Retrieve power outlet by name
+            power_outlet = PowerOutlet.objects.get(
+                device=self.cleaned_data['pdu'], name=power_outlet_name
+            )
+            # Check if the power outlet is already connected
+            if PowerPort.objects.filter(power_outlet=power_outlet).count():
+                raise forms.ValidationError("{} {} is already connected".format(
+                    self.cleaned_data['pdu'], power_outlet_name
+                ))
+        except PowerOutlet.DoesNotExist:
+            raise forms.ValidationError("Invalid power outlet ({} {})".format(
+                self.cleaned_data['pdu'], power_outlet_name
+            ))
 
-        self.cleaned_data['csv'] = connection_list
+        return power_outlet
 
 
 class PowerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
@@ -1629,7 +1640,7 @@ class InterfaceConnectionCSVForm(forms.ModelForm):
         try:
             # Retrieve interface by name
             interface = Interface.objects.get(
-                device=self.cleaned_data['device_a'], name=self.cleaned_data['interface_a']
+                device=self.cleaned_data['device_a'], name=interface_name
             )
             # Check for an existing connection to this interface
             if InterfaceConnection.objects.filter(Q(interface_a=interface) | Q(interface_b=interface)).count():
@@ -1652,7 +1663,7 @@ class InterfaceConnectionCSVForm(forms.ModelForm):
         try:
             # Retrieve interface by name
             interface = Interface.objects.get(
-                device=self.cleaned_data['device_b'], name=self.cleaned_data['interface_b']
+                device=self.cleaned_data['device_b'], name=interface_name
             )
             # Check for an existing connection to this interface
             if InterfaceConnection.objects.filter(Q(interface_a=interface) | Q(interface_b=interface)).count():
