@@ -1592,94 +1592,83 @@ class InterfaceConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
         ]
 
 
-class InterfaceConnectionCSVForm(forms.Form):
+class InterfaceConnectionCSVForm(forms.ModelForm):
     device_a = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
+        help_text='Device name or PK',
         error_messages={'invalid_choice': 'Device A not found.'}
     )
-    interface_a = forms.CharField()
+    interface_a = forms.CharField(
+        help_text='Interface name'
+    )
     device_b = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
+        help_text='Device name or PK',
         error_messages={'invalid_choice': 'Device B not found.'}
     )
-    interface_b = forms.CharField()
-    status = forms.CharField(
+    interface_b = forms.CharField(
+        help_text='Interface name'
+    )
+    connection_status = forms.CharField(
+        help_text='Connection status',
         validators=[validate_connection_status]
     )
 
-    def clean(self):
+    class Meta:
+        model = InterfaceConnection
+        fields = ['device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status']
 
-        # Validate interface A
-        if self.cleaned_data.get('device_a'):
-            try:
-                interface_a = Interface.objects.get(device=self.cleaned_data['device_a'],
-                                                    name=self.cleaned_data['interface_a'])
-            except Interface.DoesNotExist:
-                raise forms.ValidationError("Invalid interface ({} {})"
-                                            .format(self.cleaned_data['device_a'], self.cleaned_data['interface_a']))
-            try:
-                InterfaceConnection.objects.get(Q(interface_a=interface_a) | Q(interface_b=interface_a))
-                raise forms.ValidationError("{} {} is already connected"
-                                            .format(self.cleaned_data['device_a'], self.cleaned_data['interface_a']))
-            except InterfaceConnection.DoesNotExist:
-                pass
+    def clean_interface_a(self):
 
-        # Validate interface B
-        if self.cleaned_data.get('device_b'):
-            try:
-                interface_b = Interface.objects.get(device=self.cleaned_data['device_b'],
-                                                    name=self.cleaned_data['interface_b'])
-            except Interface.DoesNotExist:
-                raise forms.ValidationError("Invalid interface ({} {})"
-                                            .format(self.cleaned_data['device_b'], self.cleaned_data['interface_b']))
-            try:
-                InterfaceConnection.objects.get(Q(interface_a=interface_b) | Q(interface_b=interface_b))
-                raise forms.ValidationError("{} {} is already connected"
-                                            .format(self.cleaned_data['device_b'], self.cleaned_data['interface_b']))
-            except InterfaceConnection.DoesNotExist:
-                pass
+        interface_name = self.cleaned_data.get('interface_a')
+        if not interface_name:
+            return None
 
+        try:
+            # Retrieve interface by name
+            interface = Interface.objects.get(
+                device=self.cleaned_data['device_a'], name=self.cleaned_data['interface_a']
+            )
+            # Check for an existing connection to this interface
+            if InterfaceConnection.objects.filter(Q(interface_a=interface) | Q(interface_b=interface)).count():
+                raise forms.ValidationError("{} {} is already connected".format(
+                    self.cleaned_data['device_a'], interface_name
+                ))
+        except Interface.DoesNotExist:
+            raise forms.ValidationError("Invalid interface ({} {})".format(
+                self.cleaned_data['device_a'], interface_name
+            ))
 
-class InterfaceConnectionImportForm(BootstrapMixin, BulkImportForm):
-    csv = CSVDataField(csv_form=InterfaceConnectionCSVForm)
+        return interface
 
-    def clean(self):
-        records = self.cleaned_data.get('csv')
-        if not records:
-            return
+    def clean_interface_b(self):
 
-        connection_list = []
-        occupied_interfaces = []
+        interface_name = self.cleaned_data.get('interface_b')
+        if not interface_name:
+            return None
 
-        for i, record in enumerate(records, start=1):
-            form = self.fields['csv'].csv_form(data=record)
-            if form.is_valid():
-                interface_a = Interface.objects.get(device=form.cleaned_data['device_a'],
-                                                    name=form.cleaned_data['interface_a'])
-                if interface_a in occupied_interfaces:
-                    raise forms.ValidationError("{} {} found in multiple connections"
-                                                .format(interface_a.device.name, interface_a.name))
-                interface_b = Interface.objects.get(device=form.cleaned_data['device_b'],
-                                                    name=form.cleaned_data['interface_b'])
-                if interface_b in occupied_interfaces:
-                    raise forms.ValidationError("{} {} found in multiple connections"
-                                                .format(interface_b.device.name, interface_b.name))
-                connection = InterfaceConnection(interface_a=interface_a, interface_b=interface_b)
-                if form.cleaned_data['status'] == 'planned':
-                    connection.connection_status = CONNECTION_STATUS_PLANNED
-                else:
-                    connection.connection_status = CONNECTION_STATUS_CONNECTED
-                connection_list.append(connection)
-                occupied_interfaces.append(interface_a)
-                occupied_interfaces.append(interface_b)
-            else:
-                for field, errors in form.errors.items():
-                    for e in errors:
-                        self.add_error('csv', "Record {} {}: {}".format(i, field, e))
+        try:
+            # Retrieve interface by name
+            interface = Interface.objects.get(
+                device=self.cleaned_data['device_b'], name=self.cleaned_data['interface_b']
+            )
+            # Check for an existing connection to this interface
+            if InterfaceConnection.objects.filter(Q(interface_a=interface) | Q(interface_b=interface)).count():
+                raise forms.ValidationError("{} {} is already connected".format(
+                    self.cleaned_data['device_b'], interface_name
+                ))
+        except Interface.DoesNotExist:
+            raise forms.ValidationError("Invalid interface ({} {})".format(
+                self.cleaned_data['device_b'], interface_name
+            ))
 
-        self.cleaned_data['csv'] = connection_list
+        return interface
+
+    def clean_connection_status(self):
+
+        return True if self.cleaned_data['connection_status'] == 'connected' else False
 
 
 class InterfaceConnectionDeletionForm(BootstrapMixin, forms.Form):

@@ -1672,11 +1672,10 @@ def interfaceconnection_delete(request, pk):
     })
 
 
-class InterfaceConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
+class InterfaceConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView2):
     permission_required = 'dcim.change_interface'
-    form = forms.InterfaceConnectionImportForm
+    model_form = forms.InterfaceConnectionCSVForm
     table = tables.InterfaceConnectionTable
-    template_name = 'dcim/interface_connections_import.html'
     default_return_url = 'dcim:interface_connections_list'
 
 

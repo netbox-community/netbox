@@ -1393,10 +1393,13 @@ class InterfaceConnection(models.Model):
                                             verbose_name='Status')
 
     def clean(self):
-        if self.interface_a == self.interface_b:
-            raise ValidationError({
-                'interface_b': "Cannot connect an interface to itself."
-            })
+        try:
+            if self.interface_a == self.interface_b:
+                raise ValidationError({
+                    'interface_b': "Cannot connect an interface to itself."
+                })
+        except ObjectDoesNotExist:
+            pass
 
     # Used for connections export
     def to_csv(self):
