@@ -50,12 +50,25 @@ def get_device_by_name_or_pk(name):
     return device
 
 
-def validate_connection_status(value):
+class ConnectionStatusCSVField(forms.CharField):
     """
-    Custom validator for connection statuses. value must be either "planned" or "connected" (case-insensitive).
+    This field accepts either "planned" or "connected" as a connection status for CSV imports.
     """
-    if value.lower() not in ['planned', 'connected']:
-        raise ValidationError('Invalid connection status ({}); must be either "planned" or "connected".'.format(value))
+    def __init__(self, *args, **kwargs):
+        super(ConnectionStatusCSVField, self).__init__(*args, **kwargs)
+        if not self.help_text:
+            self.help_text = 'Connection status ("planned" or "connected")'
+
+    def clean(self, value):
+        value = super(ConnectionStatusCSVField, self).clean(value)
+        try:
+            return {
+                'planned': CONNECTION_STATUS_PLANNED,
+                'connected': CONNECTION_STATUS_CONNECTED,
+            }[value.lower()]
+        except KeyError:
+            raise ValidationError(
+                'Invalid connection status ({}); must be either "planned" or "connected".'.format(value))
 
 
 class DeviceComponentForm(BootstrapMixin, forms.Form):
@@ -968,11 +981,11 @@ class ConsoleConnectionCSVForm(forms.ModelForm):
     console_port = forms.CharField(
         help_text='Console port name'
     )
-    status = forms.CharField(validators=[validate_connection_status])
+    connection_status = ConnectionStatusCSVField()
 
     class Meta:
         model = ConsolePort
-        fields = ['console_server', 'cs_port', 'device', 'console_port']
+        fields = ['console_server', 'cs_port', 'device', 'console_port', 'connection_status']
 
     def clean_console_port(self):
 
@@ -1222,11 +1235,11 @@ class PowerConnectionCSVForm(forms.ModelForm):
     power_port = forms.CharField(
         help_text='Power port name'
     )
-    status = forms.CharField(validators=[validate_connection_status])
+    connection_status = ConnectionStatusCSVField()
 
     class Meta:
         model = PowerPort
-        fields = ['pdu', 'power_outlet', 'device', 'power_port']
+        fields = ['pdu', 'power_outlet', 'device', 'power_port', 'connection_status']
 
     def clean_power_port(self):
 
@@ -1622,10 +1635,7 @@ class InterfaceConnectionCSVForm(forms.ModelForm):
     interface_b = forms.CharField(
         help_text='Interface name'
     )
-    connection_status = forms.CharField(
-        help_text='Connection status',
-        validators=[validate_connection_status]
-    )
+    connection_status = ConnectionStatusCSVField()
 
     class Meta:
         model = InterfaceConnection
