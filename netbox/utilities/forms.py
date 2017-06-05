@@ -217,47 +217,6 @@ class Livesearch(forms.TextInput):
 
 class CSVDataField(forms.CharField):
     """
-    A field for comma-separated values (CSV). Values containing commas should be encased within double quotes. Example:
-        '"New York, NY",new-york-ny,Other stuff' => ['New York, NY', 'new-york-ny', 'Other stuff']
-    """
-    csv_form = None
-    widget = forms.Textarea
-
-    def __init__(self, csv_form, *args, **kwargs):
-        self.csv_form = csv_form
-        self.columns = self.csv_form().fields.keys()
-        super(CSVDataField, self).__init__(*args, **kwargs)
-        self.strip = False
-        if not self.label:
-            self.label = 'CSV Data'
-        if not self.help_text:
-            self.help_text = 'Enter one line per record in CSV format.'
-
-    def to_python(self, value):
-        """
-        Return a list of dictionaries, each representing an individual record
-        """
-        # Python 2's csv module has problems with Unicode
-        if not isinstance(value, str):
-            value = value.encode('utf-8')
-        records = []
-        reader = csv.reader(value.splitlines())
-        for i, row in enumerate(reader, start=1):
-            if row:
-                if len(row) < len(self.columns):
-                    raise forms.ValidationError("Line {}: Field(s) missing (found {}; expected {})"
-                                                .format(i, len(row), len(self.columns)))
-                elif len(row) > len(self.columns):
-                    raise forms.ValidationError("Line {}: Too many fields (found {}; expected {})"
-                                                .format(i, len(row), len(self.columns)))
-                row = [col.strip() for col in row]
-                record = dict(zip(self.columns, row))
-                records.append(record)
-        return records
-
-
-class CSVDataField2(forms.CharField):
-    """
     A CharField (rendered as a Textarea) which accepts CSV-formatted data. It returns a list of dictionaries mapping
     column headers to values. Each dictionary represents an individual record.
     """
@@ -268,7 +227,7 @@ class CSVDataField2(forms.CharField):
         self.fields = fields
         self.required_fields = required_fields
 
-        super(CSVDataField2, self).__init__(*args, **kwargs)
+        super(CSVDataField, self).__init__(*args, **kwargs)
 
         self.strip = False
         if not self.label:

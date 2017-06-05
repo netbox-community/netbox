@@ -7,7 +7,7 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Device
-from utilities.forms import BootstrapMixin, BulkEditForm, CSVDataField2, FilterChoiceField, SlugField
+from utilities.forms import BootstrapMixin, BulkEditForm, CSVDataField, FilterChoiceField, SlugField
 from .models import Secret, SecretRole, UserKey
 
 

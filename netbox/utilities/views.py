@@ -20,7 +20,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
-from utilities.forms import BootstrapMixin, CSVDataField2
+from utilities.forms import BootstrapMixin, CSVDataField
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
 from .paginator import EnhancedPaginator
@@ -389,7 +389,7 @@ class BulkImportView(View):
         required_fields = [name for name, field in self.model_form().fields.items() if field.required]
 
         class ImportForm(BootstrapMixin, Form):
-            csv = CSVDataField2(fields=fields, required_fields=required_fields)
+            csv = CSVDataField(fields=fields, required_fields=required_fields)
 
         return ImportForm(*args, **kwargs)
 
