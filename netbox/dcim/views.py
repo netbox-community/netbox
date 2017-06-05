@@ -23,7 +23,7 @@ from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_S
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView2, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
 from .models import (
@@ -217,7 +217,7 @@ class SiteDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'dcim:site_list'
 
 
-class SiteBulkImportView(PermissionRequiredMixin, BulkImportView2):
+class SiteBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.add_site'
     model_form = forms.SiteCSVForm
     table = tables.SiteTable
@@ -387,7 +387,7 @@ class RackDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'dcim:rack_list'
 
 
-class RackBulkImportView(PermissionRequiredMixin, BulkImportView2):
+class RackBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.add_rack'
     model_form = forms.RackCSVForm
     table = tables.RackImportTable
@@ -862,7 +862,7 @@ class DeviceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'dcim:device_list'
 
 
-class DeviceBulkImportView(PermissionRequiredMixin, BulkImportView2):
+class DeviceBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.add_device'
     model_form = forms.DeviceCSVForm
     table = tables.DeviceImportTable
@@ -870,7 +870,7 @@ class DeviceBulkImportView(PermissionRequiredMixin, BulkImportView2):
     default_return_url = 'dcim:device_list'
 
 
-class ChildDeviceBulkImportView(PermissionRequiredMixin, BulkImportView2):
+class ChildDeviceBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.add_device'
     model_form = forms.ChildDeviceCSVForm
     table = tables.DeviceImportTable
@@ -1012,7 +1012,7 @@ class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     parent_cls = Device
 
 
-class ConsoleConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView2):
+class ConsoleConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.change_consoleport'
     model_form = forms.ConsoleConnectionCSVForm
     table = tables.ConsoleConnectionTable
@@ -1234,7 +1234,7 @@ class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     parent_cls = Device
 
 
-class PowerConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView2):
+class PowerConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.change_powerport'
     model_form = forms.PowerConnectionCSVForm
     table = tables.PowerConnectionTable
@@ -1670,7 +1670,7 @@ def interfaceconnection_delete(request, pk):
     })
 
 
-class InterfaceConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView2):
+class InterfaceConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.change_interface'
     model_form = forms.InterfaceConnectionCSVForm
     table = tables.InterfaceConnectionTable

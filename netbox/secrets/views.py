@@ -13,7 +13,7 @@ from django.views.generic import View
 
 from dcim.models import Device
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView2, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
 from .decorators import userkey_required
@@ -187,7 +187,7 @@ class SecretDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'secrets:secret_list'
 
 
-class SecretBulkImportView(BulkImportView2):
+class SecretBulkImportView(BulkImportView):
     permission_required = 'ipam.add_vlan'
     model_form = forms.SecretCSVForm
     table = tables.SecretTable

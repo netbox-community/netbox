@@ -369,7 +369,7 @@ class BulkAddView(View):
         })
 
 
-class BulkImportView2(View):
+class BulkImportView(View):
     """
     Import objects in bulk (CSV format).
 

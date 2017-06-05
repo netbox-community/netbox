@@ -13,7 +13,7 @@ from django.views.generic import View
 from dcim.models import Device
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkAddView, BulkDeleteView, BulkEditView, BulkImportView2, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkAddView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
 from .models import (
@@ -128,7 +128,7 @@ class VRFDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'ipam:vrf_list'
 
 
-class VRFBulkImportView(PermissionRequiredMixin, BulkImportView2):
+class VRFBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'ipam.add_vrf'
     model_form = forms.VRFCSVForm
     table = tables.VRFTable
@@ -338,7 +338,7 @@ class AggregateDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'ipam:aggregate_list'
 
 
-class AggregateBulkImportView(PermissionRequiredMixin, BulkImportView2):
+class AggregateBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'ipam.add_aggregate'
     model_form = forms.AggregateCSVForm
     table = tables.AggregateTable
@@ -534,7 +534,7 @@ class PrefixDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'ipam:prefix_list'
 
 
-class PrefixBulkImportView(PermissionRequiredMixin, BulkImportView2):
+class PrefixBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'ipam.add_prefix'
     model_form = forms.PrefixCSVForm
     table = tables.PrefixTable
@@ -635,7 +635,7 @@ class IPAddressBulkAddView(PermissionRequiredMixin, BulkAddView):
     default_return_url = 'ipam:ipaddress_list'
 
 
-class IPAddressBulkImportView(PermissionRequiredMixin, BulkImportView2):
+class IPAddressBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'ipam.add_ipaddress'
     model_form = forms.IPAddressCSVForm
     table = tables.IPAddressTable
@@ -742,7 +742,7 @@ class VLANDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'ipam:vlan_list'
 
 
-class VLANBulkImportView(PermissionRequiredMixin, BulkImportView2):
+class VLANBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'ipam.add_vlan'
     model_form = forms.VLANCSVForm
     table = tables.VLANTable

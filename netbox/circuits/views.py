@@ -12,7 +12,7 @@ from django.views.generic import View
 from extras.models import Graph, GRAPH_TYPE_PROVIDER
 from utilities.forms import ConfirmationForm
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView2, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
 from .models import Circuit, CircuitTermination, CircuitType, Provider, TERM_SIDE_A, TERM_SIDE_Z
@@ -63,7 +63,7 @@ class ProviderDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'circuits:provider_list'
 
 
-class ProviderBulkImportView(PermissionRequiredMixin, BulkImportView2):
+class ProviderBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'circuits.add_provider'
     model_form = forms.ProviderCSVForm
     table = tables.ProviderTable
@@ -160,7 +160,7 @@ class CircuitDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'circuits:circuit_list'
 
 
-class CircuitBulkImportView(PermissionRequiredMixin, BulkImportView2):
+class CircuitBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'circuits.add_circuit'
     model_form = forms.CircuitCSVForm
     table = tables.CircuitTable
