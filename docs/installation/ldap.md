@@ -113,7 +113,10 @@ AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
 
 !!! info
 It is also possible map user attributes to Django attributes:
+
+```no-highlight
 AUTH_LDAP_USER_ATTR_MAP = {
 "first_name": "givenName",
 "last_name": "sn"
 }
+```
