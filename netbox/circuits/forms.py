@@ -47,8 +47,9 @@ class ProviderCSVForm(forms.ModelForm):
         fields = ['name', 'slug', 'asn', 'account', 'portal_url', 'comments']
         help_texts = {
             'name': 'Provider name',
-            'asn': 'Autonomous system number',
-            'comments': 'Free-form comments'
+            'asn': '32-bit autonomous system number',
+            'portal_url': 'Portal URL',
+            'comments': 'Free-form comments',
         }
 
 
@@ -116,7 +117,7 @@ class CircuitCSVForm(forms.ModelForm):
     type = forms.ModelChoiceField(
         queryset=CircuitType.objects.all(),
         to_field_name='name',
-        help_text='Name of assigned tenant',
+        help_text='Name of circuit type',
         error_messages={
             'invalid_choice': 'Invalid circuit type.'
         }
@@ -125,7 +126,7 @@ class CircuitCSVForm(forms.ModelForm):
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of circuit type',
+        help_text='Name of assigned tenant',
         error_messages={
             'invalid_choice': 'Tenant not found.'
         }

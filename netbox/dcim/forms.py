@@ -146,6 +146,10 @@ class SiteCSVForm(forms.ModelForm):
             'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
             'contact_name', 'contact_phone', 'contact_email', 'comments',
         ]
+        help_texts = {
+            'slug': 'URL-friendly slug',
+            'asn': '32-bit autonomous system number',
+        }
 
 
 class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -271,13 +275,15 @@ class RackCSVForm(forms.ModelForm):
             'invalid_choice': 'Role not found.',
         }
     )
-    type = forms.CharField(required=False)
 
     class Meta:
         model = Rack
         fields = [
             'site', 'group', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
         ]
+        help_texts = {
+            'type': 'Rack type',
+        }
 
     def clean_group(self):
 
