@@ -105,14 +105,14 @@ AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
 ```
 
 !!! info
-    "is_active" - you must map all users to at least this group if you want their account to be treated as enabled. Without this, your users cannot log in.
+"is_active" - You must map all users to at least this group if you want their account to be treated as enabled. Without this, your users cannot log in.
 
-"is_staff" - users mapped to this group are enabled for access to the Administration tools; this is the equivalent of checking the "Staff status" box on a manually created user. This doesn't necessarily imply additional privileges, which still needed to be assigned via a group, or on a per-user basis.
+"is_staff" - Users mapped to this group are enabled for access to the Administration tools; this is the equivalent of checking the "Staff status" box on a manually created user. This doesn't necessarily imply additional privileges, which still needed to be assigned via a group, or on a per-user basis.
 
-"is_superuser" - users mapped to this group in addition to the "is_staff" group will be assumed to have full permissions to all modules. Without also being mapped to "is_staff", this group observably has no impact to your effective permissions.
+"is_superuser" - Users mapped to this group in addition to the "is_staff" group will be assumed to have full permissions to all modules. Without also being mapped to "is_staff", this group observably has no impact to your effective permissions.
 
 !!! info
-    It is also possible map user attributes to Django attributes:
+It is also possible map user attributes to Django attributes:
 AUTH_LDAP_USER_ATTR_MAP = {
 "first_name": "givenName",
 "last_name": "sn"
