@@ -7,7 +7,7 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Device
-from utilities.forms import BootstrapMixin, BulkEditForm, CSVDataField, FilterChoiceField, SlugField
+from utilities.forms import BootstrapMixin, BulkEditForm, FilterChoiceField, FlexibleModelChoiceField, SlugField
 from .models import Secret, SecretRole, UserKey
 
 
@@ -66,10 +66,10 @@ class SecretForm(BootstrapMixin, forms.ModelForm):
 
 
 class SecretCSVForm(forms.ModelForm):
-    device = forms.ModelChoiceField(
+    device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Device name',
+        help_text='Device name or ID',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
@@ -89,6 +89,9 @@ class SecretCSVForm(forms.ModelForm):
     class Meta:
         model = Secret
         fields = ['device', 'role', 'name', 'plaintext']
+        help_texts = {
+            'name': 'Name or username',
+        }
 
     def save(self, *args, **kwargs):
         s = super(SecretCSVForm, self).save(*args, **kwargs)

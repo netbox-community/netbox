@@ -9,7 +9,8 @@ from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, BootstrapMixin, BulkEditNullBooleanSelect, ChainedModelChoiceField, CSVChoiceField,
-    ExpandableIPAddressField, FilterChoiceField, Livesearch, ReturnURLForm, SlugField, add_blank_choice,
+    ExpandableIPAddressField, FilterChoiceField, FlexibleModelChoiceField, Livesearch, ReturnURLForm, SlugField,
+    add_blank_choice,
 )
 from .models import (
     Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, Service, VLAN,
@@ -61,6 +62,9 @@ class VRFCSVForm(forms.ModelForm):
     class Meta:
         model = VRF
         fields = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
+        help_texts = {
+            'name': 'VRF name',
+        }
 
 
 class VRFBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -239,13 +243,13 @@ class PrefixCSVForm(forms.ModelForm):
     )
     status = CSVChoiceField(
         choices=IPADDRESS_STATUS_CHOICES,
-        help_text='Status name'
+        help_text='Operational status'
     )
     role = forms.ModelChoiceField(
         queryset=Role.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Role name',
+        help_text='Functional role',
         error_messages={
             'invalid_choice': 'Invalid role.',
         }
@@ -558,13 +562,13 @@ class IPAddressCSVForm(forms.ModelForm):
     )
     status = CSVChoiceField(
         choices=PREFIX_STATUS_CHOICES,
-        help_text='Status name'
+        help_text='Operational status'
     )
-    device = forms.ModelChoiceField(
+    device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned Device',
+        help_text='Name or ID of assigned device',
         error_messages={
             'invalid_choice': 'Device not found.',
         }
@@ -574,7 +578,7 @@ class IPAddressCSVForm(forms.ModelForm):
         required=False
     )
     is_primary = forms.BooleanField(
-        help_text='This is the primary IP for the assigned device',
+        help_text='Make this the primary IP for the assigned device',
         required=False
     )
 
@@ -743,13 +747,13 @@ class VLANCSVForm(forms.ModelForm):
     )
     status = CSVChoiceField(
         choices=VLAN_STATUS_CHOICES,
-        help_text='Status name'
+        help_text='Operational status'
     )
     role = forms.ModelChoiceField(
         queryset=Role.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Name of assigned role',
+        help_text='Functional role',
         error_messages={
             'invalid_choice': 'Invalid role.',
         }
@@ -758,6 +762,10 @@ class VLANCSVForm(forms.ModelForm):
     class Meta:
         model = VLAN
         fields = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
+        help_texts = {
+            'vid': 'Numeric VLAN ID (1-4095)',
+            'name': 'VLAN name',
+        }
 
     def clean(self):
 

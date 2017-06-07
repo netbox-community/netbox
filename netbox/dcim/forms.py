@@ -125,6 +125,7 @@ class SiteCSVForm(forms.ModelForm):
             'contact_name', 'contact_phone', 'contact_email', 'comments',
         ]
         help_texts = {
+            'name': 'Site name',
             'slug': 'URL-friendly slug',
             'asn': '32-bit autonomous system number',
         }
@@ -733,6 +734,9 @@ class BaseDeviceCSVForm(forms.ModelForm):
     class Meta:
         fields = []
         model = Device
+        help_texts = {
+            'name': 'Device name',
+        }
 
     def clean(self):
 
@@ -777,9 +781,6 @@ class DeviceCSVForm(BaseDeviceCSVForm):
             'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
             'site', 'rack_group', 'rack_name', 'position', 'face',
         ]
-        help_texts = {
-            'name': 'Device name',
-        }
 
     def clean(self):
 
@@ -806,7 +807,7 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
     parent = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Name of parent device',
+        help_text='Name or ID of parent device',
         error_messages={
             'invalid_choice': 'Parent device not found.',
         }
@@ -938,7 +939,7 @@ class ConsoleConnectionCSVForm(forms.ModelForm):
     console_server = FlexibleModelChoiceField(
         queryset=Device.objects.filter(device_type__is_console_server=True),
         to_field_name='name',
-        help_text='Console server name or PK',
+        help_text='Console server name or ID',
         error_messages={
             'invalid_choice': 'Console server not found',
         }
@@ -949,7 +950,7 @@ class ConsoleConnectionCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Device name or PK',
+        help_text='Device name or ID',
         error_messages={
             'invalid_choice': 'Device not found',
         }
@@ -1195,7 +1196,7 @@ class PowerConnectionCSVForm(forms.ModelForm):
     pdu = FlexibleModelChoiceField(
         queryset=Device.objects.filter(device_type__is_pdu=True),
         to_field_name='name',
-        help_text='PDU name or PK',
+        help_text='PDU name or ID',
         error_messages={
             'invalid_choice': 'PDU not found.',
         }
@@ -1206,7 +1207,7 @@ class PowerConnectionCSVForm(forms.ModelForm):
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Device name or PK',
+        help_text='Device name or ID',
         error_messages={
             'invalid_choice': 'Device not found',
         }
@@ -1602,20 +1603,20 @@ class InterfaceConnectionCSVForm(forms.ModelForm):
     device_a = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Device name or PK',
+        help_text='Name or ID of device A',
         error_messages={'invalid_choice': 'Device A not found.'}
     )
     interface_a = forms.CharField(
-        help_text='Interface name'
+        help_text='Name of interface A'
     )
     device_b = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Device name or PK',
+        help_text='Name or ID of device B',
         error_messages={'invalid_choice': 'Device B not found.'}
     )
     interface_b = forms.CharField(
-        help_text='Interface name'
+        help_text='Name of interface B'
     )
     connection_status = CSVChoiceField(
         choices=CONNECTION_STATUS_CHOICES,
