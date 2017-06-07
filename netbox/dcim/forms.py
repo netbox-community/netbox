@@ -14,7 +14,7 @@ from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ChainedFieldsMixin, ChainedModelChoiceField, CommentField, ExpandableNameField, FilterChoiceField,
+    ChainedFieldsMixin, ChainedModelChoiceField, CommentField, CSVChoiceField, ExpandableNameField, FilterChoiceField,
     FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
     FilterTreeNodeMultipleChoiceField,
 )
@@ -24,8 +24,9 @@ from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType,
     Interface, IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate,
     Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate,
-    RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, Region, Site, STATUS_CHOICES,
-    SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT, VIRTUAL_IFACE_TYPES,
+    RACK_FACE_CHOICES, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole,
+    RACK_WIDTH_19IN, RACK_WIDTH_23IN, Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
+    VIRTUAL_IFACE_TYPES,
 )
 
 
@@ -48,31 +49,6 @@ def get_device_by_name_or_pk(name):
     else:
         device = Device.objects.get(name=name)
     return device
-
-
-class ConnectionStatusCSVField(forms.ChoiceField):
-    """
-    This field accepts either "planned" or "connected" as a connection status for CSV imports.
-    """
-    default_error_messages = {
-        'invalid_choice': '%(value)s is not a valid connection status. It must be either "planned" or "connected."',
-    }
-
-    def __init__(self, *args, **kwargs):
-        kwargs['choices'] = (
-            ('planned', 'planned'),
-            ('connected', 'connected'),
-        )
-        super(ConnectionStatusCSVField, self).__init__(*args, **kwargs)
-        if not self.help_text:
-            self.help_text = 'Connection status'
-
-    def clean(self, value):
-        value = super(ConnectionStatusCSVField, self).clean(value)
-        return {
-            'planned': CONNECTION_STATUS_PLANNED,
-            'connected': CONNECTION_STATUS_CONNECTED,
-        }[value.lower()]
 
 
 class DeviceComponentForm(BootstrapMixin, forms.Form):
@@ -256,7 +232,7 @@ class RackCSVForm(forms.ModelForm):
         queryset=RackGroup.objects.all(),
         to_field_name='name',
         required=False,
-        help_text='Name of parent group',
+        help_text='Name of parent rack group',
         error_messages={
             'invalid_choice': 'Rack group not found.',
         }
@@ -279,15 +255,24 @@ class RackCSVForm(forms.ModelForm):
             'invalid_choice': 'Role not found.',
         }
     )
+    type = CSVChoiceField(
+        choices=RACK_TYPE_CHOICES,
+        required=False,
+        help_text='Rack type'
+    )
+    width = forms.ChoiceField(
+        choices = (
+            (RACK_WIDTH_19IN, '19'),
+            (RACK_WIDTH_23IN, '23'),
+        ),
+        help_text='Rail-to-rail width (in inches)'
+    )
 
     class Meta:
         model = Rack
         fields = [
             'site', 'group', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
         ]
-        help_texts = {
-            'type': 'Rack type',
-        }
 
     def clean_group(self):
 
@@ -296,21 +281,6 @@ class RackCSVForm(forms.ModelForm):
 
         if group and group.site != site:
             raise ValidationError("Invalid group for site {}: {}".format(site, group))
-
-    def clean_type(self):
-
-        rack_type = self.cleaned_data['type']
-
-        if not rack_type:
-            return None
-        try:
-            choices = {v.lower(): k for k, v in RACK_TYPE_CHOICES}
-            return choices[rack_type.lower()]
-        except KeyError:
-            raise forms.ValidationError('Invalid rack type ({}). Valid choices are: {}.'.format(
-                rack_type,
-                ', '.join({v: k for k, v in RACK_TYPE_CHOICES}),
-            ))
 
 
 class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -752,8 +722,9 @@ class BaseDeviceCSVForm(forms.ModelForm):
             'invalid_choice': 'Invalid platform.',
         }
     )
-    status = forms.CharField(
-        help_text='Status name'
+    status = CSVChoiceField(
+        choices=STATUS_CHOICES,
+        help_text='Operational status of device'
     )
 
     class Meta:
@@ -772,13 +743,6 @@ class BaseDeviceCSVForm(forms.ModelForm):
             except DeviceType.DoesNotExist:
                 self.add_error('model_name', "Invalid device type ({} {})".format(manufacturer, model_name))
 
-    def clean_status(self):
-        status_choices = {s[1].lower(): s[0] for s in STATUS_CHOICES}
-        try:
-            return status_choices[self.cleaned_data['status'].lower()]
-        except KeyError:
-            raise ValidationError("Invalid status: {}".format(self.cleaned_data['status']))
-
 
 class DeviceCSVForm(BaseDeviceCSVForm):
     site = forms.ModelChoiceField(
@@ -793,9 +757,10 @@ class DeviceCSVForm(BaseDeviceCSVForm):
         required=False,
         help_text='Name of parent rack'
     )
-    face = forms.CharField(
+    face = CSVChoiceField(
+        choices=RACK_FACE_CHOICES,
         required=False,
-        help_text='Mounted rack face (front or rear)'
+        help_text='Mounted rack face'
     )
 
     class Meta(BaseDeviceCSVForm.Meta):
@@ -991,7 +956,10 @@ class ConsoleConnectionCSVForm(forms.ModelForm):
     console_port = forms.CharField(
         help_text='Console port name'
     )
-    connection_status = ConnectionStatusCSVField()
+    connection_status = CSVChoiceField(
+        choices=CONNECTION_STATUS_CHOICES,
+        help_text='Connection status'
+    )
 
     class Meta:
         model = ConsolePort
@@ -1245,7 +1213,10 @@ class PowerConnectionCSVForm(forms.ModelForm):
     power_port = forms.CharField(
         help_text='Power port name'
     )
-    connection_status = ConnectionStatusCSVField()
+    connection_status = CSVChoiceField(
+        choices=CONNECTION_STATUS_CHOICES,
+        help_text='Connection status'
+    )
 
     class Meta:
         model = PowerPort
@@ -1645,7 +1616,10 @@ class InterfaceConnectionCSVForm(forms.ModelForm):
     interface_b = forms.CharField(
         help_text='Interface name'
     )
-    connection_status = ConnectionStatusCSVField()
+    connection_status = CSVChoiceField(
+        choices=CONNECTION_STATUS_CHOICES,
+        help_text='Connection status'
+    )
 
     class Meta:
         model = InterfaceConnection

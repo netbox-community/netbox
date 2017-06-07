@@ -75,7 +75,7 @@ def example_choices(value, arg=3):
         if not id:
             continue
         choices.append(label)
-    return ', '.join(choices) or 'None found'
+    return ', '.join(choices) or 'None'
 
 
 #

@@ -271,6 +271,25 @@ class CSVDataField(forms.CharField):
         return records
 
 
+class CSVChoiceField(forms.ChoiceField):
+    """
+    Invert the provided set of choices to take the human-friendly label as input, and return the database value.
+    """
+
+    def __init__(self, choices, *args, **kwargs):
+        super(CSVChoiceField, self).__init__(choices, *args, **kwargs)
+        self.choices = [(label, label) for value, label in choices]
+        self.choice_values = {label: value for value, label in choices}
+
+    def clean(self, value):
+        value = super(CSVChoiceField, self).clean(value)
+        if not value:
+            return None
+        if value not in self.choice_values:
+            raise forms.ValidationError("Invalid choice: {}".format(value))
+        return self.choice_values[value]
+
+
 class ExpandableNameField(forms.CharField):
     """
     A field which allows for numeric range expansion

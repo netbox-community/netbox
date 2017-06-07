@@ -9,8 +9,8 @@ from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFi
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, BootstrapMixin, BulkEditNullBooleanSelect, ChainedModelChoiceField, ExpandableIPAddressField,
-    FilterChoiceField, Livesearch, ReturnURLForm, SlugField, add_blank_choice,
+    APISelect, BootstrapMixin, BulkEditNullBooleanSelect, ChainedModelChoiceField, CSVChoiceField,
+    ExpandableIPAddressField, FilterChoiceField, Livesearch, ReturnURLForm, SlugField, add_blank_choice,
 )
 from .models import (
     Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, Service, VLAN,
@@ -238,7 +238,8 @@ class PrefixCSVForm(forms.ModelForm):
         help_text='Numeric ID of assigned VLAN',
         required=False
     )
-    status = forms.CharField(
+    status = CSVChoiceField(
+        choices=IPADDRESS_STATUS_CHOICES,
         help_text='Status name'
     )
     role = forms.ModelChoiceField(
@@ -288,13 +289,6 @@ class PrefixCSVForm(forms.ModelForm):
                     self.add_error('vlan_vid', "Invalid global VLAN ID ({}).".format(vlan_vid))
             except VLAN.MultipleObjectsReturned:
                 self.add_error('vlan_vid', "Multiple VLANs found ({} - VID {})".format(site, vlan_vid))
-
-    def clean_status(self):
-        status_choices = {s[1].lower(): s[0] for s in PREFIX_STATUS_CHOICES}
-        try:
-            return status_choices[self.cleaned_data['status'].lower()]
-        except KeyError:
-            raise ValidationError("Invalid status: {}".format(self.cleaned_data['status']))
 
 
 class PrefixBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -567,7 +561,8 @@ class IPAddressCSVForm(forms.ModelForm):
             'invalid_choice': 'Tenant not found.',
         }
     )
-    status = forms.CharField(
+    status = CSVChoiceField(
+        choices=PREFIX_STATUS_CHOICES,
         help_text='Status name'
     )
     device = forms.ModelChoiceField(
@@ -612,13 +607,6 @@ class IPAddressCSVForm(forms.ModelForm):
         # Validate is_primary
         if is_primary and not device:
             self.add_error('is_primary', "No device specified; cannot set as primary IP")
-
-    def clean_status(self):
-        status_choices = {s[1].lower(): s[0] for s in IPADDRESS_STATUS_CHOICES}
-        try:
-            return status_choices[self.cleaned_data['status'].lower()]
-        except KeyError:
-            raise ValidationError("Invalid status: {}".format(self.cleaned_data['status']))
 
     def save(self, *args, **kwargs):
 
@@ -756,7 +744,8 @@ class VLANCSVForm(forms.ModelForm):
             'invalid_choice': 'Tenant not found.',
         }
     )
-    status = forms.CharField(
+    status = CSVChoiceField(
+        choices=VLAN_STATUS_CHOICES,
         help_text='Status name'
     )
     role = forms.ModelChoiceField(
@@ -782,13 +771,6 @@ class VLANCSVForm(forms.ModelForm):
                 VLANGroup.objects.get(site=self.cleaned_data.get('site'), name=group_name)
             except VLANGroup.DoesNotExist:
                 self.add_error('group_name', "Invalid VLAN group {}.".format(group_name))
-
-    def clean_status(self):
-        status_choices = {s[1].lower(): s[0] for s in VLAN_STATUS_CHOICES}
-        try:
-            return status_choices[self.cleaned_data['status'].lower()]
-        except KeyError:
-            raise ValidationError("Invalid status: {}".format(self.cleaned_data['status']))
 
     def save(self, *args, **kwargs):
 
