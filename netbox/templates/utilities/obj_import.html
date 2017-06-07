@@ -6,7 +6,7 @@
 <h1>{% block title %}{{ obj_type|bettertitle }} Import{% endblock %}</h1>
 {% block tabs %}{% endblock %}
 <div class="row">
-	<div class="col-md-6">
+	<div class="col-md-7">
         {% if form.non_field_errors %}
             <div class="panel panel-danger">
                 <div class="panel-heading"><strong>Errors</strong></div>
@@ -28,9 +28,9 @@
             </div>
 		</form>
 	</div>
-	<div class="col-md-6">
+	<div class="col-md-5">
         {% if fields %}
-            <h4>CSV Format</h4>
+            <h4 class="text-center">CSV Format</h4>
             <table class="table">
                 <tr>
                     <th>Field</th>
