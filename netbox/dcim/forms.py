@@ -5,7 +5,6 @@ import re
 
 from django import forms
 from django.contrib.postgres.forms.array import SimpleArrayField
-from django.core.exceptions import ValidationError
 from django.db.models import Count, Q
 
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
@@ -228,14 +227,9 @@ class RackCSVForm(forms.ModelForm):
             'invalid_choice': 'Site not found.',
         }
     )
-    group = forms.ModelChoiceField(
-        queryset=RackGroup.objects.all(),
-        to_field_name='name',
-        required=False,
-        help_text='Name of parent rack group',
-        error_messages={
-            'invalid_choice': 'Rack group not found.',
-        }
+    group_name = forms.CharField(
+        help_text='Name of rack group',
+        required=False
     )
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -274,13 +268,19 @@ class RackCSVForm(forms.ModelForm):
             'site', 'group', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
         ]
 
-    def clean_group(self):
+    def clean(self):
+
+        super(RackCSVForm, self).clean()
 
         site = self.cleaned_data.get('site')
-        group = self.cleaned_data.get('group')
+        group_name = self.cleaned_data.get('group_name')
 
-        if group and group.site != site:
-            raise ValidationError("Invalid group for site {}: {}".format(site, group))
+        # Validate rack group
+        if group_name:
+            try:
+                self.instance.group = RackGroup.objects.get(site=site, name=group_name)
+            except RackGroup.DoesNotExist:
+                raise forms.ValidationError("Rack group {} not found for site {}".format(group_name, site))
 
 
 class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -733,6 +733,8 @@ class BaseDeviceCSVForm(forms.ModelForm):
 
     def clean(self):
 
+        super(BaseDeviceCSVForm, self).clean()
+
         manufacturer = self.cleaned_data.get('manufacturer')
         model_name = self.cleaned_data.get('model_name')
 
@@ -741,7 +743,7 @@ class BaseDeviceCSVForm(forms.ModelForm):
             try:
                 self.instance.device_type = DeviceType.objects.get(manufacturer=manufacturer, model=model_name)
             except DeviceType.DoesNotExist:
-                self.add_error('model_name', "Invalid device type ({} {})".format(manufacturer, model_name))
+                raise forms.ValidationError("Device type {} {} not found".format(manufacturer, model_name))
 
 
 class DeviceCSVForm(BaseDeviceCSVForm):
@@ -752,6 +754,10 @@ class DeviceCSVForm(BaseDeviceCSVForm):
         error_messages={
             'invalid_choice': 'Invalid site name.',
         }
+    )
+    rack_group = forms.CharField(
+        required=False,
+        help_text='Name of parent rack\'s group'
     )
     rack_name = forms.CharField(
         required=False,
@@ -766,7 +772,7 @@ class DeviceCSVForm(BaseDeviceCSVForm):
     class Meta(BaseDeviceCSVForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
-            'site', 'rack_name', 'position', 'face',
+            'site', 'rack_group', 'rack_name', 'position', 'face',
         ]
 
     def clean(self):
@@ -774,26 +780,20 @@ class DeviceCSVForm(BaseDeviceCSVForm):
         super(DeviceCSVForm, self).clean()
 
         site = self.cleaned_data.get('site')
+        rack_group = self.cleaned_data.get('rack_group')
         rack_name = self.cleaned_data.get('rack_name')
 
         # Validate rack
-        if site and rack_name:
+        if site and rack_group and rack_name:
             try:
-                self.instance.rack = Rack.objects.get(site=site, name=rack_name)
+                self.instance.rack = Rack.objects.get(site=site, group__name=rack_group, name=rack_name)
             except Rack.DoesNotExist:
-                self.add_error('rack_name', "Invalid rack ({})".format(rack_name))
-
-    def clean_face(self):
-        face = self.cleaned_data['face']
-        if not face:
-            return None
-        try:
-            return {
-                'front': 0,
-                'rear': 1,
-            }[face.lower()]
-        except KeyError:
-            raise forms.ValidationError('Invalid rack face ({}); must be "front" or "rear".'.format(face))
+                raise forms.ValidationError("Rack {} not found in site {} group {}".format(rack_name, site, rack_group))
+        elif site and rack_name:
+            try:
+                self.instance.rack = Rack.objects.get(site=site, group__isnull=True, name=rack_name)
+            except Rack.DoesNotExist:
+                raise forms.ValidationError("Rack {} not found in site {} (no group)".format(rack_name, site))
 
 
 class ChildDeviceCSVForm(BaseDeviceCSVForm):
@@ -825,13 +825,7 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
         # Validate device bay
         if parent and device_bay_name:
             try:
-                device_bay = DeviceBay.objects.get(device=parent, name=device_bay_name)
-                if device_bay.installed_device:
-                    self.add_error(
-                        'device_bay_name', "Device bay ({} {}) is already occupied".format(parent, device_bay_name)
-                    )
-                else:
-                    self.instance.parent_bay = device_bay
+                self.instance.parent_bay = DeviceBay.objects.get(device=parent, name=device_bay_name)
             except DeviceBay.DoesNotExist:
                 self.add_error(
                     'device_bay_name', "Parent device/bay ({} {}) not found".format(parent, device_bay_name)

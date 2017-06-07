@@ -498,9 +498,7 @@ class VLANGroup(models.Model):
         verbose_name_plural = 'VLAN groups'
 
     def __str__(self):
-        if self.site is None:
-            return self.name
-        return '{} - {}'.format(self.site.name, self.name)
+        return self.name
 
     def get_absolute_url(self):
         return "{}?group_id={}".format(reverse('ipam:vlan_list'), self.pk)

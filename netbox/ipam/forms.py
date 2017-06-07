@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 from django import forms
-from django.core.exceptions import ValidationError
 from django.db.models import Count
 
 from dcim.models import Site, Rack, Device, Interface
@@ -230,7 +229,7 @@ class PrefixCSVForm(forms.ModelForm):
             'invalid_choice': 'Site not found.',
         }
     )
-    vlan_group_name = forms.CharField(
+    vlan_group = forms.CharField(
         help_text='Group name of assigned VLAN',
         required=False
     )
@@ -255,40 +254,36 @@ class PrefixCSVForm(forms.ModelForm):
     class Meta:
         model = Prefix
         fields = [
-            'prefix', 'vrf', 'tenant', 'site', 'vlan_group_name', 'vlan_vid', 'status', 'role', 'is_pool',
-            'description',
+            'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan_vid', 'status', 'role', 'is_pool', 'description',
         ]
 
     def clean(self):
 
-        site = self.cleaned_data.get('site')
-        vlan_group_name = self.cleaned_data.get('vlan_group_name')
-        vlan_vid = self.cleaned_data.get('vlan_vid')
-        vlan_group = None
+        super(PrefixCSVForm, self).clean()
 
-        # Validate VLAN group
-        if vlan_group_name:
-            try:
-                vlan_group = VLANGroup.objects.get(site=site, name=vlan_group_name)
-            except VLANGroup.DoesNotExist:
-                if site:
-                    self.add_error('vlan_group_name', "Invalid VLAN group ({} - {}).".format(site, vlan_group_name))
-                else:
-                    self.add_error('vlan_group_name', "Invalid global VLAN group ({}).".format(vlan_group_name))
+        site = self.cleaned_data.get('site')
+        vlan_group = self.cleaned_data.get('vlan_group')
+        vlan_vid = self.cleaned_data.get('vlan_vid')
 
         # Validate VLAN
-        if vlan_vid:
+        if vlan_group and vlan_vid:
             try:
-                self.instance.vlan = VLAN.objects.get(site=site, group=vlan_group, vid=vlan_vid)
+                self.instance.vlan = VLAN.objects.get(site=site, group__name=vlan_group, vid=vlan_vid)
             except VLAN.DoesNotExist:
                 if site:
-                    self.add_error('vlan_vid', "Invalid VLAN ID ({}) for site {}.".format(vlan_vid, site))
-                elif vlan_group:
-                    self.add_error('vlan_vid', "Invalid VLAN ID ({}) for group {}.".format(vlan_vid, vlan_group_name))
-                elif not vlan_group_name:
-                    self.add_error('vlan_vid', "Invalid global VLAN ID ({}).".format(vlan_vid))
-            except VLAN.MultipleObjectsReturned:
-                self.add_error('vlan_vid', "Multiple VLANs found ({} - VID {})".format(site, vlan_vid))
+                    raise forms.ValidationError("VLAN {} not found in site {} group {}".format(
+                        vlan_vid, site, vlan_group
+                    ))
+                else:
+                    raise forms.ValidationError("Global VLAN {} not found in group {}".format(vlan_vid, vlan_group))
+        elif vlan_vid:
+            try:
+                self.instance.vlan = VLAN.objects.get(site=site, group__isnull=True, vid=vlan_vid)
+            except VLAN.DoesNotExist:
+                if site:
+                    raise forms.ValidationError("VLAN {} not found in site {}".format(vlan_vid, site))
+                else:
+                    raise forms.ValidationError("Global VLAN {} not found".format(vlan_vid))
 
 
 class PrefixBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -589,6 +584,8 @@ class IPAddressCSVForm(forms.ModelForm):
 
     def clean(self):
 
+        super(IPAddressCSVForm, self).clean()
+
         device = self.cleaned_data.get('device')
         interface_name = self.cleaned_data.get('interface_name')
         is_primary = self.cleaned_data.get('is_primary')
@@ -596,17 +593,17 @@ class IPAddressCSVForm(forms.ModelForm):
         # Validate interface
         if device and interface_name:
             try:
-                Interface.objects.get(device=device, name=interface_name)
+                self.instance.interface = Interface.objects.get(device=device, name=interface_name)
             except Interface.DoesNotExist:
-                self.add_error('interface_name', "Invalid interface ({}) for {}".format(interface_name, device))
+                raise forms.ValidationError("Invalid interface {} for device {}".format(interface_name, device))
         elif device and not interface_name:
-            self.add_error('interface_name', "Device set ({}) but interface missing".format(device))
+            raise forms.ValidationError("Device set ({}) but interface missing".format(device))
         elif interface_name and not device:
-            self.add_error('device', "Interface set ({}) but device missing or invalid".format(interface_name))
+            raise forms.ValidationError("Interface set ({}) but device missing or invalid".format(interface_name))
 
         # Validate is_primary
         if is_primary and not device:
-            self.add_error('is_primary', "No device specified; cannot set as primary IP")
+            raise forms.ValidationError("No device specified; cannot set as primary IP")
 
     def save(self, *args, **kwargs):
 
@@ -732,7 +729,7 @@ class VLANCSVForm(forms.ModelForm):
         }
     )
     group_name = forms.CharField(
-        help_text='Name of parent VLAN group',
+        help_text='Name of VLAN group',
         required=False
     )
     tenant = forms.ModelChoiceField(
@@ -764,25 +761,20 @@ class VLANCSVForm(forms.ModelForm):
 
     def clean(self):
 
-        # Validate VLANGroup
+        super(VLANCSVForm, self).clean()
+
+        site = self.cleaned_data.get('site')
         group_name = self.cleaned_data.get('group_name')
+
+        # Validate VLAN group
         if group_name:
             try:
-                VLANGroup.objects.get(site=self.cleaned_data.get('site'), name=group_name)
+                self.instance.group = VLANGroup.objects.get(site=site, name=group_name)
             except VLANGroup.DoesNotExist:
-                self.add_error('group_name', "Invalid VLAN group {}.".format(group_name))
-
-    def save(self, *args, **kwargs):
-
-        vlan = super(VLANCSVForm, self).save(commit=False)
-
-        # Assign VLANGroup by site and name
-        if self.cleaned_data['group_name']:
-            vlan.group = VLANGroup.objects.get(site=self.cleaned_data['site'], name=self.cleaned_data['group_name'])
-
-        if kwargs.get('commit'):
-            vlan.save()
-        return vlan
+                if site:
+                    raise forms.ValidationError("VLAN group {} not found for site {}".format(group_name, site))
+                else:
+                    raise forms.ValidationError("Global VLAN group {} not found".format(group_name))
 
 
 class VLANBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
