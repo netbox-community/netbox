@@ -255,7 +255,7 @@ class RackCSVForm(forms.ModelForm):
         help_text='Rack type'
     )
     width = forms.ChoiceField(
-        choices = (
+        choices=(
             (RACK_WIDTH_19IN, '19'),
             (RACK_WIDTH_23IN, '23'),
         ),
