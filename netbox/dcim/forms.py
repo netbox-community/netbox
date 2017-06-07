@@ -1672,10 +1672,6 @@ class InterfaceConnectionCSVForm(forms.ModelForm):
 
         return interface
 
-    def clean_connection_status(self):
-
-        return True if self.cleaned_data['connection_status'] == 'connected' else False
-
 
 class InterfaceConnectionDeletionForm(BootstrapMixin, forms.Form):
     confirm = forms.BooleanField(required=True)
