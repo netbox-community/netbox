@@ -50,25 +50,29 @@ def get_device_by_name_or_pk(name):
     return device
 
 
-class ConnectionStatusCSVField(forms.CharField):
+class ConnectionStatusCSVField(forms.ChoiceField):
     """
     This field accepts either "planned" or "connected" as a connection status for CSV imports.
     """
+    default_error_messages = {
+        'invalid_choice': '%(value)s is not a valid connection status. It must be either "planned" or "connected."',
+    }
+
     def __init__(self, *args, **kwargs):
+        kwargs['choices'] = (
+            ('planned', 'planned'),
+            ('connected', 'connected'),
+        )
         super(ConnectionStatusCSVField, self).__init__(*args, **kwargs)
         if not self.help_text:
-            self.help_text = 'Connection status ("planned" or "connected")'
+            self.help_text = 'Connection status'
 
     def clean(self, value):
         value = super(ConnectionStatusCSVField, self).clean(value)
-        try:
-            return {
-                'planned': CONNECTION_STATUS_PLANNED,
-                'connected': CONNECTION_STATUS_CONNECTED,
-            }[value.lower()]
-        except KeyError:
-            raise ValidationError(
-                'Invalid connection status ({}); must be either "planned" or "connected".'.format(value))
+        return {
+            'planned': CONNECTION_STATUS_PLANNED,
+            'connected': CONNECTION_STATUS_CONNECTED,
+        }[value.lower()]
 
 
 class DeviceComponentForm(BootstrapMixin, forms.Form):
