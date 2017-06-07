@@ -19,13 +19,12 @@ from utilities.forms import (
 )
 from .formfields import MACAddressFormField
 from .models import (
-    DeviceBay, DeviceBayTemplate, CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_PLANNED, CONNECTION_STATUS_CONNECTED,
-    ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType,
-    Interface, IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate,
-    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate,
-    RACK_FACE_CHOICES, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole,
-    RACK_WIDTH_19IN, RACK_WIDTH_23IN, Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
-    VIRTUAL_IFACE_TYPES,
+    DeviceBay, DeviceBayTemplate, CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_CONNECTED, ConsolePort,
+    ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType, Interface,
+    IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate, Manufacturer,
+    InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_FACE_CHOICES,
+    RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, RACK_WIDTH_19IN, RACK_WIDTH_23IN,
+    Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT, VIRTUAL_IFACE_TYPES,
 )
 
 
@@ -265,8 +264,12 @@ class RackCSVForm(forms.ModelForm):
     class Meta:
         model = Rack
         fields = [
-            'site', 'group', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
+            'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
         ]
+        help_texts = {
+            'name': 'Rack name',
+            'u_height': 'Height in rack units',
+        }
 
     def clean(self):
 
@@ -705,13 +708,13 @@ class BaseDeviceCSVForm(forms.ModelForm):
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
         to_field_name='name',
-        help_text='Manufacturer name',
+        help_text='Device type manufacturer',
         error_messages={
             'invalid_choice': 'Invalid manufacturer.',
         }
     )
     model_name = forms.CharField(
-        help_text='Model name'
+        help_text='Device type model name'
     )
     platform = forms.ModelChoiceField(
         queryset=Platform.objects.all(),
@@ -757,7 +760,7 @@ class DeviceCSVForm(BaseDeviceCSVForm):
     )
     rack_group = forms.CharField(
         required=False,
-        help_text='Name of parent rack\'s group'
+        help_text='Parent rack\'s group (if any)'
     )
     rack_name = forms.CharField(
         required=False,
@@ -774,6 +777,9 @@ class DeviceCSVForm(BaseDeviceCSVForm):
             'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
             'site', 'rack_group', 'rack_name', 'position', 'face',
         ]
+        help_texts = {
+            'name': 'Device name',
+        }
 
     def clean(self):
 
@@ -826,10 +832,11 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
         if parent and device_bay_name:
             try:
                 self.instance.parent_bay = DeviceBay.objects.get(device=parent, name=device_bay_name)
+                # Inherit site and rack from parent device
+                self.instance.site = parent.site
+                self.instance.rack = parent.rack
             except DeviceBay.DoesNotExist:
-                self.add_error(
-                    'device_bay_name', "Parent device/bay ({} {}) not found".format(parent, device_bay_name)
-                )
+                raise forms.ValidationError("Parent device/bay ({} {}) not found".format(parent, device_bay_name))
 
 
 class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):

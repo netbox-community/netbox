@@ -877,17 +877,16 @@ class ChildDeviceBulkImportView(PermissionRequiredMixin, BulkImportView):
     template_name = 'dcim/device_import_child.html'
     default_return_url = 'dcim:device_list'
 
-    def save_obj(self, obj):
+    def _save_obj(self, obj_form):
 
-        # Inherit site and rack from parent device
-        obj.site = obj.parent_bay.device.site
-        obj.rack = obj.parent_bay.device.rack
-        obj.save()
+        obj = obj_form.save()
 
-        # Save the reverse relation
+        # Save the reverse relation to the parent device bay
         device_bay = obj.parent_bay
         device_bay.installed_device = obj
         device_bay.save()
+
+        return obj
 
 
 class DeviceBulkEditView(PermissionRequiredMixin, BulkEditView):

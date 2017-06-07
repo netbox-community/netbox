@@ -117,7 +117,7 @@ class CircuitCSVForm(forms.ModelForm):
     type = forms.ModelChoiceField(
         queryset=CircuitType.objects.all(),
         to_field_name='name',
-        help_text='Name of circuit type',
+        help_text='Type of circuit',
         error_messages={
             'invalid_choice': 'Invalid circuit type.'
         }
