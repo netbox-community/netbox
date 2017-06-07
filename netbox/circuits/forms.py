@@ -8,8 +8,8 @@ from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFi
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, BootstrapMixin, BulkImportForm, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, CSVDataField,
-    FilterChoiceField, Livesearch, SmallTextarea, SlugField,
+    APISelect, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, FilterChoiceField,
+    SmallTextarea, SlugField,
 )
 
 from .models import Circuit, CircuitTermination, CircuitType, Provider
@@ -39,15 +39,18 @@ class ProviderForm(BootstrapMixin, CustomFieldForm):
         }
 
 
-class ProviderFromCSVForm(forms.ModelForm):
+class ProviderCSVForm(forms.ModelForm):
+    slug = SlugField()
 
     class Meta:
         model = Provider
-        fields = ['name', 'slug', 'asn', 'account', 'portal_url']
-
-
-class ProviderImportForm(BootstrapMixin, BulkImportForm):
-    csv = CSVDataField(csv_form=ProviderFromCSVForm)
+        fields = ['name', 'slug', 'asn', 'account', 'portal_url', 'comments']
+        help_texts = {
+            'name': 'Provider name',
+            'asn': '32-bit autonomous system number',
+            'portal_url': 'Portal URL',
+            'comments': 'Free-form comments',
+        }
 
 
 class ProviderBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -102,21 +105,36 @@ class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class CircuitFromCSVForm(forms.ModelForm):
-    provider = forms.ModelChoiceField(Provider.objects.all(), to_field_name='name',
-                                      error_messages={'invalid_choice': 'Provider not found.'})
-    type = forms.ModelChoiceField(CircuitType.objects.all(), to_field_name='name',
-                                  error_messages={'invalid_choice': 'Invalid circuit type.'})
-    tenant = forms.ModelChoiceField(Tenant.objects.all(), to_field_name='name', required=False,
-                                    error_messages={'invalid_choice': 'Tenant not found.'})
+class CircuitCSVForm(forms.ModelForm):
+    provider = forms.ModelChoiceField(
+        queryset=Provider.objects.all(),
+        to_field_name='name',
+        help_text='Name of parent provider',
+        error_messages={
+            'invalid_choice': 'Provider not found.'
+        }
+    )
+    type = forms.ModelChoiceField(
+        queryset=CircuitType.objects.all(),
+        to_field_name='name',
+        help_text='Type of circuit',
+        error_messages={
+            'invalid_choice': 'Invalid circuit type.'
+        }
+    )
+    tenant = forms.ModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of assigned tenant',
+        error_messages={
+            'invalid_choice': 'Tenant not found.'
+        }
+    )
 
     class Meta:
         model = Circuit
-        fields = ['cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description']
-
-
-class CircuitImportForm(BootstrapMixin, BulkImportForm):
-    csv = CSVDataField(csv_form=CircuitFromCSVForm)
+        fields = ['cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments']
 
 
 class CircuitBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):

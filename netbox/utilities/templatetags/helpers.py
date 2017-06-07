@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from markdown import markdown
 
 from django import template
@@ -58,6 +60,22 @@ def bettertitle(value):
     Alternative to the builtin title(); uppercases words without replacing letters that are already uppercase.
     """
     return ' '.join([w[0].upper() + w[1:] for w in value.split()])
+
+
+@register.filter()
+def example_choices(value, arg=3):
+    """
+    Returns a number (default: 3) of example choices for a ChoiceFiled (useful for CSV import forms).
+    """
+    choices = []
+    for id, label in value:
+        if len(choices) == arg:
+            choices.append('etc.')
+            break
+        if not id:
+            continue
+        choices.append(label)
+    return ', '.join(choices) or 'None'
 
 
 #

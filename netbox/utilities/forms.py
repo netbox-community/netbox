@@ -217,43 +217,77 @@ class Livesearch(forms.TextInput):
 
 class CSVDataField(forms.CharField):
     """
-    A field for comma-separated values (CSV). Values containing commas should be encased within double quotes. Example:
-        '"New York, NY",new-york-ny,Other stuff' => ['New York, NY', 'new-york-ny', 'Other stuff']
+    A CharField (rendered as a Textarea) which accepts CSV-formatted data. It returns a list of dictionaries mapping
+    column headers to values. Each dictionary represents an individual record.
     """
-    csv_form = None
     widget = forms.Textarea
 
-    def __init__(self, csv_form, *args, **kwargs):
-        self.csv_form = csv_form
-        self.columns = self.csv_form().fields.keys()
+    def __init__(self, fields, required_fields=[], *args, **kwargs):
+
+        self.fields = fields
+        self.required_fields = required_fields
+
         super(CSVDataField, self).__init__(*args, **kwargs)
+
         self.strip = False
         if not self.label:
             self.label = 'CSV Data'
+        if not self.initial:
+            self.initial = ','.join(required_fields) + '\n'
         if not self.help_text:
-            self.help_text = 'Enter one line per record in CSV format.'
+            self.help_text = 'Enter the list of column headers followed by one line per record to be imported, using ' \
+                             'commas to separate values. Multi-line data and values containing commas may be wrapped ' \
+                             'in double quotes.'
 
     def to_python(self, value):
-        """
-        Return a list of dictionaries, each representing an individual record
-        """
+
         # Python 2's csv module has problems with Unicode
         if not isinstance(value, str):
             value = value.encode('utf-8')
+
         records = []
         reader = csv.reader(value.splitlines())
+
+        # Consume and valdiate the first line of CSV data as column headers
+        headers = reader.next()
+        for f in self.required_fields:
+            if f not in headers:
+                raise forms.ValidationError('Required column header "{}" not found.'.format(f))
+        for f in headers:
+            if f not in self.fields:
+                raise forms.ValidationError('Unexpected column header "{}" found.'.format(f))
+
+        # Parse CSV data
         for i, row in enumerate(reader, start=1):
             if row:
-                if len(row) < len(self.columns):
-                    raise forms.ValidationError("Line {}: Field(s) missing (found {}; expected {})"
-                                                .format(i, len(row), len(self.columns)))
-                elif len(row) > len(self.columns):
-                    raise forms.ValidationError("Line {}: Too many fields (found {}; expected {})"
-                                                .format(i, len(row), len(self.columns)))
+                if len(row) != len(headers):
+                    raise forms.ValidationError(
+                        "Row {}: Expected {} columns but found {}".format(i, len(headers), len(row))
+                    )
                 row = [col.strip() for col in row]
-                record = dict(zip(self.columns, row))
+                record = dict(zip(headers, row))
                 records.append(record)
+
         return records
+
+
+class CSVChoiceField(forms.ChoiceField):
+    """
+    Invert the provided set of choices to take the human-friendly label as input, and return the database value.
+    """
+
+    def __init__(self, choices, *args, **kwargs):
+        super(CSVChoiceField, self).__init__(choices, *args, **kwargs)
+        self.choices = [(label, label) for value, label in choices]
+        self.choice_values = {label: value for value, label in choices}
+
+    def clean(self, value):
+        value = super(CSVChoiceField, self).clean(value)
+        if not value:
+            return None
+        if value not in self.choice_values:
+            raise forms.ValidationError("Invalid choice: {}".format(value))
+        return self.choice_values[value]
 
 
 class ExpandableNameField(forms.CharField):
@@ -483,28 +517,3 @@ class BulkEditForm(forms.Form):
             self.nullable_fields = [field for field in self.Meta.nullable_fields]
         else:
             self.nullable_fields = []
-
-
-class BulkImportForm(forms.Form):
-
-    def clean(self):
-        records = self.cleaned_data.get('csv')
-        if not records:
-            return
-
-        obj_list = []
-
-        for i, record in enumerate(records, start=1):
-            obj_form = self.fields['csv'].csv_form(data=record)
-            if obj_form.is_valid():
-                obj = obj_form.save(commit=False)
-                obj_list.append(obj)
-            else:
-                for field, errors in obj_form.errors.items():
-                    for e in errors:
-                        if field == '__all__':
-                            self.add_error('csv', "Record {}: {}".format(i, e))
-                        else:
-                            self.add_error('csv', "Record {} ({}): {}".format(i, field, e))
-
-        self.cleaned_data['csv'] = obj_list
