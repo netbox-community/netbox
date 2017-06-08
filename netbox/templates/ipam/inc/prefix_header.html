@@ -41,7 +41,11 @@
 		</a>
     {% endif %}
 </div>
+{% if prefix.description %}
+<h1>{{ prefix }} - {{ prefix.description }}</h1>
+{% else %}
 <h1>{{ prefix }}</h1>
+{% endif %}
 {% include 'inc/created_updated.html' with obj=prefix %}
 <ul class="nav nav-tabs" style="margin-bottom: 20px">
     <li role="presentation"{% if active_tab == 'prefix' %} class="active"{% endif %}><a href="{% url 'ipam:prefix' pk=prefix.pk %}">Prefix</a></li>

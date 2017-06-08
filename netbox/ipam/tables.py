@@ -49,13 +49,23 @@ PREFIX_LINK = """
 {% else %}
     <span style="padding-left: {{ record.depth }}9px">
 {% endif %}
-    <a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if parent.vrf %}&vrf={{ parent.vrf.pk }}{% endif %}{% if parent.site %}&site={{ parent.site.pk }}{% endif %}{% endif %}">{{ record.prefix }}</a>
+    <a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if parent.vrf %}&vrf={{ parent.vrf.pk }}{% endif %}{% if parent.site %}&site={{ parent.site.pk }}{% endif %}{% endif %}">
+{% if record.description %}
+{{ record.prefix }}</a> - {{ record.description }}
+{% else %}
+{{ record.prefix }}</a>
+{% endif %}
 </span>
 """
 
 PREFIX_LINK_BRIEF = """
 <span style="padding-left: {{ record.depth }}0px">
-    <a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if parent.vrf %}&vrf={{ parent.vrf.pk }}{% endif %}{% if parent.site %}&site={{ parent.site.pk }}{% endif %}{% endif %}">{{ record.prefix }}</a>
+    <a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if parent.vrf %}&vrf={{ parent.vrf.pk }}{% endif %}{% if parent.site %}&site={{ parent.site.pk }}{% endif %}{% endif %}">
+{% if record.description %}
+{{ record.prefix }}</a> - {{ record.description }}
+{% else %}
+{{ record.prefix }}</a>
+{% endif %}
 </span>
 """
 
@@ -248,7 +258,7 @@ class PrefixTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Prefix
-        fields = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'description')
+        fields = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role')
         row_attrs = {
             'class': lambda record: 'success' if not record.pk else '',
         }
