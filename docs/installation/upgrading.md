@@ -64,7 +64,7 @@ This script:
         Your models have changes that are not yet reflected in a migration, and so won't be applied.
         Run 'manage.py makemigrations' to make new migrations, and then re-run 'manage.py migrate' to apply them.
 
-    This may occur due to semantic differences in environment, and can be safely ignored. Never attempt to create new migrations unless you are inentionally modifying the database schema.
+    This may occur due to semantic differences in environment, and can be safely ignored. Never attempt to create new migrations unless you are intentionally modifying the database schema.
 
 # Restart the WSGI Service
 
