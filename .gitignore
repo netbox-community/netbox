@@ -3,6 +3,7 @@
 /netbox/netbox/ldap_config.py
 /netbox/static
 .idea
+/.venv
 /*.sh
 !upgrade.sh
 fabfile.py
