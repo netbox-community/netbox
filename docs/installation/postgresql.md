@@ -13,6 +13,11 @@ NetBox requires a PostgreSQL database to store data. (Please note that MySQL is 
 
 ```no-highlight
 # yum install -y postgresql postgresql-server postgresql-devel
+
+CentOS/RHEL6
+# service postgresql initdb
+
+CentOS/RHEL7
 # postgresql-setup initdb
 ```
 
@@ -26,6 +31,10 @@ host    all             all             ::1/128                 md5
 Then, start the service:
 
 ```no-highlight
+CentOS/RHEL6
+# service postgresql start
+
+CentOS/RHEL7
 # systemctl start postgresql
 ```
 
