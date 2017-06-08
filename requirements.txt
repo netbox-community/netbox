@@ -20,3 +20,7 @@ py-gfm>=0.1.3
 pycrypto>=2.6.1
 sqlparse>=0.2
 xmltodict>=0.10.2
+pytz>=2017.2
+coreapi>=2.3.0
+openapi_codec>=1.3.1
+simplejson>=3.10.0
