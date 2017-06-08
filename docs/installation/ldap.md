@@ -49,6 +49,8 @@ AUTH_LDAP_BIND_PASSWORD = "demo"
 #     ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
 LDAP_IGNORE_CERT_ERRORS = True
 ```
+!!! info
+    When using Windows Server 2012 you may need to specify a port on AUTH_LDAP_SERVER_URI - 3269 for secure, 3268 for non-secure.
 
 ## User Authentication
 
@@ -70,6 +72,8 @@ AUTH_LDAP_USER_ATTR_MAP = {
     "last_name": "sn"
 }
 ```
+!!! info
+    When using Windows Server 2012 AUTH_LDAP_USER_DN_TEMPLATE should be set to None.
 
 # User Groups for Permissions
 
@@ -98,4 +102,21 @@ AUTH_LDAP_FIND_GROUP_PERMS = True
 # Cache groups for one hour to reduce LDAP traffic
 AUTH_LDAP_CACHE_GROUPS = True
 AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
+```
+
+!!! info
+"is_active" - You must map all users to at least this group if you want their account to be treated as enabled. Without this, your users cannot log in.
+
+"is_staff" - Users mapped to this group are enabled for access to the Administration tools; this is the equivalent of checking the "Staff status" box on a manually created user. This doesn't necessarily imply additional privileges, which still needed to be assigned via a group, or on a per-user basis.
+
+"is_superuser" - Users mapped to this group in addition to the "is_staff" group will be assumed to have full permissions to all modules. Without also being mapped to "is_staff", this group observably has no impact to your effective permissions.
+
+!!! info
+It is also possible map user attributes to Django attributes:
+
+```no-highlight
+AUTH_LDAP_USER_ATTR_MAP = {
+"first_name": "givenName",
+"last_name": "sn"
+}
 ```
