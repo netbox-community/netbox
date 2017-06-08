@@ -247,7 +247,7 @@ class RackImportTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Rack
-        fields = ('site', 'group', 'name', 'facility_id', 'tenant', 'u_height')
+        fields = ('name', 'site', 'group', 'facility_id', 'tenant', 'u_height')
 
 
 #

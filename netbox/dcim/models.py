@@ -346,7 +346,7 @@ class RackGroup(models.Model):
         ]
 
     def __str__(self):
-        return '{} - {}'.format(self.site.name, self.name)
+        return self.name
 
     def get_absolute_url(self):
         return "{}?group_id={}".format(reverse('dcim:rack_list'), self.pk)
@@ -1393,10 +1393,13 @@ class InterfaceConnection(models.Model):
                                             verbose_name='Status')
 
     def clean(self):
-        if self.interface_a == self.interface_b:
-            raise ValidationError({
-                'interface_b': "Cannot connect an interface to itself."
-            })
+        try:
+            if self.interface_a == self.interface_b:
+                raise ValidationError({
+                    'interface_b': "Cannot connect an interface to itself."
+                })
+        except ObjectDoesNotExist:
+            pass
 
     # Used for connections export
     def to_csv(self):

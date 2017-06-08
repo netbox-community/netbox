@@ -14,7 +14,8 @@
                 {% for rack in page %}
                     <div style="display: inline-block; width: 266px">
                         <div class="rack_header">
-                            <h4><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name }}</a></h4>
+                            <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name|truncatechars:"25" }}</a></strong>
+                            <p><small class="text-muted">{{ rack.facility_id|truncatechars:"30" }}</small></p>
                         </div>
                         {% if face_id %}
                             {% include 'dcim/inc/rack_elevation.html' with primary_face=rack.get_rear_elevation secondary_face=rack.get_front_elevation face_id=1 %}
@@ -23,7 +24,8 @@
                         {% endif %}
                         <div class="clearfix"></div>
                         <div class="rack_header">
-                            <h4><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name }}</a></h4>
+                            <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name|truncatechars:"25" }}</a></strong>
+                            <p><small class="text-muted">{{ rack.facility_id|truncatechars:"30" }}</small></p>
                         </div>
                     </div>
                 {% endfor %}

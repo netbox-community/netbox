@@ -97,9 +97,8 @@ class TenantDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class TenantBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'tenancy.add_tenant'
-    form = forms.TenantImportForm
+    model_form = forms.TenantCSVForm
     table = tables.TenantTable
-    template_name = 'tenancy/tenant_import.html'
     default_return_url = 'tenancy:tenant_list'
 
 

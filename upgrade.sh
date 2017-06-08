@@ -20,9 +20,11 @@ COMMAND="${PREFIX}find . -name \"*.pyc\" -delete"
 echo "Cleaning up stale Python bytecode ($COMMAND)..."
 eval $COMMAND
 
-# Fall back to pip3 if pip is missing
-PIP="pip"
-type $PIP >/dev/null 2>&1 || PIP="pip3"
+# Prefer python3/pip3
+PYTHON="python3"
+type $PYTHON >/dev/null 2>&1 || PYTHON="python"
+PIP="pip3"
+type $PIP >/dev/null 2>&1 || PIP="pip"
 
 # Install any new Python packages
 COMMAND="${PREFIX}${PIP} install -r requirements.txt --upgrade"
@@ -30,11 +32,11 @@ echo "Updating required Python packages ($COMMAND)..."
 eval $COMMAND
 
 # Apply any database migrations
-COMMAND="./netbox/manage.py migrate"
+COMMAND="${PYTHON} netbox/manage.py migrate"
 echo "Applying database migrations ($COMMAND)..."
 eval $COMMAND
 
 # Collect static files
-COMMAND="./netbox/manage.py collectstatic --no-input"
+COMMAND="${PYTHON} netbox/manage.py collectstatic --no-input"
 echo "Collecting static files ($COMMAND)..."
 eval $COMMAND

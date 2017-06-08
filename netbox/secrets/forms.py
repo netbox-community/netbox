@@ -7,7 +7,7 @@ from django import forms
 from django.db.models import Count
 
 from dcim.models import Device
-from utilities.forms import BootstrapMixin, BulkEditForm, BulkImportForm, CSVDataField, FilterChoiceField, SlugField
+from utilities.forms import BootstrapMixin, BulkEditForm, FilterChoiceField, FlexibleModelChoiceField, SlugField
 from .models import Secret, SecretRole, UserKey
 
 
@@ -65,25 +65,38 @@ class SecretForm(BootstrapMixin, forms.ModelForm):
             })
 
 
-class SecretFromCSVForm(forms.ModelForm):
-    device = forms.ModelChoiceField(queryset=Device.objects.all(), required=False, to_field_name='name',
-                                    error_messages={'invalid_choice': 'Device not found.'})
-    role = forms.ModelChoiceField(queryset=SecretRole.objects.all(), to_field_name='name',
-                                  error_messages={'invalid_choice': 'Invalid secret role.'})
-    plaintext = forms.CharField()
+class SecretCSVForm(forms.ModelForm):
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Device name or ID',
+        error_messages={
+            'invalid_choice': 'Device not found.',
+        }
+    )
+    role = forms.ModelChoiceField(
+        queryset=SecretRole.objects.all(),
+        to_field_name='name',
+        help_text='Name of assigned role',
+        error_messages={
+            'invalid_choice': 'Invalid secret role.',
+        }
+    )
+    plaintext = forms.CharField(
+        help_text='Plaintext secret data'
+    )
 
     class Meta:
         model = Secret
         fields = ['device', 'role', 'name', 'plaintext']
+        help_texts = {
+            'name': 'Name or username',
+        }
 
     def save(self, *args, **kwargs):
-        s = super(SecretFromCSVForm, self).save(*args, **kwargs)
+        s = super(SecretCSVForm, self).save(*args, **kwargs)
         s.plaintext = str(self.cleaned_data['plaintext'])
         return s
-
-
-class SecretImportForm(BootstrapMixin, BulkImportForm):
-    csv = CSVDataField(csv_form=SecretFromCSVForm, widget=forms.Textarea(attrs={'class': 'requires-session-key'}))
 
 
 class SecretBulkEditForm(BootstrapMixin, BulkEditForm):

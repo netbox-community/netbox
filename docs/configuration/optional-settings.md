@@ -99,6 +99,14 @@ Setting this to True will display a "maintenance mode" banner at the top of ever
 
 ---
 
+## MAX_PAGE_SIZE
+
+Default: 1000
+
+An API consumer can request an arbitrary number of objects by appending the "limit" parameter to the URL (e.g. `?limit=1000`). This setting defines the maximum limit. Setting it to `0` or `None` will allow an API consumer to request all objects by specifying `?limit=0`.
+
+---
+
 ## NETBOX_USERNAME
 
 ## NETBOX_PASSWORD

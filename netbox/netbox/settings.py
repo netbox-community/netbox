@@ -13,7 +13,7 @@ except ImportError:
     )
 
 
-VERSION = '2.0.4'
+VERSION = '2.0.5'
 
 # Import local configuration
 ALLOWED_HOSTS = DATABASE = SECRET_KEY = None
@@ -48,6 +48,7 @@ BANNER_TOP = getattr(configuration, 'BANNER_TOP', False)
 BANNER_BOTTOM = getattr(configuration, 'BANNER_BOTTOM', False)
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
 ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
+MAX_PAGE_SIZE = getattr(configuration, 'MAX_PAGE_SIZE', 1000)
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
@@ -208,7 +209,7 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'rest_framework.filters.DjangoFilterBackend',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_PAGINATION_CLASS': 'utilities.api.OptionalLimitOffsetPagination',
     'DEFAULT_PERMISSION_CLASSES': (
         'utilities.api.TokenPermissions',
     ),

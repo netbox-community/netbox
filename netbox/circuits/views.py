@@ -65,9 +65,8 @@ class ProviderDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class ProviderBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'circuits.add_provider'
-    form = forms.ProviderImportForm
+    model_form = forms.ProviderCSVForm
     table = tables.ProviderTable
-    template_name = 'circuits/provider_import.html'
     default_return_url = 'circuits:provider_list'
 
 
@@ -163,9 +162,8 @@ class CircuitDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class CircuitBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'circuits.add_circuit'
-    form = forms.CircuitImportForm
+    model_form = forms.CircuitCSVForm
     table = tables.CircuitTable
-    template_name = 'circuits/circuit_import.html'
     default_return_url = 'circuits:circuit_list'
 
 

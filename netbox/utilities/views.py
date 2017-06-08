@@ -6,9 +6,10 @@ from django_tables2 import RequestConfig
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
-from django.forms import CharField, ModelMultipleChoiceField, MultipleHiddenInput, TypedChoiceField
+from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, TypedChoiceField
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import TemplateSyntaxError
@@ -19,6 +20,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
+from utilities.forms import BootstrapMixin, CSVDataField
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
 from .paginator import EnhancedPaginator
@@ -371,55 +373,84 @@ class BulkImportView(View):
     """
     Import objects in bulk (CSV format).
 
-    form: Form class
+    model_form: The form used to create each imported object
     table: The django-tables2 Table used to render the list of imported objects
     template_name: The name of the template
     default_return_url: The name of the URL to use for the cancel button
     """
-    form = None
+    model_form = None
     table = None
-    template_name = None
     default_return_url = None
+    template_name = 'utilities/obj_import.html'
+
+    def _import_form(self, *args, **kwargs):
+
+        fields = self.model_form().fields.keys()
+        required_fields = [name for name, field in self.model_form().fields.items() if field.required]
+
+        class ImportForm(BootstrapMixin, Form):
+            csv = CSVDataField(fields=fields, required_fields=required_fields)
+
+        return ImportForm(*args, **kwargs)
+
+    def _save_obj(self, obj_form):
+        """
+        Provide a hook to modify the object immediately before saving it (e.g. to encrypt secret data).
+        """
+        return obj_form.save()
 
     def get(self, request):
 
         return render(request, self.template_name, {
-            'form': self.form(),
+            'form': self._import_form(),
+            'fields': self.model_form().fields,
+            'obj_type': self.model_form._meta.model._meta.verbose_name,
             'return_url': self.default_return_url,
         })
 
     def post(self, request):
 
-        form = self.form(request.POST)
-        if form.is_valid():
-            new_objs = []
-            try:
-                with transaction.atomic():
-                    for obj in form.cleaned_data['csv']:
-                        self.save_obj(obj)
-                        new_objs.append(obj)
+        new_objs = []
+        form = self._import_form(request.POST)
 
+        if form.is_valid():
+
+            try:
+
+                # Iterate through CSV data and bind each row to a new model form instance.
+                with transaction.atomic():
+                    for row, data in enumerate(form.cleaned_data['csv'], start=1):
+                        obj_form = self.model_form(data)
+                        if obj_form.is_valid():
+                            obj = self._save_obj(obj_form)
+                            new_objs.append(obj)
+                        else:
+                            for field, err in obj_form.errors.items():
+                                form.add_error('csv', "Row {} {}: {}".format(row, field, err[0]))
+                            raise ValidationError("")
+
+                # Compile a table containing the imported objects
                 obj_table = self.table(new_objs)
+
                 if new_objs:
                     msg = 'Imported {} {}'.format(len(new_objs), new_objs[0]._meta.verbose_name_plural)
                     messages.success(request, msg)
                     UserAction.objects.log_import(request.user, ContentType.objects.get_for_model(new_objs[0]), msg)
 
-                return render(request, "import_success.html", {
-                    'table': obj_table,
-                    'return_url': self.default_return_url,
-                })
+                    return render(request, "import_success.html", {
+                        'table': obj_table,
+                        'return_url': self.default_return_url,
+                    })
 
-            except IntegrityError as e:
-                form.add_error('csv', "Record {}: {}".format(len(new_objs) + 1, e.__cause__))
+            except ValidationError:
+                pass
 
         return render(request, self.template_name, {
             'form': form,
+            'fields': self.model_form().fields,
+            'obj_type': self.model_form._meta.model._meta.verbose_name,
             'return_url': self.default_return_url,
         })
-
-    def save_obj(self, obj):
-        obj.save()
 
 
 class BulkEditView(View):

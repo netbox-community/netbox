@@ -29,8 +29,8 @@ from . import filters, forms, tables
 from .models import (
     CONNECTION_STATUS_CONNECTED, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
     DeviceBay, DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate,
-    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site,
+    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
+    RackGroup, RackReservation, RackRole, Region, Site,
 )
 
 
@@ -219,9 +219,8 @@ class SiteDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class SiteBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.add_site'
-    form = forms.SiteImportForm
+    model_form = forms.SiteCSVForm
     table = tables.SiteTable
-    template_name = 'dcim/site_import.html'
     default_return_url = 'dcim:site_list'
 
 
@@ -390,9 +389,8 @@ class RackDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class RackBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.add_rack'
-    form = forms.RackImportForm
+    model_form = forms.RackCSVForm
     table = tables.RackImportTable
-    template_name = 'dcim/rack_import.html'
     default_return_url = 'dcim:rack_list'
 
 
@@ -866,7 +864,7 @@ class DeviceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class DeviceBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.add_device'
-    form = forms.DeviceImportForm
+    model_form = forms.DeviceCSVForm
     table = tables.DeviceImportTable
     template_name = 'dcim/device_import.html'
     default_return_url = 'dcim:device_list'
@@ -874,22 +872,21 @@ class DeviceBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class ChildDeviceBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.add_device'
-    form = forms.ChildDeviceImportForm
+    model_form = forms.ChildDeviceCSVForm
     table = tables.DeviceImportTable
     template_name = 'dcim/device_import_child.html'
     default_return_url = 'dcim:device_list'
 
-    def save_obj(self, obj):
+    def _save_obj(self, obj_form):
 
-        # Inherit site and rack from parent device
-        obj.site = obj.parent_bay.device.site
-        obj.rack = obj.parent_bay.device.rack
-        obj.save()
+        obj = obj_form.save()
 
-        # Save the reverse relation
+        # Save the reverse relation to the parent device bay
         device_bay = obj.parent_bay
         device_bay.installed_device = obj
         device_bay.save()
+
+        return obj
 
 
 class DeviceBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -1016,9 +1013,8 @@ class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class ConsoleConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.change_consoleport'
-    form = forms.ConsoleConnectionImportForm
+    model_form = forms.ConsoleConnectionCSVForm
     table = tables.ConsoleConnectionTable
-    template_name = 'dcim/console_connections_import.html'
     default_return_url = 'dcim:console_connections_list'
 
 
@@ -1239,9 +1235,8 @@ class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class PowerConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.change_powerport'
-    form = forms.PowerConnectionImportForm
+    model_form = forms.PowerConnectionCSVForm
     table = tables.PowerConnectionTable
-    template_name = 'dcim/power_connections_import.html'
     default_return_url = 'dcim:power_connections_list'
 
 
@@ -1676,9 +1671,8 @@ def interfaceconnection_delete(request, pk):
 
 class InterfaceConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.change_interface'
-    form = forms.InterfaceConnectionImportForm
+    model_form = forms.InterfaceConnectionCSVForm
     table = tables.InterfaceConnectionTable
-    template_name = 'dcim/interface_connections_import.html'
     default_return_url = 'dcim:interface_connections_list'
 
 
