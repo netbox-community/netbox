@@ -291,6 +291,7 @@ class Secret(CreatedUpdatedModel):
     hash = models.CharField(max_length=128, editable=False)
 
     plaintext = None
+    csv_headers = ['device', 'role', 'name', 'plaintext']
 
     class Meta:
         ordering = ['device', 'role', 'name']

@@ -89,6 +89,8 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
     description = models.CharField(max_length=100, blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
+    csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
+
     class Meta:
         ordering = ['name']
         verbose_name = 'VRF'
@@ -145,6 +147,8 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
     date_added = models.DateField(blank=True, null=True)
     description = models.CharField(max_length=100, blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+
+    csv_headers = ['prefix', 'rir', 'date_added', 'description']
 
     class Meta:
         ordering = ['family', 'prefix']
@@ -297,6 +301,10 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
 
     objects = PrefixQuerySet.as_manager()
 
+    csv_headers = [
+        'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan_vid', 'status', 'role', 'is_pool', 'description',
+    ]
+
     class Meta:
         ordering = ['vrf', 'family', 'prefix']
         verbose_name_plural = 'prefixes'
@@ -424,6 +432,8 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
 
     objects = IPAddressManager()
 
+    csv_headers = ['address', 'vrf', 'tenant', 'status', 'device', 'interface_name', 'is_primary', 'description']
+
     class Meta:
         ordering = ['family', 'address']
         verbose_name = 'IP address'
@@ -462,11 +472,12 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     def to_csv(self):
 
         # Determine if this IP is primary for a Device
-        is_primary = False
         if self.family == 4 and getattr(self, 'primary_ip4_for', False):
             is_primary = True
         elif self.family == 6 and getattr(self, 'primary_ip6_for', False):
             is_primary = True
+        else:
+            is_primary = False
 
         return csv_format([
             self.address,
@@ -536,6 +547,8 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
     role = models.ForeignKey('Role', related_name='vlans', on_delete=models.SET_NULL, blank=True, null=True)
     description = models.CharField(max_length=100, blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+
+    csv_headers = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
 
     class Meta:
         ordering = ['site', 'group', 'vid']
