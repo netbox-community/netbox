@@ -180,6 +180,18 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         required=False,
         label='Site',
         widget=forms.Select(
+            attrs={'filter-for': 'vlan_group', 'nullable': 'true'}
+        )
+    )
+    vlan_group = ChainedModelChoiceField(
+        queryset=VLANGroup.objects.all(),
+        chains=(
+            ('site', 'site'),
+        ),
+        required=False,
+        label='VLAN group',
+        widget=APISelect(
+            api_url='/api/ipam/vlan-groups/?site_id={{site}}',
             attrs={'filter-for': 'vlan', 'nullable': 'true'}
         )
     )
@@ -187,11 +199,12 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         queryset=VLAN.objects.all(),
         chains=(
             ('site', 'site'),
+            ('group', 'vlan_group'),
         ),
         required=False,
         label='VLAN',
         widget=APISelect(
-            api_url='/api/ipam/vlans/?site_id={{site}}', display_field='display_name'
+            api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}', display_field='display_name'
         )
     )
 
@@ -200,6 +213,14 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         fields = ['prefix', 'vrf', 'site', 'vlan', 'status', 'role', 'is_pool', 'description', 'tenant_group', 'tenant']
 
     def __init__(self, *args, **kwargs):
+
+        # Initialize helper selectors
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {})
+        if instance and instance.vlan is not None:
+            initial['vlan_group'] = instance.vlan.group
+        kwargs['initial'] = initial
+
         super(PrefixForm, self).__init__(*args, **kwargs)
 
         self.fields['vrf'].empty_label = 'Global'
