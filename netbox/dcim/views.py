@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 from copy import deepcopy
+from difflib import SequenceMatcher
 import re
 from natsort import natsorted
 from operator import attrgetter
@@ -776,20 +777,14 @@ class DeviceView(View):
         services = Service.objects.filter(device=device)
         secrets = device.secrets.all()
 
-        # Find any related devices for convenient linking in the UI
-        related_devices = []
-        if device.name:
-            if re.match('.+[0-9]+$', device.name):
-                # Strip 1 or more trailing digits (e.g. core-switch1)
-                base_name = re.match('(.*?)[0-9]+$', device.name).group(1)
-            elif re.match('.+\d[a-z]$', device.name.lower()):
-                # Strip a trailing letter if preceded by a digit (e.g. dist-switch3a -> dist-switch3)
-                base_name = re.match('(.*\d+)[a-z]$', device.name.lower()).group(1)
-            else:
-                base_name = None
-            if base_name:
-                related_devices = Device.objects.filter(name__istartswith=base_name).exclude(pk=device.pk)\
-                    .select_related('rack', 'device_type__manufacturer')[:10]
+        # Find up to ten devices in the same site with the same functional role for quick reference.
+        related_devices = Device.objects.filter(
+            site=device.site, device_role=device.device_role
+        ).exclude(
+            pk=device.pk
+        ).select_related(
+            'rack', 'device_type__manufacturer'
+        )[:10]
 
         # Show graph button on interfaces only if at least one graph has been created.
         show_graphs = Graph.objects.filter(type=GRAPH_TYPE_INTERFACE).exists()

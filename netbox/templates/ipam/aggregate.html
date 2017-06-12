@@ -58,6 +58,12 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Utilization</td>
+                    <td>
+                        {{ aggregate.get_utilization }}%
+                    </td>
+                </tr>
+                <tr>
                     <td>Date Added</td>
                     <td>
                         {% if aggregate.date_added %}

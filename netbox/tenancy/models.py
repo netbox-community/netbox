@@ -41,6 +41,8 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
+    csv_headers = ['name', 'slug', 'group', 'description']
+
     class Meta:
         ordering = ['group', 'name']
 

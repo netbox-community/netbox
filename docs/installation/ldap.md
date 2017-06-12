@@ -28,6 +28,9 @@ Create a file in the same directory as `configuration.py` (typically `netbox/net
 
 ## General Server Configuration
 
+!!! info
+    When using Windows Server 2012 you may need to specify a port on `AUTH_LDAP_SERVER_URI`. Use `3269` for secure, or `3268` for non-secure.
+
 ```python
 import ldap
 
@@ -49,10 +52,10 @@ AUTH_LDAP_BIND_PASSWORD = "demo"
 LDAP_IGNORE_CERT_ERRORS = True
 ```
 
-!!! info
-    When using Windows Server 2012 you may need to specify a port on AUTH_LDAP_SERVER_URI - 3269 for secure, 3268 for non-secure.
-
 ## User Authentication
+
+!!! info
+    When using Windows Server, `2012 AUTH_LDAP_USER_DN_TEMPLATE` should be set to None.
 
 ```python
 from django_auth_ldap.config import LDAPSearch
@@ -72,9 +75,6 @@ AUTH_LDAP_USER_ATTR_MAP = {
     "last_name": "sn"
 }
 ```
-
-!!! info
-    When using Windows Server 2012 AUTH_LDAP_USER_DN_TEMPLATE should be set to None.
 
 # User Groups for Permissions
 
@@ -109,12 +109,11 @@ AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
 * `is_staff` - Users mapped to this group are enabled for access to the administration tools; this is the equivalent of checking the "staff status" box on a manually created user. This doesn't grant any specific permissions.
 * `is_superuser` - Users mapped to this group will be granted superuser status. Superusers are implicitly granted all permissions.
 
-!!! info
-    It is also possible map user attributes to Django attributes:
+It is also possible map user attributes to Django attributes:
 
-    ```no-highlight
-    AUTH_LDAP_USER_ATTR_MAP = {
-        "first_name": "givenName",
-        "last_name": "sn"
-    }
-    ```
+```python
+AUTH_LDAP_USER_ATTR_MAP = {
+    "first_name": "givenName",
+    "last_name": "sn",
+}
+```

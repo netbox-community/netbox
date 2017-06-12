@@ -34,7 +34,7 @@ RIR_ACTIONS = """
 
 UTILIZATION_GRAPH = """
 {% load helpers %}
-{% utilization_graph value %}
+{% if record.pk %}{% utilization_graph value %}{% else %}&mdash;{% endif %}
 """
 
 ROLE_ACTIONS = """
@@ -241,6 +241,7 @@ class PrefixTable(BaseTable):
     prefix = tables.TemplateColumn(PREFIX_LINK, attrs={'th': {'style': 'padding-left: 17px'}})
     status = tables.TemplateColumn(STATUS_LABEL)
     vrf = tables.TemplateColumn(VRF_LINK, verbose_name='VRF')
+    get_utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='IP Usage')
     tenant = tables.TemplateColumn(TENANT_LINK)
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
     vlan = tables.LinkColumn('ipam:vlan', args=[Accessor('vlan.pk')], verbose_name='VLAN')
@@ -248,7 +249,7 @@ class PrefixTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Prefix
-        fields = ('pk', 'prefix', 'status', 'vrf', 'tenant', 'site', 'vlan', 'role', 'description')
+        fields = ('pk', 'prefix', 'status', 'vrf', 'get_utilization', 'tenant', 'site', 'vlan', 'role', 'description')
         row_attrs = {
             'class': lambda record: 'success' if not record.pk else '',
         }

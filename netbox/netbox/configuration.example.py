@@ -58,6 +58,11 @@ CORS_ORIGIN_REGEX_WHITELIST = [
     # r'^(https?://)?(\w+\.)?example\.com$',
 ]
 
+# Set to True to enable server debugging. WARNING: Debugging introduces a substantial performance penalty and may reveal
+# sensitive information about your installation. Only enable debugging while performing testing. Never enable debugging
+# on a production system.
+DEBUG = False
+
 # Email settings
 EMAIL = {
     'SERVER': 'localhost',
@@ -71,6 +76,10 @@ EMAIL = {
 # Enforcement of unique IP space can be toggled on a per-VRF basis. To enforce unique IP space within the global table
 # (all prefixes and IP addresses not assigned to a VRF), set ENFORCE_GLOBAL_UNIQUE to True.
 ENFORCE_GLOBAL_UNIQUE = False
+
+# Enable custom logging. Please see the Django documentation for detailed guidance on configuring custom logs:
+#   https://docs.djangoproject.com/en/1.11/topics/logging/
+LOGGING = {}
 
 # Setting this to True will permit only authenticated users to access any part of NetBox. By default, anonymous users
 # are permitted to access most data in NetBox (excluding secrets) but not make any changes.

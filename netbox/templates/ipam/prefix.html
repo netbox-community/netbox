@@ -121,8 +121,8 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>IP Addresses</td>
-                    <td><a href="{% url 'ipam:prefix_ipaddresses' pk=prefix.pk %}">{{ ipaddress_count }}</a></td>
+                    <td>Utilization</td>
+                    <td><a href="{% url 'ipam:prefix_ipaddresses' pk=prefix.pk %}">{{ ipaddress_count }} IP addresses</a> ({{ prefix.get_utilization }}%)</td>
                 </tr>
             </table>
         </div>

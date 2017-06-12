@@ -83,6 +83,34 @@ Enforcement of unique IP space can be toggled on a per-VRF basis. To enforce uni
 
 ---
 
+## LOGGING
+
+By default, all messages of INFO severity or higher will be logged to the console. Additionally, if `DEBUG` is False and email access has been configured, ERROR and CRITICAL messages will be emailed to the users defined in `ADMINS`.
+
+The Django framework on which NetBox runs allows for the customization of logging, e.g. to write logs to file. Please consult the [Django logging documentation](https://docs.djangoproject.com/en/1.11/topics/logging/) for more information on configuring this setting. Below is an example which will write all INFO and higher messages to a file:
+
+```
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/netbox.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+        },
+    },
+}
+```
+
+---
+
 ## LOGIN_REQUIRED
 
 Default: False

@@ -102,7 +102,9 @@ class ObjectListView(View):
                                .format(et.name))
         # Fall back to built-in CSV export
         elif 'export' in request.GET and hasattr(model, 'to_csv'):
-            output = '\n'.join([obj.to_csv() for obj in self.queryset])
+            headers = getattr(model, 'csv_headers', None)
+            output = ','.join(headers) + '\n' if headers else ''
+            output += '\n'.join([obj.to_csv() for obj in self.queryset])
             response = HttpResponse(
                 output,
                 content_type='text/csv'

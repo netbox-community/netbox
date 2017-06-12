@@ -52,6 +52,8 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
+    csv_headers = ['name', 'slug', 'asn', 'account', 'portal_url']
+
     class Meta:
         ordering = ['name']
 
@@ -106,6 +108,8 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
     description = models.CharField(max_length=100, blank=True)
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+
+    csv_headers = ['cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description']
 
     class Meta:
         ordering = ['provider', 'cid']

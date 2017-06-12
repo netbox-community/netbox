@@ -89,6 +89,8 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
     description = models.CharField(max_length=100, blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
+    csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
+
     class Meta:
         ordering = ['name']
         verbose_name = 'VRF'
@@ -146,6 +148,8 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
     description = models.CharField(max_length=100, blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
+    csv_headers = ['prefix', 'rir', 'date_added', 'description']
+
     class Meta:
         ordering = ['family', 'prefix']
 
@@ -200,7 +204,7 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
 
     def get_utilization(self):
         """
-        Determine the utilization rate of the aggregate prefix and return it as a percentage.
+        Determine the prefix utilization of the aggregate and return it as a percentage.
         """
         child_prefixes = Prefix.objects.filter(prefix__net_contained_or_equal=str(self.prefix))
         # Remove overlapping prefixes from list of children
@@ -297,6 +301,10 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
 
     objects = PrefixQuerySet.as_manager()
 
+    csv_headers = [
+        'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan_vid', 'status', 'role', 'is_pool', 'description',
+    ]
+
     class Meta:
         ordering = ['vrf', 'family', 'prefix']
         verbose_name_plural = 'prefixes'
@@ -306,9 +314,6 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
 
     def get_absolute_url(self):
         return reverse('ipam:prefix', args=[self.pk])
-
-    def get_duplicates(self):
-        return Prefix.objects.filter(vrf=self.vrf, prefix=str(self.prefix)).exclude(pk=self.pk)
 
     def clean(self):
 
@@ -357,6 +362,22 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
             self.description,
         ])
 
+    def get_status_class(self):
+        return STATUS_CHOICE_CLASSES[self.status]
+
+    def get_duplicates(self):
+        return Prefix.objects.filter(vrf=self.vrf, prefix=str(self.prefix)).exclude(pk=self.pk)
+
+    def get_utilization(self):
+        """
+        Determine the utilization of the prefix and return it as a percentage.
+        """
+        child_count = IPAddress.objects.filter(address__net_contained_or_equal=str(self.prefix), vrf=self.vrf).count()
+        prefix_size = self.prefix.size
+        if self.family == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
+            prefix_size -= 2
+        return int(float(child_count) / prefix_size * 100)
+
     @property
     def new_subnet(self):
         if self.family == 4:
@@ -367,9 +388,6 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
             if self.prefix.prefixlen <= 126:
                 return IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
             return None
-
-    def get_status_class(self):
-        return STATUS_CHOICE_CLASSES[self.status]
 
 
 class IPAddressManager(models.Manager):
@@ -414,6 +432,8 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
 
     objects = IPAddressManager()
 
+    csv_headers = ['address', 'vrf', 'tenant', 'status', 'device', 'interface_name', 'is_primary', 'description']
+
     class Meta:
         ordering = ['family', 'address']
         verbose_name = 'IP address'
@@ -452,11 +472,12 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     def to_csv(self):
 
         # Determine if this IP is primary for a Device
-        is_primary = False
         if self.family == 4 and getattr(self, 'primary_ip4_for', False):
             is_primary = True
         elif self.family == 6 and getattr(self, 'primary_ip6_for', False):
             is_primary = True
+        else:
+            is_primary = False
 
         return csv_format([
             self.address,
@@ -526,6 +547,8 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
     role = models.ForeignKey('Role', related_name='vlans', on_delete=models.SET_NULL, blank=True, null=True)
     description = models.CharField(max_length=100, blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+
+    csv_headers = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
 
     class Meta:
         ordering = ['site', 'group', 'vid']

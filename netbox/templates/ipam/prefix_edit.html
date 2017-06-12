@@ -8,11 +8,17 @@
             {% render_field form.prefix %}
             {% render_field form.status %}
             {% render_field form.vrf %}
-            {% render_field form.site %}
-            {% render_field form.vlan %}
             {% render_field form.role %}
             {% render_field form.description %}
             {% render_field form.is_pool %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Site/VLAN Assignment</strong></div>
+        <div class="panel-body">
+            {% render_field form.site %}
+            {% render_field form.vlan_group %}
+            {% render_field form.vlan %}
         </div>
     </div>
     <div class="panel panel-default">
