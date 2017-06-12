@@ -1,6 +1,6 @@
 # Installation
 
-**Debian/Ubuntu**
+**Ubuntu**
 
 Python 3:
 
@@ -15,7 +15,7 @@ Python 2:
 # apt-get install -y python2.7 python-dev python-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev zlib1g-dev
 ```
 
-**CentOS/RHEL**
+**CentOS**
 
 Python 3:
 
@@ -57,13 +57,13 @@ Create the base directory for the NetBox installation. For this guide, we'll use
 
 If `git` is not already installed, install it:
 
-**Debian/Ubuntu**
+**Ubuntu**
 
 ```no-highlight
 # apt-get install -y git
 ```
 
-**CentOS/RHEL**
+**CentOS**
 
 ```no-highlight
 # yum install -y git
