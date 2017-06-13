@@ -54,7 +54,7 @@ urlpatterns = [
     # IP addresses
     url(r'^ip-addresses/$', views.IPAddressListView.as_view(), name='ipaddress_list'),
     url(r'^ip-addresses/add/$', views.IPAddressCreateView.as_view(), name='ipaddress_add'),
-    url(r'^ip-addresses/bulk-add/$', views.IPAddressBulkAddView.as_view(), name='ipaddress_bulk_add'),
+    url(r'^ip-addresses/bulk-add/$', views.IPAddressBulkCreateView.as_view(), name='ipaddress_bulk_add'),
     url(r'^ip-addresses/import/$', views.IPAddressBulkImportView.as_view(), name='ipaddress_import'),
     url(r'^ip-addresses/edit/$', views.IPAddressBulkEditView.as_view(), name='ipaddress_bulk_edit'),
     url(r'^ip-addresses/delete/$', views.IPAddressBulkDeleteView.as_view(), name='ipaddress_bulk_delete'),

@@ -607,7 +607,7 @@ class DeviceTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Device type components
 #
 
-class ConsolePortTemplateAddView(PermissionRequiredMixin, ComponentCreateView):
+class ConsolePortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_consoleporttemplate'
     parent_model = DeviceType
     parent_field = 'device_type'
@@ -624,7 +624,7 @@ class ConsolePortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView)
     parent_cls = DeviceType
 
 
-class ConsoleServerPortTemplateAddView(PermissionRequiredMixin, ComponentCreateView):
+class ConsoleServerPortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_consoleserverporttemplate'
     parent_model = DeviceType
     parent_field = 'device_type'
@@ -639,7 +639,7 @@ class ConsoleServerPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDelet
     parent_cls = DeviceType
 
 
-class PowerPortTemplateAddView(PermissionRequiredMixin, ComponentCreateView):
+class PowerPortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_powerporttemplate'
     parent_model = DeviceType
     parent_field = 'device_type'
@@ -654,7 +654,7 @@ class PowerPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     parent_cls = DeviceType
 
 
-class PowerOutletTemplateAddView(PermissionRequiredMixin, ComponentCreateView):
+class PowerOutletTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_poweroutlettemplate'
     parent_model = DeviceType
     parent_field = 'device_type'
@@ -669,7 +669,7 @@ class PowerOutletTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView)
     parent_cls = DeviceType
 
 
-class InterfaceTemplateAddView(PermissionRequiredMixin, ComponentCreateView):
+class InterfaceTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_interfacetemplate'
     parent_model = DeviceType
     parent_field = 'device_type'
@@ -692,7 +692,7 @@ class InterfaceTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     parent_cls = DeviceType
 
 
-class DeviceBayTemplateAddView(PermissionRequiredMixin, ComponentCreateView):
+class DeviceBayTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_devicebaytemplate'
     parent_model = DeviceType
     parent_field = 'device_type'
@@ -947,7 +947,7 @@ class DeviceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Console ports
 #
 
-class ConsolePortAddView(PermissionRequiredMixin, ComponentCreateView):
+class ConsolePortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_consoleport'
     parent_model = Device
     parent_field = 'device'
@@ -1060,7 +1060,7 @@ class ConsoleConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
 # Console server ports
 #
 
-class ConsoleServerPortAddView(PermissionRequiredMixin, ComponentCreateView):
+class ConsoleServerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_consoleserverport'
     parent_model = Device
     parent_field = 'device'
@@ -1169,7 +1169,7 @@ class ConsoleServerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Power ports
 #
 
-class PowerPortAddView(PermissionRequiredMixin, ComponentCreateView):
+class PowerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_powerport'
     parent_model = Device
     parent_field = 'device'
@@ -1282,7 +1282,7 @@ class PowerConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
 # Power outlets
 #
 
-class PowerOutletAddView(PermissionRequiredMixin, ComponentCreateView):
+class PowerOutletCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_poweroutlet'
     parent_model = Device
     parent_field = 'device'
@@ -1391,7 +1391,7 @@ class PowerOutletBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Interfaces
 #
 
-class InterfaceAddView(PermissionRequiredMixin, ComponentCreateView):
+class InterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_interface'
     parent_model = Device
     parent_field = 'device'
@@ -1429,7 +1429,7 @@ class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Device bays
 #
 
-class DeviceBayAddView(PermissionRequiredMixin, ComponentCreateView):
+class DeviceBayCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_devicebay'
     parent_model = Device
     parent_field = 'device'

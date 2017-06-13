@@ -13,7 +13,7 @@ from django.views.generic import View
 from dcim.models import Device
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkAddView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
 from .models import (
@@ -650,7 +650,7 @@ class IPAddressDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'ipam:ipaddress_list'
 
 
-class IPAddressBulkAddView(PermissionRequiredMixin, BulkAddView):
+class IPAddressBulkCreateView(PermissionRequiredMixin, BulkCreateView):
     permission_required = 'ipam.add_ipaddress'
     pattern_form = forms.IPAddressPatternForm
     model_form = forms.IPAddressBulkAddForm
