@@ -490,7 +490,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
             initial['interface_site'] = instance.interface.device.site
             initial['interface_rack'] = instance.interface.device.rack
             initial['interface_device'] = instance.interface.device
-        if instance and instance.nat_inside is not None:
+        if instance and instance.nat_inside and instance.nat_inside.device is not None:
             initial['nat_site'] = instance.nat_inside.device.site
             initial['nat_rack'] = instance.nat_inside.device.rack
             initial['nat_device'] = instance.nat_inside.device
