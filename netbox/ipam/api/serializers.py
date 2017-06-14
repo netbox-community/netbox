@@ -6,8 +6,8 @@ from rest_framework.validators import UniqueTogetherValidator
 from dcim.api.serializers import NestedDeviceSerializer, InterfaceSerializer, NestedSiteSerializer
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.models import (
-    Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, IP_PROTOCOL_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role,
-    Service, VLAN, VLAN_STATUS_CHOICES, VLANGroup, VRF,
+    Aggregate, IPAddress, IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, IP_PROTOCOL_CHOICES, Prefix,
+    PREFIX_STATUS_CHOICES, RIR, Role, Service, VLAN, VLAN_STATUS_CHOICES, VLANGroup, VRF,
 )
 from tenancy.api.serializers import NestedTenantSerializer
 from utilities.api import ChoiceFieldSerializer
@@ -236,12 +236,13 @@ class IPAddressSerializer(CustomFieldModelSerializer):
     vrf = NestedVRFSerializer()
     tenant = NestedTenantSerializer()
     status = ChoiceFieldSerializer(choices=IPADDRESS_STATUS_CHOICES)
+    role = ChoiceFieldSerializer(choices=IPADDRESS_ROLE_CHOICES)
     interface = InterfaceSerializer()
 
     class Meta:
         model = IPAddress
         fields = [
-            'id', 'family', 'address', 'vrf', 'tenant', 'status', 'interface', 'description', 'nat_inside',
+            'id', 'family', 'address', 'vrf', 'tenant', 'status', 'role', 'interface', 'description', 'nat_inside',
             'nat_outside', 'custom_fields',
         ]
 
@@ -261,7 +262,10 @@ class WritableIPAddressSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = IPAddress
-        fields = ['id', 'address', 'vrf', 'tenant', 'status', 'interface', 'description', 'nat_inside', 'custom_fields']
+        fields = [
+            'id', 'address', 'vrf', 'tenant', 'status', 'role', 'interface', 'description', 'nat_inside',
+            'custom_fields',
+        ]
 
 
 #

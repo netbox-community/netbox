@@ -11,8 +11,8 @@ from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
 from .models import (
-    Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, Service, VLAN,
-    VLAN_STATUS_CHOICES, VLANGroup, VRF,
+    Aggregate, IPAddress, IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role,
+    Service, VLAN, VLAN_STATUS_CHOICES, VLANGroup, VRF,
 )
 
 
@@ -246,6 +246,9 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
     )
     status = django_filters.MultipleChoiceFilter(
         choices=IPADDRESS_STATUS_CHOICES
+    )
+    role = django_filters.MultipleChoiceFilter(
+        choices=IPADDRESS_ROLE_CHOICES
     )
 
     class Meta:

@@ -299,7 +299,7 @@ class IPAddressTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = IPAddress
-        fields = ('pk', 'address', 'status', 'vrf', 'tenant', 'nat_inside', 'device', 'description')
+        fields = ('pk', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'device', 'description')
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, IPAddress) else '',
         }
@@ -328,7 +328,7 @@ class IPAddressSearchTable(SearchTable):
 
     class Meta(SearchTable.Meta):
         model = IPAddress
-        fields = ('address', 'status', 'vrf', 'tenant', 'device', 'interface', 'description')
+        fields = ('address', 'vrf', 'status', 'role', 'tenant', 'device', 'interface', 'description')
 
 
 #

@@ -47,6 +47,23 @@ IPADDRESS_STATUS_CHOICES = (
     (IPADDRESS_STATUS_DHCP, 'DHCP')
 )
 
+IPADDRESS_ROLE_LOOPBACK = 10
+IPADDRESS_ROLE_SECONDARY = 20
+IPADDRESS_ROLE_ANYCAST = 30
+IPADDRESS_ROLE_VIRTUAL = 40
+IPADDRESS_ROLE_VRRP = 41
+IPADDRESS_ROLE_HSRP = 42
+IPADDRESS_ROLE_GLBP = 43
+IPADDRESS_ROLE_CHOICES = (
+    (IPADDRESS_ROLE_LOOPBACK, 'Loopback'),
+    (IPADDRESS_ROLE_SECONDARY, 'Secondary'),
+    (IPADDRESS_ROLE_ANYCAST, 'Anycast'),
+    (IPADDRESS_ROLE_VIRTUAL, 'Virtual'),
+    (IPADDRESS_ROLE_VRRP, 'VRRP'),
+    (IPADDRESS_ROLE_HSRP, 'HSRP'),
+    (IPADDRESS_ROLE_GLBP, 'GLBP'),
+)
+
 VLAN_STATUS_ACTIVE = 1
 VLAN_STATUS_RESERVED = 2
 VLAN_STATUS_DEPRECATED = 3
@@ -64,7 +81,6 @@ STATUS_CHOICE_CLASSES = {
     4: 'warning',
     5: 'success',
 }
-
 
 IP_PROTOCOL_TCP = 6
 IP_PROTOCOL_UDP = 17
@@ -427,7 +443,13 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     vrf = models.ForeignKey('VRF', related_name='ip_addresses', on_delete=models.PROTECT, blank=True, null=True,
                             verbose_name='VRF')
     tenant = models.ForeignKey(Tenant, related_name='ip_addresses', blank=True, null=True, on_delete=models.PROTECT)
-    status = models.PositiveSmallIntegerField('Status', choices=IPADDRESS_STATUS_CHOICES, default=1)
+    status = models.PositiveSmallIntegerField(
+        'Status', choices=IPADDRESS_STATUS_CHOICES, default=IPADDRESS_STATUS_ACTIVE,
+        help_text='The operational status of this IP'
+    )
+    role = models.PositiveSmallIntegerField(
+        'Role', choices=IPADDRESS_ROLE_CHOICES, blank=True, null=True, help_text='The functional role of this IP'
+    )
     interface = models.ForeignKey(Interface, related_name='ip_addresses', on_delete=models.CASCADE, blank=True,
                                   null=True)
     nat_inside = models.OneToOneField('self', related_name='nat_outside', on_delete=models.SET_NULL, blank=True,
@@ -438,7 +460,9 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
 
     objects = IPAddressManager()
 
-    csv_headers = ['address', 'vrf', 'tenant', 'status', 'device', 'interface_name', 'is_primary', 'description']
+    csv_headers = [
+        'address', 'vrf', 'tenant', 'status', 'role', 'device', 'interface_name', 'is_primary', 'description',
+    ]
 
     class Meta:
         ordering = ['family', 'address']
@@ -490,6 +514,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
             self.vrf.rd if self.vrf else None,
             self.tenant.name if self.tenant else None,
             self.get_status_display(),
+            self.get_role_display(),
             self.device.identifier if self.device else None,
             self.interface.name if self.interface else None,
             is_primary,
