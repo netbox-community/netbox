@@ -1,6 +1,7 @@
 $(document).ready(function() {
     var search_field = $('#id_livesearch');
     var real_field = $('#id_' + search_field.attr('data-field'));
+    var select_fields = $('#select select');
     var search_key = search_field.attr('data-key');
     var label = search_field.attr('data-label');
     if (!label) {
@@ -40,14 +41,22 @@ $(document).ready(function() {
         select: function(event, ui) {
             event.preventDefault();
             search_field.val(ui.item.label);
+            select_fields.val('');
+            select_fields.attr('disabled', 'disabled');
             real_field.empty();
             real_field.append($("<option></option>").attr('value', ui.item.value).text(ui.item.label));
             real_field.change();
             // Disable parent selection fields
-            $('select[filter-for="' + real_field.attr('name') + '"]').val('');
-            $('#select select').attr('disabled', 'disabled');
+            // $('select[filter-for="' + real_field.attr('name') + '"]').val('');
         },
         minLength: 4,
         delay: 500
+    });
+
+    search_field.change(function() {
+        if (!search_field.val()) {
+            select_fields.removeAttr('disabled');
+            select_fields.val('');
+        }
     });
 });
