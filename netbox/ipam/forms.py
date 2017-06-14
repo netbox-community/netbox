@@ -582,7 +582,7 @@ class IPAddressCSVForm(forms.ModelForm):
         }
     )
     status = CSVChoiceField(
-        choices=PREFIX_STATUS_CHOICES,
+        choices=IPADDRESS_STATUS_CHOICES,
         help_text='Operational status'
     )
     device = FlexibleModelChoiceField(
