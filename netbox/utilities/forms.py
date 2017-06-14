@@ -249,7 +249,7 @@ class CSVDataField(forms.CharField):
         reader = csv.reader(value.splitlines())
 
         # Consume and valdiate the first line of CSV data as column headers
-        headers = reader.next()
+        headers = next(reader)
         for f in self.required_fields:
             if f not in headers:
                 raise forms.ValidationError('Required column header "{}" not found.'.format(f))
