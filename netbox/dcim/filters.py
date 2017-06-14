@@ -433,12 +433,12 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
 
 class DeviceComponentFilterSet(django_filters.FilterSet):
-    device_id = django_filters.ModelMultipleChoiceFilter(
+    device_id = django_filters.ModelChoiceFilter(
         name='device',
         queryset=Device.objects.all(),
         label='Device (ID)',
     )
-    device = django_filters.ModelMultipleChoiceFilter(
+    device = django_filters.ModelChoiceFilter(
         name='device__name',
         queryset=Device.objects.all(),
         to_field_name='name',
@@ -474,7 +474,17 @@ class PowerOutletFilter(DeviceComponentFilterSet):
         fields = ['name']
 
 
-class InterfaceFilter(DeviceComponentFilterSet):
+class InterfaceFilter(django_filters.FilterSet):
+    device = django_filters.CharFilter(
+        method='filter_device',
+        name='name',
+        label='Device',
+    )
+    device_id = django_filters.NumberFilter(
+        method='filter_device',
+        name='pk',
+        label='Device (ID)',
+    )
     type = django_filters.CharFilter(
         method='filter_type',
         label='Interface type',
@@ -492,6 +502,14 @@ class InterfaceFilter(DeviceComponentFilterSet):
     class Meta:
         model = Interface
         fields = ['name', 'form_factor']
+
+    def filter_device(self, queryset, name, value):
+        try:
+            device = Device.objects.select_related('device_type').get(**{name: value})
+            ordering = device.device_type.interface_ordering
+            return queryset.filter(device=device).order_naturally(ordering)
+        except Device.DoesNotExist:
+            return queryset.none()
 
     def filter_type(self, queryset, name, value):
         value = value.strip().lower()

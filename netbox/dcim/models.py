@@ -816,7 +816,7 @@ class PowerOutletTemplate(models.Model):
         return self.name
 
 
-class InterfaceManager(models.Manager):
+class InterfaceQuerySet(models.QuerySet):
 
     def order_naturally(self, method=IFACE_ORDERING_POSITION):
         """
@@ -841,13 +841,12 @@ class InterfaceManager(models.Manager):
         The original `name` field is taken as a whole to serve as a fallback in the event interfaces do not match any of
         the prescribed fields.
         """
-        queryset = self.get_queryset()
-        sql_col = '{}.name'.format(queryset.model._meta.db_table)
+        sql_col = '{}.name'.format(self.model._meta.db_table)
         ordering = {
             IFACE_ORDERING_POSITION: ('_slot', '_subslot', '_position', '_channel', '_vc', '_type', 'name'),
             IFACE_ORDERING_NAME: ('_type', '_slot', '_subslot', '_position', '_channel', '_vc', 'name'),
         }[method]
-        return queryset.extra(select={
+        return self.extra(select={
             '_type': "SUBSTRING({} FROM '^([^0-9]+)')".format(sql_col),
             '_slot': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+\/[0-9]+(:[0-9]+)?(\.[0-9]+)?$') AS integer)".format(sql_col),
             '_subslot': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+(:[0-9]+)?(\.[0-9]+)?$') AS integer)".format(sql_col),
@@ -867,7 +866,7 @@ class InterfaceTemplate(models.Model):
     form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_10GE_SFP_PLUS)
     mgmt_only = models.BooleanField(default=False, verbose_name='Management only')
 
-    objects = InterfaceManager()
+    objects = InterfaceQuerySet.as_manager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -1317,7 +1316,7 @@ class Interface(models.Model):
                                     help_text="This interface is used only for out-of-band management")
     description = models.CharField(max_length=100, blank=True)
 
-    objects = InterfaceManager()
+    objects = InterfaceQuerySet.as_manager()
 
     class Meta:
         ordering = ['device', 'name']
