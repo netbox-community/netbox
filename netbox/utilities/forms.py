@@ -472,6 +472,9 @@ class ChainedFieldsMixin(forms.BaseForm):
     def __init__(self, *args, **kwargs):
         super(ChainedFieldsMixin, self).__init__(*args, **kwargs)
 
+        # if self.is_bound:
+        #     assert False, self.data
+
         for field_name, field in self.fields.items():
 
             if isinstance(field, ChainedModelChoiceField):

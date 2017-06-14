@@ -43,8 +43,9 @@ $(document).ready(function() {
             real_field.empty();
             real_field.append($("<option></option>").attr('value', ui.item.value).text(ui.item.label));
             real_field.change();
-            // If the field has a parent helper, reset the parent to no selection
+            // Disable parent selection fields
             $('select[filter-for="' + real_field.attr('name') + '"]').val('');
+            $('#select select').attr('disabled', 'disabled');
         },
         minLength: 4,
         delay: 500

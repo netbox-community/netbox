@@ -1594,9 +1594,10 @@ class InterfaceConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
         ]
 
         # Mark connected interfaces as disabled
-        self.fields['interface_b'].choices = [
-            (iface.id, {'label': iface.name, 'disabled': iface.is_connected}) for iface in self.fields['interface_b'].queryset
-        ]
+        if self.data.get('device_b'):
+            self.fields['interface_b'].choices = [
+                (iface.id, {'label': iface.name, 'disabled': iface.is_connected}) for iface in self.fields['interface_b'].queryset
+            ]
 
 
 class InterfaceConnectionCSVForm(forms.ModelForm):
