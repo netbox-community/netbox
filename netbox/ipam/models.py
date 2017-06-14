@@ -97,7 +97,7 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
         verbose_name_plural = 'VRFs'
 
     def __str__(self):
-        return self.name
+        return self.display_name or super(VRF, self).__str__()
 
     def get_absolute_url(self):
         return reverse('ipam:vrf', args=[self.pk])
@@ -110,6 +110,12 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
             self.enforce_unique,
             self.description,
         ])
+
+    @property
+    def display_name(self):
+        if self.name and self.rd:
+            return "{} ({})".format(self.name, self.rd)
+        return None
 
 
 @python_2_unicode_compatible

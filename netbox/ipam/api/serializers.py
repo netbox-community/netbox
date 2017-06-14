@@ -22,7 +22,7 @@ class VRFSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = VRF
-        fields = ['id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'custom_fields']
+        fields = ['id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'display_name', 'custom_fields']
 
 
 class NestedVRFSerializer(serializers.ModelSerializer):
