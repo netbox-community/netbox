@@ -13,8 +13,8 @@ from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ChainedFieldsMixin, ChainedModelChoiceField, CommentField, CSVChoiceField, ExpandableNameField, FilterChoiceField,
-    FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
+    ChainedFieldsMixin, ChainedModelChoiceField, CommentField, ConfirmationForm, CSVChoiceField, ExpandableNameField,
+    FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
     FilterTreeNodeMultipleChoiceField,
 )
 from .formfields import MACAddressFormField
@@ -1174,6 +1174,10 @@ class ConsoleServerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.
         }
 
 
+class ConsoleServerPortBulkDisconnectForm(ConfirmationForm):
+    pk = forms.ModelMultipleChoiceField(queryset=ConsoleServerPort.objects.all(), widget=forms.MultipleHiddenInput)
+
+
 #
 # Power ports
 #
@@ -1431,6 +1435,10 @@ class PowerOutletConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
         }
 
 
+class PowerOutletBulkDisconnectForm(ConfirmationForm):
+    pk = forms.ModelMultipleChoiceField(queryset=PowerOutlet.objects.all(), widget=forms.MultipleHiddenInput)
+
+
 #
 # Interfaces
 #
@@ -1506,6 +1514,10 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
             )
         else:
             self.fields['lag'].choices = []
+
+
+class InterfaceBulkDisconnectForm(ConfirmationForm):
+    pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 #

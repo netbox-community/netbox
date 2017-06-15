@@ -139,6 +139,7 @@ urlpatterns = [
     # Console server ports
     url(r'^devices/console-server-ports/add/$', views.DeviceBulkAddConsoleServerPortView.as_view(), name='device_bulk_add_consoleserverport'),
     url(r'^devices/(?P<pk>\d+)/console-server-ports/add/$', views.ConsoleServerPortCreateView.as_view(), name='consoleserverport_add'),
+    url(r'^devices/(?P<pk>\d+)/console-server-ports/disconnect/$', views.ConsoleServerPortBulkDisconnectView.as_view(), name='consoleserverport_bulk_disconnect'),
     url(r'^devices/(?P<pk>\d+)/console-server-ports/delete/$', views.ConsoleServerPortBulkDeleteView.as_view(), name='consoleserverport_bulk_delete'),
     url(r'^console-server-ports/(?P<pk>\d+)/connect/$', views.consoleserverport_connect, name='consoleserverport_connect'),
     url(r'^console-server-ports/(?P<pk>\d+)/disconnect/$', views.consoleserverport_disconnect, name='consoleserverport_disconnect'),
@@ -157,6 +158,7 @@ urlpatterns = [
     # Power outlets
     url(r'^devices/power-outlets/add/$', views.DeviceBulkAddPowerOutletView.as_view(), name='device_bulk_add_poweroutlet'),
     url(r'^devices/(?P<pk>\d+)/power-outlets/add/$', views.PowerOutletCreateView.as_view(), name='poweroutlet_add'),
+    url(r'^devices/(?P<pk>\d+)/power-outlets/disconnect/$', views.PowerOutletBulkDisconnectView.as_view(), name='poweroutlet_bulk_disconnect'),
     url(r'^devices/(?P<pk>\d+)/power-outlets/delete/$', views.PowerOutletBulkDeleteView.as_view(), name='poweroutlet_bulk_delete'),
     url(r'^power-outlets/(?P<pk>\d+)/connect/$', views.poweroutlet_connect, name='poweroutlet_connect'),
     url(r'^power-outlets/(?P<pk>\d+)/disconnect/$', views.poweroutlet_disconnect, name='poweroutlet_disconnect'),
@@ -167,6 +169,7 @@ urlpatterns = [
     url(r'^devices/interfaces/add/$', views.DeviceBulkAddInterfaceView.as_view(), name='device_bulk_add_interface'),
     url(r'^devices/(?P<pk>\d+)/interfaces/add/$', views.InterfaceCreateView.as_view(), name='interface_add'),
     url(r'^devices/(?P<pk>\d+)/interfaces/edit/$', views.InterfaceBulkEditView.as_view(), name='interface_bulk_edit'),
+    url(r'^devices/(?P<pk>\d+)/interfaces/disconnect/$', views.InterfaceBulkDisconnectView.as_view(), name='interface_bulk_disconnect'),
     url(r'^devices/(?P<pk>\d+)/interfaces/delete/$', views.InterfaceBulkDeleteView.as_view(), name='interface_bulk_delete'),
     url(r'^devices/(?P<pk>\d+)/interface-connections/add/$', views.interfaceconnection_add, name='interfaceconnection_add'),
     url(r'^interface-connections/(?P<pk>\d+)/delete/$', views.interfaceconnection_delete, name='interfaceconnection_delete'),
