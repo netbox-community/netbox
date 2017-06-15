@@ -290,7 +290,7 @@ class ObjectDeleteView(GetReturnURLMixin, View):
         })
 
 
-class BulkAddView(View):
+class BulkCreateView(View):
     """
     Create new objects in bulk.
 

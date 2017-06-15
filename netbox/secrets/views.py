@@ -40,13 +40,17 @@ class SecretRoleListView(ObjectListView):
     template_name = 'secrets/secretrole_list.html'
 
 
-class SecretRoleEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'secrets.change_secretrole'
+class SecretRoleCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'secrets.add_secretrole'
     model = SecretRole
     form_class = forms.SecretRoleForm
 
     def get_return_url(self, request, obj):
         return reverse('secrets:secretrole_list')
+
+
+class SecretRoleEditView(SecretRoleCreateView):
+    permission_required = 'secrets.change_secretrole'
 
 
 class SecretRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):

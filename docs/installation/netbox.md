@@ -1,12 +1,11 @@
 # Installation
 
-**Debian/Ubuntu**
+**Ubuntu**
 
 Python 3:
 
 ```no-highlight
 # apt-get install -y python3 python3-dev python3-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev zlib1g-dev
-# update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 ```
 
 Python 2:
@@ -15,7 +14,7 @@ Python 2:
 # apt-get install -y python2.7 python-dev python-pip libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev zlib1g-dev
 ```
 
-**CentOS/RHEL**
+**CentOS**
 
 Python 3:
 
@@ -57,13 +56,13 @@ Create the base directory for the NetBox installation. For this guide, we'll use
 
 If `git` is not already installed, install it:
 
-**Debian/Ubuntu**
+**Ubuntu**
 
 ```no-highlight
 # apt-get install -y git
 ```
 
-**CentOS/RHEL**
+**CentOS**
 
 ```no-highlight
 # yum install -y git
@@ -150,11 +149,14 @@ You may use the script located at `netbox/generate_secret_key.py` to generate a 
 
 # Run Database Migrations
 
-Before NetBox can run, we need to install the database schema. This is done by running `./manage.py migrate` from the `netbox` directory (`/opt/netbox/netbox/` in our example):
+!!! warning
+    The examples on the rest of this page call the `python` executable, which will be Python2 on most systems. Replace this with `python3` if you're running NetBox on Python3.
+
+Before NetBox can run, we need to install the database schema. This is done by running `python manage.py migrate` from the `netbox` directory (`/opt/netbox/netbox/` in our example):
 
 ```no-highlight
 # cd /opt/netbox/netbox/
-# ./manage.py migrate
+# python manage.py migrate
 Operations to perform:
   Apply all migrations: dcim, sessions, admin, ipam, utilities, auth, circuits, contenttypes, extras, secrets, users
 Running migrations:
@@ -172,7 +174,7 @@ If this step results in a PostgreSQL authentication error, ensure that the usern
 NetBox does not come with any predefined user accounts. You'll need to create a super user to be able to log into NetBox:
 
 ```no-highlight
-# ./manage.py createsuperuser
+# python manage.py createsuperuser
 Username: admin
 Email address: admin@example.com
 Password:
@@ -183,7 +185,7 @@ Superuser created successfully.
 # Collect Static Files
 
 ```no-highlight
-# ./manage.py collectstatic --no-input
+# python manage.py collectstatic --no-input
 
 You have requested to collect static files at the destination
 location as specified in your settings:
@@ -204,7 +206,7 @@ NetBox ships with some initial data to help you get started: RIR definitions, co
     This step is optional. It's perfectly fine to start using NetBox without using this initial data if you'd rather create everything from scratch.
 
 ```no-highlight
-# ./manage.py loaddata initial_data
+# python manage.py loaddata initial_data
 Installed 43 object(s) from 4 fixture(s)
 ```
 
@@ -213,7 +215,7 @@ Installed 43 object(s) from 4 fixture(s)
 At this point, NetBox should be able to run. We can verify this by starting a development instance:
 
 ```no-highlight
-# ./manage.py runserver 0.0.0.0:8000 --insecure
+# python manage.py runserver 0.0.0.0:8000 --insecure
 Performing system checks...
 
 System check identified no issues (0 silenced).

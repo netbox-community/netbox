@@ -26,13 +26,17 @@ class TenantGroupListView(ObjectListView):
     template_name = 'tenancy/tenantgroup_list.html'
 
 
-class TenantGroupEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'tenancy.change_tenantgroup'
+class TenantGroupCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'tenancy.add_tenantgroup'
     model = TenantGroup
     form_class = forms.TenantGroupForm
 
     def get_return_url(self, request, obj):
         return reverse('tenancy:tenantgroup_list')
+
+
+class TenantGroupEditView(TenantGroupCreateView):
+    permission_required = 'tenancy.change_tenantgroup'
 
 
 class TenantGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -81,12 +85,16 @@ class TenantView(View):
         })
 
 
-class TenantEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'tenancy.change_tenant'
+class TenantCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'tenancy.add_tenant'
     model = Tenant
     form_class = forms.TenantForm
     template_name = 'tenancy/tenant_edit.html'
     default_return_url = 'tenancy:tenant_list'
+
+
+class TenantEditView(TenantCreateView):
+    permission_required = 'tenancy.change_tenant'
 
 
 class TenantDeleteView(PermissionRequiredMixin, ObjectDeleteView):

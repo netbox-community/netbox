@@ -13,7 +13,7 @@ from django.views.generic import View
 from dcim.models import Device
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkAddView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
 from .models import (
@@ -114,12 +114,16 @@ class VRFView(View):
         })
 
 
-class VRFEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.change_vrf'
+class VRFCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'ipam.add_vrf'
     model = VRF
     form_class = forms.VRFForm
     template_name = 'ipam/vrf_edit.html'
     default_return_url = 'ipam:vrf_list'
+
+
+class VRFEditView(VRFCreateView):
+    permission_required = 'ipam.change_vrf'
 
 
 class VRFDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -239,13 +243,17 @@ class RIRListView(ObjectListView):
         }
 
 
-class RIREditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.change_rir'
+class RIRCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'ipam.add_rir'
     model = RIR
     form_class = forms.RIRForm
 
     def get_return_url(self, request, obj):
         return reverse('ipam:rir_list')
+
+
+class RIREditView(RIRCreateView):
+    permission_required = 'ipam.change_rir'
 
 
 class RIRBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -324,12 +332,16 @@ class AggregateView(View):
         })
 
 
-class AggregateEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.change_aggregate'
+class AggregateCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'ipam.add_aggregate'
     model = Aggregate
     form_class = forms.AggregateForm
     template_name = 'ipam/aggregate_edit.html'
     default_return_url = 'ipam:aggregate_list'
+
+
+class AggregateEditView(AggregateCreateView):
+    permission_required = 'ipam.change_aggregate'
 
 
 class AggregateDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -371,13 +383,17 @@ class RoleListView(ObjectListView):
     template_name = 'ipam/role_list.html'
 
 
-class RoleEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.change_role'
+class RoleCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'ipam.add_role'
     model = Role
     form_class = forms.RoleForm
 
     def get_return_url(self, request, obj):
         return reverse('ipam:role_list')
+
+
+class RoleEditView(RoleCreateView):
+    permission_required = 'ipam.change_role'
 
 
 class RoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -519,12 +535,16 @@ class PrefixIPAddressesView(View):
         })
 
 
-class PrefixEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.change_prefix'
+class PrefixCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'ipam.add_prefix'
     model = Prefix
     form_class = forms.PrefixForm
     template_name = 'ipam/prefix_edit.html'
     default_return_url = 'ipam:prefix_list'
+
+
+class PrefixEditView(PrefixCreateView):
+    permission_required = 'ipam.change_prefix'
 
 
 class PrefixDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -612,12 +632,16 @@ class IPAddressView(View):
         })
 
 
-class IPAddressEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.change_ipaddress'
+class IPAddressCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'ipam.add_ipaddress'
     model = IPAddress
     form_class = forms.IPAddressForm
     template_name = 'ipam/ipaddress_edit.html'
     default_return_url = 'ipam:ipaddress_list'
+
+
+class IPAddressEditView(IPAddressCreateView):
+    permission_required = 'ipam.change_ipaddress'
 
 
 class IPAddressDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -626,7 +650,7 @@ class IPAddressDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'ipam:ipaddress_list'
 
 
-class IPAddressBulkAddView(PermissionRequiredMixin, BulkAddView):
+class IPAddressBulkCreateView(PermissionRequiredMixin, BulkCreateView):
     permission_required = 'ipam.add_ipaddress'
     pattern_form = forms.IPAddressPatternForm
     model_form = forms.IPAddressBulkAddForm
@@ -683,13 +707,17 @@ class VLANGroupListView(ObjectListView):
     template_name = 'ipam/vlangroup_list.html'
 
 
-class VLANGroupEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.change_vlangroup'
+class VLANGroupCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'ipam.add_vlangroup'
     model = VLANGroup
     form_class = forms.VLANGroupForm
 
     def get_return_url(self, request, obj):
         return reverse('ipam:vlangroup_list')
+
+
+class VLANGroupEditView(VLANGroupCreateView):
+    permission_required = 'ipam.change_vlangroup'
 
 
 class VLANGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -728,12 +756,16 @@ class VLANView(View):
         })
 
 
-class VLANEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.change_vlan'
+class VLANCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'ipam.add_vlan'
     model = VLAN
     form_class = forms.VLANForm
     template_name = 'ipam/vlan_edit.html'
     default_return_url = 'ipam:vlan_list'
+
+
+class VLANEditView(VLANCreateView):
+    permission_required = 'ipam.change_vlan'
 
 
 class VLANDeleteView(PermissionRequiredMixin, ObjectDeleteView):
@@ -769,8 +801,8 @@ class VLANBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Services
 #
 
-class ServiceEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'ipam.change_service'
+class ServiceCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'ipam.add_service'
     model = Service
     form_class = forms.ServiceForm
     template_name = 'ipam/service_edit.html'
@@ -782,6 +814,10 @@ class ServiceEditView(PermissionRequiredMixin, ObjectEditView):
 
     def get_return_url(self, request, obj):
         return obj.device.get_absolute_url()
+
+
+class ServiceEditView(ServiceCreateView):
+    permission_required = 'ipam.change_service'
 
 
 class ServiceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
