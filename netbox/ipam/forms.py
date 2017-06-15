@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django import forms
+from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Count
 
 from dcim.models import Site, Rack, Device, Interface
@@ -301,6 +302,10 @@ class PrefixCSVForm(forms.ModelForm):
                     ))
                 else:
                     raise forms.ValidationError("Global VLAN {} not found in group {}".format(vlan_vid, vlan_group))
+            except MultipleObjectsReturned:
+                raise forms.ValidationError(
+                    "Multiple VLANs with VID {} found in group {}".format(vlan_vid, vlan_group)
+                )
         elif vlan_vid:
             try:
                 self.instance.vlan = VLAN.objects.get(site=site, group__isnull=True, vid=vlan_vid)
@@ -309,6 +314,8 @@ class PrefixCSVForm(forms.ModelForm):
                     raise forms.ValidationError("VLAN {} not found in site {}".format(vlan_vid, site))
                 else:
                     raise forms.ValidationError("Global VLAN {} not found".format(vlan_vid))
+            except MultipleObjectsReturned:
+                raise forms.ValidationError("Multiple VLANs with VID {} found".format(vlan_vid))
 
 
 class PrefixBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
