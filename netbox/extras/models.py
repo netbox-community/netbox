@@ -371,7 +371,8 @@ class TopologyMap(models.Model):
         # Add all circuits to the graph
         for termination in CircuitTermination.objects.filter(term_side='A', interface__device__in=devices):
             peer_termination = termination.get_peer_termination()
-            if peer_termination is not None and peer_termination.interface.device in devices:
+            if (peer_termination is not None and peer_termination.interface is not None and
+                    peer_termination.interface.device in devices):
                 graph.edge(termination.interface.device.name, peer_termination.interface.device.name, color='blue')
 
         return graph.pipe(format=img_format)
