@@ -24,24 +24,24 @@
         {% if perms.dcim.change_consoleserverport %}
             {% if csp.connected_console %}
                 {% if csp.connected_console.connection_status %}
-                    <a href="#" class="btn btn-warning btn-xs consoleport-toggle connected" data="{{ csp.connected_console.pk }}">
-                        <i class="glyphicon glyphicon-ban-circle" aria-hidden="true" title="Mark planned"></i>
+                    <a href="#" class="btn btn-warning btn-xs consoleport-toggle connected" title="Mark planned" data="{{ csp.connected_console.pk }}">
+                        <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>
                     </a>
                 {% else %}
-                    <a href="#" class="btn btn-success btn-xs consoleport-toggle" data="{{ csp.connected_console.pk }}">
-                        <i class="fa fa-plug" aria-hidden="true" title="Mark connected"></i>
+                    <a href="#" class="btn btn-success btn-xs consoleport-toggle" title="Mark installed" data="{{ csp.connected_console.pk }}">
+                        <i class="fa fa-plug" aria-hidden="true"></i>
                     </a>
                 {% endif %}
-                <a href="{% url 'dcim:consoleserverport_disconnect' pk=csp.pk %}" class="btn btn-danger btn-xs">
-                    <i class="glyphicon glyphicon-resize-full" aria-hidden="true" title="Delete connection"></i>
+                <a href="{% url 'dcim:consoleserverport_disconnect' pk=csp.pk %}" title="Delete connection" class="btn btn-danger btn-xs">
+                    <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
                 </a>
             {% else %}
-                <a href="{% url 'dcim:consoleserverport_connect' pk=csp.pk %}" class="btn btn-success btn-xs">
-                    <i class="glyphicon glyphicon-resize-small" aria-hidden="true" title="Connect"></i>
+                <a href="{% url 'dcim:consoleserverport_connect' pk=csp.pk %}" title="Connect" class="btn btn-success btn-xs">
+                    <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
                 </a>
             {% endif %}
-            <a href="{% url 'dcim:consoleserverport_edit' pk=csp.pk %}" class="btn btn-info btn-xs">
-                <i class="glyphicon glyphicon-pencil" aria-hidden="true" title="Edit port"></i>
+            <a href="{% url 'dcim:consoleserverport_edit' pk=csp.pk %}" title="Edit port" class="btn btn-info btn-xs">
+                <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
             </a>
         {% endif %}
         {% if perms.dcim.delete_consoleserverport %}
@@ -50,8 +50,8 @@
                     <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </button>
             {% else %}
-                <a href="{% url 'dcim:consoleserverport_delete' pk=csp.pk %}" class="btn btn-danger btn-xs">
-                    <i class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete port"></i>
+                <a href="{% url 'dcim:consoleserverport_delete' pk=csp.pk %}" title="Delete port" class="btn btn-danger btn-xs">
+                    <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </a>
             {% endif %}
         {% endif %}

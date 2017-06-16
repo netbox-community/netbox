@@ -591,7 +591,7 @@ function toggleConnection(elem, api_url) {
             success: function() {
                 elem.parents('tr').removeClass('success').addClass('info');
                 elem.removeClass('connected btn-warning').addClass('btn-success');
-                elem.attr('title', 'Mark connected');
+                elem.attr('title', 'Mark installed');
                 elem.children('i').removeClass('glyphicon glyphicon-ban-circle').addClass('fa fa-plug')
             }
         });
@@ -610,7 +610,7 @@ function toggleConnection(elem, api_url) {
             success: function() {
                 elem.parents('tr').removeClass('info').addClass('success');
                 elem.removeClass('btn-success').addClass('connected btn-warning');
-                elem.attr('title', 'Mark disconnected');
+                elem.attr('title', 'Mark planned');
                 elem.children('i').removeClass('fa fa-plug').addClass('glyphicon glyphicon-ban-circle')
             }
         });
