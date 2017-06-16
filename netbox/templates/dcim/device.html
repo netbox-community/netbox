@@ -7,7 +7,7 @@
 {% block content %}
 {% include 'dcim/inc/device_header.html' with active_tab='info' %}
 <div class="row">
-	<div class="col-md-5 col-lg-6">
+	<div class="col-md-5">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Device</strong>
@@ -214,23 +214,9 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
-                <strong>Critical Connections</strong>
+                <strong>Console / Power</strong>
             </div>
             <table class="table table-hover panel-body component-list">
-                {% for iface in mgmt_interfaces %}
-                    {% include 'dcim/inc/interface.html' with icon='wrench' %}
-                {% empty %}
-                    {% if device.device_type.interface_templates.exists %}
-                        <tr>
-                            <td colspan="6" class="alert-warning">
-                                <i class="fa fa-fw fa-warning"></i> No management interfaces defined
-                                {% if perms.dcim.add_interface %}
-                                    <a href="{% url 'dcim:interface_add' pk=device.pk %}?mgmt_only=1" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
                 {% for cp in console_ports %}
                     {% include 'dcim/inc/consoleport.html' %}
                 {% empty %}
@@ -262,11 +248,6 @@
             </table>
             {% if perms.dcim.add_interface or perms.dcim.add_consoleport or perms.dcim.add_powerport %}
                 <div class="panel-footer text-right">
-                    {% if perms.dcim.add_interface %}
-                        <a href="{% url 'dcim:interface_add' pk=device.pk %}?mgmt_only=1" class="btn btn-xs btn-primary">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add interface
-                        </a>
-                    {% endif %}
                     {% if perms.dcim.add_consoleport %}
                         <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console port
@@ -333,7 +314,7 @@
             {% endif %}
         </div>
 	</div>
-	<div class="col-md-7 col-lg-6">
+	<div class="col-md-7">
         {% if device_bays or device.device_type.is_parent_device %}
             {% if perms.dcim.delete_devicebay %}
                 <form method="post" action="{% url 'dcim:devicebay_bulk_delete' pk=device.pk %}">

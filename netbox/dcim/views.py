@@ -573,15 +573,10 @@ class DeviceTypeView(View):
         poweroutlet_table = tables.PowerOutletTemplateTable(
             natsorted(PowerOutletTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
         )
-        mgmt_interface_table = tables.InterfaceTemplateTable(
-            list(InterfaceTemplate.objects.order_naturally(devicetype.interface_ordering).filter(
-                device_type=devicetype, mgmt_only=True
-            ))
-        )
         interface_table = tables.InterfaceTemplateTable(
-            list(InterfaceTemplate.objects.order_naturally(devicetype.interface_ordering).filter(
-                device_type=devicetype, mgmt_only=False
-            ))
+            list(InterfaceTemplate.objects.order_naturally(
+                devicetype.interface_ordering
+            ).filter(device_type=devicetype))
         )
         devicebay_table = tables.DeviceBayTemplateTable(
             natsorted(DeviceBayTemplate.objects.filter(device_type=devicetype), key=attrgetter('name'))
@@ -591,7 +586,6 @@ class DeviceTypeView(View):
             consoleserverport_table.base_columns['pk'].visible = True
             powerport_table.base_columns['pk'].visible = True
             poweroutlet_table.base_columns['pk'].visible = True
-            mgmt_interface_table.base_columns['pk'].visible = True
             interface_table.base_columns['pk'].visible = True
             devicebay_table.base_columns['pk'].visible = True
 
@@ -601,7 +595,6 @@ class DeviceTypeView(View):
             'consoleserverport_table': consoleserverport_table,
             'powerport_table': powerport_table,
             'poweroutlet_table': poweroutlet_table,
-            'mgmt_interface_table': mgmt_interface_table,
             'interface_table': interface_table,
             'devicebay_table': devicebay_table,
         })
@@ -835,14 +828,10 @@ class DeviceView(View):
         power_outlets = natsorted(
             PowerOutlet.objects.filter(device=device).select_related('connected_port'), key=attrgetter('name')
         )
-        interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering).filter(
-            device=device, mgmt_only=False
-        ).select_related(
-            'connected_as_a__interface_b__device', 'connected_as_b__interface_a__device',
-            'circuit_termination__circuit'
-        ).prefetch_related('ip_addresses')
-        mgmt_interfaces = Interface.objects.order_naturally(device.device_type.interface_ordering).filter(
-            device=device, mgmt_only=True
+        interfaces = Interface.objects.order_naturally(
+            device.device_type.interface_ordering
+        ).filter(
+            device=device
         ).select_related(
             'connected_as_a__interface_b__device', 'connected_as_b__interface_a__device',
             'circuit_termination__circuit'
@@ -873,7 +862,6 @@ class DeviceView(View):
             'power_ports': power_ports,
             'power_outlets': power_outlets,
             'interfaces': interfaces,
-            'mgmt_interfaces': mgmt_interfaces,
             'device_bays': device_bays,
             'services': services,
             'secrets': secrets,

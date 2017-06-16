@@ -1,13 +1,7 @@
 <tr class="consoleport{% if cp.cs_port and not cp.connection_status %} info{% endif %}">
-    {% if selectable and perms.dcim.change_consoleport or perms.dcim.delete_consoleport %}
-        <td class="pk">
-            <input name="pk" type="checkbox" value="{{ cp.pk }}" />
-        </td>
-    {% endif %}
     <td>
         <i class="fa fa-fw fa-keyboard-o"></i> {{ cp.name }}
     </td>
-    <td></td>
     {% if cp.cs_port %}
         <td>
             <a href="{% url 'dcim:device' pk=cp.cs_port.device.pk %}">{{ cp.cs_port.device }}</a>
@@ -20,7 +14,7 @@
             <span class="text-muted">Not connected</span>
         </td>
     {% endif %}
-    <td colspan="2" class="text-right">
+    <td class="text-right">
         {% if perms.dcim.change_consoleport %}
             {% if cp.cs_port %}
                 {% if cp.connection_status %}

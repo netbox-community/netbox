@@ -368,10 +368,11 @@ class PowerOutletTemplateTable(BaseTable):
 
 class InterfaceTemplateTable(BaseTable):
     pk = ToggleColumn()
+    mgmt_only = tables.TemplateColumn("{% if value %}OOB Management{% endif %}")
 
     class Meta(BaseTable.Meta):
         model = InterfaceTemplate
-        fields = ('pk', 'name', 'form_factor')
+        fields = ('pk', 'name', 'mgmt_only', 'form_factor')
         empty_text = "None"
         show_header = False
 

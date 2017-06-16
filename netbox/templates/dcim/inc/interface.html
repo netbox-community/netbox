@@ -5,7 +5,8 @@
         </td>
     {% endif %}
     <td>
-        <i class="fa fa-fw fa-{{ icon|default:"exchange" }}"></i> <span title="{{ iface.get_form_factor_display }}">{{ iface.name }}</span>
+        <i class="fa fa-fw fa-{% if iface.mgmt_only %}wrench{% else %}exchange{% endif %}"></i>
+        <span title="{{ iface.get_form_factor_display }}">{{ iface.name }}</span>
         {% if iface.lag %}
             <span class="label label-primary">{{ iface.lag.name }}</span>
         {% endif %}
