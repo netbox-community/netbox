@@ -11,8 +11,9 @@ from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, STATUS_CHOICES, IFACE_FF_LAG, Interface, InterfaceConnection,
-    InterfaceTemplate, Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
-    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, Region, Site, VIRTUAL_IFACE_TYPES,
+    InterfaceTemplate, Manufacturer, InventoryItem, NONCONNECTABLE_IFACE_TYPES, Platform, PowerOutlet,
+    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, Region, Site,
+    VIRTUAL_IFACE_TYPES, WIRELESS_IFACE_TYPES,
 )
 
 
@@ -513,13 +514,12 @@ class InterfaceFilter(django_filters.FilterSet):
 
     def filter_type(self, queryset, name, value):
         value = value.strip().lower()
-        if value == 'physical':
-            return queryset.exclude(form_factor__in=VIRTUAL_IFACE_TYPES)
-        elif value == 'virtual':
-            return queryset.filter(form_factor__in=VIRTUAL_IFACE_TYPES)
-        elif value == 'lag':
-            return queryset.filter(form_factor=IFACE_FF_LAG)
-        return queryset
+        return {
+            'physical': queryset.exclude(form_factor__in=NONCONNECTABLE_IFACE_TYPES),
+            'virtual': queryset.filter(form_factor__in=VIRTUAL_IFACE_TYPES),
+            'wireless': queryset.filter(form_factor__in=WIRELESS_IFACE_TYPES),
+            'lag': queryset.filter(form_factor=IFACE_FF_LAG),
+        }.get(value, queryset.none())
 
     def _mac_address(self, queryset, name, value):
         value = value.strip()

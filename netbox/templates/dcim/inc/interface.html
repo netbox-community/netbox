@@ -5,7 +5,7 @@
         </td>
     {% endif %}
     <td>
-        <i class="fa fa-fw fa-{% if iface.mgmt_only %}wrench{% else %}exchange{% endif %}"></i>
+        <i class="fa fa-fw fa-{% if iface.mgmt_only %}wrench{% elif iface.is_virtual %}square{% elif iface.is_wireless %}wifi{% else %}exchange{% endif %}"></i>
         <span title="{{ iface.get_form_factor_display }}">{{ iface.name }}</span>
         {% if iface.lag %}
             <span class="label label-primary">{{ iface.lag.name }}</span>
@@ -22,6 +22,8 @@
         </td>
     {% elif iface.is_virtual %}
         <td colspan="2" class="text-muted">Virtual interface</td>
+    {% elif iface.is_wireless %}
+        <td colspan="2" class="text-muted">Wireless interface</td>
     {% elif iface.connection %}
         {% with iface.connected_interface as connected_iface %}
             <td>

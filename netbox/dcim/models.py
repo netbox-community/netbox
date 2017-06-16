@@ -661,6 +661,13 @@ class InterfaceQuerySet(models.QuerySet):
             '_vc': "COALESCE(CAST(SUBSTRING({} FROM '\.([0-9]+)$') AS integer), 0)".format(sql_col),
         }).order_by(*ordering)
 
+    def connectable(self):
+        """
+        Return only physical interfaces which are capable of being connected to other interfaces (i.e. not virtual or
+        wireless).
+        """
+        return self.exclude(form_factor__in=NONCONNECTABLE_IFACE_TYPES)
+
 
 @python_2_unicode_compatible
 class InterfaceTemplate(models.Model):
@@ -1134,10 +1141,10 @@ class Interface(models.Model):
     def clean(self):
 
         # Virtual interfaces cannot be connected
-        if self.form_factor in VIRTUAL_IFACE_TYPES and self.is_connected:
+        if self.form_factor in NONCONNECTABLE_IFACE_TYPES and self.is_connected:
             raise ValidationError({
-                'form_factor': "Virtual interfaces cannot be connected to another interface or circuit. Disconnect the "
-                               "interface or choose a physical form factor."
+                'form_factor': "Virtual and wireless interfaces cannot be connected to another interface or circuit. "
+                               "Disconnect the interface or choose a suitable form factor."
             })
 
         # An interface's LAG must belong to the same device
@@ -1149,7 +1156,7 @@ class Interface(models.Model):
             })
 
         # A virtual interface cannot have a parent LAG
-        if self.form_factor in VIRTUAL_IFACE_TYPES and self.lag is not None:
+        if self.form_factor in NONCONNECTABLE_IFACE_TYPES and self.lag is not None:
             raise ValidationError({
                 'lag': "{} interfaces cannot have a parent LAG interface.".format(self.get_form_factor_display())
             })
@@ -1165,6 +1172,10 @@ class Interface(models.Model):
     @property
     def is_virtual(self):
         return self.form_factor in VIRTUAL_IFACE_TYPES
+
+    @property
+    def is_wireless(self):
+        return self.form_factor in WIRELESS_IFACE_TYPES
 
     @property
     def is_lag(self):

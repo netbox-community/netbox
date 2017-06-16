@@ -24,7 +24,7 @@ from .models import (
     IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_FACE_CHOICES,
     RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, RACK_WIDTH_19IN, RACK_WIDTH_23IN,
-    Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT, VIRTUAL_IFACE_TYPES,
+    Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
 )
 
 
@@ -1574,7 +1574,7 @@ class InterfaceConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
         )
     )
     interface_b = ChainedModelChoiceField(
-        queryset=Interface.objects.exclude(form_factor__in=VIRTUAL_IFACE_TYPES).select_related(
+        queryset=Interface.objects.connectable().select_related(
             'circuit_termination', 'connected_as_a', 'connected_as_b'
         ),
         chains=(
@@ -1596,9 +1596,7 @@ class InterfaceConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
         super(InterfaceConnectionForm, self).__init__(*args, **kwargs)
 
         # Initialize interface A choices
-        device_a_interfaces = Interface.objects.order_naturally().filter(device=device_a).exclude(
-            form_factor__in=VIRTUAL_IFACE_TYPES
-        ).select_related(
+        device_a_interfaces = Interface.objects.connectable().order_naturally().filter(device=device_a).select_related(
             'circuit_termination', 'connected_as_a', 'connected_as_b'
         )
         self.fields['interface_a'].choices = [

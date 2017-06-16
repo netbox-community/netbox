@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django import forms
 from django.db.models import Count
 
-from dcim.models import Site, Device, Interface, Rack, VIRTUAL_IFACE_TYPES
+from dcim.models import Site, Device, Interface, Rack
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
@@ -210,7 +210,7 @@ class CircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm
         )
     )
     interface = ChainedModelChoiceField(
-        queryset=Interface.objects.exclude(form_factor__in=VIRTUAL_IFACE_TYPES).select_related(
+        queryset=Interface.objects.connectable().select_related(
             'circuit_termination', 'connected_as_a', 'connected_as_b'
         ),
         chains=(
