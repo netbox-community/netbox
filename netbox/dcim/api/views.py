@@ -32,6 +32,7 @@ class RegionViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = Region.objects.all()
     serializer_class = serializers.RegionSerializer
     write_serializer_class = serializers.WritableRegionSerializer
+    filter_class = filters.RegionFilter
 
 
 #
@@ -73,6 +74,7 @@ class RackGroupViewSet(WritableSerializerMixin, ModelViewSet):
 class RackRoleViewSet(ModelViewSet):
     queryset = RackRole.objects.all()
     serializer_class = serializers.RackRoleSerializer
+    filter_class = filters.RackRoleFilter
 
 
 #
@@ -128,6 +130,7 @@ class RackReservationViewSet(WritableSerializerMixin, ModelViewSet):
 class ManufacturerViewSet(ModelViewSet):
     queryset = Manufacturer.objects.all()
     serializer_class = serializers.ManufacturerSerializer
+    filter_class = filters.ManufacturerFilter
 
 
 #
@@ -194,6 +197,7 @@ class DeviceBayTemplateViewSet(WritableSerializerMixin, ModelViewSet):
 class DeviceRoleViewSet(ModelViewSet):
     queryset = DeviceRole.objects.all()
     serializer_class = serializers.DeviceRoleSerializer
+    filter_class = filters.DeviceRoleFilter
 
 
 #
@@ -203,6 +207,7 @@ class DeviceRoleViewSet(ModelViewSet):
 class PlatformViewSet(ModelViewSet):
     queryset = Platform.objects.all()
     serializer_class = serializers.PlatformSerializer
+    filter_class = filters.PlatformFilter
 
 
 #

@@ -21,15 +21,6 @@ class VRFViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 
 
 #
-# Roles
-#
-
-class RoleViewSet(ModelViewSet):
-    queryset = Role.objects.all()
-    serializer_class = serializers.RoleSerializer
-
-
-#
 # RIRs
 #
 
@@ -48,6 +39,16 @@ class AggregateViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     serializer_class = serializers.AggregateSerializer
     write_serializer_class = serializers.WritableAggregateSerializer
     filter_class = filters.AggregateFilter
+
+
+#
+# Roles
+#
+
+class RoleViewSet(ModelViewSet):
+    queryset = Role.objects.all()
+    serializer_class = serializers.RoleSerializer
+    filter_class = filters.RoleFilter
 
 
 #
