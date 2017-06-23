@@ -1,4 +1,4 @@
-<tr class="interface{% if iface.connection and not iface.connection.connection_status %} info{% endif %}">
+<tr class="interface{% if not iface.enabled %} danger{% elif iface.connection and not iface.connection.connection_status %} info{% endif %}">
     {% if selectable and perms.dcim.change_interface or perms.dcim.delete_interface %}
         <td class="pk">
             <input name="pk" type="checkbox" value="{{ iface.pk }}" />
@@ -14,6 +14,7 @@
             <i class="fa fa-fw fa-comment-o" title="{{ iface.description }}"></i>
         {% endif %}
     </td>
+    <td>{{ iface.mtu|default:"" }}</td>
     <td>{{ iface.mac_address|default:"" }}</td>
     {% if iface.is_lag %}
         <td colspan="2" class="text-muted">

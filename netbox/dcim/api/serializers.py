@@ -7,8 +7,8 @@ from ipam.models import IPAddress
 from dcim.models import (
     CONNECTION_STATUS_CHOICES, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
     DeviceBay, DeviceBayTemplate, DeviceType, DeviceRole, IFACE_FF_CHOICES, IFACE_ORDERING_CHOICES, Interface,
-    InterfaceConnection, InterfaceTemplate, Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
-    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RACK_FACE_CHOICES, RACK_TYPE_CHOICES,
+    InterfaceConnection, InterfaceTemplate, Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate,
+    PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RACK_FACE_CHOICES, RACK_TYPE_CHOICES,
     RACK_WIDTH_CHOICES, Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHOICES,
 )
 from extras.api.customfields import CustomFieldModelSerializer
@@ -601,8 +601,8 @@ class InterfaceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Interface
         fields = [
-            'id', 'device', 'name', 'form_factor', 'lag', 'mac_address', 'mgmt_only', 'description', 'connection',
-            'connected_interface',
+            'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
+            'connection', 'connected_interface',
         ]
 
     def get_connection(self, obj):
@@ -624,14 +624,19 @@ class PeerInterfaceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Interface
-        fields = ['id', 'url', 'device', 'name', 'form_factor', 'lag', 'mac_address', 'mgmt_only', 'description']
+        fields = [
+            'id', 'url', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only',
+            'description',
+        ]
 
 
 class WritableInterfaceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Interface
-        fields = ['id', 'device', 'name', 'form_factor', 'lag', 'mac_address', 'mgmt_only', 'description']
+        fields = [
+            'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
+        ]
 
 
 #

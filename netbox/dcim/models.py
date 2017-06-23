@@ -1120,13 +1120,24 @@ class Interface(models.Model):
     of an InterfaceConnection.
     """
     device = models.ForeignKey('Device', related_name='interfaces', on_delete=models.CASCADE)
-    lag = models.ForeignKey('self', related_name='member_interfaces', null=True, blank=True, on_delete=models.SET_NULL,
-                            verbose_name='Parent LAG')
+    lag = models.ForeignKey(
+        'self',
+        models.SET_NULL,
+        related_name='member_interfaces',
+        null=True,
+        blank=True,
+        verbose_name='Parent LAG'
+    )
     name = models.CharField(max_length=30)
     form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_10GE_SFP_PLUS)
+    enabled = models.BooleanField(default=True)
     mac_address = MACAddressField(null=True, blank=True, verbose_name='MAC Address')
-    mgmt_only = models.BooleanField(default=False, verbose_name='OOB Management',
-                                    help_text="This interface is used only for out-of-band management")
+    mtu = models.PositiveSmallIntegerField(blank=True, null=True, verbose_name='MTU')
+    mgmt_only = models.BooleanField(
+        default=False,
+        verbose_name='OOB Management',
+        help_text="This interface is used only for out-of-band management"
+    )
     description = models.CharField(max_length=100, blank=True)
 
     objects = InterfaceQuerySet.as_manager()

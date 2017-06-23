@@ -1447,7 +1447,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Interface
-        fields = ['device', 'name', 'form_factor', 'lag', 'mac_address', 'mgmt_only', 'description']
+        fields = ['device', 'name', 'form_factor', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description']
         widgets = {
             'device': forms.HiddenInput(),
         }
@@ -1469,12 +1469,19 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
 class InterfaceCreateForm(DeviceComponentForm):
     name_pattern = ExpandableNameField(label='Name')
     form_factor = forms.ChoiceField(choices=IFACE_FF_CHOICES)
+    enabled = forms.BooleanField(required=False)
     lag = forms.ModelChoiceField(queryset=Interface.objects.all(), required=False, label='Parent LAG')
+    mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
     mac_address = MACAddressFormField(required=False, label='MAC Address')
     mgmt_only = forms.BooleanField(required=False, label='OOB Management')
     description = forms.CharField(max_length=100, required=False)
 
     def __init__(self, *args, **kwargs):
+
+        # Set interfaces enabled by default
+        kwargs['initial'] = kwargs.get('initial', {})
+        kwargs['initial'].update({'enabled': True})
+
         super(InterfaceCreateForm, self).__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces belonging to this device
@@ -1489,13 +1496,15 @@ class InterfaceCreateForm(DeviceComponentForm):
 class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
     device = forms.ModelChoiceField(queryset=Device.objects.all(), widget=forms.HiddenInput)
-    lag = forms.ModelChoiceField(queryset=Interface.objects.all(), required=False, label='Parent LAG')
     form_factor = forms.ChoiceField(choices=add_blank_choice(IFACE_FF_CHOICES), required=False)
+    enabled = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect)
+    lag = forms.ModelChoiceField(queryset=Interface.objects.all(), required=False, label='Parent LAG')
+    mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
     mgmt_only = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect, label='Management only')
     description = forms.CharField(max_length=100, required=False)
 
     class Meta:
-        nullable_fields = ['lag', 'description']
+        nullable_fields = ['lag', 'mtu', 'description']
 
     def __init__(self, *args, **kwargs):
         super(InterfaceBulkEditForm, self).__init__(*args, **kwargs)

@@ -545,7 +545,7 @@ class InterfaceFilter(django_filters.FilterSet):
 
     class Meta:
         model = Interface
-        fields = ['name', 'form_factor', 'mgmt_only']
+        fields = ['name', 'form_factor', 'enabled', 'mtu', 'mgmt_only']
 
     def filter_device(self, queryset, name, value):
         try:
