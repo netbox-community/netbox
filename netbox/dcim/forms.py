@@ -1765,4 +1765,4 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = InventoryItem
-        fields = ['name', 'manufacturer', 'part_id', 'serial']
+        fields = ['name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description']

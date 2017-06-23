@@ -1306,11 +1306,18 @@ class InventoryItem(models.Model):
     device = models.ForeignKey('Device', related_name='inventory_items', on_delete=models.CASCADE)
     parent = models.ForeignKey('self', related_name='child_items', blank=True, null=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, verbose_name='Name')
-    manufacturer = models.ForeignKey('Manufacturer', related_name='inventory_items', blank=True, null=True,
-                                     on_delete=models.PROTECT)
+    manufacturer = models.ForeignKey(
+        'Manufacturer', models.PROTECT, related_name='inventory_items', blank=True, null=True
+    )
     part_id = models.CharField(max_length=50, verbose_name='Part ID', blank=True)
     serial = models.CharField(max_length=50, verbose_name='Serial number', blank=True)
+    asset_tag = NullableCharField(
+        max_length=50, blank=True, null=True, unique=True, verbose_name='Asset tag',
+        help_text='A unique tag used to identify this item'
+    )
     discovered = models.BooleanField(default=False, verbose_name='Discovered')
+    description = models.CharField(max_length=100, blank=True)
+
 
     class Meta:
         ordering = ['device__id', 'parent__id', 'name']

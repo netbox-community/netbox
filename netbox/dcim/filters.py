@@ -599,7 +599,7 @@ class InventoryItemFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = InventoryItem
-        fields = ['name', 'part_id', 'serial', 'discovered']
+        fields = ['name', 'part_id', 'serial', 'asset_tag', 'discovered']
 
 
 class ConsoleConnectionFilter(django_filters.FilterSet):
