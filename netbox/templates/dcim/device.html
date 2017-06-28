@@ -204,7 +204,7 @@
                     None
                 </div>
             {% endif %}
-            {% if perms.dcim.add_service %}
+            {% if perms.ipam.add_service %}
                 <div class="panel-footer text-right">
                     <a href="{% url 'dcim:service_assign' device=device.pk %}" class="btn btn-xs btn-primary">
                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Assign service
