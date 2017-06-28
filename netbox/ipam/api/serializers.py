@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from collections import OrderedDict
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
@@ -266,6 +267,20 @@ class WritableIPAddressSerializer(CustomFieldModelSerializer):
             'id', 'address', 'vrf', 'tenant', 'status', 'role', 'interface', 'description', 'nat_inside',
             'custom_fields',
         ]
+
+
+class AvailableIPSerializer(serializers.Serializer):
+
+    def to_representation(self, instance):
+        if self.context.get('vrf'):
+            vrf = NestedVRFSerializer(self.context['vrf'], context={'request': self.context['request']}).data
+        else:
+            vrf = None
+        return OrderedDict([
+            ('family', self.context['prefix'].version),
+            ('address', '{}/{}'.format(instance, self.context['prefix'].prefixlen)),
+            ('vrf', vrf),
+        ])
 
 
 #

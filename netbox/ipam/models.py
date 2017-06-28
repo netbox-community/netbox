@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
-
-from netaddr import IPNetwork, cidr_merge
+import netaddr
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
@@ -161,7 +160,7 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
         """
         child_prefixes = Prefix.objects.filter(prefix__net_contained_or_equal=str(self.prefix))
         # Remove overlapping prefixes from list of children
-        networks = cidr_merge([c.prefix for c in child_prefixes])
+        networks = netaddr.cidr_merge([c.prefix for c in child_prefixes])
         children_size = float(0)
         for p in networks:
             children_size += p.size
@@ -321,11 +320,34 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
     def get_duplicates(self):
         return Prefix.objects.filter(vrf=self.vrf, prefix=str(self.prefix)).exclude(pk=self.pk)
 
+    def get_child_ips(self):
+        """
+        Return all IPAddresses within this Prefix.
+        """
+        return IPAddress.objects.filter(address__net_contained_or_equal=str(self.prefix), vrf=self.vrf)
+
+    def get_available_ips(self):
+        """
+        Return all available IPs within this prefix as an IPSet.
+        """
+        prefix = netaddr.IPSet(self.prefix)
+        child_ips = netaddr.IPSet([ip.address for ip in self.get_child_ips()])
+        available_ips = prefix - child_ips
+
+        # Remove unusable IPs from non-pool prefixes
+        if not self.is_pool:
+            available_ips -= netaddr.IPSet([
+                netaddr.IPAddress(self.prefix.first),
+                netaddr.IPAddress(self.prefix.last),
+            ])
+
+        return available_ips
+
     def get_utilization(self):
         """
         Determine the utilization of the prefix and return it as a percentage.
         """
-        child_count = IPAddress.objects.filter(address__net_contained_or_equal=str(self.prefix), vrf=self.vrf).count()
+        child_count = self.get_child_ips().count()
         prefix_size = self.prefix.size
         if self.family == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
             prefix_size -= 2
@@ -335,11 +357,11 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
     def new_subnet(self):
         if self.family == 4:
             if self.prefix.prefixlen <= 30:
-                return IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
+                return netaddr.IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
             return None
         if self.family == 6:
             if self.prefix.prefixlen <= 126:
-                return IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
+                return netaddr.IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
             return None
 
 
