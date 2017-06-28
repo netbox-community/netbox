@@ -1318,7 +1318,6 @@ class InventoryItem(models.Model):
     discovered = models.BooleanField(default=False, verbose_name='Discovered')
     description = models.CharField(max_length=100, blank=True)
 
-
     class Meta:
         ordering = ['device__id', 'parent__id', 'name']
         unique_together = ['device', 'parent', 'name']

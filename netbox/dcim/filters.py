@@ -207,7 +207,7 @@ class RackReservationFilter(django_filters.FilterSet):
     user = django_filters.ModelMultipleChoiceFilter(
         name='user',
         queryset=User.objects.all(),
-        to_field_name = 'username',
+        to_field_name='username',
         label='User (name)',
     )
 
