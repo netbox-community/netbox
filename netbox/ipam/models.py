@@ -331,7 +331,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
         Return all available IPs within this prefix as an IPSet.
         """
         prefix = netaddr.IPSet(self.prefix)
-        child_ips = netaddr.IPSet([ip.address for ip in self.get_child_ips()])
+        child_ips = netaddr.IPSet([ip.address.ip for ip in self.get_child_ips()])
         available_ips = prefix - child_ips
 
         # Remove unusable IPs from non-pool prefixes

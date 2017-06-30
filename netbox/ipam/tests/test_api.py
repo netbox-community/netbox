@@ -367,6 +367,35 @@ class PrefixTest(HttpStatusMixin, APITestCase):
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Prefix.objects.count(), 2)
 
+    def test_available_ips(self):
+
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), is_pool=True)
+        url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
+
+        # Retrieve all available IPs
+        response = self.client.get(url, **self.header)
+        self.assertEqual(len(response.data), 8)  # 8 because prefix.is_pool = True
+
+        # Change the prefix to not be a pool and try again
+        prefix.is_pool = False
+        prefix.save()
+        response = self.client.get(url, **self.header)
+        self.assertEqual(len(response.data), 6)  # 8 - 2 because prefix.is_pool = False
+
+        # Create all six available IPs
+        for i in range(6):
+            data = {
+                'description': 'Test IP {}'.format(i)
+            }
+            response = self.client.post(url, data, **self.header)
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            self.assertEqual(response.data['description'], data['description'])
+
+        # Try to create one more IP
+        response = self.client.post(url, {}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('detail', response.data)
+
 
 class IPAddressTest(HttpStatusMixin, APITestCase):
 
