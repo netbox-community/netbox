@@ -472,9 +472,6 @@ class ChainedFieldsMixin(forms.BaseForm):
     def __init__(self, *args, **kwargs):
         super(ChainedFieldsMixin, self).__init__(*args, **kwargs)
 
-        # if self.is_bound:
-        #     assert False, self.data
-
         for field_name, field in self.fields.items():
 
             if isinstance(field, ChainedModelChoiceField):
@@ -492,6 +489,12 @@ class ChainedFieldsMixin(forms.BaseForm):
 
                 if filters_dict:
                     field.queryset = field.queryset.filter(**filters_dict)
+                elif not self.is_bound and self.instance and hasattr(self.instance, field_name):
+                    obj = getattr(self.instance, field_name)
+                    if obj is not None:
+                        field.queryset = field.queryset.filter(pk=obj.pk)
+                    else:
+                        field.queryset = field.queryset.none()
                 elif not self.is_bound:
                     field.queryset = field.queryset.none()
 
