@@ -234,7 +234,7 @@ class ObjectDeleteView(GetReturnURLMixin, View):
     """
     Delete a single object.
 
-    model: The model of the object being edited
+    model: The model of the object being deleted
     template_name: The name of the template
     default_return_url: Name of the URL to which the user is redirected after deleting the object
     """

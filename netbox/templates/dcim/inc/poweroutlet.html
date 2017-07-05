@@ -24,24 +24,24 @@
         {% if perms.dcim.change_poweroutlet %}
             {% if po.connected_port %}
                 {% if po.connected_port.connection_status %}
-                    <a href="#" class="btn btn-warning btn-xs powerport-toggle connected" data="{{ po.connected_port.pk }}">
-                        <i class="glyphicon glyphicon-ban-circle" aria-hidden="true" title="Mark planned"></i>
+                    <a href="#" class="btn btn-warning btn-xs powerport-toggle connected" title="Mark planned" data="{{ po.connected_port.pk }}">
+                        <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>
                     </a>
                 {% else %}
-                    <a href="#" class="btn btn-success btn-xs consoleport-toggle" data="{{ po.connected_port.pk }}">
-                        <i class="fa fa-plug" aria-hidden="true" title="Mark connected"></i>
+                    <a href="#" class="btn btn-success btn-xs consoleport-toggle" title="Mark installed" data="{{ po.connected_port.pk }}">
+                        <i class="fa fa-plug" aria-hidden="true"></i>
                     </a>
                 {% endif %}
-                <a href="{% url 'dcim:poweroutlet_disconnect' pk=po.pk %}" class="btn btn-danger btn-xs">
-                    <i class="glyphicon glyphicon-resize-full" aria-hidden="true" title="Delete connection"></i>
+                <a href="{% url 'dcim:poweroutlet_disconnect' pk=po.pk %}" title="Delete connection" class="btn btn-danger btn-xs">
+                    <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
                 </a>
             {% else %}
-                <a href="{% url 'dcim:poweroutlet_connect' pk=po.pk %}" class="btn btn-success btn-xs">
-                    <i class="glyphicon glyphicon-resize-small" aria-hidden="true" title="Connect"></i>
+                <a href="{% url 'dcim:poweroutlet_connect' pk=po.pk %}" title="Connect" class="btn btn-success btn-xs">
+                    <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
                 </a>
             {% endif %}
-            <a href="{% url 'dcim:poweroutlet_edit' pk=po.pk %}" class="btn btn-info btn-xs">
-                <i class="glyphicon glyphicon-pencil" aria-hidden="true" title="Edit outlet"></i>
+            <a href="{% url 'dcim:poweroutlet_edit' pk=po.pk %}" title="Edit outlet" class="btn btn-info btn-xs">
+                <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
             </a>
         {% endif %}
         {% if perms.dcim.delete_poweroutlet %}
@@ -50,8 +50,8 @@
                     <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </button>
             {% else %}
-                <a href="{% url 'dcim:poweroutlet_delete' pk=po.pk %}" class="btn btn-danger btn-xs">
-                    <i class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete outlet"></i>
+                <a href="{% url 'dcim:poweroutlet_delete' pk=po.pk %}" title="Delete outlet" class="btn btn-danger btn-xs">
+                    <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </a>
             {% endif %}
         {% endif %}

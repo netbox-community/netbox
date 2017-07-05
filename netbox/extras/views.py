@@ -25,7 +25,7 @@ class ImageAttachmentEditView(PermissionRequiredMixin, ObjectEditView):
 
 
 class ImageAttachmentDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_imageattachment'
+    permission_required = 'extras.delete_imageattachment'
     model = ImageAttachment
 
     def get_return_url(self, request, imageattachment):

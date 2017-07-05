@@ -24,24 +24,24 @@
         {% if perms.dcim.change_powerport %}
             {% if pp.power_outlet %}
                 {% if pp.connection_status %}
-                    <a href="#" class="btn btn-warning btn-xs powerport-toggle connected" data="{{ pp.pk }}">
-                        <i class="glyphicon glyphicon-ban-circle" aria-hidden="true" title="Mark planned"></i>
+                    <a href="#" class="btn btn-warning btn-xs powerport-toggle connected" title="Mark planned" data="{{ pp.pk }}">
+                        <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>
                     </a>
                 {% else %}
-                    <a href="#" class="btn btn-success btn-xs powerport-toggle" data="{{ pp.pk }}">
-                        <i class="fa fa-plug" aria-hidden="true" title="Mark connected"></i>
+                    <a href="#" class="btn btn-success btn-xs powerport-toggle" title="Mark installed" data="{{ pp.pk }}">
+                        <i class="fa fa-plug" aria-hidden="true"></i>
                     </a>
                 {% endif %}
-            <a href="{% url 'dcim:powerport_disconnect' pk=pp.pk %}" class="btn btn-danger btn-xs">
-                <i class="glyphicon glyphicon-resize-full" aria-hidden="true" title="Delete connection"></i>
+            <a href="{% url 'dcim:powerport_disconnect' pk=pp.pk %}" title="Delete connection" class="btn btn-danger btn-xs">
+                <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
             </a>
             {% else %}
-                <a href="{% url 'dcim:powerport_connect' pk=pp.pk %}" class="btn btn-success btn-xs">
-                    <i class="glyphicon glyphicon-resize-small" aria-hidden="true" title="Connect"></i>
+                <a href="{% url 'dcim:powerport_connect' pk=pp.pk %}" title="Connect" class="btn btn-success btn-xs">
+                    <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
                 </a>
             {% endif %}
-            <a href="{% url 'dcim:powerport_edit' pk=pp.pk %}" class="btn btn-info btn-xs">
-                <i class="glyphicon glyphicon-pencil" aria-hidden="true" title="Edit port"></i>
+            <a href="{% url 'dcim:powerport_edit' pk=pp.pk %}" title="Edit port" class="btn btn-info btn-xs">
+                <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
             </a>
         {% endif %}
         {% if perms.dcim.delete_powerport %}
@@ -50,8 +50,8 @@
                     <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </button>
             {% else %}
-                <a href="{% url 'dcim:powerport_delete' pk=pp.pk %}" class="btn btn-danger btn-xs">
-                    <i class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete port"></i>
+                <a href="{% url 'dcim:powerport_delete' pk=pp.pk %}" title="Delete port" class="btn btn-danger btn-xs">
+                    <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </a>
             {% endif %}
         {% endif %}

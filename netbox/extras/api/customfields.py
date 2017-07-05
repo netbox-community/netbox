@@ -49,6 +49,10 @@ class CustomFieldsSerializer(serializers.BaseSerializer):
 
             # Validate selected choice
             if cf.type == CF_TYPE_SELECT:
+                try:
+                    value = int(value)
+                except ValueError:
+                    raise ValidationError("{}: Choice selections must be passed as integers.".format(field_name))
                 valid_choices = [c.pk for c in cf.choices.all()]
                 if value not in valid_choices:
                     raise ValidationError("Invalid choice for field {}: {}".format(field_name, value))
