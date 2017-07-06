@@ -111,6 +111,16 @@ class CustomFieldModelSerializer(serializers.ModelSerializer):
                 defaults={'serialized_value': custom_field.serialize_value(value)},
             )
 
+    def validate(self, data):
+        """
+        Enforce model validation (see utilities.api.ModelValidationMixin)
+        """
+        model_data = data.copy()
+        model_data.pop('custom_fields', None)
+        instance = self.Meta.model(**model_data)
+        instance.clean()
+        return data
+
     def create(self, validated_data):
 
         custom_fields = validated_data.pop('custom_fields', None)

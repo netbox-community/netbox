@@ -98,6 +98,17 @@ class ContentTypeFieldSerializer(Field):
             raise ValidationError("Invalid content type")
 
 
+class ModelValidationMixin(object):
+    """
+    Enforce a model's validation through clean() when validating serializer data. This is necessary to ensure we're
+    employing the same validation logic via both forms and the API.
+    """
+    def validate(self, attrs):
+        instance = self.Meta.model(**attrs)
+        instance.clean()
+        return attrs
+
+
 class WritableSerializerMixin(object):
     """
     Allow for the use of an alternate, writable serializer class for write operations (e.g. POST, PUT).

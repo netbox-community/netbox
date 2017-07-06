@@ -11,7 +11,7 @@ from ipam.models import (
     PREFIX_STATUS_CHOICES, RIR, Role, Service, VLAN, VLAN_STATUS_CHOICES, VLANGroup, VRF,
 )
 from tenancy.api.serializers import NestedTenantSerializer
-from utilities.api import ChoiceFieldSerializer
+from utilities.api import ChoiceFieldSerializer, ModelValidationMixin
 
 
 #
@@ -45,7 +45,7 @@ class WritableVRFSerializer(CustomFieldModelSerializer):
 # Roles
 #
 
-class RoleSerializer(serializers.ModelSerializer):
+class RoleSerializer(ModelValidationMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Role
@@ -64,7 +64,7 @@ class NestedRoleSerializer(serializers.ModelSerializer):
 # RIRs
 #
 
-class RIRSerializer(serializers.ModelSerializer):
+class RIRSerializer(ModelValidationMixin, serializers.ModelSerializer):
 
     class Meta:
         model = RIR
@@ -142,6 +142,9 @@ class WritableVLANGroupSerializer(serializers.ModelSerializer):
                 validator.set_context(self)
                 validator(data)
 
+        # Enforce model validation
+        super(WritableVLANGroupSerializer, self).validate(data)
+
         return data
 
 
@@ -187,6 +190,9 @@ class WritableVLANSerializer(CustomFieldModelSerializer):
                 validator = UniqueTogetherValidator(queryset=VLAN.objects.all(), fields=('group', field))
                 validator.set_context(self)
                 validator(data)
+
+        # Enforce model validation
+        super(WritableVLANSerializer, self).validate(data)
 
         return data
 
@@ -297,6 +303,7 @@ class ServiceSerializer(serializers.ModelSerializer):
         fields = ['id', 'device', 'name', 'port', 'protocol', 'ipaddresses', 'description']
 
 
+# TODO: Figure out how to use ModelValidationMixin with ManyToManyFields. Calling clean() yields a ValueError.
 class WritableServiceSerializer(serializers.ModelSerializer):
 
     class Meta:

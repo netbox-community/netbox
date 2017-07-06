@@ -10,7 +10,7 @@ from extras.models import (
     ACTION_CHOICES, ExportTemplate, Graph, GRAPH_TYPE_CHOICES, ImageAttachment, TopologyMap, UserAction,
 )
 from users.api.serializers import NestedUserSerializer
-from utilities.api import ChoiceFieldSerializer, ContentTypeFieldSerializer
+from utilities.api import ChoiceFieldSerializer, ContentTypeFieldSerializer, ModelValidationMixin
 
 
 #
@@ -104,7 +104,7 @@ class ImageAttachmentSerializer(serializers.ModelSerializer):
         return serializer(obj.parent, context={'request': self.context['request']}).data
 
 
-class WritableImageAttachmentSerializer(serializers.ModelSerializer):
+class WritableImageAttachmentSerializer(ModelValidationMixin, serializers.ModelSerializer):
     content_type = ContentTypeFieldSerializer()
 
     class Meta:
@@ -120,6 +120,9 @@ class WritableImageAttachmentSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Invalid parent object: {} ID {}".format(data['content_type'], data['object_id'])
             )
+
+        # Enforce model validation
+        super(WritableImageAttachmentSerializer, self).validate(data)
 
         return data
 
