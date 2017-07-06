@@ -1,4 +1,4 @@
-<tr class="interface{% if not iface.enabled %} danger{% elif iface.connection and not iface.connection.connection_status %} info{% endif %}">
+<tr class="interface{% if not iface.enabled %} danger{% elif iface.connection and iface.connection.connection_status %} success{% elif iface.connection and not iface.connection.connection_status %} info{% endif %}">
     {% if selectable and perms.dcim.change_interface or perms.dcim.delete_interface %}
         <td class="pk">
             <input name="pk" type="checkbox" value="{{ iface.pk }}" />
@@ -76,7 +76,7 @@
                             <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>
                         </a>
                     {% else %}
-                        <a href="#" class="btn btn-success btn-xs interface-toggle" data="{{ iface.connection.pk }}" title="Mark connected">
+                        <a href="#" class="btn btn-success btn-xs interface-toggle" data="{{ iface.connection.pk }}" title="Mark installed">
                             <i class="fa fa-plug" aria-hidden="true"></i>
                         </a>
                     {% endif %}

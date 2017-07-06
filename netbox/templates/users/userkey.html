@@ -19,6 +19,12 @@
             {% endif %}
         </h4>
         {% include 'inc/created_updated.html' with obj=userkey %}
+        {% if not userkey.is_active %}
+            <div class="alert alert-warning" role="alert">
+                <i class="fa fa-warning"></i>
+                Your user key is inactive. Ask an administrator to enable it for you.
+            </div>
+        {% endif %}
         <pre>{{ userkey.public_key }}</pre>
         <hr />
         {% if userkey.session_key %}

@@ -646,16 +646,23 @@ class IPAddressCSVForm(forms.ModelForm):
 
         # Set interface
         if self.cleaned_data['device'] and self.cleaned_data['interface_name']:
-            self.instance.interface = Interface.objects.get(device=self.cleaned_data['device'],
-                                                            name=self.cleaned_data['interface_name'])
+            self.instance.interface = Interface.objects.get(
+                device=self.cleaned_data['device'],
+                name=self.cleaned_data['interface_name']
+            )
+
+        ipaddress = super(IPAddressCSVForm, self).save(*args, **kwargs)
+
         # Set as primary for device
         if self.cleaned_data['is_primary']:
+            device = self.cleaned_data['device']
             if self.instance.address.version == 4:
-                self.instance.primary_ip4_for = self.cleaned_data['device']
+                device.primary_ip4 = ipaddress
             elif self.instance.address.version == 6:
-                self.instance.primary_ip6_for = self.cleaned_data['device']
+                device.primary_ip6 = ipaddress
+            device.save()
 
-        return super(IPAddressCSVForm, self).save(*args, **kwargs)
+        return ipaddress
 
 
 class IPAddressBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):

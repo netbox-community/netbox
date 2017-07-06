@@ -158,13 +158,9 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
         """
         Determine the prefix utilization of the aggregate and return it as a percentage.
         """
-        child_prefixes = Prefix.objects.filter(prefix__net_contained_or_equal=str(self.prefix))
-        # Remove overlapping prefixes from list of children
-        networks = netaddr.cidr_merge([c.prefix for c in child_prefixes])
-        children_size = float(0)
-        for p in networks:
-            children_size += p.size
-        return int(children_size / self.prefix.size * 100)
+        queryset = Prefix.objects.filter(prefix__net_contained_or_equal=str(self.prefix))
+        child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
+        return int(float(child_prefixes.size) / self.prefix.size * 100)
 
 
 @python_2_unicode_compatible
@@ -345,13 +341,21 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
 
     def get_utilization(self):
         """
-        Determine the utilization of the prefix and return it as a percentage.
+        Determine the utilization of the prefix and return it as a percentage. For Prefixes with a status of
+        "container", calculate utilization based on child prefixes. For all others, count child IP addresses.
         """
-        child_count = self.get_child_ips().count()
-        prefix_size = self.prefix.size
-        if self.family == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
-            prefix_size -= 2
-        return int(float(child_count) / prefix_size * 100)
+        if self.status == PREFIX_STATUS_CONTAINER:
+            queryset = Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
+            child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
+            return int(float(child_prefixes.size) / self.prefix.size * 100)
+        else:
+            child_count = IPAddress.objects.filter(
+                address__net_contained_or_equal=str(self.prefix), vrf=self.vrf
+            ).count()
+            prefix_size = self.prefix.size
+            if self.family == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
+                prefix_size -= 2
+            return int(float(child_count) / prefix_size * 100)
 
     @property
     def new_subnet(self):

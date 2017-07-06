@@ -665,19 +665,6 @@ class IPAddressBulkImportView(PermissionRequiredMixin, BulkImportView):
     table = tables.IPAddressTable
     default_return_url = 'ipam:ipaddress_list'
 
-    def save_obj(self, obj):
-        obj.save()
-
-        # Update primary IP for device if needed. The Device must be updated directly in the database; otherwise we risk
-        # overwriting a previous IP assignment from the same import (see #861).
-        try:
-            if obj.family == 4 and obj.primary_ip4_for:
-                Device.objects.filter(pk=obj.primary_ip4_for.pk).update(primary_ip4=obj)
-            elif obj.family == 6 and obj.primary_ip6_for:
-                Device.objects.filter(pk=obj.primary_ip6_for.pk).update(primary_ip6=obj)
-        except Device.DoesNotExist:
-            pass
-
 
 class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_ipaddress'
