@@ -119,7 +119,7 @@ Each line of the **device patterns** field represents a hierarchical layer withi
 ```
 core-switch-[abcd]
 dist-switch\d
-access-switch\d+,oob-switch\d+
+access-switch\d+;oob-switch\d+
 ```
 
 Note that you can combine multiple regexes onto one line using semicolons. The order in which regexes are listed on a line is significant: devices matching the first regex will be rendered first, and subsequent groups will be rendered to the right of those.
