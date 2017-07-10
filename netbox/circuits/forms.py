@@ -252,6 +252,11 @@ class CircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm
         super(CircuitTerminationForm, self).__init__(*args, **kwargs)
 
         # Mark connected interfaces as disabled
-        self.fields['interface'].choices = [
-            (iface.id, {'label': iface.name, 'disabled': iface.is_connected}) for iface in self.fields['interface'].queryset
-        ]
+        self.fields['interface'].choices = []
+        for iface in self.fields['interface'].queryset:
+            self.fields['interface'].choices.append(
+                (iface.id, {
+                    'label': iface.name,
+                    'disabled': iface.is_connected and iface.pk != self.initial.get('interface'),
+                })
+            )
