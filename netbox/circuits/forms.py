@@ -220,7 +220,7 @@ class CircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm
         label='Interface',
         widget=APISelect(
             api_url='/api/dcim/interfaces/?device_id={{device}}&type=physical',
-            disabled_indicator='connection'
+            disabled_indicator='is_connected'
         )
     )
 
