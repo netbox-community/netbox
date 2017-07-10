@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from collections import OrderedDict
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
@@ -601,25 +602,28 @@ class InterfaceSerializer(serializers.ModelSerializer):
     device = NestedDeviceSerializer()
     form_factor = ChoiceFieldSerializer(choices=IFACE_FF_CHOICES)
     lag = NestedInterfaceSerializer()
+    is_connected = serializers.SerializerMethodField(read_only=True)
     connection = serializers.SerializerMethodField(read_only=True)
-    connected_interface = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Interface
         fields = [
             'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
-            'connection', 'connected_interface',
+            'is_connected', 'connection',
         ]
 
-    def get_connection(self, obj):
-        if obj.connection:
-            return NestedInterfaceConnectionSerializer(obj.connection, context=self.context).data
-        return None
+    def get_is_connected(self, obj):
+        return bool(obj.connection)
 
-    def get_connected_interface(self, obj):
-        if obj.connected_interface:
-            return PeerInterfaceSerializer(obj.connected_interface, context=self.context).data
-        return None
+    def get_connection(self, obj):
+        data = OrderedDict((
+            ('interface', None),
+            ('status', None),
+        ))
+        if obj.connection:
+            data['interface'] = PeerInterfaceSerializer(obj.connected_interface, context=self.context).data
+            data['status'] = obj.connection.connection_status
+        return data
 
 
 class PeerInterfaceSerializer(serializers.ModelSerializer):
