@@ -5,6 +5,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from ipam.models import IPAddress
+from circuits.models import Circuit, CircuitTermination
 from dcim.models import (
     CONNECTION_STATUS_CHOICES, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
     DeviceBay, DeviceBayTemplate, DeviceType, DeviceRole, IFACE_FF_CHOICES, IFACE_ORDERING_CHOICES, Interface,
@@ -598,32 +599,59 @@ class NestedInterfaceSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'name']
 
 
+class InterfaceNestedCircuitSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuit-detail')
+
+    class Meta:
+        model = Circuit
+        fields = ['id', 'url', 'cid']
+
+
+class InterfaceCircuitTerminationSerializer(serializers.ModelSerializer):
+    circuit = InterfaceNestedCircuitSerializer()
+
+    class Meta:
+        model = CircuitTermination
+        fields = [
+            'id', 'circuit', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
+        ]
+
+
 class InterfaceSerializer(serializers.ModelSerializer):
     device = NestedDeviceSerializer()
     form_factor = ChoiceFieldSerializer(choices=IFACE_FF_CHOICES)
     lag = NestedInterfaceSerializer()
     is_connected = serializers.SerializerMethodField(read_only=True)
-    connection = serializers.SerializerMethodField(read_only=True)
+    interface_connection = serializers.SerializerMethodField(read_only=True)
+    circuit_termination = InterfaceCircuitTerminationSerializer()
 
     class Meta:
         model = Interface
         fields = [
             'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
-            'is_connected', 'connection',
+            'is_connected', 'interface_connection', 'circuit_termination',
         ]
 
     def get_is_connected(self, obj):
-        return bool(obj.connection)
-
-    def get_connection(self, obj):
-        data = OrderedDict((
-            ('interface', None),
-            ('status', None),
-        ))
+        """
+        Return True if the interface has a connected interface or circuit termination.
+        """
         if obj.connection:
-            data['interface'] = PeerInterfaceSerializer(obj.connected_interface, context=self.context).data
-            data['status'] = obj.connection.connection_status
-        return data
+            return True
+        try:
+            circuit_termination = obj.circuit_termination
+            return True
+        except CircuitTermination.DoesNotExist:
+            pass
+        return False
+
+    def get_interface_connection(self, obj):
+        if obj.connection:
+            return OrderedDict((
+                ('interface', PeerInterfaceSerializer(obj.connected_interface, context=self.context).data),
+                ('status', obj.connection.connection_status),
+            ))
+        return None
 
 
 class PeerInterfaceSerializer(serializers.ModelSerializer):
