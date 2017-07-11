@@ -630,7 +630,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         instance = kwargs.get('instance')
         # Using hasattr() instead of "is not None" to avoid RelatedObjectDoesNotExist on required field
         if instance and hasattr(instance, 'device_type'):
-            initial = kwargs.get('initial', {})
+            initial = kwargs.get('initial', {}).copy()
             initial['manufacturer'] = instance.device_type.manufacturer
             kwargs['initial'] = initial
 
@@ -1479,7 +1479,7 @@ class InterfaceCreateForm(DeviceComponentForm):
     def __init__(self, *args, **kwargs):
 
         # Set interfaces enabled by default
-        kwargs['initial'] = kwargs.get('initial', {})
+        kwargs['initial'] = kwargs.get('initial', {}).copy()
         kwargs['initial'].update({'enabled': True})
 
         super(InterfaceCreateForm, self).__init__(*args, **kwargs)

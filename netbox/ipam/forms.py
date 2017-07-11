@@ -217,7 +217,7 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
         # Initialize helper selectors
         instance = kwargs.get('instance')
-        initial = kwargs.get('initial', {})
+        initial = kwargs.get('initial', {}).copy()
         if instance and instance.vlan is not None:
             initial['vlan_group'] = instance.vlan.group
         kwargs['initial'] = initial
@@ -492,7 +492,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
 
         # Initialize helper selectors
         instance = kwargs.get('instance')
-        initial = kwargs.get('initial', {})
+        initial = kwargs.get('initial', {}).copy()
         if instance and instance.interface is not None:
             initial['interface_site'] = instance.interface.device.site
             initial['interface_rack'] = instance.interface.device.rack

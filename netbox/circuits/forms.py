@@ -244,7 +244,7 @@ class CircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm
         # Initialize helper selectors
         instance = kwargs.get('instance')
         if instance and instance.interface is not None:
-            initial = kwargs.get('initial', {})
+            initial = kwargs.get('initial', {}).copy()
             initial['rack'] = instance.interface.device.rack
             initial['device'] = instance.interface.device
             kwargs['initial'] = initial
