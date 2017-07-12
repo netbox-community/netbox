@@ -26,7 +26,7 @@ class ProviderListView(ObjectListView):
     queryset = Provider.objects.annotate(count_circuits=Count('circuits'))
     filter = filters.ProviderFilter
     filter_form = forms.ProviderFilterForm
-    table = tables.ProviderTable
+    table = tables.ProviderDetailTable
     template_name = 'circuits/provider_list.html'
 
 

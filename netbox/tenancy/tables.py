@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import django_tables2 as tables
 
-from utilities.tables import BaseTable, SearchTable, ToggleColumn
+from utilities.tables import BaseTable, ToggleColumn
 
 from .models import Tenant, TenantGroup
 
@@ -43,11 +43,3 @@ class TenantTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Tenant
         fields = ('pk', 'name', 'group', 'description')
-
-
-class TenantSearchTable(SearchTable):
-    name = tables.LinkColumn()
-
-    class Meta(SearchTable.Meta):
-        model = Tenant
-        fields = ('name', 'group', 'description')

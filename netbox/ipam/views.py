@@ -103,8 +103,8 @@ class VRFView(View):
     def get(self, request, pk):
 
         vrf = get_object_or_404(VRF.objects.all(), pk=pk)
-        prefix_table = tables.PrefixBriefTable(
-            list(Prefix.objects.filter(vrf=vrf).select_related('site', 'role'))
+        prefix_table = tables.PrefixTable(
+            list(Prefix.objects.filter(vrf=vrf).select_related('site', 'role')), orderable=False
         )
         prefix_table.exclude = ('vrf',)
 
@@ -273,7 +273,7 @@ class AggregateListView(ObjectListView):
     })
     filter = filters.AggregateFilter
     filter_form = forms.AggregateFilterForm
-    table = tables.AggregateTable
+    table = tables.AggregateDetailTable
     template_name = 'ipam/aggregate_list.html'
 
     def extra_context(self):
@@ -410,7 +410,7 @@ class PrefixListView(ObjectListView):
     queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
     filter = filters.PrefixFilter
     filter_form = forms.PrefixFilterForm
-    table = tables.PrefixTable
+    table = tables.PrefixDetailTable
     template_name = 'ipam/prefix_list.html'
 
     def alter_queryset(self, request):
@@ -445,7 +445,7 @@ class PrefixView(View):
         ).select_related(
             'site', 'role'
         ).annotate_depth()
-        parent_prefix_table = tables.PrefixBriefTable(parent_prefixes)
+        parent_prefix_table = tables.PrefixTable(list(parent_prefixes), orderable=False)
         parent_prefix_table.exclude = ('vrf',)
 
         # Duplicate prefixes table
@@ -456,7 +456,7 @@ class PrefixView(View):
         ).select_related(
             'site', 'role'
         )
-        duplicate_prefix_table = tables.PrefixBriefTable(list(duplicate_prefixes))
+        duplicate_prefix_table = tables.PrefixTable(list(duplicate_prefixes), orderable=False)
         duplicate_prefix_table.exclude = ('vrf',)
 
         # Child prefixes table
@@ -585,7 +585,7 @@ class IPAddressListView(ObjectListView):
     queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device', 'nat_inside')
     filter = filters.IPAddressFilter
     filter_form = forms.IPAddressFilterForm
-    table = tables.IPAddressTable
+    table = tables.IPAddressDetailTable
     template_name = 'ipam/ipaddress_list.html'
 
 
@@ -601,7 +601,7 @@ class IPAddressView(View):
         ).select_related(
             'site', 'role'
         )
-        parent_prefixes_table = tables.PrefixBriefTable(list(parent_prefixes))
+        parent_prefixes_table = tables.PrefixTable(list(parent_prefixes), orderable=False)
         parent_prefixes_table.exclude = ('vrf',)
 
         # Duplicate IPs table
@@ -612,7 +612,7 @@ class IPAddressView(View):
         ).select_related(
             'interface__device', 'nat_inside'
         )
-        duplicate_ips_table = tables.IPAddressBriefTable(list(duplicate_ips))
+        duplicate_ips_table = tables.IPAddressTable(list(duplicate_ips), orderable=False)
 
         # Related IP table
         related_ips = IPAddress.objects.select_related(
@@ -622,7 +622,7 @@ class IPAddressView(View):
         ).filter(
             vrf=ipaddress.vrf, address__net_contained_or_equal=str(ipaddress.address)
         )
-        related_ips_table = tables.IPAddressBriefTable(list(related_ips))
+        related_ips_table = tables.IPAddressTable(list(related_ips), orderable=False)
 
         return render(request, 'ipam/ipaddress.html', {
             'ipaddress': ipaddress,
@@ -722,7 +722,7 @@ class VLANListView(ObjectListView):
     queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role').prefetch_related('prefixes')
     filter = filters.VLANFilter
     filter_form = forms.VLANFilterForm
-    table = tables.VLANTable
+    table = tables.VLANDetailTable
     template_name = 'ipam/vlan_list.html'
 
 
@@ -734,7 +734,7 @@ class VLANView(View):
             'site__region', 'tenant__group', 'role'
         ), pk=pk)
         prefixes = Prefix.objects.filter(vlan=vlan).select_related('vrf', 'site', 'role')
-        prefix_table = tables.PrefixBriefTable(list(prefixes))
+        prefix_table = tables.PrefixTable(list(prefixes), orderable=False)
         prefix_table.exclude = ('vlan',)
 
         return render(request, 'ipam/vlan.html', {

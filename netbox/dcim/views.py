@@ -216,7 +216,7 @@ class SiteListView(ObjectListView):
     queryset = Site.objects.select_related('region', 'tenant')
     filter = filters.SiteFilter
     filter_form = forms.SiteFilterForm
-    table = tables.SiteTable
+    table = tables.SiteDetailTable
     template_name = 'dcim/site_list.html'
 
 
@@ -354,7 +354,7 @@ class RackListView(ObjectListView):
     )
     filter = filters.RackFilter
     filter_form = forms.RackFilterForm
-    table = tables.RackTable
+    table = tables.RackDetailTable
     template_name = 'dcim/rack_list.html'
 
 
@@ -550,7 +550,7 @@ class DeviceTypeListView(ObjectListView):
     queryset = DeviceType.objects.select_related('manufacturer').annotate(instance_count=Count('instances'))
     filter = filters.DeviceTypeFilter
     filter_form = forms.DeviceTypeFilterForm
-    table = tables.DeviceTypeTable
+    table = tables.DeviceTypeDetailTable
     template_name = 'dcim/devicetype_list.html'
 
 
@@ -805,7 +805,7 @@ class DeviceListView(ObjectListView):
                                              'primary_ip4', 'primary_ip6')
     filter = filters.DeviceFilter
     filter_form = forms.DeviceFilterForm
-    table = tables.DeviceTable
+    table = tables.DeviceDetailTable
     template_name = 'dcim/device_list.html'
 
 
