@@ -1694,8 +1694,7 @@ class InterfaceConnectionCSVForm(forms.ModelForm):
         return interface
 
 
-class InterfaceConnectionDeletionForm(BootstrapMixin, forms.Form):
-    confirm = forms.BooleanField(required=True)
+class InterfaceConnectionDeletionForm(ConfirmationForm):
     # Used for HTTP redirect upon successful deletion
     device = forms.ModelChoiceField(queryset=Device.objects.all(), widget=forms.HiddenInput(), required=False)
 
