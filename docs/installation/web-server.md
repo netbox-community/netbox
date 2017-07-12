@@ -133,5 +133,67 @@ Then, restart the supervisor service to detect and run the gunicorn service:
 
 At this point, you should be able to connect to the nginx HTTP service at the server name or IP address you provided. If you are unable to connect, check that the nginx service is running and properly configured. If you receive a 502 (bad gateway) error, this indicates that gunicorn is misconfigured or not running.
 
+# nginx + uwsgi installation
+
+uwsgi is an alternative to using gunicorn + supervisord.  It has native proxy support via the WSGI protocol in nginx.
+
+```no-highlight
+# apt-get install uwsgi uwsgi-plugin-python3
+```
+
+Add a site to uwsgi in `/etc/uwsgi/apps-available/netbox.ini`:
+
+```ini
+[uwsgi]
+chdir = /var/www/netbox/netbox
+stats = 127.0.0.1:9191
+wsgi-file = netbox/wsgi.py
+master = true
+processes = 4
+threads = 2
+uid = www-data
+socket = /run/uwsgi/netbox.sock
+chown-socket = www-data:www-data
+chmod-socket = 660
+vacuum = true
+```
+
+Symlink it in `/etc/uwsgi/apps-enabled`:
+
+```no-highlight
+# cd /etc/uwsgi/apps-enabled
+# ln -s ../apps-available/netbox.ini .
+```
+
+For the nginx site setup in `/etc/nginx/sites-available/netbox`, a minimal example is:
+
+```nginx
+server {
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+    ssl_certificate /etc/ssl/certs/netbox.crt;
+    ssl_certificate_key /etc/ssl/private/netbox.key;
+    server_name $hostname;
+    keepalive_timeout 75;
+    root /var/www/netbox;
+    access_log /var/log/nginx/netbox.access combined;
+    location /static/ {
+        alias /var/www/netbox/netbox/static/;
+    }
+    location / {
+        uwsgi_pass unix:///run/uwsgi/netbox.sock;
+        include uwsgi_params;
+    }
+}
+```
+
+Finally, test configs & start the nginx and uwsgi services:
+```no-highlight
+# uwsgi --show-config
+# nginx -t
+# service uwsgi start
+# service nginx start
+```
+
 !!! info
     Please keep in mind that the configurations provided here are bare minimums required to get NetBox up and running. You will almost certainly want to make some changes to better suit your production environment.
