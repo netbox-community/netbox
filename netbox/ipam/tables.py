@@ -161,6 +161,14 @@ class RIRTable(BaseTable):
     name = tables.LinkColumn(verbose_name='Name')
     is_private = tables.BooleanColumn(verbose_name='Private')
     aggregate_count = tables.Column(verbose_name='Aggregates')
+    actions = tables.TemplateColumn(template_code=RIR_ACTIONS, attrs={'td': {'class': 'text-right'}}, verbose_name='')
+
+    class Meta(BaseTable.Meta):
+        model = RIR
+        fields = ('pk', 'name', 'is_private', 'aggregate_count', 'actions')
+
+
+class RIRDetailTable(RIRTable):
     stats_total = tables.Column(accessor='stats.total', verbose_name='Total',
                                 footer=lambda table: sum(r.stats['total'] for r in table.data))
     stats_active = tables.Column(accessor='stats.active', verbose_name='Active',
@@ -172,12 +180,12 @@ class RIRTable(BaseTable):
     stats_available = tables.Column(accessor='stats.available', verbose_name='Available',
                                     footer=lambda table: sum(r.stats['available'] for r in table.data))
     utilization = tables.TemplateColumn(template_code=RIR_UTILIZATION, verbose_name='Utilization')
-    actions = tables.TemplateColumn(template_code=RIR_ACTIONS, attrs={'td': {'class': 'text-right'}}, verbose_name='')
 
-    class Meta(BaseTable.Meta):
-        model = RIR
-        fields = ('pk', 'name', 'is_private', 'aggregate_count', 'stats_total', 'stats_active', 'stats_reserved',
-                  'stats_deprecated', 'stats_available', 'utilization', 'actions')
+    class Meta(RIRTable.Meta):
+        fields = (
+            'pk', 'name', 'is_private', 'aggregate_count', 'stats_total', 'stats_active', 'stats_reserved',
+            'stats_deprecated', 'stats_available', 'utilization', 'actions',
+        )
 
 
 #

@@ -55,6 +55,8 @@ class SecretRoleEditView(SecretRoleCreateView):
 class SecretRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'secrets.delete_secretrole'
     cls = SecretRole
+    queryset = SecretRole.objects.annotate(secret_count=Count('secrets'))
+    table = tables.SecretRoleTable
     default_return_url = 'secrets:secretrole_list'
 
 
@@ -239,6 +241,7 @@ class SecretBulkImportView(BulkImportView):
 class SecretBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'secrets.change_secret'
     cls = Secret
+    queryset = Secret.objects.select_related('role', 'device')
     filter = filters.SecretFilter
     table = tables.SecretTable
     form = forms.SecretBulkEditForm
@@ -248,5 +251,7 @@ class SecretBulkEditView(PermissionRequiredMixin, BulkEditView):
 class SecretBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'secrets.delete_secret'
     cls = Secret
+    queryset = Secret.objects.select_related('role', 'device')
     filter = filters.SecretFilter
+    table = tables.SecretTable
     default_return_url = 'secrets:secret_list'

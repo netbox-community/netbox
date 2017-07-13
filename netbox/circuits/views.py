@@ -117,6 +117,7 @@ class CircuitTypeEditView(CircuitTypeCreateView):
 class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_circuittype'
     cls = CircuitType
+    queryset = CircuitType.objects.annotate(circuit_count=Count('circuits'))
     table = tables.CircuitTypeTable
     default_return_url = 'circuits:circuittype_list'
 
@@ -184,6 +185,7 @@ class CircuitBulkImportView(PermissionRequiredMixin, BulkImportView):
 class CircuitBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'circuits.change_circuit'
     cls = Circuit
+    queryset = Circuit.objects.select_related('provider', 'type', 'tenant').prefetch_related('terminations__site')
     filter = filters.CircuitFilter
     table = tables.CircuitTable
     form = forms.CircuitBulkEditForm
@@ -193,6 +195,7 @@ class CircuitBulkEditView(PermissionRequiredMixin, BulkEditView):
 class CircuitBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_circuit'
     cls = Circuit
+    queryset = Circuit.objects.select_related('provider', 'type', 'tenant').prefetch_related('terminations__site')
     filter = filters.CircuitFilter
     table = tables.CircuitTable
     default_return_url = 'circuits:circuit_list'

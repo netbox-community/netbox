@@ -461,6 +461,7 @@ class BulkEditView(View):
 
     cls: The model of the objects being edited
     parent_cls: The model of the parent object (if any)
+    queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
     filter: FilterSet to apply when deleting by QuerySet
     table: The table used to display devices being edited
     form: The form class used to edit objects in bulk
@@ -470,9 +471,10 @@ class BulkEditView(View):
     """
     cls = None
     parent_cls = None
+    queryset = None
     filter = None
-    form = None
     table = None
+    form = None
     template_name = 'utilities/obj_bulk_edit.html'
     default_return_url = 'home'
 
@@ -539,7 +541,9 @@ class BulkEditView(View):
             initial_data['pk'] = pk_list
             form = self.form(self.cls, initial=initial_data)
 
-        table = self.table(self.cls.objects.filter(pk__in=pk_list), orderable=False)
+        # Retrieve objects being edited
+        queryset = self.queryset or self.cls.objects.all()
+        table = self.table(queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:
             messages.warning(request, "No {} were selected.".format(self.cls._meta.verbose_name_plural))
             return redirect(return_url)
@@ -605,6 +609,7 @@ class BulkDeleteView(View):
 
     cls: The model of the objects being deleted
     parent_cls: The model of the parent object (if any)
+    queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
     filter: FilterSet to apply when deleting by QuerySet
     table: The table used to display devices being deleted
     form: The form class used to delete objects in bulk
@@ -614,6 +619,7 @@ class BulkDeleteView(View):
     """
     cls = None
     parent_cls = None
+    queryset = None
     filter = None
     table = None
     form = None
@@ -665,7 +671,9 @@ class BulkDeleteView(View):
         else:
             form = form_cls(initial={'pk': pk_list, 'return_url': return_url})
 
-        table = self.table(self.cls.objects.filter(pk__in=pk_list), orderable=False)
+        # Retrieve objects being deleted
+        queryset = self.queryset or self.cls.objects.all()
+        table = self.table(queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:
             messages.warning(request, "No {} were selected for deletion.".format(self.cls._meta.verbose_name_plural))
             return redirect(return_url)

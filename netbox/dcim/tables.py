@@ -285,19 +285,10 @@ class DeviceTypeTable(BaseTable):
     is_pdu = tables.BooleanColumn(verbose_name='PDU')
     is_network_device = tables.BooleanColumn(verbose_name='Net')
     subdevice_role = tables.TemplateColumn(SUBDEVICE_ROLE_TEMPLATE, verbose_name='Subdevice Role')
+    instance_count = tables.Column(verbose_name='Instances')
 
     class Meta(BaseTable.Meta):
         model = DeviceType
-        fields = (
-            'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
-            'is_network_device', 'subdevice_role',
-        )
-
-
-class DeviceTypeDetailTable(DeviceTypeTable):
-    instance_count = tables.Column(verbose_name='Instances')
-
-    class Meta(DeviceTypeTable.Meta):
         fields = (
             'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
             'is_network_device', 'subdevice_role', 'instance_count',
@@ -315,7 +306,6 @@ class ConsolePortTemplateTable(BaseTable):
         model = ConsolePortTemplate
         fields = ('pk', 'name')
         empty_text = "None"
-        show_header = False
 
 
 class ConsoleServerPortTemplateTable(BaseTable):
@@ -325,7 +315,6 @@ class ConsoleServerPortTemplateTable(BaseTable):
         model = ConsoleServerPortTemplate
         fields = ('pk', 'name')
         empty_text = "None"
-        show_header = False
 
 
 class PowerPortTemplateTable(BaseTable):
@@ -335,7 +324,6 @@ class PowerPortTemplateTable(BaseTable):
         model = PowerPortTemplate
         fields = ('pk', 'name')
         empty_text = "None"
-        show_header = False
 
 
 class PowerOutletTemplateTable(BaseTable):
@@ -345,7 +333,6 @@ class PowerOutletTemplateTable(BaseTable):
         model = PowerOutletTemplate
         fields = ('pk', 'name')
         empty_text = "None"
-        show_header = False
 
 
 class InterfaceTemplateTable(BaseTable):
@@ -356,7 +343,6 @@ class InterfaceTemplateTable(BaseTable):
         model = InterfaceTemplate
         fields = ('pk', 'name', 'mgmt_only', 'form_factor')
         empty_text = "None"
-        show_header = False
 
 
 class DeviceBayTemplateTable(BaseTable):
@@ -366,7 +352,6 @@ class DeviceBayTemplateTable(BaseTable):
         model = DeviceBayTemplate
         fields = ('pk', 'name')
         empty_text = "None"
-        show_header = False
 
 
 #
