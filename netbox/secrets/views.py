@@ -4,7 +4,6 @@ import base64
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.db import transaction, IntegrityError
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -241,8 +240,8 @@ class SecretBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'secrets.change_secret'
     cls = Secret
     filter = filters.SecretFilter
+    table = tables.SecretTable
     form = forms.SecretBulkEditForm
-    template_name = 'secrets/secret_bulk_edit.html'
     default_return_url = 'secrets:secret_list'
 
 

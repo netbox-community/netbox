@@ -5,9 +5,9 @@ from django_tables2.utils import Accessor
 
 from utilities.tables import BaseTable, ToggleColumn
 from .models import (
-    ConsolePort, ConsolePortTemplate, ConsoleServerPortTemplate, Device, DeviceBayTemplate, DeviceRole, DeviceType,
-    Interface, InterfaceTemplate, Manufacturer, Platform, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
-    RackGroup, RackReservation, Region, Site,
+    ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceTemplate, Manufacturer, Platform, PowerOutlet,
+    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, Region, Site,
 )
 
 
@@ -451,6 +451,52 @@ class DeviceImportTable(BaseTable):
         model = Device
         fields = ('name', 'status', 'tenant', 'site', 'rack', 'position', 'device_role', 'device_type')
         empty_text = False
+
+
+#
+# Device components
+#
+
+class ConsolePortTable(BaseTable):
+
+    class Meta(BaseTable.Meta):
+        model = ConsolePort
+        fields = ('name',)
+
+
+class ConsoleServerPortTable(BaseTable):
+
+    class Meta(BaseTable.Meta):
+        model = ConsoleServerPort
+        fields = ('name',)
+
+
+class PowerPortTable(BaseTable):
+
+    class Meta(BaseTable.Meta):
+        model = PowerPort
+        fields = ('name',)
+
+
+class PowerOutletTable(BaseTable):
+
+    class Meta(BaseTable.Meta):
+        model = PowerOutlet
+        fields = ('name',)
+
+
+class InterfaceTable(BaseTable):
+
+    class Meta(BaseTable.Meta):
+        model = Interface
+        fields = ('name', 'form_factor', 'lag', 'enabled', 'mgmt_only', 'description')
+
+
+class DeviceBayTable(BaseTable):
+
+    class Meta(BaseTable.Meta):
+        model = DeviceBay
+        fields = ('name',)
 
 
 #

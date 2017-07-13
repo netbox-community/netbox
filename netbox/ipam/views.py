@@ -143,8 +143,8 @@ class VRFBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_vrf'
     cls = VRF
     filter = filters.VRFFilter
+    table = tables.VRFTable
     form = forms.VRFBulkEditForm
-    template_name = 'ipam/vrf_bulk_edit.html'
     default_return_url = 'ipam:vrf_list'
 
 
@@ -361,8 +361,8 @@ class AggregateBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_aggregate'
     cls = Aggregate
     filter = filters.AggregateFilter
+    table = tables.AggregateTable
     form = forms.AggregateBulkEditForm
-    template_name = 'ipam/aggregate_bulk_edit.html'
     default_return_url = 'ipam:aggregate_list'
 
 
@@ -565,8 +565,8 @@ class PrefixBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_prefix'
     cls = Prefix
     filter = filters.PrefixFilter
+    table = tables.PrefixTable
     form = forms.PrefixBulkEditForm
-    template_name = 'ipam/prefix_bulk_edit.html'
     default_return_url = 'ipam:prefix_list'
 
 
@@ -670,8 +670,8 @@ class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_ipaddress'
     cls = IPAddress
     filter = filters.IPAddressFilter
+    table = tables.IPAddressTable
     form = forms.IPAddressBulkEditForm
-    template_name = 'ipam/ipaddress_bulk_edit.html'
     default_return_url = 'ipam:ipaddress_list'
 
 
@@ -772,8 +772,8 @@ class VLANBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_vlan'
     cls = VLAN
     filter = filters.VLANFilter
+    table = tables.VLANTable
     form = forms.VLANBulkEditForm
-    template_name = 'ipam/vlan_bulk_edit.html'
     default_return_url = 'ipam:vlan_list'
 
 

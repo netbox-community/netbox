@@ -114,8 +114,8 @@ class TenantBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'tenancy.change_tenant'
     cls = Tenant
     filter = filters.TenantFilter
+    table = tables.TenantTable
     form = forms.TenantBulkEditForm
-    template_name = 'tenancy/tenant_bulk_edit.html'
     default_return_url = 'tenancy:tenant_list'
 
 

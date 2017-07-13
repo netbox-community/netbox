@@ -78,8 +78,8 @@ class ProviderBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'circuits.change_provider'
     cls = Provider
     filter = filters.ProviderFilter
+    table = tables.ProviderTable
     form = forms.ProviderBulkEditForm
-    template_name = 'circuits/provider_bulk_edit.html'
     default_return_url = 'circuits:provider_list'
 
 
@@ -87,6 +87,7 @@ class ProviderBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_provider'
     cls = Provider
     filter = filters.ProviderFilter
+    table = tables.ProviderTable
     default_return_url = 'circuits:provider_list'
 
 
@@ -116,6 +117,7 @@ class CircuitTypeEditView(CircuitTypeCreateView):
 class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_circuittype'
     cls = CircuitType
+    table = tables.CircuitTypeTable
     default_return_url = 'circuits:circuittype_list'
 
 
@@ -183,8 +185,8 @@ class CircuitBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'circuits.change_circuit'
     cls = Circuit
     filter = filters.CircuitFilter
+    table = tables.CircuitTable
     form = forms.CircuitBulkEditForm
-    template_name = 'circuits/circuit_bulk_edit.html'
     default_return_url = 'circuits:circuit_list'
 
 
@@ -192,6 +194,7 @@ class CircuitBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_circuit'
     cls = Circuit
     filter = filters.CircuitFilter
+    table = tables.CircuitTable
     default_return_url = 'circuits:circuit_list'
 
 
