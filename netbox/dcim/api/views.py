@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ViewSet
 
 from django.conf import settings
+from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 
 from dcim.models import (
@@ -223,6 +224,59 @@ class DeviceViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     serializer_class = serializers.DeviceSerializer
     write_serializer_class = serializers.WritableDeviceSerializer
     filter_class = filters.DeviceFilter
+
+    @detail_route(url_path='napalm/(?P<method>get_[a-z_]+)')
+    def napalm(self, request, pk, method):
+        """
+        Execute a NAPALM method on a Device
+        """
+        device = get_object_or_404(Device, pk=pk)
+        if not device.primary_ip:
+            raise ServiceUnavailable("This device does not have a primary IP address configured.")
+        if device.platform is None:
+            raise ServiceUnavailable("No platform is configured for this device.")
+        if not device.platform.napalm_driver:
+            raise ServiceUnavailable("No NAPALM driver is configured for this device's platform ().".format(
+                device.platform
+            ))
+
+        # Check that NAPALM is installed and verify the configured driver
+        try:
+            import napalm
+            from napalm_base.exceptions import ConnectAuthError, ModuleImportError
+        except ImportError:
+            raise ServiceUnavailable("NAPALM is not installed. Please see the documentation for instructions.")
+        try:
+            driver = napalm.get_network_driver(device.platform.napalm_driver)
+        except ModuleImportError:
+            raise ServiceUnavailable("NAPALM driver for platform {} not found: {}.".format(
+                device.platform, device.platform.napalm_driver
+            ))
+
+        # Raise a 404 for invalid NAPALM methods
+        if not hasattr(driver, method):
+            raise Http404()
+
+        # Verify user permission
+        if not request.user.has_perm('dcim.napalm_read'):
+            return HttpResponseForbidden()
+
+        # Connect to the device and execute the given method
+        # TODO: Improve error handling
+        ip_address = str(device.primary_ip.address.ip)
+        d = driver(
+            hostname=ip_address,
+            username=settings.NETBOX_USERNAME,
+            password=settings.NETBOX_PASSWORD
+        )
+        try:
+            d.open()
+            response = getattr(d, method)()
+        except Exception as e:
+            raise ServiceUnavailable("Error connecting to the device: {}".format(e))
+
+        return Response(response)
+
 
     @detail_route(url_path='lldp-neighbors')
     def lldp_neighbors(self, request, pk):

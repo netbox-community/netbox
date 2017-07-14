@@ -738,7 +738,10 @@ class Platform(models.Model):
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
-    rpc_client = models.CharField(max_length=30, choices=RPC_CLIENT_CHOICES, blank=True, verbose_name='RPC client')
+    napalm_driver = models.CharField(max_length=50, blank=True, verbose_name='NAPALM driver',
+                                     help_text="The name of the NAPALM driver to use when interacting with devices.")
+    rpc_client = models.CharField(max_length=30, choices=RPC_CLIENT_CHOICES, blank=True,
+                                  verbose_name='Legacy RPC client')
 
     class Meta:
         ordering = ['name']
@@ -809,6 +812,10 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     class Meta:
         ordering = ['name']
         unique_together = ['rack', 'position', 'face']
+        permissions = (
+            ('napalm_read', 'Read-only access to devices via NAPALM'),
+            ('napalm_write', 'Read/write access to devices via NAPALM'),
+        )
 
     def __str__(self):
         return self.display_name or super(Device, self).__str__()

@@ -422,7 +422,7 @@ class PlatformSerializer(ModelValidationMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Platform
-        fields = ['id', 'name', 'slug', 'rpc_client']
+        fields = ['id', 'name', 'slug', 'napalm_driver', 'rpc_client']
 
 
 class NestedPlatformSerializer(serializers.ModelSerializer):
