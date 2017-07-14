@@ -264,7 +264,7 @@ class PrefixCSVForm(forms.ModelForm):
         required=False
     )
     status = CSVChoiceField(
-        choices=IPADDRESS_STATUS_CHOICES,
+        choices=PREFIX_STATUS_CHOICES,
         help_text='Operational status'
     )
     role = forms.ModelChoiceField(
