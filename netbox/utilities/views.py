@@ -123,7 +123,7 @@ class ObjectListView(View):
         # Construct the table based on the user's permissions
         table = self.table(self.queryset)
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
-            table.base_columns['pk'].visible = True
+            table.columns.show('pk')
 
         # Apply the request context
         paginate = {

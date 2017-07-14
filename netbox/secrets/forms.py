@@ -40,7 +40,7 @@ class SecretRoleForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = SecretRole
-        fields = ['name', 'slug']
+        fields = ['name', 'slug', 'users', 'groups']
 
 
 #

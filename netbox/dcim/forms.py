@@ -402,7 +402,9 @@ class DeviceTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     u_height = forms.IntegerField(min_value=1, required=False)
     is_full_depth = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect, label='Is full depth')
     interface_ordering = forms.ChoiceField(choices=add_blank_choice(IFACE_ORDERING_CHOICES), required=False)
-    is_console_server = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect, label='Is full depth')
+    is_console_server = forms.NullBooleanField(
+        required=False, widget=BulkEditNullBooleanSelect, label='Is a console server'
+    )
     is_pdu = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect, label='Is a PDU')
     is_network_device = forms.NullBooleanField(
         required=False, widget=BulkEditNullBooleanSelect, label='Is a network device'
