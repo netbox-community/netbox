@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from collections import OrderedDict
 
 from rest_framework.decorators import detail_route
 from rest_framework.mixins import ListModelMixin
@@ -7,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ViewSet
 
 from django.conf import settings
-from django.http import Http404, HttpResponseForbidden
+from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 
 from dcim.models import (
@@ -225,8 +226,8 @@ class DeviceViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     write_serializer_class = serializers.WritableDeviceSerializer
     filter_class = filters.DeviceFilter
 
-    @detail_route(url_path='napalm/(?P<method>get_[a-z_]+)')
-    def napalm(self, request, pk, method):
+    @detail_route(url_path='napalm')
+    def napalm(self, request, pk):
         """
         Execute a NAPALM method on a Device
         """
@@ -253,16 +254,21 @@ class DeviceViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
                 device.platform, device.platform.napalm_driver
             ))
 
-        # Raise a 404 for invalid NAPALM methods
-        if not hasattr(driver, method):
-            raise Http404()
-
         # Verify user permission
         if not request.user.has_perm('dcim.napalm_read'):
             return HttpResponseForbidden()
 
-        # Connect to the device and execute the given method
+        # Validate requested NAPALM methods
+        napalm_methods = request.GET.getlist('method')
+        for method in napalm_methods:
+            if not hasattr(driver, method):
+                return HttpResponseBadRequest("Unknown NAPALM method: {}".format(method))
+            elif not method.startswith('get_'):
+                return HttpResponseBadRequest("Unsupported NAPALM method: {}".format(method))
+
+        # Connect to the device and execute the requested methods
         # TODO: Improve error handling
+        response = OrderedDict([(m, None) for m in napalm_methods])
         ip_address = str(device.primary_ip.address.ip)
         d = driver(
             hostname=ip_address,
@@ -271,10 +277,12 @@ class DeviceViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
         )
         try:
             d.open()
-            response = getattr(d, method)()
+            for method in napalm_methods:
+                response[method] = getattr(d, method)()
         except Exception as e:
             raise ServiceUnavailable("Error connecting to the device: {}".format(e))
 
+        d.close()
         return Response(response)
 
 

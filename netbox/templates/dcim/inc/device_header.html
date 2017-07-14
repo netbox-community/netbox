@@ -45,6 +45,7 @@
 <ul class="nav nav-tabs" style="margin-bottom: 20px">
     <li role="presentation"{% if active_tab == 'info' %} class="active"{% endif %}><a href="{% url 'dcim:device' pk=device.pk %}">Info</a></li>
     <li role="presentation"{% if active_tab == 'inventory' %} class="active"{% endif %}><a href="{% url 'dcim:device_inventory' pk=device.pk %}">Inventory</a></li>
+    <li role="presentation"{% if active_tab == 'status' %} class="active"{% endif %}><a href="{% url 'dcim:device_status' pk=device.pk %}">Status</a></li>
     {% if device.status == 1 and device.platform.rpc_client and device.primary_ip %}
         <li role="presentation"{% if active_tab == 'lldp-neighbors' %} class="active"{% endif %}><a href="{% url 'dcim:device_lldp_neighbors' pk=device.pk %}">LLDP Neighbors</a></li>
     {% endif %}

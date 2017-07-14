@@ -122,6 +122,7 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/edit/$', views.DeviceEditView.as_view(), name='device_edit'),
     url(r'^devices/(?P<pk>\d+)/delete/$', views.DeviceDeleteView.as_view(), name='device_delete'),
     url(r'^devices/(?P<pk>\d+)/inventory/$', views.DeviceInventoryView.as_view(), name='device_inventory'),
+    url(r'^devices/(?P<pk>\d+)/status/$', views.DeviceStatusView.as_view(), name='device_status'),
     url(r'^devices/(?P<pk>\d+)/lldp-neighbors/$', views.DeviceLLDPNeighborsView.as_view(), name='device_lldp_neighbors'),
     url(r'^devices/(?P<pk>\d+)/add-secret/$', secret_add, name='device_addsecret'),
     url(r'^devices/(?P<device>\d+)/services/assign/$', ServiceCreateView.as_view(), name='service_assign'),

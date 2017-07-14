@@ -1,0 +1,67 @@
+{% extends '_base.html' %}
+
+{% block title %}{{ device }} - NAPALM{% endblock %}
+
+{% block content %}
+    {% include 'dcim/inc/device_header.html' with active_tab='status' %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading"><strong>Device Facts</strong></div>
+                <table class="table panel-body">
+                    <tr>
+                        <th>Hostname</th>
+                        <td id="hostname"></td>
+                    </tr>
+                    <tr>
+                        <th>FQDN</th>
+                        <td id="fqdn"></td>
+                    </tr>
+                    <tr>
+                        <th>Vendor</th>
+                        <td id="vendor"></td>
+                    </tr>
+                    <tr>
+                        <th>Model</th>
+                        <td id="model"></td>
+                    </tr>
+                    <tr>
+                        <th>Serial Number</th>
+                        <td id="serial_number"></td>
+                    </tr>
+                    <tr>
+                        <th>OS Version</th>
+                        <td id="os_version"></td>
+                    </tr>
+                    <tr>
+                        <th>Uptime</th>
+                        <td id="uptime"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $.ajax({
+        url: "{% url 'dcim-api:device-napalm' pk=device.pk %}?method=get_facts",
+        dataType: 'json',
+        success: function(json) {
+            $('#hostname').html(json['get_facts']['hostname']);
+            $('#fqdn').html(json['get_facts']['fqdn']);
+            $('#vendor').html(json['get_facts']['vendor']);
+            $('#model').html(json['get_facts']['model']);
+            $('#serial_number').html(json['get_facts']['serial_number']);
+            $('#os_version').html(json['get_facts']['os_version']);
+            $('#uptime').html(json['get_facts']['uptime']);
+        },
+        error: function(xhr) {
+            alert(xhr.responseText);
+        }
+    });
+});
+</script>
+{% endblock %}
