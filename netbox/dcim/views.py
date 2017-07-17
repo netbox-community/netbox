@@ -314,6 +314,13 @@ class RackGroupEditView(RackGroupCreateView):
     permission_required = 'dcim.change_rackgroup'
 
 
+class RackGroupBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_rackgroup'
+    model_form = forms.RackGroupCSVForm
+    table = tables.RackGroupTable
+    default_return_url = 'dcim:rackgroup_list'
+
+
 class RackGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rackgroup'
     cls = RackGroup

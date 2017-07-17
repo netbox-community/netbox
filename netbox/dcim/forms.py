@@ -190,6 +190,27 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
         fields = ['site', 'name', 'slug']
 
 
+class RackGroupCSVForm(forms.ModelForm):
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='name',
+        help_text='Name of parent site',
+        error_messages={
+            'invalid_choice': 'Site not found.',
+        }
+    )
+
+    class Meta:
+        model = RackGroup
+        fields = [
+            'site', 'name', 'slug',
+        ]
+        help_texts = {
+            'name': 'Name of rack group',
+            'slug': 'URL-friendly slug',
+        }
+
+
 class RackGroupFilterForm(BootstrapMixin, forms.Form):
     site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('rack_groups')), to_field_name='slug')
 

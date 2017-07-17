@@ -68,6 +68,7 @@
                             <li><a href="{% url 'dcim:rackgroup_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Rack Groups</a></li>
                             {% if perms.dcim.add_rackgroup %}
                                 <li><a href="{% url 'dcim:rackgroup_add' %}"><i class="fa fa-plus" aria-hidden="true"></i> Add a Rack Group</a></li>
+                                <li><a href="{% url 'dcim:rackgroup_import' %}"><i class="fa fa-download" aria-hidden="true"></i> Import Rack Groups</a></li>
                             {% endif %}
                             <li class="divider"></li>
                             <li><a href="{% url 'dcim:rackrole_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Rack Roles</a></li>

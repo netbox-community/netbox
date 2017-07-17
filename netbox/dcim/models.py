@@ -159,6 +159,10 @@ class RackGroup(models.Model):
     slug = models.SlugField()
     site = models.ForeignKey('Site', related_name='rack_groups', on_delete=models.CASCADE)
 
+    csv_headers = [
+        'site', 'name', 'slug',
+    ]
+
     class Meta:
         ordering = ['site', 'name']
         unique_together = [
@@ -171,6 +175,13 @@ class RackGroup(models.Model):
 
     def get_absolute_url(self):
         return "{}?group_id={}".format(reverse('dcim:rack_list'), self.pk)
+
+    def to_csv(self):
+        return csv_format([
+            self.site,
+            self.name,
+            self.slug,
+        ])
 
 
 @python_2_unicode_compatible

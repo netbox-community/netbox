@@ -37,7 +37,7 @@ GRAPH_TYPE_CHOICES = (
 
 # Models which support export templates
 EXPORTTEMPLATE_MODELS = [
-    'site', 'region', 'rack', 'device',                                             # DCIM
+    'site', 'region', 'rack', 'rackgroup', 'device',                                # DCIM
     'consoleport', 'powerport', 'interfaceconnection',                              # DCIM
     'aggregate', 'prefix', 'ipaddress', 'vlan',                                     # IPAM
     'provider', 'circuit',                                                          # Circuits

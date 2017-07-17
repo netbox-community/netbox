@@ -10,7 +10,12 @@
             <span class="fa fa-plus" aria-hidden="true"></span>
             Add a rack group
         </a>
+        <a href="{% url 'dcim:rackgroup_import' %}" class="btn btn-info">
+            <span class="fa fa-download" aria-hidden="true"></span>
+            Import rack groups
+        </a>
     {% endif %}
+    {% include 'inc/export_button.html' with obj_type='rackgroups' %}
 </div>
 <h1>Rack Groups</h1>
 <div class="row">
