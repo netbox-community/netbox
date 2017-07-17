@@ -423,6 +423,18 @@ class ManufacturerForm(BootstrapMixin, forms.ModelForm):
         fields = ['name', 'slug']
 
 
+class ManufacturerCSVForm(forms.ModelForm):
+    class Meta:
+        model = Manufacturer
+        fields = [
+            'name', 'slug'
+        ]
+        help_texts = {
+            'name': 'Manufacturer name',
+            'slug': 'URL-friendly slug',
+        }
+
+
 #
 # Device types
 #

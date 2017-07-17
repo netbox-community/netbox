@@ -10,7 +10,12 @@
             <span class="fa fa-plus" aria-hidden="true"></span>
             Add a manufacturer
         </a>
+        <a href="{% url 'dcim:manufacturer_import' %}" class="btn btn-info">
+            <span class="fa fa-download" aria-hidden="true"></span>
+            Import manufacturers
+        </a>
     {% endif %}
+    {% include 'inc/export_button.html' with obj_type='manufacturers' %}
 </div>
 <h1>Manufacturers</h1>
 <div class="row">

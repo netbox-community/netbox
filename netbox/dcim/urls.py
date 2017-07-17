@@ -64,6 +64,7 @@ urlpatterns = [
     # Manufacturers
     url(r'^manufacturers/$', views.ManufacturerListView.as_view(), name='manufacturer_list'),
     url(r'^manufacturers/add/$', views.ManufacturerCreateView.as_view(), name='manufacturer_add'),
+    url(r'^manufacturers/import/$', views.ManufacturerBulkImportView.as_view(), name='manufacturer_import'),
     url(r'^manufacturers/delete/$', views.ManufacturerBulkDeleteView.as_view(), name='manufacturer_bulk_delete'),
     url(r'^manufacturers/(?P<slug>[\w-]+)/edit/$', views.ManufacturerEditView.as_view(), name='manufacturer_edit'),
 

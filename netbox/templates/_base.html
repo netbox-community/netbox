@@ -105,6 +105,7 @@
                             <li><a href="{% url 'dcim:manufacturer_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Manufacturers</a></li>
                             {% if perms.dcim.add_manufacturer %}
                                 <li><a href="{% url 'dcim:manufacturer_add' %}"><i class="fa fa-plus" aria-hidden="true"></i> Add a Manufacturer</a></li>
+                                <li><a href="{% url 'dcim:manufacturer_import' %}"><i class="fa fa-download" aria-hidden="true"></i> Import Manufacturers</a></li>
                             {% endif %}
                             {% if perms.dcim.add_manufacturer or perms.dcim.add_platform %}
                                 <li class="divider"></li>

@@ -455,6 +455,10 @@ class Manufacturer(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
 
+    csv_headers = [
+        'name', 'slug',
+    ]
+
     class Meta:
         ordering = ['name']
 
@@ -463,6 +467,12 @@ class Manufacturer(models.Model):
 
     def get_absolute_url(self):
         return "{}?manufacturer={}".format(reverse('dcim:devicetype_list'), self.slug)
+
+    def to_csv(self):
+        return csv_format([
+            self.name,
+            self.slug,
+        ])
 
 
 @python_2_unicode_compatible

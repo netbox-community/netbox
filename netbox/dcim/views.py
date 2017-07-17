@@ -561,6 +561,13 @@ class ManufacturerEditView(ManufacturerCreateView):
     permission_required = 'dcim.change_manufacturer'
 
 
+class ManufacturerBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_manufacturer'
+    model_form = forms.ManufacturerCSVForm
+    table = tables.ManufacturerTable
+    default_return_url = 'dcim:manufacturer_list'
+
+
 class ManufacturerBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_manufacturer'
     cls = Manufacturer
