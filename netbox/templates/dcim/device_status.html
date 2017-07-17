@@ -1,8 +1,10 @@
 {% extends '_base.html' %}
+{% load staticfiles %}
 
 {% block title %}{{ device }} - NAPALM{% endblock %}
 
 {% block content %}
+    {% include 'inc/ajax_loader.html' %}
     {% include 'dcim/inc/device_header.html' with active_tab='status' %}
     <div class="row">
         <div class="col-md-6">
@@ -47,7 +49,7 @@
 <script type="text/javascript">
 $(document).ready(function() {
     $.ajax({
-        url: "{% url 'dcim-api:device-napalm' pk=device.pk %}?method=get_facts",
+        url: "{% url 'dcim-api:device-napalm' pk=device.pk %}?method=get_facts&method=get_environment",
         dataType: 'json',
         success: function(json) {
             $('#hostname').html(json['get_facts']['hostname']);

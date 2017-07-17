@@ -926,19 +926,9 @@ class DeviceStatusView(View):
     def get(self, request, pk):
 
         device = get_object_or_404(Device, pk=pk)
-        method = request.GET.get('method', 'get_facts')
-
-        interfaces = Interface.objects.order_naturally(
-            device.device_type.interface_ordering
-        ).filter(
-            device=device
-        ).select_related(
-            'connected_as_a', 'connected_as_b'
-        )
 
         return render(request, 'dcim/device_status.html', {
             'device': device,
-            'interfaces': interfaces,
         })
 
 
