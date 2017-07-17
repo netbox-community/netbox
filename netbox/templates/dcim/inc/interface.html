@@ -118,7 +118,7 @@
         {% if selectable and perms.dcim.change_interface or perms.dcim.delete_interface %}
             <td></td>
         {% endif %}
-        <td colspan="2">
+        <td colspan="3">
             <a href="{% url 'ipam:ipaddress' pk=ip.pk %}">{{ ip }}</a>
             {% if ip.description %}
                 <i class="fa fa-fw fa-comment-o" title="{{ ip.description }}"></i>
