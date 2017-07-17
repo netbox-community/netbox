@@ -40,6 +40,7 @@
                             <li><a href="{% url 'dcim:region_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Regions</a></li>
                             {% if perms.dcim.add_region %}
                                 <li><a href="{% url 'dcim:region_add' %}"><i class="fa fa-plus" aria-hidden="true"></i> Add a Region</a></li>
+                                <li><a href="{% url 'dcim:region_import' %}"><i class="fa fa-download" aria-hidden="true"></i> Import Regions</a></li>
                             {% endif %}
                             <li class="divider"></li>
                             <li><a href="{% url 'tenancy:tenant_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Tenants</a></li>

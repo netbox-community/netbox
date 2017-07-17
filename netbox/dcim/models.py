@@ -43,6 +43,10 @@ class Region(MPTTModel):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
 
+    csv_headers = [
+        'name', 'slug', 'parent',
+    ]
+
     class MPTTMeta:
         order_insertion_by = ['name']
 
@@ -51,6 +55,13 @@ class Region(MPTTModel):
 
     def get_absolute_url(self):
         return "{}?region={}".format(reverse('dcim:site_list'), self.slug)
+
+    def to_csv(self):
+        return csv_format([
+            self.name,
+            self.slug,
+            self.parent.name if self.parent else None,
+        ])
 
 
 #

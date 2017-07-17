@@ -15,6 +15,7 @@ urlpatterns = [
     # Regions
     url(r'^regions/$', views.RegionListView.as_view(), name='region_list'),
     url(r'^regions/add/$', views.RegionCreateView.as_view(), name='region_add'),
+    url(r'^regions/import/$', views.RegionBulkImportView.as_view(), name='region_import'),
     url(r'^regions/delete/$', views.RegionBulkDeleteView.as_view(), name='region_bulk_delete'),
     url(r'^regions/(?P<pk>\d+)/edit/$', views.RegionEditView.as_view(), name='region_edit'),
 

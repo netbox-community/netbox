@@ -202,6 +202,13 @@ class RegionEditView(RegionCreateView):
     permission_required = 'dcim.change_region'
 
 
+class RegionBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_region'
+    model_form = forms.RegionCSVForm
+    table = tables.RegionTable
+    default_return_url = 'dcim:region_list'
+
+
 class RegionBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_region'
     cls = Region

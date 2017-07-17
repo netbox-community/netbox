@@ -70,6 +70,28 @@ class RegionForm(BootstrapMixin, forms.ModelForm):
         fields = ['parent', 'name', 'slug']
 
 
+class RegionCSVForm(forms.ModelForm):
+    parent = forms.ModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of parent region',
+        error_messages={
+            'invalid_choice': 'Region not found.',
+        }
+    )
+
+    class Meta:
+        model = Region
+        fields = [
+            'name', 'slug', 'parent',
+        ]
+        help_texts = {
+            'name': 'Region name',
+            'slug': 'URL-friendly slug',
+        }
+
+
 #
 # Sites
 #
