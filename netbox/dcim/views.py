@@ -921,7 +921,8 @@ class DeviceInventoryView(View):
         })
 
 
-class DeviceStatusView(View):
+class DeviceStatusView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.napalm_read'
 
     def get(self, request, pk):
 
@@ -932,7 +933,8 @@ class DeviceStatusView(View):
         })
 
 
-class DeviceLLDPNeighborsView(View):
+class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.napalm_read'
 
     def get(self, request, pk):
 
@@ -948,6 +950,18 @@ class DeviceLLDPNeighborsView(View):
         return render(request, 'dcim/device_lldp_neighbors.html', {
             'device': device,
             'interfaces': interfaces,
+        })
+
+
+class DeviceConfigView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.napalm_read'
+
+    def get(self, request, pk):
+
+        device = get_object_or_404(Device, pk=pk)
+
+        return render(request, 'dcim/device_config.html', {
+            'device': device,
         })
 
 
