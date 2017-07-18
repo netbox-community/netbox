@@ -93,6 +93,7 @@
                             <li><a href="{% url 'dcim:devicetype_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Device Types</a></li>
                             {% if perms.dcim.add_devicetype %}
                                 <li><a href="{% url 'dcim:devicetype_add' %}"><i class="fa fa-plus" aria-hidden="true"></i> Add a Device Type</a></li>
+                                <li><a href="{% url 'dcim:devicetype_import' %}"><i class="fa fa-download" aria-hidden="true"></i> Import Device Types</a></li>
                             {% endif %}
                             <li class="divider"></li>
                             <li><a href="{% url 'dcim:devicerole_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Device Roles</a></li>

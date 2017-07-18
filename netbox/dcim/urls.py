@@ -71,6 +71,7 @@ urlpatterns = [
     # Device types
     url(r'^device-types/$', views.DeviceTypeListView.as_view(), name='devicetype_list'),
     url(r'^device-types/add/$', views.DeviceTypeCreateView.as_view(), name='devicetype_add'),
+    url(r'^device-types/import/$', views.DeviceTypeBulkImportView.as_view(), name='devicetype_import'),
     url(r'^device-types/edit/$', views.DeviceTypeBulkEditView.as_view(), name='devicetype_bulk_edit'),
     url(r'^device-types/delete/$', views.DeviceTypeBulkDeleteView.as_view(), name='devicetype_bulk_delete'),
     url(r'^device-types/(?P<pk>\d+)/$', views.DeviceTypeView.as_view(), name='devicetype'),

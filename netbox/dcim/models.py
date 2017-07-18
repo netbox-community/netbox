@@ -513,6 +513,11 @@ class DeviceType(models.Model, CustomFieldModel):
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
+    csv_headers = [
+        'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
+        'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering',
+    ]
+
     class Meta:
         ordering = ['manufacturer', 'model']
         unique_together = [
@@ -531,6 +536,21 @@ class DeviceType(models.Model, CustomFieldModel):
 
     def get_absolute_url(self):
         return reverse('dcim:devicetype', args=[self.pk])
+
+    def to_csv(self):
+        return csv_format([
+            self.manufacturer.name,
+            self.model,
+            self.slug,
+            self.part_number,
+            self.u_height,
+            self.is_full_depth,
+            self.is_console_server,
+            self.is_pdu,
+            self.is_network_device,
+            self.get_subdevice_role_display() if self.subdevice_role else None,
+            self.get_interface_ordering_display(),
+        ])
 
     def clean(self):
 

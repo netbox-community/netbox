@@ -658,6 +658,13 @@ class DeviceTypeDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'dcim:devicetype_list'
 
 
+class DeviceTypeBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_devicetype'
+    model_form = forms.DeviceTypeCSVForm
+    table = tables.DeviceTypeTable
+    default_return_url = 'dcim:devicetype_list'
+
+
 class DeviceTypeBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_devicetype'
     cls = DeviceType
