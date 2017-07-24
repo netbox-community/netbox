@@ -46,7 +46,7 @@ class Command(BaseCommand):
             for name in dir(app_models):
                 model = getattr(app_models, name)
                 try:
-                    if issubclass(model, Model):
+                    if issubclass(model, Model) and model._meta.app_label == app:
                         namespace[name] = model
                         self.django_models[app].append(name)
                 except TypeError:
