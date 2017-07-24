@@ -23,6 +23,8 @@ pages:
         - 'Authentication': 'api/authentication.md'
         - 'Working with Secrets': 'api/working-with-secrets.md'
         - 'Examples': 'api/examples.md'
+    - 'Shell':
+        - 'Introduction': 'shell/intro.md'
 
 markdown_extensions:
     - admonition:
