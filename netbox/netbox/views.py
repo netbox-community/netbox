@@ -11,20 +11,20 @@ from django.views.generic import View
 
 from circuits.filters import CircuitFilter, ProviderFilter
 from circuits.models import Circuit, Provider
-from circuits.tables import CircuitSearchTable, ProviderSearchTable
+from circuits.tables import CircuitTable, ProviderTable
 from dcim.filters import DeviceFilter, DeviceTypeFilter, RackFilter, SiteFilter
 from dcim.models import ConsolePort, Device, DeviceType, InterfaceConnection, PowerPort, Rack, Site
-from dcim.tables import DeviceSearchTable, DeviceTypeSearchTable, RackSearchTable, SiteSearchTable
+from dcim.tables import DeviceTable, DeviceTypeTable, RackTable, SiteTable
 from extras.models import TopologyMap, UserAction
 from ipam.filters import AggregateFilter, IPAddressFilter, PrefixFilter, VLANFilter, VRFFilter
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
-from ipam.tables import AggregateSearchTable, IPAddressSearchTable, PrefixSearchTable, VLANSearchTable, VRFSearchTable
+from ipam.tables import AggregateTable, IPAddressTable, PrefixTable, VLANTable, VRFTable
 from secrets.filters import SecretFilter
 from secrets.models import Secret
-from secrets.tables import SecretSearchTable
+from secrets.tables import SecretTable
 from tenancy.filters import TenantFilter
 from tenancy.models import Tenant
-from tenancy.tables import TenantSearchTable
+from tenancy.tables import TenantTable
 from .forms import SearchForm
 
 
@@ -34,83 +34,85 @@ SEARCH_TYPES = OrderedDict((
     ('provider', {
         'queryset': Provider.objects.all(),
         'filter': ProviderFilter,
-        'table': ProviderSearchTable,
+        'table': ProviderTable,
         'url': 'circuits:provider_list',
     }),
     ('circuit', {
         'queryset': Circuit.objects.select_related('type', 'provider', 'tenant').prefetch_related('terminations__site'),
         'filter': CircuitFilter,
-        'table': CircuitSearchTable,
+        'table': CircuitTable,
         'url': 'circuits:circuit_list',
     }),
     # DCIM
     ('site', {
         'queryset': Site.objects.select_related('region', 'tenant'),
         'filter': SiteFilter,
-        'table': SiteSearchTable,
+        'table': SiteTable,
         'url': 'dcim:site_list',
     }),
     ('rack', {
         'queryset': Rack.objects.select_related('site', 'group', 'tenant', 'role'),
         'filter': RackFilter,
-        'table': RackSearchTable,
+        'table': RackTable,
         'url': 'dcim:rack_list',
     }),
     ('devicetype', {
         'queryset': DeviceType.objects.select_related('manufacturer'),
         'filter': DeviceTypeFilter,
-        'table': DeviceTypeSearchTable,
+        'table': DeviceTypeTable,
         'url': 'dcim:devicetype_list',
     }),
     ('device', {
-        'queryset': Device.objects.select_related('device_type__manufacturer', 'device_role', 'tenant', 'site', 'rack'),
+        'queryset': Device.objects.select_related(
+            'device_type__manufacturer', 'device_role', 'tenant', 'site', 'rack'
+        ),
         'filter': DeviceFilter,
-        'table': DeviceSearchTable,
+        'table': DeviceTable,
         'url': 'dcim:device_list',
     }),
     # IPAM
     ('vrf', {
         'queryset': VRF.objects.select_related('tenant'),
         'filter': VRFFilter,
-        'table': VRFSearchTable,
+        'table': VRFTable,
         'url': 'ipam:vrf_list',
     }),
     ('aggregate', {
         'queryset': Aggregate.objects.select_related('rir'),
         'filter': AggregateFilter,
-        'table': AggregateSearchTable,
+        'table': AggregateTable,
         'url': 'ipam:aggregate_list',
     }),
     ('prefix', {
         'queryset': Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role'),
         'filter': PrefixFilter,
-        'table': PrefixSearchTable,
+        'table': PrefixTable,
         'url': 'ipam:prefix_list',
     }),
     ('ipaddress', {
         'queryset': IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device'),
         'filter': IPAddressFilter,
-        'table': IPAddressSearchTable,
+        'table': IPAddressTable,
         'url': 'ipam:ipaddress_list',
     }),
     ('vlan', {
         'queryset': VLAN.objects.select_related('site', 'group', 'tenant', 'role'),
         'filter': VLANFilter,
-        'table': VLANSearchTable,
+        'table': VLANTable,
         'url': 'ipam:vlan_list',
     }),
     # Secrets
     ('secret', {
         'queryset': Secret.objects.select_related('role', 'device'),
         'filter': SecretFilter,
-        'table': SecretSearchTable,
+        'table': SecretTable,
         'url': 'secrets:secret_list',
     }),
     # Tenancy
     ('tenant', {
         'queryset': Tenant.objects.select_related('group'),
         'filter': TenantFilter,
-        'table': TenantSearchTable,
+        'table': TenantTable,
         'url': 'tenancy:tenant_list',
     }),
 ))
@@ -189,7 +191,7 @@ class SearchView(View):
 
                 # Construct the results table for this object type
                 filtered_queryset = filter_cls({'q': form.cleaned_data['q']}, queryset=queryset).qs
-                table = table(filtered_queryset)
+                table = table(filtered_queryset, orderable=False)
                 table.paginate(per_page=SEARCH_MAX_RESULTS)
 
                 if table.page:

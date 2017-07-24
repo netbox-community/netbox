@@ -510,7 +510,7 @@ class ConfirmationForm(BootstrapMixin, ReturnURLForm):
     """
     A generic confirmation form. The form is not valid unless the confirm field is checked.
     """
-    confirm = forms.BooleanField(required=True)
+    confirm = forms.BooleanField(required=True, widget=forms.HiddenInput(), initial=True)
 
 
 class BulkEditForm(forms.Form):

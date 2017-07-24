@@ -11,8 +11,8 @@ from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
 from .models import (
-    Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, Service, VLAN,
-    VLAN_STATUS_CHOICES, VLANGroup, VRF,
+    Aggregate, IPAddress, IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role,
+    Service, VLAN, VLAN_STATUS_CHOICES, VLANGroup, VRF,
 )
 
 
@@ -23,7 +23,6 @@ class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Search',
     )
     tenant_id = NullableModelMultipleChoiceFilter(
-        name='tenant',
         queryset=Tenant.objects.all(),
         label='Tenant (ID)',
     )
@@ -45,7 +44,7 @@ class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = VRF
-        fields = ['name', 'rd']
+        fields = ['name', 'rd', 'enforce_unique']
 
 
 class RIRFilter(django_filters.FilterSet):
@@ -53,7 +52,7 @@ class RIRFilter(django_filters.FilterSet):
 
     class Meta:
         model = RIR
-        fields = ['is_private']
+        fields = ['name', 'slug', 'is_private']
 
 
 class AggregateFilter(CustomFieldFilterSet, django_filters.FilterSet):
@@ -63,7 +62,6 @@ class AggregateFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Search',
     )
     rir_id = django_filters.ModelMultipleChoiceFilter(
-        name='rir',
         queryset=RIR.objects.all(),
         label='RIR (ID)',
     )
@@ -90,6 +88,13 @@ class AggregateFilter(CustomFieldFilterSet, django_filters.FilterSet):
         return queryset.filter(qs_filter)
 
 
+class RoleFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = Role
+        fields = ['name', 'slug']
+
+
 class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
     id__in = NumericInFilter(name='id', lookup_expr='in')
     q = django_filters.CharFilter(
@@ -105,7 +110,6 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Mask length',
     )
     vrf_id = NullableModelMultipleChoiceFilter(
-        name='vrf_id',
         queryset=VRF.objects.all(),
         label='VRF',
     )
@@ -116,7 +120,6 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='VRF (RD)',
     )
     tenant_id = NullableModelMultipleChoiceFilter(
-        name='tenant',
         queryset=Tenant.objects.all(),
         label='Tenant (ID)',
     )
@@ -127,7 +130,6 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Tenant (slug)',
     )
     site_id = NullableModelMultipleChoiceFilter(
-        name='site',
         queryset=Site.objects.all(),
         label='Site (ID)',
     )
@@ -138,7 +140,6 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Site (slug)',
     )
     vlan_id = NullableModelMultipleChoiceFilter(
-        name='vlan',
         queryset=VLAN.objects.all(),
         label='VLAN (ID)',
     )
@@ -147,7 +148,6 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='VLAN number (1-4095)',
     )
     role_id = NullableModelMultipleChoiceFilter(
-        name='role',
         queryset=Role.objects.all(),
         label='Role (ID)',
     )
@@ -163,7 +163,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Prefix
-        fields = ['family']
+        fields = ['family', 'is_pool']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -207,7 +207,6 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Mask length',
     )
     vrf_id = NullableModelMultipleChoiceFilter(
-        name='vrf_id',
         queryset=VRF.objects.all(),
         label='VRF',
     )
@@ -218,7 +217,6 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='VRF (RD)',
     )
     tenant_id = NullableModelMultipleChoiceFilter(
-        name='tenant',
         queryset=Tenant.objects.all(),
         label='Tenant (ID)',
     )
@@ -240,12 +238,14 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Device (name)',
     )
     interface_id = django_filters.ModelMultipleChoiceFilter(
-        name='interface',
         queryset=Interface.objects.all(),
         label='Interface (ID)',
     )
     status = django_filters.MultipleChoiceFilter(
         choices=IPADDRESS_STATUS_CHOICES
+    )
+    role = django_filters.MultipleChoiceFilter(
+        choices=IPADDRESS_ROLE_CHOICES
     )
 
     class Meta:
@@ -281,7 +281,6 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
 class VLANGroupFilter(django_filters.FilterSet):
     site_id = NullableModelMultipleChoiceFilter(
-        name='site',
         queryset=Site.objects.all(),
         label='Site (ID)',
     )
@@ -294,7 +293,7 @@ class VLANGroupFilter(django_filters.FilterSet):
 
     class Meta:
         model = VLANGroup
-        fields = ['name']
+        fields = ['name', 'slug']
 
 
 class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
@@ -304,7 +303,6 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Search',
     )
     site_id = NullableModelMultipleChoiceFilter(
-        name='site',
         queryset=Site.objects.all(),
         label='Site (ID)',
     )
@@ -315,7 +313,6 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Site (slug)',
     )
     group_id = NullableModelMultipleChoiceFilter(
-        name='group',
         queryset=VLANGroup.objects.all(),
         label='Group (ID)',
     )
@@ -326,7 +323,6 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Group',
     )
     tenant_id = NullableModelMultipleChoiceFilter(
-        name='tenant',
         queryset=Tenant.objects.all(),
         label='Tenant (ID)',
     )
@@ -337,7 +333,6 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Tenant (slug)',
     )
     role_id = NullableModelMultipleChoiceFilter(
-        name='role',
         queryset=Role.objects.all(),
         label='Role (ID)',
     )
@@ -353,7 +348,7 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = VLAN
-        fields = ['name', 'vid']
+        fields = ['vid', 'name']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -368,7 +363,6 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
 class ServiceFilter(django_filters.FilterSet):
     device_id = django_filters.ModelMultipleChoiceFilter(
-        name='device',
         queryset=Device.objects.all(),
         label='Device (ID)',
     )

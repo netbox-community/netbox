@@ -13,7 +13,7 @@ except ImportError:
     )
 
 
-VERSION = '2.0.11-dev'
+VERSION = '2.1.0-dev'
 
 # Import required configuration parameters
 ALLOWED_HOSTS = DATABASE = SECRET_KEY = None

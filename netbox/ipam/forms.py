@@ -14,8 +14,8 @@ from utilities.forms import (
     add_blank_choice,
 )
 from .models import (
-    Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role, Service, VLAN,
-    VLANGroup, VLAN_STATUS_CHOICES, VRF,
+    Aggregate, IPAddress, IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role,
+    Service, VLAN, VLANGroup, VLAN_STATUS_CHOICES, VRF,
 )
 
 
@@ -217,7 +217,7 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
         # Initialize helper selectors
         instance = kwargs.get('instance')
-        initial = kwargs.get('initial', {})
+        initial = kwargs.get('initial', {}).copy()
         if instance and instance.vlan is not None:
             initial['vlan_group'] = instance.vlan.group
         kwargs['initial'] = initial
@@ -484,7 +484,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'status', 'description', 'interface', 'primary_for_device', 'nat_site', 'nat_rack',
+            'address', 'vrf', 'status', 'role', 'description', 'interface', 'primary_for_device', 'nat_site', 'nat_rack',
             'nat_inside', 'tenant_group', 'tenant',
         ]
 
@@ -492,7 +492,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
 
         # Initialize helper selectors
         instance = kwargs.get('instance')
-        initial = kwargs.get('initial', {})
+        initial = kwargs.get('initial', {}).copy()
         if instance and instance.interface is not None:
             initial['interface_site'] = instance.interface.device.site
             initial['interface_rack'] = instance.interface.device.rack
@@ -562,7 +562,7 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
     class Meta:
         model = IPAddress
-        fields = ['address', 'status', 'vrf', 'description', 'tenant_group', 'tenant']
+        fields = ['address', 'vrf', 'status', 'role', 'description', 'tenant_group', 'tenant']
 
     def __init__(self, *args, **kwargs):
         super(IPAddressBulkAddForm, self).__init__(*args, **kwargs)
@@ -592,6 +592,11 @@ class IPAddressCSVForm(forms.ModelForm):
         choices=IPADDRESS_STATUS_CHOICES,
         help_text='Operational status'
     )
+    role = CSVChoiceField(
+        choices=IPADDRESS_ROLE_CHOICES,
+        required=False,
+        help_text='Functional role'
+    )
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         required=False,
@@ -612,7 +617,7 @@ class IPAddressCSVForm(forms.ModelForm):
 
     class Meta:
         model = IPAddress
-        fields = ['address', 'vrf', 'tenant', 'status', 'device', 'interface_name', 'is_primary', 'description']
+        fields = ['address', 'vrf', 'tenant', 'status', 'role', 'device', 'interface_name', 'is_primary', 'description']
 
     def clean(self):
 
@@ -665,10 +670,11 @@ class IPAddressBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF')
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     status = forms.ChoiceField(choices=add_blank_choice(IPADDRESS_STATUS_CHOICES), required=False)
+    role = forms.ChoiceField(choices=add_blank_choice(IPADDRESS_ROLE_CHOICES), required=False)
     description = forms.CharField(max_length=100, required=False)
 
     class Meta:
-        nullable_fields = ['vrf', 'tenant', 'description']
+        nullable_fields = ['vrf', 'role', 'tenant', 'description']
 
 
 def ipaddress_status_choices():
@@ -676,6 +682,13 @@ def ipaddress_status_choices():
     for status in IPAddress.objects.values('status').annotate(count=Count('status')).order_by('status'):
         status_counts[status['status']] = status['count']
     return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in IPADDRESS_STATUS_CHOICES]
+
+
+def ipaddress_role_choices():
+    role_counts = {}
+    for role in IPAddress.objects.values('role').annotate(count=Count('role')).order_by('role'):
+        role_counts[role['role']] = role['count']
+    return [(r[0], '{} ({})'.format(r[1], role_counts.get(r[0], 0))) for r in IPADDRESS_ROLE_CHOICES]
 
 
 class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -698,6 +711,7 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
         null_option=(0, 'None')
     )
     status = forms.MultipleChoiceField(choices=ipaddress_status_choices, required=False)
+    role = forms.MultipleChoiceField(choices=ipaddress_role_choices, required=False)
 
 
 #

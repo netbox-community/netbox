@@ -18,19 +18,8 @@ class BaseTable(tables.Table):
 
     class Meta:
         attrs = {
-            'class': 'table table-hover',
-        }
-
-
-class SearchTable(tables.Table):
-    """
-    Default table for search results
-    """
-    class Meta:
-        attrs = {
             'class': 'table table-hover table-headings',
         }
-        orderable = False
 
 
 class ToggleColumn(tables.CheckBoxColumn):

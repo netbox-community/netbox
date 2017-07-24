@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import django_tables2 as tables
 
-from utilities.tables import BaseTable, SearchTable, ToggleColumn
+from utilities.tables import BaseTable, ToggleColumn
 
 from .models import SecretRole, Secret
 
@@ -43,11 +43,3 @@ class SecretTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Secret
         fields = ('pk', 'device', 'role', 'name', 'last_updated')
-
-
-class SecretSearchTable(SearchTable):
-    device = tables.LinkColumn()
-
-    class Meta(SearchTable.Meta):
-        model = Secret
-        fields = ('device', 'role', 'name', 'last_updated')

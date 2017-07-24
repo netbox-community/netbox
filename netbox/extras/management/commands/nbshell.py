@@ -37,18 +37,28 @@ class Command(BaseCommand):
     def get_namespace(self):
         namespace = {}
 
-        # Gather Django models from each app
+        # Gather Django models and constants from each app
         for app in APPS:
             self.django_models[app] = []
+
+            # Models
             app_models = sys.modules['{}.models'.format(app)]
             for name in dir(app_models):
                 model = getattr(app_models, name)
                 try:
-                    if issubclass(model, Model):
+                    if issubclass(model, Model) and model._meta.app_label == app:
                         namespace[name] = model
                         self.django_models[app].append(name)
                 except TypeError:
                     pass
+
+            # Constants
+            try:
+                app_constants = sys.modules['{}.constants'.format(app)]
+                for name in dir(app_constants):
+                    namespace[name] = getattr(app_constants, name)
+            except KeyError:
+                pass
 
         # Load convenience commands
         namespace.update({

@@ -10,14 +10,7 @@ from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
 from utilities.utils import csv_format
 from utilities.models import CreatedUpdatedModel
-
-
-TERM_SIDE_A = 'A'
-TERM_SIDE_Z = 'Z'
-TERM_SIDE_CHOICES = (
-    (TERM_SIDE_A, 'A'),
-    (TERM_SIDE_Z, 'Z'),
-)
+from .constants import *
 
 
 def humanize_speed(speed):

@@ -3,8 +3,8 @@ from __future__ import unicode_literals
 from rest_framework.viewsets import ModelViewSet
 
 from extras.api.views import CustomFieldModelViewSet
+from tenancy import filters
 from tenancy.models import Tenant, TenantGroup
-from tenancy.filters import TenantFilter
 from utilities.api import WritableSerializerMixin
 from . import serializers
 
@@ -16,6 +16,7 @@ from . import serializers
 class TenantGroupViewSet(ModelViewSet):
     queryset = TenantGroup.objects.all()
     serializer_class = serializers.TenantGroupSerializer
+    filter_class = filters.TenantGroupFilter
 
 
 #
@@ -26,4 +27,4 @@ class TenantViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = Tenant.objects.select_related('group')
     serializer_class = serializers.TenantSerializer
     write_serializer_class = serializers.WritableTenantSerializer
-    filter_class = TenantFilter
+    filter_class = filters.TenantFilter

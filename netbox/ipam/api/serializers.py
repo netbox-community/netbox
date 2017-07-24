@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from collections import OrderedDict
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
@@ -6,11 +7,11 @@ from rest_framework.validators import UniqueTogetherValidator
 from dcim.api.serializers import NestedDeviceSerializer, InterfaceSerializer, NestedSiteSerializer
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.models import (
-    Aggregate, IPAddress, IPADDRESS_STATUS_CHOICES, IP_PROTOCOL_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role,
-    Service, VLAN, VLAN_STATUS_CHOICES, VLANGroup, VRF,
+    Aggregate, IPAddress, IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, IP_PROTOCOL_CHOICES, Prefix,
+    PREFIX_STATUS_CHOICES, RIR, Role, Service, VLAN, VLAN_STATUS_CHOICES, VLANGroup, VRF,
 )
 from tenancy.api.serializers import NestedTenantSerializer
-from utilities.api import ChoiceFieldSerializer
+from utilities.api import ChoiceFieldSerializer, ModelValidationMixin
 
 
 #
@@ -22,7 +23,7 @@ class VRFSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = VRF
-        fields = ['id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'custom_fields']
+        fields = ['id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'display_name', 'custom_fields']
 
 
 class NestedVRFSerializer(serializers.ModelSerializer):
@@ -44,7 +45,7 @@ class WritableVRFSerializer(CustomFieldModelSerializer):
 # Roles
 #
 
-class RoleSerializer(serializers.ModelSerializer):
+class RoleSerializer(ModelValidationMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Role
@@ -63,7 +64,7 @@ class NestedRoleSerializer(serializers.ModelSerializer):
 # RIRs
 #
 
-class RIRSerializer(serializers.ModelSerializer):
+class RIRSerializer(ModelValidationMixin, serializers.ModelSerializer):
 
     class Meta:
         model = RIR
@@ -141,6 +142,9 @@ class WritableVLANGroupSerializer(serializers.ModelSerializer):
                 validator.set_context(self)
                 validator(data)
 
+        # Enforce model validation
+        super(WritableVLANGroupSerializer, self).validate(data)
+
         return data
 
 
@@ -186,6 +190,9 @@ class WritableVLANSerializer(CustomFieldModelSerializer):
                 validator = UniqueTogetherValidator(queryset=VLAN.objects.all(), fields=('group', field))
                 validator.set_context(self)
                 validator(data)
+
+        # Enforce model validation
+        super(WritableVLANSerializer, self).validate(data)
 
         return data
 
@@ -236,12 +243,13 @@ class IPAddressSerializer(CustomFieldModelSerializer):
     vrf = NestedVRFSerializer()
     tenant = NestedTenantSerializer()
     status = ChoiceFieldSerializer(choices=IPADDRESS_STATUS_CHOICES)
+    role = ChoiceFieldSerializer(choices=IPADDRESS_ROLE_CHOICES)
     interface = InterfaceSerializer()
 
     class Meta:
         model = IPAddress
         fields = [
-            'id', 'family', 'address', 'vrf', 'tenant', 'status', 'interface', 'description', 'nat_inside',
+            'id', 'family', 'address', 'vrf', 'tenant', 'status', 'role', 'interface', 'description', 'nat_inside',
             'nat_outside', 'custom_fields',
         ]
 
@@ -261,7 +269,24 @@ class WritableIPAddressSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = IPAddress
-        fields = ['id', 'address', 'vrf', 'tenant', 'status', 'interface', 'description', 'nat_inside', 'custom_fields']
+        fields = [
+            'id', 'address', 'vrf', 'tenant', 'status', 'role', 'interface', 'description', 'nat_inside',
+            'custom_fields',
+        ]
+
+
+class AvailableIPSerializer(serializers.Serializer):
+
+    def to_representation(self, instance):
+        if self.context.get('vrf'):
+            vrf = NestedVRFSerializer(self.context['vrf'], context={'request': self.context['request']}).data
+        else:
+            vrf = None
+        return OrderedDict([
+            ('family', self.context['prefix'].version),
+            ('address', '{}/{}'.format(instance, self.context['prefix'].prefixlen)),
+            ('vrf', vrf),
+        ])
 
 
 #
@@ -278,6 +303,7 @@ class ServiceSerializer(serializers.ModelSerializer):
         fields = ['id', 'device', 'name', 'port', 'protocol', 'ipaddresses', 'description']
 
 
+# TODO: Figure out how to use ModelValidationMixin with ManyToManyFields. Calling clean() yields a ValueError.
 class WritableServiceSerializer(serializers.ModelSerializer):
 
     class Meta:

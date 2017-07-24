@@ -1,8 +1,9 @@
 {% extends '_base.html' %}
+{% load helpers %}
 {% load form_helpers %}
 
 {% block content %}
-<h1>{% block title %}{% endblock %}</h1>
+<h1>{% block title %}Editing {{ table.rows|length }} {{ obj_type_plural|bettertitle }}{% endblock %}</h1>
 <form action="." method="post" class="form form-horizontal">
     {% csrf_token %}
     {% if request.POST.return_url %}
@@ -12,15 +13,12 @@
         {{ field }}
     {% endfor %}
     <div class="row">
-        <div class="col-md-7">
+        <div class="col-md-8">
             <div class="panel panel-default">
-                <div class="panel-heading"><strong>{% block selected_objects_title %}{{ selected_objects|length }} Selected For Editing{% endblock %}</strong></div>
-                <table class="panel-body table table-hover">
-                    {% block selected_objects_table %}{% endblock %}
-                </table>
+                {% include 'inc/table.html' %}
             </div>
         </div>
-        <div class="col-md-5">
+        <div class="col-md-4">
             {% if form.non_field_errors %}
                 <div class="panel panel-danger">
                     <div class="panel-heading"><strong>Errors</strong></div>

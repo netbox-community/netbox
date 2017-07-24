@@ -43,6 +43,7 @@ class ProviderViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 class CircuitTypeViewSet(ModelViewSet):
     queryset = CircuitType.objects.all()
     serializer_class = serializers.CircuitTypeSerializer
+    filter_class = filters.CircuitTypeFilter
 
 
 #
