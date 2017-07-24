@@ -60,7 +60,6 @@ class Command(BaseCommand):
             except KeyError:
                 pass
 
-
         # Load convenience commands
         namespace.update({
             'lsmodels': self._lsmodels,
