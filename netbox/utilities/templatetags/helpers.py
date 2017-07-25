@@ -63,19 +63,23 @@ def bettertitle(value):
 
 
 @register.filter()
-def example_choices(value, arg=3):
+def example_choices(field, arg=3):
     """
     Returns a number (default: 3) of example choices for a ChoiceFiled (useful for CSV import forms).
     """
-    choices = []
-    for id, label in value:
-        if len(choices) == arg:
-            choices.append('etc.')
+    examples = []
+    if hasattr(field, 'queryset'):
+        choices = [(obj.pk, getattr(obj, field.to_field_name)) for obj in field.queryset[:arg + 1]]
+    else:
+        choices = field.choices
+    for id, label in choices:
+        if len(examples) == arg:
+            examples.append('etc.')
             break
         if not id:
             continue
-        choices.append(label)
-    return ', '.join(choices) or 'None'
+        examples.append(label)
+    return ', '.join(examples) or 'None'
 
 
 #

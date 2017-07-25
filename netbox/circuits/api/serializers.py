@@ -6,6 +6,7 @@ from circuits.models import Provider, Circuit, CircuitTermination, CircuitType
 from dcim.api.serializers import NestedSiteSerializer, InterfaceSerializer
 from extras.api.customfields import CustomFieldModelSerializer
 from tenancy.api.serializers import NestedTenantSerializer
+from utilities.api import ModelValidationMixin
 
 
 #
@@ -44,7 +45,7 @@ class WritableProviderSerializer(CustomFieldModelSerializer):
 # Circuit types
 #
 
-class CircuitTypeSerializer(serializers.ModelSerializer):
+class CircuitTypeSerializer(ModelValidationMixin, serializers.ModelSerializer):
 
     class Meta:
         model = CircuitType
@@ -110,7 +111,7 @@ class CircuitTerminationSerializer(serializers.ModelSerializer):
         ]
 
 
-class WritableCircuitTerminationSerializer(serializers.ModelSerializer):
+class WritableCircuitTerminationSerializer(ModelValidationMixin, serializers.ModelSerializer):
 
     class Meta:
         model = CircuitTermination

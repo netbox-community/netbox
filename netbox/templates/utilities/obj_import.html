@@ -44,7 +44,7 @@
                         <td>
                             {{ field.help_text|default:field.label }}
                             {% if field.choices %}
-                                <br /><small class="text-muted">Choices: {{ field.choices|example_choices }}</small>
+                                <br /><small class="text-muted">Choices: {{ field|example_choices }}</small>
                             {% elif field|widget_type == 'dateinput' %}
                                 <br /><small class="text-muted">Format: YYYY-MM-DD</small>
                             {% elif field|widget_type == 'checkboxinput' %}

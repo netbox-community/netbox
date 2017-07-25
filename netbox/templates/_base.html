@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>NetBox - {% block title %}Home{% endblock %}</title>
+	<title>{% block title %}Home{% endblock %} - NetBox</title>
 	<link rel="stylesheet" href="{% static 'bootstrap-3.3.7-dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'font-awesome-4.7.0/css/font-awesome.min.css' %}">
     <link rel="stylesheet" href="{% static 'jquery-ui-1.12.1/jquery-ui.css' %}">
@@ -323,13 +323,19 @@
             </div>
         </div>
     </footer>
-<script type="text/javascript">
-    var netbox_api_path = "/{{ settings.BASE_PATH }}api/";
-</script>
-<script src="{% static 'js/jquery-3.2.0.min.js' %}"></script>
+<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
 <script src="{% static 'jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
 <script src="{% static 'bootstrap-3.3.7-dist/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/forms.js' %}?v{{ settings.VERSION }}"></script>
+<script type="text/javascript">
+    var netbox_api_path = "/{{ settings.BASE_PATH }}api/";
+    var loading = $(".loading");
+    $(document).ajaxStart(function() {
+        loading.show();
+    }).ajaxStop(function() {
+        loading.hide();
+    });
+</script>
 {% block javascript %}{% endblock %}
 </body>
 </html>

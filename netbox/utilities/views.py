@@ -461,7 +461,9 @@ class BulkEditView(View):
 
     cls: The model of the objects being edited
     parent_cls: The model of the parent object (if any)
+    queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
     filter: FilterSet to apply when deleting by QuerySet
+    table: The table used to display devices being edited
     form: The form class used to edit objects in bulk
     template_name: The name of the template
     default_return_url: Name of the URL to which the user is redirected after editing the objects (can be overridden by
@@ -469,9 +471,11 @@ class BulkEditView(View):
     """
     cls = None
     parent_cls = None
+    queryset = None
     filter = None
+    table = None
     form = None
-    template_name = None
+    template_name = 'utilities/obj_bulk_edit.html'
     default_return_url = 'home'
 
     def get(self):
@@ -537,14 +541,17 @@ class BulkEditView(View):
             initial_data['pk'] = pk_list
             form = self.form(self.cls, initial=initial_data)
 
-        selected_objects = self.cls.objects.filter(pk__in=pk_list)
-        if not selected_objects:
+        # Retrieve objects being edited
+        queryset = self.queryset or self.cls.objects.all()
+        table = self.table(queryset.filter(pk__in=pk_list), orderable=False)
+        if not table.rows:
             messages.warning(request, "No {} were selected.".format(self.cls._meta.verbose_name_plural))
             return redirect(return_url)
 
         return render(request, self.template_name, {
             'form': form,
-            'selected_objects': selected_objects,
+            'table': table,
+            'obj_type_plural': self.cls._meta.verbose_name_plural,
             'return_url': return_url,
         })
 
@@ -602,7 +609,9 @@ class BulkDeleteView(View):
 
     cls: The model of the objects being deleted
     parent_cls: The model of the parent object (if any)
+    queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
     filter: FilterSet to apply when deleting by QuerySet
+    table: The table used to display devices being deleted
     form: The form class used to delete objects in bulk
     template_name: The name of the template
     default_return_url: Name of the URL to which the user is redirected after deleting the objects (can be overriden by
@@ -610,9 +619,11 @@ class BulkDeleteView(View):
     """
     cls = None
     parent_cls = None
+    queryset = None
     filter = None
+    table = None
     form = None
-    template_name = 'utilities/confirm_bulk_delete.html'
+    template_name = 'utilities/obj_bulk_delete.html'
     default_return_url = 'home'
 
     def post(self, request, **kwargs):
@@ -660,8 +671,10 @@ class BulkDeleteView(View):
         else:
             form = form_cls(initial={'pk': pk_list, 'return_url': return_url})
 
-        selected_objects = self.cls.objects.filter(pk__in=pk_list)
-        if not selected_objects:
+        # Retrieve objects being deleted
+        queryset = self.queryset or self.cls.objects.all()
+        table = self.table(queryset.filter(pk__in=pk_list), orderable=False)
+        if not table.rows:
             messages.warning(request, "No {} were selected for deletion.".format(self.cls._meta.verbose_name_plural))
             return redirect(return_url)
 
@@ -669,7 +682,7 @@ class BulkDeleteView(View):
             'form': form,
             'parent_obj': parent_obj,
             'obj_type_plural': self.cls._meta.verbose_name_plural,
-            'selected_objects': selected_objects,
+            'table': table,
             'return_url': return_url,
         })
 

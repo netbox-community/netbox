@@ -33,7 +33,7 @@
 
 <h1>{{ devicetype.manufacturer }} {{ devicetype.model }}</h1>
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-5">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Chassis</strong>
@@ -163,21 +163,20 @@
                 {% endif %}
             </div>
         </div>
+    </div>
+    <div class="col-md-7">
         {% include 'dcim/inc/devicetype_component_table.html' with table=consoleport_table title='Console Ports' add_url='dcim:devicetype_add_consoleport' delete_url='dcim:devicetype_delete_consoleport' %}
         {% include 'dcim/inc/devicetype_component_table.html' with table=powerport_table title='Power Ports' add_url='dcim:devicetype_add_powerport' delete_url='dcim:devicetype_delete_powerport' %}
-        {% include 'dcim/inc/devicetype_component_table.html' with table=mgmt_interface_table title='Management Interfaces' add_url='dcim:devicetype_add_interface' add_url_extra='?mgmt_only=1' edit_url='dcim:devicetype_bulkedit_interface' delete_url='dcim:devicetype_delete_interface' %}
-    </div>
-    <div class="col-md-6">
-        {% if devicetype.is_parent_device %}
+        {% if devicetype.is_parent_device or devicebay_table.rows %}
             {% include 'dcim/inc/devicetype_component_table.html' with table=devicebay_table title='Device Bays' add_url='dcim:devicetype_add_devicebay' delete_url='dcim:devicetype_delete_devicebay' %}
         {% endif %}
-        {% if devicetype.is_network_device %}
+        {% if devicetype.is_network_device or interface_table.rows %}
             {% include 'dcim/inc/devicetype_component_table.html' with table=interface_table title='Interfaces' add_url='dcim:devicetype_add_interface' edit_url='dcim:devicetype_bulkedit_interface' delete_url='dcim:devicetype_delete_interface' %}
         {% endif %}
-        {% if devicetype.is_console_server %}
+        {% if devicetype.is_console_server or consoleserverport_table.rows %}
             {% include 'dcim/inc/devicetype_component_table.html' with table=consoleserverport_table title='Console Server Ports' add_url='dcim:devicetype_add_consoleserverport' delete_url='dcim:devicetype_delete_consoleserverport' %}
         {% endif %}
-        {% if devicetype.is_pdu %}
+        {% if devicetype.is_pdu or poweroutlet_table.rows %}
             {% include 'dcim/inc/devicetype_component_table.html' with table=poweroutlet_table title='Power Outlets' add_url='dcim:devicetype_add_poweroutlet' delete_url='dcim:devicetype_delete_poweroutlet' %}
         {% endif %}
     </div>

@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from collections import OrderedDict
 
 from rest_framework.decorators import detail_route
 from rest_framework.mixins import ListModelMixin
@@ -7,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ViewSet
 
 from django.conf import settings
+from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 
 from dcim.models import (
@@ -32,6 +34,7 @@ class RegionViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = Region.objects.all()
     serializer_class = serializers.RegionSerializer
     write_serializer_class = serializers.WritableRegionSerializer
+    filter_class = filters.RegionFilter
 
 
 #
@@ -73,6 +76,7 @@ class RackGroupViewSet(WritableSerializerMixin, ModelViewSet):
 class RackRoleViewSet(ModelViewSet):
     queryset = RackRole.objects.all()
     serializer_class = serializers.RackRoleSerializer
+    filter_class = filters.RackRoleFilter
 
 
 #
@@ -128,6 +132,7 @@ class RackReservationViewSet(WritableSerializerMixin, ModelViewSet):
 class ManufacturerViewSet(ModelViewSet):
     queryset = Manufacturer.objects.all()
     serializer_class = serializers.ManufacturerSerializer
+    filter_class = filters.ManufacturerFilter
 
 
 #
@@ -194,6 +199,7 @@ class DeviceBayTemplateViewSet(WritableSerializerMixin, ModelViewSet):
 class DeviceRoleViewSet(ModelViewSet):
     queryset = DeviceRole.objects.all()
     serializer_class = serializers.DeviceRoleSerializer
+    filter_class = filters.DeviceRoleFilter
 
 
 #
@@ -203,6 +209,7 @@ class DeviceRoleViewSet(ModelViewSet):
 class PlatformViewSet(ModelViewSet):
     queryset = Platform.objects.all()
     serializer_class = serializers.PlatformSerializer
+    filter_class = filters.PlatformFilter
 
 
 #
@@ -219,27 +226,64 @@ class DeviceViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     write_serializer_class = serializers.WritableDeviceSerializer
     filter_class = filters.DeviceFilter
 
-    @detail_route(url_path='lldp-neighbors')
-    def lldp_neighbors(self, request, pk):
+    @detail_route(url_path='napalm')
+    def napalm(self, request, pk):
         """
-        Retrieve live LLDP neighbors of a device
+        Execute a NAPALM method on a Device
         """
         device = get_object_or_404(Device, pk=pk)
         if not device.primary_ip:
-            raise ServiceUnavailable("No IP configured for this device.")
+            raise ServiceUnavailable("This device does not have a primary IP address configured.")
+        if device.platform is None:
+            raise ServiceUnavailable("No platform is configured for this device.")
+        if not device.platform.napalm_driver:
+            raise ServiceUnavailable("No NAPALM driver is configured for this device's platform ().".format(
+                device.platform
+            ))
 
-        RPC = device.get_rpc_client()
-        if not RPC:
-            raise ServiceUnavailable("No RPC client available for this platform ({}).".format(device.platform))
-
-        # Connect to device and retrieve inventory info
+        # Check that NAPALM is installed and verify the configured driver
         try:
-            with RPC(device, username=settings.NETBOX_USERNAME, password=settings.NETBOX_PASSWORD) as rpc_client:
-                lldp_neighbors = rpc_client.get_lldp_neighbors()
-        except:
-            raise ServiceUnavailable("Error connecting to the remote device.")
+            import napalm
+            from napalm_base.exceptions import ConnectAuthError, ModuleImportError
+        except ImportError:
+            raise ServiceUnavailable("NAPALM is not installed. Please see the documentation for instructions.")
+        try:
+            driver = napalm.get_network_driver(device.platform.napalm_driver)
+        except ModuleImportError:
+            raise ServiceUnavailable("NAPALM driver for platform {} not found: {}.".format(
+                device.platform, device.platform.napalm_driver
+            ))
 
-        return Response(lldp_neighbors)
+        # Verify user permission
+        if not request.user.has_perm('dcim.napalm_read'):
+            return HttpResponseForbidden()
+
+        # Validate requested NAPALM methods
+        napalm_methods = request.GET.getlist('method')
+        for method in napalm_methods:
+            if not hasattr(driver, method):
+                return HttpResponseBadRequest("Unknown NAPALM method: {}".format(method))
+            elif not method.startswith('get_'):
+                return HttpResponseBadRequest("Unsupported NAPALM method: {}".format(method))
+
+        # Connect to the device and execute the requested methods
+        # TODO: Improve error handling
+        response = OrderedDict([(m, None) for m in napalm_methods])
+        ip_address = str(device.primary_ip.address.ip)
+        d = driver(
+            hostname=ip_address,
+            username=settings.NETBOX_USERNAME,
+            password=settings.NETBOX_PASSWORD
+        )
+        try:
+            d.open()
+            for method in napalm_methods:
+                response[method] = getattr(d, method)()
+        except Exception as e:
+            raise ServiceUnavailable("Error connecting to the device: {}".format(e))
+
+        d.close()
+        return Response(response)
 
 
 #

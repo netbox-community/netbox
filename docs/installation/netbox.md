@@ -97,6 +97,14 @@ Python 2:
 # pip install -r requirements.txt
 ```
 
+### NAPALM Automation
+
+As of v2.1.0, NetBox supports integration with the [NAPALM automation](https://napalm-automation.net/) library. NAPALM allows NetBox to fetch live data from devices and return it to a requester via its REST API. Installation of NAPALM is optional. To enable it, install the `napalm` package using pip or pip3:
+
+```no-highlight
+# pip install napalm
+```
+
 # Configuration
 
 Move into the NetBox configuration directory and make a copy of `configuration.example.py` named `configuration.py`.

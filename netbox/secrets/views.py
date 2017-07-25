@@ -4,7 +4,6 @@ import base64
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.db import transaction, IntegrityError
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -56,6 +55,8 @@ class SecretRoleEditView(SecretRoleCreateView):
 class SecretRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'secrets.delete_secretrole'
     cls = SecretRole
+    queryset = SecretRole.objects.annotate(secret_count=Count('secrets'))
+    table = tables.SecretRoleTable
     default_return_url = 'secrets:secretrole_list'
 
 
@@ -240,14 +241,17 @@ class SecretBulkImportView(BulkImportView):
 class SecretBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'secrets.change_secret'
     cls = Secret
+    queryset = Secret.objects.select_related('role', 'device')
     filter = filters.SecretFilter
+    table = tables.SecretTable
     form = forms.SecretBulkEditForm
-    template_name = 'secrets/secret_bulk_edit.html'
     default_return_url = 'secrets:secret_list'
 
 
 class SecretBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'secrets.delete_secret'
     cls = Secret
+    queryset = Secret.objects.select_related('role', 'device')
     filter = filters.SecretFilter
+    table = tables.SecretTable
     default_return_url = 'secrets:secret_list'

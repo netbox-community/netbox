@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
-
-from netaddr import IPNetwork, IPSet
+import netaddr
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
@@ -17,61 +16,8 @@ from tenancy.models import Tenant
 from utilities.models import CreatedUpdatedModel
 from utilities.sql import NullsFirstQuerySet
 from utilities.utils import csv_format
+from .constants import *
 from .fields import IPNetworkField, IPAddressField
-
-
-AF_CHOICES = (
-    (4, 'IPv4'),
-    (6, 'IPv6'),
-)
-
-PREFIX_STATUS_CONTAINER = 0
-PREFIX_STATUS_ACTIVE = 1
-PREFIX_STATUS_RESERVED = 2
-PREFIX_STATUS_DEPRECATED = 3
-PREFIX_STATUS_CHOICES = (
-    (PREFIX_STATUS_CONTAINER, 'Container'),
-    (PREFIX_STATUS_ACTIVE, 'Active'),
-    (PREFIX_STATUS_RESERVED, 'Reserved'),
-    (PREFIX_STATUS_DEPRECATED, 'Deprecated')
-)
-
-IPADDRESS_STATUS_ACTIVE = 1
-IPADDRESS_STATUS_RESERVED = 2
-IPADDRESS_STATUS_DEPRECATED = 3
-IPADDRESS_STATUS_DHCP = 5
-IPADDRESS_STATUS_CHOICES = (
-    (IPADDRESS_STATUS_ACTIVE, 'Active'),
-    (IPADDRESS_STATUS_RESERVED, 'Reserved'),
-    (IPADDRESS_STATUS_DEPRECATED, 'Deprecated'),
-    (IPADDRESS_STATUS_DHCP, 'DHCP')
-)
-
-VLAN_STATUS_ACTIVE = 1
-VLAN_STATUS_RESERVED = 2
-VLAN_STATUS_DEPRECATED = 3
-VLAN_STATUS_CHOICES = (
-    (VLAN_STATUS_ACTIVE, 'Active'),
-    (VLAN_STATUS_RESERVED, 'Reserved'),
-    (VLAN_STATUS_DEPRECATED, 'Deprecated')
-)
-
-STATUS_CHOICE_CLASSES = {
-    0: 'default',
-    1: 'primary',
-    2: 'info',
-    3: 'danger',
-    4: 'warning',
-    5: 'success',
-}
-
-
-IP_PROTOCOL_TCP = 6
-IP_PROTOCOL_UDP = 17
-IP_PROTOCOL_CHOICES = (
-    (IP_PROTOCOL_TCP, 'TCP'),
-    (IP_PROTOCOL_UDP, 'UDP'),
-)
 
 
 @python_2_unicode_compatible
@@ -97,7 +43,7 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
         verbose_name_plural = 'VRFs'
 
     def __str__(self):
-        return self.name
+        return self.display_name or super(VRF, self).__str__()
 
     def get_absolute_url(self):
         return reverse('ipam:vrf', args=[self.pk])
@@ -110,6 +56,12 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
             self.enforce_unique,
             self.description,
         ])
+
+    @property
+    def display_name(self):
+        if self.name and self.rd:
+            return "{} ({})".format(self.name, self.rd)
+        return None
 
 
 @python_2_unicode_compatible
@@ -207,7 +159,7 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
         Determine the prefix utilization of the aggregate and return it as a percentage.
         """
         queryset = Prefix.objects.filter(prefix__net_contained_or_equal=str(self.prefix))
-        child_prefixes = IPSet([p.prefix for p in queryset])
+        child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
         return int(float(child_prefixes.size) / self.prefix.size * 100)
 
 
@@ -364,6 +316,29 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
     def get_duplicates(self):
         return Prefix.objects.filter(vrf=self.vrf, prefix=str(self.prefix)).exclude(pk=self.pk)
 
+    def get_child_ips(self):
+        """
+        Return all IPAddresses within this Prefix.
+        """
+        return IPAddress.objects.filter(address__net_contained_or_equal=str(self.prefix), vrf=self.vrf)
+
+    def get_available_ips(self):
+        """
+        Return all available IPs within this prefix as an IPSet.
+        """
+        prefix = netaddr.IPSet(self.prefix)
+        child_ips = netaddr.IPSet([ip.address.ip for ip in self.get_child_ips()])
+        available_ips = prefix - child_ips
+
+        # Remove unusable IPs from non-pool prefixes
+        if not self.is_pool:
+            available_ips -= netaddr.IPSet([
+                netaddr.IPAddress(self.prefix.first),
+                netaddr.IPAddress(self.prefix.last),
+            ])
+
+        return available_ips
+
     def get_utilization(self):
         """
         Determine the utilization of the prefix and return it as a percentage. For Prefixes with a status of
@@ -371,7 +346,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
         """
         if self.status == PREFIX_STATUS_CONTAINER:
             queryset = Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
-            child_prefixes = IPSet([p.prefix for p in queryset])
+            child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
             return int(float(child_prefixes.size) / self.prefix.size * 100)
         else:
             child_count = IPAddress.objects.filter(
@@ -386,11 +361,11 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
     def new_subnet(self):
         if self.family == 4:
             if self.prefix.prefixlen <= 30:
-                return IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
+                return netaddr.IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
             return None
         if self.family == 6:
             if self.prefix.prefixlen <= 126:
-                return IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
+                return netaddr.IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
             return None
 
 
@@ -425,7 +400,13 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     vrf = models.ForeignKey('VRF', related_name='ip_addresses', on_delete=models.PROTECT, blank=True, null=True,
                             verbose_name='VRF')
     tenant = models.ForeignKey(Tenant, related_name='ip_addresses', blank=True, null=True, on_delete=models.PROTECT)
-    status = models.PositiveSmallIntegerField('Status', choices=IPADDRESS_STATUS_CHOICES, default=1)
+    status = models.PositiveSmallIntegerField(
+        'Status', choices=IPADDRESS_STATUS_CHOICES, default=IPADDRESS_STATUS_ACTIVE,
+        help_text='The operational status of this IP'
+    )
+    role = models.PositiveSmallIntegerField(
+        'Role', choices=IPADDRESS_ROLE_CHOICES, blank=True, null=True, help_text='The functional role of this IP'
+    )
     interface = models.ForeignKey(Interface, related_name='ip_addresses', on_delete=models.CASCADE, blank=True,
                                   null=True)
     nat_inside = models.OneToOneField('self', related_name='nat_outside', on_delete=models.SET_NULL, blank=True,
@@ -436,7 +417,9 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
 
     objects = IPAddressManager()
 
-    csv_headers = ['address', 'vrf', 'tenant', 'status', 'device', 'interface_name', 'is_primary', 'description']
+    csv_headers = [
+        'address', 'vrf', 'tenant', 'status', 'role', 'device', 'interface_name', 'is_primary', 'description',
+    ]
 
     class Meta:
         ordering = ['family', 'address']
@@ -488,6 +471,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
             self.vrf.rd if self.vrf else None,
             self.tenant.name if self.tenant else None,
             self.get_status_display(),
+            self.get_role_display(),
             self.device.identifier if self.device else None,
             self.interface.name if self.interface else None,
             is_primary,
