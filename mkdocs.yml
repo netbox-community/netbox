@@ -8,6 +8,7 @@ pages:
         - 'Web Server': 'installation/web-server.md'
         - 'LDAP (Optional)': 'installation/ldap.md'
         - 'Upgrading': 'installation/upgrading.md'
+        - 'Migrating to Python3': 'installation/migrating-to-python3.md'
     - 'Configuration':
         - 'Mandatory Settings': 'configuration/mandatory-settings.md'
         - 'Optional Settings': 'configuration/optional-settings.md'
