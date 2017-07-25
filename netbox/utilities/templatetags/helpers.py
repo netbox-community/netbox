@@ -69,7 +69,7 @@ def example_choices(field, arg=3):
     """
     examples = []
     if hasattr(field, 'queryset'):
-        choices = [(obj.pk, getattr(obj, field.to_field_name)) for obj in field.queryset[:arg+1]]
+        choices = [(obj.pk, getattr(obj, field.to_field_name)) for obj in field.queryset[:arg + 1]]
     else:
         choices = field.choices
     for id, label in choices:
