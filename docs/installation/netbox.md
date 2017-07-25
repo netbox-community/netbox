@@ -32,11 +32,6 @@ Python 2:
 # yum install -y gcc python2 python-devel python-pip libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel
 ```
 
-!!! info
-    As of v2.1.0, NetBox supports integration with the [NAPALM automation](https://napalm-automation.net/) library. NAPALM allows NetBox to retrieve live data from devices and return it to a requester via its REST API.
-
-    Installation of NAPALM is optional. To enable it, simply install the "napalm" package using your distribution's package manager.
-
 You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.
 
 ## Option A: Download a Release
@@ -100,6 +95,14 @@ Python 2:
 
 ```no-highlight
 # pip install -r requirements.txt
+```
+
+### NAPALM Automation
+
+As of v2.1.0, NetBox supports integration with the [NAPALM automation](https://napalm-automation.net/) library. NAPALM allows NetBox to fetch live data from devices and return it to a requester via its REST API. Installation of NAPALM is optional. To enable it, install the `napalm` package using pip or pip3:
+
+```no-highlight
+# pip install napalm
 ```
 
 # Configuration
