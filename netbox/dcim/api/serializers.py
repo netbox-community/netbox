@@ -473,14 +473,10 @@ class DeviceSerializer(CustomFieldModelSerializer):
             device_bay = obj.parent_bay
         except DeviceBay.DoesNotExist:
             return None
-        return {
-            'id': device_bay.device.pk,
-            'name': device_bay.device.name,
-            'device_bay': {
-                'id': device_bay.pk,
-                'name': device_bay.name,
-            }
-        }
+        context = {'request': self.context['request']}
+        data = NestedDeviceSerializer(instance=device_bay.device, context=context).data
+        data['device_bay'] = NestedDeviceBaySerializer(instance=device_bay, context=context).data
+        return data
 
 
 class WritableDeviceSerializer(CustomFieldModelSerializer):
@@ -688,6 +684,14 @@ class DeviceBaySerializer(serializers.ModelSerializer):
     class Meta:
         model = DeviceBay
         fields = ['id', 'device', 'name', 'installed_device']
+
+
+class NestedDeviceBaySerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicebay-detail')
+
+    class Meta:
+        model = DeviceBay
+        fields = ['id', 'url', 'name']
 
 
 class WritableDeviceBaySerializer(ModelValidationMixin, serializers.ModelSerializer):
