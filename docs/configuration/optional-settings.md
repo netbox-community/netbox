@@ -135,11 +135,21 @@ An API consumer can request an arbitrary number of objects by appending the "lim
 
 ---
 
-## NETBOX_USERNAME
+## NAPALM_USERNAME
 
-## NETBOX_PASSWORD
+## NAPALM_PASSWORD
 
-If provided, NetBox will use these credentials to authenticate against devices when collecting data.
+NetBox will use these credentials when authenticating to remote devices via the NAPALM library. Both parameters are optional.
+
+Note: If SSH public key authentication has been set up for the system account under which NetBox runs, these parameters are not needed.
+
+---
+
+## NETBOX_USERNAME (Deprecated)
+
+## NETBOX_PASSWORD (Deprecated)
+
+These settings have been deprecated and will be removed in NetBox v2.2. Please use `NAPALM_USERNAME` and `NAPALM_PASSWORD` instead.
 
 ---
 

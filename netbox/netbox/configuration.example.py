@@ -93,9 +93,9 @@ MAINTENANCE_MODE = False
 # all objects by specifying "?limit=0".
 MAX_PAGE_SIZE = 1000
 
-# Credentials that NetBox will use to access live devices (future use).
-NETBOX_USERNAME = ''
-NETBOX_PASSWORD = ''
+# Credentials that NetBox will uses to authenticate to devices when connecting via NAPALM.
+NAPALM_USERNAME = ''
+NAPALM_PASSWORD = ''
 
 # Determine how many objects to display per page within a list. (Default: 50)
 PAGINATE_COUNT = 50

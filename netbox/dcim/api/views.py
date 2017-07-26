@@ -272,8 +272,8 @@ class DeviceViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
         ip_address = str(device.primary_ip.address.ip)
         d = driver(
             hostname=ip_address,
-            username=settings.NETBOX_USERNAME,
-            password=settings.NETBOX_PASSWORD
+            username=settings.NAPALM_USERNAME,
+            password=settings.NAPALM_PASSWORD
         )
         try:
             d.open()
