@@ -97,6 +97,13 @@ MAX_PAGE_SIZE = 1000
 NAPALM_USERNAME = ''
 NAPALM_PASSWORD = ''
 
+# NAPALM timeout (in seconds). (Default: 30)
+NAPALM_TIMEOUT = 30
+
+# NAPALM optional arguments (see http://napalm.readthedocs.io/en/latest/support/#optional-arguments). Arguments must
+# be provided as a dictionary.
+NAPALM_ARGS = {}
+
 # Determine how many objects to display per page within a list. (Default: 50)
 PAGINATE_COUNT = 50
 

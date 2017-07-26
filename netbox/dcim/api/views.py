@@ -273,14 +273,16 @@ class DeviceViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
         d = driver(
             hostname=ip_address,
             username=settings.NAPALM_USERNAME,
-            password=settings.NAPALM_PASSWORD
+            password=settings.NAPALM_PASSWORD,
+            timeout=settings.NAPALM_TIMEOUT,
+            optional_args=settings.NAPALM_ARGS
         )
         try:
             d.open()
             for method in napalm_methods:
                 response[method] = getattr(d, method)()
         except Exception as e:
-            raise ServiceUnavailable("Error connecting to the device: {}".format(e))
+            raise ServiceUnavailable("Error connecting to the device at {}: {}".format(ip_address, e))
 
         d.close()
         return Response(response)
