@@ -8,7 +8,7 @@ from django.db.models import Q
 
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
-from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
+from utilities.filters import NullableCharFieldFilter, NullableModelMultipleChoiceFilter, NumericInFilter
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, STATUS_CHOICES, IFACE_FF_LAG, Interface, InterfaceConnection,
@@ -113,6 +113,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         method='search',
         label='Search',
     )
+    facility_id = NullableCharFieldFilter()
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         label='Site (ID)',
@@ -156,7 +157,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Rack
-        fields = ['facility_id', 'type', 'width', 'u_height', 'desc_units']
+        fields = ['type', 'width', 'u_height', 'desc_units']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -383,6 +384,8 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Platform (slug)',
     )
+    name = NullableCharFieldFilter()
+    asset_tag = NullableCharFieldFilter()
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         label='Site (ID)',
@@ -439,7 +442,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Device
-        fields = ['name', 'serial', 'asset_tag']
+        fields = ['serial']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -596,10 +599,11 @@ class InventoryItemFilter(DeviceComponentFilterSet):
         to_field_name='slug',
         label='Manufacturer (slug)',
     )
+    asset_tag = NullableCharFieldFilter()
 
     class Meta:
         model = InventoryItem
-        fields = ['name', 'part_id', 'serial', 'asset_tag', 'discovered']
+        fields = ['name', 'part_id', 'serial', 'discovered']
 
 
 class ConsoleConnectionFilter(django_filters.FilterSet):
