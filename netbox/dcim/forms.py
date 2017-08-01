@@ -1696,6 +1696,41 @@ class InterfaceConnectionCSVForm(forms.ModelForm):
         return interface
 
 
+class InterfaceCSVForm(forms.ModelForm):
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Name or ID of device',
+        error_messages={'invalid_choice': 'Device not found.'}
+    )
+    name = forms.CharField(
+        help_text='Name of interface'
+    )
+    mac_address = forms.CharField(
+        required=False,
+        help_text='MAC address of interface'
+    )
+    description = forms.CharField(
+        required=False,
+        help_text='Description for interface'
+    )
+    
+    class Meta:
+        model = Interface
+        fields = [
+            'device', 'name', 'mac_address', 'description'
+        ]
+
+
+    def clean_interface(self):
+
+        interface_name = self.cleaned_data.get('interface_name')
+        if not interface:
+            return None
+        
+        return interface
+
+
 class InterfaceConnectionDeletionForm(ConfirmationForm):
     # Used for HTTP redirect upon successful deletion
     device = forms.ModelChoiceField(queryset=Device.objects.all(), widget=forms.HiddenInput(), required=False)

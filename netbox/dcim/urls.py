@@ -177,6 +177,7 @@ urlpatterns = [
     url(r'^interface-connections/(?P<pk>\d+)/delete/$', views.interfaceconnection_delete, name='interfaceconnection_delete'),
     url(r'^interfaces/(?P<pk>\d+)/edit/$', views.InterfaceEditView.as_view(), name='interface_edit'),
     url(r'^interfaces/(?P<pk>\d+)/delete/$', views.InterfaceDeleteView.as_view(), name='interface_delete'),
+    url(r'^interfaces/import/$', views.InterfacesBulkImportView.as_view(), name='interfaces_import'),
 
     # Device bays
     url(r'^devices/device-bays/add/$', views.DeviceBulkAddDeviceBayView.as_view(), name='device_bulk_add_devicebay'),

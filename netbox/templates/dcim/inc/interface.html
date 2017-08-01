@@ -13,6 +13,11 @@
         {% if iface.description %}
             <i class="fa fa-fw fa-comment-o" title="{{ iface.description }}"></i>
         {% endif %}
+        <td>
+        {% if iface.description %}
+            <span title="{{ iface.description }}">{{ iface.description }}</span>
+        {% endif %}
+    </td>
     </td>
     <td>{{ iface.mtu|default:"" }}</td>
     <td>{{ iface.mac_address|default:"" }}</td>

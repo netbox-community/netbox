@@ -374,6 +374,14 @@
                 <input type="hidden" name="device" value="{{ device.pk }}" />
             {% endif %}
             <div class="panel panel-default">
+                <div class="pull-right">
+                {% if perms.dcim.add_interface %}
+                <a href="{% url 'dcim:interfaces_import' %}" class="btn btn-info">
+                <span class="fa fa-download" aria-hidden="true"></span>
+                    Import Interfaces
+                </a>
+                {% endif %}
+                {% include 'inc/export_button.html' with obj_type='interfaces' %}
                 <div class="panel-heading">
                     <strong>Interfaces</strong>
                     <div class="pull-right">

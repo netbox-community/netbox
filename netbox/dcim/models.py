@@ -1233,6 +1233,17 @@ class Interface(models.Model):
             pass
         return None
 
+    # Used for  export
+    def to_csv(self):
+        return csv_format([
+            self.device.identifier,
+            self.lag,
+            self.name,
+            self.mac,
+            self.form_factor,
+            self.description,
+        ])
+
 
 class InterfaceConnection(models.Model):
     """
