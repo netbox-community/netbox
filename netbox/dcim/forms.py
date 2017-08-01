@@ -1531,6 +1531,46 @@ class InterfaceBulkDisconnectForm(ConfirmationForm):
     pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
 
 
+class InterfaceCSVForm(forms.ModelForm):
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Name or ID of device',
+        error_messages={'invalid_choice': 'Device not found.'}
+    )
+    name = forms.CharField(
+        help_text='Name of interface'
+    )
+    mac_address = forms.CharField(
+        required=False,
+        help_text='MAC address of interface'
+    )
+    description = forms.CharField(
+        required=False,
+        help_text='Description for interface'
+    )
+    
+    class Meta:
+        model = Interface
+        fields = [
+            'device', 'name', 'mac_address', 'description'
+        ]
+
+
+    def clean_interface(self):
+
+        interface_name = self.cleaned_data.get('interface_name')
+        if not interface:
+            return None
+        
+        return interface
+
+
+class InterfaceFilterForm(BootstrapMixin, forms.Form):
+    site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
+    device = forms.CharField(required=False, label='Device name')
+
+
 #
 # Interface connections
 #
@@ -1693,41 +1733,6 @@ class InterfaceConnectionCSVForm(forms.ModelForm):
                 self.cleaned_data['device_b'], interface_name
             ))
 
-        return interface
-
-
-class InterfaceCSVForm(forms.ModelForm):
-    device = FlexibleModelChoiceField(
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        help_text='Name or ID of device',
-        error_messages={'invalid_choice': 'Device not found.'}
-    )
-    name = forms.CharField(
-        help_text='Name of interface'
-    )
-    mac_address = forms.CharField(
-        required=False,
-        help_text='MAC address of interface'
-    )
-    description = forms.CharField(
-        required=False,
-        help_text='Description for interface'
-    )
-    
-    class Meta:
-        model = Interface
-        fields = [
-            'device', 'name', 'mac_address', 'description'
-        ]
-
-
-    def clean_interface(self):
-
-        interface_name = self.cleaned_data.get('interface_name')
-        if not interface:
-            return None
-        
         return interface
 
 

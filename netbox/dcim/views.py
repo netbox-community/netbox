@@ -1548,6 +1548,22 @@ class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     table = tables.InterfaceTable
 
 
+class InterfaceBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.change_interface'
+    model_form = forms.InterfaceCSVForm
+    table = tables.InterfaceImportTable
+    default_return_url = 'dcim:interface_list'
+
+
+class InterfaceListView(ObjectListView):
+    queryset = InterfaceConnection.objects.select_related('device')\
+        .order_by('device', 'interface')
+    filter = filters.InterfaceFilter
+    filter_form = forms.InterfaceFilterForm
+    table = tables.InterfaceTable
+    template_name = 'dcim/interface_list.html'
+
+
 #
 # Device bays
 #
@@ -1836,13 +1852,6 @@ class InterfaceConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView
     model_form = forms.InterfaceConnectionCSVForm
     table = tables.InterfaceConnectionTable
     default_return_url = 'dcim:interface_connections_list'
-
-
-class InterfacesBulkImportView(PermissionRequiredMixin, BulkImportView):
-    permission_required = 'dcim.change_interface'
-    model_form = forms.InterfaceCSVForm
-    table = tables.InterfaceImportTable
-    default_return_url = 'dcim:device_list'
 
 
 #
