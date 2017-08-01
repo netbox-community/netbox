@@ -1838,6 +1838,13 @@ class InterfaceConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView
     default_return_url = 'dcim:interface_connections_list'
 
 
+class InterfacesBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.change_interface'
+    model_form = forms.InterfaceCSVForm
+    table = tables.InterfaceImportTable
+    default_return_url = 'dcim:device_list'
+
+
 #
 # Connections
 #
