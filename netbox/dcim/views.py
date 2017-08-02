@@ -1556,7 +1556,7 @@ class InterfaceBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 
 class InterfaceListView(ObjectListView):
-    queryset = Interface.objects.select_related('device', 'interface__device')\
+    queryset = Interface.objects.select_related('device')\
         .order_by('device', 'interface__name', 'interface__description')
     filter = filters.InterfaceFilter
     filter_form = forms.InterfaceFilterForm
