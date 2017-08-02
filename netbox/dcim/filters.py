@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import django_filters
+from netaddr import EUI
 from netaddr.core import AddrFormatError
 
 from django.contrib.auth.models import User
@@ -447,20 +448,28 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(
+        qs_filter = (
             Q(name__icontains=value) |
             Q(serial__icontains=value.strip()) |
             Q(inventory_items__serial__icontains=value.strip()) |
             Q(asset_tag=value.strip()) |
             Q(comments__icontains=value)
-        ).distinct()
+        )
+        # If the query value looks like a MAC address, search interfaces as well.
+        try:
+            mac = EUI(value.strip())
+            qs_filter |= Q(interfaces__mac_address=mac)
+        except AddrFormatError:
+            pass
+        return queryset.filter(qs_filter).distinct()
 
     def _mac_address(self, queryset, name, value):
         value = value.strip()
         if not value:
             return queryset
         try:
-            return queryset.filter(interfaces__mac_address=value).distinct()
+            mac = EUI(value.strip())
+            return queryset.filter(interfaces__mac_address=mac).distinct()
         except AddrFormatError:
             return queryset.none()
 
@@ -572,7 +581,8 @@ class InterfaceFilter(django_filters.FilterSet):
         if not value:
             return queryset
         try:
-            return queryset.filter(mac_address=value)
+            mac = EUI(value.strip())
+            return queryset.filter(mac_address=mac)
         except AddrFormatError:
             return queryset.none()
 
