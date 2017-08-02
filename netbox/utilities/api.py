@@ -4,9 +4,10 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
 from rest_framework import authentication, exceptions
+from rest_framework.compat import is_authenticated
 from rest_framework.exceptions import APIException
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import DjangoModelPermissions, SAFE_METHODS
+from rest_framework.permissions import BasePermission, DjangoModelPermissions, SAFE_METHODS
 from rest_framework.serializers import Field, ValidationError
 
 from users.models import Token
@@ -19,6 +20,10 @@ class ServiceUnavailable(APIException):
     status_code = 503
     default_detail = "Service temporarily unavailable, please try again later."
 
+
+#
+# Authentication
+#
 
 class TokenAuthentication(authentication.TokenAuthentication):
     """
@@ -61,6 +66,20 @@ class TokenPermissions(DjangoModelPermissions):
         return super(TokenPermissions, self).has_permission(request, view)
 
 
+class IsAuthenticatedOrLoginNotRequired(BasePermission):
+    """
+    Returns True if the user is authenticated or LOGIN_REQUIRED is False.
+    """
+    def has_permission(self, request, view):
+        if not settings.LOGIN_REQUIRED:
+            return True
+        return request.user and is_authenticated(request.user)
+
+
+#
+# Serializers
+#
+
 class ChoiceFieldSerializer(Field):
     """
     Represent a ChoiceField as {'value': <DB value>, 'label': <string>}.
@@ -98,6 +117,10 @@ class ContentTypeFieldSerializer(Field):
             raise ValidationError("Invalid content type")
 
 
+#
+# Mixins
+#
+
 class ModelValidationMixin(object):
     """
     Enforce a model's validation through clean() when validating serializer data. This is necessary to ensure we're
@@ -118,6 +141,10 @@ class WritableSerializerMixin(object):
             return self.write_serializer_class
         return self.serializer_class
 
+
+#
+# Pagination
+#
 
 class OptionalLimitOffsetPagination(LimitOffsetPagination):
     """

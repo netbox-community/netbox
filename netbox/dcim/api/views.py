@@ -3,7 +3,6 @@ from collections import OrderedDict
 
 from rest_framework.decorators import detail_route
 from rest_framework.mixins import ListModelMixin
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ViewSet
 
@@ -21,7 +20,7 @@ from dcim import filters
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
 from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
-from utilities.api import ServiceUnavailable, WritableSerializerMixin
+from utilities.api import IsAuthenticatedOrLoginNotRequired, ServiceUnavailable, WritableSerializerMixin
 from .exceptions import MissingFilterException
 from . import serializers
 
@@ -387,7 +386,7 @@ class ConnectedDeviceViewSet(ViewSet):
     * `peer-device`: The name of the peer device
     * `peer-interface`: The name of the peer interface
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
 
     def get_view_name(self):
         return "Connected Device Locator"
