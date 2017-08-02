@@ -1239,7 +1239,7 @@ class Interface(models.Model):
             self.device.identifier,
             self.lag,
             self.name,
-            self.mac,
+            self.mac_address,
             self.form_factor,
             self.description,
         ])
