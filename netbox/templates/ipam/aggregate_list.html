@@ -2,8 +2,6 @@
 {% load humanize %}
 {% load helpers %}
 
-{% block title %}Aggregates{% endblock %}
-
 {% block content %}
 <div class="pull-right">
     {% if perms.ipam.add_aggregate %}
@@ -18,7 +16,7 @@
     {% endif %}
     {% include 'inc/export_button.html' with obj_type='aggregates' %}
 </div>
-<h1>Aggregates</h1>
+<h1>{% block title %}Aggregates{% endblock %}</h1>
 <div class="row">
 	<div class="col-md-9">
         {% include 'utilities/obj_table.html' with bulk_edit_url='ipam:aggregate_bulk_edit' bulk_delete_url='ipam:aggregate_bulk_delete' %}

@@ -2,8 +2,6 @@
 {% load static from staticfiles %}
 {% load helpers %}
 
-{% block title %}{{ site }}{% endblock %}
-
 {% block content %}
 <div class="row">
     <div class="col-sm-8 col-md-9">
@@ -50,7 +48,7 @@
 		</a>
     {% endif %}
 </div>
-<h1>{{ site.name }}</h1>
+<h1>{% block title %}{{ site }}{% endblock %}</h1>
 {% include 'inc/created_updated.html' with obj=site %}
 <div class="row">
 	<div class="col-md-7">

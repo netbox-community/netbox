@@ -1,8 +1,6 @@
 {% extends '_base.html' %}
 {% load helpers %}
 
-{% block title %}{{ tenant }}{% endblock %}
-
 {% block content %}
 <div class="row">
     <div class="col-sm-8 col-md-9">
@@ -41,7 +39,7 @@
 		</a>
     {% endif %}
 </div>
-<h1>{{ tenant }}</h1>
+<h1>{% block title %}{{ tenant }}{% endblock %}</h1>
 {% include 'inc/created_updated.html' with obj=tenant %}
 <div class="row">
 	<div class="col-md-7">

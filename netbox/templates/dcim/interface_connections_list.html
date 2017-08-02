@@ -1,7 +1,5 @@
 {% extends '_base.html' %}
 
-{% block title %}Interface Connections{% endblock %}
-
 {% block content %}
 <div class="pull-right">
     {% if perms.dcim.add_interfaceconnection %}
@@ -12,7 +10,7 @@
     {% endif %}
     {% include 'inc/export_button.html' with obj_type='connections' %}
 </div>
-<h1>Interface Connections</h1>
+<h1>{% block title %}Interface Connections{% endblock %}</h1>
 <div class="row">
 	<div class="col-md-9">
         {% include 'responsive_table.html' %}

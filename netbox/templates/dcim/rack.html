@@ -1,8 +1,6 @@
 {% extends '_base.html' %}
 {% load helpers %}
 
-{% block title %}{{ rack.site }} - Rack {{ rack.name }}{% endblock %}
-
 {% block content %}
 <div class="row">
     <div class="col-sm-8 col-md-9">
@@ -51,7 +49,7 @@
 		</a>
     {% endif %}
 </div>
-<h1>Rack {{ rack.name }}</h1>
+<h1>{% block title %}Rack {{ rack.name }}{% endblock %}</h1>
 {% include 'inc/created_updated.html' with obj=rack %}
 <div class="row">
 	<div class="col-md-6">

@@ -2,8 +2,6 @@
 {% load static from staticfiles %}
 {% load form_helpers %}
 
-{% block title %}Assign an IP Address{% endblock %}
-
 {% block content %}
 <form action="." method="post" class="form form-horizontal">
     {% csrf_token %}
@@ -19,7 +17,7 @@
             {% endif %}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <strong>Assign an IP Address</strong>
+                    <strong>{% block title %}Assign an IP Address{% endblock %}</strong>
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
