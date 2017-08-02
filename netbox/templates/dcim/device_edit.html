@@ -45,7 +45,7 @@
                         </p>
                     </div>
                 </div>
-            {% elif not obj.device_type.is_child_device %}
+            {% else %}
                 {% render_field form.face %}
                 {% render_field form.position %}
             {% endif %}

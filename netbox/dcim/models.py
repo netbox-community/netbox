@@ -357,6 +357,16 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
 
         return list(reversed(available_units))
 
+    def get_reserved_units(self):
+        """
+        Return a dictionary mapping all reserved units within the rack to their reservation.
+        """
+        reserved_units = {}
+        for r in self.reservations.all():
+            for u in r.units:
+                reserved_units[u] = r
+        return reserved_units
+
     def get_0u_devices(self):
         return self.devices.filter(position=0)
 

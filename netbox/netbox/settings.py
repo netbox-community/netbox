@@ -13,7 +13,7 @@ except ImportError:
     )
 
 
-VERSION = '2.1.0'
+VERSION = '2.1.1'
 
 # Import required configuration parameters
 ALLOWED_HOSTS = DATABASE = SECRET_KEY = None
@@ -46,8 +46,12 @@ MAINTENANCE_MODE = getattr(configuration, 'MAINTENANCE_MODE', False)
 MAX_PAGE_SIZE = getattr(configuration, 'MAX_PAGE_SIZE', 1000)
 PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
-NETBOX_USERNAME = getattr(configuration, 'NETBOX_USERNAME', '')
-NETBOX_PASSWORD = getattr(configuration, 'NETBOX_PASSWORD', '')
+NAPALM_USERNAME = getattr(configuration, 'NAPALM_USERNAME', '')
+NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
+NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
+NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
+NETBOX_USERNAME = getattr(configuration, 'NETBOX_USERNAME', '')  # Deprecated
+NETBOX_PASSWORD = getattr(configuration, 'NETBOX_PASSWORD', '')  # Deprecated
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
@@ -55,6 +59,19 @@ TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
+
+# Check for deprecated configuration parameters
+config_logger = logging.getLogger('configuration')
+config_logger.addHandler(logging.StreamHandler())
+config_logger.setLevel(logging.WARNING)
+if NETBOX_USERNAME:
+    config_logger.warning('NETBOX_USERNAME is deprecated and will be removed in v2.2. Please use NAPALM_USERNAME instead.')
+    if not NAPALM_USERNAME:
+        NAPALM_USERNAME = NETBOX_USERNAME
+if NETBOX_PASSWORD:
+    config_logger.warning('NETBOX_PASSWORD is deprecated and will be removed in v2.2. Please use NAPALM_PASSWORD instead.')
+    if not NAPALM_PASSWORD:
+        NAPALM_PASSWORD = NETBOX_PASSWORD
 
 # Attempt to import LDAP configuration if it has been defined
 LDAP_IGNORE_CERT_ERRORS = False
@@ -78,9 +95,9 @@ if LDAP_CONFIGURED:
         if LDAP_IGNORE_CERT_ERRORS:
             ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
         # Enable logging for django_auth_ldap
-        logger = logging.getLogger('django_auth_ldap')
-        logger.addHandler(logging.StreamHandler())
-        logger.setLevel(logging.DEBUG)
+        ldap_logger = logging.getLogger('django_auth_ldap')
+        ldap_logger.addHandler(logging.StreamHandler())
+        ldap_logger.setLevel(logging.DEBUG)
     except ImportError:
         raise ImproperlyConfigured(
             "LDAP authentication has been configured, but django-auth-ldap is not installed. You can remove "

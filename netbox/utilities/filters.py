@@ -19,6 +19,16 @@ class NumericInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
     pass
 
 
+class NullableCharFieldFilter(django_filters.CharFilter):
+    null_value = 'NULL'
+
+    def filter(self, qs, value):
+        if value != self.null_value:
+            return super(NullableCharFieldFilter, self).filter(qs, value)
+        qs = self.get_method(qs)(**{'{}__isnull'.format(self.name): True})
+        return qs.distinct() if self.distinct else qs
+
+
 class NullableModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     """
     This field operates like a normal ModelMultipleChoiceField except that it allows for one additional choice which is

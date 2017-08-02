@@ -1,8 +1,6 @@
 {% extends '_base.html' %}
 {% load helpers %}
 
-{% block title %}Racks{% endblock %}
-
 {% block content %}
 <div class="pull-right">
     {% if perms.dcim.add_rack %}
@@ -17,7 +15,7 @@
     {% endif %}
     {% include 'inc/export_button.html' with obj_type='racks' %}
 </div>
-<h1>Racks</h1>
+<h1>{% block title %}Racks{% endblock %}</h1>
 <div class="row">
 	<div class="col-md-9">
         {% include 'utilities/obj_table.html' with bulk_edit_url='dcim:rack_bulk_edit' bulk_delete_url='dcim:rack_bulk_delete' %}

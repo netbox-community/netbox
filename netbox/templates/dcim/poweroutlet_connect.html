@@ -2,8 +2,6 @@
 {% load static from staticfiles %}
 {% load form_helpers %}
 
-{% block title %}Connect {{ poweroutlet.device }} {{ poweroutlet }}{% endblock %}
-
 {% block content %}
 <form action="." method="post" class="form form-horizontal">
     {% csrf_token %}
@@ -21,7 +19,7 @@
                 </div>
             {% endif %}
             <div class="panel panel-default">
-                <div class="panel-heading">Connect {{ poweroutlet.device }} {{ poweroutlet }}</div>
+                <div class="panel-heading">{% block title %}Connect {{ poweroutlet.device }} {{ poweroutlet }}{% endblock %}</div>
                 <div class="panel-body">
                     <ul class="nav nav-tabs" role="tablist">
                         <li role="presentation" class="active"><a href="#search" aria-controls="search" role="tab" data-toggle="tab">Search</a></li>

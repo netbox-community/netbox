@@ -1,8 +1,6 @@
 {% extends '_base.html' %}
 {% load helpers %}
 
-{% block title %}Device Roles{% endblock %}
-
 {% block content %}
 <div class="pull-right">
     {% if perms.dcim.add_devicerole %}
@@ -12,7 +10,7 @@
         </a>
     {% endif %}
 </div>
-<h1>Device Roles</h1>
+<h1>{% block title %}Device Roles{% endblock %}</h1>
 <div class="row">
 	<div class="col-md-12">
         {% include 'utilities/obj_table.html' with bulk_delete_url='dcim:devicerole_bulk_delete' %}

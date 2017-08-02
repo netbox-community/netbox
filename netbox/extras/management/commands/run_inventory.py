@@ -13,8 +13,8 @@ from dcim.models import Device, InventoryItem, Site, STATUS_ACTIVE
 
 class Command(BaseCommand):
     help = "Update inventory information for specified devices"
-    username = settings.NETBOX_USERNAME
-    password = settings.NETBOX_PASSWORD
+    username = settings.NAPALM_USERNAME
+    password = settings.NAPALM_PASSWORD
 
     def add_arguments(self, parser):
         parser.add_argument('-u', '--username', dest='username', help="Specify the username to use")

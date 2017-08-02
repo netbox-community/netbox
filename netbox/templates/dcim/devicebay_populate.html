@@ -1,8 +1,6 @@
 {% extends '_base.html' %}
 {% load form_helpers %}
 
-{% block title %}Populate {{ device_bay }}{% endblock %}
-
 {% block content %}
 <form action="." method="post" class="form form-horizontal">
     {% csrf_token %}
@@ -17,7 +15,7 @@
                 </div>
             {% endif %}
             <div class="panel panel-default">
-                <div class="panel-heading">Populate {{ device_bay }}</div>
+                <div class="panel-heading">{% block title %}Populate {{ device_bay }}{% endblock %}</div>
                 <div class="panel-body">
                     <div class="form-group">
                         <label class="col-md-3 control-label required">Parent Device</label>

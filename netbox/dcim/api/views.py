@@ -3,7 +3,6 @@ from collections import OrderedDict
 
 from rest_framework.decorators import detail_route
 from rest_framework.mixins import ListModelMixin
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ViewSet
 
@@ -21,7 +20,7 @@ from dcim import filters
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
 from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
-from utilities.api import ServiceUnavailable, WritableSerializerMixin
+from utilities.api import IsAuthenticatedOrLoginNotRequired, ServiceUnavailable, WritableSerializerMixin
 from .exceptions import MissingFilterException
 from . import serializers
 
@@ -272,15 +271,17 @@ class DeviceViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
         ip_address = str(device.primary_ip.address.ip)
         d = driver(
             hostname=ip_address,
-            username=settings.NETBOX_USERNAME,
-            password=settings.NETBOX_PASSWORD
+            username=settings.NAPALM_USERNAME,
+            password=settings.NAPALM_PASSWORD,
+            timeout=settings.NAPALM_TIMEOUT,
+            optional_args=settings.NAPALM_ARGS
         )
         try:
             d.open()
             for method in napalm_methods:
                 response[method] = getattr(d, method)()
         except Exception as e:
-            raise ServiceUnavailable("Error connecting to the device: {}".format(e))
+            raise ServiceUnavailable("Error connecting to the device at {}: {}".format(ip_address, e))
 
         d.close()
         return Response(response)
@@ -385,7 +386,7 @@ class ConnectedDeviceViewSet(ViewSet):
     * `peer-device`: The name of the peer device
     * `peer-interface`: The name of the peer interface
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
 
     def get_view_name(self):
         return "Connected Device Locator"

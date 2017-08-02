@@ -1,8 +1,6 @@
 {% extends '_base.html' %}
 {% load helpers %}
 
-{% block title %}{{ rack.site }} - Rack {{ rack.name }}{% endblock %}
-
 {% block content %}
 <div class="row">
     <div class="col-sm-8 col-md-9">
@@ -51,7 +49,7 @@
 		</a>
     {% endif %}
 </div>
-<h1>Rack {{ rack.name }}</h1>
+<h1>{% block title %}Rack {{ rack.name }}{% endblock %}</h1>
 {% include 'inc/created_updated.html' with obj=rack %}
 <div class="row">
 	<div class="col-md-6">
@@ -261,13 +259,13 @@
           <div class="rack_header">
             <h4>Front</h4>
           </div>
-          {% include 'dcim/inc/rack_elevation.html' with primary_face=front_elevation secondary_face=rear_elevation face_id=0 %}
+          {% include 'dcim/inc/rack_elevation.html' with primary_face=front_elevation secondary_face=rear_elevation face_id=0 reserved_units=rack.get_reserved_units %}
       </div>
       <div class="col-md-6 col-sm-6 col-xs-12">
         <div class="rack_header">
             <h4>Rear</h4>
         </div>
-        {% include 'dcim/inc/rack_elevation.html' with primary_face=rear_elevation secondary_face=front_elevation face_id=1 %}
+        {% include 'dcim/inc/rack_elevation.html' with primary_face=rear_elevation secondary_face=front_elevation face_id=1 reserved_units=rack.get_reserved_units %}
       </div>
     </div>
 </div>

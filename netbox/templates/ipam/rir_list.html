@@ -2,8 +2,6 @@
 {% load humanize %}
 {% load helpers %}
 
-{% block title %}RIRs{% endblock %}
-
 {% block content %}
 <div class="pull-right">
     {% if request.GET.family == '6' %}
@@ -24,7 +22,7 @@
         </a>
     {% endif %}
 </div>
-<h1>RIRs</h1>
+<h1>{% block title %}RIRs{% endblock %}</h1>
 <div class="row">
 	<div class="col-md-9">
         {% include 'utilities/obj_table.html' with bulk_delete_url='ipam:rir_bulk_delete' %}

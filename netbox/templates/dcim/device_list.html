@@ -1,8 +1,6 @@
 {% extends '_base.html' %}
 {% load helpers %}
 
-{% block title %}Devices{% endblock %}
-
 {% block content %}
 <div class="pull-right">
     {% if perms.dcim.add_device %}
@@ -17,7 +15,7 @@
     {% endif %}
     {% include 'inc/export_button.html' with obj_type='devices' %}
 </div>
-<h1>Devices</h1>
+<h1>{% block title %}Devices{% endblock %}</h1>
 <div class="row">
 	<div class="col-md-9">
         {% include 'dcim/inc/device_table.html' with bulk_edit_url='dcim:device_bulk_edit' bulk_delete_url='dcim:device_bulk_delete' %}
