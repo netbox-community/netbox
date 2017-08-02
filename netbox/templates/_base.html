@@ -85,6 +85,7 @@
                                 <li><a href="{% url 'dcim:device_add' %}"><i class="fa fa-plus" aria-hidden="true"></i> Add a Device</a></li>
                                 <li><a href="{% url 'dcim:device_import' %}"><i class="fa fa-download" aria-hidden="true"></i> Import Devices</a></li>
                             {% endif %}
+                            <li><a href="{% url 'dcim:interface_list' %}"><i class="fa fa-search" aria-hidden="true"></i> Interfaces</a></li>
                             {% if perms.dcim.add_interface %}
                                 <li><a href="{% url 'dcim:interface_import' %}"><i class="fa fa-download" aria-hidden="true"></i> Import Interfaces</a></li>
                             {% endif %}
