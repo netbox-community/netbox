@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="pull-right">
-    {% if perms.dcim.add_interfaces %}
+    {% if perms.dcim.add_interface %}
         <a href="{% url 'dcim:interface_import' %}" class="btn btn-info">
             <span class="fa fa-download" aria-hidden="true"></span>
             Import Interfaces
