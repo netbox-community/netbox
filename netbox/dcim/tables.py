@@ -536,3 +536,16 @@ class InterfaceImportTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Interface
         fields = ('device', 'name', 'form_factor','mac_address', 'description')
+
+
+class InterfaceListTable(BaseTable):
+    device = tables.LinkColumn('dcim:device', accessor=Accessor('interface.device'),
+                                 args=[Accessor('interface.device.pk')], verbose_name='Device')
+    name = tables.Column(verbose_name='Interface')
+    form_factor = tables.Column(verbose_name='Form Factor')
+    mac_address = tables.Column(verbose_name='MAC Address')
+    description = tables.Column(verbose_name='Description')
+
+    class Meta(BaseTable.Meta):
+        model = Interface
+        fields = ('device', 'name', 'form_factor','mac_address', 'description')

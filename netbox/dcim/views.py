@@ -1557,10 +1557,10 @@ class InterfaceBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class InterfaceListView(ObjectListView):
     queryset = Interface.objects.select_related('device', 'interface__device')\
-        .order_by('device__name', 'interface__name', 'interface__description')
+        .order_by('device', 'interface__name', 'interface__description')
     filter = filters.InterfaceFilter
     filter_form = forms.InterfaceFilterForm
-    table = tables.InterfaceTable
+    table = tables.InterfaceListTable
     template_name = 'dcim/interface_list.html'
 
 
