@@ -600,7 +600,6 @@ class Service(CreatedUpdatedModel):
 
     class Meta:
         ordering = ['device', 'protocol', 'port']
-        unique_together = ['device', 'protocol', 'port']
 
     def __str__(self):
         return '{} ({}/{})'.format(self.name, self.port, self.get_protocol_display())
