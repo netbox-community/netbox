@@ -556,8 +556,8 @@ class InterfaceListTable(BaseTable):
     enabled = tables.TemplateColumn(template_code=INTERFACE_ENABLED, verbose_name='Enabled')
     form_factor = tables.Column(verbose_name='Form Factor')
     mac_address = tables.Column(verbose_name='MAC Address')
-    description = tables.TemplateColumn(template_code=INTERFACE_LINK, verbose_name='Description')
+    description = tables.Column(verbose_name='Description')
 
     class Meta(BaseTable.Meta):
         model = Interface
-        fields = ('pk','device', 'name', 'form_factor','mac_address', 'description')
+        fields = ('pk','device', 'name', 'enabled', 'form_factor','mac_address', 'description')
