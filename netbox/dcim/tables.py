@@ -39,6 +39,12 @@ DEVICE_LINK = """
 </a>
 """
 
+INTERFACE_LINK = """
+<a href="{% url 'dcim:interface' pk=record.pk %}">
+    {{ record.name|default:'<span class="label label-info">--</span>' }}
+</a>
+"""
+
 REGION_ACTIONS = """
 {% if perms.dcim.change_region %}
     <a href="{% url 'dcim:region_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
@@ -95,6 +101,10 @@ DEVICE_ROLE = """
 
 DEVICE_STATUS = """
 <span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
+"""
+
+INTERFACE_ENABLED = """
+<span class="label label-{{ record.get_status_class }}">{{ record.is_enabled }}</span>
 """
 
 DEVICE_PRIMARY_IP = """
