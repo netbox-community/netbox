@@ -549,7 +549,6 @@ class InterfaceImportTable(BaseTable):
 
 
 class InterfaceListTable(BaseTable):
-    pk = ToggleColumn()
     device = tables.LinkColumn('dcim:device', accessor=Accessor('interface.device'),
                                  args=[Accessor('interface.device.pk')], verbose_name='Device')
     name = tables.TemplateColumn(template_code=INTERFACE_LINK, verbose_name='Interface')
