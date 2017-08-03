@@ -1241,7 +1241,14 @@ class Interface(models.Model):
             self.name,
             self.mac_address,
             self.form_factor,
+            self.enabled,
             self.description,
+            self.mtu,
+            self.mgmt_only,
+            self.is_virtual,
+            self.is_wireless,
+            self.is_connected,
+            self.is_lag,
         ])
 
 

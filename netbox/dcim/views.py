@@ -1556,7 +1556,7 @@ class InterfaceBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 
 class InterfaceListView(ObjectListView):
-    queryset = Interface.objects.all().filter(device=device)
+    queryset = Interface.objects.all()
     filter = filters.InterfaceFilter
     filter_form = forms.InterfaceFilterForm
     table = tables.InterfaceListTable
