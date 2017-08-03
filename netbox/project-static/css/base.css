@@ -81,6 +81,11 @@ footer p {
     }
 }
 
+/* Navigation menu */
+li.subnav > a {
+    padding-left: 30px;
+}
+
 /* Forms */
 label {
     font-weight: normal;
