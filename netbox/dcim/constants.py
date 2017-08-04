@@ -48,6 +48,9 @@ IFACE_ORDERING_CHOICES = [
     [IFACE_ORDERING_NAME, 'Name (alphabetically)']
 ]
 
+# Interface enabled as choice
+IFACE_DISABLED = 0
+IFACE_ENABLED = 1
 IFACE_ENABLED_CHOICES = [
     [IFACE_ENABLED,'Enabled'],
     [IFACE_DISABLED,'Disabled']
