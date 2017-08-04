@@ -549,15 +549,15 @@ class InterfaceImportTable(BaseTable):
 
 
 class InterfaceListTable(BaseTable):
-    device = tables.LinkColumn('dcim:device', accessor=Accessor('interface.device'),
-                                 args=[Accessor('interface.device.identifier')], verbose_name='Device')
+    device = tables.LinkColumn('dcim:device', accessor=Accessor('device'),
+                                 args=[Accessor('device.pk')], verbose_name='Device')
     name = tables.TemplateColumn(template_code=INTERFACE_LINK, verbose_name='Interface')
     #name = tables.Column(verbose_name='Interface')
-    #enabled = tables.TemplateColumn(template_code=INTERFACE_ENABLED, verbose_name='Enabled')
+    enabled = tables.TemplateColumn(template_code=INTERFACE_ENABLED, verbose_name='Enabled')
     form_factor = tables.Column(verbose_name='Form Factor')
     mac_address = tables.Column(verbose_name='MAC Address')
     description = tables.Column(verbose_name='Description')
 
     class Meta(BaseTable.Meta):
         model = Interface
-        fields = ('device','name','form_factor','mac_address','description')
+        fields = ('device','name','enabled','form_factor','mac_address','description')
