@@ -448,20 +448,13 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        qs_filter = (
+        return queryset.filter(
             Q(name__icontains=value) |
             Q(serial__icontains=value.strip()) |
             Q(inventory_items__serial__icontains=value.strip()) |
             Q(asset_tag=value.strip()) |
             Q(comments__icontains=value)
-        )
-        # If the query value looks like a MAC address, search interfaces as well.
-        try:
-            mac = EUI(value.strip())
-            qs_filter |= Q(interfaces__mac_address=mac)
-        except AddrFormatError:
-            pass
-        return queryset.filter(qs_filter).distinct()
+        ).distinct()
 
     def _mac_address(self, queryset, name, value):
         value = value.strip()
