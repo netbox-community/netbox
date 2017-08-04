@@ -23,7 +23,8 @@ from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_S
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView, ComponentEditView,
+    ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
 from .models import (
@@ -58,87 +59,6 @@ def expand_pattern(string):
                 yield "{0}{1}{2}".format(lead, i, string)
         else:
             yield "{0}{1}".format(lead, i)
-
-
-class ComponentCreateView(View):
-    parent_model = None
-    parent_field = None
-    model = None
-    form = None
-    model_form = None
-
-    def get(self, request, pk):
-
-        parent = get_object_or_404(self.parent_model, pk=pk)
-        form = self.form(parent, initial=request.GET)
-
-        return render(request, 'dcim/device_component_add.html', {
-            'parent': parent,
-            'component_type': self.model._meta.verbose_name,
-            'form': form,
-            'return_url': parent.get_absolute_url(),
-        })
-
-    def post(self, request, pk):
-
-        parent = get_object_or_404(self.parent_model, pk=pk)
-
-        form = self.form(parent, request.POST)
-        if form.is_valid():
-
-            new_components = []
-            data = deepcopy(form.cleaned_data)
-
-            for name in form.cleaned_data['name_pattern']:
-                component_data = {
-                    self.parent_field: parent.pk,
-                    'name': name,
-                }
-                # Replace objects with their primary key to keep component_form.clean() happy
-                for k, v in data.items():
-                    if hasattr(v, 'pk'):
-                        component_data[k] = v.pk
-                    else:
-                        component_data[k] = v
-                component_form = self.model_form(component_data)
-                if component_form.is_valid():
-                    new_components.append(component_form.save(commit=False))
-                else:
-                    for field, errors in component_form.errors.as_data().items():
-                        # Assign errors on the child form's name field to name_pattern on the parent form
-                        if field == 'name':
-                            field = 'name_pattern'
-                        for e in errors:
-                            form.add_error(field, '{}: {}'.format(name, ', '.join(e)))
-
-            if not form.errors:
-                self.model.objects.bulk_create(new_components)
-                messages.success(request, "Added {} {} to {}.".format(
-                    len(new_components), self.model._meta.verbose_name_plural, parent
-                ))
-                if '_addanother' in request.POST:
-                    return redirect(request.path)
-                else:
-                    return redirect(parent.get_absolute_url())
-
-        return render(request, 'dcim/device_component_add.html', {
-            'parent': parent,
-            'component_type': self.model._meta.verbose_name,
-            'form': form,
-            'return_url': parent.get_absolute_url(),
-        })
-
-
-class ComponentEditView(ObjectEditView):
-
-    def get_return_url(self, request, obj):
-        return obj.device.get_absolute_url()
-
-
-class ComponentDeleteView(ObjectDeleteView):
-
-    def get_return_url(self, request, obj):
-        return obj.device.get_absolute_url()
 
 
 class BulkDisconnectView(View):
@@ -662,6 +582,7 @@ class ConsolePortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView
     model = ConsolePortTemplate
     form = forms.ConsolePortTemplateCreateForm
     model_form = forms.ConsolePortTemplateForm
+    template_name = 'dcim/device_component_add.html'
 
 
 class ConsolePortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -680,6 +601,7 @@ class ConsoleServerPortTemplateCreateView(PermissionRequiredMixin, ComponentCrea
     model = ConsoleServerPortTemplate
     form = forms.ConsoleServerPortTemplateCreateForm
     model_form = forms.ConsoleServerPortTemplateForm
+    template_name = 'dcim/device_component_add.html'
 
 
 class ConsoleServerPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -696,6 +618,7 @@ class PowerPortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = PowerPortTemplate
     form = forms.PowerPortTemplateCreateForm
     model_form = forms.PowerPortTemplateForm
+    template_name = 'dcim/device_component_add.html'
 
 
 class PowerPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -712,6 +635,7 @@ class PowerOutletTemplateCreateView(PermissionRequiredMixin, ComponentCreateView
     model = PowerOutletTemplate
     form = forms.PowerOutletTemplateCreateForm
     model_form = forms.PowerOutletTemplateForm
+    template_name = 'dcim/device_component_add.html'
 
 
 class PowerOutletTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -728,6 +652,7 @@ class InterfaceTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = InterfaceTemplate
     form = forms.InterfaceTemplateCreateForm
     model_form = forms.InterfaceTemplateForm
+    template_name = 'dcim/device_component_add.html'
 
 
 class InterfaceTemplateBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -752,6 +677,7 @@ class DeviceBayTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = DeviceBayTemplate
     form = forms.DeviceBayTemplateCreateForm
     model_form = forms.DeviceBayTemplateForm
+    template_name = 'dcim/device_component_add.html'
 
 
 class DeviceBayTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):

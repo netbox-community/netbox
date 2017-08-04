@@ -1,0 +1,26 @@
+{% extends '_base.html' %}
+
+{% block content %}
+<div class="pull-right">
+    {% if perms.virtualization.add_virtualmachine %}
+		<a href="{% url 'virtualization:virtualmachine_add' %}" class="btn btn-primary">
+			<span class="fa fa-plus" aria-hidden="true"></span>
+			Add a virtual machine
+		</a>
+        <a href="{% url 'virtualization:virtualmachine_import' %}" class="btn btn-info">
+            <span class="fa fa-download" aria-hidden="true"></span>
+            Import virtual machines
+        </a>
+    {% endif %}
+    {% include 'inc/export_button.html' with obj_type='virtualmachines' %}
+</div>
+<h1>{% block title %}Virtual Machines{% endblock %}</h1>
+<div class="row">
+	<div class="col-md-9">
+        {% include 'utilities/obj_table.html' %}
+    </div>
+    <div class="col-md-3">
+		{% include 'inc/search_panel.html' %}
+    </div>
+</div>
+{% endblock %}

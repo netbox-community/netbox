@@ -1,0 +1,92 @@
+{% extends '_base.html' %}
+{% load helpers %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-8 col-md-9">
+    </div>
+    <div class="col-sm-4 col-md-3">
+        <form action="{% url 'virtualization:cluster_list' %}" method="get">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Search clusters" />
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="fa fa-search" aria-hidden="true"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="pull-right">
+    {% if perms.virtualization.change_cluster %}
+		<a href="{% url 'virtualization:cluster_edit' pk=cluster.pk %}" class="btn btn-warning">
+			<span class="fa fa-pencil" aria-hidden="true"></span>
+			Edit this cluster
+		</a>
+    {% endif %}
+    {% if perms.dcim.delete_cluster %}
+		<a href="{% url 'virtualization:cluster_delete' pk=cluster.pk %}" class="btn btn-danger">
+			<span class="fa fa-trash" aria-hidden="true"></span>
+			Delete this cluster
+		</a>
+    {% endif %}
+</div>
+<h1>{% block title %}{{ cluster }}{% endblock %}</h1>
+{% include 'inc/created_updated.html' with obj=cluster %}
+<div class="row">
+	<div class="col-md-5">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Cluster</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+                <tr>
+                    <td>Name</td>
+                    <td>{{ cluster.name }}</td>
+                </tr>
+                <tr>
+                    <td>Type</td>
+                    <td><a href="{{ cluster.type.get_absolute_url }}">{{ cluster.type }}</a></td>
+                </tr>
+                <tr>
+                    <td>Group</td>
+                    <td>
+                        {% if cluster.group %}
+                            <a href="{{ cluster.group.get_absolute_url }}">{{ cluster.group }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Virtual Machines</td>
+                    <td><a href="{% url 'virtualization:virtualmachine_list' %}?cluster={{ cluster.pk }}">{{ cluster.virtual_machines.count }}</a></td>
+                </tr>
+            </table>
+        </div>
+        {% include 'inc/custom_fields_panel.html' with custom_fields=cluster.get_custom_fields %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Comments</strong>
+            </div>
+            <div class="panel-body">
+                {% if cluster.comments %}
+                    {{ cluster.comments|gfm }}
+                {% else %}
+                    <span class="text-muted">None</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Devices</strong>
+            </div>
+            <div class="panel-body">
+            </div>
+        </div>
+	</div>
+</div>
+{% endblock %}
