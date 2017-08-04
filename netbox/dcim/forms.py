@@ -1571,6 +1571,17 @@ class InterfaceFilterForm(BootstrapMixin, forms.Form):
     device = forms.CharField(required=False, label='Device name')
 
 
+class InterfaceListFilterForm(BootstrapMixin, forms.Form):
+    site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
+    device = forms.ModelChoiceField(required=False, queryset=Device.objects.all(), to_field_name='slug')
+    enabled = form.ModelChoiceField(choices=((INTERFACE_ENABLED,'Enabled'),(INTERFACE_DISABLED,'Disabled')),required=False)
+    role = FilterChoiceField(
+        queryset=DeviceRole.objects.annotate(filter_count=Count('devices')),
+        to_field_name='slug',
+    )
+    mac_address = forms.CharField(required=False, label='MAC address')
+
+
 #
 # Interface connections
 #
