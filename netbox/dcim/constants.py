@@ -49,11 +49,11 @@ IFACE_ORDERING_CHOICES = [
 ]
 
 # Interface enabled as choice
-IFACE_DISABLED = 0
-IFACE_ENABLED = 1
+IFACE_DISABLED = False
+IFACE_ENABLED = True
 IFACE_ENABLED_CHOICES = [
-    [IFACE_ENABLED,'Enabled'],
-    [IFACE_DISABLED,'Disabled']
+    [IFACE_DISABLED, 'Disabled'],
+    [IFACE_ENABLED, 'Enabled'],
 ]
 
 # Interface form factors
