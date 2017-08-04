@@ -40,8 +40,8 @@ DEVICE_LINK = """
 """
 
 INTERFACE_LINK = """
-<a href="{% url 'dcim:interface' pk=record.pk %}">
-    {{ record.name|default:'<span class="label label-info"></span>' }}
+<a href="{% url 'dcim:device' pk=record.device %}">
+    {{ record.name|default:'<span class="label label-info"> - </span>' }}
 </a>
 """
 
