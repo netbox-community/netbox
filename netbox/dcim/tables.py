@@ -41,7 +41,7 @@ DEVICE_LINK = """
 
 INTERFACE_LINK = """
 <a href="{% url 'dcim:interface' pk=record.pk %}">
-    {{ record.name|default:'<span class="label label-info">--</span>' }}
+    {{ record.name|default:'<span class="label label-info"></span>' }}
 </a>
 """
 
@@ -551,8 +551,8 @@ class InterfaceImportTable(BaseTable):
 class InterfaceListTable(BaseTable):
     device = tables.LinkColumn('dcim:device', accessor=Accessor('interface.device'),
                                  args=[Accessor('interface.device.pk')], verbose_name='Device')
-    #name = tables.TemplateColumn(template_code=INTERFACE_LINK, verbose_name='Interface')
-    name = tables.Column(verbose_name='Interface')
+    name = tables.TemplateColumn(template_code=INTERFACE_LINK, verbose_name='Interface')
+    #name = tables.Column(verbose_name='Interface')
     #enabled = tables.TemplateColumn(template_code=INTERFACE_ENABLED, verbose_name='Enabled')
     form_factor = tables.Column(verbose_name='Form Factor')
     mac_address = tables.Column(verbose_name='MAC Address')
