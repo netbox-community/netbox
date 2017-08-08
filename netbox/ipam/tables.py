@@ -80,7 +80,6 @@ IPADDRESS_LINK = """
 IPADDRESS_DEVICE = """
 {% if record.interface %}
     <a href="{{ record.interface.device.get_absolute_url }}">{{ record.interface.device }}</a>
-    ({{ record.interface.name }})
 {% else %}
     &mdash;
 {% endif %}
