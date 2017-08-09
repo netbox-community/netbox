@@ -74,8 +74,8 @@ footer p {
     }
 }
 
-/* Hide the nav search bar on displays less than 1300px wide */
-@media (max-width: 1299px) {
+/* Hide the nav search bar on displays less than 1400px wide */
+@media (max-width: 1399px) {
     #navbar_search {
         display: none;
     }
