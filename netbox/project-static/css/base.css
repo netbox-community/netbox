@@ -35,8 +35,8 @@ footer p {
     margin: 20px 0;
 }
 
-/* Collapse the nav menu on displays less than 1200px wide */
-@media (max-width: 1199px) {
+/* Collapse the nav menu on displays less than 1400px wide */
+@media (max-width: 1399px) {
     .navbar-header {
         float: none;
     }
