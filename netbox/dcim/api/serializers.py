@@ -58,7 +58,7 @@ class SiteSerializer(CustomFieldModelSerializer):
         fields = [
             'id', 'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
             'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields', 'count_prefixes',
-            'count_vlans', 'count_racks', 'count_devices', 'count_circuits',
+            'count_vlans', 'count_racks', 'count_devices', 'count_circuits', 'created', 'last_updated'
         ]
 
 
@@ -142,7 +142,7 @@ class RackSerializer(CustomFieldModelSerializer):
         model = Rack
         fields = [
             'id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'type', 'width', 'u_height',
-            'desc_units', 'comments', 'custom_fields',
+            'desc_units', 'comments', 'custom_fields', 'created', 'last_updated'
         ]
 
 
@@ -465,7 +465,7 @@ class DeviceSerializer(CustomFieldModelSerializer):
         fields = [
             'id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'site', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4', 'primary_ip6',
-            'comments', 'custom_fields',
+            'comments', 'custom_fields', 'created', 'last_updated'
         ]
 
     def get_parent_device(self, obj):
