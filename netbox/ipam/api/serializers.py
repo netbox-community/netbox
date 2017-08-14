@@ -23,7 +23,7 @@ class VRFSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = VRF
-        fields = ['id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'display_name', 'custom_fields']
+        fields = ['id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'display_name', 'custom_fields', 'created', 'last_updated']
 
 
 class NestedVRFSerializer(serializers.ModelSerializer):
@@ -88,7 +88,7 @@ class AggregateSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = Aggregate
-        fields = ['id', 'family', 'prefix', 'rir', 'date_added', 'description', 'custom_fields']
+        fields = ['id', 'family', 'prefix', 'rir', 'date_added', 'description', 'custom_fields', 'created', 'last_updated']
 
 
 class NestedAggregateSerializer(serializers.ModelSerializer):
@@ -163,7 +163,7 @@ class VLANSerializer(CustomFieldModelSerializer):
         model = VLAN
         fields = [
             'id', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'display_name',
-            'custom_fields',
+            'custom_fields', 'created', 'last_updated'
         ]
 
 
@@ -213,7 +213,7 @@ class PrefixSerializer(CustomFieldModelSerializer):
         model = Prefix
         fields = [
             'id', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description',
-            'custom_fields',
+            'custom_fields', 'created', 'last_updated'
         ]
 
 
@@ -250,7 +250,7 @@ class IPAddressSerializer(CustomFieldModelSerializer):
         model = IPAddress
         fields = [
             'id', 'family', 'address', 'vrf', 'tenant', 'status', 'role', 'interface', 'description', 'nat_inside',
-            'nat_outside', 'custom_fields',
+            'nat_outside', 'custom_fields', 'created', 'last_updated'
         ]
 
 
@@ -300,7 +300,7 @@ class ServiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Service
-        fields = ['id', 'device', 'name', 'port', 'protocol', 'ipaddresses', 'description']
+        fields = ['id', 'device', 'name', 'port', 'protocol', 'ipaddresses', 'description', 'created', 'last_updated']
 
 
 # TODO: Figure out how to use ModelValidationMixin with ManyToManyFields. Calling clean() yields a ValueError.
