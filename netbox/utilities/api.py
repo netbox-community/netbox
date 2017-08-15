@@ -9,6 +9,7 @@ from rest_framework.exceptions import APIException
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import BasePermission, DjangoModelPermissions, SAFE_METHODS
 from rest_framework.serializers import Field, ModelSerializer, ValidationError
+from rest_framework.views import get_view_name as drf_get_view_name
 
 from users.models import Token
 
@@ -196,3 +197,21 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
                 pass
 
         return self.default_limit
+
+
+#
+# Miscellaneous
+#
+
+def get_view_name(view_cls, suffix=None):
+    """
+    Derive the view name from its associated model, if it has one. Fall back to DRF's built-in `get_view_name`.
+    """
+    if hasattr(view_cls, 'queryset'):
+        name = view_cls.queryset.model._meta.verbose_name
+        name = ' '.join([w[0].upper() + w[1:] for w in name.split()])  # Capitalize each word
+        if suffix:
+            name = "{} {}".format(name, suffix)
+        return name
+
+    return drf_get_view_name(view_cls, suffix)
