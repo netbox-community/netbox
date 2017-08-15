@@ -1,13 +1,9 @@
-# Web Server Installation
-
 We'll set up a simple WSGI front end using [gunicorn](http://gunicorn.org/) for the purposes of this guide. For web servers, we provide example configurations for both [nginx](https://www.nginx.com/resources/wiki/) and [Apache](http://httpd.apache.org/docs/2.4). (You are of course free to use whichever combination of HTTP and WSGI services you'd like.) We'll also use [supervisord](http://supervisord.org/) to enable service persistence.
 
 !!! info
     For the sake of brevity, only Ubuntu 16.04 instructions are provided here, but this sort of web server and WSGI configuration is not unique to NetBox. Please consult your distribution's documentation for assistance if needed.
 
-```no-highlight
-# apt-get install -y gunicorn supervisor
-```
+# Web Server Installation
 
 ## Option A: nginx
 
@@ -104,6 +100,12 @@ To enable SSL, consider this guide on [securing Apache with Let's Encrypt](https
 
 # gunicorn Installation
 
+Install gunicorn using `pip3` (Python 3) or `pip` (Python 2):
+
+```no-highlight
+# pip3 install gunicorn
+```
+
 Save the following configuration in the root netbox installation path as `gunicorn_config.py` (e.g. `/opt/netbox/gunicorn_config.py` per our example installation). Be sure to verify the location of the gunicorn executable on your server (e.g. `which gunicorn`) and to update the `pythonpath` variable if needed. If using CentOS/RHEL, change the username from `www-data` to `nginx` or `apache`.
 
 ```no-highlight
@@ -115,6 +117,12 @@ user = 'www-data'
 ```
 
 # supervisord Installation
+
+Install supervisor:
+
+```no-highlight
+# apt-get install -y supervisor
+```
 
 Save the following as `/etc/supervisor/conf.d/netbox.conf`. Update the `command` and `directory` paths as needed. If using CentOS/RHEL, change the username from `www-data` to `nginx` or `apache`.
 

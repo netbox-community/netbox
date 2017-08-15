@@ -10,6 +10,7 @@ from django.db import transaction
 from extras.models import (
     CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_SELECT, CustomField, CustomFieldChoice, CustomFieldValue,
 )
+from utilities.api import ValidatedModelSerializer
 
 
 #
@@ -68,7 +69,7 @@ class CustomFieldsSerializer(serializers.BaseSerializer):
         return data
 
 
-class CustomFieldModelSerializer(serializers.ModelSerializer):
+class CustomFieldModelSerializer(ValidatedModelSerializer):
     """
     Extends ModelSerializer to render any CustomFields and their values associated with an object.
     """
@@ -110,16 +111,6 @@ class CustomFieldModelSerializer(serializers.ModelSerializer):
                 obj_id=instance.pk,
                 defaults={'serialized_value': custom_field.serialize_value(value)},
             )
-
-    def validate(self, data):
-        """
-        Enforce model validation (see utilities.api.ModelValidationMixin)
-        """
-        model_data = data.copy()
-        model_data.pop('custom_fields', None)
-        instance = self.Meta.model(**model_data)
-        instance.clean()
-        return data
 
     def create(self, validated_data):
 
