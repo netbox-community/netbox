@@ -5,14 +5,14 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from dcim.api.serializers import NestedDeviceSerializer
 from secrets.models import Secret, SecretRole
-from utilities.api import ModelValidationMixin
+from utilities.api import ValidatedModelSerializer
 
 
 #
 # SecretRoles
 #
 
-class SecretRoleSerializer(ModelValidationMixin, serializers.ModelSerializer):
+class SecretRoleSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = SecretRole
