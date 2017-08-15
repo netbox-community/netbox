@@ -1247,7 +1247,6 @@ class PlatformTest(HttpStatusMixin, APITestCase):
 class DeviceTest(HttpStatusMixin, APITestCase):
 
     def setUp(self):
-
         user = User.objects.create(username='testuser', is_superuser=True)
         token = Token.objects.create(user=user)
         self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
@@ -1267,11 +1266,13 @@ class DeviceTest(HttpStatusMixin, APITestCase):
         self.devicerole2 = DeviceRole.objects.create(
             name='Test Device Role 2', slug='test-device-role-2', color='00ff00'
         )
+        self.site1_r1 = Rack.objects.create(name='Test Rack S1R1', site=self.site1)
         self.device1 = Device.objects.create(
             device_type=self.devicetype1, device_role=self.devicerole1, name='Test Device 1', site=self.site1
         )
         self.device2 = Device.objects.create(
-            device_type=self.devicetype1, device_role=self.devicerole1, name='Test Device 2', site=self.site1
+            device_type=self.devicetype1, device_role=self.devicerole1, name='Test Device 2', site=self.site1,
+            rack=self.site1_r1, position=42, face=1
         )
         self.device3 = Device.objects.create(
             device_type=self.devicetype1, device_role=self.devicerole1, name='Test Device 3', site=self.site1
@@ -1330,6 +1331,25 @@ class DeviceTest(HttpStatusMixin, APITestCase):
         self.assertEqual(device1.device_role_id, data['device_role'])
         self.assertEqual(device1.name, data['name'])
         self.assertEqual(device1.site_id, data['site'])
+
+    def test_update_device_field(self):
+        '''Update a single field on a device'''
+        data = {
+            'id': 2,
+            'name': 'Test Device Y',
+            'device_type': self.devicetype1.pk,
+            'device_role': self.devicerole1.pk,
+            'site': self.site1.pk,
+            'position': 42,
+            'rack': self.site1_r1.pk,
+            'face': 1,
+        }
+        url = reverse('dcim-api:device-detail', kwargs={'pk': self.device2.pk})
+        response = self.client.put(url, data, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(Device.objects.count(), 3)
+        device1 = Device.objects.get(pk=response.data['id'])
+        self.assertEqual(device1.name, 'Test Device Y')
 
     def test_delete_device(self):
 

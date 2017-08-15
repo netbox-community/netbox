@@ -117,6 +117,10 @@ class CustomFieldModelSerializer(serializers.ModelSerializer):
         """
         model_data = data.copy()
         model_data.pop('custom_fields', None)
+        model_data.update(
+            id=self.initial_data.get('id'),
+            pk=self.initial_data.get('id'),
+        )
         instance = self.Meta.model(**model_data)
         instance.clean()
         return data
