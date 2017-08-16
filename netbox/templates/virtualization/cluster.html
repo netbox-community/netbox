@@ -4,6 +4,13 @@
 {% block content %}
 <div class="row">
     <div class="col-sm-8 col-md-9">
+        <ol class="breadcrumb">
+            <li><a href="{{ cluster.type.get_absolute_url }}">{{ cluster.type }}</a></li>
+            {% if cluster.group %}
+                <li><a href="{{ cluster.group.get_absolute_url }}">{{ cluster.group }}</a></li>
+            {% endif %}
+            <li>{{ cluster }}</li>
+        </ol>
     </div>
     <div class="col-sm-4 col-md-3">
         <form action="{% url 'virtualization:cluster_list' %}" method="get">

@@ -89,9 +89,6 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
         blank=True,
         null=True
     )
-    devices = models.ManyToManyField(
-        to='dcim.Device'
-    )
     comments = models.TextField(
         blank=True
     )

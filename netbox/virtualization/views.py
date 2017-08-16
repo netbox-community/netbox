@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.generic import View
 
+from dcim.models import Device
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView, ComponentEditView,
     ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -95,9 +96,11 @@ class ClusterView(View):
     def get(self, request, pk):
 
         cluster = get_object_or_404(Cluster, pk=pk)
+        devices = Device.objects.filter(cluster=cluster)
 
         return render(request, 'virtualization/cluster.html', {
             'cluster': cluster,
+            'devices': devices,
         })
 
 

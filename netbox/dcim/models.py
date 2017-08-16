@@ -808,6 +808,13 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         'ipam.IPAddress', related_name='primary_ip6_for', on_delete=models.SET_NULL, blank=True, null=True,
         verbose_name='Primary IPv6'
     )
+    cluster = models.ForeignKey(
+        to='virtualization.Cluster',
+        on_delete=models.SET_NULL,
+        related_name='devices',
+        blank=True,
+        null=True
+    )
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
     images = GenericRelation(ImageAttachment)
