@@ -45,9 +45,9 @@ ROLE_ACTIONS = """
 
 PREFIX_LINK = """
 {% if record.has_children %}
-    <span style="padding-left: {{ record.depth }}0px "><i class="fa fa-caret-right"></i></a>
+    <span class="text-nowrap" style="padding-left: {{ record.depth }}0px "><i class="fa fa-caret-right"></i></a>
 {% else %}
-    <span style="padding-left: {{ record.depth }}9px">
+    <span class="text-nowrap" style="padding-left: {{ record.depth }}9px">
 {% endif %}
     <a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if parent.vrf %}&vrf={{ parent.vrf.pk }}{% endif %}{% if parent.site %}&site={{ parent.site.pk }}{% endif %}{% endif %}">{{ record.prefix }}</a>
 </span>
@@ -80,7 +80,6 @@ IPADDRESS_LINK = """
 IPADDRESS_DEVICE = """
 {% if record.interface %}
     <a href="{{ record.interface.device.get_absolute_url }}">{{ record.interface.device }}</a>
-    ({{ record.interface.name }})
 {% else %}
     &mdash;
 {% endif %}

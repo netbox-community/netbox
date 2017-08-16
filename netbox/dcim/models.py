@@ -890,6 +890,18 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
             except DeviceType.DoesNotExist:
                 pass
 
+        # Validate primary IPv4 address
+        if self.primary_ip4 and (self.primary_ip4.interface is None or self.primary_ip4.interface.device != self):
+            raise ValidationError({
+                'primary_ip4': "The specified IP address ({}) is not assigned to this device.".format(self.primary_ip4),
+            })
+
+        # Validate primary IPv6 address
+        if self.primary_ip6 and (self.primary_ip6.interface is None or self.primary_ip6.interface.device != self):
+            raise ValidationError({
+                'primary_ip6': "The specified IP address ({}) is not assigned to this device.".format(self.primary_ip6),
+            })
+
     def save(self, *args, **kwargs):
 
         is_new = not bool(self.pk)

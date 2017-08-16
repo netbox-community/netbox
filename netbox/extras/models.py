@@ -285,7 +285,7 @@ class TopologyMap(models.Model):
 
             # Add each device to the graph
             devices = []
-            for query in device_set.split(';'):  # Split regexes on semicolons
+            for query in device_set.strip(';').split(';'):  # Split regexes on semicolons
                 devices += Device.objects.filter(name__regex=query).select_related('device_role')
             for d in devices:
                 bg_color = '#{}'.format(d.device_role.color)

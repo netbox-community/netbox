@@ -459,7 +459,7 @@ class BootstrapMixin(forms.BaseForm):
             if field.widget.__class__ not in exempt_widgets:
                 css = field.widget.attrs.get('class', '')
                 field.widget.attrs['class'] = ' '.join([css, 'form-control']).strip()
-            if field.required:
+            if field.required and not isinstance(field.widget, forms.FileInput):
                 field.widget.attrs['required'] = 'required'
             if 'placeholder' not in field.widget.attrs:
                 field.widget.attrs['placeholder'] = field.label

@@ -80,13 +80,19 @@ $(document).ready(function() {
             $('#model').html(json['get_facts']['model']);
             $('#serial_number').html(json['get_facts']['serial_number']);
             $('#os_version').html(json['get_facts']['os_version']);
-            $('#uptime').html(json['get_facts']['uptime']);
+            // Calculate uptime
+            var uptime = json['get_facts']['uptime'];
+            console.log(uptime);
+            var uptime_days = Math.floor(uptime / 86400);
+            var uptime_hours = Math.floor(uptime % 86400 / 3600);
+            var uptime_minutes = Math.floor(uptime % 3600 / 60);
+            $('#uptime').html(uptime_days + "d " + uptime_hours + "h " + uptime_minutes + "m");
             $.each(json['get_environment']['cpu'], function(name, obj) {
                 var row="<tr><td>" + name + "</td><td>" + obj['%usage'] + "%</td></tr>";
                 $("#cpu").after(row)
             });
-            $('#memory').after("<tr><td>Used</td><td>" + json['get_environment']['memory']['used_ram'] + "MB</td></tr>");
-            $('#memory').after("<tr><td>Available</td><td>" + json['get_environment']['memory']['available_ram'] + "MB</td></tr>");
+            $('#memory').after("<tr><td>Used</td><td>" + json['get_environment']['memory']['used_ram'] + "</td></tr>");
+            $('#memory').after("<tr><td>Available</td><td>" + json['get_environment']['memory']['available_ram'] + "</td></tr>");
             $.each(json['get_environment']['temperature'], function(name, obj) {
                 var style = "success";
                 if (obj['is_alert']) {

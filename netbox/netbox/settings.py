@@ -13,7 +13,7 @@ except ImportError:
     )
 
 
-VERSION = '2.1.3-dev'
+VERSION = '2.1.4-dev'
 
 # Import required configuration parameters
 ALLOWED_HOSTS = DATABASE = SECRET_KEY = None
@@ -222,6 +222,7 @@ SECRETS_MIN_PUBKEY_SIZE = 2048
 # Django REST framework (API)
 REST_FRAMEWORK_VERSION = VERSION[0:3]  # Use major.minor as API version
 REST_FRAMEWORK = {
+    'ALLOWED_VERSIONS': [REST_FRAMEWORK_VERSION],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'utilities.api.TokenAuthentication',
@@ -234,9 +235,9 @@ REST_FRAMEWORK = {
         'utilities.api.TokenPermissions',
     ),
     'DEFAULT_VERSION': REST_FRAMEWORK_VERSION,
-    'ALLOWED_VERSIONS': [REST_FRAMEWORK_VERSION],
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'PAGE_SIZE': PAGINATE_COUNT,
+    'VIEW_NAME_FUNCTION': 'utilities.api.get_view_name',
 }
 
 # Django debug toolbar
