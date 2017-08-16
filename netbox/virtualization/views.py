@@ -11,6 +11,7 @@ from utilities.views import (
     ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
+from . import filters
 from . import forms
 from . import tables
 
@@ -84,6 +85,8 @@ class ClusterGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class ClusterListView(ObjectListView):
     queryset = Cluster.objects.annotate(vm_count=Count('virtual_machines'))
     table = tables.ClusterTable
+    filter = filters.ClusterFilter
+    filter_form = forms.ClusterFilterForm
     template_name = 'virtualization/cluster_list.html'
 
 
@@ -138,8 +141,8 @@ class ClusterBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class VirtualMachineListView(ObjectListView):
     queryset = VirtualMachine.objects.select_related('tenant')
-    # filter = filters.VirtualMachineFilter
-    # filter_form = forms.VirtualMachineFilterForm
+    filter = filters.VirtualMachineFilter
+    filter_form = forms.VirtualMachineFilterForm
     table = tables.VirtualMachineTable
     template_name = 'virtualization/virtualmachine_list.html'
 
@@ -184,7 +187,7 @@ class VirtualMachineBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'virtualization.change_virtualmachine'
     cls = VirtualMachine
     queryset = VirtualMachine.objects.select_related('tenant')
-    # filter = filters.VirtualMachineFilter
+    filter = filters.VirtualMachineFilter
     table = tables.VirtualMachineTable
     form = forms.VirtualMachineBulkEditForm
     default_return_url = 'virtualization:virtualmachine_list'

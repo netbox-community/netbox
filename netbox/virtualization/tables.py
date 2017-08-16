@@ -77,8 +77,9 @@ class ClusterTable(BaseTable):
 class VirtualMachineTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
+    cluster = tables.LinkColumn('virtualization:cluster', args=[Accessor('cluster.pk')])
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
 
     class Meta(BaseTable.Meta):
         model = VirtualMachine
-        fields = ('pk', 'name', 'tenant')
+        fields = ('pk', 'name', 'cluster', 'tenant', 'vcpus', 'memory', 'disk')

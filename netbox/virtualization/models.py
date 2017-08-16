@@ -161,14 +161,17 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
     )
     vcpus = models.PositiveSmallIntegerField(
         blank=True,
+        null=True,
         verbose_name='vCPUs'
     )
     memory = models.PositiveIntegerField(
         blank=True,
+        null=True,
         verbose_name='Memory (MB)'
     )
     disk = models.PositiveIntegerField(
         blank=True,
+        null=True,
         verbose_name='Disk (GB)'
     )
     comments = models.TextField(

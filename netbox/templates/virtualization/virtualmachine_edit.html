@@ -6,13 +6,17 @@
         <div class="panel-heading"><strong>Virtual Machine</strong></div>
         <div class="panel-body">
             {% render_field form.name %}
+            {% render_field form.cluster_group %}
+            {% render_field form.cluster %}
             {% render_field form.platform %}
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>Cluster</strong></div>
+        <div class="panel-heading"><strong>Resources</strong></div>
         <div class="panel-body">
-            {% render_field form.cluster %}
+            {% render_field form.vcpus %}
+            {% render_field form.memory %}
+            {% render_field form.disk %}
         </div>
     </div>
     <div class="panel panel-default">
