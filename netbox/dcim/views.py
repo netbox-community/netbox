@@ -1558,7 +1558,7 @@ class InterfaceBulkImportView(PermissionRequiredMixin, BulkImportView):
 class InterfaceListView(ObjectListView):
     queryset = Interface.objects.all()
     filter = filters.InterfaceFilter
-    filter_form = forms.DeviceFilterForm
+    filter_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceListTable
     template_name = 'dcim/interface_list.html'
 
