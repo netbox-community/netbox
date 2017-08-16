@@ -159,6 +159,18 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
         null=True,
         verbose_name='Primary IPv6'
     )
+    vcpus = models.PositiveSmallIntegerField(
+        blank=True,
+        verbose_name='vCPUs'
+    )
+    memory = models.PositiveIntegerField(
+        blank=True,
+        verbose_name='Memory (MB)'
+    )
+    disk = models.PositiveIntegerField(
+        blank=True,
+        verbose_name='Disk (GB)'
+    )
     comments = models.TextField(
         blank=True
     )

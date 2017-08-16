@@ -11,8 +11,8 @@ from utilities.views import (
     ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
-import forms
-import tables
+from . import forms
+from . import tables
 
 
 #

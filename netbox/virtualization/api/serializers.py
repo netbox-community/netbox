@@ -5,7 +5,7 @@ from rest_framework import serializers
 from dcim.api.serializers import NestedPlatformSerializer
 from extras.api.customfields import CustomFieldModelSerializer
 from tenancy.api.serializers import NestedTenantSerializer
-from utilities.api import ModelValidationMixin
+from utilities.api import ValidatedModelSerializer
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 
@@ -13,7 +13,7 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMac
 # Cluster types
 #
 
-class ClusterTypeSerializer(ModelValidationMixin, serializers.ModelSerializer):
+class ClusterTypeSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ClusterType
@@ -32,7 +32,7 @@ class NestedClusterTypeSerializer(serializers.ModelSerializer):
 # Cluster groups
 #
 
-class ClusterGroupSerializer(ModelValidationMixin, serializers.ModelSerializer):
+class ClusterGroupSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ClusterGroup
@@ -68,7 +68,7 @@ class NestedClusterSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'name']
 
 
-class WritableClusterSerializer(ModelValidationMixin, CustomFieldModelSerializer):
+class WritableClusterSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = Cluster
@@ -99,7 +99,7 @@ class NestedVirtualMachineSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'name']
 
 
-class WritableVirtualMachineSerializer(ModelValidationMixin, CustomFieldModelSerializer):
+class WritableVirtualMachineSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = Cluster
@@ -130,7 +130,7 @@ class NestedVMInterfaceSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'name']
 
 
-class WritableVMInterfaceSerializer(ModelValidationMixin, serializers.ModelSerializer):
+class WritableVMInterfaceSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = VMInterface
