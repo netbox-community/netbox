@@ -775,12 +775,14 @@ class ComponentCreateView(View):
 
 
 class ComponentEditView(ObjectEditView):
+    parent_field = None
 
     def get_return_url(self, request, obj):
-        return obj.device.get_absolute_url()
+        return getattr(obj, self.parent_field).get_absolute_url()
 
 
 class ComponentDeleteView(ObjectDeleteView):
+    parent_field = None
 
     def get_return_url(self, request, obj):
-        return obj.device.get_absolute_url()
+        return getattr(obj, self.parent_field).get_absolute_url()

@@ -212,21 +212,17 @@ class VMInterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'virtualization/virtualmachine_component_add.html'
 
 
-class VMInterfaceEditView(PermissionRequiredMixin, ObjectEditView):
+class VMInterfaceEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'virtualization.change_vminterface'
     model = VMInterface
+    parent_field = 'virtual_machine'
     form_class = forms.VMInterfaceForm
 
-    def get_return_url(self, request, obj):
-        return obj.virtual_machine.get_absolute_url()
 
-
-class VMInterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+class VMInterfaceDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'virtualization.delete_vminterface'
     model = VMInterface
-
-    def get_return_url(self, request, obj):
-        return obj.virtual_machine.get_absolute_url()
+    parent_field = 'virtual_machine'
 
 
 class VMInterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
