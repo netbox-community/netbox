@@ -577,6 +577,57 @@ class InterfaceFilter(django_filters.FilterSet):
             return queryset.none()
 
 
+class InterfaceListFilter(django_filters.FilterSet):
+    device_id = django_filters.NumberFilter(
+        method='filter_device',
+        name='pk',
+        label='Device (ID)',
+    )
+    type = django_filters.CharFilter(
+        method='filter_type',
+        label='Interface type',
+    )
+    lag_id = django_filters.ModelMultipleChoiceFilter(
+        name='lag',
+        queryset=Interface.objects.all(),
+        label='LAG interface (ID)',
+    )
+    mac_address = django_filters.CharFilter(
+        method='_mac_address',
+        label='MAC address',
+    )
+
+    class Meta:
+        model = Interface
+        fields = ['name', 'form_factor', 'enabled', 'mtu', 'mgmt_only']
+
+    def filter_device(self, queryset, name, value):
+        try:
+            device = Device.objects.select_related('device_type').get(**{name: value})
+            ordering = device.device_type.interface_ordering
+            return queryset.filter(device=device).order_naturally(ordering)
+        except Device.DoesNotExist:
+            return queryset.none()
+
+    def filter_type(self, queryset, name, value):
+        value = value.strip().lower()
+        return {
+            'physical': queryset.exclude(form_factor__in=NONCONNECTABLE_IFACE_TYPES),
+            'virtual': queryset.filter(form_factor__in=VIRTUAL_IFACE_TYPES),
+            'wireless': queryset.filter(form_factor__in=WIRELESS_IFACE_TYPES),
+            'lag': queryset.filter(form_factor=IFACE_FF_LAG),
+        }.get(value, queryset.none())
+
+    def _mac_address(self, queryset, name, value):
+        value = value.strip()
+        if not value:
+            return queryset
+        try:
+            return queryset.filter(mac_address=value)
+        except AddrFormatError:
+            return queryset.none()
+
+
 class DeviceBayFilter(DeviceComponentFilterSet):
 
     class Meta:
