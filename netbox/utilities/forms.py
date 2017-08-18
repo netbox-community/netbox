@@ -513,6 +513,15 @@ class ConfirmationForm(BootstrapMixin, ReturnURLForm):
     confirm = forms.BooleanField(required=True, widget=forms.HiddenInput(), initial=True)
 
 
+class ComponentForm(BootstrapMixin, forms.Form):
+    """
+    Allow inclusion of the parent Device/VirtualMachine as context for limiting field choices.
+    """
+    def __init__(self, parent, *args, **kwargs):
+        self.parent = parent
+        super(ComponentForm, self).__init__(*args, **kwargs)
+
+
 class BulkEditForm(forms.Form):
 
     def __init__(self, model, *args, **kwargs):

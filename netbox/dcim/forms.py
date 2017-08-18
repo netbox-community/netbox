@@ -13,9 +13,9 @@ from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ChainedFieldsMixin, ChainedModelChoiceField, CommentField, ConfirmationForm, CSVChoiceField, ExpandableNameField,
-    FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
-    FilterTreeNodeMultipleChoiceField,
+    ChainedFieldsMixin, ChainedModelChoiceField, CommentField, ComponentForm, ConfirmationForm, CSVChoiceField,
+    ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea,
+    SlugField, FilterTreeNodeMultipleChoiceField,
 )
 from .formfields import MACAddressFormField
 from .models import (
@@ -47,15 +47,6 @@ def get_device_by_name_or_pk(name):
     else:
         device = Device.objects.get(name=name)
     return device
-
-
-class DeviceComponentForm(BootstrapMixin, forms.Form):
-    """
-    Allow inclusion of the parent device as context for limiting field choices.
-    """
-    def __init__(self, device, *args, **kwargs):
-        self.device = device
-        super(DeviceComponentForm, self).__init__(*args, **kwargs)
 
 
 #
@@ -452,7 +443,7 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsolePortTemplateCreateForm(DeviceComponentForm):
+class ConsolePortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -466,7 +457,7 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsoleServerPortTemplateCreateForm(DeviceComponentForm):
+class ConsoleServerPortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -480,7 +471,7 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerPortTemplateCreateForm(DeviceComponentForm):
+class PowerPortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -494,7 +485,7 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerOutletTemplateCreateForm(DeviceComponentForm):
+class PowerOutletTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -508,7 +499,7 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class InterfaceTemplateCreateForm(DeviceComponentForm):
+class InterfaceTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
     form_factor = forms.ChoiceField(choices=IFACE_FF_CHOICES)
     mgmt_only = forms.BooleanField(required=False, label='OOB Management')
@@ -533,7 +524,7 @@ class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class DeviceBayTemplateCreateForm(DeviceComponentForm):
+class DeviceBayTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -933,7 +924,7 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsolePortCreateForm(DeviceComponentForm):
+class ConsolePortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -1102,7 +1093,7 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsoleServerPortCreateForm(DeviceComponentForm):
+class ConsoleServerPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -1194,7 +1185,7 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerPortCreateForm(DeviceComponentForm):
+class PowerPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -1363,7 +1354,7 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerOutletCreateForm(DeviceComponentForm):
+class PowerOutletCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -1468,7 +1459,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
             )
 
 
-class InterfaceCreateForm(DeviceComponentForm):
+class InterfaceCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
     form_factor = forms.ChoiceField(choices=IFACE_FF_CHOICES)
     enabled = forms.BooleanField(required=False)
@@ -1487,9 +1478,9 @@ class InterfaceCreateForm(DeviceComponentForm):
         super(InterfaceCreateForm, self).__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces belonging to this device
-        if self.device is not None:
+        if self.parent is not None:
             self.fields['lag'].queryset = Interface.objects.order_naturally().filter(
-                device=self.device, form_factor=IFACE_FF_LAG
+                device=self.parent, form_factor=IFACE_FF_LAG
             )
         else:
             self.fields['lag'].queryset = Interface.objects.none()
@@ -1715,7 +1706,7 @@ class DeviceBayForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class DeviceBayCreateForm(DeviceComponentForm):
+class DeviceBayCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
