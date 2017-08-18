@@ -1175,6 +1175,11 @@ class Interface(models.Model):
         help_text="This interface is used only for out-of-band management"
     )
     description = models.CharField(max_length=100, blank=True)
+    ip_addresses = GenericRelation(
+        to='ipam.IPAddress',
+        content_type_field='interface_type',
+        object_id_field='interface_id'
+    )
 
     objects = InterfaceQuerySet.as_manager()
 

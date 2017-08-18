@@ -221,6 +221,11 @@ class VMInterface(models.Model):
         max_length=100,
         blank=True
     )
+    ip_addresses = GenericRelation(
+        to='ipam.IPAddress',
+        content_type_field='interface_type',
+        object_id_field='interface_id'
+    )
 
     class Meta:
         ordering = ['virtual_machine', 'name']

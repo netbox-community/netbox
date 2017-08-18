@@ -2,10 +2,12 @@ from __future__ import unicode_literals
 import netaddr
 
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
@@ -407,8 +409,15 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     role = models.PositiveSmallIntegerField(
         'Role', choices=IPADDRESS_ROLE_CHOICES, blank=True, null=True, help_text='The functional role of this IP'
     )
-    interface = models.ForeignKey(Interface, related_name='ip_addresses', on_delete=models.CASCADE, blank=True,
-                                  null=True)
+    interface_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.PROTECT,
+        limit_choices_to=Q(app_label='dcim', model='interface') | Q(app_label='virtualization', model='vminterface'),
+        blank=True,
+        null=True
+    )
+    interface_id = models.PositiveIntegerField(blank=True, null=True)
+    interface = GenericForeignKey('interface_type', 'interface_id')
     nat_inside = models.OneToOneField('self', related_name='nat_outside', on_delete=models.SET_NULL, blank=True,
                                       null=True, verbose_name='NAT (Inside)',
                                       help_text="The IP for which this address is the \"outside\" IP")

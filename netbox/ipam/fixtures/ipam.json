@@ -70,7 +70,7 @@
         "family": 4,
         "address": "10.0.255.1/32",
         "vrf": null,
-        "interface": 3,
+        "interface_id": 3,
         "nat_inside": null,
         "description": ""
     }
@@ -84,7 +84,7 @@
         "family": 4,
         "address": "169.254.254.1/31",
         "vrf": null,
-        "interface": 4,
+        "interface_id": 4,
         "nat_inside": null,
         "description": ""
     }
@@ -98,7 +98,7 @@
         "family": 4,
         "address": "10.0.255.2/32",
         "vrf": null,
-        "interface": 185,
+        "interface_id": 185,
         "nat_inside": null,
         "description": ""
     }
@@ -112,7 +112,7 @@
         "family": 4,
         "address": "169.254.1.1/31",
         "vrf": null,
-        "interface": 213,
+        "interface_id": 213,
         "nat_inside": null,
         "description": ""
     }
@@ -126,7 +126,7 @@
         "family": 4,
         "address": "10.0.254.1/24",
         "vrf": null,
-        "interface": 12,
+        "interface_id": 12,
         "nat_inside": null,
         "description": ""
     }
@@ -140,7 +140,7 @@
         "family": 4,
         "address": "10.15.21.1/31",
         "vrf": null,
-        "interface": 218,
+        "interface_id": 218,
         "nat_inside": null,
         "description": ""
     }
@@ -154,7 +154,7 @@
         "family": 4,
         "address": "10.15.21.2/31",
         "vrf": null,
-        "interface": 9,
+        "interface_id": 9,
         "nat_inside": null,
         "description": ""
     }
@@ -168,7 +168,7 @@
         "family": 4,
         "address": "10.15.22.1/31",
         "vrf": null,
-        "interface": 8,
+        "interface_id": 8,
         "nat_inside": null,
         "description": ""
     }
@@ -182,7 +182,7 @@
         "family": 4,
         "address": "10.15.20.1/31",
         "vrf": null,
-        "interface": 7,
+        "interface_id": 7,
         "nat_inside": null,
         "description": ""
     }
@@ -196,7 +196,7 @@
         "family": 4,
         "address": "10.16.20.1/31",
         "vrf": null,
-        "interface": 216,
+        "interface_id": 216,
         "nat_inside": null,
         "description": ""
     }
@@ -210,7 +210,7 @@
         "family": 4,
         "address": "10.15.22.2/31",
         "vrf": null,
-        "interface": 206,
+        "interface_id": 206,
         "nat_inside": null,
         "description": ""
     }
@@ -224,7 +224,7 @@
         "family": 4,
         "address": "10.16.22.1/31",
         "vrf": null,
-        "interface": 217,
+        "interface_id": 217,
         "nat_inside": null,
         "description": ""
     }
@@ -238,7 +238,7 @@
         "family": 4,
         "address": "10.16.22.2/31",
         "vrf": null,
-        "interface": 205,
+        "interface_id": 205,
         "nat_inside": null,
         "description": ""
     }
@@ -252,7 +252,7 @@
         "family": 4,
         "address": "10.16.20.2/31",
         "vrf": null,
-        "interface": 211,
+        "interface_id": 211,
         "nat_inside": null,
         "description": ""
     }
@@ -266,7 +266,7 @@
         "family": 4,
         "address": "10.15.22.2/31",
         "vrf": null,
-        "interface": 212,
+        "interface_id": 212,
         "nat_inside": null,
         "description": ""
     }
@@ -280,7 +280,7 @@
         "family": 4,
         "address": "10.0.254.2/32",
         "vrf": null,
-        "interface": 188,
+        "interface_id": 188,
         "nat_inside": null,
         "description": ""
     }
@@ -294,7 +294,7 @@
         "family": 4,
         "address": "169.254.1.1/31",
         "vrf": null,
-        "interface": 200,
+        "interface_id": 200,
         "nat_inside": null,
         "description": ""
     }
@@ -308,7 +308,7 @@
         "family": 4,
         "address": "169.254.1.2/31",
         "vrf": null,
-        "interface": 194,
+        "interface_id": 194,
         "nat_inside": null,
         "description": ""
     }
