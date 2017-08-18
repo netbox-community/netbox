@@ -961,6 +961,7 @@ class ConsolePortCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = ConsolePort
     form = forms.ConsolePortCreateForm
     model_form = forms.ConsolePortForm
+    template_name = 'dcim/device_component_add.html'
 
 
 @permission_required('dcim.change_consoleport')
@@ -1075,6 +1076,7 @@ class ConsoleServerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = ConsoleServerPort
     form = forms.ConsoleServerPortCreateForm
     model_form = forms.ConsoleServerPortForm
+    template_name = 'dcim/device_component_add.html'
 
 
 @permission_required('dcim.change_consoleserverport')
@@ -1194,6 +1196,7 @@ class PowerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = PowerPort
     form = forms.PowerPortCreateForm
     model_form = forms.PowerPortForm
+    template_name = 'dcim/device_component_add.html'
 
 
 @permission_required('dcim.change_powerport')
@@ -1308,6 +1311,7 @@ class PowerOutletCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = PowerOutlet
     form = forms.PowerOutletCreateForm
     model_form = forms.PowerOutletForm
+    template_name = 'dcim/device_component_add.html'
 
 
 @permission_required('dcim.change_poweroutlet')
@@ -1429,6 +1433,7 @@ class InterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = Interface
     form = forms.InterfaceCreateForm
     model_form = forms.InterfaceForm
+    template_name = 'dcim/device_component_add.html'
 
 
 class InterfaceEditView(PermissionRequiredMixin, ComponentEditView):
@@ -1480,6 +1485,7 @@ class DeviceBayCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = DeviceBay
     form = forms.DeviceBayCreateForm
     model_form = forms.DeviceBayForm
+    template_name = 'dcim/device_component_add.html'
 
 
 class DeviceBayEditView(PermissionRequiredMixin, ComponentEditView):
