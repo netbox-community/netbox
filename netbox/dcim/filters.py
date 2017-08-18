@@ -273,6 +273,7 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
 class DeviceTypeComponentFilterSet(django_filters.FilterSet):
     devicetype_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceType.objects.all(),
+        name='device_type_id',
         label='Device type (ID)',
     )
 
