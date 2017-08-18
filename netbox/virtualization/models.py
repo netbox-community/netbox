@@ -225,6 +225,7 @@ class VMInterface(models.Model):
     class Meta:
         ordering = ['virtual_machine', 'name']
         unique_together = ['virtual_machine', 'name']
+        verbose_name = 'VM interface'
 
     def __str__(self):
         return self.name

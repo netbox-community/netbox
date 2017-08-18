@@ -83,3 +83,14 @@ class VirtualMachineTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = VirtualMachine
         fields = ('pk', 'name', 'cluster', 'tenant', 'vcpus', 'memory', 'disk')
+
+
+#
+# VM components
+#
+
+class VMInterfaceTable(BaseTable):
+
+    class Meta(BaseTable.Meta):
+        model = VMInterface
+        fields = ('name', 'enabled', 'description')

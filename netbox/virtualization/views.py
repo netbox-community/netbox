@@ -155,9 +155,11 @@ class VirtualMachineView(View):
     def get(self, request, pk):
 
         vm = get_object_or_404(VirtualMachine.objects.select_related('tenant__group'), pk=pk)
+        interfaces = VMInterface.objects.filter(virtual_machine=vm)
 
         return render(request, 'virtualization/virtualmachine.html', {
             'vm': vm,
+            'interfaces': interfaces,
         })
 
 
@@ -200,36 +202,43 @@ class VirtualMachineBulkEditView(PermissionRequiredMixin, BulkEditView):
 # VM interfaces
 #
 
-# class VMInterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
-#     permission_required = 'virtualization.add_vminterface'
-#     parent_model = VirtualMachine
-#     parent_field = 'vm'
-#     model = VMInterface
-#     form = forms.VMInterfaceCreateForm
-#     model_form = forms.VMInterfaceForm
-#
-#
-# class VMInterfaceEditView(PermissionRequiredMixin, ComponentEditView):
-#     permission_required = 'virtualization.change_vminterface'
-#     model = VMInterface
-#     form_class = forms.VMInterfaceForm
-#
-#
-# class VMInterfaceDeleteView(PermissionRequiredMixin, ComponentDeleteView):
-#     permission_required = 'virtualization.delete_vminterface'
-#     model = VMInterface
-#
-#
-# class VMInterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
-#     permission_required = 'virtualization.change_vminterface'
-#     cls = VMInterface
-#     parent_cls = VirtualMachine
-#     table = tables.VMInterfaceTable
-#     form = forms.VMInterfaceBulkEditForm
-#
-#
-# class VMInterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-#     permission_required = 'virtualization.delete_vminterface'
-#     cls = VMInterface
-#     parent_cls = VirtualMachine
-#     table = tables.VMInterfaceTable
+class VMInterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
+    permission_required = 'virtualization.add_vminterface'
+    parent_model = VirtualMachine
+    parent_field = 'virtual_machine'
+    model = VMInterface
+    form = forms.VMInterfaceCreateForm
+    model_form = forms.VMInterfaceForm
+    template_name = 'virtualization/virtualmachine_component_add.html'
+
+
+class VMInterfaceEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'virtualization.change_vminterface'
+    model = VMInterface
+    form_class = forms.VMInterfaceForm
+
+    def get_return_url(self, request, obj):
+        return obj.virtual_machine.get_absolute_url()
+
+
+class VMInterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'virtualization.delete_vminterface'
+    model = VMInterface
+
+    def get_return_url(self, request, obj):
+        return obj.virtual_machine.get_absolute_url()
+
+
+class VMInterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'virtualization.change_vminterface'
+    cls = VMInterface
+    parent_cls = VirtualMachine
+    table = tables.VMInterfaceTable
+    form = forms.VMInterfaceBulkEditForm
+
+
+class VMInterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'virtualization.delete_vminterface'
+    cls = VMInterface
+    parent_cls = VirtualMachine
+    table = tables.VMInterfaceTable

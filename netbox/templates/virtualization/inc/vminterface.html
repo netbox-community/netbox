@@ -1,0 +1,65 @@
+<tr class="interface{% if not iface.enabled %} danger{% endif %}">
+    {% if selectable and perms.virtualization.change_vminterface or perms.virtualization.delete_vminterface %}
+        <td class="pk">
+            <input name="pk" type="checkbox" value="{{ iface.pk }}" />
+        </td>
+    {% endif %}
+    <td>
+        <i class="fa fa-fw fa-square"></i> <span>{{ iface.name }}</span>
+        {% if iface.description %}
+            <i class="fa fa-fw fa-comment-o" title="{{ iface.description }}"></i>
+        {% endif %}
+    </td>
+    <td>{{ iface.mtu|default:"" }}</td>
+    <td>{{ iface.mac_address|default:"" }}</td>
+    <td class="text-right">
+        {% if perms.virtualization.change_vminterface %}
+            <a href="{% url 'virtualization:vminterface_edit' pk=iface.pk %}" class="btn btn-info btn-xs" title="Edit interface">
+                <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+            </a>
+        {% endif %}
+        {% if perms.virtualization.delete_vminterface %}
+            <a href="{% url 'virtualization:vminterface_delete' pk=iface.pk %}" class="btn btn-danger btn-xs" title="Delete interface">
+                <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+            </a>
+        {% endif %}
+    </td>
+</tr>
+{% for ip in iface.ip_addresses.all %}
+    <tr class="ipaddress">
+        {% if selectable and perms.dcim.change_interface or perms.dcim.delete_interface %}
+            <td></td>
+        {% endif %}
+        <td colspan="3">
+            <a href="{% url 'ipam:ipaddress' pk=ip.pk %}">{{ ip }}</a>
+            {% if ip.description %}
+                <i class="fa fa-fw fa-comment-o" title="{{ ip.description }}"></i>
+            {% endif %}
+            {% if device.primary_ip4 == ip or device.primary_ip6 == ip %}
+                <span class="label label-success">Primary</span>
+            {% endif %}
+        </td>
+        <td class="text-right">
+            {% if ip.vrf %}
+                <a href="{% url 'ipam:vrf' pk=ip.vrf.pk %}">{{ ip.vrf }}</a>
+            {% else %}
+                <span class="text-muted">Global</span>
+            {% endif %}
+        </td>
+        <td>
+            <span class="label label-{{ ip.get_status_class }}">{{ ip.get_status_display }}</span>
+        </td>
+        <td class="text-right">
+            {% if perms.ipam.change_ipaddress %}
+                <a href="{% url 'ipam:ipaddress_edit' pk=ip.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-info btn-xs">
+                    <i class="glyphicon glyphicon-pencil" aria-hidden="true" title="Edit IP address"></i>
+                </a>
+            {% endif %}
+            {% if perms.ipam.delete_ipaddress %}
+                <a href="{% url 'ipam:ipaddress_delete' pk=ip.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
+                    <i class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete IP address"></i>
+                </a>
+            {% endif %}
+        </td>
+    </tr>
+{% endfor %}

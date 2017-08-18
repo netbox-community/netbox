@@ -3,11 +3,15 @@ from __future__ import unicode_literals
 from django import forms
 from django.db.models import Count
 
+from dcim.formfields import MACAddressFormField
 from extras.forms import CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
-from utilities.forms import APISelect, BootstrapMixin, ChainedModelChoiceField, FilterChoiceField, SlugField
-from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+from utilities.forms import (
+    APISelect, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ChainedModelChoiceField, ComponentForm,
+    ExpandableNameField, FilterChoiceField, SlugField,
+)
+from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
 
 #
@@ -157,3 +161,44 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=Cluster.objects.annotate(filter_count=Count('virtual_machines')),
         label='Cluster'
     )
+
+
+#
+# VM interfaces
+#
+
+class VMInterfaceForm(BootstrapMixin, forms.ModelForm):
+
+    class Meta:
+        model = VMInterface
+        fields = ['virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description']
+        widgets = {
+            'virtual_machine': forms.HiddenInput(),
+        }
+
+
+class VMInterfaceCreateForm(ComponentForm):
+    name_pattern = ExpandableNameField(label='Name')
+    enabled = forms.BooleanField(required=False)
+    mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
+    mac_address = MACAddressFormField(required=False, label='MAC Address')
+    description = forms.CharField(max_length=100, required=False)
+
+    def __init__(self, *args, **kwargs):
+
+        # Set interfaces enabled by default
+        kwargs['initial'] = kwargs.get('initial', {}).copy()
+        kwargs['initial'].update({'enabled': True})
+
+        super(VMInterfaceCreateForm, self).__init__(*args, **kwargs)
+
+
+class VMInterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(queryset=VMInterface.objects.all(), widget=forms.MultipleHiddenInput)
+    virtual_machine = forms.ModelChoiceField(queryset=VirtualMachine.objects.all(), widget=forms.HiddenInput)
+    enabled = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect)
+    mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
+    description = forms.CharField(max_length=100, required=False)
+
+    class Meta:
+        nullable_fields = ['mtu', 'description']
