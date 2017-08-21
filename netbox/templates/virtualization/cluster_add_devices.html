@@ -1,0 +1,44 @@
+{% extends '_base.html' %}
+{% load static from staticfiles %}
+{% load form_helpers %}
+
+{% block content %}
+    <form action="." method="post" class="form form-horizontal">
+        {% csrf_token %}
+        {% for field in form.hidden_fields %}
+            {{ field }}
+        {% endfor %}
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <h3>{% block title %}Add Devices to Cluster {{ cluster }}{% endblock %}</h3>
+                {% if form.non_field_errors %}
+                    <div class="panel panel-danger">
+                        <div class="panel-heading"><strong>Errors</strong></div>
+                        <div class="panel-body">
+                            {{ form.non_field_errors }}
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="panel panel-default">
+                    <div class="panel-heading"><strong>Devices</strong></div>
+                    <div class="panel-body">
+                        {% render_field form.region %}
+                        {% render_field form.site %}
+                        {% render_field form.rack %}
+                        {% render_field form.devices %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3 text-right">
+                <button type="submit" name="_add" class="btn btn-primary">Add Devices</button>
+                <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{% static 'js/livesearch.js' %}?v{{ settings.VERSION }}"></script>
+{% endblock %}

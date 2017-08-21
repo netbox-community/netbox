@@ -187,6 +187,10 @@ class APISelect(SelectWithDisabled):
             self.attrs['disabled-indicator'] = disabled_indicator
 
 
+class APISelectMultiple(APISelect):
+    allow_multiple_selected = True
+
+
 class Livesearch(forms.TextInput):
     """
     A text widget that carries a few extra bits of data for use in AJAX-powered autocomplete search
@@ -383,6 +387,15 @@ class ChainedModelChoiceField(forms.ModelChoiceField):
     def __init__(self, chains=None, *args, **kwargs):
         self.chains = chains
         super(ChainedModelChoiceField, self).__init__(*args, **kwargs)
+
+
+class ChainedModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    """
+    See ChainedModelChoiceField
+    """
+    def __init__(self, chains=None, *args, **kwargs):
+        self.chains = chains
+        super(ChainedModelMultipleChoiceField, self).__init__(*args, **kwargs)
 
 
 class SlugField(forms.SlugField):

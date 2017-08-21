@@ -1,12 +1,14 @@
 from __future__ import unicode_literals
 
+from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import View
 
 from dcim.models import Device
+from dcim.tables import DeviceTable
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView, ComponentEditView,
     ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -96,11 +98,16 @@ class ClusterView(View):
     def get(self, request, pk):
 
         cluster = get_object_or_404(Cluster, pk=pk)
-        devices = Device.objects.filter(cluster=cluster)
+        devices = Device.objects.filter(cluster=cluster).select_related(
+            'site', 'rack', 'tenant', 'device_type__manufacturer'
+        )
+        device_table = DeviceTable(list(devices), orderable=False)
+        if request.user.has_perm('virtualization:change_cluster'):
+            device_table.columns.show('pk')
 
         return render(request, 'virtualization/cluster.html', {
             'cluster': cluster,
-            'devices': devices,
+            'device_table': device_table,
         })
 
 
@@ -108,9 +115,6 @@ class ClusterCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'virtualization.add_cluster'
     model = Cluster
     form_class = forms.ClusterForm
-
-    def get_return_url(self, request, obj):
-        return reverse('virtualization:cluster_list')
 
 
 class ClusterEditView(ClusterCreateView):
@@ -136,6 +140,82 @@ class ClusterBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     queryset = Cluster.objects.annotate(vm_count=Count('virtual_machines'))
     table = tables.ClusterTable
     default_return_url = 'virtualization:cluster_list'
+
+
+class ClusterAddDevicesView(PermissionRequiredMixin, View):
+    permission_required = 'virtualization.change_cluster'
+    form = forms.ClusterAddDevicesForm
+    template_name = 'virtualization/cluster_add_devices.html'
+
+    def get(self, request, pk):
+
+        cluster = get_object_or_404(Cluster, pk=pk)
+        form = self.form()
+
+        return render(request, self.template_name, {
+            'cluster': cluster,
+            'form': form,
+            'return_url': reverse('virtualization:cluster', kwargs={'pk': pk}),
+        })
+
+    def post(self, request, pk):
+
+        cluster = get_object_or_404(Cluster, pk=pk)
+        form = self.form(request.POST)
+
+        if form.is_valid():
+
+            # Assign the selected Devices to the Cluster
+            devices = form.cleaned_data['devices']
+            Device.objects.filter(pk__in=devices).update(cluster=cluster)
+
+            messages.success(request, "Added {} devices to cluster {}".format(
+                len(devices), cluster
+            ))
+            return redirect(cluster.get_absolute_url())
+
+        return render(request, self.template_name, {
+            'cluser': cluster,
+            'form': form,
+            'return_url': cluster.get_absolute_url(),
+        })
+
+
+class ClusterRemoveDevicesView(PermissionRequiredMixin, View):
+    permission_required = 'virtualization.change_cluster'
+    form = forms.ClusterRemoveDevicesForm
+    template_name = 'utilities/obj_bulk_remove.html'
+
+    def post(self, request, pk):
+
+        cluster = get_object_or_404(Cluster, pk=pk)
+
+        if '_confirm' in request.POST:
+            form = self.form(request.POST)
+            if form.is_valid():
+
+                # Remove the selected Devices from the Cluster
+                devices = form.cleaned_data['pk']
+                Device.objects.filter(pk__in=devices).update(cluster=None)
+
+                messages.success(request, "Removed {} devices from cluster {}".format(
+                    len(devices), cluster
+                ))
+                return redirect(cluster.get_absolute_url())
+
+        else:
+            form = self.form(initial={'pk': request.POST.getlist('pk')})
+
+        selected_objects = Device.objects.filter(pk__in=form.initial['pk'])
+        device_table = DeviceTable(list(selected_objects), orderable=False)
+
+        return render(request, self.template_name, {
+            'form': form,
+            'parent_obj': cluster,
+            'table': device_table,
+            'obj_type_plural': 'devices',
+            'return_url': cluster.get_absolute_url(),
+        })
 
 
 #

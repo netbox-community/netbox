@@ -1,15 +1,19 @@
 from __future__ import unicode_literals
 
+from mptt.forms import TreeNodeChoiceField
+
 from django import forms
 from django.db.models import Count
 
 from dcim.formfields import MACAddressFormField
+from dcim.models import Device, Rack, Region, Site
 from extras.forms import CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ChainedModelChoiceField, ComponentForm,
-    ExpandableNameField, FilterChoiceField, SlugField,
+    APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ChainedFieldsMixin,
+    ChainedModelChoiceField, ChainedModelMultipleChoiceField, ComponentForm, ConfirmationForm, ExpandableNameField,
+    FilterChoiceField, SlugField,
 )
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 
@@ -86,6 +90,65 @@ class ClusterFilterForm(BootstrapMixin, CustomFieldFilterForm):
         to_field_name='slug',
         required=False,
     )
+
+
+class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
+    region = TreeNodeChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        widget=forms.Select(
+            attrs={'filter-for': 'site'}
+        )
+    )
+    site = ChainedModelChoiceField(
+        queryset=Site.objects.all(),
+        chains=(
+            ('region', 'region'),
+        ),
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/sites/?region_id={{region}}',
+            attrs={'filter-for': 'rack'}
+        )
+    )
+    rack = ChainedModelChoiceField(
+        queryset=Rack.objects.all(),
+        chains=(
+            ('site', 'site'),
+        ),
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/racks/?site_id={{site}}',
+            attrs={'filter-for': 'devices', 'nullable': 'true'}
+        )
+    )
+    devices = ChainedModelMultipleChoiceField(
+        queryset=Device.objects.filter(cluster__isnull=True),
+        chains=(
+            ('site', 'site'),
+            ('rack', 'rack'),
+        ),
+        label='Device',
+        required=False,
+        widget=APISelectMultiple(
+            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
+            display_field='display_name',
+            disabled_indicator='cluster'
+        )
+    )
+
+    class Meta:
+        fields = ['region', 'site', 'rack', 'devices']
+
+    def __init__(self, *args, **kwargs):
+
+        super(ClusterAddDevicesForm, self).__init__(*args, **kwargs)
+
+        self.fields['devices'].choices = []
+
+
+class ClusterRemoveDevicesForm(ConfirmationForm):
+    pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 #

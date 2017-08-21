@@ -2,7 +2,7 @@
 {% load helpers %}
 
 {% block content %}
-<div class="row">
+<div class="row" xmlns="http://www.w3.org/1999/html">
     <div class="col-sm-8 col-md-9">
         <ol class="breadcrumb">
             <li><a href="{{ cluster.type.get_absolute_url }}">{{ cluster.type }}</a></li>
@@ -89,10 +89,28 @@
     <div class="col-md-7">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <strong>Devices</strong>
+                <strong>Host Devices</strong>
             </div>
-            <div class="panel-body">
-            </div>
+            {% if perms.virtualization.change_cluster %}
+                <form action="{% url 'virtualization:cluster_remove_devices' pk=cluster.pk %}" method="post">
+                {% csrf_token %}
+            {% endif %}
+            {% include 'responsive_table.html' with table=device_table %}
+            {% if perms.virtualization.change_cluster %}
+                <div class="panel-footer">
+                    <div class="pull-right">
+                        <a href="{% url 'virtualization:cluster_add_devices' pk=cluster.pk %}" class="btn btn-primary btn-xs">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            Add devices
+                        </a>
+                    </div>
+                    <button type="submit" name="_remove" class="btn btn-danger primary btn-xs">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        Remove devices
+                    </button>
+                </div>
+                </form>
+            {% endif %}
         </div>
 	</div>
 </div>

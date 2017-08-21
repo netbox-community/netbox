@@ -28,6 +28,8 @@ urlpatterns = [
     url(r'^clusters/(?P<pk>\d+)/$', views.ClusterView.as_view(), name='cluster'),
     url(r'^clusters/(?P<pk>\d+)/edit/$', views.ClusterEditView.as_view(), name='cluster_edit'),
     url(r'^clusters/(?P<pk>\d+)/delete/$', views.ClusterDeleteView.as_view(), name='cluster_delete'),
+    url(r'^clusters/(?P<pk>\d+)/devices/add/$', views.ClusterAddDevicesView.as_view(), name='cluster_add_devices'),
+    url(r'^clusters/(?P<pk>\d+)/devices/remove/$', views.ClusterRemoveDevicesView.as_view(), name='cluster_remove_devices'),
 
     # Virtual machines
     url(r'^virtual-machines/$', views.VirtualMachineListView.as_view(), name='virtualmachine_list'),

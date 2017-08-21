@@ -10,6 +10,7 @@ from django.db.models import Q
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NullableCharFieldFilter, NullableModelMultipleChoiceFilter, NumericInFilter
+from virtualization.models import Cluster
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, STATUS_CHOICES, IFACE_FF_LAG, Interface, InterfaceConnection,
@@ -406,6 +407,10 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         name='rack',
         queryset=Rack.objects.all(),
         label='Rack (ID)',
+    )
+    cluster_id = NullableModelMultipleChoiceFilter(
+        queryset=Cluster.objects.all(),
+        label='VM cluster (ID)',
     )
     model = django_filters.ModelMultipleChoiceFilter(
         name='device_type__slug',
