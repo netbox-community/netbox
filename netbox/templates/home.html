@@ -55,20 +55,23 @@
                 </div>
             </div>
         </div>
-        {% if perms.secrets %}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Secrets</strong>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Virtualization</strong>
+            </div>
+            <div class="list-group">
+                <div class="list-group-item">
+                    <span class="badge pull-right">{{ stats.cluster_count }}</span>
+                    <h4 class="list-group-item-heading"><a href="{% url 'virtualization:cluster_list' %}">Clusters</a></h4>
+                    <p class="list-group-item-text text-muted">Clusters of physical hosts in which VMs reside</p>
                 </div>
-                <div class="list-group">
-                    <div class="list-group-item">
-                        <span class="badge pull-right">{{ stats.secret_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'secrets:secret_list' %}">Secrets</a></h4>
-                        <p class="list-group-item-text text-muted">Sensitive data (such as passwords) which has been stored securely</p>
-                    </div>
+                <div class="list-group-item">
+                    <span class="badge pull-right">{{ stats.virtualmachine_count }}</span>
+                    <h4 class="list-group-item-heading"><a href="{% url 'virtualization:virtualmachine_list' %}">Virtual Machines</a></h4>
+                    <p class="list-group-item-text text-muted">Virtual compute instances running inside clusters</p>
                 </div>
             </div>
-        {% endif %}
+        </div>
     </div>
     <div class="col-sm-6 col-md-4">
         <div class="panel panel-default">
@@ -120,6 +123,20 @@
                 </div>
             </div>
         </div>
+        {% if perms.secrets %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Secrets</strong>
+                </div>
+                <div class="list-group">
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.secret_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'secrets:secret_list' %}">Secrets</a></h4>
+                        <p class="list-group-item-text text-muted">Sensitive data (such as passwords) which has been stored securely</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     </div>
     <div class="col-sm-6 col-md-4">
         <div class="panel panel-default">

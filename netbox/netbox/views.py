@@ -25,6 +25,9 @@ from secrets.tables import SecretTable
 from tenancy.filters import TenantFilter
 from tenancy.models import Tenant
 from tenancy.tables import TenantTable
+from virtualization.filters import ClusterFilter, VirtualMachineFilter
+from virtualization.models import Cluster, VirtualMachine
+from virtualization.tables import ClusterTable, VirtualMachineTable
 from .forms import SearchForm
 
 
@@ -90,7 +93,7 @@ SEARCH_TYPES = OrderedDict((
         'url': 'ipam:prefix_list',
     }),
     ('ipaddress', {
-        'queryset': IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device'),
+        'queryset': IPAddress.objects.select_related('vrf__tenant', 'tenant'),
         'filter': IPAddressFilter,
         'table': IPAddressTable,
         'url': 'ipam:ipaddress_list',
@@ -114,6 +117,19 @@ SEARCH_TYPES = OrderedDict((
         'filter': TenantFilter,
         'table': TenantTable,
         'url': 'tenancy:tenant_list',
+    }),
+    # Virtualization
+    ('cluster', {
+        'queryset': Cluster.objects.all(),
+        'filter': ClusterFilter,
+        'table': ClusterTable,
+        'url': 'virtualization:cluster_list',
+    }),
+    ('virtualmachine', {
+        'queryset': VirtualMachine.objects.select_related('cluster', 'tenant', 'platform'),
+        'filter': VirtualMachineFilter,
+        'table': VirtualMachineTable,
+        'url': 'virtualization:virtualmachine_list',
     }),
 ))
 
@@ -149,6 +165,10 @@ class HomeView(View):
 
             # Secrets
             'secret_count': Secret.objects.count(),
+
+            # Virtualization
+            'cluster_count': Cluster.objects.count(),
+            'virtualmachine_count': VirtualMachine.objects.count(),
 
         }
 
