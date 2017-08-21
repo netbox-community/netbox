@@ -87,7 +87,7 @@
             </div>
             <table class="table table-hover panel-body attr-table">
                 <tr>
-                    <td>Virtual CPUs</td>
+                    <td><i class="fa fa-tachometer"></i> Virtual CPUs</td>
                     <td>
                         {% if vm.vcpus %}
                             {{ vm.vcpus }}
@@ -97,7 +97,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Memory</td>
+                    <td><i class="fa fa-microchip"></i> Memory</td>
                     <td>
                         {% if vm.memory %}
                             {{ vm.memory }} MB
@@ -107,7 +107,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Disk Space</td>
+                    <td><i class="fa fa-hdd-o"></i> Disk Space</td>
                     <td>
                         {% if vm.disk %}
                             {{ vm.disk }} GB
