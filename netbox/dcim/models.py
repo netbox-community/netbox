@@ -1148,7 +1148,9 @@ class Interface(models.Model):
     description = models.CharField(max_length=100, blank=True)
 
     objects = InterfaceQuerySet.as_manager()
-
+    
+    csv_headers = ['device','lag','name','mac_address','form_factor','enabled','description','mtu','mgmt_only','is_virtual','is_wireless','is_connected','is_lag']
+    
     class Meta:
         ordering = ['device', 'name']
         unique_together = ['device', 'name']
