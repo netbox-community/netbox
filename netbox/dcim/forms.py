@@ -1541,20 +1541,46 @@ class InterfaceCSVForm(forms.ModelForm):
     name = forms.CharField(
         help_text='Name of interface'
     )
+    lag = forms.CharField(
+        required=False,
+        help_text='Lag Name'
+    )
     mac_address = forms.CharField(
         required=False,
         help_text='MAC address of interface'
+    )
+    form_factor = forms.CharField(
+        required=False,
+        help_text='Interface Form Factor'
     )
     description = forms.CharField(
         required=False,
         help_text='Description for interface'
     )
+    enabled = forms.CharField(
+        required=False,
+        help_text='Enabled/Disabled'
+    )
+    mtu = forms.CharField(
+        required=False,
+        help_text='MTU'
+    )
+    mgmt_only = forms.CharField(
+        required=False,
+        help_text='Management Only'
+    )
+    is_virtual = forms.CharField(
+        required=False,
+        help_text='Is Virtual?'
+    )
+    is_wireless = forms.CharField(
+        required=False,
+        help_text='Is Wireless?'
+    )
     
     class Meta:
         model = Interface
-        fields = [
-            'device', 'name', 'mac_address', 'description'
-        ]
+        fields = ('device', 'lag','name','mac_address','form_factor','enabled','description','mtu','mgmt_only','is_virtual','is_wireless')
 
 
     def clean_interface(self):
