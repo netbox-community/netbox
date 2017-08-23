@@ -1541,9 +1541,11 @@ class InterfaceCSVForm(forms.ModelForm):
     name = forms.CharField(
         help_text='Name of interface'
     )
-    lag = forms.CharField(
+    lag = FlexibleModelChoiceField(
         required=False,
-        help_text='Lag Name'
+        queryset = Interface.objects.order_naturally().filter(form_factor=IFACE_FF_LAG)
+        help_text='Lag Name',
+        error_messages={'invalid_choice': 'Lag not found.'}
     )
     mac_address = forms.CharField(
         required=False,
