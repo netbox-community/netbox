@@ -205,18 +205,16 @@
                     <li class="dropdown{% if request.path|contains:'/circuits/' %} active{% endif %}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Circuits <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="{% url 'circuits:provider_list' %}"><strong>Providers</strong></a></li>
-                            {% if perms.circuits.add_provider %}
-                                <li class="subnav"><a href="{% url 'circuits:provider_add' %}"><i class="fa fa-plus"></i> Add a Provider</a></li>
-                                <li class="subnav"><a href="{% url 'circuits:provider_import' %}"><i class="fa fa-download"></i> Import Providers</a></li>
-                            {% endif %}
-                            {% if perms.circuits.add_circuit or perms.circuits.add_provider %}
-                                <li class="divider"></li>
-                            {% endif %}
                             <li><a href="{% url 'circuits:circuit_list' %}"><strong>Circuits</strong></a></li>
                             {% if perms.circuits.add_circuit %}
                                 <li class="subnav"><a href="{% url 'circuits:circuit_add' %}"><i class="fa fa-plus"></i> Add a Circuit</a></li>
                                 <li class="subnav"><a href="{% url 'circuits:circuit_import' %}"><i class="fa fa-download"></i> Import Circuits</a></li>
+                            {% endif %}
+                            <li class="divider"></li>
+                            <li><a href="{% url 'circuits:provider_list' %}"><strong>Providers</strong></a></li>
+                            {% if perms.circuits.add_provider %}
+                                <li class="subnav"><a href="{% url 'circuits:provider_add' %}"><i class="fa fa-plus"></i> Add a Provider</a></li>
+                                <li class="subnav"><a href="{% url 'circuits:provider_import' %}"><i class="fa fa-download"></i> Import Providers</a></li>
                             {% endif %}
                             <li class="divider"></li>
                             <li><a href="{% url 'circuits:circuittype_list' %}"><strong>Circuit Types</strong></a></li>
