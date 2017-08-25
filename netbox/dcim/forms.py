@@ -1543,7 +1543,7 @@ class InterfaceCSVForm(forms.ModelForm):
     )
     lag = FlexibleModelChoiceField(
         required=False,
-        queryset = Interface.objects.order_naturally().filter(form_factor=IFACE_FF_LAG),
+        queryset = Interface.objects.order_naturally(method=interface_ordering).filter(device=device,form_factor=IFACE_FF_LAG),
         help_text='Lag Name',
         error_messages={'invalid_choice': 'Lag not found.'}
     )
@@ -1579,10 +1579,14 @@ class InterfaceCSVForm(forms.ModelForm):
         required=False,
         help_text='Is Wireless?'
     )
+    is_lag = forms.CharField(
+        required=False,
+        help_text='Is Lag?'
+    )
     
     class Meta:
         model = Interface
-        fields = ('device', 'lag','name','mac_address','form_factor','enabled','description','mtu','mgmt_only','is_virtual','is_wireless')
+        fields = ('device', 'lag','name','mac_address','form_factor','enabled','description','mtu','mgmt_only','is_virtual','is_wireless','is_lag')
 
 
     def clean_interface(self):

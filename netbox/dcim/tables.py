@@ -538,7 +538,7 @@ class InterfaceConnectionTable(BaseTable):
 class InterfaceImportTable(BaseTable):
     device = tables.LinkColumn('dcim:device', accessor=Accessor('interface.device'),
                                  args=[Accessor('interface.device.pk')], verbose_name='Device')
-    lag = tables.Column(verbose_name='Lag')
+    lag = tables.Column(verbose_name='Lag ID')
     name = tables.Column(verbose_name='Interface')
     mac_address = tables.Column(verbose_name='MAC Address')
     form_factor = tables.Column(verbose_name='Form Factor')
@@ -546,11 +546,12 @@ class InterfaceImportTable(BaseTable):
     description = tables.Column(verbose_name='Description')
     mtu = tables.Column(verbose_name='MTU')
     mgmt_only = tables.Column(verbose_name='MGMT Only')
-    is_virtual = tables.Column(verbose_name='Virtual')
-    is_wireless = tables.Column(verbose_name='Wireless')
+    is_virtual = tables.Column(verbose_name='Is Virtual?')
+    is_wireless = tables.Column(verbose_name='Is Wireless?')
+    is_lag = tables.Column(verbose_name='Is Lag?')
     class Meta(BaseTable.Meta):
         model = Interface
-        fields = ('device', 'lag','name','mac_address','form_factor','enabled','description','mtu','mgmt_only','is_virtual','is_wireless')
+        fields = ('device', 'lag','name','mac_address','form_factor','enabled','description','mtu','mgmt_only','is_virtual','is_wireless','is_lag')
 
 
 class InterfaceListTable(BaseTable):
