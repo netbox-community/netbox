@@ -1543,7 +1543,7 @@ class InterfaceCSVForm(forms.ModelForm):
     )
     lag = FlexibleModelChoiceField(
         required=False,
-        queryset = Interface.objects.order_naturally().filter(device=device,form_factor=IFACE_FF_LAG),
+        queryset = Interface.objects.order_naturally().filter(form_factor=IFACE_FF_LAG),
         help_text='Lag Name',
         error_messages={'invalid_choice': 'Lag not found.'}
     )
@@ -1559,7 +1559,7 @@ class InterfaceCSVForm(forms.ModelForm):
         required=False,
         help_text='Description for interface'
     )
-    enabled = forms.CharField(
+    enabled = forms.BooleanField(
         required=False,
         help_text='Enabled/Disabled'
     )
@@ -1571,15 +1571,15 @@ class InterfaceCSVForm(forms.ModelForm):
         required=False,
         help_text='Management Only'
     )
-    is_virtual = forms.CharField(
+    is_virtual = forms.BooleanField(
         required=False,
         help_text='Is Virtual?'
     )
-    is_wireless = forms.CharField(
+    is_wireless = forms.BooleanField(
         required=False,
         help_text='Is Wireless?'
     )
-    is_lag = forms.CharField(
+    is_lag = forms.BooleanField(
         required=False,
         help_text='Is Lag?'
     )
