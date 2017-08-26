@@ -1599,8 +1599,7 @@ class InterfaceCSVForm(forms.ModelForm):
     def clean_lag(self):
         device = None
         if self.fields['device'] is not None:
-            interface_ordering = device.device_type.interface_ordering
-            lag = Interface.objects.order_naturally(method=interface_ordering).filter(
+            lag = Interface.objects.filter(
                 device=self.fields['device'], form_factor=IFACE_FF_LAG).get(
                 lag=self.cleaned_data['lag'], name=lag
             )
