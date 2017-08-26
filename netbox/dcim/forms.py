@@ -1549,7 +1549,7 @@ class InterfaceCSVForm(forms.ModelForm):
         required=False,
         help_text='MAC address of interface'
     )
-    form_factor = forms.CharField(
+    form_factor = forms.IntegerField(
         required=False,
         help_text='Interface Form Factor'
     )
@@ -1557,11 +1557,11 @@ class InterfaceCSVForm(forms.ModelForm):
         required=False,
         help_text='Description for interface'
     )
-    enabled = forms.NullBooleanField(
+    enabled = forms.BooleanField(
         required=False,
         help_text='Enabled/Disabled'
     )
-    mtu = forms.CharField(
+    mtu = forms.IntegerField(
         required=False,
         help_text='MTU'
     )
@@ -1569,15 +1569,15 @@ class InterfaceCSVForm(forms.ModelForm):
         required=False,
         help_text='Management Only'
     )
-    is_virtual = forms.NullBooleanField(
+    is_virtual = forms.BooleanField(
         required=False,
         help_text='Is Virtual?'
     )
-    is_wireless = forms.NullBooleanField(
+    is_wireless = forms.BooleanField(
         required=False,
         help_text='Is Wireless?'
     )
-    is_lag = forms.NullBooleanField(
+    is_lag = forms.BooleanField(
         required=False,
         help_text='Is Lag?'
     )
