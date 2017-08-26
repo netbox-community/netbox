@@ -1541,11 +1541,9 @@ class InterfaceCSVForm(forms.ModelForm):
     name = forms.CharField(
         help_text='Name of interface'
     )
-    lag = FlexibleModelChoiceField(
+    lag = forms.CharField(
         required=False,
-        queryset = Interface.objects.order_naturally().filter(form_factor=IFACE_FF_LAG),
-        help_text='Lag Name',
-        error_messages={'invalid_choice': 'Lag not found.'}
+        help_text='Lag Name'
     )
     mac_address = forms.CharField(
         required=False,
@@ -1559,7 +1557,7 @@ class InterfaceCSVForm(forms.ModelForm):
         required=False,
         help_text='Description for interface'
     )
-    enabled = forms.BooleanField(
+    enabled = forms.NullBooleanField(
         required=False,
         help_text='Enabled/Disabled'
     )
@@ -1571,15 +1569,15 @@ class InterfaceCSVForm(forms.ModelForm):
         required=False,
         help_text='Management Only'
     )
-    is_virtual = forms.BooleanField(
+    is_virtual = forms.NullBooleanField(
         required=False,
         help_text='Is Virtual?'
     )
-    is_wireless = forms.BooleanField(
+    is_wireless = forms.NullBooleanField(
         required=False,
         help_text='Is Wireless?'
     )
-    is_lag = forms.BooleanField(
+    is_lag = forms.NullBooleanField(
         required=False,
         help_text='Is Lag?'
     )
@@ -1587,15 +1585,34 @@ class InterfaceCSVForm(forms.ModelForm):
     class Meta:
         model = Interface
         fields = ('device', 'lag','name','mac_address','form_factor','enabled','description','mtu','mgmt_only','is_virtual','is_wireless','is_lag')
+        nullable_fields = ['lag','is_virtual','is_wireless','is_lag']
 
 
     def clean_interface(self):
-
         interface_name = self.cleaned_data.get('interface_name')
         if not interface:
             return None
         
         return interface
+
+
+    def clean_lag(self):
+        try:
+            if device is not None:
+                interface_ordering = device.device_type.interface_ordering
+                lag = Interface.objects.order_naturally(method=interface_ordering).filter(
+                    device=device, form_factor=IFACE_FF_LAG).get(
+                    lag=self.cleaned_data['lag'], name=lag
+                )
+                self.fields['lag'].queryset = Interface.objects.order_naturally(method=interface_ordering).filter(
+                    device=device, form_factor=IFACE_FF_LAG
+                )
+        except:
+            return None
+
+        if not lag:
+            return None
+        return lag
 
 
 class InterfaceFilterForm(BootstrapMixin, forms.Form):
