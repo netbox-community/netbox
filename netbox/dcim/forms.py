@@ -1607,7 +1607,7 @@ class InterfaceCSVForm(forms.ModelForm):
                 device=device_id, form_factor=IFACE_FF_LAG).get(
                 lag=lag_name.id
             )
-        if lag is not None:
+        if not lag_name:
             return None
         return lag
 
