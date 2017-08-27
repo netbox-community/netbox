@@ -1541,9 +1541,11 @@ class InterfaceCSVForm(forms.ModelForm):
     name = forms.CharField(
         help_text='Name of interface'
     )
-    lag = forms.CharField(
-        required=False,
-        help_text='Lag Name'
+    lag = FlexibleModelChoiceField(
+        queryset=Interface.objects.filter(form_factor=IFACE_FF_LAG),
+        to_field_name='name',
+        help_text='Lag Name or ID of interface',
+        error_messages={'invalid_choice': 'Lag not found.'}
     )
     mac_address = forms.CharField(
         required=False,
@@ -1598,13 +1600,12 @@ class InterfaceCSVForm(forms.ModelForm):
 
     def clean_lag(self):
         device = None
-        if self.cleaned_data['device'] is not None:
+        lag_name = self.data.get('lag')
+        if self.data['device'] is not None:
             lag = Interface.objects.filter(
-                device=self.cleaned_data['device'], form_factor=IFACE_FF_LAG).get(
-                lag=self.cleaned_data['lag']
+                device=self.data.get('device'), form_factor=IFACE_FF_LAG).get(
+                lag=lag_name
             )
-
-
         if not lag:
             return None
         return lag
