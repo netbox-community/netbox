@@ -1544,6 +1544,7 @@ class InterfaceCSVForm(forms.ModelForm):
     lag = FlexibleModelChoiceField(
         queryset=Interface.objects.filter(form_factor=IFACE_FF_LAG),
         to_field_name='name',
+        required=False,
         help_text='Lag Name or ID of interface',
         error_messages={'invalid_choice': 'Lag not found.'}
     )
