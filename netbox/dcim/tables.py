@@ -538,7 +538,9 @@ class InterfaceConnectionTable(BaseTable):
 class InterfaceImportTable(BaseTable):
     device = tables.LinkColumn('dcim:device', accessor=Accessor('interface.device'),
                                  args=[Accessor('interface.device.pk')], verbose_name='Device')
-    lag = tables.Column(verbose_name='Lag ID')
+    lag = tables.LinkColumn('dcim:interface', accessor=Accessor('self.name'),
+                                 args=[Accessor('self.pk')], verbose_name='Lag ID')
+    #lag = tables.Column(verbose_name='Lag ID')
     name = tables.Column(verbose_name='Interface')
     mac_address = tables.Column(verbose_name='MAC Address')
     form_factor = tables.Column(verbose_name='Form Factor')
