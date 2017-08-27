@@ -1602,10 +1602,10 @@ class InterfaceCSVForm(forms.ModelForm):
     def clean_lag(self):
         device = None
         lag_name = self.data.get('lag')
-        if self.data['device'] is not None:
+        if self.data['device'] is not None and lag_name is not None:
             lag = Interface.objects.filter(
                 device=self.data.get('device'), form_factor=IFACE_FF_LAG).get(
-                lag=lag_name
+                lag=lag_name.id
             )
         if not lag:
             return None
