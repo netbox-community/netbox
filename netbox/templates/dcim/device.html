@@ -635,8 +635,10 @@ $('button.toggle-description').click(function() {
     var selected = $(this).attr('selected');
     if (selected) {
         $('span.iface-description').hide();
+        $('i.fa-comment-o').show();
     } else {
         $('span.iface-description').show();
+        $('i.fa-comment-o').hide();
     }
     $(this).attr('selected', !selected);
     $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');
