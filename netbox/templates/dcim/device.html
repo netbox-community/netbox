@@ -105,13 +105,13 @@
             <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Role</td>
-                    <td>
+                    <td colspan="2">
                         <a href="{{ device.device_role.get_absolute_url }}">{{ device.device_role }}</a>
                     </td>
                 </tr>
                 <tr>
                     <td>Platform</td>
-                    <td>
+                    <td colspan="2">
                         {% if device.platform %}
                             <span>{{ device.platform }}</span>
                         {% else %}
@@ -121,7 +121,7 @@
                 </tr>
                 <tr>
                     <td>Status</td>
-                    <td>
+                    <td colspan="2">
                         <span class="label label-{{ device.get_status_class }}">{{ device.get_status_display }}</span>
                     </td>
                 </tr>
@@ -129,7 +129,7 @@
                     <td>Primary IPv4</td>
                     <td>
                         {% if device.primary_ip4 %}
-                            <a href="{% url 'ipam:ipaddress' pk=device.primary_ip4.pk %}">{{ device.primary_ip4.address.ip }}</a>
+                            <a href="{% url 'ipam:ipaddress' pk=device.primary_ip4.pk %}">{{ device.primary_ip4.address.ip }}</a> 
                             {% if device.primary_ip4.nat_inside %}
                                 <span>(NAT for {{ device.primary_ip4.nat_inside.address.ip }})</span>
                             {% elif device.primary_ip4.nat_outside %}
@@ -139,6 +139,16 @@
                             <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
+			<td align="right">
+                        {% if device.primary_ip4 %}
+				<a href="ssh://{{device.primary_ip4.address.ip}}" class="btn btn-xs btn-danger">
+					<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> SSH</a>
+				<a href="telnet://{{device.primary_ip4.address.ip}}" class="btn btn-xs btn-primary">
+					<span class="glyphicon glyphicon-console" aria-hidden="true"></span> Telnet</a>
+				<a href="http://{{device.primary_ip4.address.ip}}" class="btn btn-xs btn-success" target=_blank>
+					<span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Web</a>
+                            {% endif %}
+			</td>
                 </tr>
                 <tr>
                     <td>Primary IPv6</td>
@@ -154,6 +164,16 @@
                             <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
+			<td align="right">
+			{% if device.primary_ip6 %}
+				<a href="ssh://{{device.primary_ip6.address.ip}}" class="btn btn-xs btn-danger">
+					<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> SSH</a>
+				<a href="telnet://{{device.primary_ip6.address.ip}}" class="btn btn-xs btn-primary">
+					<span class="glyphicon glyphicon-console" aria-hidden="true"></span> Telnet</a>
+				<a href="http://{{device.primary_ip6.address.ip}}" class="btn btn-xs btn-success" target=_blank>
+					<span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Web</a>
+                            {% endif %}
+			</td>
                 </tr>
             </table>
         </div>
