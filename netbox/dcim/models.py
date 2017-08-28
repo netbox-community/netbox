@@ -1208,9 +1208,6 @@ class Interface(models.Model):
             pass
         return bool(self.connection)
 
-    def get_status_class(self):
-        return IFACE_ENABLED_CHOICES[self.enabled]
-
     @property
     def connection(self):
         try:
@@ -1236,6 +1233,9 @@ class Interface(models.Model):
         except ObjectDoesNotExist:
             pass
         return None
+
+    def get_status_class(self):
+        return IFACE_ENABLED_CHOICES[self.enabled]
 
     # Used for  export
     def to_csv(self):
