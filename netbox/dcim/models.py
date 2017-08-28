@@ -1146,7 +1146,7 @@ class Interface(models.Model):
         help_text="This interface is used only for out-of-band management"
     )
     description = models.CharField(max_length=100, blank=True)
-
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
     objects = InterfaceQuerySet.as_manager()
     
     csv_headers = ['device','lag','name','mac_address','form_factor','enabled','description','mtu','mgmt_only','is_virtual','is_wireless','is_connected','is_lag']

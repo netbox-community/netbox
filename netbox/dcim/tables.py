@@ -104,7 +104,7 @@ DEVICE_STATUS = """
 """
 
 INTERFACE_ENABLED = """
-<span class="label label-{{ record.get_status_class }}">{{ record.enabled }}</span>
+<span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
 """
 
 DEVICE_PRIMARY_IP = """
