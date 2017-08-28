@@ -1121,7 +1121,7 @@ class PowerOutlet(models.Model):
 #
 
 @python_2_unicode_compatible
-class Interface(models.Model):
+class Interface(CreatedUpdatedModel, CustomFieldModel):
     """
     A physical data interface within a Device. An Interface can connect to exactly one other Interface via the creation
     of an InterfaceConnection.
@@ -1208,6 +1208,9 @@ class Interface(models.Model):
         except ObjectDoesNotExist:
             pass
         return bool(self.connection)
+
+    def get_status_class(self):
+        return IFACE_ENABLED_CHOICES[self.enabled]
 
     @property
     def connection(self):

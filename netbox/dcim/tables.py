@@ -104,7 +104,7 @@ DEVICE_STATUS = """
 """
 
 INTERFACE_ENABLED = """
-<span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
+<span class="label label-{{ record.get_status_class }}">{{ record.enabled }}</span>
 """
 
 DEVICE_PRIMARY_IP = """
@@ -540,7 +540,6 @@ class InterfaceImportTable(BaseTable):
                                  args=[Accessor('interface.device.pk')], verbose_name='Device')
     lag = tables.LinkColumn('dcim:interface', accessor=Accessor('self.name'),
                                  args=[Accessor('self.pk')], verbose_name='Lag ID')
-    #lag = tables.Column(verbose_name='Lag ID')
     name = tables.Column(verbose_name='Interface')
     mac_address = tables.Column(verbose_name='MAC Address')
     form_factor = tables.Column(verbose_name='Form Factor')
