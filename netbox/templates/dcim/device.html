@@ -388,6 +388,9 @@
                         <button class="btn btn-default btn-xs toggle-ips" selected="selected">
                             <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Show IPs
                         </button>
+                        <button class="btn btn-default btn-xs toggle-description" selected="selected">
+                            <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Show Description
+                        </button>
                         {% if perms.dcim.change_interface and interfaces|length > 1 %}
                             <button class="btn btn-default btn-xs toggle">
                                 <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
@@ -622,6 +625,18 @@ $('button.toggle-ips').click(function() {
         $('#interfaces_table tr.ipaddress').hide();
     } else {
         $('#interfaces_table tr.ipaddress').show();
+    }
+    $(this).attr('selected', !selected);
+    $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');
+    return false;
+});
+// Toggle the display of Descriptions under interfaces
+$('button.toggle-description').click(function() {
+    var selected = $(this).attr('selected');
+    if (selected) {
+        $('#interfaces_table tr.description').hide();
+    } else {
+        $('#interfaces_table tr.description').show();
     }
     $(this).attr('selected', !selected);
     $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');
