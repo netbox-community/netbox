@@ -634,9 +634,9 @@ $('button.toggle-ips').click(function() {
 $('button.toggle-description').click(function() {
     var selected = $(this).attr('selected');
     if (selected) {
-        $('#interfaces_table tr.description').hide();
+        $('#interfaces_table iface.description').hide();
     } else {
-        $('#interfaces_table tr.description').show();
+        $('#interfaces_table iface.description').show();
     }
     $(this).attr('selected', !selected);
     $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');
