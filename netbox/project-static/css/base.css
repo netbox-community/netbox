@@ -385,3 +385,17 @@ td .progress {
 textarea {
     font-family: Consolas, Lucida Console, monospace;
 }
+.label-enabled {
+  background-color: #6fd86f;
+}
+.label-enabled[href]:hover,
+.label-enabled[href]:focus {
+  background-color: #3ccd3c;
+}
+.label-disabled {
+  background-color: #d86f6f;
+}
+.label-disabled[href]:hover,
+.label-disabled[href]:focus {
+  background-color: #cd3c3c;
+}
