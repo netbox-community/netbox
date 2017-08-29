@@ -79,6 +79,36 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Primary IPv4</td>
+                    <td>
+                        {% if vm.primary_ip4 %}
+                            <a href="{% url 'ipam:ipaddress' pk=vm.primary_ip4.pk %}">{{ vm.primary_ip4.address.ip }}</a>
+                            {% if vm.primary_ip4.nat_inside %}
+                                <span>(NAT for {{ vm.primary_ip4.nat_inside.address.ip }})</span>
+                            {% elif vm.primary_ip4.nat_outside %}
+                                <span>(NAT: {{ vm.primary_ip4.nat_outside.address.ip }})</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Primary IPv6</td>
+                    <td>
+                        {% if vm.primary_ip6 %}
+                            <a href="{% url 'ipam:ipaddress' pk=vm.primary_ip6.pk %}">{{ vm.primary_ip6.address.ip }}</a>
+                            {% if vm.primary_ip6.nat_inside %}
+                                <span>(NAT for {{ vm.primary_ip6.nat_inside.address.ip }})</span>
+                            {% elif vm.primary_ip6.nat_outside %}
+                                <span>(NAT: {{ vm.primary_ip6.nat_outside.address.ip }})</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
             </table>
         </div>
         <div class="panel panel-default">

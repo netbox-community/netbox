@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.generic import View
 
-from dcim.models import Device
+from dcim.models import Device, Interface
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -597,7 +597,7 @@ class IPAddressListView(ObjectListView):
     queryset = IPAddress.objects.select_related(
         'vrf__tenant', 'tenant', 'nat_inside'
     ).prefetch_related(
-        'interface__device'
+        'interface__device', 'interface__virtual_machine'
     )
     filter = filters.IPAddressFilter
     filter_form = forms.IPAddressFilterForm
@@ -656,6 +656,17 @@ class IPAddressCreateView(PermissionRequiredMixin, ObjectEditView):
     form_class = forms.IPAddressForm
     template_name = 'ipam/ipaddress_edit.html'
     default_return_url = 'ipam:ipaddress_list'
+
+    def alter_obj(self, obj, request, url_args, url_kwargs):
+
+        interface_id = request.GET.get('interface')
+        if interface_id:
+            try:
+                obj.interface = Interface.objects.get(pk=interface_id)
+            except (ValueError, Interface.DoesNotExist):
+                pass
+
+        return obj
 
 
 class IPAddressEditView(IPAddressCreateView):

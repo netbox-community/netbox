@@ -13,6 +13,11 @@
     <td>{{ iface.mtu|default:"" }}</td>
     <td>{{ iface.mac_address|default:"" }}</td>
     <td class="text-right">
+        {% if perms.ipam.add_ipaddress %}
+            <a href="{% url 'ipam:ipaddress_add' %}?interface={{ iface.pk }}&return_url={{ vm.get_absolute_url }}" class="btn btn-xs btn-success" title="Add IP address">
+                <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+            </a>
+        {% endif %}
         {% if perms.dcim.change_interface %}
             <a href="{% url 'virtualization:interface_edit' pk=iface.pk %}" class="btn btn-info btn-xs" title="Edit interface">
                 <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
@@ -30,7 +35,7 @@
         {% if selectable and perms.dcim.change_interface or perms.dcim.delete_interface %}
             <td></td>
         {% endif %}
-        <td colspan="3">
+        <td>
             <a href="{% url 'ipam:ipaddress' pk=ip.pk %}">{{ ip }}</a>
             {% if ip.description %}
                 <i class="fa fa-fw fa-comment-o" title="{{ ip.description }}"></i>

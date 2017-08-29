@@ -1242,6 +1242,10 @@ class Interface(models.Model):
             })
 
     @property
+    def parent(self):
+        return self.device or self.virtual_machine
+
+    @property
     def is_virtual(self):
         return self.form_factor in VIRTUAL_IFACE_TYPES
 
