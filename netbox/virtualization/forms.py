@@ -5,8 +5,9 @@ from mptt.forms import TreeNodeChoiceField
 from django import forms
 from django.db.models import Count
 
+from dcim.constants import VIFACE_FF_CHOICES
 from dcim.formfields import MACAddressFormField
-from dcim.models import Device, Rack, Region, Site
+from dcim.models import Device, Interface, Rack, Region, Site
 from extras.forms import CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
@@ -15,7 +16,7 @@ from utilities.forms import (
     ChainedModelChoiceField, ChainedModelMultipleChoiceField, ComponentForm, ConfirmationForm, ExpandableNameField,
     FilterChoiceField, SlugField,
 )
-from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
+from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
 #
@@ -230,18 +231,19 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # VM interfaces
 #
 
-class VMInterfaceForm(BootstrapMixin, forms.ModelForm):
+class InterfaceForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
-        model = VMInterface
-        fields = ['virtual_machine', 'name', 'enabled', 'mac_address', 'mtu', 'description']
+        model = Interface
+        fields = ['virtual_machine', 'name', 'form_factor', 'enabled', 'mac_address', 'mtu', 'description']
         widgets = {
             'virtual_machine': forms.HiddenInput(),
         }
 
 
-class VMInterfaceCreateForm(ComponentForm):
+class InterfaceCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
+    form_factor = forms.ChoiceField(choices=VIFACE_FF_CHOICES)
     enabled = forms.BooleanField(required=False)
     mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
     mac_address = MACAddressFormField(required=False, label='MAC Address')
@@ -253,11 +255,11 @@ class VMInterfaceCreateForm(ComponentForm):
         kwargs['initial'] = kwargs.get('initial', {}).copy()
         kwargs['initial'].update({'enabled': True})
 
-        super(VMInterfaceCreateForm, self).__init__(*args, **kwargs)
+        super(InterfaceCreateForm, self).__init__(*args, **kwargs)
 
 
-class VMInterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
-    pk = forms.ModelMultipleChoiceField(queryset=VMInterface.objects.all(), widget=forms.MultipleHiddenInput)
+class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
     virtual_machine = forms.ModelChoiceField(queryset=VirtualMachine.objects.all(), widget=forms.HiddenInput)
     enabled = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect)
     mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')

@@ -3,10 +3,12 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 
 from dcim.api.serializers import NestedPlatformSerializer
+from dcim.constants import VIFACE_FF_CHOICES
+from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from tenancy.api.serializers import NestedTenantSerializer
-from utilities.api import ValidatedModelSerializer
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
+from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer
+from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
 #
@@ -102,7 +104,7 @@ class NestedVirtualMachineSerializer(serializers.ModelSerializer):
 class WritableVirtualMachineSerializer(CustomFieldModelSerializer):
 
     class Meta:
-        model = Cluster
+        model = VirtualMachine
         fields = [
             'id', 'name', 'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'comments', 'custom_fields',
         ]
@@ -112,28 +114,29 @@ class WritableVirtualMachineSerializer(CustomFieldModelSerializer):
 # VM interfaces
 #
 
-class VMInterfaceSerializer(serializers.ModelSerializer):
+class InterfaceSerializer(serializers.ModelSerializer):
     virtual_machine = NestedVirtualMachineSerializer()
+    form_factor = ChoiceFieldSerializer(choices=VIFACE_FF_CHOICES)
 
     class Meta:
-        model = VMInterface
+        model = Interface
         fields = [
-            'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'description',
+            'id', 'name', 'virtual_machine', 'form_factor', 'enabled', 'mac_address', 'mtu', 'description',
         ]
 
 
-class NestedVMInterfaceSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:vminterface-detail')
+class NestedInterfaceSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:interface-detail')
 
     class Meta:
-        model = VMInterface
+        model = Interface
         fields = ['id', 'url', 'name']
 
 
-class WritableVMInterfaceSerializer(ValidatedModelSerializer):
+class WritableInterfaceSerializer(ValidatedModelSerializer):
 
     class Meta:
-        model = VMInterface
+        model = Interface
         fields = [
-            'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'description',
+            'id', 'name', 'virtual_machine', 'form_factor', 'enabled', 'mac_address', 'mtu', 'description',
         ]

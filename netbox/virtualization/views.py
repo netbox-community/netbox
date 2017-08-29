@@ -7,13 +7,13 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import View
 
-from dcim.models import Device
+from dcim.models import Device, Interface
 from dcim.tables import DeviceTable
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView, ComponentEditView,
     ObjectDeleteView, ObjectEditView, ObjectListView,
 )
-from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
+from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 from . import filters
 from . import forms
 from . import tables
@@ -235,7 +235,7 @@ class VirtualMachineView(View):
     def get(self, request, pk):
 
         vm = get_object_or_404(VirtualMachine.objects.select_related('tenant__group'), pk=pk)
-        interfaces = VMInterface.objects.filter(virtual_machine=vm)
+        interfaces = Interface.objects.filter(virtual_machine=vm)
 
         return render(request, 'virtualization/virtualmachine.html', {
             'vm': vm,
@@ -282,39 +282,39 @@ class VirtualMachineBulkEditView(PermissionRequiredMixin, BulkEditView):
 # VM interfaces
 #
 
-class VMInterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
-    permission_required = 'virtualization.add_vminterface'
+class InterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
+    permission_required = 'dcim.add_interface'
     parent_model = VirtualMachine
     parent_field = 'virtual_machine'
-    model = VMInterface
-    form = forms.VMInterfaceCreateForm
-    model_form = forms.VMInterfaceForm
+    model = Interface
+    form = forms.InterfaceCreateForm
+    model_form = forms.InterfaceForm
     template_name = 'virtualization/virtualmachine_component_add.html'
 
 
-class VMInterfaceEditView(PermissionRequiredMixin, ComponentEditView):
-    permission_required = 'virtualization.change_vminterface'
-    model = VMInterface
+class InterfaceEditView(PermissionRequiredMixin, ComponentEditView):
+    permission_required = 'dcim.change_interface'
+    model = Interface
     parent_field = 'virtual_machine'
-    form_class = forms.VMInterfaceForm
+    form_class = forms.InterfaceForm
 
 
-class VMInterfaceDeleteView(PermissionRequiredMixin, ComponentDeleteView):
-    permission_required = 'virtualization.delete_vminterface'
-    model = VMInterface
+class InterfaceDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+    permission_required = 'dcim.delete_interface'
+    model = Interface
     parent_field = 'virtual_machine'
 
 
-class VMInterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
-    permission_required = 'virtualization.change_vminterface'
-    cls = VMInterface
+class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_interface'
+    cls = Interface
     parent_cls = VirtualMachine
-    table = tables.VMInterfaceTable
-    form = forms.VMInterfaceBulkEditForm
+    table = tables.InterfaceTable
+    form = forms.InterfaceBulkEditForm
 
 
-class VMInterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'virtualization.delete_vminterface'
-    cls = VMInterface
+class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_interface'
+    cls = Interface
     parent_cls = VirtualMachine
-    table = tables.VMInterfaceTable
+    table = tables.InterfaceTable

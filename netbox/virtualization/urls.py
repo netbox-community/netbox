@@ -41,11 +41,11 @@ urlpatterns = [
     url(r'^virtual-machines/(?P<pk>\d+)/delete/$', views.VirtualMachineDeleteView.as_view(), name='virtualmachine_delete'),
 
     # VM interfaces
-    # url(r'^virtual-machines/interfaces/add/$', views.VMBulkAddVMInterfaceView.as_view(), name='vm_bulk_add_vminterface'),
-    url(r'^virtual-machines/(?P<pk>\d+)/interfaces/add/$', views.VMInterfaceCreateView.as_view(), name='vminterface_add'),
-    url(r'^virtual-machines/(?P<pk>\d+)/interfaces/edit/$', views.VMInterfaceBulkEditView.as_view(), name='vminterface_bulk_edit'),
-    url(r'^virtual-machines/(?P<pk>\d+)/interfaces/delete/$', views.VMInterfaceBulkDeleteView.as_view(), name='vminterface_bulk_delete'),
-    url(r'^vm-interfaces/(?P<pk>\d+)/edit/$', views.VMInterfaceEditView.as_view(), name='vminterface_edit'),
-    url(r'^vm-interfaces/(?P<pk>\d+)/delete/$', views.VMInterfaceDeleteView.as_view(), name='vminterface_delete'),
+    # url(r'^virtual-machines/interfaces/add/$', views.VMBulkAddInterfaceView.as_view(), name='vm_bulk_add_interface'),
+    url(r'^virtual-machines/(?P<pk>\d+)/interfaces/add/$', views.InterfaceCreateView.as_view(), name='interface_add'),
+    url(r'^virtual-machines/(?P<pk>\d+)/interfaces/edit/$', views.InterfaceBulkEditView.as_view(), name='interface_bulk_edit'),
+    url(r'^virtual-machines/(?P<pk>\d+)/interfaces/delete/$', views.InterfaceBulkDeleteView.as_view(), name='interface_bulk_delete'),
+    url(r'^vm-interfaces/(?P<pk>\d+)/edit/$', views.InterfaceEditView.as_view(), name='interface_edit'),
+    url(r'^vm-interfaces/(?P<pk>\d+)/delete/$', views.InterfaceDeleteView.as_view(), name='interface_delete'),
 
 ]

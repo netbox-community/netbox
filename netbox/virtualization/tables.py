@@ -3,8 +3,9 @@ from __future__ import unicode_literals
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
+from dcim.models import Interface
 from utilities.tables import BaseTable, ToggleColumn
-from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
+from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
 CLUSTERTYPE_ACTIONS = """
@@ -89,8 +90,8 @@ class VirtualMachineTable(BaseTable):
 # VM components
 #
 
-class VMInterfaceTable(BaseTable):
+class InterfaceTable(BaseTable):
 
     class Meta(BaseTable.Meta):
-        model = VMInterface
+        model = Interface
         fields = ('name', 'enabled', 'description')

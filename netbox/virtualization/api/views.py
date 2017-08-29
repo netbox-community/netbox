@@ -2,10 +2,11 @@ from __future__ import unicode_literals
 
 from rest_framework.viewsets import ModelViewSet
 
+from dcim.models import Interface
 from extras.api.views import CustomFieldModelViewSet
 from utilities.api import WritableSerializerMixin
 from virtualization import filters
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
+from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 from . import serializers
 
 
@@ -41,7 +42,7 @@ class VirtualMachineViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     filter_class = filters.VirtualMachineFilter
 
 
-class VMInterfaceViewSet(WritableSerializerMixin, ModelViewSet):
-    queryset = VMInterface.objects.select_related('virtual_machine')
-    serializer_class = serializers.VMInterfaceSerializer
-    write_serializer_class = serializers.WritableVMInterfaceSerializer
+class InterfaceViewSet(WritableSerializerMixin, ModelViewSet):
+    queryset = Interface.objects.filter(virtual_machine__isnull=False).select_related('virtual_machine')
+    serializer_class = serializers.InterfaceSerializer
+    write_serializer_class = serializers.WritableInterfaceSerializer

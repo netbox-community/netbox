@@ -409,15 +409,8 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     role = models.PositiveSmallIntegerField(
         'Role', choices=IPADDRESS_ROLE_CHOICES, blank=True, null=True, help_text='The functional role of this IP'
     )
-    interface_type = models.ForeignKey(
-        to=ContentType,
-        on_delete=models.PROTECT,
-        limit_choices_to=Q(app_label='dcim', model='interface') | Q(app_label='virtualization', model='vminterface'),
-        blank=True,
-        null=True
-    )
-    interface_id = models.PositiveIntegerField(blank=True, null=True)
-    interface = GenericForeignKey('interface_type', 'interface_id')
+    interface = models.ForeignKey(Interface, related_name='ip_addresses', on_delete=models.CASCADE, blank=True,
+                                  null=True)
     nat_inside = models.OneToOneField('self', related_name='nat_outside', on_delete=models.SET_NULL, blank=True,
                                       null=True, verbose_name='NAT (Inside)',
                                       help_text="The IP for which this address is the \"outside\" IP")
