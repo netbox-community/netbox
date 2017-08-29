@@ -400,5 +400,8 @@ textarea {
   background-color: #cd3c3c;
 }
 i.fa-comment-o {
-  visibility:hidden;
+  display:inline;
+}
+.iface-description {
+  display:none;
 }
