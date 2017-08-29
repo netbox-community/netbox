@@ -399,3 +399,6 @@ textarea {
 .label-disabled[href]:focus {
   background-color: #cd3c3c;
 }
+i.fa-comment-o {
+  visibility:hidden;
+}
