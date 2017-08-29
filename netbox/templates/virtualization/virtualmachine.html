@@ -66,6 +66,16 @@
                     <td>{{ vm.cluster.type }}</td>
                 </tr>
                 <tr>
+                    <td>Platform</td>
+                    <td>
+                        {% if vm.platform %}
+                            <span>{{ vm.platform }}</span>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Tenant</td>
                     <td>
                         {% if vm.tenant %}
