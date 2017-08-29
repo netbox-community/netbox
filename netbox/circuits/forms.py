@@ -170,6 +170,7 @@ class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=Site.objects.annotate(filter_count=Count('circuit_terminations')),
         to_field_name='slug'
     )
+    commit_rate = forms.IntegerField(required=False, min_value=0, label='Commit rate (Kbps)')
 
 
 #
