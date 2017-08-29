@@ -1235,7 +1235,7 @@ class Interface(models.Model):
         return None
 
     def get_status_class(self):
-        return IFACE_ENABLED_CHOICES[self.enabled]
+        return IFACE_STATUS_CLASSES[self.enabled]
 
     # Used for  export
     def to_csv(self):

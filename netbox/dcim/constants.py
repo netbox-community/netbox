@@ -56,6 +56,11 @@ IFACE_ENABLED_CHOICES = [
     [IFACE_ENABLED, 'Enabled'],
 ]
 
+IFACE_STATUS_CLASSES = {
+    0: 'disabled',
+    1: 'enabled',
+}
+
 # Interface form factors
 # Virtual
 IFACE_FF_VIRTUAL = 0

@@ -11,7 +11,7 @@
             <span class="label label-primary">{{ iface.lag.name }}</span>
         {% endif %}
         {% if iface.description %}
-            <i class="fa fa-fw fa-comment-o" hidden="true" title="{{ iface.description }}"></i>
+            <i class="fa fa-fw fa-comment-o" aria-hidden="true" title="{{ iface.description }}"></i>
         {% endif %}
         <td>
         {% if iface.description %}
