@@ -389,7 +389,7 @@
                             <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Show IPs
                         </button>
                         <button class="btn btn-default btn-xs toggle-description">
-                            <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Show Descriptions
+                            <span class="glyphicon glyphicon-uncheck" aria-hidden="true"></span> Show Descriptions
                         </button>
                         {% if perms.dcim.change_interface and interfaces|length > 1 %}
                             <button class="btn btn-default btn-xs toggle">
@@ -640,7 +640,7 @@ $('button.toggle-description').click(function() {
         $('span.iface-description').show();
         $('i.fa-comment-o').hide();
     }
-    //$(this).attr('selected', !selected);
+    $(this).attr('selected', !selected);
     $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');
     return false;
 });
