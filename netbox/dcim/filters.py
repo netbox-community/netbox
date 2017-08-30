@@ -663,7 +663,6 @@ class InterfaceListFilter(django_filters.FilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(name__icontains=value) |
             Q(device__icontains=value) |
             Q(description__icontains=value)
         ).distinct()
