@@ -664,7 +664,7 @@ class InterfaceListFilter(django_filters.FilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(device__icontains=value.strip()) |
+            Q(device__icontains=value) |
             Q(description__icontains=value)
         ).distinct()
 
