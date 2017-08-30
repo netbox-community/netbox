@@ -519,8 +519,7 @@ class PowerOutletFilter(DeviceComponentFilterSet):
 
 class InterfaceFilter(django_filters.FilterSet):
     """
-    Not using DeviceComponentFilterSet for Interfaces because we need to glean the ordering logic from the parent
-    Device's DeviceType.
+    
     """
     device = django_filters.CharFilter(
         method='filter_device',
@@ -535,6 +534,16 @@ class InterfaceFilter(django_filters.FilterSet):
     type = django_filters.CharFilter(
         method='filter_type',
         label='Interface type',
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        name='site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site name (slug)',
     )
     lag_id = django_filters.ModelMultipleChoiceFilter(
         name='lag',
@@ -578,10 +587,19 @@ class InterfaceFilter(django_filters.FilterSet):
 
 
 class InterfaceListFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+            method='search',
+            label='Search',
+    )
     device_id = django_filters.NumberFilter(
         method='filter_device',
         name='pk',
         label='Device (ID)',
+    )
+    device = django_filters.CharFilter(
+        method='filter_device',
+        name='name',
+        label='Device',
     )
     type = django_filters.CharFilter(
         method='filter_type',
@@ -623,9 +641,20 @@ class InterfaceListFilter(django_filters.FilterSet):
         if not value:
             return queryset
         try:
-            return queryset.filter(mac_address=value)
+            return queryset.filter(interfaces__mac_address=value).distinct()
         except AddrFormatError:
             return queryset.none()
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(serial__icontains=value.strip()) |
+            Q(inventory_items__serial__icontains=value.strip()) |
+            Q(asset_tag=value.strip()) |
+            Q(comments__icontains=value)
+        ).distinct()
 
 
 class DeviceBayFilter(DeviceComponentFilterSet):
