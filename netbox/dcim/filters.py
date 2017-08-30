@@ -655,7 +655,7 @@ class InterfaceListFilter(django_filters.FilterSet):
         if not value:
             return queryset
         try:
-            return queryset.filter(mac_address=value)
+            return queryset.filter(mac_address__icontains=value)
         except AddrFormatError:
             return queryset.none()
 
