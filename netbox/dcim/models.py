@@ -574,7 +574,7 @@ class ConsolePortTemplate(models.Model):
     A template for a ConsolePort to be created for a new Device.
     """
     device_type = models.ForeignKey('DeviceType', related_name='console_port_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -590,7 +590,7 @@ class ConsoleServerPortTemplate(models.Model):
     A template for a ConsoleServerPort to be created for a new Device.
     """
     device_type = models.ForeignKey('DeviceType', related_name='cs_port_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -606,7 +606,7 @@ class PowerPortTemplate(models.Model):
     A template for a PowerPort to be created for a new Device.
     """
     device_type = models.ForeignKey('DeviceType', related_name='power_port_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -622,7 +622,7 @@ class PowerOutletTemplate(models.Model):
     A template for a PowerOutlet to be created for a new Device.
     """
     device_type = models.ForeignKey('DeviceType', related_name='power_outlet_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -685,7 +685,7 @@ class InterfaceTemplate(models.Model):
     A template for a physical data interface on a new Device.
     """
     device_type = models.ForeignKey('DeviceType', related_name='interface_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=64)
     form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_10GE_SFP_PLUS)
     mgmt_only = models.BooleanField(default=False, verbose_name='Management only')
 
@@ -705,7 +705,7 @@ class DeviceBayTemplate(models.Model):
     A template for a DeviceBay to be created for a new parent Device.
     """
     device_type = models.ForeignKey('DeviceType', related_name='device_bay_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -1012,7 +1012,7 @@ class ConsolePort(models.Model):
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
     device = models.ForeignKey('Device', related_name='console_ports', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
     cs_port = models.OneToOneField('ConsoleServerPort', related_name='connected_console', on_delete=models.SET_NULL,
                                    verbose_name='Console server port', blank=True, null=True)
     connection_status = models.NullBooleanField(choices=CONNECTION_STATUS_CHOICES, default=CONNECTION_STATUS_CONNECTED)
@@ -1062,7 +1062,7 @@ class ConsoleServerPort(models.Model):
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
     device = models.ForeignKey('Device', related_name='cs_ports', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
 
     objects = ConsoleServerPortManager()
 
@@ -1083,7 +1083,7 @@ class PowerPort(models.Model):
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
     device = models.ForeignKey('Device', related_name='power_ports', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
     power_outlet = models.OneToOneField('PowerOutlet', related_name='connected_port', on_delete=models.SET_NULL,
                                         blank=True, null=True)
     connection_status = models.NullBooleanField(choices=CONNECTION_STATUS_CHOICES, default=CONNECTION_STATUS_CONNECTED)
@@ -1127,7 +1127,7 @@ class PowerOutlet(models.Model):
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
     device = models.ForeignKey('Device', related_name='power_outlets', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
 
     objects = PowerOutletManager()
 
@@ -1157,7 +1157,7 @@ class Interface(models.Model):
         blank=True,
         verbose_name='Parent LAG'
     )
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=64)
     form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_10GE_SFP_PLUS)
     enabled = models.BooleanField(default=True)
     mac_address = MACAddressField(null=True, blank=True, verbose_name='MAC Address')

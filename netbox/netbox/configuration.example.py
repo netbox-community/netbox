@@ -93,6 +93,10 @@ MAINTENANCE_MODE = False
 # all objects by specifying "?limit=0".
 MAX_PAGE_SIZE = 1000
 
+# The file path where uploaded media such as image attachments are stored. A trailing slash is not needed. Note that
+# the default value of this setting is derived from the installed location.
+# MEDIA_ROOT = '/opt/netbox/netbox/media'
+
 # Credentials that NetBox will uses to authenticate to devices when connecting via NAPALM.
 NAPALM_USERNAME = ''
 NAPALM_PASSWORD = ''

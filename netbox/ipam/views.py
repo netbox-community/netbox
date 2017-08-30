@@ -16,6 +16,7 @@ from utilities.views import (
     BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
+from .constants import IPADDRESS_ROLE_ANYCAST
 from .models import (
     Aggregate, IPAddress, PREFIX_STATUS_ACTIVE, PREFIX_STATUS_DEPRECATED, PREFIX_STATUS_RESERVED, Prefix, RIR, Role,
     Service, VLAN, VLANGroup, VRF,
@@ -624,6 +625,9 @@ class IPAddressView(View):
         ).select_related(
             'interface__device', 'nat_inside'
         )
+        # Exclude anycast IPs if this IP is anycast
+        if ipaddress.role == IPADDRESS_ROLE_ANYCAST:
+            duplicate_ips = duplicate_ips.exclude(role=IPADDRESS_ROLE_ANYCAST)
         duplicate_ips_table = tables.IPAddressTable(list(duplicate_ips), orderable=False)
 
         # Related IP table

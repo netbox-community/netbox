@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="pull-right">
-    {% if perms.dcim.add_devicerole %}
+    {% if perms.ipam.add_role %}
         <a href="{% url 'ipam:role_add' %}" class="btn btn-primary">
             <span class="fa fa-plus" aria-hidden="true"></span>
             Add a role

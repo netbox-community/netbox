@@ -88,7 +88,7 @@
                     <td>Commit Rate</td>
                     <td>
                         {% if circuit.commit_rate %}
-                            {{ circuit.commit_rate_human }}
+                            {{ circuit.commit_rate|humanize_speed }}
                         {% else %}
                             <span class="text-muted">N/A</span>
                         {% endif %}

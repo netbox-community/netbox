@@ -7,8 +7,9 @@ from mptt.forms import TreeNodeMultipleChoiceField
 
 from django import forms
 from django.conf import settings
-from django.core.validators import URLValidator
 from django.urls import reverse_lazy
+
+from .validators import EnhancedURLValidator
 
 
 COLOR_CHOICES = (
@@ -431,17 +432,11 @@ class FilterTreeNodeMultipleChoiceField(FilterChoiceFieldMixin, TreeNodeMultiple
 
 class LaxURLField(forms.URLField):
     """
-    Custom URLField which allows any valid URL scheme
+    Modifies Django's built-in URLField in two ways:
+      1) Allow any valid scheme per RFC 3986 section 3.1
+      2) Remove the requirement for fully-qualified domain names (e.g. http://myserver/ is valid)
     """
-
-    class AnyURLScheme(object):
-        # A fake URL list which "contains" all scheme names abiding by the syntax defined in RFC 3986 section 3.1
-        def __contains__(self, item):
-            if not item or not re.match('^[a-z][0-9a-z+\-.]*$', item.lower()):
-                return False
-            return True
-
-    default_validators = [URLValidator(schemes=AnyURLScheme())]
+    default_validators = [EnhancedURLValidator()]
 
 
 #

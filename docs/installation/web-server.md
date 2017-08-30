@@ -51,7 +51,7 @@ Restart the nginx service to use the new configuration.
 # service nginx restart
 ```
 
-To enable SSL, consider this guide on [securing nginx with Let's Encrypt](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-14-04).
+To enable SSL, consider this guide on [securing nginx with Let's Encrypt](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04).
 
 ## Option B: Apache
 
@@ -96,7 +96,7 @@ Save the contents of the above example in `/etc/apache2/sites-available/netbox.c
 # service apache2 restart
 ```
 
-To enable SSL, consider this guide on [securing Apache with Let's Encrypt](https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-14-04).
+To enable SSL, consider this guide on [securing Apache with Let's Encrypt](https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-16-04).
 
 # gunicorn Installation
 

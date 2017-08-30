@@ -135,6 +135,14 @@ An API consumer can request an arbitrary number of objects by appending the "lim
 
 ---
 
+## MEDIA_ROOT
+
+Default: $BASE_DIR/netbox/media/
+
+The file path to the location where media files (such as image attachments) are stored. By default, this is the `netbox/media` directory within the base NetBox installation path.
+
+---
+
 ## NAPALM_USERNAME
 
 ## NAPALM_PASSWORD
