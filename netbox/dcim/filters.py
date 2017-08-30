@@ -601,6 +601,16 @@ class InterfaceListFilter(django_filters.FilterSet):
         name='name',
         label='Device',
     )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        name='site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site name (slug)',
+    )
     type = django_filters.CharFilter(
         method='filter_type',
         label='Interface type',

@@ -1621,7 +1621,7 @@ class InterfaceListFilterForm(BootstrapMixin, forms.Form):
     model = Interface
     q = forms.CharField(required=False, label='Search')
     site = FilterChoiceField(
-        queryset=Site.objects.annotate(filter_count=Count('devices')),
+        queryset=Site.objects.annotate(filter_count=Count('interfaces')),
         to_field_name='slug',
     )
     #device = forms.ModelChoiceField(required=False, queryset=Device.objects.all(), to_field_name='slug')
