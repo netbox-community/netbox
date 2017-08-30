@@ -624,14 +624,10 @@ class InterfaceListFilter(django_filters.FilterSet):
         method='_mac_address',
         label='MAC address',
     )
-    description = django_filters.CharFilter(
-        method='filter_type',
-        label='Description',
-    )
 
     class Meta:
         model = Interface
-        fields = ['name', 'form_factor', 'enabled', 'mtu', 'mgmt_only']
+        fields = ['form_factor', 'enabled', 'mtu']
 
     def filter_device(self, queryset, name, value):
         try:
@@ -665,6 +661,7 @@ class InterfaceListFilter(django_filters.FilterSet):
         return queryset.filter(
             Q(device__icontains=value.strip()) |
             Q(name__icontains=value.strip()) |
+            Q(mac_address__icontains=value.strip()) |
             Q(description__icontains=value.strip())
         ).distinct()
 
