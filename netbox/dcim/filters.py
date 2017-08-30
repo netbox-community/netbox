@@ -662,7 +662,7 @@ class InterfaceListFilter(django_filters.FilterSet):
             Q(device__icontains=value.strip()) |
             Q(name__icontains=value.strip()) |
             Q(mac_address__icontains=value.strip()) |
-            Q(description__icontains=value.strip())
+            Q(description__icontains=value)
         ).distinct()
 
 
