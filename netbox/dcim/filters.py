@@ -655,7 +655,7 @@ class InterfaceListFilter(django_filters.FilterSet):
         if not value:
             return queryset
         try:
-            return queryset.filter(interfaces__mac_address=value).distinct()
+            return queryset.filter(mac_address=value)
         except AddrFormatError:
             return queryset.none()
 
@@ -663,7 +663,7 @@ class InterfaceListFilter(django_filters.FilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(device__icontains=value) |
+            Q(device_id__icontains=value) |
             Q(description__icontains=value)
         ).distinct()
 
