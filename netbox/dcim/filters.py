@@ -614,6 +614,10 @@ class InterfaceListFilter(django_filters.FilterSet):
         method='_mac_address',
         label='MAC address',
     )
+    description = django_filters.CharFilter(
+        method='filter_type',
+        label='Description',
+    )
 
     class Meta:
         model = Interface
@@ -650,10 +654,8 @@ class InterfaceListFilter(django_filters.FilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(serial__icontains=value.strip()) |
-            Q(inventory_items__serial__icontains=value.strip()) |
-            Q(asset_tag=value.strip()) |
-            Q(comments__icontains=value)
+            Q(device__icontains=value.strip()) |
+            Q(description__icontains=value)
         ).distinct()
 
 
