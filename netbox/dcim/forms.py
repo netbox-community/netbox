@@ -1620,7 +1620,6 @@ class InterfaceFilterForm(BootstrapMixin, forms.Form):
 class InterfaceListFilterForm(BootstrapMixin, forms.Form):
     q = forms.CharField(required=False, label='Search')
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
-    device = forms.CharField(required=False, label='Device name')
     enabled = forms.ChoiceField(choices=add_blank_choice(IFACE_ENABLED_CHOICES), required=False)
     #role = FilterChoiceField(
     #    required=False,

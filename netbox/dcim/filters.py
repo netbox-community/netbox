@@ -582,15 +582,6 @@ class InterfaceListFilter(django_filters.FilterSet):
             method='search',
             label='Search',
     )
-    device = django_filters.CharFilter(
-        method='filter_device',
-        label='Device',
-    )
-    #site_id = django_filters.ModelMultipleChoiceFilter(
-    #    name='site',
-    #    method='_filter_site',
-    #    label='Site (ID)',
-    #)
     site = django_filters.CharFilter(
         method='filter_site',
         label='Site (slug)',
@@ -629,11 +620,6 @@ class InterfaceListFilter(django_filters.FilterSet):
             return queryset
         except Device.DoesNotExist:
             return queryset.none()
-
-    def filter_device(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(device__name__icontains=value)
 
     def filter_type(self, queryset, name, value):
         value = value.strip().lower()
