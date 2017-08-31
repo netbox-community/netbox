@@ -1620,13 +1620,13 @@ class InterfaceFilterForm(BootstrapMixin, forms.Form):
 class InterfaceListFilterForm(BootstrapMixin, forms.Form):
     q = forms.CharField(required=False, label='Search')
     site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
-    rack_group_id = FilterChoiceField(
+    rack_group_id = ModelChoiceField(
         required=False,
         queryset=RackGroup.objects.select_related('site').annotate(filter_count=Count('racks__devices')),
         label='Rack group',
         null_option=(0, 'None')
     )
-    rack_id = FilterChoiceField(
+    rack_id = ModelChoiceField(
         required=False,
         queryset=Rack.objects.annotate(filter_count=Count('devices')),
         label='Rack',
