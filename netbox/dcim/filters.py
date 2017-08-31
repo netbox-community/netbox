@@ -621,7 +621,7 @@ class InterfaceListFilter(django_filters.FilterSet):
     def filter_site(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(device_id__device__site__slug=value)
+        return queryset.filter(device__site__slug=value)
     
     def filter_role(self, queryset, name, value):
         try:
