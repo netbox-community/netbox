@@ -13,22 +13,6 @@ from utilities.models import CreatedUpdatedModel
 from .constants import *
 
 
-def humanize_speed(speed):
-    """
-    Humanize speeds given in Kbps (e.g. 10000000 becomes '10 Gbps')
-    """
-    if speed >= 1000000000 and speed % 1000000000 == 0:
-        return '{} Tbps'.format(speed / 1000000000)
-    elif speed >= 1000000 and speed % 1000000 == 0:
-        return '{} Gbps'.format(speed / 1000000)
-    elif speed >= 1000 and speed % 1000 == 0:
-        return '{} Mbps'.format(speed / 1000)
-    elif speed >= 1000:
-        return '{} Mbps'.format(float(speed) / 1000)
-    else:
-        return '{} Kbps'.format(speed)
-
-
 @python_2_unicode_compatible
 class Provider(CreatedUpdatedModel, CustomFieldModel):
     """
@@ -139,10 +123,6 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
     def termination_z(self):
         return self._get_termination('Z')
 
-    def commit_rate_human(self):
-        return '' if not self.commit_rate else humanize_speed(self.commit_rate)
-    commit_rate_human.admin_order_field = 'commit_rate'
-
 
 @python_2_unicode_compatible
 class CircuitTermination(models.Model):
@@ -173,11 +153,3 @@ class CircuitTermination(models.Model):
             return CircuitTermination.objects.select_related('site').get(circuit=self.circuit, term_side=peer_side)
         except CircuitTermination.DoesNotExist:
             return None
-
-    def port_speed_human(self):
-        return humanize_speed(self.port_speed)
-    port_speed_human.admin_order_field = 'port_speed'
-
-    def upstream_speed_human(self):
-        return '' if not self.upstream_speed else humanize_speed(self.upstream_speed)
-    upstream_speed_human.admin_order_field = 'upstream_speed'

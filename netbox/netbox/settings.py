@@ -13,7 +13,9 @@ except ImportError:
     )
 
 
-VERSION = '2.1.4-dev'
+VERSION = '2.1.5-dev'
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Import required configuration parameters
 ALLOWED_HOSTS = DATABASE = SECRET_KEY = None
@@ -44,14 +46,15 @@ LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
 MAINTENANCE_MODE = getattr(configuration, 'MAINTENANCE_MODE', False)
 MAX_PAGE_SIZE = getattr(configuration, 'MAX_PAGE_SIZE', 1000)
-PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
-PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
+MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
 NAPALM_USERNAME = getattr(configuration, 'NAPALM_USERNAME', '')
 NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
 NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
 NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
 NETBOX_USERNAME = getattr(configuration, 'NETBOX_USERNAME', '')  # Deprecated
 NETBOX_PASSWORD = getattr(configuration, 'NETBOX_PASSWORD', '')  # Deprecated
+PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
+PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
@@ -103,8 +106,6 @@ if LDAP_CONFIGURED:
             "LDAP authentication has been configured, but django-auth-ldap is not installed. You can remove "
             "netbox/ldap_config.py to disable LDAP."
         )
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Database
 configuration.DATABASE.update({'ENGINE': 'django.db.backends.postgresql'})
@@ -202,7 +203,6 @@ STATICFILES_DIRS = (
 )
 
 # Media
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/{}media/'.format(BASE_PATH)
 
 # Disable default limit of 1000 fields per request. Needed for bulk deletion of objects. (Added in Django 1.10.)

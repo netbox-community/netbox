@@ -85,7 +85,13 @@ class ValidatedModelSerializer(ModelSerializer):
     """
     Extends the built-in ModelSerializer to enforce calling clean() on the associated model during validation.
     """
-    def validate(self, attrs):
+    def validate(self, data):
+
+        # Remove custom field data (if any) prior to model validation
+        attrs = data.copy()
+        attrs.pop('custom_fields', None)
+
+        # Run clean() on an instance of the model
         if self.instance is None:
             instance = self.Meta.model(**attrs)
         else:
@@ -93,7 +99,8 @@ class ValidatedModelSerializer(ModelSerializer):
             for k, v in attrs.items():
                 setattr(instance, k, v)
         instance.clean()
-        return attrs
+
+        return data
 
 
 class ChoiceFieldSerializer(Field):
