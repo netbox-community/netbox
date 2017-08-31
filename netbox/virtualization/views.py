@@ -9,6 +9,7 @@ from django.views.generic import View
 
 from dcim.models import Device, Interface
 from dcim.tables import DeviceTable
+from ipam.models import Service
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView, ComponentEditView,
     ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -236,10 +237,12 @@ class VirtualMachineView(View):
 
         vm = get_object_or_404(VirtualMachine.objects.select_related('tenant__group'), pk=pk)
         interfaces = Interface.objects.filter(virtual_machine=vm)
+        services = Service.objects.filter(virtual_machine=vm)
 
         return render(request, 'virtualization/virtualmachine.html', {
             'vm': vm,
             'interfaces': interfaces,
+            'services': services,
         })
 
 

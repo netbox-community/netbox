@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
+from ipam.views import ServiceCreateView
 from . import views
 
 
@@ -39,6 +40,7 @@ urlpatterns = [
     url(r'^virtual-machines/(?P<pk>\d+)/$', views.VirtualMachineView.as_view(), name='virtualmachine'),
     url(r'^virtual-machines/(?P<pk>\d+)/edit/$', views.VirtualMachineEditView.as_view(), name='virtualmachine_edit'),
     url(r'^virtual-machines/(?P<pk>\d+)/delete/$', views.VirtualMachineDeleteView.as_view(), name='virtualmachine_delete'),
+    url(r'^virtual-machines/(?P<virtualmachine>\d+)/services/assign/$', ServiceCreateView.as_view(), name='virtualmachine_service_assign'),
 
     # VM interfaces
     # url(r'^virtual-machines/interfaces/add/$', views.VMBulkAddInterfaceView.as_view(), name='vm_bulk_add_interface'),

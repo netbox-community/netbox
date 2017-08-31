@@ -158,6 +158,29 @@
                 </tr>
             </table>
         </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Services</strong>
+            </div>
+            {% if services %}
+                <table class="table table-hover panel-body">
+                    {% for service in services %}
+                        {% include 'ipam/inc/service.html' %}
+                    {% endfor %}
+                </table>
+            {% else %}
+                <div class="panel-body text-muted">
+                    None
+                </div>
+            {% endif %}
+            {% if perms.ipam.add_service %}
+                <div class="panel-footer text-right">
+                    <a href="{% url 'virtualization:virtualmachine_service_assign' virtualmachine=vm.pk %}" class="btn btn-xs btn-primary">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Assign service
+                    </a>
+                </div>
+            {% endif %}
+        </div>
         {% include 'inc/custom_fields_panel.html' with custom_fields=vm.get_custom_fields %}
         <div class="panel panel-default">
             <div class="panel-heading">

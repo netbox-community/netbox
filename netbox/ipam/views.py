@@ -15,6 +15,7 @@ from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
+from virtualization.models import VirtualMachine
 from . import filters, forms, tables
 from .constants import IPADDRESS_ROLE_ANYCAST
 from .models import (
@@ -838,10 +839,12 @@ class ServiceCreateView(PermissionRequiredMixin, ObjectEditView):
     def alter_obj(self, obj, request, url_args, url_kwargs):
         if 'device' in url_kwargs:
             obj.device = get_object_or_404(Device, pk=url_kwargs['device'])
+        elif 'virtualmachine' in url_kwargs:
+            obj.virtual_machine = get_object_or_404(VirtualMachine, pk=url_kwargs['virtualmachine'])
         return obj
 
     def get_return_url(self, request, obj):
-        return obj.device.get_absolute_url()
+        return obj.parent.get_absolute_url()
 
 
 class ServiceEditView(ServiceCreateView):

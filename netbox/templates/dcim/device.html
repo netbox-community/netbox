@@ -196,7 +196,7 @@
             {% if services %}
                 <table class="table table-hover panel-body">
                     {% for service in services %}
-                        {% include 'dcim/inc/service.html' %}
+                        {% include 'ipam/inc/service.html' %}
                     {% endfor %}
                 </table>
             {% else %}
@@ -206,7 +206,7 @@
             {% endif %}
             {% if perms.ipam.add_service %}
                 <div class="panel-footer text-right">
-                    <a href="{% url 'dcim:service_assign' device=device.pk %}" class="btn btn-xs btn-primary">
+                    <a href="{% url 'dcim:device_service_assign' device=device.pk %}" class="btn btn-xs btn-primary">
                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Assign service
                     </a>
                 </div>
