@@ -614,9 +614,9 @@ class InterfaceListFilter(django_filters.FilterSet):
         return queryset.filter(device__site__slug=value)
     
     def filter_role(self, queryset, name, value):
-       if not value.strip():
+        if not value.strip():
             return queryset
-    return queryset.filter(device_role__slug=value)
+        return queryset.filter(device_role__slug=value)
 
     def filter_type(self, queryset, name, value):
         value = value.strip().lower()
