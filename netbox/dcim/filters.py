@@ -622,7 +622,7 @@ class InterfaceListFilter(django_filters.FilterSet):
 
     def filter_site(self, queryset, name, value):
         try:
-           device = Device.objects.select_related('site').get(**{name: value})
+            device = Device.objects.select_related('site').get(**{name: value})
             ordering = device.device_type.interface_ordering
             return queryset.filter(device=device).order_naturally(ordering)
         except Device.DoesNotExist:
