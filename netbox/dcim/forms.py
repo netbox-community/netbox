@@ -1623,14 +1623,12 @@ class InterfaceListFilterForm(BootstrapMixin, forms.Form):
     rack_group_id = forms.ModelChoiceField(
         required=False,
         queryset=RackGroup.objects.select_related('site').annotate(filter_count=Count('racks__devices')),
-        label='Rack group',
-        null_option=(0, 'None')
+        label='Rack group'
     )
     rack_id = forms.ModelChoiceField(
         required=False,
         queryset=Rack.objects.annotate(filter_count=Count('devices')),
-        label='Rack',
-        null_option=(0, 'None')
+        label='Rack'
     )
     enabled = forms.ChoiceField(choices=add_blank_choice(IFACE_ENABLED_CHOICES), required=False)
     role = FilterChoiceField(
