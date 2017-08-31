@@ -1629,7 +1629,8 @@ class InterfaceListFilterForm(BootstrapMixin, forms.Form):
         required=False,
         queryset=Rack.objects.annotate(filter_count=Count('devices')),
         label='Rack',
-        null_option=(None, 'None')
+        null_option=(None, 'None'),
+        empty_label='--------'
     )
     enabled = forms.ChoiceField(choices=add_blank_choice(IFACE_ENABLED_CHOICES), required=False)
     role = FilterChoiceField(
