@@ -582,6 +582,11 @@ class InterfaceListFilter(django_filters.FilterSet):
             method='search',
             label='Search',
     )
+    device = django_filters.CharFilter(
+        method='filter_device',
+        name='name',
+        label='Device',
+    )
     site = django_filters.CharFilter(
         method='filter_site',
         label='Site (slug)',
@@ -612,6 +617,14 @@ class InterfaceListFilter(django_filters.FilterSet):
     class Meta:
         model = Interface
         fields = ['form_factor', 'enabled', 'mtu']
+
+    def filter_device(self, queryset, name, value):
+        try:
+            device = Device.objects.select_related('device_type').get(**{name: value})
+            ordering = device.device_type.interface_ordering
+            return queryset.filter(device=device).order_naturally(ordering)
+        except Device.DoesNotExist:
+            return queryset.none()
 
     def filter_site(self, queryset, name, value):
         if not value.strip():
