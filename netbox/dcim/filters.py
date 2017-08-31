@@ -592,12 +592,11 @@ class InterfaceListFilter(django_filters.FilterSet):
     )
     #rack_group_id = django_filters.ModelMultipleChoiceFilter(
     #    name='rack__group',
-    #    method='filter_rack_group',
+    #    method='_filter_rack_group',
     #    label='Rack group (ID)',
     #)
     rack_id = NullableModelMultipleChoiceFilter(
-        name='device__rack',
-        method='filter_rack',
+        method='_filter_rack',
         label='Rack (ID)',
     )
     type = django_filters.CharFilter(
