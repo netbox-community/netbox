@@ -583,12 +583,12 @@ class InterfaceListFilter(django_filters.FilterSet):
             label='Search',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Device.objects.all(),
+        queryset=Device.objects.get('device_id__site'),
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
         name='site',
-        queryset=Device.objects.all(),
+        queryset=Device.objects.get('device_id__site'),
         to_field_name='site',
         label='Site name (slug)',
     )
