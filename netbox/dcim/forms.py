@@ -1625,7 +1625,7 @@ class InterfaceListFilterForm(BootstrapMixin, forms.Form):
     #    queryset=RackGroup.objects.select_related('site').annotate(filter_count=Count('racks__devices')),
     #    label='Rack group'
     #)
-    rack_id = forms.FilterChoiceField(
+    rack_id = FilterChoiceField(
         required=False,
         queryset=Rack.objects.annotate(filter_count=Count('devices')),
         label='Rack',
