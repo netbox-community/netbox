@@ -623,16 +623,6 @@ class InterfaceListFilter(django_filters.FilterSet):
             return queryset
         return queryset.filter(device__device_role__slug=value)
 
-    def filter_rack(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(device__rack=value)
-
-    def filter_rack_group(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(device__rack__group__name=value)
-
     def filter_type(self, queryset, name, value):
         value = value.strip().lower()
         return {
