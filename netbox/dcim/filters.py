@@ -617,7 +617,7 @@ class InterfaceListFilter(django_filters.FilterSet):
 
     def filter_site(self, queryset, name, value):
         #try:
-        device = Device.objects.filter(name=value).distinct()
+        device = Device.objects.filter(**{name: value}).distinct()
         return queryset
         #except Device.DoesNotExist:
         #    return queryset.none()
