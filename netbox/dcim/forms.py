@@ -1620,19 +1620,17 @@ class InterfaceFilterForm(BootstrapMixin, forms.Form):
 class InterfaceListFilterForm(BootstrapMixin, forms.Form):
     model = Interface
     q = forms.CharField(required=False, label='Search')
-    site = FilterChoiceField(
-        queryset=Site.objects.annotate(filter_count=Count('devices')),
-        to_field_name='slug'
-    )
-    #device = forms.ModelChoiceField(required=False, queryset=Device.objects.all(), to_field_name='slug')
-    device = forms.CharField(required=False, label='Device name')
+    site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
+    #site = FilterChoiceField(
+    #    queryset=Site.objects.annotate(filter_count=Count('devices')),
+    #    to_field_name='slug'
+    #)
     enabled = forms.ChoiceField(choices=add_blank_choice(IFACE_ENABLED_CHOICES), required=False)
     role = FilterChoiceField(
         required=False,
         queryset=DeviceRole.objects.annotate(filter_count=Count('devices')),
         to_field_name='slug'
     )
-    mac_address = forms.CharField(required=False, label='MAC address')
 
 
 #

@@ -611,14 +611,20 @@ class InterfaceListFilter(django_filters.FilterSet):
         to_field_name='slug',
         label='Site name (slug)',
     )
+    role_id = django_filters.ModelMultipleChoiceFilter(
+        name='device_role_id',
+        queryset=DeviceRole.objects.all(),
+        label='Role (ID)',
+    )
+    role = django_filters.ModelMultipleChoiceFilter(
+        name='device_role__slug',
+        queryset=DeviceRole.objects.all(),
+        to_field_name='slug',
+        label='Role (slug)',
+    )
     type = django_filters.CharFilter(
         method='filter_type',
         label='Interface type',
-    )
-    lag_id = django_filters.ModelMultipleChoiceFilter(
-        name='lag',
-        queryset=Interface.objects.all(),
-        label='LAG interface (ID)',
     )
     mac_address = django_filters.CharFilter(
         method='_mac_address',
