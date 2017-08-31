@@ -591,7 +591,7 @@ class InterfaceListFilter(django_filters.FilterSet):
     #    name='device_role',
     #    label='Role (ID)',
     #)
-    role = django_filters.ModelMultipleChoiceFilter(
+    role = django_filters.CharFilter(
         method='filter_role',
         label='Role (slug)',
     )
