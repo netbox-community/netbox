@@ -590,11 +590,11 @@ class InterfaceListFilter(django_filters.FilterSet):
         method='filter_role',
         label='Role (slug)',
     )
-    #rack_group_id = django_filters.ModelMultipleChoiceFilter(
-    #    name='rack__group',
-    #    method='_filter_rack_group',
-    #    label='Rack group (ID)',
-    #)
+    rack_group_id = NullableModelMultipleChoiceFilter(
+        name='device__rack__group',
+        queryset=RackGroup.objects.all(),
+        label='Rack Group(ID)',
+    )
     rack_id = NullableModelMultipleChoiceFilter(
         name='device__rack',
         queryset=Rack.objects.all(),
