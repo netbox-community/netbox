@@ -591,11 +591,10 @@ class InterfaceListFilter(django_filters.FilterSet):
     #    name='device_role',
     #    label='Role (ID)',
     #)
-    #role = django_filters.ModelMultipleChoiceFilter(
-    #    method='_filter_role',
-    #    name='device_role',
-    #    label='Role (slug)',
-    #)
+    role = django_filters.ModelMultipleChoiceFilter(
+        method='_filter_role',
+        label='Role (slug)',
+    )
     type = django_filters.CharFilter(
         method='filter_type',
         label='Interface type',
@@ -615,11 +614,9 @@ class InterfaceListFilter(django_filters.FilterSet):
         return queryset.filter(device__site__slug=value)
     
     def filter_role(self, queryset, name, value):
-        try:
-            device = Device.objects.filter(name=value).distinct()
+       if not value.strip():
             return queryset
-        except Device.DoesNotExist:
-            return queryset.none()
+        return queryset.filter(device_role__slug=value)
 
     def filter_type(self, queryset, name, value):
         value = value.strip().lower()
