@@ -593,18 +593,22 @@ class InterfaceListFilter(django_filters.FilterSet):
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         method='_filter_site',
+        name='site',
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
         method='_filter_site',
+        name='site',
         label='Site name (slug)',
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         method='_filter_role',
+        name='device_role',
         label='Role (ID)',
     )
     role = django_filters.ModelMultipleChoiceFilter(
         method='_filter_role',
+        name='device_role',
         label='Role (slug)',
     )
     type = django_filters.CharFilter(
