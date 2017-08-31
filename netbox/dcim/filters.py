@@ -582,15 +582,16 @@ class InterfaceListFilter(django_filters.FilterSet):
             method='search',
             label='Search',
     )
-    #site_id = django_filters.ModelMultipleChoiceFilter(
-    #    queryset=Device.objects.select_related('site'),
-    #    label='Site (ID)',
-    #)
-    #site = django_filters.ModelMultipleChoiceFilter(
-    #    name='site',
-    #    method='_filter_site',
-    #    label='Site name (slug)',
-    #)
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        name='site'
+        method='_filter_site',
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        name='site',
+        method='_filter_site',
+        label='Site name (slug)',
+    )
     #role_id = django_filters.ModelMultipleChoiceFilter(
     #    method='_filter_role',
     #    name='device_role',
@@ -616,17 +617,15 @@ class InterfaceListFilter(django_filters.FilterSet):
 
     def filter_site(self, queryset, name, value):
         try:
-            device = Device.objects.select_related('site').get(**{name: value})
-            ordering = device.site.interface_ordering
-            return queryset.filter(site=site).order_naturally(ordering)
+            device = Device.objects.filter(name=value).distinct()
+            return queryset
         except Device.DoesNotExist:
             return queryset.none()
     
     def filter_role(self, queryset, name, value):
         try:
-            device = Device.objects.select_related('device_role').get(**{name: value})
-            ordering = device.device_type.interface_ordering
-            return queryset.filter(device=device).order_naturally(ordering)
+            device = Device.objects.filter(name=value).distinct()
+            return queryset
         except Device.DoesNotExist:
             return queryset.none()
 
