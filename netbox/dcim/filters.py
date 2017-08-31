@@ -586,9 +586,9 @@ class InterfaceListFilter(django_filters.FilterSet):
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='site__slug',
+        name='site',
         queryset=Device.objects.select_related('site'),
-        to_field_name='slug',
+        to_field_name='site',
         label='Site name (slug)',
     )
     #role_id = django_filters.ModelMultipleChoiceFilter(
