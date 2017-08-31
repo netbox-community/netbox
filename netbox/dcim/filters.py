@@ -589,7 +589,7 @@ class InterfaceListFilter(django_filters.FilterSet):
     site = django_filters.ModelMultipleChoiceFilter(
         name='site__slug',
         queryset=Device.objects.select_related('site').all(),
-        to_field_name='slug',
+        to_field_name='site',
         label='Site name (slug)',
     )
     #site_id = django_filters.ModelMultipleChoiceFilter(
