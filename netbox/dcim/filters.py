@@ -519,7 +519,8 @@ class PowerOutletFilter(DeviceComponentFilterSet):
 
 class InterfaceFilter(django_filters.FilterSet):
     """
-    
+    Not using DeviceComponentFilterSet for Interfaces because we need to glean the ordering logic from the parent
+    Device's DeviceType.
     """
     device = django_filters.CharFilter(
         method='filter_device',
@@ -580,6 +581,16 @@ class InterfaceListFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(
             method='search',
             label='Search',
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        name='site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site name (slug)',
     )
     #site_id = django_filters.ModelMultipleChoiceFilter(
     #    queryset=Device.objects.select_related('site'),
