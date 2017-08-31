@@ -587,10 +587,9 @@ class InterfaceListFilter(django_filters.FilterSet):
     #    method='_filter_site',
     #    label='Site (ID)',
     #)
-    site = django_filters.ModelMultipleChoiceFilter(
-        name='site',
-        method='_filter_site',
-        label='Site name (slug)',
+    site = django_filters.CharFilter(
+        method='filter_site',
+        label='Site (slug)',
     )
     #role_id = django_filters.ModelMultipleChoiceFilter(
     #    method='_filter_role',
