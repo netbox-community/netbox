@@ -653,6 +653,7 @@ class InterfaceListFilter(django_filters.FilterSet):
             return queryset
         return queryset.filter(
             Q(device__name__icontains=value.strip()) |
+            Q(name__icontains=value.strip()) |
             Q(description__icontains=value.strip()) |
             Q(mac_address__icontains=value.strip())
         ).distinct()
