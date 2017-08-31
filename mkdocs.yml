@@ -18,6 +18,7 @@ pages:
         - 'IPAM': 'data-model/ipam.md'
         - 'Secrets': 'data-model/secrets.md'
         - 'Tenancy': 'data-model/tenancy.md'
+        - 'Virtualization': 'data-model/virtualization.md'
         - 'Extras': 'data-model/extras.md'
     - 'API':
         - 'Overview': 'api/overview.md'
