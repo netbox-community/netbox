@@ -592,24 +592,19 @@ class InterfaceListFilter(django_filters.FilterSet):
             label='Search',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Site.objects.all(),
+        method='_filter_site',
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='site__slug',
-        queryset=Site.objects.all(),
-        to_field_name='slug',
+        method='_filter_site',
         label='Site name (slug)',
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
-        name='device_role_id',
-        queryset=DeviceRole.objects.all(),
+        method='_filter_role',
         label='Role (ID)',
     )
     role = django_filters.ModelMultipleChoiceFilter(
-        name='device_role__slug',
-        queryset=DeviceRole.objects.all(),
-        to_field_name='slug',
+        method='_filter_role',
         label='Role (slug)',
     )
     type = django_filters.CharFilter(
@@ -624,6 +619,20 @@ class InterfaceListFilter(django_filters.FilterSet):
     class Meta:
         model = Interface
         fields = ['form_factor', 'enabled', 'mtu']
+
+    def filter_site(self, queryset, name, value):
+        try:
+            site = Site.objects.select_related('device_id__site').get(**{name: value})
+            return queryset
+        except Device.DoesNotExist:
+            return queryset.none()
+    
+    def filter_role(self, queryset, name, value):
+        try:
+            site = DeviceRole.objects.select_related('device_id__device_role').get(**{name: value})
+            return queryset
+        except Device.DoesNotExist:
+            return queryset.none()
 
     def filter_type(self, queryset, name, value):
         value = value.strip().lower()
