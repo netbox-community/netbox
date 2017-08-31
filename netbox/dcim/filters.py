@@ -630,7 +630,7 @@ class InterfaceListFilter(django_filters.FilterSet):
         except Device.DoesNotExist:
             return queryset.none()
 
-     def filter_device(self, queryset, name, value):
+    def filter_device(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(device__name__icontains=value)
