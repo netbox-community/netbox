@@ -616,11 +616,11 @@ class InterfaceListFilter(django_filters.FilterSet):
         fields = ['form_factor', 'enabled', 'mtu']
 
     def filter_site(self, queryset, name, value):
-        try:
-            device = Device.objects.filter(name=value).distinct()
-            return queryset
-        except Device.DoesNotExist:
-            return queryset.none()
+        #try:
+        device = Device.objects.filter(name=value).distinct()
+        return queryset
+        #except Device.DoesNotExist:
+        #    return queryset.none()
     
     def filter_role(self, queryset, name, value):
         try:
