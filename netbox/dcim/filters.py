@@ -596,7 +596,7 @@ class InterfaceListFilter(django_filters.FilterSet):
     #    label='Rack group (ID)',
     #)
     rack_id = NullableModelMultipleChoiceFilter(
-        name='rack',
+        name='device__rack',
         method='filter_rack',
         label='Rack (ID)',
     )
