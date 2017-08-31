@@ -634,7 +634,6 @@ class InterfaceListFilter(django_filters.FilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(device__name__icontains=value)
-        )
 
     def filter_type(self, queryset, name, value):
         value = value.strip().lower()
