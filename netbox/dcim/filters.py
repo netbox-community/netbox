@@ -596,7 +596,8 @@ class InterfaceListFilter(django_filters.FilterSet):
     #    label='Rack group (ID)',
     #)
     rack_id = NullableModelMultipleChoiceFilter(
-        method='_filter_rack',
+        name='device__rack',
+        queryset=Rack.objects.all(),
         label='Rack (ID)',
     )
     type = django_filters.CharFilter(
