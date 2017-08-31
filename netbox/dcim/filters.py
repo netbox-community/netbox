@@ -622,14 +622,14 @@ class InterfaceListFilter(django_filters.FilterSet):
 
     def filter_site(self, queryset, name, value):
         try:
-            site = Site.objects.select_related('device_id__site').get(**{name: value})
+            site = Site.objects.select_related('device_id').get(**{name: value})
             return queryset
         except Device.DoesNotExist:
             return queryset.none()
     
     def filter_role(self, queryset, name, value):
         try:
-            site = DeviceRole.objects.select_related('device_id__device_role').get(**{name: value})
+            site = DeviceRole.objects.select_related('device_id').get(**{name: value})
             return queryset
         except Device.DoesNotExist:
             return queryset.none()
