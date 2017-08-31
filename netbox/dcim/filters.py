@@ -623,14 +623,16 @@ class InterfaceListFilter(django_filters.FilterSet):
     def filter_site(self, queryset, name, value):
         try:
             site = Device.objects.select_related('device_id','site').get(**{name: value})
-            return queryset
+            ordering = device.site.interface_ordering
+            return queryset.filter(device=device_id).order_naturally(ordering)
         except Device.DoesNotExist:
             return queryset.none()
     
     def filter_role(self, queryset, name, value):
         try:
             site = Device.objects.select_related('device_id','device_role').get(**{name: value})
-            return queryset
+            ordering = device.device_role.interface_ordering
+            return queryset.filter(device=device_id).order_naturally(ordering)
         except Device.DoesNotExist:
             return queryset.none()
 
