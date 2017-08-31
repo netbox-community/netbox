@@ -582,11 +582,11 @@ class InterfaceListFilter(django_filters.FilterSet):
             method='search',
             label='Search',
     )
-    site_id = django_filters.ModelMultipleChoiceFilter(
-        name='site',
-        method='_filter_site',
-        label='Site (ID)',
-    )
+    #site_id = django_filters.ModelMultipleChoiceFilter(
+    #    name='site',
+    #    method='_filter_site',
+    #    label='Site (ID)',
+    #)
     site = django_filters.ModelMultipleChoiceFilter(
         name='site',
         method='_filter_site',
