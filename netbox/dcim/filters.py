@@ -535,16 +535,6 @@ class InterfaceFilter(django_filters.FilterSet):
         method='filter_type',
         label='Interface type',
     )
-    site_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Site.objects.all(),
-        label='Site (ID)',
-    )
-    site = django_filters.ModelMultipleChoiceFilter(
-        name='site__slug',
-        queryset=Site.objects.all(),
-        to_field_name='slug',
-        label='Site name (slug)',
-    )
     lag_id = django_filters.ModelMultipleChoiceFilter(
         name='lag',
         queryset=Interface.objects.all(),
@@ -592,12 +582,12 @@ class InterfaceListFilter(django_filters.FilterSet):
             label='Search',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Site.objects.all(),
+        queryset=Site.objects.select_related('device_id','site'),
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
         name='site__slug',
-        queryset=Site.objects.all(),
+        queryset=Site.objects.select_related('device_id','site'),
         to_field_name='slug',
         label='Site name (slug)',
     )
