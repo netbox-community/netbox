@@ -581,6 +581,94 @@ class InterfaceFilter(django_filters.FilterSet):
             return queryset.none()
 
 
+class InterfaceListFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+            method='search',
+            label='Search',
+    )
+    device = django_filters.CharFilter(
+        method='filter_device',
+        name='name',
+        label='Device',
+    )
+    site = django_filters.CharFilter(
+        method='filter_site',
+        label='Site (slug)',
+    )
+    role = django_filters.CharFilter(
+        method='filter_role',
+        label='Role (slug)',
+    )
+    rack_group_id = NullableModelMultipleChoiceFilter(
+        name='device__rack__group',
+        queryset=RackGroup.objects.all(),
+        label='Rack Group(ID)',
+    )
+    rack_id = NullableModelMultipleChoiceFilter(
+        name='device__rack',
+        queryset=Rack.objects.all(),
+        label='Rack (ID)',
+    )
+    type = django_filters.CharFilter(
+        method='filter_type',
+        label='Interface type',
+    )
+    mac_address = django_filters.CharFilter(
+        method='_mac_address',
+        label='MAC address',
+    )
+
+    class Meta:
+        model = Interface
+        fields = ['form_factor', 'enabled', 'mtu']
+
+    def filter_device(self, queryset, name, value):
+        try:
+            device = Device.objects.select_related('device_type').get(**{name: value})
+            ordering = device.device_type.interface_ordering
+            return queryset.filter(device=device).order_naturally(ordering)
+        except Device.DoesNotExist:
+            return queryset.none()
+
+    def filter_site(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(device__site__slug=value)
+    
+    def filter_role(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(device__device_role__slug=value)
+
+    def filter_type(self, queryset, name, value):
+        value = value.strip().lower()
+        return {
+            'physical': queryset.exclude(form_factor__in=NONCONNECTABLE_IFACE_TYPES),
+            'virtual': queryset.filter(form_factor__in=VIRTUAL_IFACE_TYPES),
+            'wireless': queryset.filter(form_factor__in=WIRELESS_IFACE_TYPES),
+            'lag': queryset.filter(form_factor=IFACE_FF_LAG),
+        }.get(value, queryset.none())
+
+    def _mac_address(self, queryset, name, value):
+        value = value.strip()
+        if not value:
+            return queryset
+        try:
+            return queryset.filter(mac_address__icontains=value)
+        except AddrFormatError:
+            return queryset.none()
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(device__name__icontains=value.strip()) |
+            Q(name__icontains=value.strip()) |
+            Q(description__icontains=value.strip()) |
+            Q(mac_address__icontains=value.strip())
+        ).distinct()
+
+
 class DeviceBayFilter(DeviceComponentFilterSet):
 
     class Meta:

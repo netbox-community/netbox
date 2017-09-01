@@ -1,0 +1,24 @@
+{% extends '_base.html' %}
+
+{% block title %}Interfaces{% endblock %}
+
+{% block content %}
+<div class="pull-right">
+    {% if perms.dcim.add_interface %}
+        <a href="{% url 'dcim:interface_import' %}" class="btn btn-info">
+            <span class="fa fa-download" aria-hidden="true"></span>
+            Import Interfaces
+        </a>
+    {% endif %}
+    {% include 'inc/export_button.html' with obj_type='interfaces' %}
+</div>
+<h1>Interfaces</h1>
+<div class="row">
+	<div class="col-md-9">
+        {% include 'responsive_table.html' %}
+    </div>
+    <div class="col-md-3">
+		{% include 'inc/search_panel.html' %}
+    </div>
+</div>
+{% endblock %}

@@ -11,8 +11,13 @@
             <span class="label label-primary">{{ iface.lag.name }}</span>
         {% endif %}
         {% if iface.description %}
-            <i class="fa fa-fw fa-comment-o" title="{{ iface.description }}"></i>
+            <i class="fa fa-fw fa-comment-o" aria-hidden="true" title="{{ iface.description }}"></i>
         {% endif %}
+        <td>
+        {% if iface.description %}
+            <span class="text-muted iface-description" title="{{ iface.description }}">{{ iface.description }}</span>
+        {% endif %}
+    </td>
     </td>
     <td>{{ iface.mtu|default:"" }}</td>
     <td>{{ iface.mac_address|default:"" }}</td>

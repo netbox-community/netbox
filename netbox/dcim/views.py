@@ -1543,6 +1543,21 @@ class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     table = tables.InterfaceTable
 
 
+class InterfaceBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.change_interface'
+    model_form = forms.InterfaceCSVForm
+    table = tables.InterfaceImportTable
+    default_return_url = 'dcim:interface_list'
+
+
+class InterfaceListView(ObjectListView):
+    queryset = Interface.objects.all()
+    filter = filters.InterfaceListFilter
+    filter_form = forms.InterfaceListFilterForm
+    table = tables.InterfaceListTable
+    template_name = 'dcim/interface_list.html'
+
+
 #
 # Device bays
 #
