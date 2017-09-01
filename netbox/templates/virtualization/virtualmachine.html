@@ -258,3 +258,20 @@
 	</div>
 </div>
 {% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+// Toggle the display of IP addresses under interfaces
+$('button.toggle-ips').click(function() {
+    var selected = $(this).attr('selected');
+    if (selected) {
+        $('#interfaces_table tr.ipaddress').hide();
+    } else {
+        $('#interfaces_table tr.ipaddress').show();
+    }
+    $(this).attr('selected', !selected);
+    $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');
+    return false;
+});
+</script>
+{% endblock %}
