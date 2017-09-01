@@ -380,6 +380,10 @@
                 <span class="fa fa-download" aria-hidden="true"></span>
                     Import Interfaces
                 </a>
+                 <a href="{% url 'dcim:interface_list' %}?device={{ device.name }}&export" class="btn btn-success">
+                    <span class="fa fa-upload" aria-hidden="true"></span>
+                    Export Interfaces
+                </a>
                 {% endif %}
                 <div class="panel-heading">
                     <strong>Interfaces</strong>
