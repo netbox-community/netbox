@@ -214,7 +214,7 @@ class ObjectEditView(GetReturnURLMixin, View):
                 UserAction.objects.log_edit(request.user, obj, msg)
 
             if '_addanother' in request.POST:
-                return redirect(request.path)
+                return redirect(request.get_full_path())
 
             return_url = form.cleaned_data.get('return_url')
             if return_url is not None and is_safe_url(url=return_url, host=request.get_host()):
