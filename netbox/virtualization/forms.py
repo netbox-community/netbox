@@ -98,7 +98,7 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
         queryset=Region.objects.all(),
         required=False,
         widget=forms.Select(
-            attrs={'filter-for': 'site'}
+            attrs={'filter-for': 'site', 'nullable': 'true'}
         )
     )
     site = ChainedModelChoiceField(
