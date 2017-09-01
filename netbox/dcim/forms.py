@@ -1584,20 +1584,17 @@ class InterfaceCSVForm(forms.ModelForm):
         required=False,
         help_text='Is Lag?'
     )
-    
+
     class Meta:
         model = Interface
-        fields = ('device', 'lag','name','mac_address','form_factor','enabled','description','mtu','mgmt_only','is_virtual','is_wireless','is_lag')
-        nullable_fields = ['lag','is_virtual','is_wireless','is_lag']
-
+        fields = ('device', 'lag', 'name', 'mac_address', 'form_factor', 'enabled', 'description', 'mtu', 'mgmt_only', 'is_virtual', 'is_wireless', 'is_lag')
+        nullable_fields = ['lag', 'is_virtual', 'is_wireless', 'is_lag']
 
     def clean_interface(self):
         interface_name = self.cleaned_data.get('interface_name')
         if not interface:
             return None
-        
         return interface
-
 
     def clean_lag(self):
         device_id = self.cleaned_data.get('device')

@@ -537,9 +537,9 @@ class InterfaceConnectionTable(BaseTable):
 
 class InterfaceImportTable(BaseTable):
     device = tables.LinkColumn('dcim:device', accessor=Accessor('interface.device'),
-                                 args=[Accessor('interface.device.pk')], verbose_name='Device')
+                               args=[Accessor('interface.device.pk')], verbose_name='Device')
     lag = tables.LinkColumn('dcim:interface', accessor=Accessor('self.name'),
-                                 args=[Accessor('self.pk')], verbose_name='Lag ID')
+                            args=[Accessor('self.pk')], verbose_name='Lag ID')
     name = tables.Column(verbose_name='Interface')
     mac_address = tables.Column(verbose_name='MAC Address')
     form_factor = tables.Column(verbose_name='Form Factor')
@@ -550,14 +550,15 @@ class InterfaceImportTable(BaseTable):
     is_virtual = tables.Column(verbose_name='Is Virtual?')
     is_wireless = tables.Column(verbose_name='Is Wireless?')
     is_lag = tables.Column(verbose_name='Is Lag?')
+
     class Meta(BaseTable.Meta):
         model = Interface
-        fields = ('device', 'lag','name','mac_address','form_factor','enabled','description','mtu','mgmt_only','is_virtual','is_wireless','is_lag')
+        fields = ('device', 'lag', 'name', 'mac_address', 'form_factor', 'enabled', 'description', 'mtu', 'mgmt_only', 'is_virtual', 'is_wireless', 'is_lag')
 
 
 class InterfaceListTable(BaseTable):
     device = tables.LinkColumn('dcim:device', accessor=Accessor('device'),
-                                 args=[Accessor('device.pk')], verbose_name='Device')
+                               args=[Accessor('device.pk')], verbose_name='Device')
     name = tables.TemplateColumn(template_code=INTERFACE_LINK, verbose_name='Interface')
     enabled = tables.TemplateColumn(template_code=INTERFACE_ENABLED, verbose_name='Enabled')
     form_factor = tables.Column(verbose_name='Form Factor')
@@ -566,4 +567,4 @@ class InterfaceListTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Interface
-        fields = ('device','name','enabled','form_factor','mac_address','description')
+        fields = ('device', 'name', 'enabled', 'form_factor', 'mac_address', 'description')

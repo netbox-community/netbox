@@ -579,8 +579,8 @@ class InterfaceFilter(django_filters.FilterSet):
 
 class InterfaceListFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(
-            method='search',
-            label='Search',
+        method='search',
+        label='Search',
     )
     device = django_filters.CharFilter(
         method='filter_device',
@@ -630,7 +630,7 @@ class InterfaceListFilter(django_filters.FilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(device__site__slug=value)
-    
+
     def filter_role(self, queryset, name, value):
         if not value.strip():
             return queryset
