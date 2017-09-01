@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 # Models which support custom fields
 CUSTOMFIELD_MODELS = (
-    'site', 'rack', 'devicetype', 'device', 'interface',    # DCIM
+    'site', 'rack', 'devicetype', 'device',                 # DCIM
     'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf',      # IPAM
     'provider', 'circuit',                                  # Circuits
     'tenant',                                               # Tenants
@@ -37,7 +37,7 @@ GRAPH_TYPE_CHOICES = (
 
 # Models which support export templates
 EXPORTTEMPLATE_MODELS = [
-    'site', 'rack', 'device', 'consoleport', 'powerport', 'interfaceconnection', 'interface',   # DCIM
+    'site', 'rack', 'device', 'consoleport', 'powerport', 'interfaceconnection',                # DCIM
     'aggregate', 'prefix', 'ipaddress', 'vlan',                                                 # IPAM
     'provider', 'circuit',                                                                      # Circuits
     'tenant',                                                                                   # Tenants
