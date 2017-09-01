@@ -16,6 +16,7 @@ from dcim.models import (
 from extras.api.customfields import CustomFieldModelSerializer
 from tenancy.api.serializers import NestedTenantSerializer
 from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer
+from virtualization.models import Cluster
 
 
 #
@@ -446,6 +447,15 @@ class DeviceIPAddressSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'family', 'address']
 
 
+# Cannot import virtualization.api.NestedClusterSerializer due to circular dependency
+class NestedClusterSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:cluster-detail')
+
+    class Meta:
+        model = Cluster
+        fields = ['id', 'url', 'name']
+
+
 class DeviceSerializer(CustomFieldModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     device_role = NestedDeviceRoleSerializer()
@@ -459,13 +469,14 @@ class DeviceSerializer(CustomFieldModelSerializer):
     primary_ip4 = DeviceIPAddressSerializer()
     primary_ip6 = DeviceIPAddressSerializer()
     parent_device = serializers.SerializerMethodField()
+    cluster = NestedClusterSerializer()
 
     class Meta:
         model = Device
         fields = [
             'id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'site', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4', 'primary_ip6',
-            'comments', 'custom_fields',
+            'cluster', 'comments', 'custom_fields',
         ]
 
     def get_parent_device(self, obj):

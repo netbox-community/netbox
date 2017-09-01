@@ -1,0 +1,19 @@
+{% extends '_base.html' %}
+{% load helpers %}
+
+{% block content %}
+<div class="pull-right">
+    {% if perms.virtualization.add_clustertype %}
+        <a href="{% url 'virtualization:clustertype_add' %}" class="btn btn-primary">
+            <span class="fa fa-plus" aria-hidden="true"></span>
+            Add a cluster type
+        </a>
+    {% endif %}
+</div>
+<h1>{% block title %}Cluster Types{% endblock %}</h1>
+<div class="row">
+	<div class="col-md-12">
+        {% include 'utilities/obj_table.html' with bulk_delete_url='virtualization:clustertype_bulk_delete' %}
+    </div>
+</div>
+{% endblock %}

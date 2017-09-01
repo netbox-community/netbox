@@ -12,6 +12,7 @@ from ipam.models import (
 )
 from tenancy.api.serializers import NestedTenantSerializer
 from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer
+from virtualization.api.serializers import NestedVirtualMachineSerializer
 
 
 #
@@ -295,12 +296,13 @@ class AvailableIPSerializer(serializers.Serializer):
 
 class ServiceSerializer(serializers.ModelSerializer):
     device = NestedDeviceSerializer()
+    virtual_machine = NestedVirtualMachineSerializer()
     protocol = ChoiceFieldSerializer(choices=IP_PROTOCOL_CHOICES)
     ipaddresses = NestedIPAddressSerializer(many=True)
 
     class Meta:
         model = Service
-        fields = ['id', 'device', 'name', 'port', 'protocol', 'ipaddresses', 'description']
+        fields = ['id', 'device', 'virtual_machine', 'name', 'port', 'protocol', 'ipaddresses', 'description']
 
 
 # TODO: Figure out how to use model validation with ManyToManyFields. Calling clean() yields a ValueError.
@@ -308,4 +310,4 @@ class WritableServiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Service
-        fields = ['id', 'device', 'name', 'port', 'protocol', 'ipaddresses', 'description']
+        fields = ['id', 'device', 'virtual_machine', 'name', 'port', 'protocol', 'ipaddresses', 'description']

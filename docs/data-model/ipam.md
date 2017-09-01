@@ -96,4 +96,4 @@ VLAN groups can be employed for administrative organization within NetBox. Each 
 
 # Services
 
-A service represents a TCP or UDP service available on a device. Each service must be defined with a name, protocol, and port number; for example, "SSH (TCP/22)." A service may optionally be bound to one or more specific IP addresses belonging to a device. (If no IP addresses are bound, the service is assumed to be reachable via any assigned IP address.)
+A service represents a TCP or UDP service available on a device or virtual machine. Each service must be defined with a name, protocol, and port number; for example, "SSH (TCP/22)." A service may optionally be bound to one or more specific IP addresses belonging to its parent. (If no IP addresses are bound, the service is assumed to be reachable via any assigned IP address.)

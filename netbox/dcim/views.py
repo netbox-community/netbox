@@ -23,7 +23,8 @@ from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_S
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView, ComponentEditView,
+    ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
 from .models import (
@@ -58,87 +59,6 @@ def expand_pattern(string):
                 yield "{0}{1}{2}".format(lead, i, string)
         else:
             yield "{0}{1}".format(lead, i)
-
-
-class ComponentCreateView(View):
-    parent_model = None
-    parent_field = None
-    model = None
-    form = None
-    model_form = None
-
-    def get(self, request, pk):
-
-        parent = get_object_or_404(self.parent_model, pk=pk)
-        form = self.form(parent, initial=request.GET)
-
-        return render(request, 'dcim/device_component_add.html', {
-            'parent': parent,
-            'component_type': self.model._meta.verbose_name,
-            'form': form,
-            'return_url': parent.get_absolute_url(),
-        })
-
-    def post(self, request, pk):
-
-        parent = get_object_or_404(self.parent_model, pk=pk)
-
-        form = self.form(parent, request.POST)
-        if form.is_valid():
-
-            new_components = []
-            data = deepcopy(form.cleaned_data)
-
-            for name in form.cleaned_data['name_pattern']:
-                component_data = {
-                    self.parent_field: parent.pk,
-                    'name': name,
-                }
-                # Replace objects with their primary key to keep component_form.clean() happy
-                for k, v in data.items():
-                    if hasattr(v, 'pk'):
-                        component_data[k] = v.pk
-                    else:
-                        component_data[k] = v
-                component_form = self.model_form(component_data)
-                if component_form.is_valid():
-                    new_components.append(component_form.save(commit=False))
-                else:
-                    for field, errors in component_form.errors.as_data().items():
-                        # Assign errors on the child form's name field to name_pattern on the parent form
-                        if field == 'name':
-                            field = 'name_pattern'
-                        for e in errors:
-                            form.add_error(field, '{}: {}'.format(name, ', '.join(e)))
-
-            if not form.errors:
-                self.model.objects.bulk_create(new_components)
-                messages.success(request, "Added {} {} to {}.".format(
-                    len(new_components), self.model._meta.verbose_name_plural, parent
-                ))
-                if '_addanother' in request.POST:
-                    return redirect(request.path)
-                else:
-                    return redirect(parent.get_absolute_url())
-
-        return render(request, 'dcim/device_component_add.html', {
-            'parent': parent,
-            'component_type': self.model._meta.verbose_name,
-            'form': form,
-            'return_url': parent.get_absolute_url(),
-        })
-
-
-class ComponentEditView(ObjectEditView):
-
-    def get_return_url(self, request, obj):
-        return obj.device.get_absolute_url()
-
-
-class ComponentDeleteView(ObjectDeleteView):
-
-    def get_return_url(self, request, obj):
-        return obj.device.get_absolute_url()
 
 
 class BulkDisconnectView(View):
@@ -662,6 +582,7 @@ class ConsolePortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView
     model = ConsolePortTemplate
     form = forms.ConsolePortTemplateCreateForm
     model_form = forms.ConsolePortTemplateForm
+    template_name = 'dcim/device_component_add.html'
 
 
 class ConsolePortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -680,6 +601,7 @@ class ConsoleServerPortTemplateCreateView(PermissionRequiredMixin, ComponentCrea
     model = ConsoleServerPortTemplate
     form = forms.ConsoleServerPortTemplateCreateForm
     model_form = forms.ConsoleServerPortTemplateForm
+    template_name = 'dcim/device_component_add.html'
 
 
 class ConsoleServerPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -696,6 +618,7 @@ class PowerPortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = PowerPortTemplate
     form = forms.PowerPortTemplateCreateForm
     model_form = forms.PowerPortTemplateForm
+    template_name = 'dcim/device_component_add.html'
 
 
 class PowerPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -712,6 +635,7 @@ class PowerOutletTemplateCreateView(PermissionRequiredMixin, ComponentCreateView
     model = PowerOutletTemplate
     form = forms.PowerOutletTemplateCreateForm
     model_form = forms.PowerOutletTemplateForm
+    template_name = 'dcim/device_component_add.html'
 
 
 class PowerOutletTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -728,6 +652,7 @@ class InterfaceTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = InterfaceTemplate
     form = forms.InterfaceTemplateCreateForm
     model_form = forms.InterfaceTemplateForm
+    template_name = 'dcim/device_component_add.html'
 
 
 class InterfaceTemplateBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -752,6 +677,7 @@ class DeviceBayTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = DeviceBayTemplate
     form = forms.DeviceBayTemplateCreateForm
     model_form = forms.DeviceBayTemplateForm
+    template_name = 'dcim/device_component_add.html'
 
 
 class DeviceBayTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -1035,6 +961,7 @@ class ConsolePortCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = ConsolePort
     form = forms.ConsolePortCreateForm
     model_form = forms.ConsolePortForm
+    template_name = 'dcim/device_component_add.html'
 
 
 @permission_required('dcim.change_consoleport')
@@ -1116,12 +1043,14 @@ def consoleport_disconnect(request, pk):
 class ConsolePortEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_consoleport'
     model = ConsolePort
+    parent_field = 'device'
     form_class = forms.ConsolePortForm
 
 
 class ConsolePortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_consoleport'
     model = ConsolePort
+    parent_field = 'device'
 
 
 class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -1149,6 +1078,7 @@ class ConsoleServerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = ConsoleServerPort
     form = forms.ConsoleServerPortCreateForm
     model_form = forms.ConsoleServerPortForm
+    template_name = 'dcim/device_component_add.html'
 
 
 @permission_required('dcim.change_consoleserverport')
@@ -1233,12 +1163,14 @@ def consoleserverport_disconnect(request, pk):
 class ConsoleServerPortEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_consoleserverport'
     model = ConsoleServerPort
+    parent_field = 'device'
     form_class = forms.ConsoleServerPortForm
 
 
 class ConsoleServerPortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_consoleserverport'
     model = ConsoleServerPort
+    parent_field = 'device'
 
 
 class ConsoleServerPortBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
@@ -1268,6 +1200,7 @@ class PowerPortCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = PowerPort
     form = forms.PowerPortCreateForm
     model_form = forms.PowerPortForm
+    template_name = 'dcim/device_component_add.html'
 
 
 @permission_required('dcim.change_powerport')
@@ -1349,12 +1282,14 @@ def powerport_disconnect(request, pk):
 class PowerPortEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_powerport'
     model = PowerPort
+    parent_field = 'device'
     form_class = forms.PowerPortForm
 
 
 class PowerPortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_powerport'
     model = PowerPort
+    parent_field = 'device'
 
 
 class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -1382,6 +1317,7 @@ class PowerOutletCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = PowerOutlet
     form = forms.PowerOutletCreateForm
     model_form = forms.PowerOutletForm
+    template_name = 'dcim/device_component_add.html'
 
 
 @permission_required('dcim.change_poweroutlet')
@@ -1466,12 +1402,14 @@ def poweroutlet_disconnect(request, pk):
 class PowerOutletEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_poweroutlet'
     model = PowerOutlet
+    parent_field = 'device'
     form_class = forms.PowerOutletForm
 
 
 class PowerOutletDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_poweroutlet'
     model = PowerOutlet
+    parent_field = 'device'
 
 
 class PowerOutletBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
@@ -1503,17 +1441,20 @@ class InterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = Interface
     form = forms.InterfaceCreateForm
     model_form = forms.InterfaceForm
+    template_name = 'dcim/device_component_add.html'
 
 
 class InterfaceEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_interface'
     model = Interface
+    parent_field = 'device'
     form_class = forms.InterfaceForm
 
 
 class InterfaceDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_interface'
     model = Interface
+    parent_field = 'device'
 
 
 class InterfaceBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
@@ -1554,17 +1495,20 @@ class DeviceBayCreateView(PermissionRequiredMixin, ComponentCreateView):
     model = DeviceBay
     form = forms.DeviceBayCreateForm
     model_form = forms.DeviceBayForm
+    template_name = 'dcim/device_component_add.html'
 
 
 class DeviceBayEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_devicebay'
     model = DeviceBay
+    parent_field = 'device'
     form_class = forms.DeviceBayForm
 
 
 class DeviceBayDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_devicebay'
     model = DeviceBay
+    parent_field = 'device'
 
 
 @permission_required('dcim.change_devicebay')
@@ -1871,6 +1815,7 @@ class InterfaceConnectionsListView(ObjectListView):
 class InventoryItemEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_inventoryitem'
     model = InventoryItem
+    parent_field = 'device'
     form_class = forms.InventoryItemForm
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
@@ -1882,3 +1827,4 @@ class InventoryItemEditView(PermissionRequiredMixin, ComponentEditView):
 class InventoryItemDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_inventoryitem'
     model = InventoryItem
+    parent_field = 'device'

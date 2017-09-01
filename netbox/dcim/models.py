@@ -808,6 +808,13 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         'ipam.IPAddress', related_name='primary_ip6_for', on_delete=models.SET_NULL, blank=True, null=True,
         verbose_name='Primary IPv6'
     )
+    cluster = models.ForeignKey(
+        to='virtualization.Cluster',
+        on_delete=models.SET_NULL,
+        related_name='devices',
+        blank=True,
+        null=True
+    )
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
     images = GenericRelation(ImageAttachment)
@@ -1145,13 +1152,26 @@ class PowerOutlet(models.Model):
 @python_2_unicode_compatible
 class Interface(models.Model):
     """
-    A physical data interface within a Device. An Interface can connect to exactly one other Interface via the creation
-    of an InterfaceConnection.
+    A network interface within a Device or VirtualMachine. A physical Interface can connect to exactly one other
+    Interface via the creation of an InterfaceConnection.
     """
-    device = models.ForeignKey('Device', related_name='interfaces', on_delete=models.CASCADE)
+    device = models.ForeignKey(
+        to='Device',
+        on_delete=models.CASCADE,
+        related_name='interfaces',
+        null=True,
+        blank=True
+    )
+    virtual_machine = models.ForeignKey(
+        to='virtualization.VirtualMachine',
+        on_delete=models.CASCADE,
+        related_name='interfaces',
+        null=True,
+        blank=True
+    )
     lag = models.ForeignKey(
-        'self',
-        models.SET_NULL,
+        to='self',
+        on_delete=models.SET_NULL,
         related_name='member_interfaces',
         null=True,
         blank=True,
@@ -1179,6 +1199,18 @@ class Interface(models.Model):
         return self.name
 
     def clean(self):
+
+        # An Interface must belong to a Device *or* to a VirtualMachine
+        if self.device and self.virtual_machine:
+            raise ValidationError("An interface cannot belong to both a device and a virtual machine.")
+        if not self.device and not self.virtual_machine:
+            raise ValidationError("An interface must belong to either a device or a virtual machine.")
+
+        # VM interfaces must be virtual
+        if self.virtual_machine and self.form_factor not in VIRTUAL_IFACE_TYPES:
+            raise ValidationError({
+                'form_factor': "Virtual machines cannot have physical interfaces."
+            })
 
         # Virtual interfaces cannot be connected
         if self.form_factor in NONCONNECTABLE_IFACE_TYPES and self.is_connected:
@@ -1208,6 +1240,10 @@ class Interface(models.Model):
                     ", ".join([iface.name for iface in self.member_interfaces.all()])
                 )
             })
+
+    @property
+    def parent(self):
+        return self.device or self.virtual_machine
 
     @property
     def is_virtual(self):

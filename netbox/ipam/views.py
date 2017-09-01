@@ -10,11 +10,12 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.generic import View
 
-from dcim.models import Device
+from dcim.models import Device, Interface
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
+from virtualization.models import VirtualMachine
 from . import filters, forms, tables
 from .constants import IPADDRESS_ROLE_ANYCAST
 from .models import (
@@ -595,7 +596,11 @@ class PrefixBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class IPAddressListView(ObjectListView):
-    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device', 'nat_inside')
+    queryset = IPAddress.objects.select_related(
+        'vrf__tenant', 'tenant', 'nat_inside'
+    ).prefetch_related(
+        'interface__device', 'interface__virtual_machine'
+    )
     filter = filters.IPAddressFilter
     filter_form = forms.IPAddressFilterForm
     table = tables.IPAddressDetailTable
@@ -606,7 +611,7 @@ class IPAddressView(View):
 
     def get(self, request, pk):
 
-        ipaddress = get_object_or_404(IPAddress.objects.select_related('interface__device'), pk=pk)
+        ipaddress = get_object_or_404(IPAddress.objects.select_related('vrf__tenant', 'tenant'), pk=pk)
 
         # Parent prefixes table
         parent_prefixes = Prefix.objects.filter(
@@ -623,7 +628,9 @@ class IPAddressView(View):
         ).exclude(
             pk=ipaddress.pk
         ).select_related(
-            'interface__device', 'nat_inside'
+            'nat_inside'
+        ).prefetch_related(
+            'interface__device'
         )
         # Exclude anycast IPs if this IP is anycast
         if ipaddress.role == IPADDRESS_ROLE_ANYCAST:
@@ -631,7 +638,7 @@ class IPAddressView(View):
         duplicate_ips_table = tables.IPAddressTable(list(duplicate_ips), orderable=False)
 
         # Related IP table
-        related_ips = IPAddress.objects.select_related(
+        related_ips = IPAddress.objects.prefetch_related(
             'interface__device'
         ).exclude(
             address=str(ipaddress.address)
@@ -654,6 +661,17 @@ class IPAddressCreateView(PermissionRequiredMixin, ObjectEditView):
     form_class = forms.IPAddressForm
     template_name = 'ipam/ipaddress_edit.html'
     default_return_url = 'ipam:ipaddress_list'
+
+    def alter_obj(self, obj, request, url_args, url_kwargs):
+
+        interface_id = request.GET.get('interface')
+        if interface_id:
+            try:
+                obj.interface = Interface.objects.get(pk=interface_id)
+            except (ValueError, Interface.DoesNotExist):
+                pass
+
+        return obj
 
 
 class IPAddressEditView(IPAddressCreateView):
@@ -685,7 +703,7 @@ class IPAddressBulkImportView(PermissionRequiredMixin, BulkImportView):
 class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_ipaddress'
     cls = IPAddress
-    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device')
+    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant').prefetch_related('interface__device')
     filter = filters.IPAddressFilter
     table = tables.IPAddressTable
     form = forms.IPAddressBulkEditForm
@@ -695,7 +713,7 @@ class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
 class IPAddressBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_ipaddress'
     cls = IPAddress
-    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device')
+    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant').prefetch_related('interface__device')
     filter = filters.IPAddressFilter
     table = tables.IPAddressTable
     default_return_url = 'ipam:ipaddress_list'
@@ -821,10 +839,12 @@ class ServiceCreateView(PermissionRequiredMixin, ObjectEditView):
     def alter_obj(self, obj, request, url_args, url_kwargs):
         if 'device' in url_kwargs:
             obj.device = get_object_or_404(Device, pk=url_kwargs['device'])
+        elif 'virtualmachine' in url_kwargs:
+            obj.virtual_machine = get_object_or_404(VirtualMachine, pk=url_kwargs['virtualmachine'])
         return obj
 
     def get_return_url(self, request, obj):
-        return obj.device.get_absolute_url()
+        return obj.parent.get_absolute_url()
 
 
 class ServiceEditView(ServiceCreateView):

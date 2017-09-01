@@ -2,10 +2,12 @@ from __future__ import unicode_literals
 import netaddr
 
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
@@ -586,20 +588,59 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
 @python_2_unicode_compatible
 class Service(CreatedUpdatedModel):
     """
-    A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device. A Service may optionally be tied
-    to one or more specific IPAddresses belonging to the Device.
+    A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device or VirtualMachine. A Service may
+    optionally be tied to one or more specific IPAddresses belonging to its parent.
     """
-    device = models.ForeignKey('dcim.Device', related_name='services', on_delete=models.CASCADE, verbose_name='device')
-    name = models.CharField(max_length=30)
-    protocol = models.PositiveSmallIntegerField(choices=IP_PROTOCOL_CHOICES)
-    port = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(65535)],
-                                       verbose_name='Port number')
-    ipaddresses = models.ManyToManyField('ipam.IPAddress', related_name='services', blank=True,
-                                         verbose_name='IP addresses')
-    description = models.CharField(max_length=100, blank=True)
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        related_name='services',
+        verbose_name='device',
+        null=True,
+        blank=True
+    )
+    virtual_machine = models.ForeignKey(
+        to='virtualization.VirtualMachine',
+        on_delete=models.CASCADE,
+        related_name='services',
+        null=True,
+        blank=True
+    )
+    name = models.CharField(
+        max_length=30
+    )
+    protocol = models.PositiveSmallIntegerField(
+        choices=IP_PROTOCOL_CHOICES
+    )
+    port = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(65535)],
+        verbose_name='Port number'
+    )
+    ipaddresses = models.ManyToManyField(
+        to='ipam.IPAddress',
+        related_name='services',
+        blank=True,
+        verbose_name='IP addresses'
+    )
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
 
     class Meta:
-        ordering = ['device', 'protocol', 'port']
+        ordering = ['protocol', 'port']
 
     def __str__(self):
         return '{} ({}/{})'.format(self.name, self.port, self.get_protocol_display())
+
+    @property
+    def parent(self):
+        return self.device or self.virtual_machine
+
+    def clean(self):
+
+        # A Service must belong to a Device *or* to a VirtualMachine
+        if self.device and self.virtual_machine:
+            raise ValidationError("A service cannot be associated with both a device and a virtual machine.")
+        if not self.device and not self.virtual_machine:
+            raise ValidationError("A service must be associated with either a device or a virtual machine.")

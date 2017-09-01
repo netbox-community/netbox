@@ -202,6 +202,34 @@
                             {% endif %}
                         </ul>
                     </li>
+                    <li class="dropdown{% if request.path|contains:'/virtualization/' %} active{% endif %}">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Virtualization <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'virtualization:cluster_list' %}"><strong>Clusters</strong></a></li>
+                            {% if perms.virtualization.add_cluster %}
+                                <li class="subnav"><a href="{% url 'virtualization:cluster_add' %}"><i class="fa fa-plus"></i> Add a Cluster</a></li>
+                                <li class="subnav"><a href="{% url 'virtualization:cluster_import' %}"><i class="fa fa-download"></i> Import Clusters</a></li>
+                            {% endif %}
+                            {% if perms.virtualization.add_cluster or perms.virtualization.add_virtualmachine %}
+                                <li class="divider"></li>
+                            {% endif %}
+                            <li><a href="{% url 'virtualization:virtualmachine_list' %}"><strong>Virtual Machines</strong></a></li>
+                            {% if perms.virtualization.add_virtualmachine %}
+                                <li class="subnav"><a href="{% url 'virtualization:virtualmachine_add' %}"><i class="fa fa-plus"></i> Add a Virtual Machine</a></li>
+                                <li class="subnav"><a href="{% url 'virtualization:virtualmachine_import' %}"><i class="fa fa-download"></i> Import Virtual Machines</a></li>
+                            {% endif %}
+                            <li class="divider"></li>
+                            <li><a href="{% url 'virtualization:clustertype_list' %}"><strong>Cluster Types</strong></a></li>
+                            {% if perms.virtualization.add_clustertype %}
+                                <li class="subnav"><a href="{% url 'virtualization:clustertype_add' %}"><i class="fa fa-plus"></i> Add a Cluster Type</a></li>
+                            {% endif %}
+                            <li class="divider"></li>
+                            <li><a href="{% url 'virtualization:clustergroup_list' %}"><strong>Cluster Groups</strong></a></li>
+                            {% if perms.virtualization.add_clustergroup %}
+                                <li class="subnav"><a href="{% url 'virtualization:clustergroup_add' %}"><i class="fa fa-plus"></i> Add a Cluster Group</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
                     <li class="dropdown{% if request.path|contains:'/circuits/' %} active{% endif %}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Circuits <span class="caret"></span></a>
                         <ul class="dropdown-menu">
