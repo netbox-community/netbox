@@ -642,13 +642,28 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
             # Compile list of choices for primary IPv4 and IPv6 addresses
             for family in [4, 6]:
-                ip_choices = []
-                interface_ips = IPAddress.objects.filter(family=family, interface__device=self.instance)
-                ip_choices += [(ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips]
-                nat_ips = IPAddress.objects.filter(family=family, nat_inside__interface__device=self.instance)\
-                    .select_related('nat_inside__interface')
-                ip_choices += [(ip.id, '{} ({} NAT)'.format(ip.address, ip.nat_inside.interface)) for ip in nat_ips]
-                self.fields['primary_ip{}'.format(family)].choices = [(None, '---------')] + ip_choices
+                ip_choices = [(None, '---------')]
+                # Collect interface IPs
+                interface_ips = IPAddress.objects.select_related('interface').filter(
+                    family=family, interface__device=self.instance
+                )
+                if interface_ips:
+                    ip_choices.append(
+                        ('Interface IPs', [
+                            (ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips
+                        ])
+                    )
+                # Collect NAT IPs
+                nat_ips = IPAddress.objects.select_related('nat_inside').filter(
+                    family=family, nat_inside__interface__device=self.instance
+                )
+                if nat_ips:
+                    ip_choices.append(
+                        ('NAT IPs', [
+                            (ip.id, '{} ({})'.format(ip.address, ip.nat_inside.address)) for ip in nat_ips
+                        ])
+                    )
+                self.fields['primary_ip{}'.format(family)].choices = ip_choices
 
             # If editing an existing device, exclude it from the list of occupied rack units. This ensures that a device
             # can be flipped from one face to another.
