@@ -87,7 +87,10 @@ class ClusterGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class ClusterListView(ObjectListView):
-    queryset = Cluster.objects.annotate(vm_count=Count('virtual_machines'))
+    queryset = Cluster.objects.annotate(
+        device_count=Count('devices', distinct=True),
+        vm_count=Count('virtual_machines', distinct=True)
+    )
     table = tables.ClusterTable
     filter = filters.ClusterFilter
     filter_form = forms.ClusterFilterForm

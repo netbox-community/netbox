@@ -64,11 +64,12 @@ class ClusterGroupTable(BaseTable):
 class ClusterTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
+    device_count = tables.Column(verbose_name='Devices')
     vm_count = tables.Column(verbose_name='VMs')
 
     class Meta(BaseTable.Meta):
         model = Cluster
-        fields = ('pk', 'name', 'type', 'group', 'vm_count')
+        fields = ('pk', 'name', 'type', 'group', 'device_count', 'vm_count')
 
 
 #
