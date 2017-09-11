@@ -13,8 +13,8 @@ from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ChainedFieldsMixin,
-    ChainedModelChoiceField, ChainedModelMultipleChoiceField, ComponentForm, ConfirmationForm, ExpandableNameField,
-    FilterChoiceField, SlugField,
+    ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ComponentForm, ConfirmationForm,
+    ExpandableNameField, FilterChoiceField, SlugField, SmallTextarea,
 )
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
@@ -76,6 +76,15 @@ class ClusterCSVForm(forms.ModelForm):
     class Meta:
         model = Cluster
         fields = ['name', 'type', 'group']
+
+
+class ClusterBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(queryset=Cluster.objects.all(), widget=forms.MultipleHiddenInput)
+    type = forms.ModelChoiceField(queryset=ClusterType.objects.all(), required=False)
+    group = forms.ModelChoiceField(queryset=ClusterGroup.objects.all(), required=False)
+
+    class Meta:
+        nullable_fields = ['group']
 
 
 class ClusterFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -226,11 +235,16 @@ class VirtualMachineCSVForm(forms.ModelForm):
 
 class VirtualMachineBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VirtualMachine.objects.all(), widget=forms.MultipleHiddenInput)
-    cluster = forms.ModelChoiceField(queryset=Cluster.objects.all(), required=False, label='Cluster')
+    cluster = forms.ModelChoiceField(queryset=Cluster.objects.all(), required=False)
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
+    platform = forms.ModelChoiceField(queryset=Platform.objects.all(), required=False)
+    vcpus = forms.IntegerField(required=False, label='vCPUs')
+    memory = forms.IntegerField(required=False, label='Memory (MB)')
+    disk = forms.IntegerField(required=False, label='Disk (GB)')
+    comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ['tenant']
+        nullable_fields = ['tenant', 'platform', 'vcpus', 'memory', 'disk']
 
 
 class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):

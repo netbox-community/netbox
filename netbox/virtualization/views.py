@@ -138,10 +138,22 @@ class ClusterBulkImportView(PermissionRequiredMixin, BulkImportView):
     default_return_url = 'virtualization:cluster_list'
 
 
+class ClusterBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'virtualization.change_cluster'
+    cls = Cluster
+    filter = filters.ClusterFilter
+    table = tables.ClusterTable
+    form = forms.ClusterBulkEditForm
+    default_return_url = 'virtualization:cluster_list'
+
+
 class ClusterBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'virtualization.delete_cluster'
     cls = Cluster
-    queryset = Cluster.objects.annotate(vm_count=Count('virtual_machines'))
+    queryset = Cluster.objects.annotate(
+        device_count=Count('devices', distinct=True),
+        vm_count=Count('virtual_machines', distinct=True)
+    )
     table = tables.ClusterTable
     default_return_url = 'virtualization:cluster_list'
 
@@ -227,7 +239,7 @@ class ClusterRemoveDevicesView(PermissionRequiredMixin, View):
 #
 
 class VirtualMachineListView(ObjectListView):
-    queryset = VirtualMachine.objects.select_related('tenant')
+    queryset = VirtualMachine.objects.select_related('cluster', 'tenant')
     filter = filters.VirtualMachineFilter
     filter_form = forms.VirtualMachineFilterForm
     table = tables.VirtualMachineTable
@@ -277,10 +289,18 @@ class VirtualMachineBulkImportView(PermissionRequiredMixin, BulkImportView):
 class VirtualMachineBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'virtualization.change_virtualmachine'
     cls = VirtualMachine
-    queryset = VirtualMachine.objects.select_related('tenant')
+    queryset = VirtualMachine.objects.select_related('cluster', 'tenant')
     filter = filters.VirtualMachineFilter
     table = tables.VirtualMachineTable
     form = forms.VirtualMachineBulkEditForm
+    default_return_url = 'virtualization:virtualmachine_list'
+
+
+class VirtualMachineBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'virtualization.delete_virtualmachine'
+    cls = VirtualMachine
+    queryset = VirtualMachine.objects.select_related('cluster', 'tenant')
+    table = tables.VirtualMachineTable
     default_return_url = 'virtualization:virtualmachine_list'
 
 
