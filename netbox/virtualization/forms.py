@@ -7,7 +7,7 @@ from django.db.models import Count
 
 from dcim.constants import VIFACE_FF_CHOICES
 from dcim.formfields import MACAddressFormField
-from dcim.models import Device, Interface, Rack, Region, Site
+from dcim.models import Device, Interface, Platform, Rack, Region, Site
 from extras.forms import CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
@@ -74,6 +74,7 @@ class ClusterCSVForm(forms.ModelForm):
     )
 
     class Meta:
+        model = Cluster
         fields = ['name', 'type', 'group']
 
 
@@ -199,9 +200,28 @@ class VirtualMachineCSVForm(forms.ModelForm):
             'invalid_choice': 'Invalid cluster name.',
         }
     )
+    tenant = forms.ModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of assigned tenant',
+        error_messages={
+            'invalid_choice': 'Tenant not found.'
+        }
+    )
+    platform = forms.ModelChoiceField(
+        queryset=Platform.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of assigned platform',
+        error_messages={
+            'invalid_choice': 'Invalid platform.',
+        }
+    )
 
     class Meta:
-        fields = ['cluster', 'name', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments']
+        model = VirtualMachine
+        fields = ['name', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments']
 
 
 class VirtualMachineBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
