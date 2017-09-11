@@ -43,7 +43,7 @@ $(document).ready(function() {
             success: function (response, status) {
                 if (response.plaintext) {
                     console.log("Secret retrieved successfully");
-                    $('#secret_' + secret_id).html(response.plaintext);
+                    $('#secret_' + secret_id).text(response.plaintext);
                     $('button.unlock-secret[secret-id=' + secret_id + ']').hide();
                     $('button.lock-secret[secret-id=' + secret_id + ']').show();
                 } else {
