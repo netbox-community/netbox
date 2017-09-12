@@ -112,7 +112,7 @@ class RegionListView(ObjectListView):
 class RegionCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_region'
     model = Region
-    form_class = forms.RegionForm
+    model_form = forms.RegionForm
 
     def get_return_url(self, request, obj):
         return reverse('dcim:region_list')
@@ -170,7 +170,7 @@ class SiteView(View):
 class SiteCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_site'
     model = Site
-    form_class = forms.SiteForm
+    model_form = forms.SiteForm
     template_name = 'dcim/site_edit.html'
     default_return_url = 'dcim:site_list'
 
@@ -217,7 +217,7 @@ class RackGroupListView(ObjectListView):
 class RackGroupCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_rackgroup'
     model = RackGroup
-    form_class = forms.RackGroupForm
+    model_form = forms.RackGroupForm
 
     def get_return_url(self, request, obj):
         return reverse('dcim:rackgroup_list')
@@ -249,7 +249,7 @@ class RackRoleListView(ObjectListView):
 class RackRoleCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_rackrole'
     model = RackRole
-    form_class = forms.RackRoleForm
+    model_form = forms.RackRoleForm
 
     def get_return_url(self, request, obj):
         return reverse('dcim:rackrole_list')
@@ -352,7 +352,7 @@ class RackView(View):
 class RackCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_rack'
     model = Rack
-    form_class = forms.RackForm
+    model_form = forms.RackForm
     template_name = 'dcim/rack_edit.html'
     default_return_url = 'dcim:rack_list'
 
@@ -408,7 +408,7 @@ class RackReservationListView(ObjectListView):
 class RackReservationCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_rackreservation'
     model = RackReservation
-    form_class = forms.RackReservationForm
+    model_form = forms.RackReservationForm
 
     def alter_obj(self, obj, request, args, kwargs):
         if not obj.pk:
@@ -452,7 +452,7 @@ class ManufacturerListView(ObjectListView):
 class ManufacturerCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_manufacturer'
     model = Manufacturer
-    form_class = forms.ManufacturerForm
+    model_form = forms.ManufacturerForm
 
     def get_return_url(self, request, obj):
         return reverse('dcim:manufacturer_list')
@@ -537,7 +537,7 @@ class DeviceTypeView(View):
 class DeviceTypeCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_devicetype'
     model = DeviceType
-    form_class = forms.DeviceTypeForm
+    model_form = forms.DeviceTypeForm
     template_name = 'dcim/devicetype_edit.html'
     default_return_url = 'dcim:devicetype_list'
 
@@ -700,7 +700,7 @@ class DeviceRoleListView(ObjectListView):
 class DeviceRoleCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_devicerole'
     model = DeviceRole
-    form_class = forms.DeviceRoleForm
+    model_form = forms.DeviceRoleForm
 
     def get_return_url(self, request, obj):
         return reverse('dcim:devicerole_list')
@@ -731,7 +731,7 @@ class PlatformListView(ObjectListView):
 class PlatformCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_platform'
     model = Platform
-    form_class = forms.PlatformForm
+    model_form = forms.PlatformForm
 
     def get_return_url(self, request, obj):
         return reverse('dcim:platform_list')
@@ -889,7 +889,7 @@ class DeviceConfigView(PermissionRequiredMixin, View):
 class DeviceCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_device'
     model = Device
-    form_class = forms.DeviceForm
+    model_form = forms.DeviceForm
     template_name = 'dcim/device_edit.html'
     default_return_url = 'dcim:device_list'
 
@@ -1044,7 +1044,7 @@ class ConsolePortEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_consoleport'
     model = ConsolePort
     parent_field = 'device'
-    form_class = forms.ConsolePortForm
+    model_form = forms.ConsolePortForm
 
 
 class ConsolePortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
@@ -1164,7 +1164,7 @@ class ConsoleServerPortEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_consoleserverport'
     model = ConsoleServerPort
     parent_field = 'device'
-    form_class = forms.ConsoleServerPortForm
+    model_form = forms.ConsoleServerPortForm
 
 
 class ConsoleServerPortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
@@ -1283,7 +1283,7 @@ class PowerPortEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_powerport'
     model = PowerPort
     parent_field = 'device'
-    form_class = forms.PowerPortForm
+    model_form = forms.PowerPortForm
 
 
 class PowerPortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
@@ -1403,7 +1403,7 @@ class PowerOutletEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_poweroutlet'
     model = PowerOutlet
     parent_field = 'device'
-    form_class = forms.PowerOutletForm
+    model_form = forms.PowerOutletForm
 
 
 class PowerOutletDeleteView(PermissionRequiredMixin, ComponentDeleteView):
@@ -1448,7 +1448,7 @@ class InterfaceEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_interface'
     model = Interface
     parent_field = 'device'
-    form_class = forms.InterfaceForm
+    model_form = forms.InterfaceForm
 
 
 class InterfaceDeleteView(PermissionRequiredMixin, ComponentDeleteView):
@@ -1502,7 +1502,7 @@ class DeviceBayEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_devicebay'
     model = DeviceBay
     parent_field = 'device'
-    form_class = forms.DeviceBayForm
+    model_form = forms.DeviceBayForm
 
 
 class DeviceBayDeleteView(PermissionRequiredMixin, ComponentDeleteView):
@@ -1774,7 +1774,7 @@ class InventoryItemEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_inventoryitem'
     model = InventoryItem
     parent_field = 'device'
-    form_class = forms.InventoryItemForm
+    model_form = forms.InventoryItemForm
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
         if 'device' in url_kwargs:

@@ -156,12 +156,12 @@ class ObjectEditView(GetReturnURLMixin, View):
     Create or edit a single object.
 
     model: The model of the object being edited
-    form_class: The form used to create or edit the object
+    model_form: The form used to create or edit the object
     template_name: The name of the template
     default_return_url: The name of the URL used to display a list of this object type
     """
     model = None
-    form_class = None
+    model_form = None
     template_name = 'utilities/obj_edit.html'
 
     def get_object(self, kwargs):
@@ -183,7 +183,7 @@ class ObjectEditView(GetReturnURLMixin, View):
         obj = self.alter_obj(obj, request, args, kwargs)
         # Parse initial data manually to avoid setting field values as lists
         initial_data = {k: request.GET[k] for k in request.GET}
-        form = self.form_class(instance=obj, initial=initial_data)
+        form = self.model_form(instance=obj, initial=initial_data)
 
         return render(request, self.template_name, {
             'obj': obj,
@@ -196,7 +196,7 @@ class ObjectEditView(GetReturnURLMixin, View):
 
         obj = self.get_object(kwargs)
         obj = self.alter_obj(obj, request, args, kwargs)
-        form = self.form_class(request.POST, request.FILES, instance=obj)
+        form = self.model_form(request.POST, request.FILES, instance=obj)
 
         if form.is_valid():
             obj_created = not form.instance.pk
@@ -295,12 +295,12 @@ class BulkCreateView(View):
     """
     Create new objects in bulk.
 
-    pattern_form: Form class which provides the `pattern` field
+    form: Form class which provides the `pattern` field
     model_form: The ModelForm used to create individual objects
     template_name: The name of the template
     default_return_url: Name of the URL to which the user is redirected after creating the objects
     """
-    pattern_form = None
+    form = None
     model_form = None
     pattern_target = ''
     template_name = None
@@ -308,12 +308,12 @@ class BulkCreateView(View):
 
     def get(self, request):
 
-        pattern_form = self.pattern_form()
+        form = self.form()
         model_form = self.model_form()
 
         return render(request, self.template_name, {
             'obj_type': self.model_form._meta.model._meta.verbose_name,
-            'pattern_form': pattern_form,
+            'form': form,
             'model_form': model_form,
             'return_url': reverse(self.default_return_url),
         })
@@ -321,12 +321,12 @@ class BulkCreateView(View):
     def post(self, request):
 
         model = self.model_form._meta.model
-        pattern_form = self.pattern_form(request.POST)
+        form = self.form(request.POST)
         model_form = self.model_form(request.POST)
 
-        if pattern_form.is_valid():
+        if form.is_valid():
 
-            pattern = pattern_form.cleaned_data['pattern']
+            pattern = form.cleaned_data['pattern']
             new_objs = []
 
             try:
@@ -348,7 +348,7 @@ class BulkCreateView(View):
                             # Copy any errors on the pattern target field to the pattern form.
                             errors = model_form.errors.as_data()
                             if errors.get(self.pattern_target):
-                                pattern_form.add_error('pattern', errors[self.pattern_target])
+                                form.add_error('pattern', errors[self.pattern_target])
                             # Raise an IntegrityError to break the for loop and abort the transaction.
                             raise IntegrityError()
 
@@ -365,7 +365,7 @@ class BulkCreateView(View):
                 pass
 
         return render(request, self.template_name, {
-            'pattern_form': pattern_form,
+            'form': form,
             'model_form': model_form,
             'obj_type': model._meta.verbose_name,
             'return_url': reverse(self.default_return_url),

@@ -33,7 +33,7 @@ class ClusterTypeListView(ObjectListView):
 class ClusterTypeCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'virtualization.add_clustertype'
     model = ClusterType
-    form_class = forms.ClusterTypeForm
+    model_form = forms.ClusterTypeForm
 
     def get_return_url(self, request, obj):
         return reverse('virtualization:clustertype_list')
@@ -64,7 +64,7 @@ class ClusterGroupListView(ObjectListView):
 class ClusterGroupCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'virtualization.add_clustergroup'
     model = ClusterGroup
-    form_class = forms.ClusterGroupForm
+    model_form = forms.ClusterGroupForm
 
     def get_return_url(self, request, obj):
         return reverse('virtualization:clustergroup_list')
@@ -118,7 +118,7 @@ class ClusterView(View):
 class ClusterCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'virtualization.add_cluster'
     model = Cluster
-    form_class = forms.ClusterForm
+    model_form = forms.ClusterForm
 
 
 class ClusterEditView(ClusterCreateView):
@@ -264,7 +264,7 @@ class VirtualMachineView(View):
 class VirtualMachineCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'virtualization.add_virtualmachine'
     model = VirtualMachine
-    form_class = forms.VirtualMachineForm
+    model_form = forms.VirtualMachineForm
     template_name = 'virtualization/virtualmachine_edit.html'
     default_return_url = 'virtualization:virtualmachine_list'
 
@@ -322,7 +322,7 @@ class InterfaceEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_interface'
     model = Interface
     parent_field = 'virtual_machine'
-    form_class = forms.InterfaceForm
+    model_form = forms.InterfaceForm
 
 
 class InterfaceDeleteView(PermissionRequiredMixin, ComponentDeleteView):

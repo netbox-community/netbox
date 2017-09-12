@@ -11,7 +11,7 @@ from .models import ImageAttachment
 class ImageAttachmentEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'extras.change_imageattachment'
     model = ImageAttachment
-    form_class = ImageAttachmentForm
+    model_form = ImageAttachmentForm
 
     def alter_obj(self, imageattachment, request, args, kwargs):
         if not imageattachment.pk:

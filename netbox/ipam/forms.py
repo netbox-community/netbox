@@ -517,7 +517,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
         return ipaddress
 
 
-class IPAddressPatternForm(BootstrapMixin, forms.Form):
+class IPAddressBulkCreateForm(BootstrapMixin, forms.Form):
     pattern = ExpandableIPAddressField(label='Address pattern')
 
 
