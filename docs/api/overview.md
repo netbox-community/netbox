@@ -6,7 +6,7 @@ REST stands for [representational state transfer](https://en.wikipedia.org/wiki/
 
 * `GET`: Retrieve an object or list of objects
 * `POST`: Create an object
-* `PUT` / `PATCH`: Modify an existing object
+* `PUT` / `PATCH`: Modify an existing object. `PUT` requires all mandatory fields to be specified, while `PATCH` only expects the field that is being modified to be specified.
 * `DELETE`: Delete an existing object
 
 The NetBox API represents all objects in [JavaScript Object Notation (JSON)](http://www.json.org/). This makes it very easy to interact with NetBox data on the command line with common tools. For example, we can request an IP address from NetBox and output the JSON using `curl` and `jq`. (Piping the output through `jq` isn't strictly required but makes it much easier to read.)
