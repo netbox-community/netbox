@@ -301,3 +301,19 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
 
     class Meta:
         nullable_fields = ['mtu', 'description']
+
+
+#
+# Bulk VirtualMachine component creation
+#
+
+class VirtualMachineBulkAddComponentForm(BootstrapMixin, forms.Form):
+    pk = forms.ModelMultipleChoiceField(queryset=VirtualMachine.objects.all(), widget=forms.MultipleHiddenInput)
+    name_pattern = ExpandableNameField(label='Name')
+
+
+class VirtualMachineBulkAddInterfaceForm(VirtualMachineBulkAddComponentForm):
+    form_factor = forms.ChoiceField(choices=VIFACE_FF_CHOICES)
+    enabled = forms.BooleanField(required=False, initial=True)
+    mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
+    description = forms.CharField(max_length=100, required=False)

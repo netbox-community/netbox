@@ -903,11 +903,12 @@ class DeviceBulkAddComponentForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(label='Name')
 
 
-class DeviceBulkAddInterfaceForm(forms.ModelForm, DeviceBulkAddComponentForm):
-
-    class Meta:
-        model = Interface
-        fields = ['pk', 'name_pattern', 'form_factor', 'mgmt_only', 'description']
+class DeviceBulkAddInterfaceForm(DeviceBulkAddComponentForm):
+    form_factor = forms.ChoiceField(choices=IFACE_FF_CHOICES)
+    enabled = forms.BooleanField(required=False, initial=True)
+    mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
+    mgmt_only = forms.BooleanField(required=False, label='OOB Management')
+    description = forms.CharField(max_length=100, required=False)
 
 
 #

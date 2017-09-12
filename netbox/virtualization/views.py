@@ -11,8 +11,8 @@ from dcim.models import Device, Interface
 from dcim.tables import DeviceTable
 from ipam.models import Service
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView, ComponentEditView,
-    ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView,
+    ComponentEditView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 from . import filters
@@ -344,3 +344,17 @@ class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     cls = Interface
     parent_cls = VirtualMachine
     table = tables.InterfaceTable
+
+
+#
+# Bulk Device component creation
+#
+
+class VirtualMachineBulkAddInterfaceView(PermissionRequiredMixin, BulkComponentCreateView):
+    permission_required = 'dcim.add_interface'
+    parent_model = VirtualMachine
+    parent_field = 'virtual_machine'
+    form = forms.VirtualMachineBulkAddInterfaceForm
+    model = Interface
+    model_form = forms.InterfaceForm
+    table = tables.VirtualMachineTable

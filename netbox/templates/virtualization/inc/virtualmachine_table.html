@@ -1,0 +1,14 @@
+{% extends 'utilities/obj_table.html' %}
+
+{% block extra_actions %}
+    {% if perms.virtualization.change_virtualmachine %}
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Components <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                {% if perms.dcim.add_interface %}<li><a href="{% url 'virtualization:virtualmachine_bulk_add_interface' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="formaction">Interfaces</a></li>{% endif %}
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}

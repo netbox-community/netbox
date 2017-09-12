@@ -23,8 +23,8 @@ from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_S
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView, ComponentEditView,
-    ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView,
+    ComponentEditView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
 from .models import (
@@ -1569,109 +1569,67 @@ class DeviceBayBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 
 #
-# Bulk device component creation
+# Bulk Device component creation
 #
 
-class DeviceBulkAddComponentView(View):
-    """
-    Add one or more components (e.g. interfaces) to a selected set of Devices.
-    """
-    form = forms.DeviceBulkAddComponentForm
-    model = None
-    model_form = None
-
-    def get(self):
-        return redirect('dcim:device_list')
-
-    def post(self, request):
-
-        # Are we editing *all* objects in the queryset or just a selected subset?
-        if request.POST.get('_all'):
-            pk_list = [obj.pk for obj in filters.DeviceFilter(request.GET, Device.objects.all())]
-        else:
-            pk_list = [int(pk) for pk in request.POST.getlist('pk')]
-
-        if '_create' in request.POST:
-            form = self.form(request.POST)
-            if form.is_valid():
-
-                new_components = []
-                data = deepcopy(form.cleaned_data)
-                for device in data['pk']:
-
-                    names = data['name_pattern']
-                    for name in names:
-                        component_data = {
-                            'device': device.pk,
-                            'name': name,
-                        }
-                        component_data.update(data)
-                        component_form = self.model_form(component_data)
-                        if component_form.is_valid():
-                            new_components.append(component_form.save(commit=False))
-                        else:
-                            for field, errors in component_form.errors.as_data().items():
-                                for e in errors:
-                                    form.add_error(field, '{} {}: {}'.format(device, name, ', '.join(e)))
-
-                if not form.errors:
-                    self.model.objects.bulk_create(new_components)
-                    messages.success(request, "Added {} {} to {} devices.".format(
-                        len(new_components), self.model._meta.verbose_name_plural, len(form.cleaned_data['pk'])
-                    ))
-                    return redirect('dcim:device_list')
-
-        else:
-            form = self.form(initial={'pk': pk_list})
-
-        selected_devices = Device.objects.filter(pk__in=pk_list)
-        if not selected_devices:
-            messages.warning(request, "No devices were selected.")
-            return redirect('dcim:device_list')
-
-        return render(request, 'dcim/device_bulk_add_component.html', {
-            'form': form,
-            'component_name': self.model._meta.verbose_name_plural,
-            'selected_devices': selected_devices,
-            'return_url': reverse('dcim:device_list'),
-        })
-
-
-class DeviceBulkAddConsolePortView(PermissionRequiredMixin, DeviceBulkAddComponentView):
+class DeviceBulkAddConsolePortView(PermissionRequiredMixin, BulkComponentCreateView):
     permission_required = 'dcim.add_consoleport'
+    parent_model = Device
+    parent_field = 'device'
+    form = forms.DeviceBulkAddComponentForm
     model = ConsolePort
     model_form = forms.ConsolePortForm
+    table = tables.DeviceTable
 
 
-class DeviceBulkAddConsoleServerPortView(PermissionRequiredMixin, DeviceBulkAddComponentView):
+class DeviceBulkAddConsoleServerPortView(PermissionRequiredMixin, BulkComponentCreateView):
     permission_required = 'dcim.add_consoleserverport'
+    parent_model = Device
+    parent_field = 'device'
+    form = forms.DeviceBulkAddComponentForm
     model = ConsoleServerPort
     model_form = forms.ConsoleServerPortForm
+    table = tables.DeviceTable
 
 
-class DeviceBulkAddPowerPortView(PermissionRequiredMixin, DeviceBulkAddComponentView):
+class DeviceBulkAddPowerPortView(PermissionRequiredMixin, BulkComponentCreateView):
     permission_required = 'dcim.add_powerport'
+    parent_model = Device
+    parent_field = 'device'
+    form = forms.DeviceBulkAddComponentForm
     model = PowerPort
     model_form = forms.PowerPortForm
+    table = tables.DeviceTable
 
 
-class DeviceBulkAddPowerOutletView(PermissionRequiredMixin, DeviceBulkAddComponentView):
+class DeviceBulkAddPowerOutletView(PermissionRequiredMixin, BulkComponentCreateView):
     permission_required = 'dcim.add_poweroutlet'
+    parent_model = Device
+    parent_field = 'device'
+    form = forms.DeviceBulkAddComponentForm
     model = PowerOutlet
     model_form = forms.PowerOutletForm
+    table = tables.DeviceTable
 
 
-class DeviceBulkAddInterfaceView(PermissionRequiredMixin, DeviceBulkAddComponentView):
+class DeviceBulkAddInterfaceView(PermissionRequiredMixin, BulkComponentCreateView):
     permission_required = 'dcim.add_interface'
+    parent_model = Device
+    parent_field = 'device'
     form = forms.DeviceBulkAddInterfaceForm
     model = Interface
     model_form = forms.InterfaceForm
+    table = tables.DeviceTable
 
 
-class DeviceBulkAddDeviceBayView(PermissionRequiredMixin, DeviceBulkAddComponentView):
+class DeviceBulkAddDeviceBayView(PermissionRequiredMixin, BulkComponentCreateView):
     permission_required = 'dcim.add_devicebay'
+    parent_model = Device
+    parent_field = 'device'
+    form = forms.DeviceBulkAddComponentForm
     model = DeviceBay
     model_form = forms.DeviceBayForm
+    table = tables.DeviceTable
 
 
 #

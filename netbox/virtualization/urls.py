@@ -45,7 +45,7 @@ urlpatterns = [
     url(r'^virtual-machines/(?P<virtualmachine>\d+)/services/assign/$', ServiceCreateView.as_view(), name='virtualmachine_service_assign'),
 
     # VM interfaces
-    # url(r'^virtual-machines/interfaces/add/$', views.VMBulkAddInterfaceView.as_view(), name='vm_bulk_add_interface'),
+    url(r'^virtual-machines/interfaces/add/$', views.VirtualMachineBulkAddInterfaceView.as_view(), name='virtualmachine_bulk_add_interface'),
     url(r'^virtual-machines/(?P<pk>\d+)/interfaces/add/$', views.InterfaceCreateView.as_view(), name='interface_add'),
     url(r'^virtual-machines/(?P<pk>\d+)/interfaces/edit/$', views.InterfaceBulkEditView.as_view(), name='interface_bulk_edit'),
     url(r'^virtual-machines/(?P<pk>\d+)/interfaces/delete/$', views.InterfaceBulkDeleteView.as_view(), name='interface_bulk_delete'),

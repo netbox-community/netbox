@@ -705,6 +705,9 @@ class BulkDeleteView(View):
 #
 
 class ComponentCreateView(View):
+    """
+    Add one or more components (e.g. interfaces, console ports, etc.) to a Device or VirtualMachine.
+    """
     parent_model = None
     parent_field = None
     model = None
@@ -786,3 +789,82 @@ class ComponentDeleteView(ObjectDeleteView):
 
     def get_return_url(self, request, obj):
         return getattr(obj, self.parent_field).get_absolute_url()
+
+
+class BulkComponentCreateView(View):
+    """
+    Add one or more components (e.g. interfaces, console ports, etc.) to a set of Devices or VirtualMachines.
+    """
+    parent_model = None
+    parent_field = None
+    form = None
+    model = None
+    model_form = None
+    filter = None
+    table = None
+    template_name = 'utilities/obj_bulk_add_component.html'
+    default_return_url = 'home'
+
+    def post(self, request):
+
+        # Are we editing *all* objects in the queryset or just a selected subset?
+        if request.POST.get('_all') and self.filter is not None:
+            pk_list = [obj.pk for obj in self.filter(request.GET, self.model.objects.only('pk')).qs]
+        else:
+            pk_list = [int(pk) for pk in request.POST.getlist('pk')]
+
+        # Determine URL to redirect users upon modification of objects
+        posted_return_url = request.POST.get('return_url')
+        if posted_return_url and is_safe_url(url=posted_return_url, host=request.get_host()):
+            return_url = posted_return_url
+        else:
+            return_url = reverse(self.default_return_url)
+
+        selected_objects = self.parent_model.objects.filter(pk__in=pk_list)
+        if not selected_objects:
+            messages.warning(request, "No {} were selected.".format(self.parent_model._meta.verbose_name_plural))
+            return redirect(return_url)
+        table = self.table(selected_objects)
+
+        if '_create' in request.POST:
+            form = self.form(request.POST)
+            if form.is_valid():
+
+                new_components = []
+                data = deepcopy(form.cleaned_data)
+                for obj in data['pk']:
+
+                    names = data['name_pattern']
+                    for name in names:
+                        component_data = {
+                            self.parent_field: obj.pk,
+                            'name': name,
+                        }
+                        component_data.update(data)
+                        component_form = self.model_form(component_data)
+                        if component_form.is_valid():
+                            new_components.append(component_form.save(commit=False))
+                        else:
+                            for field, errors in component_form.errors.as_data().items():
+                                for e in errors:
+                                    form.add_error(field, '{} {}: {}'.format(obj, name, ', '.join(e)))
+
+                if not form.errors:
+                    self.model.objects.bulk_create(new_components)
+                    messages.success(request, "Added {} {} to {} {}.".format(
+                        len(new_components),
+                        self.model._meta.verbose_name_plural,
+                        len(form.cleaned_data['pk']),
+                        self.parent_model._meta.verbose_name_plural
+                    ))
+                    return redirect(return_url)
+
+        else:
+            form = self.form(initial={'pk': pk_list})
+
+        return render(request, self.template_name, {
+            'form': form,
+            'component_name': self.model._meta.verbose_name_plural,
+            'table': table,
+            'return_url': reverse('dcim:device_list'),
+        })
