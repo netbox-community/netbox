@@ -20,6 +20,10 @@ CLUSTERGROUP_ACTIONS = """
 {% endif %}
 """
 
+VIRTUALMACHINE_STATUS = """
+<span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
+"""
+
 
 #
 # Cluster types
@@ -79,12 +83,13 @@ class ClusterTable(BaseTable):
 class VirtualMachineTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
+    status = tables.TemplateColumn(template_code=VIRTUALMACHINE_STATUS)
     cluster = tables.LinkColumn('virtualization:cluster', args=[Accessor('cluster.pk')])
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
 
     class Meta(BaseTable.Meta):
         model = VirtualMachine
-        fields = ('pk', 'name', 'cluster', 'tenant', 'vcpus', 'memory', 'disk')
+        fields = ('pk', 'name', 'status', 'cluster', 'tenant', 'vcpus', 'memory', 'disk')
 
 
 #

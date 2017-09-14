@@ -8,6 +8,7 @@ from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from tenancy.api.serializers import NestedTenantSerializer
 from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer
+from virtualization.constants import STATUS_CHOICES
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
@@ -82,6 +83,7 @@ class WritableClusterSerializer(CustomFieldModelSerializer):
 #
 
 class VirtualMachineSerializer(CustomFieldModelSerializer):
+    status = ChoiceFieldSerializer(choices=STATUS_CHOICES)
     cluster = NestedClusterSerializer()
     tenant = NestedTenantSerializer()
     platform = NestedPlatformSerializer()
@@ -89,7 +91,8 @@ class VirtualMachineSerializer(CustomFieldModelSerializer):
     class Meta:
         model = VirtualMachine
         fields = [
-            'id', 'name', 'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'comments', 'custom_fields',
+            'id', 'name', 'status', 'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'comments',
+            'custom_fields',
         ]
 
 
@@ -106,7 +109,8 @@ class WritableVirtualMachineSerializer(CustomFieldModelSerializer):
     class Meta:
         model = VirtualMachine
         fields = [
-            'id', 'name', 'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'comments', 'custom_fields',
+            'id', 'name', 'status', 'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'comments',
+            'custom_fields',
         ]
 
 

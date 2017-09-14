@@ -12,10 +12,11 @@ from extras.forms import CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFi
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ChainedFieldsMixin,
-    ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ComponentForm, ConfirmationForm,
-    ExpandableNameField, FilterChoiceField, SlugField, SmallTextarea,
+    add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
+    ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ComponentForm,
+    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, SlugField, SmallTextarea,
 )
+from .constants import STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
@@ -185,7 +186,9 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
     class Meta:
         model = VirtualMachine
-        fields = ['name', 'cluster_group', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments']
+        fields = [
+            'name', 'status', 'cluster_group', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
+        ]
 
     def __init__(self, *args, **kwargs):
 
@@ -200,6 +203,11 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
 
 class VirtualMachineCSVForm(forms.ModelForm):
+    status = CSVChoiceField(
+        choices=STATUS_CHOICES,
+        required=False,
+        help_text='Operational status of device'
+    )
     cluster = forms.ModelChoiceField(
         queryset=Cluster.objects.all(),
         to_field_name='name',
@@ -229,11 +237,12 @@ class VirtualMachineCSVForm(forms.ModelForm):
 
     class Meta:
         model = VirtualMachine
-        fields = ['name', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments']
+        fields = ['name', 'status', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments']
 
 
 class VirtualMachineBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VirtualMachine.objects.all(), widget=forms.MultipleHiddenInput)
+    status = forms.ChoiceField(choices=add_blank_choice(STATUS_CHOICES), required=False, initial='')
     cluster = forms.ModelChoiceField(queryset=Cluster.objects.all(), required=False)
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     platform = forms.ModelChoiceField(queryset=Platform.objects.all(), required=False)
@@ -244,6 +253,13 @@ class VirtualMachineBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
     class Meta:
         nullable_fields = ['tenant', 'platform', 'vcpus', 'memory', 'disk']
+
+
+def vm_status_choices():
+    status_counts = {}
+    for status in VirtualMachine.objects.values('status').annotate(count=Count('status')).order_by('status'):
+        status_counts[status['status']] = status['count']
+    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in STATUS_CHOICES]
 
 
 class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -258,6 +274,7 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=Cluster.objects.annotate(filter_count=Count('virtual_machines')),
         label='Cluster'
     )
+    status = forms.MultipleChoiceField(choices=vm_status_choices, required=False)
 
 
 #

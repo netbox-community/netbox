@@ -7,6 +7,7 @@ from dcim.models import Platform
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
+from .constants import STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
@@ -54,6 +55,9 @@ class VirtualMachineFilter(CustomFieldFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
+    )
+    status = django_filters.MultipleChoiceFilter(
+        choices=STATUS_CHOICES
     )
     cluster_group_id = NullableModelMultipleChoiceFilter(
         name='cluster__group',

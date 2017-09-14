@@ -52,6 +52,12 @@
                     <td>{{ vm.name }}</td>
                 </tr>
                 <tr>
+                    <td>Status</td>
+                    <td>
+                        <span class="label label-{{ vm.get_status_class }}">{{ vm.get_status_display }}</span>
+                    </td>
+                </tr>
+                <tr>
                     <td>Cluster</td>
                     <td>
                         {% if vm.cluster.group %}

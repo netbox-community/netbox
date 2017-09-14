@@ -7,6 +7,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 from extras.models import CustomFieldModel, CustomFieldValue
 from utilities.models import CreatedUpdatedModel
+from .constants import STATUS_ACTIVE, STATUS_CHOICES, VM_STATUS_CLASSES
 
 
 #
@@ -139,6 +140,11 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
         max_length=64,
         unique=True
     )
+    status = models.PositiveSmallIntegerField(
+        choices=STATUS_CHOICES,
+        default=STATUS_ACTIVE,
+        verbose_name='Status'
+    )
     primary_ip4 = models.OneToOneField(
         to='ipam.IPAddress',
         on_delete=models.SET_NULL,
@@ -187,3 +193,6 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
 
     def get_absolute_url(self):
         return reverse('virtualization:virtualmachine', args=[self.pk])
+
+    def get_status_class(self):
+        return VM_STATUS_CLASSES[self.status]
