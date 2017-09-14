@@ -25,11 +25,8 @@ IP_FAMILY_CHOICES = [
     (6, 'IPv6'),
 ]
 
-PREFIX_MASK_LENGTH_CHOICES = [
-    ('', '---------'),
-] + [(i, i) for i in range(1, 128)]
-
-IPADDRESS_MASK_LENGTH_CHOICES = PREFIX_MASK_LENGTH_CHOICES + [(128, 128)]
+PREFIX_MASK_LENGTH_CHOICES = add_blank_choice([(i, i) for i in range(1, 128)])
+IPADDRESS_MASK_LENGTH_CHOICES = add_blank_choice([(i, i) for i in range(1, 129)])
 
 
 #
