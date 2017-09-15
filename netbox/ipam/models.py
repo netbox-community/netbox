@@ -512,6 +512,16 @@ class VLANGroup(models.Model):
     def get_absolute_url(self):
         return "{}?group_id={}".format(reverse('ipam:vlan_list'), self.pk)
 
+    def get_next_available_vid(self):
+        """
+        Return the first available VLAN ID (1-4094) in the group.
+        """
+        vids = [vlan['vid'] for vlan in self.vlans.order_by('vid').values('vid')]
+        for i in range(1, 4095):
+            if i not in vids:
+                return i
+        return None
+
 
 @python_2_unicode_compatible
 class VLAN(CreatedUpdatedModel, CustomFieldModel):

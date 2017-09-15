@@ -120,6 +120,13 @@ VLAN_ROLE_LINK = """
 """
 
 VLANGROUP_ACTIONS = """
+{% with next_vid=record.get_next_available_vid %}
+    {% if next_vid and perms.ipam.add_vlan %}
+        <a href="{% url 'ipam:vlan_add' %}?site={{ record.site_id }}&group={{ record.pk }}&vid={{ next_vid }}" title="Add VLAN" class="btn btn-xs btn-success">
+            <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+        </a>
+    {% endif %}
+{% endwith %}
 {% if perms.ipam.change_vlangroup %}
     <a href="{% url 'ipam:vlangroup_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
