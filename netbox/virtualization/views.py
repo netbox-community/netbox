@@ -239,10 +239,10 @@ class ClusterRemoveDevicesView(PermissionRequiredMixin, View):
 #
 
 class VirtualMachineListView(ObjectListView):
-    queryset = VirtualMachine.objects.select_related('cluster', 'tenant')
+    queryset = VirtualMachine.objects.select_related('cluster', 'tenant', 'primary_ip4', 'primary_ip6')
     filter = filters.VirtualMachineFilter
     filter_form = forms.VirtualMachineFilterForm
-    table = tables.VirtualMachineTable
+    table = tables.VirtualMachineDetailTable
     template_name = 'virtualization/virtualmachine_list.html'
 
 

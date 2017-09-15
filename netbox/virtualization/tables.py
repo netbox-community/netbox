@@ -24,6 +24,12 @@ VIRTUALMACHINE_STATUS = """
 <span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
 """
 
+VIRTUALMACHINE_PRIMARY_IP = """
+{{ record.primary_ip6.address.ip|default:"" }}
+{% if record.primary_ip6 and record.primary_ip4 %}<br />{% endif %}
+{{ record.primary_ip4.address.ip|default:"" }}
+"""
+
 
 #
 # Cluster types
@@ -90,6 +96,16 @@ class VirtualMachineTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = VirtualMachine
         fields = ('pk', 'name', 'status', 'cluster', 'tenant', 'vcpus', 'memory', 'disk')
+
+
+class VirtualMachineDetailTable(VirtualMachineTable):
+    primary_ip = tables.TemplateColumn(
+        orderable=False, verbose_name='IP Address', template_code=VIRTUALMACHINE_PRIMARY_IP
+    )
+
+    class Meta(BaseTable.Meta):
+        model = VirtualMachine
+        fields = ('pk', 'name', 'status', 'cluster', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip')
 
 
 #
