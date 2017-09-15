@@ -70,6 +70,10 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         to_field_name='slug',
         label='Cluster group (slug)',
     )
+    cluster_id = NullableModelMultipleChoiceFilter(
+        queryset=Cluster.objects.all(),
+        label='Cluster (ID)',
+    )
     tenant_id = NullableModelMultipleChoiceFilter(
         queryset=Tenant.objects.all(),
         label='Tenant (ID)',

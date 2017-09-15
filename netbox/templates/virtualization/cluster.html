@@ -68,7 +68,7 @@
                 </tr>
                 <tr>
                     <td>Virtual Machines</td>
-                    <td><a href="{% url 'virtualization:virtualmachine_list' %}?cluster={{ cluster.pk }}">{{ cluster.virtual_machines.count }}</a></td>
+                    <td><a href="{% url 'virtualization:virtualmachine_list' %}?cluster_id={{ cluster.pk }}">{{ cluster.virtual_machines.count }}</a></td>
                 </tr>
             </table>
         </div>
