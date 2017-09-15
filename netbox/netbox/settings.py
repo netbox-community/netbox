@@ -29,8 +29,9 @@ for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
 
 # Import optional configuration parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
-BANNER_BOTTOM = getattr(configuration, 'BANNER_BOTTOM', False)
-BANNER_TOP = getattr(configuration, 'BANNER_TOP', False)
+BANNER_BOTTOM = getattr(configuration, 'BANNER_BOTTOM', '')
+BANNER_LOGIN = getattr(configuration, 'BANNER_LOGIN', '')
+BANNER_TOP = getattr(configuration, 'BANNER_TOP', '')
 BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
