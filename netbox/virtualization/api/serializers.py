@@ -91,8 +91,8 @@ class VirtualMachineSerializer(CustomFieldModelSerializer):
     class Meta:
         model = VirtualMachine
         fields = [
-            'id', 'name', 'status', 'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'comments',
-            'custom_fields',
+            'id', 'name', 'status', 'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory',
+            'disk', 'comments', 'custom_fields',
         ]
 
 
@@ -109,8 +109,8 @@ class WritableVirtualMachineSerializer(CustomFieldModelSerializer):
     class Meta:
         model = VirtualMachine
         fields = [
-            'id', 'name', 'status', 'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'comments',
-            'custom_fields',
+            'id', 'name', 'status', 'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory',
+            'disk', 'comments', 'custom_fields',
         ]
 
 
