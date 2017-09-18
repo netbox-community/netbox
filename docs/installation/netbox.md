@@ -20,7 +20,7 @@ Python 3:
 
 ```no-highlight
 # yum install -y epel-release
-# yum install -y gcc python34 python34-devel python34-setuptools libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel
+# yum install -y gcc python34 python34-devel python34-setuptools libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel redhat-rpm-config
 # easy_install-3.4 pip
 # ln -s -f python3.4 /usr/bin/python
 ```
@@ -29,7 +29,7 @@ Python 2:
 
 ```no-highlight
 # yum install -y epel-release
-# yum install -y gcc python2 python-devel python-pip libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel
+# yum install -y gcc python2 python-devel python-pip libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel redhat-rpm-config
 ```
 
 You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.
