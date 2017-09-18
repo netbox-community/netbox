@@ -13,6 +13,7 @@ from utilities.forms import (
     ExpandableIPAddressField, FilterChoiceField, FlexibleModelChoiceField, Livesearch, ReturnURLForm, SlugField,
     add_blank_choice,
 )
+from virtualization.models import VirtualMachine
 from .models import (
     Aggregate, IPAddress, IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role,
     Service, VLAN, VLANGroup, VLAN_STATUS_CHOICES, VRF,
@@ -566,6 +567,15 @@ class IPAddressCSVForm(forms.ModelForm):
             'invalid_choice': 'Device not found.',
         }
     )
+    virtual_machine = forms.ModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of assigned virtual machine',
+        error_messages={
+            'invalid_choice': 'Virtual machine not found.',
+        }
+    )
     interface_name = forms.CharField(
         help_text='Name of assigned interface',
         required=False
@@ -577,30 +587,47 @@ class IPAddressCSVForm(forms.ModelForm):
 
     class Meta:
         model = IPAddress
-        fields = ['address', 'vrf', 'tenant', 'status', 'role', 'device', 'interface_name', 'is_primary', 'description']
+        fields = [
+            'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface_name', 'is_primary',
+            'description',
+        ]
 
     def clean(self):
 
         super(IPAddressCSVForm, self).clean()
 
         device = self.cleaned_data.get('device')
+        virtual_machine = self.cleaned_data.get('virtual_machine')
         interface_name = self.cleaned_data.get('interface_name')
         is_primary = self.cleaned_data.get('is_primary')
 
         # Validate interface
-        if device and interface_name:
+        if interface_name and device:
             try:
                 self.instance.interface = Interface.objects.get(device=device, name=interface_name)
             except Interface.DoesNotExist:
-                raise forms.ValidationError("Invalid interface {} for device {}".format(interface_name, device))
-        elif device and not interface_name:
-            raise forms.ValidationError("Device set ({}) but interface missing".format(device))
-        elif interface_name and not device:
-            raise forms.ValidationError("Interface set ({}) but device missing or invalid".format(interface_name))
+                raise forms.ValidationError("Invalid interface {} for device {}".format(
+                    interface_name, device
+                ))
+        elif interface_name and virtual_machine:
+            try:
+                self.instance.interface = Interface.objects.get(virtual_machine=virtual_machine, name=interface_name)
+            except Interface.DoesNotExist:
+                raise forms.ValidationError("Invalid interface {} for virtual machine {}".format(
+                    interface_name, virtual_machine
+                ))
+        elif interface_name:
+            raise forms.ValidationError("Interface given ({}) but parent device/virtual machine not specified".format(
+                interface_name
+            ))
+        elif device:
+            raise forms.ValidationError("Device specified ({}) but interface missing".format(device))
+        elif virtual_machine:
+            raise forms.ValidationError("Virtual machine specified ({}) but interface missing".format(virtual_machine))
 
         # Validate is_primary
-        if is_primary and not device:
-            raise forms.ValidationError("No device specified; cannot set as primary IP")
+        if is_primary and not device and not virtual_machine:
+            raise forms.ValidationError("No device or virtual machine specified; cannot set as primary IP")
 
     def save(self, *args, **kwargs):
 
@@ -610,17 +637,22 @@ class IPAddressCSVForm(forms.ModelForm):
                 device=self.cleaned_data['device'],
                 name=self.cleaned_data['interface_name']
             )
+        elif self.cleaned_data['virtual_machine'] and self.cleaned_data['interface_name']:
+            self.instance.interface = Interface.objects.get(
+                virtual_machine=self.cleaned_data['virtual_machine'],
+                name=self.cleaned_data['interface_name']
+            )
 
         ipaddress = super(IPAddressCSVForm, self).save(*args, **kwargs)
 
-        # Set as primary for device
+        # Set as primary for device/VM
         if self.cleaned_data['is_primary']:
-            device = self.cleaned_data['device']
+            parent = self.cleaned_data['device'] or self.cleaned_data['virtual_machine']
             if self.instance.address.version == 4:
-                device.primary_ip4 = ipaddress
+                parent.primary_ip4 = ipaddress
             elif self.instance.address.version == 6:
-                device.primary_ip6 = ipaddress
-            device.save()
+                parent.primary_ip6 = ipaddress
+            parent.save()
 
         return ipaddress
 

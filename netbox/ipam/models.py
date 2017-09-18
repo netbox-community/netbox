@@ -420,7 +420,8 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     objects = IPAddressManager()
 
     csv_headers = [
-        'address', 'vrf', 'tenant', 'status', 'role', 'device', 'interface_name', 'is_primary', 'description',
+        'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface_name', 'is_primary',
+        'description',
     ]
 
     class Meta:
@@ -475,6 +476,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
             self.get_status_display(),
             self.get_role_display(),
             self.device.identifier if self.device else None,
+            self.virtual_machine.name if self.device else None,
             self.interface.name if self.interface else None,
             is_primary,
             self.description,
