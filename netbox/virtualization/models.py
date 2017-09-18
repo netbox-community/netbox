@@ -7,6 +7,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 from extras.models import CustomFieldModel, CustomFieldValue
 from utilities.models import CreatedUpdatedModel
+from utilities.utils import csv_format
 from .constants import STATUS_ACTIVE, STATUS_CHOICES, VM_STATUS_CLASSES
 
 
@@ -98,6 +99,10 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
+    csv_headers = [
+        'name', 'type', 'group', 'comments',
+    ]
+
     class Meta:
         ordering = ['name']
 
@@ -106,6 +111,14 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
 
     def get_absolute_url(self):
         return reverse('virtualization:cluster', args=[self.pk])
+
+    def to_csv(self):
+        return csv_format([
+            self.name,
+            self.type.name,
+            self.group.name if self.group else None,
+            self.comments,
+        ])
 
 
 #
@@ -185,6 +198,10 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
+    csv_headers = [
+        'name', 'status', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
+    ]
+
     class Meta:
         ordering = ['name']
 
@@ -193,6 +210,19 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
 
     def get_absolute_url(self):
         return reverse('virtualization:virtualmachine', args=[self.pk])
+
+    def to_csv(self):
+        return csv_format([
+            self.name,
+            self.get_status_display(),
+            self.cluster.name,
+            self.tenant.name if self.tenant else None,
+            self.platform.name if self.platform else None,
+            self.vcpus,
+            self.memory,
+            self.disk,
+            self.comments,
+        ])
 
     def get_status_class(self):
         return VM_STATUS_CLASSES[self.status]

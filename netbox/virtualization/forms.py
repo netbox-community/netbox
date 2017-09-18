@@ -76,16 +76,17 @@ class ClusterCSVForm(forms.ModelForm):
 
     class Meta:
         model = Cluster
-        fields = ['name', 'type', 'group']
+        fields = ['name', 'type', 'group', 'comments']
 
 
 class ClusterBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Cluster.objects.all(), widget=forms.MultipleHiddenInput)
     type = forms.ModelChoiceField(queryset=ClusterType.objects.all(), required=False)
     group = forms.ModelChoiceField(queryset=ClusterGroup.objects.all(), required=False)
+    comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ['group']
+        nullable_fields = ['group', 'comments']
 
 
 class ClusterFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -252,7 +253,7 @@ class VirtualMachineBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ['tenant', 'platform', 'vcpus', 'memory', 'disk']
+        nullable_fields = ['tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments']
 
 
 def vm_status_choices():
