@@ -38,10 +38,11 @@ GRAPH_TYPE_CHOICES = (
 
 # Models which support export templates
 EXPORTTEMPLATE_MODELS = [
+    'provider', 'circuit',                                                          # Circuits
     'site', 'rack', 'device', 'consoleport', 'powerport', 'interfaceconnection',    # DCIM
     'aggregate', 'prefix', 'ipaddress', 'vlan',                                     # IPAM
-    'provider', 'circuit',                                                          # Circuits
-    'tenant',                                                                       # Tenants
+    'tenant',                                                                       # Tenancy
+    'cluster', 'virtualmachine',                                                    # Virtualization
 ]
 
 # User action types
