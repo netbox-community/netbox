@@ -62,3 +62,17 @@ ACTION_CHOICES = (
     (ACTION_DELETE, 'deleted'),
     (ACTION_BULK_DELETE, 'bulk deleted'),
 )
+
+# Report logging levels
+LOG_DEFAULT = 0
+LOG_SUCCESS = 10
+LOG_INFO = 20
+LOG_WARNING = 30
+LOG_FAILURE = 40
+LOG_LEVEL_CODES = {
+    LOG_DEFAULT: 'default',
+    LOG_SUCCESS: 'success',
+    LOG_INFO: 'info',
+    LOG_WARNING: 'warning',
+    LOG_FAILURE: 'failure',
+}
