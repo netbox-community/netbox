@@ -17,12 +17,18 @@ ADMINS = [
 
 ## BANNER_BOTTOM
 
-Setting these variables will display content in a banner at the top and/or bottom of the page, respectively. To replicate the content of the top banner in the bottom banner, set:
+Setting these variables will display content in a banner at the top and/or bottom of the page, respectively. HTML is allowed. To replicate the content of the top banner in the bottom banner, set:
 
 ```
 BANNER_TOP = 'Your banner text'
 BANNER_BOTTOM = BANNER_TOP
 ```
+
+---
+
+## BANNER_LOGIN
+
+The value of this variable will be displayed on the login page above the login form. HTML is allowed.
 
 ---
 

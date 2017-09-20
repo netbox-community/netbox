@@ -12,7 +12,7 @@ from ipam.models import IPAddress
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
+    APISelect, ArrayFieldSelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ChainedFieldsMixin, ChainedModelChoiceField, CommentField, ConfirmationForm, CSVChoiceField, ExpandableNameField,
     FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
     FilterTreeNodeMultipleChoiceField,
@@ -27,12 +27,6 @@ from .models import (
     Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
 )
 
-
-FORM_STATUS_CHOICES = [
-    ['', '---------'],
-]
-
-FORM_STATUS_CHOICES += STATUS_CHOICES
 
 DEVICE_BY_PK_RE = '{\d+\}'
 
@@ -863,7 +857,7 @@ class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     device_role = forms.ModelChoiceField(queryset=DeviceRole.objects.all(), required=False, label='Role')
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     platform = forms.ModelChoiceField(queryset=Platform.objects.all(), required=False)
-    status = forms.ChoiceField(choices=FORM_STATUS_CHOICES, required=False, initial='', label='Status')
+    status = forms.ChoiceField(choices=add_blank_choice(STATUS_CHOICES), required=False, initial='')
     serial = forms.CharField(max_length=50, required=False, label='Serial Number')
 
     class Meta:
