@@ -1,10 +1,9 @@
 from __future__ import unicode_literals
 
+from dcim.constants import STATUS_ACTIVE, STATUS_OFFLINE, STATUS_STAGED
+
 
 # VirtualMachine statuses (replicated from Device statuses)
-STATUS_OFFLINE = 0
-STATUS_ACTIVE = 1
-STATUS_STAGED = 3
 STATUS_CHOICES = [
     [STATUS_ACTIVE, 'Active'],
     [STATUS_OFFLINE, 'Offline'],
