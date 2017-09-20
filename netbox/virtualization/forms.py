@@ -5,7 +5,7 @@ from mptt.forms import TreeNodeChoiceField
 from django import forms
 from django.db.models import Count
 
-from dcim.constants import VIFACE_FF_CHOICES
+from dcim.constants import IFACE_FF_VIRTUAL, VIFACE_FF_CHOICES
 from dcim.formfields import MACAddressFormField
 from dcim.models import Device, Interface, Platform, Rack, Region, Site
 from extras.forms import CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
@@ -289,12 +289,13 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         fields = ['virtual_machine', 'name', 'form_factor', 'enabled', 'mac_address', 'mtu', 'description']
         widgets = {
             'virtual_machine': forms.HiddenInput(),
+            'form_factor': forms.HiddenInput(),
         }
 
 
 class InterfaceCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
-    form_factor = forms.ChoiceField(choices=VIFACE_FF_CHOICES)
+    form_factor = forms.ChoiceField(choices=VIFACE_FF_CHOICES, initial=IFACE_FF_VIRTUAL, widget=forms.HiddenInput())
     enabled = forms.BooleanField(required=False)
     mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
     mac_address = MACAddressFormField(required=False, label='MAC Address')
@@ -330,7 +331,7 @@ class VirtualMachineBulkAddComponentForm(BootstrapMixin, forms.Form):
 
 
 class VirtualMachineBulkAddInterfaceForm(VirtualMachineBulkAddComponentForm):
-    form_factor = forms.ChoiceField(choices=VIFACE_FF_CHOICES)
+    form_factor = forms.ChoiceField(choices=VIFACE_FF_CHOICES, initial=IFACE_FF_VIRTUAL, widget=forms.HiddenInput())
     enabled = forms.BooleanField(required=False, initial=True)
     mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
     description = forms.CharField(max_length=100, required=False)
