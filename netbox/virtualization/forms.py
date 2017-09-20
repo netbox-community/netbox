@@ -49,10 +49,11 @@ class ClusterGroupForm(BootstrapMixin, forms.ModelForm):
 #
 
 class ClusterForm(BootstrapMixin, CustomFieldForm):
+    comments = CommentField(widget=SmallTextarea)
 
     class Meta:
         model = Cluster
-        fields = ['name', 'type', 'group']
+        fields = ['name', 'type', 'group', 'comments']
 
 
 class ClusterCSVForm(forms.ModelForm):
