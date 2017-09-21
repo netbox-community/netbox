@@ -28,6 +28,9 @@ router.register(r'topology-maps', views.TopologyMapViewSet)
 # Image attachments
 router.register(r'image-attachments', views.ImageAttachmentViewSet)
 
+# Reports
+router.register(r'reports', views.ReportViewSet, base_name='report')
+
 # Recent activity
 router.register(r'recent-activity', views.RecentActivityViewSet)
 

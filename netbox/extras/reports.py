@@ -1,8 +1,41 @@
 from collections import OrderedDict
+import importlib
+import inspect
+import pkgutil
 
 from django.utils import timezone
 
 from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_LEVEL_CODES, LOG_SUCCESS, LOG_WARNING
+import reports as user_reports
+
+
+def is_report(obj):
+    """
+    Returns True if the given object is a Report.
+    """
+    if obj in Report.__subclasses__():
+        return True
+    return False
+
+
+def get_reports():
+    """
+    Compile a list of all reports available across all modules in the reports path.
+    """
+    module_list = []
+
+    # Iterate through all modules within the reports path
+    for importer, module_name, is_pkg in pkgutil.walk_packages(user_reports.__path__):
+        module = importlib.import_module('reports.{}'.format(module_name))
+        report_list = []
+
+        # Iterate through all Report classes within the module
+        for report_name, report_cls in inspect.getmembers(module, is_report):
+            report_list.append((report_name, report_cls))
+
+        module_list.append((module_name, report_list))
+
+    return module_list
 
 
 class Report(object):
@@ -29,6 +62,7 @@ class Report(object):
         }
     }
     """
+    description = None
 
     def __init__(self):
 

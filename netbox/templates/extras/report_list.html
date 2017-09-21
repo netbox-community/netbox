@@ -1,0 +1,18 @@
+{% extends '_base.html' %}
+{% load helpers %}
+
+{% block content %}
+    <h1>Reports</h1>
+    <div class="row">
+        <div class="col-md-9">
+            {% for module, report_list in reports %}
+                <h2>{{ module|bettertitle }}</h2>
+                <ul>
+                    {% for name, cls in report_list %}
+                        <li>{{ name }}</li>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

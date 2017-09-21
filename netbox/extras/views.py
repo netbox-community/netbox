@@ -1,12 +1,20 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.generic import View
 
+from . import reports
 from utilities.views import ObjectDeleteView, ObjectEditView
 from .forms import ImageAttachmentForm
-from .models import ImageAttachment
+from .models import ImageAttachment, ReportResult
+from .reports import get_reports
 
+
+#
+# Image attachments
+#
 
 class ImageAttachmentEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'extras.change_imageattachment'
@@ -30,3 +38,23 @@ class ImageAttachmentDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
     def get_return_url(self, request, imageattachment):
         return imageattachment.parent.get_absolute_url()
+
+
+#
+# Reports
+#
+
+class ReportListView(View):
+    """
+    Retrieve all of the available reports from disk and the recorded ReportResult (if any) for each.
+    """
+
+    def get(self, request):
+
+        reports = get_reports()
+        results = {r.name: r for r in ReportResult.objects.all()}
+
+        return render(request, 'extras/report_list.html', {
+            'reports': reports,
+            'results': results,
+        })

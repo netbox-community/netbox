@@ -6,6 +6,7 @@ import graphviz
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import JSONField
 from django.core.validators import ValidationError
 from django.db import models
 from django.db.models import Q
@@ -386,6 +387,26 @@ class ImageAttachment(models.Model):
             return self.image.size
         except OSError:
             return None
+
+
+#
+# Report results
+#
+
+class ReportResult(models.Model):
+    """
+    This model stores the results from running a user-defined report.
+    """
+    report = models.CharField(max_length=255, unique=True)
+    created = models.DateTimeField(auto_created=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='+', blank=True, null=True)
+    data = JSONField()
+
+    class Meta:
+        ordering = ['report']
+        permissions = (
+            ('run_report', 'Run a report and save the results'),
+        )
 
 
 #

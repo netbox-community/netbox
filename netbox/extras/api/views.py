@@ -1,7 +1,9 @@
 from __future__ import unicode_literals
+from collections import OrderedDict
 
 from rest_framework.decorators import detail_route
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, ViewSet
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
@@ -9,6 +11,7 @@ from django.shortcuts import get_object_or_404
 
 from extras import filters
 from extras.models import ExportTemplate, Graph, ImageAttachment, TopologyMap, UserAction
+from extras.reports import get_reports
 from utilities.api import WritableSerializerMixin
 from . import serializers
 
@@ -86,6 +89,28 @@ class ImageAttachmentViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = ImageAttachment.objects.all()
     serializer_class = serializers.ImageAttachmentSerializer
     write_serializer_class = serializers.WritableImageAttachmentSerializer
+
+
+class ReportViewSet(ViewSet):
+    _ignore_model_permissions = True
+    exclude_from_schema = True
+
+    def list(self, request):
+
+        ret_list = []
+        for module_name, reports in get_reports():
+            for report_name, report_cls in reports:
+                report = OrderedDict((
+                    ('module', module_name),
+                    ('name', report_name),
+                    ('description', report_cls.description),
+                    ('test_methods', report_cls().test_methods),
+                ))
+                ret_list.append(report)
+
+        return Response(ret_list)
+
+
 
 
 class RecentActivityViewSet(ReadOnlyModelViewSet):
