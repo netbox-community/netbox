@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 import os
 
-from Crypto.Cipher import AES, PKCS1_OAEP, XOR
+from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
 
 from django.conf import settings
