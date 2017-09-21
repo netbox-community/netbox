@@ -98,3 +98,69 @@ class RackTestCase(TestCase):
             face=None,
         )
         self.assertTrue(pdu)
+
+
+class InterfaceTestCase(TestCase):
+
+    def setUp(self):
+
+        self.site = Site.objects.create(
+            name='TestSite1',
+            slug='my-test-site'
+        )
+        self.rack = Rack.objects.create(
+            name='TestRack1',
+            facility_id='A101',
+            site=self.site,
+            u_height=42
+        )
+        self.manufacturer = Manufacturer.objects.create(
+            name='Acme',
+            slug='acme'
+        )
+
+        self.device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer,
+            model='FrameForwarder 2048',
+            slug='ff2048'
+        )
+        self.role = DeviceRole.objects.create(
+            name='Switch',
+            slug='switch',
+        )
+
+    def test_device_port_order_natural(self):
+        device1 = Device.objects.create(
+            name='TestSwitch1',
+            device_type=self.device_type,
+            device_role=self.role,
+            site=self.site,
+            rack=self.rack,
+            position=10,
+            face=RACK_FACE_REAR,
+        )
+        interface1 = Interface.objects.create(
+            device=device1,
+            name='Ethernet1/3/1'
+        )
+        interface2 = Interface.objects.create(
+            device=device1,
+            name='Ethernet1/5/1'
+        )
+        interface3 = Interface.objects.create(
+            device=device1,
+            name='Ethernet1/4'
+        )
+        interface4 = Interface.objects.create(
+            device=device1,
+            name='Ethernet1/3/2/4'
+        )
+        interface5 = Interface.objects.create(
+            device=device1,
+            name='Ethernet1/3/2/1'
+        )
+
+        self.assertEqual(
+            list(Interface.objects.all().order_naturally()),
+            [interface1, interface5, interface4, interface3, interface2]
+        )
