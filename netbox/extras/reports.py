@@ -29,11 +29,12 @@ class Report(object):
         }
     }
     """
-    results = OrderedDict()
-    active_test = None
-    failed = False
 
     def __init__(self):
+
+        self.results = OrderedDict()
+        self.active_test = None
+        self.failed = False
 
         # Compile test methods and initialize results skeleton
         test_methods = []
@@ -92,9 +93,11 @@ class Report(object):
 
     def run(self):
         """
-        Run the report. Each test method will be executed in order.
+        Run the report and return its results. Each test method will be executed in order.
         """
         for method_name in self.test_methods:
             self.active_test = method_name
             test_method = getattr(self, method_name)
             test_method()
+
+        return self.results
