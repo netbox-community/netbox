@@ -12,10 +12,10 @@ from django.db import models
 from django.urls import reverse
 from django.utils.encoding import force_bytes, python_2_unicode_compatible
 
-# from dcim.models import Device
-# from utilities.models import CreatedUpdatedModel
-from netbox.dcim.models import Device
-from netbox.utilities.models import CreatedUpdatedModel
+from dcim.models import Device
+from utilities.models import CreatedUpdatedModel
+#from netbox.dcim.models import Device
+#from netbox.utilities.models import CreatedUpdatedModel
 from .exceptions import InvalidKey
 from .hashers import SecretValidationHasher
 
