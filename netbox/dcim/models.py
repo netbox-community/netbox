@@ -661,28 +661,32 @@ class InterfaceQuerySet(models.QuerySet):
         """
         sql_col = '{}.name'.format(self.model._meta.db_table)
         ordering = {
-            IFACE_ORDERING_POSITION: ('_slot', '_subslot', '_position', '_subposition', '_channel', '_vc', '_type', 'name'),
-            IFACE_ORDERING_NAME: ('_type', '_slot', '_subslot', '_position', '_subposition', '_channel', '_vc', 'name'),
+            IFACE_ORDERING_POSITION: (
+                '_slot', '_subslot', '_position', '_subposition', '_channel', '_vc', '_type', '_id', 'name',
+            ),
+            IFACE_ORDERING_NAME: (
+                '_type', '_slot', '_subslot', '_position', '_subposition', '_channel', '_vc', '_id', 'name',
+            ),
         }[method]
 
+        TYPE_RE = r"SUBSTRING({} FROM '^([^0-9]+)')"
+        ID_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)([0-9]+)$') AS integer)"
+        SLOT_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)([0-9]+)\/') AS integer)"
+        SUBSLOT_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)(?:[0-9]+\/)([0-9]+)') AS integer)"
+        POSITION_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)(?:[0-9]+\/){{2}}([0-9]+)') AS integer)"
+        SUBPOSITION_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)(?:[0-9]+\/){{3}}([0-9]+)') AS integer)"
+        CHANNEL_RE = r"COALESCE(CAST(SUBSTRING({} FROM ':([0-9]+)(\.[0-9]+)?$') AS integer), 0)"
+        VC_RE = r"COALESCE(CAST(SUBSTRING({} FROM '\.([0-9]+)$') AS integer), 0)"
+
         fields = {
-            '_type': RawSQL(r"SUBSTRING({} FROM '^([^0-9]+)')".format(sql_col), []),
-            '_slot': RawSQL(r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)([0-9]+)') AS integer)".format(sql_col), []),
-            '_subslot': RawSQL(
-                r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+)(?:[0-9]+)\/([0-9]+)') AS integer), 0)".format(
-                    sql_col), []
-            ),
-            '_position': RawSQL(
-                r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+)(?:[0-9]+\/){{2}}([0-9]+)') AS integer), 0)".format(
-                    sql_col), []
-            ),
-            '_subposition': RawSQL(
-                r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+)(?:[0-9]+\/){{3}}([0-9]+)') AS integer), 0)".format(
-                    sql_col), []
-            ),
-            '_channel': RawSQL(
-                r"COALESCE(CAST(SUBSTRING({} FROM ':([0-9]+)(\.[0-9]+)?$') AS integer), 0)".format(sql_col), []),
-            '_vc': RawSQL(r"COALESCE(CAST(SUBSTRING({} FROM '\.([0-9]+)$') AS integer), 0)".format(sql_col), []),
+            '_type': RawSQL(TYPE_RE.format(sql_col), []),
+            '_id': RawSQL(ID_RE.format(sql_col), []),
+            '_slot': RawSQL(SLOT_RE.format(sql_col), []),
+            '_subslot': RawSQL(SUBSLOT_RE.format(sql_col), []),
+            '_position': RawSQL(POSITION_RE.format(sql_col), []),
+            '_subposition': RawSQL(SUBPOSITION_RE.format(sql_col), []),
+            '_channel': RawSQL(CHANNEL_RE.format(sql_col), []),
+            '_vc': RawSQL(VC_RE.format(sql_col), []),
         }
 
         return self.annotate(**fields).order_by(*ordering)
