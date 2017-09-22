@@ -1,7 +1,8 @@
 from __future__ import unicode_literals
+from collections import OrderedDict
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.generic import View
 
@@ -52,9 +53,19 @@ class ReportListView(View):
     def get(self, request):
 
         reports = get_reports()
-        results = {r.name: r for r in ReportResult.objects.all()}
+        results = {r.report: r for r in ReportResult.objects.all()}
+
+        foo = []
+        for module, report_list in reports:
+            module_reports = []
+            for report_name, report_class in report_list:
+                module_reports.append({
+                    'name': report_name,
+                    'description': report_class.description,
+                    'results': results.get('{}.{}'.format(module, report_name), None)
+                })
+            foo.append((module, module_reports))
 
         return render(request, 'extras/report_list.html', {
-            'reports': reports,
-            'results': results,
+            'reports': foo,
         })

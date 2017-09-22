@@ -5,13 +5,52 @@
     <h1>Reports</h1>
     <div class="row">
         <div class="col-md-9">
-            {% for module, report_list in reports %}
-                <h2>{{ module|bettertitle }}</h2>
-                <ul>
-                    {% for name, cls in report_list %}
-                        <li>{{ name }}</li>
-                    {% endfor %}
-                </ul>
+            {% for module, module_reports in reports %}
+                <h3>{{ module|bettertitle }}</h3>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Last Run</th>
+                            <th class="text-right">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in module_reports %}
+                            <tr>
+                                <td>{{ report.name }}</td>
+                                <td>{{ report.description|default:"" }}</td>
+                                {% if report.results %}
+                                    <td>{{ report.results.created }}</td>
+                                    <td class="text-right">
+                                        {% if report.results.failed %}
+                                            <label class="label label-danger">Failed</label>
+                                        {% else %}
+                                            <label class="label label-success">Passed</label>
+                                        {% endif %}
+                                    </td>
+                                {% else %}
+                                    <td class="text-muted">Never</td>
+                                    <td class="text-muted text-right">&mdash;</td>
+                                {% endif %}
+                            </tr>
+                            {% for method, stats in report.results.data.items %}
+                                <tr>
+                                    <td colspan="4">
+                                        <div class="pull-right">
+                                            <label class="label label-success">{{ stats.success }}</label>
+                                            <label class="label label-info">{{ stats.info }}</label>
+                                            <label class="label label-warning">{{ stats.warning }}</label>
+                                            <label class="label label-danger">{{ stats.failed }}</label>
+                                        </div>
+                                        <span style="font-family: monospace">{{ method }}</span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    </tbody>
+                </table>
             {% endfor %}
         </div>
     </div>

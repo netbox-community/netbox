@@ -398,8 +398,9 @@ class ReportResult(models.Model):
     This model stores the results from running a user-defined report.
     """
     report = models.CharField(max_length=255, unique=True)
-    created = models.DateTimeField(auto_created=True)
+    created = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='+', blank=True, null=True)
+    failed = models.BooleanField()
     data = JSONField()
 
     class Meta:

@@ -32,6 +32,10 @@ class Command(BaseCommand):
                     report = report_cls()
                     results = report.run()
 
+                    # Record the results
+                    ReportResult.objects.filter(report=report_name_full).delete()
+                    ReportResult(report=report_name_full, failed=report.failed, data=results).save()
+
                     # Report on success/failure
                     status = self.style.ERROR('FAILED') if report.failed else self.style.SUCCESS('SUCCESS')
                     for test_name, attrs in results.items():

@@ -20,7 +20,18 @@ def is_report(obj):
 
 def get_reports():
     """
-    Compile a list of all reports available across all modules in the reports path.
+    Compile a list of all reports available across all modules in the reports path. Returns a list of tuples:
+
+    [
+        (module_name, (
+            (report_name, report_class),
+            (report_name, report_class)
+        ),
+        (module_name, (
+            (report_name, report_class),
+            (report_name, report_class)
+        )
+    ]
     """
     module_list = []
 
@@ -30,8 +41,8 @@ def get_reports():
         report_list = []
 
         # Iterate through all Report classes within the module
-        for report_name, report_cls in inspect.getmembers(module, is_report):
-            report_list.append((report_name, report_cls))
+        for report_name, report_class in inspect.getmembers(module, is_report):
+            report_list.append((report_name, report_class))
 
         module_list.append((module_name, report_list))
 
@@ -92,7 +103,7 @@ class Report(object):
         """
         if level not in LOG_LEVEL_CODES:
             raise Exception("Unknown logging level: {}".format(level))
-        logline = [timezone.now(), level, obj, message]
+        logline = [timezone.now().isoformat(), level, str(obj), message]
         self.results[self.active_test]['log'].append(logline)
 
     def log_success(self, obj, message=None):
