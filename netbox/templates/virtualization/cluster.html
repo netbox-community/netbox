@@ -67,6 +67,16 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Site</td>
+                    <td>
+                        {% if cluster.site %}
+                            <a href="{{ cluster.site.get_absolute_url }}">{{ cluster.site }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Virtual Machines</td>
                     <td><a href="{% url 'virtualization:virtualmachine_list' %}?cluster_id={{ cluster.pk }}">{{ cluster.virtual_machines.count }}</a></td>
                 </tr>

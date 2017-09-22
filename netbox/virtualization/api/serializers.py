@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from dcim.api.serializers import NestedPlatformSerializer
+from dcim.api.serializers import NestedPlatformSerializer, NestedSiteSerializer
 from dcim.constants import VIFACE_FF_CHOICES
 from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
@@ -57,10 +57,11 @@ class NestedClusterGroupSerializer(serializers.ModelSerializer):
 class ClusterSerializer(CustomFieldModelSerializer):
     type = NestedClusterTypeSerializer()
     group = NestedClusterGroupSerializer()
+    site = NestedSiteSerializer()
 
     class Meta:
         model = Cluster
-        fields = ['id', 'name', 'type', 'group', 'comments', 'custom_fields']
+        fields = ['id', 'name', 'type', 'group', 'site', 'comments', 'custom_fields']
 
 
 class NestedClusterSerializer(serializers.ModelSerializer):
@@ -75,7 +76,7 @@ class WritableClusterSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = Cluster
-        fields = ['id', 'name', 'type', 'group', 'comments', 'custom_fields']
+        fields = ['id', 'name', 'type', 'group', 'site', 'comments', 'custom_fields']
 
 
 #

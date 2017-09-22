@@ -166,7 +166,7 @@ class ClusterAddDevicesView(PermissionRequiredMixin, View):
     def get(self, request, pk):
 
         cluster = get_object_or_404(Cluster, pk=pk)
-        form = self.form()
+        form = self.form(cluster)
 
         return render(request, self.template_name, {
             'cluster': cluster,
@@ -177,7 +177,7 @@ class ClusterAddDevicesView(PermissionRequiredMixin, View):
     def post(self, request, pk):
 
         cluster = get_object_or_404(Cluster, pk=pk)
-        form = self.form(request.POST)
+        form = self.form(cluster, request.POST)
 
         if form.is_valid():
 

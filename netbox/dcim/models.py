@@ -921,6 +921,12 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
                 'primary_ip6': "The specified IP address ({}) is not assigned to this device.".format(self.primary_ip6),
             })
 
+        # A Device can only be assigned to a Cluster in the same Site (or no Site)
+        if self.cluster and self.cluster.site is not None and self.cluster.site != self.site:
+            raise ValidationError({
+                'cluster': "The assigned cluster belongs to a different site ({})".format(self.cluster.site)
+            })
+
     def save(self, *args, **kwargs):
 
         is_new = not bool(self.pk)

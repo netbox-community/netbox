@@ -79,7 +79,7 @@ class ClusterTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Cluster
-        fields = ('pk', 'name', 'type', 'group', 'device_count', 'vm_count')
+        fields = ('pk', 'name', 'type', 'group', 'site', 'device_count', 'vm_count')
 
 
 #

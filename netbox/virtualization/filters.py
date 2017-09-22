@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import django_filters
 from django.db.models import Q
 
-from dcim.models import Platform
+from dcim.models import Platform, Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
@@ -35,6 +35,16 @@ class ClusterFilter(CustomFieldFilterSet):
         queryset=ClusterType.objects.all(),
         to_field_name='slug',
         label='Cluster type (slug)',
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        name='site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site (slug)',
     )
 
     class Meta:

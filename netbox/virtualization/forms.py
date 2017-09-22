@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from mptt.forms import TreeNodeChoiceField
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.db.models import Count
 
 from dcim.constants import IFACE_FF_VIRTUAL, VIFACE_FF_CHOICES
@@ -53,7 +54,7 @@ class ClusterForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = Cluster
-        fields = ['name', 'type', 'group', 'comments']
+        fields = ['name', 'type', 'group', 'site', 'comments']
 
 
 class ClusterCSVForm(forms.ModelForm):
@@ -74,34 +75,50 @@ class ClusterCSVForm(forms.ModelForm):
             'invalid_choice': 'Invalid cluster group name.',
         }
     )
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Name of assigned site',
+        error_messages={
+            'invalid_choice': 'Invalid site name.',
+        }
+    )
 
     class Meta:
         model = Cluster
-        fields = ['name', 'type', 'group', 'comments']
+        fields = ['name', 'type', 'group', 'site', 'comments']
 
 
 class ClusterBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Cluster.objects.all(), widget=forms.MultipleHiddenInput)
     type = forms.ModelChoiceField(queryset=ClusterType.objects.all(), required=False)
     group = forms.ModelChoiceField(queryset=ClusterGroup.objects.all(), required=False)
+    site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ['group', 'comments']
+        nullable_fields = ['group', 'site', 'comments']
 
 
 class ClusterFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Cluster
     q = forms.CharField(required=False, label='Search')
+    type = FilterChoiceField(
+        queryset=ClusterType.objects.annotate(filter_count=Count('clusters')),
+        to_field_name='slug',
+        required=False,
+    )
     group = FilterChoiceField(
         queryset=ClusterGroup.objects.annotate(filter_count=Count('clusters')),
         to_field_name='slug',
         null_option=(0, 'None'),
         required=False,
     )
-    type = FilterChoiceField(
-        queryset=ClusterType.objects.annotate(filter_count=Count('clusters')),
+    site = FilterChoiceField(
+        queryset=Site.objects.annotate(filter_count=Count('clusters')),
         to_field_name='slug',
+        null_option=(0, 'None'),
         required=False,
     )
 
@@ -153,11 +170,27 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
     class Meta:
         fields = ['region', 'site', 'rack', 'devices']
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, cluster, *args, **kwargs):
+
+        self.cluster = cluster
 
         super(ClusterAddDevicesForm, self).__init__(*args, **kwargs)
 
         self.fields['devices'].choices = []
+
+    def clean(self):
+
+        super(ClusterAddDevicesForm, self).clean()
+
+        # If the Cluster is assigned to a Site, all Devices must be assigned to that Site.
+        if self.cluster.site is not None:
+            for device in self.cleaned_data.get('devices'):
+                if device.site != self.cluster.site:
+                    raise ValidationError({
+                        'devices': "{} belongs to a different site ({}) than the cluster ({})".format(
+                            device, device.site, self.cluster.site
+                        )
+                    })
 
 
 class ClusterRemoveDevicesForm(ConfirmationForm):

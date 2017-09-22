@@ -1,10 +1,12 @@
 from __future__ import unicode_literals
 
 from django.contrib.contenttypes.fields import GenericRelation
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 
+from dcim.models import Device
 from extras.models import CustomFieldModel, CustomFieldValue
 from utilities.models import CreatedUpdatedModel
 from utilities.utils import csv_format
@@ -90,6 +92,13 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
         blank=True,
         null=True
     )
+    site = models.ForeignKey(
+        to='dcim.Site',
+        on_delete=models.PROTECT,
+        related_name='clusters',
+        blank=True,
+        null=True
+    )
     comments = models.TextField(
         blank=True
     )
@@ -100,7 +109,7 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
     )
 
     csv_headers = [
-        'name', 'type', 'group', 'comments',
+        'name', 'type', 'group', 'site', 'comments',
     ]
 
     class Meta:
@@ -111,6 +120,18 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
 
     def get_absolute_url(self):
         return reverse('virtualization:cluster', args=[self.pk])
+
+    def clean(self):
+
+        # If the Cluster is assigned to a Site, verify that all host Devices belong to that Site.
+        if self.pk and self.site:
+            nonsite_devices = Device.objects.filter(cluster=self).exclude(site=self.site).count()
+            if nonsite_devices:
+                raise ValidationError({
+                    'site': "{} devices are assigned as hosts for this cluster but are not in site {}".format(
+                        nonsite_devices, self.site
+                    )
+                })
 
     def to_csv(self):
         return csv_format([
