@@ -129,7 +129,7 @@ class InterfaceTestCase(TestCase):
             slug='switch',
         )
 
-    def test_device_port_order_natural(self):
+    def test_interface_order_natural(self):
         device1 = Device.objects.create(
             name='TestSwitch1',
             device_type=self.device_type,
@@ -163,4 +163,43 @@ class InterfaceTestCase(TestCase):
         self.assertEqual(
             list(Interface.objects.all().order_naturally()),
             [interface1, interface5, interface4, interface3, interface2]
+        )
+
+    def test_interface_order_natural_subinterfaces(self):
+        device1 = Device.objects.create(
+            name='TestSwitch1',
+            device_type=self.device_type,
+            device_role=self.role,
+            site=self.site,
+            rack=self.rack,
+            position=10,
+            face=RACK_FACE_REAR,
+        )
+        interface1 = Interface.objects.create(
+            device=device1,
+            name='GigabitEthernet0/0/3'
+        )
+        interface2 = Interface.objects.create(
+            device=device1,
+            name='GigabitEthernet0/0/2.2'
+        )
+        interface3 = Interface.objects.create(
+            device=device1,
+            name='GigabitEthernet0/0/0.120'
+        )
+        interface4 = Interface.objects.create(
+            device=device1,
+            name='GigabitEthernet0/0/0'
+        )
+        interface5 = Interface.objects.create(
+            device=device1,
+            name='GigabitEthernet0/0/1.117'
+        )
+        interface6 = Interface.objects.create(
+            device=device1,
+            name='GigabitEthernet0'
+        )
+        self.assertEqual(
+            list(Interface.objects.all().order_naturally()),
+            [interface6, interface4, interface3, interface5, interface2, interface1]
         )
