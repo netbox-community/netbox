@@ -2,12 +2,12 @@
 {% load helpers %}
 
 {% block content %}
-    <h1>Reports</h1>
+    <h1>{% block title %}Reports{% endblock %}</h1>
     <div class="row">
         <div class="col-md-9">
             {% for module, module_reports in reports %}
-                <h3>{{ module|bettertitle }}</h3>
-                <table class="table table-hover">
+                <h3><a name="module.{{ module }}"></a>{{ module|bettertitle }}</h3>
+                <table class="table table-hover table-headings">
                     <thead>
                         <tr>
                             <th>Name</th>
@@ -19,25 +19,18 @@
                     <tbody>
                         {% for report in module_reports %}
                             <tr>
-                                <td>{{ report.name }}</td>
+                                <td><a name="report.{{ report.name }}"></a><strong>{{ report.name }}</strong></td>
                                 <td>{{ report.description|default:"" }}</td>
                                 {% if report.results %}
                                     <td>{{ report.results.created }}</td>
-                                    <td class="text-right">
-                                        {% if report.results.failed %}
-                                            <label class="label label-danger">Failed</label>
-                                        {% else %}
-                                            <label class="label label-success">Passed</label>
-                                        {% endif %}
-                                    </td>
                                 {% else %}
                                     <td class="text-muted">Never</td>
-                                    <td class="text-muted text-right">&mdash;</td>
                                 {% endif %}
+                                <td class="text-right">{% include 'extras/inc/report_label.html' %}</td>
                             </tr>
                             {% for method, stats in report.results.data.items %}
                                 <tr>
-                                    <td colspan="4">
+                                    <td colspan="3" style="padding-left: 40px">
                                         <div class="pull-right">
                                             <label class="label label-success">{{ stats.success }}</label>
                                             <label class="label label-info">{{ stats.info }}</label>
@@ -46,12 +39,28 @@
                                         </div>
                                         <span style="font-family: monospace">{{ method }}</span>
                                     </td>
+                                    <td></td>
                                 </tr>
                             {% endfor %}
                         {% endfor %}
                     </tbody>
                 </table>
             {% endfor %}
+        </div>
+        <div class="col-md-3">
+            <ul class="list-group">
+                {% for module, module_reports in reports %}
+                    <a href="#module.{{ module }}" class="list-group-item"><strong>{{ module|bettertitle }}</strong></a>
+                    {% for report in module_reports %}
+                        <a href="#report.{{ report.name }}" class="list-group-item">
+                            {{ report.name }}
+                            <div class="pull-right">
+                                {% include 'extras/inc/report_label.html' %}
+                            </div>
+                        </a>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
         </div>
     </div>
 {% endblock %}
