@@ -8,6 +8,7 @@ from rest_framework.compat import is_authenticated
 from rest_framework.exceptions import APIException
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import BasePermission, DjangoModelPermissions, SAFE_METHODS
+from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.serializers import Field, ModelSerializer, ValidationError
 from rest_framework.views import get_view_name as drf_get_view_name
 
@@ -204,6 +205,18 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
                 pass
 
         return self.default_limit
+
+
+#
+# Renderers
+#
+
+class FormlessBrowsableAPIRenderer(BrowsableAPIRenderer):
+    """
+    Override the built-in BrowsableAPIRenderer to disable HTML forms.
+    """
+    def show_form_for_method(self, *args, **kwargs):
+        return False
 
 
 #

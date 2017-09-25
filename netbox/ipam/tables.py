@@ -34,7 +34,7 @@ RIR_ACTIONS = """
 
 UTILIZATION_GRAPH = """
 {% load helpers %}
-{% if record.pk %}{% utilization_graph value %}{% else %}&mdash;{% endif %}
+{% if record.pk %}{% utilization_graph record.get_utilization %}{% else %}&mdash;{% endif %}
 """
 
 ROLE_ACTIONS = """
@@ -210,10 +210,10 @@ class AggregateTable(BaseTable):
 
 class AggregateDetailTable(AggregateTable):
     child_count = tables.Column(verbose_name='Prefixes')
-    get_utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
+    utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
 
     class Meta(AggregateTable.Meta):
-        fields = ('pk', 'prefix', 'rir', 'child_count', 'get_utilization', 'date_added', 'description')
+        fields = ('pk', 'prefix', 'rir', 'child_count', 'utilization', 'date_added', 'description')
 
 
 #
@@ -256,10 +256,10 @@ class PrefixTable(BaseTable):
 
 
 class PrefixDetailTable(PrefixTable):
-    get_utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
+    utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False)
 
     class Meta(PrefixTable.Meta):
-        fields = ('pk', 'prefix', 'status', 'vrf', 'get_utilization', 'tenant', 'site', 'vlan', 'role', 'description')
+        fields = ('pk', 'prefix', 'status', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description')
 
 
 #
