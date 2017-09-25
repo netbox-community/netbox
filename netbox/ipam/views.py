@@ -286,11 +286,12 @@ class AggregateListView(ObjectListView):
         ipv4_total = 0
         ipv6_total = 0
 
-        for a in self.queryset:
-            if a.prefix.version == 4:
-                ipv4_total += a.prefix.size
-            elif a.prefix.version == 6:
-                ipv6_total += a.prefix.size / 2 ** 64
+        for aggregate in self.queryset:
+            if aggregate.prefix.version == 6:
+                # Report equivalent /64s for IPv6 to keep things sane
+                ipv6_total += int(aggregate.prefix.size / 2 ** 64)
+            else:
+                ipv4_total += aggregate.prefix.size
 
         return {
             'ipv4_total': ipv4_total,
@@ -314,7 +315,7 @@ class AggregateView(View):
         )
         child_prefixes = add_available_prefixes(aggregate.prefix, child_prefixes)
 
-        prefix_table = tables.PrefixTable(child_prefixes)
+        prefix_table = tables.PrefixDetailTable(child_prefixes)
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
             prefix_table.base_columns['pk'].visible = True
 
@@ -473,11 +474,11 @@ class PrefixView(View):
         child_prefixes = Prefix.objects.filter(
             vrf=prefix.vrf, prefix__net_contained=str(prefix.prefix)
         ).select_related(
-            'site', 'role'
+            'site', 'vlan', 'role',
         ).annotate_depth(limit=0)
         if child_prefixes:
             child_prefixes = add_available_prefixes(prefix.prefix, child_prefixes)
-        child_prefix_table = tables.PrefixTable(child_prefixes)
+        child_prefix_table = tables.PrefixDetailTable(child_prefixes)
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
             child_prefix_table.base_columns['pk'].visible = True
 

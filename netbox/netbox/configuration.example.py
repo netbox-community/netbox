@@ -38,10 +38,13 @@ ADMINS = [
     # ['John Doe', 'jdoe@example.com'],
 ]
 
-# Optionally display a persistent banner at the top and/or bottom of every page. To display the same content in both
-# banners, define BANNER_TOP and set BANNER_BOTTOM = BANNER_TOP.
+# Optionally display a persistent banner at the top and/or bottom of every page. HTML is allowed. To display the same
+# content in both banners, define BANNER_TOP and set BANNER_BOTTOM = BANNER_TOP.
 BANNER_TOP = ''
 BANNER_BOTTOM = ''
+
+# Text to include on the login page above the login form. HTML is allowed.
+BANNER_LOGIN = ''
 
 # Base URL path if accessing NetBox within a directory. For example, if installed at http://example.com/netbox/, set:
 # BASE_PATH = 'netbox/'

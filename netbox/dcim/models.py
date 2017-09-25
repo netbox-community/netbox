@@ -13,6 +13,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, Q, ObjectDoesNotExist
+from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -642,15 +643,16 @@ class InterfaceQuerySet(models.QuerySet):
         To order interfaces naturally, the `name` field is split into six distinct components: leading text (type),
         slot, subslot, position, channel, and virtual circuit:
 
-            {type}{slot}/{subslot}/{position}:{channel}.{vc}
+            {type}{slot}/{subslot}/{position}/{subposition}:{channel}.{vc}
 
-        Components absent from the interface name are ignored. For example, an interface named GigabitEthernet0/1 would
-        be parsed as follows:
+        Components absent from the interface name are ignored. For example, an interface named GigabitEthernet1/2/3
+        would be parsed as follows:
 
             name = 'GigabitEthernet'
-            slot =  None
-            subslot = 0
-            position = 1
+            slot =  1
+            subslot = 2
+            position = 3
+            subposition = 0
             channel = None
             vc = 0
 
@@ -659,17 +661,35 @@ class InterfaceQuerySet(models.QuerySet):
         """
         sql_col = '{}.name'.format(self.model._meta.db_table)
         ordering = {
-            IFACE_ORDERING_POSITION: ('_slot', '_subslot', '_position', '_channel', '_vc', '_type', 'name'),
-            IFACE_ORDERING_NAME: ('_type', '_slot', '_subslot', '_position', '_channel', '_vc', 'name'),
+            IFACE_ORDERING_POSITION: (
+                '_slot', '_subslot', '_position', '_subposition', '_channel', '_vc', '_type', '_id', 'name',
+            ),
+            IFACE_ORDERING_NAME: (
+                '_type', '_slot', '_subslot', '_position', '_subposition', '_channel', '_vc', '_id', 'name',
+            ),
         }[method]
-        return self.extra(select={
-            '_type': "SUBSTRING({} FROM '^([^0-9]+)')".format(sql_col),
-            '_slot': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+\/[0-9]+(:[0-9]+)?(\.[0-9]+)?$') AS integer)".format(sql_col),
-            '_subslot': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+(:[0-9]+)?(\.[0-9]+)?$') AS integer)".format(sql_col),
-            '_position': "CAST(SUBSTRING({} FROM '([0-9]+)(:[0-9]+)?(\.[0-9]+)?$') AS integer)".format(sql_col),
-            '_channel': "COALESCE(CAST(SUBSTRING({} FROM ':([0-9]+)(\.[0-9]+)?$') AS integer), 0)".format(sql_col),
-            '_vc': "COALESCE(CAST(SUBSTRING({} FROM '\.([0-9]+)$') AS integer), 0)".format(sql_col),
-        }).order_by(*ordering)
+
+        TYPE_RE = r"SUBSTRING({} FROM '^([^0-9]+)')"
+        ID_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)([0-9]+)$') AS integer)"
+        SLOT_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)([0-9]+)\/') AS integer)"
+        SUBSLOT_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)(?:[0-9]+\/)([0-9]+)') AS integer)"
+        POSITION_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)(?:[0-9]+\/){{2}}([0-9]+)') AS integer)"
+        SUBPOSITION_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)(?:[0-9]+\/){{3}}([0-9]+)') AS integer)"
+        CHANNEL_RE = r"COALESCE(CAST(SUBSTRING({} FROM ':([0-9]+)(\.[0-9]+)?$') AS integer), 0)"
+        VC_RE = r"COALESCE(CAST(SUBSTRING({} FROM '\.([0-9]+)$') AS integer), 0)"
+
+        fields = {
+            '_type': RawSQL(TYPE_RE.format(sql_col), []),
+            '_id': RawSQL(ID_RE.format(sql_col), []),
+            '_slot': RawSQL(SLOT_RE.format(sql_col), []),
+            '_subslot': RawSQL(SUBSLOT_RE.format(sql_col), []),
+            '_position': RawSQL(POSITION_RE.format(sql_col), []),
+            '_subposition': RawSQL(SUBPOSITION_RE.format(sql_col), []),
+            '_channel': RawSQL(CHANNEL_RE.format(sql_col), []),
+            '_vc': RawSQL(VC_RE.format(sql_col), []),
+        }
+
+        return self.annotate(**fields).order_by(*ordering)
 
     def connectable(self):
         """
@@ -891,13 +911,25 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
                 pass
 
         # Validate primary IPv4 address
-        if self.primary_ip4 and (self.primary_ip4.interface is None or self.primary_ip4.interface.device != self):
+        if self.primary_ip4 and (
+            self.primary_ip4.interface is None or
+            self.primary_ip4.interface.device != self
+        ) and (
+            self.primary_ip4.nat_inside.interface is None or
+            self.primary_ip4.nat_inside.interface.device != self
+        ):
             raise ValidationError({
                 'primary_ip4': "The specified IP address ({}) is not assigned to this device.".format(self.primary_ip4),
             })
 
         # Validate primary IPv6 address
-        if self.primary_ip6 and (self.primary_ip6.interface is None or self.primary_ip6.interface.device != self):
+        if self.primary_ip6 and (
+            self.primary_ip6.interface is None or
+            self.primary_ip6.interface.device != self
+        ) and (
+            self.primary_ip6.nat_inside.interface is None or
+            self.primary_ip6.nat_inside.interface.device != self
+        ):
             raise ValidationError({
                 'primary_ip6': "The specified IP address ({}) is not assigned to this device.".format(self.primary_ip6),
             })

@@ -478,7 +478,7 @@ class BulkEditView(View):
     template_name = 'utilities/obj_bulk_edit.html'
     default_return_url = 'home'
 
-    def get(self):
+    def get(self, request):
         return redirect(self.default_return_url)
 
     def post(self, request, **kwargs):
@@ -625,6 +625,9 @@ class BulkDeleteView(View):
     form = None
     template_name = 'utilities/obj_bulk_delete.html'
     default_return_url = 'home'
+
+    def get(self, request):
+        return redirect(self.default_return_url)
 
     def post(self, request, **kwargs):
 

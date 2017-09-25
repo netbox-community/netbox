@@ -4,7 +4,8 @@ Supported HTTP methods:
 
 * `GET`: Retrieve an object or list of objects
 * `POST`: Create a new object
-* `PUT`: Update an existing object
+* `PUT`: Update an existing object, all mandatory fields must be specified
+* `PATCH`: Updates an existing object, only specifiying the field to be changed
 * `DELETE`: Delete an existing object
 
 To authenticate a request, attach your token in an `Authorization` header:
@@ -104,10 +105,17 @@ $ curl -X POST -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f9cdc0
 
 ### Modify an existing site
 
-Make an authenticated `PUT` request to the site detail endpoint. As with a create (POST) request, all mandatory fields must be included.
+Make an authenticated `PUT` request to the site detail endpoint. As with a create (`POST`) request, all mandatory fields must be included.
 
 ```
 $ curl -X PUT -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f9cdc0" -H "Content-Type: application/json" -H "Accept: application/json; indent=4" http://localhost:8000/api/dcim/sites/16/ --data '{"name": "Renamed Site", "slug": "renamed-site"}'
+```
+
+### Modify an object by changing a field
+
+Make an authenticated `PATCH` request to the device endpoint. With `PATCH`, unlike `POST` and `PUT`, we only specify the field that is being changed. In this example, we add a serial number to a device.
+```
+$ curl -X PATCH -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f9cdc0" -H "Content-Type: application/json" -H "Accept: application/json; indent=4" http://localhost:8000/api/dcim/devices/2549/ --data '{"serial": "FTX1123A090"}'
 ```
 
 ### Delete an existing site

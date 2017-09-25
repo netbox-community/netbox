@@ -12,7 +12,7 @@ from ipam.models import IPAddress
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
+    APISelect, ArrayFieldSelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ChainedFieldsMixin, ChainedModelChoiceField, CommentField, ConfirmationForm, CSVChoiceField, ExpandableNameField,
     FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
     FilterTreeNodeMultipleChoiceField,
@@ -27,12 +27,6 @@ from .models import (
     Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
 )
 
-
-FORM_STATUS_CHOICES = [
-    ['', '---------'],
-]
-
-FORM_STATUS_CHOICES += STATUS_CHOICES
 
 DEVICE_BY_PK_RE = '{\d+\}'
 
@@ -642,13 +636,28 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
             # Compile list of choices for primary IPv4 and IPv6 addresses
             for family in [4, 6]:
-                ip_choices = []
-                interface_ips = IPAddress.objects.filter(family=family, interface__device=self.instance)
-                ip_choices += [(ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips]
-                nat_ips = IPAddress.objects.filter(family=family, nat_inside__interface__device=self.instance)\
-                    .select_related('nat_inside__interface')
-                ip_choices += [(ip.id, '{} ({} NAT)'.format(ip.address, ip.nat_inside.interface)) for ip in nat_ips]
-                self.fields['primary_ip{}'.format(family)].choices = [(None, '---------')] + ip_choices
+                ip_choices = [(None, '---------')]
+                # Collect interface IPs
+                interface_ips = IPAddress.objects.select_related('interface').filter(
+                    family=family, interface__device=self.instance
+                )
+                if interface_ips:
+                    ip_choices.append(
+                        ('Interface IPs', [
+                            (ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips
+                        ])
+                    )
+                # Collect NAT IPs
+                nat_ips = IPAddress.objects.select_related('nat_inside').filter(
+                    family=family, nat_inside__interface__device=self.instance
+                )
+                if nat_ips:
+                    ip_choices.append(
+                        ('NAT IPs', [
+                            (ip.id, '{} ({})'.format(ip.address, ip.nat_inside.address)) for ip in nat_ips
+                        ])
+                    )
+                self.fields['primary_ip{}'.format(family)].choices = ip_choices
 
             # If editing an existing device, exclude it from the list of occupied rack units. This ensures that a device
             # can be flipped from one face to another.
@@ -848,7 +857,7 @@ class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     device_role = forms.ModelChoiceField(queryset=DeviceRole.objects.all(), required=False, label='Role')
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     platform = forms.ModelChoiceField(queryset=Platform.objects.all(), required=False)
-    status = forms.ChoiceField(choices=FORM_STATUS_CHOICES, required=False, initial='', label='Status')
+    status = forms.ChoiceField(choices=add_blank_choice(STATUS_CHOICES), required=False, initial='')
     serial = forms.CharField(max_length=50, required=False, label='Serial Number')
 
     class Meta:
