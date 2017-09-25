@@ -13,6 +13,15 @@ CIRCUITTYPE_ACTIONS = """
 {% endif %}
 """
 
+TENANT_LINK = """
+{% if record.tenant %}
+    <a href="{% url 'tenancy:tenant' slug=record.tenant.slug %}" data-toggle="popover" data-trigger="hover" data-container="body" data-html="true" data-content="
+       {{ record.tenant.description }}">{{ record.tenant }}</a>
+{% else %}
+    &mdash;
+{% endif %}
+"""
+
 
 #
 # Providers
@@ -60,7 +69,7 @@ class CircuitTable(BaseTable):
     pk = ToggleColumn()
     cid = tables.LinkColumn(verbose_name='ID')
     provider = tables.LinkColumn('circuits:provider', args=[Accessor('provider.slug')])
-    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
+    tenant = tables.TemplateColumn(TENANT_LINK)
     a_side = tables.LinkColumn(
         'dcim:site', accessor=Accessor('termination_a.site'), orderable=False,
         args=[Accessor('termination_a.site.slug')]
