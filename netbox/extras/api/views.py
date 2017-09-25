@@ -92,6 +92,6 @@ class RecentActivityViewSet(ReadOnlyModelViewSet):
     """
     List all UserActions to provide a log of recent activity.
     """
-    queryset = UserAction.objects.all()
+    queryset = UserAction.objects.select_related('user')
     serializer_class = serializers.UserActionSerializer
     filter_class = filters.UserActionFilter
