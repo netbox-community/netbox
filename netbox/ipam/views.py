@@ -286,11 +286,12 @@ class AggregateListView(ObjectListView):
         ipv4_total = 0
         ipv6_total = 0
 
-        for a in self.queryset:
-            if a.prefix.version == 4:
-                ipv4_total += a.prefix.size
-            elif a.prefix.version == 6:
-                ipv6_total += a.prefix.size / 2 ** 64
+        for aggregate in self.queryset:
+            if aggregate.prefix.version == 6:
+                # Report equivalent /64s for IPv6 to keep things sane
+                ipv6_total += int(aggregate.prefix.size / 2 ** 64)
+            else:
+                ipv4_total += aggregate.prefix.size
 
         return {
             'ipv4_total': ipv4_total,
