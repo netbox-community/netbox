@@ -134,9 +134,11 @@ VLANGROUP_ACTIONS = """
 
 TENANT_LINK = """
 {% if record.tenant %}
-    <a href="{% url 'tenancy:tenant' slug=record.tenant.slug %}">{{ record.tenant }}</a>
+    <a href="{% url 'tenancy:tenant' slug=record.tenant.slug %}" data-toggle="popover" data-trigger="hover" data-container="body" data-html="true" data-content="
+       {{ record.tenant.description }}">{{ record.tenant }}</a>
 {% elif record.vrf.tenant %}
-    <a href="{% url 'tenancy:tenant' slug=record.vrf.tenant.slug %}">{{ record.vrf.tenant }}</a>*
+    <a href="{% url 'tenancy:tenant' slug=record.vrf.tenant.slug %}" data-toggle="popover" data-trigger="hover" data-container="body" data-html="true" data-content="
+       {{ record.vrf.tenant.description }}">{{ record.vrf.tenant }}</a>*
 {% else %}
     &mdash;
 {% endif %}
@@ -151,7 +153,7 @@ class VRFTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
     rd = tables.Column(verbose_name='RD')
-    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
+    tenant = tables.TemplateColumn(TENANT_LINK)
 
     class Meta(BaseTable.Meta):
         model = VRF
@@ -321,7 +323,7 @@ class VLANTable(BaseTable):
     vid = tables.LinkColumn('ipam:vlan', args=[Accessor('pk')], verbose_name='ID')
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
-    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
+    tenant = tables.TemplateColumn(TENANT_LINK)
     status = tables.TemplateColumn(STATUS_LABEL)
     role = tables.TemplateColumn(VLAN_ROLE_LINK)
 

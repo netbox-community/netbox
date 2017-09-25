@@ -29,6 +29,7 @@
 {% block javascript %}
 <script type="text/javascript">
 $(document).ready(function() {
+    $('[data-toggle="popover"]').popover();
 
     var site_list = $('#id_site');
     var rack_group_list = $('#id_group_id');
