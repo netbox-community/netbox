@@ -315,7 +315,7 @@ class AggregateView(View):
         )
         child_prefixes = add_available_prefixes(aggregate.prefix, child_prefixes)
 
-        prefix_table = tables.PrefixTable(child_prefixes)
+        prefix_table = tables.PrefixDetailTable(child_prefixes)
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
             prefix_table.base_columns['pk'].visible = True
 
