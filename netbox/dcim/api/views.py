@@ -83,7 +83,7 @@ class RackRoleViewSet(ModelViewSet):
 #
 
 class RackViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
-    queryset = Rack.objects.select_related('site', 'group__site', 'tenant', 'rackrole')
+    queryset = Rack.objects.select_related('site', 'group__site', 'tenant', 'role')
     serializer_class = serializers.RackSerializer
     write_serializer_class = serializers.WritableRackSerializer
     filter_class = filters.RackFilter
