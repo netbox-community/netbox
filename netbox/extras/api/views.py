@@ -1,17 +1,16 @@
 from __future__ import unicode_literals
-from collections import OrderedDict
 
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, ViewSet
 
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 
 from extras import filters
-from extras.models import ExportTemplate, Graph, ImageAttachment, TopologyMap, UserAction
-from extras.reports import get_reports
+from extras.models import ExportTemplate, Graph, ImageAttachment, ReportResult, TopologyMap, UserAction
+from extras.reports import get_report, get_reports
 from utilities.api import WritableSerializerMixin
 from . import serializers
 
@@ -94,23 +93,76 @@ class ImageAttachmentViewSet(WritableSerializerMixin, ModelViewSet):
 class ReportViewSet(ViewSet):
     _ignore_model_permissions = True
     exclude_from_schema = True
+    lookup_value_regex = '[^/]+'  # Allow dots
 
     def list(self, request):
 
-        ret_list = []
+        # Compile all reports
+        report_list = []
         for module_name, reports in get_reports():
             for report_name, report_cls in reports:
-                report = OrderedDict((
-                    ('module', module_name),
-                    ('name', report_name),
-                    ('description', report_cls.description),
-                    ('test_methods', report_cls().test_methods),
-                ))
-                ret_list.append(report)
+                data = {
+                    'module': module_name,
+                    'name': report_name,
+                    'description': report_cls.description,
+                    'test_methods': report_cls().test_methods,
+                    'result': None,
+                }
+                try:
+                    result = ReportResult.objects.defer('data').get(report='{}.{}'.format(module_name, report_name))
+                    data['result'] = result
+                except ReportResult.DoesNotExist:
+                    pass
+                report_list.append(data)
 
-        return Response(ret_list)
+        serializer = serializers.ReportSerializer(report_list, many=True, context={'request': request})
 
+        return Response(serializer.data)
 
+    def retrieve(self, request, pk):
+
+        # Retrieve report by <module>.<report>
+        if '.' not in pk:
+            raise Http404
+        module_name, report_name = pk.split('.', 1)
+        report_cls = get_report(module_name, report_name)
+        data = {
+            'module': module_name,
+            'name': report_name,
+            'description': report_cls.description,
+            'test_methods': report_cls().test_methods,
+            'result': None,
+        }
+
+        # Attach report result
+        try:
+            result = ReportResult.objects.get(report='{}.{}'.format(module_name, report_name))
+            data['result'] = result
+        except ReportResult.DoesNotExist:
+            pass
+
+        serializer = serializers.ReportDetailSerializer(data)
+
+        return Response(serializer.data)
+
+    @detail_route()
+    def run(self, request, pk):
+
+        # Retrieve report by <module>.<report>
+        if '.' not in pk:
+            raise Http404
+        module_name, report_name = pk.split('.', 1)
+        report_cls = get_report(module_name, report_name)
+
+        # Run the report
+        report = report_cls()
+        result = report.run()
+
+        # Save the ReportResult
+        ReportResult.objects.filter(report=pk).delete()
+        ReportResult(report=pk, failed=report.failed, data=result).save()
+
+        return Response('Report completed.')
 
 
 class RecentActivityViewSet(ReadOnlyModelViewSet):

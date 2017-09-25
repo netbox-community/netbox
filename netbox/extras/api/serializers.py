@@ -7,7 +7,7 @@ from rest_framework import serializers
 from dcim.api.serializers import NestedDeviceSerializer, NestedRackSerializer, NestedSiteSerializer
 from dcim.models import Device, Rack, Site
 from extras.models import (
-    ACTION_CHOICES, ExportTemplate, Graph, GRAPH_TYPE_CHOICES, ImageAttachment, TopologyMap, UserAction,
+    ACTION_CHOICES, ExportTemplate, Graph, GRAPH_TYPE_CHOICES, ImageAttachment, ReportResult, TopologyMap, UserAction,
 )
 from users.api.serializers import NestedUserSerializer
 from utilities.api import ChoiceFieldSerializer, ContentTypeFieldSerializer, ValidatedModelSerializer
@@ -125,6 +125,36 @@ class WritableImageAttachmentSerializer(ValidatedModelSerializer):
         super(WritableImageAttachmentSerializer, self).validate(data)
 
         return data
+
+
+#
+# Reports
+#
+
+class ReportResultSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ReportResult
+        fields = ['created', 'user', 'failed', 'data']
+
+
+class NestedReportResultSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ReportResult
+        fields = ['created', 'user', 'failed']
+
+
+class ReportSerializer(serializers.Serializer):
+    module = serializers.CharField(max_length=255)
+    name = serializers.CharField(max_length=255)
+    description = serializers.CharField(max_length=255, required=False)
+    test_methods = serializers.ListField(child=serializers.CharField(max_length=255))
+    result = NestedReportResultSerializer()
+
+
+class ReportDetailSerializer(ReportSerializer):
+    result = ReportResultSerializer()
 
 
 #

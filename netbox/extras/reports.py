@@ -18,6 +18,14 @@ def is_report(obj):
     return False
 
 
+def get_report(module_name, report_name):
+    """
+    Return a specific report from within a module.
+    """
+    module = importlib.import_module('reports.{}'.format(module_name))
+    return getattr(module, report_name)
+
+
 def get_reports():
     """
     Compile a list of all reports available across all modules in the reports path. Returns a list of tuples:

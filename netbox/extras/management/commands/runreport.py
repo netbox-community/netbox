@@ -30,15 +30,15 @@ class Command(BaseCommand):
                         "[{:%H:%M:%S}] Running {}.{}...".format(timezone.now(), module_name, report_name)
                     )
                     report = report_cls()
-                    results = report.run()
+                    result = report.run()
 
                     # Record the results
                     ReportResult.objects.filter(report=report_name_full).delete()
-                    ReportResult(report=report_name_full, failed=report.failed, data=results).save()
+                    ReportResult(report=report_name_full, failed=report.failed, data=result).save()
 
                     # Report on success/failure
                     status = self.style.ERROR('FAILED') if report.failed else self.style.SUCCESS('SUCCESS')
-                    for test_name, attrs in results.items():
+                    for test_name, attrs in result.items():
                         self.stdout.write(
                             "\t{}: {} success, {} info, {} warning, {} failed".format(
                                 test_name, attrs['success'], attrs['info'], attrs['warning'], attrs['failed']
