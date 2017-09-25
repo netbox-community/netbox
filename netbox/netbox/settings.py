@@ -13,7 +13,7 @@ except ImportError:
     )
 
 
-VERSION = '2.1.5-dev'
+VERSION = '2.1.6-dev'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -29,8 +29,9 @@ for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
 
 # Import optional configuration parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
-BANNER_BOTTOM = getattr(configuration, 'BANNER_BOTTOM', False)
-BANNER_TOP = getattr(configuration, 'BANNER_TOP', False)
+BANNER_BOTTOM = getattr(configuration, 'BANNER_BOTTOM', '')
+BANNER_LOGIN = getattr(configuration, 'BANNER_LOGIN', '')
+BANNER_TOP = getattr(configuration, 'BANNER_TOP', '')
 BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
@@ -233,6 +234,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'utilities.api.OptionalLimitOffsetPagination',
     'DEFAULT_PERMISSION_CLASSES': (
         'utilities.api.TokenPermissions',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'utilities.api.FormlessBrowsableAPIRenderer',
     ),
     'DEFAULT_VERSION': REST_FRAMEWORK_VERSION,
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',

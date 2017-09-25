@@ -98,7 +98,7 @@ class PrefixViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
             # Create the new IP address
             data = request.data.copy()
             data['address'] = '{}/{}'.format(ipaddress, prefix.prefix.prefixlen)
-            data['vrf'] = prefix.vrf
+            data['vrf'] = prefix.vrf.pk if prefix.vrf else None
             serializer = serializers.WritableIPAddressSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()

@@ -20,11 +20,18 @@
 <div class="row">
 	<div class="col-md-9">
         {% include 'utilities/obj_table.html' with bulk_edit_url='ipam:aggregate_bulk_edit' bulk_delete_url='ipam:aggregate_bulk_delete' %}
-        <p class="text-right">IPv4 total: <strong>{{ ipv4_total|intcomma }} /32s</strong></p>
-        <p class="text-right">IPv6 total: <strong>{{ ipv6_total|intcomma }} /64s</strong></p>
 	</div>
 	<div class="col-md-3">
 		{% include 'inc/search_panel.html' %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong><i class="fa fa-bar-chart"></i> Statistics</strong>
+            </div>
+            <ul class="list-group">
+                <li class="list-group-item">Total IPv4 IPs <span class="badge">{{ ipv4_total|intcomma }}</span></li>
+                <li class="list-group-item">Total IPv6 /64s <span class="badge">{{ ipv6_total|intcomma }}</span></li>
+            </ul>
+        </div>
 	</div>
 </div>
 {% endblock %}
