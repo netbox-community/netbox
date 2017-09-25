@@ -322,15 +322,14 @@ class PowerOutletViewSet(WritableSerializerMixin, ModelViewSet):
 
 class InterfaceViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = Interface.objects.select_related(
-            'circuit_termination__circuit',
-            'circuit_termination__interface',
-            'connected_as_a__interface_b',
-            'connected_as_a__interface_b__device',
-            'connected_as_b__interface_a',
-            'connected_as_b__interface_a__device',
-            'device',
-            'lag',
-        )
+        'circuit_termination__circuit',
+        'circuit_termination__interface',
+        'connected_as_a__interface_b',
+        'connected_as_a__interface_b__device',
+        'connected_as_b__interface_a',
+        'connected_as_b__interface_a__device',
+        'device',
+        'lag')
     serializer_class = serializers.InterfaceSerializer
     write_serializer_class = serializers.WritableInterfaceSerializer
     filter_class = filters.InterfaceFilter
