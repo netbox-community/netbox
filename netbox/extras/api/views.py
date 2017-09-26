@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from rest_framework.decorators import detail_route
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, ViewSet
 
@@ -147,6 +148,10 @@ class ReportViewSet(ViewSet):
         """
         Run a Report and create a new ReportResult, overwriting any previous result for the Report.
         """
+
+        # Check that the user has permission to run reports.
+        if not request.user.has_perm('extras.add_reportresult'):
+            raise PermissionDenied("This user does not have permission to run reports.")
 
         # Retrieve and run the Report.
         report = self._retrieve_report(pk)

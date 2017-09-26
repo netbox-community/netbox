@@ -405,9 +405,6 @@ class ReportResult(models.Model):
 
     class Meta:
         ordering = ['report']
-        permissions = (
-            ('run_report', 'Run a report and save the results'),
-        )
 
 
 #
