@@ -6,7 +6,7 @@ import pkgutil
 from django.utils import timezone
 
 from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_LEVEL_CODES, LOG_SUCCESS, LOG_WARNING
-import reports as user_reports
+import reports as custom_reports
 
 
 def is_report(obj):
@@ -23,7 +23,8 @@ def get_report(module_name, report_name):
     Return a specific report from within a module.
     """
     module = importlib.import_module('reports.{}'.format(module_name))
-    return getattr(module, report_name)
+    report = getattr(module, report_name, None)
+    return report()
 
 
 def get_reports():
@@ -31,27 +32,18 @@ def get_reports():
     Compile a list of all reports available across all modules in the reports path. Returns a list of tuples:
 
     [
-        (module_name, (
-            (report_name, report_class),
-            (report_name, report_class)
-        ),
-        (module_name, (
-            (report_name, report_class),
-            (report_name, report_class)
-        )
+        (module_name, (report_class, report_class, report_class, ...)),
+        (module_name, (report_class, report_class, report_class, ...)),
+        ...
     ]
     """
     module_list = []
 
-    # Iterate through all modules within the reports path
-    for importer, module_name, is_pkg in pkgutil.walk_packages(user_reports.__path__):
+    # Iterate through all modules within the reports path. These are the user-defined files in which reports are
+    # defined.
+    for importer, module_name, is_pkg in pkgutil.walk_packages(custom_reports.__path__):
         module = importlib.import_module('reports.{}'.format(module_name))
-        report_list = []
-
-        # Iterate through all Report classes within the module
-        for report_name, report_class in inspect.getmembers(module, is_report):
-            report_list.append((report_name, report_class))
-
+        report_list = [cls() for _, cls in inspect.getmembers(module, is_report)]
         module_list.append((module_name, report_list))
 
     return module_list
@@ -104,6 +96,18 @@ class Report(object):
         if not test_methods:
             raise Exception("A report must contain at least one test method.")
         self.test_methods = test_methods
+
+    @property
+    def module(self):
+        return self.__module__.rsplit('.', 1)[1]
+
+    @property
+    def name(self):
+        return self.__class__.__name__
+
+    @property
+    def full_name(self):
+        return '.'.join([self.module, self.name])
 
     def _log(self, obj, message, level=LOG_DEFAULT):
         """

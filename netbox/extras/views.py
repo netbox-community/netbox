@@ -58,11 +58,11 @@ class ReportListView(View):
         foo = []
         for module, report_list in reports:
             module_reports = []
-            for report_name, report_class in report_list:
+            for report in report_list:
                 module_reports.append({
-                    'name': report_name,
-                    'description': report_class.description,
-                    'results': results.get('{}.{}'.format(module, report_name), None)
+                    'name': report.name,
+                    'description': report.description,
+                    'results': results.get(report.full_name, None)
                 })
             foo.append((module, module_reports))
 

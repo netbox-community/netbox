@@ -95,74 +95,69 @@ class ReportViewSet(ViewSet):
     exclude_from_schema = True
     lookup_value_regex = '[^/]+'  # Allow dots
 
+    def _retrieve_report(self, pk):
+
+        # Read the PK as "<module>.<report>"
+        if '.' not in pk:
+            raise Http404
+        module_name, report_name = pk.split('.', 1)
+
+        # Raise a 404 on an invalid Report module/name
+        report = get_report(module_name, report_name)
+        if report is None:
+            raise Http404
+
+        return report
+
     def list(self, request):
-
-        # Compile all reports
+        """
+        Compile all reports and their related results (if any). Result data is deferred in the list view.
+        """
         report_list = []
-        for module_name, reports in get_reports():
-            for report_name, report_cls in reports:
-                data = {
-                    'module': module_name,
-                    'name': report_name,
-                    'description': report_cls.description,
-                    'test_methods': report_cls().test_methods,
-                    'result': None,
-                }
-                try:
-                    result = ReportResult.objects.defer('data').get(report='{}.{}'.format(module_name, report_name))
-                    data['result'] = result
-                except ReportResult.DoesNotExist:
-                    pass
-                report_list.append(data)
 
-        serializer = serializers.ReportSerializer(report_list, many=True, context={'request': request})
+        # Iterate through all available Reports.
+        for module_name, reports in get_reports():
+            for report in reports:
+
+                # Attach the relevant ReportResult (if any) to each Report.
+                report.result = ReportResult.objects.filter(report=report.full_name).defer('data').first()
+                report_list.append(report)
+
+        serializer = serializers.ReportSerializer(report_list, many=True)
 
         return Response(serializer.data)
 
     def retrieve(self, request, pk):
+        """
+        Retrieve a single Report identified as "<module>.<report>".
+        """
 
-        # Retrieve report by <module>.<report>
-        if '.' not in pk:
-            raise Http404
-        module_name, report_name = pk.split('.', 1)
-        report_cls = get_report(module_name, report_name)
-        data = {
-            'module': module_name,
-            'name': report_name,
-            'description': report_cls.description,
-            'test_methods': report_cls().test_methods,
-            'result': None,
-        }
+        # Retrieve the Report and ReportResult, if any.
+        report = self._retrieve_report(pk)
+        report.result = ReportResult.objects.filter(report=report.full_name).first()
 
-        # Attach report result
-        try:
-            result = ReportResult.objects.get(report='{}.{}'.format(module_name, report_name))
-            data['result'] = result
-        except ReportResult.DoesNotExist:
-            pass
-
-        serializer = serializers.ReportDetailSerializer(data)
+        serializer = serializers.ReportDetailSerializer(report)
 
         return Response(serializer.data)
 
     @detail_route()
     def run(self, request, pk):
+        """
+        Run a Report and create a new ReportResult, overwriting any previous result for the Report.
+        """
 
-        # Retrieve report by <module>.<report>
-        if '.' not in pk:
-            raise Http404
-        module_name, report_name = pk.split('.', 1)
-        report_cls = get_report(module_name, report_name)
-
-        # Run the report
-        report = report_cls()
+        # Retrieve and run the Report.
+        report = self._retrieve_report(pk)
         result = report.run()
 
-        # Save the ReportResult
+        # Delete the old ReportResult (if any) and save the new one.
         ReportResult.objects.filter(report=pk).delete()
-        ReportResult(report=pk, failed=report.failed, data=result).save()
+        report.result = ReportResult(report=pk, failed=report.failed, data=result)
+        report.result.save()
 
-        return Response('Report completed.')
+        serializer = serializers.ReportDetailSerializer(report)
+
+        return Response(serializer.data)
 
 
 class RecentActivityViewSet(ReadOnlyModelViewSet):
