@@ -7,39 +7,43 @@
         <div class="col-md-9">
             {% for module, module_reports in reports %}
                 <h3><a name="module.{{ module }}"></a>{{ module|bettertitle }}</h3>
-                <table class="table table-hover table-headings">
+                <table class="table table-hover table-headings reports">
                     <thead>
                         <tr>
                             <th>Name</th>
+                            <th>Status</th>
                             <th>Description</th>
                             <th>Last Run</th>
-                            <th class="text-right">Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for report in module_reports %}
                             <tr>
-                                <td><a name="report.{{ report.name }}"></a><strong>{{ report.name }}</strong></td>
+                                <td>
+                                    <a name="report.{{ report.name }}"></a>
+                                    <strong>{{ report.name }}</strong>
+                                </td>
+                                <td>
+                                    {% include 'extras/inc/report_label.html' %}
+                                </td>
                                 <td>{{ report.description|default:"" }}</td>
                                 {% if report.results %}
                                     <td>{{ report.results.created }}</td>
                                 {% else %}
                                     <td class="text-muted">Never</td>
                                 {% endif %}
-                                <td class="text-right">{% include 'extras/inc/report_label.html' %}</td>
                             </tr>
                             {% for method, stats in report.results.data.items %}
                                 <tr>
-                                    <td colspan="3" style="padding-left: 40px">
-                                        <div class="pull-right">
-                                            <label class="label label-success">{{ stats.success }}</label>
-                                            <label class="label label-info">{{ stats.info }}</label>
-                                            <label class="label label-warning">{{ stats.warning }}</label>
-                                            <label class="label label-danger">{{ stats.failed }}</label>
-                                        </div>
-                                        <span style="font-family: monospace">{{ method }}</span>
+                                    <td colspan="3" class="method">
+                                        {{ method }}
                                     </td>
-                                    <td></td>
+                                    <td class="text-right stats">
+                                        <label class="label label-success">{{ stats.success }}</label>
+                                        <label class="label label-info">{{ stats.info }}</label>
+                                        <label class="label label-warning">{{ stats.warning }}</label>
+                                        <label class="label label-danger">{{ stats.failed }}</label>
+                                    </td>
                                 </tr>
                             {% endfor %}
                         {% endfor %}
