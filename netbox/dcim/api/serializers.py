@@ -496,7 +496,7 @@ class WritableDeviceSerializer(CustomFieldModelSerializer):
         model = Device
         fields = [
             'id', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag', 'site', 'rack',
-            'position', 'face', 'status', 'primary_ip4', 'primary_ip6', 'comments', 'custom_fields',
+            'position', 'face', 'status', 'primary_ip4', 'primary_ip6', 'cluster', 'comments', 'custom_fields',
         ]
         validators = []
 
