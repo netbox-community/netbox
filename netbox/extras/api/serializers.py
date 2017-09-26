@@ -139,10 +139,15 @@ class ReportResultSerializer(serializers.ModelSerializer):
 
 
 class NestedReportResultSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='extras-api:report-detail',
+        lookup_field='report',
+        lookup_url_kwarg='pk'
+    )
 
     class Meta:
         model = ReportResult
-        fields = ['created', 'user', 'failed']
+        fields = ['url', 'created', 'user', 'failed']
 
 
 class ReportSerializer(serializers.Serializer):

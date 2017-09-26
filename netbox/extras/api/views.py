@@ -123,7 +123,9 @@ class ReportViewSet(ViewSet):
                 report.result = ReportResult.objects.filter(report=report.full_name).defer('data').first()
                 report_list.append(report)
 
-        serializer = serializers.ReportSerializer(report_list, many=True)
+        serializer = serializers.ReportSerializer(report_list, many=True, context={
+            'request': request,
+        })
 
         return Response(serializer.data)
 
