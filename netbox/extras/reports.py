@@ -24,6 +24,8 @@ def get_report(module_name, report_name):
     """
     module = importlib.import_module('reports.{}'.format(module_name))
     report = getattr(module, report_name, None)
+    if report is None:
+        return None
     return report()
 
 

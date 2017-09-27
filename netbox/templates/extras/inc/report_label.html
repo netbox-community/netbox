@@ -1,6 +1,6 @@
-{% if report.results.failed %}
+{% if report.result.failed %}
     <label class="label label-danger">Failed</label>
-{% elif report.results %}
+{% elif report.result %}
     <label class="label label-success">Passed</label>
 {% else %}
     <label class="label label-default">N/A</label>

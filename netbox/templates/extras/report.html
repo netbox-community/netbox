@@ -1,0 +1,31 @@
+{% extends '_base.html' %}
+{% load helpers %}
+
+{% block title %}{{ report.name }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-8 col-md-9">
+            <ol class="breadcrumb">
+                <li><a href="{% url 'extras:report_list' %}">Reports</a></li>
+                <li><a href="{% url 'extras:report_list' %}#module.{{ report.module }}">{{ report.module|bettertitle }}</a></li>
+                <li>{{ report.name }}</li>
+            </ol>
+        </div>
+        <div class="col-sm-4 col-md-3">
+        </div>
+    </div>
+    <h1>{{ report.name }}{% include 'extras/inc/report_label.html' %}</h1>
+    <div class="row">
+        <div class="col-md-9">
+            {% if report.description %}
+                <p class="lead">{{ report.description }}</p>
+            {% endif %}
+            {% if report.result %}
+                <p>Last run: {{ report.result.created }}</p>
+            {% else %}
+                <p class="text-muted">Last run: Never</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

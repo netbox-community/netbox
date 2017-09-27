@@ -20,20 +20,19 @@
                         {% for report in module_reports %}
                             <tr>
                                 <td>
-                                    <a name="report.{{ report.name }}"></a>
-                                    <strong>{{ report.name }}</strong>
+                                    <a href="{% url 'extras:report' name=report.full_name %}" name="report.{{ report.name }}"><strong>{{ report.name }}</strong></a>
                                 </td>
                                 <td>
                                     {% include 'extras/inc/report_label.html' %}
                                 </td>
                                 <td>{{ report.description|default:"" }}</td>
-                                {% if report.results %}
-                                    <td>{{ report.results.created }}</td>
+                                {% if report.result %}
+                                    <td>{{ report.result.created }}</td>
                                 {% else %}
                                     <td class="text-muted">Never</td>
                                 {% endif %}
                             </tr>
-                            {% for method, stats in report.results.data.items %}
+                            {% for method, stats in report.result.data.items %}
                                 <tr>
                                     <td colspan="3" class="method">
                                         {{ method }}

@@ -1,16 +1,14 @@
 from __future__ import unicode_literals
-from collections import OrderedDict
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.http import Http404
 from django.shortcuts import get_object_or_404, render
-from django.urls import reverse
 from django.views.generic import View
 
-from . import reports
 from utilities.views import ObjectDeleteView, ObjectEditView
 from .forms import ImageAttachmentForm
 from .models import ImageAttachment, ReportResult
-from .reports import get_reports
+from .reports import get_report, get_reports
 
 
 #
@@ -55,17 +53,35 @@ class ReportListView(View):
         reports = get_reports()
         results = {r.report: r for r in ReportResult.objects.all()}
 
-        foo = []
+        ret = []
         for module, report_list in reports:
             module_reports = []
             for report in report_list:
-                module_reports.append({
-                    'name': report.name,
-                    'description': report.description,
-                    'results': results.get(report.full_name, None)
-                })
-            foo.append((module, module_reports))
+                report.result = results.get(report.full_name, None)
+                module_reports.append(report)
+            ret.append((module, module_reports))
 
         return render(request, 'extras/report_list.html', {
-            'reports': foo,
+            'reports': ret,
+        })
+
+
+class ReportView(View):
+    """
+    Display a single Report and its associated ReportResult (if any).
+    """
+
+    def get(self, request, name):
+
+        # Retrieve the Report by "<module>.<report>"
+        module_name, report_name = name.split('.')
+        report = get_report(module_name, report_name)
+        if report is None:
+            raise Http404
+
+        # Attach the ReportResult (if any)
+        report.result = ReportResult.objects.filter(report=report.full_name).first()
+
+        return render(request, 'extras/report.html', {
+            'report': report,
         })

@@ -14,5 +14,6 @@ urlpatterns = [
 
     # Reports
     url(r'^reports/$', views.ReportListView.as_view(), name='report_list'),
+    url(r'^reports/(?P<name>[^/]+\.[^/]+)/$', views.ReportView.as_view(), name='report'),
 
 ]
