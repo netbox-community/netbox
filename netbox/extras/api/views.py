@@ -153,14 +153,9 @@ class ReportViewSet(ViewSet):
         if not request.user.has_perm('extras.add_reportresult'):
             raise PermissionDenied("This user does not have permission to run reports.")
 
-        # Retrieve and run the Report.
+        # Retrieve and run the Report. This will create a new ReportResult.
         report = self._retrieve_report(pk)
-        result = report.run()
-
-        # Delete the old ReportResult (if any) and save the new one.
-        ReportResult.objects.filter(report=pk).delete()
-        report.result = ReportResult(report=pk, failed=report.failed, data=result)
-        report.result.save()
+        report.run()
 
         serializer = serializers.ReportDetailSerializer(report)
 
