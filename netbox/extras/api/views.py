@@ -143,7 +143,7 @@ class ReportViewSet(ViewSet):
 
         return Response(serializer.data)
 
-    @detail_route()
+    @detail_route(methods=['post'])
     def run(self, request, pk):
         """
         Run a Report and create a new ReportResult, overwriting any previous result for the Report.
