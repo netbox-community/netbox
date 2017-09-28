@@ -16,36 +16,30 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        # Gather all reports to be run
+        # Gather all available reports
         reports = get_reports()
 
         # Run reports
-        for module_name, report in reports:
-            for report_name, report_cls in report:
-                report_name_full = '{}.{}'.format(module_name, report_name)
-                if module_name in options['reports'] or report_name_full in options['reports']:
+        for module_name, report_list in reports:
+            for report in report_list:
+                if module_name in options['reports'] or report.full_namel in options['reports']:
 
-                    # Run the report
+                    # Run the report and create a new ReportResult
                     self.stdout.write(
-                        "[{:%H:%M:%S}] Running {}.{}...".format(timezone.now(), module_name, report_name)
+                        "[{:%H:%M:%S}] Running {}...".format(timezone.now(), report.full_name)
                     )
-                    report = report_cls()
-                    result = report.run()
-
-                    # Record the results
-                    ReportResult.objects.filter(report=report_name_full).delete()
-                    ReportResult(report=report_name_full, failed=report.failed, data=result).save()
+                    report.run()
 
                     # Report on success/failure
                     status = self.style.ERROR('FAILED') if report.failed else self.style.SUCCESS('SUCCESS')
-                    for test_name, attrs in result.items():
+                    for test_name, attrs in report.result.data.items():
                         self.stdout.write(
                             "\t{}: {} success, {} info, {} warning, {} failed".format(
                                 test_name, attrs['success'], attrs['info'], attrs['warning'], attrs['failed']
                             )
                         )
                     self.stdout.write(
-                        "[{:%H:%M:%S}] {}.{}: {}".format(timezone.now(), module_name, report_name, status)
+                        "[{:%H:%M:%S}] {}: {}".format(timezone.now(), report.full_name, status)
                     )
 
         # Wrap things up
