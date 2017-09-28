@@ -13,6 +13,8 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install pep8
+addons:
+  - postgresql: "9.4"
 script:
   - ./scripts/cibuild.sh
 after_success:
