@@ -118,13 +118,13 @@ class Report(object):
         """
         if level not in LOG_LEVEL_CODES:
             raise Exception("Unknown logging level: {}".format(level))
-        self._results[self.active_test]['log'].append(
+        self._results[self.active_test]['log'].append((
             timezone.now().isoformat(),
             LOG_LEVEL_CODES.get(level),
             str(obj) if obj else None,
             obj.get_absolute_url() if getattr(obj, 'get_absolute_url', None) else None,
             message,
-        )
+        ))
 
     def log(self, message):
         """
