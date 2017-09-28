@@ -10,6 +10,7 @@ from dcim.models import Site, Device, Interface
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
+from virtualization.models import VirtualMachine
 from .models import (
     Aggregate, IPAddress, IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role,
     Service, VLAN, VLAN_STATUS_CHOICES, VLANGroup, VRF,
@@ -237,6 +238,17 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='name',
         label='Device (name)',
     )
+    virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
+        name='interface__virtual_machine',
+        queryset=VirtualMachine.objects.all(),
+        label='Virtual machine (ID)',
+    )
+    virtual_machine = django_filters.ModelMultipleChoiceFilter(
+        name='interface__virtual_machine__name',
+        queryset=VirtualMachine.objects.all(),
+        to_field_name='name',
+        label='Virtual machine (name)',
+    )
     interface_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Interface.objects.all(),
         label='Interface (ID)',
@@ -371,6 +383,16 @@ class ServiceFilter(django_filters.FilterSet):
         queryset=Device.objects.all(),
         to_field_name='name',
         label='Device (name)',
+    )
+    virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=VirtualMachine.objects.all(),
+        label='Virtual machine (ID)',
+    )
+    virtual_machine = django_filters.ModelMultipleChoiceFilter(
+        name='virtual_machine__name',
+        queryset=VirtualMachine.objects.all(),
+        to_field_name='name',
+        label='Virtual machine (name)',
     )
 
     class Meta:
