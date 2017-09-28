@@ -155,6 +155,18 @@
                         {% endif %}
                     </td>
                 </tr>
+                {% if device.cluster %}
+                    <tr>
+                        <td>Cluster</td>
+                        <td>
+                            {% if device.cluster.group %}
+                                <a href="{{ device.cluster.group.get_absolute_url }}">{{ device.cluster.group }}</a>
+                                <i class="fa fa-angle-right"></i>
+                            {% endif %}
+                            <a href="{{ device.cluster.get_absolute_url }}">{{ device.cluster }}</a>
+                        </td>
+                    </tr>
+                {% endif %}
             </table>
         </div>
         {% with device.get_custom_fields as custom_fields %}
