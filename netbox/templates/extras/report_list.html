@@ -13,7 +13,7 @@
                             <th>Name</th>
                             <th>Status</th>
                             <th>Description</th>
-                            <th>Last Run</th>
+                            <th class="text-right">Last Run</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -27,9 +27,9 @@
                                 </td>
                                 <td>{{ report.description|default:"" }}</td>
                                 {% if report.result %}
-                                    <td>{{ report.result.created }}</td>
+                                    <td class="text-right">{{ report.result.created }}</td>
                                 {% else %}
-                                    <td class="text-muted">Never</td>
+                                    <td class="text-right text-muted">Never</td>
                                 {% endif %}
                             </tr>
                             {% for method, stats in report.result.data.items %}
@@ -51,19 +51,23 @@
             {% endfor %}
         </div>
         <div class="col-md-3">
-            <ul class="list-group">
+            <div class="panel panel-default">
                 {% for module, module_reports in reports %}
-                    <a href="#module.{{ module }}" class="list-group-item"><strong>{{ module|bettertitle }}</strong></a>
-                    {% for report in module_reports %}
-                        <a href="#report.{{ report.name }}" class="list-group-item">
-                            {{ report.name }}
-                            <div class="pull-right">
-                                {% include 'extras/inc/report_label.html' %}
-                            </div>
-                        </a>
-                    {% endfor %}
+                    <div class="panel-heading">
+                        <strong>{{ module|bettertitle }}</strong>
+                    </div>
+                    <ul class="list-group">
+                        {% for report in module_reports %}
+                            <a href="#report.{{ report.name }}" class="list-group-item">
+                                <i class="fa fa-list-alt"></i> {{ report.name }}
+                                <div class="pull-right">
+                                    {% include 'extras/inc/report_label.html' %}
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </ul>
                 {% endfor %}
-            </ul>
+            </div>
         </div>
     </div>
 {% endblock %}
