@@ -28,7 +28,7 @@
             <div id="navbar" class="navbar-collapse collapse">
                 {% if request.user.is_authenticated or not settings.LOGIN_REQUIRED %}
                 <ul class="nav navbar-nav">
-                    <li class="dropdown{% if request.path|contains:'/dcim/sites/,/dcim/regions/,/tenancy/' %} active{% endif %}">
+                    <li class="dropdown{% if request.path|contains:'/dcim/sites/,/dcim/regions/,/tenancy/,/extras/reports/' %} active{% endif %}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Organization <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="{% url 'dcim:site_list' %}"><strong>Sites</strong></a></li>
@@ -52,6 +52,8 @@
                             {% if perms.tenancy.add_tenantgroup %}
                                 <li class="subnav"><a href="{% url 'tenancy:tenantgroup_add' %}"><i class="fa fa-plus"></i> Add a Tenant Group</a></li>
                             {% endif %}
+                            <li class="divider"></li>
+                            <li><a href="{% url 'extras:report_list' %}"><strong>Reports</strong></a></li>
                         </ul>
                     </li>
                     <li class="dropdown{% if request.path|contains:'/dcim/rack' %} active{% endif %}">
