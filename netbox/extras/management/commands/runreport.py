@@ -34,8 +34,8 @@ class Command(BaseCommand):
                     status = self.style.ERROR('FAILED') if report.failed else self.style.SUCCESS('SUCCESS')
                     for test_name, attrs in report.result.data.items():
                         self.stdout.write(
-                            "\t{}: {} success, {} info, {} warning, {} failed".format(
-                                test_name, attrs['success'], attrs['info'], attrs['warning'], attrs['failed']
+                            "\t{}: {} success, {} info, {} warning, {} failure".format(
+                                test_name, attrs['success'], attrs['info'], attrs['warning'], attrs['failure']
                             )
                         )
                     self.stdout.write(
