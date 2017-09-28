@@ -93,7 +93,7 @@ class Report(object):
                     ('success', 0),
                     ('info', 0),
                     ('warning', 0),
-                    ('failed', 0),
+                    ('failure', 0),
                     ('log', []),
                 ])
         if not test_methods:
@@ -118,8 +118,19 @@ class Report(object):
         """
         if level not in LOG_LEVEL_CODES:
             raise Exception("Unknown logging level: {}".format(level))
-        logline = [timezone.now().isoformat(), level, str(obj), message]
-        self._results[self.active_test]['log'].append(logline)
+        self._results[self.active_test]['log'].append(
+            timezone.now().isoformat(),
+            LOG_LEVEL_CODES.get(level),
+            str(obj) if obj else None,
+            obj.get_absolute_url() if getattr(obj, 'get_absolute_url', None) else None,
+            message,
+        )
+
+    def log(self, message):
+        """
+        Log a message which is not associated with a particular object.
+        """
+        self._log(None, message, level=LOG_DEFAULT)
 
     def log_success(self, obj, message=None):
         """
@@ -148,7 +159,7 @@ class Report(object):
         Log a failure. Calling this method will automatically mark the report as failed.
         """
         self._log(obj, message, level=LOG_FAILURE)
-        self._results[self.active_test]['failed'] += 1
+        self._results[self.active_test]['failure'] += 1
         self.failed = True
 
     def run(self):
