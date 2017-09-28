@@ -27,6 +27,8 @@ pages:
         - 'Examples': 'api/examples.md'
     - 'Shell':
         - 'Introduction': 'shell/intro.md'
+    - 'Miscellaneous':
+        - 'Reports': 'miscellaneous/reports.md'
     - 'Development':
         - 'Utility Views': 'development/utility-views.md'
 
