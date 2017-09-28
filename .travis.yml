@@ -1,12 +1,6 @@
 sudo: required
-
 services:
-  - docker
   - postgresql
-
-env:
-  - DOCKER_TAG=$TRAVIS_TAG
-
 language: python
 python:
   - "2.7"
@@ -18,7 +12,3 @@ addons:
   - postgresql: "9.4"
 script:
   - ./scripts/cibuild.sh
-after_success:
-  - if [ ! -z "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-    ./scripts/docker-build.sh;
-    fi
