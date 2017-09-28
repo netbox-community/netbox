@@ -1,13 +1,16 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib import messages
 from django.http import Http404
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.safestring import mark_safe
 from django.views.generic import View
 
+from utilities.forms import ConfirmationForm
 from utilities.views import ObjectDeleteView, ObjectEditView
 from .forms import ImageAttachmentForm
-from .models import ImageAttachment, ReportResult
+from .models import ImageAttachment, ReportResult, UserAction
 from .reports import get_report, get_reports
 
 
@@ -84,4 +87,32 @@ class ReportView(View):
 
         return render(request, 'extras/report.html', {
             'report': report,
+            'run_form': ConfirmationForm(),
         })
+
+
+class ReportRunView(PermissionRequiredMixin, View):
+    """
+    Run a Report and record a new ReportResult.
+    """
+    permission_required = 'extras.add_reportresult'
+
+    def post(self, request, name):
+
+        # Retrieve the Report by "<module>.<report>"
+        module_name, report_name = name.split('.')
+        report = get_report(module_name, report_name)
+        if report is None:
+            raise Http404
+
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+
+            # Run the Report. A new ReportResult is created.
+            report.run()
+            result = 'failed' if report.failed else 'passed'
+            msg = "Ran report {} ({})".format(report.full_name, result)
+            messages.success(request, mark_safe(msg))
+            UserAction.objects.log_create(request.user, report.result, msg)
+
+        return redirect('extras:report', name=report.full_name)

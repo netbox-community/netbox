@@ -5,16 +5,23 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-sm-8 col-md-9">
+        <div class="col-md-12">
             <ol class="breadcrumb">
                 <li><a href="{% url 'extras:report_list' %}">Reports</a></li>
                 <li><a href="{% url 'extras:report_list' %}#module.{{ report.module }}">{{ report.module|bettertitle }}</a></li>
                 <li>{{ report.name }}</li>
             </ol>
         </div>
-        <div class="col-sm-4 col-md-3">
-        </div>
     </div>
+    {% if perms.extras.add_reportresult %}
+        <div class="pull-right">
+            <form action="{% url 'extras:report_run' name=report.full_name %}" method="post">
+                {% csrf_token %}
+                {{ run_form }}
+                <button type="submit" name="_run" class="btn btn-primary"><i class="fa fa-play"></i> Run Report</button>
+            </form>
+        </div>
+    {% endif %}
     <h1>{{ report.name }}{% include 'extras/inc/report_label.html' %}</h1>
     <div class="row">
         <div class="col-md-9">
