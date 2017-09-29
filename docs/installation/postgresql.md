@@ -1,11 +1,15 @@
-NetBox requires a PostgreSQL database to store data. (Please note that MySQL is not supported, as NetBox leverages PostgreSQL's built-in [network address types](https://www.postgresql.org/docs/9.1/static/datatype-net-types.html).)
+NetBox requires a PostgreSQL 9.4 or higher database to store data. (Please note that MySQL is not supported, as NetBox leverages PostgreSQL's built-in [network address types](https://www.postgresql.org/docs/9.6/static/datatype-net-types.html).)
 
 !!! note
     The installation instructions provided here have been tested to work on Ubuntu 16.04 and CentOS 6.9. The particular commands needed to install dependencies on other distributions may vary significantly. Unfortunately, this is outside the control of the NetBox maintainers. Please consult your distribution's documentation for assistance with any errors.
 
 # Installation
 
+NetBox v2.2 or later requires PostgreSQL 9.4 or higher.
+
 **Ubuntu**
+
+If a recent enough version of PostgreSQL is not available through your distribution's package manager, consider installing from an official [PostgreSQL repository](https://wiki.postgresql.org/wiki/Apt).
 
 ```no-highlight
 # apt-get update
