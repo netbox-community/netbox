@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import django_filters
 from django.db.models import Q
 
-from dcim.models import Platform, Site
+from dcim.models import DeviceRole, Platform, Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
@@ -80,9 +80,20 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         to_field_name='slug',
         label='Cluster group (slug)',
     )
-    cluster_id = NullableModelMultipleChoiceFilter(
+    cluster_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Cluster.objects.all(),
         label='Cluster (ID)',
+    )
+    role_id = NullableModelMultipleChoiceFilter(
+        name='role_id',
+        queryset=DeviceRole.objects.all(),
+        label='Role (ID)',
+    )
+    role = NullableModelMultipleChoiceFilter(
+        name='role__slug',
+        queryset=DeviceRole.objects.all(),
+        to_field_name='slug',
+        label='Role (slug)',
     )
     tenant_id = NullableModelMultipleChoiceFilter(
         queryset=Tenant.objects.all(),

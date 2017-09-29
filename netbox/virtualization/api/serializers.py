@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from dcim.api.serializers import NestedPlatformSerializer, NestedSiteSerializer
+from dcim.api.serializers import NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer
 from dcim.constants import VIFACE_FF_CHOICES
 from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
@@ -86,14 +86,15 @@ class WritableClusterSerializer(CustomFieldModelSerializer):
 class VirtualMachineSerializer(CustomFieldModelSerializer):
     status = ChoiceFieldSerializer(choices=STATUS_CHOICES)
     cluster = NestedClusterSerializer()
+    role = NestedDeviceRoleSerializer()
     tenant = NestedTenantSerializer()
     platform = NestedPlatformSerializer()
 
     class Meta:
         model = VirtualMachine
         fields = [
-            'id', 'name', 'status', 'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory',
-            'disk', 'comments', 'custom_fields',
+            'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'vcpus',
+            'memory', 'disk', 'comments', 'custom_fields',
         ]
 
 
@@ -110,8 +111,8 @@ class WritableVirtualMachineSerializer(CustomFieldModelSerializer):
     class Meta:
         model = VirtualMachine
         fields = [
-            'id', 'name', 'status', 'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory',
-            'disk', 'comments', 'custom_fields',
+            'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'vcpus',
+            'memory', 'disk', 'comments', 'custom_fields',
         ]
 
 

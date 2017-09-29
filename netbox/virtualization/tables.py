@@ -95,7 +95,7 @@ class VirtualMachineTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = VirtualMachine
-        fields = ('pk', 'name', 'status', 'cluster', 'tenant', 'vcpus', 'memory', 'disk')
+        fields = ('pk', 'name', 'status', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk')
 
 
 class VirtualMachineDetailTable(VirtualMachineTable):
@@ -105,7 +105,7 @@ class VirtualMachineDetailTable(VirtualMachineTable):
 
     class Meta(BaseTable.Meta):
         model = VirtualMachine
-        fields = ('pk', 'name', 'status', 'cluster', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip')
+        fields = ('pk', 'name', 'status', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip')
 
 
 #

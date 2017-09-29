@@ -179,6 +179,13 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
         default=STATUS_ACTIVE,
         verbose_name='Status'
     )
+    role = models.ForeignKey(
+        to='dcim.DeviceRole',
+        on_delete=models.PROTECT,
+        related_name='virtual_machines',
+        blank=True,
+        null=True
+    )
     primary_ip4 = models.OneToOneField(
         to='ipam.IPAddress',
         on_delete=models.SET_NULL,

@@ -8,7 +8,7 @@ from django.db.models import Count
 
 from dcim.constants import IFACE_FF_VIRTUAL, VIFACE_FF_CHOICES
 from dcim.formfields import MACAddressFormField
-from dcim.models import Device, Interface, Platform, Rack, Region, Site
+from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
 from extras.forms import CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
@@ -222,7 +222,8 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     class Meta:
         model = VirtualMachine
         fields = [
-            'name', 'status', 'cluster_group', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
+            'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
+            'comments',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -251,6 +252,15 @@ class VirtualMachineCSVForm(forms.ModelForm):
             'invalid_choice': 'Invalid cluster name.',
         }
     )
+    role = forms.ModelChoiceField(
+        queryset=DeviceRole.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of functional role',
+        error_messages={
+            'invalid_choice': 'Invalid role name.'
+        }
+    )
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
@@ -272,13 +282,14 @@ class VirtualMachineCSVForm(forms.ModelForm):
 
     class Meta:
         model = VirtualMachine
-        fields = ['name', 'status', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments']
+        fields = ['name', 'status', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments']
 
 
 class VirtualMachineBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VirtualMachine.objects.all(), widget=forms.MultipleHiddenInput)
     status = forms.ChoiceField(choices=add_blank_choice(STATUS_CHOICES), required=False, initial='')
     cluster = forms.ModelChoiceField(queryset=Cluster.objects.all(), required=False)
+    role = forms.ModelChoiceField(queryset=DeviceRole.objects.all(), required=False)
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     platform = forms.ModelChoiceField(queryset=Platform.objects.all(), required=False)
     vcpus = forms.IntegerField(required=False, label='vCPUs')
@@ -287,7 +298,7 @@ class VirtualMachineBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ['tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments']
+        nullable_fields = ['role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments']
 
 
 def vm_status_choices():
@@ -303,13 +314,28 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
     cluster_group = FilterChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
-        null_option=(0, 'None'),
+        null_option=(0, 'None')
     )
     cluster_id = FilterChoiceField(
         queryset=Cluster.objects.annotate(filter_count=Count('virtual_machines')),
         label='Cluster'
     )
+    role = FilterChoiceField(
+        queryset=DeviceRole.objects.annotate(filter_count=Count('virtual_machines')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
     status = forms.MultipleChoiceField(choices=vm_status_choices, required=False)
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.annotate(filter_count=Count('virtual_machines')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
+    platform = FilterChoiceField(
+        queryset=Platform.objects.annotate(filter_count=Count('virtual_machines')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
 
 
 #
