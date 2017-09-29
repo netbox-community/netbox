@@ -93,13 +93,15 @@ IFACE_FF_JUNIPER_VCP = 5200
 # Other
 IFACE_FF_OTHER = 32767
 
+VIFACE_FF_CHOICES = [
+    [IFACE_FF_VIRTUAL, 'Virtual'],
+    [IFACE_FF_LAG, 'Link Aggregation Group (LAG)'],
+]
+
 IFACE_FF_CHOICES = [
     [
         'Virtual interfaces',
-        [
-            [IFACE_FF_VIRTUAL, 'Virtual'],
-            [IFACE_FF_LAG, 'Link Aggregation Group (LAG)'],
-        ]
+        VIFACE_FF_CHOICES,
     ],
     [
         'Ethernet (fixed)',

@@ -1,0 +1,127 @@
+{% extends '_base.html' %}
+{% load helpers %}
+
+{% block content %}
+<div class="row" xmlns="http://www.w3.org/1999/html">
+    <div class="col-sm-8 col-md-9">
+        <ol class="breadcrumb">
+            <li><a href="{{ cluster.type.get_absolute_url }}">{{ cluster.type }}</a></li>
+            {% if cluster.group %}
+                <li><a href="{{ cluster.group.get_absolute_url }}">{{ cluster.group }}</a></li>
+            {% endif %}
+            <li>{{ cluster }}</li>
+        </ol>
+    </div>
+    <div class="col-sm-4 col-md-3">
+        <form action="{% url 'virtualization:cluster_list' %}" method="get">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Search clusters" />
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="fa fa-search" aria-hidden="true"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="pull-right">
+    {% if perms.virtualization.change_cluster %}
+		<a href="{% url 'virtualization:cluster_edit' pk=cluster.pk %}" class="btn btn-warning">
+			<span class="fa fa-pencil" aria-hidden="true"></span>
+			Edit this cluster
+		</a>
+    {% endif %}
+    {% if perms.dcim.delete_cluster %}
+		<a href="{% url 'virtualization:cluster_delete' pk=cluster.pk %}" class="btn btn-danger">
+			<span class="fa fa-trash" aria-hidden="true"></span>
+			Delete this cluster
+		</a>
+    {% endif %}
+</div>
+<h1>{% block title %}{{ cluster }}{% endblock %}</h1>
+{% include 'inc/created_updated.html' with obj=cluster %}
+<div class="row">
+	<div class="col-md-5">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Cluster</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+                <tr>
+                    <td>Name</td>
+                    <td>{{ cluster.name }}</td>
+                </tr>
+                <tr>
+                    <td>Type</td>
+                    <td><a href="{{ cluster.type.get_absolute_url }}">{{ cluster.type }}</a></td>
+                </tr>
+                <tr>
+                    <td>Group</td>
+                    <td>
+                        {% if cluster.group %}
+                            <a href="{{ cluster.group.get_absolute_url }}">{{ cluster.group }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Site</td>
+                    <td>
+                        {% if cluster.site %}
+                            <a href="{{ cluster.site.get_absolute_url }}">{{ cluster.site }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Virtual Machines</td>
+                    <td><a href="{% url 'virtualization:virtualmachine_list' %}?cluster_id={{ cluster.pk }}">{{ cluster.virtual_machines.count }}</a></td>
+                </tr>
+            </table>
+        </div>
+        {% include 'inc/custom_fields_panel.html' with custom_fields=cluster.get_custom_fields %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Comments</strong>
+            </div>
+            <div class="panel-body">
+                {% if cluster.comments %}
+                    {{ cluster.comments|gfm }}
+                {% else %}
+                    <span class="text-muted">None</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Host Devices</strong>
+            </div>
+            {% if perms.virtualization.change_cluster %}
+                <form action="{% url 'virtualization:cluster_remove_devices' pk=cluster.pk %}" method="post">
+                {% csrf_token %}
+            {% endif %}
+            {% include 'responsive_table.html' with table=device_table %}
+            {% if perms.virtualization.change_cluster %}
+                <div class="panel-footer">
+                    <div class="pull-right">
+                        <a href="{% url 'virtualization:cluster_add_devices' pk=cluster.pk %}" class="btn btn-primary btn-xs">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            Add devices
+                        </a>
+                    </div>
+                    <button type="submit" name="_remove" class="btn btn-danger primary btn-xs">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        Remove devices
+                    </button>
+                </div>
+                </form>
+            {% endif %}
+        </div>
+	</div>
+</div>
+{% endblock %}

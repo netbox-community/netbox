@@ -3,10 +3,11 @@ from __future__ import unicode_literals
 
 # Models which support custom fields
 CUSTOMFIELD_MODELS = (
+    'provider', 'circuit',                                  # Circuits
     'site', 'rack', 'devicetype', 'device',                 # DCIM
     'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf',      # IPAM
-    'provider', 'circuit',                                  # Circuits
-    'tenant',                                               # Tenants
+    'tenant',                                               # Tenancy
+    'cluster', 'virtualmachine',                            # Virtualization
 )
 
 # Custom field types
@@ -37,11 +38,12 @@ GRAPH_TYPE_CHOICES = (
 
 # Models which support export templates
 EXPORTTEMPLATE_MODELS = [
+    'provider', 'circuit',                                                          # Circuits
     'site', 'region', 'rack', 'rackgroup', 'manufacturer', 'devicetype', 'device',  # DCIM
     'consoleport', 'powerport', 'interfaceconnection',                              # DCIM
     'aggregate', 'prefix', 'ipaddress', 'vlan',                                     # IPAM
-    'provider', 'circuit',                                                          # Circuits
-    'tenant',                                                                       # Tenants
+    'tenant',                                                                       # Tenancy
+    'cluster', 'virtualmachine',                                                    # Virtualization
 ]
 
 # User action types
@@ -61,3 +63,17 @@ ACTION_CHOICES = (
     (ACTION_DELETE, 'deleted'),
     (ACTION_BULK_DELETE, 'bulk deleted'),
 )
+
+# Report logging levels
+LOG_DEFAULT = 0
+LOG_SUCCESS = 10
+LOG_INFO = 20
+LOG_WARNING = 30
+LOG_FAILURE = 40
+LOG_LEVEL_CODES = {
+    LOG_DEFAULT: 'default',
+    LOG_SUCCESS: 'success',
+    LOG_INFO: 'info',
+    LOG_WARNING: 'warning',
+    LOG_FAILURE: 'failure',
+}

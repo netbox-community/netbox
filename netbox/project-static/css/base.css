@@ -339,6 +339,18 @@ table.component-list td.subtable td {
     padding-top: 6px;
 }
 
+/* Reports */
+table.reports td.method {
+    font-family: monospace;
+    padding-left: 30px;
+}
+table.reports td.stats label {
+    display: inline-block;
+    line-height: 14px;
+    margin-bottom: 0;
+    min-width: 40px;
+}
+
 /* AJAX loader */
 .loading {
     position: fixed;

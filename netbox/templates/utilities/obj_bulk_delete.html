@@ -23,7 +23,7 @@
     </div>
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
-            <form action="." method="post" class="form">
+            <form action="" method="post" class="form">
                 {% csrf_token %}
                 {% for field in form.hidden_fields %}
                     {{ field }}

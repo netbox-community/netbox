@@ -32,6 +32,7 @@ _patterns = [
     url(r'^secrets/', include('secrets.urls')),
     url(r'^tenancy/', include('tenancy.urls')),
     url(r'^user/', include('users.urls')),
+    url(r'^virtualization/', include('virtualization.urls')),
 
     # API
     url(r'^api/$', APIRootView.as_view(), name='api-root'),
@@ -41,6 +42,7 @@ _patterns = [
     url(r'^api/ipam/', include('ipam.api.urls')),
     url(r'^api/secrets/', include('secrets.api.urls')),
     url(r'^api/tenancy/', include('tenancy.api.urls')),
+    url(r'^api/virtualization/', include('virtualization.api.urls')),
     url(r'^api/docs/', swagger_view, name='api_docs'),
 
     # Serving static media in Django to pipe it through LoginRequiredMiddleware
