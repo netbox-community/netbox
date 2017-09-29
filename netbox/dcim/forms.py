@@ -24,7 +24,7 @@ from .models import (
     IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_FACE_CHOICES,
     RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, RACK_WIDTH_19IN, RACK_WIDTH_23IN,
-    Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
+    Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT, SUBDEVICE_ROLE_CHOICES,
 )
 
 
@@ -53,6 +53,28 @@ class RegionForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Region
         fields = ['parent', 'name', 'slug']
+
+
+class RegionCSVForm(forms.ModelForm):
+    parent = forms.ModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of parent region',
+        error_messages={
+            'invalid_choice': 'Region not found.',
+        }
+    )
+
+    class Meta:
+        model = Region
+        fields = [
+            'name', 'slug', 'parent',
+        ]
+        help_texts = {
+            'name': 'Region name',
+            'slug': 'URL-friendly slug',
+        }
 
 
 #
@@ -151,6 +173,27 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = RackGroup
         fields = ['site', 'name', 'slug']
+
+
+class RackGroupCSVForm(forms.ModelForm):
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='name',
+        help_text='Name of parent site',
+        error_messages={
+            'invalid_choice': 'Site not found.',
+        }
+    )
+
+    class Meta:
+        model = RackGroup
+        fields = [
+            'site', 'name', 'slug',
+        ]
+        help_texts = {
+            'name': 'Name of rack group',
+            'slug': 'URL-friendly slug',
+        }
 
 
 class RackGroupFilterForm(BootstrapMixin, forms.Form):
@@ -365,6 +408,18 @@ class ManufacturerForm(BootstrapMixin, forms.ModelForm):
         fields = ['name', 'slug']
 
 
+class ManufacturerCSVForm(forms.ModelForm):
+    class Meta:
+        model = Manufacturer
+        fields = [
+            'name', 'slug'
+        ]
+        help_texts = {
+            'name': 'Manufacturer name',
+            'slug': 'URL-friendly slug',
+        }
+
+
 #
 # Device types
 #
@@ -378,6 +433,37 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
                   'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering', 'comments']
         labels = {
             'interface_ordering': 'Order interfaces by',
+        }
+
+
+class DeviceTypeCSVForm(forms.ModelForm):
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=True,
+        to_field_name='name',
+        help_text='Manufacturer name',
+        error_messages={
+            'invalid_choice': 'Manufacturer not found.',
+        }
+    )
+    subdevice_role = CSVChoiceField(
+        choices=SUBDEVICE_ROLE_CHOICES,
+        required=False,
+        help_text='Parent/child status'
+    )
+    interface_ordering = CSVChoiceField(
+        choices=IFACE_ORDERING_CHOICES,
+        required=False,
+        help_text='Interface ordering'
+    )
+
+    class Meta:
+        model = DeviceType
+        fields = ['manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
+                  'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering', 'comments']
+        help_texts = {
+            'model': 'Model name',
+            'slug': 'URL-friendly slug',
         }
 
 

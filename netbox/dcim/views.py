@@ -122,6 +122,13 @@ class RegionEditView(RegionCreateView):
     permission_required = 'dcim.change_region'
 
 
+class RegionBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_region'
+    model_form = forms.RegionCSVForm
+    table = tables.RegionTable
+    default_return_url = 'dcim:region_list'
+
+
 class RegionBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_region'
     cls = Region
@@ -225,6 +232,13 @@ class RackGroupCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class RackGroupEditView(RackGroupCreateView):
     permission_required = 'dcim.change_rackgroup'
+
+
+class RackGroupBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_rackgroup'
+    model_form = forms.RackGroupCSVForm
+    table = tables.RackGroupTable
+    default_return_url = 'dcim:rackgroup_list'
 
 
 class RackGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -462,6 +476,13 @@ class ManufacturerEditView(ManufacturerCreateView):
     permission_required = 'dcim.change_manufacturer'
 
 
+class ManufacturerBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_manufacturer'
+    model_form = forms.ManufacturerCSVForm
+    table = tables.ManufacturerTable
+    default_return_url = 'dcim:manufacturer_list'
+
+
 class ManufacturerBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_manufacturer'
     cls = Manufacturer
@@ -549,6 +570,13 @@ class DeviceTypeEditView(DeviceTypeCreateView):
 class DeviceTypeDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_devicetype'
     model = DeviceType
+    default_return_url = 'dcim:devicetype_list'
+
+
+class DeviceTypeBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_devicetype'
+    model_form = forms.DeviceTypeCSVForm
+    table = tables.DeviceTypeTable
     default_return_url = 'dcim:devicetype_list'
 
 

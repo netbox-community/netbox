@@ -8,7 +8,12 @@
             <span class="fa fa-plus" aria-hidden="true"></span>
             Add a region
         </a>
+        <a href="{% url 'dcim:region_import' %}" class="btn btn-info">
+            <span class="fa fa-download" aria-hidden="true"></span>
+            Import regions
+        </a>
     {% endif %}
+    {% include 'inc/export_button.html' with obj_type='regions' %}
 </div>
 <h1>{% block title %}Regions{% endblock %}</h1>
 <div class="row">

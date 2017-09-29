@@ -44,6 +44,10 @@ class Region(MPTTModel):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
 
+    csv_headers = [
+        'name', 'slug', 'parent',
+    ]
+
     class MPTTMeta:
         order_insertion_by = ['name']
 
@@ -52,6 +56,13 @@ class Region(MPTTModel):
 
     def get_absolute_url(self):
         return "{}?region={}".format(reverse('dcim:site_list'), self.slug)
+
+    def to_csv(self):
+        return csv_format([
+            self.name,
+            self.slug,
+            self.parent.name if self.parent else None,
+        ])
 
 
 #
@@ -149,6 +160,10 @@ class RackGroup(models.Model):
     slug = models.SlugField()
     site = models.ForeignKey('Site', related_name='rack_groups', on_delete=models.CASCADE)
 
+    csv_headers = [
+        'site', 'name', 'slug',
+    ]
+
     class Meta:
         ordering = ['site', 'name']
         unique_together = [
@@ -161,6 +176,13 @@ class RackGroup(models.Model):
 
     def get_absolute_url(self):
         return "{}?group_id={}".format(reverse('dcim:rack_list'), self.pk)
+
+    def to_csv(self):
+        return csv_format([
+            self.site,
+            self.name,
+            self.slug,
+        ])
 
 
 @python_2_unicode_compatible
@@ -444,6 +466,10 @@ class Manufacturer(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
 
+    csv_headers = [
+        'name', 'slug',
+    ]
+
     class Meta:
         ordering = ['name']
 
@@ -452,6 +478,12 @@ class Manufacturer(models.Model):
 
     def get_absolute_url(self):
         return "{}?manufacturer={}".format(reverse('dcim:devicetype_list'), self.slug)
+
+    def to_csv(self):
+        return csv_format([
+            self.name,
+            self.slug,
+        ])
 
 
 @python_2_unicode_compatible
@@ -492,6 +524,11 @@ class DeviceType(models.Model, CustomFieldModel):
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
+    csv_headers = [
+        'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
+        'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering',
+    ]
+
     class Meta:
         ordering = ['manufacturer', 'model']
         unique_together = [
@@ -510,6 +547,21 @@ class DeviceType(models.Model, CustomFieldModel):
 
     def get_absolute_url(self):
         return reverse('dcim:devicetype', args=[self.pk])
+
+    def to_csv(self):
+        return csv_format([
+            self.manufacturer.name,
+            self.model,
+            self.slug,
+            self.part_number,
+            self.u_height,
+            self.is_full_depth,
+            self.is_console_server,
+            self.is_pdu,
+            self.is_network_device,
+            self.get_subdevice_role_display() if self.subdevice_role else None,
+            self.get_interface_ordering_display(),
+        ])
 
     def clean(self):
 
