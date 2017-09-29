@@ -191,14 +191,6 @@ The amount of time (in seconds) to wait for NAPALM to connect to a device.
 
 ---
 
-## NETBOX_USERNAME (Deprecated)
-
-## NETBOX_PASSWORD (Deprecated)
-
-These settings have been deprecated and will be removed in NetBox v2.2. Please use `NAPALM_USERNAME` and `NAPALM_PASSWORD` instead.
-
----
-
 ## PAGINATE_COUNT
 
 Default: 50

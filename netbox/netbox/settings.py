@@ -52,8 +52,6 @@ NAPALM_USERNAME = getattr(configuration, 'NAPALM_USERNAME', '')
 NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
 NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
 NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
-NETBOX_USERNAME = getattr(configuration, 'NETBOX_USERNAME', '')  # Deprecated
-NETBOX_PASSWORD = getattr(configuration, 'NETBOX_PASSWORD', '')  # Deprecated
 PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
@@ -63,19 +61,6 @@ TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
-
-# Check for deprecated configuration parameters
-config_logger = logging.getLogger('configuration')
-config_logger.addHandler(logging.StreamHandler())
-config_logger.setLevel(logging.WARNING)
-if NETBOX_USERNAME:
-    config_logger.warning('NETBOX_USERNAME is deprecated and will be removed in v2.2. Please use NAPALM_USERNAME instead.')
-    if not NAPALM_USERNAME:
-        NAPALM_USERNAME = NETBOX_USERNAME
-if NETBOX_PASSWORD:
-    config_logger.warning('NETBOX_PASSWORD is deprecated and will be removed in v2.2. Please use NAPALM_PASSWORD instead.')
-    if not NAPALM_PASSWORD:
-        NAPALM_PASSWORD = NETBOX_PASSWORD
 
 # Attempt to import LDAP configuration if it has been defined
 LDAP_IGNORE_CERT_ERRORS = False

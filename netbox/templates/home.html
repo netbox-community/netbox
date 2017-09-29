@@ -1,14 +1,6 @@
 {% extends '_base.html' %}
 
 {% block content %}
-{% if settings.NETBOX_USERNAME or settings.NETBOX_PASSWORD %}
-    <div class="alert alert-warning alert-dismissable" role="alert">
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-        <strong>Warning:</strong> The <code>NETBOX_USERNAME</code> and <code>NETBOX_PASSWORD</code> configuration parameters have been deprecated. Please replace them in configuration.py with <code>NAPALM_USERNAME</code> and <code>NAPALM_PASSWORD</code>.
-    </div>
-{% endif %}
 {% include 'search_form.html' %}
 <div class="row">
     <div class="col-sm-6 col-md-4">
