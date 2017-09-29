@@ -362,7 +362,7 @@ class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn(verbose_name='Name')
     device_count = tables.Column(verbose_name='Devices')
-    color = tables.TemplateColumn(COLOR_LABEL, verbose_name='Color')
+    color = tables.TemplateColumn(COLOR_LABEL, verbose_name='Label')
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(template_code=DEVICEROLE_ACTIONS, attrs={'td': {'class': 'text-right'}},
                                     verbose_name='')
