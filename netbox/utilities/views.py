@@ -869,5 +869,5 @@ class BulkComponentCreateView(View):
             'form': form,
             'component_name': self.model._meta.verbose_name_plural,
             'table': table,
-            'return_url': reverse('dcim:device_list'),
+            'return_url': reverse(self.default_return_url),
         })

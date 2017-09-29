@@ -1580,6 +1580,7 @@ class DeviceBulkAddConsolePortView(PermissionRequiredMixin, BulkComponentCreateV
     model = ConsolePort
     model_form = forms.ConsolePortForm
     table = tables.DeviceTable
+    default_return_url = 'dcim:device_list'
 
 
 class DeviceBulkAddConsoleServerPortView(PermissionRequiredMixin, BulkComponentCreateView):
@@ -1590,6 +1591,7 @@ class DeviceBulkAddConsoleServerPortView(PermissionRequiredMixin, BulkComponentC
     model = ConsoleServerPort
     model_form = forms.ConsoleServerPortForm
     table = tables.DeviceTable
+    default_return_url = 'dcim:device_list'
 
 
 class DeviceBulkAddPowerPortView(PermissionRequiredMixin, BulkComponentCreateView):
@@ -1600,6 +1602,7 @@ class DeviceBulkAddPowerPortView(PermissionRequiredMixin, BulkComponentCreateVie
     model = PowerPort
     model_form = forms.PowerPortForm
     table = tables.DeviceTable
+    default_return_url = 'dcim:device_list'
 
 
 class DeviceBulkAddPowerOutletView(PermissionRequiredMixin, BulkComponentCreateView):
@@ -1610,6 +1613,7 @@ class DeviceBulkAddPowerOutletView(PermissionRequiredMixin, BulkComponentCreateV
     model = PowerOutlet
     model_form = forms.PowerOutletForm
     table = tables.DeviceTable
+    default_return_url = 'dcim:device_list'
 
 
 class DeviceBulkAddInterfaceView(PermissionRequiredMixin, BulkComponentCreateView):
@@ -1620,6 +1624,7 @@ class DeviceBulkAddInterfaceView(PermissionRequiredMixin, BulkComponentCreateVie
     model = Interface
     model_form = forms.InterfaceForm
     table = tables.DeviceTable
+    default_return_url = 'dcim:device_list'
 
 
 class DeviceBulkAddDeviceBayView(PermissionRequiredMixin, BulkComponentCreateView):
@@ -1630,6 +1635,7 @@ class DeviceBulkAddDeviceBayView(PermissionRequiredMixin, BulkComponentCreateVie
     model = DeviceBay
     model_form = forms.DeviceBayForm
     table = tables.DeviceTable
+    default_return_url = 'dcim:device_list'
 
 
 #

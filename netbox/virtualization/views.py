@@ -358,3 +358,4 @@ class VirtualMachineBulkAddInterfaceView(PermissionRequiredMixin, BulkComponentC
     model = Interface
     model_form = forms.InterfaceForm
     table = tables.VirtualMachineTable
+    default_return_url = 'virtualization:virtualmachine_list'
