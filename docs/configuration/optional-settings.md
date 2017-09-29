@@ -17,12 +17,18 @@ ADMINS = [
 
 ## BANNER_BOTTOM
 
-Setting these variables will display content in a banner at the top and/or bottom of the page, respectively. To replicate the content of the top banner in the bottom banner, set:
+Setting these variables will display content in a banner at the top and/or bottom of the page, respectively. HTML is allowed. To replicate the content of the top banner in the bottom banner, set:
 
 ```
 BANNER_TOP = 'Your banner text'
 BANNER_BOTTOM = BANNER_TOP
 ```
+
+---
+
+## BANNER_LOGIN
+
+The value of this variable will be displayed on the login page above the login form. HTML is allowed.
 
 ---
 
@@ -135,11 +141,61 @@ An API consumer can request an arbitrary number of objects by appending the "lim
 
 ---
 
-## NETBOX_USERNAME
+## MEDIA_ROOT
 
-## NETBOX_PASSWORD
+Default: $BASE_DIR/netbox/media/
 
-If provided, NetBox will use these credentials to authenticate against devices when collecting data.
+The file path to the location where media files (such as image attachments) are stored. By default, this is the `netbox/media` directory within the base NetBox installation path.
+
+---
+
+## NAPALM_USERNAME
+
+## NAPALM_PASSWORD
+
+NetBox will use these credentials when authenticating to remote devices via the [NAPALM library](https://napalm-automation.net/), if installed. Both parameters are optional.
+
+Note: If SSH public key authentication has been set up for the system account under which NetBox runs, these parameters are not needed.
+
+---
+
+## NAPALM_ARGS
+
+A dictionary of optional arguments to pass to NAPALM when instantiating a network driver. See the NAPALM documentation for a [complete list of optional arguments](http://napalm.readthedocs.io/en/latest/support/#optional-arguments). An example:
+
+```
+NAPALM_ARGS = {
+    'api_key': '472071a93b60a1bd1fafb401d9f8ef41',
+    'port': 2222,
+}
+```
+
+Note: Some platforms (e.g. Cisco IOS) require an argument named `secret` to be passed in addition to the normal password. If desired, you can use the configured `NAPALM_PASSWORD` as the value for this argument:
+
+```
+NAPALM_USERNAME = 'username'
+NAPALM_PASSWORD = 'MySecretPassword'
+NAPALM_ARGS = {
+    'secret': NAPALM_PASSWORD,
+    # Include any additional args here
+}
+```
+
+---
+
+## NAPALM_TIMEOUT
+
+Default: 30 seconds
+
+The amount of time (in seconds) to wait for NAPALM to connect to a device.
+
+---
+
+## NETBOX_USERNAME (Deprecated)
+
+## NETBOX_PASSWORD (Deprecated)
+
+These settings have been deprecated and will be removed in NetBox v2.2. Please use `NAPALM_USERNAME` and `NAPALM_PASSWORD` instead.
 
 ---
 

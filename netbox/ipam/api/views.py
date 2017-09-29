@@ -98,7 +98,7 @@ class PrefixViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
             # Create the new IP address
             data = request.data.copy()
             data['address'] = '{}/{}'.format(ipaddress, prefix.prefix.prefixlen)
-            data['vrf'] = prefix.vrf
+            data['vrf'] = prefix.vrf.pk if prefix.vrf else None
             serializer = serializers.WritableIPAddressSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
@@ -115,7 +115,11 @@ class PrefixViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
                 limit = min(limit, settings.MAX_PAGE_SIZE)
 
             # Calculate available IPs within the prefix
-            ip_list = list(prefix.get_available_ips())[:limit]
+            ip_list = []
+            for index, ip in enumerate(prefix.get_available_ips(), start=1):
+                ip_list.append(ip)
+                if index == limit:
+                    break
             serializer = serializers.AvailableIPSerializer(ip_list, many=True, context={
                 'request': request,
                 'prefix': prefix.prefix,

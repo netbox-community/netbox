@@ -63,19 +63,44 @@ def bettertitle(value):
 
 
 @register.filter()
-def example_choices(value, arg=3):
+def humanize_speed(speed):
+    """
+    Humanize speeds given in Kbps. Examples:
+
+        1544 => "1.544 Mbps"
+        100000 => "100 Mbps"
+        10000000 => "10 Gbps"
+    """
+    if speed >= 1000000000 and speed % 1000000000 == 0:
+        return '{} Tbps'.format(int(speed / 1000000000))
+    elif speed >= 1000000 and speed % 1000000 == 0:
+        return '{} Gbps'.format(int(speed / 1000000))
+    elif speed >= 1000 and speed % 1000 == 0:
+        return '{} Mbps'.format(int(speed / 1000))
+    elif speed >= 1000:
+        return '{} Mbps'.format(float(speed) / 1000)
+    else:
+        return '{} Kbps'.format(speed)
+
+
+@register.filter()
+def example_choices(field, arg=3):
     """
     Returns a number (default: 3) of example choices for a ChoiceFiled (useful for CSV import forms).
     """
-    choices = []
-    for id, label in value:
-        if len(choices) == arg:
-            choices.append('etc.')
+    examples = []
+    if hasattr(field, 'queryset'):
+        choices = [(obj.pk, getattr(obj, field.to_field_name)) for obj in field.queryset[:arg + 1]]
+    else:
+        choices = field.choices
+    for id, label in choices:
+        if len(examples) == arg:
+            examples.append('etc.')
             break
         if not id:
             continue
-        choices.append(label)
-    return ', '.join(choices) or 'None'
+        examples.append(label)
+    return ', '.join(examples) or 'None'
 
 
 #

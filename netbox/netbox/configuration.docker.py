@@ -60,8 +60,8 @@ BASE_PATH = os.environ.get('BASE_PATH', '')
 MAINTENANCE_MODE = os.environ.get('MAINTENANCE_MODE', False)
 
 # Credentials that NetBox will use to access live devices.
-NETBOX_USERNAME = os.environ.get('NETBOX_USERNAME', '')
-NETBOX_PASSWORD = os.environ.get('NETBOX_PASSWORD', '')
+NAPALM_USERNAME = os.environ.get('NAPALM_USERNAME', '')
+NAPALM_PASSWORD = os.environ.get('NAPALM_PASSWORD', '')
 
 # Determine how many objects to display per page within a list. (Default: 50)
 PAGINATE_COUNT = os.environ.get('PAGINATE_COUNT', 50)

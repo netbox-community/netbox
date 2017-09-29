@@ -1,3 +1,5 @@
+{% load helpers %}
+
 <div class="panel panel-default">
     <div class="panel-heading">
         <div class="pull-right">
@@ -49,10 +51,10 @@
                 <td>Speed</td>
                 <td>
                     {% if termination.upstream_speed %}
-                        <i class="fa fa-arrow-down" title="Downstream"></i> {{ termination.port_speed_human }} &nbsp;
-                        <i class="fa fa-arrow-up" title="Upstream"></i> {{ termination.upstream_speed_human }}
+                        <i class="fa fa-arrow-down" title="Downstream"></i> {{ termination.port_speed|humanize_speed }} &nbsp;
+                        <i class="fa fa-arrow-up" title="Upstream"></i> {{ termination.upstream_speed|humanize_speed }}
                     {% else %}
-                        {{ termination.port_speed_human }}
+                        {{ termination.port_speed|humanize_speed }}
                     {% endif %}
                 </td>
             </tr>

@@ -431,15 +431,10 @@ class RackView(View):
         prev_rack = Rack.objects.filter(site=rack.site, name__lt=rack.name).order_by('-name').first()
 
         reservations = RackReservation.objects.filter(rack=rack)
-        reserved_units = {}
-        for r in reservations:
-            for u in r.units:
-                reserved_units[u] = r
 
         return render(request, 'dcim/rack.html', {
             'rack': rack,
             'reservations': reservations,
-            'reserved_units': reserved_units,
             'nonracked_devices': nonracked_devices,
             'next_rack': next_rack,
             'prev_rack': prev_rack,
@@ -969,7 +964,7 @@ class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
         device = get_object_or_404(Device, pk=pk)
         interfaces = Interface.objects.order_naturally(
             device.device_type.interface_ordering
-        ).filter(
+        ).connectable().filter(
             device=device
         ).select_related(
             'connected_as_a', 'connected_as_b'

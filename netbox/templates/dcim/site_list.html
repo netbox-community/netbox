@@ -1,7 +1,5 @@
 {% extends '_base.html' %}
 
-{% block title %}Sites{% endblock %}
-
 {% block content %}
 <div class="pull-right">
     {% if perms.dcim.add_site %}
@@ -16,7 +14,7 @@
     {% endif %}
     {% include 'inc/export_button.html' with obj_type='sites' %}
 </div>
-<h1>Sites</h1>
+<h1>{% block title %}Sites{% endblock %}</h1>
 <div class="row">
 	<div class="col-md-9">
         {% include 'utilities/obj_table.html' with bulk_edit_url='dcim:site_bulk_edit' %}

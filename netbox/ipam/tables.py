@@ -34,7 +34,7 @@ RIR_ACTIONS = """
 
 UTILIZATION_GRAPH = """
 {% load helpers %}
-{% if record.pk %}{% utilization_graph value %}{% else %}&mdash;{% endif %}
+{% if record.pk %}{% utilization_graph record.get_utilization %}{% else %}&mdash;{% endif %}
 """
 
 ROLE_ACTIONS = """
@@ -45,9 +45,9 @@ ROLE_ACTIONS = """
 
 PREFIX_LINK = """
 {% if record.has_children %}
-    <span style="padding-left: {{ record.depth }}0px "><i class="fa fa-caret-right"></i></a>
+    <span class="text-nowrap" style="padding-left: {{ record.depth }}0px "><i class="fa fa-caret-right"></i></a>
 {% else %}
-    <span style="padding-left: {{ record.depth }}9px">
+    <span class="text-nowrap" style="padding-left: {{ record.depth }}9px">
 {% endif %}
     <a href="{% if record.pk %}{% url 'ipam:prefix' pk=record.pk %}{% else %}{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if parent.vrf %}&vrf={{ parent.vrf.pk }}{% endif %}{% if parent.site %}&site={{ parent.site.pk }}{% endif %}{% endif %}">{{ record.prefix }}</a>
 </span>
@@ -80,7 +80,6 @@ IPADDRESS_LINK = """
 IPADDRESS_DEVICE = """
 {% if record.interface %}
     <a href="{{ record.interface.device.get_absolute_url }}">{{ record.interface.device }}</a>
-    ({{ record.interface.name }})
 {% else %}
     &mdash;
 {% endif %}
@@ -121,6 +120,13 @@ VLAN_ROLE_LINK = """
 """
 
 VLANGROUP_ACTIONS = """
+{% with next_vid=record.get_next_available_vid %}
+    {% if next_vid and perms.ipam.add_vlan %}
+        <a href="{% url 'ipam:vlan_add' %}?site={{ record.site_id }}&group={{ record.pk }}&vid={{ next_vid }}" title="Add VLAN" class="btn btn-xs btn-success">
+            <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+        </a>
+    {% endif %}
+{% endwith %}
 {% if perms.ipam.change_vlangroup %}
     <a href="{% url 'ipam:vlangroup_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
@@ -204,10 +210,10 @@ class AggregateTable(BaseTable):
 
 class AggregateDetailTable(AggregateTable):
     child_count = tables.Column(verbose_name='Prefixes')
-    get_utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
+    utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
 
     class Meta(AggregateTable.Meta):
-        fields = ('pk', 'prefix', 'rir', 'child_count', 'get_utilization', 'date_added', 'description')
+        fields = ('pk', 'prefix', 'rir', 'child_count', 'utilization', 'date_added', 'description')
 
 
 #
@@ -250,10 +256,10 @@ class PrefixTable(BaseTable):
 
 
 class PrefixDetailTable(PrefixTable):
-    get_utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
+    utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False)
 
     class Meta(PrefixTable.Meta):
-        fields = ('pk', 'prefix', 'status', 'vrf', 'get_utilization', 'tenant', 'site', 'vlan', 'role', 'description')
+        fields = ('pk', 'prefix', 'status', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description')
 
 
 #

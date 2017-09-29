@@ -11,7 +11,7 @@ from ipam.models import (
     PREFIX_STATUS_CHOICES, RIR, Role, Service, VLAN, VLAN_STATUS_CHOICES, VLANGroup, VRF,
 )
 from tenancy.api.serializers import NestedTenantSerializer
-from utilities.api import ChoiceFieldSerializer, ModelValidationMixin
+from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer
 
 
 #
@@ -45,7 +45,7 @@ class WritableVRFSerializer(CustomFieldModelSerializer):
 # Roles
 #
 
-class RoleSerializer(ModelValidationMixin, serializers.ModelSerializer):
+class RoleSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = Role
@@ -64,7 +64,7 @@ class NestedRoleSerializer(serializers.ModelSerializer):
 # RIRs
 #
 
-class RIRSerializer(ModelValidationMixin, serializers.ModelSerializer):
+class RIRSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = RIR
@@ -303,7 +303,7 @@ class ServiceSerializer(serializers.ModelSerializer):
         fields = ['id', 'device', 'name', 'port', 'protocol', 'ipaddresses', 'description']
 
 
-# TODO: Figure out how to use ModelValidationMixin with ManyToManyFields. Calling clean() yields a ValueError.
+# TODO: Figure out how to use model validation with ManyToManyFields. Calling clean() yields a ValueError.
 class WritableServiceSerializer(serializers.ModelSerializer):
 
     class Meta:

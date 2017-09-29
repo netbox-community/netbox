@@ -2,8 +2,6 @@
 {% load helpers %}
 {% load form_helpers %}
 
-{% block title %}Prefixes{% endblock %}
-
 {% block content %}
 <div class="pull-right">
     <div class="btn-group" role="group">
@@ -22,7 +20,7 @@
 	{% endif %}
     {% include 'inc/export_button.html' with obj_type='prefixes' %}
 </div>
-<h1>Prefixes</h1>
+<h1>{% block title %}Prefixes{% endblock %}</h1>
 <div class="row">
 	<div class="col-md-9">
         {% include 'utilities/obj_table.html' with bulk_edit_url='ipam:prefix_bulk_edit' bulk_delete_url='ipam:prefix_bulk_delete' %}

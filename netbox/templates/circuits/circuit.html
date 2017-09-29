@@ -1,8 +1,6 @@
 {% extends '_base.html' %}
 {% load helpers %}
 
-{% block title %}{{ circuit.provider }} - {{ circuit.cid }}{% endblock %}
-
 {% block content %}
 <div class="row">
     <div class="col-sm-8 col-md-9">
@@ -39,7 +37,7 @@
 		</a>
     {% endif %}
 </div>
-<h1>{{ circuit.provider }} - {{ circuit.cid }}</h1>
+<h1>{% block title %}{{ circuit.provider }} - {{ circuit.cid }}{% endblock %}</h1>
 {% include 'inc/created_updated.html' with obj=circuit %}
 <div class="row">
 	<div class="col-md-6">
@@ -90,7 +88,7 @@
                     <td>Commit Rate</td>
                     <td>
                         {% if circuit.commit_rate %}
-                            {{ circuit.commit_rate_human }}
+                            {{ circuit.commit_rate|humanize_speed }}
                         {% else %}
                             <span class="text-muted">N/A</span>
                         {% endif %}

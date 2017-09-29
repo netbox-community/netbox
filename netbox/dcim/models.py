@@ -13,6 +13,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, Q, ObjectDoesNotExist
+from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -379,6 +380,16 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
 
         return list(reversed(available_units))
 
+    def get_reserved_units(self):
+        """
+        Return a dictionary mapping all reserved units within the rack to their reservation.
+        """
+        reserved_units = {}
+        for r in self.reservations.all():
+            for u in r.units:
+                reserved_units[u] = r
+        return reserved_units
+
     def get_0u_devices(self):
         return self.devices.filter(position=0)
 
@@ -616,7 +627,7 @@ class ConsolePortTemplate(models.Model):
     A template for a ConsolePort to be created for a new Device.
     """
     device_type = models.ForeignKey('DeviceType', related_name='console_port_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -632,7 +643,7 @@ class ConsoleServerPortTemplate(models.Model):
     A template for a ConsoleServerPort to be created for a new Device.
     """
     device_type = models.ForeignKey('DeviceType', related_name='cs_port_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -648,7 +659,7 @@ class PowerPortTemplate(models.Model):
     A template for a PowerPort to be created for a new Device.
     """
     device_type = models.ForeignKey('DeviceType', related_name='power_port_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -664,7 +675,7 @@ class PowerOutletTemplate(models.Model):
     A template for a PowerOutlet to be created for a new Device.
     """
     device_type = models.ForeignKey('DeviceType', related_name='power_outlet_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -684,15 +695,16 @@ class InterfaceQuerySet(models.QuerySet):
         To order interfaces naturally, the `name` field is split into six distinct components: leading text (type),
         slot, subslot, position, channel, and virtual circuit:
 
-            {type}{slot}/{subslot}/{position}:{channel}.{vc}
+            {type}{slot}/{subslot}/{position}/{subposition}:{channel}.{vc}
 
-        Components absent from the interface name are ignored. For example, an interface named GigabitEthernet0/1 would
-        be parsed as follows:
+        Components absent from the interface name are ignored. For example, an interface named GigabitEthernet1/2/3
+        would be parsed as follows:
 
             name = 'GigabitEthernet'
-            slot =  None
-            subslot = 0
-            position = 1
+            slot =  1
+            subslot = 2
+            position = 3
+            subposition = 0
             channel = None
             vc = 0
 
@@ -701,17 +713,35 @@ class InterfaceQuerySet(models.QuerySet):
         """
         sql_col = '{}.name'.format(self.model._meta.db_table)
         ordering = {
-            IFACE_ORDERING_POSITION: ('_slot', '_subslot', '_position', '_channel', '_vc', '_type', 'name'),
-            IFACE_ORDERING_NAME: ('_type', '_slot', '_subslot', '_position', '_channel', '_vc', 'name'),
+            IFACE_ORDERING_POSITION: (
+                '_slot', '_subslot', '_position', '_subposition', '_channel', '_vc', '_type', '_id', 'name',
+            ),
+            IFACE_ORDERING_NAME: (
+                '_type', '_slot', '_subslot', '_position', '_subposition', '_channel', '_vc', '_id', 'name',
+            ),
         }[method]
-        return self.extra(select={
-            '_type': "SUBSTRING({} FROM '^([^0-9]+)')".format(sql_col),
-            '_slot': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+\/[0-9]+(:[0-9]+)?(\.[0-9]+)?$') AS integer)".format(sql_col),
-            '_subslot': "CAST(SUBSTRING({} FROM '([0-9]+)\/[0-9]+(:[0-9]+)?(\.[0-9]+)?$') AS integer)".format(sql_col),
-            '_position': "CAST(SUBSTRING({} FROM '([0-9]+)(:[0-9]+)?(\.[0-9]+)?$') AS integer)".format(sql_col),
-            '_channel': "COALESCE(CAST(SUBSTRING({} FROM ':([0-9]+)(\.[0-9]+)?$') AS integer), 0)".format(sql_col),
-            '_vc': "COALESCE(CAST(SUBSTRING({} FROM '\.([0-9]+)$') AS integer), 0)".format(sql_col),
-        }).order_by(*ordering)
+
+        TYPE_RE = r"SUBSTRING({} FROM '^([^0-9]+)')"
+        ID_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)([0-9]+)$') AS integer)"
+        SLOT_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)([0-9]+)\/') AS integer)"
+        SUBSLOT_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)(?:[0-9]+\/)([0-9]+)') AS integer)"
+        POSITION_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)(?:[0-9]+\/){{2}}([0-9]+)') AS integer)"
+        SUBPOSITION_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)(?:[0-9]+\/){{3}}([0-9]+)') AS integer)"
+        CHANNEL_RE = r"COALESCE(CAST(SUBSTRING({} FROM ':([0-9]+)(\.[0-9]+)?$') AS integer), 0)"
+        VC_RE = r"COALESCE(CAST(SUBSTRING({} FROM '\.([0-9]+)$') AS integer), 0)"
+
+        fields = {
+            '_type': RawSQL(TYPE_RE.format(sql_col), []),
+            '_id': RawSQL(ID_RE.format(sql_col), []),
+            '_slot': RawSQL(SLOT_RE.format(sql_col), []),
+            '_subslot': RawSQL(SUBSLOT_RE.format(sql_col), []),
+            '_position': RawSQL(POSITION_RE.format(sql_col), []),
+            '_subposition': RawSQL(SUBPOSITION_RE.format(sql_col), []),
+            '_channel': RawSQL(CHANNEL_RE.format(sql_col), []),
+            '_vc': RawSQL(VC_RE.format(sql_col), []),
+        }
+
+        return self.annotate(**fields).order_by(*ordering)
 
     def connectable(self):
         """
@@ -727,7 +757,7 @@ class InterfaceTemplate(models.Model):
     A template for a physical data interface on a new Device.
     """
     device_type = models.ForeignKey('DeviceType', related_name='interface_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=64)
     form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_10GE_SFP_PLUS)
     mgmt_only = models.BooleanField(default=False, verbose_name='Management only')
 
@@ -747,7 +777,7 @@ class DeviceBayTemplate(models.Model):
     A template for a DeviceBay to be created for a new parent Device.
     """
     device_type = models.ForeignKey('DeviceType', related_name='device_bay_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -932,6 +962,30 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
             except DeviceType.DoesNotExist:
                 pass
 
+        # Validate primary IPv4 address
+        if self.primary_ip4 and (
+            self.primary_ip4.interface is None or
+            self.primary_ip4.interface.device != self
+        ) and (
+            self.primary_ip4.nat_inside.interface is None or
+            self.primary_ip4.nat_inside.interface.device != self
+        ):
+            raise ValidationError({
+                'primary_ip4': "The specified IP address ({}) is not assigned to this device.".format(self.primary_ip4),
+            })
+
+        # Validate primary IPv6 address
+        if self.primary_ip6 and (
+            self.primary_ip6.interface is None or
+            self.primary_ip6.interface.device != self
+        ) and (
+            self.primary_ip6.nat_inside.interface is None or
+            self.primary_ip6.nat_inside.interface.device != self
+        ):
+            raise ValidationError({
+                'primary_ip6': "The specified IP address ({}) is not assigned to this device.".format(self.primary_ip6),
+            })
+
     def save(self, *args, **kwargs):
 
         is_new = not bool(self.pk)
@@ -1042,7 +1096,7 @@ class ConsolePort(models.Model):
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
     device = models.ForeignKey('Device', related_name='console_ports', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
     cs_port = models.OneToOneField('ConsoleServerPort', related_name='connected_console', on_delete=models.SET_NULL,
                                    verbose_name='Console server port', blank=True, null=True)
     connection_status = models.NullBooleanField(choices=CONNECTION_STATUS_CHOICES, default=CONNECTION_STATUS_CONNECTED)
@@ -1092,7 +1146,7 @@ class ConsoleServerPort(models.Model):
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
     device = models.ForeignKey('Device', related_name='cs_ports', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
 
     objects = ConsoleServerPortManager()
 
@@ -1113,7 +1167,7 @@ class PowerPort(models.Model):
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
     device = models.ForeignKey('Device', related_name='power_ports', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
     power_outlet = models.OneToOneField('PowerOutlet', related_name='connected_port', on_delete=models.SET_NULL,
                                         blank=True, null=True)
     connection_status = models.NullBooleanField(choices=CONNECTION_STATUS_CHOICES, default=CONNECTION_STATUS_CONNECTED)
@@ -1157,7 +1211,7 @@ class PowerOutlet(models.Model):
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
     device = models.ForeignKey('Device', related_name='power_outlets', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
 
     objects = PowerOutletManager()
 
@@ -1187,7 +1241,7 @@ class Interface(models.Model):
         blank=True,
         verbose_name='Parent LAG'
     )
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=64)
     form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_10GE_SFP_PLUS)
     enabled = models.BooleanField(default=True)
     mac_address = MACAddressField(null=True, blank=True, verbose_name='MAC Address')

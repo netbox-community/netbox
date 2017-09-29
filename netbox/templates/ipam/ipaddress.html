@@ -1,7 +1,5 @@
 {% extends '_base.html' %}
 
-{% block title %}{{ ipaddress }}{% endblock %}
-
 {% block content %}
 <div class="row">
     <div class="col-sm-8 col-md-9">
@@ -40,10 +38,10 @@
         </a>
     {% endif %}
 </div>
-<h1>{{ ipaddress }}</h1>
+<h1>{% block title %}{{ ipaddress }}{% endblock %}</h1>
 {% include 'inc/created_updated.html' with obj=ipaddress %}
 <div class="row">
-	<div class="col-md-6">
+	<div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>IP Address</strong>
@@ -85,7 +83,11 @@
                 <tr>
                     <td>Role</td>
                     <td>
-                        <a href="{% url 'ipam:ipaddress_list' %}?role={{ ipaddress.role }}">{{ ipaddress.get_role_display }}</a>
+                        {% if ipaddress.role %}
+                            <a href="{% url 'ipam:ipaddress_list' %}?role={{ ipaddress.role }}">{{ ipaddress.get_role_display }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
                     </td>
                 </tr>
                 <tr>
@@ -137,7 +139,7 @@
             {% include 'inc/custom_fields_panel.html' %}
         {% endwith %}
 	</div>
-	<div class="col-md-6">
+	<div class="col-md-8">
         {% include 'panel_table.html' with table=parent_prefixes_table heading='Parent Prefixes' %}
         {% if duplicate_ips_table.rows %}
             {% include 'panel_table.html' with table=duplicate_ips_table heading='Duplicate IP Addresses' panel_class='danger' %}

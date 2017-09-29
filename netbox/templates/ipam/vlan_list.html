@@ -2,8 +2,6 @@
 {% load helpers %}
 {% load form_helpers %}
 
-{% block title %}VLANs{% endblock %}
-
 {% block content %}
 <div class="pull-right">
     {% if perms.ipam.add_vlan %}
@@ -18,7 +16,7 @@
 	{% endif %}
     {% include 'inc/export_button.html' with obj_type='VLANs' %}
 </div>
-<h1>VLANs</h1>
+<h1>{% block title %}VLANs{% endblock %}</h1>
 <div class="row">
 	<div class="col-md-9">
         {% include 'utilities/obj_table.html' with bulk_edit_url='ipam:vlan_bulk_edit' bulk_delete_url='ipam:vlan_bulk_delete' %}

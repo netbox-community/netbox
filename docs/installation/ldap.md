@@ -72,11 +72,14 @@ AUTH_LDAP_USER_DN_TEMPLATE = "uid=%(user)s,ou=users,dc=example,dc=com"
 # You can map user attributes to Django attributes as so.
 AUTH_LDAP_USER_ATTR_MAP = {
     "first_name": "givenName",
-    "last_name": "sn"
+    "last_name": "sn",
+    "email": "mail"
 }
 ```
 
 # User Groups for Permissions
+!!! Info
+    When using Microsoft Active Directory, Support for nested Groups can be activated by using `GroupOfNamesType()` instead of `NestedGroupOfNamesType()` for AUTH_LDAP_GROUP_TYPE.
 
 ```python
 from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
@@ -108,12 +111,3 @@ AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
 * `is_active` - All users must be mapped to at least this group to enable authentication. Without this, users cannot log in.
 * `is_staff` - Users mapped to this group are enabled for access to the administration tools; this is the equivalent of checking the "staff status" box on a manually created user. This doesn't grant any specific permissions.
 * `is_superuser` - Users mapped to this group will be granted superuser status. Superusers are implicitly granted all permissions.
-
-It is also possible map user attributes to Django attributes:
-
-```python
-AUTH_LDAP_USER_ATTR_MAP = {
-    "first_name": "givenName",
-    "last_name": "sn",
-}
-```

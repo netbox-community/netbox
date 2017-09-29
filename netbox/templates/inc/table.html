@@ -24,7 +24,7 @@
         {% empty %}
             {% if table.empty_text %}
                 <tr>
-                    <td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td>
+                    <td colspan="{{ table.columns|length }}" class="text-center text-muted">&mdash; {{ table.empty_text }} &mdash;</td>
                 </tr>
             {% endif %}
         {% endfor %}

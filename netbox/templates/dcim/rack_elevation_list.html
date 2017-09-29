@@ -18,9 +18,9 @@
                             <p><small class="text-muted">{{ rack.facility_id|truncatechars:"30" }}</small></p>
                         </div>
                         {% if face_id %}
-                            {% include 'dcim/inc/rack_elevation.html' with primary_face=rack.get_rear_elevation secondary_face=rack.get_front_elevation face_id=1 %}
+                            {% include 'dcim/inc/rack_elevation.html' with primary_face=rack.get_rear_elevation secondary_face=rack.get_front_elevation face_id=1 reserved_units=rack.get_reserved_units %}
                         {% else %}
-                            {% include 'dcim/inc/rack_elevation.html' with primary_face=rack.get_front_elevation secondary_face=rack.get_rear_elevation face_id=0 %}
+                            {% include 'dcim/inc/rack_elevation.html' with primary_face=rack.get_front_elevation secondary_face=rack.get_rear_elevation face_id=0 reserved_units=rack.get_reserved_units %}
                         {% endif %}
                         <div class="clearfix"></div>
                         <div class="rack_header">

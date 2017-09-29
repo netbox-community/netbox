@@ -38,10 +38,13 @@ ADMINS = [
     # ['John Doe', 'jdoe@example.com'],
 ]
 
-# Optionally display a persistent banner at the top and/or bottom of every page. To display the same content in both
-# banners, define BANNER_TOP and set BANNER_BOTTOM = BANNER_TOP.
+# Optionally display a persistent banner at the top and/or bottom of every page. HTML is allowed. To display the same
+# content in both banners, define BANNER_TOP and set BANNER_BOTTOM = BANNER_TOP.
 BANNER_TOP = ''
 BANNER_BOTTOM = ''
+
+# Text to include on the login page above the login form. HTML is allowed.
+BANNER_LOGIN = ''
 
 # Base URL path if accessing NetBox within a directory. For example, if installed at http://example.com/netbox/, set:
 # BASE_PATH = 'netbox/'
@@ -93,9 +96,20 @@ MAINTENANCE_MODE = False
 # all objects by specifying "?limit=0".
 MAX_PAGE_SIZE = 1000
 
-# Credentials that NetBox will use to access live devices (future use).
-NETBOX_USERNAME = ''
-NETBOX_PASSWORD = ''
+# The file path where uploaded media such as image attachments are stored. A trailing slash is not needed. Note that
+# the default value of this setting is derived from the installed location.
+# MEDIA_ROOT = '/opt/netbox/netbox/media'
+
+# Credentials that NetBox will uses to authenticate to devices when connecting via NAPALM.
+NAPALM_USERNAME = ''
+NAPALM_PASSWORD = ''
+
+# NAPALM timeout (in seconds). (Default: 30)
+NAPALM_TIMEOUT = 30
+
+# NAPALM optional arguments (see http://napalm.readthedocs.io/en/latest/support/#optional-arguments). Arguments must
+# be provided as a dictionary.
+NAPALM_ARGS = {}
 
 # Determine how many objects to display per page within a list. (Default: 50)
 PAGINATE_COUNT = 50

@@ -244,6 +244,7 @@ class TokenEditView(LoginRequiredMixin, View):
             token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
             form = TokenForm(request.POST, instance=token)
         else:
+            token = Token()
             form = TokenForm(request.POST)
 
         if form.is_valid():
@@ -258,6 +259,13 @@ class TokenEditView(LoginRequiredMixin, View):
                 return redirect(request.path)
             else:
                 return redirect('user:token_list')
+
+        return render(request, 'utilities/obj_edit.html', {
+            'obj': token,
+            'obj_type': token._meta.verbose_name,
+            'form': form,
+            'return_url': reverse('user:token_list'),
+        })
 
 
 class TokenDeleteView(LoginRequiredMixin, View):

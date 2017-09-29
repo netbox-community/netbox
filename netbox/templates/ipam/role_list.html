@@ -1,18 +1,16 @@
 {% extends '_base.html' %}
 {% load helpers %}
 
-{% block title %}Prefix/VLAN Roles{% endblock %}
-
 {% block content %}
 <div class="pull-right">
-    {% if perms.dcim.add_devicerole %}
+    {% if perms.ipam.add_role %}
         <a href="{% url 'ipam:role_add' %}" class="btn btn-primary">
             <span class="fa fa-plus" aria-hidden="true"></span>
             Add a role
         </a>
     {% endif %}
 </div>
-<h1>Prefix/VLAN Roles</h1>
+<h1>{% block title %}Prefix/VLAN Roles{% endblock %}</h1>
 <div class="row">
 	<div class="col-md-12">
         {% include 'utilities/obj_table.html' with bulk_delete_url='ipam:role_bulk_delete' %}

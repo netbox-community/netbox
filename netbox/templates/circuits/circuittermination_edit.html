@@ -2,10 +2,6 @@
 {% load staticfiles %}
 {% load form_helpers %}
 
-{% block title %}
-    Circuit {{ obj.circuit }} - Side {{ form.term_side.value }}
-{% endblock %}
-
 {% block content %}
     <form action="." method="post" class="form form-horizontal">
         {% csrf_token %}
@@ -14,7 +10,7 @@
         {% endfor %}
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
-                <h3>Circuit {{ obj.circuit }} - Side {{ form.term_side.value }}</h3>
+                <h3>{% block title %}Circuit {{ obj.circuit }} - {{ form.term_side.value }} Side{% endblock %}</h3>
                 {% if form.non_field_errors %}
                     <div class="panel panel-danger">
                         <div class="panel-heading"><strong>Errors</strong></div>
@@ -53,8 +49,26 @@
                 <div class="panel panel-default">
                     <div class="panel-heading"><strong>Termination Details</strong></div>
                     <div class="panel-body">
-                        {% render_field form.port_speed %}
-                        {% render_field form.upstream_speed %}
+                        <div class="form-group">
+                            <label class="col-md-3 control-label required" for="id_port_speed">{{ form.port_speed.label }}</label>
+                            <div class="col-md-9">
+                                <div class="input-group">
+                                    {{ form.port_speed }}
+                                    {% include 'circuits/inc/speed_widget.html' with target_field='port_speed' %}
+                                </div>
+                                <span class="help-block">{{ form.port_speed.help_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label" for="id_upstream_speed">{{ form.upstream_speed.label }}</label>
+                            <div class="col-md-9">
+                                <div class="input-group">
+                                    {{ form.upstream_speed }}
+                                    {% include 'circuits/inc/speed_widget.html' with target_field='upstream_speed' %}
+                                </div>
+                                <span class="help-block">{{ form.upstream_speed.help_text }}</span>
+                            </div>
+                        </div>
                         {% render_field form.xconnect_id %}
                         {% render_field form.pp_info %}
                     </div>
@@ -76,4 +90,10 @@
 
 {% block javascript %}
 <script src="{% static 'js/livesearch.js' %}?v{{ settings.VERSION }}"></script>
+<script type="text/javascript">
+    $("a.set_speed").click(function(e) {
+        e.preventDefault();
+        $("#id_" + $(this).attr("target")).val($(this).attr("data"));
+    });
+</script>
 {% endblock %}

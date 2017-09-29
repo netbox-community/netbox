@@ -20,7 +20,7 @@ Python 3:
 
 ```no-highlight
 # yum install -y epel-release
-# yum install -y gcc python34 python34-devel python34-setuptools libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel
+# yum install -y gcc python34 python34-devel python34-setuptools libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel redhat-rpm-config
 # easy_install-3.4 pip
 # ln -s -f python3.4 /usr/bin/python
 ```
@@ -29,7 +29,7 @@ Python 2:
 
 ```no-highlight
 # yum install -y epel-release
-# yum install -y gcc python2 python-devel python-pip libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel
+# yum install -y gcc python2 python-devel python-pip libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel redhat-rpm-config
 ```
 
 You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.
@@ -95,6 +95,14 @@ Python 2:
 
 ```no-highlight
 # pip install -r requirements.txt
+```
+
+### NAPALM Automation
+
+As of v2.1.0, NetBox supports integration with the [NAPALM automation](https://napalm-automation.net/) library. NAPALM allows NetBox to fetch live data from devices and return it to a requester via its REST API. Installation of NAPALM is optional. To enable it, install the `napalm` package using pip or pip3:
+
+```no-highlight
+# pip3 install napalm
 ```
 
 # Configuration

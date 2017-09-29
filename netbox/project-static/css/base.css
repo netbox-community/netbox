@@ -81,6 +81,11 @@ footer p {
     }
 }
 
+/* Navigation menu */
+li.subnav > a {
+    padding-left: 30px;
+}
+
 /* Forms */
 label {
     font-weight: normal;
@@ -324,13 +329,14 @@ li.occupied + li.available {
 }
 
 /* Devices */
-table.component-list tr.ipaddress td {
-    background-color: #eeffff;
-    padding-bottom: 4px;
-    padding-top: 4px;
+table.component-list td.subtable {
+    padding: 0;
+    padding-left: 16px;
 }
-table.component-list tr.ipaddress:hover td {
-    background-color: #e6f7f7;
+table.component-list td.subtable td {
+    border: none;
+    padding-bottom: 6px;
+    padding-top: 6px;
 }
 
 /* AJAX loader */

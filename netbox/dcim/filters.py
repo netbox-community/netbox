@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import django_filters
+from netaddr import EUI
 from netaddr.core import AddrFormatError
 
 from django.contrib.auth.models import User
@@ -8,7 +9,7 @@ from django.db.models import Q
 
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
-from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
+from utilities.filters import NullableCharFieldFilter, NullableModelMultipleChoiceFilter, NumericInFilter
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, STATUS_CHOICES, IFACE_FF_LAG, Interface, InterfaceConnection,
@@ -113,6 +114,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         method='search',
         label='Search',
     )
+    facility_id = NullableCharFieldFilter()
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         label='Site (ID)',
@@ -156,7 +158,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Rack
-        fields = ['facility_id', 'type', 'width', 'u_height', 'desc_units']
+        fields = ['type', 'width', 'u_height', 'desc_units']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -271,6 +273,7 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
 class DeviceTypeComponentFilterSet(django_filters.FilterSet):
     devicetype_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceType.objects.all(),
+        name='device_type_id',
         label='Device type (ID)',
     )
 
@@ -383,6 +386,8 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Platform (slug)',
     )
+    name = NullableCharFieldFilter()
+    asset_tag = NullableCharFieldFilter()
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         label='Site (ID)',
@@ -439,7 +444,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Device
-        fields = ['name', 'serial', 'asset_tag']
+        fields = ['serial']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -457,7 +462,8 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         if not value:
             return queryset
         try:
-            return queryset.filter(interfaces__mac_address=value).distinct()
+            mac = EUI(value.strip())
+            return queryset.filter(interfaces__mac_address=mac).distinct()
         except AddrFormatError:
             return queryset.none()
 
@@ -569,7 +575,8 @@ class InterfaceFilter(django_filters.FilterSet):
         if not value:
             return queryset
         try:
-            return queryset.filter(mac_address=value)
+            mac = EUI(value.strip())
+            return queryset.filter(mac_address=mac)
         except AddrFormatError:
             return queryset.none()
 
@@ -596,10 +603,11 @@ class InventoryItemFilter(DeviceComponentFilterSet):
         to_field_name='slug',
         label='Manufacturer (slug)',
     )
+    asset_tag = NullableCharFieldFilter()
 
     class Meta:
         model = InventoryItem
-        fields = ['name', 'part_id', 'serial', 'asset_tag', 'discovered']
+        fields = ['name', 'part_id', 'serial', 'discovered']
 
 
 class ConsoleConnectionFilter(django_filters.FilterSet):
