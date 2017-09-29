@@ -181,6 +181,7 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
     )
     role = models.ForeignKey(
         to='dcim.DeviceRole',
+        limit_choices_to={'vm_role': True},
         on_delete=models.PROTECT,
         related_name='virtual_machines',
         blank=True,

@@ -743,11 +743,17 @@ class DeviceBayTemplate(models.Model):
 class DeviceRole(models.Model):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
-    color to be used when displaying rack elevations.
+    color to be used when displaying rack elevations. The vm_role field determines whether the role is applicable to
+    virtual machines as well.
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
     color = ColorField()
+    vm_role = models.BooleanField(
+        default=True,
+        verbose_name="VM Role",
+        help_text="Virtual machines may be assigned to this role"
+    )
 
     class Meta:
         ordering = ['name']

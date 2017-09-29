@@ -404,7 +404,7 @@ class DeviceRoleSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = DeviceRole
-        fields = ['id', 'name', 'slug', 'color']
+        fields = ['id', 'name', 'slug', 'color', 'vm_role']
 
 
 class NestedDeviceRoleSerializer(serializers.ModelSerializer):

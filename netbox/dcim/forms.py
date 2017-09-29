@@ -531,7 +531,7 @@ class DeviceRoleForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = DeviceRole
-        fields = ['name', 'slug', 'color']
+        fields = ['name', 'slug', 'color', 'vm_role']
 
 
 #

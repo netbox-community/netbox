@@ -253,7 +253,7 @@ class VirtualMachineCSVForm(forms.ModelForm):
         }
     )
     role = forms.ModelChoiceField(
-        queryset=DeviceRole.objects.all(),
+        queryset=DeviceRole.objects.filter(vm_role=True),
         required=False,
         to_field_name='name',
         help_text='Name of functional role',
@@ -289,7 +289,7 @@ class VirtualMachineBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VirtualMachine.objects.all(), widget=forms.MultipleHiddenInput)
     status = forms.ChoiceField(choices=add_blank_choice(STATUS_CHOICES), required=False, initial='')
     cluster = forms.ModelChoiceField(queryset=Cluster.objects.all(), required=False)
-    role = forms.ModelChoiceField(queryset=DeviceRole.objects.all(), required=False)
+    role = forms.ModelChoiceField(queryset=DeviceRole.objects.filter(vm_role=True), required=False)
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     platform = forms.ModelChoiceField(queryset=Platform.objects.all(), required=False)
     vcpus = forms.IntegerField(required=False, label='vCPUs')
@@ -321,7 +321,7 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
         label='Cluster'
     )
     role = FilterChoiceField(
-        queryset=DeviceRole.objects.annotate(filter_count=Count('virtual_machines')),
+        queryset=DeviceRole.objects.filter(vm_role=True).annotate(filter_count=Count('virtual_machines')),
         to_field_name='slug',
         null_option=(0, 'None')
     )

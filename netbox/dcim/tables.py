@@ -369,7 +369,7 @@ class DeviceRoleTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = DeviceRole
-        fields = ('pk', 'name', 'device_count', 'color', 'slug', 'actions')
+        fields = ('pk', 'name', 'device_count', 'color', 'vm_role', 'slug', 'actions')
 
 
 #
