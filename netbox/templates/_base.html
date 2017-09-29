@@ -40,6 +40,7 @@
                             <li><a href="{% url 'dcim:region_list' %}"><strong>Regions</strong></a></li>
                             {% if perms.dcim.add_region %}
                                 <li class="subnav"><a href="{% url 'dcim:region_add' %}"><i class="fa fa-plus"></i> Add a Region</a></li>
+                                <li class="subnav"><a href="{% url 'dcim:region_import' %}"><i class="fa fa-download"></i> Import Regions</a></li>
                             {% endif %}
                             <li class="divider"></li>
                             <li><a href="{% url 'tenancy:tenant_list' %}"><strong>Tenants</strong></a></li>
@@ -69,6 +70,7 @@
                             <li><a href="{% url 'dcim:rackgroup_list' %}"><strong>Rack Groups</strong></a></li>
                             {% if perms.dcim.add_rackgroup %}
                                 <li class="subnav"><a href="{% url 'dcim:rackgroup_add' %}"><i class="fa fa-plus"></i> Add a Rack Group</a></li>
+                                <li class="subnav"><a href="{% url 'dcim:rackgroup_import' %}"><i class="fa fa-download"></i> Import Rack Groups</a></li>
                             {% endif %}
                             <li class="divider"></li>
                             <li><a href="{% url 'dcim:rackrole_list' %}"><strong>Rack Roles</strong></a></li>
@@ -93,6 +95,7 @@
                             <li><a href="{% url 'dcim:devicetype_list' %}"><strong>Device Types</strong></a></li>
                             {% if perms.dcim.add_devicetype %}
                                 <li class="subnav"><a href="{% url 'dcim:devicetype_add' %}"><i class="fa fa-plus"></i> Add a Device Type</a></li>
+                                <li class="subnav"><a href="{% url 'dcim:devicetype_import' %}"><i class="fa fa-download"></i> Import Device Types</a></li>
                             {% endif %}
                             <li class="divider"></li>
                             <li><a href="{% url 'dcim:devicerole_list' %}"><strong>Device Roles</strong></a></li>
@@ -105,6 +108,7 @@
                             <li><a href="{% url 'dcim:manufacturer_list' %}"><strong>Manufacturers</strong></a></li>
                             {% if perms.dcim.add_manufacturer %}
                                 <li class="subnav"><a href="{% url 'dcim:manufacturer_add' %}"><i class="fa fa-plus"></i> Add a Manufacturer</a></li>
+                                <li class="subnav"><a href="{% url 'dcim:manufacturer_import' %}"><i class="fa fa-download"></i> Import Manufacturers</a></li>
                             {% endif %}
                             {% if perms.dcim.add_manufacturer or perms.dcim.add_platform %}
                                 <li class="divider"></li>

@@ -15,6 +15,7 @@ urlpatterns = [
     # Regions
     url(r'^regions/$', views.RegionListView.as_view(), name='region_list'),
     url(r'^regions/add/$', views.RegionCreateView.as_view(), name='region_add'),
+    url(r'^regions/import/$', views.RegionBulkImportView.as_view(), name='region_import'),
     url(r'^regions/delete/$', views.RegionBulkDeleteView.as_view(), name='region_bulk_delete'),
     url(r'^regions/(?P<pk>\d+)/edit/$', views.RegionEditView.as_view(), name='region_edit'),
 
@@ -31,6 +32,7 @@ urlpatterns = [
     # Rack groups
     url(r'^rack-groups/$', views.RackGroupListView.as_view(), name='rackgroup_list'),
     url(r'^rack-groups/add/$', views.RackGroupCreateView.as_view(), name='rackgroup_add'),
+    url(r'^rack-groups/import/$', views.RackGroupBulkImportView.as_view(), name='rackgroup_import'),
     url(r'^rack-groups/delete/$', views.RackGroupBulkDeleteView.as_view(), name='rackgroup_bulk_delete'),
     url(r'^rack-groups/(?P<pk>\d+)/edit/$', views.RackGroupEditView.as_view(), name='rackgroup_edit'),
 
@@ -62,12 +64,14 @@ urlpatterns = [
     # Manufacturers
     url(r'^manufacturers/$', views.ManufacturerListView.as_view(), name='manufacturer_list'),
     url(r'^manufacturers/add/$', views.ManufacturerCreateView.as_view(), name='manufacturer_add'),
+    url(r'^manufacturers/import/$', views.ManufacturerBulkImportView.as_view(), name='manufacturer_import'),
     url(r'^manufacturers/delete/$', views.ManufacturerBulkDeleteView.as_view(), name='manufacturer_bulk_delete'),
     url(r'^manufacturers/(?P<slug>[\w-]+)/edit/$', views.ManufacturerEditView.as_view(), name='manufacturer_edit'),
 
     # Device types
     url(r'^device-types/$', views.DeviceTypeListView.as_view(), name='devicetype_list'),
     url(r'^device-types/add/$', views.DeviceTypeCreateView.as_view(), name='devicetype_add'),
+    url(r'^device-types/import/$', views.DeviceTypeBulkImportView.as_view(), name='devicetype_import'),
     url(r'^device-types/edit/$', views.DeviceTypeBulkEditView.as_view(), name='devicetype_bulk_edit'),
     url(r'^device-types/delete/$', views.DeviceTypeBulkDeleteView.as_view(), name='devicetype_bulk_delete'),
     url(r'^device-types/(?P<pk>\d+)/$', views.DeviceTypeView.as_view(), name='devicetype'),
