@@ -222,6 +222,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
     group = models.ForeignKey('RackGroup', related_name='racks', blank=True, null=True, on_delete=models.SET_NULL)
     tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='racks', on_delete=models.PROTECT)
     role = models.ForeignKey('RackRole', related_name='racks', blank=True, null=True, on_delete=models.PROTECT)
+    serial = models.CharField(max_length=50, blank=True, verbose_name='Serial number')
     type = models.PositiveSmallIntegerField(choices=RACK_TYPE_CHOICES, blank=True, null=True, verbose_name='Type')
     width = models.PositiveSmallIntegerField(choices=RACK_WIDTH_CHOICES, default=RACK_WIDTH_19IN, verbose_name='Width',
                                              help_text='Rail-to-rail width')
@@ -236,7 +237,8 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
     objects = RackManager()
 
     csv_headers = [
-        'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
+        'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'serial', 'width', 'u_height',
+        'desc_units',
     ]
 
     class Meta:

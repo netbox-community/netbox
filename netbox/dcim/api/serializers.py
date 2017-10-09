@@ -142,8 +142,8 @@ class RackSerializer(CustomFieldModelSerializer):
     class Meta:
         model = Rack
         fields = [
-            'id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'type', 'width', 'u_height',
-            'desc_units', 'comments', 'custom_fields',
+            'id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'serial', 'type', 'width',
+            'u_height', 'desc_units', 'comments', 'custom_fields',
         ]
 
 
@@ -160,8 +160,8 @@ class WritableRackSerializer(CustomFieldModelSerializer):
     class Meta:
         model = Rack
         fields = [
-            'id', 'name', 'facility_id', 'site', 'group', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
-            'comments', 'custom_fields',
+            'id', 'name', 'facility_id', 'site', 'group', 'tenant', 'role', 'serial', 'type', 'width', 'u_height',
+            'desc_units', 'comments', 'custom_fields',
         ]
         # Omit the UniqueTogetherValidator that would be automatically added to validate (site, facility_id). This
         # prevents facility_id from being interpreted as a required field.

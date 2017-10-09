@@ -232,8 +232,8 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     class Meta:
         model = Rack
         fields = [
-            'site', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'role', 'type', 'width', 'u_height',
-            'desc_units', 'comments',
+            'site', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'role', 'serial', 'type', 'width',
+            'u_height', 'desc_units', 'comments',
         ]
         help_texts = {
             'site': "The site at which the rack exists",
@@ -293,7 +293,8 @@ class RackCSVForm(forms.ModelForm):
     class Meta:
         model = Rack
         fields = [
-            'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
+            'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'serial', 'type', 'width', 'u_height',
+            'desc_units',
         ]
         help_texts = {
             'name': 'Rack name',
@@ -321,6 +322,7 @@ class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     group = forms.ModelChoiceField(queryset=RackGroup.objects.all(), required=False, label='Group')
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     role = forms.ModelChoiceField(queryset=RackRole.objects.all(), required=False)
+    serial = forms.CharField(max_length=50, required=False, label='Serial Number')
     type = forms.ChoiceField(choices=add_blank_choice(RACK_TYPE_CHOICES), required=False, label='Type')
     width = forms.ChoiceField(choices=add_blank_choice(RACK_WIDTH_CHOICES), required=False, label='Width')
     u_height = forms.IntegerField(required=False, label='Height (U)')
@@ -328,7 +330,7 @@ class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ['group', 'tenant', 'role', 'comments']
+        nullable_fields = ['group', 'tenant', 'role', 'serial', 'comments']
 
 
 class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -938,7 +940,7 @@ class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     serial = forms.CharField(max_length=50, required=False, label='Serial Number')
 
     class Meta:
-        nullable_fields = ['tenant', 'platform']
+        nullable_fields = ['tenant', 'platform', 'serial']
 
 
 def device_status_choices():
