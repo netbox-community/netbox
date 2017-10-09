@@ -53,7 +53,7 @@ $(document).ready(function() {
         success: function(json) {
             $.each(json['get_lldp_neighbors'], function(iface, neighbors) {
                 var neighbor = neighbors[0];
-                var row = $('#' + iface.replace(/(\/)/g, "\\$1"));
+                var row = $('#' + iface.split(".")[0].replace(/(\/)/g, "\\$1"));
                 var configured_device = row.children('td.configured_device').attr('data');
                 var configured_interface = row.children('td.configured_interface').attr('data');
                 // Add LLDP neighbors to table
@@ -62,7 +62,7 @@ $(document).ready(function() {
                 // Apply colors to rows
                 if (!configured_device && neighbor['hostname']) {
                     row.addClass('info');
-                } else if (configured_device == neighbor['hostname'] && configured_interface == neighbor['port']) {
+                } else if (configured_device == neighbor['hostname'] && configured_interface == neighbor['port'].split(".")[0]) {
                     row.addClass('success');
                 } else {
                     row.addClass('danger');
