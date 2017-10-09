@@ -39,6 +39,7 @@ urlpatterns = [
     # Rack roles
     url(r'^rack-roles/$', views.RackRoleListView.as_view(), name='rackrole_list'),
     url(r'^rack-roles/add/$', views.RackRoleCreateView.as_view(), name='rackrole_add'),
+    url(r'^rack-roles/import/$', views.RackRoleBulkImportView.as_view(), name='rackrole_import'),
     url(r'^rack-roles/delete/$', views.RackRoleBulkDeleteView.as_view(), name='rackrole_bulk_delete'),
     url(r'^rack-roles/(?P<pk>\d+)/edit/$', views.RackRoleEditView.as_view(), name='rackrole_edit'),
 
@@ -106,12 +107,14 @@ urlpatterns = [
     # Device roles
     url(r'^device-roles/$', views.DeviceRoleListView.as_view(), name='devicerole_list'),
     url(r'^device-roles/add/$', views.DeviceRoleCreateView.as_view(), name='devicerole_add'),
+    url(r'^device-roles/import/$', views.DeviceRoleBulkImportView.as_view(), name='devicerole_import'),
     url(r'^device-roles/delete/$', views.DeviceRoleBulkDeleteView.as_view(), name='devicerole_bulk_delete'),
     url(r'^device-roles/(?P<slug>[\w-]+)/edit/$', views.DeviceRoleEditView.as_view(), name='devicerole_edit'),
 
     # Platforms
     url(r'^platforms/$', views.PlatformListView.as_view(), name='platform_list'),
     url(r'^platforms/add/$', views.PlatformCreateView.as_view(), name='platform_add'),
+    url(r'^platforms/import/$', views.PlatformBulkImportView.as_view(), name='platform_import'),
     url(r'^platforms/delete/$', views.PlatformBulkDeleteView.as_view(), name='platform_bulk_delete'),
     url(r'^platforms/(?P<slug>[\w-]+)/edit/$', views.PlatformEditView.as_view(), name='platform_edit'),
 

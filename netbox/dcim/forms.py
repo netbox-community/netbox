@@ -212,6 +212,18 @@ class RackRoleForm(BootstrapMixin, forms.ModelForm):
         fields = ['name', 'slug', 'color']
 
 
+class RackRoleCSVForm(forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = RackRole
+        fields = ['name', 'slug', 'color']
+        help_texts = {
+            'name': 'Name of rack role',
+            'color': 'RGB color in hexadecimal (e.g. 00ff00)'
+        }
+
+
 #
 # Racks
 #
@@ -622,6 +634,18 @@ class DeviceRoleForm(BootstrapMixin, forms.ModelForm):
         fields = ['name', 'slug', 'color', 'vm_role']
 
 
+class DeviceRoleCSVForm(forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = DeviceRole
+        fields = ['name', 'slug', 'color', 'vm_role']
+        help_texts = {
+            'name': 'Name of device role',
+            'color': 'RGB color in hexadecimal (e.g. 00ff00)'
+        }
+
+
 #
 # Platforms
 #
@@ -632,6 +656,18 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Platform
         fields = ['name', 'slug', 'napalm_driver', 'rpc_client']
+
+
+class PlatformCSVForm(forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = Platform
+        fields = ['name', 'slug', 'napalm_driver']
+        help_texts = {
+            'name': 'Platform name',
+            # 'color': 'RGB color in hexadecimal (e.g. 00ff00)'
+        }
 
 
 #

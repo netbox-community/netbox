@@ -91,7 +91,7 @@
                             {% if perms.dcim.add_rackrole %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'dcim:rackrole_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a class="btn btn-xs btn-info disabled" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:rackrole_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:rackrole_list' %}">Rack Roles</a>
@@ -121,7 +121,7 @@
                             {% if perms.dcim.add_devicerole %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'dcim:devicerole_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a class="btn btn-xs btn-info disabled" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:devicerole_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:devicerole_list' %}">Device Roles</a>
@@ -130,7 +130,7 @@
                             {% if perms.dcim.add_platform %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'dcim:platform_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a class="btn btn-xs btn-info disabled" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'dcim:platform_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:platform_list' %}">Platforms</a>

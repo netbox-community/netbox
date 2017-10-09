@@ -1,5 +1,4 @@
 from __future__ import unicode_literals
-from copy import deepcopy
 import re
 from natsort import natsorted
 from operator import attrgetter
@@ -271,6 +270,13 @@ class RackRoleCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class RackRoleEditView(RackRoleCreateView):
     permission_required = 'dcim.change_rackrole'
+
+
+class RackRoleBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_rackrole'
+    model_form = forms.RackRoleCSVForm
+    table = tables.RackRoleTable
+    default_return_url = 'dcim:rackrole_list'
 
 
 class RackRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -738,6 +744,13 @@ class DeviceRoleEditView(DeviceRoleCreateView):
     permission_required = 'dcim.change_devicerole'
 
 
+class DeviceRoleBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_devicerole'
+    model_form = forms.DeviceRoleCSVForm
+    table = tables.DeviceRoleTable
+    default_return_url = 'dcim:devicerole_list'
+
+
 class DeviceRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_devicerole'
     cls = DeviceRole
@@ -767,6 +780,13 @@ class PlatformCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class PlatformEditView(PlatformCreateView):
     permission_required = 'dcim.change_platform'
+
+
+class PlatformBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_platform'
+    model_form = forms.PlatformCSVForm
+    table = tables.PlatformTable
+    default_return_url = 'dcim:platform_list'
 
 
 class PlatformBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
