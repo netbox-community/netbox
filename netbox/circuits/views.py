@@ -114,6 +114,13 @@ class CircuitTypeEditView(CircuitTypeCreateView):
     permission_required = 'circuits.change_circuittype'
 
 
+class CircuitTypeBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'circuits.add_circuittype'
+    model_form = forms.CircuitTypeCSVForm
+    table = tables.CircuitTypeTable
+    default_return_url = 'circuits:circuittype_list'
+
+
 class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_circuittype'
     cls = CircuitType

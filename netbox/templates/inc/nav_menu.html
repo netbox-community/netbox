@@ -330,7 +330,7 @@
                             {% if perms.circuits.add_circuittype %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'circuits:circuittype_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a class="btn btn-xs btn-info disabled" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'circuits:circuittype_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'circuits:circuittype_list' %}">Circuit Types</a>

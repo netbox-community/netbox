@@ -21,6 +21,7 @@ urlpatterns = [
     # Circuit types
     url(r'^circuit-types/$', views.CircuitTypeListView.as_view(), name='circuittype_list'),
     url(r'^circuit-types/add/$', views.CircuitTypeCreateView.as_view(), name='circuittype_add'),
+    url(r'^circuit-types/import/$', views.CircuitTypeBulkImportView.as_view(), name='circuittype_import'),
     url(r'^circuit-types/delete/$', views.CircuitTypeBulkDeleteView.as_view(), name='circuittype_bulk_delete'),
     url(r'^circuit-types/(?P<slug>[\w-]+)/edit/$', views.CircuitTypeEditView.as_view(), name='circuittype_edit'),
 
