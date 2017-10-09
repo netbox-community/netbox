@@ -356,7 +356,6 @@
                             <li>
                                 {% if perms.secrets.add_secret %}
                                     <div class="buttons pull-right">
-                                        <a class="btn btn-xs btn-success disabled" title="Add"><i class="fa fa-plus"></i></a>
                                         <a href="{% url 'secrets:secret_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
                                     </div>
                                 {% endif %}
@@ -366,7 +365,7 @@
                                 {% if perms.secrets.add_secretrole %}
                                     <div class="buttons pull-right">
                                         <a href="{% url 'secrets:secretrole_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                        <a class="btn btn-xs btn-info disabled" title="Import"><i class="fa fa-download"></i></a>
+                                        <a href="{% url 'secrets:secretrole_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
                                     </div>
                                 {% endif %}
                                 <a href="{% url 'secrets:secretrole_list' %}">Secret Roles</a>

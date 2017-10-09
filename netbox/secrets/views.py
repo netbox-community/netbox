@@ -52,6 +52,13 @@ class SecretRoleEditView(SecretRoleCreateView):
     permission_required = 'secrets.change_secretrole'
 
 
+class SecretRoleBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'secrets.add_secretrole'
+    model_form = forms.SecretRoleCSVForm
+    table = tables.SecretRoleTable
+    default_return_url = 'secrets:secretrole_list'
+
+
 class SecretRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'secrets.delete_secretrole'
     cls = SecretRole
