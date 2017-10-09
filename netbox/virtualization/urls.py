@@ -12,12 +12,14 @@ urlpatterns = [
     # Cluster types
     url(r'^cluster-types/$', views.ClusterTypeListView.as_view(), name='clustertype_list'),
     url(r'^cluster-types/add/$', views.ClusterTypeCreateView.as_view(), name='clustertype_add'),
+    url(r'^cluster-types/import/$', views.ClusterTypeBulkImportView.as_view(), name='clustertype_import'),
     url(r'^cluster-types/delete/$', views.ClusterTypeBulkDeleteView.as_view(), name='clustertype_bulk_delete'),
     url(r'^cluster-types/(?P<slug>[\w-]+)/edit/$', views.ClusterTypeEditView.as_view(), name='clustertype_edit'),
 
     # Cluster groups
     url(r'^cluster-groups/$', views.ClusterGroupListView.as_view(), name='clustergroup_list'),
     url(r'^cluster-groups/add/$', views.ClusterGroupCreateView.as_view(), name='clustergroup_add'),
+    url(r'^cluster-groups/import/$', views.ClusterGroupBulkImportView.as_view(), name='clustergroup_import'),
     url(r'^cluster-groups/delete/$', views.ClusterGroupBulkDeleteView.as_view(), name='clustergroup_bulk_delete'),
     url(r'^cluster-groups/(?P<slug>[\w-]+)/edit/$', views.ClusterGroupEditView.as_view(), name='clustergroup_edit'),
 

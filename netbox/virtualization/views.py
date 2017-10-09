@@ -43,6 +43,13 @@ class ClusterTypeEditView(ClusterTypeCreateView):
     permission_required = 'virtualization.change_clustertype'
 
 
+class ClusterTypeBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'virtualization.add_clustertype'
+    model_form = forms.ClusterTypeCSVForm
+    table = tables.ClusterTypeTable
+    default_return_url = 'virtualization:clustertype_list'
+
+
 class ClusterTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'virtualization.delete_clustertype'
     cls = ClusterType
@@ -72,6 +79,13 @@ class ClusterGroupCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class ClusterGroupEditView(ClusterGroupCreateView):
     permission_required = 'virtualization.change_clustergroup'
+
+
+class ClusterGroupBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'virtualization.add_clustergroup'
+    model_form = forms.ClusterGroupCSVForm
+    table = tables.ClusterGroupTable
+    default_return_url = 'virtualization:clustergroup_list'
 
 
 class ClusterGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):

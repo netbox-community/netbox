@@ -37,6 +37,7 @@ VIRTUALMACHINE_PRIMARY_IP = """
 
 class ClusterTypeTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.LinkColumn()
     cluster_count = tables.Column(verbose_name='Clusters')
     actions = tables.TemplateColumn(
         template_code=CLUSTERTYPE_ACTIONS,
@@ -55,6 +56,7 @@ class ClusterTypeTable(BaseTable):
 
 class ClusterGroupTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.LinkColumn()
     cluster_count = tables.Column(verbose_name='Clusters')
     actions = tables.TemplateColumn(
         template_code=CLUSTERGROUP_ACTIONS,

@@ -38,6 +38,17 @@ class ClusterTypeForm(BootstrapMixin, forms.ModelForm):
         fields = ['name', 'slug']
 
 
+class ClusterTypeCSVForm(forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = ClusterType
+        fields = ['name', 'slug']
+        help_texts = {
+            'name': 'Name of cluster type',
+        }
+
+
 #
 # Cluster groups
 #
@@ -48,6 +59,17 @@ class ClusterGroupForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ClusterGroup
         fields = ['name', 'slug']
+
+
+class ClusterGroupCSVForm(forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = ClusterGroup
+        fields = ['name', 'slug']
+        help_texts = {
+            'name': 'Name of cluster group',
+        }
 
 
 #

@@ -297,7 +297,7 @@
                             {% if perms.virtualization.add_clustertype %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'virtualization:clustertype_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a class="btn btn-xs btn-info disabled" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'virtualization:clustertype_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'virtualization:clustertype_list' %}">Cluster Types</a>
@@ -306,7 +306,7 @@
                             {% if perms.virtualization.add_clustergroup %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'virtualization:clustergroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a class="btn btn-xs btn-info disabled" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'virtualization:clustergroup_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'virtualization:clustergroup_list' %}">Cluster Groups</a>
