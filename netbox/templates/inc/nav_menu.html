@@ -211,7 +211,7 @@
                             {% if perms.ipam.add_role %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'ipam:role_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a class="btn btn-xs btn-info disabled" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'ipam:role_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'ipam:role_list' %}">Prefix/VLAN Roles</a>
@@ -231,7 +231,7 @@
                             {% if perms.ipam.add_rir %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'ipam:rir_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a class="btn btn-xs btn-info disabled" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'ipam:rir_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'ipam:rir_list' %}">RIRs</a>
@@ -262,7 +262,7 @@
                             {% if perms.ipam.add_vlangroup %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'ipam:vlangroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a class="btn btn-xs btn-info disabled" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'ipam:vlangroup_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'ipam:vlangroup_list' %}">VLAN Groups</a>

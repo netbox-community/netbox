@@ -97,6 +97,17 @@ class RIRForm(BootstrapMixin, forms.ModelForm):
         fields = ['name', 'slug', 'is_private']
 
 
+class RIRCSVForm(forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = RIR
+        fields = ['name', 'slug', 'is_private']
+        help_texts = {
+            'name': 'RIR name',
+        }
+
+
 class RIRFilterForm(BootstrapMixin, forms.Form):
     is_private = forms.NullBooleanField(required=False, label='Private', widget=forms.Select(choices=[
         ('', '---------'),
@@ -167,6 +178,17 @@ class RoleForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Role
         fields = ['name', 'slug']
+
+
+class RoleCSVForm(forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = Role
+        fields = ['name', 'slug']
+        help_texts = {
+            'name': 'Role name',
+        }
 
 
 #
@@ -716,6 +738,26 @@ class VLANGroupForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = VLANGroup
         fields = ['site', 'name', 'slug']
+
+
+class VLANGroupCSVForm(forms.ModelForm):
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of parent site',
+        error_messages={
+            'invalid_choice': 'Site not found.',
+        }
+    )
+    slug = SlugField()
+
+    class Meta:
+        model = VLANGroup
+        fields = ['site', 'name', 'slug']
+        help_texts = {
+            'name': 'Name of VLAN group',
+        }
 
 
 class VLANGroupFilterForm(BootstrapMixin, forms.Form):

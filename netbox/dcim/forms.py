@@ -666,7 +666,6 @@ class PlatformCSVForm(forms.ModelForm):
         fields = ['name', 'slug', 'napalm_driver']
         help_texts = {
             'name': 'Platform name',
-            # 'color': 'RGB color in hexadecimal (e.g. 00ff00)'
         }
 
 

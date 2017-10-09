@@ -261,6 +261,13 @@ class RIREditView(RIRCreateView):
     permission_required = 'ipam.change_rir'
 
 
+class RIRBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'ipam.add_rir'
+    model_form = forms.RIRCSVForm
+    table = tables.RIRTable
+    default_return_url = 'ipam:rir_list'
+
+
 class RIRBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_rir'
     cls = RIR
@@ -405,6 +412,13 @@ class RoleCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class RoleEditView(RoleCreateView):
     permission_required = 'ipam.change_role'
+
+
+class RoleBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'ipam.add_role'
+    model_form = forms.RoleCSVForm
+    table = tables.RoleTable
+    default_return_url = 'ipam:role_list'
 
 
 class RoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -743,6 +757,13 @@ class VLANGroupCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class VLANGroupEditView(VLANGroupCreateView):
     permission_required = 'ipam.change_vlangroup'
+
+
+class VLANGroupBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'ipam.add_vlangroup'
+    model_form = forms.VLANGroupCSVForm
+    table = tables.VLANGroupTable
+    default_return_url = 'ipam:vlangroup_list'
 
 
 class VLANGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
