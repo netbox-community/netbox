@@ -14,7 +14,7 @@ from circuits.models import Circuit, Provider
 from circuits.tables import CircuitTable, ProviderTable
 from dcim.filters import DeviceFilter, DeviceTypeFilter, RackFilter, SiteFilter
 from dcim.models import ConsolePort, Device, DeviceType, InterfaceConnection, PowerPort, Rack, Site
-from dcim.tables import DeviceTable, DeviceTypeTable, RackTable, SiteTable
+from dcim.tables import DeviceDetailTable, DeviceTypeTable, RackTable, SiteTable
 from extras.models import TopologyMap, UserAction
 from ipam.filters import AggregateFilter, IPAddressFilter, PrefixFilter, VLANFilter, VRFFilter
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
@@ -67,7 +67,7 @@ SEARCH_TYPES = OrderedDict((
             'device_type__manufacturer', 'device_role', 'tenant', 'site', 'rack'
         ),
         'filter': DeviceFilter,
-        'table': DeviceTable,
+        'table': DeviceDetailTable,
         'url': 'dcim:device_list',
     }),
     # IPAM
