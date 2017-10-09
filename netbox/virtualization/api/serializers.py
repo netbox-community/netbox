@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 
 from dcim.api.serializers import NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer
-from dcim.constants import VIFACE_FF_CHOICES
+from dcim.constants import IFACE_FF_VIRTUAL
 from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from tenancy.api.serializers import NestedTenantSerializer
@@ -122,12 +122,11 @@ class WritableVirtualMachineSerializer(CustomFieldModelSerializer):
 
 class InterfaceSerializer(serializers.ModelSerializer):
     virtual_machine = NestedVirtualMachineSerializer()
-    form_factor = ChoiceFieldSerializer(choices=VIFACE_FF_CHOICES)
 
     class Meta:
         model = Interface
         fields = [
-            'id', 'name', 'virtual_machine', 'form_factor', 'enabled', 'mac_address', 'mtu', 'description',
+            'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'description',
         ]
 
 
@@ -140,6 +139,7 @@ class NestedInterfaceSerializer(serializers.ModelSerializer):
 
 
 class WritableInterfaceSerializer(ValidatedModelSerializer):
+    form_factor = serializers.IntegerField(default=IFACE_FF_VIRTUAL)
 
     class Meta:
         model = Interface

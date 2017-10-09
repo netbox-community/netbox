@@ -6,7 +6,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Count
 
-from dcim.constants import IFACE_FF_VIRTUAL, VIFACE_FF_CHOICES
+from dcim.constants import IFACE_FF_VIRTUAL
 from dcim.formfields import MACAddressFormField
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
 from extras.forms import CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
@@ -19,6 +19,11 @@ from utilities.forms import (
 )
 from .constants import STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+
+
+VIFACE_FF_CHOICES = (
+    (IFACE_FF_VIRTUAL, 'Virtual'),
+)
 
 
 #

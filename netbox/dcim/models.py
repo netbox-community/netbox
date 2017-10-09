@@ -1303,9 +1303,9 @@ class Interface(models.Model):
             raise ValidationError("An interface must belong to either a device or a virtual machine.")
 
         # VM interfaces must be virtual
-        if self.virtual_machine and self.form_factor not in VIRTUAL_IFACE_TYPES:
+        if self.virtual_machine and self.form_factor is not IFACE_FF_VIRTUAL:
             raise ValidationError({
-                'form_factor': "Virtual machines cannot have physical interfaces."
+                'form_factor': "Virtual machines can only have virtual interfaces."
             })
 
         # Virtual interfaces cannot be connected
