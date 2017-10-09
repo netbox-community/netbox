@@ -53,7 +53,7 @@
                             {% if perms.tenancy.add_tenantgroup %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'tenancy:tenantgroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                    <a class="btn btn-xs btn-info disabled" title="Import"><i class="fa fa-download"></i></a>
+                                    <a href="{% url 'tenancy:tenantgroup_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
                                 </div>
                             {% endif %}
                             <a href="{% url 'tenancy:tenantgroup_list' %}">Tenant Groups</a>

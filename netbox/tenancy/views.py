@@ -40,6 +40,13 @@ class TenantGroupEditView(TenantGroupCreateView):
     permission_required = 'tenancy.change_tenantgroup'
 
 
+class TenantGroupBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'tenancy.add_tenantgroup'
+    model_form = forms.TenantGroupCSVForm
+    table = tables.TenantGroupTable
+    default_return_url = 'tenancy:tenantgroup_list'
+
+
 class TenantGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'tenancy.delete_tenantgroup'
     cls = TenantGroup
