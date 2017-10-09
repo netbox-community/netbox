@@ -17,6 +17,6 @@ paramiko>=2.0.0
 Pillow>=4.0.0
 psycopg2>=2.7.3
 py-gfm>=0.1.3
-pycrypto>=2.6.1
+pycryptodome>=3.4.7
 sqlparse>=0.2
 xmltodict>=0.10.2
