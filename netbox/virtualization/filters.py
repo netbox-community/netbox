@@ -1,9 +1,12 @@
 from __future__ import unicode_literals
 
 import django_filters
+from netaddr import EUI
+from netaddr.core import AddrFormatError
+
 from django.db.models import Q
 
-from dcim.models import DeviceRole, Platform, Site
+from dcim.models import DeviceRole, Interface, Platform, Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
@@ -126,3 +129,35 @@ class VirtualMachineFilter(CustomFieldFilterSet):
             Q(name__icontains=value) |
             Q(comments__icontains=value)
         )
+
+
+class InterfaceFilter(django_filters.FilterSet):
+    virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
+        name='virtual_machine',
+        queryset=VirtualMachine.objects.all(),
+        label='Virtual machine (ID)',
+    )
+    virtual_machine = django_filters.ModelMultipleChoiceFilter(
+        name='virtual_machine__name',
+        queryset=VirtualMachine.objects.all(),
+        to_field_name='name',
+        label='Virtual machine',
+    )
+    mac_address = django_filters.CharFilter(
+        method='_mac_address',
+        label='MAC address',
+    )
+
+    class Meta:
+        model = Interface
+        fields = ['name', 'enabled', 'mtu']
+
+    def _mac_address(self, queryset, name, value):
+        value = value.strip()
+        if not value:
+            return queryset
+        try:
+            mac = EUI(value.strip())
+            return queryset.filter(mac_address=mac)
+        except AddrFormatError:
+            return queryset.none()
