@@ -217,7 +217,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
     Each Rack is assigned to a Site and (optionally) a RackGroup.
     """
     name = models.CharField(max_length=50)
-    facility_id = NullableCharField(max_length=30, blank=True, null=True, verbose_name='Facility ID')
+    facility_id = NullableCharField(max_length=50, blank=True, null=True, verbose_name='Facility ID')
     site = models.ForeignKey('Site', related_name='racks', on_delete=models.PROTECT)
     group = models.ForeignKey('RackGroup', related_name='racks', blank=True, null=True, on_delete=models.SET_NULL)
     tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='racks', on_delete=models.PROTECT)
