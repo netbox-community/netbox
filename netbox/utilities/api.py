@@ -1,12 +1,16 @@
 from __future__ import unicode_literals
+from collections import OrderedDict
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.http import Http404
 
 from rest_framework.compat import is_authenticated
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import BasePermission
+from rest_framework.response import Response
 from rest_framework.serializers import Field, ModelSerializer, ValidationError
+from rest_framework.viewsets import ViewSet
 
 
 WRITE_OPERATIONS = ['create', 'update', 'partial_update', 'delete']
@@ -92,6 +96,55 @@ class ContentTypeFieldSerializer(Field):
             return ContentType.objects.get_by_natural_key(app_label=app_label, model=model)
         except ContentType.DoesNotExist:
             raise ValidationError("Invalid content type")
+
+
+#
+# Views
+#
+
+class FieldChoicesViewSet(ViewSet):
+    """
+    Expose the built-in numeric values which represent static choices for a model's field.
+    """
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
+    fields = []
+
+    def __init__(self, *args, **kwargs):
+        super(FieldChoicesViewSet, self).__init__(*args, **kwargs)
+
+        # Compile a dict of all fields in this view
+        self._fields = OrderedDict()
+        for cls, field_list in self.fields:
+            for field_name in field_list:
+                model_name = cls._meta.verbose_name.lower().replace(' ', '-')
+                key = ':'.join([model_name, field_name])
+                choices = []
+                for k, v in cls._meta.get_field(field_name).choices:
+                    if type(v) in [list, tuple]:
+                        for k2, v2 in v:
+                            choices.append({
+                                'value': v2,
+                                'label': k2,
+                            })
+                    else:
+                        choices.append({
+                            'value': v,
+                            'label': k,
+                        })
+                self._fields[key] = choices
+
+    def list(self, request):
+        return Response(self._fields)
+
+    def retrieve(self, request, pk):
+
+        if pk not in self._fields:
+            raise Http404
+
+        return Response(self._fields[pk])
+
+    def get_view_name(self):
+        return "Field Choices"
 
 
 #

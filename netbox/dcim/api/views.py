@@ -20,9 +20,25 @@ from dcim import filters
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
 from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
-from utilities.api import IsAuthenticatedOrLoginNotRequired, ServiceUnavailable, WritableSerializerMixin
+from utilities.api import IsAuthenticatedOrLoginNotRequired, FieldChoicesViewSet, ServiceUnavailable, WritableSerializerMixin
 from .exceptions import MissingFilterException
 from . import serializers
+
+
+#
+# Field choices
+#
+
+class DCIMFieldChoicesViewSet(FieldChoicesViewSet):
+    fields = (
+        (Device, ['face', 'status']),
+        (ConsolePort, ['connection_status']),
+        (Interface, ['form_factor']),
+        (InterfaceConnection, ['connection_status']),
+        (InterfaceTemplate, ['form_factor']),
+        (PowerPort, ['connection_status']),
+        (Rack, ['type', 'width']),
+    )
 
 
 #

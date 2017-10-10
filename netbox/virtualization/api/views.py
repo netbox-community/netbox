@@ -4,10 +4,20 @@ from rest_framework.viewsets import ModelViewSet
 
 from dcim.models import Interface
 from extras.api.views import CustomFieldModelViewSet
-from utilities.api import WritableSerializerMixin
+from utilities.api import FieldChoicesViewSet, WritableSerializerMixin
 from virtualization import filters
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 from . import serializers
+
+
+#
+# Field choices
+#
+
+class VirtualizationFieldChoicesViewSet(FieldChoicesViewSet):
+    fields = (
+        (VirtualMachine, ['status']),
+    )
 
 
 #

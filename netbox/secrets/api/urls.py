@@ -16,6 +16,9 @@ class SecretsRootView(routers.APIRootView):
 router = routers.DefaultRouter()
 router.APIRootView = SecretsRootView
 
+# Field choices
+router.register(r'_choices', views.SecretsFieldChoicesViewSet, base_name='field-choice')
+
 # Secrets
 router.register(r'secret-roles', views.SecretRoleViewSet)
 router.register(r'secrets', views.SecretViewSet)

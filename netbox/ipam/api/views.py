@@ -12,8 +12,22 @@ from django.shortcuts import get_object_or_404
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from ipam import filters
 from extras.api.views import CustomFieldModelViewSet
-from utilities.api import WritableSerializerMixin
+from utilities.api import FieldChoicesViewSet, WritableSerializerMixin
 from . import serializers
+
+
+#
+# Field choices
+#
+
+class IPAMFieldChoicesViewSet(FieldChoicesViewSet):
+    fields = (
+        (Aggregate, ['family']),
+        (Prefix, ['family', 'status']),
+        (IPAddress, ['family', 'status', 'role']),
+        (VLAN, ['status']),
+        (Service, ['protocol']),
+    )
 
 
 #

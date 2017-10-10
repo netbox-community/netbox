@@ -10,11 +10,26 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 
 from extras import filters
-from extras.models import ExportTemplate, Graph, ImageAttachment, ReportResult, TopologyMap, UserAction
+from extras.models import CustomField, ExportTemplate, Graph, ImageAttachment, ReportResult, TopologyMap, UserAction
 from extras.reports import get_report, get_reports
-from utilities.api import WritableSerializerMixin
+from utilities.api import FieldChoicesViewSet, WritableSerializerMixin
 from . import serializers
 
+
+#
+# Field choices
+#
+
+class ExtrasFieldChoicesViewSet(FieldChoicesViewSet):
+    fields = (
+        (CustomField, ['type']),
+        (Graph, ['type']),
+    )
+
+
+#
+# Custom fields
+#
 
 class CustomFieldModelViewSet(ModelViewSet):
     """
@@ -46,6 +61,10 @@ class CustomFieldModelViewSet(ModelViewSet):
         return super(CustomFieldModelViewSet, self).get_queryset().prefetch_related('custom_field_values__field')
 
 
+#
+# Graphs
+#
+
 class GraphViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = Graph.objects.all()
     serializer_class = serializers.GraphSerializer
@@ -53,11 +72,19 @@ class GraphViewSet(WritableSerializerMixin, ModelViewSet):
     filter_class = filters.GraphFilter
 
 
+#
+# Export templates
+#
+
 class ExportTemplateViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = ExportTemplate.objects.all()
     serializer_class = serializers.ExportTemplateSerializer
     filter_class = filters.ExportTemplateFilter
 
+
+#
+# Topology maps
+#
 
 class TopologyMapViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = TopologyMap.objects.select_related('site')
@@ -85,11 +112,19 @@ class TopologyMapViewSet(WritableSerializerMixin, ModelViewSet):
         return response
 
 
+#
+# Image attachments
+#
+
 class ImageAttachmentViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = ImageAttachment.objects.all()
     serializer_class = serializers.ImageAttachmentSerializer
     write_serializer_class = serializers.WritableImageAttachmentSerializer
 
+
+#
+# Reports
+#
 
 class ReportViewSet(ViewSet):
     _ignore_model_permissions = True
@@ -161,6 +196,10 @@ class ReportViewSet(ViewSet):
 
         return Response(serializer.data)
 
+
+#
+# User activity
+#
 
 class RecentActivityViewSet(ReadOnlyModelViewSet):
     """

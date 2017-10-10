@@ -16,6 +16,9 @@ class ExtrasRootView(routers.APIRootView):
 router = routers.DefaultRouter()
 router.APIRootView = ExtrasRootView
 
+# Field choices
+router.register(r'_choices', views.ExtrasFieldChoicesViewSet, base_name='field-choice')
+
 # Graphs
 router.register(r'graphs', views.GraphViewSet)
 
