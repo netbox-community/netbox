@@ -10,7 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
-from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, TypedChoiceField
+from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea, TypedChoiceField
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import TemplateSyntaxError
@@ -380,11 +380,13 @@ class BulkImportView(View):
     table: The django-tables2 Table used to render the list of imported objects
     template_name: The name of the template
     default_return_url: The name of the URL to use for the cancel button
+    widget_attrs: A dict of attributes to apply to the import widget (e.g. to require a session key)
     """
     model_form = None
     table = None
     default_return_url = None
     template_name = 'utilities/obj_import.html'
+    widget_attrs = {}
 
     def _import_form(self, *args, **kwargs):
 
@@ -392,7 +394,7 @@ class BulkImportView(View):
         required_fields = [name for name, field in self.model_form().fields.items() if field.required]
 
         class ImportForm(BootstrapMixin, Form):
-            csv = CSVDataField(fields=fields, required_fields=required_fields)
+            csv = CSVDataField(fields=fields, required_fields=required_fields, widget=Textarea(attrs=self.widget_attrs))
 
         return ImportForm(*args, **kwargs)
 

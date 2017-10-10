@@ -203,7 +203,9 @@ class SecretBulkImportView(BulkImportView):
     permission_required = 'ipam.add_vlan'
     model_form = forms.SecretCSVForm
     table = tables.SecretTable
+    template_name = 'secrets/secret_import.html'
     default_return_url = 'secrets:secret_list'
+    widget_attrs = {'class': 'requires-session-key'}
 
     master_key = None
 
