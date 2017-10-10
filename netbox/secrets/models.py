@@ -17,6 +17,7 @@ from dcim.models import Device
 from utilities.models import CreatedUpdatedModel
 from .exceptions import InvalidKey
 from .hashers import SecretValidationHasher
+from .querysets import UserKeyQuerySet
 
 
 def generate_random_key(bits=256):
@@ -44,16 +45,6 @@ def decrypt_master_key(master_key_cipher, private_key):
     key = RSA.importKey(private_key)
     cipher = PKCS1_OAEP.new(key)
     return cipher.decrypt(master_key_cipher)
-
-
-class UserKeyQuerySet(models.QuerySet):
-
-    def active(self):
-        return self.filter(master_key_cipher__isnull=False)
-
-    def delete(self):
-        # Disable bulk deletion to avoid accidentally wiping out all copies of the master key.
-        raise Exception("Bulk deletion has been disabled.")
 
 
 @python_2_unicode_compatible
