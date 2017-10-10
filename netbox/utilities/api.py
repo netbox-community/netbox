@@ -123,13 +123,13 @@ class FieldChoicesViewSet(ViewSet):
                     if type(v) in [list, tuple]:
                         for k2, v2 in v:
                             choices.append({
-                                'value': v2,
-                                'label': k2,
+                                'value': k2,
+                                'label': v2,
                             })
                     else:
                         choices.append({
-                            'value': v,
-                            'label': k,
+                            'value': k,
+                            'label': v,
                         })
                 self._fields[key] = choices
 
