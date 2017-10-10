@@ -23,7 +23,7 @@
 </div>
 <div class="pull-right">
     {% if perms.ipam.add_ipaddress %}
-		<a href="{% url 'ipam:ipaddress_add' %}?address={{ prefix.prefix }}{% if prefix.vrf %}&vrf={{ prefix.vrf.pk }}{% endif %}" class="btn btn-success">
+		<a href="{% url 'ipam:ipaddress_add' %}?address={{ prefix.prefix }}{% if prefix.vrf %}&vrf={{ prefix.vrf.pk }}{% endif %}{% if prefix.tenant %}&tenant={{ prefix.tenant.pk }}{% endif %}" class="btn btn-success">
 			<span class="fa fa-plus" aria-hidden="true"></span>
 			Add an IP Address
 		</a>
