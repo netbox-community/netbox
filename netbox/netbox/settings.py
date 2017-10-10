@@ -211,23 +211,23 @@ REST_FRAMEWORK = {
     'ALLOWED_VERSIONS': [REST_FRAMEWORK_VERSION],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
-        'utilities.api.TokenAuthentication',
+        'netbox.api.TokenAuthentication',
     ),
     'DEFAULT_FILTER_BACKENDS': (
         'rest_framework.filters.DjangoFilterBackend',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'utilities.api.OptionalLimitOffsetPagination',
+    'DEFAULT_PAGINATION_CLASS': 'netbox.api.OptionalLimitOffsetPagination',
     'DEFAULT_PERMISSION_CLASSES': (
-        'utilities.api.TokenPermissions',
+        'netbox.api.TokenPermissions',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        'utilities.api.FormlessBrowsableAPIRenderer',
+        'netbox.api.FormlessBrowsableAPIRenderer',
     ),
     'DEFAULT_VERSION': REST_FRAMEWORK_VERSION,
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'PAGE_SIZE': PAGINATE_COUNT,
-    'VIEW_NAME_FUNCTION': 'utilities.api.get_view_name',
+    'VIEW_NAME_FUNCTION': 'netbox.api.get_view_name',
 }
 
 # Django debug toolbar
