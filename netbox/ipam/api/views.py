@@ -134,7 +134,18 @@ class PrefixViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 #
 
 class IPAddressViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
-    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device', 'nat_inside')
+    queryset = IPAddress.objects.select_related(
+        'interface',
+        'interface__circuit_termination',
+        'interface__connected_as_a__interface_b',
+        'interface__connected_as_a__interface_b__device',
+        'interface__connected_as_b__interface_a',
+        'interface__connected_as_b__interface_a__device',
+        'interface__device',
+        'nat_inside',
+        'nat_outside',
+        'tenant',
+        'vrf__tenant')
     serializer_class = serializers.IPAddressSerializer
     write_serializer_class = serializers.WritableIPAddressSerializer
     filter_class = filters.IPAddressFilter

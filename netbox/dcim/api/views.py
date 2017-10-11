@@ -83,7 +83,7 @@ class RackRoleViewSet(ModelViewSet):
 #
 
 class RackViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
-    queryset = Rack.objects.select_related('site', 'group__site', 'tenant')
+    queryset = Rack.objects.select_related('site', 'group__site', 'tenant', 'role')
     serializer_class = serializers.RackSerializer
     write_serializer_class = serializers.WritableRackSerializer
     filter_class = filters.RackFilter
@@ -219,6 +219,7 @@ class DeviceViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = Device.objects.select_related(
         'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'rack', 'parent_bay',
     ).prefetch_related(
+        'primary_ip4', 'primary_ip6',
         'primary_ip4__nat_outside', 'primary_ip6__nat_outside',
     )
     serializer_class = serializers.DeviceSerializer
@@ -320,7 +321,15 @@ class PowerOutletViewSet(WritableSerializerMixin, ModelViewSet):
 
 
 class InterfaceViewSet(WritableSerializerMixin, ModelViewSet):
-    queryset = Interface.objects.select_related('device')
+    queryset = Interface.objects.select_related(
+        'circuit_termination__circuit',
+        'circuit_termination__interface',
+        'connected_as_a__interface_b',
+        'connected_as_a__interface_b__device',
+        'connected_as_b__interface_a',
+        'connected_as_b__interface_a__device',
+        'device',
+        'lag')
     serializer_class = serializers.InterfaceSerializer
     write_serializer_class = serializers.WritableInterfaceSerializer
     filter_class = filters.InterfaceFilter
