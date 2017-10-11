@@ -13,7 +13,7 @@ except ImportError:
     )
 
 
-VERSION = '2.1.5'
+VERSION = '2.1.6'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -228,7 +228,7 @@ REST_FRAMEWORK = {
         'utilities.api.TokenAuthentication',
     ),
     'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework.filters.DjangoFilterBackend',
+        'django_filters.rest_framework.DjangoFilterBackend',
     ),
     'DEFAULT_PAGINATION_CLASS': 'utilities.api.OptionalLimitOffsetPagination',
     'DEFAULT_PERMISSION_CLASSES': (
