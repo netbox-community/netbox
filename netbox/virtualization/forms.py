@@ -186,7 +186,6 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
             ('site', 'site'),
             ('rack', 'rack'),
         ),
-        label='Device',
         widget=APISelectMultiple(
             api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
             display_field='display_name',
