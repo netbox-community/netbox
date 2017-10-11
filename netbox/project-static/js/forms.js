@@ -77,7 +77,9 @@ $(document).ready(function() {
 
         // Wipe out any existing options within the child field and create a default option
         child_field.empty();
-        child_field.append($("<option></option>").attr("value", "").text("---------"));
+        if (!child_field.attr('multiple')) {
+            child_field.append($("<option></option>").attr("value", "").text("---------"));
+        }
 
         if ($(this).val() || $(this).attr('nullable') == 'true') {
             var api_url = child_field.attr('api-url') + '&limit=1000';

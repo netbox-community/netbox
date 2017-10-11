@@ -145,7 +145,7 @@ An API consumer can request an arbitrary number of objects by appending the "lim
 
 Default: $BASE_DIR/netbox/media/
 
-The file path to the location where media files (such as image attachments) are stored. By default, this is the `netbox/media` directory within the base NetBox installation path.
+The file path to the location where media files (such as image attachments) are stored. By default, this is the `netbox/media/` directory within the base NetBox installation path.
 
 ---
 
@@ -191,14 +191,6 @@ The amount of time (in seconds) to wait for NAPALM to connect to a device.
 
 ---
 
-## NETBOX_USERNAME (Deprecated)
-
-## NETBOX_PASSWORD (Deprecated)
-
-These settings have been deprecated and will be removed in NetBox v2.2. Please use `NAPALM_USERNAME` and `NAPALM_PASSWORD` instead.
-
----
-
 ## PAGINATE_COUNT
 
 Default: 50
@@ -212,6 +204,14 @@ Determine how many objects to display per page within each list of objects.
 Default: False
 
 When determining the primary IP address for a device, IPv6 is preferred over IPv4 by default. Set this to True to prefer IPv4 instead.
+
+---
+
+## REPORTS_ROOT
+
+Default: $BASE_DIR/netbox/reports/
+
+The file path to the location where custom reports will be kept. By default, this is the `netbox/reports/` directory within the base NetBox installation path.
 
 ---
 

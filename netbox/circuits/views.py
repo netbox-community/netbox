@@ -52,7 +52,7 @@ class ProviderView(View):
 class ProviderCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.add_provider'
     model = Provider
-    form_class = forms.ProviderForm
+    model_form = forms.ProviderForm
     template_name = 'circuits/provider_edit.html'
     default_return_url = 'circuits:provider_list'
 
@@ -104,7 +104,7 @@ class CircuitTypeListView(ObjectListView):
 class CircuitTypeCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.add_circuittype'
     model = CircuitType
-    form_class = forms.CircuitTypeForm
+    model_form = forms.CircuitTypeForm
 
     def get_return_url(self, request, obj):
         return reverse('circuits:circuittype_list')
@@ -112,6 +112,13 @@ class CircuitTypeCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class CircuitTypeEditView(CircuitTypeCreateView):
     permission_required = 'circuits.change_circuittype'
+
+
+class CircuitTypeBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'circuits.add_circuittype'
+    model_form = forms.CircuitTypeCSVForm
+    table = tables.CircuitTypeTable
+    default_return_url = 'circuits:circuittype_list'
 
 
 class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -160,7 +167,7 @@ class CircuitView(View):
 class CircuitCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.add_circuit'
     model = Circuit
-    form_class = forms.CircuitForm
+    model_form = forms.CircuitForm
     template_name = 'circuits/circuit_edit.html'
     default_return_url = 'circuits:circuit_list'
 
@@ -253,7 +260,7 @@ def circuit_terminations_swap(request, pk):
 class CircuitTerminationCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.add_circuittermination'
     model = CircuitTermination
-    form_class = forms.CircuitTerminationForm
+    model_form = forms.CircuitTerminationForm
     template_name = 'circuits/circuittermination_edit.html'
 
     def alter_obj(self, obj, request, url_args, url_kwargs):

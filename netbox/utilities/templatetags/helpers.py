@@ -47,6 +47,22 @@ def gfm(value):
 
 
 @register.filter()
+def model_name(obj):
+    """
+    Return the name of the model of the given object
+    """
+    return obj._meta.verbose_name
+
+
+@register.filter()
+def model_name_plural(obj):
+    """
+    Return the plural name of the model of the given object
+    """
+    return obj._meta.verbose_name_plural
+
+
+@register.filter()
 def contains(value, arg):
     """
     Test whether a value contains any of a given set of strings. `arg` should be a comma-separated list of strings.

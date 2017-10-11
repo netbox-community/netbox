@@ -20,19 +20,6 @@ class RPCClient(object):
         except AttributeError:
             raise Exception("Specified device ({}) does not have a primary IP defined.".format(device))
 
-    def get_lldp_neighbors(self):
-        """
-        Returns a list of dictionaries, each representing an LLDP neighbor adjacency.
-
-        {
-            'local-interface': <str>,
-            'name': <str>,
-            'remote-interface': <str>,
-            'chassis-id': <str>,
-        }
-        """
-        raise NotImplementedError("Feature not implemented for this platform.")
-
     def get_inventory(self):
         """
         Returns a dictionary representing the device chassis and installed inventory items.
@@ -122,30 +109,6 @@ class JunosNC(RPCClient):
 
         # Close the connection to the device
         self.manager.close_session()
-
-    def get_lldp_neighbors(self):
-
-        rpc_reply = self.manager.dispatch('get-lldp-neighbors-information')
-        lldp_neighbors_raw = xmltodict.parse(rpc_reply.xml)['rpc-reply']['lldp-neighbors-information']['lldp-neighbor-information']
-
-        result = []
-        for neighbor_raw in lldp_neighbors_raw:
-            neighbor = dict()
-            neighbor['local-interface'] = neighbor_raw.get('lldp-local-port-id')
-            name = neighbor_raw.get('lldp-remote-system-name')
-            if name:
-                neighbor['name'] = name.split('.')[0]  # Split hostname from domain if one is present
-            else:
-                neighbor['name'] = ''
-            try:
-                neighbor['remote-interface'] = neighbor_raw['lldp-remote-port-description']
-            except KeyError:
-                # Older versions of Junos report on interface ID instead of description
-                neighbor['remote-interface'] = neighbor_raw.get('lldp-remote-port-id')
-            neighbor['chassis-id'] = neighbor_raw.get('lldp-remote-chassis-id')
-            result.append(neighbor)
-
-        return result
 
     def get_inventory(self):
 

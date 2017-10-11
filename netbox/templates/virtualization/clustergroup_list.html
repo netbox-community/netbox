@@ -1,0 +1,19 @@
+{% extends '_base.html' %}
+{% load helpers %}
+
+{% block content %}
+<div class="pull-right">
+    {% if perms.virtualization.add_clustergroup %}
+        <a href="{% url 'virtualization:clustergroup_add' %}" class="btn btn-primary">
+            <span class="fa fa-plus" aria-hidden="true"></span>
+            Add a cluster group
+        </a>
+    {% endif %}
+</div>
+<h1>{% block title %}Cluster Groups{% endblock %}</h1>
+<div class="row">
+	<div class="col-md-12">
+        {% include 'utilities/obj_table.html' with bulk_delete_url='virtualization:clustergroup_bulk_delete' %}
+    </div>
+</div>
+{% endblock %}

@@ -13,7 +13,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, Q, ObjectDoesNotExist
-from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -27,6 +26,7 @@ from utilities.models import CreatedUpdatedModel
 from utilities.utils import csv_format
 from .constants import *
 from .fields import ASNField, MACAddressField
+from .querysets import InterfaceQuerySet
 
 
 #
@@ -44,6 +44,10 @@ class Region(MPTTModel):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
 
+    csv_headers = [
+        'name', 'slug', 'parent',
+    ]
+
     class MPTTMeta:
         order_insertion_by = ['name']
 
@@ -52,6 +56,13 @@ class Region(MPTTModel):
 
     def get_absolute_url(self):
         return "{}?region={}".format(reverse('dcim:site_list'), self.slug)
+
+    def to_csv(self):
+        return csv_format([
+            self.name,
+            self.slug,
+            self.parent.name if self.parent else None,
+        ])
 
 
 #
@@ -149,6 +160,10 @@ class RackGroup(models.Model):
     slug = models.SlugField()
     site = models.ForeignKey('Site', related_name='rack_groups', on_delete=models.CASCADE)
 
+    csv_headers = [
+        'site', 'name', 'slug',
+    ]
+
     class Meta:
         ordering = ['site', 'name']
         unique_together = [
@@ -161,6 +176,13 @@ class RackGroup(models.Model):
 
     def get_absolute_url(self):
         return "{}?group_id={}".format(reverse('dcim:rack_list'), self.pk)
+
+    def to_csv(self):
+        return csv_format([
+            self.site,
+            self.name,
+            self.slug,
+        ])
 
 
 @python_2_unicode_compatible
@@ -195,11 +217,12 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
     Each Rack is assigned to a Site and (optionally) a RackGroup.
     """
     name = models.CharField(max_length=50)
-    facility_id = NullableCharField(max_length=30, blank=True, null=True, verbose_name='Facility ID')
+    facility_id = NullableCharField(max_length=50, blank=True, null=True, verbose_name='Facility ID')
     site = models.ForeignKey('Site', related_name='racks', on_delete=models.PROTECT)
     group = models.ForeignKey('RackGroup', related_name='racks', blank=True, null=True, on_delete=models.SET_NULL)
     tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='racks', on_delete=models.PROTECT)
     role = models.ForeignKey('RackRole', related_name='racks', blank=True, null=True, on_delete=models.PROTECT)
+    serial = models.CharField(max_length=50, blank=True, verbose_name='Serial number')
     type = models.PositiveSmallIntegerField(choices=RACK_TYPE_CHOICES, blank=True, null=True, verbose_name='Type')
     width = models.PositiveSmallIntegerField(choices=RACK_WIDTH_CHOICES, default=RACK_WIDTH_19IN, verbose_name='Width',
                                              help_text='Rail-to-rail width')
@@ -214,7 +237,8 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
     objects = RackManager()
 
     csv_headers = [
-        'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
+        'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'serial', 'width', 'u_height',
+        'desc_units',
     ]
 
     class Meta:
@@ -444,6 +468,10 @@ class Manufacturer(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
 
+    csv_headers = [
+        'name', 'slug',
+    ]
+
     class Meta:
         ordering = ['name']
 
@@ -452,6 +480,12 @@ class Manufacturer(models.Model):
 
     def get_absolute_url(self):
         return "{}?manufacturer={}".format(reverse('dcim:devicetype_list'), self.slug)
+
+    def to_csv(self):
+        return csv_format([
+            self.name,
+            self.slug,
+        ])
 
 
 @python_2_unicode_compatible
@@ -492,6 +526,11 @@ class DeviceType(models.Model, CustomFieldModel):
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
+    csv_headers = [
+        'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
+        'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering',
+    ]
+
     class Meta:
         ordering = ['manufacturer', 'model']
         unique_together = [
@@ -510,6 +549,21 @@ class DeviceType(models.Model, CustomFieldModel):
 
     def get_absolute_url(self):
         return reverse('dcim:devicetype', args=[self.pk])
+
+    def to_csv(self):
+        return csv_format([
+            self.manufacturer.name,
+            self.model,
+            self.slug,
+            self.part_number,
+            self.u_height,
+            self.is_full_depth,
+            self.is_console_server,
+            self.is_pdu,
+            self.is_network_device,
+            self.get_subdevice_role_display() if self.subdevice_role else None,
+            self.get_interface_ordering_display(),
+        ])
 
     def clean(self):
 
@@ -633,72 +687,6 @@ class PowerOutletTemplate(models.Model):
         return self.name
 
 
-class InterfaceQuerySet(models.QuerySet):
-
-    def order_naturally(self, method=IFACE_ORDERING_POSITION):
-        """
-        Naturally order interfaces by their type and numeric position. The sort method must be one of the defined
-        IFACE_ORDERING_CHOICES (typically indicated by a parent Device's DeviceType).
-
-        To order interfaces naturally, the `name` field is split into six distinct components: leading text (type),
-        slot, subslot, position, channel, and virtual circuit:
-
-            {type}{slot}/{subslot}/{position}/{subposition}:{channel}.{vc}
-
-        Components absent from the interface name are ignored. For example, an interface named GigabitEthernet1/2/3
-        would be parsed as follows:
-
-            name = 'GigabitEthernet'
-            slot =  1
-            subslot = 2
-            position = 3
-            subposition = 0
-            channel = None
-            vc = 0
-
-        The original `name` field is taken as a whole to serve as a fallback in the event interfaces do not match any of
-        the prescribed fields.
-        """
-        sql_col = '{}.name'.format(self.model._meta.db_table)
-        ordering = {
-            IFACE_ORDERING_POSITION: (
-                '_slot', '_subslot', '_position', '_subposition', '_channel', '_vc', '_type', '_id', 'name',
-            ),
-            IFACE_ORDERING_NAME: (
-                '_type', '_slot', '_subslot', '_position', '_subposition', '_channel', '_vc', '_id', 'name',
-            ),
-        }[method]
-
-        TYPE_RE = r"SUBSTRING({} FROM '^([^0-9]+)')"
-        ID_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)([0-9]+)$') AS integer)"
-        SLOT_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)([0-9]+)\/') AS integer)"
-        SUBSLOT_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)(?:[0-9]+\/)([0-9]+)') AS integer)"
-        POSITION_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)(?:[0-9]+\/){{2}}([0-9]+)') AS integer)"
-        SUBPOSITION_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)(?:[0-9]+\/){{3}}([0-9]+)') AS integer)"
-        CHANNEL_RE = r"COALESCE(CAST(SUBSTRING({} FROM ':([0-9]+)(\.[0-9]+)?$') AS integer), 0)"
-        VC_RE = r"COALESCE(CAST(SUBSTRING({} FROM '\.([0-9]+)$') AS integer), 0)"
-
-        fields = {
-            '_type': RawSQL(TYPE_RE.format(sql_col), []),
-            '_id': RawSQL(ID_RE.format(sql_col), []),
-            '_slot': RawSQL(SLOT_RE.format(sql_col), []),
-            '_subslot': RawSQL(SUBSLOT_RE.format(sql_col), []),
-            '_position': RawSQL(POSITION_RE.format(sql_col), []),
-            '_subposition': RawSQL(SUBPOSITION_RE.format(sql_col), []),
-            '_channel': RawSQL(CHANNEL_RE.format(sql_col), []),
-            '_vc': RawSQL(VC_RE.format(sql_col), []),
-        }
-
-        return self.annotate(**fields).order_by(*ordering)
-
-    def connectable(self):
-        """
-        Return only physical interfaces which are capable of being connected to other interfaces (i.e. not virtual or
-        wireless).
-        """
-        return self.exclude(form_factor__in=NONCONNECTABLE_IFACE_TYPES)
-
-
 @python_2_unicode_compatible
 class InterfaceTemplate(models.Model):
     """
@@ -743,11 +731,17 @@ class DeviceBayTemplate(models.Model):
 class DeviceRole(models.Model):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
-    color to be used when displaying rack elevations.
+    color to be used when displaying rack elevations. The vm_role field determines whether the role is applicable to
+    virtual machines as well.
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
     color = ColorField()
+    vm_role = models.BooleanField(
+        default=True,
+        verbose_name="VM Role",
+        help_text="Virtual machines may be assigned to this role"
+    )
 
     class Meta:
         ordering = ['name']
@@ -827,6 +821,13 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     primary_ip6 = models.OneToOneField(
         'ipam.IPAddress', related_name='primary_ip6_for', on_delete=models.SET_NULL, blank=True, null=True,
         verbose_name='Primary IPv6'
+    )
+    cluster = models.ForeignKey(
+        to='virtualization.Cluster',
+        on_delete=models.SET_NULL,
+        related_name='devices',
+        blank=True,
+        null=True
     )
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
@@ -932,6 +933,12 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         ):
             raise ValidationError({
                 'primary_ip6': "The specified IP address ({}) is not assigned to this device.".format(self.primary_ip6),
+            })
+
+        # A Device can only be assigned to a Cluster in the same Site (or no Site)
+        if self.cluster and self.cluster.site is not None and self.cluster.site != self.site:
+            raise ValidationError({
+                'cluster': "The assigned cluster belongs to a different site ({})".format(self.cluster.site)
             })
 
     def save(self, *args, **kwargs):
@@ -1177,13 +1184,26 @@ class PowerOutlet(models.Model):
 @python_2_unicode_compatible
 class Interface(models.Model):
     """
-    A physical data interface within a Device. An Interface can connect to exactly one other Interface via the creation
-    of an InterfaceConnection.
+    A network interface within a Device or VirtualMachine. A physical Interface can connect to exactly one other
+    Interface via the creation of an InterfaceConnection.
     """
-    device = models.ForeignKey('Device', related_name='interfaces', on_delete=models.CASCADE)
+    device = models.ForeignKey(
+        to='Device',
+        on_delete=models.CASCADE,
+        related_name='interfaces',
+        null=True,
+        blank=True
+    )
+    virtual_machine = models.ForeignKey(
+        to='virtualization.VirtualMachine',
+        on_delete=models.CASCADE,
+        related_name='interfaces',
+        null=True,
+        blank=True
+    )
     lag = models.ForeignKey(
-        'self',
-        models.SET_NULL,
+        to='self',
+        on_delete=models.SET_NULL,
         related_name='member_interfaces',
         null=True,
         blank=True,
@@ -1211,6 +1231,18 @@ class Interface(models.Model):
         return self.name
 
     def clean(self):
+
+        # An Interface must belong to a Device *or* to a VirtualMachine
+        if self.device and self.virtual_machine:
+            raise ValidationError("An interface cannot belong to both a device and a virtual machine.")
+        if not self.device and not self.virtual_machine:
+            raise ValidationError("An interface must belong to either a device or a virtual machine.")
+
+        # VM interfaces must be virtual
+        if self.virtual_machine and self.form_factor is not IFACE_FF_VIRTUAL:
+            raise ValidationError({
+                'form_factor': "Virtual machines can only have virtual interfaces."
+            })
 
         # Virtual interfaces cannot be connected
         if self.form_factor in NONCONNECTABLE_IFACE_TYPES and self.is_connected:
@@ -1240,6 +1272,10 @@ class Interface(models.Model):
                     ", ".join([iface.name for iface in self.member_interfaces.all()])
                 )
             })
+
+    @property
+    def parent(self):
+        return self.device or self.virtual_machine
 
     @property
     def is_virtual(self):

@@ -18,7 +18,7 @@ $(document).ready(function() {
     $('form').submit(function(event) {
         $(this).find('.requires-session-key').each(function() {
             if (this.value && document.cookie.indexOf('session_key') == -1) {
-                console.log('Field ' + this.value + ' requires a session key');
+                console.log('Field ' + this.name + ' requires a session key');
                 $('#privkey_modal').modal('show');
                 event.preventDefault();
                 return false;

@@ -1,0 +1,82 @@
+{% extends '_base.html' %}
+{% load helpers %}
+
+{% block content %}
+    <h1>{% block title %}Reports{% endblock %}</h1>
+    <div class="row">
+        <div class="col-md-9">
+            {% if reports %}
+            {% for module, module_reports in reports %}
+                    <h3><a name="module.{{ module }}"></a>{{ module|bettertitle }}</h3>
+                    <table class="table table-hover table-headings reports">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Description</th>
+                                <th class="text-right">Last Run</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for report in module_reports %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'extras:report' name=report.full_name %}" name="report.{{ report.name }}"><strong>{{ report.name }}</strong></a>
+                                    </td>
+                                    <td>
+                                        {% include 'extras/inc/report_label.html' %}
+                                    </td>
+                                    <td>{{ report.description|default:"" }}</td>
+                                    {% if report.result %}
+                                        <td class="text-right">{{ report.result.created }}</td>
+                                    {% else %}
+                                        <td class="text-right text-muted">Never</td>
+                                    {% endif %}
+                                </tr>
+                                {% for method, stats in report.result.data.items %}
+                                    <tr>
+                                        <td colspan="3" class="method">
+                                            {{ method }}
+                                        </td>
+                                        <td class="text-right stats">
+                                            <label class="label label-success">{{ stats.success }}</label>
+                                            <label class="label label-info">{{ stats.info }}</label>
+                                            <label class="label label-warning">{{ stats.warning }}</label>
+                                            <label class="label label-danger">{{ stats.failure }}</label>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-info">
+                    <p><strong>No reports found.</strong></p>
+                    <p>Reports should be saved to <code>{{ settings.REPORTS_ROOT }}</code>. (This path can be changed by setting <code>REPORTS_ROOT</code> in NetBox's configuration.)</p>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-3">
+            {% if reports %}
+                <div class="panel panel-default">
+                    {% for module, module_reports in reports %}
+                        <div class="panel-heading">
+                            <strong>{{ module|bettertitle }}</strong>
+                        </div>
+                        <ul class="list-group">
+                            {% for report in module_reports %}
+                                <a href="#report.{{ report.name }}" class="list-group-item">
+                                    <i class="fa fa-list-alt"></i> {{ report.name }}
+                                    <div class="pull-right">
+                                        {% include 'extras/inc/report_label.html' %}
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

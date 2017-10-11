@@ -5,12 +5,21 @@
     <div class="panel panel-default">
         <div class="panel-heading"><strong>Service</strong></div>
         <div class="panel-body">
-            <div class="form-group">
-                <label class="col-md-3 control-label">Device</label>
-                <div class="col-md-9">
-                    <p class="form-control-static">{{ obj.device }}</p>
+            {% if obj.device %}
+                <div class="form-group">
+                    <label class="col-md-3 control-label required">Device</label>
+                    <div class="col-md-9">
+                        <p class="form-control-static">{{ obj.device }}</p>
+                    </div>
                 </div>
-            </div>
+            {% else %}
+                <div class="form-group">
+                    <label class="col-md-3 control-label required">Virtual Machine</label>
+                    <div class="col-md-9">
+                        <p class="form-control-static">{{ obj.virtual_machine }}</p>
+                    </div>
+                </div>
+            {% endif %}
             {% render_field form.name %}
             <div class="form-group form-inline">
                 <label class="col-md-3 control-label required">Port</label>

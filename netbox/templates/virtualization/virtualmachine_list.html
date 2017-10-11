@@ -1,0 +1,55 @@
+{% extends '_base.html' %}
+
+{% block content %}
+<div class="pull-right">
+    {% if perms.virtualization.add_virtualmachine %}
+		<a href="{% url 'virtualization:virtualmachine_add' %}" class="btn btn-primary">
+			<span class="fa fa-plus" aria-hidden="true"></span>
+			Add a virtual machine
+		</a>
+        <a href="{% url 'virtualization:virtualmachine_import' %}" class="btn btn-info">
+            <span class="fa fa-download" aria-hidden="true"></span>
+            Import virtual machines
+        </a>
+    {% endif %}
+    {% include 'inc/export_button.html' with obj_type='virtual machines' %}
+</div>
+<h1>{% block title %}Virtual Machines{% endblock %}</h1>
+<div class="row">
+	<div class="col-md-9">
+        {% include 'virtualization/inc/virtualmachine_table.html' with bulk_edit_url='virtualization:virtualmachine_bulk_edit' bulk_delete_url='virtualization:virtualmachine_bulk_delete' %}
+    </div>
+    <div class="col-md-3">
+		{% include 'inc/search_panel.html' %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+$(document).ready(function() {
+
+    var cluster_group_list = $('#id_cluster_group');
+    var cluster_list = $('#id_cluster_id');
+
+    // Update cluster options based on selected group
+    cluster_group_list.change(function() {
+        var selected_groups = $(this).val();
+        if (selected_groups) {
+            cluster_list.empty();
+            $.ajax({
+                url: netbox_api_path + 'virtualization/clusters/?limit=500&group=' + selected_groups.join('&group='),
+                dataType: 'json',
+                success: function (response, status) {
+                    $.each(response["results"], function (index, cluster) {
+                        var option = $("<option></option>").attr("value", cluster.id).text(cluster.name);
+                        cluster_list.append(option);
+                    });
+                }
+            });
+        }
+    });
+
+});
+</script>
+{% endblock %}

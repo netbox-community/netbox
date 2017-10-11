@@ -85,6 +85,17 @@ class CircuitTypeForm(BootstrapMixin, forms.ModelForm):
         fields = ['name', 'slug']
 
 
+class CircuitTypeCSVForm(forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = CircuitType
+        fields = ['name', 'slug']
+        help_texts = {
+            'name': 'Name of circuit type',
+        }
+
+
 #
 # Circuits
 #

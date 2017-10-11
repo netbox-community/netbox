@@ -362,14 +362,14 @@ class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn(verbose_name='Name')
     device_count = tables.Column(verbose_name='Devices')
-    color = tables.TemplateColumn(COLOR_LABEL, verbose_name='Color')
+    color = tables.TemplateColumn(COLOR_LABEL, verbose_name='Label')
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(template_code=DEVICEROLE_ACTIONS, attrs={'td': {'class': 'text-right'}},
                                     verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = DeviceRole
-        fields = ('pk', 'name', 'device_count', 'color', 'slug', 'actions')
+        fields = ('pk', 'name', 'device_count', 'color', 'vm_role', 'slug', 'actions')
 
 
 #
@@ -381,13 +381,12 @@ class PlatformTable(BaseTable):
     name = tables.LinkColumn(verbose_name='Name')
     device_count = tables.Column(verbose_name='Devices')
     slug = tables.Column(verbose_name='Slug')
-    rpc_client = tables.Column(accessor='get_rpc_client_display', orderable=False, verbose_name='RPC Client')
     actions = tables.TemplateColumn(template_code=PLATFORM_ACTIONS, attrs={'td': {'class': 'text-right'}},
                                     verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = Platform
-        fields = ('pk', 'name', 'device_count', 'slug', 'rpc_client', 'actions')
+        fields = ('pk', 'name', 'device_count', 'slug', 'napalm_driver', 'actions')
 
 
 #

@@ -7,6 +7,18 @@ from django.utils.safestring import mark_safe
 from .models import CustomField, CustomFieldChoice, Graph, ExportTemplate, TopologyMap, UserAction
 
 
+def order_content_types(field):
+    """
+    Order the list of available ContentTypes by application
+    """
+    queryset = field.queryset.order_by('app_label', 'model')
+    field.choices = [(ct.pk, '{} > {}'.format(ct.app_label, ct.name)) for ct in queryset]
+
+
+#
+# Custom fields
+#
+
 class CustomFieldForm(forms.ModelForm):
 
     class Meta:
@@ -16,9 +28,7 @@ class CustomFieldForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CustomFieldForm, self).__init__(*args, **kwargs)
 
-        # Organize the available ContentTypes
-        queryset = self.fields['obj_type'].queryset.order_by('app_label', 'model')
-        self.fields['obj_type'].choices = [(ct.pk, '{} > {}'.format(ct.app_label, ct.name)) for ct in queryset]
+        order_content_types(self.fields['obj_type'])
 
 
 class CustomFieldChoiceAdmin(admin.TabularInline):
@@ -36,15 +46,42 @@ class CustomFieldAdmin(admin.ModelAdmin):
         return ', '.join([ct.name for ct in obj.obj_type.all()])
 
 
+#
+# Graphs
+#
+
 @admin.register(Graph)
 class GraphAdmin(admin.ModelAdmin):
     list_display = ['name', 'type', 'weight', 'source']
 
 
+#
+# Export templates
+#
+
+class ExportTemplateForm(forms.ModelForm):
+
+    class Meta:
+        model = ExportTemplate
+        exclude = []
+
+    def __init__(self, *args, **kwargs):
+        super(ExportTemplateForm, self).__init__(*args, **kwargs)
+
+        # Format ContentType choices
+        order_content_types(self.fields['content_type'])
+        self.fields['content_type'].choices.insert(0, ('', '---------'))
+
+
 @admin.register(ExportTemplate)
 class ExportTemplateAdmin(admin.ModelAdmin):
     list_display = ['name', 'content_type', 'description', 'mime_type', 'file_extension']
+    form = ExportTemplateForm
 
+
+#
+# Topology maps
+#
 
 @admin.register(TopologyMap)
 class TopologyMapAdmin(admin.ModelAdmin):
@@ -53,6 +90,10 @@ class TopologyMapAdmin(admin.ModelAdmin):
         'slug': ['name'],
     }
 
+
+#
+# User actions
+#
 
 @admin.register(UserAction)
 class UserActionAdmin(admin.ModelAdmin):
