@@ -374,6 +374,17 @@
                 <input type="hidden" name="device" value="{{ device.pk }}" />
             {% endif %}
             <div class="panel panel-default">
+                <div class="pull-right">
+                {% if perms.dcim.add_interface %}
+                <a href="{% url 'dcim:interface_import' %}" class="btn btn-info">
+                <span class="fa fa-download" aria-hidden="true"></span>
+                    Import Interfaces
+                </a>
+                 <a href="{% url 'dcim:interface_list' %}?device={{ device.name }}&export" class="btn btn-success">
+                    <span class="fa fa-upload" aria-hidden="true"></span>
+                    Export Interfaces
+                </a>
+                {% endif %}
                 <div class="panel-heading">
                     <strong>Interfaces</strong>
                     <div class="pull-right">
@@ -614,6 +625,20 @@ $('button.toggle-ips').click(function() {
         $('#interfaces_table tr.ipaddress').hide();
     } else {
         $('#interfaces_table tr.ipaddress').show();
+    }
+    $(this).attr('selected', !selected);
+    $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');
+    return false;
+});
+// Toggle the display of Descriptions under interfaces
+$('button.toggle-description').click(function() {
+    var selected = $(this).attr('selected');
+    if (selected) {
+        $('span.iface-description').hide();
+        $('i.fa-comment-o').show();
+    } else {
+        $('span.iface-description').show();
+        $('i.fa-comment-o').hide();
     }
     $(this).attr('selected', !selected);
     $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');

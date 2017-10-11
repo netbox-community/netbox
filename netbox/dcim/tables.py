@@ -39,6 +39,12 @@ DEVICE_LINK = """
 </a>
 """
 
+INTERFACE_LINK = """
+<a href="{% url 'dcim:device' pk=record.device.pk %}">
+    {{ record.name|default:'<span class="label label-info"> - </span>' }}
+</a>
+"""
+
 REGION_ACTIONS = """
 {% if perms.dcim.change_region %}
     <a href="{% url 'dcim:region_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
@@ -95,6 +101,10 @@ DEVICE_ROLE = """
 
 DEVICE_STATUS = """
 <span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
+"""
+
+INTERFACE_ENABLED = """
+<span class="label label-{{ record.get_status_class }}">{{ record.enabled }}</span>
 """
 
 DEVICE_PRIMARY_IP = """
@@ -523,3 +533,38 @@ class InterfaceConnectionTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Interface
         fields = ('device_a', 'interface_a', 'device_b', 'interface_b')
+
+
+class InterfaceImportTable(BaseTable):
+    device = tables.LinkColumn('dcim:device', accessor=Accessor('interface.device'),
+                               args=[Accessor('interface.device.pk')], verbose_name='Device')
+    lag = tables.LinkColumn('dcim:interface', accessor=Accessor('self.name'),
+                            args=[Accessor('self.pk')], verbose_name='Lag ID')
+    name = tables.Column(verbose_name='Interface')
+    mac_address = tables.Column(verbose_name='MAC Address')
+    form_factor = tables.Column(verbose_name='Form Factor')
+    enabled = tables.Column(verbose_name='Enabled')
+    description = tables.Column(verbose_name='Description')
+    mtu = tables.Column(verbose_name='MTU')
+    mgmt_only = tables.Column(verbose_name='MGMT Only')
+    is_virtual = tables.Column(verbose_name='Is Virtual?')
+    is_wireless = tables.Column(verbose_name='Is Wireless?')
+    is_lag = tables.Column(verbose_name='Is Lag?')
+
+    class Meta(BaseTable.Meta):
+        model = Interface
+        fields = ('device', 'lag', 'name', 'mac_address', 'form_factor', 'enabled', 'description', 'mtu', 'mgmt_only', 'is_virtual', 'is_wireless', 'is_lag')
+
+
+class InterfaceListTable(BaseTable):
+    device = tables.LinkColumn('dcim:device', accessor=Accessor('device'),
+                               args=[Accessor('device.pk')], verbose_name='Device')
+    name = tables.TemplateColumn(template_code=INTERFACE_LINK, verbose_name='Interface')
+    enabled = tables.TemplateColumn(template_code=INTERFACE_ENABLED, verbose_name='Enabled')
+    form_factor = tables.Column(verbose_name='Form Factor')
+    mac_address = tables.Column(verbose_name='MAC Address')
+    description = tables.Column(verbose_name='Description')
+
+    class Meta(BaseTable.Meta):
+        model = Interface
+        fields = ('device', 'name', 'enabled', 'form_factor', 'mac_address', 'description')

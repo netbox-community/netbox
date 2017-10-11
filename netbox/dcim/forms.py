@@ -21,7 +21,7 @@ from .formfields import MACAddressFormField
 from .models import (
     DeviceBay, DeviceBayTemplate, CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_CONNECTED, ConsolePort,
     ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceRole, DeviceType, Interface,
-    IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate, Manufacturer,
+    IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ENABLED_CHOICES, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_FACE_CHOICES,
     RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, RACK_WIDTH_19IN, RACK_WIDTH_23IN,
     Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
@@ -1538,6 +1538,114 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
 
 class InterfaceBulkDisconnectForm(ConfirmationForm):
     pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
+
+
+class InterfaceCSVForm(forms.ModelForm):
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Name or ID of device',
+        error_messages={'invalid_choice': 'Device not found.'}
+    )
+    name = forms.CharField(
+        help_text='Name of interface'
+    )
+    lag = FlexibleModelChoiceField(
+        queryset=Interface.objects.filter(form_factor=IFACE_FF_LAG),
+        to_field_name='name',
+        required=False,
+        help_text='Lag Name or ID of interface',
+        error_messages={'invalid_choice': 'Lag not found.'}
+    )
+    mac_address = forms.CharField(
+        required=False,
+        help_text='MAC address of interface'
+    )
+    form_factor = forms.IntegerField(
+        required=False,
+        help_text='Interface Form Factor'
+    )
+    description = forms.CharField(
+        required=False,
+        help_text='Description for interface'
+    )
+    enabled = forms.BooleanField(
+        required=False,
+        help_text='Enabled/Disabled'
+    )
+    mtu = forms.IntegerField(
+        required=False,
+        help_text='MTU'
+    )
+    mgmt_only = forms.CharField(
+        required=False,
+        help_text='Management Only'
+    )
+    is_virtual = forms.BooleanField(
+        required=False,
+        help_text='Is Virtual?'
+    )
+    is_wireless = forms.BooleanField(
+        required=False,
+        help_text='Is Wireless?'
+    )
+    is_lag = forms.BooleanField(
+        required=False,
+        help_text='Is Lag?'
+    )
+
+    class Meta:
+        model = Interface
+        fields = ('device', 'lag', 'name', 'mac_address', 'form_factor', 'enabled', 'description', 'mtu', 'mgmt_only', 'is_virtual', 'is_wireless', 'is_lag')
+        nullable_fields = ['lag', 'is_virtual', 'is_wireless', 'is_lag']
+
+    def clean_interface(self):
+        interface_name = self.cleaned_data.get('interface_name')
+        if not interface:
+            return None
+        return interface
+
+    def clean_lag(self):
+        device_id = self.cleaned_data.get('device')
+        lag_name = self.cleaned_data.get('lag')
+        if device_id is not None and lag_name is not None:
+            lag = Interface.objects.filter(
+                device=device_id, form_factor=IFACE_FF_LAG).get(
+                name=lag_name
+            )
+        if not lag_name:
+            return None
+        return lag
+
+
+class InterfaceFilterForm(BootstrapMixin, forms.Form):
+    site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
+    device = forms.CharField(required=False, label='Device name')
+
+
+class InterfaceListFilterForm(BootstrapMixin, forms.Form):
+    q = forms.CharField(required=False, label='Search')
+    site = forms.ModelChoiceField(required=False, queryset=Site.objects.all(), to_field_name='slug')
+    rack_group_id = FilterChoiceField(
+        required=False,
+        queryset=RackGroup.objects.select_related('site').annotate(filter_count=Count('racks__devices')),
+        label='Rack Group',
+        null_option=(0, 'None')
+    )
+    rack_id = FilterChoiceField(
+        required=False,
+        queryset=Rack.objects.annotate(filter_count=Count('devices')),
+        label='Rack',
+        null_option=(0, 'None')
+    )
+    enabled = forms.ChoiceField(choices=add_blank_choice(IFACE_ENABLED_CHOICES), required=False)
+    role = FilterChoiceField(
+        required=False,
+        queryset=DeviceRole.objects.annotate(filter_count=Count('devices')),
+        to_field_name='slug',
+        label='Device Role'
+    )
+    device = forms.CharField(required=False, label='Device Name')
 
 
 #

@@ -48,6 +48,19 @@ IFACE_ORDERING_CHOICES = [
     [IFACE_ORDERING_NAME, 'Name (alphabetically)']
 ]
 
+# Interface enabled as choice
+IFACE_DISABLED = False
+IFACE_ENABLED = True
+IFACE_ENABLED_CHOICES = [
+    [IFACE_DISABLED, 'Disabled'],
+    [IFACE_ENABLED, 'Enabled'],
+]
+
+IFACE_STATUS_CLASSES = {
+    0: 'disabled',
+    1: 'enabled',
+}
+
 # Interface form factors
 # Virtual
 IFACE_FF_VIRTUAL = 0

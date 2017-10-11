@@ -1203,6 +1203,8 @@ class Interface(models.Model):
 
     objects = InterfaceQuerySet.as_manager()
 
+    csv_headers = ['device', 'lag', 'name', 'mac_address', 'form_factor', 'enabled', 'description', 'mtu', 'mgmt_only', 'is_virtual', 'is_wireless', 'is_connected', 'is_lag']
+
     class Meta:
         ordering = ['device', 'name']
         unique_together = ['device', 'name']
@@ -1223,7 +1225,7 @@ class Interface(models.Model):
         if self.lag and self.lag.device != self.device:
             raise ValidationError({
                 'lag': "The selected LAG interface ({}) belongs to a different device ({}).".format(
-                    self.lag.name, self.lag.device.name
+                       self.lag.name, self.lag.device.name
                 )
             })
 
@@ -1286,6 +1288,27 @@ class Interface(models.Model):
         except ObjectDoesNotExist:
             pass
         return None
+
+    def get_status_class(self):
+        return IFACE_STATUS_CLASSES[self.enabled]
+
+    # Used for  export
+    def to_csv(self):
+        return csv_format([
+            self.device.identifier,
+            self.lag,
+            self.name,
+            self.mac_address,
+            self.form_factor,
+            self.enabled,
+            self.description,
+            self.mtu,
+            self.mgmt_only,
+            self.is_virtual,
+            self.is_wireless,
+            self.is_connected,
+            self.is_lag,
+        ])
 
 
 class InterfaceConnection(models.Model):
