@@ -45,7 +45,7 @@ At a minimum, we need to create a database for NetBox and assign it a username a
 
 ```no-highlight
 # sudo -u postgres psql
-psql (9.3.13)
+psql (9.4.5)
 Type "help" for help.
 
 postgres=# CREATE DATABASE netbox;
