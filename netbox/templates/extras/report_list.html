@@ -52,7 +52,8 @@
                 {% endfor %}
             {% else %}
                 <div class="alert alert-info">
-                    <strong>No reports found.</strong>
+                    <p><strong>No reports found.</strong></p>
+                    <p>Reports should be saved to <code>{{ settings.REPORTS_ROOT }}</code>. (This path can be changed by setting <code>REPORTS_ROOT</code> in NetBox's configuration.)</p>
                 </div>
             {% endif %}
         </div>

@@ -1,13 +1,14 @@
+from __future__ import unicode_literals
 from collections import OrderedDict
 import importlib
 import inspect
 import pkgutil
 
+from django.conf import settings
 from django.utils import timezone
 
 from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_LEVEL_CODES, LOG_SUCCESS, LOG_WARNING
 from .models import ReportResult
-import reports as custom_reports
 
 
 def is_report(obj):
@@ -42,9 +43,9 @@ def get_reports():
     """
     module_list = []
 
-    # Iterate through all modules within the reports path. These are the user-defined files in which reports are
+    # Iterate through all modules within the reports path. These are the user-created files in which reports are
     # defined.
-    for importer, module_name, is_pkg in pkgutil.walk_packages(custom_reports.__path__):
+    for importer, module_name, is_pkg in pkgutil.walk_packages([settings.REPORTS_ROOT]):
         module = importlib.import_module('reports.{}'.format(module_name))
         report_list = [cls() for _, cls in inspect.getmembers(module, is_report)]
         module_list.append((module_name, report_list))
