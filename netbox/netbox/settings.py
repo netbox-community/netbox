@@ -232,14 +232,6 @@ REST_FRAMEWORK = {
 }
 
 # Django debug toolbar
-# Disable the templates panel by default due to a performance issue in Django 1.11; see
-# https://github.com/jazzband/django-debug-toolbar/issues/910
-DEBUG_TOOLBAR_CONFIG = {
-    'DISABLE_PANELS': [
-        'debug_toolbar.panels.redirects.RedirectsPanel',
-        'debug_toolbar.panels.templates.TemplatesPanel',
-    ],
-}
 INTERNAL_IPS = (
     '127.0.0.1',
     '::1',
