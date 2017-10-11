@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
 
-from rest_framework.compat import is_authenticated
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
@@ -32,7 +31,7 @@ class IsAuthenticatedOrLoginNotRequired(BasePermission):
     def has_permission(self, request, view):
         if not settings.LOGIN_REQUIRED:
             return True
-        return request.user and is_authenticated(request.user)
+        return request.user.is_authenticated()
 
 
 #

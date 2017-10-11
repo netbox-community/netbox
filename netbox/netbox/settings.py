@@ -214,7 +214,7 @@ REST_FRAMEWORK = {
         'netbox.api.TokenAuthentication',
     ),
     'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework.filters.DjangoFilterBackend',
+        'django_filters.rest_framework.DjangoFilterBackend',
     ),
     'DEFAULT_PAGINATION_CLASS': 'netbox.api.OptionalLimitOffsetPagination',
     'DEFAULT_PERMISSION_CLASSES': (

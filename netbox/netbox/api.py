@@ -4,7 +4,7 @@ from rest_framework import authentication, exceptions
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import DjangoModelPermissions, SAFE_METHODS
 from rest_framework.renderers import BrowsableAPIRenderer
-from rest_framework.views import get_view_name as drf_get_view_name
+from rest_framework.utils import formatting
 
 from users.models import Token
 
@@ -130,10 +130,18 @@ def get_view_name(view_cls, suffix=None):
     Derive the view name from its associated model, if it has one. Fall back to DRF's built-in `get_view_name`.
     """
     if hasattr(view_cls, 'queryset'):
+        # Determine the model name from the queryset.
         name = view_cls.queryset.model._meta.verbose_name
         name = ' '.join([w[0].upper() + w[1:] for w in name.split()])  # Capitalize each word
-        if suffix:
-            name = "{} {}".format(name, suffix)
-        return name
 
-    return drf_get_view_name(view_cls, suffix)
+    else:
+        # Replicate DRF's built-in behavior.
+        name = view_cls.__name__
+        name = formatting.remove_trailing_string(name, 'View')
+        name = formatting.remove_trailing_string(name, 'ViewSet')
+        name = formatting.camelcase_to_spaces(name)
+
+    if suffix:
+        name += ' ' + suffix
+
+    return name
