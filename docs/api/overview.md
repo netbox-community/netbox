@@ -88,10 +88,10 @@ The base serializer is used to represent the default view of a model. This inclu
     "vid": 101,
     "name": "Users-Floor1",
     "tenant": null,
-    "status": [
-        1,
-        "Active"
-    ],
+    "status": {
+        "value": 1,
+        "label": "Active"
+    },
     "role": {
         "id": 9,
         "url": "http://localhost:8000/api/ipam/roles/9/",
@@ -121,6 +121,37 @@ When a base serializer includes one or more nested serializers, the hierarchical
     "description": ""
 }
 ```
+
+## Static Choice Fields
+
+Some model fields, such as the `status` field in the above example, utilize static integers corresponding to static choices. The available choices can be retrieved from the read-only `_choices` endpoint within each app. A specific `model:field` tuple may optionally be specified in the URL.
+
+Each choice includes a human-friendly label and its corresponding numeric value. For example, `GET /api/ipam/_choices/prefix:status/` will return:
+
+```
+[
+    {
+        "value": 0,
+        "label": "Container"
+    },
+    {
+        "value": 1,
+        "label": "Active"
+    },
+    {
+        "value": 2,
+        "label": "Reserved"
+    },
+    {
+        "value": 3,
+        "label": "Deprecated"
+    }
+]
+```
+
+Thus, to set a prefix's status to "Reserved," it would be assigned the integer `2`.
+
+A request for `GET /api/ipam/_choices/` will return choices for _all_ fields belonging to models within the IPAM app.
 
 # Pagination
 
