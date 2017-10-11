@@ -12,7 +12,7 @@ A NetBox report is a mechanism for validating the integrity of data within NetBo
 
 ## Writing Reports
 
-Reports must be saved as files in the `netbox/reports/` path within the NetBox installation path. Each file created within this path is considered a separate module. Each module holds one or more reports, each of which performs a certain function. The logic of each report is broken into discrete test methods, each of which applies a small portion of the logic comprising the overall test.
+Reports must be saved as files in the [`REPORTS_ROOT`](../configuration/optional-settings/#reports_root) path (which defaults to `netbox/reports/`). Each file created within this path is considered a separate module. Each module holds one or more reports (Python classes), each of which performs a certain function. The logic of each report is broken into discrete test methods, each of which applies a small portion of the logic comprising the overall test.
 
 !!! warning
     The reports path includes a file named `__init__.py`, which registers the path as a Python module. Do not delete this file.
@@ -106,14 +106,14 @@ Once a report has been run, its associated results will be included in the repor
 
 ### Via the API
 
-To run a report via the API, simply issue a POST request. Reports are identified by their module and class name.
+To run a report via the API, simply issue a POST request to its `run` endpoint. Reports are identified by their module and class name.
 
 ```
-    POST /api/extras/reports/<module>.<name>/
+    POST /api/extras/reports/<module>.<name>/run/
 ```
 
 Our example report above would be called as:
 
 ```
-    POST /api/extras/reports/devices.DeviceConnectionsReport/
+    POST /api/extras/reports/devices.DeviceConnectionsReport/run/
 ```
