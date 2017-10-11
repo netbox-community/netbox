@@ -12,7 +12,7 @@ from django.shortcuts import get_object_or_404
 from extras import filters
 from extras.models import CustomField, ExportTemplate, Graph, ImageAttachment, ReportResult, TopologyMap, UserAction
 from extras.reports import get_report, get_reports
-from utilities.api import FieldChoicesViewSet, WritableSerializerMixin
+from utilities.api import FieldChoicesViewSet, IsAuthenticatedOrLoginNotRequired, WritableSerializerMixin
 from . import serializers
 
 
@@ -127,6 +127,7 @@ class ImageAttachmentViewSet(WritableSerializerMixin, ModelViewSet):
 #
 
 class ReportViewSet(ViewSet):
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
     _ignore_model_permissions = True
     exclude_from_schema = True
     lookup_value_regex = '[^/]+'  # Allow dots
