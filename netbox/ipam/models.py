@@ -3,6 +3,7 @@ import netaddr
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -14,10 +15,10 @@ from dcim.models import Interface
 from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
 from utilities.models import CreatedUpdatedModel
-from utilities.sql import NullsFirstQuerySet
 from utilities.utils import csv_format
 from .constants import *
 from .fields import IPNetworkField, IPAddressField
+from .querysets import PrefixQuerySet
 
 
 @python_2_unicode_compatible
@@ -186,41 +187,6 @@ class Role(models.Model):
     @property
     def count_vlans(self):
         return self.vlans.count()
-
-
-class PrefixQuerySet(NullsFirstQuerySet):
-
-    def annotate_depth(self, limit=None):
-        """
-        Iterate through a QuerySet of Prefixes and annotate the hierarchical level of each. While it would be preferable
-        to do this using .extra() on the QuerySet to count the unique parents of each prefix, that approach introduces
-        performance issues at scale.
-
-        Because we're adding a non-field attribute to the model, annotation must be made *after* any QuerySet
-        modifications.
-        """
-        queryset = self
-        stack = []
-        for p in queryset:
-            try:
-                prev_p = stack[-1]
-            except IndexError:
-                prev_p = None
-            if prev_p is not None:
-                while (p.prefix not in prev_p.prefix) or p.prefix == prev_p.prefix:
-                    stack.pop()
-                    try:
-                        prev_p = stack[-1]
-                    except IndexError:
-                        prev_p = None
-                        break
-            if prev_p is not None:
-                prev_p.has_children = True
-            stack.append(p)
-            p.depth = len(stack) - 1
-        if limit is None:
-            return queryset
-        return list(filter(lambda p: p.depth <= limit, queryset))
 
 
 @python_2_unicode_compatible
@@ -418,7 +384,8 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     objects = IPAddressManager()
 
     csv_headers = [
-        'address', 'vrf', 'tenant', 'status', 'role', 'device', 'interface_name', 'is_primary', 'description',
+        'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface_name', 'is_primary',
+        'description',
     ]
 
     class Meta:
@@ -473,6 +440,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
             self.get_status_display(),
             self.get_role_display(),
             self.device.identifier if self.device else None,
+            self.virtual_machine.name if self.device else None,
             self.interface.name if self.interface else None,
             is_primary,
             self.description,
@@ -596,20 +564,59 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
 @python_2_unicode_compatible
 class Service(CreatedUpdatedModel):
     """
-    A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device. A Service may optionally be tied
-    to one or more specific IPAddresses belonging to the Device.
+    A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device or VirtualMachine. A Service may
+    optionally be tied to one or more specific IPAddresses belonging to its parent.
     """
-    device = models.ForeignKey('dcim.Device', related_name='services', on_delete=models.CASCADE, verbose_name='device')
-    name = models.CharField(max_length=30)
-    protocol = models.PositiveSmallIntegerField(choices=IP_PROTOCOL_CHOICES)
-    port = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(65535)],
-                                       verbose_name='Port number')
-    ipaddresses = models.ManyToManyField('ipam.IPAddress', related_name='services', blank=True,
-                                         verbose_name='IP addresses')
-    description = models.CharField(max_length=100, blank=True)
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        related_name='services',
+        verbose_name='device',
+        null=True,
+        blank=True
+    )
+    virtual_machine = models.ForeignKey(
+        to='virtualization.VirtualMachine',
+        on_delete=models.CASCADE,
+        related_name='services',
+        null=True,
+        blank=True
+    )
+    name = models.CharField(
+        max_length=30
+    )
+    protocol = models.PositiveSmallIntegerField(
+        choices=IP_PROTOCOL_CHOICES
+    )
+    port = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(65535)],
+        verbose_name='Port number'
+    )
+    ipaddresses = models.ManyToManyField(
+        to='ipam.IPAddress',
+        related_name='services',
+        blank=True,
+        verbose_name='IP addresses'
+    )
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
 
     class Meta:
-        ordering = ['device', 'protocol', 'port']
+        ordering = ['protocol', 'port']
 
     def __str__(self):
         return '{} ({}/{})'.format(self.name, self.port, self.get_protocol_display())
+
+    @property
+    def parent(self):
+        return self.device or self.virtual_machine
+
+    def clean(self):
+
+        # A Service must belong to a Device *or* to a VirtualMachine
+        if self.device and self.virtual_machine:
+            raise ValidationError("A service cannot be associated with both a device and a virtual machine.")
+        if not self.device and not self.virtual_machine:
+            raise ValidationError("A service must be associated with either a device or a virtual machine.")

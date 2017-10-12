@@ -1,0 +1,300 @@
+{% extends '_base.html' %}
+{% load helpers %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-8 col-md-9">
+        <ol class="breadcrumb">
+            {% if vm.cluster %}
+                <li><a href="{{ vm.cluster.get_absolute_url }}">{{ vm.cluster }}</a></li>
+            {% endif %}
+            <li>{{ vm }}</li>
+        </ol>
+    </div>
+    <div class="col-sm-4 col-md-3">
+        <form action="{% url 'virtualization:virtualmachine_list' %}" method="get">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Search virtual machines" />
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="fa fa-search"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="pull-right">
+    {% if perms.virtualization.change_virtualmachine %}
+		<a href="{% url 'virtualization:virtualmachine_edit' pk=vm.pk %}" class="btn btn-warning">
+			<span class="fa fa-pencil"></span>
+			Edit this VM
+		</a>
+    {% endif %}
+    {% if perms.virtualization.delete_virtualmachine %}
+		<a href="{% url 'virtualization:virtualmachine_delete' pk=vm.pk %}" class="btn btn-danger">
+			<span class="fa fa-trash"></span>
+			Delete this VM
+		</a>
+    {% endif %}
+</div>
+<h1>{% block title %}{{ vm }}{% endblock %}</h1>
+{% include 'inc/created_updated.html' with obj=vm %}
+<div class="row">
+	<div class="col-md-5">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Virtual Machine</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+                <tr>
+                    <td>Name</td>
+                    <td>{{ vm.name }}</td>
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td>
+                        <span class="label label-{{ vm.get_status_class }}">{{ vm.get_status_display }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Role</td>
+                    <td>
+                        {% if vm.role %}
+                            <a href="{% url 'virtualization:virtualmachine_list' %}?role={{ vm.role.slug }}">{{ vm.role }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Platform</td>
+                    <td>
+                        {% if vm.platform %}
+                            <a href="{% url 'virtualization:virtualmachine_list' %}?platform={{ vm.platform.slug }}">{{ vm.platform }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Tenant</td>
+                    <td>
+                        {% if vm.tenant %}
+                            {% if vm.tenant.group %}
+                                <a href="{{ vm.tenant.group.get_absolute_url }}">{{ vm.tenant.group.name }}</a>
+                                <i class="fa fa-angle-right"></i>
+                            {% endif %}
+                            <a href="{{ vm.tenant.get_absolute_url }}">{{ vm.tenant }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Primary IPv4</td>
+                    <td>
+                        {% if vm.primary_ip4 %}
+                            <a href="{% url 'ipam:ipaddress' pk=vm.primary_ip4.pk %}">{{ vm.primary_ip4.address.ip }}</a>
+                            {% if vm.primary_ip4.nat_inside %}
+                                <span>(NAT for {{ vm.primary_ip4.nat_inside.address.ip }})</span>
+                            {% elif vm.primary_ip4.nat_outside %}
+                                <span>(NAT: {{ vm.primary_ip4.nat_outside.address.ip }})</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Primary IPv6</td>
+                    <td>
+                        {% if vm.primary_ip6 %}
+                            <a href="{% url 'ipam:ipaddress' pk=vm.primary_ip6.pk %}">{{ vm.primary_ip6.address.ip }}</a>
+                            {% if vm.primary_ip6.nat_inside %}
+                                <span>(NAT for {{ vm.primary_ip6.nat_inside.address.ip }})</span>
+                            {% elif vm.primary_ip6.nat_outside %}
+                                <span>(NAT: {{ vm.primary_ip6.nat_outside.address.ip }})</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Cluster</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+                <tr>
+                    <td>Cluster</td>
+                    <td>
+                        {% if vm.cluster.group %}
+                            <a href="{{ vm.cluster.group.get_absolute_url }}">{{ vm.cluster.group }}</a>
+                            <i class="fa fa-angle-right"></i>
+                        {% endif %}
+                        <a href="{{ vm.cluster.get_absolute_url }}">{{ vm.cluster }}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Cluster Type</td>
+                    <td>{{ vm.cluster.type }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Resources</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+                <tr>
+                    <td><i class="fa fa-tachometer"></i> Virtual CPUs</td>
+                    <td>
+                        {% if vm.vcpus %}
+                            {{ vm.vcpus }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td><i class="fa fa-microchip"></i> Memory</td>
+                    <td>
+                        {% if vm.memory %}
+                            {{ vm.memory }} MB
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td><i class="fa fa-hdd-o"></i> Disk Space</td>
+                    <td>
+                        {% if vm.disk %}
+                            {{ vm.disk }} GB
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Services</strong>
+            </div>
+            {% if services %}
+                <table class="table table-hover panel-body">
+                    {% for service in services %}
+                        {% include 'ipam/inc/service.html' %}
+                    {% endfor %}
+                </table>
+            {% else %}
+                <div class="panel-body text-muted">
+                    None
+                </div>
+            {% endif %}
+            {% if perms.ipam.add_service %}
+                <div class="panel-footer text-right">
+                    <a href="{% url 'virtualization:virtualmachine_service_assign' virtualmachine=vm.pk %}" class="btn btn-xs btn-primary">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Assign service
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        {% include 'inc/custom_fields_panel.html' with custom_fields=vm.get_custom_fields %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Comments</strong>
+            </div>
+            <div class="panel-body">
+                {% if vm.comments %}
+                    {{ vm.comments|gfm }}
+                {% else %}
+                    <span class="text-muted">None</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
+            <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="virtual_machine" value="{{ vm.pk }}" />
+        {% endif %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Interfaces</strong>
+                <div class="pull-right">
+                    <button class="btn btn-default btn-xs toggle-ips" selected="selected">
+                        <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Show IPs
+                    </button>
+                    {% if perms.dcim.change_interface and interfaces|length > 1 %}
+                        <button class="btn btn-default btn-xs toggle">
+                            <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
+                        </button>
+                    {% endif %}
+                    {% if perms.dcim.add_interface and interfaces|length > 10 %}
+                        <a href="{% url 'virtualization:interface_add' pk=vm.pk %}" class="btn btn-primary btn-xs">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add interfaces
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <table id="interfaces_table" class="table table-hover panel-body component-list">
+                {% for iface in interfaces %}
+                    {% include 'virtualization/inc/interface.html' with selectable=True %}
+                {% empty %}
+                    <tr>
+                        <td colspan="4">No interfaces defined</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            {% if perms.dcim.add_interface or perms.dcim.delete_interface %}
+                <div class="panel-footer">
+                    {% if interfaces and perms.dcim.change_interface %}
+                        <button type="submit" name="_edit" formaction="{% url 'virtualization:interface_bulk_edit' pk=vm.pk %}" class="btn btn-warning btn-xs">
+                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit
+                        </button>
+                    {% endif %}
+                    {% if interfaces and perms.dcim.delete_interface %}
+                        <button type="submit" name="_delete" formaction="{% url 'virtualization:interface_bulk_delete' pk=vm.pk %}" class="btn btn-danger btn-xs">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
+                        </button>
+                    {% endif %}
+                    {% if perms.dcim.add_interface %}
+                        <div class="pull-right">
+                            <a href="{% url 'virtualization:interface_add' pk=vm.pk %}" class="btn btn-primary btn-xs">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add interfaces
+                            </a>
+                        </div>
+                        <div class="clearfix"></div>
+                    {% endif %}
+                 </div>
+            {% endif %}
+        </div>
+        {% if perms.dcim.delete_interface %}
+            </form>
+        {% endif %}
+	</div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+// Toggle the display of IP addresses under interfaces
+$('button.toggle-ips').click(function() {
+    var selected = $(this).attr('selected');
+    if (selected) {
+        $('#interfaces_table tr.ipaddress').hide();
+    } else {
+        $('#interfaces_table tr.ipaddress').show();
+    }
+    $(this).attr('selected', !selected);
+    $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');
+    return false;
+});
+</script>
+{% endblock %}

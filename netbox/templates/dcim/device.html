@@ -155,6 +155,18 @@
                         {% endif %}
                     </td>
                 </tr>
+                {% if device.cluster %}
+                    <tr>
+                        <td>Cluster</td>
+                        <td>
+                            {% if device.cluster.group %}
+                                <a href="{{ device.cluster.group.get_absolute_url }}">{{ device.cluster.group }}</a>
+                                <i class="fa fa-angle-right"></i>
+                            {% endif %}
+                            <a href="{{ device.cluster.get_absolute_url }}">{{ device.cluster }}</a>
+                        </td>
+                    </tr>
+                {% endif %}
             </table>
         </div>
         {% with device.get_custom_fields as custom_fields %}
@@ -196,7 +208,7 @@
             {% if services %}
                 <table class="table table-hover panel-body">
                     {% for service in services %}
-                        {% include 'dcim/inc/service.html' %}
+                        {% include 'ipam/inc/service.html' %}
                     {% endfor %}
                 </table>
             {% else %}
@@ -206,7 +218,7 @@
             {% endif %}
             {% if perms.ipam.add_service %}
                 <div class="panel-footer text-right">
-                    <a href="{% url 'dcim:service_assign' device=device.pk %}" class="btn btn-xs btn-primary">
+                    <a href="{% url 'dcim:device_service_assign' device=device.pk %}" class="btn btn-xs btn-primary">
                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Assign service
                     </a>
                 </div>

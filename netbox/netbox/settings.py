@@ -13,7 +13,7 @@ except ImportError:
     )
 
 
-VERSION = '2.1.6'
+VERSION = '2.2.0'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -52,10 +52,9 @@ NAPALM_USERNAME = getattr(configuration, 'NAPALM_USERNAME', '')
 NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
 NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
 NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
-NETBOX_USERNAME = getattr(configuration, 'NETBOX_USERNAME', '')  # Deprecated
-NETBOX_PASSWORD = getattr(configuration, 'NETBOX_PASSWORD', '')  # Deprecated
 PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
+REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
@@ -63,19 +62,6 @@ TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
-
-# Check for deprecated configuration parameters
-config_logger = logging.getLogger('configuration')
-config_logger.addHandler(logging.StreamHandler())
-config_logger.setLevel(logging.WARNING)
-if NETBOX_USERNAME:
-    config_logger.warning('NETBOX_USERNAME is deprecated and will be removed in v2.2. Please use NAPALM_USERNAME instead.')
-    if not NAPALM_USERNAME:
-        NAPALM_USERNAME = NETBOX_USERNAME
-if NETBOX_PASSWORD:
-    config_logger.warning('NETBOX_PASSWORD is deprecated and will be removed in v2.2. Please use NAPALM_PASSWORD instead.')
-    if not NAPALM_PASSWORD:
-        NAPALM_PASSWORD = NETBOX_PASSWORD
 
 # Attempt to import LDAP configuration if it has been defined
 LDAP_IGNORE_CERT_ERRORS = False
@@ -147,6 +133,7 @@ INSTALLED_APPS = (
     'tenancy',
     'users',
     'utilities',
+    'virtualization',
 )
 
 # Middleware
@@ -225,34 +212,26 @@ REST_FRAMEWORK = {
     'ALLOWED_VERSIONS': [REST_FRAMEWORK_VERSION],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
-        'utilities.api.TokenAuthentication',
+        'netbox.api.TokenAuthentication',
     ),
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'utilities.api.OptionalLimitOffsetPagination',
+    'DEFAULT_PAGINATION_CLASS': 'netbox.api.OptionalLimitOffsetPagination',
     'DEFAULT_PERMISSION_CLASSES': (
-        'utilities.api.TokenPermissions',
+        'netbox.api.TokenPermissions',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        'utilities.api.FormlessBrowsableAPIRenderer',
+        'netbox.api.FormlessBrowsableAPIRenderer',
     ),
     'DEFAULT_VERSION': REST_FRAMEWORK_VERSION,
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'PAGE_SIZE': PAGINATE_COUNT,
-    'VIEW_NAME_FUNCTION': 'utilities.api.get_view_name',
+    'VIEW_NAME_FUNCTION': 'netbox.api.get_view_name',
 }
 
 # Django debug toolbar
-# Disable the templates panel by default due to a performance issue in Django 1.11; see
-# https://github.com/jazzband/django-debug-toolbar/issues/910
-DEBUG_TOOLBAR_CONFIG = {
-    'DISABLE_PANELS': [
-        'debug_toolbar.panels.redirects.RedirectsPanel',
-        'debug_toolbar.panels.templates.TemplatesPanel',
-    ],
-}
 INTERNAL_IPS = (
     '127.0.0.1',
     '::1',

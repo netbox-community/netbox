@@ -39,6 +39,11 @@ COMMAND="${PREFIX}find . -name \"*.pyc\" -delete"
 echo "Cleaning up stale Python bytecode ($COMMAND)..."
 eval $COMMAND
 
+# Uninstall any Python packages which are no longer needed
+COMMAND="${PREFIX}${PIP} uninstall -r old_requirements.txt -y"
+echo "Removing old Python packages ($COMMAND)..."
+eval $COMMAND
+
 # Install any new Python packages
 COMMAND="${PREFIX}${PIP} install -r requirements.txt --upgrade"
 echo "Updating required Python packages ($COMMAND)..."

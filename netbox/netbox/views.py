@@ -25,6 +25,9 @@ from secrets.tables import SecretTable
 from tenancy.filters import TenantFilter
 from tenancy.models import Tenant
 from tenancy.tables import TenantTable
+from virtualization.filters import ClusterFilter, VirtualMachineFilter
+from virtualization.models import Cluster, VirtualMachine
+from virtualization.tables import ClusterTable, VirtualMachineTable
 from .forms import SearchForm
 
 
@@ -90,7 +93,7 @@ SEARCH_TYPES = OrderedDict((
         'url': 'ipam:prefix_list',
     }),
     ('ipaddress', {
-        'queryset': IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device'),
+        'queryset': IPAddress.objects.select_related('vrf__tenant', 'tenant'),
         'filter': IPAddressFilter,
         'table': IPAddressTable,
         'url': 'ipam:ipaddress_list',
@@ -114,6 +117,19 @@ SEARCH_TYPES = OrderedDict((
         'filter': TenantFilter,
         'table': TenantTable,
         'url': 'tenancy:tenant_list',
+    }),
+    # Virtualization
+    ('cluster', {
+        'queryset': Cluster.objects.all(),
+        'filter': ClusterFilter,
+        'table': ClusterTable,
+        'url': 'virtualization:cluster_list',
+    }),
+    ('virtualmachine', {
+        'queryset': VirtualMachine.objects.select_related('cluster', 'tenant', 'platform'),
+        'filter': VirtualMachineFilter,
+        'table': VirtualMachineTable,
+        'url': 'virtualization:virtualmachine_list',
     }),
 ))
 
@@ -149,6 +165,10 @@ class HomeView(View):
 
             # Secrets
             'secret_count': Secret.objects.count(),
+
+            # Virtualization
+            'cluster_count': Cluster.objects.count(),
+            'virtualmachine_count': VirtualMachine.objects.count(),
 
         }
 
@@ -216,14 +236,15 @@ class APIRootView(APIView):
 
     def get(self, request, format=None):
 
-        return Response({
-            'circuits': reverse('circuits-api:api-root', request=request, format=format),
-            'dcim': reverse('dcim-api:api-root', request=request, format=format),
-            'extras': reverse('extras-api:api-root', request=request, format=format),
-            'ipam': reverse('ipam-api:api-root', request=request, format=format),
-            'secrets': reverse('secrets-api:api-root', request=request, format=format),
-            'tenancy': reverse('tenancy-api:api-root', request=request, format=format),
-        })
+        return Response(OrderedDict((
+            ('circuits', reverse('circuits-api:api-root', request=request, format=format)),
+            ('dcim', reverse('dcim-api:api-root', request=request, format=format)),
+            ('extras', reverse('extras-api:api-root', request=request, format=format)),
+            ('ipam', reverse('ipam-api:api-root', request=request, format=format)),
+            ('secrets', reverse('secrets-api:api-root', request=request, format=format)),
+            ('tenancy', reverse('tenancy-api:api-root', request=request, format=format)),
+            ('virtualization', reverse('virtualization-api:api-root', request=request, format=format)),
+        )))
 
 
 def handle_500(request):

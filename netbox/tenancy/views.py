@@ -12,6 +12,7 @@ from ipam.models import IPAddress, Prefix, VLAN, VRF
 from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
+from virtualization.models import VirtualMachine
 from .models import Tenant, TenantGroup
 from . import filters, forms, tables
 
@@ -29,7 +30,7 @@ class TenantGroupListView(ObjectListView):
 class TenantGroupCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'tenancy.add_tenantgroup'
     model = TenantGroup
-    form_class = forms.TenantGroupForm
+    model_form = forms.TenantGroupForm
 
     def get_return_url(self, request, obj):
         return reverse('tenancy:tenantgroup_list')
@@ -37,6 +38,13 @@ class TenantGroupCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class TenantGroupEditView(TenantGroupCreateView):
     permission_required = 'tenancy.change_tenantgroup'
+
+
+class TenantGroupBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'tenancy.add_tenantgroup'
+    model_form = forms.TenantGroupCSVForm
+    table = tables.TenantGroupTable
+    default_return_url = 'tenancy:tenantgroup_list'
 
 
 class TenantGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -79,6 +87,7 @@ class TenantView(View):
             ).count(),
             'vlan_count': VLAN.objects.filter(tenant=tenant).count(),
             'circuit_count': Circuit.objects.filter(tenant=tenant).count(),
+            'virtualmachine_count': VirtualMachine.objects.filter(tenant=tenant).count(),
         }
 
         return render(request, 'tenancy/tenant.html', {
@@ -90,7 +99,7 @@ class TenantView(View):
 class TenantCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'tenancy.add_tenant'
     model = Tenant
-    form_class = forms.TenantForm
+    model_form = forms.TenantForm
     template_name = 'tenancy/tenant_edit.html'
     default_return_url = 'tenancy:tenant_list'
 

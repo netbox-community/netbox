@@ -16,6 +16,7 @@ from dcim.models import (
 from extras.api.customfields import CustomFieldModelSerializer
 from tenancy.api.serializers import NestedTenantSerializer
 from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer
+from virtualization.models import Cluster
 
 
 #
@@ -141,8 +142,8 @@ class RackSerializer(CustomFieldModelSerializer):
     class Meta:
         model = Rack
         fields = [
-            'id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'type', 'width', 'u_height',
-            'desc_units', 'comments', 'custom_fields',
+            'id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'serial', 'type', 'width',
+            'u_height', 'desc_units', 'comments', 'custom_fields',
         ]
 
 
@@ -159,8 +160,8 @@ class WritableRackSerializer(CustomFieldModelSerializer):
     class Meta:
         model = Rack
         fields = [
-            'id', 'name', 'facility_id', 'site', 'group', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
-            'comments', 'custom_fields',
+            'id', 'name', 'facility_id', 'site', 'group', 'tenant', 'role', 'serial', 'type', 'width', 'u_height',
+            'desc_units', 'comments', 'custom_fields',
         ]
         # Omit the UniqueTogetherValidator that would be automatically added to validate (site, facility_id). This
         # prevents facility_id from being interpreted as a required field.
@@ -403,7 +404,7 @@ class DeviceRoleSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = DeviceRole
-        fields = ['id', 'name', 'slug', 'color']
+        fields = ['id', 'name', 'slug', 'color', 'vm_role']
 
 
 class NestedDeviceRoleSerializer(serializers.ModelSerializer):
@@ -446,6 +447,15 @@ class DeviceIPAddressSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'family', 'address']
 
 
+# Cannot import virtualization.api.NestedClusterSerializer due to circular dependency
+class NestedClusterSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:cluster-detail')
+
+    class Meta:
+        model = Cluster
+        fields = ['id', 'url', 'name']
+
+
 class DeviceSerializer(CustomFieldModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     device_role = NestedDeviceRoleSerializer()
@@ -459,13 +469,14 @@ class DeviceSerializer(CustomFieldModelSerializer):
     primary_ip4 = DeviceIPAddressSerializer()
     primary_ip6 = DeviceIPAddressSerializer()
     parent_device = serializers.SerializerMethodField()
+    cluster = NestedClusterSerializer()
 
     class Meta:
         model = Device
         fields = [
             'id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'site', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4', 'primary_ip6',
-            'comments', 'custom_fields',
+            'cluster', 'comments', 'custom_fields',
         ]
 
     def get_parent_device(self, obj):
@@ -485,7 +496,7 @@ class WritableDeviceSerializer(CustomFieldModelSerializer):
         model = Device
         fields = [
             'id', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag', 'site', 'rack',
-            'position', 'face', 'status', 'primary_ip4', 'primary_ip6', 'comments', 'custom_fields',
+            'position', 'face', 'status', 'primary_ip4', 'primary_ip6', 'cluster', 'comments', 'custom_fields',
         ]
         validators = []
 

@@ -118,6 +118,10 @@ PAGINATE_COUNT = 50
 # prefer IPv4 instead.
 PREFER_IPV4 = False
 
+# The file path where custom reports will be stored. A trailing slash is not needed. Note that the default value of
+# this setting is derived from the installed location.
+# REPORTS_ROOT = '/opt/netbox/netbox/reports'
+
 # Time zone (default: UTC)
 TIME_ZONE = 'UTC'
 

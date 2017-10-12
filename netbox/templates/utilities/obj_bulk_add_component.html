@@ -14,21 +14,7 @@
     <div class="row">
         <div class="col-md-7">
             <div class="panel panel-default">
-                <div class="panel-heading"><strong>Selected Devices</strong></div>
-                <table class="panel-body table table-hover">
-                    <tr>
-                        <th>Device</th>
-                        <th>Type</th>
-                        <th>Role</th>
-                    </tr>
-                    {% for device in selected_devices %}
-                        <tr>
-                            <td><a href="{% url 'dcim:device' pk=device.pk %}">{{ device }}</a></td>
-                            <td>{{ device.device_type.full_name }}</td>
-                            <td>{{ device.device_role }}</td>
-                        </tr>
-                    {% endfor %}
-                </table>
+                {% include 'inc/table.html' %}
             </div>
         </div>
         <div class="col-md-5">

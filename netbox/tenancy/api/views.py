@@ -5,8 +5,16 @@ from rest_framework.viewsets import ModelViewSet
 from extras.api.views import CustomFieldModelViewSet
 from tenancy import filters
 from tenancy.models import Tenant, TenantGroup
-from utilities.api import WritableSerializerMixin
+from utilities.api import FieldChoicesViewSet, WritableSerializerMixin
 from . import serializers
+
+
+#
+# Field choices
+#
+
+class TenancyFieldChoicesViewSet(FieldChoicesViewSet):
+    fields = ()
 
 
 #

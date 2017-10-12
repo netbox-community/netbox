@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 from collections import OrderedDict
+from copy import deepcopy
 
 from django_tables2 import RequestConfig
 
@@ -9,7 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
-from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, TypedChoiceField
+from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea, TypedChoiceField
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import TemplateSyntaxError
@@ -155,12 +156,12 @@ class ObjectEditView(GetReturnURLMixin, View):
     Create or edit a single object.
 
     model: The model of the object being edited
-    form_class: The form used to create or edit the object
+    model_form: The form used to create or edit the object
     template_name: The name of the template
     default_return_url: The name of the URL used to display a list of this object type
     """
     model = None
-    form_class = None
+    model_form = None
     template_name = 'utilities/obj_edit.html'
 
     def get_object(self, kwargs):
@@ -182,7 +183,7 @@ class ObjectEditView(GetReturnURLMixin, View):
         obj = self.alter_obj(obj, request, args, kwargs)
         # Parse initial data manually to avoid setting field values as lists
         initial_data = {k: request.GET[k] for k in request.GET}
-        form = self.form_class(instance=obj, initial=initial_data)
+        form = self.model_form(instance=obj, initial=initial_data)
 
         return render(request, self.template_name, {
             'obj': obj,
@@ -195,7 +196,7 @@ class ObjectEditView(GetReturnURLMixin, View):
 
         obj = self.get_object(kwargs)
         obj = self.alter_obj(obj, request, args, kwargs)
-        form = self.form_class(request.POST, request.FILES, instance=obj)
+        form = self.model_form(request.POST, request.FILES, instance=obj)
 
         if form.is_valid():
             obj_created = not form.instance.pk
@@ -214,7 +215,7 @@ class ObjectEditView(GetReturnURLMixin, View):
                 UserAction.objects.log_edit(request.user, obj, msg)
 
             if '_addanother' in request.POST:
-                return redirect(request.path)
+                return redirect(request.get_full_path())
 
             return_url = form.cleaned_data.get('return_url')
             if return_url is not None and is_safe_url(url=return_url, host=request.get_host()):
@@ -294,12 +295,12 @@ class BulkCreateView(View):
     """
     Create new objects in bulk.
 
-    pattern_form: Form class which provides the `pattern` field
+    form: Form class which provides the `pattern` field
     model_form: The ModelForm used to create individual objects
     template_name: The name of the template
     default_return_url: Name of the URL to which the user is redirected after creating the objects
     """
-    pattern_form = None
+    form = None
     model_form = None
     pattern_target = ''
     template_name = None
@@ -307,12 +308,12 @@ class BulkCreateView(View):
 
     def get(self, request):
 
-        pattern_form = self.pattern_form()
+        form = self.form()
         model_form = self.model_form()
 
         return render(request, self.template_name, {
             'obj_type': self.model_form._meta.model._meta.verbose_name,
-            'pattern_form': pattern_form,
+            'form': form,
             'model_form': model_form,
             'return_url': reverse(self.default_return_url),
         })
@@ -320,12 +321,12 @@ class BulkCreateView(View):
     def post(self, request):
 
         model = self.model_form._meta.model
-        pattern_form = self.pattern_form(request.POST)
+        form = self.form(request.POST)
         model_form = self.model_form(request.POST)
 
-        if pattern_form.is_valid():
+        if form.is_valid():
 
-            pattern = pattern_form.cleaned_data['pattern']
+            pattern = form.cleaned_data['pattern']
             new_objs = []
 
             try:
@@ -347,7 +348,7 @@ class BulkCreateView(View):
                             # Copy any errors on the pattern target field to the pattern form.
                             errors = model_form.errors.as_data()
                             if errors.get(self.pattern_target):
-                                pattern_form.add_error('pattern', errors[self.pattern_target])
+                                form.add_error('pattern', errors[self.pattern_target])
                             # Raise an IntegrityError to break the for loop and abort the transaction.
                             raise IntegrityError()
 
@@ -364,7 +365,7 @@ class BulkCreateView(View):
                 pass
 
         return render(request, self.template_name, {
-            'pattern_form': pattern_form,
+            'form': form,
             'model_form': model_form,
             'obj_type': model._meta.verbose_name,
             'return_url': reverse(self.default_return_url),
@@ -379,11 +380,13 @@ class BulkImportView(View):
     table: The django-tables2 Table used to render the list of imported objects
     template_name: The name of the template
     default_return_url: The name of the URL to use for the cancel button
+    widget_attrs: A dict of attributes to apply to the import widget (e.g. to require a session key)
     """
     model_form = None
     table = None
     default_return_url = None
     template_name = 'utilities/obj_import.html'
+    widget_attrs = {}
 
     def _import_form(self, *args, **kwargs):
 
@@ -391,7 +394,7 @@ class BulkImportView(View):
         required_fields = [name for name, field in self.model_form().fields.items() if field.required]
 
         class ImportForm(BootstrapMixin, Form):
-            csv = CSVDataField(fields=fields, required_fields=required_fields)
+            csv = CSVDataField(fields=fields, required_fields=required_fields, widget=Textarea(attrs=self.widget_attrs))
 
         return ImportForm(*args, **kwargs)
 
@@ -700,3 +703,173 @@ class BulkDeleteView(View):
         if self.form:
             return self.form
         return BulkDeleteForm
+
+
+#
+# Device/VirtualMachine components
+#
+
+class ComponentCreateView(View):
+    """
+    Add one or more components (e.g. interfaces, console ports, etc.) to a Device or VirtualMachine.
+    """
+    parent_model = None
+    parent_field = None
+    model = None
+    form = None
+    model_form = None
+    template_name = None
+
+    def get(self, request, pk):
+
+        parent = get_object_or_404(self.parent_model, pk=pk)
+        form = self.form(parent, initial=request.GET)
+
+        return render(request, self.template_name, {
+            'parent': parent,
+            'component_type': self.model._meta.verbose_name,
+            'form': form,
+            'return_url': parent.get_absolute_url(),
+        })
+
+    def post(self, request, pk):
+
+        parent = get_object_or_404(self.parent_model, pk=pk)
+
+        form = self.form(parent, request.POST)
+        if form.is_valid():
+
+            new_components = []
+            data = deepcopy(form.cleaned_data)
+
+            for name in form.cleaned_data['name_pattern']:
+                component_data = {
+                    self.parent_field: parent.pk,
+                    'name': name,
+                }
+                # Replace objects with their primary key to keep component_form.clean() happy
+                for k, v in data.items():
+                    if hasattr(v, 'pk'):
+                        component_data[k] = v.pk
+                    else:
+                        component_data[k] = v
+                component_form = self.model_form(component_data)
+                if component_form.is_valid():
+                    new_components.append(component_form.save(commit=False))
+                else:
+                    for field, errors in component_form.errors.as_data().items():
+                        # Assign errors on the child form's name field to name_pattern on the parent form
+                        if field == 'name':
+                            field = 'name_pattern'
+                        for e in errors:
+                            form.add_error(field, '{}: {}'.format(name, ', '.join(e)))
+
+            if not form.errors:
+                self.model.objects.bulk_create(new_components)
+                messages.success(request, "Added {} {} to {}.".format(
+                    len(new_components), self.model._meta.verbose_name_plural, parent
+                ))
+                if '_addanother' in request.POST:
+                    return redirect(request.path)
+                else:
+                    return redirect(parent.get_absolute_url())
+
+        return render(request, self.template_name, {
+            'parent': parent,
+            'component_type': self.model._meta.verbose_name,
+            'form': form,
+            'return_url': parent.get_absolute_url(),
+        })
+
+
+class ComponentEditView(ObjectEditView):
+    parent_field = None
+
+    def get_return_url(self, request, obj):
+        return getattr(obj, self.parent_field).get_absolute_url()
+
+
+class ComponentDeleteView(ObjectDeleteView):
+    parent_field = None
+
+    def get_return_url(self, request, obj):
+        return getattr(obj, self.parent_field).get_absolute_url()
+
+
+class BulkComponentCreateView(View):
+    """
+    Add one or more components (e.g. interfaces, console ports, etc.) to a set of Devices or VirtualMachines.
+    """
+    parent_model = None
+    parent_field = None
+    form = None
+    model = None
+    model_form = None
+    filter = None
+    table = None
+    template_name = 'utilities/obj_bulk_add_component.html'
+    default_return_url = 'home'
+
+    def post(self, request):
+
+        # Are we editing *all* objects in the queryset or just a selected subset?
+        if request.POST.get('_all') and self.filter is not None:
+            pk_list = [obj.pk for obj in self.filter(request.GET, self.model.objects.only('pk')).qs]
+        else:
+            pk_list = [int(pk) for pk in request.POST.getlist('pk')]
+
+        # Determine URL to redirect users upon modification of objects
+        posted_return_url = request.POST.get('return_url')
+        if posted_return_url and is_safe_url(url=posted_return_url, host=request.get_host()):
+            return_url = posted_return_url
+        else:
+            return_url = reverse(self.default_return_url)
+
+        selected_objects = self.parent_model.objects.filter(pk__in=pk_list)
+        if not selected_objects:
+            messages.warning(request, "No {} were selected.".format(self.parent_model._meta.verbose_name_plural))
+            return redirect(return_url)
+        table = self.table(selected_objects)
+
+        if '_create' in request.POST:
+            form = self.form(request.POST)
+            if form.is_valid():
+
+                new_components = []
+                data = deepcopy(form.cleaned_data)
+                for obj in data['pk']:
+
+                    names = data['name_pattern']
+                    for name in names:
+                        component_data = {
+                            self.parent_field: obj.pk,
+                            'name': name,
+                        }
+                        component_data.update(data)
+                        component_form = self.model_form(component_data)
+                        if component_form.is_valid():
+                            new_components.append(component_form.save(commit=False))
+                        else:
+                            for field, errors in component_form.errors.as_data().items():
+                                for e in errors:
+                                    form.add_error(field, '{} {}: {}'.format(obj, name, ', '.join(e)))
+
+                if not form.errors:
+                    self.model.objects.bulk_create(new_components)
+                    messages.success(request, "Added {} {} to {} {}.".format(
+                        len(new_components),
+                        self.model._meta.verbose_name_plural,
+                        len(form.cleaned_data['pk']),
+                        self.parent_model._meta.verbose_name_plural
+                    ))
+                    return redirect(return_url)
+
+        else:
+            form = self.form(initial={'pk': pk_list})
+
+        return render(request, self.template_name, {
+            'form': form,
+            'component_name': self.model._meta.verbose_name_plural,
+            'table': table,
+            'return_url': reverse(self.default_return_url),
+        })

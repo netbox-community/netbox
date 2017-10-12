@@ -4,7 +4,7 @@
 
 {% block content %}
 <h1>{% block title %}Editing {{ table.rows|length }} {{ obj_type_plural|bettertitle }}{% endblock %}</h1>
-<form action="." method="post" class="form form-horizontal">
+<form action="" method="post" class="form form-horizontal">
     {% csrf_token %}
     {% if request.POST.return_url %}
         <input type="hidden" name="return_url" value="{{ request.POST.return_url }}" />

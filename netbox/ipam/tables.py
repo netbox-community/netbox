@@ -77,9 +77,9 @@ IPADDRESS_LINK = """
 {% endif %}
 """
 
-IPADDRESS_DEVICE = """
+IPADDRESS_PARENT = """
 {% if record.interface %}
-    <a href="{{ record.interface.device.get_absolute_url }}">{{ record.interface.device }}</a>
+    <a href="{{ record.interface.parent.get_absolute_url }}">{{ record.interface.parent }}</a>
 {% else %}
     &mdash;
 {% endif %}
@@ -272,12 +272,12 @@ class IPAddressTable(BaseTable):
     status = tables.TemplateColumn(STATUS_LABEL)
     vrf = tables.TemplateColumn(VRF_LINK, verbose_name='VRF')
     tenant = tables.TemplateColumn(TENANT_LINK)
-    device = tables.TemplateColumn(IPADDRESS_DEVICE, orderable=False)
+    parent = tables.TemplateColumn(IPADDRESS_PARENT, orderable=False)
     interface = tables.Column(orderable=False)
 
     class Meta(BaseTable.Meta):
         model = IPAddress
-        fields = ('pk', 'address', 'vrf', 'status', 'role', 'tenant', 'device', 'interface', 'description')
+        fields = ('pk', 'address', 'vrf', 'status', 'role', 'tenant', 'parent', 'interface', 'description')
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, IPAddress) else '',
         }
@@ -290,7 +290,7 @@ class IPAddressDetailTable(IPAddressTable):
 
     class Meta(IPAddressTable.Meta):
         fields = (
-            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'device', 'interface', 'description',
+            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'parent', 'interface', 'description',
         )
 
 

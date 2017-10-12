@@ -18,14 +18,18 @@ pages:
         - 'IPAM': 'data-model/ipam.md'
         - 'Secrets': 'data-model/secrets.md'
         - 'Tenancy': 'data-model/tenancy.md'
+        - 'Virtualization': 'data-model/virtualization.md'
         - 'Extras': 'data-model/extras.md'
     - 'API':
         - 'Overview': 'api/overview.md'
         - 'Authentication': 'api/authentication.md'
         - 'Working with Secrets': 'api/working-with-secrets.md'
         - 'Examples': 'api/examples.md'
-    - 'Shell':
-        - 'Introduction': 'shell/intro.md'
+    - 'Miscellaneous':
+        - 'Reports': 'miscellaneous/reports.md'
+        - 'Shell': 'miscellaneous/shell.md'
+    - 'Development':
+        - 'Utility Views': 'development/utility-views.md'
 
 markdown_extensions:
     - admonition:

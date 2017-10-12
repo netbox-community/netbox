@@ -16,6 +16,9 @@ class DCIMRootView(routers.APIRootView):
 router = routers.DefaultRouter()
 router.APIRootView = DCIMRootView
 
+# Field choices
+router.register(r'_choices', views.DCIMFieldChoicesViewSet, base_name='field-choice')
+
 # Sites
 router.register(r'regions', views.RegionViewSet)
 router.register(r'sites', views.SiteViewSet)

@@ -43,6 +43,17 @@ class SecretRoleForm(BootstrapMixin, forms.ModelForm):
         fields = ['name', 'slug', 'users', 'groups']
 
 
+class SecretRoleCSVForm(forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = SecretRole
+        fields = ['name', 'slug']
+        help_texts = {
+            'name': 'Name of secret role',
+        }
+
+
 #
 # Secrets
 #

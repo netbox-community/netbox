@@ -10,11 +10,12 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.generic import View
 
-from dcim.models import Device
+from dcim.models import Device, Interface
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkCreateView, BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
+from virtualization.models import VirtualMachine
 from . import filters, forms, tables
 from .constants import IPADDRESS_ROLE_ANYCAST
 from .models import (
@@ -118,7 +119,7 @@ class VRFView(View):
 class VRFCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_vrf'
     model = VRF
-    form_class = forms.VRFForm
+    model_form = forms.VRFForm
     template_name = 'ipam/vrf_edit.html'
     default_return_url = 'ipam:vrf_list'
 
@@ -250,7 +251,7 @@ class RIRListView(ObjectListView):
 class RIRCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_rir'
     model = RIR
-    form_class = forms.RIRForm
+    model_form = forms.RIRForm
 
     def get_return_url(self, request, obj):
         return reverse('ipam:rir_list')
@@ -258,6 +259,13 @@ class RIRCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class RIREditView(RIRCreateView):
     permission_required = 'ipam.change_rir'
+
+
+class RIRBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'ipam.add_rir'
+    model_form = forms.RIRCSVForm
+    table = tables.RIRTable
+    default_return_url = 'ipam:rir_list'
 
 
 class RIRBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -342,7 +350,7 @@ class AggregateView(View):
 class AggregateCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_aggregate'
     model = Aggregate
-    form_class = forms.AggregateForm
+    model_form = forms.AggregateForm
     template_name = 'ipam/aggregate_edit.html'
     default_return_url = 'ipam:aggregate_list'
 
@@ -396,7 +404,7 @@ class RoleListView(ObjectListView):
 class RoleCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_role'
     model = Role
-    form_class = forms.RoleForm
+    model_form = forms.RoleForm
 
     def get_return_url(self, request, obj):
         return reverse('ipam:role_list')
@@ -404,6 +412,13 @@ class RoleCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class RoleEditView(RoleCreateView):
     permission_required = 'ipam.change_role'
+
+
+class RoleBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'ipam.add_role'
+    model_form = forms.RoleCSVForm
+    table = tables.RoleTable
+    default_return_url = 'ipam:role_list'
 
 
 class RoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -549,7 +564,7 @@ class PrefixIPAddressesView(View):
 class PrefixCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_prefix'
     model = Prefix
-    form_class = forms.PrefixForm
+    model_form = forms.PrefixForm
     template_name = 'ipam/prefix_edit.html'
     default_return_url = 'ipam:prefix_list'
 
@@ -596,7 +611,11 @@ class PrefixBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class IPAddressListView(ObjectListView):
-    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device', 'nat_inside')
+    queryset = IPAddress.objects.select_related(
+        'vrf__tenant', 'tenant', 'nat_inside'
+    ).prefetch_related(
+        'interface__device', 'interface__virtual_machine'
+    )
     filter = filters.IPAddressFilter
     filter_form = forms.IPAddressFilterForm
     table = tables.IPAddressDetailTable
@@ -607,7 +626,7 @@ class IPAddressView(View):
 
     def get(self, request, pk):
 
-        ipaddress = get_object_or_404(IPAddress.objects.select_related('interface__device'), pk=pk)
+        ipaddress = get_object_or_404(IPAddress.objects.select_related('vrf__tenant', 'tenant'), pk=pk)
 
         # Parent prefixes table
         parent_prefixes = Prefix.objects.filter(
@@ -624,7 +643,9 @@ class IPAddressView(View):
         ).exclude(
             pk=ipaddress.pk
         ).select_related(
-            'interface__device', 'nat_inside'
+            'nat_inside'
+        ).prefetch_related(
+            'interface__device'
         )
         # Exclude anycast IPs if this IP is anycast
         if ipaddress.role == IPADDRESS_ROLE_ANYCAST:
@@ -632,7 +653,7 @@ class IPAddressView(View):
         duplicate_ips_table = tables.IPAddressTable(list(duplicate_ips), orderable=False)
 
         # Related IP table
-        related_ips = IPAddress.objects.select_related(
+        related_ips = IPAddress.objects.prefetch_related(
             'interface__device'
         ).exclude(
             address=str(ipaddress.address)
@@ -652,9 +673,20 @@ class IPAddressView(View):
 class IPAddressCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_ipaddress'
     model = IPAddress
-    form_class = forms.IPAddressForm
+    model_form = forms.IPAddressForm
     template_name = 'ipam/ipaddress_edit.html'
     default_return_url = 'ipam:ipaddress_list'
+
+    def alter_obj(self, obj, request, url_args, url_kwargs):
+
+        interface_id = request.GET.get('interface')
+        if interface_id:
+            try:
+                obj.interface = Interface.objects.get(pk=interface_id)
+            except (ValueError, Interface.DoesNotExist):
+                pass
+
+        return obj
 
 
 class IPAddressEditView(IPAddressCreateView):
@@ -669,7 +701,7 @@ class IPAddressDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class IPAddressBulkCreateView(PermissionRequiredMixin, BulkCreateView):
     permission_required = 'ipam.add_ipaddress'
-    pattern_form = forms.IPAddressPatternForm
+    form = forms.IPAddressBulkCreateForm
     model_form = forms.IPAddressBulkAddForm
     pattern_target = 'address'
     template_name = 'ipam/ipaddress_bulk_add.html'
@@ -686,7 +718,7 @@ class IPAddressBulkImportView(PermissionRequiredMixin, BulkImportView):
 class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'ipam.change_ipaddress'
     cls = IPAddress
-    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device')
+    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant').prefetch_related('interface__device')
     filter = filters.IPAddressFilter
     table = tables.IPAddressTable
     form = forms.IPAddressBulkEditForm
@@ -696,7 +728,7 @@ class IPAddressBulkEditView(PermissionRequiredMixin, BulkEditView):
 class IPAddressBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'ipam.delete_ipaddress'
     cls = IPAddress
-    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant', 'interface__device')
+    queryset = IPAddress.objects.select_related('vrf__tenant', 'tenant').prefetch_related('interface__device')
     filter = filters.IPAddressFilter
     table = tables.IPAddressTable
     default_return_url = 'ipam:ipaddress_list'
@@ -717,7 +749,7 @@ class VLANGroupListView(ObjectListView):
 class VLANGroupCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_vlangroup'
     model = VLANGroup
-    form_class = forms.VLANGroupForm
+    model_form = forms.VLANGroupForm
 
     def get_return_url(self, request, obj):
         return reverse('ipam:vlangroup_list')
@@ -725,6 +757,13 @@ class VLANGroupCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class VLANGroupEditView(VLANGroupCreateView):
     permission_required = 'ipam.change_vlangroup'
+
+
+class VLANGroupBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'ipam.add_vlangroup'
+    model_form = forms.VLANGroupCSVForm
+    table = tables.VLANGroupTable
+    default_return_url = 'ipam:vlangroup_list'
 
 
 class VLANGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -768,7 +807,7 @@ class VLANView(View):
 class VLANCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_vlan'
     model = VLAN
-    form_class = forms.VLANForm
+    model_form = forms.VLANForm
     template_name = 'ipam/vlan_edit.html'
     default_return_url = 'ipam:vlan_list'
 
@@ -816,16 +855,18 @@ class VLANBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class ServiceCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_service'
     model = Service
-    form_class = forms.ServiceForm
+    model_form = forms.ServiceForm
     template_name = 'ipam/service_edit.html'
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
         if 'device' in url_kwargs:
             obj.device = get_object_or_404(Device, pk=url_kwargs['device'])
+        elif 'virtualmachine' in url_kwargs:
+            obj.virtual_machine = get_object_or_404(VirtualMachine, pk=url_kwargs['virtualmachine'])
         return obj
 
     def get_return_url(self, request, obj):
-        return obj.device.get_absolute_url()
+        return obj.parent.get_absolute_url()
 
 
 class ServiceEditView(ServiceCreateView):

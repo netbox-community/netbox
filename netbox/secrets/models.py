@@ -1,8 +1,9 @@
 from __future__ import unicode_literals
 import os
 
-from Crypto.Cipher import AES, PKCS1_OAEP, XOR
+from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
+from Crypto.Util import strxor
 
 from django.conf import settings
 from django.contrib.auth.hashers import make_password, check_password
@@ -16,6 +17,7 @@ from dcim.models import Device
 from utilities.models import CreatedUpdatedModel
 from .exceptions import InvalidKey
 from .hashers import SecretValidationHasher
+from .querysets import UserKeyQuerySet
 
 
 def generate_random_key(bits=256):
@@ -43,24 +45,6 @@ def decrypt_master_key(master_key_cipher, private_key):
     key = RSA.importKey(private_key)
     cipher = PKCS1_OAEP.new(key)
     return cipher.decrypt(master_key_cipher)
-
-
-def xor_keys(key_a, key_b):
-    """
-    Return the binary XOR of two given keys.
-    """
-    xor = XOR.new(key_a)
-    return xor.encrypt(key_b)
-
-
-class UserKeyQuerySet(models.QuerySet):
-
-    def active(self):
-        return self.filter(master_key_cipher__isnull=False)
-
-    def delete(self):
-        # Disable bulk deletion to avoid accidentally wiping out all copies of the master key.
-        raise Exception("Bulk deletion has been disabled.")
 
 
 @python_2_unicode_compatible
@@ -98,7 +82,7 @@ class UserKey(CreatedUpdatedModel):
 
             # Validate the public key format
             try:
-                pubkey = RSA.importKey(self.public_key)
+                pubkey = RSA.import_key(self.public_key)
             except ValueError:
                 raise ValidationError({
                     'public_key': "Invalid RSA key format."
@@ -108,7 +92,7 @@ class UserKey(CreatedUpdatedModel):
                                       "uploading a valid RSA public key in PEM format (no SSH/PGP).")
 
             # Validate the public key length
-            pubkey_length = pubkey.size() + 1  # key.size() returns 1 less than the key modulus
+            pubkey_length = pubkey.size_in_bits()
             if pubkey_length < settings.SECRETS_MIN_PUBKEY_SIZE:
                 raise ValidationError({
                     'public_key': "Insufficient key length. Keys must be at least {} bits long.".format(
@@ -214,7 +198,7 @@ class SessionKey(models.Model):
         self.hash = make_password(self.key)
 
         # Encrypt master key using the session key
-        self.cipher = xor_keys(self.key, master_key)
+        self.cipher = strxor.strxor(self.key, master_key)
 
         super(SessionKey, self).save(*args, **kwargs)
 
@@ -225,14 +209,14 @@ class SessionKey(models.Model):
             raise InvalidKey("Invalid session key")
 
         # Decrypt master key using provided session key
-        master_key = xor_keys(session_key, bytes(self.cipher))
+        master_key = strxor.strxor(session_key, bytes(self.cipher))
 
         return master_key
 
     def get_session_key(self, master_key):
 
         # Recover session key using the master key
-        session_key = xor_keys(master_key, bytes(self.cipher))
+        session_key = strxor.strxor(master_key, bytes(self.cipher))
 
         # Validate the recovered session key
         if not check_password(session_key, self.hash):

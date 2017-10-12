@@ -12,10 +12,10 @@ from ipam.models import IPAddress
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, ArrayFieldSelectMultiple, add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ChainedFieldsMixin, ChainedModelChoiceField, CommentField, ConfirmationForm, CSVChoiceField, ExpandableNameField,
-    FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
-    FilterTreeNodeMultipleChoiceField,
+    APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
+    ChainedFieldsMixin, ChainedModelChoiceField, CommentField, ComponentForm, ConfirmationForm, CSVChoiceField,
+    ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea,
+    SlugField, FilterTreeNodeMultipleChoiceField,
 )
 from .formfields import MACAddressFormField
 from .models import (
@@ -24,7 +24,7 @@ from .models import (
     IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ORDERING_CHOICES, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, RACK_FACE_CHOICES,
     RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, Rack, RackGroup, RackReservation, RackRole, RACK_WIDTH_19IN, RACK_WIDTH_23IN,
-    Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
+    Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT, SUBDEVICE_ROLE_CHOICES,
 )
 
 
@@ -43,15 +43,6 @@ def get_device_by_name_or_pk(name):
     return device
 
 
-class DeviceComponentForm(BootstrapMixin, forms.Form):
-    """
-    Allow inclusion of the parent device as context for limiting field choices.
-    """
-    def __init__(self, device, *args, **kwargs):
-        self.device = device
-        super(DeviceComponentForm, self).__init__(*args, **kwargs)
-
-
 #
 # Regions
 #
@@ -62,6 +53,28 @@ class RegionForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Region
         fields = ['parent', 'name', 'slug']
+
+
+class RegionCSVForm(forms.ModelForm):
+    parent = forms.ModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Name of parent region',
+        error_messages={
+            'invalid_choice': 'Region not found.',
+        }
+    )
+
+    class Meta:
+        model = Region
+        fields = [
+            'name', 'slug', 'parent',
+        ]
+        help_texts = {
+            'name': 'Region name',
+            'slug': 'URL-friendly slug',
+        }
 
 
 #
@@ -162,6 +175,27 @@ class RackGroupForm(BootstrapMixin, forms.ModelForm):
         fields = ['site', 'name', 'slug']
 
 
+class RackGroupCSVForm(forms.ModelForm):
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='name',
+        help_text='Name of parent site',
+        error_messages={
+            'invalid_choice': 'Site not found.',
+        }
+    )
+
+    class Meta:
+        model = RackGroup
+        fields = [
+            'site', 'name', 'slug',
+        ]
+        help_texts = {
+            'name': 'Name of rack group',
+            'slug': 'URL-friendly slug',
+        }
+
+
 class RackGroupFilterForm(BootstrapMixin, forms.Form):
     site = FilterChoiceField(queryset=Site.objects.annotate(filter_count=Count('rack_groups')), to_field_name='slug')
 
@@ -176,6 +210,18 @@ class RackRoleForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = RackRole
         fields = ['name', 'slug', 'color']
+
+
+class RackRoleCSVForm(forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = RackRole
+        fields = ['name', 'slug', 'color']
+        help_texts = {
+            'name': 'Name of rack role',
+            'color': 'RGB color in hexadecimal (e.g. 00ff00)'
+        }
 
 
 #
@@ -198,8 +244,8 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     class Meta:
         model = Rack
         fields = [
-            'site', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'role', 'type', 'width', 'u_height',
-            'desc_units', 'comments',
+            'site', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'role', 'serial', 'type', 'width',
+            'u_height', 'desc_units', 'comments',
         ]
         help_texts = {
             'site': "The site at which the rack exists",
@@ -259,7 +305,8 @@ class RackCSVForm(forms.ModelForm):
     class Meta:
         model = Rack
         fields = [
-            'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'width', 'u_height', 'desc_units',
+            'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'serial', 'type', 'width', 'u_height',
+            'desc_units',
         ]
         help_texts = {
             'name': 'Rack name',
@@ -287,6 +334,7 @@ class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     group = forms.ModelChoiceField(queryset=RackGroup.objects.all(), required=False, label='Group')
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     role = forms.ModelChoiceField(queryset=RackRole.objects.all(), required=False)
+    serial = forms.CharField(max_length=50, required=False, label='Serial Number')
     type = forms.ChoiceField(choices=add_blank_choice(RACK_TYPE_CHOICES), required=False, label='Type')
     width = forms.ChoiceField(choices=add_blank_choice(RACK_WIDTH_CHOICES), required=False, label='Width')
     u_height = forms.IntegerField(required=False, label='Height (U)')
@@ -294,7 +342,7 @@ class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     comments = CommentField(widget=SmallTextarea)
 
     class Meta:
-        nullable_fields = ['group', 'tenant', 'role', 'comments']
+        nullable_fields = ['group', 'tenant', 'role', 'serial', 'comments']
 
 
 class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -374,6 +422,18 @@ class ManufacturerForm(BootstrapMixin, forms.ModelForm):
         fields = ['name', 'slug']
 
 
+class ManufacturerCSVForm(forms.ModelForm):
+    class Meta:
+        model = Manufacturer
+        fields = [
+            'name', 'slug'
+        ]
+        help_texts = {
+            'name': 'Manufacturer name',
+            'slug': 'URL-friendly slug',
+        }
+
+
 #
 # Device types
 #
@@ -387,6 +447,37 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
                   'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering', 'comments']
         labels = {
             'interface_ordering': 'Order interfaces by',
+        }
+
+
+class DeviceTypeCSVForm(forms.ModelForm):
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=True,
+        to_field_name='name',
+        help_text='Manufacturer name',
+        error_messages={
+            'invalid_choice': 'Manufacturer not found.',
+        }
+    )
+    subdevice_role = CSVChoiceField(
+        choices=SUBDEVICE_ROLE_CHOICES,
+        required=False,
+        help_text='Parent/child status'
+    )
+    interface_ordering = CSVChoiceField(
+        choices=IFACE_ORDERING_CHOICES,
+        required=False,
+        help_text='Interface ordering'
+    )
+
+    class Meta:
+        model = DeviceType
+        fields = ['manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
+                  'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering', 'comments']
+        help_texts = {
+            'model': 'Model name',
+            'slug': 'URL-friendly slug',
         }
 
 
@@ -446,7 +537,7 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsolePortTemplateCreateForm(DeviceComponentForm):
+class ConsolePortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -460,7 +551,7 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsoleServerPortTemplateCreateForm(DeviceComponentForm):
+class ConsoleServerPortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -474,7 +565,7 @@ class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerPortTemplateCreateForm(DeviceComponentForm):
+class PowerPortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -488,7 +579,7 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerOutletTemplateCreateForm(DeviceComponentForm):
+class PowerOutletTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -502,7 +593,7 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class InterfaceTemplateCreateForm(DeviceComponentForm):
+class InterfaceTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
     form_factor = forms.ChoiceField(choices=IFACE_FF_CHOICES)
     mgmt_only = forms.BooleanField(required=False, label='OOB Management')
@@ -527,7 +618,7 @@ class DeviceBayTemplateForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class DeviceBayTemplateCreateForm(DeviceComponentForm):
+class DeviceBayTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -540,7 +631,19 @@ class DeviceRoleForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = DeviceRole
-        fields = ['name', 'slug', 'color']
+        fields = ['name', 'slug', 'color', 'vm_role']
+
+
+class DeviceRoleCSVForm(forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = DeviceRole
+        fields = ['name', 'slug', 'color', 'vm_role']
+        help_texts = {
+            'name': 'Name of device role',
+            'color': 'RGB color in hexadecimal (e.g. 00ff00)'
+        }
 
 
 #
@@ -553,6 +656,17 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Platform
         fields = ['name', 'slug', 'napalm_driver', 'rpc_client']
+
+
+class PlatformCSVForm(forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = Platform
+        fields = ['name', 'slug', 'napalm_driver']
+        help_texts = {
+            'name': 'Platform name',
+        }
 
 
 #
@@ -861,7 +975,7 @@ class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     serial = forms.CharField(max_length=50, required=False, label='Serial Number')
 
     class Meta:
-        nullable_fields = ['tenant', 'platform']
+        nullable_fields = ['tenant', 'platform', 'serial']
 
 
 def device_status_choices():
@@ -921,11 +1035,12 @@ class DeviceBulkAddComponentForm(BootstrapMixin, forms.Form):
     name_pattern = ExpandableNameField(label='Name')
 
 
-class DeviceBulkAddInterfaceForm(forms.ModelForm, DeviceBulkAddComponentForm):
-
-    class Meta:
-        model = Interface
-        fields = ['pk', 'name_pattern', 'form_factor', 'mgmt_only', 'description']
+class DeviceBulkAddInterfaceForm(DeviceBulkAddComponentForm):
+    form_factor = forms.ChoiceField(choices=IFACE_FF_CHOICES)
+    enabled = forms.BooleanField(required=False, initial=True)
+    mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
+    mgmt_only = forms.BooleanField(required=False, label='OOB Management')
+    description = forms.CharField(max_length=100, required=False)
 
 
 #
@@ -942,7 +1057,7 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsolePortCreateForm(DeviceComponentForm):
+class ConsolePortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -1111,7 +1226,7 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class ConsoleServerPortCreateForm(DeviceComponentForm):
+class ConsoleServerPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -1203,7 +1318,7 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerPortCreateForm(DeviceComponentForm):
+class PowerPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -1372,7 +1487,7 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class PowerOutletCreateForm(DeviceComponentForm):
+class PowerOutletCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 
@@ -1477,7 +1592,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
             )
 
 
-class InterfaceCreateForm(DeviceComponentForm):
+class InterfaceCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
     form_factor = forms.ChoiceField(choices=IFACE_FF_CHOICES)
     enabled = forms.BooleanField(required=False)
@@ -1496,9 +1611,9 @@ class InterfaceCreateForm(DeviceComponentForm):
         super(InterfaceCreateForm, self).__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces belonging to this device
-        if self.device is not None:
+        if self.parent is not None:
             self.fields['lag'].queryset = Interface.objects.order_naturally().filter(
-                device=self.device, form_factor=IFACE_FF_LAG
+                device=self.parent, form_factor=IFACE_FF_LAG
             )
         else:
             self.fields['lag'].queryset = Interface.objects.none()
@@ -1724,7 +1839,7 @@ class DeviceBayForm(BootstrapMixin, forms.ModelForm):
         }
 
 
-class DeviceBayCreateForm(DeviceComponentForm):
+class DeviceBayCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
 
 

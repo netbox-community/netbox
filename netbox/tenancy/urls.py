@@ -11,6 +11,7 @@ urlpatterns = [
     # Tenant groups
     url(r'^tenant-groups/$', views.TenantGroupListView.as_view(), name='tenantgroup_list'),
     url(r'^tenant-groups/add/$', views.TenantGroupCreateView.as_view(), name='tenantgroup_add'),
+    url(r'^tenant-groups/import/$', views.TenantGroupBulkImportView.as_view(), name='tenantgroup_import'),
     url(r'^tenant-groups/delete/$', views.TenantGroupBulkDeleteView.as_view(), name='tenantgroup_bulk_delete'),
     url(r'^tenant-groups/(?P<slug>[\w-]+)/edit/$', views.TenantGroupEditView.as_view(), name='tenantgroup_edit'),
 
