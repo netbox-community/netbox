@@ -1,18 +1,23 @@
 # Installation
 
+This section of the documentation discusses installing and configuring the NetBox application.
+
+!!! note
+    Python 3 is strongly encouraged for new installations. Support for Python 2 will be discontinued in the near future. This documentation includes a guide on [migrating from Python 2 to Python 3](migrating-to-python3).
+
 **Ubuntu**
 
 Python 3:
 
 ```no-highlight
-# apt-get install -y python3 python3-dev python3-setuptools libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev zlib1g-dev
+# apt-get install -y python3 python3-dev python3-setuptools build-essential libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev zlib1g-dev
 # easy_install3 pip
 ```
 
 Python 2:
 
 ```no-highlight
-# apt-get install -y python2.7 python-dev python-setuptools libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev zlib1g-dev
+# apt-get install -y python2.7 python-dev python-setuptools build-essential libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev zlib1g-dev
 # easy_install pip
 ```
 
@@ -163,13 +168,13 @@ You may use the script located at `netbox/generate_secret_key.py` to generate a 
 # Run Database Migrations
 
 !!! warning
-    The examples on the rest of this page call the `python` executable, which will be Python2 on most systems. Replace this with `python3` if you're running NetBox on Python3.
+    The examples on the rest of this page call the `python3` executable. Replace this with `python2` or `python` if you're using Python 2.
 
-Before NetBox can run, we need to install the database schema. This is done by running `python manage.py migrate` from the `netbox` directory (`/opt/netbox/netbox/` in our example):
+Before NetBox can run, we need to install the database schema. This is done by running `python3 manage.py migrate` from the `netbox` directory (`/opt/netbox/netbox/` in our example):
 
 ```no-highlight
 # cd /opt/netbox/netbox/
-# python manage.py migrate
+# python3 manage.py migrate
 Operations to perform:
   Apply all migrations: dcim, sessions, admin, ipam, utilities, auth, circuits, contenttypes, extras, secrets, users
 Running migrations:
@@ -187,7 +192,7 @@ If this step results in a PostgreSQL authentication error, ensure that the usern
 NetBox does not come with any predefined user accounts. You'll need to create a super user to be able to log into NetBox:
 
 ```no-highlight
-# python manage.py createsuperuser
+# python3 manage.py createsuperuser
 Username: admin
 Email address: admin@example.com
 Password:
@@ -198,7 +203,7 @@ Superuser created successfully.
 # Collect Static Files
 
 ```no-highlight
-# python manage.py collectstatic --no-input
+# python3 manage.py collectstatic --no-input
 
 You have requested to collect static files at the destination
 location as specified in your settings:
@@ -219,7 +224,7 @@ NetBox ships with some initial data to help you get started: RIR definitions, co
     This step is optional. It's perfectly fine to start using NetBox without using this initial data if you'd rather create everything from scratch.
 
 ```no-highlight
-# python manage.py loaddata initial_data
+# python3 manage.py loaddata initial_data
 Installed 43 object(s) from 4 fixture(s)
 ```
 
@@ -228,7 +233,7 @@ Installed 43 object(s) from 4 fixture(s)
 At this point, NetBox should be able to run. We can verify this by starting a development instance:
 
 ```no-highlight
-# python manage.py runserver 0.0.0.0:8000 --insecure
+# python3 manage.py runserver 0.0.0.0:8000 --insecure
 Performing system checks...
 
 System check identified no issues (0 silenced).
