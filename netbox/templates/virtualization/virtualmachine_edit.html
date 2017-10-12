@@ -1,0 +1,50 @@
+{% extends 'utilities/obj_edit.html' %}
+{% load form_helpers %}
+
+{% block form %}
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Virtual Machine</strong></div>
+        <div class="panel-body">
+            {% render_field form.name %}
+            {% render_field form.status %}
+            {% render_field form.role %}
+            {% render_field form.platform %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Cluster</strong></div>
+        <div class="panel-body">
+            {% render_field form.cluster_group %}
+            {% render_field form.cluster %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Resources</strong></div>
+        <div class="panel-body">
+            {% render_field form.vcpus %}
+            {% render_field form.memory %}
+            {% render_field form.disk %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Tenancy</strong></div>
+        <div class="panel-body">
+            {% render_field form.tenant_group %}
+            {% render_field form.tenant %}
+        </div>
+    </div>
+    {% if form.custom_fields %}
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>Custom Fields</strong></div>
+            <div class="panel-body">
+                {% render_custom_fields form %}
+            </div>
+        </div>
+    {% endif %}
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Comments</strong></div>
+        <div class="panel-body">
+            {% render_field form.comments %}
+        </div>
+    </div>
+{% endblock %}

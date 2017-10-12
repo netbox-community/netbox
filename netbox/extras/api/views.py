@@ -1,17 +1,35 @@
 from __future__ import unicode_literals
 
 from rest_framework.decorators import detail_route
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, ViewSet
 
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 
 from extras import filters
-from extras.models import ExportTemplate, Graph, ImageAttachment, TopologyMap, UserAction
-from utilities.api import WritableSerializerMixin
+from extras.models import CustomField, ExportTemplate, Graph, ImageAttachment, ReportResult, TopologyMap, UserAction
+from extras.reports import get_report, get_reports
+from utilities.api import FieldChoicesViewSet, IsAuthenticatedOrLoginNotRequired, WritableSerializerMixin
 from . import serializers
 
+
+#
+# Field choices
+#
+
+class ExtrasFieldChoicesViewSet(FieldChoicesViewSet):
+    fields = (
+        (CustomField, ['type']),
+        (Graph, ['type']),
+    )
+
+
+#
+# Custom fields
+#
 
 class CustomFieldModelViewSet(ModelViewSet):
     """
@@ -43,6 +61,10 @@ class CustomFieldModelViewSet(ModelViewSet):
         return super(CustomFieldModelViewSet, self).get_queryset().prefetch_related('custom_field_values__field')
 
 
+#
+# Graphs
+#
+
 class GraphViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = Graph.objects.all()
     serializer_class = serializers.GraphSerializer
@@ -50,11 +72,19 @@ class GraphViewSet(WritableSerializerMixin, ModelViewSet):
     filter_class = filters.GraphFilter
 
 
+#
+# Export templates
+#
+
 class ExportTemplateViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = ExportTemplate.objects.all()
     serializer_class = serializers.ExportTemplateSerializer
     filter_class = filters.ExportTemplateFilter
 
+
+#
+# Topology maps
+#
 
 class TopologyMapViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = TopologyMap.objects.select_related('site')
@@ -82,11 +112,95 @@ class TopologyMapViewSet(WritableSerializerMixin, ModelViewSet):
         return response
 
 
+#
+# Image attachments
+#
+
 class ImageAttachmentViewSet(WritableSerializerMixin, ModelViewSet):
     queryset = ImageAttachment.objects.all()
     serializer_class = serializers.ImageAttachmentSerializer
     write_serializer_class = serializers.WritableImageAttachmentSerializer
 
+
+#
+# Reports
+#
+
+class ReportViewSet(ViewSet):
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
+    _ignore_model_permissions = True
+    exclude_from_schema = True
+    lookup_value_regex = '[^/]+'  # Allow dots
+
+    def _retrieve_report(self, pk):
+
+        # Read the PK as "<module>.<report>"
+        if '.' not in pk:
+            raise Http404
+        module_name, report_name = pk.split('.', 1)
+
+        # Raise a 404 on an invalid Report module/name
+        report = get_report(module_name, report_name)
+        if report is None:
+            raise Http404
+
+        return report
+
+    def list(self, request):
+        """
+        Compile all reports and their related results (if any). Result data is deferred in the list view.
+        """
+        report_list = []
+
+        # Iterate through all available Reports.
+        for module_name, reports in get_reports():
+            for report in reports:
+
+                # Attach the relevant ReportResult (if any) to each Report.
+                report.result = ReportResult.objects.filter(report=report.full_name).defer('data').first()
+                report_list.append(report)
+
+        serializer = serializers.ReportSerializer(report_list, many=True, context={
+            'request': request,
+        })
+
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk):
+        """
+        Retrieve a single Report identified as "<module>.<report>".
+        """
+
+        # Retrieve the Report and ReportResult, if any.
+        report = self._retrieve_report(pk)
+        report.result = ReportResult.objects.filter(report=report.full_name).first()
+
+        serializer = serializers.ReportDetailSerializer(report)
+
+        return Response(serializer.data)
+
+    @detail_route(methods=['post'])
+    def run(self, request, pk):
+        """
+        Run a Report and create a new ReportResult, overwriting any previous result for the Report.
+        """
+
+        # Check that the user has permission to run reports.
+        if not request.user.has_perm('extras.add_reportresult'):
+            raise PermissionDenied("This user does not have permission to run reports.")
+
+        # Retrieve and run the Report. This will create a new ReportResult.
+        report = self._retrieve_report(pk)
+        report.run()
+
+        serializer = serializers.ReportDetailSerializer(report)
+
+        return Response(serializer.data)
+
+
+#
+# User activity
+#
 
 class RecentActivityViewSet(ReadOnlyModelViewSet):
     """

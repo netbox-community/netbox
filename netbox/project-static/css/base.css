@@ -85,6 +85,19 @@ footer p {
 li.subnav > a {
     padding-left: 30px;
 }
+ul.dropdown-menu {
+    width: 250px;
+}
+ul.dropdown-menu div.buttons {
+    padding-right: 10px;
+    padding-top: 2px;
+}
+ul.dropdown-menu div.buttons a {
+    width: 26px;
+}
+ul.dropdown-menu > li > a {
+    clear: left;
+}
 
 /* Forms */
 label {
@@ -337,6 +350,18 @@ table.component-list td.subtable td {
     border: none;
     padding-bottom: 6px;
     padding-top: 6px;
+}
+
+/* Reports */
+table.reports td.method {
+    font-family: monospace;
+    padding-left: 30px;
+}
+table.reports td.stats label {
+    display: inline-block;
+    line-height: 14px;
+    margin-bottom: 0;
+    min-width: 40px;
 }
 
 /* AJAX loader */

@@ -10,6 +10,7 @@ from django.db.models import Q
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NullableCharFieldFilter, NullableModelMultipleChoiceFilter, NumericInFilter
+from virtualization.models import Cluster
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, STATUS_CHOICES, IFACE_FF_LAG, Interface, InterfaceConnection,
@@ -158,7 +159,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Rack
-        fields = ['type', 'width', 'u_height', 'desc_units']
+        fields = ['serial', 'type', 'width', 'u_height', 'desc_units']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -166,6 +167,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         return queryset.filter(
             Q(name__icontains=value) |
             Q(facility_id__icontains=value) |
+            Q(serial__icontains=value.strip()) |
             Q(comments__icontains=value)
         )
 
@@ -407,6 +409,10 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         name='rack',
         queryset=Rack.objects.all(),
         label='Rack (ID)',
+    )
+    cluster_id = NullableModelMultipleChoiceFilter(
+        queryset=Cluster.objects.all(),
+        label='VM cluster (ID)',
     )
     model = django_filters.ModelMultipleChoiceFilter(
         name='device_type__slug',

@@ -1,0 +1,81 @@
+{% extends '_base.html' %}
+{% load static from staticfiles %}
+{% load form_helpers %}
+
+{% block content %}
+    <form action="." method="post" class="form form-horizontal">
+        {% csrf_token %}
+        {% for field in form.hidden_fields %}
+            {{ field }}
+        {% endfor %}
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <h3>{% block title %}Add Devices to Cluster {{ cluster }}{% endblock %}</h3>
+                {% if form.non_field_errors %}
+                    <div class="panel panel-danger">
+                        <div class="panel-heading"><strong>Errors</strong></div>
+                        <div class="panel-body">
+                            {{ form.non_field_errors }}
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="panel panel-default">
+                    <div class="panel-heading"><strong>Device Selection</strong></div>
+                    <div class="panel-body">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" class="active"><a href="#search" aria-controls="search" role="tab" data-toggle="tab">Search</a></li>
+                            <li role="presentation"><a href="#select" aria-controls="home" role="tab" data-toggle="tab">Select</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="search">
+                                <div class="form-group">
+                                    <label class="col-md-3 control-label" for="id_search">Search</label>
+                                    <div class="col-md-9">
+                                        <input type="text" class="form-control" name="search" id="id_search" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="select">
+                                {% render_field form.region %}
+                                {% render_field form.site %}
+                                {% render_field form.rack %}
+                            </div>
+                        </div>
+                        {% render_field form.devices %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3 text-right">
+                <button type="submit" name="_add" class="btn btn-primary">Add Devices</button>
+                <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        var device_list = $('#id_devices');
+        $('#id_search').autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    type: 'GET',
+                    url: netbox_api_path + 'dcim/devices/',
+                    data: 'q=' + request.term,
+                    beforeSend: function() {
+                        device_list.empty();
+                    },
+                    success: function(data) {
+                        response($.map(data.results, function(item) {
+                            device_list.append('<option value="' + item['id'] + '">' + item['display_name'] + '</option>');
+                        }));
+                    }
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

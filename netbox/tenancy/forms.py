@@ -22,6 +22,17 @@ class TenantGroupForm(BootstrapMixin, forms.ModelForm):
         fields = ['name', 'slug']
 
 
+class TenantGroupCSVForm(forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = TenantGroup
+        fields = ['name', 'slug']
+        help_texts = {
+            'name': 'Group name',
+        }
+
+
 #
 # Tenants
 #

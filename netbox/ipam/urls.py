@@ -21,6 +21,7 @@ urlpatterns = [
     # RIRs
     url(r'^rirs/$', views.RIRListView.as_view(), name='rir_list'),
     url(r'^rirs/add/$', views.RIRCreateView.as_view(), name='rir_add'),
+    url(r'^rirs/import/$', views.RIRBulkImportView.as_view(), name='rir_import'),
     url(r'^rirs/delete/$', views.RIRBulkDeleteView.as_view(), name='rir_bulk_delete'),
     url(r'^rirs/(?P<slug>[\w-]+)/edit/$', views.RIREditView.as_view(), name='rir_edit'),
 
@@ -37,6 +38,7 @@ urlpatterns = [
     # Roles
     url(r'^roles/$', views.RoleListView.as_view(), name='role_list'),
     url(r'^roles/add/$', views.RoleCreateView.as_view(), name='role_add'),
+    url(r'^roles/import/$', views.RoleBulkImportView.as_view(), name='role_import'),
     url(r'^roles/delete/$', views.RoleBulkDeleteView.as_view(), name='role_bulk_delete'),
     url(r'^roles/(?P<slug>[\w-]+)/edit/$', views.RoleEditView.as_view(), name='role_edit'),
 
@@ -65,6 +67,7 @@ urlpatterns = [
     # VLAN groups
     url(r'^vlan-groups/$', views.VLANGroupListView.as_view(), name='vlangroup_list'),
     url(r'^vlan-groups/add/$', views.VLANGroupCreateView.as_view(), name='vlangroup_add'),
+    url(r'^vlan-groups/import/$', views.VLANGroupBulkImportView.as_view(), name='vlangroup_import'),
     url(r'^vlan-groups/delete/$', views.VLANGroupBulkDeleteView.as_view(), name='vlangroup_bulk_delete'),
     url(r'^vlan-groups/(?P<pk>\d+)/edit/$', views.VLANGroupEditView.as_view(), name='vlangroup_edit'),
 

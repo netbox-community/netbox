@@ -1,6 +1,7 @@
 {% extends 'utilities/obj_edit.html' %}
 {% load static from staticfiles %}
 {% load form_helpers %}
+{% load helpers %}
 
 {% block tabs %}
     {% if not obj.pk %}
@@ -26,18 +27,25 @@
             {% render_field form.tenant %}
         </div>
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <strong>Interface Assignment</strong>
+    {% if obj.interface %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Interface Assignment</strong>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <label class="col-md-3 control-label">{{ obj.interface.parent|model_name|bettertitle }}</label>
+                    <div class="col-md-9">
+                        <p class="form-control-static">
+                            <a href="{{ obj.interface.parent.get_absolute_url }}">{{ obj.interface.parent }}</a>
+                        </p>
+                    </div>
+                </div>
+                {% render_field form.interface %}
+                {% render_field form.primary_for_parent %}
+            </div>
         </div>
-        <div class="panel-body">
-            {% render_field form.interface_site %}
-            {% render_field form.interface_rack %}
-            {% render_field form.interface_device %}
-            {% render_field form.interface %}
-            {% render_field form.primary_for_device %}
-        </div>
-    </div>
+    {% endif %}
     <div class="panel panel-default">
         <div class="panel-heading"><strong>NAT IP (Inside)</strong></div>
         <div class="panel-body">

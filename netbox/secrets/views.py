@@ -42,7 +42,7 @@ class SecretRoleListView(ObjectListView):
 class SecretRoleCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'secrets.add_secretrole'
     model = SecretRole
-    form_class = forms.SecretRoleForm
+    model_form = forms.SecretRoleForm
 
     def get_return_url(self, request, obj):
         return reverse('secrets:secretrole_list')
@@ -50,6 +50,13 @@ class SecretRoleCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class SecretRoleEditView(SecretRoleCreateView):
     permission_required = 'secrets.change_secretrole'
+
+
+class SecretRoleBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'secrets.add_secretrole'
+    model_form = forms.SecretRoleCSVForm
+    table = tables.SecretRoleTable
+    default_return_url = 'secrets:secretrole_list'
 
 
 class SecretRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -196,7 +203,9 @@ class SecretBulkImportView(BulkImportView):
     permission_required = 'ipam.add_vlan'
     model_form = forms.SecretCSVForm
     table = tables.SecretTable
+    template_name = 'secrets/secret_import.html'
     default_return_url = 'secrets:secret_list'
+    widget_attrs = {'class': 'requires-session-key'}
 
     master_key = None
 

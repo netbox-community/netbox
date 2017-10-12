@@ -66,6 +66,9 @@ IFACE_FF_10GE_X2 = 1320
 IFACE_FF_25GE_SFP28 = 1350
 IFACE_FF_40GE_QSFP_PLUS = 1400
 IFACE_FF_100GE_CFP = 1500
+IFACE_FF_100GE_CFP2 = 1510
+IFACE_FF_100GE_CFP4 = 1520
+IFACE_FF_100GE_CPAK = 1550
 IFACE_FF_100GE_QSFP28 = 1600
 # Wireless
 IFACE_FF_80211A = 2600
@@ -99,7 +102,7 @@ IFACE_FF_CHOICES = [
         [
             [IFACE_FF_VIRTUAL, 'Virtual'],
             [IFACE_FF_LAG, 'Link Aggregation Group (LAG)'],
-        ]
+        ],
     ],
     [
         'Ethernet (fixed)',
@@ -122,6 +125,9 @@ IFACE_FF_CHOICES = [
             [IFACE_FF_25GE_SFP28, 'SFP28 (25GE)'],
             [IFACE_FF_40GE_QSFP_PLUS, 'QSFP+ (40GE)'],
             [IFACE_FF_100GE_CFP, 'CFP (100GE)'],
+            [IFACE_FF_100GE_CFP2, 'CFP2 (100GE)'],
+            [IFACE_FF_100GE_CFP4, 'CFP4 (100GE)'],
+            [IFACE_FF_100GE_CPAK, 'Cisco CPAK (100GE)'],
             [IFACE_FF_100GE_QSFP28, 'QSFP28 (100GE)'],
         ]
     ],
