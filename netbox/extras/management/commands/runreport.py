@@ -12,7 +12,6 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('reports', nargs='+', help="Report(s) to run")
-        # parser.add_argument('--verbose', action='store_true', default=False, help="Print all logs")
 
     def handle(self, *args, **options):
 
@@ -22,7 +21,7 @@ class Command(BaseCommand):
         # Run reports
         for module_name, report_list in reports:
             for report in report_list:
-                if module_name in options['reports'] or report.full_namel in options['reports']:
+                if module_name in options['reports'] or report.full_name in options['reports']:
 
                     # Run the report and create a new ReportResult
                     self.stdout.write(
