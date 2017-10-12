@@ -27,7 +27,6 @@ def verify_postgresql_version(apps, schema_editor):
         pass
 
 
-
 class Migration(migrations.Migration):
 
     dependencies = [
