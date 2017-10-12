@@ -6,6 +6,7 @@ NetBox is an open source web application designed to help manage and document co
 * **Equipment racks** - Organized by group and site
 * **Devices** - Types of devices and where they are installed
 * **Connections** - Network, console, and power connections among devices
+* **Virtualization** - Virtual machines and clusters
 * **Data circuits** - Long-haul communications circuits and providers
 * **Secrets** - Encrypted storage of sensitive credentials
 
@@ -46,7 +47,7 @@ NetBox is built on the [Django](https://djangoproject.com/) Python framework and
 | HTTP Service | nginx or Apache   |
 | WSGI Service | gunicorn or uWSGI |
 | Application  | Django/Python     |
-| Database     | PostgreSQL        |
+| Database     | PostgreSQL 9.4+   |
 
 # Getting Started
 
