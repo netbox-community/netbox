@@ -414,44 +414,46 @@ class ReportResult(models.Model):
 class UserActionManager(models.Manager):
 
     # Actions affecting a single object
-    def log_action(self, user, obj, action, message):
+    def log_action(self, user, obj, action, message, ip_address):
         self.model.objects.create(
             content_type=ContentType.objects.get_for_model(obj),
             object_id=obj.pk,
             user=user,
             action=action,
             message=message,
+            ip_address=ip_address,
         )
 
-    def log_create(self, user, obj, message=''):
-        self.log_action(user, obj, ACTION_CREATE, message)
+    def log_create(self, user, obj, message, ip_address):
+        self.log_action(user, obj, ACTION_CREATE, message, ip_address)
 
-    def log_edit(self, user, obj, message=''):
-        self.log_action(user, obj, ACTION_EDIT, message)
+    def log_edit(self, user, obj, message, ip_address):
+        self.log_action(user, obj, ACTION_EDIT, message, ip_address)
 
-    def log_delete(self, user, obj, message=''):
-        self.log_action(user, obj, ACTION_DELETE, message)
+    def log_delete(self, user, obj, message, ip_address):
+        self.log_action(user, obj, ACTION_DELETE, message, ip_address)
 
     # Actions affecting multiple objects
-    def log_bulk_action(self, user, content_type, action, message):
+    def log_bulk_action(self, user, content_type, action, message, ip_address):
         self.model.objects.create(
             content_type=content_type,
             user=user,
             action=action,
             message=message,
+            ip_address=ip_address,
         )
 
-    def log_import(self, user, content_type, message=''):
-        self.log_bulk_action(user, content_type, ACTION_IMPORT, message)
+    def log_import(self, user, content_type, message, ip_address):
+        self.log_bulk_action(user, content_type, ACTION_IMPORT, message, ip_address)
 
-    def log_bulk_create(self, user, content_type, message=''):
-        self.log_bulk_action(user, content_type, ACTION_BULK_CREATE, message)
+    def log_bulk_create(self, user, content_type, message, ip_address):
+        self.log_bulk_action(user, content_type, ACTION_BULK_CREATE, message, ip_address)
 
-    def log_bulk_edit(self, user, content_type, message=''):
-        self.log_bulk_action(user, content_type, ACTION_BULK_EDIT, message)
+    def log_bulk_edit(self, user, content_type, message, ip_address):
+        self.log_bulk_action(user, content_type, ACTION_BULK_EDIT, message, ip_address)
 
-    def log_bulk_delete(self, user, content_type, message=''):
-        self.log_bulk_action(user, content_type, ACTION_BULK_DELETE, message)
+    def log_bulk_delete(self, user, content_type, message, ip_address):
+        self.log_bulk_action(user, content_type, ACTION_BULK_DELETE, message, ip_address)
 
 
 @python_2_unicode_compatible
@@ -465,6 +467,7 @@ class UserAction(models.Model):
     object_id = models.PositiveIntegerField(blank=True, null=True)
     action = models.PositiveSmallIntegerField(choices=ACTION_CHOICES)
     message = models.TextField(blank=True)
+    ip_address = models.GenericIPAddressField(null=True, unpack_ipv4=True)
 
     objects = UserActionManager()
 
