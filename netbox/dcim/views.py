@@ -25,6 +25,7 @@ from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView,
     ComponentEditView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
+from utilities.utils import get_ip_address
 from . import filters, forms, tables
 from .models import (
     CONNECTION_STATUS_CONNECTED, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
@@ -1030,7 +1031,7 @@ def consoleport_connect(request, pk):
                 escape(consoleport.cs_port.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, consoleport, msg)
+            UserAction.objects.log_edit(request.user, consoleport, msg, get_ip_address(request))
             return redirect('dcim:device', pk=consoleport.device.pk)
 
     else:
@@ -1075,7 +1076,7 @@ def consoleport_disconnect(request, pk):
                 escape(cs_port.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, consoleport, msg)
+            UserAction.objects.log_edit(request.user, consoleport, msg, get_ip_address(request))
             return redirect('dcim:device', pk=consoleport.device.pk)
 
     else:
@@ -1150,7 +1151,7 @@ def consoleserverport_connect(request, pk):
                 escape(consoleserverport.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, consoleport, msg)
+            UserAction.objects.log_edit(request.user, consoleport, msg, get_ip_address(request))
             return redirect('dcim:device', pk=consoleserverport.device.pk)
 
     else:
@@ -1195,7 +1196,7 @@ def consoleserverport_disconnect(request, pk):
                 escape(consoleserverport.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, consoleport, msg)
+            UserAction.objects.log_edit(request.user, consoleport, msg, get_ip_address(request))
             return redirect('dcim:device', pk=consoleserverport.device.pk)
 
     else:
@@ -1269,7 +1270,7 @@ def powerport_connect(request, pk):
                 escape(powerport.power_outlet.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, powerport, msg)
+            UserAction.objects.log_edit(request.user, powerport, msg, get_ip_address(request))
             return redirect('dcim:device', pk=powerport.device.pk)
 
     else:
@@ -1314,7 +1315,7 @@ def powerport_disconnect(request, pk):
                 escape(power_outlet.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, powerport, msg)
+            UserAction.objects.log_edit(request.user, powerport, msg, get_ip_address(request))
             return redirect('dcim:device', pk=powerport.device.pk)
 
     else:
@@ -1389,7 +1390,7 @@ def poweroutlet_connect(request, pk):
                 escape(poweroutlet.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, powerport, msg)
+            UserAction.objects.log_edit(request.user, powerport, msg, get_ip_address(request))
             return redirect('dcim:device', pk=poweroutlet.device.pk)
 
     else:
@@ -1434,7 +1435,7 @@ def poweroutlet_disconnect(request, pk):
                 escape(poweroutlet.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, powerport, msg)
+            UserAction.objects.log_edit(request.user, powerport, msg, get_ip_address(request))
             return redirect('dcim:device', pk=poweroutlet.device.pk)
 
     else:
@@ -1709,7 +1710,7 @@ def interfaceconnection_add(request, pk):
                 escape(interfaceconnection.interface_b.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, interfaceconnection, msg)
+            UserAction.objects.log_edit(request.user, interfaceconnection, msg, get_ip_address(request))
 
             if '_addanother' in request.POST:
                 base_url = reverse('dcim:interfaceconnection_add', kwargs={'pk': device.pk})
@@ -1757,7 +1758,7 @@ def interfaceconnection_delete(request, pk):
                 escape(interfaceconnection.interface_b.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, interfaceconnection, msg)
+            UserAction.objects.log_edit(request.user, interfaceconnection, msg, get_ip_address(request))
             if form.cleaned_data['device']:
                 return redirect('dcim:device', pk=form.cleaned_data['device'].pk)
             else:

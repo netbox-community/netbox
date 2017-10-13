@@ -22,6 +22,7 @@ from django.views.generic import View
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
 from utilities.forms import BootstrapMixin, CSVDataField
+from utilities.utils import get_ip_address
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
 from .paginator import EnhancedPaginator
@@ -210,9 +211,9 @@ class ObjectEditView(GetReturnURLMixin, View):
                 msg = '{} {}'.format(msg, escape(obj))
             messages.success(request, mark_safe(msg))
             if obj_created:
-                UserAction.objects.log_create(request.user, obj, msg)
+                UserAction.objects.log_create(request.user, obj, msg, get_ip_address(request))
             else:
-                UserAction.objects.log_edit(request.user, obj, msg)
+                UserAction.objects.log_edit(request.user, obj, msg, get_ip_address(request))
 
             if '_addanother' in request.POST:
                 return redirect(request.get_full_path())
@@ -275,7 +276,7 @@ class ObjectDeleteView(GetReturnURLMixin, View):
 
             msg = 'Deleted {} {}'.format(self.model._meta.verbose_name, obj)
             messages.success(request, msg)
-            UserAction.objects.log_delete(request.user, obj, msg)
+            UserAction.objects.log_delete(request.user, obj, msg, get_ip_address(request))
 
             return_url = form.cleaned_data.get('return_url')
             if return_url is not None and is_safe_url(url=return_url, host=request.get_host()):
@@ -355,7 +356,7 @@ class BulkCreateView(View):
                     # If we make it to this point, validation has succeeded on all new objects.
                     msg = "Added {} {}".format(len(new_objs), model._meta.verbose_name_plural)
                     messages.success(request, msg)
-                    UserAction.objects.log_bulk_create(request.user, ContentType.objects.get_for_model(model), msg)
+                    UserAction.objects.log_bulk_create(request.user, ContentType.objects.get_for_model(model), msg, get_ip_address(request))
 
                     if '_addanother' in request.POST:
                         return redirect(request.path)
@@ -440,7 +441,7 @@ class BulkImportView(View):
                 if new_objs:
                     msg = 'Imported {} {}'.format(len(new_objs), new_objs[0]._meta.verbose_name_plural)
                     messages.success(request, msg)
-                    UserAction.objects.log_import(request.user, ContentType.objects.get_for_model(new_objs[0]), msg)
+                    UserAction.objects.log_import(request.user, ContentType.objects.get_for_model(new_objs[0]), msg, get_ip_address(request))
 
                     return render(request, "import_success.html", {
                         'table': obj_table,
@@ -536,7 +537,7 @@ class BulkEditView(View):
                 if updated_count:
                     msg = 'Updated {} {}'.format(updated_count, self.cls._meta.verbose_name_plural)
                     messages.success(self.request, msg)
-                    UserAction.objects.log_bulk_edit(request.user, ContentType.objects.get_for_model(self.cls), msg)
+                    UserAction.objects.log_bulk_edit(request.user, ContentType.objects.get_for_model(self.cls), msg, get_ip_address(request))
                 return redirect(return_url)
 
         else:
@@ -671,7 +672,7 @@ class BulkDeleteView(View):
 
                 msg = 'Deleted {} {}'.format(deleted_count, self.cls._meta.verbose_name_plural)
                 messages.success(request, msg)
-                UserAction.objects.log_bulk_delete(request.user, ContentType.objects.get_for_model(self.cls), msg)
+                UserAction.objects.log_bulk_delete(request.user, ContentType.objects.get_for_model(self.cls), msg, get_ip_address(request))
                 return redirect(return_url)
 
         else:

@@ -8,6 +8,7 @@
             <tr>
                 <th>Time</th>
                 <th>Action</th>
+                <th>IP Address</th>
             </tr>
         </thead>
         <tbody>
@@ -15,6 +16,7 @@
                 <tr>
                     <td>{{ action.time|date:'SHORT_DATETIME_FORMAT' }}</td>
                     <td>{{ action.icon }} {{ action.message|safe }}</td>
+                    <td>{% if action.ip_address %}{{ action.ip_address }}{% endif %}</td>
                 </tr>
             {% endfor %}
         </tbody>

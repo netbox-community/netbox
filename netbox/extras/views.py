@@ -9,6 +9,7 @@ from django.views.generic import View
 
 from utilities.forms import ConfirmationForm
 from utilities.views import ObjectDeleteView, ObjectEditView
+from utilities.utils import get_ip_address
 from .forms import ImageAttachmentForm
 from .models import ImageAttachment, ReportResult, UserAction
 from .reports import get_report, get_reports
@@ -113,6 +114,6 @@ class ReportRunView(PermissionRequiredMixin, View):
             result = 'failed' if report.failed else 'passed'
             msg = "Ran report {} ({})".format(report.full_name, result)
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_create(request.user, report.result, msg)
+            UserAction.objects.log_create(request.user, report.result, msg, get_ip_address(request))
 
         return redirect('extras:report', name=report.full_name)
