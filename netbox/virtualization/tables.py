@@ -24,6 +24,10 @@ VIRTUALMACHINE_STATUS = """
 <span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
 """
 
+VIRTUALMACHINE_ROLE = """
+<label class="label" style="background-color: #{{ record.role.color }}">{{ value }}</label>
+"""
+
 VIRTUALMACHINE_PRIMARY_IP = """
 {{ record.primary_ip6.address.ip|default:"" }}
 {% if record.primary_ip6 and record.primary_ip4 %}<br />{% endif %}
@@ -93,6 +97,7 @@ class VirtualMachineTable(BaseTable):
     name = tables.LinkColumn()
     status = tables.TemplateColumn(template_code=VIRTUALMACHINE_STATUS)
     cluster = tables.LinkColumn('virtualization:cluster', args=[Accessor('cluster.pk')])
+    role = tables.TemplateColumn(VIRTUALMACHINE_ROLE)
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
 
     class Meta(BaseTable.Meta):
