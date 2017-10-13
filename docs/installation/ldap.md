@@ -55,7 +55,7 @@ LDAP_IGNORE_CERT_ERRORS = True
 ## User Authentication
 
 !!! info
-    When using Windows Server, `2012 AUTH_LDAP_USER_DN_TEMPLATE` should be set to None.
+    When using Windows Server 2012, `AUTH_LDAP_USER_DN_TEMPLATE` should be set to None.
 
 ```python
 from django_auth_ldap.config import LDAPSearch
@@ -79,7 +79,7 @@ AUTH_LDAP_USER_ATTR_MAP = {
 
 # User Groups for Permissions
 !!! Info
-    When using Microsoft Active Directory, Support for nested Groups can be activated by using `GroupOfNamesType()` instead of `NestedGroupOfNamesType()` for AUTH_LDAP_GROUP_TYPE.
+    When using Microsoft Active Directory, Support for nested Groups can be activated by using `GroupOfNamesType()` instead of `NestedGroupOfNamesType()` for `AUTH_LDAP_GROUP_TYPE`.
 
 ```python
 from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
