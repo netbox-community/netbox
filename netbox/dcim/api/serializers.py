@@ -4,8 +4,9 @@ from collections import OrderedDict
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from ipam.models import IPAddress
+from ipam.models import IPAddress, VLAN
 from circuits.models import Circuit, CircuitTermination
+from dcim.constants import *
 from dcim.models import (
     CONNECTION_STATUS_CHOICES, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
     DeviceBay, DeviceBayTemplate, DeviceType, DeviceRole, IFACE_FF_CHOICES, IFACE_ORDERING_CHOICES, Interface,
@@ -624,6 +625,15 @@ class InterfaceCircuitTerminationSerializer(serializers.ModelSerializer):
         ]
 
 
+# Cannot import ipam.api.NestedVLANSerializer due to circular dependency
+class InterfaceVLANSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlan-detail')
+
+    class Meta:
+        model = VLAN
+        fields = ['id', 'url', 'vid', 'name', 'display_name']
+
+
 class InterfaceSerializer(serializers.ModelSerializer):
     device = NestedDeviceSerializer()
     form_factor = ChoiceFieldSerializer(choices=IFACE_FF_CHOICES)
@@ -631,12 +641,15 @@ class InterfaceSerializer(serializers.ModelSerializer):
     is_connected = serializers.SerializerMethodField(read_only=True)
     interface_connection = serializers.SerializerMethodField(read_only=True)
     circuit_termination = InterfaceCircuitTerminationSerializer()
+    untagged_vlan = InterfaceVLANSerializer()
+    mode = ChoiceFieldSerializer(choices=IFACE_MODE_CHOICES)
+    tagged_vlans = InterfaceVLANSerializer(many=True)
 
     class Meta:
         model = Interface
         fields = [
             'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
-            'is_connected', 'interface_connection', 'circuit_termination',
+            'is_connected', 'interface_connection', 'circuit_termination', 'mode', 'untagged_vlan', 'tagged_vlans',
         ]
 
     def get_is_connected(self, obj):
@@ -681,7 +694,34 @@ class WritableInterfaceSerializer(ValidatedModelSerializer):
         model = Interface
         fields = [
             'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
+            'mode', 'untagged_vlan', 'tagged_vlans',
         ]
+
+    def validate(self, data):
+
+        # Get the device for later use
+        if self.instance:
+            device = self.instance.device
+        else:
+            device = data.get('device')
+
+        # Validate VLANs belong to the device's site or global
+        # We have to do this here decause of the ManyToMany relationship
+        native_vlan = data.get('native_vlan')
+        if native_vlan:
+            if native_vlan.site != device.site and native_vlan.site is not None:
+                raise serializers.ValidationError("Native VLAN is invalid for the interface's device.")
+
+        tagged_vlan_members = data.get('tagged_vlan_members')
+        if tagged_vlan_members:
+            for vlan in tagged_vlan_members:
+                if vlan.site != device.site and vlan.site is not None:
+                    raise serializers.ValidationError("Tagged VLAN {} is invalid for the interface's device.".format(vlan))
+
+        # Enforce model validation
+        super(WritableInterfaceSerializer, self).validate(data)
+
+        return data
 
 
 #

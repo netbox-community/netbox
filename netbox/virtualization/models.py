@@ -255,3 +255,9 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
 
     def get_status_class(self):
         return VM_STATUS_CLASSES[self.status]
+
+    @property
+    def site(self):
+        # used when a child compent (eg Interface) needs to know its parent's site but
+        # the parent could be either a device or a virtual machine
+        return self.cluster.site

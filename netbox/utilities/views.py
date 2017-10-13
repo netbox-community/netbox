@@ -766,6 +766,26 @@ class ComponentCreateView(View):
 
             if not form.errors:
                 self.model.objects.bulk_create(new_components)
+
+                # ManyToMany relations are bulk created via the through model
+                m2m_fields = [field for field in component_form.fields if type(component_form.fields[field]) in M2M_FIELD_TYPES]
+                if m2m_fields:
+                    for field in m2m_fields:
+                        field_links = []
+                        for new_component in new_components:
+                            for related_obj in component_form.cleaned_data[field]:
+                                # The through model columns are the id's of our M2M relation objects
+                                through_kwargs = {}
+                                new_component_column = new_component.__class__.__name__ + '_id'
+                                related_obj_column = related_obj.__class__.__name__ + '_id'
+                                through_kwargs.update({
+                                    new_component_column.lower(): new_component.id,
+                                    related_obj_column.lower(): related_obj.id
+                                })
+                                field_link = getattr(self.model, field).through(**through_kwargs)
+                                field_links.append(field_link)
+                        getattr(self.model, field).through.objects.bulk_create(field_links)
+
                 messages.success(request, "Added {} {} to {}.".format(
                     len(new_components), self.model._meta.verbose_name_plural, parent
                 ))
