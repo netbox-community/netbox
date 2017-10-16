@@ -30,6 +30,10 @@ OBJ_TYPE_CHOICES = (
     ('Tenancy', (
         ('tenant', 'Tenants'),
     )),
+    ('Virtualization', (
+        ('cluster', 'Clusters'),
+        ('virtualmachine', 'Virtual machines'),
+    )),
 )
 
 
