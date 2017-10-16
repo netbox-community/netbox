@@ -41,12 +41,30 @@ Then, start the service and enable it to run at boot:
 # systemctl enable postgresql-9.6
 ```
 
+**Docker**
+
+The simplest way to quickly deploy a Postgresql server is to run it in a [Docker](https://www.docker.com) container. This is
+most ideal for development and testing environments however, and should be used with caution for any intended use in
+production.
+
+An instance of Postgresql can be spun up quickly with:
+
+```no-highlight
+$ docker run -d -p 5432:5432 --name postgres-netbox postgres:9.6
+```
+
+Further details of how to use Docker are outside the scope of this document. Please refer to the
+[Docker documentation](https://docs.docker.com) for more information.
+
 # Database Creation
 
 At a minimum, we need to create a database for NetBox and assign it a username and password for authentication. This is done with the following commands.
 
 !!! danger
     DO NOT USE THE PASSWORD FROM THE EXAMPLE.
+
+!!! note
+    To connect to a Docker instance of Postgresql, instead use the command `$ psql -u postgres -H localhost`.
 
 ```no-highlight
 # sudo -u postgres psql
