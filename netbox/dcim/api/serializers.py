@@ -696,6 +696,9 @@ class WritableInterfaceSerializer(ValidatedModelSerializer):
             'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
             'mode', 'untagged_vlan', 'tagged_vlans',
         ]
+        ignore_validation_fields = [
+            'tagged_vlans'
+        ]
 
     def validate(self, data):
 
