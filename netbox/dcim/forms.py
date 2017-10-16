@@ -1620,7 +1620,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm, ChainedFieldsMixin):
         required=False,
         label='Untagged VLAN',
         widget=APISelect(
-            api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',# display_field='display_name'
+            api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',
         )
     )
     tagged_vlans = ChainedModelMultipleChoiceField(
@@ -1632,7 +1632,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm, ChainedFieldsMixin):
         required=False,
         label='Tagged VLANs',
         widget=APISelectMultiple(
-            api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',# display_field='display_name'
+            api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',
         )
     )
 
@@ -1751,7 +1751,7 @@ class InterfaceCreateForm(ComponentForm, ChainedFieldsMixin):
         required=False,
         label='Untagged VLAN',
         widget=APISelect(
-            api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',# display_field='display_name'
+            api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',
         )
     )
     tagged_vlans = ChainedModelMultipleChoiceField(
@@ -1763,7 +1763,7 @@ class InterfaceCreateForm(ComponentForm, ChainedFieldsMixin):
         required=False,
         label='Tagged VLANs',
         widget=APISelectMultiple(
-            api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',# display_field='display_name'
+            api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',
         )
     )
 
@@ -1856,7 +1856,7 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm, ChainedFieldsMixin):
         required=False,
         label='Untagged VLAN',
         widget=APISelect(
-            api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',# display_field='display_name'
+            api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',
         )
     )
     tagged_vlans = ChainedModelMultipleChoiceField(
@@ -1868,7 +1868,7 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm, ChainedFieldsMixin):
         required=False,
         label='Tagged VLANs',
         widget=APISelectMultiple(
-            api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',# display_field='display_name'
+            api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',
         )
     )
 
