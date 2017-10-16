@@ -72,7 +72,32 @@ class RackTestCase(TestCase):
 
         }
 
+    def test_rack_device_outside_height(self):
+
+        rack1 = Rack(
+            name='TestRack2',
+            facility_id='A102',
+            site=self.site1,
+            u_height=42
+        )
+        rack1.save()
+
+        device1 = Device(
+            name='TestSwitch1',
+            device_type=DeviceType.objects.get(manufacturer__slug='acme', slug='ff2048'),
+            device_role=DeviceRole.objects.get(slug='switch'),
+            site=self.site1,
+            rack=rack1,
+            position=43,
+            face=RACK_FACE_FRONT,
+        )
+        device1.save()
+
+        with self.assertRaises(ValidationError):
+            rack1.clean()
+
     def test_rack_group_site(self):
+
         rack_invalid_group = Rack(
             name='TestRack2',
             facility_id='A102',
