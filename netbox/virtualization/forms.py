@@ -210,7 +210,7 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
 
         # If the Cluster is assigned to a Site, all Devices must be assigned to that Site.
         if self.cluster.site is not None:
-            for device in self.cleaned_data.get('devices'):
+            for device in self.cleaned_data.get('devices', []):
                 if device.site != self.cluster.site:
                     raise ValidationError({
                         'devices': "{} belongs to a different site ({}) than the cluster ({})".format(
