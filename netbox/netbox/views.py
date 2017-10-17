@@ -27,7 +27,7 @@ from tenancy.models import Tenant
 from tenancy.tables import TenantTable
 from virtualization.filters import ClusterFilter, VirtualMachineFilter
 from virtualization.models import Cluster, VirtualMachine
-from virtualization.tables import ClusterTable, VirtualMachineTable
+from virtualization.tables import ClusterTable, VirtualMachineDetailTable
 from .forms import SearchForm
 
 
@@ -126,9 +126,11 @@ SEARCH_TYPES = OrderedDict((
         'url': 'virtualization:cluster_list',
     }),
     ('virtualmachine', {
-        'queryset': VirtualMachine.objects.select_related('cluster', 'tenant', 'platform'),
+        'queryset': VirtualMachine.objects.select_related(
+            'cluster', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
+        ),
         'filter': VirtualMachineFilter,
-        'table': VirtualMachineTable,
+        'table': VirtualMachineDetailTable,
         'url': 'virtualization:virtualmachine_list',
     }),
 ))

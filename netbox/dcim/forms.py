@@ -17,6 +17,7 @@ from utilities.forms import (
     ExpandableNameField, FilterChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea,
     SlugField, FilterTreeNodeMultipleChoiceField,
 )
+from virtualization.models import Cluster
 from .formfields import MACAddressFormField
 from .models import (
     DeviceBay, DeviceBayTemplate, CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_CONNECTED, ConsolePort,
@@ -900,11 +901,20 @@ class DeviceCSVForm(BaseDeviceCSVForm):
         required=False,
         help_text='Mounted rack face'
     )
+    cluster = forms.ModelChoiceField(
+        queryset=Cluster.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Virtualization cluster',
+        error_messages={
+            'invalid_choice': 'Invalid cluster name.',
+        }
+    )
 
     class Meta(BaseDeviceCSVForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
-            'site', 'rack_group', 'rack_name', 'position', 'face',
+            'site', 'rack_group', 'rack_name', 'position', 'face', 'cluster',
         ]
 
     def clean(self):
@@ -940,11 +950,19 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
     device_bay_name = forms.CharField(
         help_text='Name of device bay',
     )
+    cluster = forms.ModelChoiceField(
+        queryset=Cluster.objects.all(),
+        to_field_name='name',
+        help_text='Virtualization cluster',
+        error_messages={
+            'invalid_choice': 'Invalid cluster name.',
+        }
+    )
 
     class Meta(BaseDeviceCSVForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
-            'parent', 'device_bay_name',
+            'parent', 'device_bay_name', 'cluster',
         ]
 
     def clean(self):

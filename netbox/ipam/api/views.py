@@ -151,7 +151,7 @@ class IPAddressViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = IPAddress.objects.select_related(
         'vrf__tenant', 'tenant', 'nat_inside'
     ).prefetch_related(
-        'interface__device'
+        'interface__device', 'interface__virtual_machine'
     )
     serializer_class = serializers.IPAddressSerializer
     write_serializer_class = serializers.WritableIPAddressSerializer

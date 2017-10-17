@@ -34,32 +34,6 @@ from .models import (
 )
 
 
-EXPANSION_PATTERN = '\[(\d+-\d+)\]'
-
-
-def xstr(s):
-    """
-    Replace None with an empty string (for CSV export)
-    """
-    return '' if s is None else str(s)
-
-
-def expand_pattern(string):
-    """
-    Expand a numeric pattern into a list of strings. Examples:
-      'ge-0/0/[0-3]' => ['ge-0/0/0', 'ge-0/0/1', 'ge-0/0/2', 'ge-0/0/3']
-      'xe-0/[0-3]/[0-7]' => ['xe-0/0/0', 'xe-0/0/1', 'xe-0/0/2', ... 'xe-0/3/5', 'xe-0/3/6', 'xe-0/3/7']
-    """
-    lead, pattern, remnant = re.split(EXPANSION_PATTERN, string, maxsplit=1)
-    x, y = pattern.split('-')
-    for i in range(int(x), int(y) + 1):
-        if remnant:
-            for string in expand_pattern(remnant):
-                yield "{0}{1}{2}".format(lead, i, string)
-        else:
-            yield "{0}{1}".format(lead, i)
-
-
 class BulkDisconnectView(View):
     """
     An extendable view for disconnection console/power/interface components in bulk.
