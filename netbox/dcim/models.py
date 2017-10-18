@@ -256,8 +256,8 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
 
     def clean(self):
 
-        # Validate that Rack is tall enough to house the installed Devices
         if self.pk:
+            # Validate that Rack is tall enough to house the installed Devices
             top_device = Device.objects.filter(rack=self).exclude(position__isnull=True).order_by('-position').first()
             if top_device:
                 min_height = top_device.position + top_device.device_type.u_height - 1
@@ -266,6 +266,12 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
                         'u_height': "Rack must be at least {}U tall to house currently installed devices.".format(
                             min_height
                         )
+                    })
+            # Validate that Rack was assigned a group of its same site, if applicable
+            if self.group:
+                if self.group.site != self.site:
+                    raise ValidationError({
+                        'group': "Rack group must be from the same site, {}.".format(self.site)
                     })
 
     def save(self, *args, **kwargs):
