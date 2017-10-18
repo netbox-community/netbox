@@ -78,7 +78,7 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         label='Cluster group (ID)',
     )
     cluster_group = NullableModelMultipleChoiceFilter(
-        name='cluster__group__slug',
+        name='cluster__group',
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
         label='Cluster group (slug)',
@@ -88,12 +88,10 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         label='Cluster (ID)',
     )
     role_id = NullableModelMultipleChoiceFilter(
-        name='role_id',
         queryset=DeviceRole.objects.all(),
         label='Role (ID)',
     )
     role = NullableModelMultipleChoiceFilter(
-        name='role__slug',
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
@@ -112,7 +110,6 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         label='Platform (ID)',
     )
     platform = NullableModelMultipleChoiceFilter(
-        name='platform',
         queryset=Platform.objects.all(),
         to_field_name='slug',
         label='Platform (slug)',

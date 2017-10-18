@@ -440,7 +440,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
             self.get_status_display(),
             self.get_role_display(),
             self.device.identifier if self.device else None,
-            self.virtual_machine.name if self.device else None,
+            self.virtual_machine.name if self.virtual_machine else None,
             self.interface.name if self.interface else None,
             is_primary,
             self.description,
@@ -450,6 +450,12 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     def device(self):
         if self.interface:
             return self.interface.device
+        return None
+
+    @property
+    def virtual_machine(self):
+        if self.interface:
+            return self.interface.virtual_machine
         return None
 
     def get_status_class(self):

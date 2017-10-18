@@ -240,12 +240,22 @@ class WritablePrefixSerializer(CustomFieldModelSerializer):
 # IP addresses
 #
 
+class IPAddressInterfaceSerializer(InterfaceSerializer):
+    virtual_machine = NestedVirtualMachineSerializer()
+
+    class Meta(InterfaceSerializer.Meta):
+        fields = [
+            'id', 'device', 'virtual_machine', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address',
+            'mgmt_only', 'description', 'is_connected', 'interface_connection', 'circuit_termination',
+        ]
+
+
 class IPAddressSerializer(CustomFieldModelSerializer):
     vrf = NestedVRFSerializer()
     tenant = NestedTenantSerializer()
     status = ChoiceFieldSerializer(choices=IPADDRESS_STATUS_CHOICES)
     role = ChoiceFieldSerializer(choices=IPADDRESS_ROLE_CHOICES)
-    interface = InterfaceSerializer()
+    interface = IPAddressInterfaceSerializer()
 
     class Meta:
         model = IPAddress
@@ -261,6 +271,7 @@ class NestedIPAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = IPAddress
         fields = ['id', 'url', 'family', 'address']
+
 
 IPAddressSerializer._declared_fields['nat_inside'] = NestedIPAddressSerializer()
 IPAddressSerializer._declared_fields['nat_outside'] = NestedIPAddressSerializer()

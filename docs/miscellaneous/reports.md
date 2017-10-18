@@ -117,3 +117,13 @@ Our example report above would be called as:
 ```
     POST /api/extras/reports/devices.DeviceConnectionsReport/run/
 ```
+
+### Via the CLI
+
+Reports can be run on the CLI by invoking the management command:
+
+```
+python3 manage.py runreport <module>
+```
+
+One or more report modules may be specified.

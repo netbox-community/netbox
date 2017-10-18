@@ -59,6 +59,7 @@
 <script type="text/javascript">
     $(document).ready(function() {
         var device_list = $('#id_devices');
+        var disabled_indicator = device_list.attr('disabled-indicator');
         $('#id_search').autocomplete({
             source: function(request, response) {
                 $.ajax({
@@ -70,7 +71,11 @@
                     },
                     success: function(data) {
                         response($.map(data.results, function(item) {
-                            device_list.append('<option value="' + item['id'] + '">' + item['display_name'] + '</option>');
+                            var option = $("<option></option>").attr("value", item['id']).text(item['display_name']);
+                            if (disabled_indicator && item[disabled_indicator]) {
+                                option.attr("disabled", "disabled");
+                            }
+                            device_list.append(option);
                         }));
                     }
                 });

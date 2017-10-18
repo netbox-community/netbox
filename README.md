@@ -31,6 +31,5 @@ Please see [the documentation](http://netbox.readthedocs.io/en/stable/) for inst
 
 ## Alternative Installations
 
-* [Docker container](https://github.com/digitalocean/netbox-docker)
-* [Heroku deployment](https://heroku.com/deploy?template=https://github.com/BILDQUADRAT/netbox/tree/heroku) (via [@mraerino](https://github.com/BILDQUADRAT/netbox/tree/heroku))
-* [Vagrant deployment](https://github.com/ryanmerolle/netbox-vagrant)
+* [Docker container](https://github.com/ninech/netbox-docker) (via [@cimnine](https://github.com/cimnine))
+* [Vagrant deployment](https://github.com/ryanmerolle/netbox-vagrant) (via [@ryanmerolle](https://github.com/ryanmerolle))

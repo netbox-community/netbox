@@ -274,6 +274,7 @@ class TopologyMap(models.Model):
         # Construct the graph
         graph = graphviz.Graph()
         graph.graph_attr['ranksep'] = '1'
+        seen = set()
         for i, device_set in enumerate(self.device_sets):
 
             subgraph = graphviz.Graph(name='sg{}'.format(i))
@@ -288,6 +289,9 @@ class TopologyMap(models.Model):
             devices = []
             for query in device_set.strip(';').split(';'):  # Split regexes on semicolons
                 devices += Device.objects.filter(name__regex=query).select_related('device_role')
+            # Remove duplicate devices
+            devices = [d for d in devices if d.id not in seen]
+            seen.update([d.id for d in devices])
             for d in devices:
                 bg_color = '#{}'.format(d.device_role.color)
                 fg_color = '#{}'.format(foreground_color(d.device_role.color))
