@@ -267,12 +267,10 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        qs_filter = Q(description__icontains=value)
-        try:
-            ipaddress = str(IPNetwork(value.strip()))
-            qs_filter |= Q(address__net_host=ipaddress)
-        except (AddrFormatError, ValueError):
-            pass
+        qs_filter = (
+            Q(description__icontains=value) |
+            Q(address__istartswith=value)
+        )
         return queryset.filter(qs_filter)
 
     def search_by_parent(self, queryset, name, value):
