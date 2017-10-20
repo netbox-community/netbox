@@ -134,7 +134,11 @@ class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class CircuitListView(ObjectListView):
-    queryset = Circuit.objects.select_related('provider', 'type', 'tenant').prefetch_related('terminations__site')
+    queryset = Circuit.objects.select_related(
+        'provider', 'type', 'tenant'
+    ).prefetch_related(
+        'terminations__site', 'terminations__interface__device'
+    )
     filter = filters.CircuitFilter
     filter_form = forms.CircuitFilterForm
     table = tables.CircuitTable
