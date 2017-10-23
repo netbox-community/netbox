@@ -953,6 +953,7 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
     cluster = forms.ModelChoiceField(
         queryset=Cluster.objects.all(),
         to_field_name='name',
+        required=False,
         help_text='Virtualization cluster',
         error_messages={
             'invalid_choice': 'Invalid cluster name.',
