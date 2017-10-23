@@ -700,7 +700,10 @@ class DeviceBayTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class DeviceRoleListView(ObjectListView):
-    queryset = DeviceRole.objects.annotate(device_count=Count('devices'))
+    queryset = DeviceRole.objects.annotate(
+        device_count=Count('devices', distinct=True),
+        vm_count=Count('virtual_machines', distinct=True)
+    )
     table = tables.DeviceRoleTable
     template_name = 'dcim/devicerole_list.html'
 
