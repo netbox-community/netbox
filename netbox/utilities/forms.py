@@ -39,7 +39,7 @@ COLOR_CHOICES = (
     ('111111', 'Black'),
 )
 NUMERIC_EXPANSION_PATTERN = '\[((?:\d+[?:,-])+\d+)\]'
-ALPHABETIC_EXPANSION_PATTERN = '\[((?:[a-z]+[?:,-])+[a-z]+)\]'
+ALPHANUMERIC_EXPANSION_PATTERN = '\[((?:\w+[?:,-])+\w+)\]'
 IP4_EXPANSION_PATTERN = '\[((?:[0-9]{1,3}[?:,-])+[0-9]{1,3})\]'
 IP6_EXPANSION_PATTERN = '\[((?:[0-9a-f]{1,4}[?:,-])+[0-9a-f]{1,4})\]'
 
@@ -78,9 +78,9 @@ def expand_numeric_pattern(string):
             yield "{}{}{}".format(lead, i, remnant)
 
 
-def parse_alphabetic_range(string):
+def parse_alphanumeric_range(string):
     """
-    Expand an alphabetic range (continuous or not) into a list.
+    Expand an alphanumeric range (continuous or not) into a list.
     'a-d,f' => ['a', 'b', 'c', 'd', 'f']
     """
     values = []
@@ -95,15 +95,15 @@ def parse_alphabetic_range(string):
     return values
 
 
-def expand_alphabetic_pattern(string):
+def expand_alphanumeric_pattern(string):
     """
     Expand an alphabetic pattern into a list of strings.
     """
-    lead, pattern, remnant = re.split(ALPHABETIC_EXPANSION_PATTERN, string, maxsplit=1)
-    parsed_range = parse_alphabetic_range(pattern)
+    lead, pattern, remnant = re.split(ALPHANUMERIC_EXPANSION_PATTERN, string, maxsplit=1)
+    parsed_range = parse_alphanumeric_range(pattern)
     for i in parsed_range:
-        if re.search(ALPHABETIC_EXPANSION_PATTERN, remnant):
-            for string in expand_alphabetic_pattern(remnant):
+        if re.search(ALPHANUMERIC_EXPANSION_PATTERN, remnant):
+            for string in expand_alphanumeric_pattern(remnant):
                 yield "{}{}{}".format(lead, i, string)
         else:
             yield "{}{}{}".format(lead, i, remnant)
@@ -339,12 +339,9 @@ class ExpandableNameField(forms.CharField):
                              'Example: <code>ge-0/0/[0-23,25,30]</code>'
 
     def to_python(self, value):
-        values = []
-        if re.search(NUMERIC_EXPANSION_PATTERN, value):
-            values += expand_numeric_pattern(value)
-        if re.search(ALPHABETIC_EXPANSION_PATTERN, value):
-            values += expand_alphabetic_pattern(value)
-        return values
+        if re.search(ALPHANUMERIC_EXPANSION_PATTERN, value):
+            return list(expand_alphanumeric_pattern(value))
+        return [value]
 
 
 class ExpandableIPAddressField(forms.CharField):
