@@ -39,6 +39,7 @@ COLOR_CHOICES = (
     ('111111', 'Black'),
 )
 NUMERIC_EXPANSION_PATTERN = '\[((?:\d+[?:,-])+\d+)\]'
+ALPHABETIC_EXPANSION_PATTERN = '\[((?:[a-z]+[?:,-])+[a-z]+)\]'
 IP4_EXPANSION_PATTERN = '\[((?:[0-9]{1,3}[?:,-])+[0-9]{1,3})\]'
 IP6_EXPANSION_PATTERN = '\[((?:[0-9a-f]{1,4}[?:,-])+[0-9a-f]{1,4})\]'
 
@@ -72,6 +73,37 @@ def expand_numeric_pattern(string):
     for i in parsed_range:
         if re.search(NUMERIC_EXPANSION_PATTERN, remnant):
             for string in expand_numeric_pattern(remnant):
+                yield "{}{}{}".format(lead, i, string)
+        else:
+            yield "{}{}{}".format(lead, i, remnant)
+
+
+def parse_alphabetic_range(string):
+    """
+    Expand an alphabetic range (continuous or not) into a list.
+    'a-d,f' => ['a', 'b', 'c', 'd', 'f']
+    """
+    values = []
+    for dash_range in string.split(','):
+        try:
+            begin, end = dash_range.split('-')
+        except ValueError:
+            begin, end = dash_range, dash_range
+        nums = list(range(ord(begin), ord(end)+1))
+        for n in nums:
+            values.append(chr(n))
+    return values
+
+
+def expand_alphabetic_pattern(string):
+    """
+    Expand an alphabetic pattern into a list of strings.
+    """
+    lead, pattern, remnant = re.split(ALPHABETIC_EXPANSION_PATTERN, string, maxsplit=1)
+    parsed_range = parse_alphabetic_range(pattern)
+    for i in parsed_range:
+        if re.search(ALPHABETIC_EXPANSION_PATTERN, remnant):
+            for string in expand_alphabetic_pattern(remnant):
                 yield "{}{}{}".format(lead, i, string)
         else:
             yield "{}{}{}".format(lead, i, remnant)
@@ -307,9 +339,12 @@ class ExpandableNameField(forms.CharField):
                              'Example: <code>ge-0/0/[0-23,25,30]</code>'
 
     def to_python(self, value):
+        values = []
         if re.search(NUMERIC_EXPANSION_PATTERN, value):
-            return list(expand_numeric_pattern(value))
-        return [value]
+            values += expand_numeric_pattern(value)
+        if re.search(ALPHABETIC_EXPANSION_PATTERN, value):
+            values += expand_alphabetic_pattern(value)
+        return values
 
 
 class ExpandableIPAddressField(forms.CharField):
