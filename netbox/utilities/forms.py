@@ -89,9 +89,10 @@ def parse_alphanumeric_range(string):
         try:
             begin, end = dash_range.split('-')
             # Skip if incompatible types or mixed case, just like any other bad pattern
-            if (str.isalpha(begin) and str.isdigit(end)) or (str.isdigit(begin) and str.isalpha(end)):
+            vals = begin + end
+            if not (vals.isdigit() or vals.isalpha()):
                 continue
-            if not (str.isupper(begin + end) or str.islower(begin + end)):
+            if vals.isalpha() and not (vals.isupper() or vals.islower()):
                 continue
         except ValueError:
             begin, end = dash_range, dash_range
