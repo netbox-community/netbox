@@ -21,7 +21,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
-from utilities.forms import BootstrapMixin, CSVDataField
+from utilities.forms import BootstrapMixin, CSVDataField, ReturnURLForm
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
 from .paginator import EnhancedPaginator
@@ -697,7 +697,7 @@ class BulkDeleteView(View):
         Provide a standard bulk delete form if none has been specified for the view
         """
 
-        class BulkDeleteForm(ConfirmationForm):
+        class BulkDeleteForm(BootstrapMixin, ReturnURLForm):
             pk = ModelMultipleChoiceField(queryset=self.cls.objects.all(), widget=MultipleHiddenInput)
 
         if self.form:
