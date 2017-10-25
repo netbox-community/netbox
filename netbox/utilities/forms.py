@@ -340,8 +340,11 @@ class ExpandableNameField(forms.CharField):
     def __init__(self, *args, **kwargs):
         super(ExpandableNameField, self).__init__(*args, **kwargs)
         if not self.help_text:
-            self.help_text = 'Numeric ranges are supported for bulk creation.<br />'\
-                             'Example: <code>ge-0/0/[0-23,25,30]</code>'
+            self.help_text = 'Alphanumeric ranges are supported for bulk creation.<br />' \
+                             'Mixed cases and types in ranges are not supported.<br />' \
+                             'Examples:<ul><li><code>ge-0/0/[0-23,25,30]</code></li>' \
+                             '<li><code>e[0-3][a-d,f]</code></li>' \
+                             '<li><code>e[0-3,a-d,f]</code></li></ul>'
 
     def to_python(self, value):
         if re.search(ALPHANUMERIC_EXPANSION_PATTERN, value):
