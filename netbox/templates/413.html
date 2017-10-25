@@ -1,0 +1,19 @@
+{% extends '_base.html' %}
+
+{% block content %}
+<div class="row" style="margin-top: 150px;">
+    <div class="col-sm-4 col-sm-offset-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong><i class="glyphicon glyphicon-warning-sign"></i> File Size Too Large</strong>
+            </div>
+            <div class="panel-body">
+                The file being uploaded is too large.  Please limit all uploaded file sizes to [x]Mb.
+            </div>
+            <div class="panel-footer text-right">
+                <a href="{% url 'home' %}" class="btn btn-xs btn-primary">Home Page</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
