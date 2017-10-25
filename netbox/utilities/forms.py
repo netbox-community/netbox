@@ -39,7 +39,7 @@ COLOR_CHOICES = (
     ('111111', 'Black'),
 )
 NUMERIC_EXPANSION_PATTERN = '\[((?:\d+[?:,-])+\d+)\]'
-ALPHANUMERIC_EXPANSION_PATTERN = '\[((?:\w+[?:,-])+\w+)\]'
+ALPHANUMERIC_EXPANSION_PATTERN = '\[((?:[a-zA-Z0-9]+[?:,-])+[a-zA-Z0-9]+)\]'
 IP4_EXPANSION_PATTERN = '\[((?:[0-9]{1,3}[?:,-])+[0-9]{1,3})\]'
 IP6_EXPANSION_PATTERN = '\[((?:[0-9a-f]{1,4}[?:,-])+[0-9a-f]{1,4})\]'
 
@@ -87,6 +87,8 @@ def parse_alphanumeric_range(string):
     for dash_range in string.split(','):
         try:
             begin, end = dash_range.split('-')
+            if (str.isalpha(begin) and str.isdigit(end)) or (str.isdigit(begin) and str.isalpha(end)):
+                continue  # Skip if it's invalid, just like any other bad pattern
         except ValueError:
             begin, end = dash_range, dash_range
         nums = list(range(ord(begin), ord(end)+1))
