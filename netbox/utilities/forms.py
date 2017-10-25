@@ -81,7 +81,8 @@ def expand_numeric_pattern(string):
 def parse_alphanumeric_range(string):
     """
     Expand an alphanumeric range (continuous or not) into a list.
-    'a-d,f' => ['a', 'b', 'c', 'd', 'f']
+    'a-d,f' => [a, b, c, d, f]
+    '0-3,a-d' => [0, 1, 2, 3, a, b, c, d]
     """
     values = []
     for dash_range in string.split(','):
