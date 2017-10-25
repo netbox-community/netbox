@@ -96,7 +96,7 @@ def parse_alphanumeric_range(string):
                 continue
         except ValueError:
             begin, end = dash_range, dash_range
-        nums = list(range(ord(begin), ord(end)+1))
+        nums = list(range(ord(begin), ord(end) + 1))
         for n in nums:
             values.append(chr(n))
     return values
