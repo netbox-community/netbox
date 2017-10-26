@@ -59,7 +59,7 @@
     "model": "virtualization.cluster",
     "pk": 1,
     "fields": {
-        "name": "Amazon EC2",
+        "name": "Digital Ocean",
         "type": 1,
         "group": 1,
         "created": "2016-08-01",
@@ -69,6 +69,17 @@
 {
     "model": "virtualization.cluster",
     "pk": 2,
+    "fields": {
+        "name": "Amazon EC2",
+        "type": 1,
+        "group": 1,
+        "created": "2016-08-01",
+        "last_updated": "2016-08-01T15:22:42.289Z"
+    }
+},
+{
+    "model": "virtualization.cluster",
+    "pk": 3,
     "fields": {
         "name": "Microsoft Azure",
         "type": 1,
