@@ -49,7 +49,7 @@
             <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Name</td>
-                    <td>{{ vm.name }}</td>
+                    <td>{{ vm }}</td>
                 </tr>
                 <tr>
                     <td>Status</td>
@@ -82,7 +82,7 @@
                     <td>
                         {% if vm.tenant %}
                             {% if vm.tenant.group %}
-                                <a href="{{ vm.tenant.group.get_absolute_url }}">{{ vm.tenant.group.name }}</a>
+                                <a href="{{ vm.tenant.group.get_absolute_url }}">{{ vm.tenant.group }}</a>
                                 <i class="fa fa-angle-right"></i>
                             {% endif %}
                             <a href="{{ vm.tenant.get_absolute_url }}">{{ vm.tenant }}</a>

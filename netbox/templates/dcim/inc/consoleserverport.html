@@ -13,7 +13,7 @@
             <a href="{% url 'dcim:device' pk=csp.connected_console.device.pk %}">{{ csp.connected_console.device }}</a>
         </td>
         <td>
-            {{ csp.connected_console.name }}
+            {{ csp.connected_console }}
         </td>
     {% else %}
         <td colspan="2">

@@ -1,13 +1,13 @@
 <tr class="powerport{% if pp.power_outlet and not pp.connection_status %} info{% endif %}">
     <td>
-        <i class="fa fa-fw fa-bolt"></i> {{ pp.name }}
+        <i class="fa fa-fw fa-bolt"></i> {{ pp }}
     </td>
     {% if pp.power_outlet %}
         <td>
             <a href="{% url 'dcim:device' pk=pp.power_outlet.device.pk %}">{{ pp.power_outlet.device }}</a>
         </td>
         <td>
-            {{ pp.power_outlet.name }}
+            {{ pp.power_outlet }}
         </td>
     {% else %}
         <td colspan="2">

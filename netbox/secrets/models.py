@@ -286,8 +286,8 @@ class Secret(CreatedUpdatedModel):
         super(Secret, self).__init__(*args, **kwargs)
 
     def __str__(self):
-        if self.role and self.device:
-            return '{} for {}'.format(self.role, self.device)
+        if self.role and self.device and self.name:
+            return '{} for {} ({})'.format(self.role, self.device, self.name)
         return 'Secret'
 
     def get_absolute_url(self):
