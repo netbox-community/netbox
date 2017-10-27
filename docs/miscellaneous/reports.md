@@ -94,6 +94,8 @@ The following methods are available to log results within a report:
 
 The recording of one or more failure messages will automatically flag a report as failed. It is advised to log a success for each object that is evaluated so that the results will reflect how many objects are being reported on. (The inclusion of a log message is optional for successes.) Messages recorded with `log()` will appear in a report's results but are not associated with a particular object or status.
 
+To perform additional tasks, such as sending an email or calling a webhook, after a report has been run, extend the `post_run()` method. The status of the report is available as `self.failed` and the results object is `self.result`.
+
 Once you have created a report, it will appear in the reports list. Initially, reports will have no results associated with them. To generate results, run the report.
 
 ## Running Reports

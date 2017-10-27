@@ -177,3 +177,12 @@ class Report(object):
         result = ReportResult(report=self.full_name, failed=self.failed, data=self._results)
         result.save()
         self.result = result
+
+        # Perform any post-run tasks
+        self.post_run()
+
+    def post_run(self):
+        """
+        Extend this method to include any tasks which should execute after the report has been run.
+        """
+        pass
