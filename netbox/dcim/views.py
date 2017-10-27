@@ -517,12 +517,12 @@ class DeviceTypeView(View):
             show_header=False
         )
         if request.user.has_perm('dcim.change_devicetype'):
-            consoleport_table.base_columns['pk'].visible = True
-            consoleserverport_table.base_columns['pk'].visible = True
-            powerport_table.base_columns['pk'].visible = True
-            poweroutlet_table.base_columns['pk'].visible = True
-            interface_table.base_columns['pk'].visible = True
-            devicebay_table.base_columns['pk'].visible = True
+            consoleport_table.columns.show('pk')
+            consoleserverport_table.columns.show('pk')
+            powerport_table.columns.show('pk')
+            poweroutlet_table.columns.show('pk')
+            interface_table.columns.show('pk')
+            devicebay_table.columns.show('pk')
 
         return render(request, 'dcim/devicetype.html', {
             'devicetype': devicetype,

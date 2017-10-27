@@ -325,7 +325,7 @@ class AggregateView(View):
 
         prefix_table = tables.PrefixDetailTable(child_prefixes)
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
-            prefix_table.base_columns['pk'].visible = True
+            prefix_table.columns.show('pk')
 
         paginate = {
             'klass': EnhancedPaginator,
@@ -495,7 +495,7 @@ class PrefixView(View):
             child_prefixes = add_available_prefixes(prefix.prefix, child_prefixes)
         child_prefix_table = tables.PrefixDetailTable(child_prefixes)
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
-            child_prefix_table.base_columns['pk'].visible = True
+            child_prefix_table.columns.show('pk')
 
         paginate = {
             'klass': EnhancedPaginator,
@@ -538,7 +538,7 @@ class PrefixIPAddressesView(View):
 
         ip_table = tables.IPAddressTable(ipaddresses)
         if request.user.has_perm('ipam.change_ipaddress') or request.user.has_perm('ipam.delete_ipaddress'):
-            ip_table.base_columns['pk'].visible = True
+            ip_table.columns.show('pk')
 
         paginate = {
             'klass': EnhancedPaginator,
