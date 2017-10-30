@@ -206,6 +206,10 @@ LOGIN_URL = '/{}login/'.format(BASE_PATH)
 # Secrets
 SECRETS_MIN_PUBKEY_SIZE = 2048
 
+# Django filters
+FILTERS_NULL_CHOICE_LABEL = 'None'
+FILTERS_NULL_CHOICE_VALUE = '0'  # Must be a string
+
 # Django REST framework (API)
 REST_FRAMEWORK_VERSION = VERSION[0:3]  # Use major.minor as API version
 REST_FRAMEWORK = {

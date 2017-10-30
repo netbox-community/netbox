@@ -5,7 +5,7 @@ import django_filters
 from django.db.models import Q
 
 from extras.filters import CustomFieldFilterSet
-from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
+from utilities.filters import NumericInFilter
 from .models import Tenant, TenantGroup
 
 
@@ -22,11 +22,11 @@ class TenantFilter(CustomFieldFilterSet, django_filters.FilterSet):
         method='search',
         label='Search',
     )
-    group_id = NullableModelMultipleChoiceFilter(
+    group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=TenantGroup.objects.all(),
         label='Group (ID)',
     )
-    group = NullableModelMultipleChoiceFilter(
+    group = django_filters.ModelMultipleChoiceFilter(
         name='group',
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
