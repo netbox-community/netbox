@@ -374,12 +374,12 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Rack reservations
 #
 
-class RackReservationForm(BootstrapMixin, forms.ModelForm):
+class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
     units = SimpleArrayField(forms.IntegerField(), widget=ArrayFieldSelectMultiple(attrs={'size': 10}))
 
     class Meta:
         model = RackReservation
-        fields = ['units', 'description']
+        fields = ['units', 'description', 'tenant_group', 'tenant']
 
     def __init__(self, *args, **kwargs):
 

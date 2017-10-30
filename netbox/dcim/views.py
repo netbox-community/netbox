@@ -394,10 +394,6 @@ class RackBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class RackReservationListView(ObjectListView):
     queryset = RackReservation.objects.select_related(
         'site', 'tenant'
-    ).prefetch_related(
-        'devices__device_type'
-    ).annotate(
-        device_count=Count('devices', distinct=True)
     )
     filter = filters.RackReservationFilter
     filter_form = forms.RackReservationFilterForm
