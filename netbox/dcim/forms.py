@@ -379,7 +379,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
 
     class Meta:
         model = RackReservation
-        fields = ['units', 'description', 'tenant_group', 'tenant']
+        fields = ['units', 'tenant_group', 'tenant', 'description']
 
     def __init__(self, *args, **kwargs):
 
@@ -410,7 +410,7 @@ class RackReservationFilterForm(BootstrapMixin, forms.Form):
         null_option=(0, 'None')
     )
     tenant = FilterChoiceField(
-        queryset=Tenant.objects.annotate(filter_count=Count('racks')),
+        queryset=Tenant.objects.annotate(filter_count=Count('racks__reservations')),
         to_field_name='slug',
         null_option=(0, 'None')
     )
