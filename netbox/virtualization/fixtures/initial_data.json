@@ -1,0 +1,91 @@
+[
+{
+    "model": "virtualization.clustertype",
+    "pk": 1,
+    "fields": {
+        "name": "Public Cloud",
+        "slug": "public-cloud"
+    }
+},
+{
+    "model": "virtualization.clustertype",
+    "pk": 2,
+    "fields": {
+        "name": "vSphere",
+        "slug": "vsphere"
+    }
+},
+{
+    "model": "virtualization.clustertype",
+    "pk": 3,
+    "fields": {
+        "name": "Hyper-V",
+        "slug": "hyper-v"
+    }
+},
+{
+    "model": "virtualization.clustertype",
+    "pk": 4,
+    "fields": {
+        "name": "libvirt",
+        "slug": "libvirt"
+    }
+},
+{
+    "model": "virtualization.clustertype",
+    "pk": 5,
+    "fields": {
+        "name": "LXD",
+        "slug": "lxd"
+    }
+},
+{
+    "model": "virtualization.clustertype",
+    "pk": 6,
+    "fields": {
+        "name": "Docker",
+        "slug": "docker"
+    }
+},
+{
+    "model": "virtualization.clustergroup",
+    "pk": 1,
+    "fields": {
+        "name": "VM Host",
+        "slug": "vm-host"
+    }
+},
+{
+    "model": "virtualization.cluster",
+    "pk": 1,
+    "fields": {
+        "name": "Digital Ocean",
+        "type": 1,
+        "group": 1,
+        "created": "2016-08-01",
+        "last_updated": "2016-08-01T15:22:42.289Z"
+    }
+},
+{
+    "model": "virtualization.cluster",
+    "pk": 2,
+    "fields": {
+        "name": "Amazon EC2",
+        "type": 1,
+        "group": 1,
+        "created": "2016-08-01",
+        "last_updated": "2016-08-01T15:22:42.289Z"
+    }
+},
+{
+    "model": "virtualization.cluster",
+    "pk": 3,
+    "fields": {
+        "name": "Microsoft Azure",
+        "type": 1,
+        "group": 1,
+        "created": "2016-08-01",
+        "last_updated": "2016-08-01T15:22:42.289Z"
+    }
+}
+]
