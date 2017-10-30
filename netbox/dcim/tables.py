@@ -245,6 +245,8 @@ class RackImportTable(BaseTable):
 
 class RackReservationTable(BaseTable):
     pk = ToggleColumn()
+    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
+    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
     rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')])
     unit_list = tables.Column(orderable=False, verbose_name='Units')
     actions = tables.TemplateColumn(

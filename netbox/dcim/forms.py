@@ -409,6 +409,11 @@ class RackReservationFilterForm(BootstrapMixin, forms.Form):
         label='Rack group',
         null_option=(0, 'None')
     )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.annotate(filter_count=Count('racks')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
 
 
 #
@@ -790,10 +795,10 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         pk = self.instance.pk if self.instance.pk else None
         try:
             if self.is_bound and self.data.get('rack') and str(self.data.get('face')):
-                position_choices = Rack.objects.get(pk=self.data['rack'])\
+                position_choices = Rack.objects.get(pk=self.data['rack']) \
                     .get_rack_units(face=self.data.get('face'), exclude=pk)
             elif self.initial.get('rack') and str(self.initial.get('face')):
-                position_choices = Rack.objects.get(pk=self.initial['rack'])\
+                position_choices = Rack.objects.get(pk=self.initial['rack']) \
                     .get_rack_units(face=self.initial.get('face'), exclude=pk)
             else:
                 position_choices = []
