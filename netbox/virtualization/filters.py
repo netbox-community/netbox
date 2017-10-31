@@ -9,7 +9,7 @@ from django.db.models import Q
 from dcim.models import DeviceRole, Interface, Platform, Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
-from utilities.filters import NullableModelMultipleChoiceFilter, NumericInFilter
+from utilities.filters import NumericInFilter
 from .constants import STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
@@ -20,11 +20,12 @@ class ClusterFilter(CustomFieldFilterSet):
         method='search',
         label='Search',
     )
-    group_id = NullableModelMultipleChoiceFilter(
+    group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ClusterGroup.objects.all(),
         label='Parent group (ID)',
     )
-    group = NullableModelMultipleChoiceFilter(
+    group = django_filters.ModelMultipleChoiceFilter(
+        name='group__slug',
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
         label='Parent group (slug)',
@@ -72,13 +73,13 @@ class VirtualMachineFilter(CustomFieldFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=STATUS_CHOICES
     )
-    cluster_group_id = NullableModelMultipleChoiceFilter(
+    cluster_group_id = django_filters.ModelMultipleChoiceFilter(
         name='cluster__group',
         queryset=ClusterGroup.objects.all(),
         label='Cluster group (ID)',
     )
-    cluster_group = NullableModelMultipleChoiceFilter(
-        name='cluster__group',
+    cluster_group = django_filters.ModelMultipleChoiceFilter(
+        name='cluster__group__slug',
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
         label='Cluster group (slug)',
@@ -87,29 +88,32 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         queryset=Cluster.objects.all(),
         label='Cluster (ID)',
     )
-    role_id = NullableModelMultipleChoiceFilter(
+    role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceRole.objects.all(),
         label='Role (ID)',
     )
-    role = NullableModelMultipleChoiceFilter(
+    role = django_filters.ModelMultipleChoiceFilter(
+        name='role__slug',
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
     )
-    tenant_id = NullableModelMultipleChoiceFilter(
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Tenant.objects.all(),
         label='Tenant (ID)',
     )
-    tenant = NullableModelMultipleChoiceFilter(
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
     )
-    platform_id = NullableModelMultipleChoiceFilter(
+    platform_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Platform.objects.all(),
         label='Platform (ID)',
     )
-    platform = NullableModelMultipleChoiceFilter(
+    platform = django_filters.ModelMultipleChoiceFilter(
+        name='platform__slug',
         queryset=Platform.objects.all(),
         to_field_name='slug',
         label='Platform (slug)',

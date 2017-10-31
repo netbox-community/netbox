@@ -426,6 +426,16 @@ class RackReservationDeleteView(PermissionRequiredMixin, ObjectDeleteView):
         return obj.rack.get_absolute_url()
 
 
+class RackReservationBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_rackreservation'
+    cls = RackReservation
+    queryset = RackReservation.objects.select_related('rack', 'user')
+    filter = filters.RackReservationFilter
+    table = tables.RackReservationTable
+    form = forms.RackReservationBulkEditForm
+    default_return_url = 'dcim:rackreservation_list'
+
+
 class RackReservationBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rackreservation'
     cls = RackReservation

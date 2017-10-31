@@ -4,6 +4,7 @@ from mptt.forms import TreeNodeChoiceField
 import re
 
 from django import forms
+from django.contrib.auth.models import User
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.db.models import Count, Q
 
@@ -376,6 +377,7 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
 
 class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
     units = SimpleArrayField(forms.IntegerField(), widget=ArrayFieldSelectMultiple(attrs={'size': 10}))
+    user = forms.ModelChoiceField(queryset=User.objects.order_by('username'))
 
     class Meta:
         model = RackReservation
@@ -414,6 +416,15 @@ class RackReservationFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         null_option=(0, 'None')
     )
+
+
+class RackReservationBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(queryset=RackReservation.objects.all(), widget=forms.MultipleHiddenInput)
+    user = forms.ModelChoiceField(queryset=User.objects.order_by('username'), required=False)
+    description = forms.CharField(max_length=100, required=False)
+
+    class Meta:
+        nullable_fields = []
 
 
 #

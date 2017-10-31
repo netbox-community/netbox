@@ -296,6 +296,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
             self.tenant.name if self.tenant else None,
             self.role.name if self.role else None,
             self.get_type_display() if self.type else None,
+            self.serial,
             self.width,
             self.u_height,
             self.desc_units,
@@ -418,7 +419,7 @@ class RackReservation(models.Model):
     units = ArrayField(models.PositiveSmallIntegerField())
     created = models.DateTimeField(auto_now_add=True)
     tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='rackreservations', on_delete=models.PROTECT)
-    user = models.ForeignKey(User, editable=False, on_delete=models.PROTECT)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
     description = models.CharField(max_length=100)
 
     class Meta:

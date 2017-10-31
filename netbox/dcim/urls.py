@@ -45,6 +45,7 @@ urlpatterns = [
 
     # Rack reservations
     url(r'^rack-reservations/$', views.RackReservationListView.as_view(), name='rackreservation_list'),
+    url(r'^rack-reservations/edit/$', views.RackReservationBulkEditView.as_view(), name='rackreservation_bulk_edit'),
     url(r'^rack-reservations/delete/$', views.RackReservationBulkDeleteView.as_view(), name='rackreservation_bulk_delete'),
     url(r'^rack-reservations/(?P<pk>\d+)/edit/$', views.RackReservationEditView.as_view(), name='rackreservation_edit'),
     url(r'^rack-reservations/(?P<pk>\d+)/delete/$', views.RackReservationDeleteView.as_view(), name='rackreservation_delete'),
