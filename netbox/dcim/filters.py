@@ -207,12 +207,12 @@ class RackReservationFilter(django_filters.FilterSet):
         to_field_name='slug',
         label='Group',
     )
-    tenant_id = NullableModelMultipleChoiceFilter(
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Tenant.objects.all(),
         label='Tenant (ID)',
     )
-    tenant = NullableModelMultipleChoiceFilter(
-        name='tenant',
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
