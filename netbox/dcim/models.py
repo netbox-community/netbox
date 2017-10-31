@@ -296,6 +296,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
             self.tenant.name if self.tenant else None,
             self.role.name if self.role else None,
             self.get_type_display() if self.type else None,
+            self.serial,
             self.width,
             self.u_height,
             self.desc_units,
