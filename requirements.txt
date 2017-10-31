@@ -1,7 +1,7 @@
 Django>=1.11,<2.0
 django-cors-headers>=2.1
 django-debug-toolbar>=1.8
-django-filter>=1.0.4
+django-filter>=1.1.0
 django-mptt==0.8.7
 django-rest-swagger>=2.1.0
 django-tables2>=1.10.0

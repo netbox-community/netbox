@@ -426,6 +426,16 @@ class RackReservationDeleteView(PermissionRequiredMixin, ObjectDeleteView):
         return obj.rack.get_absolute_url()
 
 
+class RackReservationBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_rackreservation'
+    cls = RackReservation
+    queryset = RackReservation.objects.select_related('rack', 'user')
+    filter = filters.RackReservationFilter
+    table = tables.RackReservationTable
+    form = forms.RackReservationBulkEditForm
+    default_return_url = 'dcim:rackreservation_list'
+
+
 class RackReservationBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rackreservation'
     cls = RackReservation
@@ -517,12 +527,12 @@ class DeviceTypeView(View):
             show_header=False
         )
         if request.user.has_perm('dcim.change_devicetype'):
-            consoleport_table.base_columns['pk'].visible = True
-            consoleserverport_table.base_columns['pk'].visible = True
-            powerport_table.base_columns['pk'].visible = True
-            poweroutlet_table.base_columns['pk'].visible = True
-            interface_table.base_columns['pk'].visible = True
-            devicebay_table.base_columns['pk'].visible = True
+            consoleport_table.columns.show('pk')
+            consoleserverport_table.columns.show('pk')
+            powerport_table.columns.show('pk')
+            poweroutlet_table.columns.show('pk')
+            interface_table.columns.show('pk')
+            devicebay_table.columns.show('pk')
 
         return render(request, 'dcim/devicetype.html', {
             'devicetype': devicetype,
@@ -700,7 +710,10 @@ class DeviceBayTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class DeviceRoleListView(ObjectListView):
-    queryset = DeviceRole.objects.annotate(device_count=Count('devices'))
+    queryset = DeviceRole.objects.annotate(
+        device_count=Count('devices', distinct=True),
+        vm_count=Count('virtual_machines', distinct=True)
+    )
     table = tables.DeviceRoleTable
     template_name = 'dcim/devicerole_list.html'
 

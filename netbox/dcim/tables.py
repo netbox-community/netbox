@@ -362,6 +362,7 @@ class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn(verbose_name='Name')
     device_count = tables.Column(verbose_name='Devices')
+    vm_count = tables.Column(verbose_name='VMs')
     color = tables.TemplateColumn(COLOR_LABEL, verbose_name='Label')
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(template_code=DEVICEROLE_ACTIONS, attrs={'td': {'class': 'text-right'}},
@@ -369,7 +370,7 @@ class DeviceRoleTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = DeviceRole
-        fields = ('pk', 'name', 'device_count', 'color', 'vm_role', 'slug', 'actions')
+        fields = ('pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'slug', 'actions')
 
 
 #

@@ -314,6 +314,7 @@ class VirtualMachineBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'virtualization.delete_virtualmachine'
     cls = VirtualMachine
     queryset = VirtualMachine.objects.select_related('cluster', 'tenant')
+    filter = filters.VirtualMachineFilter
     table = tables.VirtualMachineTable
     default_return_url = 'virtualization:virtualmachine_list'
 

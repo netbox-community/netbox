@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db.models import Lookup, Transform, IntegerField
-from django.db.models.lookups import BuiltinLookup
+from django.db.models import lookups
 
 
 class NetFieldDecoratorMixin(object):
@@ -13,27 +13,27 @@ class NetFieldDecoratorMixin(object):
         return lhs_string, lhs_params
 
 
-class EndsWith(NetFieldDecoratorMixin, BuiltinLookup):
+class EndsWith(NetFieldDecoratorMixin, lookups.EndsWith):
     lookup_name = 'endswith'
 
 
-class IEndsWith(NetFieldDecoratorMixin, BuiltinLookup):
+class IEndsWith(NetFieldDecoratorMixin, lookups.IEndsWith):
     lookup_name = 'iendswith'
 
 
-class StartsWith(NetFieldDecoratorMixin, BuiltinLookup):
+class StartsWith(NetFieldDecoratorMixin, lookups.StartsWith):
     lookup_name = 'startswith'
 
 
-class IStartsWith(NetFieldDecoratorMixin, BuiltinLookup):
+class IStartsWith(NetFieldDecoratorMixin, lookups.IStartsWith):
     lookup_name = 'istartswith'
 
 
-class Regex(NetFieldDecoratorMixin, BuiltinLookup):
+class Regex(NetFieldDecoratorMixin, lookups.Regex):
     lookup_name = 'regex'
 
 
-class IRegex(NetFieldDecoratorMixin, BuiltinLookup):
+class IRegex(NetFieldDecoratorMixin, lookups.IRegex):
     lookup_name = 'iregex'
 
 

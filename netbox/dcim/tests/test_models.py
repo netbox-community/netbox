@@ -9,14 +9,29 @@ class RackTestCase(TestCase):
 
     def setUp(self):
 
-        self.site = Site.objects.create(
+        self.site1 = Site.objects.create(
             name='TestSite1',
-            slug='my-test-site'
+            slug='test-site-1'
+        )
+        self.site2 = Site.objects.create(
+            name='TestSite2',
+            slug='test-site-2'
+        )
+        self.group1 = RackGroup.objects.create(
+            name='TestGroup1',
+            slug='test-group-1',
+            site=self.site1
+        )
+        self.group2 = RackGroup.objects.create(
+            name='TestGroup2',
+            slug='test-group-2',
+            site=self.site2
         )
         self.rack = Rack.objects.create(
             name='TestRack1',
             facility_id='A101',
-            site=self.site,
+            site=self.site1,
+            group=self.group1,
             u_height=42
         )
         self.manufacturer = Manufacturer.objects.create(
@@ -57,13 +72,51 @@ class RackTestCase(TestCase):
 
         }
 
+    def test_rack_device_outside_height(self):
+
+        rack1 = Rack(
+            name='TestRack2',
+            facility_id='A102',
+            site=self.site1,
+            u_height=42
+        )
+        rack1.save()
+
+        device1 = Device(
+            name='TestSwitch1',
+            device_type=DeviceType.objects.get(manufacturer__slug='acme', slug='ff2048'),
+            device_role=DeviceRole.objects.get(slug='switch'),
+            site=self.site1,
+            rack=rack1,
+            position=43,
+            face=RACK_FACE_FRONT,
+        )
+        device1.save()
+
+        with self.assertRaises(ValidationError):
+            rack1.clean()
+
+    def test_rack_group_site(self):
+
+        rack_invalid_group = Rack(
+            name='TestRack2',
+            facility_id='A102',
+            site=self.site1,
+            u_height=42,
+            group=self.group2
+        )
+        rack_invalid_group.save()
+
+        with self.assertRaises(ValidationError):
+            rack_invalid_group.clean()
+
     def test_mount_single_device(self):
 
         device1 = Device(
             name='TestSwitch1',
             device_type=DeviceType.objects.get(manufacturer__slug='acme', slug='ff2048'),
             device_role=DeviceRole.objects.get(slug='switch'),
-            site=self.site,
+            site=self.site1,
             rack=self.rack,
             position=10,
             face=RACK_FACE_REAR,
@@ -92,7 +145,7 @@ class RackTestCase(TestCase):
             name='TestPDU',
             device_role=self.role.get('PDU'),
             device_type=self.device_type.get('cc5000'),
-            site=self.site,
+            site=self.site1,
             rack=self.rack,
             position=None,
             face=None,

@@ -54,15 +54,27 @@ $(document).ready(function() {
             $.each(json['get_lldp_neighbors'], function(iface, neighbors) {
                 var neighbor = neighbors[0];
                 var row = $('#' + iface.split(".")[0].replace(/(\/)/g, "\\$1"));
+
+                // Glean configured hostnames/interfaces from the DOM
                 var configured_device = row.children('td.configured_device').attr('data');
                 var configured_interface = row.children('td.configured_interface').attr('data');
+                if (configured_interface) {
+                    // Match long-form IOS names against short ones (e.g. Gi0/1 == GigabitEthernet0/1).
+                    configured_interface = configured_interface.replace(/^([A-Z][a-z])[^0-9]*([0-9\/]+)$/, "$1$2");
+                }
+
+                // Clean up hostnames/interfaces learned via LLDP
+                var lldp_device = neighbor['hostname'].split(".")[0];  // Strip off any trailing domain name
+                var lldp_interface = neighbor['port'].split(".")[0];   // Strip off any trailing subinterface ID
+
                 // Add LLDP neighbors to table
-                row.children('td.device').html(neighbor['hostname']);
-                row.children('td.interface').html(neighbor['port']);
+                row.children('td.device').html(lldp_device);
+                row.children('td.interface').html(lldp_interface);
+
                 // Apply colors to rows
-                if (!configured_device && neighbor['hostname']) {
+                if (!configured_device && lldp_device) {
                     row.addClass('info');
-                } else if (configured_device == neighbor['hostname'] && configured_interface == neighbor['port'].split(".")[0]) {
+                } else if (configured_device == lldp_device && configured_interface == lldp_interface) {
                     row.addClass('success');
                 } else {
                     row.addClass('danger');

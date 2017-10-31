@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
+from django.utils.safestring import mark_safe
+
 from utilities.tables import BaseTable, ToggleColumn
 from .models import Circuit, CircuitType, Provider
 
@@ -12,6 +14,21 @@ CIRCUITTYPE_ACTIONS = """
     <a href="{% url 'circuits:circuittype_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
+
+
+class CircuitTerminationColumn(tables.Column):
+
+    def render(self, value):
+        if value.interface:
+            return mark_safe('<a href="{}" title="{}">{}</a>'.format(
+                value.interface.device.get_absolute_url(),
+                value.site,
+                value.interface.device
+            ))
+        return mark_safe('<a href="{}">{}</a>'.format(
+            value.site.get_absolute_url(),
+            value.site
+        ))
 
 
 #
@@ -61,15 +78,9 @@ class CircuitTable(BaseTable):
     cid = tables.LinkColumn(verbose_name='ID')
     provider = tables.LinkColumn('circuits:provider', args=[Accessor('provider.slug')])
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
-    a_side = tables.LinkColumn(
-        'dcim:site', accessor=Accessor('termination_a.site'), orderable=False,
-        args=[Accessor('termination_a.site.slug')]
-    )
-    z_side = tables.LinkColumn(
-        'dcim:site', accessor=Accessor('termination_z.site'), orderable=False,
-        args=[Accessor('termination_z.site.slug')]
-    )
+    termination_a = CircuitTerminationColumn(orderable=False, verbose_name='A Side')
+    termination_z = CircuitTerminationColumn(orderable=False, verbose_name='Z Side')
 
     class Meta(BaseTable.Meta):
         model = Circuit
-        fields = ('pk', 'cid', 'type', 'provider', 'tenant', 'a_side', 'z_side', 'description')
+        fields = ('pk', 'cid', 'type', 'provider', 'tenant', 'termination_a', 'termination_z', 'description')

@@ -106,9 +106,14 @@ label {
 label.required {
     font-weight: bold;
 }
+input[name="pk"] {
+    margin-top: 0;
+}
 
 /* Tables */
-th.pk, td.pk {
+.table > tbody > tr > th.pk, .table > tbody > tr > td.pk {
+    padding-bottom: 6px;
+    padding-top: 10px;
     width: 30px;
 }
 tfoot td {
