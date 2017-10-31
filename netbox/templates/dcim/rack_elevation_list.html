@@ -14,7 +14,7 @@
                 {% for rack in page %}
                     <div style="display: inline-block; width: 266px">
                         <div class="rack_header">
-                            <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack|truncatechars:"25" }}</a></strong>
+                            <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name|truncatechars:"25" }}</a></strong>
                             <p><small class="text-muted">{{ rack.facility_id|truncatechars:"30" }}</small></p>
                         </div>
                         {% if face_id %}
@@ -24,7 +24,7 @@
                         {% endif %}
                         <div class="clearfix"></div>
                         <div class="rack_header">
-                            <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack|truncatechars:"25" }}</a></strong>
+                            <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name|truncatechars:"25" }}</a></strong>
                             <p><small class="text-muted">{{ rack.facility_id|truncatechars:"30" }}</small></p>
                         </div>
                     </div>
