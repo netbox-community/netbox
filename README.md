@@ -2,7 +2,7 @@
 
 NetBox is an IP address management (IPAM) and data center infrastructure management (DCIM) tool. Initially conceived by the network engineering team at [DigitalOcean](https://www.digitalocean.com/), NetBox was developed specifically to address the needs of network and infrastructure engineers.
 
-NetBox runs as a web application atop the [Django](https://www.djangoproject.com/) Python framework with a [PostgreSQL](http://www.postgresql.org/) database. For a complete list of requirements, see `requirements.txt`. The code is available [on GitHub](https://github.com/digitalocean/netbox).
+NetBox runs as a web application atop the [Django](https://www.djangoproject.com/) Python framework with a [PostgreSQL](http://www.postgresql.org/) database. For a complete updated list of requirements, see `requirements.txt`. The code is available [on GitHub](https://github.com/digitalocean/netbox).
 
 The complete documentation for NetBox can be found at [Read the Docs](http://netbox.readthedocs.io/en/stable/).
 
@@ -27,7 +27,8 @@ NetBox is built against both Python 2.7 and 3.5.  Python 3.5 is recommended.
 
 # Installation
 
-Please see [the documentation](http://netbox.readthedocs.io/en/stable/) for instructions on installing NetBox. To upgrade NetBox, please download the [latest release](https://github.com/digitalocean/netbox/releases) and run `upgrade.sh`.
+Please see [the documentation](http://netbox.readthedocs.io/en/stable/) for instructions on installing NetBox. 
+To upgrade NetBox, please download the [latest release](https://github.com/digitalocean/netbox/releases) and run `upgrade.sh`.
 
 ## Alternative Installations
 
