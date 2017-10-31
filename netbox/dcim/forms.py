@@ -410,7 +410,7 @@ class RackReservationFilterForm(BootstrapMixin, forms.Form):
         null_option=(0, 'None')
     )
     tenant = FilterChoiceField(
-        queryset=Tenant.objects.annotate(filter_count=Count('racks__reservations')),
+        queryset=Tenant.objects.annotate(filter_count=Count('rackreservations')),
         to_field_name='slug',
         null_option=(0, 'None')
     )
