@@ -26,6 +26,7 @@ class RegionFilter(django_filters.FilterSet):
         label='Parent region (ID)',
     )
     parent = django_filters.ModelMultipleChoiceFilter(
+        name='parent__slug',
         queryset=Region.objects.all(),
         to_field_name='slug',
         label='Parent region (slug)',
@@ -47,6 +48,7 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Region (ID)',
     )
     region = django_filters.ModelMultipleChoiceFilter(
+        name='region__slug',
         queryset=Region.objects.all(),
         to_field_name='slug',
         label='Region (slug)',
@@ -56,6 +58,7 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Tenant (ID)',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
+        name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
@@ -131,7 +134,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Group (ID)',
     )
     group = django_filters.ModelMultipleChoiceFilter(
-        name='group',
+        name='group__slug',
         queryset=RackGroup.objects.all(),
         to_field_name='slug',
         label='Group',
@@ -141,7 +144,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Tenant (ID)',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
-        name='tenant',
+        name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
@@ -151,7 +154,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Role (ID)',
     )
     role = django_filters.ModelMultipleChoiceFilter(
-        name='role',
+        name='role__slug',
         queryset=RackRole.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
@@ -199,7 +202,7 @@ class RackReservationFilter(django_filters.FilterSet):
         label='Group (ID)',
     )
     group = django_filters.ModelMultipleChoiceFilter(
-        name='rack__group',
+        name='rack__group__slug',
         queryset=RackGroup.objects.all(),
         to_field_name='slug',
         label='Group',
@@ -373,7 +376,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Tenant (ID)',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
-        name='tenant',
+        name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
@@ -383,7 +386,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Platform (ID)',
     )
     platform = django_filters.ModelMultipleChoiceFilter(
-        name='platform',
+        name='platform__slug',
         queryset=Platform.objects.all(),
         to_field_name='slug',
         label='Platform (slug)',

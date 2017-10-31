@@ -28,7 +28,7 @@ class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Tenant (ID)',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
-        name='tenant',
+        name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
@@ -115,7 +115,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='VRF',
     )
     vrf = django_filters.ModelMultipleChoiceFilter(
-        name='vrf',
+        name='vrf__rd',
         queryset=VRF.objects.all(),
         to_field_name='rd',
         label='VRF (RD)',
@@ -125,7 +125,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Tenant (ID)',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
-        name='tenant',
+        name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
@@ -135,7 +135,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='site',
+        name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
@@ -153,7 +153,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Role (ID)',
     )
     role = django_filters.ModelMultipleChoiceFilter(
-        name='role',
+        name='role__slug',
         queryset=Role.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
@@ -212,7 +212,7 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='VRF',
     )
     vrf = django_filters.ModelMultipleChoiceFilter(
-        name='vrf',
+        name='vrf__rd',
         queryset=VRF.objects.all(),
         to_field_name='rd',
         label='VRF (RD)',
@@ -222,7 +222,7 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Tenant (ID)',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
-        name='tenant',
+        name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
@@ -295,7 +295,7 @@ class VLANGroupFilter(django_filters.FilterSet):
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='site',
+        name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
@@ -317,7 +317,7 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='site',
+        name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
@@ -327,7 +327,7 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Group (ID)',
     )
     group = django_filters.ModelMultipleChoiceFilter(
-        name='group',
+        name='group__slug',
         queryset=VLANGroup.objects.all(),
         to_field_name='slug',
         label='Group',
@@ -337,7 +337,7 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Tenant (ID)',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
-        name='tenant',
+        name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
@@ -347,7 +347,7 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Role (ID)',
     )
     role = django_filters.ModelMultipleChoiceFilter(
-        name='role',
+        name='role__slug',
         queryset=Role.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
