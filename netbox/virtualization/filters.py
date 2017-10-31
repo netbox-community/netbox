@@ -25,6 +25,7 @@ class ClusterFilter(CustomFieldFilterSet):
         label='Parent group (ID)',
     )
     group = django_filters.ModelMultipleChoiceFilter(
+        name='group__slug',
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
         label='Parent group (slug)',
@@ -78,7 +79,7 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         label='Cluster group (ID)',
     )
     cluster_group = django_filters.ModelMultipleChoiceFilter(
-        name='cluster__group',
+        name='cluster__group__slug',
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
         label='Cluster group (slug)',
@@ -92,6 +93,7 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         label='Role (ID)',
     )
     role = django_filters.ModelMultipleChoiceFilter(
+        name='role__slug',
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
@@ -101,6 +103,7 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         label='Tenant (ID)',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
+        name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
@@ -110,6 +113,7 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         label='Platform (ID)',
     )
     platform = django_filters.ModelMultipleChoiceFilter(
+        name='platform__slug',
         queryset=Platform.objects.all(),
         to_field_name='slug',
         label='Platform (slug)',

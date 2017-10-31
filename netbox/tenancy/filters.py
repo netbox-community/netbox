@@ -27,7 +27,7 @@ class TenantFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Group (ID)',
     )
     group = django_filters.ModelMultipleChoiceFilter(
-        name='group',
+        name='group__slug',
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
         label='Group (slug)',
