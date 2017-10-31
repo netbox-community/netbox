@@ -381,7 +381,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
 
     class Meta:
         model = RackReservation
-        fields = ['units', 'tenant_group', 'tenant', 'description']
+        fields = ['units', 'user', 'tenant_group', 'tenant', 'description']
 
     def __init__(self, *args, **kwargs):
 
