@@ -28,10 +28,10 @@
                     <td>
                         {% if device.rack %}
                             {% if device.rack.group %}
-                                <a href="{{ device.rack.group.get_absolute_url }}">{{ device.rack.group.name }}</a>
+                                <a href="{{ device.rack.group.get_absolute_url }}">{{ device.rack.group }}</a>
                                 <i class="fa fa-angle-right"></i>
                             {% endif %}
-                            <a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack.name }}</a>{% if device.rack.facility_id %} ({{ device.rack.facility_id }}){% endif %}
+                            <a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -42,7 +42,7 @@
                     <td>
                         {% if device.parent_bay %}
                             {% with device.parent_bay.device as parent %}
-                                <a href="{{ parent.get_absolute_url }}">{{ parent }}</a> <i class="fa fa-angle-right"></i> {{ device.parent_bay.name }}
+                                <a href="{{ parent.get_absolute_url }}">{{ parent }}</a> <i class="fa fa-angle-right"></i> {{ device.parent_bay }}
                                 {% if parent.position %}
                                     (U{{ parent.position }} / {{ parent.get_face_display }})
                                 {% endif %}
@@ -61,7 +61,7 @@
                     <td>
                         {% if device.tenant %}
                             {% if device.tenant.group %}
-                                <a href="{{ device.tenant.group.get_absolute_url }}">{{ device.tenant.group.name }}</a>
+                                <a href="{{ device.tenant.group.get_absolute_url }}">{{ device.tenant.group }}</a>
                                 <i class="fa fa-angle-right"></i>
                             {% endif %}
                             <a href="{{ device.tenant.get_absolute_url }}">{{ device.tenant }}</a>

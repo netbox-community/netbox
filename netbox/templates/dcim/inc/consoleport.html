@@ -1,13 +1,13 @@
 <tr class="consoleport{% if cp.cs_port and not cp.connection_status %} info{% endif %}">
     <td>
-        <i class="fa fa-fw fa-keyboard-o"></i> {{ cp.name }}
+        <i class="fa fa-fw fa-keyboard-o"></i> {{ cp }}
     </td>
     {% if cp.cs_port %}
         <td>
             <a href="{% url 'dcim:device' pk=cp.cs_port.device.pk %}">{{ cp.cs_port.device }}</a>
         </td>
         <td>
-            {{ cp.cs_port.name }}
+            {{ cp.cs_port }}
         </td>
     {% else %}
         <td colspan="2">

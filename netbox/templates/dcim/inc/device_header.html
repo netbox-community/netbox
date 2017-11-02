@@ -8,7 +8,7 @@
         {% endif %}
         {% if device.parent_bay %}
             <li><a href="{% url 'dcim:device' pk=device.parent_bay.device.pk %}">{{ device.parent_bay.device }}</a></li>
-            <li>{{ device.parent_bay.name }}</li>
+            <li>{{ device.parent_bay }}</li>
         {% endif %}
         <li>{{ device }}</li>
     </ol>

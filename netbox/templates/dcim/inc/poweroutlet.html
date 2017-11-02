@@ -5,7 +5,7 @@
         </td>
     {% endif %}
     <td>
-        <i class="fa fa-fw fa-bolt"></i> {{ po.name }}
+        <i class="fa fa-fw fa-bolt"></i> {{ po }}
     </td>
     <td></td>
     {% if po.connected_port %}
@@ -13,7 +13,7 @@
             <a href="{% url 'dcim:device' pk=po.connected_port.device.pk %}">{{ po.connected_port.device }}</a>
         </td>
         <td>
-            {{ po.connected_port.name }}
+            {{ po.connected_port }}
         </td>
     {% else %}
         <td colspan="2">

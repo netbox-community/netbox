@@ -49,7 +49,7 @@
 		</a>
     {% endif %}
 </div>
-<h1>{% block title %}Rack {{ rack.name }}{% endblock %}</h1>
+<h1>{% block title %}Rack {{ rack }}{% endblock %}</h1>
 {% include 'inc/created_updated.html' with obj=rack %}
 <div class="row">
 	<div class="col-md-6">
@@ -72,7 +72,7 @@
                     <td>Group</td>
                     <td>
                         {% if rack.group %}
-                            <a href="{% url 'dcim:rack_list' %}?site={{ rack.site.slug }}&group={{ rack.group.slug }}">{{ rack.group.name }}</a>
+                            <a href="{% url 'dcim:rack_list' %}?site={{ rack.site.slug }}&group={{ rack.group.slug }}">{{ rack.group }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -93,7 +93,7 @@
                     <td>
                         {% if rack.tenant %}
                             {% if rack.tenant.group %}
-                                <a href="{{ rack.tenant.group.get_absolute_url }}">{{ rack.tenant.group.name }}</a>
+                                <a href="{{ rack.tenant.group.get_absolute_url }}">{{ rack.tenant.group }}</a>
                                 <i class="fa fa-angle-right"></i>
                             {% endif %}
                             <a href="{{ rack.tenant.get_absolute_url }}">{{ rack.tenant }}</a>
@@ -173,7 +173,7 @@
                     {% for device in nonracked_devices %}
                         <tr{% if device.device_type.u_height %} class="warning"{% endif %}>
                             <td>
-                                <a href="{% url 'dcim:device' pk=device.pk %}">{{ device.name }}</a>
+                                <a href="{% url 'dcim:device' pk=device.pk %}">{{ device }}</a>
                             </td>
                             <td>{{ device.device_role }}</td>
                             <td>{{ device.device_type.full_name }}</td>
