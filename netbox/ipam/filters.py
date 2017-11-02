@@ -102,9 +102,18 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         method='search',
         label='Search',
     )
+    # TODO: Deprecate in v2.3.0
     parent = django_filters.CharFilter(
-        method='search_by_parent',
-        label='Parent prefix',
+        method='search_within_include',
+        label='Parent prefix (deprecated)',
+    )
+    within = django_filters.CharFilter(
+        method='search_within',
+        label='Within prefix',
+    )
+    within_include = django_filters.CharFilter(
+        method='search_within_include',
+        label='Within and including prefix',
     )
     mask_length = django_filters.NumberFilter(
         method='filter_mask_length',
@@ -177,7 +186,17 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
             pass
         return queryset.filter(qs_filter)
 
-    def search_by_parent(self, queryset, name, value):
+    def search_within(self, queryset, name, value):
+        value = value.strip()
+        if not value:
+            return queryset
+        try:
+            query = str(IPNetwork(value).cidr)
+            return queryset.filter(prefix__net_contained=query)
+        except (AddrFormatError, ValueError):
+            return queryset.none()
+
+    def search_within_include(self, queryset, name, value):
         value = value.strip()
         if not value:
             return queryset

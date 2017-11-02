@@ -362,7 +362,7 @@ def prefix_status_choices():
 class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Prefix
     q = forms.CharField(required=False, label='Search')
-    parent = forms.CharField(required=False, label='Parent prefix', widget=forms.TextInput(attrs={
+    within_include = forms.CharField(required=False, label='Search within', widget=forms.TextInput(attrs={
         'placeholder': 'Prefix',
     }))
     family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address family')
