@@ -9,7 +9,7 @@
                     <div class="checkbox-inline">
                         <label for="select_all">
                             <input type="checkbox" id="select_all" name="_all" />
-                            Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> matching query
+                            Select <strong>all {% if obj_num %}{{ obj_num }}{% else %}{{ table.rows|length }}{% endif %} {{ table.data.verbose_name_plural }}</strong> matching query
                         </label>
                     </div>
                     <div class="pull-right">
