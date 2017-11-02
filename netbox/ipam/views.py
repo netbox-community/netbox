@@ -492,6 +492,7 @@ class PrefixView(View):
             'site', 'vlan', 'role',
         ).annotate_depth(limit=0)
         if child_prefixes:
+            child_prefix_count = len(child_prefixes)
             child_prefixes = add_available_prefixes(prefix.prefix, child_prefixes)
         child_prefix_table = tables.PrefixDetailTable(child_prefixes)
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
@@ -519,6 +520,8 @@ class PrefixView(View):
             'duplicate_prefix_table': duplicate_prefix_table,
             'permissions': permissions,
             'return_url': prefix.get_absolute_url(),
+            'bulk_querystring': 'parent={}'.format(prefix.prefix),
+            'obj_num': child_prefix_count,
         })
 
 

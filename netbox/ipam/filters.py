@@ -183,7 +183,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
             return queryset
         try:
             query = str(IPNetwork(value).cidr)
-            return queryset.filter(prefix__net_contained_or_equal=query)
+            return queryset.filter(prefix__net_contained=query)
         except (AddrFormatError, ValueError):
             return queryset.none()
 
