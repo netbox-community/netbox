@@ -517,6 +517,7 @@ class PrefixView(View):
             'parent_prefix_table': parent_prefix_table,
             'child_prefix_table': child_prefix_table,
             'duplicate_prefix_table': duplicate_prefix_table,
+            'bulk_querystring': 'vrf_id={}&within={}'.format(prefix.vrf or '0', prefix.prefix),
             'permissions': permissions,
             'return_url': prefix.get_absolute_url(),
         })
