@@ -395,6 +395,9 @@ table.reports td.stats label {
 }
 
 /* Misc */
+.text-nowrap {
+    white-space: nowrap;
+}
 .banner-bottom {
     margin-bottom: 50px;
 }

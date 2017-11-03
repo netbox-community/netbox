@@ -61,7 +61,7 @@ VLAN_STATUS_CHOICES = (
     (VLAN_STATUS_DEPRECATED, 'Deprecated')
 )
 
-# Bootstrap CSS classes for various statuses
+# Bootstrap CSS classes
 STATUS_CHOICE_CLASSES = {
     0: 'default',
     1: 'primary',
@@ -69,6 +69,16 @@ STATUS_CHOICE_CLASSES = {
     3: 'danger',
     4: 'warning',
     5: 'success',
+}
+ROLE_CHOICE_CLASSES = {
+    10: 'default',
+    20: 'primary',
+    30: 'warning',
+    40: 'success',
+    41: 'success',
+    42: 'success',
+    43: 'success',
+    44: 'success',
 }
 
 # IP protocols (for services)

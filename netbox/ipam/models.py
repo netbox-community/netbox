@@ -460,6 +460,9 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]
 
+    def get_role_class(self):
+        return ROLE_CHOICE_CLASSES[self.role]
+
 
 @python_2_unicode_compatible
 class VLANGroup(models.Model):

@@ -1,5 +1,4 @@
 from __future__ import unicode_literals
-import re
 from natsort import natsorted
 from operator import attrgetter
 
