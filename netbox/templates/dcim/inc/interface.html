@@ -150,6 +150,9 @@
                 <span class="label label-success">Primary</span>
             {% endif %}
             <span class="label label-{{ ip.get_status_class }}">{{ ip.get_status_display }}</span>
+            {% if ip.role %}
+                <span class="label label-{{ ip.get_role_class }}">{{ ip.get_role_display }}</span>
+            {% endif %}
         </td>
 
         {# VRF #}
