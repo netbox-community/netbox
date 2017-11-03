@@ -6,7 +6,6 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
@@ -17,7 +16,7 @@ from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 
 from circuits.models import Circuit
-from extras.models import CustomFieldModel, CustomField, CustomFieldValue, ImageAttachment
+from extras.models import CustomFieldModel, CustomFieldValue, ImageAttachment
 from extras.rpc import RPC_CLIENTS
 from tenancy.models import Tenant
 from utilities.fields import ColorField, NullableCharField
