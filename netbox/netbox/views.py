@@ -247,23 +247,3 @@ class APIRootView(APIView):
             ('tenancy', reverse('tenancy-api:api-root', request=request, format=format)),
             ('virtualization', reverse('virtualization-api:api-root', request=request, format=format)),
         )))
-
-
-def handle_500(request):
-    """
-    Custom server error handler
-    """
-    type_, error, traceback = sys.exc_info()
-    return render(request, '500.html', {
-        'exception': str(type_),
-        'error': error,
-    }, status=500)
-
-
-def trigger_500(request):
-    """
-    Hot-wired method of triggering a server error to test reporting
-    """
-    raise Exception(
-        "Congratulations, you've triggered an exception! Go tell all your friends what an exceptional person you are."
-    )

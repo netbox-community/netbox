@@ -1,7 +1,10 @@
 from __future__ import unicode_literals
+import sys
 
-from django.http import HttpResponseRedirect
 from django.conf import settings
+from django.db import ProgrammingError
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
 from django.urls import reverse
 
 
@@ -39,3 +42,38 @@ class APIVersionMiddleware(object):
         if request.path_info.startswith(api_path):
             response['API-Version'] = settings.REST_FRAMEWORK_VERSION
         return response
+
+
+class ExceptionHandlingMiddleware(object):
+    """
+    Intercept certain exceptions which are likely indicative of installation issues and provide helpful instructions
+    to the user.
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        return self.get_response(request)
+
+    def process_exception(self, request, exception):
+
+        # Raise exceptions if in debug mode
+        if settings.DEBUG:
+            raise exception
+
+        # Determine the type of exception
+        if isinstance(exception, ProgrammingError):
+            template_name = 'exceptions/programming_error.html'
+        elif isinstance(exception, ImportError):
+            template_name = 'exceptions/import_error.html'
+        elif isinstance(exception, PermissionError):
+            template_name = 'exceptions/permission_error.html'
+        else:
+            template_name = '500.html'
+
+        # Return an error message
+        type_, error, traceback = sys.exc_info()
+        return render(request, template_name, {
+            'exception': str(type_),
+            'error': error,
+        }, status=500)
