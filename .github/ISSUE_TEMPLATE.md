@@ -11,12 +11,16 @@
         https://groups.google.com/forum/#!forum/netbox-discuss
 
     Please note that issues which do not fall under any of the below categories
-    will be closed.
+    will be closed. Due to an excessive backlog of feature requests, we are
+    not currently accepting any proposals which extend NetBox's feature scope.
+
+    Do not prepend any sort of tag to your issue's title. An administrator will
+    review your issue and assign labels as appropriate.
 --->
 ### Issue type
-[ ] Feature request <!-- Requesting the implementation of a new feature -->
-[ ] Bug report      <!-- Reporting unexpected or erroneous behavior -->
-[ ] Documentation   <!-- Proposing a modification to the documentation -->
+[ ] Feature request <!-- An enhancement of existing functionality -->
+[ ] Bug report      <!-- Unexpected or erroneous behavior -->
+[ ] Documentation   <!-- A modification to the documentation -->
 
 <!--
     Please describe the environment in which you are running NetBox. (Be sure
@@ -40,11 +44,5 @@
         * A use case for the new feature
         * A rough description of any necessary changes to the database schema
         * Any relevant third-party libraries which would be needed
-
-    Do not prepend any sort of tag to your issue's title. An administator will
-    review your issue and assign labels as appropriate.
-
-    Please note that, due to an excessive backlog of feature requests, we are
-    not currently accepting any proposals which extend NetBox's feature scope.
 -->
 ### Description
