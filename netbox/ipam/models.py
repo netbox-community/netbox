@@ -285,7 +285,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
         """
         Return all IPAddresses within this Prefix.
         """
-        return IPAddress.objects.filter(address__net_host_contained=self.prefix, vrf=self.vrf)
+        return IPAddress.objects.filter(address__net_host_contained=str(self.prefix), vrf=self.vrf)
 
     def get_available_ips(self):
         """
