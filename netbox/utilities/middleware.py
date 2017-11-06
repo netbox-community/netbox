@@ -66,7 +66,11 @@ class ExceptionHandlingMiddleware(object):
             template_name = 'exceptions/programming_error.html'
         elif isinstance(exception, ImportError):
             template_name = 'exceptions/import_error.html'
-        elif isinstance(exception, PermissionError):
+        elif (
+            sys.version_info[0] >= 3 and isinstance(exception, PermissionError)
+        ) or (
+            isinstance(exception, OSError) and exception.errno == 13
+        ):
             template_name = 'exceptions/permission_error.html'
         else:
             template_name = '500.html'
