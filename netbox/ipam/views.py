@@ -459,9 +459,7 @@ class PrefixView(View):
             aggregate = None
 
         # Count child IP addresses
-        ipaddress_count = IPAddress.objects.filter(
-            vrf=prefix.vrf, address__net_host_contained=str(prefix.prefix)
-        ).count()
+        ipaddress_count = prefix.get_child_ips().count()
 
         # Parent prefixes table
         parent_prefixes = Prefix.objects.filter(
@@ -530,9 +528,7 @@ class PrefixIPAddressesView(View):
         prefix = get_object_or_404(Prefix.objects.all(), pk=pk)
 
         # Find all IPAddresses belonging to this Prefix
-        ipaddresses = IPAddress.objects.filter(
-            vrf=prefix.vrf, address__net_host_contained=str(prefix.prefix)
-        ).select_related(
+        ipaddresses = prefix.get_child_ips().select_related(
             'vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for'
         )
         ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses, prefix.is_pool)

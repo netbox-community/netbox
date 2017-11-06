@@ -285,7 +285,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
         """
         Return all IPAddresses within this Prefix.
         """
-        return IPAddress.objects.filter(address__net_contained_or_equal=str(self.prefix), vrf=self.vrf)
+        return IPAddress.objects.filter(address__net_host_contained=self.prefix, vrf=self.vrf)
 
     def get_available_ips(self):
         """
@@ -314,9 +314,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
             child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
             return int(float(child_prefixes.size) / self.prefix.size * 100)
         else:
-            child_count = IPAddress.objects.filter(
-                address__net_contained_or_equal=str(self.prefix), vrf=self.vrf
-            ).count()
+            child_count = self.get_child_ips().count()
             prefix_size = self.prefix.size
             if self.family == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
                 prefix_size -= 2
