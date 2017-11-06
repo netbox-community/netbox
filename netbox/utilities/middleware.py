@@ -57,9 +57,9 @@ class ExceptionHandlingMiddleware(object):
 
     def process_exception(self, request, exception):
 
-        # Raise exceptions if in debug mode
+        # Don't catch exceptions when in debug mode
         if settings.DEBUG:
-            raise exception
+            return
 
         # Determine the type of exception
         if isinstance(exception, ProgrammingError):
