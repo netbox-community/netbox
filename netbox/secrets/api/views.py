@@ -7,12 +7,12 @@ from django.http import HttpResponseBadRequest
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet, ViewSet
+from rest_framework.viewsets import ViewSet
 
 from secrets import filters
 from secrets.exceptions import InvalidKey
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
-from utilities.api import FieldChoicesViewSet, WritableSerializerMixin
+from utilities.api import FieldChoicesViewSet, ModelViewSet
 from . import serializers
 
 ERR_USERKEY_MISSING = "No UserKey found for the current user."
@@ -44,7 +44,7 @@ class SecretRoleViewSet(ModelViewSet):
 # Secrets
 #
 
-class SecretViewSet(WritableSerializerMixin, ModelViewSet):
+class SecretViewSet(ModelViewSet):
     queryset = Secret.objects.select_related(
         'device__primary_ip4', 'device__primary_ip6', 'role',
     ).prefetch_related(
