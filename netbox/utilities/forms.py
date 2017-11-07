@@ -1,16 +1,15 @@
 from __future__ import unicode_literals
+
 import csv
 import itertools
 import re
 
-from mptt.forms import TreeNodeMultipleChoiceField
-
 from django import forms
 from django.conf import settings
 from django.urls import reverse_lazy
+from mptt.forms import TreeNodeMultipleChoiceField
 
 from .validators import EnhancedURLValidator
-
 
 COLOR_CHOICES = (
     ('aa1409', 'Dark red'),

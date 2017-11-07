@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 import netaddr
-
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 

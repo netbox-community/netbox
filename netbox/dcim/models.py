@@ -1,8 +1,7 @@
 from __future__ import unicode_literals
+
 from collections import OrderedDict
 from itertools import count, groupby
-
-from mptt.models import MPTTModel, TreeForeignKey
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -14,6 +13,7 @@ from django.db import models
 from django.db.models import Count, Q, ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
+from mptt.models import MPTTModel, TreeForeignKey
 
 from circuits.models import Circuit
 from extras.models import CustomFieldModel, CustomFieldValue, ImageAttachment

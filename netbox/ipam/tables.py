@@ -6,7 +6,6 @@ from django_tables2.utils import Accessor
 from utilities.tables import BaseTable, ToggleColumn
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, VLAN, VLANGroup, VRF
 
-
 RIR_UTILIZATION = """
 <div class="progress">
     {% if record.stats.total %}

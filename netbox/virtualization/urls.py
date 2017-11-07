@@ -5,7 +5,6 @@ from django.conf.urls import url
 from ipam.views import ServiceCreateView
 from . import views
 
-
 app_name = 'virtualization'
 urlpatterns = [
 

@@ -1,15 +1,14 @@
 from __future__ import unicode_literals
-from datetime import datetime
 
-from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+from datetime import datetime
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
+from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
-from extras.models import (
-    CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_SELECT, CustomField, CustomFieldChoice, CustomFieldValue,
-)
+from extras.constants import CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_SELECT
+from extras.models import CustomField, CustomFieldChoice, CustomFieldValue
 from utilities.api import ValidatedModelSerializer
 
 

@@ -1,15 +1,13 @@
 from __future__ import unicode_literals
 
-from rest_framework_swagger.views import get_swagger_view
-
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.static import serve
+from rest_framework_swagger.views import get_swagger_view
 
 from netbox.views import APIRootView, HomeView, SearchView
 from users.views import LoginView, LogoutView
-
 
 swagger_view = get_swagger_view(title='NetBox API')
 

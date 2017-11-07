@@ -1,17 +1,16 @@
 from __future__ import unicode_literals
-import base64
 
-from rest_framework import status
-from rest_framework.test import APITestCase
+import base64
 
 from django.contrib.auth.models import User
 from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
 from users.models import Token
 from utilities.tests import HttpStatusMixin
-
 
 # Dummy RSA key pair for testing use only
 PRIVATE_KEY = """-----BEGIN RSA PRIVATE KEY-----

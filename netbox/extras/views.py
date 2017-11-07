@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib import messages
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe

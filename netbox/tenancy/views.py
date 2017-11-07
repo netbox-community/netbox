@@ -13,8 +13,8 @@ from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from virtualization.models import VirtualMachine
-from .models import Tenant, TenantGroup
 from . import filters, forms, tables
+from .models import Tenant, TenantGroup
 
 
 #

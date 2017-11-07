@@ -14,10 +14,8 @@ from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView,
     ComponentEditView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
+from . import filters, forms, tables
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
-from . import filters
-from . import forms
-from . import tables
 
 
 #

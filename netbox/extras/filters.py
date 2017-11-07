@@ -1,12 +1,12 @@
 from __future__ import unicode_literals
 
 import django_filters
-
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from dcim.models import Site
-from .models import CF_TYPE_SELECT, CustomField, Graph, ExportTemplate, TopologyMap, UserAction
+from .constants import CF_TYPE_SELECT
+from .models import CustomField, Graph, ExportTemplate, TopologyMap, UserAction
 
 
 class CustomFieldFilter(django_filters.Filter):

@@ -1,17 +1,16 @@
 from __future__ import unicode_literals
 
+from django.conf import settings
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import detail_route
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from django.conf import settings
-from django.shortcuts import get_object_or_404
-
-from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
-from ipam import filters
 from extras.api.views import CustomFieldModelViewSet
+from ipam import filters
+from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from utilities.api import FieldChoicesViewSet, WritableSerializerMixin
 from . import serializers
 

@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+
 from collections import OrderedDict
 
 from rest_framework import serializers
@@ -6,10 +7,10 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from dcim.api.serializers import NestedDeviceSerializer, InterfaceSerializer, NestedSiteSerializer
 from extras.api.customfields import CustomFieldModelSerializer
-from ipam.models import (
-    Aggregate, IPAddress, IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, IP_PROTOCOL_CHOICES, Prefix,
-    PREFIX_STATUS_CHOICES, RIR, Role, Service, VLAN, VLAN_STATUS_CHOICES, VLANGroup, VRF,
+from ipam.constants import (
+    IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, IP_PROTOCOL_CHOICES, PREFIX_STATUS_CHOICES, VLAN_STATUS_CHOICES,
 )
+from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from tenancy.api.serializers import NestedTenantSerializer
 from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer
 from virtualization.api.serializers import NestedVirtualMachineSerializer

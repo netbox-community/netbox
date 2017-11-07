@@ -1,14 +1,13 @@
 from __future__ import unicode_literals
 
 from Crypto.PublicKey import RSA
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from secrets.models import UserKey, Secret, encrypt_master_key, decrypt_master_key, generate_random_key
 from secrets.hashers import SecretValidationHasher
+from secrets.models import UserKey, Secret, encrypt_master_key, decrypt_master_key, generate_random_key
 
 
 class UserKeyTestCase(TestCase):

@@ -14,11 +14,8 @@ from utilities.forms import (
     add_blank_choice,
 )
 from virtualization.models import VirtualMachine
-from .models import (
-    Aggregate, IPAddress, IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role,
-    Service, VLAN, VLANGroup, VLAN_STATUS_CHOICES, VRF,
-)
-
+from .constants import IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, PREFIX_STATUS_CHOICES, VLAN_STATUS_CHOICES
+from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 IP_FAMILY_CHOICES = [
     ('', 'All'),

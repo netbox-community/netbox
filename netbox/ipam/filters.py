@@ -1,20 +1,17 @@
 from __future__ import unicode_literals
 
 import django_filters
+from django.db.models import Q
 from netaddr import IPNetwork
 from netaddr.core import AddrFormatError
-
-from django.db.models import Q
 
 from dcim.models import Site, Device, Interface
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NumericInFilter
 from virtualization.models import VirtualMachine
-from .models import (
-    Aggregate, IPAddress, IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role,
-    Service, VLAN, VLAN_STATUS_CHOICES, VLANGroup, VRF,
-)
+from .constants import IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, PREFIX_STATUS_CHOICES, VLAN_STATUS_CHOICES
+from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 
 class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):

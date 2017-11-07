@@ -1,8 +1,7 @@
 from __future__ import unicode_literals
+
 from collections import OrderedDict
 from copy import deepcopy
-
-from django_tables2 import RequestConfig
 
 from django.conf import settings
 from django.contrib import messages
@@ -19,6 +18,7 @@ from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.views.generic import View
+from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
 from utilities.forms import BootstrapMixin, CSVDataField

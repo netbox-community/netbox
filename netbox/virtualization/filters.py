@@ -1,10 +1,9 @@
 from __future__ import unicode_literals
 
 import django_filters
+from django.db.models import Q
 from netaddr import EUI
 from netaddr.core import AddrFormatError
-
-from django.db.models import Q
 
 from dcim.models import DeviceRole, Interface, Platform, Site
 from extras.filters import CustomFieldFilterSet

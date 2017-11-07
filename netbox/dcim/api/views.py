@@ -1,28 +1,30 @@
 from __future__ import unicode_literals
+
 from collections import OrderedDict
 
+from django.conf import settings
+from django.http import HttpResponseBadRequest, HttpResponseForbidden
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import detail_route
 from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ViewSet
 
-from django.conf import settings
-from django.http import HttpResponseBadRequest, HttpResponseForbidden
-from django.shortcuts import get_object_or_404
-
+from dcim import filters
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
     RackReservation, RackRole, Region, Site,
 )
-from dcim import filters
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
 from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
-from utilities.api import IsAuthenticatedOrLoginNotRequired, FieldChoicesViewSet, ServiceUnavailable, WritableSerializerMixin
-from .exceptions import MissingFilterException
+from utilities.api import (
+    IsAuthenticatedOrLoginNotRequired, FieldChoicesViewSet, ServiceUnavailable, WritableSerializerMixin,
+)
 from . import serializers
+from .exceptions import MissingFilterException
 
 
 #

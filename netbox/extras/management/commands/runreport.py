@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from extras.models import ReportResult
 from extras.reports import get_reports
 
 

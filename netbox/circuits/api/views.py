@@ -1,16 +1,15 @@
 from __future__ import unicode_literals
 
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from django.shortcuts import get_object_or_404
-
 from circuits import filters
 from circuits.models import Provider, CircuitTermination, CircuitType, Circuit
-from extras.models import Graph, GRAPH_TYPE_PROVIDER
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
+from extras.models import Graph, GRAPH_TYPE_PROVIDER
 from utilities.api import FieldChoicesViewSet, WritableSerializerMixin
 from . import serializers
 

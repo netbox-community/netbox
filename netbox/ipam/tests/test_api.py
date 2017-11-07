@@ -1,16 +1,14 @@
 from __future__ import unicode_literals
 
+from django.contrib.auth.models import User
+from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from django.contrib.auth.models import User
-from django.urls import reverse
-
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
-from ipam.models import (
-    Aggregate, IPAddress, IP_PROTOCOL_TCP, IP_PROTOCOL_UDP, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF,
-)
+from ipam.constants import IP_PROTOCOL_TCP, IP_PROTOCOL_UDP
+from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from users.models import Token
 from utilities.tests import HttpStatusMixin
 

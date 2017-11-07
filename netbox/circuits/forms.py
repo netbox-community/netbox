@@ -11,7 +11,6 @@ from utilities.forms import (
     APISelect, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, FilterChoiceField,
     SmallTextarea, SlugField,
 )
-
 from .models import Circuit, CircuitTermination, CircuitType, Provider
 
 

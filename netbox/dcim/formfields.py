@@ -1,9 +1,8 @@
 from __future__ import unicode_literals
 
-from netaddr import EUI, AddrFormatError
-
 from django import forms
 from django.core.exceptions import ValidationError
+from netaddr import EUI, AddrFormatError
 
 
 #

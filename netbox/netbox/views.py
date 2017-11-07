@@ -1,13 +1,12 @@
 from __future__ import unicode_literals
-from collections import OrderedDict
-import sys
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.reverse import reverse
+from collections import OrderedDict
 
 from django.shortcuts import render
 from django.views.generic import View
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+from rest_framework.views import APIView
 
 from circuits.filters import CircuitFilter, ProviderFilter
 from circuits.models import Circuit, Provider
@@ -29,7 +28,6 @@ from virtualization.filters import ClusterFilter, VirtualMachineFilter
 from virtualization.models import Cluster, VirtualMachine
 from virtualization.tables import ClusterTable, VirtualMachineDetailTable
 from .forms import SearchForm
-
 
 SEARCH_MAX_RESULTS = 15
 SEARCH_TYPES = OrderedDict((

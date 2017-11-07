@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
-import netaddr
 
+import netaddr
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError

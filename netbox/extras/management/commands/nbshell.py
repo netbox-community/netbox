@@ -10,7 +10,6 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db.models import Model
 
-
 APPS = ['circuits', 'dcim', 'extras', 'ipam', 'secrets', 'tenancy', 'users', 'virtualization']
 
 BANNER_TEXT = """### NetBox interactive shell ({node})

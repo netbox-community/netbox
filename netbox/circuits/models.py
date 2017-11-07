@@ -8,8 +8,8 @@ from django.utils.encoding import python_2_unicode_compatible
 from dcim.fields import ASNField
 from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
-from utilities.utils import csv_format
 from utilities.models import CreatedUpdatedModel
+from utilities.utils import csv_format
 from .constants import *
 
 

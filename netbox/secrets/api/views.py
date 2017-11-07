@@ -1,20 +1,19 @@
 from __future__ import unicode_literals
+
 import base64
 
 from Crypto.PublicKey import RSA
+from django.http import HttpResponseBadRequest
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
-
-from django.http import HttpResponseBadRequest
 
 from secrets import filters
 from secrets.exceptions import InvalidKey
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
 from utilities.api import FieldChoicesViewSet, WritableSerializerMixin
 from . import serializers
-
 
 ERR_USERKEY_MISSING = "No UserKey found for the current user."
 ERR_USERKEY_INACTIVE = "UserKey has not been activated for decryption."

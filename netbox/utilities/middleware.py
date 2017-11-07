@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+
 import sys
 
 from django.conf import settings
@@ -6,7 +7,6 @@ from django.db import ProgrammingError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-
 
 BASE_PATH = getattr(settings, 'BASE_PATH', False)
 LOGIN_REQUIRED = getattr(settings, 'LOGIN_REQUIRED', False)

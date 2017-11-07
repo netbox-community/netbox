@@ -1,14 +1,12 @@
 from __future__ import unicode_literals
 
 from django.core.exceptions import ObjectDoesNotExist
-
 from rest_framework import serializers
 
 from dcim.api.serializers import NestedDeviceSerializer, NestedRackSerializer, NestedSiteSerializer
 from dcim.models import Device, Rack, Site
-from extras.models import (
-    ACTION_CHOICES, ExportTemplate, Graph, GRAPH_TYPE_CHOICES, ImageAttachment, ReportResult, TopologyMap, UserAction,
-)
+from extras.constants import ACTION_CHOICES, GRAPH_TYPE_CHOICES
+from extras.models import ExportTemplate, Graph, ImageAttachment, ReportResult, TopologyMap, UserAction
 from users.api.serializers import NestedUserSerializer
 from utilities.api import ChoiceFieldSerializer, ContentTypeFieldSerializer, ValidatedModelSerializer
 

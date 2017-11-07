@@ -1,16 +1,15 @@
 from __future__ import unicode_literals
+
 from collections import OrderedDict
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
-
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.serializers import Field, ModelSerializer, ValidationError
 from rest_framework.viewsets import ViewSet
-
 
 WRITE_OPERATIONS = ['create', 'update', 'partial_update', 'delete']
 

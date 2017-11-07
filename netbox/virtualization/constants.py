@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 from dcim.constants import STATUS_ACTIVE, STATUS_OFFLINE, STATUS_STAGED
 
-
 # VirtualMachine statuses (replicated from Device statuses)
 STATUS_CHOICES = [
     [STATUS_ACTIVE, 'Active'],

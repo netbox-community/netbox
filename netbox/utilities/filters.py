@@ -1,8 +1,8 @@
 from __future__ import unicode_literals
 
-import django_filters
 import itertools
 
+import django_filters
 from django import forms
 from django.utils.encoding import force_text
 

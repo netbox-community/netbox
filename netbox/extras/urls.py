@@ -4,7 +4,6 @@ from django.conf.urls import url
 
 from extras import views
 
-
 app_name = 'extras'
 urlpatterns = [
 
