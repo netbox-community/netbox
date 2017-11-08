@@ -86,7 +86,7 @@ class SecretRoleTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('secrets-api:secretrole-list')
-        response = self.client.post(url, data, **self.header)
+        response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(SecretRole.objects.count(), 4)
@@ -102,7 +102,7 @@ class SecretRoleTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('secrets-api:secretrole-detail', kwargs={'pk': self.secretrole1.pk})
-        response = self.client.put(url, data, **self.header)
+        response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(SecretRole.objects.count(), 3)
@@ -191,7 +191,7 @@ class SecretTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('secrets-api:secret-list')
-        response = self.client.post(url, data, **self.header)
+        response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(response.data['plaintext'], data['plaintext'])
@@ -210,7 +210,7 @@ class SecretTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('secrets-api:secret-detail', kwargs={'pk': self.secret1.pk})
-        response = self.client.put(url, data, **self.header)
+        response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['plaintext'], data['plaintext'])

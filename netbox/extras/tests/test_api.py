@@ -54,7 +54,7 @@ class GraphTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('extras-api:graph-list')
-        response = self.client.post(url, data, **self.header)
+        response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Graph.objects.count(), 4)
@@ -72,7 +72,7 @@ class GraphTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('extras-api:graph-detail', kwargs={'pk': self.graph1.pk})
-        response = self.client.put(url, data, **self.header)
+        response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Graph.objects.count(), 3)
@@ -135,7 +135,7 @@ class ExportTemplateTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('extras-api:exporttemplate-list')
-        response = self.client.post(url, data, **self.header)
+        response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(ExportTemplate.objects.count(), 4)
@@ -153,7 +153,7 @@ class ExportTemplateTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('extras-api:exporttemplate-detail', kwargs={'pk': self.exporttemplate1.pk})
-        response = self.client.put(url, data, **self.header)
+        response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(ExportTemplate.objects.count(), 3)

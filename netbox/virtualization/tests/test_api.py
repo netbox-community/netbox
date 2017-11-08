@@ -44,7 +44,7 @@ class ClusterTypeTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('virtualization-api:clustertype-list')
-        response = self.client.post(url, data, **self.header)
+        response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(ClusterType.objects.count(), 4)
@@ -60,7 +60,7 @@ class ClusterTypeTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('virtualization-api:clustertype-detail', kwargs={'pk': self.clustertype1.pk})
-        response = self.client.put(url, data, **self.header)
+        response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(ClusterType.objects.count(), 3)
@@ -111,7 +111,7 @@ class ClusterGroupTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('virtualization-api:clustergroup-list')
-        response = self.client.post(url, data, **self.header)
+        response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(ClusterGroup.objects.count(), 4)
@@ -127,7 +127,7 @@ class ClusterGroupTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('virtualization-api:clustergroup-detail', kwargs={'pk': self.clustergroup1.pk})
-        response = self.client.put(url, data, **self.header)
+        response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(ClusterGroup.objects.count(), 3)
@@ -182,7 +182,7 @@ class ClusterTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('virtualization-api:cluster-list')
-        response = self.client.post(url, data, **self.header)
+        response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Cluster.objects.count(), 4)
@@ -202,7 +202,7 @@ class ClusterTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('virtualization-api:cluster-detail', kwargs={'pk': self.cluster1.pk})
-        response = self.client.put(url, data, **self.header)
+        response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Cluster.objects.count(), 3)
@@ -258,7 +258,7 @@ class VirtualMachineTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('virtualization-api:virtualmachine-list')
-        response = self.client.post(url, data, **self.header)
+        response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(VirtualMachine.objects.count(), 4)
@@ -279,7 +279,7 @@ class VirtualMachineTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('virtualization-api:virtualmachine-detail', kwargs={'pk': self.virtualmachine1.pk})
-        response = self.client.put(url, data, **self.header)
+        response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(VirtualMachine.objects.count(), 3)

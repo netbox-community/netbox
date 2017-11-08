@@ -44,7 +44,7 @@ class TenantGroupTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('tenancy-api:tenantgroup-list')
-        response = self.client.post(url, data, **self.header)
+        response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(TenantGroup.objects.count(), 4)
@@ -60,7 +60,7 @@ class TenantGroupTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('tenancy-api:tenantgroup-detail', kwargs={'pk': self.tenantgroup1.pk})
-        response = self.client.put(url, data, **self.header)
+        response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(TenantGroup.objects.count(), 3)
@@ -114,7 +114,7 @@ class TenantTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('tenancy-api:tenant-list')
-        response = self.client.post(url, data, **self.header)
+        response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Tenant.objects.count(), 4)
@@ -132,7 +132,7 @@ class TenantTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('tenancy-api:tenant-detail', kwargs={'pk': self.tenant1.pk})
-        response = self.client.put(url, data, **self.header)
+        response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Tenant.objects.count(), 3)

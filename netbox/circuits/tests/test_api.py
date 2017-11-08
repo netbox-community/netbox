@@ -69,7 +69,7 @@ class ProviderTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('circuits-api:provider-list')
-        response = self.client.post(url, data, **self.header)
+        response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Provider.objects.count(), 4)
@@ -85,7 +85,7 @@ class ProviderTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('circuits-api:provider-detail', kwargs={'pk': self.provider1.pk})
-        response = self.client.put(url, data, **self.header)
+        response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Provider.objects.count(), 3)
@@ -136,7 +136,7 @@ class CircuitTypeTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('circuits-api:circuittype-list')
-        response = self.client.post(url, data, **self.header)
+        response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(CircuitType.objects.count(), 4)
@@ -152,7 +152,7 @@ class CircuitTypeTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('circuits-api:circuittype-detail', kwargs={'pk': self.circuittype1.pk})
-        response = self.client.put(url, data, **self.header)
+        response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(CircuitType.objects.count(), 3)
@@ -208,7 +208,7 @@ class CircuitTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('circuits-api:circuit-list')
-        response = self.client.post(url, data, **self.header)
+        response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Circuit.objects.count(), 4)
@@ -226,7 +226,7 @@ class CircuitTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('circuits-api:circuit-detail', kwargs={'pk': self.circuit1.pk})
-        response = self.client.put(url, data, **self.header)
+        response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(Circuit.objects.count(), 3)
@@ -293,7 +293,7 @@ class CircuitTerminationTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('circuits-api:circuittermination-list')
-        response = self.client.post(url, data, **self.header)
+        response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(CircuitTermination.objects.count(), 4)
@@ -313,7 +313,7 @@ class CircuitTerminationTest(HttpStatusMixin, APITestCase):
         }
 
         url = reverse('circuits-api:circuittermination-detail', kwargs={'pk': self.circuittermination1.pk})
-        response = self.client.put(url, data, **self.header)
+        response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(CircuitTermination.objects.count(), 3)
