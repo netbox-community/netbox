@@ -365,7 +365,7 @@ class PrefixTest(HttpStatusMixin, APITestCase):
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Prefix.objects.count(), 2)
 
-    def test_available_ips(self):
+    def test_list_available_ips(self):
 
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), is_pool=True)
         url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
@@ -380,12 +380,19 @@ class PrefixTest(HttpStatusMixin, APITestCase):
         response = self.client.get(url, **self.header)
         self.assertEqual(len(response.data), 6)  # 8 - 2 because prefix.is_pool = False
 
-        # Create all six available IPs
-        for i in range(6):
+    def test_create_single_available_ip(self):
+
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/30'), is_pool=True)
+        url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
+
+        # Create all four available IPs with individual requests
+        for i in range(1, 5):
             data = {
                 'description': 'Test IP {}'.format(i)
             }
             response = self.client.post(url, data, **self.header)
+            if response.status_code != status.HTTP_201_CREATED:
+                assert False, response.content
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
             self.assertEqual(response.data['description'], data['description'])
 
@@ -393,6 +400,27 @@ class PrefixTest(HttpStatusMixin, APITestCase):
         response = self.client.post(url, {}, **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertIn('detail', response.data)
+
+    def test_create_multiple_available_ips(self):
+
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), is_pool=True)
+        url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
+
+        # Try to create nine IPs (only eight are available)
+        data = [{'description': 'Test IP {}'.format(i)} for i in range(1, 10)]  # 9 IPs
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('detail', response.data)
+
+        # Verify that no IPs were created (eight are still available)
+        response = self.client.get(url, **self.header)
+        self.assertEqual(len(response.data), 8)
+
+        # Create all eight available IPs in a single request
+        data = [{'description': 'Test IP {}'.format(i)} for i in range(1, 9)]  # 8 IPs
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(len(response.data), 8)
 
 
 class IPAddressTest(HttpStatusMixin, APITestCase):

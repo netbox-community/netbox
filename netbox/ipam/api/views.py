@@ -96,28 +96,41 @@ class PrefixViewSet(CustomFieldModelViewSet):
             if not request.user.has_perm('ipam.add_ipaddress'):
                 raise PermissionDenied()
 
-            # Find the first available IP address in the prefix
-            try:
-                ipaddress = list(prefix.get_available_ips())[0]
-            except IndexError:
+            # Determine if the requested number of IPs is available
+            requested_count = len(request.data) if isinstance(request.data, list) else 1
+            available_ips = list(prefix.get_available_ips())
+            if len(available_ips) < requested_count:
                 return Response(
                     {
-                        "detail": "There are no available IPs within this prefix ({})".format(prefix)
+                        "detail": "An insufficient number of IP addresses are available within the prefix {} ({} "
+                                  "requested, {} available)".format(prefix, requested_count, len(available_ips))
                     },
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Create the new IP address
-            data = request.data.copy()
-            data['address'] = '{}/{}'.format(ipaddress, prefix.prefix.prefixlen)
-            data['vrf'] = prefix.vrf.pk if prefix.vrf else None
-            serializer = serializers.WritableIPAddressSerializer(data=data)
+            # Deserializing multiple IP addresses
+            if isinstance(request.data, list):
+                request_data = list(request.data)  # Need a mutable copy
+                for obj in request_data:
+                    obj['address'] = available_ips.pop(0)
+                    obj['vrf'] = prefix.vrf.pk if prefix.vrf else None
+                serializer = serializers.WritableIPAddressSerializer(data=request_data, many=True)
+
+            # Deserializing a single IP address
+            else:
+                request_data = request.data.copy()  # Need a mutable copy
+                request_data['address'] = available_ips.pop(0)
+                request_data['vrf'] = prefix.vrf.pk if prefix.vrf else None
+                serializer = serializers.WritableIPAddressSerializer(data=request_data)
+
+            # Create the new IP address(es)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        # Determine the maximum amount of IPs to return
+        # Determine the maximum number of IPs to return
         else:
             try:
                 limit = int(request.query_params.get('limit', settings.PAGINATE_COUNT))
