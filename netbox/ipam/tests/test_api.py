@@ -365,6 +365,72 @@ class PrefixTest(HttpStatusMixin, APITestCase):
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Prefix.objects.count(), 2)
 
+    def test_list_available_prefixes(self):
+
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/24'))
+        Prefix.objects.create(prefix=IPNetwork('192.0.2.64/26'))
+        Prefix.objects.create(prefix=IPNetwork('192.0.2.192/27'))
+        url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
+
+        # Retrieve all available IPs
+        response = self.client.get(url, **self.header)
+        available_prefixes = ['192.0.2.0/26', '192.0.2.128/26', '192.0.2.224/27']
+        for i, p in enumerate(response.data):
+            self.assertEqual(p['prefix'], available_prefixes[i])
+
+    def test_create_single_available_prefix(self):
+
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), is_pool=True)
+        url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
+
+        # Create four available prefixes with individual requests
+        prefixes_to_be_created = [
+            '192.0.2.0/30',
+            '192.0.2.4/30',
+            '192.0.2.8/30',
+            '192.0.2.12/30',
+        ]
+        for i in range(4):
+            data = {
+                'prefix_length': 30,
+                'description': 'Test Prefix {}'.format(i + 1)
+            }
+            response = self.client.post(url, data, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            self.assertEqual(response.data['prefix'], prefixes_to_be_created[i])
+            self.assertEqual(response.data['description'], data['description'])
+
+        # Try to create one more prefix
+        response = self.client.post(url, {'prefix_length': 30}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('detail', response.data)
+
+    def test_create_multiple_available_prefixes(self):
+
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), is_pool=True)
+        url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
+
+        # Try to create five /30s (only four are available)
+        data = [
+            {'prefix_length': 30, 'description': 'Test Prefix 1'},
+            {'prefix_length': 30, 'description': 'Test Prefix 2'},
+            {'prefix_length': 30, 'description': 'Test Prefix 3'},
+            {'prefix_length': 30, 'description': 'Test Prefix 4'},
+            {'prefix_length': 30, 'description': 'Test Prefix 5'},
+        ]
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('detail', response.data)
+
+        # Verify that no prefixes were created (the entire /28 is still available)
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data[0]['prefix'], '192.0.2.0/28')
+
+        # Create four /30s in a single request
+        response = self.client.post(url, data[:4], format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(len(response.data), 4)
+
     def test_list_available_ips(self):
 
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), is_pool=True)
@@ -391,8 +457,6 @@ class PrefixTest(HttpStatusMixin, APITestCase):
                 'description': 'Test IP {}'.format(i)
             }
             response = self.client.post(url, data, format='json', **self.header)
-            if response.status_code != status.HTTP_201_CREATED:
-                assert False, response.content
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
             self.assertEqual(response.data['description'], data['description'])
 

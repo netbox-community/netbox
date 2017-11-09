@@ -281,6 +281,21 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
     def get_duplicates(self):
         return Prefix.objects.filter(vrf=self.vrf, prefix=str(self.prefix)).exclude(pk=self.pk)
 
+    def get_child_prefixes(self):
+        """
+        Return all child Prefixes within this Prefix.
+        """
+        return Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
+
+    def get_available_prefixes(self):
+        """
+        Return all available prefixes within this Prefix.
+        """
+        prefix = netaddr.IPSet(self.prefix)
+        child_prefixes = netaddr.IPSet([p.prefix for p in self.get_child_prefixes()])
+        available_prefixes = prefix - child_prefixes
+        return available_prefixes
+
     def get_child_ips(self):
         """
         Return all IPAddresses within this Prefix.

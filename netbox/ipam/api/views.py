@@ -80,6 +80,65 @@ class PrefixViewSet(CustomFieldModelViewSet):
     write_serializer_class = serializers.WritablePrefixSerializer
     filter_class = filters.PrefixFilter
 
+    @detail_route(url_path='available-prefixes', methods=['get', 'post'])
+    def available_prefixes(self, request, pk=None):
+        """
+        A convenience method for returning available child prefixes within a parent.
+        """
+        prefix = get_object_or_404(Prefix, pk=pk)
+        available_prefixes = prefix.get_available_prefixes()
+
+        if request.method == 'POST':
+
+            # Permissions check
+            if not request.user.has_perm('ipam.add_prefix'):
+                raise PermissionDenied()
+
+            requested_prefixes = request.data if isinstance(request.data, list) else [request.data]
+
+            # Allocate prefixes to the requested objects based on availability within the parent
+            for requested_prefix in requested_prefixes:
+
+                # Find the first available prefix equal to or larger than the requested size
+                for available_prefix in available_prefixes.iter_cidrs():
+                    if requested_prefix['prefix_length'] >= available_prefix.prefixlen:
+                        allocated_prefix = '{}/{}'.format(available_prefix.network, requested_prefix['prefix_length'])
+                        requested_prefix['prefix'] = allocated_prefix
+                        requested_prefix['vrf'] = prefix.vrf.pk if prefix.vrf else None
+                        break
+                else:
+                    return Response(
+                        {
+                            "detail": "Insufficient space is available to accommodate the requested prefix size(s)"
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                # Remove the allocated prefix from the list of available prefixes
+                available_prefixes.remove(allocated_prefix)
+
+            # Initialize the serializer with a list or a single object depending on what was requested
+            if isinstance(request.data, list):
+                serializer = serializers.WritablePrefixSerializer(data=requested_prefixes, many=True)
+            else:
+                serializer = serializers.WritablePrefixSerializer(data=requested_prefixes[0])
+
+            # Create the new Prefix(es)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+
+            serializer = serializers.AvailablePrefixSerializer(available_prefixes.iter_cidrs(), many=True, context={
+                'request': request,
+                'vrf': prefix.vrf,
+            })
+
+            return Response(serializer.data)
+
     @detail_route(url_path='available-ips', methods=['get', 'post'])
     def available_ips(self, request, pk=None):
         """

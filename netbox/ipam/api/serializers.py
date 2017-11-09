@@ -237,6 +237,20 @@ class WritablePrefixSerializer(CustomFieldModelSerializer):
         ]
 
 
+class AvailablePrefixSerializer(serializers.Serializer):
+
+    def to_representation(self, instance):
+        if self.context.get('vrf'):
+            vrf = NestedVRFSerializer(self.context['vrf'], context={'request': self.context['request']}).data
+        else:
+            vrf = None
+        return OrderedDict([
+            ('family', instance.version),
+            ('prefix', str(instance)),
+            ('vrf', vrf),
+        ])
+
+
 #
 # IP addresses
 #
