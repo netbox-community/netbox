@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('tenancy', '0003_unicode_literals'),
-        ('dcim', '0048_rack_serial'),
+        ('dcim', '0049_rackreservation_change_user'),
     ]
 
     operations = [
