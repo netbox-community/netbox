@@ -550,7 +550,7 @@ class PrefixIPAddressesView(View):
             'prefix': prefix,
             'ip_table': ip_table,
             'permissions': permissions,
-            'bulk_querystring': 'vrf_id={}&parent={}'.format(prefix.vrf or '0', prefix.prefix),
+            'bulk_querystring': 'vrf_id={}&parent={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),
         })
 
 
