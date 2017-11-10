@@ -132,7 +132,7 @@ def querystring(request, **kwargs):
             querydict[k] = v
         elif k in querydict:
             querydict.pop(k)
-    querystring = querydict.urlencode()
+    querystring = querydict.urlencode(safe='/')
     if querystring:
         return '?' + querystring
     else:
