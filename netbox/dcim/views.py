@@ -1483,6 +1483,7 @@ class InterfaceEditView(PermissionRequiredMixin, ComponentEditView):
     model = Interface
     parent_field = 'device'
     model_form = forms.InterfaceForm
+    template_name = 'dcim/interface_edit.html'
 
 
 class InterfaceDeleteView(PermissionRequiredMixin, ComponentDeleteView):

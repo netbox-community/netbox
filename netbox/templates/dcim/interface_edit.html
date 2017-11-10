@@ -1,0 +1,28 @@
+{% extends 'utilities/obj_edit.html' %}
+{% load form_helpers %}
+
+{% block form %}
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Interface</strong></div>
+        <div class="panel-body">
+            {% render_field form.name %}
+            {% render_field form.form_factor %}
+            {% render_field form.enabled %}
+            {% render_field form.lag %}
+            {% render_field form.mac_address %}
+            {% render_field form.mtu %}
+            {% render_field form.mgmt_only %}
+            {% render_field form.description %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>802.1Q Encapsulation</strong></div>
+        <div class="panel-body">
+            {% render_field form.mode %}
+            {% render_field form.site %}
+            {% render_field form.vlan_group %}
+            {% render_field form.untagged_vlan %}
+            {% render_field form.tagged_vlans %}
+        </div>
+    </div>
+{% endblock %}
