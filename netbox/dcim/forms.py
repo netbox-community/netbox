@@ -421,6 +421,7 @@ class RackReservationFilterForm(BootstrapMixin, forms.Form):
 class RackReservationBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=RackReservation.objects.all(), widget=forms.MultipleHiddenInput)
     user = forms.ModelChoiceField(queryset=User.objects.order_by('username'), required=False)
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     description = forms.CharField(max_length=100, required=False)
 
     class Meta:
