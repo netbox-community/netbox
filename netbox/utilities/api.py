@@ -48,6 +48,11 @@ class ValidatedModelSerializer(ModelSerializer):
         attrs = data.copy()
         attrs.pop('custom_fields', None)
 
+        # remove any fields marked for no validation
+        ignore_validation_fields = getattr(self.Meta, 'ignore_validation_fields', [])
+        for field in ignore_validation_fields:
+            attrs.pop(field)
+
         # Run clean() on an instance of the model
         if self.instance is None:
             instance = self.Meta.model(**attrs)
