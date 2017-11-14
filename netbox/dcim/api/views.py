@@ -256,12 +256,19 @@ class DeviceViewSet(CustomFieldModelViewSet):
                 device.platform
             ))
 
-        # Check that NAPALM is installed and verify the configured driver
+        # Check that NAPALM is installed
         try:
             import napalm
-            from napalm_base.exceptions import ConnectAuthError, ModuleImportError
         except ImportError:
             raise ServiceUnavailable("NAPALM is not installed. Please see the documentation for instructions.")
+
+        # TODO: Remove support for NAPALM < 2.0
+        try:
+            from napalm.base.exceptions import ConnectAuthError, ModuleImportError
+        except ImportError:
+            from napalm_base.exceptions import ConnectAuthError, ModuleImportError
+
+        # Validate the configured driver
         try:
             driver = napalm.get_network_driver(device.platform.napalm_driver)
         except ModuleImportError:

@@ -76,6 +76,10 @@ IPADDRESS_LINK = """
 {% endif %}
 """
 
+IPADDRESS_ASSIGN_LINK = """
+<a href="{% url 'ipam:ipaddress_edit' pk=record.pk %}?interface={{ request.GET.interface }}&return_url={{ request.GET.return_url }}">{{ record }}</a>
+"""
+
 IPADDRESS_PARENT = """
 {% if record.interface %}
     <a href="{{ record.interface.parent.get_absolute_url }}">{{ record.interface.parent }}</a>
@@ -268,8 +272,8 @@ class PrefixDetailTable(PrefixTable):
 class IPAddressTable(BaseTable):
     pk = ToggleColumn()
     address = tables.TemplateColumn(IPADDRESS_LINK, verbose_name='IP Address')
-    status = tables.TemplateColumn(STATUS_LABEL)
     vrf = tables.TemplateColumn(VRF_LINK, verbose_name='VRF')
+    status = tables.TemplateColumn(STATUS_LABEL)
     tenant = tables.TemplateColumn(TENANT_LINK)
     parent = tables.TemplateColumn(IPADDRESS_PARENT, orderable=False)
     interface = tables.Column(orderable=False)
@@ -291,6 +295,18 @@ class IPAddressDetailTable(IPAddressTable):
         fields = (
             'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'parent', 'interface', 'description',
         )
+
+
+class IPAddressAssignTable(BaseTable):
+    address = tables.TemplateColumn(IPADDRESS_ASSIGN_LINK, verbose_name='IP Address')
+    status = tables.TemplateColumn(STATUS_LABEL)
+    parent = tables.TemplateColumn(IPADDRESS_PARENT, orderable=False)
+    interface = tables.Column(orderable=False)
+
+    class Meta(BaseTable.Meta):
+        model = IPAddress
+        fields = ('address', 'vrf', 'status', 'role', 'tenant', 'parent', 'interface')
+        orderable = False
 
 
 #

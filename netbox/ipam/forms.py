@@ -688,6 +688,11 @@ class IPAddressBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['vrf', 'role', 'tenant', 'description']
 
 
+class IPAddressAssignForm(BootstrapMixin, forms.Form):
+    vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF')
+    address = forms.CharField(label='IP Address')
+
+
 def ipaddress_status_choices():
     status_counts = {}
     for status in IPAddress.objects.values('status').annotate(count=Count('status')).order_by('status'):

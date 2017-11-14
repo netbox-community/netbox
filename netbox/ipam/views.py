@@ -4,7 +4,7 @@ import netaddr
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count, Q
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import View
 from django_tables2 import RequestConfig
@@ -550,7 +550,7 @@ class PrefixIPAddressesView(View):
             'prefix': prefix,
             'ip_table': ip_table,
             'permissions': permissions,
-            'bulk_querystring': 'vrf_id={}&parent={}'.format(prefix.vrf or '0', prefix.prefix),
+            'bulk_querystring': 'vrf_id={}&parent={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),
         })
 
 
@@ -684,6 +684,51 @@ class IPAddressCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class IPAddressEditView(IPAddressCreateView):
     permission_required = 'ipam.change_ipaddress'
+
+
+class IPAddressAssignView(PermissionRequiredMixin, View):
+    """
+    Search for IPAddresses to be assigned to an Interface.
+    """
+    permission_required = 'ipam.change_ipaddress'
+
+    def dispatch(self, request, *args, **kwargs):
+
+        # Redirect user if an interface has not been provided
+        if 'interface' not in request.GET:
+            return redirect('ipam:ipaddress_add')
+
+        return super(IPAddressAssignView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+
+        form = forms.IPAddressAssignForm()
+
+        return render(request, 'ipam/ipaddress_assign.html', {
+            'form': form,
+            'return_url': request.GET.get('return_url', ''),
+        })
+
+    def post(self, request):
+
+        form = forms.IPAddressAssignForm(request.POST)
+        table = None
+
+        if form.is_valid():
+
+            queryset = IPAddress.objects.select_related(
+                'vrf', 'tenant', 'interface__device', 'interface__virtual_machine'
+            ).filter(
+                vrf=form.cleaned_data['vrf'],
+                address__net_host=form.cleaned_data['address'],
+            )
+            table = tables.IPAddressAssignTable(queryset)
+
+        return render(request, 'ipam/ipaddress_assign.html', {
+            'form': form,
+            'table': table,
+            'return_url': request.GET.get('return_url', ''),
+        })
 
 
 class IPAddressDeleteView(PermissionRequiredMixin, ObjectDeleteView):

@@ -1117,6 +1117,15 @@ class ConsoleServerPort(models.Model):
     def __str__(self):
         return self.name
 
+    def clean(self):
+
+        # Check that the parent device's DeviceType is a console server
+        device_type = self.device.device_type
+        if not device_type.is_console_server:
+            raise ValidationError("The {} {} device type not support assignment of console server ports.".format(
+                device_type.manufacturer, device_type
+            ))
+
 
 #
 # Power ports
@@ -1182,6 +1191,15 @@ class PowerOutlet(models.Model):
     def __str__(self):
         return self.name
 
+    def clean(self):
+
+        # Check that the parent device's DeviceType is a PDU
+        device_type = self.device.device_type
+        if not device_type.is_pdu:
+            raise ValidationError("The {} {} device type not support assignment of power outlets.".format(
+                device_type.manufacturer, device_type
+            ))
+
 
 #
 # Interfaces
@@ -1237,6 +1255,13 @@ class Interface(models.Model):
         return self.name
 
     def clean(self):
+
+        # Check that the parent device's DeviceType is a network device
+        device_type = self.device.device_type
+        if not device_type.is_network_device:
+            raise ValidationError("The {} {} device type not support assignment of network interfaces.".format(
+                device_type.manufacturer, device_type
+            ))
 
         # An Interface must belong to a Device *or* to a VirtualMachine
         if self.device and self.virtual_machine:
