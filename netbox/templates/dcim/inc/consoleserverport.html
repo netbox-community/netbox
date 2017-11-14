@@ -1,5 +1,5 @@
 <tr class="consoleserverport{% if csp.connected_console and not csp.connected_console.connection_status %} info{% endif %}">
-    {% if selectable and perms.dcim.change_consoleserverport or perms.dcim.delete_consoleserverport %}
+    {% if perms.dcim.change_consoleserverport or perms.dcim.delete_consoleserverport %}
         <td class="pk">
             <input name="pk" type="checkbox" value="{{ csp.pk }}" />
         </td>
@@ -7,20 +7,19 @@
     <td>
         <i class="fa fa-fw fa-keyboard-o"></i> {{ csp }}
     </td>
-    <td></td>
     {% if csp.connected_console %}
         <td>
             <a href="{% url 'dcim:device' pk=csp.connected_console.device.pk %}">{{ csp.connected_console.device }}</a>
         </td>
         <td>
-            {{ csp.connected_console.name }}
+            {{ csp.connected_console }}
         </td>
     {% else %}
         <td colspan="2">
             <span class="text-muted">Not connected</span>
         </td>
     {% endif %}
-    <td colspan="2" class="text-right">
+    <td class="text-right">
         {% if perms.dcim.change_consoleserverport %}
             {% if csp.connected_console %}
                 {% if csp.connected_console.connection_status %}

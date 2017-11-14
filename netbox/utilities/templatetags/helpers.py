@@ -1,10 +1,8 @@
 from __future__ import unicode_literals
 
-from markdown import markdown
-
 from django import template
 from django.utils.safestring import mark_safe
-
+from markdown import markdown
 
 register = template.Library()
 
@@ -134,7 +132,7 @@ def querystring(request, **kwargs):
             querydict[k] = v
         elif k in querydict:
             querydict.pop(k)
-    querystring = querydict.urlencode()
+    querystring = querydict.urlencode(safe='/')
     if querystring:
         return '?' + querystring
     else:

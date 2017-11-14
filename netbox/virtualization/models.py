@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -255,3 +256,14 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
 
     def get_status_class(self):
         return VM_STATUS_CLASSES[self.status]
+
+    @property
+    def primary_ip(self):
+        if settings.PREFER_IPV4 and self.primary_ip4:
+            return self.primary_ip4
+        elif self.primary_ip6:
+            return self.primary_ip6
+        elif self.primary_ip4:
+            return self.primary_ip4
+        else:
+            return None

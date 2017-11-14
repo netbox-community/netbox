@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
-from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm as DjangoPasswordChangeForm
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm as DjangoPasswordChangeForm
 
 from utilities.forms import BootstrapMixin
 from .models import Token

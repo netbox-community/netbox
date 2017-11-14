@@ -1,10 +1,10 @@
 from __future__ import unicode_literals
+
 import os
 
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto.Util import strxor
-
 from django.conf import settings
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import Group, User
@@ -286,6 +286,9 @@ class Secret(CreatedUpdatedModel):
         super(Secret, self).__init__(*args, **kwargs)
 
     def __str__(self):
+        if self.role and self.device and self.name:
+            return '{} for {} ({})'.format(self.role, self.device, self.name)
+        # Return role and device if no name is set
         if self.role and self.device:
             return '{} for {}'.format(self.role, self.device)
         return 'Secret'

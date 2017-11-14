@@ -5,7 +5,6 @@ from django.db import models
 
 from .forms import ColorSelect
 
-
 validate_color = RegexValidator('^[0-9a-f]{6}$', 'Enter a valid hexadecimal RGB color code.', 'invalid')
 
 

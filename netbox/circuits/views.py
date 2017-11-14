@@ -15,7 +15,8 @@ from utilities.views import (
     BulkDeleteView, BulkEditView, BulkImportView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
-from .models import Circuit, CircuitTermination, CircuitType, Provider, TERM_SIDE_A, TERM_SIDE_Z
+from .constants import TERM_SIDE_A, TERM_SIDE_Z
+from .models import Circuit, CircuitTermination, CircuitType, Provider
 
 
 #

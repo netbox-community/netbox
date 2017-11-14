@@ -1,0 +1,18 @@
+{% extends '500.html' %}
+
+{% block message %}
+    <p>
+        A module import error occurred during this request. Common causes include the following:
+    </p>
+    <p>
+        <i class="fa fa-warning"></i> <strong>Missing required packages</strong> - This installation of NetBox might be missing one or more required
+        Python packages. These packages are listed in <code>requirements.txt</code> and are normally installed as part
+        of the installation or upgrade process. To verify installed packages, run <code>pip freeze</code> from the
+        console and compare the output to the list of required packages.
+    </p>
+    <p>
+        <i class="fa fa-warning"></i> <strong>WSGI service not restarted after upgrade</strong> - If this installation has recently been upgraded,
+        check that the WSGI service (e.g. gunicorn or uWSGI) has been restarted. This ensures that the new code is
+        running.
+    </p>
+{% endblock %}

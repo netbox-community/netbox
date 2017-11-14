@@ -1,14 +1,14 @@
 from __future__ import unicode_literals
 
-from rest_framework import status
-from rest_framework.test import APITestCase
-
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
 
 from dcim.models import Device
-from extras.models import Graph, GRAPH_TYPE_SITE, ExportTemplate
+from extras.constants import GRAPH_TYPE_SITE
+from extras.models import Graph, ExportTemplate
 from users.models import Token
 from utilities.tests import HttpStatusMixin
 

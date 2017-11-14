@@ -1,10 +1,9 @@
 from __future__ import unicode_literals
 
 import django_filters
+from django.db.models import Q
 from netaddr import EUI
 from netaddr.core import AddrFormatError
-
-from django.db.models import Q
 
 from dcim.models import DeviceRole, Interface, Platform, Site
 from extras.filters import CustomFieldFilterSet
@@ -71,7 +70,8 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         label='Search',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=STATUS_CHOICES
+        choices=STATUS_CHOICES,
+        null_value=None
     )
     cluster_group_id = django_filters.ModelMultipleChoiceFilter(
         name='cluster__group',

@@ -1,9 +1,8 @@
 from __future__ import unicode_literals
-import netaddr
 
+import netaddr
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -286,7 +285,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
         """
         Return all IPAddresses within this Prefix.
         """
-        return IPAddress.objects.filter(address__net_contained_or_equal=str(self.prefix), vrf=self.vrf)
+        return IPAddress.objects.filter(address__net_host_contained=str(self.prefix), vrf=self.vrf)
 
     def get_available_ips(self):
         """
@@ -315,9 +314,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
             child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
             return int(float(child_prefixes.size) / self.prefix.size * 100)
         else:
-            child_count = IPAddress.objects.filter(
-                address__net_contained_or_equal=str(self.prefix), vrf=self.vrf
-            ).count()
+            child_count = self.get_child_ips().count()
             prefix_size = self.prefix.size
             if self.family == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
                 prefix_size -= 2
@@ -460,6 +457,9 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
 
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]
+
+    def get_role_class(self):
+        return ROLE_CHOICE_CLASSES[self.role]
 
 
 @python_2_unicode_compatible

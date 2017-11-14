@@ -60,6 +60,7 @@ urlpatterns = [
     url(r'^ip-addresses/import/$', views.IPAddressBulkImportView.as_view(), name='ipaddress_import'),
     url(r'^ip-addresses/edit/$', views.IPAddressBulkEditView.as_view(), name='ipaddress_bulk_edit'),
     url(r'^ip-addresses/delete/$', views.IPAddressBulkDeleteView.as_view(), name='ipaddress_bulk_delete'),
+    url(r'^ip-addresses/assign/$', views.IPAddressAssignView.as_view(), name='ipaddress_assign'),
     url(r'^ip-addresses/(?P<pk>\d+)/$', views.IPAddressView.as_view(), name='ipaddress'),
     url(r'^ip-addresses/(?P<pk>\d+)/edit/$', views.IPAddressEditView.as_view(), name='ipaddress_edit'),
     url(r'^ip-addresses/(?P<pk>\d+)/delete/$', views.IPAddressDeleteView.as_view(), name='ipaddress_delete'),

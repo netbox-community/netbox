@@ -1,11 +1,11 @@
 from __future__ import unicode_literals
+
 import re
 import time
 
-from ncclient import manager
 import paramiko
 import xmltodict
-
+from ncclient import manager
 
 CONNECT_TIMEOUT = 5  # seconds
 

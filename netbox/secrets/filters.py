@@ -1,12 +1,11 @@
 from __future__ import unicode_literals
 
 import django_filters
-
 from django.db.models import Q
 
-from .models import Secret, SecretRole
 from dcim.models import Device
 from utilities.filters import NumericInFilter
+from .models import Secret, SecretRole
 
 
 class SecretRoleFilter(django_filters.FilterSet):

@@ -1,12 +1,12 @@
 from __future__ import unicode_literals
 
 from getpass import getpass
-from ncclient.transport.errors import AuthenticationError
-from paramiko import AuthenticationException
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from ncclient.transport.errors import AuthenticationError
+from paramiko import AuthenticationException
 
 from dcim.models import Device, InventoryItem, Site, STATUS_ACTIVE
 

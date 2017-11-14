@@ -1,22 +1,23 @@
 from __future__ import unicode_literals
 
 import django_filters
-from netaddr import EUI
-from netaddr.core import AddrFormatError
-
 from django.contrib.auth.models import User
 from django.db.models import Q
+from netaddr import EUI
+from netaddr.core import AddrFormatError
 
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NullableCharFieldFilter, NumericInFilter
 from virtualization.models import Cluster
+from .constants import (
+    IFACE_FF_LAG, NONCONNECTABLE_IFACE_TYPES, STATUS_CHOICES, VIRTUAL_IFACE_TYPES, WIRELESS_IFACE_TYPES,
+)
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, STATUS_CHOICES, IFACE_FF_LAG, Interface, InterfaceConnection,
-    InterfaceTemplate, Manufacturer, InventoryItem, NONCONNECTABLE_IFACE_TYPES, Platform, PowerOutlet,
-    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, Region, Site,
-    VIRTUAL_IFACE_TYPES, WIRELESS_IFACE_TYPES,
+    DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
+    InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
+    RackReservation, RackRole, Region, Site,
 )
 
 
@@ -424,7 +425,8 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Device model (slug)',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=STATUS_CHOICES
+        choices=STATUS_CHOICES,
+        null_value=None
     )
     is_full_depth = django_filters.BooleanFilter(
         name='device_type__is_full_depth',

@@ -1,19 +1,17 @@
 from __future__ import unicode_literals
-from datetime import date
 
-from rest_framework import status
-from rest_framework.test import APITestCase
+from datetime import date
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
 
 from dcim.models import Site
-from extras.models import (
-    CustomField, CustomFieldValue, CustomFieldChoice, CF_TYPE_TEXT, CF_TYPE_INTEGER, CF_TYPE_BOOLEAN, CF_TYPE_DATE,
-    CF_TYPE_SELECT, CF_TYPE_URL,
-)
+from extras.constants import CF_TYPE_TEXT, CF_TYPE_INTEGER, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_SELECT, CF_TYPE_URL
+from extras.models import CustomField, CustomFieldValue, CustomFieldChoice
 from users.models import Token
 from utilities.tests import HttpStatusMixin
 

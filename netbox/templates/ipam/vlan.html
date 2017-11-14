@@ -9,9 +9,9 @@
                 <li><a href="{% url 'ipam:vlan_list' %}?site={{ vlan.site.slug }}">{{ vlan.site }}</a></li>
             {% endif %}
             {% if vlan.group %}
-                <li><a href="{% url 'ipam:vlan_list' %}?group={{ vlan.group.slug }}">{{ vlan.group.name }}</a></li>
+                <li><a href="{% url 'ipam:vlan_list' %}?group={{ vlan.group.slug }}">{{ vlan.group }}</a></li>
             {% endif %}
-            <li>{{ vlan.name }} ({{ vlan.vid }})</li>
+            <li>{{ vlan }}</li>
         </ol>
     </div>
     <div class="col-sm-4 col-md-3">
@@ -68,7 +68,7 @@
                     <td>Group</td>
                     <td>
                         {% if vlan.group %}
-                            <a href="{{ vlan.group.get_absolute_url }}">{{ vlan.group.name }}</a>
+                            <a href="{{ vlan.group.get_absolute_url }}">{{ vlan.group }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -87,7 +87,7 @@
                     <td>
                         {% if vlan.tenant %}
                             {% if vlan.tenant.group %}
-                                <a href="{{ vlan.tenant.group.get_absolute_url }}">{{ vlan.tenant.group.name }}</a>
+                                <a href="{{ vlan.tenant.group.get_absolute_url }}">{{ vlan.tenant.group }}</a>
                                 <i class="fa fa-angle-right"></i>
                             {% endif %}
                             <a href="{{ vlan.tenant.get_absolute_url }}">{{ vlan.tenant }}</a>

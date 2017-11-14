@@ -3,9 +3,7 @@ from __future__ import unicode_literals
 import django_tables2 as tables
 
 from utilities.tables import BaseTable, ToggleColumn
-
 from .models import Tenant, TenantGroup
-
 
 TENANTGROUP_ACTIONS = """
 {% if perms.tenancy.change_tenantgroup %}

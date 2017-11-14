@@ -1,13 +1,12 @@
 from __future__ import unicode_literals
 
+from django.contrib.contenttypes.models import ContentType
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import detail_route
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, ViewSet
-
-from django.contrib.contenttypes.models import ContentType
-from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404
 
 from extras import filters
 from extras.models import CustomField, ExportTemplate, Graph, ImageAttachment, ReportResult, TopologyMap, UserAction

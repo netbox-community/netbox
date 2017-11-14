@@ -41,7 +41,7 @@
 <h1>{% block title %}{{ vm }}{% endblock %}</h1>
 {% include 'inc/created_updated.html' with obj=vm %}
 <div class="row">
-	<div class="col-md-5">
+	<div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Virtual Machine</strong>
@@ -49,7 +49,7 @@
             <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Name</td>
-                    <td>{{ vm.name }}</td>
+                    <td>{{ vm }}</td>
                 </tr>
                 <tr>
                     <td>Status</td>
@@ -82,7 +82,7 @@
                     <td>
                         {% if vm.tenant %}
                             {% if vm.tenant.group %}
-                                <a href="{{ vm.tenant.group.get_absolute_url }}">{{ vm.tenant.group.name }}</a>
+                                <a href="{{ vm.tenant.group.get_absolute_url }}">{{ vm.tenant.group }}</a>
                                 <i class="fa fa-angle-right"></i>
                             {% endif %}
                             <a href="{{ vm.tenant.get_absolute_url }}">{{ vm.tenant }}</a>
@@ -123,6 +123,21 @@
                 </tr>
             </table>
         </div>
+        {% include 'inc/custom_fields_panel.html' with custom_fields=vm.get_custom_fields %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Comments</strong>
+            </div>
+            <div class="panel-body">
+                {% if vm.comments %}
+                    {{ vm.comments|gfm }}
+                {% else %}
+                    <span class="text-muted">None</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+	<div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Cluster</strong>
@@ -204,21 +219,10 @@
                 </div>
             {% endif %}
         </div>
-        {% include 'inc/custom_fields_panel.html' with custom_fields=vm.get_custom_fields %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Comments</strong>
-            </div>
-            <div class="panel-body">
-                {% if vm.comments %}
-                    {{ vm.comments|gfm }}
-                {% else %}
-                    <span class="text-muted">None</span>
-                {% endif %}
-            </div>
-        </div>
     </div>
-    <div class="col-md-7">
+</div>
+<div class="row">
+    <div class="col-md-12">
         {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
             <form method="post">
             {% csrf_token %}
@@ -244,11 +248,23 @@
                 </div>
             </div>
             <table id="interfaces_table" class="table table-hover panel-body component-list">
+                <tr class="table-headings">
+                    {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
+                        <th></th>
+                    {% endif %}
+                    <th>Name</th>
+                    <th>LAG</th>
+                    <th>Description</th>
+                    <th>MTU</th>
+                    <th>MAC Address</th>
+                    <th colspan="2">Connection</th>
+                    <th></th>
+                </tr>
                 {% for iface in interfaces %}
-                    {% include 'virtualization/inc/interface.html' with selectable=True %}
+                    {% include 'dcim/inc/interface.html' with device=vm %}
                 {% empty %}
                     <tr>
-                        <td colspan="4">No interfaces defined</td>
+                        <td colspan="6">No interfaces defined</td>
                     </tr>
                 {% endfor %}
             </table>

@@ -5,9 +5,8 @@ from django.conf.urls import url
 from extras.views import ImageAttachmentEditView
 from ipam.views import ServiceCreateView
 from secrets.views import secret_add
-from .models import Device, Rack, Site
 from . import views
-
+from .models import Device, Rack, Site
 
 app_name = 'dcim'
 urlpatterns = [

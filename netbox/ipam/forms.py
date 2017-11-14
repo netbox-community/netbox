@@ -14,11 +14,8 @@ from utilities.forms import (
     add_blank_choice,
 )
 from virtualization.models import VirtualMachine
-from .models import (
-    Aggregate, IPAddress, IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, Prefix, PREFIX_STATUS_CHOICES, RIR, Role,
-    Service, VLAN, VLANGroup, VLAN_STATUS_CHOICES, VRF,
-)
-
+from .constants import IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, PREFIX_STATUS_CHOICES, VLAN_STATUS_CHOICES
+from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 IP_FAMILY_CHOICES = [
     ('', 'All'),
@@ -362,7 +359,7 @@ def prefix_status_choices():
 class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Prefix
     q = forms.CharField(required=False, label='Search')
-    parent = forms.CharField(required=False, label='Parent prefix', widget=forms.TextInput(attrs={
+    within_include = forms.CharField(required=False, label='Search within', widget=forms.TextInput(attrs={
         'placeholder': 'Prefix',
     }))
     family = forms.ChoiceField(required=False, choices=IP_FAMILY_CHOICES, label='Address family')
@@ -689,6 +686,11 @@ class IPAddressBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
     class Meta:
         nullable_fields = ['vrf', 'role', 'tenant', 'description']
+
+
+class IPAddressAssignForm(BootstrapMixin, forms.Form):
+    vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF')
+    address = forms.CharField(label='IP Address')
 
 
 def ipaddress_status_choices():

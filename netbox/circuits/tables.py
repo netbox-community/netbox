@@ -1,13 +1,11 @@
 from __future__ import unicode_literals
 
 import django_tables2 as tables
-from django_tables2.utils import Accessor
-
 from django.utils.safestring import mark_safe
+from django_tables2.utils import Accessor
 
 from utilities.tables import BaseTable, ToggleColumn
 from .models import Circuit, CircuitType, Provider
-
 
 CIRCUITTYPE_ACTIONS = """
 {% if perms.circuit.change_circuittype %}

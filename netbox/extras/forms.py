@@ -1,14 +1,13 @@
 from __future__ import unicode_literals
+
 from collections import OrderedDict
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 
 from utilities.forms import BootstrapMixin, BulkEditForm, LaxURLField
-from .models import (
-    CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL, CustomField, CustomFieldValue,
-    ImageAttachment,
-)
+from .constants import CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL
+from .models import CustomField, CustomFieldValue, ImageAttachment
 
 
 def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=False):

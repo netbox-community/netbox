@@ -3,9 +3,7 @@ from __future__ import unicode_literals
 import django_tables2 as tables
 
 from utilities.tables import BaseTable, ToggleColumn
-
 from .models import SecretRole, Secret
-
 
 SECRETROLE_ACTIONS = """
 {% if perms.secrets.change_secretrole %}

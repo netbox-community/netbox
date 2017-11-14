@@ -1,14 +1,13 @@
 from __future__ import unicode_literals
 
-from django_tables2 import RequestConfig
 import netaddr
-
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count, Q
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import View
+from django_tables2 import RequestConfig
 
 from dcim.models import Device, Interface
 from utilities.paginator import EnhancedPaginator
@@ -17,11 +16,8 @@ from utilities.views import (
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
-from .constants import IPADDRESS_ROLE_ANYCAST
-from .models import (
-    Aggregate, IPAddress, PREFIX_STATUS_ACTIVE, PREFIX_STATUS_DEPRECATED, PREFIX_STATUS_RESERVED, Prefix, RIR, Role,
-    Service, VLAN, VLANGroup, VRF,
-)
+from .constants import IPADDRESS_ROLE_ANYCAST, PREFIX_STATUS_ACTIVE, PREFIX_STATUS_DEPRECATED, PREFIX_STATUS_RESERVED
+from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 
 def add_available_prefixes(parent, prefix_list):
@@ -459,9 +455,7 @@ class PrefixView(View):
             aggregate = None
 
         # Count child IP addresses
-        ipaddress_count = IPAddress.objects.filter(
-            vrf=prefix.vrf, address__net_host_contained=str(prefix.prefix)
-        ).count()
+        ipaddress_count = prefix.get_child_ips().count()
 
         # Parent prefixes table
         parent_prefixes = Prefix.objects.filter(
@@ -517,6 +511,7 @@ class PrefixView(View):
             'parent_prefix_table': parent_prefix_table,
             'child_prefix_table': child_prefix_table,
             'duplicate_prefix_table': duplicate_prefix_table,
+            'bulk_querystring': 'vrf_id={}&within={}'.format(prefix.vrf or '0', prefix.prefix),
             'permissions': permissions,
             'return_url': prefix.get_absolute_url(),
         })
@@ -529,9 +524,7 @@ class PrefixIPAddressesView(View):
         prefix = get_object_or_404(Prefix.objects.all(), pk=pk)
 
         # Find all IPAddresses belonging to this Prefix
-        ipaddresses = IPAddress.objects.filter(
-            vrf=prefix.vrf, address__net_host_contained=str(prefix.prefix)
-        ).select_related(
+        ipaddresses = prefix.get_child_ips().select_related(
             'vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for'
         )
         ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses, prefix.is_pool)
@@ -557,7 +550,7 @@ class PrefixIPAddressesView(View):
             'prefix': prefix,
             'ip_table': ip_table,
             'permissions': permissions,
-            'bulk_querystring': 'vrf_id={}&parent={}'.format(prefix.vrf or '0', prefix.prefix),
+            'bulk_querystring': 'vrf_id={}&parent={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),
         })
 
 
@@ -691,6 +684,51 @@ class IPAddressCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class IPAddressEditView(IPAddressCreateView):
     permission_required = 'ipam.change_ipaddress'
+
+
+class IPAddressAssignView(PermissionRequiredMixin, View):
+    """
+    Search for IPAddresses to be assigned to an Interface.
+    """
+    permission_required = 'ipam.change_ipaddress'
+
+    def dispatch(self, request, *args, **kwargs):
+
+        # Redirect user if an interface has not been provided
+        if 'interface' not in request.GET:
+            return redirect('ipam:ipaddress_add')
+
+        return super(IPAddressAssignView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+
+        form = forms.IPAddressAssignForm()
+
+        return render(request, 'ipam/ipaddress_assign.html', {
+            'form': form,
+            'return_url': request.GET.get('return_url', ''),
+        })
+
+    def post(self, request):
+
+        form = forms.IPAddressAssignForm(request.POST)
+        table = None
+
+        if form.is_valid():
+
+            queryset = IPAddress.objects.select_related(
+                'vrf', 'tenant', 'interface__device', 'interface__virtual_machine'
+            ).filter(
+                vrf=form.cleaned_data['vrf'],
+                address__net_host=form.cleaned_data['address'],
+            )
+            table = tables.IPAddressAssignTable(queryset)
+
+        return render(request, 'ipam/ipaddress_assign.html', {
+            'form': form,
+            'table': table,
+            'return_url': request.GET.get('return_url', ''),
+        })
 
 
 class IPAddressDeleteView(PermissionRequiredMixin, ObjectDeleteView):

@@ -1,19 +1,23 @@
 from __future__ import unicode_literals
+
 from collections import OrderedDict
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from ipam.models import IPAddress
 from circuits.models import Circuit, CircuitTermination
+from dcim.constants import (
+    CONNECTION_STATUS_CHOICES, IFACE_FF_CHOICES, IFACE_ORDERING_CHOICES, RACK_FACE_CHOICES, RACK_TYPE_CHOICES,
+    RACK_WIDTH_CHOICES, STATUS_CHOICES, SUBDEVICE_ROLE_CHOICES,
+)
 from dcim.models import (
-    CONNECTION_STATUS_CHOICES, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
-    DeviceBay, DeviceBayTemplate, DeviceType, DeviceRole, IFACE_FF_CHOICES, IFACE_ORDERING_CHOICES, Interface,
-    InterfaceConnection, InterfaceTemplate, Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate,
-    PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RACK_FACE_CHOICES, RACK_TYPE_CHOICES,
-    RACK_WIDTH_CHOICES, Region, Site, STATUS_CHOICES, SUBDEVICE_ROLE_CHOICES,
+    ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    DeviceBayTemplate, DeviceType, DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
+    InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
+    RackReservation, RackRole, Region, Site,
 )
 from extras.api.customfields import CustomFieldModelSerializer
+from ipam.models import IPAddress
 from tenancy.api.serializers import NestedTenantSerializer
 from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer
 from virtualization.models import Cluster

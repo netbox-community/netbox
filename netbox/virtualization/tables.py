@@ -7,7 +7,6 @@ from dcim.models import Interface
 from utilities.tables import BaseTable, ToggleColumn
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
-
 CLUSTERTYPE_ACTIONS = """
 {% if perms.virtualization.change_clustertype %}
     <a href="{% url 'virtualization:clustertype_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>

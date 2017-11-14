@@ -1,0 +1,17 @@
+{% extends '500.html' %}
+
+{% block message %}
+    <p>
+        A database programming error was detected while processing this request. Common causes include the following:
+    </p>
+    <p>
+        <i class="fa fa-warning"></i> <strong>Database migrations missing</strong> - When upgrading to a new NetBox release, the upgrade script must
+        be run to apply any new database migrations. You can run migrations manually by executing
+        <code>python3 manage.py migrate</code> from the command line.
+    </p>
+    <p>
+        <i class="fa fa-warning"></i> <strong>Unsupported PostgreSQL version</strong> - Ensure that PostgreSQL version 9.4 or higher is in use. You
+        can check this by connecting to the database using NetBox's credentials and issuing a query for
+        <code>SELECT VERSION()</code>.
+    </p>
+{% endblock %}

@@ -1,10 +1,9 @@
 from __future__ import unicode_literals
 
-from mptt.forms import TreeNodeChoiceField
-
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Count
+from mptt.forms import TreeNodeChoiceField
 
 from dcim.constants import IFACE_FF_VIRTUAL
 from dcim.formfields import MACAddressFormField
@@ -19,7 +18,6 @@ from utilities.forms import (
 )
 from .constants import STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
-
 
 VIFACE_FF_CHOICES = (
     (IFACE_FF_VIRTUAL, 'Virtual'),

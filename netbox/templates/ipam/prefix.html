@@ -30,13 +30,13 @@
                     <td>
                         {% if prefix.tenant %}
                             {% if prefix.tenant.group %}
-                                <a href="{{ prefix.tenant.group.get_absolute_url }}">{{ prefix.tenant.group.name }}</a>
+                                <a href="{{ prefix.tenant.group.get_absolute_url }}">{{ prefix.tenant.group }}</a>
                                 <i class="fa fa-angle-right"></i>
                             {% endif %}
                             <a href="{{ prefix.tenant.get_absolute_url }}">{{ prefix.tenant }}</a>
                         {% elif prefix.vrf.tenant %}
                             {% if prefix.vrf.tenant.group %}
-                                <a href="{{ prefix.vrf.tenant.group.get_absolute_url }}">{{ prefix.vrf.tenant.group.name }}</a>
+                                <a href="{{ prefix.vrf.tenant.group.get_absolute_url }}">{{ prefix.vrf.tenant.group }}</a>
                                 <i class="fa fa-angle-right"></i>
                             {% endif %}
                             <a href="{{ prefix.vrf.tenant.get_absolute_url }}">{{ prefix.vrf.tenant }}</a>
@@ -75,7 +75,7 @@
                     <td>
                         {% if prefix.vlan %}
                             {% if prefix.vlan.group %}
-                                <a href="{{ prefix.vlan.group.get_absolute_url }}">{{ prefix.vlan.group.name }}</a>
+                                <a href="{{ prefix.vlan.group.get_absolute_url }}">{{ prefix.vlan.group }}</a>
                                 <i class="fa fa-angle-right"></i>
                             {% endif %}
                             <a href="{% url 'ipam:vlan' pk=prefix.vlan.pk %}">{{ prefix.vlan.display_name }}</a>

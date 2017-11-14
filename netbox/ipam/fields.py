@@ -1,9 +1,8 @@
 from __future__ import unicode_literals
 
-from netaddr import IPNetwork
-
 from django.core.exceptions import ValidationError
 from django.db import models
+from netaddr import IPNetwork
 
 from .formfields import IPFormField
 from .lookups import (

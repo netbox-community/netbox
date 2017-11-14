@@ -4,7 +4,6 @@ from django import forms
 
 from utilities.forms import BootstrapMixin
 
-
 OBJ_TYPE_CHOICES = (
     ('', 'All Objects'),
     ('Circuits', (

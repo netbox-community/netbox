@@ -7,7 +7,7 @@
 {% block content %}
 {% include 'dcim/inc/device_header.html' with active_tab='info' %}
 <div class="row">
-	<div class="col-md-5">
+	<div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Device</strong>
@@ -28,10 +28,10 @@
                     <td>
                         {% if device.rack %}
                             {% if device.rack.group %}
-                                <a href="{{ device.rack.group.get_absolute_url }}">{{ device.rack.group.name }}</a>
+                                <a href="{{ device.rack.group.get_absolute_url }}">{{ device.rack.group }}</a>
                                 <i class="fa fa-angle-right"></i>
                             {% endif %}
-                            <a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack.name }}</a>{% if device.rack.facility_id %} ({{ device.rack.facility_id }}){% endif %}
+                            <a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack }}</a>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}
@@ -42,7 +42,7 @@
                     <td>
                         {% if device.parent_bay %}
                             {% with device.parent_bay.device as parent %}
-                                <a href="{{ parent.get_absolute_url }}">{{ parent }}</a> <i class="fa fa-angle-right"></i> {{ device.parent_bay.name }}
+                                <a href="{{ parent.get_absolute_url }}">{{ parent }}</a> <i class="fa fa-angle-right"></i> {{ device.parent_bay }}
                                 {% if parent.position %}
                                     (U{{ parent.position }} / {{ parent.get_face_display }})
                                 {% endif %}
@@ -61,7 +61,7 @@
                     <td>
                         {% if device.tenant %}
                             {% if device.tenant.group %}
-                                <a href="{{ device.tenant.group.get_absolute_url }}">{{ device.tenant.group.name }}</a>
+                                <a href="{{ device.tenant.group.get_absolute_url }}">{{ device.tenant.group }}</a>
                                 <i class="fa fa-angle-right"></i>
                             {% endif %}
                             <a href="{{ device.tenant.get_absolute_url }}">{{ device.tenant }}</a>
@@ -172,6 +172,69 @@
         {% with device.get_custom_fields as custom_fields %}
             {% include 'inc/custom_fields_panel.html' %}
         {% endwith %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Comments</strong>
+            </div>
+            <div class="panel-body">
+                {% if device.comments %}
+                    {{ device.comments|gfm }}
+                {% else %}
+                    <span class="text-muted">None</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Console / Power</strong>
+            </div>
+            <table class="table table-hover panel-body component-list">
+                {% for cp in console_ports %}
+                    {% include 'dcim/inc/consoleport.html' %}
+                {% empty %}
+                    {% if device.device_type.console_port_templates.exists %}
+                        <tr>
+                            <td colspan="6" class="alert-warning">
+                                <i class="fa fa-fw fa-warning"></i> No console ports defined
+                                {% if perms.dcim.add_consoleport %}
+                                    <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                {% for pp in power_ports %}
+                    {% include 'dcim/inc/powerport.html' %}
+                {% empty %}
+                    {% if device.device_type.power_port_templates.exists %}
+                        <tr>
+                            <td colspan="6" class="alert-warning">
+                                <i class="fa fa-fw fa-warning"></i> No power ports defined
+                                {% if perms.dcim.add_powerport %}
+                                    <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </table>
+            {% if perms.dcim.add_interface or perms.dcim.add_consoleport or perms.dcim.add_powerport %}
+                <div class="panel-footer text-right">
+                    {% if perms.dcim.add_consoleport %}
+                        <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console port
+                        </a>
+                    {% endif %}
+                    {% if perms.dcim.add_powerport %}
+                        <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power port
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
         {% if request.user.is_authenticated %}
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -226,67 +289,6 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
-                <strong>Console / Power</strong>
-            </div>
-            <table class="table table-hover panel-body component-list">
-                {% for cp in console_ports %}
-                    {% include 'dcim/inc/consoleport.html' %}
-                {% empty %}
-                    {% if device.device_type.console_port_templates.exists %}
-                        <tr>
-                            <td colspan="6" class="alert-warning">
-                                <i class="fa fa-fw fa-warning"></i> No console ports defined
-                                {% if perms.dcim.add_consoleport %}
-                                    <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-                {% for pp in power_ports %}
-                    {% include 'dcim/inc/powerport.html' %}
-                {% empty %}
-                    {% if device.device_type.power_port_templates.exists %}
-                        <tr>
-                            <td colspan="6" class="alert-warning">
-                                <i class="fa fa-fw fa-warning"></i> No power ports defined
-                                {% if perms.dcim.add_powerport %}
-                                    <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-            </table>
-            {% if perms.dcim.add_interface or perms.dcim.add_consoleport or perms.dcim.add_powerport %}
-                <div class="panel-footer text-right">
-                    {% if perms.dcim.add_consoleport %}
-                        <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console port
-                        </a>
-                    {% endif %}
-                    {% if perms.dcim.add_powerport %}
-                        <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power port
-                        </a>
-                    {% endif %}
-                </div>
-            {% endif %}
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Comments</strong>
-            </div>
-            <div class="panel-body">
-                {% if device.comments %}
-                    {{ device.comments|gfm }}
-                {% else %}
-                    <span class="text-muted">None</span>
-                {% endif %}
-            </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
                 <strong>Images</strong>
             </div>
             {% include 'inc/image_attachments.html' with images=device.images.all %}
@@ -326,7 +328,9 @@
             {% endif %}
         </div>
 	</div>
-	<div class="col-md-7">
+</div>
+<div class="row">
+	<div class="col-md-12">
         {% if device_bays or device.device_type.is_parent_device %}
             {% if perms.dcim.delete_devicebay %}
                 <form method="post" action="{% url 'dcim:devicebay_bulk_delete' pk=device.pk %}">
@@ -350,7 +354,7 @@
                 </div>
                 <table class="table table-hover panel-body component-list">
                     {% for devicebay in device_bays %}
-                        {% include 'dcim/inc/devicebay.html' with selectable=True %}
+                        {% include 'dcim/inc/devicebay.html' %}
                     {% empty %}
                         <tr>
                             <td colspan="4">No device bays defined</td>
@@ -405,11 +409,23 @@
                     </div>
                 </div>
                 <table id="interfaces_table" class="table table-hover panel-body component-list">
+                    <tr class="table-headings">
+                        {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
+                            <th></th>
+                        {% endif %}
+                        <th>Name</th>
+                        <th>LAG</th>
+                        <th>Description</th>
+                        <th>MTU</th>
+                        <th>MAC Address</th>
+                        <th colspan="2">Connection</th>
+                        <th></th>
+                    </tr>
                     {% for iface in interfaces %}
-                        {% include 'dcim/inc/interface.html' with selectable=True %}
+                        {% include 'dcim/inc/interface.html' %}
                     {% empty %}
                         <tr>
-                            <td colspan="4">No interfaces defined</td>
+                            <td colspan="8">No interfaces defined</td>
                         </tr>
                     {% endfor %}
                 </table>
@@ -467,8 +483,16 @@
                     </div>
                 </div>
                 <table class="table table-hover panel-body component-list">
+                    <tr class="table-headings">
+                        {% if perms.dcim.change_consoleserverport or perms.dcim.delete_consoleserverport %}
+                            <th></th>
+                        {% endif %}
+                        <th>Name</th>
+                        <th colspan="2">Connection</th>
+                        <th></th>
+                    </tr>
                     {% for csp in cs_ports %}
-                        {% include 'dcim/inc/consoleserverport.html' with selectable=True %}
+                        {% include 'dcim/inc/consoleserverport.html' %}
                     {% empty %}
                         <tr>
                             <td colspan="4">No console server ports defined</td>
@@ -524,12 +548,20 @@
                     </div>
                 </div>
                 <table class="table table-hover panel-body component-list">
+                    <tr class="table-headings">
+                        {% if perms.dcim.change_poweroutlet or perms.dcim.delete_poweroutlet %}
+                            <th></th>
+                        {% endif %}
+                        <th>Name</th>
+                        <th colspan="2">Connection</th>
+                        <th></th>
+                    </tr>
                     {% for po in power_outlets %}
-                        {% include 'dcim/inc/poweroutlet.html' with selectable=True %}
+                        {% include 'dcim/inc/poweroutlet.html' %}
                     {% empty %}
                         <tr>
                             <td colspan="4">No power outlets defined</td>
-                        </tr>
+                        </tr> text-nowrap
                     {% endfor %}
                 </table>
                 {% if perms.dcim.add_poweroutlet or perms.dcim.delete_poweroutlet %}

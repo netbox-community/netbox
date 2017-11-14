@@ -1,0 +1,12 @@
+{% extends '500.html' %}
+
+{% block message %}
+    <p>
+        A file permission error was detected while processing this request. Common causes include the following:
+    </p>
+    <p>
+        <i class="fa fa-warning"></i> <strong>Insufficient write permission to the media root</strong> - The configured
+        media root is <code>{{ settings.MEDIA_ROOT }}</code>. Ensure that the user NetBox runs as has access to write
+        files to all locations within this path.
+    </p>
+{% endblock %}
