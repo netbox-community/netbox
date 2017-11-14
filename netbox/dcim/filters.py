@@ -425,7 +425,8 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Device model (slug)',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=STATUS_CHOICES
+        choices=STATUS_CHOICES,
+        null_value=None
     )
     is_full_depth = django_filters.BooleanFilter(
         name='device_type__is_full_depth',

@@ -70,7 +70,8 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         label='Search',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=STATUS_CHOICES
+        choices=STATUS_CHOICES,
+        null_value=None
     )
     cluster_group_id = django_filters.ModelMultipleChoiceFilter(
         name='cluster__group',

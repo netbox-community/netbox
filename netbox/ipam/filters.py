@@ -165,7 +165,8 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Role (slug)',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=PREFIX_STATUS_CHOICES
+        choices=PREFIX_STATUS_CHOICES,
+        null_value=None
     )
 
     class Meta:
@@ -270,7 +271,8 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Interface (ID)',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=IPADDRESS_STATUS_CHOICES
+        choices=IPADDRESS_STATUS_CHOICES,
+        null_value=None
     )
     role = django_filters.MultipleChoiceFilter(
         choices=IPADDRESS_ROLE_CHOICES
@@ -369,7 +371,8 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Role (slug)',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=VLAN_STATUS_CHOICES
+        choices=VLAN_STATUS_CHOICES,
+        null_value=None
     )
 
     class Meta:
