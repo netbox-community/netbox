@@ -699,35 +699,20 @@ class WritableInterfaceSerializer(ValidatedModelSerializer):
             'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
             'mode', 'untagged_vlan', 'tagged_vlans',
         ]
-        ignore_validation_fields = [
-            'tagged_vlans'
-        ]
 
     def validate(self, data):
 
-        # Get the device for later use
-        if self.instance:
-            device = self.instance.device
-        else:
-            device = data.get('device')
+        # Validate that all untagged VLANs either belong to the same site as the Interface's parent Deivce or
+        # VirtualMachine, or are global.
+        parent = self.instance.parent if self.instance else data.get('device') or data.get('virtual_machine')
+        for vlan in data.get('tagged_vlans', []):
+            if vlan.site not in [parent, None]:
+                raise serializers.ValidationError(
+                    "Tagged VLAN {} must belong to the same site as the interface's parent device/VM, or it must be "
+                    "global".format(vlan)
+                )
 
-        # Validate VLANs belong to the device's site or global
-        # We have to do this here decause of the ManyToMany relationship
-        native_vlan = data.get('native_vlan')
-        if native_vlan:
-            if native_vlan.site != device.site and native_vlan.site is not None:
-                raise serializers.ValidationError("Native VLAN is invalid for the interface's device.")
-
-        tagged_vlan_members = data.get('tagged_vlan_members')
-        if tagged_vlan_members:
-            for vlan in tagged_vlan_members:
-                if vlan.site != device.site and vlan.site is not None:
-                    raise serializers.ValidationError("Tagged VLAN {} is invalid for the interface's device.".format(vlan))
-
-        # Enforce model validation
-        super(WritableInterfaceSerializer, self).validate(data)
-
-        return data
+        return super(WritableInterfaceSerializer, self).validate(data)
 
 
 #

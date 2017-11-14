@@ -1318,6 +1318,13 @@ class Interface(models.Model):
                 )
             })
 
+        # Validate untagged VLAN
+        if self.untagged_vlan and self.untagged_vlan.site not in [self.parent.site, None]:
+            raise ValidationError({
+                'untagged_vlan': "The untagged VLAN ({}) must belong to the same site as the interface's parent "
+                                 "device/VM, or it must be global".format(self.untagged_vlan)
+            })
+
     @property
     def parent(self):
         return self.device or self.virtual_machine
