@@ -19,6 +19,7 @@ from dcim.models import (
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.models import IPAddress, VLAN
 from tenancy.api.serializers import NestedTenantSerializer
+from users.api.serializers import NestedUserSerializer
 from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer
 from virtualization.models import Cluster
 
@@ -215,6 +216,8 @@ class RackUnitSerializer(serializers.Serializer):
 
 class RackReservationSerializer(serializers.ModelSerializer):
     rack = NestedRackSerializer()
+    user= NestedUserSerializer()
+    tenant = NestedTenantSerializer()
 
     class Meta:
         model = RackReservation
