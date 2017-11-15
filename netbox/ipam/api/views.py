@@ -219,9 +219,9 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
 class IPAddressViewSet(CustomFieldModelViewSet):
     queryset = IPAddress.objects.select_related(
-        'vrf__tenant', 'tenant', 'nat_inside'
+        'vrf__tenant', 'tenant', 'nat_inside', 'interface__device__device_type', 'interface__virtual_machine'
     ).prefetch_related(
-        'interface__device', 'interface__virtual_machine'
+        'nat_outside'
     )
     serializer_class = serializers.IPAddressSerializer
     write_serializer_class = serializers.WritableIPAddressSerializer

@@ -3,9 +3,11 @@ from __future__ import unicode_literals
 from collections import OrderedDict
 
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 from rest_framework.validators import UniqueTogetherValidator
 
 from dcim.api.serializers import NestedDeviceSerializer, InterfaceSerializer, NestedSiteSerializer
+from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.constants import (
     IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, IP_PROTOCOL_CHOICES, PREFIX_STATUS_CHOICES, VLAN_STATUS_CHOICES,
@@ -255,14 +257,24 @@ class AvailablePrefixSerializer(serializers.Serializer):
 # IP addresses
 #
 
-class IPAddressInterfaceSerializer(InterfaceSerializer):
+class IPAddressInterfaceSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField()  # We're imitating a HyperlinkedIdentityField here
+    device = NestedDeviceSerializer()
     virtual_machine = NestedVirtualMachineSerializer()
 
     class Meta(InterfaceSerializer.Meta):
+        model = Interface
         fields = [
-            'id', 'device', 'virtual_machine', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address',
-            'mgmt_only', 'description', 'is_connected', 'interface_connection', 'circuit_termination',
+            'id', 'url', 'device', 'virtual_machine', 'name',
         ]
+
+    def get_url(self, obj):
+        """
+        Return a link to the Interface via either the DCIM API if the parent is a Device, or via the virtualization API
+        if the parent is a VirtualMachine.
+        """
+        url_name = 'dcim-api:interface-detail' if obj.device else 'virtualization-api:interface-detail'
+        return reverse(url_name, kwargs={'pk': obj.pk}, request=self.context['request'])
 
 
 class IPAddressSerializer(CustomFieldModelSerializer):
