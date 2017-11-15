@@ -417,6 +417,7 @@ class RackReservation(models.Model):
     rack = models.ForeignKey('Rack', related_name='reservations', on_delete=models.CASCADE)
     units = ArrayField(models.PositiveSmallIntegerField())
     created = models.DateTimeField(auto_now_add=True)
+    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='rackreservations', on_delete=models.PROTECT)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     description = models.CharField(max_length=100)
 

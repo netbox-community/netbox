@@ -379,13 +379,13 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Rack reservations
 #
 
-class RackReservationForm(BootstrapMixin, forms.ModelForm):
+class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
     units = SimpleArrayField(forms.IntegerField(), widget=ArrayFieldSelectMultiple(attrs={'size': 10}))
     user = forms.ModelChoiceField(queryset=User.objects.order_by('username'))
 
     class Meta:
         model = RackReservation
-        fields = ['units', 'user', 'description']
+        fields = ['units', 'user', 'tenant_group', 'tenant', 'description']
 
     def __init__(self, *args, **kwargs):
 
@@ -415,11 +415,17 @@ class RackReservationFilterForm(BootstrapMixin, forms.Form):
         label='Rack group',
         null_option=(0, 'None')
     )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.annotate(filter_count=Count('rackreservations')),
+        to_field_name='slug',
+        null_option=(0, 'None')
+    )
 
 
 class RackReservationBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=RackReservation.objects.all(), widget=forms.MultipleHiddenInput)
     user = forms.ModelChoiceField(queryset=User.objects.order_by('username'), required=False)
+    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     description = forms.CharField(max_length=100, required=False)
 
     class Meta:
@@ -805,10 +811,10 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         pk = self.instance.pk if self.instance.pk else None
         try:
             if self.is_bound and self.data.get('rack') and str(self.data.get('face')):
-                position_choices = Rack.objects.get(pk=self.data['rack'])\
+                position_choices = Rack.objects.get(pk=self.data['rack']) \
                     .get_rack_units(face=self.data.get('face'), exclude=pk)
             elif self.initial.get('rack') and str(self.initial.get('face')):
-                position_choices = Rack.objects.get(pk=self.initial['rack'])\
+                position_choices = Rack.objects.get(pk=self.initial['rack']) \
                     .get_rack_units(face=self.initial.get('face'), exclude=pk)
             else:
                 position_choices = []

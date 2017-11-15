@@ -326,7 +326,7 @@ class RackView(View):
 
         rack = get_object_or_404(Rack.objects.select_related('site__region', 'tenant__group', 'group', 'role'), pk=pk)
 
-        nonracked_devices = Device.objects.filter(rack=rack, position__isnull=True, parent_bay__isnull=True)\
+        nonracked_devices = Device.objects.filter(rack=rack, position__isnull=True, parent_bay__isnull=True) \
             .select_related('device_type__manufacturer')
         next_rack = Rack.objects.filter(site=rack.site, name__gt=rack.name).order_by('name').first()
         prev_rack = Rack.objects.filter(site=rack.site, name__lt=rack.name).order_by('-name').first()
@@ -1783,7 +1783,7 @@ class InterfaceConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView
 #
 
 class ConsoleConnectionsListView(ObjectListView):
-    queryset = ConsolePort.objects.select_related('device', 'cs_port__device').filter(cs_port__isnull=False)\
+    queryset = ConsolePort.objects.select_related('device', 'cs_port__device').filter(cs_port__isnull=False) \
         .order_by('cs_port__device__name', 'cs_port__name')
     filter = filters.ConsoleConnectionFilter
     filter_form = forms.ConsoleConnectionFilterForm
@@ -1792,7 +1792,7 @@ class ConsoleConnectionsListView(ObjectListView):
 
 
 class PowerConnectionsListView(ObjectListView):
-    queryset = PowerPort.objects.select_related('device', 'power_outlet__device').filter(power_outlet__isnull=False)\
+    queryset = PowerPort.objects.select_related('device', 'power_outlet__device').filter(power_outlet__isnull=False) \
         .order_by('power_outlet__device__name', 'power_outlet__name')
     filter = filters.PowerConnectionFilter
     filter_form = forms.PowerConnectionFilterForm
@@ -1801,7 +1801,7 @@ class PowerConnectionsListView(ObjectListView):
 
 
 class InterfaceConnectionsListView(ObjectListView):
-    queryset = InterfaceConnection.objects.select_related('interface_a__device', 'interface_b__device')\
+    queryset = InterfaceConnection.objects.select_related('interface_a__device', 'interface_b__device') \
         .order_by('interface_a__device__name', 'interface_a__name')
     filter = filters.InterfaceConnectionFilter
     filter_form = forms.InterfaceConnectionFilterForm
