@@ -94,6 +94,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
             if not request.user.has_perm('ipam.add_prefix'):
                 raise PermissionDenied()
 
+            # Normalize to a list of objects
             requested_prefixes = request.data if isinstance(request.data, list) else [request.data]
 
             # Allocate prefixes to the requested objects based on availability within the parent
@@ -155,32 +156,30 @@ class PrefixViewSet(CustomFieldModelViewSet):
             if not request.user.has_perm('ipam.add_ipaddress'):
                 raise PermissionDenied()
 
+            # Normalize to a list of objects
+            requested_ips = request.data if isinstance(request.data, list) else [request.data]
+
             # Determine if the requested number of IPs is available
-            requested_count = len(request.data) if isinstance(request.data, list) else 1
             available_ips = list(prefix.get_available_ips())
-            if len(available_ips) < requested_count:
+            if len(available_ips) < len(requested_ips):
                 return Response(
                     {
                         "detail": "An insufficient number of IP addresses are available within the prefix {} ({} "
-                                  "requested, {} available)".format(prefix, requested_count, len(available_ips))
+                                  "requested, {} available)".format(prefix, len(requested_ips), len(available_ips))
                     },
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Deserializing multiple IP addresses
-            if isinstance(request.data, list):
-                request_data = list(request.data)  # Need a mutable copy
-                for obj in request_data:
-                    obj['address'] = available_ips.pop(0)
-                    obj['vrf'] = prefix.vrf.pk if prefix.vrf else None
-                serializer = serializers.WritableIPAddressSerializer(data=request_data, many=True)
+            # Assign addresses from the list of available IPs and copy VRF assignment from the parent prefix
+            for requested_ip in requested_ips:
+                requested_ip['address'] = available_ips.pop(0)
+                requested_ip['vrf'] = prefix.vrf.pk if prefix.vrf else None
 
-            # Deserializing a single IP address
+            # Initialize the serializer with a list or a single object depending on what was requested
+            if isinstance(request.data, list):
+                serializer = serializers.WritableIPAddressSerializer(data=requested_ips, many=True)
             else:
-                request_data = request.data.copy()  # Need a mutable copy
-                request_data['address'] = available_ips.pop(0)
-                request_data['vrf'] = prefix.vrf.pk if prefix.vrf else None
-                serializer = serializers.WritableIPAddressSerializer(data=request_data)
+                serializer = serializers.WritableIPAddressSerializer(data=requested_ips[0])
 
             # Create the new IP address(es)
             if serializer.is_valid():
