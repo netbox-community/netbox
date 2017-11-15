@@ -42,8 +42,15 @@ footer p {
     }
 }
 
-/* Collapse the nav menu on displays less than 1200px wide */
+/* Hide the search bar in the navigation menu on displays less than 1200px wide */
 @media (max-width: 1199px) {
+    #navbar_search {
+        display: none;
+    }
+}
+
+/* Collapse the nav menu on displays less than 960px wide */
+@media (max-width: 959px) {
     .navbar-header {
         float: none;
     }
