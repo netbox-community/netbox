@@ -8,6 +8,10 @@
             <span class="fa fa-plus" aria-hidden="true"></span>
             Add a VLAN group
         </a>
+        <a href="{% url 'ipam:vlangroup_import' %}" class="btn btn-info">
+            <span class="fa fa-download" aria-hidden="true"></span>
+            Import VLAN groups
+        </a>
     {% endif %}
 </div>
 <h1>{% block title %}VLAN Groups{% endblock %}</h1>

@@ -8,6 +8,10 @@
             <span class="fa fa-plus" aria-hidden="true"></span>
             Add a device role
         </a>
+        <a href="{% url 'dcim:devicerole_import' %}" class="btn btn-info">
+            <span class="fa fa-download" aria-hidden="true"></span>
+            Import device roles
+        </a>
     {% endif %}
 </div>
 <h1>{% block title %}Device Roles{% endblock %}</h1>
