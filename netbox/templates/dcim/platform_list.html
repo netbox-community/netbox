@@ -8,6 +8,10 @@
             <span class="fa fa-plus" aria-hidden="true"></span>
             Add a platform
         </a>
+        <a href="{% url 'dcim:platform_import' %}" class="btn btn-info">
+            <span class="fa fa-download" aria-hidden="true"></span>
+            Import platforms
+        </a>
     {% endif %}
 </div>
 <h1>{% block title %}Platforms{% endblock %}</h1>

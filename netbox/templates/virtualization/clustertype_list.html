@@ -8,6 +8,10 @@
             <span class="fa fa-plus" aria-hidden="true"></span>
             Add a cluster type
         </a>
+        <a href="{% url 'virtualization:clustertype_import' %}" class="btn btn-info">
+            <span class="fa fa-download" aria-hidden="true"></span>
+            Import cluster types
+        </a>
     {% endif %}
 </div>
 <h1>{% block title %}Cluster Types{% endblock %}</h1>

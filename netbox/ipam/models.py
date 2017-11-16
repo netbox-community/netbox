@@ -304,6 +304,16 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
 
         return available_ips
 
+    def get_first_available_ip(self):
+        """
+        Return the first available IP within the prefix (or None).
+        """
+        available_ips = self.get_available_ips()
+        if available_ips:
+            return '{}/{}'.format(next(available_ips.__iter__()), self.prefix.prefixlen)
+        else:
+            return None
+
     def get_utilization(self):
         """
         Determine the utilization of the prefix and return it as a percentage. For Prefixes with a status of
