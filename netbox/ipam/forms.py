@@ -689,7 +689,7 @@ class IPAddressBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
 
 class IPAddressAssignForm(BootstrapMixin, forms.Form):
-    vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF')
+    vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF', empty_label='Global')
     address = forms.CharField(label='IP Address')
 
 

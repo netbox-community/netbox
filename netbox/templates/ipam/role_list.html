@@ -8,6 +8,10 @@
             <span class="fa fa-plus" aria-hidden="true"></span>
             Add a role
         </a>
+        <a href="{% url 'ipam:role_import' %}" class="btn btn-info">
+            <span class="fa fa-download" aria-hidden="true"></span>
+            Import roles
+        </a>
     {% endif %}
 </div>
 <h1>{% block title %}Prefix/VLAN Roles{% endblock %}</h1>

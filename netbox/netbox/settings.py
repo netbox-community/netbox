@@ -22,7 +22,7 @@ if sys.version_info[0] < 3:
         DeprecationWarning
     )
 
-VERSION = '2.2.6-dev'
+VERSION = '2.2.7-dev'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

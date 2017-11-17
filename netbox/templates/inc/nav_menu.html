@@ -379,7 +379,9 @@
                 {% if request.user.is_authenticated %}
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="{{ request.user }}" role="button" aria-haspopup="true" aria-expanded="false">
-                            {{ request.user|truncatechars:"30" }} <span class="caret"></span>
+                            <i class="fa fa-user"></i>
+                            <span id="navbar_user">{{ request.user|truncatechars:"30" }}</span>
+                            <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu">
                             <li><a href="{% url 'user:profile' %}"><i class="fa fa-user"></i> Profile</a></li>
