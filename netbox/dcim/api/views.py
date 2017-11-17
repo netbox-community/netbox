@@ -15,7 +15,7 @@ from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site,
+    RackReservation, RackRole, Region, Site, VCMembership, VirtualChassis
 )
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
@@ -394,6 +394,24 @@ class InterfaceConnectionViewSet(ModelViewSet):
     serializer_class = serializers.InterfaceConnectionSerializer
     write_serializer_class = serializers.WritableInterfaceConnectionSerializer
     filter_class = filters.InterfaceConnectionFilter
+
+
+#
+# Virtual chassis
+#
+
+class VirtualChassisViewSet(ModelViewSet):
+    queryset = VirtualChassis.objects.select_related('master')
+    serializer_class = serializers.VirtualChassisSerializer
+    write_serializer_class = serializers.WritableVirtualChassisSerializer
+    # filter_class = filters.VirtualChassisFilter
+
+
+class VCMembershipViewSet(ModelViewSet):
+    queryset = VCMembership.objects.select_related('virtual_chassis', 'device')
+    serializer_class = serializers.VCMembershipSerializer
+    write_serializer_class = serializers.WritableVCMembershipSerializer
+    # filter_class = filters.VCMembershipFilter
 
 
 #

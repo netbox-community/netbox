@@ -1479,3 +1479,65 @@ class InventoryItem(models.Model):
 
     def __str__(self):
         return self.name
+
+
+#
+# Virtual chassis
+#
+
+@python_2_unicode_compatible
+class VirtualChassis(models.Model):
+    """
+    A collection of Devices which operate with a shared control plane (e.g. a switch stack).
+    """
+    domain = models.CharField(
+        max_length=30,
+        blank=True
+    )
+    master = models.OneToOneField(
+        to='Device',
+        on_delete=models.PROTECT,
+        related_name='vc_master_for'
+    )
+
+    def get_absolute_url(self):
+        return "{}?virtual_chassis={}".format(reverse('dcim:device_list'), self.pk)
+
+    def clean(self):
+
+        # Check that the master Device is not already assigned to a VirtualChassis.
+        if VCMembership.objects.filter(device=self.master).exclude(virtual_chassis=self):
+            raise ValidationError("The master device is already assigned to a different virtual chassis.")
+
+
+@python_2_unicode_compatible
+class VCMembership(models.Model):
+    """
+    An attachment of a physical Device to a VirtualChassis.
+    """
+    virtual_chassis = models.ForeignKey(
+        to='VirtualChassis',
+        on_delete=models.CASCADE,
+        related_name='memberships'
+    )
+    device = models.OneToOneField(
+        to='Device',
+        on_delete=models.CASCADE,
+        related_name='vc_membership'
+    )
+    master_enabled = models.BooleanField(
+        default=True
+    )
+    position = models.PositiveSmallIntegerField(
+        validators=[MaxValueValidator(255)]
+    )
+    priority = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MaxValueValidator(255)]
+    )
+
+    class Meta:
+        ordering = ['virtual_chassis', 'position']
+        unique_together = ['virtual_chassis', 'position']
+        verbose_name = 'VC membership'

@@ -14,7 +14,7 @@ from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceType, DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site,
+    RackReservation, RackRole, Region, Site, VirtualChassis, VCMembership
 )
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.models import IPAddress, VLAN
@@ -799,3 +799,52 @@ class WritableInterfaceConnectionSerializer(ValidatedModelSerializer):
     class Meta:
         model = InterfaceConnection
         fields = ['id', 'interface_a', 'interface_b', 'connection_status']
+
+
+#
+# Virtual chassis
+#
+
+class VirtualChassisSerializer(serializers.ModelSerializer):
+    site = NestedSiteSerializer()
+    master = NestedDeviceSerializer()
+
+    class Meta:
+        model = VirtualChassis
+        fields = ['id', 'site', 'domain', 'master']
+
+
+class NestedVirtualChassisSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualchassis-detail')
+
+    class Meta:
+        model = VirtualChassis
+        fields = ['id', 'url']
+
+
+class WritableVirtualChassisSerializer(ValidatedModelSerializer):
+
+    class Meta:
+        model = VirtualChassis
+        fields = ['id', 'site', 'domain', 'master']
+
+
+#
+# Virtual chassis memberships
+#
+
+class VCMembershipSerializer(serializers.ModelSerializer):
+    virtual_chassis = NestedVirtualChassisSerializer()
+    device = NestedDeviceSerializer()
+
+    class Meta:
+        model = VCMembership
+        fields = ['id', 'virtual_chassis', 'device', 'master_enabled', 'position', 'priority']
+
+
+class WritableVCMembershipSerializer(serializers.ModelSerializer):
+    virtual_chassis = serializers.PrimaryKeyRelatedField(queryset=VirtualChassis.objects.all(), required=False)
+
+    class Meta:
+        model = VCMembership
+        fields = ['id', 'virtual_chassis', 'device', 'master_enabled', 'position', 'priority']

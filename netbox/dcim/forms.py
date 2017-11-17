@@ -30,7 +30,7 @@ from .models import (
     DeviceBay, DeviceBayTemplate, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate,
     Device, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, InventoryItem,
     Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation,
-    RackRole, Region, Site,
+    RackRole, Region, Site, VirtualChassis
 )
 from .constants import *
 
@@ -2170,3 +2170,14 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InventoryItem
         fields = ['name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description']
+
+
+#
+# Virtual chassis
+#
+
+class VirtualChassisForm(BootstrapMixin, forms.ModelForm):
+
+    class Meta:
+        model = VirtualChassis
+        fields = ['domain']

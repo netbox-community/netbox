@@ -207,4 +207,8 @@ urlpatterns = [
     url(r'^interface-connections/$', views.InterfaceConnectionsListView.as_view(), name='interface_connections_list'),
     url(r'^interface-connections/import/$', views.InterfaceConnectionsBulkImportView.as_view(), name='interface_connections_import'),
 
+    # Virtual chassis
+    url(r'^virtual-chassis/$', views.VirtualChassisListView.as_view(), name='virtualchassis_list'),
+    url(r'^virtual-chassis/(?P<pk>\d+)/edit/$', views.VirtualChassisEditView.as_view(), name='virtualchassis_edit'),
+
 ]

@@ -31,7 +31,7 @@ from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site,
+    RackReservation, RackRole, Region, Site, VirtualChassis
 )
 
 
@@ -1829,3 +1829,22 @@ class InventoryItemDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_inventoryitem'
     model = InventoryItem
     parent_field = 'device'
+
+
+#
+# Virtual chassis
+#
+
+class VirtualChassisListView(ObjectListView):
+    queryset = VirtualChassis.objects.annotate(member_count=Count('memberships'))
+    table = tables.VirtualChassisTable
+    template_name = 'dcim/virtualchassis_list.html'
+
+
+class VirtualChassisEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_virtualchassis'
+    model = VirtualChassis
+    model_form = forms.VirtualChassisForm
+
+    def get_return_url(self, request, obj):
+        return reverse('dcim:virtualchassis_list')
