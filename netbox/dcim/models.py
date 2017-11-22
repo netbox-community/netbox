@@ -143,6 +143,11 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     def count_circuits(self):
         return Circuit.objects.filter(terminations__site=self).count()
 
+    @property
+    def count_vms(self):
+        from virtualization.models import VirtualMachine
+        return VirtualMachine.objects.filter(cluster__site=self).count()
+
 
 #
 # Racks
