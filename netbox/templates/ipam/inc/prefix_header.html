@@ -45,5 +45,5 @@
 {% include 'inc/created_updated.html' with obj=prefix %}
 <ul class="nav nav-tabs" style="margin-bottom: 20px">
     <li role="presentation"{% if active_tab == 'prefix' %} class="active"{% endif %}><a href="{% url 'ipam:prefix' pk=prefix.pk %}">Prefix</a></li>
-    <li role="presentation"{% if active_tab == 'ip-addresses' %} class="active"{% endif %}><a href="{% url 'ipam:prefix_ipaddresses' pk=prefix.pk %}">IP Addresses</a></li>
+    <li role="presentation"{% if active_tab == 'ip-addresses' %} class="active"{% endif %}><a href="{% url 'ipam:prefix_ipaddresses' pk=prefix.pk %}">IP Addresses <span class="badge">{{ prefix.get_child_ips.count }}</span></a></li>
 </ul>

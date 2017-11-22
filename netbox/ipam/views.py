@@ -454,9 +454,6 @@ class PrefixView(View):
         except Aggregate.DoesNotExist:
             aggregate = None
 
-        # Count child IP addresses
-        ipaddress_count = prefix.get_child_ips().count()
-
         # Parent prefixes table
         parent_prefixes = Prefix.objects.filter(
             Q(vrf=prefix.vrf) | Q(vrf__isnull=True)
@@ -507,7 +504,6 @@ class PrefixView(View):
         return render(request, 'ipam/prefix.html', {
             'prefix': prefix,
             'aggregate': aggregate,
-            'ipaddress_count': ipaddress_count,
             'parent_prefix_table': parent_prefix_table,
             'child_prefix_table': child_prefix_table,
             'duplicate_prefix_table': duplicate_prefix_table,
