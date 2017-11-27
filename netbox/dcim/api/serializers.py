@@ -806,12 +806,10 @@ class WritableInterfaceConnectionSerializer(ValidatedModelSerializer):
 #
 
 class VirtualChassisSerializer(serializers.ModelSerializer):
-    site = NestedSiteSerializer()
-    master = NestedDeviceSerializer()
 
     class Meta:
         model = VirtualChassis
-        fields = ['id', 'site', 'domain', 'master']
+        fields = ['id', 'domain']
 
 
 class NestedVirtualChassisSerializer(serializers.ModelSerializer):
@@ -826,7 +824,7 @@ class WritableVirtualChassisSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = VirtualChassis
-        fields = ['id', 'site', 'domain', 'master']
+        fields = ['id', 'domain']
 
 
 #
@@ -839,12 +837,23 @@ class VCMembershipSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VCMembership
-        fields = ['id', 'virtual_chassis', 'device', 'master_enabled', 'position', 'priority']
+        fields = ['id', 'virtual_chassis', 'device', 'position', 'is_master', 'priority']
 
 
-class WritableVCMembershipSerializer(serializers.ModelSerializer):
-    virtual_chassis = serializers.PrimaryKeyRelatedField(queryset=VirtualChassis.objects.all(), required=False)
+class WritableVCMembershipSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = VCMembership
-        fields = ['id', 'virtual_chassis', 'device', 'master_enabled', 'position', 'priority']
+        fields = ['id', 'virtual_chassis', 'device', 'position', 'is_master', 'priority']
+
+    def validate(self, data):
+
+        # Validate uniqueness of (virtual_chassis, position)
+        validator = UniqueTogetherValidator(queryset=VCMembership.objects.all(), fields=('virtual_chassis', 'position'))
+        validator.set_context(self)
+        validator(data)
+
+        # Enforce model validation
+        super(WritableVCMembershipSerializer, self).validate(data)
+
+        return data

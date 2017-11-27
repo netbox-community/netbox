@@ -1494,20 +1494,9 @@ class VirtualChassis(models.Model):
         max_length=30,
         blank=True
     )
-    master = models.OneToOneField(
-        to='Device',
-        on_delete=models.PROTECT,
-        related_name='vc_master_for'
-    )
 
     def get_absolute_url(self):
         return "{}?virtual_chassis={}".format(reverse('dcim:device_list'), self.pk)
-
-    def clean(self):
-
-        # Check that the master Device is not already assigned to a VirtualChassis.
-        if VCMembership.objects.filter(device=self.master).exclude(virtual_chassis=self):
-            raise ValidationError("The master device is already assigned to a different virtual chassis.")
 
 
 @python_2_unicode_compatible
@@ -1525,11 +1514,11 @@ class VCMembership(models.Model):
         on_delete=models.CASCADE,
         related_name='vc_membership'
     )
-    master_enabled = models.BooleanField(
-        default=True
-    )
     position = models.PositiveSmallIntegerField(
         validators=[MaxValueValidator(255)]
+    )
+    is_master = models.BooleanField(
+        default=False
     )
     priority = models.PositiveSmallIntegerField(
         blank=True,
@@ -1541,3 +1530,14 @@ class VCMembership(models.Model):
         ordering = ['virtual_chassis', 'position']
         unique_together = ['virtual_chassis', 'position']
         verbose_name = 'VC membership'
+
+    def clean(self):
+
+        # Check for master conflicts
+        if self.virtual_chassis and self.is_master:
+            master_conflict = VCMembership.objects.filter(virtual_chassis=self.virtual_chassis).first()
+            if master_conflict:
+                raise ValidationError({
+                    'virtual_chassis': "{} has already been designated as the master for this virtual chassis. It must "
+                                       "be demoted before a new master can be assigned.".format(master_conflict.device)
+                })

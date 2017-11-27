@@ -17,7 +17,7 @@ from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site,
+    RackReservation, RackRole, Region, Site, VCMembership,
 )
 
 
@@ -629,6 +629,13 @@ class InventoryItemFilter(DeviceComponentFilterSet):
     class Meta:
         model = InventoryItem
         fields = ['name', 'part_id', 'serial', 'discovered']
+
+
+class VCMembershipFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = VCMembership
+        fields = ['virtual_chassis']
 
 
 class ConsoleConnectionFilter(django_filters.FilterSet):
