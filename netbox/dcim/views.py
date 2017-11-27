@@ -25,6 +25,7 @@ from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView,
     ComponentEditView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
+from virtualization.models import VirtualMachine
 from . import filters, forms, tables
 from .constants import CONNECTION_STATUS_CONNECTED
 from .models import (
@@ -134,6 +135,7 @@ class SiteView(View):
             'prefix_count': Prefix.objects.filter(site=site).count(),
             'vlan_count': VLAN.objects.filter(site=site).count(),
             'circuit_count': Circuit.objects.filter(terminations__site=site).count(),
+            'vm_count': VirtualMachine.objects.filter(cluster__site=site).count(),
         }
         rack_groups = RackGroup.objects.filter(site=site).annotate(rack_count=Count('racks'))
         topology_maps = TopologyMap.objects.filter(site=site)
