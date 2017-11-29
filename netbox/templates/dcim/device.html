@@ -98,6 +98,39 @@
                 </tr>
             </table>
         </div>
+        {% if vc_memberships %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Virtual Chassis</strong>
+                </div>
+                <table class="table table-hover panel-body attr-table">
+                    <tr>
+                        <th>Device</th>
+                        <th>Position</th>
+                        <th>Master</th>
+                        <th>Priority</th>
+                    </tr>
+                    {% for vcm in vc_memberships %}
+                        <tr{% if vcm.device == device %} class="success"{% endif %}>
+                            <td>
+                                <a href="{{ vcm.device.get_absolute_url }}">{{ vcm.device }}</a>
+                            </td>
+                            <td>{{ vcm.position }}</td>
+                            <td>{{ vcm.is_master }}</td>
+                            <td>{{ vcm.priority|default:"" }}</td>
+                            <td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                {% if perms.dcim.delete_virtualchassis %}
+                    <div class="panel-footer text-right">
+                        <a href="{% url 'dcim:virtualchassis_delete' pk=device.virtual_chassis.pk %}" class="btn btn-danger btn-xs">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete Virtual Chassis
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Management</strong>

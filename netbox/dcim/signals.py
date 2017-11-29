@@ -11,6 +11,7 @@ def delete_empty_vc(instance, **kwargs):
     """
     When the last VCMembership of a VirtualChassis has been deleted, delete the VirtualChassis as well.
     """
-    virtual_chassis = instance.virtual_chassis
-    if not VCMembership.objects.filter(virtual_chassis=virtual_chassis).exists():
-        virtual_chassis.delete()
+    pass
+    # virtual_chassis = instance.virtual_chassis
+    # if not VCMembership.objects.filter(virtual_chassis=virtual_chassis).exists():
+    #     virtual_chassis.delete()

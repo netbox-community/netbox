@@ -30,7 +30,7 @@ from .models import (
     DeviceBay, DeviceBayTemplate, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate,
     Device, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, InventoryItem,
     Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation,
-    RackRole, Region, Site, VirtualChassis
+    RackRole, Region, Site, VCMembership, VirtualChassis
 )
 from .constants import *
 
@@ -2181,3 +2181,26 @@ class VirtualChassisForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = VirtualChassis
         fields = ['domain']
+
+
+class DeviceSelectionForm(forms.Form):
+    pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
+
+
+class VirtualChassisCreateForm(BootstrapMixin, forms.ModelForm):
+    master = forms.ModelChoiceField(queryset=Device.objects.all())
+
+    class Meta:
+        model = VirtualChassis
+        fields = ['master', 'domain']
+
+    def __init__(self, candidate_pks, *args, **kwargs):
+        super(VirtualChassisCreateForm, self).__init__(*args, **kwargs)
+        self.fields['master'].queryset = Device.objects.filter(pk__in=candidate_pks)
+
+
+class VCMembershipForm(BootstrapMixin, forms.ModelForm):
+
+    class Meta:
+        model = VCMembership
+        fields = ['device', 'position', 'priority']

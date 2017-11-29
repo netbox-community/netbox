@@ -1030,6 +1030,13 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         else:
             return None
 
+    @property
+    def virtual_chassis(self):
+        try:
+            return VCMembership.objects.get(device=self).virtual_chassis
+        except VCMembership.DoesNotExist:
+            return None
+
     def get_children(self):
         """
         Return the set of child Devices installed in DeviceBays within this Device.
@@ -1534,7 +1541,7 @@ class VCMembership(models.Model):
     def clean(self):
 
         # Check for master conflicts
-        if self.virtual_chassis and self.is_master:
+        if getattr(self, 'virtual_chassis', None) and self.is_master:
             master_conflict = VCMembership.objects.filter(virtual_chassis=self.virtual_chassis).first()
             if master_conflict:
                 raise ValidationError({
