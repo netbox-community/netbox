@@ -303,6 +303,7 @@ class Secret(CreatedUpdatedModel):
         |LL|MySecret|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|
         +--+--------+-------------------------------------------+
         """
+        s = s.encode('utf8')
         if len(s) > 65535:
             raise ValueError("Maximum plaintext size is 65535 bytes.")
         # Minimum ciphertext size is 64 bytes to conceal the length of short secrets.
@@ -315,7 +316,7 @@ class Secret(CreatedUpdatedModel):
         return (
             chr(len(s) >> 8).encode() +
             chr(len(s) % 256).encode() +
-            s.encode() +
+            s +
             os.urandom(pad_length)
         )
 
@@ -324,11 +325,11 @@ class Secret(CreatedUpdatedModel):
         Consume the first two bytes of s as a plaintext length indicator and return only that many bytes as the
         plaintext.
         """
-        if isinstance(s[0], int):
-            plaintext_length = (s[0] << 8) + s[1]
-        elif isinstance(s[0], str):
+        if isinstance(s[0], str):
             plaintext_length = (ord(s[0]) << 8) + ord(s[1])
-        return s[2:plaintext_length + 2].decode()
+        else:
+            plaintext_length = (s[0] << 8) + s[1]
+        return s[2:plaintext_length + 2].decode('utf8')
 
     def encrypt(self, secret_key):
         """
