@@ -87,6 +87,9 @@ IFACE_FF_T1 = 4000
 IFACE_FF_E1 = 4010
 IFACE_FF_T3 = 4040
 IFACE_FF_E3 = 4050
+IFACE_FF_RJ45_S = 4060
+IFACE_FF_DE9_S = 4070
+IFACE_FF_DB25_S = 4080
 # Stacking
 IFACE_FF_STACKWISE = 5000
 IFACE_FF_STACKWISE_PLUS = 5050
@@ -95,6 +98,15 @@ IFACE_FF_FLEXSTACK_PLUS = 5150
 IFACE_FF_JUNIPER_VCP = 5200
 # Other
 IFACE_FF_OTHER = 32767
+
+# Console
+IFACE_FF_CON_RJ45 = 6000
+IFACE_FF_CON_DE9 = 6010
+IFACE_FF_CON_DB25 = 6020
+IFACE_FF_CON_USB = 6030
+IFACE_FF_CON_MCUSB = 6040
+IFACE_FF_CON_MNUSB = 6050
+IFACE_FF_CON_KVM = 6060
 
 IFACE_FF_CHOICES = [
     [
@@ -158,6 +170,9 @@ IFACE_FF_CHOICES = [
             [IFACE_FF_E1, 'E1 (2.048 Mbps)'],
             [IFACE_FF_T3, 'T3 (45 Mbps)'],
             [IFACE_FF_E3, 'E3 (34 Mbps)'],
+            [IFACE_FF_RJ45_S, 'RJ45'],
+            [IFACE_FF_DE9_S, 'DE9'],
+            [IFACE_FF_DB25_S, 'DB25'],
         ]
     ],
     [
@@ -176,6 +191,31 @@ IFACE_FF_CHOICES = [
             [IFACE_FF_OTHER, 'Other'],
         ]
     ],
+]
+
+CONSOLE_FF_CHOICES = [
+    [
+        'Console',
+        [
+            [IFACE_FF_CON_RJ45, 'RJ45 Serial'],
+            [IFACE_FF_CON_DE9, 'DE9 Serial'],
+            [IFACE_FF_CON_DB25, 'DB25 Serial'],
+            [IFACE_FF_CON_USB, 'USB to Serial'],
+            [IFACE_FF_CON_MCUSB, 'Micro USB to Serial'],
+            [IFACE_FF_CON_MNUSB, 'Mini USB to Serial'],
+            [IFACE_FF_CON_KVM, 'KVM'],
+        ]
+    ],
+]
+
+CONSOLE_IFACE_TYPES = [
+    IFACE_FF_CON_RJ45,
+    IFACE_FF_CON_DE9,
+    IFACE_FF_CON_DB25,
+    IFACE_FF_CON_USB,
+    IFACE_FF_CON_MCUSB,
+    IFACE_FF_CON_MNUSB,
+    IFACE_FF_CON_KVM,
 ]
 
 VIRTUAL_IFACE_TYPES = [
