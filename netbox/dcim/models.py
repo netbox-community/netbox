@@ -1070,7 +1070,7 @@ class ConsolePort(models.Model):
                                    verbose_name='Console server port', blank=True, null=True)
     connection_status = models.NullBooleanField(choices=CONNECTION_STATUS_CHOICES, default=CONNECTION_STATUS_CONNECTED)
 
-    csv_headers = ['console_server', 'cs_port', 'device', 'console_port', 'connection_status']
+    csv_headers = ['console_server', 'cs_port', 'device', 'console_port', 'form_factor', 'connection_status']
 
     class Meta:
         ordering = ['device', 'name']

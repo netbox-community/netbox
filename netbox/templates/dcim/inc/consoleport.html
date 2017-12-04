@@ -2,6 +2,9 @@
     <td>
         <i class="fa fa-fw fa-keyboard-o"></i> {{ cp }}
     </td>
+    <td>
+        <span class="text-muted">{{ cp.get_form_factor_display }}</span>
+    </td>
     {% if cp.cs_port %}
         <td>
             <a href="{% url 'dcim:device' pk=cp.cs_port.device.pk %}">{{ cp.cs_port.device }}</a>
