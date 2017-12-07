@@ -1895,9 +1895,7 @@ class VirtualChassisEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_virtualchassis'
     model = VirtualChassis
     model_form = forms.VirtualChassisForm
-
-    def get_return_url(self, request, obj):
-        return reverse('dcim:virtualchassis_list')
+    template_name = 'dcim/virtualchassis_edit.html'
 
 
 class VirtualChassisDeleteView(PermissionRequiredMixin, ObjectDeleteView):

@@ -2177,10 +2177,30 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
 #
 
 class VirtualChassisForm(BootstrapMixin, forms.ModelForm):
+    master = forms.ModelChoiceField(queryset=Device.objects.all())
 
     class Meta:
         model = VirtualChassis
         fields = ['domain']
+
+    def __init__(self, *args, **kwargs):
+        super(VirtualChassisForm, self).__init__(*args, **kwargs)
+
+        if self.instance:
+            vc_memberships = self.instance.memberships.all()
+            self.fields['master'].queryset = Device.objects.filter(pk__in=[vcm.device_id for vcm in vc_memberships])
+            self.initial['master'] = self.instance.master
+
+    def save(self, commit=True):
+        instance = super(VirtualChassisForm, self).save(commit=commit)
+
+        # Update the master membership if it has been changed
+        master = self.cleaned_data['master']
+        if instance.pk and instance.master != master:
+            VCMembership.objects.filter(virtual_chassis=self.instance).update(is_master=False)
+            VCMembership.objects.filter(virtual_chassis=self.instance, device=master).update(is_master=True)
+
+        return instance
 
 
 class DeviceSelectionForm(forms.Form):

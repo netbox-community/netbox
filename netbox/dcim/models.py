@@ -1503,8 +1503,16 @@ class VirtualChassis(models.Model):
         blank=True
     )
 
+    def __str__(self):
+        return self.master.name
+
     def get_absolute_url(self):
         return "{}?virtual_chassis={}".format(reverse('dcim:device_list'), self.pk)
+
+    @property
+    def master(self):
+        master_vcm = VCMembership.objects.filter(virtual_chassis=self, is_master=True).first()
+        return master_vcm.device if master_vcm else None
 
 
 @python_2_unicode_compatible
