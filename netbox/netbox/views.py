@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from collections import OrderedDict
 
+from django.db.models import Count
 from django.shortcuts import render
 from django.views.generic import View
 from rest_framework.response import Response
@@ -58,7 +59,7 @@ SEARCH_TYPES = OrderedDict((
         'url': 'dcim:rack_list',
     }),
     ('devicetype', {
-        'queryset': DeviceType.objects.select_related('manufacturer'),
+        'queryset': DeviceType.objects.select_related('manufacturer').annotate(instance_count=Count('instances')),
         'filter': DeviceTypeFilter,
         'table': DeviceTypeTable,
         'url': 'dcim:devicetype_list',

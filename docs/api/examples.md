@@ -123,7 +123,7 @@ $ curl -X PATCH -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f9cdc
 Send an authenticated `DELETE` request to the site detail endpoint.
 
 ```
-$ curl -v X DELETE -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f9cdc0" -H "Content-Type: application/json" -H "Accept: application/json; indent=4" http://localhost:8000/api/dcim/sites/16/
+$ curl -v -X DELETE -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f9cdc0" -H "Content-Type: application/json" -H "Accept: application/json; indent=4" http://localhost:8000/api/dcim/sites/16/
 * Connected to localhost (127.0.0.1) port 8000 (#0)
 > DELETE /api/dcim/sites/16/ HTTP/1.1
 > User-Agent: curl/7.35.0

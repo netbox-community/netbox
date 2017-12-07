@@ -166,7 +166,7 @@ def secret_edit(request, pk):
                 # Create and encrypt the new Secret
                 if master_key is not None:
                     secret = form.save(commit=False)
-                    secret.plaintext = str(form.cleaned_data['plaintext'])
+                    secret.plaintext = form.cleaned_data['plaintext']
                     secret.encrypt(master_key)
                     secret.save()
                     messages.success(request, "Modified secret {}.".format(secret))
