@@ -810,15 +810,11 @@ class DeviceView(View):
         console_ports = natsorted(
             ConsolePort.objects.filter(device=device).select_related('cs_port__device'), key=attrgetter('name')
         )
-        cs_ports = natsorted(
-            ConsoleServerPort.objects.filter(device=device).select_related('connected_console'), key=attrgetter('name')
-        )
+        cs_ports = ConsoleServerPort.objects.filter(device=device).select_related('connected_console')
         power_ports = natsorted(
             PowerPort.objects.filter(device=device).select_related('power_outlet__device'), key=attrgetter('name')
         )
-        power_outlets = natsorted(
-            PowerOutlet.objects.filter(device=device).select_related('connected_port'), key=attrgetter('name')
-        )
+        power_outlets = PowerOutlet.objects.filter(device=device).select_related('connected_port')
         interfaces = Interface.objects.order_naturally(
             device.device_type.interface_ordering
         ).filter(
