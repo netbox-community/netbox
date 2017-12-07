@@ -216,7 +216,7 @@ class RackUnitSerializer(serializers.Serializer):
 
 class RackReservationSerializer(serializers.ModelSerializer):
     rack = NestedRackSerializer()
-    user= NestedUserSerializer()
+    user = NestedUserSerializer()
     tenant = NestedTenantSerializer()
 
     class Meta:

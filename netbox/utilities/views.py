@@ -25,6 +25,7 @@ from utilities.forms import BootstrapMixin, CSVDataField
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
 from .paginator import EnhancedPaginator
+from .constants import *
 
 
 class CustomFieldQueryset:
