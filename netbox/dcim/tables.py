@@ -159,11 +159,12 @@ class SiteDetailTable(SiteTable):
     prefix_count = tables.Column(accessor=Accessor('count_prefixes'), orderable=False, verbose_name='Prefixes')
     vlan_count = tables.Column(accessor=Accessor('count_vlans'), orderable=False, verbose_name='VLANs')
     circuit_count = tables.Column(accessor=Accessor('count_circuits'), orderable=False, verbose_name='Circuits')
+    vm_count = tables.Column(accessor=Accessor('count_vms'), orderable=False, verbose_name='VMs')
 
     class Meta(SiteTable.Meta):
         fields = (
             'pk', 'name', 'facility', 'region', 'tenant', 'asn', 'rack_count', 'device_count', 'prefix_count',
-            'vlan_count', 'circuit_count',
+            'vlan_count', 'circuit_count', 'vm_count',
         )
 
 

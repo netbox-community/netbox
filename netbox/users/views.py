@@ -55,10 +55,16 @@ class LoginView(View):
 class LogoutView(View):
 
     def get(self, request):
+
+        # Log out the user
         auth_logout(request)
         messages.info(request, "You have logged out.")
 
-        return HttpResponseRedirect(reverse('home'))
+        # Delete session key cookie (if set) upon logout
+        response = HttpResponseRedirect(reverse('home'))
+        response.delete_cookie('session_key')
+
+        return response
 
 
 #

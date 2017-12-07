@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load helpers %}
 
 {% block title %}{{ prefix }}{% endblock %}
 
@@ -101,16 +102,6 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Is a pool</td>
-                    <td>
-                        {% if prefix.is_pool %}
-                            <i class="glyphicon glyphicon-ok text-success" title="Yes"></i>
-                        {% else %}
-                            <i class="glyphicon glyphicon-remove text-danger" title="No"></i>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
                     <td>Description</td>
                     <td>
                         {% if prefix.description %}
@@ -121,8 +112,18 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Is a pool</td>
+                    <td>
+                        {% if prefix.is_pool %}
+                            <i class="glyphicon glyphicon-ok text-success" title="Yes"></i>
+                        {% else %}
+                            <i class="glyphicon glyphicon-remove text-danger" title="No"></i>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Utilization</td>
-                    <td><a href="{% url 'ipam:prefix_ipaddresses' pk=prefix.pk %}">{{ ipaddress_count }} IP addresses</a> ({{ prefix.get_utilization }}%)</td>
+                    <td>{% utilization_graph prefix.get_utilization %}</td>
                 </tr>
             </table>
         </div>

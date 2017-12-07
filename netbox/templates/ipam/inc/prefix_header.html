@@ -23,7 +23,7 @@
 </div>
 <div class="pull-right">
     {% if perms.ipam.add_ipaddress %}
-		<a href="{% url 'ipam:ipaddress_add' %}?address={{ prefix.get_first_available_ip }}{% if prefix.vrf %}&vrf={{ prefix.vrf.pk }}{% endif %}{% if prefix.tenant %}&tenant={{ prefix.tenant.pk }}{% endif %}" class="btn btn-success">
+		<a href="{% url 'ipam:ipaddress_add' %}?address={{ prefix.get_first_available_ip }}&vrf={{ prefix.vrf.pk }}&tenant_group={{ prefix.tenant.group.pk }}&tenant={{ prefix.tenant.pk }}" class="btn btn-success">
 			<span class="fa fa-plus" aria-hidden="true"></span>
 			Add an IP Address
 		</a>
@@ -45,5 +45,5 @@
 {% include 'inc/created_updated.html' with obj=prefix %}
 <ul class="nav nav-tabs" style="margin-bottom: 20px">
     <li role="presentation"{% if active_tab == 'prefix' %} class="active"{% endif %}><a href="{% url 'ipam:prefix' pk=prefix.pk %}">Prefix</a></li>
-    <li role="presentation"{% if active_tab == 'ip-addresses' %} class="active"{% endif %}><a href="{% url 'ipam:prefix_ipaddresses' pk=prefix.pk %}">IP Addresses</a></li>
+    <li role="presentation"{% if active_tab == 'ip-addresses' %} class="active"{% endif %}><a href="{% url 'ipam:prefix_ipaddresses' pk=prefix.pk %}">IP Addresses <span class="badge">{{ prefix.get_child_ips.count }}</span></a></li>
 </ul>
