@@ -22,6 +22,7 @@ from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
 from utilities.forms import BootstrapMixin, CSVDataField
+from .constants import M2M_FIELD_TYPES
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
 from .paginator import EnhancedPaginator
