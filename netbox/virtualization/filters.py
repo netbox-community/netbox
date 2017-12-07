@@ -88,6 +88,17 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         queryset=Cluster.objects.all(),
         label='Cluster (ID)',
     )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        name='cluster__site',
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        name='cluster__site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site (slug)',
+    )
     role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceRole.objects.all(),
         label='Role (ID)',

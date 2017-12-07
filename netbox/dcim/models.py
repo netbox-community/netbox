@@ -143,6 +143,11 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     def count_circuits(self):
         return Circuit.objects.filter(terminations__site=self).count()
 
+    @property
+    def count_vms(self):
+        from virtualization.models import VirtualMachine
+        return VirtualMachine.objects.filter(cluster__site=self).count()
+
 
 #
 # Racks
@@ -1090,16 +1095,11 @@ class ConsolePort(models.Model):
 class ConsoleServerPortManager(models.Manager):
 
     def get_queryset(self):
-        """
-        Include the trailing numeric portion of each port name to allow for proper ordering.
-        For example:
-            Port 1, Port 2, Port 3 ... Port 9, Port 10, Port 11 ...
-        Instead of:
-            Port 1, Port 10, Port 11 ... Port 19, Port 2, Port 20 ...
-        """
+        # Pad any trailing digits to effect natural sorting
         return super(ConsoleServerPortManager, self).get_queryset().extra(select={
-            'name_as_integer': "CAST(substring(dcim_consoleserverport.name FROM '[0-9]+$') AS INTEGER)",
-        }).order_by('device', 'name_as_integer')
+            'name_padded': "CONCAT(REGEXP_REPLACE(dcim_consoleserverport.name, '\d+$', ''), "
+                           "LPAD(SUBSTRING(dcim_consoleserverport.name FROM '\d+$'), 8, '0'))",
+        }).order_by('device', 'name_padded')
 
 
 @python_2_unicode_compatible
@@ -1172,9 +1172,10 @@ class PowerPort(models.Model):
 class PowerOutletManager(models.Manager):
 
     def get_queryset(self):
+        # Pad any trailing digits to effect natural sorting
         return super(PowerOutletManager, self).get_queryset().extra(select={
-            'name_padded': "CONCAT(SUBSTRING(dcim_poweroutlet.name FROM '^[^0-9]+'), "
-                           "LPAD(SUBSTRING(dcim_poweroutlet.name FROM '[0-9\/]+$'), 8, '0'))",
+            'name_padded': "CONCAT(REGEXP_REPLACE(dcim_poweroutlet.name, '\d+$', ''), "
+                           "LPAD(SUBSTRING(dcim_poweroutlet.name FROM '\d+$'), 8, '0'))",
         }).order_by('device', 'name_padded')
 
 

@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import django_filters
 from django.db.models import Q
-from netaddr import IPNetwork
+import netaddr
 from netaddr.core import AddrFormatError
 
 from dcim.models import Site, Device, Interface
@@ -79,7 +79,7 @@ class AggregateFilter(CustomFieldFilterSet, django_filters.FilterSet):
             return queryset
         qs_filter = Q(description__icontains=value)
         try:
-            prefix = str(IPNetwork(value.strip()).cidr)
+            prefix = str(netaddr.IPNetwork(value.strip()).cidr)
             qs_filter |= Q(prefix__net_contains_or_equals=prefix)
         except (AddrFormatError, ValueError):
             pass
@@ -106,6 +106,10 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
     within_include = django_filters.CharFilter(
         method='search_within_include',
         label='Within and including prefix',
+    )
+    contains = django_filters.CharFilter(
+        method='search_contains',
+        label='Prefixes which contain this prefix or IP',
     )
     mask_length = django_filters.NumberFilter(
         method='filter_mask_length',
@@ -173,7 +177,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
             return queryset
         qs_filter = Q(description__icontains=value)
         try:
-            prefix = str(IPNetwork(value.strip()).cidr)
+            prefix = str(netaddr.IPNetwork(value.strip()).cidr)
             qs_filter |= Q(prefix__net_contains_or_equals=prefix)
         except (AddrFormatError, ValueError):
             pass
@@ -184,7 +188,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         if not value:
             return queryset
         try:
-            query = str(IPNetwork(value).cidr)
+            query = str(netaddr.IPNetwork(value).cidr)
             return queryset.filter(prefix__net_contained=query)
         except (AddrFormatError, ValueError):
             return queryset.none()
@@ -194,8 +198,22 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         if not value:
             return queryset
         try:
-            query = str(IPNetwork(value).cidr)
+            query = str(netaddr.IPNetwork(value).cidr)
             return queryset.filter(prefix__net_contained_or_equal=query)
+        except (AddrFormatError, ValueError):
+            return queryset.none()
+
+    def search_contains(self, queryset, name, value):
+        value = value.strip()
+        if not value:
+            return queryset
+        try:
+            # Searching by prefix
+            if '/' in value:
+                return queryset.filter(prefix__net_contains_or_equals=str(netaddr.IPNetwork(value).cidr))
+            # Searching by IP address
+            else:
+                return queryset.filter(prefix__net_contains=str(netaddr.IPAddress(value)))
         except (AddrFormatError, ValueError):
             return queryset.none()
 
@@ -291,7 +309,7 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         if not value:
             return queryset
         try:
-            query = str(IPNetwork(value.strip()).cidr)
+            query = str(netaddr.IPNetwork(value.strip()).cidr)
             return queryset.filter(address__net_host_contained=query)
         except (AddrFormatError, ValueError):
             return queryset.none()
