@@ -2219,8 +2219,12 @@ class VirtualChassisCreateForm(BootstrapMixin, forms.ModelForm):
         self.fields['master'].queryset = Device.objects.filter(pk__in=candidate_pks)
 
 
+#
+# VC memberships
+#
+
 class VCMembershipForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = VCMembership
-        fields = ['device', 'position', 'priority']
+        fields = ['position', 'priority']

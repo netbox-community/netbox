@@ -1859,6 +1859,10 @@ class VirtualChassisCreateView(PermissionRequiredMixin, View):
         class _VCMembershipForm(forms.VCMembershipForm):
             device = ModelChoiceField(queryset=Device.objects.filter(pk__in=device_list))
 
+            class Meta:
+                model = VCMembership
+                fields = ['device', 'position', 'priority']
+
         VCMembershipFormSet = modelformset_factory(model=VCMembership, form=_VCMembershipForm, extra=len(device_list))
 
         if '_create' in request.POST:
@@ -1902,3 +1906,18 @@ class VirtualChassisDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_virtualchassis'
     model = VirtualChassis
     default_return_url = 'dcim:device_list'
+
+
+#
+# VC memberships
+#
+
+class VCMembershipEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_vcmembership'
+    model = VCMembership
+    model_form = forms.VCMembershipForm
+
+
+class VCMembershipDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_vcmembership'
+    model = VCMembership

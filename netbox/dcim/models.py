@@ -1507,7 +1507,7 @@ class VirtualChassis(models.Model):
         return self.master.name
 
     def get_absolute_url(self):
-        return "{}?virtual_chassis={}".format(reverse('dcim:device_list'), self.pk)
+        return self.master.get_absolute_url()
 
     @property
     def master(self):
@@ -1547,13 +1547,21 @@ class VCMembership(models.Model):
         unique_together = ['virtual_chassis', 'position']
         verbose_name = 'VC membership'
 
+    def __str__(self):
+        return self.device.name
+
     def clean(self):
+
+        # We have to call this here because it won't be called by VCMembershipForm
+        self.validate_unique()
 
         # Check for master conflicts
         if getattr(self, 'virtual_chassis', None) and self.is_master:
-            master_conflict = VCMembership.objects.filter(virtual_chassis=self.virtual_chassis).first()
+            master_conflict = VCMembership.objects.filter(
+                virtual_chassis=self.virtual_chassis, is_master=True
+            ).exclude(pk=self.pk).first()
             if master_conflict:
-                raise ValidationError({
-                    'virtual_chassis': "{} has already been designated as the master for this virtual chassis. It must "
-                                       "be demoted before a new master can be assigned.".format(master_conflict.device)
-                })
+                raise ValidationError(
+                    "{} has already been designated as the master for this virtual chassis. It must be demoted before "
+                    "a new master can be assigned.".format(master_conflict.device)
+                )
