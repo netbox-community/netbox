@@ -4,7 +4,7 @@ import sys
 
 from django.conf import settings
 from django.db import ProgrammingError
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
@@ -59,6 +59,10 @@ class ExceptionHandlingMiddleware(object):
 
         # Don't catch exceptions when in debug mode
         if settings.DEBUG:
+            return
+
+        # Ignore Http404s (defer to Django's built-in 404 handling)
+        if isinstance(exception, Http404):
             return
 
         # Determine the type of exception
