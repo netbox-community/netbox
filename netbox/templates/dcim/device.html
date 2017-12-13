@@ -535,7 +535,7 @@
                 <div class="panel-heading">
                     <strong>Power Outlets</strong>
                     <div class="pull-right">
-                        {% if perms.dcim.change_poweroutlet and cs_ports|length > 1 %}
+                        {% if perms.dcim.change_poweroutlet and power_outlets|length > 1 %}
                             <button class="btn btn-default btn-xs toggle">
                                 <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
                             </button>
