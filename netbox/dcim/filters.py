@@ -455,7 +455,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Device
-        fields = ['serial']
+        fields = ['serial', 'position']
 
     def search(self, queryset, name, value):
         if not value.strip():
