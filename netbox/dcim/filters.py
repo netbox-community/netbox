@@ -163,7 +163,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Rack
-        fields = ['serial', 'type', 'width', 'u_height', 'desc_units']
+        fields = ['name', 'serial', 'type', 'width', 'u_height', 'desc_units']
 
     def search(self, queryset, name, value):
         if not value.strip():
