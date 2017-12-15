@@ -26,6 +26,8 @@ sudo pip install django-auth-ldap
 
 Create a file in the same directory as `configuration.py` (typically `netbox/netbox/`) named `ldap_config.py`. Define all of the parameters required below in `ldap_config.py`.
 
+All configuration options for django-auth-ldap can be viewed [on their documentation](http://django-auth-ldap.readthedocs.io/en/latest/index.html).
+
 ## General Server Configuration
 
 !!! info
