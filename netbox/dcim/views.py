@@ -809,31 +809,49 @@ class DeviceView(View):
         device = get_object_or_404(Device.objects.select_related(
             'site__region', 'rack__group', 'tenant__group', 'device_role', 'platform'
         ), pk=pk)
+
+        # Find virtual chassis memberships
+        vc_memberships = VCMembership.objects.filter(virtual_chassis=device.virtual_chassis).select_related('device')
+        vc_peer_ids = [vcm.device_id for vcm in vc_memberships]
+
+        # Console ports
         console_ports = natsorted(
             ConsolePort.objects.filter(device=device).select_related('cs_port__device'), key=attrgetter('name')
         )
+
+        # Console server ports
         cs_ports = ConsoleServerPort.objects.filter(device=device).select_related('connected_console')
+
+        # Power ports
         power_ports = natsorted(
             PowerPort.objects.filter(device=device).select_related('power_outlet__device'), key=attrgetter('name')
         )
+
+        # Power outlets
         power_outlets = PowerOutlet.objects.filter(device=device).select_related('connected_port')
+
+        # Interfaces
+        interfaces_filter = Q(device=device)
+        if hasattr(device, 'vc_membership') and device.vc_membership.is_master:
+            interfaces_filter |= Q(device_id__in=vc_peer_ids, mgmt_only=False)
         interfaces = Interface.objects.order_naturally(
             device.device_type.interface_ordering
-        ).filter(
-            device=device
         ).select_related(
             'connected_as_a__interface_b__device', 'connected_as_b__interface_a__device',
             'circuit_termination__circuit'
-        ).prefetch_related('ip_addresses')
+        ).filter(interfaces_filter).prefetch_related('ip_addresses')
+
+        # Device bays
         device_bays = natsorted(
             DeviceBay.objects.filter(device=device).select_related('installed_device__device_type__manufacturer'),
             key=attrgetter('name')
         )
-        services = Service.objects.filter(device=device)
-        secrets = device.secrets.all()
 
-        # Find virtual chassis memberships
-        vc_memberships = VCMembership.objects.filter(virtual_chassis=device.virtual_chassis).select_related('device')
+        # Services
+        services = Service.objects.filter(device=device)
+
+        # Secrets
+        secrets = device.secrets.all()
 
         # Find up to ten devices in the same site with the same functional role for quick reference.
         related_devices = Device.objects.filter(
