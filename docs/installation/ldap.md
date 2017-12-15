@@ -54,6 +54,8 @@ AUTH_LDAP_BIND_PASSWORD = "demo"
 LDAP_IGNORE_CERT_ERRORS = True
 ```
 
+STARTTLS can be configured by settings `AUTH_LDAP_START_TLS = True` and using the `ldap://` URI scheme.
+
 ## User Authentication
 
 !!! info
