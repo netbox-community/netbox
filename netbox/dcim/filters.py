@@ -17,7 +17,7 @@ from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site, VCMembership,
+    RackReservation, RackRole, Region, Site, VirtualChassis, VCMembership,
 )
 
 
@@ -569,6 +569,11 @@ class InterfaceFilter(django_filters.FilterSet):
         method='_mac_address',
         label='MAC address',
     )
+    virtual_chassis_id = django_filters.NumberFilter(
+        method='_virtual_chassis_id',
+        name='pk',
+        label='Virtual chassis (ID)',
+    )
 
     class Meta:
         model = Interface
@@ -599,6 +604,14 @@ class InterfaceFilter(django_filters.FilterSet):
             mac = EUI(value.strip())
             return queryset.filter(mac_address=mac)
         except AddrFormatError:
+            return queryset.none()
+
+    def _virtual_chassis_id(self, queryset, name, value):
+        try:
+            virtual_chassis = VirtualChassis.objects.get(**{name: value})
+            ordering = virtual_chassis.master.device_type.interface_ordering
+            return queryset.filter(device__vc_membership__virtual_chassis=virtual_chassis).order_naturally(ordering)
+        except VirtualChassis.DoesNotExist:
             return queryset.none()
 
 
