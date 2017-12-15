@@ -24,8 +24,8 @@ from ipam.models import Prefix, Service, VLAN
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView,
-    ComponentEditView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ObjectDeleteView,
+    ObjectEditView, ObjectListView,
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
@@ -1098,17 +1098,15 @@ def consoleport_disconnect(request, pk):
     })
 
 
-class ConsolePortEditView(PermissionRequiredMixin, ComponentEditView):
+class ConsolePortEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_consoleport'
     model = ConsolePort
-    parent_field = 'device'
     model_form = forms.ConsolePortForm
 
 
-class ConsolePortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+class ConsolePortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_consoleport'
     model = ConsolePort
-    parent_field = 'device'
 
 
 class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -1218,17 +1216,15 @@ def consoleserverport_disconnect(request, pk):
     })
 
 
-class ConsoleServerPortEditView(PermissionRequiredMixin, ComponentEditView):
+class ConsoleServerPortEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_consoleserverport'
     model = ConsoleServerPort
-    parent_field = 'device'
     model_form = forms.ConsoleServerPortForm
 
 
-class ConsoleServerPortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+class ConsoleServerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_consoleserverport'
     model = ConsoleServerPort
-    parent_field = 'device'
 
 
 class ConsoleServerPortBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
@@ -1337,17 +1333,15 @@ def powerport_disconnect(request, pk):
     })
 
 
-class PowerPortEditView(PermissionRequiredMixin, ComponentEditView):
+class PowerPortEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_powerport'
     model = PowerPort
-    parent_field = 'device'
     model_form = forms.PowerPortForm
 
 
-class PowerPortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+class PowerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_powerport'
     model = PowerPort
-    parent_field = 'device'
 
 
 class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -1457,17 +1451,15 @@ def poweroutlet_disconnect(request, pk):
     })
 
 
-class PowerOutletEditView(PermissionRequiredMixin, ComponentEditView):
+class PowerOutletEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_poweroutlet'
     model = PowerOutlet
-    parent_field = 'device'
     model_form = forms.PowerOutletForm
 
 
-class PowerOutletDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+class PowerOutletDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_poweroutlet'
     model = PowerOutlet
-    parent_field = 'device'
 
 
 class PowerOutletBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
@@ -1502,18 +1494,16 @@ class InterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class InterfaceEditView(PermissionRequiredMixin, ComponentEditView):
+class InterfaceEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_interface'
     model = Interface
-    parent_field = 'device'
     model_form = forms.InterfaceForm
     template_name = 'dcim/interface_edit.html'
 
 
-class InterfaceDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_interface'
     model = Interface
-    parent_field = 'device'
 
 
 class InterfaceBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
@@ -1557,17 +1547,15 @@ class DeviceBayCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class DeviceBayEditView(PermissionRequiredMixin, ComponentEditView):
+class DeviceBayEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_devicebay'
     model = DeviceBay
-    parent_field = 'device'
     model_form = forms.DeviceBayForm
 
 
-class DeviceBayDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+class DeviceBayDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_devicebay'
     model = DeviceBay
-    parent_field = 'device'
 
 
 @permission_required('dcim.change_devicebay')
@@ -1835,10 +1823,9 @@ class InterfaceConnectionsListView(ObjectListView):
 # Inventory items
 #
 
-class InventoryItemEditView(PermissionRequiredMixin, ComponentEditView):
+class InventoryItemEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_inventoryitem'
     model = InventoryItem
-    parent_field = 'device'
     model_form = forms.InventoryItemForm
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
@@ -1847,10 +1834,9 @@ class InventoryItemEditView(PermissionRequiredMixin, ComponentEditView):
         return obj
 
 
-class InventoryItemDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+class InventoryItemDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_inventoryitem'
     model = InventoryItem
-    parent_field = 'device'
 
 
 #

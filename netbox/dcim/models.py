@@ -1084,6 +1084,9 @@ class ConsolePort(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
+
     # Used for connections export
     def to_csv(self):
         return csv_format([
@@ -1125,6 +1128,9 @@ class ConsoleServerPort(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
+
     def clean(self):
 
         # Check that the parent device's DeviceType is a console server
@@ -1160,6 +1166,9 @@ class PowerPort(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
 
     # Used for connections export
     def to_csv(self):
@@ -1201,6 +1210,9 @@ class PowerOutlet(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
 
     def clean(self):
 
@@ -1280,6 +1292,9 @@ class Interface(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return self.parent.get_absolute_url()
 
     def clean(self):
 
@@ -1443,6 +1458,9 @@ class DeviceBay(models.Model):
     def __str__(self):
         return '{} - {}'.format(self.device.name, self.name)
 
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
+
     def clean(self):
 
         # Validate that the parent Device can have DeviceBays
@@ -1487,6 +1505,9 @@ class InventoryItem(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
 
 
 #
