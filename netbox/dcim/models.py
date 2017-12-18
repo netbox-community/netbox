@@ -923,29 +923,28 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
             except DeviceType.DoesNotExist:
                 pass
 
-        # Validate primary IPv4 address
-        if self.primary_ip4 and (
-            self.primary_ip4.interface is None or
-            self.primary_ip4.interface.device != self
-        ) and (
-            self.primary_ip4.nat_inside.interface is None or
-            self.primary_ip4.nat_inside.interface.device != self
-        ):
-            raise ValidationError({
-                'primary_ip4': "The specified IP address ({}) is not assigned to this device.".format(self.primary_ip4),
-            })
-
-        # Validate primary IPv6 address
-        if self.primary_ip6 and (
-            self.primary_ip6.interface is None or
-            self.primary_ip6.interface.device != self
-        ) and (
-            self.primary_ip6.nat_inside.interface is None or
-            self.primary_ip6.nat_inside.interface.device != self
-        ):
-            raise ValidationError({
-                'primary_ip6': "The specified IP address ({}) is not assigned to this device.".format(self.primary_ip6),
-            })
+        # Validate primary IP addresses
+        vc_interfaces = self.vc_interfaces.all()
+        if self.primary_ip4:
+            if self.primary_ip4.interface in vc_interfaces:
+                pass
+            elif self.primary_ip4.nat_inside is not None and self.primary_ip4.nat_inside.interface in vc_interfaces:
+                pass
+            else:
+                raise ValidationError({
+                    'primary_ip4': "The specified IP address ({}) is not assigned to this device.".format(
+                        self.primary_ip4),
+                })
+        if self.primary_ip6:
+            if self.primary_ip6.interface in vc_interfaces:
+                pass
+            elif self.primary_ip6.nat_inside is not None and self.primary_ip6.nat_inside.interface in vc_interfaces:
+                pass
+            else:
+                raise ValidationError({
+                    'primary_ip6': "The specified IP address ({}) is not assigned to this device.".format(
+                        self.primary_ip6),
+                })
 
         # A Device can only be assigned to a Cluster in the same Site (or no Site)
         if self.cluster and self.cluster.site is not None and self.cluster.site != self.site:
@@ -1041,6 +1040,17 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
             return VCMembership.objects.get(device=self).virtual_chassis
         except VCMembership.DoesNotExist:
             return None
+
+    @property
+    def vc_interfaces(self):
+        """
+        Return a QuerySet matching all Interfaces assigned to this Device or, if this Device is a VC master, to another
+        Device belonging to the same virtual chassis.
+        """
+        if hasattr(self, 'vc_membership') and self.vc_membership.is_master:
+            return Interface.objects.filter(device__vc_membership__virtual_chassis=self.vc_membership.virtual_chassis)
+        else:
+            return self.interfaces.all()
 
     def get_children(self):
         """

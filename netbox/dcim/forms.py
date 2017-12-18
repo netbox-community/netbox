@@ -773,26 +773,24 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             # Compile list of choices for primary IPv4 and IPv6 addresses
             for family in [4, 6]:
                 ip_choices = [(None, '---------')]
+
+                # Gather PKs of all interfaces belonging to this Device or a peer VirtualChassis member
+                interface_ids = self.instance.vc_interfaces.values('pk')
+
                 # Collect interface IPs
                 interface_ips = IPAddress.objects.select_related('interface').filter(
-                    family=family, interface__device=self.instance
+                    family=family, interface_id__in=interface_ids
                 )
                 if interface_ips:
-                    ip_choices.append(
-                        ('Interface IPs', [
-                            (ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips
-                        ])
-                    )
+                    ip_list = [(ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips]
+                    ip_choices.append(('Interface IPs', ip_list))
                 # Collect NAT IPs
                 nat_ips = IPAddress.objects.select_related('nat_inside').filter(
-                    family=family, nat_inside__interface__device=self.instance
+                    family=family, nat_inside__interface__in=interface_ids
                 )
                 if nat_ips:
-                    ip_choices.append(
-                        ('NAT IPs', [
-                            (ip.id, '{} ({})'.format(ip.address, ip.nat_inside.address)) for ip in nat_ips
-                        ])
-                    )
+                    ip_list = [(ip.id, '{} ({})'.format(ip.address, ip.nat_inside.address)) for ip in nat_ips]
+                    ip_choices.append(('NAT IPs', ip_list))
                 self.fields['primary_ip{}'.format(family)].choices = ip_choices
 
             # If editing an existing device, exclude it from the list of occupied rack units. This ensures that a device
