@@ -1047,10 +1047,10 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         Return a QuerySet matching all Interfaces assigned to this Device or, if this Device is a VC master, to another
         Device belonging to the same virtual chassis.
         """
+        filter = Q(device=self)
         if hasattr(self, 'vc_membership') and self.vc_membership.is_master:
-            return Interface.objects.filter(device__vc_membership__virtual_chassis=self.vc_membership.virtual_chassis)
-        else:
-            return self.interfaces.all()
+            filter |= Q(device__vc_membership__virtual_chassis=self.vc_membership.virtual_chassis, mgmt_only=False)
+        return Interface.objects.filter(filter)
 
     def get_children(self):
         """

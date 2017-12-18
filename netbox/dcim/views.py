@@ -812,7 +812,6 @@ class DeviceView(View):
 
         # Find virtual chassis memberships
         vc_memberships = VCMembership.objects.filter(virtual_chassis=device.virtual_chassis).select_related('device')
-        vc_peer_ids = [vcm.device_id for vcm in vc_memberships]
 
         # Console ports
         console_ports = natsorted(
@@ -831,15 +830,12 @@ class DeviceView(View):
         power_outlets = PowerOutlet.objects.filter(device=device).select_related('connected_port')
 
         # Interfaces
-        interfaces_filter = Q(device=device)
-        if hasattr(device, 'vc_membership') and device.vc_membership.is_master:
-            interfaces_filter |= Q(device_id__in=vc_peer_ids, mgmt_only=False)
-        interfaces = Interface.objects.order_naturally(
+        interfaces = device.vc_interfaces.order_naturally(
             device.device_type.interface_ordering
         ).select_related(
             'connected_as_a__interface_b__device', 'connected_as_b__interface_a__device',
             'circuit_termination__circuit'
-        ).filter(interfaces_filter).prefetch_related('ip_addresses')
+        ).prefetch_related('ip_addresses')
 
         # Device bays
         device_bays = natsorted(
