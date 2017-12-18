@@ -14,7 +14,7 @@ from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceType, DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site,
+    RackReservation, RackRole, Region, Site, VirtualChassis, VCMembership
 )
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.models import IPAddress, VLAN
@@ -216,7 +216,7 @@ class RackUnitSerializer(serializers.Serializer):
 
 class RackReservationSerializer(serializers.ModelSerializer):
     rack = NestedRackSerializer()
-    user= NestedUserSerializer()
+    user = NestedUserSerializer()
     tenant = NestedTenantSerializer()
 
     class Meta:
@@ -799,3 +799,61 @@ class WritableInterfaceConnectionSerializer(ValidatedModelSerializer):
     class Meta:
         model = InterfaceConnection
         fields = ['id', 'interface_a', 'interface_b', 'connection_status']
+
+
+#
+# Virtual chassis
+#
+
+class VirtualChassisSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = VirtualChassis
+        fields = ['id', 'domain']
+
+
+class NestedVirtualChassisSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualchassis-detail')
+
+    class Meta:
+        model = VirtualChassis
+        fields = ['id', 'url']
+
+
+class WritableVirtualChassisSerializer(ValidatedModelSerializer):
+
+    class Meta:
+        model = VirtualChassis
+        fields = ['id', 'domain']
+
+
+#
+# Virtual chassis memberships
+#
+
+class VCMembershipSerializer(serializers.ModelSerializer):
+    virtual_chassis = NestedVirtualChassisSerializer()
+    device = NestedDeviceSerializer()
+
+    class Meta:
+        model = VCMembership
+        fields = ['id', 'virtual_chassis', 'device', 'position', 'is_master', 'priority']
+
+
+class WritableVCMembershipSerializer(ValidatedModelSerializer):
+
+    class Meta:
+        model = VCMembership
+        fields = ['id', 'virtual_chassis', 'device', 'position', 'is_master', 'priority']
+
+    def validate(self, data):
+
+        # Validate uniqueness of (virtual_chassis, position)
+        validator = UniqueTogetherValidator(queryset=VCMembership.objects.all(), fields=('virtual_chassis', 'position'))
+        validator.set_context(self)
+        validator(data)
+
+        # Enforce model validation
+        super(WritableVCMembershipSerializer, self).validate(data)
+
+        return data

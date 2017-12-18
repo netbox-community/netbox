@@ -1,0 +1,11 @@
+{% extends '_base.html' %}
+{% load helpers %}
+
+{% block content %}
+<h1>{% block title %}Virtual Chassis{% endblock %}</h1>
+<div class="row">
+	<div class="col-md-12">
+        {% include 'utilities/obj_table.html' %}
+    </div>
+</div>
+{% endblock %}

@@ -5,12 +5,12 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from dcim.constants import IFACE_FF_LAG, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT
+from dcim.constants import IFACE_FF_1GE_FIXED, IFACE_FF_LAG, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerPort, PowerPortTemplate, PowerOutlet, PowerOutletTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site,
+    RackReservation, RackRole, Region, Site, VCMembership, VirtualChassis,
 )
 from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from users.models import Token
@@ -2158,3 +2158,249 @@ class ConnectedDeviceTest(HttpStatusMixin, APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], self.device1.name)
+
+
+class VirtualChassisTest(HttpStatusMixin, APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        self.vc1 = VirtualChassis.objects.create(domain='test-domain-1')
+        self.vc2 = VirtualChassis.objects.create(domain='test-domain-2')
+
+    def test_get_virtualchassis(self):
+
+        url = reverse('dcim-api:virtualchassis-detail', kwargs={'pk': self.vc1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['domain'], self.vc1.domain)
+
+    def test_list_virtualchassis(self):
+
+        url = reverse('dcim-api:virtualchassis-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 2)
+
+    def test_create_virtualchassis(self):
+
+        data = {
+            'domain': 'test-domain-3',
+        }
+
+        url = reverse('dcim-api:virtualchassis-list')
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        vc3 = VirtualChassis.objects.get(pk=response.data['id'])
+        self.assertEqual(vc3.domain, data['domain'])
+
+    def test_update_virtualchassis(self):
+
+        data = {
+            'domain': 'test-domain-x',
+        }
+
+        url = reverse('dcim-api:virtualchassis-detail', kwargs={'pk': self.vc1.pk})
+        response = self.client.put(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(VirtualChassis.objects.count(), 2)
+        vc1 = VirtualChassis.objects.get(pk=response.data['id'])
+        self.assertEqual(vc1.domain, data['domain'])
+
+    def test_delete_virtualchassis(self):
+
+        url = reverse('dcim-api:virtualchassis-detail', kwargs={'pk': self.vc1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(VirtualChassis.objects.count(), 1)
+
+
+class VCMembershipTest(HttpStatusMixin, APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        site = Site.objects.create(name='Test Site', slug='test-site')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer', slug='test-manufacturer')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type', slug='test-device-type'
+        )
+        device_role = DeviceRole.objects.create(
+            name='Test Device Role', slug='test-device-role', color='ff0000'
+        )
+
+        # Create 9 member Devices with 12 interfaces each
+        self.device1 = Device.objects.create(
+            device_type=device_type, device_role=device_role, name='StackSwitch1', site=site
+        )
+        self.device2 = Device.objects.create(
+            device_type=device_type, device_role=device_role, name='StackSwitch2', site=site
+        )
+        self.device3 = Device.objects.create(
+            device_type=device_type, device_role=device_role, name='StackSwitch3', site=site
+        )
+        self.device4 = Device.objects.create(
+            device_type=device_type, device_role=device_role, name='StackSwitch4', site=site
+        )
+        self.device5 = Device.objects.create(
+            device_type=device_type, device_role=device_role, name='StackSwitch5', site=site
+        )
+        self.device6 = Device.objects.create(
+            device_type=device_type, device_role=device_role, name='StackSwitch6', site=site
+        )
+        self.device7 = Device.objects.create(
+            device_type=device_type, device_role=device_role, name='StackSwitch7', site=site
+        )
+        self.device8 = Device.objects.create(
+            device_type=device_type, device_role=device_role, name='StackSwitch8', site=site
+        )
+        self.device9 = Device.objects.create(
+            device_type=device_type, device_role=device_role, name='StackSwitch9', site=site
+        )
+        for i in range(0, 13):
+            Interface.objects.create(device=self.device1, name='1/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+        for i in range(0, 13):
+            Interface.objects.create(device=self.device2, name='2/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+        for i in range(0, 13):
+            Interface.objects.create(device=self.device3, name='3/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+        for i in range(0, 13):
+            Interface.objects.create(device=self.device4, name='1/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+        for i in range(0, 13):
+            Interface.objects.create(device=self.device5, name='2/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+        for i in range(0, 13):
+            Interface.objects.create(device=self.device6, name='3/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+        for i in range(0, 13):
+            Interface.objects.create(device=self.device7, name='1/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+        for i in range(0, 13):
+            Interface.objects.create(device=self.device8, name='2/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+        for i in range(0, 13):
+            Interface.objects.create(device=self.device9, name='3/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+
+        # Create two VirtualChassis with three members each
+        self.vc1 = VirtualChassis.objects.create(domain='test-domain-1')
+        self.vc2 = VirtualChassis.objects.create(domain='test-domain-2')
+        self.vcm1 = VCMembership.objects.create(
+            virtual_chassis=self.vc1, device=self.device1, position=1, priority=10, is_master=True
+        )
+        self.vcm2 = VCMembership.objects.create(
+            virtual_chassis=self.vc1, device=self.device2, position=2, priority=20
+        )
+        self.vcm3 = VCMembership.objects.create(
+            virtual_chassis=self.vc1, device=self.device3, position=3, priority=30
+        )
+        self.vcm4 = VCMembership.objects.create(
+            virtual_chassis=self.vc2, device=self.device4, position=1, priority=10, is_master=True
+        )
+        self.vcm5 = VCMembership.objects.create(
+            virtual_chassis=self.vc2, device=self.device5, position=2, priority=20
+        )
+        self.vcm6 = VCMembership.objects.create(
+            virtual_chassis=self.vc2, device=self.device6, position=3, priority=30
+        )
+
+    def test_get_vcmembership(self):
+
+        url = reverse('dcim-api:vcmembership-detail', kwargs={'pk': self.vcm1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['virtual_chassis']['id'], self.vc1.pk)
+        self.assertEqual(response.data['device']['id'], self.device1.pk)
+        self.assertEqual(response.data['position'], 1)
+        self.assertEqual(response.data['is_master'], True)
+        self.assertEqual(response.data['priority'], 10)
+
+    def test_list_vcmemberships(self):
+
+        url = reverse('dcim-api:vcmembership-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 6)
+
+    def test_create_vcmembership(self):
+
+        url = reverse('dcim-api:vcmembership-list')
+
+        # Try creating the first membership without is_master. This should fail.
+        data = {
+            'device': self.device7.pk,
+            'position': 1,
+            'priority': 10,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # Add is_master=True and try again. This should succeed.
+        data.update({
+            'is_master': True,
+        })
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        virtualchassis_id = VirtualChassis.objects.get(pk=response.data['virtual_chassis']).pk
+
+        # Try adding a second member with the same position
+        data = {
+            'virtual_chassis': virtualchassis_id,
+            'device': self.device8.pk,
+            'position': 1,
+            'priority': 20,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # Try adding a second member with is_master=True
+        data['is_master'] = True
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # Add a second member (valid)
+        del(data['is_master'])
+        data['position'] = 2
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        # Add a third member (valid)
+        data = {
+            'virtual_chassis': virtualchassis_id,
+            'device': self.device9.pk,
+            'position': 3,
+            'priority': 30,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        self.assertEqual(VCMembership.objects.count(), 9)
+
+    def test_update_vcmembership(self):
+
+        data = {
+            'virtual_chassis': self.vc2.pk,
+            'device': self.device7.pk,
+            'position': 9,
+            'priority': 90,
+        }
+
+        url = reverse('dcim-api:vcmembership-detail', kwargs={'pk': self.vcm3.pk})
+        response = self.client.put(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        vcm3 = VCMembership.objects.get(pk=response.data['id'])
+        self.assertEqual(vcm3.virtual_chassis.pk, data['virtual_chassis'])
+        self.assertEqual(vcm3.device.pk, data['device'])
+        self.assertEqual(vcm3.position, data['position'])
+        self.assertEqual(vcm3.priority, data['priority'])
+
+    def test_delete_vcmembership(self):
+
+        url = reverse('dcim-api:vcmembership-detail', kwargs={'pk': self.vcm3.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(VCMembership.objects.count(), 5)

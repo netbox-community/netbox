@@ -17,7 +17,7 @@ from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site,
+    RackReservation, RackRole, Region, Site, VirtualChassis, VCMembership,
 )
 
 
@@ -577,8 +577,9 @@ class InterfaceFilter(django_filters.FilterSet):
     def filter_device(self, queryset, name, value):
         try:
             device = Device.objects.select_related('device_type').get(**{name: value})
+            vc_interface_ids = [i['id'] for i in device.vc_interfaces.values('id')]
             ordering = device.device_type.interface_ordering
-            return queryset.filter(device=device).order_naturally(ordering)
+            return queryset.filter(pk__in=vc_interface_ids).order_naturally(ordering)
         except Device.DoesNotExist:
             return queryset.none()
 
@@ -629,6 +630,13 @@ class InventoryItemFilter(DeviceComponentFilterSet):
     class Meta:
         model = InventoryItem
         fields = ['name', 'part_id', 'serial', 'discovered']
+
+
+class VCMembershipFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = VCMembership
+        fields = ['virtual_chassis']
 
 
 class ConsoleConnectionFilter(django_filters.FilterSet):

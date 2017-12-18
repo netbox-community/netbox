@@ -923,29 +923,28 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
             except DeviceType.DoesNotExist:
                 pass
 
-        # Validate primary IPv4 address
-        if self.primary_ip4 and (
-            self.primary_ip4.interface is None or
-            self.primary_ip4.interface.device != self
-        ) and (
-            self.primary_ip4.nat_inside.interface is None or
-            self.primary_ip4.nat_inside.interface.device != self
-        ):
-            raise ValidationError({
-                'primary_ip4': "The specified IP address ({}) is not assigned to this device.".format(self.primary_ip4),
-            })
-
-        # Validate primary IPv6 address
-        if self.primary_ip6 and (
-            self.primary_ip6.interface is None or
-            self.primary_ip6.interface.device != self
-        ) and (
-            self.primary_ip6.nat_inside.interface is None or
-            self.primary_ip6.nat_inside.interface.device != self
-        ):
-            raise ValidationError({
-                'primary_ip6': "The specified IP address ({}) is not assigned to this device.".format(self.primary_ip6),
-            })
+        # Validate primary IP addresses
+        vc_interfaces = self.vc_interfaces.all()
+        if self.primary_ip4:
+            if self.primary_ip4.interface in vc_interfaces:
+                pass
+            elif self.primary_ip4.nat_inside is not None and self.primary_ip4.nat_inside.interface in vc_interfaces:
+                pass
+            else:
+                raise ValidationError({
+                    'primary_ip4': "The specified IP address ({}) is not assigned to this device.".format(
+                        self.primary_ip4),
+                })
+        if self.primary_ip6:
+            if self.primary_ip6.interface in vc_interfaces:
+                pass
+            elif self.primary_ip6.nat_inside is not None and self.primary_ip6.nat_inside.interface in vc_interfaces:
+                pass
+            else:
+                raise ValidationError({
+                    'primary_ip6': "The specified IP address ({}) is not assigned to this device.".format(
+                        self.primary_ip6),
+                })
 
         # A Device can only be assigned to a Cluster in the same Site (or no Site)
         if self.cluster and self.cluster.site is not None and self.cluster.site != self.site:
@@ -1035,6 +1034,24 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         else:
             return None
 
+    @property
+    def virtual_chassis(self):
+        try:
+            return VCMembership.objects.get(device=self).virtual_chassis
+        except VCMembership.DoesNotExist:
+            return None
+
+    @property
+    def vc_interfaces(self):
+        """
+        Return a QuerySet matching all Interfaces assigned to this Device or, if this Device is a VC master, to another
+        Device belonging to the same virtual chassis.
+        """
+        filter = Q(device=self)
+        if hasattr(self, 'vc_membership') and self.vc_membership.is_master:
+            filter |= Q(device__vc_membership__virtual_chassis=self.vc_membership.virtual_chassis, mgmt_only=False)
+        return Interface.objects.filter(filter)
+
     def get_children(self):
         """
         Return the set of child Devices installed in DeviceBays within this Device.
@@ -1077,6 +1094,9 @@ class ConsolePort(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
+
     # Used for connections export
     def to_csv(self):
         return csv_format([
@@ -1118,6 +1138,9 @@ class ConsoleServerPort(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
+
     def clean(self):
 
         # Check that the parent device's DeviceType is a console server
@@ -1153,6 +1176,9 @@ class PowerPort(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
 
     # Used for connections export
     def to_csv(self):
@@ -1194,6 +1220,9 @@ class PowerOutlet(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
 
     def clean(self):
 
@@ -1273,6 +1302,9 @@ class Interface(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return self.parent.get_absolute_url()
 
     def clean(self):
 
@@ -1436,6 +1468,9 @@ class DeviceBay(models.Model):
     def __str__(self):
         return '{} - {}'.format(self.device.name, self.name)
 
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
+
     def clean(self):
 
         # Validate that the parent Device can have DeviceBays
@@ -1480,3 +1515,84 @@ class InventoryItem(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
+
+
+#
+# Virtual chassis
+#
+
+@python_2_unicode_compatible
+class VirtualChassis(models.Model):
+    """
+    A collection of Devices which operate with a shared control plane (e.g. a switch stack).
+    """
+    domain = models.CharField(
+        max_length=30,
+        blank=True
+    )
+
+    def __str__(self):
+        return self.master.name
+
+    def get_absolute_url(self):
+        return self.master.get_absolute_url()
+
+    @property
+    def master(self):
+        master_vcm = VCMembership.objects.filter(virtual_chassis=self, is_master=True).first()
+        return master_vcm.device if master_vcm else None
+
+
+@python_2_unicode_compatible
+class VCMembership(models.Model):
+    """
+    An attachment of a physical Device to a VirtualChassis.
+    """
+    virtual_chassis = models.ForeignKey(
+        to='VirtualChassis',
+        on_delete=models.CASCADE,
+        related_name='memberships'
+    )
+    device = models.OneToOneField(
+        to='Device',
+        on_delete=models.CASCADE,
+        related_name='vc_membership'
+    )
+    position = models.PositiveSmallIntegerField(
+        validators=[MaxValueValidator(255)]
+    )
+    is_master = models.BooleanField(
+        default=False
+    )
+    priority = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MaxValueValidator(255)]
+    )
+
+    class Meta:
+        ordering = ['virtual_chassis', 'position']
+        unique_together = ['virtual_chassis', 'position']
+        verbose_name = 'VC membership'
+
+    def __str__(self):
+        return self.device.name
+
+    def clean(self):
+
+        # We have to call this here because it won't be called by VCMembershipForm
+        self.validate_unique()
+
+        # Check for master conflicts
+        if getattr(self, 'virtual_chassis', None) and self.is_master:
+            master_conflict = VCMembership.objects.filter(
+                virtual_chassis=self.virtual_chassis, is_master=True
+            ).exclude(pk=self.pk).first()
+            if master_conflict:
+                raise ValidationError(
+                    "{} has already been designated as the master for this virtual chassis. It must be demoted before "
+                    "a new master can be assigned.".format(master_conflict.device)
+                )

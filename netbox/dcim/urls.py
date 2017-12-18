@@ -207,4 +207,14 @@ urlpatterns = [
     url(r'^interface-connections/$', views.InterfaceConnectionsListView.as_view(), name='interface_connections_list'),
     url(r'^interface-connections/import/$', views.InterfaceConnectionsBulkImportView.as_view(), name='interface_connections_import'),
 
+    # Virtual chassis
+    url(r'^virtual-chassis/$', views.VirtualChassisListView.as_view(), name='virtualchassis_list'),
+    url(r'^virtual-chassis/add/$', views.VirtualChassisCreateView.as_view(), name='virtualchassis_add'),
+    url(r'^virtual-chassis/(?P<pk>\d+)/edit/$', views.VirtualChassisEditView.as_view(), name='virtualchassis_edit'),
+    url(r'^virtual-chassis/(?P<pk>\d+)/delete/$', views.VirtualChassisDeleteView.as_view(), name='virtualchassis_delete'),
+
+    # VC memberships
+    url(r'^vc-memberships/(?P<pk>\d+)/edit/$', views.VCMembershipEditView.as_view(), name='vcmembership_edit'),
+    url(r'^vc-memberships/(?P<pk>\d+)/delete/$', views.VCMembershipDeleteView.as_view(), name='vcmembership_delete'),
+
 ]

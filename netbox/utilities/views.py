@@ -803,20 +803,6 @@ class ComponentCreateView(View):
         })
 
 
-class ComponentEditView(ObjectEditView):
-    parent_field = None
-
-    def get_return_url(self, request, obj):
-        return getattr(obj, self.parent_field).get_absolute_url()
-
-
-class ComponentDeleteView(ObjectDeleteView):
-    parent_field = None
-
-    def get_return_url(self, request, obj):
-        return getattr(obj, self.parent_field).get_absolute_url()
-
-
 class BulkComponentCreateView(View):
     """
     Add one or more components (e.g. interfaces, console ports, etc.) to a set of Devices or VirtualMachines.

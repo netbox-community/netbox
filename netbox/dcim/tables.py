@@ -7,7 +7,7 @@ from utilities.tables import BaseTable, ToggleColumn
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceTemplate, Manufacturer, Platform, PowerOutlet,
-    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, Region, Site,
+    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, Region, Site, VirtualChassis
 )
 
 REGION_LINK = """
@@ -109,6 +109,12 @@ SUBDEVICE_ROLE_TEMPLATE = """
 UTILIZATION_GRAPH = """
 {% load helpers %}
 {% utilization_graph value %}
+"""
+
+VIRTUALCHASSIS_ACTIONS = """
+{% if perms.dcim.change_virtualchassis %}
+    <a href="{% url 'dcim:virtualchassis_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+{% endif %}
 """
 
 
@@ -524,3 +530,22 @@ class InterfaceConnectionTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Interface
         fields = ('device_a', 'interface_a', 'device_b', 'interface_b')
+
+
+#
+# Virtual chassis
+#
+
+class VirtualChassisTable(BaseTable):
+    pk = ToggleColumn()
+    master = tables.LinkColumn()
+    member_count = tables.Column(verbose_name='Members')
+    actions = tables.TemplateColumn(
+        template_code=VIRTUALCHASSIS_ACTIONS,
+        attrs={'td': {'class': 'text-right'}},
+        verbose_name=''
+    )
+
+    class Meta(BaseTable.Meta):
+        model = VirtualChassis
+        fields = ('pk', 'master', 'domain', 'member_count', 'actions')

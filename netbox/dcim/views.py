@@ -6,7 +6,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger
+from django.db import transaction
 from django.db.models import Count, Q
+from django.forms import ModelChoiceField, modelformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -22,8 +24,8 @@ from ipam.models import Prefix, Service, VLAN
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
-    BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView,
-    ComponentEditView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ObjectDeleteView,
+    ObjectEditView, ObjectListView,
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
@@ -32,7 +34,7 @@ from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site,
+    RackReservation, RackRole, Region, Site, VCMembership, VirtualChassis,
 )
 
 
@@ -807,27 +809,44 @@ class DeviceView(View):
         device = get_object_or_404(Device.objects.select_related(
             'site__region', 'rack__group', 'tenant__group', 'device_role', 'platform'
         ), pk=pk)
+
+        # Find virtual chassis memberships
+        vc_memberships = VCMembership.objects.filter(virtual_chassis=device.virtual_chassis).select_related('device')
+
+        # Console ports
         console_ports = natsorted(
             ConsolePort.objects.filter(device=device).select_related('cs_port__device'), key=attrgetter('name')
         )
+
+        # Console server ports
         cs_ports = ConsoleServerPort.objects.filter(device=device).select_related('connected_console')
+
+        # Power ports
         power_ports = natsorted(
             PowerPort.objects.filter(device=device).select_related('power_outlet__device'), key=attrgetter('name')
         )
+
+        # Power outlets
         power_outlets = PowerOutlet.objects.filter(device=device).select_related('connected_port')
-        interfaces = Interface.objects.order_naturally(
+
+        # Interfaces
+        interfaces = device.vc_interfaces.order_naturally(
             device.device_type.interface_ordering
-        ).filter(
-            device=device
         ).select_related(
             'connected_as_a__interface_b__device', 'connected_as_b__interface_a__device',
             'circuit_termination__circuit'
         ).prefetch_related('ip_addresses')
+
+        # Device bays
         device_bays = natsorted(
             DeviceBay.objects.filter(device=device).select_related('installed_device__device_type__manufacturer'),
             key=attrgetter('name')
         )
+
+        # Services
         services = Service.objects.filter(device=device)
+
+        # Secrets
         secrets = device.secrets.all()
 
         # Find up to ten devices in the same site with the same functional role for quick reference.
@@ -852,6 +871,7 @@ class DeviceView(View):
             'device_bays': device_bays,
             'services': services,
             'secrets': secrets,
+            'vc_memberships': vc_memberships,
             'related_devices': related_devices,
             'show_graphs': show_graphs,
         })
@@ -1074,17 +1094,15 @@ def consoleport_disconnect(request, pk):
     })
 
 
-class ConsolePortEditView(PermissionRequiredMixin, ComponentEditView):
+class ConsolePortEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_consoleport'
     model = ConsolePort
-    parent_field = 'device'
     model_form = forms.ConsolePortForm
 
 
-class ConsolePortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+class ConsolePortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_consoleport'
     model = ConsolePort
-    parent_field = 'device'
 
 
 class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -1194,17 +1212,15 @@ def consoleserverport_disconnect(request, pk):
     })
 
 
-class ConsoleServerPortEditView(PermissionRequiredMixin, ComponentEditView):
+class ConsoleServerPortEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_consoleserverport'
     model = ConsoleServerPort
-    parent_field = 'device'
     model_form = forms.ConsoleServerPortForm
 
 
-class ConsoleServerPortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+class ConsoleServerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_consoleserverport'
     model = ConsoleServerPort
-    parent_field = 'device'
 
 
 class ConsoleServerPortBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
@@ -1313,17 +1329,15 @@ def powerport_disconnect(request, pk):
     })
 
 
-class PowerPortEditView(PermissionRequiredMixin, ComponentEditView):
+class PowerPortEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_powerport'
     model = PowerPort
-    parent_field = 'device'
     model_form = forms.PowerPortForm
 
 
-class PowerPortDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+class PowerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_powerport'
     model = PowerPort
-    parent_field = 'device'
 
 
 class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -1433,17 +1447,15 @@ def poweroutlet_disconnect(request, pk):
     })
 
 
-class PowerOutletEditView(PermissionRequiredMixin, ComponentEditView):
+class PowerOutletEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_poweroutlet'
     model = PowerOutlet
-    parent_field = 'device'
     model_form = forms.PowerOutletForm
 
 
-class PowerOutletDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+class PowerOutletDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_poweroutlet'
     model = PowerOutlet
-    parent_field = 'device'
 
 
 class PowerOutletBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
@@ -1478,18 +1490,16 @@ class InterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class InterfaceEditView(PermissionRequiredMixin, ComponentEditView):
+class InterfaceEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_interface'
     model = Interface
-    parent_field = 'device'
     model_form = forms.InterfaceForm
     template_name = 'dcim/interface_edit.html'
 
 
-class InterfaceDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_interface'
     model = Interface
-    parent_field = 'device'
 
 
 class InterfaceBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
@@ -1533,17 +1543,15 @@ class DeviceBayCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'dcim/device_component_add.html'
 
 
-class DeviceBayEditView(PermissionRequiredMixin, ComponentEditView):
+class DeviceBayEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_devicebay'
     model = DeviceBay
-    parent_field = 'device'
     model_form = forms.DeviceBayForm
 
 
-class DeviceBayDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+class DeviceBayDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_devicebay'
     model = DeviceBay
-    parent_field = 'device'
 
 
 @permission_required('dcim.change_devicebay')
@@ -1811,10 +1819,9 @@ class InterfaceConnectionsListView(ObjectListView):
 # Inventory items
 #
 
-class InventoryItemEditView(PermissionRequiredMixin, ComponentEditView):
+class InventoryItemEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_inventoryitem'
     model = InventoryItem
-    parent_field = 'device'
     model_form = forms.InventoryItemForm
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
@@ -1823,7 +1830,94 @@ class InventoryItemEditView(PermissionRequiredMixin, ComponentEditView):
         return obj
 
 
-class InventoryItemDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+class InventoryItemDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_inventoryitem'
     model = InventoryItem
-    parent_field = 'device'
+
+
+#
+# Virtual chassis
+#
+
+class VirtualChassisListView(ObjectListView):
+    queryset = VirtualChassis.objects.annotate(member_count=Count('memberships'))
+    table = tables.VirtualChassisTable
+    template_name = 'dcim/virtualchassis_list.html'
+
+
+class VirtualChassisCreateView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.add_virtualchassis'
+
+    def post(self, request):
+
+        # Get the list of devices being added to a VirtualChassis
+        pk_form = forms.DeviceSelectionForm(request.POST)
+        pk_form.full_clean()
+        device_list = pk_form.cleaned_data['pk']
+
+        # Generate a custom VCMembershipForm where the device field is limited to only the selected devices
+        class _VCMembershipForm(forms.VCMembershipForm):
+            device = ModelChoiceField(queryset=Device.objects.filter(pk__in=device_list))
+
+            class Meta:
+                model = VCMembership
+                fields = ['device', 'position', 'priority']
+
+        VCMembershipFormSet = modelformset_factory(model=VCMembership, form=_VCMembershipForm, extra=len(device_list))
+
+        if '_create' in request.POST:
+
+            vc_form = forms.VirtualChassisCreateForm(device_list, request.POST)
+            formset = VCMembershipFormSet(request.POST)
+
+            if vc_form.is_valid() and formset.is_valid():
+                with transaction.atomic():
+                    virtual_chassis = vc_form.save()
+                    vc_memberships = formset.save(commit=False)
+                    for vcm in vc_memberships:
+                        vcm.virtual_chassis = virtual_chassis
+                        if vcm.device == vc_form.cleaned_data['master']:
+                            vcm.is_master = True
+                        vcm.save()
+                    return redirect(vc_form.cleaned_data['master'].get_absolute_url())
+
+        else:
+
+            vc_form = forms.VirtualChassisCreateForm(device_list)
+            initial_data = [{'device': pk, 'position': i} for i, pk in enumerate(device_list, start=1)]
+            formset = VCMembershipFormSet(queryset=VCMembership.objects.none(), initial=initial_data)
+
+        return render(request, 'dcim/virtualchassis_add.html', {
+            'pk_form': pk_form,
+            'vc_form': vc_form,
+            'formset': formset,
+            'return_url': reverse('dcim:device_list'),
+        })
+
+
+class VirtualChassisEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_virtualchassis'
+    model = VirtualChassis
+    model_form = forms.VirtualChassisForm
+    template_name = 'dcim/virtualchassis_edit.html'
+
+
+class VirtualChassisDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_virtualchassis'
+    model = VirtualChassis
+    default_return_url = 'dcim:device_list'
+
+
+#
+# VC memberships
+#
+
+class VCMembershipEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_vcmembership'
+    model = VCMembership
+    model_form = forms.VCMembershipForm
+
+
+class VCMembershipDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_vcmembership'
+    model = VCMembership

@@ -30,7 +30,7 @@ from .models import (
     DeviceBay, DeviceBayTemplate, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate,
     Device, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, InventoryItem,
     Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation,
-    RackRole, Region, Site,
+    RackRole, Region, Site, VCMembership, VirtualChassis
 )
 from .constants import *
 
@@ -773,26 +773,24 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             # Compile list of choices for primary IPv4 and IPv6 addresses
             for family in [4, 6]:
                 ip_choices = [(None, '---------')]
+
+                # Gather PKs of all interfaces belonging to this Device or a peer VirtualChassis member
+                interface_ids = self.instance.vc_interfaces.values('pk')
+
                 # Collect interface IPs
                 interface_ips = IPAddress.objects.select_related('interface').filter(
-                    family=family, interface__device=self.instance
+                    family=family, interface_id__in=interface_ids
                 )
                 if interface_ips:
-                    ip_choices.append(
-                        ('Interface IPs', [
-                            (ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips
-                        ])
-                    )
+                    ip_list = [(ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips]
+                    ip_choices.append(('Interface IPs', ip_list))
                 # Collect NAT IPs
                 nat_ips = IPAddress.objects.select_related('nat_inside').filter(
-                    family=family, nat_inside__interface__device=self.instance
+                    family=family, nat_inside__interface__in=interface_ids
                 )
                 if nat_ips:
-                    ip_choices.append(
-                        ('NAT IPs', [
-                            (ip.id, '{} ({})'.format(ip.address, ip.nat_inside.address)) for ip in nat_ips
-                        ])
-                    )
+                    ip_list = [(ip.id, '{} ({})'.format(ip.address, ip.nat_inside.address)) for ip in nat_ips]
+                    ip_choices.append(('NAT IPs', ip_list))
                 self.fields['primary_ip{}'.format(family)].choices = ip_choices
 
             # If editing an existing device, exclude it from the list of occupied rack units. This ensures that a device
@@ -2170,3 +2168,61 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InventoryItem
         fields = ['name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description']
+
+
+#
+# Virtual chassis
+#
+
+class VirtualChassisForm(BootstrapMixin, forms.ModelForm):
+    master = forms.ModelChoiceField(queryset=Device.objects.all())
+
+    class Meta:
+        model = VirtualChassis
+        fields = ['domain']
+
+    def __init__(self, *args, **kwargs):
+        super(VirtualChassisForm, self).__init__(*args, **kwargs)
+
+        if self.instance:
+            vc_memberships = self.instance.memberships.all()
+            self.fields['master'].queryset = Device.objects.filter(pk__in=[vcm.device_id for vcm in vc_memberships])
+            self.initial['master'] = self.instance.master
+
+    def save(self, commit=True):
+        instance = super(VirtualChassisForm, self).save(commit=commit)
+
+        # Update the master membership if it has been changed
+        master = self.cleaned_data['master']
+        if instance.pk and instance.master != master:
+            VCMembership.objects.filter(virtual_chassis=self.instance).update(is_master=False)
+            VCMembership.objects.filter(virtual_chassis=self.instance, device=master).update(is_master=True)
+
+        return instance
+
+
+class DeviceSelectionForm(forms.Form):
+    pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
+
+
+class VirtualChassisCreateForm(BootstrapMixin, forms.ModelForm):
+    master = forms.ModelChoiceField(queryset=Device.objects.all())
+
+    class Meta:
+        model = VirtualChassis
+        fields = ['master', 'domain']
+
+    def __init__(self, candidate_pks, *args, **kwargs):
+        super(VirtualChassisCreateForm, self).__init__(*args, **kwargs)
+        self.fields['master'].queryset = Device.objects.filter(pk__in=candidate_pks)
+
+
+#
+# VC memberships
+#
+
+class VCMembershipForm(BootstrapMixin, forms.ModelForm):
+
+    class Meta:
+        model = VCMembership
+        fields = ['position', 'priority']

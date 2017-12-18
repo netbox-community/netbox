@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from collections import OrderedDict
 
 from django.conf import settings
+from django.db import transaction
 from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import detail_route
@@ -15,7 +16,7 @@ from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site,
+    RackReservation, RackRole, Region, Site, VCMembership, VirtualChassis
 )
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
@@ -394,6 +395,37 @@ class InterfaceConnectionViewSet(ModelViewSet):
     serializer_class = serializers.InterfaceConnectionSerializer
     write_serializer_class = serializers.WritableInterfaceConnectionSerializer
     filter_class = filters.InterfaceConnectionFilter
+
+
+#
+# Virtual chassis
+#
+
+class VirtualChassisViewSet(ModelViewSet):
+    queryset = VirtualChassis.objects.all()
+    serializer_class = serializers.VirtualChassisSerializer
+    write_serializer_class = serializers.WritableVirtualChassisSerializer
+
+
+class VCMembershipViewSet(ModelViewSet):
+    queryset = VCMembership.objects.select_related('virtual_chassis', 'device')
+    serializer_class = serializers.VCMembershipSerializer
+    write_serializer_class = serializers.WritableVCMembershipSerializer
+    filter_class = filters.VCMembershipFilter
+
+    def create(self, request, *args, **kwargs):
+
+        with transaction.atomic():
+
+            # Automatically create a new VirtualChassis for new VCMemberships with no VC specified
+            virtual_chassis = request.data.get('virtual_chassis', None)
+            is_master = request.data.get('is_master', False)
+            if not virtual_chassis and is_master:
+                vc = VirtualChassis()
+                vc.save()
+                request.data['virtual_chassis'] = vc.pk
+
+            return super(VCMembershipViewSet, self).create(request, *args, **kwargs)
 
 
 #
