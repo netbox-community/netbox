@@ -2329,7 +2329,7 @@ class VCMembershipTest(HttpStatusMixin, APITestCase):
         url = reverse('dcim-api:vcmembership-list')
 
         # Try creating the first membership without is_master. This should fail.
-        data ={
+        data = {
             'device': self.device7.pk,
             'position': 1,
             'priority': 10,
