@@ -569,11 +569,6 @@ class InterfaceFilter(django_filters.FilterSet):
         method='_mac_address',
         label='MAC address',
     )
-    virtual_chassis_id = django_filters.NumberFilter(
-        method='_virtual_chassis_id',
-        name='pk',
-        label='Virtual chassis (ID)',
-    )
 
     class Meta:
         model = Interface
@@ -582,8 +577,9 @@ class InterfaceFilter(django_filters.FilterSet):
     def filter_device(self, queryset, name, value):
         try:
             device = Device.objects.select_related('device_type').get(**{name: value})
+            vc_interface_ids = [i['id'] for i in device.vc_interfaces.values('id')]
             ordering = device.device_type.interface_ordering
-            return queryset.filter(device=device).order_naturally(ordering)
+            return queryset.filter(pk__in=vc_interface_ids).order_naturally(ordering)
         except Device.DoesNotExist:
             return queryset.none()
 
@@ -604,14 +600,6 @@ class InterfaceFilter(django_filters.FilterSet):
             mac = EUI(value.strip())
             return queryset.filter(mac_address=mac)
         except AddrFormatError:
-            return queryset.none()
-
-    def _virtual_chassis_id(self, queryset, name, value):
-        try:
-            virtual_chassis = VirtualChassis.objects.get(**{name: value})
-            ordering = virtual_chassis.master.device_type.interface_ordering
-            return queryset.filter(device__vc_membership__virtual_chassis=virtual_chassis).order_naturally(ordering)
-        except VirtualChassis.DoesNotExist:
             return queryset.none()
 
 
