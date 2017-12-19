@@ -134,6 +134,7 @@ INSTALLED_APPS = (
     'mptt',
     'rest_framework',
     'rest_framework_swagger',
+    'timezone_field',
     'circuits',
     'dcim',
     'ipam',

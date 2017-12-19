@@ -1,5 +1,8 @@
 from __future__ import unicode_literals
 
+import datetime
+import pytz
+
 from django import template
 from django.utils.safestring import mark_safe
 from markdown import markdown
@@ -115,6 +118,14 @@ def example_choices(field, arg=3):
             continue
         examples.append(label)
     return ', '.join(examples) or 'None'
+
+
+@register.filter()
+def tzoffset(value):
+    """
+    Returns the hour offset of a given time zone using the current time.
+    """
+    return datetime.datetime.now(value).strftime('%z')
 
 
 #

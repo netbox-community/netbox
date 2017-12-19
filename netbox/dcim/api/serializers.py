@@ -20,7 +20,7 @@ from extras.api.customfields import CustomFieldModelSerializer
 from ipam.models import IPAddress, VLAN
 from tenancy.api.serializers import NestedTenantSerializer
 from users.api.serializers import NestedUserSerializer
-from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer
+from utilities.api import ChoiceFieldSerializer, TimeZoneField, ValidatedModelSerializer
 from virtualization.models import Cluster
 
 
@@ -58,13 +58,14 @@ class WritableRegionSerializer(ValidatedModelSerializer):
 class SiteSerializer(CustomFieldModelSerializer):
     region = NestedRegionSerializer()
     tenant = NestedTenantSerializer()
+    time_zone = TimeZoneField(required=False)
 
     class Meta:
         model = Site
         fields = [
-            'id', 'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
-            'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields', 'count_prefixes',
-            'count_vlans', 'count_racks', 'count_devices', 'count_circuits',
+            'id', 'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'physical_address',
+            'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields',
+            'count_prefixes', 'count_vlans', 'count_racks', 'count_devices', 'count_circuits',
         ]
 
 
@@ -77,12 +78,13 @@ class NestedSiteSerializer(serializers.ModelSerializer):
 
 
 class WritableSiteSerializer(CustomFieldModelSerializer):
+    time_zone = TimeZoneField(required=False)
 
     class Meta:
         model = Site
         fields = [
-            'id', 'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
-            'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields',
+            'id', 'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'physical_address',
+            'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields',
         ]
 
 

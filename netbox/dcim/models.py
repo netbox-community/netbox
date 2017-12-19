@@ -14,6 +14,7 @@ from django.db.models import Count, Q, ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from mptt.models import MPTTModel, TreeForeignKey
+from timezone_field import TimeZoneField
 
 from circuits.models import Circuit
 from extras.models import CustomFieldModel, CustomFieldValue, ImageAttachment
@@ -86,6 +87,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     tenant = models.ForeignKey(Tenant, related_name='sites', blank=True, null=True, on_delete=models.PROTECT)
     facility = models.CharField(max_length=50, blank=True)
     asn = ASNField(blank=True, null=True, verbose_name='ASN')
+    time_zone = TimeZoneField(blank=True)
     physical_address = models.CharField(max_length=200, blank=True)
     shipping_address = models.CharField(max_length=200, blank=True)
     contact_name = models.CharField(max_length=50, blank=True)
@@ -98,7 +100,8 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     objects = SiteManager()
 
     csv_headers = [
-        'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'contact_name', 'contact_phone', 'contact_email',
+        'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'contact_name', 'contact_phone',
+        'contact_email',
     ]
 
     class Meta:
@@ -118,6 +121,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
             self.tenant.name if self.tenant else None,
             self.facility,
             self.asn,
+            self.time_zone,
             self.contact_name,
             self.contact_phone,
             self.contact_email,

@@ -5,6 +5,7 @@ django-filter>=1.1.0
 django-mptt==0.8.7
 django-rest-swagger>=2.1.0
 django-tables2>=1.10.0
+django-timezone-field>=2.0
 djangorestframework>=3.6.4
 graphviz>=0.6
 Markdown>=2.6.7

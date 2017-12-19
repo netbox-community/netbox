@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.db.models import Count, Q
 from mptt.forms import TreeNodeChoiceField
+from timezone_field import TimeZoneFormField
 
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from ipam.models import IPAddress, VLAN, VLANGroup
@@ -96,7 +97,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         model = Site
         fields = [
             'name', 'slug', 'region', 'tenant_group', 'tenant', 'facility', 'asn', 'physical_address',
-            'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments',
+            'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'time_zone', 'comments',
         ]
         widgets = {
             'physical_address': SmallTextarea(attrs={'rows': 3}),
@@ -135,7 +136,7 @@ class SiteCSVForm(forms.ModelForm):
         model = Site
         fields = [
             'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
-            'contact_name', 'contact_phone', 'contact_email', 'comments',
+            'contact_name', 'contact_phone', 'contact_email', 'time_zone', 'comments',
         ]
         help_texts = {
             'name': 'Site name',
@@ -149,9 +150,10 @@ class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     region = TreeNodeChoiceField(queryset=Region.objects.all(), required=False)
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     asn = forms.IntegerField(min_value=1, max_value=4294967295, required=False, label='ASN')
+    time_zone = TimeZoneFormField(required=False)
 
     class Meta:
-        nullable_fields = ['region', 'tenant', 'asn']
+        nullable_fields = ['region', 'tenant', 'asn', 'time_zone']
 
 
 class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):

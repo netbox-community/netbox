@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from collections import OrderedDict
+import pytz
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -95,6 +96,23 @@ class ContentTypeFieldSerializer(Field):
             return ContentType.objects.get_by_natural_key(app_label=app_label, model=model)
         except ContentType.DoesNotExist:
             raise ValidationError("Invalid content type")
+
+
+class TimeZoneField(Field):
+    """
+    Represent a pytz time zone.
+    """
+
+    def to_representation(self, obj):
+        return obj.zone if obj else None
+
+    def to_internal_value(self, data):
+        if not data:
+            return ""
+        try:
+            return pytz.timezone(str(data))
+        except pytz.exceptions.UnknownTimeZoneError:
+            raise ValidationError('Invalid time zone "{}"'.format(data))
 
 
 #
