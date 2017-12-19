@@ -330,7 +330,7 @@ class DeviceRoleFilter(django_filters.FilterSet):
 
     class Meta:
         model = DeviceRole
-        fields = ['name', 'slug', 'color']
+        fields = ['name', 'slug', 'color', 'vm_role']
 
 
 class PlatformFilter(django_filters.FilterSet):
