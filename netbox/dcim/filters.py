@@ -344,6 +344,17 @@ class DeviceRoleFilter(django_filters.FilterSet):
 
 
 class PlatformFilter(django_filters.FilterSet):
+    manufacturer_id = django_filters.ModelMultipleChoiceFilter(
+        name='manufacturer',
+        queryset=Manufacturer.objects.all(),
+        label='Manufacturer (ID)',
+    )
+    manufacturer = django_filters.ModelMultipleChoiceFilter(
+        name='manufacturer__slug',
+        queryset=Manufacturer.objects.all(),
+        to_field_name='slug',
+        label='Manufacturer (slug)',
+    )
 
     class Meta:
         model = Platform

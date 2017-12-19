@@ -677,7 +677,7 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Platform
-        fields = ['name', 'slug', 'napalm_driver', 'rpc_client']
+        fields = ['name', 'slug', 'manufacturer', 'napalm_driver', 'rpc_client']
 
 
 class PlatformCSVForm(forms.ModelForm):
@@ -685,9 +685,10 @@ class PlatformCSVForm(forms.ModelForm):
 
     class Meta:
         model = Platform
-        fields = ['name', 'slug', 'napalm_driver']
+        fields = ['name', 'slug', 'manufacturer', 'napalm_driver']
         help_texts = {
             'name': 'Platform name',
+            'manufacturer': 'Manufacturer name',
         }
 
 
@@ -796,6 +797,11 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             # If editing an existing device, exclude it from the list of occupied rack units. This ensures that a device
             # can be flipped from one face to another.
             self.fields['position'].widget.attrs['api-url'] += '&exclude={}'.format(self.instance.pk)
+
+            # Limit platform by manufacturer
+            self.fields['platform'].queryset = Platform.objects.filter(
+                Q(manufacturer__isnull=True) | Q(manufacturer=self.instance.device_type.manufacturer)
+            )
 
         else:
 

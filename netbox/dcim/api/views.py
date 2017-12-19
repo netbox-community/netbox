@@ -225,6 +225,7 @@ class DeviceRoleViewSet(ModelViewSet):
 class PlatformViewSet(ModelViewSet):
     queryset = Platform.objects.all()
     serializer_class = serializers.PlatformSerializer
+    write_serializer_class = serializers.WritablePlatformSerializer
     filter_class = filters.PlatformFilter
 
 

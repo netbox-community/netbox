@@ -426,11 +426,12 @@ class NestedDeviceRoleSerializer(serializers.ModelSerializer):
 # Platforms
 #
 
-class PlatformSerializer(ValidatedModelSerializer):
+class PlatformSerializer(serializers.ModelSerializer):
+    manufacturer = NestedManufacturerSerializer()
 
     class Meta:
         model = Platform
-        fields = ['id', 'name', 'slug', 'napalm_driver', 'rpc_client']
+        fields = ['id', 'name', 'slug', 'manufacturer', 'napalm_driver', 'rpc_client']
 
 
 class NestedPlatformSerializer(serializers.ModelSerializer):
@@ -439,6 +440,13 @@ class NestedPlatformSerializer(serializers.ModelSerializer):
     class Meta:
         model = Platform
         fields = ['id', 'url', 'name', 'slug']
+
+
+class WritablePlatformSerializer(ValidatedModelSerializer):
+
+    class Meta:
+        model = Platform
+        fields = ['id', 'name', 'slug', 'manufacturer', 'napalm_driver', 'rpc_client']
 
 
 #

@@ -271,13 +271,14 @@ class ManufacturerTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn(verbose_name='Name')
     devicetype_count = tables.Column(verbose_name='Device Types')
+    platform_count = tables.Column(verbose_name='Platforms')
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(template_code=MANUFACTURER_ACTIONS, attrs={'td': {'class': 'text-right'}},
                                     verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = Manufacturer
-        fields = ('pk', 'name', 'devicetype_count', 'slug', 'actions')
+        fields = ('pk', 'name', 'devicetype_count', 'platform_count', 'slug', 'actions')
 
 
 #
@@ -389,12 +390,15 @@ class PlatformTable(BaseTable):
     name = tables.LinkColumn(verbose_name='Name')
     device_count = tables.Column(verbose_name='Devices')
     slug = tables.Column(verbose_name='Slug')
-    actions = tables.TemplateColumn(template_code=PLATFORM_ACTIONS, attrs={'td': {'class': 'text-right'}},
-                                    verbose_name='')
+    actions = tables.TemplateColumn(
+        template_code=PLATFORM_ACTIONS,
+        attrs={'td': {'class': 'text-right'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = Platform
-        fields = ('pk', 'name', 'device_count', 'slug', 'napalm_driver', 'actions')
+        fields = ('pk', 'name', 'manufacturer', 'device_count', 'slug', 'napalm_driver', 'actions')
 
 
 #

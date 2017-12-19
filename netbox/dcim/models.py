@@ -768,16 +768,31 @@ class DeviceRole(models.Model):
 @python_2_unicode_compatible
 class Platform(models.Model):
     """
-    Platform refers to the software or firmware running on a Device; for example, "Cisco IOS-XR" or "Juniper Junos".
+    Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos".
     NetBox uses Platforms to determine how to interact with devices when pulling inventory data or other information by
-    specifying an remote procedure call (RPC) client.
+    specifying a NAPALM driver.
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
-    napalm_driver = models.CharField(max_length=50, blank=True, verbose_name='NAPALM driver',
-                                     help_text="The name of the NAPALM driver to use when interacting with devices.")
-    rpc_client = models.CharField(max_length=30, choices=RPC_CLIENT_CHOICES, blank=True,
-                                  verbose_name='Legacy RPC client')
+    manufacturer = models.ForeignKey(
+        to='Manufacturer',
+        related_name='platforms',
+        blank=True,
+        null=True,
+        help_text="Optionally limit this platform to devices of a certain manufacturer"
+    )
+    napalm_driver = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name='NAPALM driver',
+        help_text="The name of the NAPALM driver to use when interacting with devices"
+    )
+    rpc_client = models.CharField(
+        max_length=30,
+        choices=RPC_CLIENT_CHOICES,
+        blank=True,
+        verbose_name="Legacy RPC client"
+    )
 
     class Meta:
         ordering = ['name']
@@ -944,6 +959,14 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
                 raise ValidationError({
                     'primary_ip6': "The specified IP address ({}) is not assigned to this device.".format(
                         self.primary_ip6),
+                })
+
+        # Validate manufacturer/platform
+        if self.device_type and self.platform:
+            if self.platform.manufacturer and self.platform.manufacturer != self.device_type.manufacturer:
+                raise ValidationError({
+                    'platform': "The assigned platform is limited to {} device types, but this device's type belongs "
+                                "to {}.".format(self.platform.manufacturer, self.device_type.manufacturer)
                 })
 
         # A Device can only be assigned to a Cluster in the same Site (or no Site)
