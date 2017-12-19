@@ -20,6 +20,9 @@ class FormlessBrowsableAPIRenderer(BrowsableAPIRenderer):
     def show_form_for_method(self, *args, **kwargs):
         return False
 
+    def get_filter_form(self, data, view, request):
+        return None
+
 
 #
 # Authentication
