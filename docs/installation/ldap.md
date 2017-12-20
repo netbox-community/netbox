@@ -24,7 +24,7 @@ sudo pip install django-auth-ldap
 
 # Configuration
 
-Create a file in the same directory as `configuration.py` (typically `netbox/netbox/`) named `ldap_config.py`. Define all of the parameters required below in `ldap_config.py`.
+Create a file in the same directory as `configuration.py` (typically `netbox/netbox/`) named `ldap_config.py`. Define all of the parameters required below in `ldap_config.py`. Complete documentation of all `django-auth-ldap` configuration options is included in the project's [official documentation](http://django-auth-ldap.readthedocs.io/).
 
 ## General Server Configuration
 
@@ -52,6 +52,8 @@ AUTH_LDAP_BIND_PASSWORD = "demo"
 LDAP_IGNORE_CERT_ERRORS = True
 ```
 
+STARTTLS can be configured by setting `AUTH_LDAP_START_TLS = True` and using the `ldap://` URI scheme.
+
 ## User Authentication
 
 !!! info
@@ -78,7 +80,7 @@ AUTH_LDAP_USER_ATTR_MAP = {
 ```
 
 # User Groups for Permissions
-!!! Info
+!!! info
     When using Microsoft Active Directory, Support for nested Groups can be activated by using `GroupOfNamesType()` instead of `NestedGroupOfNamesType()` for `AUTH_LDAP_GROUP_TYPE`.
 
 ```python
