@@ -308,8 +308,14 @@ class BulkCreateView(View):
 
     def get(self, request):
 
+        # Set initial values for visible form fields from query args
+        initial = {}
+        for field in getattr(self.model_form._meta, 'fields', []):
+            if request.GET.get(field):
+                initial[field] = request.GET[field]
+
         form = self.form()
-        model_form = self.model_form()
+        model_form = self.model_form(initial=initial)
 
         return render(request, self.template_name, {
             'obj_type': self.model_form._meta.model._meta.verbose_name,
