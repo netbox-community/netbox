@@ -26,6 +26,8 @@ sudo pip install django-auth-ldap
 
 Create a file in the same directory as `configuration.py` (typically `netbox/netbox/`) named `ldap_config.py`. Define all of the parameters required below in `ldap_config.py`.
 
+All configuration options for django-auth-ldap can be viewed [on their documentation](http://django-auth-ldap.readthedocs.io/en/latest/index.html).
+
 ## General Server Configuration
 
 !!! info
@@ -51,6 +53,8 @@ AUTH_LDAP_BIND_PASSWORD = "demo"
 #     ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
 LDAP_IGNORE_CERT_ERRORS = True
 ```
+
+STARTTLS can be configured by settings `AUTH_LDAP_START_TLS = True` and using the `ldap://` URI scheme.
 
 ## User Authentication
 
