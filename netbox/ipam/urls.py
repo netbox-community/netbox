@@ -51,6 +51,7 @@ urlpatterns = [
     url(r'^prefixes/(?P<pk>\d+)/$', views.PrefixView.as_view(), name='prefix'),
     url(r'^prefixes/(?P<pk>\d+)/edit/$', views.PrefixEditView.as_view(), name='prefix_edit'),
     url(r'^prefixes/(?P<pk>\d+)/delete/$', views.PrefixDeleteView.as_view(), name='prefix_delete'),
+    url(r'^prefixes/(?P<pk>\d+)/prefixes/$', views.PrefixPrefixesView.as_view(), name='prefix_prefixes'),
     url(r'^prefixes/(?P<pk>\d+)/ip-addresses/$', views.PrefixIPAddressesView.as_view(), name='prefix_ipaddresses'),
 
     # IP addresses

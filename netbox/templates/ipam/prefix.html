@@ -139,15 +139,4 @@
         {% include 'panel_table.html' with table=parent_prefix_table heading='Parent Prefixes' %}
 	</div>
 </div>
-<div class="row">
-	<div class="col-md-12">
-        {% if child_prefix_table.rows %}
-            {% include 'utilities/obj_table.html' with table=child_prefix_table table_template='panel_table.html' heading='Child Prefixes' parent=prefix bulk_edit_url='ipam:prefix_bulk_edit' bulk_delete_url='ipam:prefix_bulk_delete' %}
-        {% elif prefix.new_subnet %}
-            <a href="{% url 'ipam:prefix_add' %}?prefix={{ prefix.new_subnet }}{% if prefix.vrf %}&vrf={{ prefix.vrf.pk }}{% endif %}{% if prefix.site %}&site={{ prefix.site.pk }}{% endif %}" class="btn btn-success">
-                <i class="fa fa-plus" aria-hidden="true"></i> Add Child Prefix
-            </a>
-        {% endif %}
-    </div>
-</div>
 {% endblock %}

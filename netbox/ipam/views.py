@@ -476,6 +476,20 @@ class PrefixView(View):
         duplicate_prefix_table = tables.PrefixTable(list(duplicate_prefixes), orderable=False)
         duplicate_prefix_table.exclude = ('vrf',)
 
+        return render(request, 'ipam/prefix.html', {
+            'prefix': prefix,
+            'aggregate': aggregate,
+            'parent_prefix_table': parent_prefix_table,
+            'duplicate_prefix_table': duplicate_prefix_table,
+        })
+
+
+class PrefixPrefixesView(View):
+
+    def get(self, request, pk):
+
+        prefix = get_object_or_404(Prefix.objects.all(), pk=pk)
+
         # Child prefixes table
         child_prefixes = Prefix.objects.filter(
             vrf=prefix.vrf, prefix__net_contained=str(prefix.prefix)
@@ -484,15 +498,16 @@ class PrefixView(View):
         ).annotate_depth(limit=0)
         if child_prefixes:
             child_prefixes = add_available_prefixes(prefix.prefix, child_prefixes)
-        child_prefix_table = tables.PrefixDetailTable(child_prefixes)
+
+        prefix_table = tables.PrefixDetailTable(child_prefixes)
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
-            child_prefix_table.columns.show('pk')
+            prefix_table.columns.show('pk')
 
         paginate = {
             'klass': EnhancedPaginator,
             'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
         }
-        RequestConfig(request, paginate).configure(child_prefix_table)
+        RequestConfig(request, paginate).configure(prefix_table)
 
         # Compile permissions list for rendering the object table
         permissions = {
@@ -501,15 +516,12 @@ class PrefixView(View):
             'delete': request.user.has_perm('ipam.delete_prefix'),
         }
 
-        return render(request, 'ipam/prefix.html', {
+        return render(request, 'ipam/prefix_prefixes.html', {
             'prefix': prefix,
-            'aggregate': aggregate,
-            'parent_prefix_table': parent_prefix_table,
-            'child_prefix_table': child_prefix_table,
-            'duplicate_prefix_table': duplicate_prefix_table,
-            'bulk_querystring': 'vrf_id={}&within={}'.format(prefix.vrf or '0', prefix.prefix),
+            'first_available_prefix': prefix.get_first_available_prefix(),
+            'prefix_table': prefix_table,
             'permissions': permissions,
-            'return_url': prefix.get_absolute_url(),
+            'bulk_querystring': 'vrf_id={}&within={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),
         })
 
 
@@ -544,6 +556,7 @@ class PrefixIPAddressesView(View):
 
         return render(request, 'ipam/prefix_ipaddresses.html', {
             'prefix': prefix,
+            'first_available_ip': prefix.get_first_available_ip(),
             'ip_table': ip_table,
             'permissions': permissions,
             'bulk_querystring': 'vrf_id={}&parent={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),

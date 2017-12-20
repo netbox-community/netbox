@@ -281,11 +281,27 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
     def get_duplicates(self):
         return Prefix.objects.filter(vrf=self.vrf, prefix=str(self.prefix)).exclude(pk=self.pk)
 
+    def get_child_prefixes(self):
+        """
+        Return all Prefixes within this Prefix and VRF.
+        """
+        return Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
+
     def get_child_ips(self):
         """
-        Return all IPAddresses within this Prefix.
+        Return all IPAddresses within this Prefix and VRF.
         """
         return IPAddress.objects.filter(address__net_host_contained=str(self.prefix), vrf=self.vrf)
+
+    def get_available_prefixes(self):
+        """
+        Return all available Prefixes within this prefix as an IPSet.
+        """
+        prefix = netaddr.IPSet(self.prefix)
+        child_prefixes = netaddr.IPSet([child.prefix for child in self.get_child_prefixes()])
+        available_prefixes = prefix - child_prefixes
+
+        return available_prefixes
 
     def get_available_ips(self):
         """
@@ -304,15 +320,23 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
 
         return available_ips
 
+    def get_first_available_prefix(self):
+        """
+        Return the first available child prefix within the prefix (or None).
+        """
+        available_prefixes = self.get_available_prefixes()
+        if not available_prefixes:
+            return None
+        return available_prefixes.iter_cidrs()[0]
+
     def get_first_available_ip(self):
         """
         Return the first available IP within the prefix (or None).
         """
         available_ips = self.get_available_ips()
-        if available_ips:
-            return '{}/{}'.format(next(available_ips.__iter__()), self.prefix.prefixlen)
-        else:
+        if not available_ips:
             return None
+        return '{}/{}'.format(next(available_ips.__iter__()), self.prefix.prefixlen)
 
     def get_utilization(self):
         """
@@ -329,17 +353,6 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
             if self.family == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
                 prefix_size -= 2
             return int(float(child_count) / prefix_size * 100)
-
-    @property
-    def new_subnet(self):
-        if self.family == 4:
-            if self.prefix.prefixlen <= 30:
-                return netaddr.IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
-            return None
-        if self.family == 6:
-            if self.prefix.prefixlen <= 126:
-                return netaddr.IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
-            return None
 
 
 class IPAddressManager(models.Manager):
