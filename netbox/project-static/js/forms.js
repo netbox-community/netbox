@@ -1,14 +1,24 @@
 $(document).ready(function() {
 
-    // "Toggle all" checkbox (table header)
-    $('#toggle_all').click(function() {
-        $('td input:checkbox[name=pk]').prop('checked', $(this).prop('checked'));
+    // "Toggle" checkbox for object lists (PK column)
+    $('input:checkbox.toggle').click(function() {
+        $(this).closest('table').find('input:checkbox[name=pk]').prop('checked', $(this).prop('checked'));
+
+        // Show the "select all" box if present
         if ($(this).is(':checked')) {
             $('#select_all_box').removeClass('hidden');
         } else {
             $('#select_all').prop('checked', false);
         }
     });
+
+    // Uncheck the "toggle" and "select all" checkboxes if an item is unchecked
+    $('input:checkbox[name=pk]').click(function (event) {
+        if (!$(this).attr('checked')) {
+            $('input:checkbox.toggle, #select_all').prop('checked', false);
+        }
+    });
+
     // Enable hidden buttons when "select all" is checked
     $('#select_all').click(function() {
         if ($(this).is(':checked')) {
@@ -16,21 +26,6 @@ $(document).ready(function() {
         } else {
             $('#select_all_box').find('button').prop('disabled', 'disabled');
         }
-    });
-    // Uncheck the "toggle all" checkbox if an item is unchecked
-    $('input:checkbox[name=pk]').click(function (event) {
-        if (!$(this).attr('checked')) {
-            $('#select_all, #toggle_all').prop('checked', false);
-        }
-    });
-
-    // Simple "Toggle all" button (panel)
-    $('button.toggle').click(function() {
-        var selected = $(this).attr('selected');
-        $(this).closest('form').find('input:checkbox[name=pk]').prop('checked', !selected);
-        $(this).attr('selected', !selected);
-        $(this).children('span').toggleClass('glyphicon-unchecked glyphicon-check');
-        return false;
     });
 
     // Slugify

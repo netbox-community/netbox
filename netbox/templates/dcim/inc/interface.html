@@ -3,7 +3,7 @@
     {# Checkbox (exclude VC members) #}
     {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
         <td class="pk">
-            {% if iface.device == device %}
+            {% if iface.parent == device %}
                 <input name="pk" type="checkbox" value="{{ iface.pk }}" />
             {% endif %}
         </td>

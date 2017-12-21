@@ -510,29 +510,29 @@ class DeviceTypeView(View):
         # Component tables
         consoleport_table = tables.ConsolePortTemplateTable(
             natsorted(ConsolePortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name')),
-            show_header=False
+            orderable=False
         )
         consoleserverport_table = tables.ConsoleServerPortTemplateTable(
             natsorted(ConsoleServerPortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name')),
-            show_header=False
+            orderable=False
         )
         powerport_table = tables.PowerPortTemplateTable(
             natsorted(PowerPortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name')),
-            show_header=False
+            orderable=False
         )
         poweroutlet_table = tables.PowerOutletTemplateTable(
             natsorted(PowerOutletTemplate.objects.filter(device_type=devicetype), key=attrgetter('name')),
-            show_header=False
+            orderable=False
         )
         interface_table = tables.InterfaceTemplateTable(
             list(InterfaceTemplate.objects.order_naturally(
                 devicetype.interface_ordering
             ).filter(device_type=devicetype)),
-            show_header=False
+            orderable=False
         )
         devicebay_table = tables.DeviceBayTemplateTable(
             natsorted(DeviceBayTemplate.objects.filter(device_type=devicetype), key=attrgetter('name')),
-            show_header=False
+            orderable=False
         )
         if request.user.has_perm('dcim.change_devicetype'):
             consoleport_table.columns.show('pk')
