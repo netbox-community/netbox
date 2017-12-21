@@ -100,7 +100,7 @@
                             <i class="fa fa-plug" aria-hidden="true"></i>
                         </a>
                     {% endif %}
-                    <a href="{% url 'dcim:interfaceconnection_delete' pk=iface.connection.pk %}?device={{ device.pk }}" class="btn btn-danger btn-xs" title="Disconnect">
+                    <a href="{% url 'dcim:interfaceconnection_delete' pk=iface.connection.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs" title="Disconnect">
                         <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
                     </a>
                 {% elif iface.circuit_termination and perms.circuits.change_circuittermination %}

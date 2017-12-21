@@ -2105,11 +2105,6 @@ class InterfaceConnectionCSVForm(forms.ModelForm):
         return interface
 
 
-class InterfaceConnectionDeletionForm(ConfirmationForm):
-    # Used for HTTP redirect upon successful deletion
-    device = forms.ModelChoiceField(queryset=Device.objects.all(), widget=forms.HiddenInput(), required=False)
-
-
 #
 # Device bays
 #
