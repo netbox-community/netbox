@@ -257,7 +257,7 @@
                         {% include 'dcim/inc/interface.html' with device=vm %}
                     {% empty %}
                         <tr>
-                            <td colspan="6">No interfaces defined</td>
+                            <td colspan="9" class="text-center text-muted">&mdash; No interfaces defined &mdash;</td>
                         </tr>
                     {% endfor %}
                 </tbody>
