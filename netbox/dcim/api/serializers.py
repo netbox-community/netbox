@@ -65,7 +65,8 @@ class SiteSerializer(CustomFieldModelSerializer):
         fields = [
             'id', 'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'physical_address',
             'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields',
-            'count_prefixes', 'count_vlans', 'count_racks', 'count_devices', 'count_circuits',
+            'created', 'last_updated', 'count_prefixes', 'count_vlans', 'count_racks', 'count_devices',
+            'count_circuits',
         ]
 
 
@@ -85,6 +86,7 @@ class WritableSiteSerializer(CustomFieldModelSerializer):
         fields = [
             'id', 'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'physical_address',
             'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields',
+            'created', 'last_updated',
         ]
 
 
@@ -150,7 +152,7 @@ class RackSerializer(CustomFieldModelSerializer):
         model = Rack
         fields = [
             'id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'serial', 'type', 'width',
-            'u_height', 'desc_units', 'comments', 'custom_fields',
+            'u_height', 'desc_units', 'comments', 'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -168,7 +170,7 @@ class WritableRackSerializer(CustomFieldModelSerializer):
         model = Rack
         fields = [
             'id', 'name', 'facility_id', 'site', 'group', 'tenant', 'role', 'serial', 'type', 'width', 'u_height',
-            'desc_units', 'comments', 'custom_fields',
+            'desc_units', 'comments', 'custom_fields', 'created', 'last_updated',
         ]
         # Omit the UniqueTogetherValidator that would be automatically added to validate (site, facility_id). This
         # prevents facility_id from being interpreted as a required field.
@@ -493,7 +495,7 @@ class DeviceSerializer(CustomFieldModelSerializer):
         fields = [
             'id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'site', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4', 'primary_ip6',
-            'cluster', 'comments', 'custom_fields',
+            'cluster', 'comments', 'custom_fields', 'created', 'last_updated',
         ]
 
     def get_parent_device(self, obj):
@@ -514,6 +516,7 @@ class WritableDeviceSerializer(CustomFieldModelSerializer):
         fields = [
             'id', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag', 'site', 'rack',
             'position', 'face', 'status', 'primary_ip4', 'primary_ip6', 'cluster', 'comments', 'custom_fields',
+            'created', 'last_updated',
         ]
         validators = []
 

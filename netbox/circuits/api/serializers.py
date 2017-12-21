@@ -19,7 +19,7 @@ class ProviderSerializer(CustomFieldModelSerializer):
         model = Provider
         fields = [
             'id', 'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
-            'custom_fields',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -37,7 +37,7 @@ class WritableProviderSerializer(CustomFieldModelSerializer):
         model = Provider
         fields = [
             'id', 'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
-            'custom_fields',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -73,7 +73,7 @@ class CircuitSerializer(CustomFieldModelSerializer):
         model = Circuit
         fields = [
             'id', 'cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
-            'custom_fields',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -91,7 +91,7 @@ class WritableCircuitSerializer(CustomFieldModelSerializer):
         model = Circuit
         fields = [
             'id', 'cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
-            'custom_fields',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 
