@@ -519,7 +519,8 @@ class InterfaceConnectionTable(BaseTable):
     device_b = tables.LinkColumn('dcim:device', accessor=Accessor('interface_b.device'),
                                  args=[Accessor('interface_b.device.pk')], verbose_name='Device B')
     interface_b = tables.Column(verbose_name='Interface B')
+    connection_name = tables.Column(verbose_name='Connection Name')
 
     class Meta(BaseTable.Meta):
         model = Interface
-        fields = ('device_a', 'interface_a', 'device_b', 'interface_b')
+        fields = ('device_a', 'interface_a', 'device_b', 'interface_b','connection_name')

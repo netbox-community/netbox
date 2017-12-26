@@ -1692,10 +1692,67 @@ class InterfaceBulkDisconnectForm(ConfirmationForm):
 #
 
 class InterfaceConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
-    interface_a = forms.ChoiceField(
-        choices=[],
+    site_a = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        label='Site',
+        required=False,
+        widget=forms.Select(
+            attrs={'filter-for': 'rack_a'}
+        )
+    )
+    rack_a = ChainedModelChoiceField(
+        queryset=Rack.objects.all(),
+        chains=(
+            ('site', 'site_a'),
+        ),
+        label='Rack',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/racks/?site_id={{site_a}}',
+            attrs={'filter-for': 'device_a', 'nullable': 'true'}
+        )
+    )
+    device_a = ChainedModelChoiceField(
+        queryset=Device.objects.all(),
+        chains=(
+            ('site', 'site_a'),
+            ('rack', 'rack_a'),
+        ),
+        label='Device',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/devices/?site_id={{site_a}}&rack_id={{rack_a}}',
+            display_field='display_name',
+            attrs={'filter-for': 'interface_a'}
+        )
+    )
+    livesearch_a = forms.CharField(
+        required=False,
+        label='Device',
+        widget=Livesearch(
+            query_key='q',
+            query_url='dcim-api:device-list',
+            field_to_update='device_a'
+        )
+    )
+    #interface_a = forms.ChoiceField(
+    #    choices=[],
+    #    widget=SelectWithDisabled,
+    #    label='Interface'
+    #)
+    interface_a = ChainedModelChoiceField(
+        queryset=Interface.objects.connectable().select_related(
+            'circuit_termination', 'connected_as_a', 'connected_as_b'
+        ),
+        chains=(
+            ('device', 'device_a'),
+        ),
+        label='Interface',
         widget=SelectWithDisabled,
-        label='Interface'
+        #widget=APISelect(
+        #    api_url='/api/dcim/interfaces/?device_id={{device_a}}&type=physical',
+        #    disabled_indicator='is_connected'
+        #)
     )
     site_b = forms.ModelChoiceField(
         queryset=Site.objects.all(),
@@ -1756,19 +1813,33 @@ class InterfaceConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
 
     class Meta:
         model = InterfaceConnection
-        fields = ['interface_a', 'site_b', 'rack_b', 'device_b', 'interface_b', 'livesearch', 'connection_status']
+        fields = ['site_a','rack_a','device_a','interface_a', 'livesearch_a','site_b', 'rack_b', 'device_b', 'interface_b', 'livesearch', 'connection_status','connection_name']
 
-    def __init__(self, device_a, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
 
         super(InterfaceConnectionForm, self).__init__(*args, **kwargs)
 
-        # Initialize interface A choices
-        device_a_interfaces = Interface.objects.connectable().order_naturally().filter(device=device_a).select_related(
-            'circuit_termination', 'connected_as_a', 'connected_as_b'
-        )
-        self.fields['interface_a'].choices = [
-            (iface.id, {'label': iface.name, 'disabled': iface.is_connected}) for iface in device_a_interfaces
-        ]
+        #if self.instance.pk:
+        
+
+        #else:
+        
+        if self.initial.get('device_a'):
+
+            # Initialize interface A choices
+            device_a_interfaces = Interface.objects.connectable().order_naturally().filter(device=self.initial['device_a']).select_related(
+                'circuit_termination', 'connected_as_a', 'connected_as_b'
+            )
+
+            self.fields['interface_a'].choices = [
+                (iface.id, {'label': iface.name, 'disabled': iface.is_connected}) for iface in device_a_interfaces
+            ]
+        
+        # Mark connected interfaces as disabled
+        if self.data.get('device_a'):
+            self.fields['interface_a'].choices = [
+                (iface.id, {'label': iface.name, 'disabled': iface.is_connected}) for iface in self.fields['interface_a'].queryset
+            ]
 
         # Mark connected interfaces as disabled
         if self.data.get('device_b'):
@@ -1800,10 +1871,14 @@ class InterfaceConnectionCSVForm(forms.ModelForm):
         choices=CONNECTION_STATUS_CHOICES,
         help_text='Connection status'
     )
+    connection_name  = forms.CharField(
+        help_text='Name of this connection (e.g. cable-number)',
+        required = False
+    )
 
     class Meta:
         model = InterfaceConnection
-        fields = ['device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status']
+        fields = ['device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status','connection_name']
 
     def clean_interface_a(self):
 

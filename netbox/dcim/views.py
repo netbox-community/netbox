@@ -1682,7 +1682,7 @@ def interfaceconnection_add(request, pk):
     device = get_object_or_404(Device, pk=pk)
 
     if request.method == 'POST':
-        form = forms.InterfaceConnectionForm(device, request.POST)
+        form = forms.InterfaceConnectionForm( request.POST)
         if form.is_valid():
 
             interfaceconnection = form.save()
@@ -1709,12 +1709,14 @@ def interfaceconnection_add(request, pk):
                 return redirect('dcim:device', pk=device.pk)
 
     else:
-        form = forms.InterfaceConnectionForm(device, initial={
+        form = forms.InterfaceConnectionForm(initial={
+            'device_a': pk,
             'interface_a': request.GET.get('interface_a'),
             'site_b': request.GET.get('site_b'),
             'rack_b': request.GET.get('rack_b'),
             'device_b': request.GET.get('device_b'),
             'interface_b': request.GET.get('interface_b'),
+            'connection_name': request.GET.get('connection_name'),
         })
 
     return render(request, 'dcim/interfaceconnection_edit.html', {
@@ -1767,6 +1769,21 @@ def interfaceconnection_delete(request, pk):
         'return_url': return_url,
     })
 
+
+class InterfaceConnectionEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.edit_interfaceconnection'
+    model = InterfaceConnection
+    #parent_field = 'id'
+    model_form = forms.InterfaceConnectionForm
+    template_name = 'dcim/interfaceconnection_edit.html'    
+
+    #template_name = 'dcim/device_edit.html'
+    #default_return_url = 'dcim:device_list'
+
+    #def alter_obj(self, obj, request, url_args, url_kwargs):
+    #    if 'device' in url_kwargs:
+    #        obj.device = get_object_or_404(InterfaceConnection, pk=url_kwargs['device'])
+    #    return obj
 
 class InterfaceConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.change_interface'

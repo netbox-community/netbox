@@ -1370,8 +1370,9 @@ class InterfaceConnection(models.Model):
     interface_b = models.OneToOneField('Interface', related_name='connected_as_b', on_delete=models.CASCADE)
     connection_status = models.BooleanField(choices=CONNECTION_STATUS_CHOICES, default=CONNECTION_STATUS_CONNECTED,
                                             verbose_name='Status')
+    connection_name = models.CharField(max_length = 64,blank = True)
 
-    csv_headers = ['device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status']
+    csv_headers = ['device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status','connection_name']
 
     def clean(self):
         try:
@@ -1390,6 +1391,7 @@ class InterfaceConnection(models.Model):
             self.interface_b.device.identifier,
             self.interface_b.name,
             self.get_connection_status_display(),
+            self.connection_name,
         ])
 
 
