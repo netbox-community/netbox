@@ -137,13 +137,13 @@ class ClusterFilterForm(BootstrapMixin, CustomFieldFilterForm):
     group = FilterChoiceField(
         queryset=ClusterGroup.objects.annotate(filter_count=Count('clusters')),
         to_field_name='slug',
-        null_option=(0, 'None'),
+        null_label='-- None --',
         required=False,
     )
     site = FilterChoiceField(
         queryset=Site.objects.annotate(filter_count=Count('clusters')),
         to_field_name='slug',
-        null_option=(0, 'None'),
+        null_label='-- None --',
         required=False,
     )
 
@@ -338,12 +338,12 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
     cluster_group = FilterChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
     cluster_type = FilterChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
     cluster_id = FilterChoiceField(
         queryset=Cluster.objects.annotate(filter_count=Count('virtual_machines')),
@@ -352,23 +352,23 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
     site = FilterChoiceField(
         queryset=Site.objects.annotate(filter_count=Count('clusters__virtual_machines')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
     role = FilterChoiceField(
         queryset=DeviceRole.objects.filter(vm_role=True).annotate(filter_count=Count('virtual_machines')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
     status = forms.MultipleChoiceField(choices=vm_status_choices, required=False)
     tenant = FilterChoiceField(
         queryset=Tenant.objects.annotate(filter_count=Count('virtual_machines')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
     platform = FilterChoiceField(
         queryset=Platform.objects.annotate(filter_count=Count('virtual_machines')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
 
 
