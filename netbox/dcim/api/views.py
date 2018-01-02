@@ -419,12 +419,17 @@ class VCMembershipViewSet(ModelViewSet):
         with transaction.atomic():
 
             # Automatically create a new VirtualChassis for new VCMemberships with no VC specified
-            virtual_chassis = request.data.get('virtual_chassis', None)
-            is_master = request.data.get('is_master', False)
-            if not virtual_chassis and is_master:
-                vc = VirtualChassis()
-                vc.save()
-                request.data['virtual_chassis'] = vc.pk
+            if isinstance(request.data, list):
+                for i, vcm in enumerate(request.data):
+                    if not vcm.get('virtual_chassis') and vcm.get('is_master'):
+                        vc = VirtualChassis()
+                        vc.save()
+                        request.data[i]['virtual_chassis'] = vc.pk
+            else:
+                if not request.data.get('virtual_chassis') and request.data.get('is_master'):
+                    vc = VirtualChassis()
+                    vc.save()
+                    request.data['virtual_chassis'] = vc.pk
 
             return super(VCMembershipViewSet, self).create(request, *args, **kwargs)
 

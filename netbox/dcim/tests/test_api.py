@@ -3097,29 +3097,31 @@ class VCMembershipTest(HttpStatusMixin, APITestCase):
 
     def test_create_vcmembership_bulk(self):
 
-        vc = VirtualChassis.objects.create()
+        vc3 = VirtualChassis.objects.create()
 
         data = [
+            # Set the master of an existing VC
             {
-                'virtual_chassis': vc.pk,
+                'virtual_chassis': vc3.pk,
                 'device': self.device7.pk,
                 'position': 1,
                 'is_master': True,
                 'priority': 10,
             },
+            # Add a non-master member to a VC
             {
-                'virtual_chassis': vc.pk,
+                'virtual_chassis': vc3.pk,
                 'device': self.device8.pk,
                 'position': 2,
                 'is_master': False,
                 'priority': 20,
             },
+            # Force the creation of a new VC
             {
-                'virtual_chassis': vc.pk,
                 'device': self.device9.pk,
-                'position': 3,
-                'is_master': False,
-                'priority': 30,
+                'position': 1,
+                'is_master': True,
+                'priority': 10,
             },
         ]
 
@@ -3127,6 +3129,7 @@ class VCMembershipTest(HttpStatusMixin, APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(VirtualChassis.objects.count(), 4)
         self.assertEqual(VCMembership.objects.count(), 9)
         self.assertEqual(response.data[0]['device'], data[0]['device'])
         self.assertEqual(response.data[1]['device'], data[1]['device'])
