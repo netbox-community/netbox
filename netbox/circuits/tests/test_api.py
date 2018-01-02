@@ -77,6 +77,32 @@ class ProviderTest(HttpStatusMixin, APITestCase):
         self.assertEqual(provider4.name, data['name'])
         self.assertEqual(provider4.slug, data['slug'])
 
+    def test_create_provider_bulk(self):
+
+        data = [
+            {
+                'name': 'Test Provider 4',
+                'slug': 'test-provider-4',
+            },
+            {
+                'name': 'Test Provider 5',
+                'slug': 'test-provider-5',
+            },
+            {
+                'name': 'Test Provider 6',
+                'slug': 'test-provider-6',
+            },
+        ]
+
+        url = reverse('circuits-api:provider-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Provider.objects.count(), 6)
+        self.assertEqual(response.data[0]['name'], data[0]['name'])
+        self.assertEqual(response.data[1]['name'], data[1]['name'])
+        self.assertEqual(response.data[2]['name'], data[2]['name'])
+
     def test_update_provider(self):
 
         data = {
@@ -216,6 +242,35 @@ class CircuitTest(HttpStatusMixin, APITestCase):
         self.assertEqual(circuit4.cid, data['cid'])
         self.assertEqual(circuit4.provider_id, data['provider'])
         self.assertEqual(circuit4.type_id, data['type'])
+
+    def test_create_circuit_bulk(self):
+
+        data = [
+            {
+                'cid': 'TEST0004',
+                'provider': self.provider1.pk,
+                'type': self.circuittype1.pk,
+            },
+            {
+                'cid': 'TEST0005',
+                'provider': self.provider1.pk,
+                'type': self.circuittype1.pk,
+            },
+            {
+                'cid': 'TEST0006',
+                'provider': self.provider1.pk,
+                'type': self.circuittype1.pk,
+            },
+        ]
+
+        url = reverse('circuits-api:circuit-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Circuit.objects.count(), 6)
+        self.assertEqual(response.data[0]['cid'], data[0]['cid'])
+        self.assertEqual(response.data[1]['cid'], data[1]['cid'])
+        self.assertEqual(response.data[2]['cid'], data[2]['cid'])
 
     def test_update_circuit(self):
 

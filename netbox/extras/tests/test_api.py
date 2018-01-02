@@ -63,6 +63,35 @@ class GraphTest(HttpStatusMixin, APITestCase):
         self.assertEqual(graph4.name, data['name'])
         self.assertEqual(graph4.source, data['source'])
 
+    def test_create_graph_bulk(self):
+
+        data = [
+            {
+                'type': GRAPH_TYPE_SITE,
+                'name': 'Test Graph 4',
+                'source': 'http://example.com/graphs.py?site={{ obj.name }}&foo=4',
+            },
+            {
+                'type': GRAPH_TYPE_SITE,
+                'name': 'Test Graph 5',
+                'source': 'http://example.com/graphs.py?site={{ obj.name }}&foo=5',
+            },
+            {
+                'type': GRAPH_TYPE_SITE,
+                'name': 'Test Graph 6',
+                'source': 'http://example.com/graphs.py?site={{ obj.name }}&foo=6',
+            },
+        ]
+
+        url = reverse('extras-api:graph-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Graph.objects.count(), 6)
+        self.assertEqual(response.data[0]['name'], data[0]['name'])
+        self.assertEqual(response.data[1]['name'], data[1]['name'])
+        self.assertEqual(response.data[2]['name'], data[2]['name'])
+
     def test_update_graph(self):
 
         data = {
@@ -143,6 +172,35 @@ class ExportTemplateTest(HttpStatusMixin, APITestCase):
         self.assertEqual(exporttemplate4.content_type_id, data['content_type'])
         self.assertEqual(exporttemplate4.name, data['name'])
         self.assertEqual(exporttemplate4.template_code, data['template_code'])
+
+    def test_create_exporttemplate_bulk(self):
+
+        data = [
+            {
+                'content_type': self.content_type.pk,
+                'name': 'Test Export Template 4',
+                'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
+            },
+            {
+                'content_type': self.content_type.pk,
+                'name': 'Test Export Template 5',
+                'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
+            },
+            {
+                'content_type': self.content_type.pk,
+                'name': 'Test Export Template 6',
+                'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
+            },
+        ]
+
+        url = reverse('extras-api:exporttemplate-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(ExportTemplate.objects.count(), 6)
+        self.assertEqual(response.data[0]['name'], data[0]['name'])
+        self.assertEqual(response.data[1]['name'], data[1]['name'])
+        self.assertEqual(response.data[2]['name'], data[2]['name'])
 
     def test_update_exporttemplate(self):
 
