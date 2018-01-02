@@ -164,9 +164,9 @@ class SecretTest(HttpStatusMixin, APITestCase):
         }
 
         self.plaintext = {
-            'secret1': 'Secret#1Plaintext',
-            'secret2': 'Secret#2Plaintext',
-            'secret3': 'Secret#3Plaintext',
+            'secret1': 'Secret #1 Plaintext',
+            'secret2': 'Secret #2 Plaintext',
+            'secret3': 'Secret #3 Plaintext',
         }
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
@@ -213,7 +213,8 @@ class SecretTest(HttpStatusMixin, APITestCase):
         data = {
             'device': self.device.pk,
             'role': self.secretrole1.pk,
-            'plaintext': 'Secret#4Plaintext',
+            'name': 'Test Secret 4',
+            'plaintext': 'Secret #4 Plaintext',
         }
 
         url = reverse('secrets-api:secret-list')
@@ -233,16 +234,19 @@ class SecretTest(HttpStatusMixin, APITestCase):
             {
                 'device': self.device.pk,
                 'role': self.secretrole1.pk,
+                'name': 'Test Secret 4',
                 'plaintext': 'Secret #4 Plaintext',
             },
             {
                 'device': self.device.pk,
                 'role': self.secretrole1.pk,
+                'name': 'Test Secret 5',
                 'plaintext': 'Secret #5 Plaintext',
             },
             {
                 'device': self.device.pk,
                 'role': self.secretrole1.pk,
+                'name': 'Test Secret 6',
                 'plaintext': 'Secret #6 Plaintext',
             },
         ]

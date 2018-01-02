@@ -56,17 +56,13 @@ class SecretViewSet(ModelViewSet):
 
     master_key = None
 
-    def _get_encrypted_fields(self, serializer):
-        """
-        Since we can't call encrypt() on the serializer like we can on the Secret model, we need to calculate the
-        ciphertext and hash values by encrypting a dummy copy. These can be passed to the serializer's save() method.
-        """
-        s = Secret(plaintext=serializer.validated_data['plaintext'])
-        s.encrypt(self.master_key)
-        return ({
-            'ciphertext': s.ciphertext,
-            'hash': s.hash,
-        })
+    def get_serializer_context(self):
+
+        # Make the master key available to the serializer for encrypting plaintext values
+        context = super(SecretViewSet, self).get_serializer_context()
+        context['master_key'] = self.master_key
+
+        return context
 
     def initial(self, request, *args, **kwargs):
 
@@ -127,12 +123,6 @@ class SecretViewSet(ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-
-    def perform_create(self, serializer):
-        serializer.save(**self._get_encrypted_fields(serializer))
-
-    def perform_update(self, serializer):
-        serializer.save(**self._get_encrypted_fields(serializer))
 
 
 class GetSessionKeyViewSet(ViewSet):
