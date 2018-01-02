@@ -96,6 +96,8 @@ Save the contents of the above example in `/etc/apache2/sites-available/netbox.c
 # service apache2 restart
 ```
 
+Note: Installations on Debian will require an additional package, libapache2-mod-wsgi-py3. Without it the restart command above will fail and checking the Apache status will show it is because of the WSGIPassAuthorization command.
+
 To enable SSL, consider this guide on [securing Apache with Let's Encrypt](https://www.digitalocean.com/community/tutorials/how-to-secure-apache-with-let-s-encrypt-on-ubuntu-16-04).
 
 # gunicorn Installation
