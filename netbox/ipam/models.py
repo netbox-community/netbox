@@ -486,13 +486,14 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
 
 
 @python_2_unicode_compatible
-class VLANGroup(models.Model):
+class VLANGroup(models.Model, CustomFieldModel):
     """
     A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique.
     """
     name = models.CharField(max_length=50)
     slug = models.SlugField()
     site = models.ForeignKey('dcim.Site', related_name='vlan_groups', on_delete=models.PROTECT, blank=True, null=True)
+    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
     class Meta:
         ordering = ['site', 'name']

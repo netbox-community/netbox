@@ -325,7 +325,7 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         return queryset.filter(address__net_mask_length=value)
 
 
-class VLANGroupFilter(django_filters.FilterSet):
+class VLANGroupFilter(CustomFieldFilterSet, django_filters.FilterSet):
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         label='Site (ID)',

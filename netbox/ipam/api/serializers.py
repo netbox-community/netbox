@@ -112,12 +112,12 @@ class WritableAggregateSerializer(CustomFieldModelSerializer):
 # VLAN groups
 #
 
-class VLANGroupSerializer(serializers.ModelSerializer):
+class VLANGroupSerializer(CustomFieldModelSerializer):
     site = NestedSiteSerializer()
 
     class Meta:
         model = VLANGroup
-        fields = ['id', 'name', 'slug', 'site']
+        fields = ['id', 'name', 'slug', 'site', 'custom_fields']
 
 
 class NestedVLANGroupSerializer(serializers.ModelSerializer):
@@ -128,11 +128,11 @@ class NestedVLANGroupSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'name', 'slug']
 
 
-class WritableVLANGroupSerializer(serializers.ModelSerializer):
+class WritableVLANGroupSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = VLANGroup
-        fields = ['id', 'name', 'slug', 'site']
+        fields = ['id', 'name', 'slug', 'site', 'custom_fields']
         validators = []
 
     def validate(self, data):

@@ -161,7 +161,7 @@ class IPAddressViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
 # VLAN groups
 #
 
-class VLANGroupViewSet(WritableSerializerMixin, ModelViewSet):
+class VLANGroupViewSet(WritableSerializerMixin, CustomFieldModelViewSet):
     queryset = VLANGroup.objects.select_related('site')
     serializer_class = serializers.VLANGroupSerializer
     write_serializer_class = serializers.WritableVLANGroupSerializer
