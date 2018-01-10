@@ -50,6 +50,14 @@ def get_device_by_name_or_pk(name):
     return device
 
 
+class BulkRenameForm(forms.Form):
+    """
+    An extendable form to be used for renaming device components in bulk.
+    """
+    find = forms.CharField()
+    replace = forms.CharField()
+
+
 #
 # Regions
 #
@@ -1346,6 +1354,10 @@ class ConsoleServerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.
         }
 
 
+class ConsoleServerPortBulkRenameForm(BulkRenameForm):
+    pk = forms.ModelMultipleChoiceField(queryset=ConsoleServerPort.objects.all(), widget=forms.MultipleHiddenInput)
+
+
 class ConsoleServerPortBulkDisconnectForm(ConfirmationForm):
     pk = forms.ModelMultipleChoiceField(queryset=ConsoleServerPort.objects.all(), widget=forms.MultipleHiddenInput)
 
@@ -1605,6 +1617,10 @@ class PowerOutletConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
         labels = {
             'connection_status': 'Status',
         }
+
+
+class PowerOutletBulkRenameForm(BulkRenameForm):
+    pk = forms.ModelMultipleChoiceField(queryset=PowerOutlet.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 class PowerOutletBulkDisconnectForm(ConfirmationForm):
@@ -1936,6 +1952,10 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm, ChainedFieldsMixin):
         self.fields['tagged_vlans'].queryset = VLAN.objects.filter(**filter_dict)
 
 
+class InterfaceBulkRenameForm(BulkRenameForm):
+    pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
+
+
 class InterfaceBulkDisconnectForm(ConfirmationForm):
     pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
 
@@ -2141,6 +2161,10 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
             device_type__u_height=0,
             device_type__subdevice_role=SUBDEVICE_ROLE_CHILD
         ).exclude(pk=device_bay.device.pk)
+
+
+class DeviceBayBulkRenameForm(BulkRenameForm):
+    pk = forms.ModelMultipleChoiceField(queryset=DeviceBay.objects.all(), widget=forms.MultipleHiddenInput)
 
 
 #

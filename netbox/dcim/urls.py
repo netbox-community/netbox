@@ -154,6 +154,7 @@ urlpatterns = [
     url(r'^console-server-ports/(?P<pk>\d+)/disconnect/$', views.ConsoleServerPortDisconnectView.as_view(), name='consoleserverport_disconnect'),
     url(r'^console-server-ports/(?P<pk>\d+)/edit/$', views.ConsoleServerPortEditView.as_view(), name='consoleserverport_edit'),
     url(r'^console-server-ports/(?P<pk>\d+)/delete/$', views.ConsoleServerPortDeleteView.as_view(), name='consoleserverport_delete'),
+    url(r'^console-server-ports/rename/$', views.ConsoleServerPortBulkRenameView.as_view(), name='consoleserverport_bulk_rename'),
 
     # Power ports
     url(r'^devices/power-ports/add/$', views.DeviceBulkAddPowerPortView.as_view(), name='device_bulk_add_powerport'),
@@ -173,6 +174,7 @@ urlpatterns = [
     url(r'^power-outlets/(?P<pk>\d+)/disconnect/$', views.PowerOutletDisconnectView.as_view(), name='poweroutlet_disconnect'),
     url(r'^power-outlets/(?P<pk>\d+)/edit/$', views.PowerOutletEditView.as_view(), name='poweroutlet_edit'),
     url(r'^power-outlets/(?P<pk>\d+)/delete/$', views.PowerOutletDeleteView.as_view(), name='poweroutlet_delete'),
+    url(r'^power-outlets/rename/$', views.PowerOutletBulkRenameView.as_view(), name='poweroutlet_bulk_rename'),
 
     # Interfaces
     url(r'^devices/interfaces/add/$', views.DeviceBulkAddInterfaceView.as_view(), name='device_bulk_add_interface'),
@@ -184,6 +186,7 @@ urlpatterns = [
     url(r'^interface-connections/(?P<pk>\d+)/delete/$', views.InterfaceConnectionDeleteView.as_view(), name='interfaceconnection_delete'),
     url(r'^interfaces/(?P<pk>\d+)/edit/$', views.InterfaceEditView.as_view(), name='interface_edit'),
     url(r'^interfaces/(?P<pk>\d+)/delete/$', views.InterfaceDeleteView.as_view(), name='interface_delete'),
+    url(r'^interfaces/rename/$', views.InterfaceBulkRenameView.as_view(), name='interface_bulk_rename'),
 
     # Device bays
     url(r'^devices/device-bays/add/$', views.DeviceBulkAddDeviceBayView.as_view(), name='device_bulk_add_devicebay'),
@@ -193,6 +196,7 @@ urlpatterns = [
     url(r'^device-bays/(?P<pk>\d+)/delete/$', views.DeviceBayDeleteView.as_view(), name='devicebay_delete'),
     url(r'^device-bays/(?P<pk>\d+)/populate/$', views.DeviceBayPopulateView.as_view(), name='devicebay_populate'),
     url(r'^device-bays/(?P<pk>\d+)/depopulate/$', views.DeviceBayDepopulateView.as_view(), name='devicebay_depopulate'),
+    url(r'^device-bays/rename/$', views.DeviceBayBulkRenameView.as_view(), name='devicebay_bulk_rename'),
 
     # Inventory items
     url(r'^devices/(?P<device>\d+)/inventory-items/add/$', views.InventoryItemEditView.as_view(), name='inventoryitem_add'),

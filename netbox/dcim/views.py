@@ -12,7 +12,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
-from django.utils.http import urlencode
+from django.utils.http import is_safe_url, urlencode
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 from natsort import natsorted
@@ -35,6 +35,50 @@ from .models import (
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
     RackReservation, RackRole, Region, Site, VCMembership, VirtualChassis,
 )
+
+
+class BulkRenameView(View):
+    """
+    An extendable view for renaming device components in bulk.
+    """
+    model = None
+    form = None
+    template_name = 'dcim/bulk_rename.html'
+
+    def post(self, request):
+
+        return_url = request.GET.get('return_url')
+        if not return_url or not is_safe_url(url=return_url, host=request.get_host()):
+            return_url = 'home'
+
+        if '_preview' in request.POST or '_apply' in request.POST:
+            form = self.form(request.POST, initial={'pk': request.POST.getlist('pk')})
+            selected_objects = self.model.objects.filter(pk__in=form.initial['pk'])
+
+            if form.is_valid():
+                for obj in selected_objects:
+                    obj.new_name = obj.name.replace(form.cleaned_data['find'], form.cleaned_data['replace'])
+
+                if '_apply' in request.POST:
+                    for obj in selected_objects:
+                        obj.name = obj.new_name
+                        obj.save()
+                    messages.success(request, "Renamed {} {}".format(
+                        len(selected_objects),
+                        self.model._meta.verbose_name_plural
+                    ))
+                    return redirect(return_url)
+
+        else:
+            form = self.form(initial={'pk': request.POST.getlist('pk')})
+            selected_objects = self.model.objects.filter(pk__in=form.initial['pk'])
+
+        return render(request, self.template_name, {
+            'form': form,
+            'obj_type_plural': self.model._meta.verbose_name_plural,
+            'selected_objects': selected_objects,
+            'return_url': return_url,
+        })
 
 
 class BulkDisconnectView(View):
@@ -1270,6 +1314,12 @@ class ConsoleServerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     model = ConsoleServerPort
 
 
+class ConsoleServerPortBulkRenameView(PermissionRequiredMixin, BulkRenameView):
+    permission_required = 'dcim.change_consoleserverport'
+    model = ConsoleServerPort
+    form = forms.ConsoleServerPortBulkRenameForm
+
+
 class ConsoleServerPortBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
     permission_required = 'dcim.change_consoleserverport'
     model = ConsoleServerPort
@@ -1548,6 +1598,12 @@ class PowerOutletDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     model = PowerOutlet
 
 
+class PowerOutletBulkRenameView(PermissionRequiredMixin, BulkRenameView):
+    permission_required = 'dcim.change_poweroutlet'
+    model = PowerOutlet
+    form = forms.PowerOutletBulkRenameForm
+
+
 class PowerOutletBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
     permission_required = 'dcim.change_poweroutlet'
     model = PowerOutlet
@@ -1610,6 +1666,12 @@ class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
     parent_cls = Device
     table = tables.InterfaceTable
     form = forms.InterfaceBulkEditForm
+
+
+class InterfaceBulkRenameView(PermissionRequiredMixin, BulkRenameView):
+    permission_required = 'dcim.change_interface'
+    model = Interface
+    form = forms.InterfaceBulkRenameForm
 
 
 class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -1711,6 +1773,12 @@ class DeviceBayDepopulateView(PermissionRequiredMixin, View):
             'form': form,
             'return_url': reverse('dcim:device', kwargs={'pk': device_bay.device.pk}),
         })
+
+
+class DeviceBayBulkRenameView(PermissionRequiredMixin, BulkRenameView):
+    permission_required = 'dcim.change_devicebay'
+    model = DeviceBay
+    form = forms.DeviceBayBulkRenameForm
 
 
 class DeviceBayBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
