@@ -802,7 +802,10 @@ class DeviceRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class PlatformListView(ObjectListView):
-    queryset = Platform.objects.annotate(device_count=Count('devices'))
+    queryset = Platform.objects.annotate(
+        device_count=Count('devices', distinct=True),
+        vm_count=Count('virtual_machines', distinct=True)
+    )
     table = tables.PlatformTable
     template_name = 'dcim/platform_list.html'
 

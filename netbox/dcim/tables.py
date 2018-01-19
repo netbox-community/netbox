@@ -389,6 +389,7 @@ class PlatformTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn(verbose_name='Name')
     device_count = tables.Column(verbose_name='Devices')
+    vm_count = tables.Column(verbose_name='VMs')
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(
         template_code=PLATFORM_ACTIONS,
@@ -398,7 +399,7 @@ class PlatformTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Platform
-        fields = ('pk', 'name', 'manufacturer', 'device_count', 'slug', 'napalm_driver', 'actions')
+        fields = ('pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'napalm_driver', 'actions')
 
 
 #

@@ -81,7 +81,7 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
     group = FilterChoiceField(
         queryset=TenantGroup.objects.annotate(filter_count=Count('tenants')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
 
 

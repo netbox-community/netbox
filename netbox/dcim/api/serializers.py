@@ -776,6 +776,8 @@ class InventoryItemSerializer(serializers.ModelSerializer):
 
 
 class WritableInventoryItemSerializer(ValidatedModelSerializer):
+    # Provide a default value to satisfy UniqueTogetherValidator
+    parent = serializers.PrimaryKeyRelatedField(queryset=InventoryItem.objects.all(), allow_null=True, default=None)
 
     class Meta:
         model = InventoryItem

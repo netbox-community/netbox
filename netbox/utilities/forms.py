@@ -407,11 +407,25 @@ class SlugField(forms.SlugField):
         self.widget.attrs['slug-source'] = slug_source
 
 
-class FilterChoiceFieldMixin(object):
-    iterator = forms.models.ModelChoiceIterator
+class FilterChoiceIterator(forms.models.ModelChoiceIterator):
 
-    def __init__(self, null_option=None, *args, **kwargs):
-        self.null_option = null_option
+    def __iter__(self):
+        # Filter on "empty" choice using FILTERS_NULL_CHOICE_VALUE (instead of an empty string)
+        if self.field.null_label is not None:
+            yield (settings.FILTERS_NULL_CHOICE_VALUE, self.field.null_label)
+        queryset = self.queryset.all()
+        # Can't use iterator() when queryset uses prefetch_related()
+        if not queryset._prefetch_related_lookups:
+            queryset = queryset.iterator()
+        for obj in queryset:
+            yield self.choice(obj)
+
+
+class FilterChoiceFieldMixin(object):
+    iterator = FilterChoiceIterator
+
+    def __init__(self, null_label=None, *args, **kwargs):
+        self.null_label = null_label
         if 'required' not in kwargs:
             kwargs['required'] = False
         if 'widget' not in kwargs:
@@ -423,15 +437,6 @@ class FilterChoiceFieldMixin(object):
         if hasattr(obj, 'filter_count'):
             return '{} ({})'.format(label, obj.filter_count)
         return label
-
-    def _get_choices(self):
-        if hasattr(self, '_choices'):
-            return self._choices
-        if self.null_option is not None:
-            return itertools.chain([self.null_option], self.iterator(self))
-        return self.iterator(self)
-
-    choices = property(_get_choices, forms.ChoiceField._set_choices)
 
 
 class FilterChoiceField(FilterChoiceFieldMixin, forms.ModelMultipleChoiceField):

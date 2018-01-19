@@ -163,7 +163,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Rack
-        fields = ['serial', 'type', 'width', 'u_height', 'desc_units']
+        fields = ['name', 'serial', 'type', 'width', 'u_height', 'desc_units']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -340,7 +340,7 @@ class DeviceRoleFilter(django_filters.FilterSet):
 
     class Meta:
         model = DeviceRole
-        fields = ['name', 'slug', 'color']
+        fields = ['name', 'slug', 'color', 'vm_role']
 
 
 class PlatformFilter(django_filters.FilterSet):
@@ -476,7 +476,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Device
-        fields = ['serial']
+        fields = ['serial', 'position']
 
     def search(self, queryset, name, value):
         if not value.strip():

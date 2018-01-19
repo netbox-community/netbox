@@ -42,7 +42,7 @@ class NullableModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     """
     iterator = forms.models.ModelChoiceIterator
 
-    def __init__(self, null_value=0, null_label='None', *args, **kwargs):
+    def __init__(self, null_value=0, null_label='-- None --', *args, **kwargs):
         self.null_value = null_value
         self.null_label = null_label
         super(NullableModelMultipleChoiceField, self).__init__(*args, **kwargs)

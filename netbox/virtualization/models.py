@@ -139,6 +139,7 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
             self.name,
             self.type.name,
             self.group.name if self.group else None,
+            self.site.name if self.site else None,
             self.comments,
         ])
 

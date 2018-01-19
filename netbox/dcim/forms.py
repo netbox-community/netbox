@@ -175,7 +175,7 @@ class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
     tenant = FilterChoiceField(
         queryset=Tenant.objects.annotate(filter_count=Count('sites')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
 
 
@@ -371,17 +371,17 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
     group_id = FilterChoiceField(
         queryset=RackGroup.objects.select_related('site').annotate(filter_count=Count('racks')),
         label='Rack group',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
     tenant = FilterChoiceField(
         queryset=Tenant.objects.annotate(filter_count=Count('racks')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
     role = FilterChoiceField(
         queryset=RackRole.objects.annotate(filter_count=Count('racks')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
 
 
@@ -423,12 +423,12 @@ class RackReservationFilterForm(BootstrapMixin, forms.Form):
     group_id = FilterChoiceField(
         queryset=RackGroup.objects.select_related('site').annotate(filter_count=Count('racks__reservations')),
         label='Rack group',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
     tenant = FilterChoiceField(
         queryset=Tenant.objects.annotate(filter_count=Count('rackreservations')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
 
 
@@ -1053,7 +1053,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     rack_id = FilterChoiceField(
         queryset=Rack.objects.annotate(filter_count=Count('devices')),
         label='Rack',
-        null_option=(0, 'None'),
+        null_label='-- None --',
     )
     role = FilterChoiceField(
         queryset=DeviceRole.objects.annotate(filter_count=Count('devices')),
@@ -1062,7 +1062,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     tenant = FilterChoiceField(
         queryset=Tenant.objects.annotate(filter_count=Count('devices')),
         to_field_name='slug',
-        null_option=(0, 'None'),
+        null_label='-- None --',
     )
     manufacturer_id = FilterChoiceField(queryset=Manufacturer.objects.all(), label='Manufacturer')
     device_type_id = FilterChoiceField(
@@ -1074,7 +1074,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     platform = FilterChoiceField(
         queryset=Platform.objects.annotate(filter_count=Count('devices')),
         to_field_name='slug',
-        null_option=(0, 'None'),
+        null_label='-- None --',
     )
     status = forms.MultipleChoiceField(choices=device_status_choices, required=False)
     mac_address = forms.CharField(required=False, label='MAC address')
