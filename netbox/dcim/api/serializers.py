@@ -488,14 +488,15 @@ class DeviceSerializer(CustomFieldModelSerializer):
     primary_ip4 = DeviceIPAddressSerializer()
     primary_ip6 = DeviceIPAddressSerializer()
     parent_device = serializers.SerializerMethodField()
+    virtual_chassis = serializers.SerializerMethodField()
     cluster = NestedClusterSerializer()
 
     class Meta:
         model = Device
         fields = [
             'id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
-            'site', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4', 'primary_ip6',
-            'cluster', 'comments', 'custom_fields', 'created', 'last_updated',
+            'site', 'rack', 'position', 'face', 'parent_device', 'virtual_chassis', 'status', 'primary_ip',
+            'primary_ip4', 'primary_ip6', 'cluster', 'comments', 'custom_fields', 'created', 'last_updated',
         ]
 
     def get_parent_device(self, obj):
@@ -506,6 +507,16 @@ class DeviceSerializer(CustomFieldModelSerializer):
         context = {'request': self.context['request']}
         data = NestedDeviceSerializer(instance=device_bay.device, context=context).data
         data['device_bay'] = NestedDeviceBaySerializer(instance=device_bay, context=context).data
+        return data
+
+    def get_virtual_chassis(self, obj):
+        try:
+            vc_membership = obj.vc_membership
+        except VCMembership.DoesNotExist:
+            return None
+        context = {'request': self.context['request']}
+        data = NestedVirtualChassisSerializer(instance=vc_membership.virtual_chassis, context=context).data
+        data['vc_membership'] = NestedVCMembershipSerializer(instance=vc_membership, context=context).data
         return data
 
 
@@ -853,6 +864,14 @@ class VCMembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = VCMembership
         fields = ['id', 'virtual_chassis', 'device', 'position', 'is_master', 'priority']
+
+
+class NestedVCMembershipSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:vcmembership-detail')
+
+    class Meta:
+        model = VCMembership
+        fields = ['id', 'url', 'position', 'is_master', 'priority']
 
 
 class WritableVCMembershipSerializer(ValidatedModelSerializer):

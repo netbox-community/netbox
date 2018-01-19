@@ -643,11 +643,18 @@ class InventoryItemFilter(DeviceComponentFilterSet):
         fields = ['name', 'part_id', 'serial', 'discovered']
 
 
+class VirtualChassisFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = VirtualChassis
+        fields = ['domain']
+
+
 class VCMembershipFilter(django_filters.FilterSet):
 
     class Meta:
         model = VCMembership
-        fields = ['virtual_chassis']
+        fields = ['virtual_chassis', 'device', 'position', 'is_master', 'priority']
 
 
 class ConsoleConnectionFilter(django_filters.FilterSet):
