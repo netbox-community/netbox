@@ -22,9 +22,10 @@ from utilities.forms import (
 )
 from virtualization.models import Cluster
 from .constants import (
-    CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_CONNECTED, IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ORDERING_CHOICES,
-    RACK_FACE_CHOICES, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, RACK_WIDTH_19IN, RACK_WIDTH_23IN, STATUS_CHOICES,
-    SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT, SUBDEVICE_ROLE_CHOICES,
+    CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_CONNECTED, IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_MODE_ACCESS,
+    IFACE_MODE_CHOICES, IFACE_MODE_TAGGED_ALL, IFACE_ORDERING_CHOICES, RACK_FACE_CHOICES, RACK_TYPE_CHOICES,
+    RACK_WIDTH_CHOICES, RACK_WIDTH_19IN, RACK_WIDTH_23IN, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
+    SUBDEVICE_ROLE_CHOICES,
 )
 from .formfields import MACAddressFormField
 from .models import (
@@ -33,7 +34,6 @@ from .models import (
     Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation,
     RackRole, Region, Site, VCMembership, VirtualChassis
 )
-from .constants import *
 
 DEVICE_BY_PK_RE = '{\d+\}'
 
@@ -2253,3 +2253,42 @@ class VCMembershipForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = VCMembership
         fields = ['position', 'priority']
+
+
+class VCMembershipCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        label='Site',
+        required=False,
+        widget=forms.Select(
+            attrs={'filter-for': 'rack'}
+        )
+    )
+    rack = ChainedModelChoiceField(
+        queryset=Rack.objects.all(),
+        chains=(
+            ('site', 'site'),
+        ),
+        label='Rack',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/racks/?site_id={{site}}',
+            attrs={'filter-for': 'device', 'nullable': 'true'}
+        )
+    )
+    device = ChainedModelChoiceField(
+        queryset=Device.objects.all(),
+        chains=(
+            ('site', 'site'),
+            ('rack', 'rack'),
+        ),
+        label='Device',
+        widget=APISelect(
+            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
+            display_field='display_name'
+        )
+    )
+
+    class Meta:
+        model = VCMembership
+        fields = ['site', 'rack', 'device', 'position', 'priority']

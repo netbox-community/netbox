@@ -2099,6 +2099,59 @@ class VirtualChassisDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'dcim:device_list'
 
 
+class VirtualChassisAddMemberView(GetReturnURLMixin, View):
+    """
+    Create a new VCMembership tying a Device to the VirtualChassis.
+    """
+    template_name = 'utilities/obj_edit.html'
+
+    def get(self, request, pk):
+
+        virtual_chassis = get_object_or_404(VirtualChassis, pk=pk)
+        obj = VCMembership(virtual_chassis=virtual_chassis)
+
+        initial_data = {k: request.GET[k] for k in request.GET}
+        form = forms.VCMembershipCreateForm(instance=obj, initial=initial_data)
+
+        return render(request, self.template_name, {
+            'obj': obj,
+            'obj_type': VCMembership._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(request, obj),
+        })
+
+    def post(self, request, pk):
+
+        virtual_chassis = get_object_or_404(VirtualChassis, pk=pk)
+        obj = VCMembership(virtual_chassis=virtual_chassis)
+
+        form = forms.VCMembershipCreateForm(request.POST, instance=obj)
+
+        if form.is_valid():
+
+            obj = form.save()
+
+            msg = 'Added member <a href="{}">{}</a>'.format(obj.device.get_absolute_url(), escape(obj.device))
+            messages.success(request, mark_safe(msg))
+            UserAction.objects.log_create(request.user, obj, msg)
+
+            if '_addanother' in request.POST:
+                return redirect(request.get_full_path())
+
+            return_url = form.cleaned_data.get('return_url')
+            if return_url is not None and is_safe_url(url=return_url, host=request.get_host()):
+                return redirect(return_url)
+            else:
+                return redirect(self.get_return_url(request, obj))
+
+        return render(request, self.template_name, {
+            'obj': obj,
+            'obj_type': VCMembership._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(request, obj),
+        })
+
+
 #
 # VC memberships
 #
