@@ -1037,6 +1037,8 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     def display_name(self):
         if self.name:
             return self.name
+        elif hasattr(self, 'vc_membership'):
+            return "{}:{}".format(self.vc_membership.virtual_chassis.master, self.vc_membership.position)
         elif hasattr(self, 'device_type'):
             return "{}".format(self.device_type)
         return ""
