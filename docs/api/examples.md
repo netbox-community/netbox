@@ -90,7 +90,7 @@ $ curl -X POST -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f9cdc0
     "id": 16,
     "name": "My New Site",
     "slug": "my-new-site",
-    "region": null,
+    "region": 5,
     "tenant": null,
     "facility": "",
     "asn": null,
@@ -102,6 +102,31 @@ $ curl -X POST -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f9cdc0
     "comments": ""
 }
 ```
+Note that in this example we are creating a site bound to a region with the ID of 5. For write api actions (`POST`, `PUT`, and `PATCH`) the integer ID value is for `ForeignKey` (related model) relationships, instead of the nested representation that is used in the `GET` action.
+
+### Creating a new site with an existing region
+
+Send a `POST` rquest as before to the site list endpoint, but this time include a value for an existing region.
+
+```
+$ curl -X POST -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f9cdc0" -H "Content-Type: application/json" -H "Accept: application/json; indent=4" http://localhost:8000/api/dcim/sites/ --data '{"name": "My New Site", "slug": "my-new-site"}'
+{
+    "id": 16,
+    "name": "My New Site",
+    "slug": "my-new-site",
+    "region": 5,
+    "tenant": null,
+    "facility": "",
+    "asn": null,
+    "physical_address": "",
+    "shipping_address": "",
+    "contact_name": "",
+    "contact_phone": "",
+    "contact_email": "",
+    "comments": ""
+}
+```
+Note that in this example we are creating a site bound to a region with the ID of 5. For write api actions (`POST`, `PUT`, and `PATCH`) the integer ID value is used for `ForeignKey` (related model) relationships, instead of the nested representation that is used in the `GET` (list) action.
 
 ### Modify an existing site
 
