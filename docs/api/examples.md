@@ -82,10 +82,10 @@ $ curl -H "Accept: application/json; indent=4" http://localhost/api/dcim/sites/6
 
 ### Creating a new site
 
-Send a `POST` request to the site list endpoint with token authentication and JSON-formatted data. Only mandatory fields are required.
+Send a `POST` request to the site list endpoint with token authentication and JSON-formatted data. Only mandatory fields are required. This example includes one non required field, "region."
 
 ```
-$ curl -X POST -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f9cdc0" -H "Content-Type: application/json" -H "Accept: application/json; indent=4" http://localhost:8000/api/dcim/sites/ --data '{"name": "My New Site", "slug": "my-new-site"}'
+$ curl -X POST -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f9cdc0" -H "Content-Type: application/json" -H "Accept: application/json; indent=4" http://localhost:8000/api/dcim/sites/ --data '{"name": "My New Site", "slug": "my-new-site", "region": 5}'
 {
     "id": 16,
     "name": "My New Site",
@@ -102,31 +102,7 @@ $ curl -X POST -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f9cdc0
     "comments": ""
 }
 ```
-Note that in this example we are creating a site bound to a region with the ID of 5. For write api actions (`POST`, `PUT`, and `PATCH`) the integer ID value is for `ForeignKey` (related model) relationships, instead of the nested representation that is used in the `GET` action.
-
-### Creating a new site with an existing region
-
-Send a `POST` rquest as before to the site list endpoint, but this time include a value for an existing region.
-
-```
-$ curl -X POST -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f9cdc0" -H "Content-Type: application/json" -H "Accept: application/json; indent=4" http://localhost:8000/api/dcim/sites/ --data '{"name": "My New Site", "slug": "my-new-site"}'
-{
-    "id": 16,
-    "name": "My New Site",
-    "slug": "my-new-site",
-    "region": 5,
-    "tenant": null,
-    "facility": "",
-    "asn": null,
-    "physical_address": "",
-    "shipping_address": "",
-    "contact_name": "",
-    "contact_phone": "",
-    "contact_email": "",
-    "comments": ""
-}
-```
-Note that in this example we are creating a site bound to a region with the ID of 5. For write api actions (`POST`, `PUT`, and `PATCH`) the integer ID value is used for `ForeignKey` (related model) relationships, instead of the nested representation that is used in the `GET` (list) action.
+Note that in this example we are creating a site bound to a region with the ID of 5. For write API actions (`POST`, `PUT`, and `PATCH`) the integer ID value is used for `ForeignKey` (related model) relationships, instead of the nested representation that is used in the `GET` (list) action.
 
 ### Modify an existing site
 
