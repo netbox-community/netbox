@@ -9,7 +9,7 @@ from extras.api.customfields import CustomFieldModelSerializer
 from ipam.models import IPAddress
 from tenancy.api.serializers import NestedTenantSerializer
 from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer
-from virtualization.constants import STATUS_CHOICES
+from virtualization.constants import VM_STATUS_CHOICES
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
@@ -94,7 +94,7 @@ class VirtualMachineIPAddressSerializer(serializers.ModelSerializer):
 
 
 class VirtualMachineSerializer(CustomFieldModelSerializer):
-    status = ChoiceFieldSerializer(choices=STATUS_CHOICES)
+    status = ChoiceFieldSerializer(choices=VM_STATUS_CHOICES)
     cluster = NestedClusterSerializer()
     role = NestedDeviceRoleSerializer()
     tenant = NestedTenantSerializer()

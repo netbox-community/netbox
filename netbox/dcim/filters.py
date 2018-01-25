@@ -11,7 +11,7 @@ from tenancy.models import Tenant
 from utilities.filters import NullableCharFieldFilter, NumericInFilter
 from virtualization.models import Cluster
 from .constants import (
-    IFACE_FF_LAG, NONCONNECTABLE_IFACE_TYPES, STATUS_CHOICES, VIRTUAL_IFACE_TYPES, WIRELESS_IFACE_TYPES,
+    DEVICE_STATUS_CHOICES, IFACE_FF_LAG, NONCONNECTABLE_IFACE_TYPES, VIRTUAL_IFACE_TYPES, WIRELESS_IFACE_TYPES,
 )
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -446,7 +446,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Device model (slug)',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=STATUS_CHOICES,
+        choices=DEVICE_STATUS_CHOICES,
         null_value=None
     )
     is_full_depth = django_filters.BooleanFilter(

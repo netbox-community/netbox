@@ -8,7 +8,7 @@ from django.db import transaction
 from ncclient.transport.errors import AuthenticationError
 from paramiko import AuthenticationException
 
-from dcim.models import Device, InventoryItem, Site, STATUS_ACTIVE
+from dcim.models import DEVICE_STATUS_ACTIVE, Device, InventoryItem, Site
 
 
 class Command(BaseCommand):
@@ -41,7 +41,7 @@ class Command(BaseCommand):
             self.password = getpass("Password: ")
 
         # Attempt to inventory only active devices
-        device_list = Device.objects.filter(status=STATUS_ACTIVE)
+        device_list = Device.objects.filter(status=DEVICE_STATUS_ACTIVE)
 
         # --site: Include only devices belonging to specified site(s)
         if options['site']:

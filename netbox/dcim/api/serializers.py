@@ -7,8 +7,8 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from circuits.models import Circuit, CircuitTermination
 from dcim.constants import (
-    CONNECTION_STATUS_CHOICES, IFACE_FF_CHOICES, IFACE_MODE_CHOICES, IFACE_ORDERING_CHOICES, RACK_FACE_CHOICES,
-    RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, STATUS_CHOICES, SUBDEVICE_ROLE_CHOICES,
+    CONNECTION_STATUS_CHOICES, DEVICE_STATUS_CHOICES, IFACE_FF_CHOICES, IFACE_MODE_CHOICES, IFACE_ORDERING_CHOICES,
+    RACK_FACE_CHOICES, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, SUBDEVICE_ROLE_CHOICES,
 )
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -483,7 +483,7 @@ class DeviceSerializer(CustomFieldModelSerializer):
     site = NestedSiteSerializer()
     rack = NestedRackSerializer()
     face = ChoiceFieldSerializer(choices=RACK_FACE_CHOICES)
-    status = ChoiceFieldSerializer(choices=STATUS_CHOICES)
+    status = ChoiceFieldSerializer(choices=DEVICE_STATUS_CHOICES)
     primary_ip = DeviceIPAddressSerializer()
     primary_ip4 = DeviceIPAddressSerializer()
     primary_ip6 = DeviceIPAddressSerializer()

@@ -16,7 +16,7 @@ from utilities.forms import (
     ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ComponentForm,
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, SlugField, SmallTextarea,
 )
-from .constants import STATUS_CHOICES
+from .constants import VM_STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 VIFACE_FF_CHOICES = (
@@ -264,7 +264,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
 class VirtualMachineCSVForm(forms.ModelForm):
     status = CSVChoiceField(
-        choices=STATUS_CHOICES,
+        choices=VM_STATUS_CHOICES,
         required=False,
         help_text='Operational status of device'
     )
@@ -311,7 +311,7 @@ class VirtualMachineCSVForm(forms.ModelForm):
 
 class VirtualMachineBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VirtualMachine.objects.all(), widget=forms.MultipleHiddenInput)
-    status = forms.ChoiceField(choices=add_blank_choice(STATUS_CHOICES), required=False, initial='')
+    status = forms.ChoiceField(choices=add_blank_choice(VM_STATUS_CHOICES), required=False, initial='')
     cluster = forms.ModelChoiceField(queryset=Cluster.objects.all(), required=False)
     role = forms.ModelChoiceField(queryset=DeviceRole.objects.filter(vm_role=True), required=False)
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
@@ -329,7 +329,7 @@ def vm_status_choices():
     status_counts = {}
     for status in VirtualMachine.objects.values('status').annotate(count=Count('status')).order_by('status'):
         status_counts[status['status']] = status['count']
-    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in STATUS_CHOICES]
+    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in VM_STATUS_CHOICES]
 
 
 class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):

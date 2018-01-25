@@ -844,7 +844,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         help_text='The lowest-numbered unit occupied by the device'
     )
     face = models.PositiveSmallIntegerField(blank=True, null=True, choices=RACK_FACE_CHOICES, verbose_name='Rack face')
-    status = models.PositiveSmallIntegerField(choices=STATUS_CHOICES, default=STATUS_ACTIVE, verbose_name='Status')
+    status = models.PositiveSmallIntegerField(choices=DEVICE_STATUS_CHOICES, default=DEVICE_STATUS_ACTIVE, verbose_name='Status')
     primary_ip4 = models.OneToOneField(
         'ipam.IPAddress', related_name='primary_ip4_for', on_delete=models.SET_NULL, blank=True, null=True,
         verbose_name='Primary IPv4'

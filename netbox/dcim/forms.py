@@ -22,10 +22,10 @@ from utilities.forms import (
 )
 from virtualization.models import Cluster
 from .constants import (
-    CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_CONNECTED, IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_MODE_ACCESS,
-    IFACE_MODE_CHOICES, IFACE_MODE_TAGGED_ALL, IFACE_ORDERING_CHOICES, RACK_FACE_CHOICES, RACK_TYPE_CHOICES,
-    RACK_WIDTH_CHOICES, RACK_WIDTH_19IN, RACK_WIDTH_23IN, STATUS_CHOICES, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
-    SUBDEVICE_ROLE_CHOICES,
+    CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_CONNECTED, DEVICE_STATUS_CHOICES, IFACE_FF_CHOICES, IFACE_FF_LAG,
+    IFACE_MODE_ACCESS, IFACE_MODE_CHOICES, IFACE_MODE_TAGGED_ALL, IFACE_ORDERING_CHOICES, RACK_FACE_CHOICES,
+    RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, RACK_WIDTH_19IN, RACK_WIDTH_23IN, SUBDEVICE_ROLE_CHILD,
+    SUBDEVICE_ROLE_PARENT, SUBDEVICE_ROLE_CHOICES,
 )
 from .formfields import MACAddressFormField
 from .models import (
@@ -888,7 +888,7 @@ class BaseDeviceCSVForm(forms.ModelForm):
         }
     )
     status = CSVChoiceField(
-        choices=STATUS_CHOICES,
+        choices=DEVICE_STATUS_CHOICES,
         help_text='Operational status of device'
     )
 
@@ -1025,7 +1025,7 @@ class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     device_role = forms.ModelChoiceField(queryset=DeviceRole.objects.all(), required=False, label='Role')
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     platform = forms.ModelChoiceField(queryset=Platform.objects.all(), required=False)
-    status = forms.ChoiceField(choices=add_blank_choice(STATUS_CHOICES), required=False, initial='')
+    status = forms.ChoiceField(choices=add_blank_choice(DEVICE_STATUS_CHOICES), required=False, initial='')
     serial = forms.CharField(max_length=50, required=False, label='Serial Number')
 
     class Meta:
@@ -1036,7 +1036,7 @@ def device_status_choices():
     status_counts = {}
     for status in Device.objects.values('status').annotate(count=Count('status')).order_by('status'):
         status_counts[status['status']] = status['count']
-    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in STATUS_CHOICES]
+    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in DEVICE_STATUS_CHOICES]
 
 
 class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):

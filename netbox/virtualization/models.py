@@ -11,7 +11,7 @@ from dcim.models import Device
 from extras.models import CustomFieldModel, CustomFieldValue
 from utilities.models import CreatedUpdatedModel
 from utilities.utils import csv_format
-from .constants import STATUS_ACTIVE, STATUS_CHOICES, VM_STATUS_CLASSES
+from .constants import DEVICE_STATUS_ACTIVE, VM_STATUS_CHOICES, VM_STATUS_CLASSES
 
 
 #
@@ -177,8 +177,8 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
         unique=True
     )
     status = models.PositiveSmallIntegerField(
-        choices=STATUS_CHOICES,
-        default=STATUS_ACTIVE,
+        choices=VM_STATUS_CHOICES,
+        default=DEVICE_STATUS_ACTIVE,
         verbose_name='Status'
     )
     role = models.ForeignKey(
