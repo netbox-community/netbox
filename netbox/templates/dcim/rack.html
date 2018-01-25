@@ -24,28 +24,20 @@
     </div>
 </div>
 <div class="pull-right">
-    {% if prev_rack %}
-        <a href="{% url 'dcim:rack' pk=prev_rack.pk %}" class="btn btn-primary">
-            <span class="fa fa-chevron-left" aria-hidden="true"></span>
-            Previous Rack
-        </a>
-    {% endif %}
-    {% if next_rack %}
-        <a href="{% url 'dcim:rack' pk=next_rack.pk %}" class="btn btn-primary">
-            <span class="fa fa-chevron-right" aria-hidden="true"></span>
-            Next Rack
-        </a>
-    {% endif %}
+    <a {% if prev_rack %}href="{% url 'dcim:rack' pk=prev_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
+        <span class="fa fa-chevron-left" aria-hidden="true"></span> Previous Rack
+    </a>
+    <a {% if next_rack %}href="{% url 'dcim:rack' pk=next_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
+        <span class="fa fa-chevron-right" aria-hidden="true"></span> Next Rack
+    </a>
     {% if perms.dcim.change_rack %}
 		<a href="{% url 'dcim:rack_edit' pk=rack.pk %}" class="btn btn-warning">
-			<span class="fa fa-pencil" aria-hidden="true"></span>
-			Edit this rack
+			<span class="fa fa-pencil" aria-hidden="true"></span> Edit this rack
 		</a>
     {% endif %}
     {% if perms.dcim.delete_rack %}
 		<a href="{% url 'dcim:rack_delete' pk=rack.pk %}" class="btn btn-danger">
-			<span class="fa fa-trash" aria-hidden="true"></span>
-			Delete this rack
+			<span class="fa fa-trash" aria-hidden="true"></span> Delete this rack
 		</a>
     {% endif %}
 </div>
