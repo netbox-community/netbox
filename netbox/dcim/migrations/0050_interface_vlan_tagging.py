@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='interface',
             name='mode',
-            field=models.PositiveSmallIntegerField(choices=[[100, 'Access'], [200, 'Tagged'], [300, 'Tagged All']], default=100),
+            field=models.PositiveSmallIntegerField(blank=True, choices=[[100, 'Access'], [200, 'Tagged'], [300, 'Tagged All']], null=True),
         ),
         migrations.AddField(
             model_name='interface',

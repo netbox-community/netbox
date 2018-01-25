@@ -1632,11 +1632,10 @@ class PowerOutletBulkDisconnectForm(ConfirmationForm):
 #
 
 class InterfaceForm(BootstrapMixin, forms.ModelForm, ChainedFieldsMixin):
-
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
-        label='VLAN Site',
+        label='VLAN site',
         widget=forms.Select(
             attrs={'filter-for': 'vlan_group', 'nullable': 'true'},
         )
@@ -1681,8 +1680,8 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm, ChainedFieldsMixin):
     class Meta:
         model = Interface
         fields = [
-            'device', 'name', 'form_factor', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only',
-            'description', 'mode', 'site', 'vlan_group', 'untagged_vlan', 'tagged_vlans',
+            'device', 'name', 'form_factor', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description',
+            'mode', 'site', 'vlan_group', 'untagged_vlan', 'tagged_vlans',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -1738,7 +1737,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm, ChainedFieldsMixin):
 
     def clean_tagged_vlans(self):
         """
-        Becasue tagged_vlans is a many-to-many relationship, validation must be done in the form
+        Because tagged_vlans is a many-to-many relationship, validation must be done in the form
         """
         if self.cleaned_data['mode'] == IFACE_MODE_ACCESS and self.cleaned_data['tagged_vlans']:
             raise forms.ValidationError(

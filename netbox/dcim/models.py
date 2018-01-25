@@ -1308,7 +1308,11 @@ class Interface(models.Model):
         help_text="This interface is used only for out-of-band management"
     )
     description = models.CharField(max_length=100, blank=True)
-    mode = models.PositiveSmallIntegerField(choices=IFACE_MODE_CHOICES, default=IFACE_MODE_ACCESS)
+    mode = models.PositiveSmallIntegerField(
+        choices=IFACE_MODE_CHOICES,
+        blank=True,
+        null=True
+    )
     untagged_vlan = models.ForeignKey(
         to='ipam.VLAN',
         null=True,
