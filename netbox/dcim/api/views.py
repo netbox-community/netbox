@@ -263,12 +263,7 @@ class DeviceViewSet(CustomFieldModelViewSet):
             import napalm
         except ImportError:
             raise ServiceUnavailable("NAPALM is not installed. Please see the documentation for instructions.")
-
-        # TODO: Remove support for NAPALM < 2.0
-        try:
-            from napalm.base.exceptions import ConnectAuthError, ModuleImportError
-        except ImportError:
-            from napalm_base.exceptions import ConnectAuthError, ModuleImportError
+        from napalm.base.exceptions import ConnectAuthError, ModuleImportError
 
         # Validate the configured driver
         try:
