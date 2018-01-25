@@ -67,7 +67,7 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Site
-        fields = ['q', 'name', 'slug', 'facility', 'asn', 'contact_name', 'contact_phone', 'contact_email']
+        fields = ['q', 'name', 'slug', 'status', 'facility', 'asn', 'contact_name', 'contact_phone', 'contact_email']
 
     def search(self, queryset, name, value):
         if not value.strip():

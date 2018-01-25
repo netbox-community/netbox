@@ -24,7 +24,7 @@ from virtualization.models import Cluster
 from .constants import (
     CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_CONNECTED, DEVICE_STATUS_CHOICES, IFACE_FF_CHOICES, IFACE_FF_LAG,
     IFACE_MODE_ACCESS, IFACE_MODE_CHOICES, IFACE_MODE_TAGGED_ALL, IFACE_ORDERING_CHOICES, RACK_FACE_CHOICES,
-    RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, RACK_WIDTH_19IN, RACK_WIDTH_23IN, SUBDEVICE_ROLE_CHILD,
+    RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, RACK_WIDTH_19IN, RACK_WIDTH_23IN, SITE_STATUS_CHOICES, SUBDEVICE_ROLE_CHILD,
     SUBDEVICE_ROLE_PARENT, SUBDEVICE_ROLE_CHOICES,
 )
 from .formfields import MACAddressFormField
@@ -104,7 +104,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     class Meta:
         model = Site
         fields = [
-            'name', 'slug', 'region', 'tenant_group', 'tenant', 'facility', 'asn', 'physical_address',
+            'name', 'slug', 'status', 'region', 'tenant_group', 'tenant', 'facility', 'asn', 'physical_address',
             'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'time_zone', 'comments',
         ]
         widgets = {
@@ -121,6 +121,11 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
 
 class SiteCSVForm(forms.ModelForm):
+    status = CSVChoiceField(
+        choices=DEVICE_STATUS_CHOICES,
+        required=False,
+        help_text='Operational status'
+    )
     region = forms.ModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
@@ -143,7 +148,7 @@ class SiteCSVForm(forms.ModelForm):
     class Meta:
         model = Site
         fields = [
-            'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
+            'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
             'contact_name', 'contact_phone', 'contact_email', 'time_zone', 'comments',
         ]
         help_texts = {
@@ -155,6 +160,7 @@ class SiteCSVForm(forms.ModelForm):
 
 class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Site.objects.all(), widget=forms.MultipleHiddenInput)
+    status = forms.ChoiceField(choices=add_blank_choice(SITE_STATUS_CHOICES), required=False, initial='')
     region = TreeNodeChoiceField(queryset=Region.objects.all(), required=False)
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     asn = forms.IntegerField(min_value=1, max_value=4294967295, required=False, label='ASN')
@@ -164,9 +170,17 @@ class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['region', 'tenant', 'asn', 'time_zone']
 
 
+def site_status_choices():
+    status_counts = {}
+    for status in Site.objects.values('status').annotate(count=Count('status')).order_by('status'):
+        status_counts[status['status']] = status['count']
+    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in SITE_STATUS_CHOICES]
+
+
 class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Site
     q = forms.CharField(required=False, label='Search')
+    status = forms.MultipleChoiceField(choices=site_status_choices, required=False)
     region = FilterTreeNodeMultipleChoiceField(
         queryset=Region.objects.annotate(filter_count=Count('sites')),
         to_field_name='slug',
@@ -889,7 +903,7 @@ class BaseDeviceCSVForm(forms.ModelForm):
     )
     status = CSVChoiceField(
         choices=DEVICE_STATUS_CHOICES,
-        help_text='Operational status of device'
+        help_text='Operational status'
     )
 
     class Meta:

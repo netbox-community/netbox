@@ -8,7 +8,7 @@ from rest_framework.validators import UniqueTogetherValidator
 from circuits.models import Circuit, CircuitTermination
 from dcim.constants import (
     CONNECTION_STATUS_CHOICES, DEVICE_STATUS_CHOICES, IFACE_FF_CHOICES, IFACE_MODE_CHOICES, IFACE_ORDERING_CHOICES,
-    RACK_FACE_CHOICES, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, SUBDEVICE_ROLE_CHOICES,
+    RACK_FACE_CHOICES, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, SITE_STATUS_CHOICES, SUBDEVICE_ROLE_CHOICES,
 )
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -56,6 +56,7 @@ class WritableRegionSerializer(ValidatedModelSerializer):
 #
 
 class SiteSerializer(CustomFieldModelSerializer):
+    status = ChoiceFieldSerializer(choices=SITE_STATUS_CHOICES)
     region = NestedRegionSerializer()
     tenant = NestedTenantSerializer()
     time_zone = TimeZoneField(required=False)
@@ -63,7 +64,7 @@ class SiteSerializer(CustomFieldModelSerializer):
     class Meta:
         model = Site
         fields = [
-            'id', 'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'physical_address',
+            'id', 'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'physical_address',
             'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields',
             'created', 'last_updated', 'count_prefixes', 'count_vlans', 'count_racks', 'count_devices',
             'count_circuits',
@@ -84,7 +85,7 @@ class WritableSiteSerializer(CustomFieldModelSerializer):
     class Meta:
         model = Site
         fields = [
-            'id', 'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'physical_address',
+            'id', 'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'physical_address',
             'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields',
             'created', 'last_updated',
         ]

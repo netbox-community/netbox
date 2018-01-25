@@ -92,7 +92,7 @@ DEVICE_ROLE = """
 <label class="label" style="background-color: #{{ record.device_role.color }}">{{ value }}</label>
 """
 
-DEVICE_STATUS = """
+STATUS_LABEL = """
 <span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
 """
 
@@ -145,12 +145,13 @@ class RegionTable(BaseTable):
 class SiteTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
+    status = tables.TemplateColumn(template_code=STATUS_LABEL, verbose_name='Status')
     region = tables.TemplateColumn(template_code=SITE_REGION_LINK)
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
 
     class Meta(BaseTable.Meta):
         model = Site
-        fields = ('pk', 'name', 'facility', 'region', 'tenant', 'asn')
+        fields = ('pk', 'name', 'status', 'facility', 'region', 'tenant', 'asn')
 
 
 class SiteDetailTable(SiteTable):
@@ -163,7 +164,7 @@ class SiteDetailTable(SiteTable):
 
     class Meta(SiteTable.Meta):
         fields = (
-            'pk', 'name', 'facility', 'region', 'tenant', 'asn', 'rack_count', 'device_count', 'prefix_count',
+            'pk', 'name', 'status', 'facility', 'region', 'tenant', 'asn', 'rack_count', 'device_count', 'prefix_count',
             'vlan_count', 'circuit_count', 'vm_count',
         )
 
@@ -409,7 +410,7 @@ class PlatformTable(BaseTable):
 class DeviceTable(BaseTable):
     pk = ToggleColumn()
     name = tables.TemplateColumn(template_code=DEVICE_LINK)
-    status = tables.TemplateColumn(template_code=DEVICE_STATUS, verbose_name='Status')
+    status = tables.TemplateColumn(template_code=STATUS_LABEL, verbose_name='Status')
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
     rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')])
@@ -436,7 +437,7 @@ class DeviceDetailTable(DeviceTable):
 
 class DeviceImportTable(BaseTable):
     name = tables.TemplateColumn(template_code=DEVICE_LINK, verbose_name='Name')
-    status = tables.TemplateColumn(template_code=DEVICE_STATUS, verbose_name='Status')
+    status = tables.TemplateColumn(template_code=STATUS_LABEL, verbose_name='Status')
     tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')], verbose_name='Tenant')
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
     rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')], verbose_name='Rack')

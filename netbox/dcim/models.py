@@ -83,6 +83,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
+    status = models.PositiveSmallIntegerField(choices=SITE_STATUS_CHOICES, default=SITE_STATUS_ACTIVE)
     region = models.ForeignKey('Region', related_name='sites', blank=True, null=True, on_delete=models.SET_NULL)
     tenant = models.ForeignKey(Tenant, related_name='sites', blank=True, null=True, on_delete=models.PROTECT)
     facility = models.CharField(max_length=50, blank=True)
@@ -100,7 +101,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     objects = SiteManager()
 
     csv_headers = [
-        'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'contact_name', 'contact_phone',
+        'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'contact_name', 'contact_phone',
         'contact_email',
     ]
 
@@ -117,6 +118,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
         return csv_format([
             self.name,
             self.slug,
+            self.get_status_display(),
             self.region.name if self.region else None,
             self.tenant.name if self.tenant else None,
             self.facility,
@@ -126,6 +128,9 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
             self.contact_phone,
             self.contact_email,
         ])
+
+    def get_status_class(self):
+        return STATUS_CLASSES[self.status]
 
     @property
     def count_prefixes(self):
@@ -1088,7 +1093,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         return Device.objects.filter(parent_bay__device=self.pk)
 
     def get_status_class(self):
-        return DEVICE_STATUS_CLASSES[self.status]
+        return STATUS_CLASSES[self.status]
 
     def get_rpc_client(self):
         """

@@ -218,8 +218,18 @@ DEVICE_STATUS_CHOICES = [
     [DEVICE_STATUS_INVENTORY, 'Inventory'],
 ]
 
-# Bootstrap CSS classes for device stasuses
-DEVICE_STATUS_CLASSES = {
+# Site statuses
+SITE_STATUS_ACTIVE = 1
+SITE_STATUS_PLANNED = 2
+SITE_STATUS_RETIRED = 4
+SITE_STATUS_CHOICES = [
+    [SITE_STATUS_ACTIVE, 'Active'],
+    [SITE_STATUS_PLANNED, 'Planned'],
+    [SITE_STATUS_RETIRED, 'Retired'],
+]
+
+# Bootstrap CSS classes for device statuses
+STATUS_CLASSES = {
     0: 'warning',
     1: 'success',
     2: 'info',

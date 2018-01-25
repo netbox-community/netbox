@@ -59,6 +59,12 @@
             </div>
             <table class="table table-hover panel-body attr-table">
                 <tr>
+                    <td>Status</td>
+                    <td>
+                        <span class="label label-{{ site.get_status_class }}">{{ site.get_status_display }}</span>
+                    </td>
+                </tr>
+                <tr>
                     <td>Region</td>
                     <td>
                         {% if site.region %}
