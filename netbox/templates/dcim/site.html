@@ -123,6 +123,16 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Description</td>
+                    <td>
+                        {% if site.description %}
+                            {{ site.description }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
             </table>
         </div>
         <div class="panel panel-default">

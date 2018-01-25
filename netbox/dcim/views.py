@@ -165,7 +165,7 @@ class SiteListView(ObjectListView):
     queryset = Site.objects.select_related('region', 'tenant')
     filter = filters.SiteFilter
     filter_form = forms.SiteFilterForm
-    table = tables.SiteDetailTable
+    table = tables.SiteTable
     template_name = 'dcim/site_list.html'
 
 

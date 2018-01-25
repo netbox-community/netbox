@@ -75,6 +75,7 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         qs_filter = (
             Q(name__icontains=value) |
             Q(facility__icontains=value) |
+            Q(description__icontains=value) |
             Q(physical_address__icontains=value) |
             Q(shipping_address__icontains=value) |
             Q(contact_name__icontains=value) |

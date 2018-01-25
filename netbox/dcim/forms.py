@@ -104,8 +104,9 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     class Meta:
         model = Site
         fields = [
-            'name', 'slug', 'status', 'region', 'tenant_group', 'tenant', 'facility', 'asn', 'physical_address',
-            'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'time_zone', 'comments',
+            'name', 'slug', 'status', 'region', 'tenant_group', 'tenant', 'facility', 'asn', 'description',
+            'physical_address', 'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'time_zone',
+            'comments',
         ]
         widgets = {
             'physical_address': SmallTextarea(attrs={'rows': 3}),
@@ -148,8 +149,8 @@ class SiteCSVForm(forms.ModelForm):
     class Meta:
         model = Site
         fields = [
-            'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
-            'contact_name', 'contact_phone', 'contact_email', 'time_zone', 'comments',
+            'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'description', 'physical_address',
+            'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'time_zone', 'comments',
         ]
         help_texts = {
             'name': 'Site name',
@@ -164,10 +165,11 @@ class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     region = TreeNodeChoiceField(queryset=Region.objects.all(), required=False)
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     asn = forms.IntegerField(min_value=1, max_value=4294967295, required=False, label='ASN')
+    description = forms.CharField(max_length=100, required=False)
     time_zone = TimeZoneFormField(required=False)
 
     class Meta:
-        nullable_fields = ['region', 'tenant', 'asn', 'time_zone']
+        nullable_fields = ['region', 'tenant', 'asn', 'description', 'time_zone']
 
 
 def site_status_choices():

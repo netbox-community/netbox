@@ -64,9 +64,9 @@ class SiteSerializer(CustomFieldModelSerializer):
     class Meta:
         model = Site
         fields = [
-            'id', 'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'physical_address',
-            'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields',
-            'created', 'last_updated', 'count_prefixes', 'count_vlans', 'count_racks', 'count_devices',
+            'id', 'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description',
+            'physical_address', 'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments',
+            'custom_fields', 'created', 'last_updated', 'count_prefixes', 'count_vlans', 'count_racks', 'count_devices',
             'count_circuits',
         ]
 
@@ -85,9 +85,9 @@ class WritableSiteSerializer(CustomFieldModelSerializer):
     class Meta:
         model = Site
         fields = [
-            'id', 'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'physical_address',
-            'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description',
+            'physical_address', 'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 

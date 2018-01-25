@@ -89,6 +89,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     facility = models.CharField(max_length=50, blank=True)
     asn = ASNField(blank=True, null=True, verbose_name='ASN')
     time_zone = TimeZoneField(blank=True)
+    description = models.CharField(max_length=100, blank=True)
     physical_address = models.CharField(max_length=200, blank=True)
     shipping_address = models.CharField(max_length=200, blank=True)
     contact_name = models.CharField(max_length=50, blank=True)
@@ -101,8 +102,8 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     objects = SiteManager()
 
     csv_headers = [
-        'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'contact_name', 'contact_phone',
-        'contact_email',
+        'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'contact_name',
+        'contact_phone', 'contact_email',
     ]
 
     class Meta:
@@ -124,6 +125,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
             self.facility,
             self.asn,
             self.time_zone,
+            self.description,
             self.contact_name,
             self.contact_phone,
             self.contact_email,
