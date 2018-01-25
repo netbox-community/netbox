@@ -15,7 +15,7 @@
                 </thead>
                 <tbody>
                     {% for obj in selected_objects %}
-                        <tr>
+                        <tr{% if obj.new_name and obj.name != obj.new_name %} class="success"{% endif %}>
                             <td>{{ obj.name }}</td>
                             <td>{{ obj.new_name }}</td>
                         </tr>
@@ -42,10 +42,9 @@
                 </div>
                 <div class="form-group text-right">
                     <div class="col-md-12">
+                        <button type="submit" name="_preview" class="btn btn-primary">Preview</button>
                         {% if '_preview' in request.POST and not form.errors %}
                             <button type="submit" name="_apply" class="btn btn-primary">Apply</button>
-                        {% else %}
-                            <button type="submit" name="_preview" class="btn btn-primary">Preview</button>
                         {% endif %}
                         <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
                     </div>
