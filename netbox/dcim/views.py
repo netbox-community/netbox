@@ -23,7 +23,7 @@ from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView,
-    ComponentEditView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    ComponentEditView, GetReturnURLMixin, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
@@ -1826,8 +1826,14 @@ class InventoryItemEditView(PermissionRequiredMixin, ComponentEditView):
             obj.device = get_object_or_404(Device, pk=url_kwargs['device'])
         return obj
 
+    def get_return_url(self, request, obj):
+        return reverse('dcim:device_inventory', kwargs={'pk': obj.device.pk})
+
 
 class InventoryItemDeleteView(PermissionRequiredMixin, ComponentDeleteView):
     permission_required = 'dcim.delete_inventoryitem'
     model = InventoryItem
     parent_field = 'device'
+
+    def get_return_url(self, request, obj):
+        return reverse('dcim:device_inventory', kwargs={'pk': obj.device.pk})
