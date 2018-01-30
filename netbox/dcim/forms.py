@@ -81,6 +81,11 @@ class RegionCSVForm(forms.ModelForm):
         }
 
 
+class RegionFilterForm(BootstrapMixin, forms.Form):
+    model = Site
+    q = forms.CharField(required=False, label='Search')
+
+
 #
 # Sites
 #

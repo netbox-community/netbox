@@ -80,6 +80,8 @@ class BulkDisconnectView(View):
 
 class RegionListView(ObjectListView):
     queryset = Region.objects.annotate(site_count=Count('sites'))
+    filter = filters.RegionFilter
+    filter_form = forms.RegionFilterForm
     table = tables.RegionTable
     template_name = 'dcim/region_list.html'
 

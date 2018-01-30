@@ -22,6 +22,10 @@ from .models import (
 
 
 class RegionFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Region.objects.all(),
         label='Parent region (ID)',
@@ -36,6 +40,15 @@ class RegionFilter(django_filters.FilterSet):
     class Meta:
         model = Region
         fields = ['name', 'slug']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(name__icontains=value) |
+            Q(slug__icontains=value)
+        )
+        return queryset.filter(qs_filter)
 
 
 class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
