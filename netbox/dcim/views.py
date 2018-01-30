@@ -23,7 +23,7 @@ from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView,
-    ComponentEditView, GetReturnURLMixin, ObjectDeleteView, ObjectEditView, ObjectListView,
+    ComponentEditView, ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
@@ -1815,6 +1815,14 @@ class InterfaceConnectionsListView(ObjectListView):
 # Inventory items
 #
 
+class InventoryItemListView(ObjectListView):
+    queryset = InventoryItem.objects.select_related('device', 'manufacturer')
+    filter = filters.InventoryItemFilter
+    filter_form = forms.InventoryItemFilterForm
+    table = tables.InventoryItemTable
+    template_name = 'dcim/inventoryitem_list.html'
+
+
 class InventoryItemEditView(PermissionRequiredMixin, ComponentEditView):
     permission_required = 'dcim.change_inventoryitem'
     model = InventoryItem
@@ -1837,3 +1845,28 @@ class InventoryItemDeleteView(PermissionRequiredMixin, ComponentDeleteView):
 
     def get_return_url(self, request, obj):
         return reverse('dcim:device_inventory', kwargs={'pk': obj.device.pk})
+
+
+class InventoryItemBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_inventoryitem'
+    model_form = forms.InventoryItemCSVForm
+    table = tables.InventoryItemTable
+    default_return_url = 'dcim:inventoryitem_list'
+
+
+class InventoryItemBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_inventoryitem'
+    cls = InventoryItem
+    queryset = InventoryItem.objects.select_related('device', 'manufacturer')
+    filter = filters.InventoryItemFilter
+    table = tables.InventoryItemTable
+    form = forms.InventoryItemBulkEditForm
+    default_return_url = 'dcim:inventoryitem_list'
+
+
+class InventoryItemBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_inventoryitem'
+    cls = InventoryItem
+    queryset = InventoryItem.objects.select_related('device', 'manufacturer')
+    table = tables.InventoryItemTable
+    default_return_url = 'dcim:inventoryitem_list'

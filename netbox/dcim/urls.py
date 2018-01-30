@@ -195,9 +195,13 @@ urlpatterns = [
     url(r'^device-bays/(?P<pk>\d+)/depopulate/$', views.devicebay_depopulate, name='devicebay_depopulate'),
 
     # Inventory items
-    url(r'^devices/(?P<device>\d+)/inventory-items/add/$', views.InventoryItemEditView.as_view(), name='inventoryitem_add'),
+    url(r'^inventory-items/$', views.InventoryItemListView.as_view(), name='inventoryitem_list'),
+    url(r'^inventory-items/import/$', views.InventoryItemBulkImportView.as_view(), name='inventoryitem_import'),
+    url(r'^inventory-items/edit/$', views.InventoryItemBulkEditView.as_view(), name='inventoryitem_bulk_edit'),
+    url(r'^inventory-items/delete/$', views.InventoryItemBulkDeleteView.as_view(), name='inventoryitem_bulk_delete'),
     url(r'^inventory-items/(?P<pk>\d+)/edit/$', views.InventoryItemEditView.as_view(), name='inventoryitem_edit'),
     url(r'^inventory-items/(?P<pk>\d+)/delete/$', views.InventoryItemDeleteView.as_view(), name='inventoryitem_delete'),
+    url(r'^devices/(?P<device>\d+)/inventory-items/add/$', views.InventoryItemEditView.as_view(), name='inventoryitem_add'),
 
     # Console/power/interface connections
     url(r'^console-connections/$', views.ConsoleConnectionsListView.as_view(), name='console_connections_list'),

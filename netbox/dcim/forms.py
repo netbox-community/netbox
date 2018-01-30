@@ -1928,3 +1928,47 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InventoryItem
         fields = ['name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description']
+
+
+class InventoryItemCSVForm(forms.ModelForm):
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Device name or ID',
+        error_messages={
+            'invalid_choice': 'Device not found.',
+        }
+    )
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Manufacturer name',
+        error_messages={
+            'invalid_choice': 'Invalid manufacturer.',
+        }
+    )
+
+    class Meta:
+        model = InventoryItem
+        fields = ['device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description']
+
+
+class InventoryItemBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(queryset=InventoryItem.objects.all(), widget=forms.MultipleHiddenInput)
+    manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), required=False)
+    part_id = forms.CharField(max_length=50, required=False, label='Part ID')
+    description = forms.CharField(max_length=100, required=False)
+
+    class Meta:
+        nullable_fields = ['manufacturer', 'part_id', 'description']
+
+
+class InventoryItemFilterForm(BootstrapMixin, forms.Form):
+    model = InventoryItem
+    q = forms.CharField(required=False, label='Search')
+    manufacturer = FilterChoiceField(
+        queryset=Manufacturer.objects.annotate(filter_count=Count('inventory_items')),
+        to_field_name='slug',
+        null_label='-- None --'
+    )

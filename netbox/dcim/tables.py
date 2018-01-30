@@ -7,8 +7,8 @@ from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, ToggleColumn
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceTemplate, Manufacturer, Platform, PowerOutlet,
-    PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, Region, Site,
+    DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceTemplate, InventoryItem, Manufacturer, Platform,
+    PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, Region, Site,
 )
 
 REGION_LINK = """
@@ -528,3 +528,17 @@ class InterfaceConnectionTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Interface
         fields = ('device_a', 'interface_a', 'device_b', 'interface_b')
+
+
+#
+# InventoryItems
+#
+
+class InventoryItemTable(BaseTable):
+    pk = ToggleColumn()
+    device = tables.LinkColumn('dcim:device_inventory', args=[Accessor('device.pk')])
+    manufacturer = tables.Column(accessor=Accessor('manufacturer.name'), verbose_name='Manufacturer')
+
+    class Meta(BaseTable.Meta):
+        model = InventoryItem
+        fields = ('pk', 'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description')

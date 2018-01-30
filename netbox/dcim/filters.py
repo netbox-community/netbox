@@ -613,6 +613,10 @@ class DeviceBayFilter(DeviceComponentFilterSet):
 
 
 class InventoryItemFilter(DeviceComponentFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=InventoryItem.objects.all(),
         label='Parent inventory item (ID)',
@@ -631,7 +635,19 @@ class InventoryItemFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = InventoryItem
-        fields = ['name', 'part_id', 'serial', 'discovered']
+        fields = ['name', 'part_id', 'serial', 'asset_tag', 'discovered']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(name__icontains=value) |
+            Q(part_id__icontains=value) |
+            Q(serial__iexact=value) |
+            Q(asset_tag__iexact=value) |
+            Q(description__icontains=value)
+        )
+        return queryset.filter(qs_filter)
 
 
 class ConsoleConnectionFilter(django_filters.FilterSet):
