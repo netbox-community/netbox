@@ -1778,7 +1778,7 @@ class InterfaceCreateForm(ComponentForm, ChainedFieldsMixin):
     mac_address = MACAddressFormField(required=False, label='MAC Address')
     mgmt_only = forms.BooleanField(required=False, label='OOB Management')
     description = forms.CharField(max_length=100, required=False)
-    mode = forms.ChoiceField(choices=IFACE_MODE_CHOICES)
+    mode = forms.ChoiceField(choices=add_blank_choice(IFACE_MODE_CHOICES), required=False)
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,
