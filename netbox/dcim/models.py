@@ -1070,6 +1070,15 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         else:
             return None
 
+    def get_vc_master(self):
+        """
+        If this Device is a VirtualChassis member, return the VC master. Otherwise, return None.
+        """
+        if hasattr(self, 'vc_membership'):
+            return self.vc_membership.virtual_chassis.master
+        else:
+            return None
+
     @property
     def virtual_chassis(self):
         try:
@@ -1375,8 +1384,8 @@ class Interface(models.Model):
                                "Disconnect the interface or choose a suitable form factor."
             })
 
-        # An interface's LAG must belong to the same device
-        if self.lag and self.lag.device != self.device:
+        # An interface's LAG must belong to the same device (or VC master)
+        if self.lag and self.lag.device not in [self.device, self.device.get_vc_master()]:
             raise ValidationError({
                 'lag': "The selected LAG interface ({}) belongs to a different device ({}).".format(
                     self.lag.name, self.lag.device.name

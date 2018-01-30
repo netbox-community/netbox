@@ -1706,17 +1706,17 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm, ChainedFieldsMixin):
     def __init__(self, *args, **kwargs):
         super(InterfaceForm, self).__init__(*args, **kwargs)
 
-        # Limit LAG choices to interfaces belonging to this device
+        # Limit LAG choices to interfaces belonging to this device (or VC master)
         if self.is_bound:
-            self.fields['lag'].queryset = Interface.objects.order_naturally().filter(
-                device_id=self.data['device'], form_factor=IFACE_FF_LAG
-            )
             device = Device.objects.get(pk=self.data['device'])
-        else:
             self.fields['lag'].queryset = Interface.objects.order_naturally().filter(
-                device=self.instance.device, form_factor=IFACE_FF_LAG
+                device__in=[device, device.get_vc_master()], form_factor=IFACE_FF_LAG
             )
+        else:
             device = self.instance.device
+            self.fields['lag'].queryset = Interface.objects.order_naturally().filter(
+                device__in=[self.instance.device, self.instance.device.get_vc_master()], form_factor=IFACE_FF_LAG
+            )
 
         # Limit the queryset for the site to only include the interface's device's site
         if device and device.site:
@@ -1832,10 +1832,10 @@ class InterfaceCreateForm(ComponentForm, ChainedFieldsMixin):
 
         super(InterfaceCreateForm, self).__init__(*args, **kwargs)
 
-        # Limit LAG choices to interfaces belonging to this device
+        # Limit LAG choices to interfaces belonging to this device (or its VC master)
         if self.parent is not None:
             self.fields['lag'].queryset = Interface.objects.order_naturally().filter(
-                device=self.parent, form_factor=IFACE_FF_LAG
+                device__in=[self.parent, self.parent.get_vc_master()], form_factor=IFACE_FF_LAG
             )
         else:
             self.fields['lag'].queryset = Interface.objects.none()
@@ -1935,7 +1935,7 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm, ChainedFieldsMixin):
     def __init__(self, *args, **kwargs):
         super(InterfaceBulkEditForm, self).__init__(*args, **kwargs)
 
-        # Limit LAG choices to interfaces which belong to the parent device.
+        # Limit LAG choices to interfaces which belong to the parent device (or VC master)
         device = None
         if self.initial.get('device'):
             try:
@@ -1945,7 +1945,7 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm, ChainedFieldsMixin):
         if device is not None:
             interface_ordering = device.device_type.interface_ordering
             self.fields['lag'].queryset = Interface.objects.order_naturally(method=interface_ordering).filter(
-                device=device, form_factor=IFACE_FF_LAG
+                device__in=[device, device.get_vc_master()], form_factor=IFACE_FF_LAG
             )
         else:
             self.fields['lag'].choices = []
