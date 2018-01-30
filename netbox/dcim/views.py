@@ -2044,7 +2044,11 @@ class VirtualChassisCreateView(PermissionRequiredMixin, View):
         # Get the list of devices being added to a VirtualChassis
         pk_form = forms.DeviceSelectionForm(request.POST)
         pk_form.full_clean()
-        device_list = pk_form.cleaned_data['pk']
+        device_list = pk_form.cleaned_data.get('pk')
+
+        if not device_list:
+            messages.warning(request, "No devices were selected.")
+            return redirect('dcim:device_list')
 
         # Generate a custom VCMembershipForm where the device field is limited to only the selected devices
         class _VCMembershipForm(forms.VCMembershipForm):
