@@ -491,11 +491,11 @@ class PrefixPrefixesView(View):
         prefix = get_object_or_404(Prefix.objects.all(), pk=pk)
 
         # Child prefixes table
-        child_prefixes = Prefix.objects.filter(
-            vrf=prefix.vrf, prefix__net_contained=str(prefix.prefix)
-        ).select_related(
+        child_prefixes = prefix.get_child_prefixes().select_related(
             'site', 'vlan', 'role',
         ).annotate_depth(limit=0)
+
+        # Annotate available prefixes
         if child_prefixes:
             child_prefixes = add_available_prefixes(prefix.prefix, child_prefixes)
 

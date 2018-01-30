@@ -283,15 +283,23 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
 
     def get_child_prefixes(self):
         """
-        Return all Prefixes within this Prefix and VRF.
+        Return all Prefixes within this Prefix and VRF. If this Prefix is a container in the global table, return child
+        Prefixes belonging to any VRF.
         """
-        return Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
+        if self.vrf is None and self.status == PREFIX_STATUS_CONTAINER:
+            return Prefix.objects.filter(prefix__net_contained=str(self.prefix))
+        else:
+            return Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
 
     def get_child_ips(self):
         """
-        Return all IPAddresses within this Prefix and VRF.
+        Return all IPAddresses within this Prefix and VRF. If this Prefix is a container in the global table, return
+        child IPAddresses belonging to any VRF.
         """
-        return IPAddress.objects.filter(address__net_host_contained=str(self.prefix), vrf=self.vrf)
+        if self.vrf is None and self.status == PREFIX_STATUS_CONTAINER:
+            return IPAddress.objects.filter(address__net_host_contained=str(self.prefix))
+        else:
+            return IPAddress.objects.filter(address__net_host_contained=str(self.prefix), vrf=self.vrf)
 
     def get_available_prefixes(self):
         """
