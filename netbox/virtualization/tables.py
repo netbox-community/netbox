@@ -4,6 +4,7 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from dcim.models import Interface
+from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, ToggleColumn
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
@@ -97,7 +98,7 @@ class VirtualMachineTable(BaseTable):
     status = tables.TemplateColumn(template_code=VIRTUALMACHINE_STATUS)
     cluster = tables.LinkColumn('virtualization:cluster', args=[Accessor('cluster.pk')])
     role = tables.TemplateColumn(VIRTUALMACHINE_ROLE)
-    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
+    tenant = tables.TemplateColumn(template_code=COL_TENANT)
 
     class Meta(BaseTable.Meta):
         model = VirtualMachine
