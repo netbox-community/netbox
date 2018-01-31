@@ -4,6 +4,7 @@ import django_tables2 as tables
 from django.utils.safestring import mark_safe
 from django_tables2.utils import Accessor
 
+from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, ToggleColumn
 from .models import Circuit, CircuitType, Provider
 
@@ -75,7 +76,7 @@ class CircuitTable(BaseTable):
     pk = ToggleColumn()
     cid = tables.LinkColumn(verbose_name='ID')
     provider = tables.LinkColumn('circuits:provider', args=[Accessor('provider.slug')])
-    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
+    tenant = tables.TemplateColumn(template_code=COL_TENANT)
     termination_a = CircuitTerminationColumn(orderable=False, verbose_name='A Side')
     termination_z = CircuitTerminationColumn(orderable=False, verbose_name='Z Side')
 

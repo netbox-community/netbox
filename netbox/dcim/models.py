@@ -1558,6 +1558,10 @@ class InventoryItem(models.Model):
     discovered = models.BooleanField(default=False, verbose_name='Discovered')
     description = models.CharField(max_length=100, blank=True)
 
+    csv_headers = [
+        'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description',
+    ]
+
     class Meta:
         ordering = ['device__id', 'parent__id', 'name']
         unique_together = ['device', 'parent', 'name']
@@ -1567,6 +1571,17 @@ class InventoryItem(models.Model):
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
+
+    def to_csv(self):
+        return csv_format([
+            self.device.name or '{' + self.device.pk + '}',
+            self.name,
+            self.manufacturer.name if self.manufacturer else None,
+            self.part_id,
+            self.serial,
+            self.asset_tag,
+            self.description
+        ])
 
 
 #

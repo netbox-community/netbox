@@ -104,7 +104,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="dropdown{% if request.path|contains:'/dcim/device,/dcim/manufacturers/,/dcim/platforms/,-connections/' %} active{% endif %}">
+                <li class="dropdown{% if request.path|contains:'/dcim/device,/dcim/manufacturers/,/dcim/platforms/,-connections/,/dcim/inventory-items/' %} active{% endif %}">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Devices <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li class="dropdown-header">Devices</li>
@@ -154,6 +154,16 @@
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:manufacturer_list' %}">Manufacturers</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Inventory</li>
+                        <li>
+                            {% if perms.dcim.add_inventoryitem %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:inventoryitem_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:inventoryitem_list' %}">Inventory Items</a>
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Connections</li>

@@ -9,7 +9,8 @@
             <div class="panel panel-danger">
                 <div class="panel-heading"><strong>Confirm Bulk Deletion</strong></div>
                 <div class="panel-body">
-                    <strong>Warning:</strong> The following operation will delete {{ table.rows|length }} {{ obj_type_plural }}. Please carefully review the {{ obj_type_plural }} to be deleted and confirm below.
+                    <p><strong>Warning:</strong> The following operation will delete {{ table.rows|length }} {{ obj_type_plural }}. Please carefully review the {{ obj_type_plural }} to be deleted and confirm below.</p>
+                    {% block message_extra %}{% endblock %}
                 </div>
             </div>
         </div>

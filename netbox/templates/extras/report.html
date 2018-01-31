@@ -22,7 +22,7 @@
             </form>
         </div>
     {% endif %}
-    <h1>{{ report.name }}{% include 'extras/inc/report_label.html' %}</h1>
+    <h1>{{ report.name }}{% include 'extras/inc/report_label.html' with result=report.result %}</h1>
     <div class="row">
         <div class="col-md-12">
             {% if report.description %}
