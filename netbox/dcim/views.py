@@ -1869,4 +1869,5 @@ class InventoryItemBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     cls = InventoryItem
     queryset = InventoryItem.objects.select_related('device', 'manufacturer')
     table = tables.InventoryItemTable
+    template_name = 'dcim/inventoryitem_bulk_delete.html'
     default_return_url = 'dcim:inventoryitem_list'
