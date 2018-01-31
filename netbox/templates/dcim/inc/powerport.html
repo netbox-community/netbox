@@ -3,6 +3,7 @@
         <i class="fa fa-fw fa-bolt"></i> {{ pp }}
     </td>
     {% if pp.power_outlet %}
+        <td></td>
         <td>
             <a href="{% url 'dcim:device' pk=pp.power_outlet.device.pk %}">{{ pp.power_outlet.device }}</a>
         </td>
@@ -10,6 +11,7 @@
             {{ pp.power_outlet }}
         </td>
     {% else %}
+        <td></td>
         <td colspan="2">
             <span class="text-muted">Not connected</span>
         </td>

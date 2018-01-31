@@ -22,7 +22,7 @@ from virtualization.models import Cluster
 from .constants import (
     CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_CONNECTED, IFACE_FF_CHOICES, IFACE_FF_LAG, IFACE_ORDERING_CHOICES,
     RACK_FACE_CHOICES, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, RACK_WIDTH_19IN, RACK_WIDTH_23IN, STATUS_CHOICES,
-    SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT, SUBDEVICE_ROLE_CHOICES,
+    SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT, SUBDEVICE_ROLE_CHOICES, CONSOLE_FF_CHOICES
 )
 from .formfields import MACAddressFormField
 from .models import (
@@ -550,7 +550,7 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = ConsolePortTemplate
-        fields = ['device_type', 'name']
+        fields = ['device_type', 'name', 'form_factor']
         widgets = {
             'device_type': forms.HiddenInput(),
         }
@@ -558,13 +558,14 @@ class ConsolePortTemplateForm(BootstrapMixin, forms.ModelForm):
 
 class ConsolePortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
+    form_factor = forms.ChoiceField(choices=CONSOLE_FF_CHOICES)
 
 
 class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = ConsoleServerPortTemplate
-        fields = ['device_type', 'name']
+        fields = ['device_type', 'name', 'form_factor']
         widgets = {
             'device_type': forms.HiddenInput(),
         }
@@ -572,6 +573,7 @@ class ConsoleServerPortTemplateForm(BootstrapMixin, forms.ModelForm):
 
 class ConsoleServerPortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
+    form_factor = forms.ChoiceField(choices=CONSOLE_FF_CHOICES)
 
 
 class PowerPortTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1088,7 +1090,7 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = ConsolePort
-        fields = ['device', 'name']
+        fields = ['device', 'name', 'form_factor']
         widgets = {
             'device': forms.HiddenInput(),
         }
@@ -1096,6 +1098,7 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
 
 class ConsolePortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
+    form_factor = forms.ChoiceField(choices=CONSOLE_FF_CHOICES)
 
 
 class ConsoleConnectionCSVForm(forms.ModelForm):
@@ -1257,7 +1260,7 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['device', 'name']
+        fields = ['device', 'name', 'form_factor']
         widgets = {
             'device': forms.HiddenInput(),
         }
@@ -1265,6 +1268,7 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
 
 class ConsoleServerPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
+    form_factor = forms.ChoiceField(choices=CONSOLE_FF_CHOICES)
 
 
 class ConsoleServerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):

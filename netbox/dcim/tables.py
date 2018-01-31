@@ -305,7 +305,7 @@ class ConsolePortTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ConsolePortTemplate
-        fields = ('pk', 'name')
+        fields = ('pk', 'name', 'form_factor')
         empty_text = "None"
 
 
@@ -314,7 +314,7 @@ class ConsoleServerPortTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ConsoleServerPortTemplate
-        fields = ('pk', 'name')
+        fields = ('pk', 'name', 'form_factor')
         empty_text = "None"
 
 

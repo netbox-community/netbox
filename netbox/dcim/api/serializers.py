@@ -294,14 +294,14 @@ class ConsolePortTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConsolePortTemplate
-        fields = ['id', 'device_type', 'name']
+        fields = ['id', 'device_type', 'name', 'form_factor']
 
 
 class WritableConsolePortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ConsolePortTemplate
-        fields = ['id', 'device_type', 'name']
+        fields = ['id', 'device_type', 'name', 'form_factor']
 
 
 #
@@ -313,14 +313,14 @@ class ConsoleServerPortTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConsoleServerPortTemplate
-        fields = ['id', 'device_type', 'name']
+        fields = ['id', 'device_type', 'name', 'form_factor']
 
 
 class WritableConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ConsoleServerPortTemplate
-        fields = ['id', 'device_type', 'name']
+        fields = ['id', 'device_type', 'name', 'form_factor']
 
 
 #
@@ -527,7 +527,7 @@ class ConsoleServerPortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['id', 'device', 'name', 'connected_console']
+        fields = ['id', 'device', 'name', 'connected_console', 'form_factor']
         read_only_fields = ['connected_console']
 
 
@@ -535,7 +535,7 @@ class WritableConsoleServerPortSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['id', 'device', 'name']
+        fields = ['id', 'device', 'name', 'form_factor']
 
 
 #
@@ -548,14 +548,14 @@ class ConsolePortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConsolePort
-        fields = ['id', 'device', 'name', 'cs_port', 'connection_status']
+        fields = ['id', 'device', 'name', 'cs_port', 'connection_status', 'form_factor']
 
 
 class WritableConsolePortSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ConsolePort
-        fields = ['id', 'device', 'name', 'cs_port', 'connection_status']
+        fields = ['id', 'device', 'name', 'cs_port', 'connection_status', 'form_factor']
 
 
 #

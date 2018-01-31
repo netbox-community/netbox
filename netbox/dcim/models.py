@@ -641,6 +641,7 @@ class ConsolePortTemplate(models.Model):
     """
     device_type = models.ForeignKey('DeviceType', related_name='console_port_templates', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
+    form_factor = models.PositiveSmallIntegerField(choices=CONSOLE_FF_CHOICES, default=IFACE_FF_CON_RJ45)
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -657,6 +658,7 @@ class ConsoleServerPortTemplate(models.Model):
     """
     device_type = models.ForeignKey('DeviceType', related_name='cs_port_templates', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
+    form_factor = models.PositiveSmallIntegerField(choices=CONSOLE_FF_CHOICES, default=IFACE_FF_CON_RJ45)
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -961,11 +963,11 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         # If this is a new Device, instantiate all of the related components per the DeviceType definition
         if is_new:
             ConsolePort.objects.bulk_create(
-                [ConsolePort(device=self, name=template.name) for template in
+                [ConsolePort(device=self, name=template.name, form_factor=template.form_factor) for template in
                  self.device_type.console_port_templates.all()]
             )
             ConsoleServerPort.objects.bulk_create(
-                [ConsoleServerPort(device=self, name=template.name) for template in
+                [ConsoleServerPort(device=self, name=template.name, form_factor=template.form_factor) for template in
                  self.device_type.cs_port_templates.all()]
             )
             PowerPort.objects.bulk_create(
@@ -1063,11 +1065,12 @@ class ConsolePort(models.Model):
     """
     device = models.ForeignKey('Device', related_name='console_ports', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
+    form_factor = models.PositiveSmallIntegerField(choices=CONSOLE_FF_CHOICES, default=IFACE_FF_CON_RJ45)
     cs_port = models.OneToOneField('ConsoleServerPort', related_name='connected_console', on_delete=models.SET_NULL,
                                    verbose_name='Console server port', blank=True, null=True)
     connection_status = models.NullBooleanField(choices=CONNECTION_STATUS_CHOICES, default=CONNECTION_STATUS_CONNECTED)
 
-    csv_headers = ['console_server', 'cs_port', 'device', 'console_port', 'connection_status']
+    csv_headers = ['console_server', 'cs_port', 'device', 'console_port', 'form_factor', 'connection_status']
 
     class Meta:
         ordering = ['device', 'name']
@@ -1108,6 +1111,7 @@ class ConsoleServerPort(models.Model):
     """
     device = models.ForeignKey('Device', related_name='cs_ports', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
+    form_factor = models.PositiveSmallIntegerField(choices=CONSOLE_FF_CHOICES, default=IFACE_FF_CON_RJ45)
 
     objects = ConsoleServerPortManager()
 
