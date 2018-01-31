@@ -78,8 +78,11 @@ class VRFBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 class VRFFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = VRF
     q = forms.CharField(required=False, label='Search')
-    tenant = FilterChoiceField(queryset=Tenant.objects.annotate(filter_count=Count('vrfs')), to_field_name='slug',
-                               null_option=(0, None))
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.annotate(filter_count=Count('vrfs')),
+        to_field_name='slug',
+        null_label='-- None --'
+    )
 
 
 #
@@ -368,23 +371,23 @@ class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=VRF.objects.annotate(filter_count=Count('prefixes')),
         to_field_name='rd',
         label='VRF',
-        null_option=(0, 'Global')
+        null_label='-- Global --'
     )
     tenant = FilterChoiceField(
         queryset=Tenant.objects.annotate(filter_count=Count('prefixes')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
     status = forms.MultipleChoiceField(choices=prefix_status_choices, required=False)
     site = FilterChoiceField(
         queryset=Site.objects.annotate(filter_count=Count('prefixes')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
     role = FilterChoiceField(
         queryset=Role.objects.annotate(filter_count=Count('prefixes')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
     expand = forms.BooleanField(required=False, label='Expand prefix hierarchy')
 
@@ -719,12 +722,12 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=VRF.objects.annotate(filter_count=Count('ip_addresses')),
         to_field_name='rd',
         label='VRF',
-        null_option=(0, 'Global')
+        null_label='-- Global --'
     )
     tenant = FilterChoiceField(
         queryset=Tenant.objects.annotate(filter_count=Count('ip_addresses')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
     status = forms.MultipleChoiceField(choices=ipaddress_status_choices, required=False)
     role = forms.MultipleChoiceField(choices=ipaddress_role_choices, required=False)
@@ -766,7 +769,7 @@ class VLANGroupFilterForm(BootstrapMixin, forms.Form):
     site = FilterChoiceField(
         queryset=Site.objects.annotate(filter_count=Count('vlan_groups')),
         to_field_name='slug',
-        null_option=(0, 'Global')
+        null_label='-- Global --'
     )
 
 
@@ -896,23 +899,23 @@ class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
     site = FilterChoiceField(
         queryset=Site.objects.annotate(filter_count=Count('vlans')),
         to_field_name='slug',
-        null_option=(0, 'Global')
+        null_label='-- Global --'
     )
     group_id = FilterChoiceField(
         queryset=VLANGroup.objects.annotate(filter_count=Count('vlans')),
         label='VLAN group',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
     tenant = FilterChoiceField(
         queryset=Tenant.objects.annotate(filter_count=Count('vlans')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
     status = forms.MultipleChoiceField(choices=vlan_status_choices, required=False)
     role = FilterChoiceField(
         queryset=Role.objects.annotate(filter_count=Count('vlans')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
 
 

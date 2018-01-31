@@ -11,6 +11,14 @@ TENANTGROUP_ACTIONS = """
 {% endif %}
 """
 
+COL_TENANT = """
+{% if record.tenant %}
+    <a href="{% url 'tenancy:tenant' slug=record.tenant.slug %}" title="{{ record.tenant.description }}">{{ record.tenant }}</a>
+{% else %}
+    &mdash;
+{% endif %}
+"""
+
 
 #
 # Tenant groups

@@ -81,6 +81,11 @@ class RegionCSVForm(forms.ModelForm):
         }
 
 
+class RegionFilterForm(BootstrapMixin, forms.Form):
+    model = Site
+    q = forms.CharField(required=False, label='Search')
+
+
 #
 # Sites
 #
@@ -163,7 +168,7 @@ class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
     tenant = FilterChoiceField(
         queryset=Tenant.objects.annotate(filter_count=Count('sites')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
 
 
@@ -359,17 +364,17 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
     group_id = FilterChoiceField(
         queryset=RackGroup.objects.select_related('site').annotate(filter_count=Count('racks')),
         label='Rack group',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
     tenant = FilterChoiceField(
         queryset=Tenant.objects.annotate(filter_count=Count('racks')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
     role = FilterChoiceField(
         queryset=RackRole.objects.annotate(filter_count=Count('racks')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
 
 
@@ -411,7 +416,7 @@ class RackReservationFilterForm(BootstrapMixin, forms.Form):
     group_id = FilterChoiceField(
         queryset=RackGroup.objects.select_related('site').annotate(filter_count=Count('racks__reservations')),
         label='Rack group',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
 
 
@@ -1031,7 +1036,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     rack_id = FilterChoiceField(
         queryset=Rack.objects.annotate(filter_count=Count('devices')),
         label='Rack',
-        null_option=(0, 'None'),
+        null_label='-- None --',
     )
     role = FilterChoiceField(
         queryset=DeviceRole.objects.annotate(filter_count=Count('devices')),
@@ -1040,7 +1045,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     tenant = FilterChoiceField(
         queryset=Tenant.objects.annotate(filter_count=Count('devices')),
         to_field_name='slug',
-        null_option=(0, 'None'),
+        null_label='-- None --',
     )
     manufacturer_id = FilterChoiceField(queryset=Manufacturer.objects.all(), label='Manufacturer')
     device_type_id = FilterChoiceField(
@@ -1052,7 +1057,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     platform = FilterChoiceField(
         queryset=Platform.objects.annotate(filter_count=Count('devices')),
         to_field_name='slug',
-        null_option=(0, 'None'),
+        null_label='-- None --',
     )
     status = forms.MultipleChoiceField(choices=device_status_choices, required=False)
     mac_address = forms.CharField(required=False, label='MAC address')
@@ -1923,3 +1928,47 @@ class InventoryItemForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InventoryItem
         fields = ['name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description']
+
+
+class InventoryItemCSVForm(forms.ModelForm):
+    device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Device name or ID',
+        error_messages={
+            'invalid_choice': 'Device not found.',
+        }
+    )
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text='Manufacturer name',
+        error_messages={
+            'invalid_choice': 'Invalid manufacturer.',
+        }
+    )
+
+    class Meta:
+        model = InventoryItem
+        fields = ['device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description']
+
+
+class InventoryItemBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(queryset=InventoryItem.objects.all(), widget=forms.MultipleHiddenInput)
+    manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), required=False)
+    part_id = forms.CharField(max_length=50, required=False, label='Part ID')
+    description = forms.CharField(max_length=100, required=False)
+
+    class Meta:
+        nullable_fields = ['manufacturer', 'part_id', 'description']
+
+
+class InventoryItemFilterForm(BootstrapMixin, forms.Form):
+    model = InventoryItem
+    q = forms.CharField(required=False, label='Search')
+    manufacturer = FilterChoiceField(
+        queryset=Manufacturer.objects.annotate(filter_count=Count('inventory_items')),
+        to_field_name='slug',
+        null_label='-- None --'
+    )

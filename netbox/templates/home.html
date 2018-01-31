@@ -150,6 +150,21 @@
                 </div>
             {% endif %}
         </div>
+        {% if report_results %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Reports</strong>
+                </div>
+                <table class="table table-hover panel-body">
+                    {% for result in report_results %}
+                        <span>
+                            <td><a href="{% url 'extras:report' name=result.report %}">{{ result.report }}</a></td>
+                            <td class="text-right"><span title="{{ result.created }}">{% include 'extras/inc/report_label.html' %}</span></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endif %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Recent Activity</strong>

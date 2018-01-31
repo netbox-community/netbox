@@ -58,9 +58,10 @@ $(document).ready(function() {
                 // Glean configured hostnames/interfaces from the DOM
                 var configured_device = row.children('td.configured_device').attr('data');
                 var configured_interface = row.children('td.configured_interface').attr('data');
+                var configured_interface_short = null;
                 if (configured_interface) {
                     // Match long-form IOS names against short ones (e.g. Gi0/1 == GigabitEthernet0/1).
-                    configured_interface = configured_interface.replace(/^([A-Z][a-z])[^0-9]*([0-9\/]+)$/, "$1$2");
+                    configured_interface_short = configured_interface.replace(/^([A-Z][a-z])[^0-9]*([0-9\/]+)$/, "$1$2");
                 }
 
                 // Clean up hostnames/interfaces learned via LLDP
@@ -75,6 +76,8 @@ $(document).ready(function() {
                 if (!configured_device && lldp_device) {
                     row.addClass('info');
                 } else if (configured_device == lldp_device && configured_interface == lldp_interface) {
+                    row.addClass('success');
+                } else if (configured_device == lldp_device && configured_interface_short == lldp_interface) {
                     row.addClass('success');
                 } else {
                     row.addClass('danger');

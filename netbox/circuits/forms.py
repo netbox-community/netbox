@@ -174,7 +174,7 @@ class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
     tenant = FilterChoiceField(
         queryset=Tenant.objects.annotate(filter_count=Count('circuits')),
         to_field_name='slug',
-        null_option=(0, 'None')
+        null_label='-- None --'
     )
     site = FilterChoiceField(
         queryset=Site.objects.annotate(filter_count=Count('circuit_terminations')),

@@ -104,7 +104,7 @@ The base serializer is used to represent the default view of a model. This inclu
 }
 ```
 
-Related objects (e.g. `ForeignKey` fields) are represented using a nested serializer. A nested serializer provides a minimal representation of an object, including only its URL and enough information to construct its name.
+Related objects (e.g. `ForeignKey` fields) are represented using a nested serializer. A nested serializer provides a minimal representation of an object, including only its URL and enough information to construct its name. When performing write api actions (`POST`, `PUT`, and `PATCH`), any `ForeignKey` relationships do not use the nested serializer, instead you will pass just the integer ID of the related model.  
 
 When a base serializer includes one or more nested serializers, the hierarchical structure precludes it from being used for write operations. Thus, a flat representation of an object may be provided using a writable serializer. This serializer includes only raw database values and is not typically used for retrieval, except as part of the response to the creation or updating of an object.
 

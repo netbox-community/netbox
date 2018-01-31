@@ -64,13 +64,14 @@
                     {% endfor %}
                 </tbody>
             </table>
+            {% if perms.dcim.add_inventoryitem %}
+                <div class="panel-footer text-right">
+                    <a href="{% url 'dcim:inventoryitem_add' device=device.pk %}" class="btn btn-primary btn-xs">
+                        <span class="fa fa-plus" aria-hidden="true"></span> Add Inventory Item
+                    </a>
+                </div>
+            {% endif %}
         </div>
-        {% if perms.dcim.add_inventoryitem %}
-            <a href="{% url 'dcim:inventoryitem_add' device=device.pk %}" class="btn btn-success">
-                <span class="fa fa-plus" aria-hidden="true"></span>
-                Add Inventory Item
-            </a>
-        {% endif %}
     </div>
 </div>
 {% endblock %}
