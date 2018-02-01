@@ -1011,6 +1011,14 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
             raise ValidationError({
                 'vc_position': "A device assigned to a virtual chassis must have its position defined."
             })
+        try:
+            virtual_chassis = VirtualChassis.objects.filter(master=self.pk)
+            if self.virtual_chassis != virtual_chassis:
+                raise ValidationError(
+                    "This device has been designated the master of a virtual chassis but is not assigned to it."
+                )
+        except VirtualChassis.DoesNotExist:
+            pass
 
     def save(self, *args, **kwargs):
 
@@ -1627,3 +1635,11 @@ class VirtualChassis(models.Model):
 
     def get_absolute_url(self):
         return self.master.get_absolute_url()
+
+    def clean(self):
+
+        # Validate master assignment
+        if self.master not in self.members.all():
+            raise ValidationError({
+                'master': "The selected master is not assigned to this virtual chassis."
+            })

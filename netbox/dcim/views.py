@@ -2172,7 +2172,7 @@ class VirtualChassisDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 
 class VirtualChassisAddMemberView(PermissionRequiredMixin, GetReturnURLMixin, View):
-    permission_required = 'dcim.change_device'
+    permission_required = 'dcim.change_virtualchassis'
 
     def get(self, request, pk):
 
@@ -2223,4 +2223,51 @@ class VirtualChassisAddMemberView(PermissionRequiredMixin, GetReturnURLMixin, Vi
             'member_select_form': member_select_form,
             'membership_form': membership_form,
             'return_url': self.get_return_url(request, virtual_chassis),
+        })
+
+
+class VirtualChassisRemoveMemberView(PermissionRequiredMixin, GetReturnURLMixin, View):
+    permission_required = 'dcim.change_virtualchassis'
+
+    def get(self, request, pk):
+
+        device = get_object_or_404(Device, pk=pk, virtual_chassis__isnull=False)
+        form = ConfirmationForm(initial=request.GET)
+
+        return render(request, 'dcim/virtualchassis_remove_member.html', {
+            'device': device,
+            'form': form,
+            'return_url': self.get_return_url(request, device),
+        })
+
+    def post(self, request, pk):
+
+        device = get_object_or_404(Device, pk=pk, virtual_chassis__isnull=False)
+        form = ConfirmationForm(request.POST)
+
+        # Protect master device from being removed
+        virtual_chassis = VirtualChassis.objects.filter(master=device).first()
+        if virtual_chassis is not None:
+            msg = 'Unable to remove master device {} from the virtual chassis.'.format(escape(device))
+            messages.error(request, mark_safe(msg))
+            return redirect(device.get_absolute_url())
+
+        if form.is_valid():
+
+            Device.objects.filter(pk=device.pk).update(
+                virtual_chassis=None,
+                vc_position=None,
+                vc_priority=None
+            )
+
+            msg = 'Removed {} from virtual chassis {}'.format(device, device.virtual_chassis)
+            messages.success(request, msg)
+            UserAction.objects.log_edit(request.user, device, msg)
+
+            return redirect(self.get_return_url(request, device))
+
+        return render(request, 'dcim/virtualchassis_remove_member.html', {
+            'device': device,
+            'form': form,
+            'return_url': self.get_return_url(request, device),
         })

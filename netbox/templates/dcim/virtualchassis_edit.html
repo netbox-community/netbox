@@ -31,6 +31,7 @@
                                 <th>Device</th>
                                 <th>Position</th>
                                 <th>Priority</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -38,11 +39,22 @@
                                 {% for field in form.hidden_fields %}
                                     {{ field }}
                                 {% endfor %}
-                                <tr>
-                                    <td>{{ form.instance.name }}</td>
-                                    <td>{{ form.vc_position }}</td>
-                                    <td>{{ form.vc_priority }}</td>
-                                </tr>
+                                {% with device=form.instance virtual_chassis=vc_form.instance %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ device.get_absolute_url }}">{{ device }}</a>
+                                        </td>
+                                        <td>{{ form.vc_position }}</td>
+                                        <td>{{ form.vc_priority }}</td>
+                                        <td>
+                                            {% if virtual_chassis.pk %}
+                                                <a href="{% url 'dcim:virtualchassis_remove_member' pk=device.pk %}?return_url={% url 'dcim:virtualchassis_edit' pk=virtual_chassis.pk %}" class="btn btn-danger btn-xs{% if virtual_chassis.master == device %} disabled{% endif %}">
+                                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endwith %}
                             {% endfor %}
                         </tbody>
                     </table>
@@ -51,7 +63,11 @@
         </div>
         <div class="row">
             <div class="col-md-6 col-md-offset-3 text-right">
-                <button type="submit" name="_create" class="btn btn-primary">Create</button>
+                {% if vc_form.instance.pk %}
+                    <button type="submit" name="_update" class="btn btn-primary">Update</button>
+                {% else %}
+                    <button type="submit" name="_create" class="btn btn-primary">Create</button>
+                {% endif %}
                 <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
             </div>
         </div>

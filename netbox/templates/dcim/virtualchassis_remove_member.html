@@ -1,0 +1,8 @@
+{% extends 'utilities/confirmation_form.html' %}
+{% load form_helpers %}
+
+{% block title %}Remove Virtual Chassis Member?{% endblock %}
+
+{% block message %}
+    <p>Are you sure you want to remove <strong>{{ device }}</strong> from virtual chassis {{ device.virtual_chassis }}?</p>
+{% endblock %}

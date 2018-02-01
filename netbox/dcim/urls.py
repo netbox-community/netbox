@@ -221,5 +221,6 @@ urlpatterns = [
     url(r'^virtual-chassis/(?P<pk>\d+)/edit/$', views.VirtualChassisEditView.as_view(), name='virtualchassis_edit'),
     url(r'^virtual-chassis/(?P<pk>\d+)/delete/$', views.VirtualChassisDeleteView.as_view(), name='virtualchassis_delete'),
     url(r'^virtual-chassis/(?P<pk>\d+)/add-member/$', views.VirtualChassisAddMemberView.as_view(), name='virtualchassis_add_member'),
+    url(r'^virtual-chassis-members/(?P<pk>\d+)/delete/$', views.VirtualChassisRemoveMemberView.as_view(), name='virtualchassis_remove_member'),
 
 ]
