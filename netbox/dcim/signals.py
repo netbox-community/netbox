@@ -1,9 +1,18 @@
 from __future__ import unicode_literals
 
-from django.db.models.signals import pre_delete
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 
 from .models import Device, VirtualChassis
+
+
+@receiver(post_save, sender=VirtualChassis)
+def assign_virtualchassis_master(instance, created, **kwargs):
+    """
+    When a VirtualChassis is created, automatically assign its master device to the VC.
+    """
+    if created:
+        Device.objects.filter(pk=instance.master.pk).update(virtual_chassis=instance, vc_position=1)
 
 
 @receiver(pre_delete, sender=VirtualChassis)

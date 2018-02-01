@@ -1011,14 +1011,6 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
             raise ValidationError({
                 'vc_position': "A device assigned to a virtual chassis must have its position defined."
             })
-        try:
-            virtual_chassis = VirtualChassis.objects.filter(master=self.pk)
-            if self.virtual_chassis != virtual_chassis:
-                raise ValidationError(
-                    "This device has been designated the master of a virtual chassis but is not assigned to it."
-                )
-        except VirtualChassis.DoesNotExist:
-            pass
 
     def save(self, *args, **kwargs):
 
@@ -1078,7 +1070,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     def display_name(self):
         if self.name:
             return self.name
-        elif hasattr(self, 'virtual_chassis') and self.virtual_chassis.master.name:
+        elif self.virtual_chassis and self.virtual_chassis.master.name:
             return "{}:{}".format(self.virtual_chassis.master, self.vc_position)
         elif hasattr(self, 'device_type'):
             return "{}".format(self.device_type)
@@ -1108,10 +1100,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         """
         If this Device is a VirtualChassis member, return the VC master. Otherwise, return None.
         """
-        if hasattr(self, 'virtual_chassis'):
-            return self.virtual_chassis.master
-        else:
-            return None
+        return self.virtual_chassis.master if self.virtual_chassis else None
 
     @property
     def vc_interfaces(self):
@@ -1120,7 +1109,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         Device belonging to the same VirtualChassis.
         """
         filter = Q(device=self)
-        if hasattr(self, 'virtual_chassis') and self.virtual_chassis.master == self:
+        if self.virtual_chassis and self.virtual_chassis.master == self:
             filter |= Q(device__virtual_chassis=self.virtual_chassis, mgmt_only=False)
         return Interface.objects.filter(filter)
 
@@ -1638,8 +1627,9 @@ class VirtualChassis(models.Model):
 
     def clean(self):
 
-        # Validate master assignment
-        if self.master not in self.members.all():
+        # Verify that the selected master device has been assigned to this VirtualChassis. (Skip when creating a new
+        # VirtualChassis.)
+        if self.pk and self.master not in self.members.all():
             raise ValidationError({
                 'master': "The selected master is not assigned to this virtual chassis."
             })

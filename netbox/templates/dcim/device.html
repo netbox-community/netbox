@@ -111,7 +111,7 @@
                         <th>Priority</th>
                     </tr>
                     {% for vc_member in vc_members %}
-                        <tr{% if vc_member.device == device %} class="success"{% endif %}>
+                        <tr{% if vc_member == device %} class="success"{% endif %}>
                             <td>
                                 <a href="{{ vc_member.get_absolute_url }}">{{ vc_member }}</a>
                             </td>
