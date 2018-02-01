@@ -867,6 +867,23 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         blank=True,
         null=True
     )
+    virtual_chassis = models.ForeignKey(
+        to='VirtualChassis',
+        on_delete=models.SET_NULL,
+        related_name='members',
+        blank=True,
+        null=True
+    )
+    vc_position = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MaxValueValidator(255)]
+    )
+    vc_priority = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MaxValueValidator(255)]
+    )
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
     images = GenericRelation(ImageAttachment)
@@ -880,7 +897,10 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
 
     class Meta:
         ordering = ['name']
-        unique_together = ['rack', 'position', 'face']
+        unique_together = [
+            ['rack', 'position', 'face'],
+            ['virtual_chassis', 'vc_position'],
+        ]
         permissions = (
             ('napalm_read', 'Read-only access to devices via NAPALM'),
             ('napalm_write', 'Read/write access to devices via NAPALM'),
@@ -1077,13 +1097,6 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         if hasattr(self, 'vc_membership'):
             return self.vc_membership.virtual_chassis.master
         else:
-            return None
-
-    @property
-    def virtual_chassis(self):
-        try:
-            return VCMembership.objects.get(device=self).virtual_chassis
-        except VCMembership.DoesNotExist:
             return None
 
     @property
@@ -1593,70 +1606,18 @@ class VirtualChassis(models.Model):
     """
     A collection of Devices which operate with a shared control plane (e.g. a switch stack).
     """
+    master = models.OneToOneField(
+        to='Device',
+        on_delete=models.PROTECT,
+        related_name='vc_master_for'
+    )
     domain = models.CharField(
         max_length=30,
         blank=True
     )
 
     def __str__(self):
-        return self.master.name
+        return str(self.master) if hasattr(self, 'master') else 'New Virtual Chassis'
 
     def get_absolute_url(self):
         return self.master.get_absolute_url()
-
-    @property
-    def master(self):
-        master_vcm = VCMembership.objects.filter(virtual_chassis=self, is_master=True).first()
-        return master_vcm.device if master_vcm else None
-
-
-@python_2_unicode_compatible
-class VCMembership(models.Model):
-    """
-    An attachment of a physical Device to a VirtualChassis.
-    """
-    virtual_chassis = models.ForeignKey(
-        to='VirtualChassis',
-        on_delete=models.CASCADE,
-        related_name='memberships'
-    )
-    device = models.OneToOneField(
-        to='Device',
-        on_delete=models.CASCADE,
-        related_name='vc_membership'
-    )
-    position = models.PositiveSmallIntegerField(
-        validators=[MaxValueValidator(255)]
-    )
-    is_master = models.BooleanField(
-        default=False
-    )
-    priority = models.PositiveSmallIntegerField(
-        blank=True,
-        null=True,
-        validators=[MaxValueValidator(255)]
-    )
-
-    class Meta:
-        ordering = ['virtual_chassis', 'position']
-        unique_together = ['virtual_chassis', 'position']
-        verbose_name = 'VC membership'
-
-    def __str__(self):
-        return self.device.name
-
-    def clean(self):
-
-        # We have to call this here because it won't be called by VCMembershipForm
-        self.validate_unique()
-
-        # Check for master conflicts
-        if getattr(self, 'virtual_chassis', None) and self.is_master:
-            master_conflict = VCMembership.objects.filter(
-                virtual_chassis=self.virtual_chassis, is_master=True
-            ).exclude(pk=self.pk).first()
-            if master_conflict:
-                raise ValidationError(
-                    "{} has already been designated as the master for this virtual chassis. It must be demoted before "
-                    "a new master can be assigned.".format(master_conflict.device)
-                )

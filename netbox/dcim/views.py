@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
 from django.db.models import Count, Q
-from django.forms import ModelChoiceField, modelformset_factory
+from django.forms import ModelChoiceField, ModelForm, modelformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -33,7 +33,7 @@ from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site, VCMembership, VirtualChassis,
+    RackReservation, RackRole, Region, Site, VirtualChassis,
 )
 
 
@@ -861,8 +861,11 @@ class DeviceView(View):
             'site__region', 'rack__group', 'tenant__group', 'device_role', 'platform'
         ), pk=pk)
 
-        # Find virtual chassis memberships
-        vc_memberships = VCMembership.objects.filter(virtual_chassis=device.virtual_chassis).select_related('device')
+        # VirtualChassis members
+        if device.virtual_chassis is not None:
+            vc_members = Device.objects.filter(virtual_chassis=device.virtual_chassis)
+        else:
+            vc_members = []
 
         # Console ports
         console_ports = natsorted(
@@ -922,7 +925,7 @@ class DeviceView(View):
             'device_bays': device_bays,
             'services': services,
             'secrets': secrets,
-            'vc_memberships': vc_memberships,
+            'vc_members': vc_members,
             'related_devices': related_devices,
             'show_graphs': show_graphs,
         })
@@ -2039,155 +2042,6 @@ class InventoryItemDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     model = InventoryItem
 
 
-#
-# Virtual chassis
-#
-
-class VirtualChassisListView(ObjectListView):
-    queryset = VirtualChassis.objects.annotate(member_count=Count('memberships'))
-    table = tables.VirtualChassisTable
-    template_name = 'dcim/virtualchassis_list.html'
-
-
-class VirtualChassisCreateView(PermissionRequiredMixin, View):
-    permission_required = 'dcim.add_virtualchassis'
-
-    def post(self, request):
-
-        # Get the list of devices being added to a VirtualChassis
-        pk_form = forms.DeviceSelectionForm(request.POST)
-        pk_form.full_clean()
-        device_list = pk_form.cleaned_data.get('pk')
-
-        if not device_list:
-            messages.warning(request, "No devices were selected.")
-            return redirect('dcim:device_list')
-
-        # Generate a custom VCMembershipForm where the device field is limited to only the selected devices
-        class _VCMembershipForm(forms.VCMembershipForm):
-            device = ModelChoiceField(queryset=Device.objects.filter(pk__in=device_list))
-
-            class Meta:
-                model = VCMembership
-                fields = ['device', 'position', 'priority']
-
-        VCMembershipFormSet = modelformset_factory(model=VCMembership, form=_VCMembershipForm, extra=len(device_list))
-
-        if '_create' in request.POST:
-
-            vc_form = forms.VirtualChassisCreateForm(device_list, request.POST)
-            formset = VCMembershipFormSet(request.POST)
-
-            if vc_form.is_valid() and formset.is_valid():
-                with transaction.atomic():
-                    virtual_chassis = vc_form.save()
-                    vc_memberships = formset.save(commit=False)
-                    for vcm in vc_memberships:
-                        vcm.virtual_chassis = virtual_chassis
-                        if vcm.device == vc_form.cleaned_data['master']:
-                            vcm.is_master = True
-                        vcm.save()
-                    return redirect(vc_form.cleaned_data['master'].get_absolute_url())
-
-        else:
-
-            vc_form = forms.VirtualChassisCreateForm(device_list)
-            initial_data = [{'device': pk, 'position': i} for i, pk in enumerate(device_list, start=1)]
-            formset = VCMembershipFormSet(queryset=VCMembership.objects.none(), initial=initial_data)
-
-        return render(request, 'dcim/virtualchassis_add.html', {
-            'pk_form': pk_form,
-            'vc_form': vc_form,
-            'formset': formset,
-            'return_url': reverse('dcim:device_list'),
-        })
-
-
-class VirtualChassisEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_virtualchassis'
-    model = VirtualChassis
-    model_form = forms.VirtualChassisForm
-    template_name = 'dcim/virtualchassis_edit.html'
-
-
-class VirtualChassisDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_virtualchassis'
-    model = VirtualChassis
-    default_return_url = 'dcim:device_list'
-
-
-class VirtualChassisAddMemberView(GetReturnURLMixin, View):
-    """
-    Create a new VCMembership tying a Device to the VirtualChassis.
-    """
-    template_name = 'utilities/obj_edit.html'
-
-    def get(self, request, pk):
-
-        virtual_chassis = get_object_or_404(VirtualChassis, pk=pk)
-        obj = VCMembership(virtual_chassis=virtual_chassis)
-
-        initial_data = {k: request.GET[k] for k in request.GET}
-        form = forms.VCMembershipCreateForm(instance=obj, initial=initial_data)
-
-        return render(request, self.template_name, {
-            'obj': obj,
-            'obj_type': VCMembership._meta.verbose_name,
-            'form': form,
-            'return_url': self.get_return_url(request, obj),
-        })
-
-    def post(self, request, pk):
-
-        virtual_chassis = get_object_or_404(VirtualChassis, pk=pk)
-        obj = VCMembership(virtual_chassis=virtual_chassis)
-
-        form = forms.VCMembershipCreateForm(request.POST, instance=obj)
-
-        if form.is_valid():
-
-            obj = form.save()
-
-            msg = 'Added member <a href="{}">{}</a>'.format(obj.device.get_absolute_url(), escape(obj.device))
-            messages.success(request, mark_safe(msg))
-            UserAction.objects.log_create(request.user, obj, msg)
-
-            if '_addanother' in request.POST:
-                return redirect(request.get_full_path())
-
-            return_url = form.cleaned_data.get('return_url')
-            if return_url is not None and is_safe_url(url=return_url, host=request.get_host()):
-                return redirect(return_url)
-            else:
-                return redirect(self.get_return_url(request, obj))
-
-        return render(request, self.template_name, {
-            'obj': obj,
-            'obj_type': VCMembership._meta.verbose_name,
-            'form': form,
-            'return_url': self.get_return_url(request, obj),
-        })
-
-
-#
-# VC memberships
-#
-
-class VCMembershipEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.change_vcmembership'
-    model = VCMembership
-    model_form = forms.VCMembershipForm
-
-
-class VCMembershipDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'dcim.delete_vcmembership'
-    model = VCMembership
-    parent_field = 'device'
-
-    def get_return_url(self, request, obj):
-        return reverse('dcim:device_inventory', kwargs={'pk': obj.device.pk})
-
-
 class InventoryItemBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.add_inventoryitem'
     model_form = forms.InventoryItemCSVForm
@@ -2212,3 +2066,106 @@ class InventoryItemBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     table = tables.InventoryItemTable
     template_name = 'dcim/inventoryitem_bulk_delete.html'
     default_return_url = 'dcim:inventoryitem_list'
+
+
+#
+# Virtual chassis
+#
+
+class VirtualChassisListView(ObjectListView):
+    queryset = VirtualChassis.objects.annotate(member_count=Count('members'))
+    table = tables.VirtualChassisTable
+    template_name = 'dcim/virtualchassis_list.html'
+
+
+class VirtualChassisCreateView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.add_virtualchassis'
+
+    def post(self, request):
+
+        # Get the list of devices being added to a VirtualChassis
+        pk_form = forms.DeviceSelectionForm(request.POST)
+        pk_form.full_clean()
+        device_list = pk_form.cleaned_data.get('pk')
+
+        if not device_list:
+            messages.warning(request, "No devices were selected.")
+            return redirect('dcim:device_list')
+
+        # TODO: Error if any of the devices already belong to a VC
+
+        VCMemberFormSet = modelformset_factory(model=Device, fields=('vc_position', 'vc_priority'), extra=0)
+
+        if '_create' in request.POST:
+
+            vc_form = forms.VirtualChassisForm(request.POST)
+            formset = VCMemberFormSet(request.POST)
+
+            if vc_form.is_valid() and formset.is_valid():
+                with transaction.atomic():
+                    virtual_chassis = vc_form.save()
+                    devices = formset.save(commit=False)
+                    for device in devices:
+                        device.virtual_chassis = virtual_chassis
+                        device.save()
+                    return redirect(vc_form.cleaned_data['master'].get_absolute_url())
+
+        else:
+
+            vc_form = forms.VirtualChassisForm()
+            vc_form.fields['master'].queryset = Device.objects.filter(pk__in=device_list)
+            formset = VCMemberFormSet(queryset=Device.objects.filter(pk__in=device_list))
+
+        return render(request, 'dcim/virtualchassis_edit.html', {
+            'pk_form': pk_form,
+            'vc_form': vc_form,
+            'formset': formset,
+            'return_url': reverse('dcim:device_list'),
+        })
+
+
+class VirtualChassisEditView(PermissionRequiredMixin, GetReturnURLMixin, View):
+    permission_required = 'dcim.change_virtualchassis'
+
+    def get(self, request, pk):
+
+        virtual_chassis = get_object_or_404(VirtualChassis, pk=pk)
+        VCMemberFormSet = modelformset_factory(model=Device, fields=('vc_position', 'vc_priority'), extra=0)
+
+        vc_form = forms.VirtualChassisForm(instance=virtual_chassis)
+        vc_form.fields['master'].queryset = virtual_chassis.members.all()
+        formset = VCMemberFormSet(queryset=virtual_chassis.members.all())
+
+        return render(request, 'dcim/virtualchassis_edit.html', {
+            'vc_form': vc_form,
+            'formset': formset,
+            'return_url': self.get_return_url(request, virtual_chassis),
+        })
+
+    def post(self, request, pk):
+
+        virtual_chassis = get_object_or_404(VirtualChassis, pk=pk)
+        VCMemberFormSet = modelformset_factory(model=Device, fields=('vc_position', 'vc_priority'), extra=0)
+
+        vc_form = forms.VirtualChassisForm(request.POST, instance=virtual_chassis)
+        vc_form.fields['master'].queryset = virtual_chassis.members.all()
+        formset = VCMemberFormSet(request.POST, queryset=virtual_chassis.members.all())
+
+        if vc_form.is_valid() and formset.is_valid():
+
+            vc_form.save()
+            formset.save()
+
+            return redirect(vc_form.cleaned_data['master'].get_absolute_url())
+
+        return render(request, 'dcim/virtualchassis_add.html', {
+            'vc_form': vc_form,
+            'formset': formset,
+            'return_url': self.get_return_url(request, virtual_chassis),
+        })
+
+
+class VirtualChassisDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_virtualchassis'
+    model = VirtualChassis
+    default_return_url = 'dcim:device_list'

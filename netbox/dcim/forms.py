@@ -32,7 +32,7 @@ from .models import (
     DeviceBay, DeviceBayTemplate, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate,
     Device, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, InventoryItem,
     Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation,
-    RackRole, Region, Site, VCMembership, VirtualChassis
+    RackRole, Region, Site, VirtualChassis
 )
 
 DEVICE_BY_PK_RE = '{\d+\}'
@@ -2265,94 +2265,49 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
 # Virtual chassis
 #
 
-class VirtualChassisForm(BootstrapMixin, forms.ModelForm):
-    master = forms.ModelChoiceField(queryset=Device.objects.all())
-
-    class Meta:
-        model = VirtualChassis
-        fields = ['domain']
-
-    def __init__(self, *args, **kwargs):
-        super(VirtualChassisForm, self).__init__(*args, **kwargs)
-
-        if self.instance:
-            vc_memberships = self.instance.memberships.all()
-            self.fields['master'].queryset = Device.objects.filter(pk__in=[vcm.device_id for vcm in vc_memberships])
-            self.initial['master'] = self.instance.master
-
-    def save(self, commit=True):
-        instance = super(VirtualChassisForm, self).save(commit=commit)
-
-        # Update the master membership if it has been changed
-        master = self.cleaned_data['master']
-        if instance.pk and instance.master != master:
-            VCMembership.objects.filter(virtual_chassis=self.instance).update(is_master=False)
-            VCMembership.objects.filter(virtual_chassis=self.instance, device=master).update(is_master=True)
-
-        return instance
-
-
 class DeviceSelectionForm(forms.Form):
     pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
 
 
-class VirtualChassisCreateForm(BootstrapMixin, forms.ModelForm):
-    master = forms.ModelChoiceField(queryset=Device.objects.all())
+class VirtualChassisForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = VirtualChassis
         fields = ['master', 'domain']
 
-    def __init__(self, candidate_pks, *args, **kwargs):
-        super(VirtualChassisCreateForm, self).__init__(*args, **kwargs)
-        self.fields['master'].queryset = Device.objects.filter(pk__in=candidate_pks)
 
-
-#
-# VC memberships
-#
-
-class VCMembershipForm(BootstrapMixin, forms.ModelForm):
-
-    class Meta:
-        model = VCMembership
-        fields = ['position', 'priority']
-
-
-class VCMembershipCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
-    site = forms.ModelChoiceField(
-        queryset=Site.objects.all(),
-        label='Site',
-        required=False,
-        widget=forms.Select(
-            attrs={'filter-for': 'rack'}
-        )
-    )
-    rack = ChainedModelChoiceField(
-        queryset=Rack.objects.all(),
-        chains=(
-            ('site', 'site'),
-        ),
-        label='Rack',
-        required=False,
-        widget=APISelect(
-            api_url='/api/dcim/racks/?site_id={{site}}',
-            attrs={'filter-for': 'device', 'nullable': 'true'}
-        )
-    )
-    device = ChainedModelChoiceField(
-        queryset=Device.objects.all(),
-        chains=(
-            ('site', 'site'),
-            ('rack', 'rack'),
-        ),
-        label='Device',
-        widget=APISelect(
-            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
-            display_field='display_name'
-        )
-    )
-
-    class Meta:
-        model = VCMembership
-        fields = ['site', 'rack', 'device', 'position', 'priority']
+# class VCAddMemberForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
+#     site = forms.ModelChoiceField(
+#         queryset=Site.objects.all(),
+#         label='Site',
+#         required=False,
+#         widget=forms.Select(
+#             attrs={'filter-for': 'rack'}
+#         )
+#     )
+#     rack = ChainedModelChoiceField(
+#         queryset=Rack.objects.all(),
+#         chains=(
+#             ('site', 'site'),
+#         ),
+#         label='Rack',
+#         required=False,
+#         widget=APISelect(
+#             api_url='/api/dcim/racks/?site_id={{site}}',
+#             attrs={'filter-for': 'device', 'nullable': 'true'}
+#         )
+#     )
+#     device = ChainedModelChoiceField(
+#         queryset=Device.objects.all(),
+#         chains=(
+#             ('site', 'site'),
+#             ('rack', 'rack'),
+#         ),
+#         label='Device',
+#         widget=APISelect(
+#             api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
+#             display_field='display_name'
+#         )
+#     )
+#     vc_position = forms.IntegerField(label='Position')
+#     vc_priority = forms.IntegerField(required=False, label='Priority')

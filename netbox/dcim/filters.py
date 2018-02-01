@@ -17,7 +17,7 @@ from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site, VirtualChassis, VCMembership,
+    RackReservation, RackRole, Region, Site, VirtualChassis,
 )
 
 
@@ -678,13 +678,6 @@ class VirtualChassisFilter(django_filters.FilterSet):
     class Meta:
         model = VirtualChassis
         fields = ['domain']
-
-
-class VCMembershipFilter(django_filters.FilterSet):
-
-    class Meta:
-        model = VCMembership
-        fields = ['virtual_chassis', 'device', 'position', 'is_master', 'priority']
 
 
 class ConsoleConnectionFilter(django_filters.FilterSet):

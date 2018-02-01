@@ -16,7 +16,7 @@ from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site, VCMembership, VirtualChassis
+    RackReservation, RackRole, Region, Site, VirtualChassis,
 )
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
@@ -401,32 +401,6 @@ class VirtualChassisViewSet(ModelViewSet):
     queryset = VirtualChassis.objects.all()
     serializer_class = serializers.VirtualChassisSerializer
     write_serializer_class = serializers.WritableVirtualChassisSerializer
-
-
-class VCMembershipViewSet(ModelViewSet):
-    queryset = VCMembership.objects.select_related('virtual_chassis', 'device')
-    serializer_class = serializers.VCMembershipSerializer
-    write_serializer_class = serializers.WritableVCMembershipSerializer
-    filter_class = filters.VCMembershipFilter
-
-    def create(self, request, *args, **kwargs):
-
-        with transaction.atomic():
-
-            # Automatically create a new VirtualChassis for new VCMemberships with no VC specified
-            if isinstance(request.data, list):
-                for i, vcm in enumerate(request.data):
-                    if not vcm.get('virtual_chassis') and vcm.get('is_master'):
-                        vc = VirtualChassis()
-                        vc.save()
-                        request.data[i]['virtual_chassis'] = vc.pk
-            else:
-                if not request.data.get('virtual_chassis') and request.data.get('is_master'):
-                    vc = VirtualChassis()
-                    vc.save()
-                    request.data['virtual_chassis'] = vc.pk
-
-            return super(VCMembershipViewSet, self).create(request, *args, **kwargs)
 
 
 #

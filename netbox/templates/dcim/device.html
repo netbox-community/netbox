@@ -98,7 +98,7 @@
                 </tr>
             </table>
         </div>
-        {% if vc_memberships %}
+        {% if vc_members %}
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <strong>Virtual Chassis</strong>
@@ -110,24 +110,22 @@
                         <th>Master</th>
                         <th>Priority</th>
                     </tr>
-                    {% for vcm in vc_memberships %}
-                        <tr{% if vcm.device == device %} class="success"{% endif %}>
+                    {% for vc_member in vc_members %}
+                        <tr{% if vc_member.device == device %} class="success"{% endif %}>
                             <td>
-                                <a href="{{ vcm.device.get_absolute_url }}">{{ vcm.device }}</a>
+                                <a href="{{ vc_member.get_absolute_url }}">{{ vc_member }}</a>
                             </td>
-                            <td>{{ vcm.position }}</td>
-                            <td>{% if vcm.is_master %}<i class="fa fa-check"></i>{% endif %}</td>
-                            <td>{{ vcm.priority|default:"" }}</td>
+                            <td>{{ vc_member.vc_position }}</td>
+                            <td>{% if device.virtual_chassis.master == vc_member %}<i class="fa fa-check"></i>{% endif %}</td>
+                            <td>{{ vc_member.vc_priority|default:"" }}</td>
                         </tr>
                     {% endfor %}
                 </table>
                 <div class="panel-footer text-right">
-                    {% if perms.dcim.add_vcmembership %}
+                    {% if perms.dcim.change_virtualchassis %}
                         <a href="{% url 'dcim:virtualchassis_add_member' pk=device.virtual_chassis.pk %}?site={{ device.site.pk }}&rack={{ device.rack.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-primary btn-xs">
                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Member
                         </a>
-                    {% endif %}
-                    {% if perms.dcim.change_virtualchassis %}
                         <a href="{% url 'dcim:virtualchassis_edit' pk=device.virtual_chassis.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
                             <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit Virtual Chassis
                         </a>

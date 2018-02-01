@@ -15,33 +15,30 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='VCMembership',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('position', models.PositiveSmallIntegerField(validators=[django.core.validators.MaxValueValidator(255)])),
-                ('is_master', models.BooleanField(default=False)),
-                ('priority', models.PositiveSmallIntegerField(blank=True, null=True, validators=[django.core.validators.MaxValueValidator(255)])),
-                ('device', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='vc_membership', to='dcim.Device')),
-            ],
-            options={
-                'verbose_name': 'VC membership',
-                'ordering': ['virtual_chassis', 'position'],
-            },
-        ),
-        migrations.CreateModel(
             name='VirtualChassis',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('domain', models.CharField(blank=True, max_length=30)),
+                ('master', models.OneToOneField(default=1, on_delete=django.db.models.deletion.PROTECT, related_name='vc_master_for', to='dcim.Device')),
             ],
         ),
         migrations.AddField(
-            model_name='vcmembership',
+            model_name='device',
             name='virtual_chassis',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='memberships', to='dcim.VirtualChassis'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='members', to='dcim.VirtualChassis'),
+        ),
+        migrations.AddField(
+            model_name='device',
+            name='vc_position',
+            field=models.PositiveSmallIntegerField(blank=True, null=True, validators=[django.core.validators.MaxValueValidator(255)]),
+        ),
+        migrations.AddField(
+            model_name='device',
+            name='vc_priority',
+            field=models.PositiveSmallIntegerField(blank=True, null=True, validators=[django.core.validators.MaxValueValidator(255)]),
         ),
         migrations.AlterUniqueTogether(
-            name='vcmembership',
-            unique_together=set([('virtual_chassis', 'position')]),
+            name='device',
+            unique_together=set([('virtual_chassis', 'vc_position'), ('rack', 'position', 'face')]),
         ),
     ]

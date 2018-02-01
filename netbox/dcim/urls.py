@@ -220,10 +220,6 @@ urlpatterns = [
     url(r'^virtual-chassis/add/$', views.VirtualChassisCreateView.as_view(), name='virtualchassis_add'),
     url(r'^virtual-chassis/(?P<pk>\d+)/edit/$', views.VirtualChassisEditView.as_view(), name='virtualchassis_edit'),
     url(r'^virtual-chassis/(?P<pk>\d+)/delete/$', views.VirtualChassisDeleteView.as_view(), name='virtualchassis_delete'),
-    url(r'^virtual-chassis/(?P<pk>\d+)/add-member/$', views.VirtualChassisAddMemberView.as_view(), name='virtualchassis_add_member'),
-
-    # VC memberships
-    url(r'^vc-memberships/(?P<pk>\d+)/edit/$', views.VCMembershipEditView.as_view(), name='vcmembership_edit'),
-    url(r'^vc-memberships/(?P<pk>\d+)/delete/$', views.VCMembershipDeleteView.as_view(), name='vcmembership_delete'),
+    # url(r'^virtual-chassis/(?P<pk>\d+)/add-member/$', views.VirtualChassisAddMemberView.as_view(), name='virtualchassis_add_member'),
 
 ]
