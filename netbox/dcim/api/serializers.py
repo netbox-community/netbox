@@ -476,6 +476,16 @@ class NestedClusterSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'name']
 
 
+# Cannot import NestedVirtualChassisSerializer due to circular dependency
+class DeviceVirtualChassisSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualchassis-detail')
+    master = NestedDeviceSerializer()
+
+    class Meta:
+        model = VirtualChassis
+        fields = ['id', 'url', 'master']
+
+
 class DeviceSerializer(CustomFieldModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     device_role = NestedDeviceRoleSerializer()
@@ -490,13 +500,14 @@ class DeviceSerializer(CustomFieldModelSerializer):
     primary_ip6 = DeviceIPAddressSerializer()
     parent_device = serializers.SerializerMethodField()
     cluster = NestedClusterSerializer()
+    virtual_chassis = DeviceVirtualChassisSerializer()
 
     class Meta:
         model = Device
         fields = [
             'id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
-            'site', 'rack', 'position', 'face', 'parent_device', 'virtual_chassis', 'status', 'primary_ip',
-            'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'comments', 'custom_fields', 'created',
+            'site', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4', 'primary_ip6',
+            'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'custom_fields', 'created',
             'last_updated',
         ]
 
@@ -517,8 +528,8 @@ class WritableDeviceSerializer(CustomFieldModelSerializer):
         model = Device
         fields = [
             'id', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag', 'site', 'rack',
-            'position', 'face', 'status', 'primary_ip4', 'primary_ip6', 'cluster', 'comments', 'custom_fields',
-            'created', 'last_updated',
+            'position', 'face', 'status', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position',
+            'vc_priority', 'comments', 'custom_fields', 'created', 'last_updated',
         ]
         validators = []
 

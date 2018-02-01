@@ -1078,8 +1078,8 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     def display_name(self):
         if self.name:
             return self.name
-        elif hasattr(self, 'vc_membership') and self.vc_membership.virtual_chassis.master.name:
-            return "{}:{}".format(self.vc_membership.virtual_chassis.master, self.vc_membership.position)
+        elif hasattr(self, 'virtual_chassis') and self.virtual_chassis.master.name:
+            return "{}:{}".format(self.virtual_chassis.master, self.vc_position)
         elif hasattr(self, 'device_type'):
             return "{}".format(self.device_type)
         return ""
@@ -1108,8 +1108,8 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         """
         If this Device is a VirtualChassis member, return the VC master. Otherwise, return None.
         """
-        if hasattr(self, 'vc_membership'):
-            return self.vc_membership.virtual_chassis.master
+        if hasattr(self, 'virtual_chassis'):
+            return self.virtual_chassis.master
         else:
             return None
 
@@ -1117,11 +1117,11 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     def vc_interfaces(self):
         """
         Return a QuerySet matching all Interfaces assigned to this Device or, if this Device is a VC master, to another
-        Device belonging to the same virtual chassis.
+        Device belonging to the same VirtualChassis.
         """
         filter = Q(device=self)
-        if hasattr(self, 'vc_membership') and self.vc_membership.is_master:
-            filter |= Q(device__vc_membership__virtual_chassis=self.vc_membership.virtual_chassis, mgmt_only=False)
+        if hasattr(self, 'virtual_chassis') and self.virtual_chassis.master == self:
+            filter |= Q(device__virtual_chassis=self.virtual_chassis, mgmt_only=False)
         return Interface.objects.filter(filter)
 
     def get_children(self):

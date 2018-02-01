@@ -487,6 +487,11 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         method='_has_primary_ip',
         label='Has a primary IP',
     )
+    virtual_chassis_id = django_filters.ModelMultipleChoiceFilter(
+        name='virtual_chassis',
+        queryset=VirtualChassis.objects.all(),
+        label='Virtual chassis (ID)',
+    )
 
     class Meta:
         model = Device

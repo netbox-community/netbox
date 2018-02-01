@@ -235,7 +235,8 @@ class PlatformViewSet(ModelViewSet):
 
 class DeviceViewSet(CustomFieldModelViewSet):
     queryset = Device.objects.select_related(
-        'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'rack', 'parent_bay', 'vc_membership',
+        'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'rack', 'parent_bay',
+        'virtual_chassis__master',
     ).prefetch_related(
         'primary_ip4__nat_outside', 'primary_ip6__nat_outside',
     )
