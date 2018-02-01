@@ -2102,13 +2102,17 @@ class VirtualChassisCreateView(PermissionRequiredMixin, View):
             formset = VCMemberFormSet(request.POST)
 
             if vc_form.is_valid() and formset.is_valid():
+
                 with transaction.atomic():
+
+                    # Assign each device to the VirtualChassis before saving
                     virtual_chassis = vc_form.save()
                     devices = formset.save(commit=False)
                     for device in devices:
                         device.virtual_chassis = virtual_chassis
                         device.save()
-                    return redirect(vc_form.cleaned_data['master'].get_absolute_url())
+
+                return redirect(vc_form.cleaned_data['master'].get_absolute_url())
 
         else:
 
@@ -2153,8 +2157,17 @@ class VirtualChassisEditView(PermissionRequiredMixin, GetReturnURLMixin, View):
 
         if vc_form.is_valid() and formset.is_valid():
 
-            vc_form.save()
-            formset.save()
+            with transaction.atomic():
+
+                # Save the VirtualChassis
+                vc_form.save()
+
+                # Nullify the vc_position of each member first to allow reordering without raising an IntegrityError on
+                # duplicate positions. Then save each member instance.
+                members = formset.save(commit=False)
+                Device.objects.filter(pk__in=[m.pk for m in members]).update(vc_position=None)
+                for member in members:
+                    member.save()
 
             return redirect(vc_form.cleaned_data['master'].get_absolute_url())
 

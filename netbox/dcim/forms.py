@@ -2310,6 +2310,11 @@ class VCMemberSelectForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
         )
     )
 
+    def clean_device(self):
+        device = self.cleaned_data['device']
+        if device.virtual_chassis is not None:
+            raise forms.ValidationError("Device {} is already assigned to a virtual chassis.".format(device))
+
 
 class DeviceVCMembershipForm(forms.ModelForm):
 
@@ -2320,6 +2325,12 @@ class DeviceVCMembershipForm(forms.ModelForm):
             'vc_position': 'Position',
             'vc_priority': 'Priority',
         }
+
+    def __init__(self, *args, **kwargs):
+        super(DeviceVCMembershipForm, self).__init__(*args, **kwargs)
+
+        # Require VC position when assigning a member
+        self.fields['vc_position'].required = True
 
     def clean_vc_position(self):
         vc_position = self.cleaned_data['vc_position']

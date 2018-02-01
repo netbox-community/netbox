@@ -1007,7 +1007,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
             })
 
         # Validate virtual chassis assignment
-        if self.virtual_chassis and not self.vc_position:
+        if self.virtual_chassis and self.vc_position is None:
             raise ValidationError({
                 'vc_position': "A device assigned to a virtual chassis must have its position defined."
             })
