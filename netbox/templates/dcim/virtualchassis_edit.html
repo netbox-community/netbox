@@ -35,8 +35,8 @@
                         </thead>
                         <tbody>
                             {% for form in formset %}
-                                {% for hidden in form.hidden_fields %}
-                                    {{ hidden }}
+                                {% for field in form.hidden_fields %}
+                                    {{ field }}
                                 {% endfor %}
                                 <tr>
                                     <td>{{ form.instance.name }}</td>

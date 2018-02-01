@@ -1006,6 +1006,12 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
                 'cluster': "The assigned cluster belongs to a different site ({})".format(self.cluster.site)
             })
 
+        # Validate virtual chassis assignment
+        if self.virtual_chassis and not self.vc_position:
+            raise ValidationError({
+                'vc_position': "A device assigned to a virtual chassis must have its position defined."
+            })
+
     def save(self, *args, **kwargs):
 
         is_new = not bool(self.pk)

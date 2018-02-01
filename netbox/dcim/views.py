@@ -2158,7 +2158,7 @@ class VirtualChassisEditView(PermissionRequiredMixin, GetReturnURLMixin, View):
 
             return redirect(vc_form.cleaned_data['master'].get_absolute_url())
 
-        return render(request, 'dcim/virtualchassis_add.html', {
+        return render(request, 'dcim/virtualchassis_edit.html', {
             'vc_form': vc_form,
             'formset': formset,
             'return_url': self.get_return_url(request, virtual_chassis),
@@ -2169,3 +2169,58 @@ class VirtualChassisDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_virtualchassis'
     model = VirtualChassis
     default_return_url = 'dcim:device_list'
+
+
+class VirtualChassisAddMemberView(PermissionRequiredMixin, GetReturnURLMixin, View):
+    permission_required = 'dcim.change_device'
+
+    def get(self, request, pk):
+
+        virtual_chassis = get_object_or_404(VirtualChassis, pk=pk)
+
+        initial_data = {k: request.GET[k] for k in request.GET}
+        member_select_form = forms.VCMemberSelectForm(initial=initial_data)
+        membership_form = forms.DeviceVCMembershipForm(initial=initial_data)
+
+        return render(request, 'dcim/virtualchassis_add_member.html', {
+            'virtual_chassis': virtual_chassis,
+            'member_select_form': member_select_form,
+            'membership_form': membership_form,
+            'return_url': self.get_return_url(request, virtual_chassis),
+        })
+
+    def post(self, request, pk):
+
+        virtual_chassis = get_object_or_404(VirtualChassis, pk=pk)
+
+        member_select_form = forms.VCMemberSelectForm(request.POST)
+
+        if member_select_form.is_valid():
+
+            device = member_select_form.cleaned_data['device']
+            device.virtual_chassis = virtual_chassis
+            data = {k: request.POST[k] for k in ['vc_position', 'vc_priority']}
+            membership_form = forms.DeviceVCMembershipForm(data, instance=device)
+
+            if membership_form.is_valid():
+
+                membership_form.save()
+                msg = 'Added member <a href="{}">{}</a>'.format(device.get_absolute_url(), escape(device))
+                messages.success(request, mark_safe(msg))
+                UserAction.objects.log_edit(request.user, device, msg)
+
+                if '_addanother' in request.POST:
+                    return redirect(request.get_full_path())
+
+                return redirect(self.get_return_url(request, device))
+
+        else:
+
+            membership_form = forms.DeviceVCMembershipForm(request.POST)
+
+        return render(request, 'dcim/virtualchassis_add_member.html', {
+            'virtual_chassis': virtual_chassis,
+            'member_select_form': member_select_form,
+            'membership_form': membership_form,
+            'return_url': self.get_return_url(request, virtual_chassis),
+        })

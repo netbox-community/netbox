@@ -1,0 +1,35 @@
+{% extends '_base.html' %}
+{% load form_helpers %}
+
+{% block content %}
+    <form action="" method="post" enctype="multipart/form-data" class="form form-horizontal">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <h3>{% block title %}Add New Member to Virtual Chassis {{ virtual_chassis }}{% endblock %}</h3>
+                {% if membership_form.non_field_errors %}
+                    <div class="panel panel-danger">
+                        <div class="panel-heading"><strong>Errors</strong></div>
+                        <div class="panel-body">
+                            {{ membership_form.non_field_errors }}
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="panel panel-default">
+                    <div class="panel-heading"><strong>Add New Member</strong></div>
+                    <div class="table panel-body">
+                        {% render_form member_select_form %}
+                        {% render_form membership_form %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3 text-right">
+                <button type="submit" name="_save" class="btn btn-primary">Save</button>
+                <button type="submit" name="_addanother" class="btn btn-primary">Add Another</button>
+                <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
+            </div>
+        </div>
+    </form>
+{% endblock %}

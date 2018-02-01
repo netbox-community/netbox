@@ -2276,38 +2276,54 @@ class VirtualChassisForm(BootstrapMixin, forms.ModelForm):
         fields = ['master', 'domain']
 
 
-# class VCAddMemberForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
-#     site = forms.ModelChoiceField(
-#         queryset=Site.objects.all(),
-#         label='Site',
-#         required=False,
-#         widget=forms.Select(
-#             attrs={'filter-for': 'rack'}
-#         )
-#     )
-#     rack = ChainedModelChoiceField(
-#         queryset=Rack.objects.all(),
-#         chains=(
-#             ('site', 'site'),
-#         ),
-#         label='Rack',
-#         required=False,
-#         widget=APISelect(
-#             api_url='/api/dcim/racks/?site_id={{site}}',
-#             attrs={'filter-for': 'device', 'nullable': 'true'}
-#         )
-#     )
-#     device = ChainedModelChoiceField(
-#         queryset=Device.objects.all(),
-#         chains=(
-#             ('site', 'site'),
-#             ('rack', 'rack'),
-#         ),
-#         label='Device',
-#         widget=APISelect(
-#             api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
-#             display_field='display_name'
-#         )
-#     )
-#     vc_position = forms.IntegerField(label='Position')
-#     vc_priority = forms.IntegerField(required=False, label='Priority')
+class VCMemberSelectForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        label='Site',
+        required=False,
+        widget=forms.Select(
+            attrs={'filter-for': 'rack'}
+        )
+    )
+    rack = ChainedModelChoiceField(
+        queryset=Rack.objects.all(),
+        chains=(
+            ('site', 'site'),
+        ),
+        label='Rack',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/racks/?site_id={{site}}',
+            attrs={'filter-for': 'device', 'nullable': 'true'}
+        )
+    )
+    device = ChainedModelChoiceField(
+        queryset=Device.objects.all(),
+        chains=(
+            ('site', 'site'),
+            ('rack', 'rack'),
+        ),
+        label='Device',
+        widget=APISelect(
+            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
+            display_field='display_name'
+        )
+    )
+
+
+class DeviceVCMembershipForm(forms.ModelForm):
+
+    class Meta:
+        model = Device
+        fields = ['vc_position', 'vc_priority']
+        labels = {
+            'vc_position': 'Position',
+            'vc_priority': 'Priority',
+        }
+
+    def clean_vc_position(self):
+        vc_position = self.cleaned_data['vc_position']
+        if Device.objects.filter(virtual_chassis=self.instance.virtual_chassis, vc_position=vc_position).exists():
+            raise forms.ValidationError("A virtual chassis member already exists in this position.")
+
+        return vc_position
