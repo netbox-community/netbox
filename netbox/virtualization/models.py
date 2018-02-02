@@ -10,7 +10,6 @@ from django.utils.encoding import python_2_unicode_compatible
 from dcim.models import Device
 from extras.models import CustomFieldModel, CustomFieldValue
 from utilities.models import CreatedUpdatedModel
-from utilities.utils import csv_format
 from .constants import STATUS_ACTIVE, STATUS_CHOICES, VM_STATUS_CLASSES
 
 
@@ -135,13 +134,13 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
                 })
 
     def to_csv(self):
-        return csv_format([
+        return (
             self.name,
             self.type.name,
             self.group.name if self.group else None,
             self.site.name if self.site else None,
             self.comments,
-        ])
+        )
 
 
 #
@@ -243,7 +242,7 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
         return reverse('virtualization:virtualmachine', args=[self.pk])
 
     def to_csv(self):
-        return csv_format([
+        return (
             self.name,
             self.get_status_display(),
             self.cluster.name,
@@ -253,7 +252,7 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
             self.memory,
             self.disk,
             self.comments,
-        ])
+        )
 
     def get_status_class(self):
         return VM_STATUS_CLASSES[self.status]

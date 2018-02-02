@@ -22,7 +22,6 @@ from tenancy.models import Tenant
 from utilities.fields import ColorField, NullableCharField
 from utilities.managers import NaturalOrderByManager
 from utilities.models import CreatedUpdatedModel
-from utilities.utils import csv_format
 from .constants import *
 from .fields import ASNField, MACAddressField
 from .querysets import InterfaceQuerySet
@@ -57,11 +56,11 @@ class Region(MPTTModel):
         return "{}?region={}".format(reverse('dcim:site_list'), self.slug)
 
     def to_csv(self):
-        return csv_format([
+        return (
             self.name,
             self.slug,
             self.parent.name if self.parent else None,
-        ])
+        )
 
 
 #
@@ -111,7 +110,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
         return reverse('dcim:site', args=[self.slug])
 
     def to_csv(self):
-        return csv_format([
+        return (
             self.name,
             self.slug,
             self.region.name if self.region else None,
@@ -121,7 +120,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
             self.contact_name,
             self.contact_phone,
             self.contact_email,
-        ])
+        )
 
     @property
     def count_prefixes(self):
@@ -182,11 +181,11 @@ class RackGroup(models.Model):
         return "{}?group_id={}".format(reverse('dcim:rack_list'), self.pk)
 
     def to_csv(self):
-        return csv_format([
+        return (
             self.site,
             self.name,
             self.slug,
-        ])
+        )
 
 
 @python_2_unicode_compatible
@@ -292,7 +291,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
             Device.objects.filter(rack=self).update(site_id=self.site.pk)
 
     def to_csv(self):
-        return csv_format([
+        return (
             self.site.name,
             self.group.name if self.group else None,
             self.name,
@@ -304,7 +303,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
             self.width,
             self.u_height,
             self.desc_units,
-        ])
+        )
 
     @property
     def units(self):
@@ -493,10 +492,10 @@ class Manufacturer(models.Model):
         return "{}?manufacturer={}".format(reverse('dcim:devicetype_list'), self.slug)
 
     def to_csv(self):
-        return csv_format([
+        return (
             self.name,
             self.slug,
-        ])
+        )
 
 
 @python_2_unicode_compatible
@@ -562,7 +561,7 @@ class DeviceType(models.Model, CustomFieldModel):
         return reverse('dcim:devicetype', args=[self.pk])
 
     def to_csv(self):
-        return csv_format([
+        return (
             self.manufacturer.name,
             self.model,
             self.slug,
@@ -574,7 +573,7 @@ class DeviceType(models.Model, CustomFieldModel):
             self.is_network_device,
             self.get_subdevice_role_display() if self.subdevice_role else None,
             self.get_interface_ordering_display(),
-        ])
+        )
 
     def clean(self):
 
@@ -989,7 +988,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         Device.objects.filter(parent_bay__device=self).update(site=self.site, rack=self.rack)
 
     def to_csv(self):
-        return csv_format([
+        return (
             self.name or '',
             self.device_role.name,
             self.tenant.name if self.tenant else None,
@@ -1004,7 +1003,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
             self.rack.name if self.rack else None,
             self.position,
             self.get_face_display(),
-        ])
+        )
 
     @property
     def display_name(self):
@@ -1078,13 +1077,13 @@ class ConsolePort(models.Model):
 
     # Used for connections export
     def to_csv(self):
-        return csv_format([
+        return (
             self.cs_port.device.identifier if self.cs_port else None,
             self.cs_port.name if self.cs_port else None,
             self.device.identifier,
             self.name,
             self.get_connection_status_display(),
-        ])
+        )
 
 
 #
@@ -1155,13 +1154,13 @@ class PowerPort(models.Model):
 
     # Used for connections export
     def to_csv(self):
-        return csv_format([
+        return (
             self.power_outlet.device.identifier if self.power_outlet else None,
             self.power_outlet.name if self.power_outlet else None,
             self.device.identifier,
             self.name,
             self.get_connection_status_display(),
-        ])
+        )
 
 
 #
@@ -1384,13 +1383,13 @@ class InterfaceConnection(models.Model):
 
     # Used for connections export
     def to_csv(self):
-        return csv_format([
+        return (
             self.interface_a.device.identifier,
             self.interface_a.name,
             self.interface_b.device.identifier,
             self.interface_b.name,
             self.get_connection_status_display(),
-        ])
+        )
 
 
 #
@@ -1464,7 +1463,7 @@ class InventoryItem(models.Model):
         return self.name
 
     def to_csv(self):
-        return csv_format([
+        return (
             self.device.name or '{' + self.device.pk + '}',
             self.name,
             self.manufacturer.name if self.manufacturer else None,
@@ -1472,4 +1471,4 @@ class InventoryItem(models.Model):
             self.serial,
             self.asset_tag,
             self.description
-        ])
+        )

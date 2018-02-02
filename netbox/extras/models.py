@@ -223,19 +223,25 @@ class ExportTemplate(models.Model):
     def __str__(self):
         return '{}: {}'.format(self.content_type, self.name)
 
-    def to_response(self, context_dict, filename):
+    def render_to_response(self, queryset):
         """
         Render the template to an HTTP response, delivered as a named file attachment
         """
         template = Template(self.template_code)
         mime_type = 'text/plain' if not self.mime_type else self.mime_type
-        output = template.render(Context(context_dict))
+        output = template.render(Context({'queryset': queryset}))
+
         # Replace CRLF-style line terminators
         output = output.replace('\r\n', '\n')
+
+        # Build the response
         response = HttpResponse(output, content_type=mime_type)
-        if self.file_extension:
-            filename += '.{}'.format(self.file_extension)
+        filename = 'netbox_{}{}'.format(
+            queryset.model._meta.verbose_name_plural,
+            '.{}'.format(self.file_extension) if self.file_extension else ''
+        )
         response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+
         return response
 
 

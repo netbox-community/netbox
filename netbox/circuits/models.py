@@ -9,7 +9,6 @@ from dcim.fields import ASNField
 from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
 from utilities.models import CreatedUpdatedModel
-from utilities.utils import csv_format
 from .constants import *
 
 
@@ -41,13 +40,13 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
         return reverse('circuits:provider', args=[self.slug])
 
     def to_csv(self):
-        return csv_format([
+        return (
             self.name,
             self.slug,
             self.asn,
             self.account,
             self.portal_url,
-        ])
+        )
 
 
 @python_2_unicode_compatible
@@ -99,15 +98,15 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
         return reverse('circuits:circuit', args=[self.pk])
 
     def to_csv(self):
-        return csv_format([
+        return (
             self.cid,
             self.provider.name,
             self.type.name,
             self.tenant.name if self.tenant else None,
-            self.install_date.isoformat() if self.install_date else None,
+            self.install_date,
             self.commit_rate,
             self.description,
-        ])
+        )
 
     def _get_termination(self, side):
         for ct in self.terminations.all():
