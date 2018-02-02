@@ -30,6 +30,8 @@ class ClusterType(models.Model):
         unique=True
     )
 
+    csv_headers = ['name', 'slug']
+
     class Meta:
         ordering = ['name']
 
@@ -38,6 +40,12 @@ class ClusterType(models.Model):
 
     def get_absolute_url(self):
         return "{}?type={}".format(reverse('virtualization:cluster_list'), self.slug)
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+        )
 
 
 #
@@ -57,6 +65,8 @@ class ClusterGroup(models.Model):
         unique=True
     )
 
+    csv_headers = ['name', 'slug']
+
     class Meta:
         ordering = ['name']
 
@@ -65,6 +75,12 @@ class ClusterGroup(models.Model):
 
     def get_absolute_url(self):
         return "{}?group={}".format(reverse('virtualization:cluster_list'), self.slug)
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+        )
 
 
 #
@@ -108,9 +124,7 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
-    csv_headers = [
-        'name', 'type', 'group', 'site', 'comments',
-    ]
+    csv_headers = ['name', 'type', 'group', 'site', 'comments']
 
     class Meta:
         ordering = ['name']
@@ -229,7 +243,7 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
     )
 
     csv_headers = [
-        'name', 'status', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
+        'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
     ]
 
     class Meta:
@@ -245,6 +259,7 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
         return (
             self.name,
             self.get_status_display(),
+            self.role.name if self.role else None,
             self.cluster.name,
             self.tenant.name if self.tenant else None,
             self.platform.name if self.platform else None,

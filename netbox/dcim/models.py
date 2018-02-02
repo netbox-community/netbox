@@ -42,9 +42,7 @@ class Region(MPTTModel):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
 
-    csv_headers = [
-        'name', 'slug', 'parent',
-    ]
+    csv_headers = ['name', 'slug', 'parent']
 
     class MPTTMeta:
         order_insertion_by = ['name']
@@ -97,7 +95,8 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     objects = SiteManager()
 
     csv_headers = [
-        'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'contact_name', 'contact_phone', 'contact_email',
+        'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address', 'contact_name',
+        'contact_phone', 'contact_email', 'comments',
     ]
 
     class Meta:
@@ -117,9 +116,12 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
             self.tenant.name if self.tenant else None,
             self.facility,
             self.asn,
+            self.physical_address,
+            self.shipping_address,
             self.contact_name,
             self.contact_phone,
             self.contact_email,
+            self.comments,
         )
 
     @property
@@ -163,9 +165,7 @@ class RackGroup(models.Model):
     slug = models.SlugField()
     site = models.ForeignKey('Site', related_name='rack_groups', on_delete=models.CASCADE)
 
-    csv_headers = [
-        'site', 'name', 'slug',
-    ]
+    csv_headers = ['site', 'name', 'slug']
 
     class Meta:
         ordering = ['site', 'name']
@@ -197,6 +197,8 @@ class RackRole(models.Model):
     slug = models.SlugField(unique=True)
     color = ColorField()
 
+    csv_headers = ['name', 'slug', 'color']
+
     class Meta:
         ordering = ['name']
 
@@ -205,6 +207,13 @@ class RackRole(models.Model):
 
     def get_absolute_url(self):
         return "{}?role={}".format(reverse('dcim:rack_list'), self.slug)
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+            self.color,
+        )
 
 
 class RackManager(NaturalOrderByManager):
@@ -241,7 +250,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
 
     csv_headers = [
         'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'serial', 'width', 'u_height',
-        'desc_units',
+        'desc_units', 'comments',
     ]
 
     class Meta:
@@ -303,6 +312,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
             self.width,
             self.u_height,
             self.desc_units,
+            self.comments,
         )
 
     @property
@@ -478,9 +488,7 @@ class Manufacturer(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
 
-    csv_headers = [
-        'name', 'slug',
-    ]
+    csv_headers = ['name', 'slug']
 
     class Meta:
         ordering = ['name']
@@ -538,7 +546,7 @@ class DeviceType(models.Model, CustomFieldModel):
 
     csv_headers = [
         'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
-        'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering',
+        'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering', 'comments',
     ]
 
     class Meta:
@@ -573,6 +581,7 @@ class DeviceType(models.Model, CustomFieldModel):
             self.is_network_device,
             self.get_subdevice_role_display() if self.subdevice_role else None,
             self.get_interface_ordering_display(),
+            self.comments,
         )
 
     def clean(self):
@@ -753,6 +762,8 @@ class DeviceRole(models.Model):
         help_text="Virtual machines may be assigned to this role"
     )
 
+    csv_headers = ['name', 'slug', 'color', 'vm_role']
+
     class Meta:
         ordering = ['name']
 
@@ -761,6 +772,14 @@ class DeviceRole(models.Model):
 
     def get_absolute_url(self):
         return "{}?role={}".format(reverse('dcim:device_list'), self.slug)
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+            self.color,
+            self.vm_role,
+        )
 
 
 @python_2_unicode_compatible
@@ -777,6 +796,8 @@ class Platform(models.Model):
     rpc_client = models.CharField(max_length=30, choices=RPC_CLIENT_CHOICES, blank=True,
                                   verbose_name='Legacy RPC client')
 
+    csv_headers = ['name', 'slug', 'napalm_driver']
+
     class Meta:
         ordering = ['name']
 
@@ -785,6 +806,13 @@ class Platform(models.Model):
 
     def get_absolute_url(self):
         return "{}?platform={}".format(reverse('dcim:device_list'), self.slug)
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+            self.napalm_driver,
+        )
 
 
 class DeviceManager(NaturalOrderByManager):
@@ -847,7 +875,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
 
     csv_headers = [
         'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
-        'site', 'rack_group', 'rack_name', 'position', 'face',
+        'site', 'rack_group', 'rack_name', 'position', 'face', 'comments',
     ]
 
     class Meta:
@@ -1003,6 +1031,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
             self.rack.name if self.rack else None,
             self.position,
             self.get_face_display(),
+            self.comments,
         )
 
     @property
@@ -1075,7 +1104,6 @@ class ConsolePort(models.Model):
     def __str__(self):
         return self.name
 
-    # Used for connections export
     def to_csv(self):
         return (
             self.cs_port.device.identifier if self.cs_port else None,
@@ -1152,7 +1180,6 @@ class PowerPort(models.Model):
     def __str__(self):
         return self.name
 
-    # Used for connections export
     def to_csv(self):
         return (
             self.power_outlet.device.identifier if self.power_outlet else None,
@@ -1381,7 +1408,6 @@ class InterfaceConnection(models.Model):
         except ObjectDoesNotExist:
             pass
 
-    # Used for connections export
     def to_csv(self):
         return (
             self.interface_a.device.identifier,
@@ -1452,7 +1478,7 @@ class InventoryItem(models.Model):
     description = models.CharField(max_length=100, blank=True)
 
     csv_headers = [
-        'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description',
+        'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
     ]
 
     class Meta:
@@ -1470,5 +1496,6 @@ class InventoryItem(models.Model):
             self.part_id,
             self.serial,
             self.asset_tag,
-            self.description
+            self.discovered,
+            self.description,
         )

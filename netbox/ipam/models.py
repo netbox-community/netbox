@@ -74,6 +74,8 @@ class RIR(models.Model):
     is_private = models.BooleanField(default=False, verbose_name='Private',
                                      help_text='IP space managed by this RIR is considered private')
 
+    csv_headers = ['name', 'slug', 'is_private']
+
     class Meta:
         ordering = ['name']
         verbose_name = 'RIR'
@@ -84,6 +86,13 @@ class RIR(models.Model):
 
     def get_absolute_url(self):
         return "{}?rir={}".format(reverse('ipam:aggregate_list'), self.slug)
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+            self.is_private,
+        )
 
 
 @python_2_unicode_compatible
@@ -172,11 +181,20 @@ class Role(models.Model):
     slug = models.SlugField(unique=True)
     weight = models.PositiveSmallIntegerField(default=1000)
 
+    csv_headers = ['name', 'slug', 'weight']
+
     class Meta:
         ordering = ['weight', 'name']
 
     def __str__(self):
         return self.name
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+            self.weight,
+        )
 
     @property
     def count_prefixes(self):
@@ -501,6 +519,8 @@ class VLANGroup(models.Model):
     slug = models.SlugField()
     site = models.ForeignKey('dcim.Site', related_name='vlan_groups', on_delete=models.PROTECT, blank=True, null=True)
 
+    csv_headers = ['name', 'slug', 'site']
+
     class Meta:
         ordering = ['site', 'name']
         unique_together = [
@@ -515,6 +535,13 @@ class VLANGroup(models.Model):
 
     def get_absolute_url(self):
         return "{}?group_id={}".format(reverse('ipam:vlan_list'), self.pk)
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+            self.site.name if self.site else None,
+        )
 
     def get_next_available_vid(self):
         """

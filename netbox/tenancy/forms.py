@@ -27,7 +27,7 @@ class TenantGroupCSVForm(forms.ModelForm):
 
     class Meta:
         model = TenantGroup
-        fields = ['name', 'slug']
+        fields = TenantGroup.csv_headers
         help_texts = {
             'name': 'Group name',
         }
@@ -60,7 +60,7 @@ class TenantCSVForm(forms.ModelForm):
 
     class Meta:
         model = Tenant
-        fields = ['name', 'slug', 'group', 'description', 'comments']
+        fields = Tenant.csv_headers
         help_texts = {
             'name': 'Tenant name',
             'comments': 'Free-form comments'

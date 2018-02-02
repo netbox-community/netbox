@@ -28,7 +28,7 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
-    csv_headers = ['name', 'slug', 'asn', 'account', 'portal_url']
+    csv_headers = ['name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments']
 
     class Meta:
         ordering = ['name']
@@ -46,6 +46,9 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
             self.asn,
             self.account,
             self.portal_url,
+            self.noc_contact,
+            self.admin_contact,
+            self.comments,
         )
 
 
@@ -58,6 +61,8 @@ class CircuitType(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
 
+    csv_headers = ['name', 'slug']
+
     class Meta:
         ordering = ['name']
 
@@ -66,6 +71,12 @@ class CircuitType(models.Model):
 
     def get_absolute_url(self):
         return "{}?type={}".format(reverse('circuits:circuit_list'), self.slug)
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+        )
 
 
 @python_2_unicode_compatible
@@ -85,7 +96,7 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
-    csv_headers = ['cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description']
+    csv_headers = ['cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments']
 
     class Meta:
         ordering = ['provider', 'cid']
@@ -106,6 +117,7 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
             self.install_date,
             self.commit_rate,
             self.description,
+            self.comments,
         )
 
     def _get_termination(self, side):
