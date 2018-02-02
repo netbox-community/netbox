@@ -20,7 +20,7 @@ from django.views.generic import View
 from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
-from utilities.csv import queryset_to_csv
+from utilities.utils import queryset_to_csv
 from utilities.forms import BootstrapMixin, CSVDataField
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
