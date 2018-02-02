@@ -196,14 +196,6 @@ class Role(models.Model):
             self.weight,
         )
 
-    @property
-    def count_prefixes(self):
-        return self.prefixes.count()
-
-    @property
-    def count_vlans(self):
-        return self.vlans.count()
-
 
 @python_2_unicode_compatible
 class Prefix(CreatedUpdatedModel, CustomFieldModel):

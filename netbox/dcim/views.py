@@ -276,7 +276,7 @@ class RackListView(ObjectListView):
     ).prefetch_related(
         'devices__device_type'
     ).annotate(
-        device_count=Count('devices', distinct=True)
+        device_count=Count('devices')
     )
     filter = filters.RackFilter
     filter_form = forms.RackFilterForm
@@ -715,10 +715,7 @@ class DeviceBayTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class DeviceRoleListView(ObjectListView):
-    queryset = DeviceRole.objects.annotate(
-        device_count=Count('devices', distinct=True),
-        vm_count=Count('virtual_machines', distinct=True)
-    )
+    queryset = DeviceRole.objects.all()
     table = tables.DeviceRoleTable
     template_name = 'dcim/devicerole_list.html'
 
@@ -756,10 +753,7 @@ class DeviceRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class PlatformListView(ObjectListView):
-    queryset = Platform.objects.annotate(
-        device_count=Count('devices', distinct=True),
-        vm_count=Count('virtual_machines', distinct=True)
-    )
+    queryset = Platform.objects.all()
     table = tables.PlatformTable
     template_name = 'dcim/platform_list.html'
 

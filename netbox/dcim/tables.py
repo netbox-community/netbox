@@ -65,6 +65,10 @@ RACK_ROLE = """
 {% endif %}
 """
 
+RACK_DEVICE_COUNT = """
+<a href="{% url 'dcim:device_list' %}?rack_id={{ record.pk }}">{{ value }}</a>
+"""
+
 RACKRESERVATION_ACTIONS = """
 {% if perms.dcim.change_rackreservation %}
     <a href="{% url 'dcim:rackreservation_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
@@ -81,6 +85,14 @@ MANUFACTURER_ACTIONS = """
 {% if perms.dcim.change_manufacturer %}
     <a href="{% url 'dcim:manufacturer_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
+"""
+
+DEVICEROLE_DEVICE_COUNT = """
+<a href="{% url 'dcim:device_list' %}?role={{ record.slug }}">{{ value }}</a>
+"""
+
+DEVICEROLE_VM_COUNT = """
+<a href="{% url 'virtualization:virtualmachine_list' %}?role={{ record.slug }}">{{ value }}</a>
 """
 
 PLATFORM_DEVICE_COUNT = """
@@ -226,12 +238,16 @@ class RackTable(BaseTable):
 
 
 class RackDetailTable(RackTable):
-    devices = tables.Column(accessor=Accessor('device_count'))
+    device_count = tables.TemplateColumn(
+        template_code=RACK_DEVICE_COUNT,
+        verbose_name='Devices'
+    )
     get_utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
 
     class Meta(RackTable.Meta):
         fields = (
-            'pk', 'name', 'site', 'group', 'facility_id', 'tenant', 'role', 'u_height', 'devices', 'get_utilization'
+            'pk', 'name', 'site', 'group', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',
+            'get_utilization',
         )
 
 
@@ -370,12 +386,25 @@ class DeviceBayTemplateTable(BaseTable):
 class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn(verbose_name='Name')
-    device_count = tables.Column(verbose_name='Devices')
-    vm_count = tables.Column(verbose_name='VMs')
+    device_count = tables.TemplateColumn(
+        template_code=DEVICEROLE_DEVICE_COUNT,
+        accessor=Accessor('devices.count'),
+        orderable=False,
+        verbose_name='Devices'
+    )
+    vm_count = tables.TemplateColumn(
+        template_code=DEVICEROLE_VM_COUNT,
+        accessor=Accessor('virtual_machines.count'),
+        orderable=False,
+        verbose_name='VMs'
+    )
     color = tables.TemplateColumn(COLOR_LABEL, verbose_name='Label')
     slug = tables.Column(verbose_name='Slug')
-    actions = tables.TemplateColumn(template_code=DEVICEROLE_ACTIONS, attrs={'td': {'class': 'text-right'}},
-                                    verbose_name='')
+    actions = tables.TemplateColumn(
+        template_code=DEVICEROLE_ACTIONS,
+        attrs={'td': {'class': 'text-right'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = DeviceRole
@@ -388,8 +417,18 @@ class DeviceRoleTable(BaseTable):
 
 class PlatformTable(BaseTable):
     pk = ToggleColumn()
-    device_count = tables.TemplateColumn(template_code=PLATFORM_DEVICE_COUNT, verbose_name='Devices')
-    vm_count = tables.TemplateColumn(template_code=PLATFORM_VM_COUNT, verbose_name='VMs')
+    device_count = tables.TemplateColumn(
+        template_code=PLATFORM_DEVICE_COUNT,
+        accessor=Accessor('devices.count'),
+        orderable=False,
+        verbose_name='Devices'
+    )
+    vm_count = tables.TemplateColumn(
+        template_code=PLATFORM_VM_COUNT,
+        accessor=Accessor('virtual_machines.count'),
+        orderable=False,
+        verbose_name='VMs'
+    )
     actions = tables.TemplateColumn(
         template_code=PLATFORM_ACTIONS,
         attrs={'td': {'class': 'text-right'}},

@@ -228,9 +228,18 @@ class AggregateDetailTable(AggregateTable):
 
 class RoleTable(BaseTable):
     pk = ToggleColumn()
-    prefix_count = tables.TemplateColumn(accessor=Accessor('count_prefixes'), template_code=ROLE_PREFIX_COUNT, orderable=False, verbose_name='Prefixes')
-    vlan_count = tables.TemplateColumn(accessor=Accessor('count_vlans'), template_code=ROLE_VLAN_COUNT, orderable=False, verbose_name='VLANs')
-    slug = tables.Column(verbose_name='Slug')
+    prefix_count = tables.TemplateColumn(
+        accessor=Accessor('prefixes.count'),
+        template_code=ROLE_PREFIX_COUNT,
+        orderable=False,
+        verbose_name='Prefixes'
+    )
+    vlan_count = tables.TemplateColumn(
+        accessor=Accessor('vlans.count'),
+        template_code=ROLE_VLAN_COUNT,
+        orderable=False,
+        verbose_name='VLANs'
+    )
     actions = tables.TemplateColumn(template_code=ROLE_ACTIONS, attrs={'td': {'class': 'text-right'}}, verbose_name='')
 
     class Meta(BaseTable.Meta):
