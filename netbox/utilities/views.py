@@ -79,7 +79,7 @@ class ObjectListView(View):
     def get(self, request):
 
         model = self.queryset.model
-        object_ct = ContentType.objects.get_for_model(model)
+        content_type = ContentType.objects.get_for_model(model)
 
         if self.filter:
             self.queryset = self.filter(request.GET, self.queryset).qs
@@ -92,7 +92,7 @@ class ObjectListView(View):
 
         # Check for export template rendering
         if request.GET.get('export'):
-            et = get_object_or_404(ExportTemplate, content_type=object_ct, name=request.GET.get('export'))
+            et = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET.get('export'))
             queryset = CustomFieldQueryset(self.queryset, custom_fields) if custom_fields else self.queryset
             try:
                 return et.render_to_response(queryset)
@@ -125,10 +125,10 @@ class ObjectListView(View):
         RequestConfig(request, paginate).configure(table)
 
         context = {
+            'content_type': content_type,
             'table': table,
             'permissions': permissions,
             'filter_form': self.filter_form(request.GET, label_suffix='') if self.filter_form else None,
-            'export_templates': ExportTemplate.objects.filter(content_type=object_ct),
         }
         context.update(self.extra_context())
 

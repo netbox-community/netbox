@@ -1,18 +1,13 @@
 {% extends '_base.html' %}
+{% load buttons %}
 
 {% block content %}
 <div class="pull-right">
     {% if perms.dcim.add_site %}
-		<a href="{% url 'dcim:site_add' %}" class="btn btn-primary">
-			<span class="fa fa-plus" aria-hidden="true"></span>
-			Add a site
-		</a>
-        <a href="{% url 'dcim:site_import' %}" class="btn btn-info">
-            <span class="fa fa-download" aria-hidden="true"></span>
-            Import sites
-        </a>
+        {% add_button 'dcim:site_add' %}
+        {% import_button 'dcim:site_import' %}
     {% endif %}
-    {% include 'inc/export_button.html' with obj_type='sites' %}
+    {% export_button content_type %}
 </div>
 <h1>{% block title %}Sites{% endblock %}</h1>
 <div class="row">
