@@ -27,7 +27,7 @@ def csv_format(data):
             value = '{}'.format(value)
 
         # Double-quote the value if it contains a comma
-        if ',' in value:
+        if ',' in value or '\n' in value:
             csv.append('"{}"'.format(value))
         else:
             csv.append('{}'.format(value))
