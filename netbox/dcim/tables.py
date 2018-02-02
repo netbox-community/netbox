@@ -83,6 +83,14 @@ MANUFACTURER_ACTIONS = """
 {% endif %}
 """
 
+PLATFORM_DEVICE_COUNT = """
+<a href="{% url 'dcim:device_list' %}?platform={{ record.slug }}">{{ value }}</a>
+"""
+
+PLATFORM_VM_COUNT = """
+<a href="{% url 'virtualization:virtualmachine_list' %}?platform={{ record.slug }}">{{ value }}</a>
+"""
+
 PLATFORM_ACTIONS = """
 {% if perms.dcim.change_platform %}
     <a href="{% url 'dcim:platform_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
@@ -380,10 +388,8 @@ class DeviceRoleTable(BaseTable):
 
 class PlatformTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(verbose_name='Name')
-    device_count = tables.Column(verbose_name='Devices')
-    vm_count = tables.Column(verbose_name='VMs')
-    slug = tables.Column(verbose_name='Slug')
+    device_count = tables.TemplateColumn(template_code=PLATFORM_DEVICE_COUNT, verbose_name='Devices')
+    vm_count = tables.TemplateColumn(template_code=PLATFORM_VM_COUNT, verbose_name='VMs')
     actions = tables.TemplateColumn(
         template_code=PLATFORM_ACTIONS,
         attrs={'td': {'class': 'text-right'}},
