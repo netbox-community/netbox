@@ -82,6 +82,10 @@ class ClusterGroup(models.Model):
             self.slug,
         )
 
+    @property
+    def serializer(self):
+        return 'virtualization.api.serializers.ClusterGroupSerializer'
+
 
 #
 # Clusters
@@ -155,6 +159,10 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
             self.site.name if self.site else None,
             self.comments,
         )
+
+    @property
+    def serializer(self):
+        return 'virtualization.api.serializers.ClusterSerializer'
 
 
 #
@@ -271,6 +279,10 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
 
     def get_status_class(self):
         return VM_STATUS_CLASSES[self.status]
+
+    @property
+    def serializer(self):
+        return 'virtualization.api.serializers.VirtualMachineGroupSerializer'
 
     @property
     def primary_ip(self):

@@ -20,6 +20,7 @@ from django.views.generic import View
 from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
+from extras.webhooks import bulk_operation_signal
 from utilities.utils import queryset_to_csv
 from utilities.forms import BootstrapMixin, CSVDataField
 from .error_handlers import handle_protectederror
@@ -534,6 +535,10 @@ class BulkEditView(View):
                     msg = 'Updated {} {}'.format(updated_count, self.cls._meta.verbose_name_plural)
                     messages.success(self.request, msg)
                     UserAction.objects.log_bulk_edit(request.user, ContentType.objects.get_for_model(self.cls), msg)
+
+                    # send the bulk operations signal for webhooks
+                    instances = self.cls.objects.filter(pk__in=pk_list)
+                    bulk_operation_signal.send(sender=self.cls, instances=instances, event="updated")
                 return redirect(return_url)
 
         else:
@@ -763,6 +768,10 @@ class ComponentCreateView(View):
 
             if not form.errors:
                 self.model.objects.bulk_create(new_components)
+
+                # send the bulk operations signal for webhooks
+                bulk_operation_signal.send(sender=self.model, instances=new_components, event="created")
+
                 messages.success(request, "Added {} {} to {}.".format(
                     len(new_components), self.model._meta.verbose_name_plural, parent
                 ))
@@ -853,6 +862,10 @@ class BulkComponentCreateView(View):
 
                 if not form.errors:
                     self.model.objects.bulk_create(new_components)
+
+                    # send the bulk operations signal for webhooks
+                    bulk_operation_signal.send(sender=self.model, instances=new_components, event="created")
+
                     messages.success(request, "Added {} {} to {} {}.".format(
                         len(new_components),
                         self.model._meta.verbose_name_plural,

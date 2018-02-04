@@ -145,6 +145,10 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
         return Circuit.objects.filter(terminations__site=self).count()
 
     @property
+    def serializer(self):
+        return 'dcim.api.serializers.SiteSerializer'
+
+    @property
     def count_vms(self):
         from virtualization.models import VirtualMachine
         return VirtualMachine.objects.filter(cluster__site=self).count()
@@ -186,6 +190,10 @@ class RackGroup(models.Model):
             self.name,
             self.slug,
         )
+
+    @property
+    def serializer(self):
+        return 'dcim.api.serializers.RackGroupSerializer'
 
 
 @python_2_unicode_compatible
@@ -421,6 +429,10 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
         """
         u_available = len(self.get_available_units())
         return int(float(self.u_height - u_available) / self.u_height * 100)
+
+    @property
+    def serializer(self):
+        return 'dcim.api.serializers.RackSerializer'
 
 
 @python_2_unicode_compatible
@@ -1079,6 +1091,10 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
             return None
         return RPC_CLIENTS.get(self.platform.rpc_client)
 
+    @property
+    def serializer(self):
+        return 'dcim.api.serializers.DeviceSerializer'
+
 
 #
 # Console ports
@@ -1385,6 +1401,10 @@ class Interface(models.Model):
         except ObjectDoesNotExist:
             pass
         return None
+
+    @property
+    def serializer(self):
+        return 'dcim.api.serializers.InterfaceSerializer'
 
 
 class InterfaceConnection(models.Model):

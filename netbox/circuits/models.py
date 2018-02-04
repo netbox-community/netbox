@@ -51,6 +51,10 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
             self.comments,
         )
 
+    @property
+    def serializer(self):
+        return 'circuits.api.serializers.ProviderSerializer'
+
 
 @python_2_unicode_compatible
 class CircuitType(models.Model):
@@ -133,6 +137,10 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
     @property
     def termination_z(self):
         return self._get_termination('Z')
+
+    @property
+    def serializer(self):
+        return 'circuits.api.serializers.CircuitSerializer'
 
 
 @python_2_unicode_compatible

@@ -118,6 +118,18 @@ PAGINATE_COUNT = 50
 # prefer IPv4 instead.
 PREFER_IPV4 = False
 
+# The Webhook event backend is disabled by default. Set this to True to enable it. Besure to follow the documentation
+# on first enabling the required components for the webhook backend.
+WEBHOOK_BACKEND_ENABLED = False
+
+# Redis settings. Redis is used in webhook backend so WEBHOOK_BACKEND_ENABLED must be enabled for these mean anything.
+# Please refer to the netbox documentation on the webhook backend.
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+REDIS_DEFAULT_TIMEOUT = 300
+REDIS_PASSWORD = ''
+REDIS_DB = 0
+
 # The file path where custom reports will be stored. A trailing slash is not needed. Note that the default value of
 # this setting is derived from the installed location.
 # REPORTS_ROOT = '/opt/netbox/netbox/reports'

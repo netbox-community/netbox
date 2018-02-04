@@ -62,6 +62,10 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
             return "{} ({})".format(self.name, self.rd)
         return None
 
+    @property
+    def serializer(self):
+        return 'ipam.api.serializers.VRFSerializer'
+
 
 @python_2_unicode_compatible
 class RIR(models.Model):
@@ -169,6 +173,10 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
         queryset = Prefix.objects.filter(prefix__net_contained_or_equal=str(self.prefix))
         child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
         return int(float(child_prefixes.size) / self.prefix.size * 100)
+
+    @property
+    def serializer(self):
+        return 'ipam.api.serializers.AggregateSerializer'
 
 
 @python_2_unicode_compatible
@@ -371,6 +379,20 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
                 prefix_size -= 2
             return int(float(child_count) / prefix_size * 100)
 
+    def new_subnet(self):
+        if self.family == 4:
+            if self.prefix.prefixlen <= 30:
+                return netaddr.IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
+            return None
+        if self.family == 6:
+            if self.prefix.prefixlen <= 126:
+                return netaddr.IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
+            return None
+
+    @property
+    def serializer(self):
+        return 'ipam.api.serializers.PrefixSerializer'
+
 
 class IPAddressManager(models.Manager):
 
@@ -498,6 +520,10 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]
 
+    @property
+    def serializer(self):
+        return 'ipam.api.serializers.IPAddressSerializer'
+
     def get_role_class(self):
         return ROLE_CHOICE_CLASSES[self.role]
 
@@ -544,6 +570,10 @@ class VLANGroup(models.Model):
             if i not in vids:
                 return i
         return None
+
+    @property
+    def serializer(self):
+        return 'ipam.api.serializers.VLANGroupSerializer'
 
 
 @python_2_unicode_compatible
@@ -615,6 +645,10 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]
 
+    @property
+    def serializer(self):
+        return 'ipam.api.serializers.VLANSerializer'
+
 
 @python_2_unicode_compatible
 class Service(CreatedUpdatedModel):
@@ -675,3 +709,7 @@ class Service(CreatedUpdatedModel):
             raise ValidationError("A service cannot be associated with both a device and a virtual machine.")
         if not self.device and not self.virtual_machine:
             raise ValidationError("A service must be associated with either a device or a virtual machine.")
+
+    @property
+    def serializer(self):
+        return 'ipam.api.serializers.ServiceSerializer'

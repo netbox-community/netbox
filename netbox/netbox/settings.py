@@ -55,6 +55,12 @@ NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
 PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
+WEBHOOK_BACKEND_ENABLED = getattr(configuration, 'WEBHOOK_BACKEND_ENABLED', False)
+REDIS_HOST = getattr(configuration, 'REDIS_HOST', 'localhost')
+REDIS_PORT = getattr(configuration, 'REDIS_PORT', 6379)
+REDIS_DEFAULT_TIMEOUT = getattr(configuration, 'REDIS_DEFAULT_TIMEOUT', 300)
+REDIS_PASSWORD = getattr(configuration, 'REDIS_PASSWORD', '')
+REDIS_DB = getattr(configuration, 'REDIS_DB', 0)
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
@@ -110,7 +116,7 @@ SERVER_EMAIL = EMAIL.get('FROM_EMAIL')
 EMAIL_SUBJECT_PREFIX = '[NetBox] '
 
 # Installed applications
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -134,7 +140,11 @@ INSTALLED_APPS = (
     'users',
     'utilities',
     'virtualization',
-)
+]
+
+# only load django-rq if the webhook backend is enabled
+if WEBHOOK_BACKEND_ENABLED:
+    INSTALLED_APPS.append('django_rq')
 
 # Middleware
 MIDDLEWARE = (
@@ -236,11 +246,30 @@ REST_FRAMEWORK = {
     'VIEW_NAME_FUNCTION': 'netbox.api.get_view_name',
 }
 
+# Django RQ (Webhook backend)
+RQ_QUEUES = {
+    'default': {
+        'HOST': REDIS_HOST,
+        'PORT': REDIS_PORT,
+        'DB': REDIS_DB,
+        'PASSWORD': REDIS_PASSWORD,
+        'DEFAULT_TIMEOUT': REDIS_DEFAULT_TIMEOUT,
+    }
+}
+
 # Django debug toolbar
 INTERNAL_IPS = (
     '127.0.0.1',
     '::1',
 )
+
+# Django CACHE - local memory cache
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'webhooks',
+    }
+}
 
 
 try:

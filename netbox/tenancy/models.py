@@ -34,6 +34,10 @@ class TenantGroup(models.Model):
             self.slug,
         )
 
+    @property
+    def serializer(self):
+        return 'tenancy.api.serializers.TenantGroupSerializer'
+
 
 @python_2_unicode_compatible
 class Tenant(CreatedUpdatedModel, CustomFieldModel):
@@ -67,3 +71,7 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
             self.description,
             self.comments,
         )
+
+    @property
+    def serializer(self):
+        return 'tenancy.api.serializers.TenantSerializer'
