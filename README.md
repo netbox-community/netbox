@@ -16,6 +16,8 @@ or join us in the #netbox Slack channel on [NetworkToCode](https://slack.network
 
 ### Build Status
 
+nETbOX
+
 NetBox is built against both Python 2.7 and 3.5.  Python 3.5 is recommended.
 
 |             | status |
