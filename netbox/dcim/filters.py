@@ -11,7 +11,8 @@ from tenancy.models import Tenant
 from utilities.filters import NullableCharFieldFilter, NumericInFilter
 from virtualization.models import Cluster
 from .constants import (
-    DEVICE_STATUS_CHOICES, IFACE_FF_LAG, NONCONNECTABLE_IFACE_TYPES, VIRTUAL_IFACE_TYPES, WIRELESS_IFACE_TYPES,
+    DEVICE_STATUS_CHOICES, IFACE_FF_LAG, NONCONNECTABLE_IFACE_TYPES, SITE_STATUS_CHOICES, VIRTUAL_IFACE_TYPES,
+    WIRELESS_IFACE_TYPES,
 )
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -57,6 +58,10 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         method='search',
         label='Search',
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=SITE_STATUS_CHOICES,
+        null_value=None
+    )
     region_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Region.objects.all(),
         label='Region (ID)',
@@ -80,7 +85,7 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Site
-        fields = ['q', 'name', 'slug', 'status', 'facility', 'asn', 'contact_name', 'contact_phone', 'contact_email']
+        fields = ['q', 'name', 'slug', 'facility', 'asn', 'contact_name', 'contact_phone', 'contact_email']
 
     def search(self, queryset, name, value):
         if not value.strip():
