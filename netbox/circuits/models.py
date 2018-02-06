@@ -5,12 +5,13 @@ from django.db import models
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 
+from dcim.constants import STATUS_CLASSES
 from dcim.fields import ASNField
 from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
 from utilities.models import CreatedUpdatedModel
 from utilities.utils import csv_format
-from .constants import *
+from .constants import CIRCUIT_STATUS_ACTIVE, CIRCUIT_STATUS_CHOICES, TERM_SIDE_CHOICES
 
 
 @python_2_unicode_compatible
@@ -79,6 +80,7 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
     cid = models.CharField(max_length=50, verbose_name='Circuit ID')
     provider = models.ForeignKey('Provider', related_name='circuits', on_delete=models.PROTECT)
     type = models.ForeignKey('CircuitType', related_name='circuits', on_delete=models.PROTECT)
+    status = models.PositiveSmallIntegerField(choices=CIRCUIT_STATUS_CHOICES, default=CIRCUIT_STATUS_ACTIVE)
     tenant = models.ForeignKey(Tenant, related_name='circuits', blank=True, null=True, on_delete=models.PROTECT)
     install_date = models.DateField(blank=True, null=True, verbose_name='Date installed')
     commit_rate = models.PositiveIntegerField(blank=True, null=True, verbose_name='Commit rate (Kbps)')
@@ -86,7 +88,7 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
-    csv_headers = ['cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description']
+    csv_headers = ['cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description']
 
     class Meta:
         ordering = ['provider', 'cid']
@@ -103,11 +105,15 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
             self.cid,
             self.provider.name,
             self.type.name,
+            self.get_status_display(),
             self.tenant.name if self.tenant else None,
             self.install_date.isoformat() if self.install_date else None,
             self.commit_rate,
             self.description,
         ])
+
+    def get_status_class(self):
+        return STATUS_CLASSES[self.status]
 
     def _get_termination(self, side):
         for ct in self.terminations.all():
