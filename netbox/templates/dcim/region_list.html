@@ -1,19 +1,14 @@
 {% extends '_base.html' %}
+{% load buttons %}
 {% load helpers %}
 
 {% block content %}
 <div class="pull-right">
     {% if perms.dcim.add_region %}
-        <a href="{% url 'dcim:region_add' %}" class="btn btn-primary">
-            <span class="fa fa-plus" aria-hidden="true"></span>
-            Add a region
-        </a>
-        <a href="{% url 'dcim:region_import' %}" class="btn btn-info">
-            <span class="fa fa-download" aria-hidden="true"></span>
-            Import regions
-        </a>
+        {% add_button 'dcim:region_add' %}
+        {% import_button 'dcim:region_import' %}
     {% endif %}
-    {% include 'inc/export_button.html' with obj_type='regions' %}
+    {% export_button content_type %}
 </div>
 <h1>{% block title %}Regions{% endblock %}</h1>
 <div class="row">

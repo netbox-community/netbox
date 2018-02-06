@@ -14,7 +14,6 @@ from dcim.models import Interface
 from extras.models import CustomFieldModel, CustomFieldValue
 from tenancy.models import Tenant
 from utilities.models import CreatedUpdatedModel
-from utilities.utils import csv_format
 from .constants import *
 from .fields import IPNetworkField, IPAddressField
 from .querysets import PrefixQuerySet
@@ -49,13 +48,13 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
         return reverse('ipam:vrf', args=[self.pk])
 
     def to_csv(self):
-        return csv_format([
+        return (
             self.name,
             self.rd,
             self.tenant.name if self.tenant else None,
             self.enforce_unique,
             self.description,
-        ])
+        )
 
     @property
     def display_name(self):
@@ -75,6 +74,8 @@ class RIR(models.Model):
     is_private = models.BooleanField(default=False, verbose_name='Private',
                                      help_text='IP space managed by this RIR is considered private')
 
+    csv_headers = ['name', 'slug', 'is_private']
+
     class Meta:
         ordering = ['name']
         verbose_name = 'RIR'
@@ -85,6 +86,13 @@ class RIR(models.Model):
 
     def get_absolute_url(self):
         return "{}?rir={}".format(reverse('ipam:aggregate_list'), self.slug)
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+            self.is_private,
+        )
 
 
 @python_2_unicode_compatible
@@ -147,12 +155,12 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
         super(Aggregate, self).save(*args, **kwargs)
 
     def to_csv(self):
-        return csv_format([
+        return (
             self.prefix,
             self.rir.name,
-            self.date_added.isoformat() if self.date_added else None,
+            self.date_added,
             self.description,
-        ])
+        )
 
     def get_utilization(self):
         """
@@ -173,19 +181,20 @@ class Role(models.Model):
     slug = models.SlugField(unique=True)
     weight = models.PositiveSmallIntegerField(default=1000)
 
+    csv_headers = ['name', 'slug', 'weight']
+
     class Meta:
         ordering = ['weight', 'name']
 
     def __str__(self):
         return self.name
 
-    @property
-    def count_prefixes(self):
-        return self.prefixes.count()
-
-    @property
-    def count_vlans(self):
-        return self.vlans.count()
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+            self.weight,
+        )
 
 
 @python_2_unicode_compatible
@@ -262,7 +271,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
         super(Prefix, self).save(*args, **kwargs)
 
     def to_csv(self):
-        return csv_format([
+        return (
             self.prefix,
             self.vrf.rd if self.vrf else None,
             self.tenant.name if self.tenant else None,
@@ -273,7 +282,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
             self.role.name if self.role else None,
             self.is_pool,
             self.description,
-        ])
+        )
 
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]
@@ -461,7 +470,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
         else:
             is_primary = False
 
-        return csv_format([
+        return (
             self.address,
             self.vrf.rd if self.vrf else None,
             self.tenant.name if self.tenant else None,
@@ -472,7 +481,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
             self.interface.name if self.interface else None,
             is_primary,
             self.description,
-        ])
+        )
 
     @property
     def device(self):
@@ -502,6 +511,8 @@ class VLANGroup(models.Model):
     slug = models.SlugField()
     site = models.ForeignKey('dcim.Site', related_name='vlan_groups', on_delete=models.PROTECT, blank=True, null=True)
 
+    csv_headers = ['name', 'slug', 'site']
+
     class Meta:
         ordering = ['site', 'name']
         unique_together = [
@@ -516,6 +527,13 @@ class VLANGroup(models.Model):
 
     def get_absolute_url(self):
         return "{}?group_id={}".format(reverse('ipam:vlan_list'), self.pk)
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+            self.site.name if self.site else None,
+        )
 
     def get_next_available_vid(self):
         """
@@ -577,7 +595,7 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
             })
 
     def to_csv(self):
-        return csv_format([
+        return (
             self.site.name if self.site else None,
             self.group.name if self.group else None,
             self.vid,
@@ -586,7 +604,7 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
             self.get_status_display(),
             self.role.name if self.role else None,
             self.description,
-        ])
+        )
 
     @property
     def display_name(self):

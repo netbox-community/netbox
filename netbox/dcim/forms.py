@@ -83,9 +83,7 @@ class RegionCSVForm(forms.ModelForm):
 
     class Meta:
         model = Region
-        fields = [
-            'name', 'slug', 'parent',
-        ]
+        fields = Region.csv_headers
         help_texts = {
             'name': 'Region name',
             'slug': 'URL-friendly slug',
@@ -153,10 +151,7 @@ class SiteCSVForm(forms.ModelForm):
 
     class Meta:
         model = Site
-        fields = [
-            'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'description', 'physical_address',
-            'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'time_zone', 'comments',
-        ]
+        fields = Site.csv_headers
         help_texts = {
             'name': 'Site name',
             'slug': 'URL-friendly slug',
@@ -224,9 +219,7 @@ class RackGroupCSVForm(forms.ModelForm):
 
     class Meta:
         model = RackGroup
-        fields = [
-            'site', 'name', 'slug',
-        ]
+        fields = RackGroup.csv_headers
         help_texts = {
             'name': 'Name of rack group',
             'slug': 'URL-friendly slug',
@@ -254,7 +247,7 @@ class RackRoleCSVForm(forms.ModelForm):
 
     class Meta:
         model = RackRole
-        fields = ['name', 'slug', 'color']
+        fields = RackRole.csv_headers
         help_texts = {
             'name': 'Name of rack role',
             'color': 'RGB color in hexadecimal (e.g. 00ff00)'
@@ -341,10 +334,7 @@ class RackCSVForm(forms.ModelForm):
 
     class Meta:
         model = Rack
-        fields = [
-            'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'serial', 'type', 'width', 'u_height',
-            'desc_units',
-        ]
+        fields = Rack.csv_headers
         help_texts = {
             'name': 'Rack name',
             'u_height': 'Height in rack units',
@@ -478,9 +468,7 @@ class ManufacturerForm(BootstrapMixin, forms.ModelForm):
 class ManufacturerCSVForm(forms.ModelForm):
     class Meta:
         model = Manufacturer
-        fields = [
-            'name', 'slug'
-        ]
+        fields = Manufacturer.csv_headers
         help_texts = {
             'name': 'Manufacturer name',
             'slug': 'URL-friendly slug',
@@ -526,8 +514,7 @@ class DeviceTypeCSVForm(forms.ModelForm):
 
     class Meta:
         model = DeviceType
-        fields = ['manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
-                  'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering', 'comments']
+        fields = DeviceType.csv_headers
         help_texts = {
             'model': 'Model name',
             'slug': 'URL-friendly slug',
@@ -692,7 +679,7 @@ class DeviceRoleCSVForm(forms.ModelForm):
 
     class Meta:
         model = DeviceRole
-        fields = ['name', 'slug', 'color', 'vm_role']
+        fields = DeviceRole.csv_headers
         help_texts = {
             'name': 'Name of device role',
             'color': 'RGB color in hexadecimal (e.g. 00ff00)'
@@ -716,7 +703,7 @@ class PlatformCSVForm(forms.ModelForm):
 
     class Meta:
         model = Platform
-        fields = ['name', 'slug', 'manufacturer', 'napalm_driver']
+        fields = Platform.csv_headers
         help_texts = {
             'name': 'Platform name',
             'manufacturer': 'Manufacturer name',
@@ -970,7 +957,7 @@ class DeviceCSVForm(BaseDeviceCSVForm):
     class Meta(BaseDeviceCSVForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
-            'site', 'rack_group', 'rack_name', 'position', 'face', 'cluster',
+            'site', 'rack_group', 'rack_name', 'position', 'face', 'cluster', 'comments',
         ]
 
     def clean(self):
@@ -1019,7 +1006,7 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
     class Meta(BaseDeviceCSVForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
-            'parent', 'device_bay_name', 'cluster',
+            'parent', 'device_bay_name', 'cluster', 'comments',
         ]
 
     def clean(self):
@@ -2096,7 +2083,7 @@ class InterfaceConnectionCSVForm(forms.ModelForm):
 
     class Meta:
         model = InterfaceConnection
-        fields = ['device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status']
+        fields = InterfaceConnection.csv_headers
 
     def clean_interface_a(self):
 
@@ -2238,7 +2225,7 @@ class InventoryItemCSVForm(forms.ModelForm):
 
     class Meta:
         model = InventoryItem
-        fields = ['device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description']
+        fields = InventoryItem.csv_headers
 
 
 class InventoryItemBulkEditForm(BootstrapMixin, BulkEditForm):

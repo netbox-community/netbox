@@ -57,7 +57,7 @@ class VRFCSVForm(forms.ModelForm):
 
     class Meta:
         model = VRF
-        fields = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
+        fields = VRF.csv_headers
         help_texts = {
             'name': 'VRF name',
         }
@@ -102,7 +102,7 @@ class RIRCSVForm(forms.ModelForm):
 
     class Meta:
         model = RIR
-        fields = ['name', 'slug', 'is_private']
+        fields = RIR.csv_headers
         help_texts = {
             'name': 'RIR name',
         }
@@ -144,7 +144,7 @@ class AggregateCSVForm(forms.ModelForm):
 
     class Meta:
         model = Aggregate
-        fields = ['prefix', 'rir', 'date_added', 'description']
+        fields = Aggregate.csv_headers
 
 
 class AggregateBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -185,7 +185,7 @@ class RoleCSVForm(forms.ModelForm):
 
     class Meta:
         model = Role
-        fields = ['name', 'slug']
+        fields = Role.csv_headers
         help_texts = {
             'name': 'Role name',
         }
@@ -299,9 +299,7 @@ class PrefixCSVForm(forms.ModelForm):
 
     class Meta:
         model = Prefix
-        fields = [
-            'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan_vid', 'status', 'role', 'is_pool', 'description',
-        ]
+        fields = Prefix.csv_headers
 
     def clean(self):
 
@@ -609,10 +607,7 @@ class IPAddressCSVForm(forms.ModelForm):
 
     class Meta:
         model = IPAddress
-        fields = [
-            'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface_name', 'is_primary',
-            'description',
-        ]
+        fields = IPAddress.csv_headers
 
     def clean(self):
 
@@ -759,7 +754,7 @@ class VLANGroupCSVForm(forms.ModelForm):
 
     class Meta:
         model = VLANGroup
-        fields = ['site', 'name', 'slug']
+        fields = VLANGroup.csv_headers
         help_texts = {
             'name': 'Name of VLAN group',
         }
@@ -849,7 +844,7 @@ class VLANCSVForm(forms.ModelForm):
 
     class Meta:
         model = VLAN
-        fields = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
+        fields = VLAN.csv_headers
         help_texts = {
             'vid': 'Numeric VLAN ID (1-4095)',
             'name': 'VLAN name',

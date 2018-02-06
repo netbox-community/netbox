@@ -99,10 +99,7 @@ class ClusterGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class ClusterListView(ObjectListView):
-    queryset = Cluster.objects.annotate(
-        device_count=Count('devices', distinct=True),
-        vm_count=Count('virtual_machines', distinct=True)
-    )
+    queryset = Cluster.objects.select_related('type', 'group')
     table = tables.ClusterTable
     filter = filters.ClusterFilter
     filter_form = forms.ClusterFilterForm
@@ -162,10 +159,7 @@ class ClusterBulkEditView(PermissionRequiredMixin, BulkEditView):
 class ClusterBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'virtualization.delete_cluster'
     cls = Cluster
-    queryset = Cluster.objects.annotate(
-        device_count=Count('devices', distinct=True),
-        vm_count=Count('virtual_machines', distinct=True)
-    )
+    queryset = Cluster.objects.all()
     table = tables.ClusterTable
     default_return_url = 'virtualization:cluster_list'
 

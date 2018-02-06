@@ -22,10 +22,11 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
 
     for cf in custom_fields:
         field_name = 'cf_{}'.format(str(cf.name))
+        initial = cf.default if not bulk_edit else None
 
         # Integer
         if cf.type == CF_TYPE_INTEGER:
-            field = forms.IntegerField(required=cf.required, initial=cf.default)
+            field = forms.IntegerField(required=cf.required, initial=initial)
 
         # Boolean
         elif cf.type == CF_TYPE_BOOLEAN:
@@ -34,18 +35,19 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
                 (1, 'True'),
                 (0, 'False'),
             )
-            if cf.default.lower() in ['true', 'yes', '1']:
+            if initial.lower() in ['true', 'yes', '1']:
                 initial = 1
-            elif cf.default.lower() in ['false', 'no', '0']:
+            elif initial.lower() in ['false', 'no', '0']:
                 initial = 0
             else:
                 initial = None
-            field = forms.NullBooleanField(required=cf.required, initial=initial,
-                                           widget=forms.Select(choices=choices))
+            field = forms.NullBooleanField(
+                required=cf.required, initial=initial, widget=forms.Select(choices=choices)
+            )
 
         # Date
         elif cf.type == CF_TYPE_DATE:
-            field = forms.DateField(required=cf.required, initial=cf.default, help_text="Date format: YYYY-MM-DD")
+            field = forms.DateField(required=cf.required, initial=initial, help_text="Date format: YYYY-MM-DD")
 
         # Select
         elif cf.type == CF_TYPE_SELECT:
@@ -56,11 +58,11 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
 
         # URL
         elif cf.type == CF_TYPE_URL:
-            field = LaxURLField(required=cf.required, initial=cf.default)
+            field = LaxURLField(required=cf.required, initial=initial)
 
         # Text
         else:
-            field = forms.CharField(max_length=255, required=cf.required, initial=cf.default)
+            field = forms.CharField(max_length=255, required=cf.required, initial=initial)
 
         field.model = cf
         field.label = cf.label if cf.label else cf.name.replace('_', ' ').capitalize()

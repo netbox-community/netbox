@@ -239,6 +239,8 @@ class SecretRole(models.Model):
     users = models.ManyToManyField(User, related_name='secretroles', blank=True)
     groups = models.ManyToManyField(Group, related_name='secretroles', blank=True)
 
+    csv_headers = ['name', 'slug']
+
     class Meta:
         ordering = ['name']
 
@@ -247,6 +249,12 @@ class SecretRole(models.Model):
 
     def get_absolute_url(self):
         return "{}?role={}".format(reverse('secrets:secret_list'), self.slug)
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+        )
 
     def has_member(self, user):
         """

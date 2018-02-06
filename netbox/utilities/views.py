@@ -10,7 +10,6 @@ from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
 from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.exceptions import TemplateSyntaxError
 from django.urls import reverse
@@ -21,6 +20,7 @@ from django.views.generic import View
 from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
+from utilities.utils import queryset_to_csv
 from utilities.forms import BootstrapMixin, CSVDataField
 from .constants import M2M_FIELD_TYPES
 from .error_handlers import handle_protectederror
@@ -80,7 +80,7 @@ class ObjectListView(View):
     def get(self, request):
 
         model = self.queryset.model
-        object_ct = ContentType.objects.get_for_model(model)
+        content_type = ContentType.objects.get_for_model(model)
 
         if self.filter:
             self.queryset = self.filter(request.GET, self.queryset).qs
@@ -93,27 +93,18 @@ class ObjectListView(View):
 
         # Check for export template rendering
         if request.GET.get('export'):
-            et = get_object_or_404(ExportTemplate, content_type=object_ct, name=request.GET.get('export'))
+            et = get_object_or_404(ExportTemplate, content_type=content_type, name=request.GET.get('export'))
             queryset = CustomFieldQueryset(self.queryset, custom_fields) if custom_fields else self.queryset
             try:
-                response = et.to_response(context_dict={'queryset': queryset},
-                                          filename='netbox_{}'.format(model._meta.verbose_name_plural))
-                return response
+                return et.render_to_response(queryset)
             except TemplateSyntaxError:
-                messages.error(request, "There was an error rendering the selected export template ({})."
-                               .format(et.name))
-        # Fall back to built-in CSV export
+                messages.error(
+                    request,
+                    "There was an error rendering the selected export template ({}).".format(et.name)
+                )
+        # Fall back to built-in CSV export if no template was specified
         elif 'export' in request.GET and hasattr(model, 'to_csv'):
-            headers = getattr(model, 'csv_headers', None)
-            output = ','.join(headers) + '\n' if headers else ''
-            output += '\n'.join([obj.to_csv() for obj in self.queryset])
-            response = HttpResponse(
-                output,
-                content_type='text/csv'
-            )
-            response['Content-Disposition'] = 'attachment; filename="netbox_{}.csv"'\
-                .format(self.queryset.model._meta.verbose_name_plural)
-            return response
+            return queryset_to_csv(self.queryset)
 
         # Provide a hook to tweak the queryset based on the request immediately prior to rendering the object list
         self.queryset = self.alter_queryset(request)
@@ -135,10 +126,10 @@ class ObjectListView(View):
         RequestConfig(request, paginate).configure(table)
 
         context = {
+            'content_type': content_type,
             'table': table,
             'permissions': permissions,
             'filter_form': self.filter_form(request.GET, label_suffix='') if self.filter_form else None,
-            'export_templates': ExportTemplate.objects.filter(content_type=object_ct),
         }
         context.update(self.extra_context())
 

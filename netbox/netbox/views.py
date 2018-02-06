@@ -119,7 +119,7 @@ SEARCH_TYPES = OrderedDict((
     }),
     # Virtualization
     ('cluster', {
-        'queryset': Cluster.objects.all(),
+        'queryset': Cluster.objects.select_related('type', 'group'),
         'filter': ClusterFilter,
         'table': ClusterTable,
         'url': 'virtualization:cluster_list',

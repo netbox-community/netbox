@@ -41,7 +41,7 @@ class ClusterTypeCSVForm(forms.ModelForm):
 
     class Meta:
         model = ClusterType
-        fields = ['name', 'slug']
+        fields = ClusterType.csv_headers
         help_texts = {
             'name': 'Name of cluster type',
         }
@@ -64,7 +64,7 @@ class ClusterGroupCSVForm(forms.ModelForm):
 
     class Meta:
         model = ClusterGroup
-        fields = ['name', 'slug']
+        fields = ClusterGroup.csv_headers
         help_texts = {
             'name': 'Name of cluster group',
         }
@@ -112,7 +112,7 @@ class ClusterCSVForm(forms.ModelForm):
 
     class Meta:
         model = Cluster
-        fields = ['name', 'type', 'group', 'site', 'comments']
+        fields = Cluster.csv_headers
 
 
 class ClusterBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
@@ -306,7 +306,7 @@ class VirtualMachineCSVForm(forms.ModelForm):
 
     class Meta:
         model = VirtualMachine
-        fields = ['name', 'status', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments']
+        fields = VirtualMachine.csv_headers
 
 
 class VirtualMachineBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
