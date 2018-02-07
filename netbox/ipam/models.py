@@ -37,7 +37,7 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
     csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
 
     class Meta:
-        ordering = ['name']
+        ordering = ['name', 'rd']
         verbose_name = 'VRF'
         verbose_name_plural = 'VRFs'
 
