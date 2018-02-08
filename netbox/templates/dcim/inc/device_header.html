@@ -51,9 +51,9 @@
             <li role="presentation"{% if active_tab == 'lldp-neighbors' %} class="active"{% endif %}><a href="{% url 'dcim:device_lldp_neighbors' pk=device.pk %}">LLDP Neighbors</a></li>
             <li role="presentation"{% if active_tab == 'config' %} class="active"{% endif %}><a href="{% url 'dcim:device_config' pk=device.pk %}">Configuration</a></li>
         {% else %}
-            <li role="presentation" class="disabled"><a href="#">Status</a></li>
-            <li role="presentation" class="disabled"><a href="#">LLDP Neighbors</a></li>
-            <li role="presentation" class="disabled"><a href="#">Configuration</a></li>
+            <li role="presentation" data-toggle="tooltip" title="Device not active, NAPALM driver not configured for this platform, or no primary IP." class="disabled"><a href="#">Status</a></li>
+            <li role="presentation" data-toggle="tooltip" title="Device not active, NAPALM driver not configured for this platform, or no primary IP." class="disabled"><a href="#">LLDP Neighbors</a></li>
+            <li role="presentation" data-toggle="tooltip" title="Device not active, NAPALM driver not configured for this platform, or no primary IP." class="disabled"><a href="#">Configuration</a></li>
         {% endif %}
     {% endif %}
 </ul>
