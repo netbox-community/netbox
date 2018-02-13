@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from collections import defaultdict
 from operator import attrgetter
 
 from django.contrib import messages
@@ -935,6 +936,118 @@ class DeviceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_device'
     model = Device
     default_return_url = 'dcim:device_list'
+
+
+class DeviceCloneView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.add_device'
+    model = Device
+    model_form = forms.DeviceCloneForm
+    template_name = 'dcim/device_clone.html'
+    default_return_url = 'dcim:device_list'
+
+    def post(self, request, *args, **kwargs):
+
+        obj = self.get_object(kwargs)
+        obj = self.alter_obj(obj, request, args, kwargs)
+        form = self.model_form(request.POST, request.FILES, instance=obj)
+
+        if form.is_valid():
+            new_obj = form.save()
+
+            # When a new device is initialized, components are created from the device type templates.
+            # Becasue these items can be modified after that point and becasue we have no easy why of
+            # knowing what components are sourced from the template vs created as one offs, we delete
+            # them all and clone them from the source device.
+
+            # bulk create clones of interfaces
+            Interface.objects.filter(device=new_obj).delete()
+            interfaces = Interface.objects.filter(device=obj)
+            lag_members = defaultdict(list)
+            for interface in interfaces:
+                interface.pk = None
+                interface.device = new_obj
+                if interface.lag is not None:
+                    lag_members[interface.lag.name].append(interface)
+                    interface.lag = None
+                interface.description = ''
+            if interfaces:
+                Interface.objects.bulk_create(interfaces)
+                # reassociate lag members now that pk's exist
+                for lag_name, member_interfaces in lag_members.items():
+                    lag = Interface.objects.get(device=new_obj, name=lag_name)
+                    Interface.objects.filter(id__in=[o.id for o in member_interfaces]).update(lag=lag)
+
+            # bulk create clones of console ports
+            ConsolePort.objects.filter(device=new_obj).delete()
+            console_ports = ConsolePort.objects.filter(device=obj)
+            for console_port in console_ports:
+                console_port.pk = None
+                console_port.device = new_obj
+                console_port.cs_port = None
+            if console_ports:
+                ConsolePort.objects.bulk_create(console_ports)
+
+            # bulk create clones of console server ports
+            ConsoleServerPort.objects.filter(device=new_obj).delete()
+            console_server_ports = ConsoleServerPort.objects.filter(device=obj)
+            for console_server_port in console_server_ports:
+                console_server_port.pk = None
+                console_server_port.device = new_obj
+            if console_server_ports:
+                ConsoleServerPort.objects.bulk_create(console_server_ports)
+
+            # bulk create clones of power ports
+            PowerPort.objects.filter(device=new_obj).delete()
+            power_ports = PowerPort.objects.filter(device=obj)
+            for power_port in power_ports:
+                power_port.pk = None
+                power_port.device = new_obj
+                power_port.power_outlet = None
+            if power_ports:
+                PowerPort.objects.bulk_create(power_ports)
+
+            # bulk create clones of power outlets
+            PowerOutlet.objects.filter(device=new_obj).delete()
+            power_outlets = PowerOutlet.objects.filter(device=obj)
+            for power_outlet in power_outlets:
+                power_outlet.pk = None
+                power_outlet.device = new_obj
+            if power_outlets:
+                PowerOutlet.objects.bulk_create(power_outlets)
+
+            # bulk create clones of device bays
+            DeviceBay.objects.filter(device=new_obj).delete()
+            device_bays = DeviceBay.objects.filter(device=obj)
+            for device_bay in device_bays:
+                device_bay.pk = None
+                device_bay.device = new_obj
+                device_bay.installed_device = None
+            if device_bays:
+                DeviceBay.objects.bulk_create(device_bays)
+
+            msg = 'Created {}'.format(self.model._meta.verbose_name)
+            if hasattr(new_obj, 'get_absolute_url'):
+                msg = '{} <a href="{}">{}</a>'.format(msg, new_obj.get_absolute_url(), escape(new_obj))
+            else:
+                msg = '{} {}'.format(msg, escape(new_obj))
+            messages.success(request, mark_safe(msg))
+            UserAction.objects.log_create(request.user, new_obj, msg)
+
+            if '_cloneanother' in request.POST:
+                return redirect(request.get_full_path())
+
+            return_url = form.cleaned_data.get('return_url')
+            if return_url is not None and is_safe_url(url=return_url, host=request.get_host()):
+                return redirect(return_url)
+            else:
+                return redirect(self.get_return_url(request, new_obj))
+
+        return render(request, self.template_name, {
+            'obj': obj,
+            'obj_type': self.model._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(request, obj),
+        })
 
 
 class DeviceBulkImportView(PermissionRequiredMixin, BulkImportView):

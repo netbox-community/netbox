@@ -819,6 +819,117 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             self.initial['rack'] = self.instance.parent_bay.device.rack_id
 
 
+class DeviceCloneForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        widget=forms.Select(
+            attrs={'filter-for': 'rack'}
+        )
+    )
+    rack = ChainedModelChoiceField(
+        queryset=Rack.objects.all(),
+        chains=(
+            ('site', 'site'),
+        ),
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/racks/?site_id={{site}}',
+            display_field='display_name',
+            attrs={'filter-for': 'position'}
+        )
+    )
+    position = forms.TypedChoiceField(
+        required=False,
+        empty_value=None,
+        help_text="The lowest-numbered unit occupied by the device",
+        widget=APISelect(
+            api_url='/api/dcim/racks/{{rack}}/units/?face={{face}}',
+            disabled_indicator='device'
+        )
+    )
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        widget=forms.Select(
+            attrs={'filter-for': 'device_type'}
+        )
+    )
+    device_type = ChainedModelChoiceField(
+        queryset=DeviceType.objects.all(),
+        chains=(
+            ('manufacturer', 'manufacturer'),
+        ),
+        label='Device type',
+        widget=APISelect(
+            api_url='/api/dcim/device-types/?manufacturer_id={{manufacturer}}',
+            display_field='model'
+        )
+    )
+    comments = CommentField()
+
+    class Meta:
+        model = Device
+        labels = {
+            'name': 'New device name'
+        }
+        fields = [
+            'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'position', 'face', 'status',
+            'platform', 'tenant_group', 'tenant', 'comments',
+        ]
+        help_texts = {
+            'device_role': "The function this device serves",
+            'serial': "Chassis serial number",
+        }
+        widgets = {
+            'face': forms.Select(attrs={'filter-for': 'position'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+
+        # Initialize helper selectors
+        instance = kwargs.get('instance')
+
+        super(DeviceCloneForm, self).__init__(*args, **kwargs)
+
+        # Rack position
+        pk = self.instance.pk if self.instance.pk else None
+        try:
+            if self.is_bound and self.data.get('rack') and str(self.data.get('face')):
+                position_choices = Rack.objects.get(pk=self.data['rack'])\
+                    .get_rack_units(face=self.data.get('face'), exclude=pk)
+            elif self.initial.get('rack') and str(self.initial.get('face')):
+                position_choices = Rack.objects.get(pk=self.initial['rack'])\
+                    .get_rack_units(face=self.initial.get('face'), exclude=pk)
+            else:
+                position_choices = []
+        except Rack.DoesNotExist:
+            position_choices = []
+        self.fields['position'].choices = [('', '---------')] + [
+            (p['id'], {
+                'label': p['name'],
+                'disabled': bool(p['device'] and p['id'] != self.initial.get('position')),
+            }) for p in position_choices
+        ]
+
+        # Disable rack assignment if this is a child device installed in a parent device
+        if pk and self.instance.device_type.is_child_device and hasattr(self.instance, 'parent_bay'):
+            self.fields['site'].disabled = True
+            self.fields['rack'].disabled = True
+            self.initial['site'] = self.instance.parent_bay.device.site_id
+            self.initial['rack'] = self.instance.parent_bay.device.rack_id
+
+        # set initial manufacturer
+        self.initial['manufacturer'] = instance.device_type.manufacturer.id
+
+        # clear device specific fields
+        self.initial['name'] = ''
+        self.initial['position'] = ''
+        self.initial['serial'] = ''
+        self.initial['asset_tag'] = ''
+
+        # set the instance to None
+        self.instance = Device()
+
+
 class BaseDeviceCSVForm(forms.ModelForm):
     device_role = forms.ModelChoiceField(
         queryset=DeviceRole.objects.all(),
