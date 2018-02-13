@@ -1934,6 +1934,11 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm, ChainedFieldsMixin):
                 device = Device.objects.get(pk=self.initial.get('device'))
             except Device.DoesNotExist:
                 pass
+        else:
+            try:
+                device = Device.objects.get(pk=self.data.get('device'))
+            except Device.DoesNotExist:
+                pass
         if device is not None:
             interface_ordering = device.device_type.interface_ordering
             self.fields['lag'].queryset = Interface.objects.order_naturally(method=interface_ordering).filter(
@@ -1950,10 +1955,16 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm, ChainedFieldsMixin):
             self.fields['site'].queryset = Site.objects.none()
             self.fields['site'].initial = None
 
-        filter_dict = {
-            'group_id': None,
-            'site_id': None,
-        }
+        if self.is_bound:
+            filter_dict = {
+                'group_id': self.data.get('vlan_group') or None,
+                'site_id': self.data.get('site') or None,
+            }
+        else:
+            filter_dict = {
+                'group_id': None,
+                'site_id': None,
+            }
 
         self.fields['untagged_vlan'].queryset = VLAN.objects.filter(**filter_dict)
         self.fields['tagged_vlans'].queryset = VLAN.objects.filter(**filter_dict)
