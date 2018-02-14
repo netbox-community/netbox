@@ -2350,7 +2350,7 @@ class VCMemberSelectForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
         )
     )
     device = ChainedModelChoiceField(
-        queryset=Device.objects.all(),
+        queryset=Device.objects.filter(virtual_chassis__isnull=True),
         chains=(
             ('site', 'site'),
             ('rack', 'rack'),
@@ -2358,7 +2358,8 @@ class VCMemberSelectForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
         label='Device',
         widget=APISelect(
             api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
-            display_field='display_name'
+            display_field='display_name',
+            disabled_indicator='virtual_chassis'
         )
     )
 
