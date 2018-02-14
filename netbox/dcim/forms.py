@@ -2336,4 +2336,3 @@ class DeviceVCMembershipForm(forms.ModelForm):
             raise forms.ValidationError("A virtual chassis member already exists in this position.")
 
         return vc_position
-    
