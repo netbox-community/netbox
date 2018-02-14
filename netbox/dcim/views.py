@@ -857,7 +857,7 @@ class DeviceView(View):
 
         # VirtualChassis members
         if device.virtual_chassis is not None:
-            vc_members = Device.objects.filter(virtual_chassis=device.virtual_chassis)
+            vc_members = Device.objects.filter(virtual_chassis=device.virtual_chassis).order_by('vc_position')
         else:
             vc_members = []
 
@@ -2080,20 +2080,26 @@ class VirtualChassisCreateView(PermissionRequiredMixin, View):
         # Get the list of devices being added to a VirtualChassis
         pk_form = forms.DeviceSelectionForm(request.POST)
         pk_form.full_clean()
-        device_list = pk_form.cleaned_data.get('pk')
+        device_queryset = Device.objects.filter(
+            pk__in=pk_form.cleaned_data.get('pk')
+        ).select_related('rack').order_by('vc_position')
 
-        if not device_list:
+        if not device_queryset:
             messages.warning(request, "No devices were selected.")
             return redirect('dcim:device_list')
 
-        # TODO: Error if any of the devices already belong to a VC
-
-        VCMemberFormSet = modelformset_factory(model=Device, fields=('vc_position', 'vc_priority'), extra=0)
+        VCMemberFormSet = modelformset_factory(
+            model=Device,
+            formset=forms.BaseVCMemberFormSet,
+            form=forms.DeviceVCMembershipForm,
+            extra=0
+        )
 
         if '_create' in request.POST:
 
             vc_form = forms.VirtualChassisForm(request.POST)
-            formset = VCMemberFormSet(request.POST)
+            vc_form.fields['master'].queryset = device_queryset
+            formset = VCMemberFormSet(request.POST, queryset=device_queryset)
 
             if vc_form.is_valid() and formset.is_valid():
 
@@ -2111,8 +2117,8 @@ class VirtualChassisCreateView(PermissionRequiredMixin, View):
         else:
 
             vc_form = forms.VirtualChassisForm()
-            vc_form.fields['master'].queryset = Device.objects.filter(pk__in=device_list)
-            formset = VCMemberFormSet(queryset=Device.objects.filter(pk__in=device_list))
+            vc_form.fields['master'].queryset = device_queryset
+            formset = VCMemberFormSet(queryset=device_queryset)
 
         return render(request, 'dcim/virtualchassis_edit.html', {
             'pk_form': pk_form,
@@ -2128,11 +2134,17 @@ class VirtualChassisEditView(PermissionRequiredMixin, GetReturnURLMixin, View):
     def get(self, request, pk):
 
         virtual_chassis = get_object_or_404(VirtualChassis, pk=pk)
-        VCMemberFormSet = modelformset_factory(model=Device, fields=('vc_position', 'vc_priority'), extra=0)
+        VCMemberFormSet = modelformset_factory(
+            model=Device,
+            form=forms.DeviceVCMembershipForm,
+            formset=forms.BaseVCMemberFormSet,
+            extra=0
+        )
+        members_queryset = virtual_chassis.members.select_related('rack').order_by('vc_position')
 
         vc_form = forms.VirtualChassisForm(instance=virtual_chassis)
-        vc_form.fields['master'].queryset = virtual_chassis.members.all()
-        formset = VCMemberFormSet(queryset=virtual_chassis.members.all())
+        vc_form.fields['master'].queryset = members_queryset
+        formset = VCMemberFormSet(queryset=members_queryset)
 
         return render(request, 'dcim/virtualchassis_edit.html', {
             'vc_form': vc_form,
@@ -2143,11 +2155,17 @@ class VirtualChassisEditView(PermissionRequiredMixin, GetReturnURLMixin, View):
     def post(self, request, pk):
 
         virtual_chassis = get_object_or_404(VirtualChassis, pk=pk)
-        VCMemberFormSet = modelformset_factory(model=Device, fields=('vc_position', 'vc_priority'), extra=0)
+        VCMemberFormSet = modelformset_factory(
+            model=Device,
+            form=forms.DeviceVCMembershipForm,
+            formset=forms.BaseVCMemberFormSet,
+            extra=0
+        )
+        members_queryset = virtual_chassis.members.select_related('rack').order_by('vc_position')
 
         vc_form = forms.VirtualChassisForm(request.POST, instance=virtual_chassis)
-        vc_form.fields['master'].queryset = virtual_chassis.members.all()
-        formset = VCMemberFormSet(request.POST, queryset=virtual_chassis.members.all())
+        vc_form.fields['master'].queryset = members_queryset
+        formset = VCMemberFormSet(request.POST, queryset=members_queryset)
 
         if vc_form.is_valid() and formset.is_valid():
 
@@ -2207,7 +2225,7 @@ class VirtualChassisAddMemberView(PermissionRequiredMixin, GetReturnURLMixin, Vi
             device = member_select_form.cleaned_data['device']
             device.virtual_chassis = virtual_chassis
             data = {k: request.POST[k] for k in ['vc_position', 'vc_priority']}
-            membership_form = forms.DeviceVCMembershipForm(data, instance=device)
+            membership_form = forms.DeviceVCMembershipForm(data, validate_vc_position=True, instance=device)
 
             if membership_form.is_valid():
 

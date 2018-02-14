@@ -62,8 +62,18 @@
                                                 <span class="text-muted">N/A</span>
                                             {% endif %}
                                         </td>
-                                        <td>{{ form.vc_position }}</td>
-                                        <td>{{ form.vc_priority }}</td>
+                                        <td>
+                                            {{ form.vc_position }}
+                                            {% if form.vc_position.errors %}
+                                                <br /><small class="text-danger">{{ form.vc_position.errors.0 }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ form.vc_priority }}
+                                            {% if form.vc_priority.errors %}
+                                                <br /><small class="text-danger">{{ form.vc_priority.errors.0 }}</small>
+                                            {% endif %}
+                                        </td>
                                         <td>
                                             {% if virtual_chassis.pk %}
                                                 <a href="{% url 'dcim:virtualchassis_remove_member' pk=device.pk %}?return_url={% url 'dcim:virtualchassis_edit' pk=virtual_chassis.pk %}" class="btn btn-danger btn-xs{% if virtual_chassis.master == device %} disabled{% endif %}">
@@ -80,7 +90,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-6 col-md-offset-3 text-right">
+            <div class="col-md-8 col-md-offset-2 text-right">
                 {% if vc_form.instance.pk %}
                     <button type="submit" name="_update" class="btn btn-primary">Update</button>
                 {% else %}

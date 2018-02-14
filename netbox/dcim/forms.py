@@ -2277,6 +2277,57 @@ class VirtualChassisForm(BootstrapMixin, forms.ModelForm):
         }
 
 
+class BaseVCMemberFormSet(forms.BaseModelFormSet):
+
+    def clean(self):
+        super(BaseVCMemberFormSet, self).clean()
+
+        # Check for duplicate VC position values
+        vc_position_list = []
+        for form in self.forms:
+            vc_position = form.cleaned_data['vc_position']
+            if vc_position in vc_position_list:
+                error_msg = 'A virtual chassis member already exists in position {}.'.format(vc_position)
+                form.add_error('vc_position', error_msg)
+            vc_position_list.append(vc_position)
+
+
+class DeviceVCMembershipForm(forms.ModelForm):
+
+    class Meta:
+        model = Device
+        fields = ['vc_position', 'vc_priority']
+        labels = {
+            'vc_position': 'Position',
+            'vc_priority': 'Priority',
+        }
+
+    def __init__(self, *args, validate_vc_position=False, **kwargs):
+        super(DeviceVCMembershipForm, self).__init__(*args, **kwargs)
+
+        # Require VC position (only required when the Device is a VirtualChassis member)
+        self.fields['vc_position'].required = True
+
+        # Validation of vc_position is optional. This is only required when adding a new member to an existing
+        # VirtualChassis. Otherwise, vc_position validation is handled by BaseVCMemberFormSet.
+        self.validate_vc_position = validate_vc_position
+
+    def clean_vc_position(self):
+        vc_position = self.cleaned_data['vc_position']
+
+        if self.validate_vc_position:
+            conflicting_members = Device.objects.filter(
+                virtual_chassis=self.instance.virtual_chassis,
+                vc_position=vc_position
+            )
+            if conflicting_members.exists():
+                raise forms.ValidationError(
+                    'A virtual chassis member already exists in position {}.'.format(vc_position)
+                )
+
+        return vc_position
+
+
 class VCMemberSelectForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
@@ -2315,27 +2366,4 @@ class VCMemberSelectForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
         device = self.cleaned_data['device']
         if device.virtual_chassis is not None:
             raise forms.ValidationError("Device {} is already assigned to a virtual chassis.".format(device))
-
-
-class DeviceVCMembershipForm(forms.ModelForm):
-
-    class Meta:
-        model = Device
-        fields = ['vc_position', 'vc_priority']
-        labels = {
-            'vc_position': 'Position',
-            'vc_priority': 'Priority',
-        }
-
-    def __init__(self, *args, **kwargs):
-        super(DeviceVCMembershipForm, self).__init__(*args, **kwargs)
-
-        # Require VC position when assigning a member
-        self.fields['vc_position'].required = True
-
-    def clean_vc_position(self):
-        vc_position = self.cleaned_data['vc_position']
-        if Device.objects.filter(virtual_chassis=self.instance.virtual_chassis, vc_position=vc_position).exists():
-            raise forms.ValidationError("A virtual chassis member already exists in this position.")
-
-        return vc_position
+        return device
