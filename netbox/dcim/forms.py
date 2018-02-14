@@ -17,8 +17,8 @@ from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
     BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField,
     CommentField, ComponentForm, ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField,
-    FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SmallTextarea, SlugField,
-    FilterTreeNodeMultipleChoiceField,
+    FilterTreeNodeMultipleChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SelectWithPK,
+    SmallTextarea, SlugField,
 )
 from virtualization.models import Cluster
 from .constants import (
@@ -2272,6 +2272,9 @@ class VirtualChassisForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = VirtualChassis
         fields = ['master', 'domain']
+        widgets = {
+            'master': SelectWithPK,
+        }
 
 
 class VCMemberSelectForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
