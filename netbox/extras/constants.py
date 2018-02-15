@@ -46,6 +46,16 @@ EXPORTTEMPLATE_MODELS = [
     'cluster', 'virtualmachine',                                                    # Virtualization
 ]
 
+# Topology map types
+TOPOLOGYMAP_TYPE_NETWORK = 1
+TOPOLOGYMAP_TYPE_CONSOLE = 2
+TOPOLOGYMAP_TYPE_POWER = 3
+TOPOLOGYMAP_TYPE_CHOICES = (
+    (TOPOLOGYMAP_TYPE_NETWORK, 'Network'),
+    (TOPOLOGYMAP_TYPE_CONSOLE, 'Console'),
+    (TOPOLOGYMAP_TYPE_POWER, 'Power'),
+)
+
 # User action types
 ACTION_CREATE = 1
 ACTION_IMPORT = 2
