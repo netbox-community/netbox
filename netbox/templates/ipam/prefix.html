@@ -136,7 +136,7 @@
         {% if duplicate_prefix_table.rows %}
             {% include 'panel_table.html' with table=duplicate_prefix_table heading='Duplicate Prefixes' panel_class='danger' %}
         {% endif %}
-        {% include 'panel_table.html' with table=parent_prefix_table heading='Parent Prefixes' %}
+        {% include 'panel_table.html' with table=parent_prefix_table heading='Parent Prefixes' panel_class='default' %}
 	</div>
 </div>
 {% endblock %}
