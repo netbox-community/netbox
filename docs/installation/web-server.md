@@ -24,7 +24,7 @@ server {
     client_max_body_size 25m;
 
     location /static/ {
-        alias /opt/netbox/netbox/static/;
+        alias /opt/netbox/netbox/project-static/;
     }
 
     location / {
