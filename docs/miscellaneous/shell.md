@@ -1,4 +1,4 @@
-NetBox includes a Python shell withing which objects can be directly queried, created, modified, and deleted. To enter the shell, run the following command:
+NetBox includes a Python shell within which objects can be directly queried, created, modified, and deleted. To enter the shell, run the following command:
 
 ```
 ./manage.py nbshell
@@ -86,7 +86,7 @@ The `count()` method can be appended to the queryset to return a count of object
 982
 ```
 
-Relationships with other models can be traversed by concatenting field names with a double-underscore. For example, the following will return all devices assigned to the tenant named "Pied Piper."
+Relationships with other models can be traversed by concatenating field names with a double-underscore. For example, the following will return all devices assigned to the tenant named "Pied Piper."
 
 ```
 >>> Device.objects.filter(tenant__name='Pied Piper')
