@@ -4,14 +4,6 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
-from extras.models import TopologyMap
-
-
-def commas_to_semicolons(apps, schema_editor):
-    for tm in TopologyMap.objects.filter(device_patterns__contains=','):
-        tm.device_patterns = tm.device_patterns.replace(',', ';')
-        tm.save()
-
 
 class Migration(migrations.Migration):
 
@@ -25,5 +17,4 @@ class Migration(migrations.Migration):
             name='device_patterns',
             field=models.TextField(help_text=b'Identify devices to include in the diagram using regular expressions, one per line. Each line will result in a new tier of the drawing. Separate multiple regexes within a line using semicolons. Devices will be rendered in the order they are defined.'),
         ),
-        migrations.RunPython(commas_to_semicolons),
     ]

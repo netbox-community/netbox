@@ -1086,6 +1086,15 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     )
     status = forms.MultipleChoiceField(choices=device_status_choices, required=False)
     mac_address = forms.CharField(required=False, label='MAC address')
+    has_primary_ip = forms.NullBooleanField(
+        required=False,
+        label='Has a primary IP',
+        widget=forms.Select(choices=[
+            ('', '---------'),
+            ('True', 'Yes'),
+            ('False', 'No'),
+        ])
+    )
 
 
 #
@@ -1688,7 +1697,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm, ChainedFieldsMixin):
     class Meta:
         model = Interface
         fields = [
-            'device', 'name', 'form_factor', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description',
+            'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
             'mode', 'site', 'vlan_group', 'untagged_vlan', 'tagged_vlans',
         ]
         widgets = {
@@ -1768,7 +1777,11 @@ class InterfaceCreateForm(ComponentForm, ChainedFieldsMixin):
     lag = forms.ModelChoiceField(queryset=Interface.objects.all(), required=False, label='Parent LAG')
     mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
     mac_address = MACAddressFormField(required=False, label='MAC Address')
-    mgmt_only = forms.BooleanField(required=False, label='OOB Management')
+    mgmt_only = forms.BooleanField(
+        required=False,
+        label='OOB Management',
+        help_text='This interface is used only for out-of-band management'
+    )
     description = forms.CharField(max_length=100, required=False)
     mode = forms.ChoiceField(choices=add_blank_choice(IFACE_MODE_CHOICES), required=False)
     site = forms.ModelChoiceField(

@@ -16,6 +16,7 @@ from django.template import Template, Context
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.safestring import mark_safe
 
+from dcim.constants import CONNECTION_STATUS_CONNECTED
 from utilities.utils import foreground_color
 from .constants import *
 
@@ -54,22 +55,48 @@ class CustomFieldModel(object):
 
 @python_2_unicode_compatible
 class CustomField(models.Model):
-    obj_type = models.ManyToManyField(ContentType, related_name='custom_fields', verbose_name='Object(s)',
-                                      limit_choices_to={'model__in': CUSTOMFIELD_MODELS},
-                                      help_text="The object(s) to which this field applies.")
-    type = models.PositiveSmallIntegerField(choices=CUSTOMFIELD_TYPE_CHOICES, default=CF_TYPE_TEXT)
-    name = models.CharField(max_length=50, unique=True)
-    label = models.CharField(max_length=50, blank=True, help_text="Name of the field as displayed to users (if not "
-                                                                  "provided, the field's name will be used)")
-    description = models.CharField(max_length=100, blank=True)
-    required = models.BooleanField(default=False, help_text="Determines whether this field is required when creating "
-                                                            "new objects or editing an existing object.")
-    is_filterable = models.BooleanField(default=True, help_text="This field can be used to filter objects.")
-    default = models.CharField(max_length=100, blank=True, help_text="Default value for the field. Use \"true\" or "
-                                                                     "\"false\" for booleans. N/A for selection "
-                                                                     "fields.")
-    weight = models.PositiveSmallIntegerField(default=100, help_text="Fields with higher weights appear lower in a "
-                                                                     "form")
+    obj_type = models.ManyToManyField(
+        to=ContentType,
+        related_name='custom_fields',
+        verbose_name='Object(s)',
+        limit_choices_to={'model__in': CUSTOMFIELD_MODELS},
+        help_text='The object(s) to which this field applies.'
+    )
+    type = models.PositiveSmallIntegerField(
+        choices=CUSTOMFIELD_TYPE_CHOICES,
+        default=CF_TYPE_TEXT
+    )
+    name = models.CharField(
+        max_length=50,
+        unique=True
+    )
+    label = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text='Name of the field as displayed to users (if not provided, the field\'s name will be used)'
+    )
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
+    required = models.BooleanField(
+        default=False,
+        help_text='If true, this field is required when creating new objects or editing an existing object.'
+    )
+    filter_logic = models.PositiveSmallIntegerField(
+        choices=CF_FILTER_CHOICES,
+        default=CF_FILTER_LOOSE,
+        help_text="Loose matches any instance of a given string; exact matches the entire field."
+    )
+    default = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text='Default value for the field. Use "true" or "false" for booleans. N/A for selection fields.'
+    )
+    weight = models.PositiveSmallIntegerField(
+        default=100,
+        help_text='Fields with higher weights appear lower in a form.'
+    )
 
     class Meta:
         ordering = ['weight', 'name']
@@ -253,7 +280,17 @@ class ExportTemplate(models.Model):
 class TopologyMap(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
-    site = models.ForeignKey('dcim.Site', related_name='topology_maps', blank=True, null=True, on_delete=models.CASCADE)
+    type = models.PositiveSmallIntegerField(
+        choices=TOPOLOGYMAP_TYPE_CHOICES,
+        default=TOPOLOGYMAP_TYPE_NETWORK
+    )
+    site = models.ForeignKey(
+        to='dcim.Site',
+        related_name='topology_maps',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE
+    )
     device_patterns = models.TextField(
         help_text="Identify devices to include in the diagram using regular expressions, one per line. Each line will "
                   "result in a new tier of the drawing. Separate multiple regexes within a line using semicolons. "
@@ -275,22 +312,26 @@ class TopologyMap(models.Model):
 
     def render(self, img_format='png'):
 
-        from circuits.models import CircuitTermination
-        from dcim.models import CONNECTION_STATUS_CONNECTED, Device, InterfaceConnection
+        from dcim.models import Device
 
         # Construct the graph
-        graph = graphviz.Graph()
-        graph.graph_attr['ranksep'] = '1'
+        if self.type == TOPOLOGYMAP_TYPE_NETWORK:
+            G = graphviz.Graph
+        else:
+            G = graphviz.Digraph
+        self.graph = G()
+        self.graph.graph_attr['ranksep'] = '1'
         seen = set()
         for i, device_set in enumerate(self.device_sets):
 
-            subgraph = graphviz.Graph(name='sg{}'.format(i))
+            subgraph = G(name='sg{}'.format(i))
             subgraph.graph_attr['rank'] = 'same'
+            subgraph.graph_attr['directed'] = 'true'
 
             # Add a pseudonode for each device_set to enforce hierarchical layout
             subgraph.node('set{}'.format(i), label='', shape='none', width='0')
             if i:
-                graph.edge('set{}'.format(i - 1), 'set{}'.format(i), style='invis')
+                self.graph.edge('set{}'.format(i - 1), 'set{}'.format(i), style='invis')
 
             # Add each device to the graph
             devices = []
@@ -308,31 +349,64 @@ class TopologyMap(models.Model):
             for j in range(0, len(devices) - 1):
                 subgraph.edge(devices[j].name, devices[j + 1].name, style='invis')
 
-            graph.subgraph(subgraph)
+            self.graph.subgraph(subgraph)
 
         # Compile list of all devices
         device_superset = Q()
         for device_set in self.device_sets:
             for query in device_set.split(';'):  # Split regexes on semicolons
                 device_superset = device_superset | Q(name__regex=query)
+        devices = Device.objects.filter(*(device_superset,))
+
+        # Draw edges depending on graph type
+        if self.type == TOPOLOGYMAP_TYPE_NETWORK:
+            self.add_network_connections(devices)
+        elif self.type == TOPOLOGYMAP_TYPE_CONSOLE:
+            self.add_console_connections(devices)
+        elif self.type == TOPOLOGYMAP_TYPE_POWER:
+            self.add_power_connections(devices)
+
+        return self.graph.pipe(format=img_format)
+
+    def add_network_connections(self, devices):
+
+        from circuits.models import CircuitTermination
+        from dcim.models import InterfaceConnection
 
         # Add all interface connections to the graph
-        devices = Device.objects.filter(*(device_superset,))
         connections = InterfaceConnection.objects.filter(
             interface_a__device__in=devices, interface_b__device__in=devices
         )
         for c in connections:
             style = 'solid' if c.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
-            graph.edge(c.interface_a.device.name, c.interface_b.device.name, style=style)
+            self.graph.edge(c.interface_a.device.name, c.interface_b.device.name, style=style)
 
         # Add all circuits to the graph
         for termination in CircuitTermination.objects.filter(term_side='A', interface__device__in=devices):
             peer_termination = termination.get_peer_termination()
             if (peer_termination is not None and peer_termination.interface is not None and
                     peer_termination.interface.device in devices):
-                graph.edge(termination.interface.device.name, peer_termination.interface.device.name, color='blue')
+                self.graph.edge(termination.interface.device.name, peer_termination.interface.device.name, color='blue')
 
-        return graph.pipe(format=img_format)
+    def add_console_connections(self, devices):
+
+        from dcim.models import ConsolePort
+
+        # Add all console connections to the graph
+        console_ports = ConsolePort.objects.filter(device__in=devices, cs_port__device__in=devices)
+        for cp in console_ports:
+            style = 'solid' if cp.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
+            self.graph.edge(cp.cs_port.device.name, cp.device.name, style=style)
+
+    def add_power_connections(self, devices):
+
+        from dcim.models import PowerPort
+
+        # Add all power connections to the graph
+        power_ports = PowerPort.objects.filter(device__in=devices, power_outlet__device__in=devices)
+        for pp in power_ports:
+            style = 'solid' if pp.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
+            self.graph.edge(pp.power_outlet.device.name, pp.device.name, style=style)
 
 
 #
