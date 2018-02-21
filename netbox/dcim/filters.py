@@ -684,10 +684,45 @@ class InventoryItemFilter(DeviceComponentFilterSet):
 
 
 class VirtualChassisFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        name='master__site',
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        name='master__site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site name (slug)',
+    )
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
+        name='master__tenant',
+        queryset=Tenant.objects.all(),
+        label='Tenant (ID)',
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        name='master__tenant__slug',
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        label='Tenant (slug)',
+    )
 
     class Meta:
         model = VirtualChassis
         fields = ['domain']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(master__name__icontains=value) |
+            Q(domain__icontains=value)
+        )
+        return queryset.filter(qs_filter)
 
 
 class ConsoleConnectionFilter(django_filters.FilterSet):

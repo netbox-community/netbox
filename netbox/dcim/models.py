@@ -1645,6 +1645,10 @@ class VirtualChassis(models.Model):
         blank=True
     )
 
+    class Meta:
+        ordering = ['master']
+        verbose_name_plural = 'virtual chassis'
+
     def __str__(self):
         return str(self.master) if hasattr(self, 'master') else 'New Virtual Chassis'
 

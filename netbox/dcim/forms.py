@@ -2368,3 +2368,17 @@ class VCMemberSelectForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
         if device.virtual_chassis is not None:
             raise forms.ValidationError("Device {} is already assigned to a virtual chassis.".format(device))
         return device
+
+
+class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = VirtualChassis
+    q = forms.CharField(required=False, label='Search')
+    site = FilterChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        null_label='-- None --',
+    )
