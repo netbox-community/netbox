@@ -1,18 +1,13 @@
 {% extends '_base.html' %}
-{% load helpers %}
+{% load buttons %}
 
 {% block content %}
 <div class="pull-right">
     {% if perms.dcim.add_platform %}
-        <a href="{% url 'dcim:platform_add' %}" class="btn btn-primary">
-            <span class="fa fa-plus" aria-hidden="true"></span>
-            Add a platform
-        </a>
-        <a href="{% url 'dcim:platform_import' %}" class="btn btn-info">
-            <span class="fa fa-download" aria-hidden="true"></span>
-            Import platforms
-        </a>
+        {% add_button 'dcim:platform_add' %}
+        {% import_button 'dcim:platform_import' %}
     {% endif %}
+    {% export_button content_type %}
 </div>
 <h1>{% block title %}Platforms{% endblock %}</h1>
 <div class="row">

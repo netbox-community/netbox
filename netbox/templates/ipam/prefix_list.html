@@ -1,6 +1,6 @@
 {% extends '_base.html' %}
+{% load buttons %}
 {% load helpers %}
-{% load form_helpers %}
 
 {% block content %}
 <div class="pull-right">
@@ -9,16 +9,10 @@
         <a href="{% url 'ipam:prefix_list' %}{% querystring request expand='on' page=1 %}" class="btn btn-default{% if request.GET.expand %} active{% endif %}">Expand</a>
     </div>
     {% if perms.ipam.add_prefix %}
-		<a href="{% url 'ipam:prefix_add' %}" class="btn btn-primary">
-			<span class="fa fa-plus" aria-hidden="true"></span>
-			Add a prefix
-		</a>
-		<a href="{% url 'ipam:prefix_import' %}" class="btn btn-info">
-			<span class="fa fa-download" aria-hidden="true"></span>
-			Import prefixes
-		</a>
-	{% endif %}
-    {% include 'inc/export_button.html' with obj_type='prefixes' %}
+        {% add_button 'ipam:prefix_add' %}
+        {% import_button 'ipam:prefix_import' %}
+    {% endif %}
+    {% export_button content_type %}
 </div>
 <h1>{% block title %}Prefixes{% endblock %}</h1>
 <div class="row">

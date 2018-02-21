@@ -1,19 +1,13 @@
 {% extends '_base.html' %}
-{% load helpers %}
+{% load buttons %}
 
 {% block content %}
 <div class="pull-right">
     {% if perms.dcim.add_rack %}
-        <a href="{% url 'dcim:rack_add' %}" class="btn btn-primary">
-            <span class="fa fa-plus" aria-hidden="true"></span>
-            Add a rack
-        </a>
-        <a href="{% url 'dcim:rack_import' %}" class="btn btn-info">
-            <span class="fa fa-download" aria-hidden="true"></span>
-            Import racks
-        </a>
+        {% add_button 'dcim:rack_add' %}
+        {% import_button 'dcim:rack_import' %}
     {% endif %}
-    {% include 'inc/export_button.html' with obj_type='racks' %}
+    {% export_button content_type %}
 </div>
 <h1>{% block title %}Racks{% endblock %}</h1>
 <div class="row">
@@ -27,34 +21,6 @@
 {% endblock %}
 
 {% block javascript %}
-<script type="text/javascript">
-$(document).ready(function() {
-
-    var site_list = $('#id_site');
-    var rack_group_list = $('#id_group_id');
-
-    // Update rack group and rack options based on selected site
-    site_list.change(function() {
-        var selected_sites = $(this).val();
-        if (selected_sites) {
-
-            // Update rack group options
-            rack_group_list.empty();
-            $.ajax({
-                url: netbox_api_path + 'dcim/rack-groups/?limit=500&site=' + selected_sites.join('&site='),
-                dataType: 'json',
-                success: function (response, status) {
-                    $.each(response["results"], function (index, group) {
-                        var option = $("<option></option>").attr("value", group.id).text(group.name);
-                        rack_group_list.append(option);
-                    });
-                }
-            });
-
-        }
-    });
-
-});
-</script>
+    {% include 'dcim/inc/filter_rack_group.html' %}
 {% endblock %}
 

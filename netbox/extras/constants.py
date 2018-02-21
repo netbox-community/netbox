@@ -26,6 +26,16 @@ CUSTOMFIELD_TYPE_CHOICES = (
     (CF_TYPE_SELECT, 'Selection'),
 )
 
+# Custom field filter logic choices
+CF_FILTER_DISABLED = 0
+CF_FILTER_LOOSE = 1
+CF_FILTER_EXACT = 2
+CF_FILTER_CHOICES = (
+    (CF_FILTER_DISABLED, 'Disabled'),
+    (CF_FILTER_LOOSE, 'Loose'),
+    (CF_FILTER_EXACT, 'Exact'),
+)
+
 # Graph types
 GRAPH_TYPE_INTERFACE = 100
 GRAPH_TYPE_PROVIDER = 200
@@ -45,6 +55,16 @@ EXPORTTEMPLATE_MODELS = [
     'tenant',                                                                       # Tenancy
     'cluster', 'virtualmachine',                                                    # Virtualization
 ]
+
+# Topology map types
+TOPOLOGYMAP_TYPE_NETWORK = 1
+TOPOLOGYMAP_TYPE_CONSOLE = 2
+TOPOLOGYMAP_TYPE_POWER = 3
+TOPOLOGYMAP_TYPE_CHOICES = (
+    (TOPOLOGYMAP_TYPE_NETWORK, 'Network'),
+    (TOPOLOGYMAP_TYPE_CONSOLE, 'Console'),
+    (TOPOLOGYMAP_TYPE_POWER, 'Power'),
+)
 
 # User action types
 ACTION_CREATE = 1

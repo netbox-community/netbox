@@ -1,6 +1,6 @@
 {% extends '_base.html' %}
+{% load buttons %}
 {% load humanize %}
-{% load helpers %}
 
 {% block content %}
 <div class="pull-right">
@@ -16,15 +16,10 @@
         </a>
     {% endif %}
     {% if perms.ipam.add_rir %}
-        <a href="{% url 'ipam:rir_add' %}" class="btn btn-primary">
-            <span class="fa fa-plus" aria-hidden="true"></span>
-            Add a RIR
-        </a>
-        <a href="{% url 'ipam:rir_import' %}" class="btn btn-info">
-            <span class="fa fa-download" aria-hidden="true"></span>
-            Import RIRs
-        </a>
+        {% add_button 'ipam:rir_add' %}
+        {% import_button 'ipam:rir_import' %}
     {% endif %}
+    {% export_button content_type %}
 </div>
 <h1>{% block title %}RIRs{% endblock %}</h1>
 <div class="row">

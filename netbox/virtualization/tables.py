@@ -80,8 +80,9 @@ class ClusterGroupTable(BaseTable):
 class ClusterTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    device_count = tables.Column(verbose_name='Devices')
-    vm_count = tables.Column(verbose_name='VMs')
+    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
+    device_count = tables.Column(accessor=Accessor('devices.count'), orderable=False, verbose_name='Devices')
+    vm_count = tables.Column(accessor=Accessor('virtual_machines.count'), orderable=False, verbose_name='VMs')
 
     class Meta(BaseTable.Meta):
         model = Cluster

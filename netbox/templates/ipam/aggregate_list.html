@@ -1,20 +1,14 @@
 {% extends '_base.html' %}
+{% load buttons %}
 {% load humanize %}
-{% load helpers %}
 
 {% block content %}
 <div class="pull-right">
     {% if perms.ipam.add_aggregate %}
-		<a href="{% url 'ipam:aggregate_add' %}" class="btn btn-primary">
-			<span class="fa fa-plus" aria-hidden="true"></span>
-			Add an aggregate
-		</a>
-        <a href="{% url 'ipam:aggregate_import' %}" class="btn btn-info">
-            <span class="fa fa-download" aria-hidden="true"></span>
-            Import aggregates
-        </a>
+        {% add_button 'ipam:aggregate_add' %}
+        {% import_button 'ipam:aggregate_import' %}
     {% endif %}
-    {% include 'inc/export_button.html' with obj_type='aggregates' %}
+    {% export_button content_type %}
 </div>
 <h1>{% block title %}Aggregates{% endblock %}</h1>
 <div class="row">

@@ -1,19 +1,13 @@
 {% extends '_base.html' %}
-{% load helpers %}
+{% load buttons %}
 
 {% block content %}
 <div class="pull-right">
     {% if perms.dcim.add_device %}
-        <a href="{% url 'dcim:device_add' %}" class="btn btn-primary">
-            <span class="fa fa-plus" aria-hidden="true"></span>
-            Add a device
-        </a>
-        <a href="{% url 'dcim:device_import' %}" class="btn btn-info">
-            <span class="fa fa-download" aria-hidden="true"></span>
-            Import devices
-        </a>
+        {% add_button 'dcim:device_add' %}
+        {% import_button 'dcim:device_import' %}
     {% endif %}
-    {% include 'inc/export_button.html' with obj_type='devices' %}
+    {% export_button content_type %}
 </div>
 <h1>{% block title %}Devices{% endblock %}</h1>
 <div class="row">

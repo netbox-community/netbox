@@ -1,18 +1,13 @@
 {% extends '_base.html' %}
-{% load helpers %}
+{% load buttons %}
 
 {% block content %}
 <div class="pull-right">
     {% if perms.dcim.add_devicerole %}
-        <a href="{% url 'dcim:devicerole_add' %}" class="btn btn-primary">
-            <span class="fa fa-plus" aria-hidden="true"></span>
-            Add a device role
-        </a>
-        <a href="{% url 'dcim:devicerole_import' %}" class="btn btn-info">
-            <span class="fa fa-download" aria-hidden="true"></span>
-            Import device roles
-        </a>
+        {% add_button 'dcim:devicerole_add' %}
+        {% import_button 'dcim:devicerole_import' %}
     {% endif %}
+    {% export_button content_type %}
 </div>
 <h1>{% block title %}Device Roles{% endblock %}</h1>
 <div class="row">

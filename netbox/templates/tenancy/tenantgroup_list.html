@@ -1,18 +1,13 @@
 {% extends '_base.html' %}
-{% load helpers %}
+{% load buttons %}
 
 {% block content %}
 <div class="pull-right">
     {% if perms.tenancy.add_tenantgroup %}
-        <a href="{% url 'tenancy:tenantgroup_add' %}" class="btn btn-primary">
-            <span class="fa fa-plus" aria-hidden="true"></span>
-            Add a tenant group
-        </a>
-        <a href="{% url 'tenancy:tenantgroup_import' %}" class="btn btn-info">
-            <span class="fa fa-download" aria-hidden="true"></span>
-            Import tenant groups
-        </a>
+        {% add_button 'tenancy:tenantgroup_add' %}
+        {% import_button 'tenancy:tenantgroup_import' %}
     {% endif %}
+    {% export_button content_type %}
 </div>
 <h1>{% block title %}Tenant Groups{% endblock %}</h1>
 <div class="row">

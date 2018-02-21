@@ -1,19 +1,13 @@
 {% extends '_base.html' %}
-{% load helpers %}
+{% load buttons %}
 
 {% block content %}
 <div class="pull-right">
     {% if perms.circuits.add_circuit %}
-		<a href="{% url 'circuits:circuit_add' %}" class="btn btn-primary">
-			<span class="fa fa-plus" aria-hidden="true"></span>
-			Add a circuit
-		</a>
-        <a href="{% url 'circuits:circuit_import' %}" class="btn btn-info">
-            <span class="fa fa-download" aria-hidden="true"></span>
-            Import circuits
-        </a>
+        {% add_button 'circuits:circuit_add' %}
+        {% import_button 'circuits:circuit_import' %}
     {% endif %}
-    {% include 'inc/export_button.html' with obj_type='circuits' %}
+    {% export_button content_type %}
 </div>
 <h1>{% block title %}Circuits{% endblock %}</h1>
 <div class="row">

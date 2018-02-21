@@ -37,6 +37,14 @@ UTILIZATION_GRAPH = """
 {% if record.pk %}{% utilization_graph record.get_utilization %}{% else %}&mdash;{% endif %}
 """
 
+ROLE_PREFIX_COUNT = """
+<a href="{% url 'ipam:prefix_list' %}?role={{ record.slug }}">{{ value }}</a>
+"""
+
+ROLE_VLAN_COUNT = """
+<a href="{% url 'ipam:vlan_list' %}?role={{ record.slug }}">{{ value }}</a>
+"""
+
 ROLE_ACTIONS = """
 {% if perms.ipam.change_role %}
     <a href="{% url 'ipam:role_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
@@ -220,10 +228,18 @@ class AggregateDetailTable(AggregateTable):
 
 class RoleTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.Column(verbose_name='Name')
-    prefix_count = tables.Column(accessor=Accessor('count_prefixes'), orderable=False, verbose_name='Prefixes')
-    vlan_count = tables.Column(accessor=Accessor('count_vlans'), orderable=False, verbose_name='VLANs')
-    slug = tables.Column(verbose_name='Slug')
+    prefix_count = tables.TemplateColumn(
+        accessor=Accessor('prefixes.count'),
+        template_code=ROLE_PREFIX_COUNT,
+        orderable=False,
+        verbose_name='Prefixes'
+    )
+    vlan_count = tables.TemplateColumn(
+        accessor=Accessor('vlans.count'),
+        template_code=ROLE_VLAN_COUNT,
+        orderable=False,
+        verbose_name='VLANs'
+    )
     actions = tables.TemplateColumn(template_code=ROLE_ACTIONS, attrs={'td': {'class': 'text-right'}}, verbose_name='')
 
     class Meta(BaseTable.Meta):

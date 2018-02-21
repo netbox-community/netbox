@@ -47,7 +47,7 @@ class SecretRoleCSVForm(forms.ModelForm):
 
     class Meta:
         model = SecretRole
-        fields = ['name', 'slug']
+        fields = SecretRole.csv_headers
         help_texts = {
             'name': 'Name of secret role',
         }
@@ -98,7 +98,7 @@ class SecretCSVForm(forms.ModelForm):
 
     class Meta:
         model = Secret
-        fields = ['device', 'role', 'name', 'plaintext']
+        fields = Secret.csv_headers
         help_texts = {
             'name': 'Name or username',
         }

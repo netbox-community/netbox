@@ -43,7 +43,7 @@ class ProviderCSVForm(forms.ModelForm):
 
     class Meta:
         model = Provider
-        fields = ['name', 'slug', 'asn', 'account', 'portal_url', 'comments']
+        fields = Provider.csv_headers
         help_texts = {
             'name': 'Provider name',
             'asn': '32-bit autonomous system number',
@@ -89,7 +89,7 @@ class CircuitTypeCSVForm(forms.ModelForm):
 
     class Meta:
         model = CircuitType
-        fields = ['name', 'slug']
+        fields = CircuitType.csv_headers
         help_texts = {
             'name': 'Name of circuit type',
         }

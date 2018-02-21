@@ -10,24 +10,23 @@ We have established a Google Groups Mailing List for issues and general
 discussion. This is the best forum for obtaining assistance with NetBox
 installation. You can find us [here](https://groups.google.com/forum/#!forum/netbox-discuss).
 
-### Freenode IRC
+### Slack
 
-For real-time discussion, you can join the #netbox channel on [Freenode](https://freenode.net/).
-You can connect to Freenode at irc.freenode.net using an IRC client, or you can
-use their [webchat client](https://webchat.freenode.net/).
+For real-time discussion, you can join the #netbox Slack channel on [NetworkToCode](https://slack.networktocode.com/).
 
 ## Reporting Bugs
 
-* First, ensure that you've installed the [latest stable version](https://github.com/digitalocean/netbox/releases) of
-NetBox. If you're running an older version, it's possible that the bug has
+* First, ensure that you've installed the [latest stable version](https://github.com/digitalocean/netbox/releases)
+of NetBox. If you're running an older version, it's possible that the bug has
 already been fixed.
 
-* Next, check the GitHub [issues list](https://github.com/digitalocean/netbox/issues) to see if the bug you've found has already
-been reported. If you think you may be experiencing a reported issue that
-hasn't already been resolved, please click "add a reaction" in the top right
-corner of the issue and add a thumbs up (+1). You mightalso want to add a
-comment describing how it's affecting your installation. This will allow us to
-prioritize bugs based on how many users are affected.
+* Next, check the GitHub [issues list](https://github.com/digitalocean/netbox/issues)
+to see if the bug you've found has already been reported. If you think you may
+be experiencing a reported issue that hasn't already been resolved, please
+click "add a reaction" in the top right corner of the issue and add a thumbs
+up (+1). You mightalso want to add a comment describing how it's affecting your
+installation. This will allow us to prioritize bugs based on how many users are
+affected.
 
 * If you haven't found an existing issue that describes your suspected bug,
 please inquire about it on the mailing list. **Do not** file an issue until you
@@ -44,7 +43,7 @@ include:
 
 * Please avoid prepending any sort of tag (e.g. "[Bug]") to the issue title.
 The issue will be reviewed by a moderator after submission and the appropriate
-labels will be applied.
+labels will be applied for categorization.
 
 * Keep in mind that we prioritize bugs based on their severity and how much
 work is required to resolve them. It may take some time for someone to address
@@ -52,15 +51,15 @@ your issue.
 
 ## Feature Requests
 
-* First, check the GitHub [issues list](https://github.com/digitalocean/netbox/issues) to see if the feature you're requesting
-is already listed. (Be sure to search closed issues as well, since some
-feature requests have been rejected.) If the feature you'd like to see has
-already been requested and is open, click "add a reaction" in the top right
-corner of the issue and add a thumbs up (+1). This ensures that the issue has
-a better chance of receiving attention. Also feel free to add a comment with
-any additional justification for the feature. (However, note that comments with
-no substance other than a "+1" will be deleted. Please use GitHub's reactions
-feature to indicate your support.)
+* First, check the GitHub [issues list](https://github.com/digitalocean/netbox/issues)
+to see if the feature you're requesting is already listed. (Be sure to search
+closed issues as well, since some feature requests have been rejected.) If the
+feature you'd like to see has already been requested and is open, click "add a
+reaction" in the top right corner of the issue and add a thumbs up (+1). This
+ensures that the issue has a better chance of receiving attention. Also feel
+free to add a comment with any additional justification for the feature.
+(However, note that comments with no substance other than a "+1" will be
+deleted. Please use GitHub's reactions feature to indicate your support.)
 
 * Due to an excessive backlog of feature requests, we are not currently
 accepting any proposals which substantially extend NetBox's functionality
@@ -88,7 +87,7 @@ following:
 
 * Please avoid prepending any sort of tag (e.g. "[Feature]") to the issue
 title. The issue will be reviewed by a moderator after submission and the
-appropriate labels will be applied.
+appropriate labels will be applied for categorization.
 
 ## Submitting Pull Requests
 
@@ -109,3 +108,10 @@ these checks):
     * All tests pass when run with `./manage.py test`
     * PEP 8 compliance is enforced, with the exception that lines may be
       greater than 80 characters in length
+
+## Commenting
+
+Only comment on an issue if you are sharing a relevant idea or constructive
+feedback. **Do not** comment on an issue just to show your support (give the
+top post a :+1: instead) or ask for an ETA. These comments will be deleted to
+reduce noise in the discussion.

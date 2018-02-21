@@ -1,19 +1,13 @@
 {% extends '_base.html' %}
-{% load helpers %}
+{% load buttons %}
 
 {% block content %}
 <div class="pull-right">
     {% if perms.dcim.add_rackgroup %}
-        <a href="{% url 'dcim:rackgroup_add' %}" class="btn btn-primary">
-            <span class="fa fa-plus" aria-hidden="true"></span>
-            Add a rack group
-        </a>
-        <a href="{% url 'dcim:rackgroup_import' %}" class="btn btn-info">
-            <span class="fa fa-download" aria-hidden="true"></span>
-            Import rack groups
-        </a>
+        {% add_button 'dcim:rackgroup_add' %}
+        {% import_button 'dcim:rackgroup_import' %}
     {% endif %}
-    {% include 'inc/export_button.html' with obj_type='rack groups' %}
+    {% export_button content_type %}
 </div>
 <h1>{% block title %}Rack Groups{% endblock %}</h1>
 <div class="row">

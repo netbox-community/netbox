@@ -7,7 +7,6 @@ from django.utils.encoding import python_2_unicode_compatible
 
 from extras.models import CustomFieldModel, CustomFieldValue
 from utilities.models import CreatedUpdatedModel
-from utilities.utils import csv_format
 
 
 @python_2_unicode_compatible
@@ -18,6 +17,8 @@ class TenantGroup(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
 
+    csv_headers = ['name', 'slug']
+
     class Meta:
         ordering = ['name']
 
@@ -26,6 +27,12 @@ class TenantGroup(models.Model):
 
     def get_absolute_url(self):
         return "{}?group={}".format(reverse('tenancy:tenant_list'), self.slug)
+
+    def to_csv(self):
+        return (
+            self.name,
+            self.slug,
+        )
 
 
 @python_2_unicode_compatible
@@ -41,7 +48,7 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
 
-    csv_headers = ['name', 'slug', 'group', 'description']
+    csv_headers = ['name', 'slug', 'group', 'description', 'comments']
 
     class Meta:
         ordering = ['group', 'name']
@@ -53,9 +60,10 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
         return reverse('tenancy:tenant', args=[self.slug])
 
     def to_csv(self):
-        return csv_format([
+        return (
             self.name,
             self.slug,
             self.group.name if self.group else None,
             self.description,
-        ])
+            self.comments,
+        )

@@ -1,18 +1,13 @@
 {% extends '_base.html' %}
-{% load helpers %}
+{% load buttons %}
 
 {% block content %}
 <div class="pull-right">
     {% if perms.virtualization.add_clustertype %}
-        <a href="{% url 'virtualization:clustertype_add' %}" class="btn btn-primary">
-            <span class="fa fa-plus" aria-hidden="true"></span>
-            Add a cluster type
-        </a>
-        <a href="{% url 'virtualization:clustertype_import' %}" class="btn btn-info">
-            <span class="fa fa-download" aria-hidden="true"></span>
-            Import cluster types
-        </a>
+        {% add_button 'virtualization:clustertype_add' %}
+        {% import_button 'virtualization:clustertype_import' %}
     {% endif %}
+    {% export_button content_type %}
 </div>
 <h1>{% block title %}Cluster Types{% endblock %}</h1>
 <div class="row">

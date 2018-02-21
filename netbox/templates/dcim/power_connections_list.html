@@ -1,14 +1,12 @@
 {% extends '_base.html' %}
+{% load buttons %}
 
 {% block content %}
 <div class="pull-right">
     {% if perms.dcim.change_powerport %}
-        <a href="{% url 'dcim:power_connections_import' %}" class="btn btn-info">
-            <span class="fa fa-download" aria-hidden="true"></span>
-            Import connections
-        </a>
+        {% import_button 'dcim:power_connections_import' %}
     {% endif %}
-    {% include 'inc/export_button.html' with obj_type='connections' %}
+    {% export_button content_type %}
 </div>
 <h1>{% block title %}Power Connections{% endblock %}</h1>
 <div class="row">
