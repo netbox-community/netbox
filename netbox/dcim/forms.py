@@ -1597,7 +1597,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Interface
-        fields = ['device', 'name', 'form_factor', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description']
+        fields = ['device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description']
         widgets = {
             'device': forms.HiddenInput(),
         }
@@ -1623,7 +1623,11 @@ class InterfaceCreateForm(ComponentForm):
     lag = forms.ModelChoiceField(queryset=Interface.objects.all(), required=False, label='Parent LAG')
     mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
     mac_address = MACAddressFormField(required=False, label='MAC Address')
-    mgmt_only = forms.BooleanField(required=False, label='OOB Management')
+    mgmt_only = forms.BooleanField(
+        required=False,
+        label='OOB Management',
+        help_text='This interface is used only for out-of-band management'
+    )
     description = forms.CharField(max_length=100, required=False)
 
     def __init__(self, *args, **kwargs):
