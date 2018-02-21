@@ -1048,6 +1048,15 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     )
     status = forms.MultipleChoiceField(choices=device_status_choices, required=False)
     mac_address = forms.CharField(required=False, label='MAC address')
+    has_primary_ip = forms.NullBooleanField(
+        required=False,
+        label='Has a primary IP',
+        widget=forms.Select(choices=[
+            ('', '---------'),
+            ('True', 'Yes'),
+            ('False', 'No'),
+        ])
+    )
 
 
 #
