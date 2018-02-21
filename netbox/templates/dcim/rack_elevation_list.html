@@ -45,9 +45,10 @@
 {% endblock %}
 
 {% block javascript %}
-<script type="text/javascript">
-$(function() {
-  $('[data-toggle="popover"]').popover()
-})
-</script>
+    {% include 'dcim/inc/filter_rack_group.html' %}
+    <script type="text/javascript">
+    $(function() {
+        $('[data-toggle="popover"]').popover()
+    })
+    </script>
 {% endblock %}
