@@ -9,6 +9,7 @@ from dcim.constants import IFACE_FF_VIRTUAL
 from dcim.formfields import MACAddressFormField
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
 from extras.forms import CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
+from ipam.models import IPAddress
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -246,8 +247,8 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     class Meta:
         model = VirtualMachine
         fields = [
-            'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
-            'comments',
+            'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
+            'vcpus', 'memory', 'disk', 'comments',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -260,6 +261,41 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             kwargs['initial'] = initial
 
         super(VirtualMachineForm, self).__init__(*args, **kwargs)
+
+        if self.instance.pk:
+
+            # Compile list of choices for primary IPv4 and IPv6 addresses
+            for family in [4, 6]:
+                ip_choices = [(None, '---------')]
+                # Collect interface IPs
+                interface_ips = IPAddress.objects.select_related('interface').filter(
+                    family=family, interface__virtual_machine=self.instance
+                )
+                if interface_ips:
+                    ip_choices.append(
+                        ('Interface IPs', [
+                            (ip.id, '{} ({})'.format(ip.address, ip.interface)) for ip in interface_ips
+                        ])
+                    )
+                # Collect NAT IPs
+                nat_ips = IPAddress.objects.select_related('nat_inside').filter(
+                    family=family, nat_inside__interface__virtual_machine=self.instance
+                )
+                if nat_ips:
+                    ip_choices.append(
+                        ('NAT IPs', [
+                            (ip.id, '{} ({})'.format(ip.address, ip.nat_inside.address)) for ip in nat_ips
+                        ])
+                    )
+                self.fields['primary_ip{}'.format(family)].choices = ip_choices
+
+        else:
+
+            # An object that doesn't exist yet can't have any IPs assigned to it
+            self.fields['primary_ip4'].choices = []
+            self.fields['primary_ip4'].widget.attrs['readonly'] = True
+            self.fields['primary_ip6'].choices = []
+            self.fields['primary_ip6'].widget.attrs['readonly'] = True
 
 
 class VirtualMachineCSVForm(forms.ModelForm):
