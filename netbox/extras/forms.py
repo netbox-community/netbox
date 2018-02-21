@@ -6,7 +6,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 
 from utilities.forms import BootstrapMixin, BulkEditForm, LaxURLField
-from .constants import CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL
+from .constants import CF_FILTER_DISABLED, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL
 from .models import CustomField, CustomFieldValue, ImageAttachment
 
 
@@ -15,10 +15,9 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
     Retrieve all CustomFields applicable to the given ContentType
     """
     field_dict = OrderedDict()
-    kwargs = {'obj_type': content_type}
+    custom_fields = CustomField.objects.filter(obj_type=content_type)
     if filterable_only:
-        kwargs['is_filterable'] = True
-    custom_fields = CustomField.objects.filter(**kwargs)
+        custom_fields = custom_fields.exclude(filter_logic=CF_FILTER_DISABLED)
 
     for cf in custom_fields:
         field_name = 'cf_{}'.format(str(cf.name))
@@ -35,9 +34,9 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
                 (1, 'True'),
                 (0, 'False'),
             )
-            if initial.lower() in ['true', 'yes', '1']:
+            if initial is not None and initial.lower() in ['true', 'yes', '1']:
                 initial = 1
-            elif initial.lower() in ['false', 'no', '0']:
+            elif initial is not None and initial.lower() in ['false', 'no', '0']:
                 initial = 0
             else:
                 initial = None

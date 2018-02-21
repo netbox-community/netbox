@@ -55,22 +55,48 @@ class CustomFieldModel(object):
 
 @python_2_unicode_compatible
 class CustomField(models.Model):
-    obj_type = models.ManyToManyField(ContentType, related_name='custom_fields', verbose_name='Object(s)',
-                                      limit_choices_to={'model__in': CUSTOMFIELD_MODELS},
-                                      help_text="The object(s) to which this field applies.")
-    type = models.PositiveSmallIntegerField(choices=CUSTOMFIELD_TYPE_CHOICES, default=CF_TYPE_TEXT)
-    name = models.CharField(max_length=50, unique=True)
-    label = models.CharField(max_length=50, blank=True, help_text="Name of the field as displayed to users (if not "
-                                                                  "provided, the field's name will be used)")
-    description = models.CharField(max_length=100, blank=True)
-    required = models.BooleanField(default=False, help_text="Determines whether this field is required when creating "
-                                                            "new objects or editing an existing object.")
-    is_filterable = models.BooleanField(default=True, help_text="This field can be used to filter objects.")
-    default = models.CharField(max_length=100, blank=True, help_text="Default value for the field. Use \"true\" or "
-                                                                     "\"false\" for booleans. N/A for selection "
-                                                                     "fields.")
-    weight = models.PositiveSmallIntegerField(default=100, help_text="Fields with higher weights appear lower in a "
-                                                                     "form")
+    obj_type = models.ManyToManyField(
+        to=ContentType,
+        related_name='custom_fields',
+        verbose_name='Object(s)',
+        limit_choices_to={'model__in': CUSTOMFIELD_MODELS},
+        help_text='The object(s) to which this field applies.'
+    )
+    type = models.PositiveSmallIntegerField(
+        choices=CUSTOMFIELD_TYPE_CHOICES,
+        default=CF_TYPE_TEXT
+    )
+    name = models.CharField(
+        max_length=50,
+        unique=True
+    )
+    label = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text='Name of the field as displayed to users (if not provided, the field\'s name will be used)'
+    )
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
+    required = models.BooleanField(
+        default=False,
+        help_text='If true, this field is required when creating new objects or editing an existing object.'
+    )
+    filter_logic = models.PositiveSmallIntegerField(
+        choices=CF_FILTER_CHOICES,
+        default=CF_FILTER_LOOSE,
+        help_text="Loose matches any instance of a given string; exact matches the entire field."
+    )
+    default = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text='Default value for the field. Use "true" or "false" for booleans. N/A for selection fields.'
+    )
+    weight = models.PositiveSmallIntegerField(
+        default=100,
+        help_text='Fields with higher weights appear lower in a form.'
+    )
 
     class Meta:
         ordering = ['weight', 'name']
