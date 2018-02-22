@@ -1,2 +1,3 @@
+django-rest-swagger
 psycopg2
 pycrypto
