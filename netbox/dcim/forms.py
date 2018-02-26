@@ -2315,7 +2315,7 @@ class DeviceVCMembershipForm(forms.ModelForm):
             'vc_priority': 'Priority',
         }
 
-    def __init__(self, *args, validate_vc_position=False, **kwargs):
+    def __init__(self, validate_vc_position=False, *args, **kwargs):
         super(DeviceVCMembershipForm, self).__init__(*args, **kwargs)
 
         # Require VC position (only required when the Device is a VirtualChassis member)
