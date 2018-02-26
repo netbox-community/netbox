@@ -1,12 +1,12 @@
 from __future__ import unicode_literals
 
-from dcim.constants import STATUS_ACTIVE, STATUS_OFFLINE, STATUS_STAGED
+from dcim.constants import DEVICE_STATUS_ACTIVE, DEVICE_STATUS_OFFLINE, DEVICE_STATUS_STAGED
 
 # VirtualMachine statuses (replicated from Device statuses)
-STATUS_CHOICES = [
-    [STATUS_ACTIVE, 'Active'],
-    [STATUS_OFFLINE, 'Offline'],
-    [STATUS_STAGED, 'Staged'],
+VM_STATUS_CHOICES = [
+    [DEVICE_STATUS_ACTIVE, 'Active'],
+    [DEVICE_STATUS_OFFLINE, 'Offline'],
+    [DEVICE_STATUS_STAGED, 'Staged'],
 ]
 
 # Bootstrap CSS classes for VirtualMachine statuses

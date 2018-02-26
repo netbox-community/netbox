@@ -235,42 +235,39 @@
                     <button class="btn btn-default btn-xs toggle-ips" selected="selected">
                         <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Show IPs
                     </button>
-                    {% if perms.dcim.change_interface and interfaces|length > 1 %}
-                        <button class="btn btn-default btn-xs toggle">
-                            <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
-                        </button>
-                    {% endif %}
-                    {% if perms.dcim.add_interface and interfaces|length > 10 %}
-                        <a href="{% url 'virtualization:interface_add' pk=vm.pk %}" class="btn btn-primary btn-xs">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add interfaces
-                        </a>
-                    {% endif %}
                 </div>
             </div>
-            <table id="interfaces_table" class="table table-hover panel-body component-list">
-                <tr class="table-headings">
-                    {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
-                        <th></th>
-                    {% endif %}
-                    <th>Name</th>
-                    <th>LAG</th>
-                    <th>Description</th>
-                    <th>MTU</th>
-                    <th>MAC Address</th>
-                    <th colspan="2">Connection</th>
-                    <th></th>
-                </tr>
-                {% for iface in interfaces %}
-                    {% include 'dcim/inc/interface.html' with device=vm %}
-                {% empty %}
+            <table id="interfaces_table" class="table table-hover table-headings panel-body component-list">
+                <thead>
                     <tr>
-                        <td colspan="6">No interfaces defined</td>
+                        {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
+                            <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
+                        {% endif %}
+                        <th>Name</th>
+                        <th>LAG</th>
+                        <th>Description</th>
+                        <th>MTU</th>
+                        <th>MAC Address</th>
+                        <th colspan="2">Connection</th>
+                        <th></th>
                     </tr>
-                {% endfor %}
+                </thead>
+                <tbody>
+                    {% for iface in interfaces %}
+                        {% include 'dcim/inc/interface.html' with device=vm %}
+                    {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted">&mdash; No interfaces defined &mdash;</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
             </table>
             {% if perms.dcim.add_interface or perms.dcim.delete_interface %}
                 <div class="panel-footer">
                     {% if interfaces and perms.dcim.change_interface %}
+                        <button type="submit" name="_rename" formaction="{% url 'dcim:interface_bulk_rename' %}?return_url={{ vm.get_absolute_url }}" class="btn btn-warning btn-xs">
+                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
+                        </button>
                         <button type="submit" name="_edit" formaction="{% url 'virtualization:interface_bulk_edit' pk=vm.pk %}" class="btn btn-warning btn-xs">
                             <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit
                         </button>

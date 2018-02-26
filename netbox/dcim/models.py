@@ -14,6 +14,7 @@ from django.db.models import Count, Q, ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from mptt.models import MPTTModel, TreeForeignKey
+from timezone_field import TimeZoneField
 
 from circuits.models import Circuit
 from extras.models import CustomFieldModel, CustomFieldValue, ImageAttachment
@@ -79,10 +80,13 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
+    status = models.PositiveSmallIntegerField(choices=SITE_STATUS_CHOICES, default=SITE_STATUS_ACTIVE)
     region = models.ForeignKey('Region', related_name='sites', blank=True, null=True, on_delete=models.SET_NULL)
     tenant = models.ForeignKey(Tenant, related_name='sites', blank=True, null=True, on_delete=models.PROTECT)
     facility = models.CharField(max_length=50, blank=True)
     asn = ASNField(blank=True, null=True, verbose_name='ASN')
+    time_zone = TimeZoneField(blank=True)
+    description = models.CharField(max_length=100, blank=True)
     physical_address = models.CharField(max_length=200, blank=True)
     shipping_address = models.CharField(max_length=200, blank=True)
     contact_name = models.CharField(max_length=50, blank=True)
@@ -95,8 +99,8 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     objects = SiteManager()
 
     csv_headers = [
-        'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address', 'contact_name',
-        'contact_phone', 'contact_email', 'comments',
+        'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
+        'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments',
     ]
 
     class Meta:
@@ -112,10 +116,13 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
         return (
             self.name,
             self.slug,
+            self.get_status_display(),
             self.region.name if self.region else None,
             self.tenant.name if self.tenant else None,
             self.facility,
             self.asn,
+            self.time_zone,
+            self.description,
             self.physical_address,
             self.shipping_address,
             self.contact_name,
@@ -123,6 +130,9 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
             self.contact_email,
             self.comments,
         )
+
+    def get_status_class(self):
+        return STATUS_CLASSES[self.status]
 
     @property
     def count_prefixes(self):
@@ -431,6 +441,7 @@ class RackReservation(models.Model):
     rack = models.ForeignKey('Rack', related_name='reservations', on_delete=models.CASCADE)
     units = ArrayField(models.PositiveSmallIntegerField())
     created = models.DateTimeField(auto_now_add=True)
+    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='rackreservations', on_delete=models.PROTECT)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     description = models.CharField(max_length=100)
 
@@ -785,18 +796,33 @@ class DeviceRole(models.Model):
 @python_2_unicode_compatible
 class Platform(models.Model):
     """
-    Platform refers to the software or firmware running on a Device; for example, "Cisco IOS-XR" or "Juniper Junos".
+    Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos".
     NetBox uses Platforms to determine how to interact with devices when pulling inventory data or other information by
-    specifying an remote procedure call (RPC) client.
+    specifying a NAPALM driver.
     """
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
-    napalm_driver = models.CharField(max_length=50, blank=True, verbose_name='NAPALM driver',
-                                     help_text="The name of the NAPALM driver to use when interacting with devices.")
-    rpc_client = models.CharField(max_length=30, choices=RPC_CLIENT_CHOICES, blank=True,
-                                  verbose_name='Legacy RPC client')
+    manufacturer = models.ForeignKey(
+        to='Manufacturer',
+        related_name='platforms',
+        blank=True,
+        null=True,
+        help_text="Optionally limit this platform to devices of a certain manufacturer"
+    )
+    napalm_driver = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name='NAPALM driver',
+        help_text="The name of the NAPALM driver to use when interacting with devices"
+    )
+    rpc_client = models.CharField(
+        max_length=30,
+        choices=RPC_CLIENT_CHOICES,
+        blank=True,
+        verbose_name="Legacy RPC client"
+    )
 
-    csv_headers = ['name', 'slug', 'napalm_driver']
+    csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver']
 
     class Meta:
         ordering = ['name']
@@ -811,6 +837,7 @@ class Platform(models.Model):
         return (
             self.name,
             self.slug,
+            self.manufacturer.name if self.manufacturer else None,
             self.napalm_driver,
         )
 
@@ -851,7 +878,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         help_text='The lowest-numbered unit occupied by the device'
     )
     face = models.PositiveSmallIntegerField(blank=True, null=True, choices=RACK_FACE_CHOICES, verbose_name='Rack face')
-    status = models.PositiveSmallIntegerField(choices=STATUS_CHOICES, default=STATUS_ACTIVE, verbose_name='Status')
+    status = models.PositiveSmallIntegerField(choices=DEVICE_STATUS_CHOICES, default=DEVICE_STATUS_ACTIVE, verbose_name='Status')
     primary_ip4 = models.OneToOneField(
         'ipam.IPAddress', related_name='primary_ip4_for', on_delete=models.SET_NULL, blank=True, null=True,
         verbose_name='Primary IPv4'
@@ -867,6 +894,23 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         blank=True,
         null=True
     )
+    virtual_chassis = models.ForeignKey(
+        to='VirtualChassis',
+        on_delete=models.SET_NULL,
+        related_name='members',
+        blank=True,
+        null=True
+    )
+    vc_position = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MaxValueValidator(255)]
+    )
+    vc_priority = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MaxValueValidator(255)]
+    )
     comments = models.TextField(blank=True)
     custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
     images = GenericRelation(ImageAttachment)
@@ -880,7 +924,10 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
 
     class Meta:
         ordering = ['name']
-        unique_together = ['rack', 'position', 'face']
+        unique_together = [
+            ['rack', 'position', 'face'],
+            ['virtual_chassis', 'vc_position'],
+        ]
         permissions = (
             ('napalm_read', 'Read-only access to devices via NAPALM'),
             ('napalm_write', 'Read/write access to devices via NAPALM'),
@@ -949,34 +996,47 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
             except DeviceType.DoesNotExist:
                 pass
 
-        # Validate primary IPv4 address
-        if self.primary_ip4 and (
-            self.primary_ip4.interface is None or
-            self.primary_ip4.interface.device != self
-        ) and (
-            self.primary_ip4.nat_inside.interface is None or
-            self.primary_ip4.nat_inside.interface.device != self
-        ):
-            raise ValidationError({
-                'primary_ip4': "The specified IP address ({}) is not assigned to this device.".format(self.primary_ip4),
-            })
+        # Validate primary IP addresses
+        vc_interfaces = self.vc_interfaces.all()
+        if self.primary_ip4:
+            if self.primary_ip4.interface in vc_interfaces:
+                pass
+            elif self.primary_ip4.nat_inside is not None and self.primary_ip4.nat_inside.interface in vc_interfaces:
+                pass
+            else:
+                raise ValidationError({
+                    'primary_ip4': "The specified IP address ({}) is not assigned to this device.".format(
+                        self.primary_ip4),
+                })
+        if self.primary_ip6:
+            if self.primary_ip6.interface in vc_interfaces:
+                pass
+            elif self.primary_ip6.nat_inside is not None and self.primary_ip6.nat_inside.interface in vc_interfaces:
+                pass
+            else:
+                raise ValidationError({
+                    'primary_ip6': "The specified IP address ({}) is not assigned to this device.".format(
+                        self.primary_ip6),
+                })
 
-        # Validate primary IPv6 address
-        if self.primary_ip6 and (
-            self.primary_ip6.interface is None or
-            self.primary_ip6.interface.device != self
-        ) and (
-            self.primary_ip6.nat_inside.interface is None or
-            self.primary_ip6.nat_inside.interface.device != self
-        ):
-            raise ValidationError({
-                'primary_ip6': "The specified IP address ({}) is not assigned to this device.".format(self.primary_ip6),
-            })
+        # Validate manufacturer/platform
+        if self.device_type and self.platform:
+            if self.platform.manufacturer and self.platform.manufacturer != self.device_type.manufacturer:
+                raise ValidationError({
+                    'platform': "The assigned platform is limited to {} device types, but this device's type belongs "
+                                "to {}.".format(self.platform.manufacturer, self.device_type.manufacturer)
+                })
 
         # A Device can only be assigned to a Cluster in the same Site (or no Site)
         if self.cluster and self.cluster.site is not None and self.cluster.site != self.site:
             raise ValidationError({
                 'cluster': "The assigned cluster belongs to a different site ({})".format(self.cluster.site)
+            })
+
+        # Validate virtual chassis assignment
+        if self.virtual_chassis and self.vc_position is None:
+            raise ValidationError({
+                'vc_position': "A device assigned to a virtual chassis must have its position defined."
             })
 
     def save(self, *args, **kwargs):
@@ -1038,6 +1098,8 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     def display_name(self):
         if self.name:
             return self.name
+        elif self.virtual_chassis and self.virtual_chassis.master.name:
+            return "{}:{}".format(self.virtual_chassis.master, self.vc_position)
         elif hasattr(self, 'device_type'):
             return "{}".format(self.device_type)
         return ""
@@ -1062,6 +1124,23 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         else:
             return None
 
+    def get_vc_master(self):
+        """
+        If this Device is a VirtualChassis member, return the VC master. Otherwise, return None.
+        """
+        return self.virtual_chassis.master if self.virtual_chassis else None
+
+    @property
+    def vc_interfaces(self):
+        """
+        Return a QuerySet matching all Interfaces assigned to this Device or, if this Device is a VC master, to another
+        Device belonging to the same VirtualChassis.
+        """
+        filter = Q(device=self)
+        if self.virtual_chassis and self.virtual_chassis.master == self:
+            filter |= Q(device__virtual_chassis=self.virtual_chassis, mgmt_only=False)
+        return Interface.objects.filter(filter)
+
     def get_children(self):
         """
         Return the set of child Devices installed in DeviceBays within this Device.
@@ -1069,7 +1148,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         return Device.objects.filter(parent_bay__device=self.pk)
 
     def get_status_class(self):
-        return DEVICE_STATUS_CLASSES[self.status]
+        return STATUS_CLASSES[self.status]
 
     def get_rpc_client(self):
         """
@@ -1103,6 +1182,9 @@ class ConsolePort(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
 
     def to_csv(self):
         return (
@@ -1144,6 +1226,9 @@ class ConsoleServerPort(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
+
     def clean(self):
 
         # Check that the parent device's DeviceType is a console server
@@ -1179,6 +1264,9 @@ class PowerPort(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
 
     def to_csv(self):
         return (
@@ -1219,6 +1307,9 @@ class PowerOutlet(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
 
     def clean(self):
 
@@ -1275,6 +1366,24 @@ class Interface(models.Model):
         help_text="This interface is used only for out-of-band management"
     )
     description = models.CharField(max_length=100, blank=True)
+    mode = models.PositiveSmallIntegerField(
+        choices=IFACE_MODE_CHOICES,
+        blank=True,
+        null=True
+    )
+    untagged_vlan = models.ForeignKey(
+        to='ipam.VLAN',
+        null=True,
+        blank=True,
+        verbose_name='Untagged VLAN',
+        related_name='interfaces_as_untagged'
+    )
+    tagged_vlans = models.ManyToManyField(
+        to='ipam.VLAN',
+        blank=True,
+        verbose_name='Tagged VLANs',
+        related_name='interfaces_as_tagged'
+    )
 
     objects = InterfaceQuerySet.as_manager()
 
@@ -1284,6 +1393,9 @@ class Interface(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return self.parent.get_absolute_url()
 
     def clean(self):
 
@@ -1314,8 +1426,8 @@ class Interface(models.Model):
                                "Disconnect the interface or choose a suitable form factor."
             })
 
-        # An interface's LAG must belong to the same device
-        if self.lag and self.lag.device != self.device:
+        # An interface's LAG must belong to the same device (or VC master)
+        if self.lag and self.lag.device not in [self.device, self.device.get_vc_master()]:
             raise ValidationError({
                 'lag': "The selected LAG interface ({}) belongs to a different device ({}).".format(
                     self.lag.name, self.lag.device.name
@@ -1334,6 +1446,13 @@ class Interface(models.Model):
                 'form_factor': "Cannot change interface form factor; it has LAG members ({}).".format(
                     ", ".join([iface.name for iface in self.member_interfaces.all()])
                 )
+            })
+
+        # Validate untagged VLAN
+        if self.untagged_vlan and self.untagged_vlan.site not in [self.parent.site, None]:
+            raise ValidationError({
+                'untagged_vlan': "The untagged VLAN ({}) must belong to the same site as the interface's parent "
+                                 "device/VM, or it must be global".format(self.untagged_vlan)
             })
 
     @property
@@ -1439,6 +1558,9 @@ class DeviceBay(models.Model):
     def __str__(self):
         return '{} - {}'.format(self.device.name, self.name)
 
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
+
     def clean(self):
 
         # Validate that the parent Device can have DeviceBays
@@ -1488,6 +1610,9 @@ class InventoryItem(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return self.device.get_absolute_url()
+
     def to_csv(self):
         return (
             self.device.name or '{' + self.device.pk + '}',
@@ -1499,3 +1624,42 @@ class InventoryItem(models.Model):
             self.discovered,
             self.description,
         )
+
+
+#
+# Virtual chassis
+#
+
+@python_2_unicode_compatible
+class VirtualChassis(models.Model):
+    """
+    A collection of Devices which operate with a shared control plane (e.g. a switch stack).
+    """
+    master = models.OneToOneField(
+        to='Device',
+        on_delete=models.PROTECT,
+        related_name='vc_master_for'
+    )
+    domain = models.CharField(
+        max_length=30,
+        blank=True
+    )
+
+    class Meta:
+        ordering = ['master']
+        verbose_name_plural = 'virtual chassis'
+
+    def __str__(self):
+        return str(self.master) if hasattr(self, 'master') else 'New Virtual Chassis'
+
+    def get_absolute_url(self):
+        return self.master.get_absolute_url()
+
+    def clean(self):
+
+        # Verify that the selected master device has been assigned to this VirtualChassis. (Skip when creating a new
+        # VirtualChassis.)
+        if self.pk and self.master not in self.members.all():
+            raise ValidationError({
+                'master': "The selected master is not assigned to this virtual chassis."
+            })

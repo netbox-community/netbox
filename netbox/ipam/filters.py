@@ -99,11 +99,6 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         method='search',
         label='Search',
     )
-    # TODO: Deprecate in v2.3.0
-    parent = django_filters.CharFilter(
-        method='search_within_include',
-        label='Parent prefix (deprecated)',
-    )
     within = django_filters.CharFilter(
         method='search_within',
         label='Within prefix',
@@ -262,16 +257,15 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Tenant (slug)',
     )
-    device_id = django_filters.ModelMultipleChoiceFilter(
-        name='interface__device',
-        queryset=Device.objects.all(),
-        label='Device (ID)',
+    device = django_filters.CharFilter(
+        method='filter_device',
+        name='name',
+        label='Device',
     )
-    device = django_filters.ModelMultipleChoiceFilter(
-        name='interface__device__name',
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        label='Device (name)',
+    device_id = django_filters.NumberFilter(
+        method='filter_device',
+        name='pk',
+        label='Device (ID)',
     )
     virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
         name='interface__virtual_machine',
@@ -323,6 +317,14 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         if not value:
             return queryset
         return queryset.filter(address__net_mask_length=value)
+
+    def filter_device(self, queryset, name, value):
+        try:
+            device = Device.objects.select_related('device_type').get(**{name: value})
+            vc_interface_ids = [i['id'] for i in device.vc_interfaces.values('id')]
+            return queryset.filter(interface_id__in=vc_interface_ids)
+        except Device.DoesNotExist:
+            return queryset.none()
 
 
 class VLANGroupFilter(django_filters.FilterSet):

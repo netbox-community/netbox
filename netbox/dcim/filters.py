@@ -11,13 +11,14 @@ from tenancy.models import Tenant
 from utilities.filters import NullableCharFieldFilter, NumericInFilter
 from virtualization.models import Cluster
 from .constants import (
-    IFACE_FF_LAG, NONCONNECTABLE_IFACE_TYPES, STATUS_CHOICES, VIRTUAL_IFACE_TYPES, WIRELESS_IFACE_TYPES,
+    DEVICE_STATUS_CHOICES, IFACE_FF_LAG, NONCONNECTABLE_IFACE_TYPES, SITE_STATUS_CHOICES, VIRTUAL_IFACE_TYPES,
+    WIRELESS_IFACE_TYPES,
 )
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site,
+    RackReservation, RackRole, Region, Site, VirtualChassis,
 )
 
 
@@ -57,6 +58,10 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         method='search',
         label='Search',
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=SITE_STATUS_CHOICES,
+        null_value=None
+    )
     region_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Region.objects.all(),
         label='Region (ID)',
@@ -88,6 +93,7 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         qs_filter = (
             Q(name__icontains=value) |
             Q(facility__icontains=value) |
+            Q(description__icontains=value) |
             Q(physical_address__icontains=value) |
             Q(shipping_address__icontains=value) |
             Q(contact_name__icontains=value) |
@@ -221,6 +227,16 @@ class RackReservationFilter(django_filters.FilterSet):
         to_field_name='slug',
         label='Group',
     )
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Tenant.objects.all(),
+        label='Tenant (ID)',
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        name='tenant__slug',
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        label='Tenant (slug)',
+    )
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
         label='User (ID)',
@@ -347,6 +363,17 @@ class DeviceRoleFilter(django_filters.FilterSet):
 
 
 class PlatformFilter(django_filters.FilterSet):
+    manufacturer_id = django_filters.ModelMultipleChoiceFilter(
+        name='manufacturer',
+        queryset=Manufacturer.objects.all(),
+        label='Manufacturer (ID)',
+    )
+    manufacturer = django_filters.ModelMultipleChoiceFilter(
+        name='manufacturer__slug',
+        queryset=Manufacturer.objects.all(),
+        to_field_name='slug',
+        label='Manufacturer (slug)',
+    )
 
     class Meta:
         model = Platform
@@ -438,7 +465,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Device model (slug)',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=STATUS_CHOICES,
+        choices=DEVICE_STATUS_CHOICES,
         null_value=None
     )
     is_full_depth = django_filters.BooleanFilter(
@@ -464,6 +491,11 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
     has_primary_ip = django_filters.BooleanFilter(
         method='_has_primary_ip',
         label='Has a primary IP',
+    )
+    virtual_chassis_id = django_filters.ModelMultipleChoiceFilter(
+        name='virtual_chassis',
+        queryset=VirtualChassis.objects.all(),
+        label='Virtual chassis (ID)',
     )
 
     class Meta:
@@ -580,8 +612,9 @@ class InterfaceFilter(django_filters.FilterSet):
     def filter_device(self, queryset, name, value):
         try:
             device = Device.objects.select_related('device_type').get(**{name: value})
+            vc_interface_ids = [i['id'] for i in device.vc_interfaces.values('id')]
             ordering = device.device_type.interface_ordering
-            return queryset.filter(device=device).order_naturally(ordering)
+            return queryset.filter(pk__in=vc_interface_ids).order_naturally(ordering)
         except Device.DoesNotExist:
             return queryset.none()
 
@@ -646,6 +679,48 @@ class InventoryItemFilter(DeviceComponentFilterSet):
             Q(serial__iexact=value) |
             Q(asset_tag__iexact=value) |
             Q(description__icontains=value)
+        )
+        return queryset.filter(qs_filter)
+
+
+class VirtualChassisFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        name='master__site',
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        name='master__site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site name (slug)',
+    )
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
+        name='master__tenant',
+        queryset=Tenant.objects.all(),
+        label='Tenant (ID)',
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        name='master__tenant__slug',
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        label='Tenant (slug)',
+    )
+
+    class Meta:
+        model = VirtualChassis
+        fields = ['domain']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(master__name__icontains=value) |
+            Q(domain__icontains=value)
         )
         return queryset.filter(qs_filter)
 

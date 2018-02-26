@@ -30,4 +30,4 @@ class ToggleColumn(tables.CheckBoxColumn):
 
     @property
     def header(self):
-        return mark_safe('<input type="checkbox" id="toggle_all" title="Toggle all" />')
+        return mark_safe('<input type="checkbox" class="toggle" title="Toggle all" />')

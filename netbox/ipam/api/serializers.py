@@ -3,9 +3,11 @@ from __future__ import unicode_literals
 from collections import OrderedDict
 
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 from rest_framework.validators import UniqueTogetherValidator
 
 from dcim.api.serializers import NestedDeviceSerializer, InterfaceSerializer, NestedSiteSerializer
+from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.constants import (
     IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, IP_PROTOCOL_CHOICES, PREFIX_STATUS_CHOICES, VLAN_STATUS_CHOICES,
@@ -25,7 +27,10 @@ class VRFSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = VRF
-        fields = ['id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'display_name', 'custom_fields']
+        fields = [
+            'id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'display_name', 'custom_fields', 'created',
+            'last_updated',
+        ]
 
 
 class NestedVRFSerializer(serializers.ModelSerializer):
@@ -40,7 +45,9 @@ class WritableVRFSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = VRF
-        fields = ['id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'custom_fields']
+        fields = [
+            'id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'custom_fields', 'created', 'last_updated',
+        ]
 
 
 #
@@ -90,7 +97,9 @@ class AggregateSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = Aggregate
-        fields = ['id', 'family', 'prefix', 'rir', 'date_added', 'description', 'custom_fields']
+        fields = [
+            'id', 'family', 'prefix', 'rir', 'date_added', 'description', 'custom_fields', 'created', 'last_updated',
+        ]
 
 
 class NestedAggregateSerializer(serializers.ModelSerializer):
@@ -105,7 +114,7 @@ class WritableAggregateSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = Aggregate
-        fields = ['id', 'prefix', 'rir', 'date_added', 'description', 'custom_fields']
+        fields = ['id', 'prefix', 'rir', 'date_added', 'description', 'custom_fields', 'created', 'last_updated']
 
 
 #
@@ -165,7 +174,7 @@ class VLANSerializer(CustomFieldModelSerializer):
         model = VLAN
         fields = [
             'id', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'display_name',
-            'custom_fields',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -181,7 +190,10 @@ class WritableVLANSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = VLAN
-        fields = ['id', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'custom_fields']
+        fields = [
+            'id', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'custom_fields', 'created',
+            'last_updated',
+        ]
         validators = []
 
     def validate(self, data):
@@ -215,7 +227,7 @@ class PrefixSerializer(CustomFieldModelSerializer):
         model = Prefix
         fields = [
             'id', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description',
-            'custom_fields',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -233,22 +245,46 @@ class WritablePrefixSerializer(CustomFieldModelSerializer):
         model = Prefix
         fields = [
             'id', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description',
-            'custom_fields',
+            'custom_fields', 'created', 'last_updated',
         ]
+
+
+class AvailablePrefixSerializer(serializers.Serializer):
+
+    def to_representation(self, instance):
+        if self.context.get('vrf'):
+            vrf = NestedVRFSerializer(self.context['vrf'], context={'request': self.context['request']}).data
+        else:
+            vrf = None
+        return OrderedDict([
+            ('family', instance.version),
+            ('prefix', str(instance)),
+            ('vrf', vrf),
+        ])
 
 
 #
 # IP addresses
 #
 
-class IPAddressInterfaceSerializer(InterfaceSerializer):
+class IPAddressInterfaceSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField()  # We're imitating a HyperlinkedIdentityField here
+    device = NestedDeviceSerializer()
     virtual_machine = NestedVirtualMachineSerializer()
 
     class Meta(InterfaceSerializer.Meta):
+        model = Interface
         fields = [
-            'id', 'device', 'virtual_machine', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address',
-            'mgmt_only', 'description', 'is_connected', 'interface_connection', 'circuit_termination',
+            'id', 'url', 'device', 'virtual_machine', 'name',
         ]
+
+    def get_url(self, obj):
+        """
+        Return a link to the Interface via either the DCIM API if the parent is a Device, or via the virtualization API
+        if the parent is a VirtualMachine.
+        """
+        url_name = 'dcim-api:interface-detail' if obj.device else 'virtualization-api:interface-detail'
+        return reverse(url_name, kwargs={'pk': obj.pk}, request=self.context['request'])
 
 
 class IPAddressSerializer(CustomFieldModelSerializer):
@@ -262,7 +298,7 @@ class IPAddressSerializer(CustomFieldModelSerializer):
         model = IPAddress
         fields = [
             'id', 'family', 'address', 'vrf', 'tenant', 'status', 'role', 'interface', 'description', 'nat_inside',
-            'nat_outside', 'custom_fields',
+            'nat_outside', 'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -284,7 +320,7 @@ class WritableIPAddressSerializer(CustomFieldModelSerializer):
         model = IPAddress
         fields = [
             'id', 'address', 'vrf', 'tenant', 'status', 'role', 'interface', 'description', 'nat_inside',
-            'custom_fields',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -314,7 +350,10 @@ class ServiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Service
-        fields = ['id', 'device', 'virtual_machine', 'name', 'port', 'protocol', 'ipaddresses', 'description']
+        fields = [
+            'id', 'device', 'virtual_machine', 'name', 'port', 'protocol', 'ipaddresses', 'description', 'created',
+            'last_updated',
+        ]
 
 
 # TODO: Figure out how to use model validation with ManyToManyFields. Calling clean() yields a ValueError.
@@ -322,4 +361,7 @@ class WritableServiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Service
-        fields = ['id', 'device', 'virtual_machine', 'name', 'port', 'protocol', 'ipaddresses', 'description']
+        fields = [
+            'id', 'device', 'virtual_machine', 'name', 'port', 'protocol', 'ipaddresses', 'description', 'created',
+            'last_updated',
+        ]

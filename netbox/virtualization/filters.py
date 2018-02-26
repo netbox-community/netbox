@@ -9,7 +9,7 @@ from dcim.models import DeviceRole, Interface, Platform, Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NumericInFilter
-from .constants import STATUS_CHOICES
+from .constants import VM_STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
@@ -70,7 +70,7 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         label='Search',
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=STATUS_CHOICES,
+        choices=VM_STATUS_CHOICES,
         null_value=None
     )
     cluster_group_id = django_filters.ModelMultipleChoiceFilter(

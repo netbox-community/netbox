@@ -4,19 +4,6 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>{{ title }}</strong>
-                <div class="pull-right">
-                    {% if table.rows|length > 1 %}
-                        <button class="btn btn-default btn-xs toggle">
-                            <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Select all
-                        </button>
-                    {% endif %}
-                    {% if table.rows|length > 10 %}
-                        <a href="{% url add_url pk=devicetype.pk %}{{ add_url_extra }}" class="btn btn-primary btn-xs">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                            Add {{ title }}
-                        </a>
-                    {% endif %}
-                </div>
             </div>
             {% include 'responsive_table.html' %}
             <div class="panel-footer">

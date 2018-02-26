@@ -8,9 +8,10 @@ from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFi
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, FilterChoiceField,
-    SmallTextarea, SlugField,
+    APISelect, add_blank_choice, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField,
+    CSVChoiceField, FilterChoiceField, SmallTextarea, SlugField,
 )
+from .constants import CIRCUIT_STATUS_CHOICES
 from .models import Circuit, CircuitTermination, CircuitType, Provider
 
 
@@ -105,7 +106,7 @@ class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     class Meta:
         model = Circuit
         fields = [
-            'cid', 'type', 'provider', 'install_date', 'commit_rate', 'description', 'tenant_group', 'tenant',
+            'cid', 'type', 'provider', 'status', 'install_date', 'commit_rate', 'description', 'tenant_group', 'tenant',
             'comments',
         ]
         help_texts = {
@@ -132,6 +133,11 @@ class CircuitCSVForm(forms.ModelForm):
             'invalid_choice': 'Invalid circuit type.'
         }
     )
+    status = CSVChoiceField(
+        choices=CIRCUIT_STATUS_CHOICES,
+        required=False,
+        help_text='Operational status'
+    )
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
@@ -144,13 +150,16 @@ class CircuitCSVForm(forms.ModelForm):
 
     class Meta:
         model = Circuit
-        fields = ['cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments']
+        fields = [
+            'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
+        ]
 
 
 class CircuitBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Circuit.objects.all(), widget=forms.MultipleHiddenInput)
     type = forms.ModelChoiceField(queryset=CircuitType.objects.all(), required=False)
     provider = forms.ModelChoiceField(queryset=Provider.objects.all(), required=False)
+    status = forms.ChoiceField(choices=add_blank_choice(CIRCUIT_STATUS_CHOICES), required=False, initial='')
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     commit_rate = forms.IntegerField(required=False, label='Commit rate (Kbps)')
     description = forms.CharField(max_length=100, required=False)
@@ -158,6 +167,13 @@ class CircuitBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
 
     class Meta:
         nullable_fields = ['tenant', 'commit_rate', 'description', 'comments']
+
+
+def circuit_status_choices():
+    status_counts = {}
+    for status in Circuit.objects.values('status').annotate(count=Count('status')).order_by('status'):
+        status_counts[status['status']] = status['count']
+    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in CIRCUIT_STATUS_CHOICES]
 
 
 class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -171,6 +187,7 @@ class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=Provider.objects.annotate(filter_count=Count('circuits')),
         to_field_name='slug'
     )
+    status = forms.MultipleChoiceField(choices=circuit_status_choices, required=False)
     tenant = FilterChoiceField(
         queryset=Tenant.objects.annotate(filter_count=Count('circuits')),
         to_field_name='slug',
