@@ -14,7 +14,7 @@ ncclient==0.5.3
 netaddr==0.7.18
 paramiko>=2.0.0
 Pillow>=4.0.0
-psycopg2>=2.7.3
+psycopg2-binary>=2.7.4
 py-gfm>=0.1.3
 pycryptodome>=3.4.7
 xmltodict>=0.10.2
