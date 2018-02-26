@@ -104,7 +104,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="dropdown{% if request.path|contains:'/dcim/device,/dcim/manufacturers/,/dcim/platforms/,-connections/,/dcim/inventory-items/' %} active{% endif %}">
+                <li class="dropdown{% if request.path|contains:'/dcim/device,/dcim/virtual-chassis,/dcim/manufacturers/,/dcim/platforms/,-connections/,/dcim/inventory-items/' %} active{% endif %}">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Devices <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li class="dropdown-header">Devices</li>
@@ -134,6 +134,9 @@
                                 </div>
                             {% endif %}
                             <a href="{% url 'dcim:platform_list' %}">Platforms</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'dcim:virtualchassis_list' %}">Virtual Chassis</a>
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Device Types</li>

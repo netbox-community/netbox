@@ -91,9 +91,7 @@ Checking connectivity... done.
 !!! warning
     Ensure that the media directory (`/opt/netbox/netbox/media/` in this example) and all its subdirectories are writable by the user account as which NetBox runs. If the NetBox process does not have permission to write to this directory, attempts to upload files (e.g. image attachments) will fail. (The appropriate user account will vary by platform.)
 
-    ```
-    # chown -R netbox:netbox /opt/netbox/netbox/media/
-    ```
+    `# chown -R netbox:netbox /opt/netbox/netbox/media/`
 
 ## Install Python Packages
 

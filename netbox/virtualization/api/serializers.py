@@ -9,7 +9,7 @@ from extras.api.customfields import CustomFieldModelSerializer
 from ipam.models import IPAddress
 from tenancy.api.serializers import NestedTenantSerializer
 from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer
-from virtualization.constants import STATUS_CHOICES
+from virtualization.constants import VM_STATUS_CHOICES
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
@@ -62,7 +62,7 @@ class ClusterSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = Cluster
-        fields = ['id', 'name', 'type', 'group', 'site', 'comments', 'custom_fields']
+        fields = ['id', 'name', 'type', 'group', 'site', 'comments', 'custom_fields', 'created', 'last_updated']
 
 
 class NestedClusterSerializer(serializers.ModelSerializer):
@@ -77,7 +77,7 @@ class WritableClusterSerializer(CustomFieldModelSerializer):
 
     class Meta:
         model = Cluster
-        fields = ['id', 'name', 'type', 'group', 'site', 'comments', 'custom_fields']
+        fields = ['id', 'name', 'type', 'group', 'site', 'comments', 'custom_fields', 'created', 'last_updated']
 
 
 #
@@ -94,7 +94,7 @@ class VirtualMachineIPAddressSerializer(serializers.ModelSerializer):
 
 
 class VirtualMachineSerializer(CustomFieldModelSerializer):
-    status = ChoiceFieldSerializer(choices=STATUS_CHOICES)
+    status = ChoiceFieldSerializer(choices=VM_STATUS_CHOICES)
     cluster = NestedClusterSerializer()
     role = NestedDeviceRoleSerializer()
     tenant = NestedTenantSerializer()
@@ -107,7 +107,7 @@ class VirtualMachineSerializer(CustomFieldModelSerializer):
         model = VirtualMachine
         fields = [
             'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6',
-            'vcpus', 'memory', 'disk', 'comments', 'custom_fields',
+            'vcpus', 'memory', 'disk', 'comments', 'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -125,7 +125,7 @@ class WritableVirtualMachineSerializer(CustomFieldModelSerializer):
         model = VirtualMachine
         fields = [
             'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'vcpus',
-            'memory', 'disk', 'comments', 'custom_fields',
+            'memory', 'disk', 'comments', 'custom_fields', 'created', 'last_updated',
         ]
 
 

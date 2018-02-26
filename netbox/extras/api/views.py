@@ -6,12 +6,12 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import detail_route
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, ViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 
 from extras import filters
 from extras.models import CustomField, ExportTemplate, Graph, ImageAttachment, ReportResult, TopologyMap, UserAction
 from extras.reports import get_report, get_reports
-from utilities.api import FieldChoicesViewSet, IsAuthenticatedOrLoginNotRequired, WritableSerializerMixin
+from utilities.api import FieldChoicesViewSet, IsAuthenticatedOrLoginNotRequired, ModelViewSet
 from . import serializers
 
 
@@ -64,7 +64,7 @@ class CustomFieldModelViewSet(ModelViewSet):
 # Graphs
 #
 
-class GraphViewSet(WritableSerializerMixin, ModelViewSet):
+class GraphViewSet(ModelViewSet):
     queryset = Graph.objects.all()
     serializer_class = serializers.GraphSerializer
     write_serializer_class = serializers.WritableGraphSerializer
@@ -75,7 +75,7 @@ class GraphViewSet(WritableSerializerMixin, ModelViewSet):
 # Export templates
 #
 
-class ExportTemplateViewSet(WritableSerializerMixin, ModelViewSet):
+class ExportTemplateViewSet(ModelViewSet):
     queryset = ExportTemplate.objects.all()
     serializer_class = serializers.ExportTemplateSerializer
     filter_class = filters.ExportTemplateFilter
@@ -85,7 +85,7 @@ class ExportTemplateViewSet(WritableSerializerMixin, ModelViewSet):
 # Topology maps
 #
 
-class TopologyMapViewSet(WritableSerializerMixin, ModelViewSet):
+class TopologyMapViewSet(ModelViewSet):
     queryset = TopologyMap.objects.select_related('site')
     serializer_class = serializers.TopologyMapSerializer
     write_serializer_class = serializers.WritableTopologyMapSerializer
@@ -115,7 +115,7 @@ class TopologyMapViewSet(WritableSerializerMixin, ModelViewSet):
 # Image attachments
 #
 
-class ImageAttachmentViewSet(WritableSerializerMixin, ModelViewSet):
+class ImageAttachmentViewSet(ModelViewSet):
     queryset = ImageAttachment.objects.all()
     serializer_class = serializers.ImageAttachmentSerializer
     write_serializer_class = serializers.WritableImageAttachmentSerializer

@@ -140,8 +140,8 @@ urlpatterns = [
     url(r'^devices/console-ports/add/$', views.DeviceBulkAddConsolePortView.as_view(), name='device_bulk_add_consoleport'),
     url(r'^devices/(?P<pk>\d+)/console-ports/add/$', views.ConsolePortCreateView.as_view(), name='consoleport_add'),
     url(r'^devices/(?P<pk>\d+)/console-ports/delete/$', views.ConsolePortBulkDeleteView.as_view(), name='consoleport_bulk_delete'),
-    url(r'^console-ports/(?P<pk>\d+)/connect/$', views.consoleport_connect, name='consoleport_connect'),
-    url(r'^console-ports/(?P<pk>\d+)/disconnect/$', views.consoleport_disconnect, name='consoleport_disconnect'),
+    url(r'^console-ports/(?P<pk>\d+)/connect/$', views.ConsolePortConnectView.as_view(), name='consoleport_connect'),
+    url(r'^console-ports/(?P<pk>\d+)/disconnect/$', views.ConsolePortDisconnectView.as_view(), name='consoleport_disconnect'),
     url(r'^console-ports/(?P<pk>\d+)/edit/$', views.ConsolePortEditView.as_view(), name='consoleport_edit'),
     url(r'^console-ports/(?P<pk>\d+)/delete/$', views.ConsolePortDeleteView.as_view(), name='consoleport_delete'),
 
@@ -150,17 +150,18 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/console-server-ports/add/$', views.ConsoleServerPortCreateView.as_view(), name='consoleserverport_add'),
     url(r'^devices/(?P<pk>\d+)/console-server-ports/disconnect/$', views.ConsoleServerPortBulkDisconnectView.as_view(), name='consoleserverport_bulk_disconnect'),
     url(r'^devices/(?P<pk>\d+)/console-server-ports/delete/$', views.ConsoleServerPortBulkDeleteView.as_view(), name='consoleserverport_bulk_delete'),
-    url(r'^console-server-ports/(?P<pk>\d+)/connect/$', views.consoleserverport_connect, name='consoleserverport_connect'),
-    url(r'^console-server-ports/(?P<pk>\d+)/disconnect/$', views.consoleserverport_disconnect, name='consoleserverport_disconnect'),
+    url(r'^console-server-ports/(?P<pk>\d+)/connect/$', views.ConsoleServerPortConnectView.as_view(), name='consoleserverport_connect'),
+    url(r'^console-server-ports/(?P<pk>\d+)/disconnect/$', views.ConsoleServerPortDisconnectView.as_view(), name='consoleserverport_disconnect'),
     url(r'^console-server-ports/(?P<pk>\d+)/edit/$', views.ConsoleServerPortEditView.as_view(), name='consoleserverport_edit'),
     url(r'^console-server-ports/(?P<pk>\d+)/delete/$', views.ConsoleServerPortDeleteView.as_view(), name='consoleserverport_delete'),
+    url(r'^console-server-ports/rename/$', views.ConsoleServerPortBulkRenameView.as_view(), name='consoleserverport_bulk_rename'),
 
     # Power ports
     url(r'^devices/power-ports/add/$', views.DeviceBulkAddPowerPortView.as_view(), name='device_bulk_add_powerport'),
     url(r'^devices/(?P<pk>\d+)/power-ports/add/$', views.PowerPortCreateView.as_view(), name='powerport_add'),
     url(r'^devices/(?P<pk>\d+)/power-ports/delete/$', views.PowerPortBulkDeleteView.as_view(), name='powerport_bulk_delete'),
-    url(r'^power-ports/(?P<pk>\d+)/connect/$', views.powerport_connect, name='powerport_connect'),
-    url(r'^power-ports/(?P<pk>\d+)/disconnect/$', views.powerport_disconnect, name='powerport_disconnect'),
+    url(r'^power-ports/(?P<pk>\d+)/connect/$', views.PowerPortConnectView.as_view(), name='powerport_connect'),
+    url(r'^power-ports/(?P<pk>\d+)/disconnect/$', views.PowerPortDisconnectView.as_view(), name='powerport_disconnect'),
     url(r'^power-ports/(?P<pk>\d+)/edit/$', views.PowerPortEditView.as_view(), name='powerport_edit'),
     url(r'^power-ports/(?P<pk>\d+)/delete/$', views.PowerPortDeleteView.as_view(), name='powerport_delete'),
 
@@ -169,10 +170,11 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/power-outlets/add/$', views.PowerOutletCreateView.as_view(), name='poweroutlet_add'),
     url(r'^devices/(?P<pk>\d+)/power-outlets/disconnect/$', views.PowerOutletBulkDisconnectView.as_view(), name='poweroutlet_bulk_disconnect'),
     url(r'^devices/(?P<pk>\d+)/power-outlets/delete/$', views.PowerOutletBulkDeleteView.as_view(), name='poweroutlet_bulk_delete'),
-    url(r'^power-outlets/(?P<pk>\d+)/connect/$', views.poweroutlet_connect, name='poweroutlet_connect'),
-    url(r'^power-outlets/(?P<pk>\d+)/disconnect/$', views.poweroutlet_disconnect, name='poweroutlet_disconnect'),
+    url(r'^power-outlets/(?P<pk>\d+)/connect/$', views.PowerOutletConnectView.as_view(), name='poweroutlet_connect'),
+    url(r'^power-outlets/(?P<pk>\d+)/disconnect/$', views.PowerOutletDisconnectView.as_view(), name='poweroutlet_disconnect'),
     url(r'^power-outlets/(?P<pk>\d+)/edit/$', views.PowerOutletEditView.as_view(), name='poweroutlet_edit'),
     url(r'^power-outlets/(?P<pk>\d+)/delete/$', views.PowerOutletDeleteView.as_view(), name='poweroutlet_delete'),
+    url(r'^power-outlets/rename/$', views.PowerOutletBulkRenameView.as_view(), name='poweroutlet_bulk_rename'),
 
     # Interfaces
     url(r'^devices/interfaces/add/$', views.DeviceBulkAddInterfaceView.as_view(), name='device_bulk_add_interface'),
@@ -180,10 +182,11 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/interfaces/edit/$', views.InterfaceBulkEditView.as_view(), name='interface_bulk_edit'),
     url(r'^devices/(?P<pk>\d+)/interfaces/disconnect/$', views.InterfaceBulkDisconnectView.as_view(), name='interface_bulk_disconnect'),
     url(r'^devices/(?P<pk>\d+)/interfaces/delete/$', views.InterfaceBulkDeleteView.as_view(), name='interface_bulk_delete'),
-    url(r'^devices/(?P<pk>\d+)/interface-connections/add/$', views.interfaceconnection_add, name='interfaceconnection_add'),
-    url(r'^interface-connections/(?P<pk>\d+)/delete/$', views.interfaceconnection_delete, name='interfaceconnection_delete'),
+    url(r'^devices/(?P<pk>\d+)/interface-connections/add/$', views.InterfaceConnectionAddView.as_view(), name='interfaceconnection_add'),
+    url(r'^interface-connections/(?P<pk>\d+)/delete/$', views.InterfaceConnectionDeleteView.as_view(), name='interfaceconnection_delete'),
     url(r'^interfaces/(?P<pk>\d+)/edit/$', views.InterfaceEditView.as_view(), name='interface_edit'),
     url(r'^interfaces/(?P<pk>\d+)/delete/$', views.InterfaceDeleteView.as_view(), name='interface_delete'),
+    url(r'^interfaces/rename/$', views.InterfaceBulkRenameView.as_view(), name='interface_bulk_rename'),
 
     # Device bays
     url(r'^devices/device-bays/add/$', views.DeviceBulkAddDeviceBayView.as_view(), name='device_bulk_add_devicebay'),
@@ -191,8 +194,9 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/bays/delete/$', views.DeviceBayBulkDeleteView.as_view(), name='devicebay_bulk_delete'),
     url(r'^device-bays/(?P<pk>\d+)/edit/$', views.DeviceBayEditView.as_view(), name='devicebay_edit'),
     url(r'^device-bays/(?P<pk>\d+)/delete/$', views.DeviceBayDeleteView.as_view(), name='devicebay_delete'),
-    url(r'^device-bays/(?P<pk>\d+)/populate/$', views.devicebay_populate, name='devicebay_populate'),
-    url(r'^device-bays/(?P<pk>\d+)/depopulate/$', views.devicebay_depopulate, name='devicebay_depopulate'),
+    url(r'^device-bays/(?P<pk>\d+)/populate/$', views.DeviceBayPopulateView.as_view(), name='devicebay_populate'),
+    url(r'^device-bays/(?P<pk>\d+)/depopulate/$', views.DeviceBayDepopulateView.as_view(), name='devicebay_depopulate'),
+    url(r'^device-bays/rename/$', views.DeviceBayBulkRenameView.as_view(), name='devicebay_bulk_rename'),
 
     # Inventory items
     url(r'^inventory-items/$', views.InventoryItemListView.as_view(), name='inventoryitem_list'),
@@ -210,5 +214,13 @@ urlpatterns = [
     url(r'^power-connections/import/$', views.PowerConnectionsBulkImportView.as_view(), name='power_connections_import'),
     url(r'^interface-connections/$', views.InterfaceConnectionsListView.as_view(), name='interface_connections_list'),
     url(r'^interface-connections/import/$', views.InterfaceConnectionsBulkImportView.as_view(), name='interface_connections_import'),
+
+    # Virtual chassis
+    url(r'^virtual-chassis/$', views.VirtualChassisListView.as_view(), name='virtualchassis_list'),
+    url(r'^virtual-chassis/add/$', views.VirtualChassisCreateView.as_view(), name='virtualchassis_add'),
+    url(r'^virtual-chassis/(?P<pk>\d+)/edit/$', views.VirtualChassisEditView.as_view(), name='virtualchassis_edit'),
+    url(r'^virtual-chassis/(?P<pk>\d+)/delete/$', views.VirtualChassisDeleteView.as_view(), name='virtualchassis_delete'),
+    url(r'^virtual-chassis/(?P<pk>\d+)/add-member/$', views.VirtualChassisAddMemberView.as_view(), name='virtualchassis_add_member'),
+    url(r'^virtual-chassis-members/(?P<pk>\d+)/delete/$', views.VirtualChassisRemoveMemberView.as_view(), name='virtualchassis_remove_member'),
 
 ]

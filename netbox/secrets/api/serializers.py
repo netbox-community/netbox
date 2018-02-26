@@ -45,13 +45,20 @@ class WritableSecretSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Secret
-        fields = ['id', 'device', 'role', 'name', 'plaintext']
+        fields = ['id', 'device', 'role', 'name', 'plaintext', 'hash', 'created', 'last_updated']
         validators = []
 
     def validate(self, data):
 
+        # Encrypt plaintext data using the master key provided from the view context
+        if data.get('plaintext'):
+            s = Secret(plaintext=data['plaintext'])
+            s.encrypt(self.context['master_key'])
+            data['ciphertext'] = s.ciphertext
+            data['hash'] = s.hash
+
         # Validate uniqueness of name if one has been provided.
-        if data.get('name', None):
+        if data.get('name'):
             validator = UniqueTogetherValidator(queryset=Secret.objects.all(), fields=('device', 'role', 'name'))
             validator.set_context(self)
             validator(data)

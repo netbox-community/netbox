@@ -520,17 +520,14 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
             parent.save()
 
         # Clear assignment as primary for device if set.
-        else:
-            try:
-                if ipaddress.address.version == 4:
-                    device = ipaddress.primary_ip4_for
-                    device.primary_ip4 = None
-                else:
-                    device = ipaddress.primary_ip6_for
-                    device.primary_ip6 = None
-                device.save()
-            except Device.DoesNotExist:
-                pass
+        elif self.cleaned_data['interface']:
+            parent = self.cleaned_data['interface'].parent
+            if ipaddress.address.version == 4 and parent.primary_ip4 == self:
+                parent.primary_ip4 = None
+                parent.save()
+            elif ipaddress.address.version == 6 and parent.primary_ip6 == self:
+                parent.primary_ip6 = None
+                parent.save()
 
         return ipaddress
 
@@ -934,8 +931,9 @@ class ServiceForm(BootstrapMixin, forms.ModelForm):
 
         # Limit IP address choices to those assigned to interfaces of the parent device/VM
         if self.instance.device:
+            vc_interface_ids = [i['id'] for i in self.instance.device.vc_interfaces.values('id')]
             self.fields['ipaddresses'].queryset = IPAddress.objects.filter(
-                interface__device=self.instance.device
+                interface_id__in=vc_interface_ids
             )
         elif self.instance.virtual_machine:
             self.fields['ipaddresses'].queryset = IPAddress.objects.filter(

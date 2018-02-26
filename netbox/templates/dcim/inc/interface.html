@@ -98,18 +98,18 @@
                             <i class="fa fa-plug" aria-hidden="true"></i>
                         </a>
                     {% endif %}
-                    <a href="{% url 'dcim:interfaceconnection_delete' pk=iface.connection.pk %}?device={{ device.pk }}" class="btn btn-danger btn-xs" title="Disconnect">
+                    <a href="{% url 'dcim:interfaceconnection_delete' pk=iface.connection.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs" title="Disconnect">
                         <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
                     </a>
                 {% elif iface.circuit_termination and perms.circuits.change_circuittermination %}
                     <button class="btn btn-warning btn-xs interface-toggle connected" disabled="disabled" title="Circuits cannot be marked as planned or connected">
                         <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>
                     </button>
-                    <a href="{% url 'circuits:circuittermination_edit' pk=iface.circuit_termination.pk %}" class="btn btn-danger btn-xs" title="Edit circuit termination">
+                    <a href="{% url 'circuits:circuittermination_edit' pk=iface.circuit_termination.pk %}&return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs" title="Edit circuit termination">
                         <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
                     </a>
                 {% else %}
-                    <a href="{% url 'dcim:interfaceconnection_add' pk=device.pk %}?interface_a={{ iface.pk }}" class="btn btn-success btn-xs" title="Connect">
+                    <a href="{% url 'dcim:interfaceconnection_add' pk=device.pk %}?interface_a={{ iface.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-success btn-xs" title="Connect">
                         <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
                     </a>
                 {% endif %}

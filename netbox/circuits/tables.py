@@ -14,6 +14,10 @@ CIRCUITTYPE_ACTIONS = """
 {% endif %}
 """
 
+STATUS_LABEL = """
+<span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
+"""
+
 
 class CircuitTerminationColumn(tables.Column):
 
@@ -76,10 +80,11 @@ class CircuitTable(BaseTable):
     pk = ToggleColumn()
     cid = tables.LinkColumn(verbose_name='ID')
     provider = tables.LinkColumn('circuits:provider', args=[Accessor('provider.slug')])
+    status = tables.TemplateColumn(template_code=STATUS_LABEL, verbose_name='Status')
     tenant = tables.TemplateColumn(template_code=COL_TENANT)
     termination_a = CircuitTerminationColumn(orderable=False, verbose_name='A Side')
     termination_z = CircuitTerminationColumn(orderable=False, verbose_name='Z Side')
 
     class Meta(BaseTable.Meta):
         model = Circuit
-        fields = ('pk', 'cid', 'type', 'provider', 'tenant', 'termination_a', 'termination_z', 'description')
+        fields = ('pk', 'cid', 'status', 'type', 'provider', 'tenant', 'termination_a', 'termination_z', 'description')

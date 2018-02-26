@@ -11,8 +11,8 @@ from dcim.models import Device, Interface
 from dcim.tables import DeviceTable
 from ipam.models import Service
 from utilities.views import (
-    BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ComponentDeleteView,
-    ComponentEditView, ObjectDeleteView, ObjectEditView, ObjectListView,
+    BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ObjectDeleteView,
+    ObjectEditView, ObjectListView,
 )
 from . import filters, forms, tables
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -325,17 +325,15 @@ class InterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
     template_name = 'virtualization/virtualmachine_component_add.html'
 
 
-class InterfaceEditView(PermissionRequiredMixin, ComponentEditView):
+class InterfaceEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_interface'
     model = Interface
-    parent_field = 'virtual_machine'
     model_form = forms.InterfaceForm
 
 
-class InterfaceDeleteView(PermissionRequiredMixin, ComponentDeleteView):
+class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_interface'
     model = Interface
-    parent_field = 'virtual_machine'
 
 
 class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):

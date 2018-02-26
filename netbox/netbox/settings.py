@@ -1,6 +1,8 @@
 import logging
 import os
 import socket
+import sys
+import warnings
 
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
@@ -12,8 +14,15 @@ except ImportError:
         "Configuration file is not present. Please define netbox/netbox/configuration.py per the documentation."
     )
 
+# Raise a deprecation warning for Python 2.x
+if sys.version_info[0] < 3:
+    warnings.warn(
+        "Support for Python 2 will be removed in NetBox v2.5. Please consider migration to Python 3 at your earliest "
+        "opportunity. Guidance is available in the documentation at http://netbox.readthedocs.io/.",
+        DeprecationWarning
+    )
 
-VERSION = '2.2.10'
+VERSION = '2.3.0'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -125,6 +134,7 @@ INSTALLED_APPS = (
     'mptt',
     'rest_framework',
     'rest_framework_swagger',
+    'timezone_field',
     'circuits',
     'dcim',
     'ipam',

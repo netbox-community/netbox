@@ -7,19 +7,20 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from circuits.models import Circuit, CircuitTermination
 from dcim.constants import (
-    CONNECTION_STATUS_CHOICES, IFACE_FF_CHOICES, IFACE_ORDERING_CHOICES, RACK_FACE_CHOICES, RACK_TYPE_CHOICES,
-    RACK_WIDTH_CHOICES, STATUS_CHOICES, SUBDEVICE_ROLE_CHOICES,
+    CONNECTION_STATUS_CHOICES, DEVICE_STATUS_CHOICES, IFACE_FF_CHOICES, IFACE_MODE_CHOICES, IFACE_ORDERING_CHOICES,
+    RACK_FACE_CHOICES, RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, SITE_STATUS_CHOICES, SUBDEVICE_ROLE_CHOICES,
 )
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceType, DeviceRole, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site,
+    RackReservation, RackRole, Region, Site, VirtualChassis,
 )
 from extras.api.customfields import CustomFieldModelSerializer
-from ipam.models import IPAddress
+from ipam.models import IPAddress, VLAN
 from tenancy.api.serializers import NestedTenantSerializer
-from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer
+from users.api.serializers import NestedUserSerializer
+from utilities.api import ChoiceFieldSerializer, TimeZoneField, ValidatedModelSerializer
 from virtualization.models import Cluster
 
 
@@ -55,15 +56,18 @@ class WritableRegionSerializer(ValidatedModelSerializer):
 #
 
 class SiteSerializer(CustomFieldModelSerializer):
+    status = ChoiceFieldSerializer(choices=SITE_STATUS_CHOICES)
     region = NestedRegionSerializer()
     tenant = NestedTenantSerializer()
+    time_zone = TimeZoneField(required=False)
 
     class Meta:
         model = Site
         fields = [
-            'id', 'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
-            'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields', 'count_prefixes',
-            'count_vlans', 'count_racks', 'count_devices', 'count_circuits',
+            'id', 'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description',
+            'physical_address', 'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments',
+            'custom_fields', 'created', 'last_updated', 'count_prefixes', 'count_vlans', 'count_racks', 'count_devices',
+            'count_circuits',
         ]
 
 
@@ -76,12 +80,14 @@ class NestedSiteSerializer(serializers.ModelSerializer):
 
 
 class WritableSiteSerializer(CustomFieldModelSerializer):
+    time_zone = TimeZoneField(required=False)
 
     class Meta:
         model = Site
         fields = [
-            'id', 'name', 'slug', 'region', 'tenant', 'facility', 'asn', 'physical_address', 'shipping_address',
-            'contact_name', 'contact_phone', 'contact_email', 'comments', 'custom_fields',
+            'id', 'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description',
+            'physical_address', 'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -147,7 +153,7 @@ class RackSerializer(CustomFieldModelSerializer):
         model = Rack
         fields = [
             'id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'serial', 'type', 'width',
-            'u_height', 'desc_units', 'comments', 'custom_fields',
+            'u_height', 'desc_units', 'comments', 'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -165,7 +171,7 @@ class WritableRackSerializer(CustomFieldModelSerializer):
         model = Rack
         fields = [
             'id', 'name', 'facility_id', 'site', 'group', 'tenant', 'role', 'serial', 'type', 'width', 'u_height',
-            'desc_units', 'comments', 'custom_fields',
+            'desc_units', 'comments', 'custom_fields', 'created', 'last_updated',
         ]
         # Omit the UniqueTogetherValidator that would be automatically added to validate (site, facility_id). This
         # prevents facility_id from being interpreted as a required field.
@@ -215,10 +221,12 @@ class RackUnitSerializer(serializers.Serializer):
 
 class RackReservationSerializer(serializers.ModelSerializer):
     rack = NestedRackSerializer()
+    user = NestedUserSerializer()
+    tenant = NestedTenantSerializer()
 
     class Meta:
         model = RackReservation
-        fields = ['id', 'rack', 'units', 'created', 'user', 'description']
+        fields = ['id', 'rack', 'units', 'created', 'user', 'tenant', 'description']
 
 
 class WritableRackReservationSerializer(ValidatedModelSerializer):
@@ -423,11 +431,12 @@ class NestedDeviceRoleSerializer(serializers.ModelSerializer):
 # Platforms
 #
 
-class PlatformSerializer(ValidatedModelSerializer):
+class PlatformSerializer(serializers.ModelSerializer):
+    manufacturer = NestedManufacturerSerializer()
 
     class Meta:
         model = Platform
-        fields = ['id', 'name', 'slug', 'napalm_driver', 'rpc_client']
+        fields = ['id', 'name', 'slug', 'manufacturer', 'napalm_driver', 'rpc_client']
 
 
 class NestedPlatformSerializer(serializers.ModelSerializer):
@@ -436,6 +445,13 @@ class NestedPlatformSerializer(serializers.ModelSerializer):
     class Meta:
         model = Platform
         fields = ['id', 'url', 'name', 'slug']
+
+
+class WritablePlatformSerializer(ValidatedModelSerializer):
+
+    class Meta:
+        model = Platform
+        fields = ['id', 'name', 'slug', 'manufacturer', 'napalm_driver', 'rpc_client']
 
 
 #
@@ -460,6 +476,16 @@ class NestedClusterSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'name']
 
 
+# Cannot import NestedVirtualChassisSerializer due to circular dependency
+class DeviceVirtualChassisSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualchassis-detail')
+    master = NestedDeviceSerializer()
+
+    class Meta:
+        model = VirtualChassis
+        fields = ['id', 'url', 'master']
+
+
 class DeviceSerializer(CustomFieldModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     device_role = NestedDeviceRoleSerializer()
@@ -468,19 +494,21 @@ class DeviceSerializer(CustomFieldModelSerializer):
     site = NestedSiteSerializer()
     rack = NestedRackSerializer()
     face = ChoiceFieldSerializer(choices=RACK_FACE_CHOICES)
-    status = ChoiceFieldSerializer(choices=STATUS_CHOICES)
+    status = ChoiceFieldSerializer(choices=DEVICE_STATUS_CHOICES)
     primary_ip = DeviceIPAddressSerializer()
     primary_ip4 = DeviceIPAddressSerializer()
     primary_ip6 = DeviceIPAddressSerializer()
     parent_device = serializers.SerializerMethodField()
     cluster = NestedClusterSerializer()
+    virtual_chassis = DeviceVirtualChassisSerializer()
 
     class Meta:
         model = Device
         fields = [
             'id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'site', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4', 'primary_ip6',
-            'cluster', 'comments', 'custom_fields',
+            'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'custom_fields', 'created',
+            'last_updated',
         ]
 
     def get_parent_device(self, obj):
@@ -500,7 +528,8 @@ class WritableDeviceSerializer(CustomFieldModelSerializer):
         model = Device
         fields = [
             'id', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag', 'site', 'rack',
-            'position', 'face', 'status', 'primary_ip4', 'primary_ip6', 'cluster', 'comments', 'custom_fields',
+            'position', 'face', 'status', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position',
+            'vc_priority', 'comments', 'custom_fields', 'created', 'last_updated',
         ]
         validators = []
 
@@ -628,6 +657,15 @@ class InterfaceCircuitTerminationSerializer(serializers.ModelSerializer):
         ]
 
 
+# Cannot import ipam.api.NestedVLANSerializer due to circular dependency
+class InterfaceVLANSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlan-detail')
+
+    class Meta:
+        model = VLAN
+        fields = ['id', 'url', 'vid', 'name', 'display_name']
+
+
 class InterfaceSerializer(serializers.ModelSerializer):
     device = NestedDeviceSerializer()
     form_factor = ChoiceFieldSerializer(choices=IFACE_FF_CHOICES)
@@ -635,12 +673,15 @@ class InterfaceSerializer(serializers.ModelSerializer):
     is_connected = serializers.SerializerMethodField(read_only=True)
     interface_connection = serializers.SerializerMethodField(read_only=True)
     circuit_termination = InterfaceCircuitTerminationSerializer()
+    untagged_vlan = InterfaceVLANSerializer()
+    mode = ChoiceFieldSerializer(choices=IFACE_MODE_CHOICES)
+    tagged_vlans = InterfaceVLANSerializer(many=True)
 
     class Meta:
         model = Interface
         fields = [
             'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
-            'is_connected', 'interface_connection', 'circuit_termination',
+            'is_connected', 'interface_connection', 'circuit_termination', 'mode', 'untagged_vlan', 'tagged_vlans',
         ]
 
     def get_is_connected(self, obj):
@@ -685,7 +726,22 @@ class WritableInterfaceSerializer(ValidatedModelSerializer):
         model = Interface
         fields = [
             'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
+            'mode', 'untagged_vlan', 'tagged_vlans',
         ]
+
+    def validate(self, data):
+
+        # Validate that all untagged VLANs either belong to the same site as the Interface's parent Deivce or
+        # VirtualMachine, or are global.
+        parent = self.instance.parent if self.instance else data.get('device') or data.get('virtual_machine')
+        for vlan in data.get('tagged_vlans', []):
+            if vlan.site not in [parent, None]:
+                raise serializers.ValidationError(
+                    "Tagged VLAN {} must belong to the same site as the interface's parent device/VM, or it must be "
+                    "global".format(vlan)
+                )
+
+        return super(WritableInterfaceSerializer, self).validate(data)
 
 
 #
@@ -771,3 +827,30 @@ class WritableInterfaceConnectionSerializer(ValidatedModelSerializer):
     class Meta:
         model = InterfaceConnection
         fields = ['id', 'interface_a', 'interface_b', 'connection_status']
+
+
+#
+# Virtual chassis
+#
+
+class VirtualChassisSerializer(serializers.ModelSerializer):
+    master = NestedDeviceSerializer()
+
+    class Meta:
+        model = VirtualChassis
+        fields = ['id', 'master', 'domain']
+
+
+class NestedVirtualChassisSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualchassis-detail')
+
+    class Meta:
+        model = VirtualChassis
+        fields = ['id', 'url']
+
+
+class WritableVirtualChassisSerializer(ValidatedModelSerializer):
+
+    class Meta:
+        model = VirtualChassis
+        fields = ['id', 'master', 'domain']

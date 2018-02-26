@@ -9,9 +9,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
-from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea, TypedChoiceField
+from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template import TemplateSyntaxError
+from django.template.exceptions import TemplateSyntaxError
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.http import is_safe_url
@@ -22,6 +22,7 @@ from django_tables2 import RequestConfig
 from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
 from utilities.utils import queryset_to_csv
 from utilities.forms import BootstrapMixin, CSVDataField
+from .constants import M2M_FIELD_TYPES
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
 from .paginator import EnhancedPaginator
@@ -510,31 +511,55 @@ class BulkEditView(View):
 
                 custom_fields = form.custom_fields if hasattr(form, 'custom_fields') else []
                 standard_fields = [field for field in form.fields if field not in custom_fields and field != 'pk']
-
-                # Update standard fields. If a field is listed in _nullify, delete its value.
                 nullified_fields = request.POST.getlist('_nullify')
-                fields_to_update = {}
-                for field in standard_fields:
-                    if field in form.nullable_fields and field in nullified_fields:
-                        if isinstance(form.fields[field], CharField):
-                            fields_to_update[field] = ''
-                        else:
-                            fields_to_update[field] = None
-                    elif form.cleaned_data[field] not in (None, ''):
-                        fields_to_update[field] = form.cleaned_data[field]
-                updated_count = self.cls.objects.filter(pk__in=pk_list).update(**fields_to_update)
 
-                # Update custom fields for objects
-                if custom_fields:
-                    objs_updated = self.update_custom_fields(pk_list, form, custom_fields, nullified_fields)
-                    if objs_updated and not updated_count:
-                        updated_count = objs_updated
+                try:
 
-                if updated_count:
-                    msg = 'Updated {} {}'.format(updated_count, self.cls._meta.verbose_name_plural)
-                    messages.success(self.request, msg)
-                    UserAction.objects.log_bulk_edit(request.user, ContentType.objects.get_for_model(self.cls), msg)
-                return redirect(return_url)
+                    with transaction.atomic():
+
+                        updated_count = 0
+                        for obj in self.cls.objects.filter(pk__in=pk_list):
+
+                            # Update standard fields. If a field is listed in _nullify, delete its value.
+                            for name in standard_fields:
+                                if name in form.nullable_fields and name in nullified_fields:
+                                    setattr(obj, name, '' if isinstance(form.fields[name], CharField) else None)
+                                elif form.cleaned_data[name] not in (None, ''):
+                                    setattr(obj, name, form.cleaned_data[name])
+                            obj.full_clean()
+                            obj.save()
+
+                            # Update custom fields
+                            obj_type = ContentType.objects.get_for_model(self.cls)
+                            for name in custom_fields:
+                                field = form.fields[name].model
+                                if name in form.nullable_fields and name in nullified_fields:
+                                    CustomFieldValue.objects.filter(
+                                        field=field, obj_type=obj_type, obj_id=obj.pk
+                                    ).delete()
+                                elif form.cleaned_data[name] not in [None, '']:
+                                    try:
+                                        cfv = CustomFieldValue.objects.get(
+                                            field=field, obj_type=obj_type, obj_id=obj.pk
+                                        )
+                                    except CustomFieldValue.DoesNotExist:
+                                        cfv = CustomFieldValue(
+                                            field=field, obj_type=obj_type, obj_id=obj.pk
+                                        )
+                                    cfv.value = form.cleaned_data[name]
+                                    cfv.save()
+
+                            updated_count += 1
+
+                    if updated_count:
+                        msg = 'Updated {} {}'.format(updated_count, self.cls._meta.verbose_name_plural)
+                        messages.success(self.request, msg)
+                        UserAction.objects.log_bulk_edit(request.user, ContentType.objects.get_for_model(self.cls), msg)
+
+                    return redirect(return_url)
+
+                except ValidationError as e:
+                    messages.error(self.request, "{} failed validation: {}".format(obj, e))
 
         else:
             initial_data = request.POST.copy()
@@ -554,53 +579,6 @@ class BulkEditView(View):
             'obj_type_plural': self.cls._meta.verbose_name_plural,
             'return_url': return_url,
         })
-
-    def update_custom_fields(self, pk_list, form, fields, nullified_fields):
-        obj_type = ContentType.objects.get_for_model(self.cls)
-        objs_updated = False
-
-        for name in fields:
-
-            field = form.fields[name].model
-
-            # Setting the field to null
-            if name in form.nullable_fields and name in nullified_fields:
-
-                # Delete all CustomFieldValues for instances of this field belonging to the selected objects.
-                CustomFieldValue.objects.filter(field=field, obj_type=obj_type, obj_id__in=pk_list).delete()
-                objs_updated = True
-
-            # Updating the value of the field
-            elif form.cleaned_data[name] not in [None, '']:
-
-                # Check for zero value (bulk editing)
-                if isinstance(form.fields[name], TypedChoiceField) and form.cleaned_data[name] == 0:
-                    serialized_value = field.serialize_value(None)
-                else:
-                    serialized_value = field.serialize_value(form.cleaned_data[name])
-
-                # Gather any pre-existing CustomFieldValues for the objects being edited.
-                existing_cfvs = CustomFieldValue.objects.filter(field=field, obj_type=obj_type, obj_id__in=pk_list)
-
-                # Determine which objects have an existing CFV to update and which need a new CFV created.
-                update_list = [cfv['obj_id'] for cfv in existing_cfvs.values()]
-                create_list = list(set(pk_list) - set(update_list))
-
-                # Creating/updating CFVs
-                if serialized_value:
-                    existing_cfvs.update(serialized_value=serialized_value)
-                    CustomFieldValue.objects.bulk_create([
-                        CustomFieldValue(field=field, obj_type=obj_type, obj_id=pk, serialized_value=serialized_value)
-                        for pk in create_list
-                    ])
-
-                # Deleting CFVs
-                else:
-                    existing_cfvs.delete()
-
-                objs_updated = True
-
-        return len(pk_list) if objs_updated else 0
 
 
 class BulkDeleteView(View):
@@ -763,6 +741,26 @@ class ComponentCreateView(View):
 
             if not form.errors:
                 self.model.objects.bulk_create(new_components)
+
+                # ManyToMany relations are bulk created via the through model
+                m2m_fields = [field for field in component_form.fields if type(component_form.fields[field]) in M2M_FIELD_TYPES]
+                if m2m_fields:
+                    for field in m2m_fields:
+                        field_links = []
+                        for new_component in new_components:
+                            for related_obj in component_form.cleaned_data[field]:
+                                # The through model columns are the id's of our M2M relation objects
+                                through_kwargs = {}
+                                new_component_column = new_component.__class__.__name__ + '_id'
+                                related_obj_column = related_obj.__class__.__name__ + '_id'
+                                through_kwargs.update({
+                                    new_component_column.lower(): new_component.id,
+                                    related_obj_column.lower(): related_obj.id
+                                })
+                                field_link = getattr(self.model, field).through(**through_kwargs)
+                                field_links.append(field_link)
+                        getattr(self.model, field).through.objects.bulk_create(field_links)
+
                 messages.success(request, "Added {} {} to {}.".format(
                     len(new_components), self.model._meta.verbose_name_plural, parent
                 ))
@@ -777,20 +775,6 @@ class ComponentCreateView(View):
             'form': form,
             'return_url': parent.get_absolute_url(),
         })
-
-
-class ComponentEditView(ObjectEditView):
-    parent_field = None
-
-    def get_return_url(self, request, obj):
-        return getattr(obj, self.parent_field).get_absolute_url()
-
-
-class ComponentDeleteView(ObjectDeleteView):
-    parent_field = None
-
-    def get_return_url(self, request, obj):
-        return getattr(obj, self.parent_field).get_absolute_url()
 
 
 class BulkComponentCreateView(View):
