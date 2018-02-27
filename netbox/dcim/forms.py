@@ -1679,6 +1679,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm, ChainedFieldsMixin):
         label='Untagged VLAN',
         widget=APISelect(
             api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',
+            display_field='display_name'
         )
     )
     tagged_vlans = ChainedModelMultipleChoiceField(
@@ -1691,6 +1692,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm, ChainedFieldsMixin):
         label='Tagged VLANs',
         widget=APISelectMultiple(
             api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',
+            display_field='display_name'
         )
     )
 
