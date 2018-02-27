@@ -734,14 +734,30 @@ class WritableInterfaceSerializer(ValidatedModelSerializer):
         # Validate that all untagged VLANs either belong to the same site as the Interface's parent Deivce or
         # VirtualMachine, or are global.
         parent = self.instance.parent if self.instance else data.get('device') or data.get('virtual_machine')
-        for vlan in data.get('tagged_vlans', []):
+        tagged_vlans = data.pop('tagged_vlans', [])
+        for vlan in tagged_vlans:
             if vlan.site not in [parent, None]:
                 raise serializers.ValidationError(
                     "Tagged VLAN {} must belong to the same site as the interface's parent device/VM, or it must be "
                     "global".format(vlan)
                 )
 
-        return super(WritableInterfaceSerializer, self).validate(data)
+        validated_data = super(WritableInterfaceSerializer, self).validate(data)
+        if tagged_vlans:
+            validated_data['tagged_vlans'] = tagged_vlans
+        return validated_data
+
+    def create(self, validated_data):
+        """
+        Becasue tagged_vlans is a M2M relationship, we have to create the interface first
+        """
+        tagged_vlans = validated_data.pop('tagged_vlans', None)
+        interface = Interface.objects.create(**validated_data)
+        interface.save()
+        if tagged_vlans:
+            interface.tagged_vlans = tagged_vlans
+            interface.save()
+        return interface
 
 
 #

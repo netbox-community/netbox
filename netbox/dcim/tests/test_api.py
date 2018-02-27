@@ -12,6 +12,7 @@ from dcim.models import (
     InventoryItem, Platform, PowerPort, PowerPortTemplate, PowerOutlet, PowerOutletTemplate, Rack, RackGroup,
     RackReservation, RackRole, Region, Site, VirtualChassis,
 )
+from ipam.models import VLAN
 from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from users.models import Token
 from utilities.tests import HttpStatusMixin
@@ -2258,6 +2259,10 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
         self.interface2 = Interface.objects.create(device=self.device, name='Test Interface 2')
         self.interface3 = Interface.objects.create(device=self.device, name='Test Interface 3')
 
+        self.vlan1 = VLAN.objects.create(name="Test VLAN 1", vid=1)
+        self.vlan2 = VLAN.objects.create(name="Test VLAN 2", vid=2)
+        self.vlan3 = VLAN.objects.create(name="Test VLAN 3", vid=3)
+
     def test_get_interface(self):
 
         url = reverse('dcim-api:interface-detail', kwargs={'pk': self.interface1.pk})
@@ -2309,6 +2314,26 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
         self.assertEqual(interface4.device_id, data['device'])
         self.assertEqual(interface4.name, data['name'])
 
+    def test_create_interface_with_802_1q(self):
+
+        data = {
+            'device': self.device.pk,
+            'name': 'Test Interface 4',
+            'tagged_vlans': [self.vlan1.id, self.vlan2.id],
+            'untagged_vlan': self.vlan3.id
+        }
+
+        url = reverse('dcim-api:interface-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Interface.objects.count(), 4)
+        interface5 = Interface.objects.get(pk=response.data['id'])
+        self.assertEqual(interface5.device_id, data['device'])
+        self.assertEqual(interface5.name, data['name'])
+        self.assertEqual(interface5.tagged_vlans.count(), 2)
+        self.assertEqual(interface5.untagged_vlan.id, data['untagged_vlan'])
+
     def test_create_interface_bulk(self):
 
         data = [
@@ -2334,6 +2359,44 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
         self.assertEqual(response.data[0]['name'], data[0]['name'])
         self.assertEqual(response.data[1]['name'], data[1]['name'])
         self.assertEqual(response.data[2]['name'], data[2]['name'])
+
+    def test_create_interface_802_1q_bulk(self):
+
+        data = [
+            {
+                'device': self.device.pk,
+                'name': 'Test Interface 4',
+                'tagged_vlans': [self.vlan1.id],
+                'untagged_vlan': self.vlan2.id,
+            },
+            {
+                'device': self.device.pk,
+                'name': 'Test Interface 5',
+                'tagged_vlans': [self.vlan1.id],
+                'untagged_vlan': self.vlan2.id,
+            },
+            {
+                'device': self.device.pk,
+                'name': 'Test Interface 6',
+                'tagged_vlans': [self.vlan1.id],
+                'untagged_vlan': self.vlan2.id,
+            },
+        ]
+
+        url = reverse('dcim-api:interface-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Interface.objects.count(), 6)
+        self.assertEqual(response.data[0]['name'], data[0]['name'])
+        self.assertEqual(response.data[1]['name'], data[1]['name'])
+        self.assertEqual(response.data[2]['name'], data[2]['name'])
+        self.assertEqual(len(response.data[0]['tagged_vlans']), 1)
+        self.assertEqual(len(response.data[1]['tagged_vlans']), 1)
+        self.assertEqual(len(response.data[2]['tagged_vlans']), 1)
+        self.assertEqual(response.data[0]['untagged_vlan'], self.vlan2.id)
+        self.assertEqual(response.data[1]['untagged_vlan'], self.vlan2.id)
+        self.assertEqual(response.data[2]['untagged_vlan'], self.vlan2.id)
 
     def test_update_interface(self):
 
