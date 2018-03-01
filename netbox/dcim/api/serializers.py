@@ -731,15 +731,20 @@ class WritableInterfaceSerializer(ValidatedModelSerializer):
 
     def validate(self, data):
 
-        # Validate that all untagged VLANs either belong to the same site as the Interface's parent Deivce or
-        # VirtualMachine, or are global.
-        parent = self.instance.parent if self.instance else data.get('device') or data.get('virtual_machine')
+        # All associated VLANs be global or assigned to the parent device's site.
+        device = self.instance.device if self.instance else data.get('device')
+        untagged_vlan = data.get('untagged_vlan')
+        if untagged_vlan and untagged_vlan.site not in [device.site, None]:
+            raise serializers.ValidationError({
+                'untagged_vlan': "VLAN {} must belong to the same site as the interface's parent device, or it must be "
+                                 "global.".format(untagged_vlan)
+            })
         for vlan in data.get('tagged_vlans', []):
-            if vlan.site not in [parent, None]:
-                raise serializers.ValidationError(
-                    "Tagged VLAN {} must belong to the same site as the interface's parent device/VM, or it must be "
-                    "global".format(vlan)
-                )
+            if vlan.site not in [device.site, None]:
+                raise serializers.ValidationError({
+                    'tagged_vlans': "VLAN {} must belong to the same site as the interface's parent device, or it must "
+                                   "be global.".format(vlan)
+                })
 
         return super(WritableInterfaceSerializer, self).validate(data)
 
