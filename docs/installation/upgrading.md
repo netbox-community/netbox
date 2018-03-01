@@ -27,6 +27,12 @@ Be sure to replicate your uploaded media as well. (The exact action necessary wi
 # cp -pr /opt/netbox-X.Y.Z/netbox/media/ /opt/netbox/netbox/
 ```
 
+Also make sure to copy over any reports that you've made. Note that if you made them in a separate directory (`/opt/netbox-reports` for example), then you will not need to copy them - the config file that you copied earlier will point to the correct location.
+
+```no-highlight
+# cp -r /opt/netbox-X.Y.X/netbox/reports /opt/netbox/netbox/reports/
+```
+
 If you followed the original installation guide to set up gunicorn, be sure to copy its configuration as well:
 
 ```no-highlight
