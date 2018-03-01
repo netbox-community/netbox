@@ -35,6 +35,7 @@ class CustomFieldQueryset:
 
     def __init__(self, queryset, custom_fields):
         self.queryset = queryset
+        self.model = queryset.model
         self.custom_fields = custom_fields
 
     def __iter__(self):
