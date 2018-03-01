@@ -1679,6 +1679,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm, ChainedFieldsMixin):
         label='Untagged VLAN',
         widget=APISelect(
             api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',
+            display_field='display_name'
         )
     )
     tagged_vlans = ChainedModelMultipleChoiceField(
@@ -1691,6 +1692,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm, ChainedFieldsMixin):
         label='Tagged VLANs',
         widget=APISelectMultiple(
             api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',
+            display_field='display_name'
         )
     )
 
@@ -2067,7 +2069,7 @@ class InterfaceConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
         super(InterfaceConnectionForm, self).__init__(*args, **kwargs)
 
         # Initialize interface A choices
-        device_a_interfaces = Interface.objects.connectable().order_naturally().filter(device=device_a).select_related(
+        device_a_interfaces = device_a.vc_interfaces.connectable().order_naturally().select_related(
             'circuit_termination', 'connected_as_a', 'connected_as_b'
         )
         self.fields['interface_a'].choices = [
@@ -2076,9 +2078,11 @@ class InterfaceConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
 
         # Mark connected interfaces as disabled
         if self.data.get('device_b'):
-            self.fields['interface_b'].choices = [
-                (iface.id, {'label': iface.name, 'disabled': iface.is_connected}) for iface in self.fields['interface_b'].queryset
-            ]
+            self.fields['interface_b'].choices = []
+            for iface in self.fields['interface_b'].queryset:
+                self.fields['interface_b'].choices.append(
+                    (iface.id, {'label': iface.name, 'disabled': iface.is_connected})
+                )
 
 
 class InterfaceConnectionCSVForm(forms.ModelForm):

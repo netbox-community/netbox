@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
 from django.db.models import Count, Q
-from django.forms import ModelChoiceField, ModelForm, modelformset_factory
+from django.forms import modelformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -2082,13 +2082,12 @@ class VirtualChassisCreateView(PermissionRequiredMixin, View):
         # Get the list of devices being added to a VirtualChassis
         pk_form = forms.DeviceSelectionForm(request.POST)
         pk_form.full_clean()
+        if not pk_form.cleaned_data.get('pk'):
+            messages.warning(request, "No devices were selected.")
+            return redirect('dcim:device_list')
         device_queryset = Device.objects.filter(
             pk__in=pk_form.cleaned_data.get('pk')
         ).select_related('rack').order_by('vc_position')
-
-        if not device_queryset:
-            messages.warning(request, "No devices were selected.")
-            return redirect('dcim:device_list')
 
         VCMemberFormSet = modelformset_factory(
             model=Device,
