@@ -1883,7 +1883,6 @@ class InterfaceCreateForm(ComponentForm, ChainedFieldsMixin):
 
 class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm, ChainedFieldsMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
-    device = forms.ModelChoiceField(queryset=Device.objects.all(), widget=forms.HiddenInput)
     form_factor = forms.ChoiceField(choices=add_blank_choice(IFACE_FF_CHOICES), required=False)
     enabled = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect)
     lag = forms.ModelChoiceField(queryset=Interface.objects.all(), required=False, label='Parent LAG')
@@ -1943,17 +1942,7 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm, ChainedFieldsMixin):
         super(InterfaceBulkEditForm, self).__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces which belong to the parent device (or VC master)
-        device = None
-        if self.initial.get('device'):
-            try:
-                device = Device.objects.get(pk=self.initial.get('device'))
-            except Device.DoesNotExist:
-                pass
-        else:
-            try:
-                device = Device.objects.get(pk=self.data.get('device'))
-            except Device.DoesNotExist:
-                pass
+        device = self.parent_obj
         if device is not None:
             interface_ordering = device.device_type.interface_ordering
             self.fields['lag'].queryset = Interface.objects.order_naturally(method=interface_ordering).filter(
