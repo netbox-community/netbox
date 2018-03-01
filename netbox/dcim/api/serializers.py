@@ -743,7 +743,7 @@ class WritableInterfaceSerializer(ValidatedModelSerializer):
             if vlan.site not in [device.site, None]:
                 raise serializers.ValidationError({
                     'tagged_vlans': "VLAN {} must belong to the same site as the interface's parent device, or it must "
-                                   "be global.".format(vlan)
+                                    "be global.".format(vlan)
                 })
 
         return super(WritableInterfaceSerializer, self).validate(data)
