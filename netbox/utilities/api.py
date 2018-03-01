@@ -55,7 +55,7 @@ class ValidatedModelSerializer(ModelSerializer):
             model = self.Meta.model
             # Ignore ManyToManyFields for new instances (a PK is needed for validation)
             for field in model._meta.get_fields():
-                if isinstance(field, ManyToManyField):
+                if isinstance(field, ManyToManyField) and field.name in attrs:
                     attrs.pop(field.name)
             instance = self.Meta.model(**attrs)
         else:
