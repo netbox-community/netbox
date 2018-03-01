@@ -1730,10 +1730,10 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm, ChainedFieldsMixin):
             self.fields['site'].initial = None
 
         # Limit the initial vlan choices
-        if self.is_bound:
+        if self.is_bound and self.data.get('vlan_group') and self.data.get('site'):
             filter_dict = {
-                'group_id': self.data.get('vlan_group') or None,
-                'site_id': self.data.get('site') or None,
+                'group_id': self.data.get('vlan_group'),
+                'site_id': self.data.get('site'),
             }
         elif self.initial.get('untagged_vlan'):
             filter_dict = {
@@ -1856,10 +1856,10 @@ class InterfaceCreateForm(ComponentForm, ChainedFieldsMixin):
             self.fields['site'].initial = None
 
         # Limit the initial vlan choices
-        if self.is_bound:
+        if self.is_bound and self.data.get('vlan_group') and self.data.get('site'):
             filter_dict = {
-                'group_id': self.data.get('vlan_group') or None,
-                'site_id': self.data.get('site') or None,
+                'group_id': self.data.get('vlan_group'),
+                'site_id': self.data.get('site'),
             }
         elif self.initial.get('untagged_vlan'):
             filter_dict = {
@@ -1970,10 +1970,10 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm, ChainedFieldsMixin):
             self.fields['site'].queryset = Site.objects.none()
             self.fields['site'].initial = None
 
-        if self.is_bound:
+        if self.is_bound and self.data.get('vlan_group') and self.data.get('site'):
             filter_dict = {
-                'group_id': self.data.get('vlan_group') or None,
-                'site_id': self.data.get('site') or None,
+                'group_id': self.data.get('vlan_group'),
+                'site_id': self.data.get('site'),
             }
         else:
             filter_dict = {
