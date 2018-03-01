@@ -35,6 +35,7 @@ class CustomFieldQueryset:
 
     def __init__(self, queryset, custom_fields):
         self.queryset = queryset
+        self.model = queryset.model
         self.custom_fields = custom_fields
 
     def __iter__(self):
@@ -506,7 +507,7 @@ class BulkEditView(View):
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
         if '_apply' in request.POST:
-            form = self.form(self.cls, request.POST)
+            form = self.form(self.cls, parent_obj, request.POST)
             if form.is_valid():
 
                 custom_fields = form.custom_fields if hasattr(form, 'custom_fields') else []
@@ -564,7 +565,7 @@ class BulkEditView(View):
         else:
             initial_data = request.POST.copy()
             initial_data['pk'] = pk_list
-            form = self.form(self.cls, initial=initial_data)
+            form = self.form(self.cls, parent_obj, initial=initial_data)
 
         # Retrieve objects being edited
         queryset = self.queryset or self.cls.objects.all()

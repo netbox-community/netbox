@@ -1679,6 +1679,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm, ChainedFieldsMixin):
         label='Untagged VLAN',
         widget=APISelect(
             api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',
+            display_field='display_name'
         )
     )
     tagged_vlans = ChainedModelMultipleChoiceField(
@@ -1691,6 +1692,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm, ChainedFieldsMixin):
         label='Tagged VLANs',
         widget=APISelectMultiple(
             api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}',
+            display_field='display_name'
         )
     )
 
@@ -1728,10 +1730,10 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm, ChainedFieldsMixin):
             self.fields['site'].initial = None
 
         # Limit the initial vlan choices
-        if self.is_bound:
+        if self.is_bound and self.data.get('vlan_group') and self.data.get('site'):
             filter_dict = {
-                'group_id': self.data.get('vlan_group') or None,
-                'site_id': self.data.get('site') or None,
+                'group_id': self.data.get('vlan_group'),
+                'site_id': self.data.get('site'),
             }
         elif self.initial.get('untagged_vlan'):
             filter_dict = {
@@ -1854,10 +1856,10 @@ class InterfaceCreateForm(ComponentForm, ChainedFieldsMixin):
             self.fields['site'].initial = None
 
         # Limit the initial vlan choices
-        if self.is_bound:
+        if self.is_bound and self.data.get('vlan_group') and self.data.get('site'):
             filter_dict = {
-                'group_id': self.data.get('vlan_group') or None,
-                'site_id': self.data.get('site') or None,
+                'group_id': self.data.get('vlan_group'),
+                'site_id': self.data.get('site'),
             }
         elif self.initial.get('untagged_vlan'):
             filter_dict = {
@@ -1881,7 +1883,6 @@ class InterfaceCreateForm(ComponentForm, ChainedFieldsMixin):
 
 class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm, ChainedFieldsMixin):
     pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
-    device = forms.ModelChoiceField(queryset=Device.objects.all(), widget=forms.HiddenInput)
     form_factor = forms.ChoiceField(choices=add_blank_choice(IFACE_FF_CHOICES), required=False)
     enabled = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect)
     lag = forms.ModelChoiceField(queryset=Interface.objects.all(), required=False, label='Parent LAG')
@@ -1941,17 +1942,7 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm, ChainedFieldsMixin):
         super(InterfaceBulkEditForm, self).__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces which belong to the parent device (or VC master)
-        device = None
-        if self.initial.get('device'):
-            try:
-                device = Device.objects.get(pk=self.initial.get('device'))
-            except Device.DoesNotExist:
-                pass
-        else:
-            try:
-                device = Device.objects.get(pk=self.data.get('device'))
-            except Device.DoesNotExist:
-                pass
+        device = self.parent_obj
         if device is not None:
             interface_ordering = device.device_type.interface_ordering
             self.fields['lag'].queryset = Interface.objects.order_naturally(method=interface_ordering).filter(
@@ -1968,10 +1959,10 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm, ChainedFieldsMixin):
             self.fields['site'].queryset = Site.objects.none()
             self.fields['site'].initial = None
 
-        if self.is_bound:
+        if self.is_bound and self.data.get('vlan_group') and self.data.get('site'):
             filter_dict = {
-                'group_id': self.data.get('vlan_group') or None,
-                'site_id': self.data.get('site') or None,
+                'group_id': self.data.get('vlan_group'),
+                'site_id': self.data.get('site'),
             }
         else:
             filter_dict = {
@@ -2067,7 +2058,7 @@ class InterfaceConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
         super(InterfaceConnectionForm, self).__init__(*args, **kwargs)
 
         # Initialize interface A choices
-        device_a_interfaces = Interface.objects.connectable().order_naturally().filter(device=device_a).select_related(
+        device_a_interfaces = device_a.vc_interfaces.connectable().order_naturally().select_related(
             'circuit_termination', 'connected_as_a', 'connected_as_b'
         )
         self.fields['interface_a'].choices = [
@@ -2076,9 +2067,11 @@ class InterfaceConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
 
         # Mark connected interfaces as disabled
         if self.data.get('device_b'):
-            self.fields['interface_b'].choices = [
-                (iface.id, {'label': iface.name, 'disabled': iface.is_connected}) for iface in self.fields['interface_b'].queryset
-            ]
+            self.fields['interface_b'].choices = []
+            for iface in self.fields['interface_b'].queryset:
+                self.fields['interface_b'].choices.append(
+                    (iface.id, {'label': iface.name, 'disabled': iface.is_connected})
+                )
 
 
 class InterfaceConnectionCSVForm(forms.ModelForm):
@@ -2298,11 +2291,12 @@ class BaseVCMemberFormSet(forms.BaseModelFormSet):
         # Check for duplicate VC position values
         vc_position_list = []
         for form in self.forms:
-            vc_position = form.cleaned_data['vc_position']
-            if vc_position in vc_position_list:
-                error_msg = 'A virtual chassis member already exists in position {}.'.format(vc_position)
-                form.add_error('vc_position', error_msg)
-            vc_position_list.append(vc_position)
+            vc_position = form.cleaned_data.get('vc_position')
+            if vc_position:
+                if vc_position in vc_position_list:
+                    error_msg = 'A virtual chassis member already exists in position {}.'.format(vc_position)
+                    form.add_error('vc_position', error_msg)
+                vc_position_list.append(vc_position)
 
 
 class DeviceVCMembershipForm(forms.ModelForm):

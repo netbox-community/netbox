@@ -25,11 +25,13 @@ class VirtualizationFieldChoicesViewSet(FieldChoicesViewSet):
 class ClusterTypeViewSet(ModelViewSet):
     queryset = ClusterType.objects.all()
     serializer_class = serializers.ClusterTypeSerializer
+    filter_class = filters.ClusterTypeFilter
 
 
 class ClusterGroupViewSet(ModelViewSet):
     queryset = ClusterGroup.objects.all()
     serializer_class = serializers.ClusterGroupSerializer
+    filter_class = filters.ClusterGroupFilter
 
 
 class ClusterViewSet(CustomFieldModelViewSet):

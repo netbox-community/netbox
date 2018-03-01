@@ -13,6 +13,20 @@ from .constants import VM_STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
+class ClusterTypeFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = ClusterType
+        fields = ['name', 'slug']
+
+
+class ClusterGroupFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = ClusterGroup
+        fields = ['name', 'slug']
+
+
 class ClusterFilter(CustomFieldFilterSet):
     id__in = NumericInFilter(name='id', lookup_expr='in')
     q = django_filters.CharFilter(

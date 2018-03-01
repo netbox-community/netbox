@@ -21,6 +21,12 @@ Copy the 'configuration.py' you created when first installing to the new version
 # cp /opt/netbox-X.Y.Z/netbox/netbox/configuration.py /opt/netbox/netbox/netbox/configuration.py
 ```
 
+Be sure to replicate your uploaded media as well. (The exact action necessary will depend on where you choose to store your media, but in general moving or copying the media directory will suffice.)
+
+```no-highlight
+# cp -pr /opt/netbox-X.Y.Z/netbox/media/ /opt/netbox/netbox/
+```
+
 If you followed the original installation guide to set up gunicorn, be sure to copy its configuration as well:
 
 ```no-highlight

@@ -442,7 +442,6 @@ class InterfaceCreateForm(ComponentForm):
 
 class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
-    virtual_machine = forms.ModelChoiceField(queryset=VirtualMachine.objects.all(), widget=forms.HiddenInput)
     enabled = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect)
     mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
     description = forms.CharField(max_length=100, required=False)

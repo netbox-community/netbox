@@ -539,9 +539,11 @@ class ComponentForm(BootstrapMixin, forms.Form):
 
 class BulkEditForm(forms.Form):
 
-    def __init__(self, model, *args, **kwargs):
+    def __init__(self, model, parent_obj=None, *args, **kwargs):
         super(BulkEditForm, self).__init__(*args, **kwargs)
         self.model = model
+        self.parent_obj = parent_obj
+
         # Copy any nullable fields defined in Meta
         if hasattr(self.Meta, 'nullable_fields'):
             self.nullable_fields = [field for field in self.Meta.nullable_fields]

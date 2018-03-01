@@ -5,6 +5,7 @@ import pytz
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import ManyToManyField
 from django.http import Http404
 from rest_framework import mixins
 from rest_framework.exceptions import APIException
@@ -51,6 +52,11 @@ class ValidatedModelSerializer(ModelSerializer):
 
         # Run clean() on an instance of the model
         if self.instance is None:
+            model = self.Meta.model
+            # Ignore ManyToManyFields for new instances (a PK is needed for validation)
+            for field in model._meta.get_fields():
+                if isinstance(field, ManyToManyField) and field.name in attrs:
+                    attrs.pop(field.name)
             instance = self.Meta.model(**attrs)
         else:
             instance = self.instance
