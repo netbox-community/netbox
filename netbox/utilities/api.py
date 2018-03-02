@@ -1,15 +1,18 @@
 from __future__ import unicode_literals
 
 from collections import OrderedDict
+import pytz
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import ManyToManyField
 from django.http import Http404
+from rest_framework import mixins
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.serializers import Field, ModelSerializer, ValidationError
-from rest_framework.viewsets import ViewSet
+from rest_framework.viewsets import GenericViewSet, ViewSet
 
 WRITE_OPERATIONS = ['create', 'update', 'partial_update', 'delete']
 
@@ -49,6 +52,11 @@ class ValidatedModelSerializer(ModelSerializer):
 
         # Run clean() on an instance of the model
         if self.instance is None:
+            model = self.Meta.model
+            # Ignore ManyToManyFields for new instances (a PK is needed for validation)
+            for field in model._meta.get_fields():
+                if isinstance(field, ManyToManyField) and field.name in attrs:
+                    attrs.pop(field.name)
             instance = self.Meta.model(**attrs)
         else:
             instance = self.instance
@@ -96,9 +104,50 @@ class ContentTypeFieldSerializer(Field):
             raise ValidationError("Invalid content type")
 
 
+class TimeZoneField(Field):
+    """
+    Represent a pytz time zone.
+    """
+
+    def to_representation(self, obj):
+        return obj.zone if obj else None
+
+    def to_internal_value(self, data):
+        if not data:
+            return ""
+        try:
+            return pytz.timezone(str(data))
+        except pytz.exceptions.UnknownTimeZoneError:
+            raise ValidationError('Invalid time zone "{}"'.format(data))
+
+
 #
-# Views
+# Viewsets
 #
+
+class ModelViewSet(mixins.CreateModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin,
+                   mixins.DestroyModelMixin,
+                   mixins.ListModelMixin,
+                   GenericViewSet):
+    """
+    Substitute DRF's built-in ModelViewSet for our own, which introduces a bit of additional functionality:
+    1. Use an alternate serializer (if provided) for write operations
+    2. Accept either a single object or a list of objects to create
+    """
+    def get_serializer_class(self):
+        # Check for a different serializer to use for write operations
+        if self.action in WRITE_OPERATIONS and hasattr(self, 'write_serializer_class'):
+            return self.write_serializer_class
+        return self.serializer_class
+
+    def get_serializer(self, *args, **kwargs):
+        # If a list of objects has been provided, initialize the serializer with many=True
+        if isinstance(kwargs.get('data', {}), list):
+            kwargs['many'] = True
+        return super(ModelViewSet, self).get_serializer(*args, **kwargs)
+
 
 class FieldChoicesViewSet(ViewSet):
     """
@@ -135,25 +184,9 @@ class FieldChoicesViewSet(ViewSet):
         return Response(self._fields)
 
     def retrieve(self, request, pk):
-
         if pk not in self._fields:
             raise Http404
-
         return Response(self._fields[pk])
 
     def get_view_name(self):
         return "Field Choices"
-
-
-#
-# Mixins
-#
-
-class WritableSerializerMixin(object):
-    """
-    Allow for the use of an alternate, writable serializer class for write operations (e.g. POST, PUT).
-    """
-    def get_serializer_class(self):
-        if self.action in WRITE_OPERATIONS and hasattr(self, 'write_serializer_class'):
-            return self.write_serializer_class
-        return self.serializer_class

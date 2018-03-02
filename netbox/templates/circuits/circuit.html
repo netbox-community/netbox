@@ -47,6 +47,12 @@
             </div>
             <table class="table table-hover panel-body attr-table">
                 <tr>
+                    <td>Status</td>
+                    <td>
+                        <span class="label label-{{ circuit.get_status_class }}">{{ circuit.get_status_display }}</span>
+                    </td>
+                </tr>
+                <tr>
                     <td>Provider</td>
                     <td>
                         <a href="{% url 'circuits:provider' slug=circuit.provider.slug %}">{{ circuit.provider }}</a>

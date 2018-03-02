@@ -87,7 +87,7 @@ AUTH_LDAP_USER_ATTR_MAP = {
 from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
 
 # This search ought to return all groups to which the user belongs. django_auth_ldap uses this to determine group
-# heirarchy.
+# hierarchy.
 AUTH_LDAP_GROUP_SEARCH = LDAPSearch("dc=example,dc=com", ldap.SCOPE_SUBTREE,
                                     "(objectClass=group)")
 AUTH_LDAP_GROUP_TYPE = GroupOfNamesType()

@@ -101,6 +101,10 @@
                     <p>Racks</p>
                 </div>
                 <div class="col-md-4 text-center">
+                    <h2><a href="{% url 'dcim:rackreservation_list' %}?tenant={{ tenant.slug }}" class="btn {% if stats.rackreservation_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.rackreservation_count }}</a></h2>
+                    <p>Rack reservations</p>
+                </div>
+                <div class="col-md-4 text-center">
                     <h2><a href="{% url 'dcim:device_list' %}?tenant={{ tenant.slug }}" class="btn {% if stats.device_count %}btn-primary{% else %}btn-default{% endif %} btn-lg">{{ stats.device_count }}</a></h2>
                     <p>Devices</p>
                 </div>

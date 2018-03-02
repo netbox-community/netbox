@@ -112,3 +112,11 @@ Console ports connect only to console server ports, and power ports connect only
 Each interface is a assigned a form factor denoting its physical properties. Two special form factors exist: the "virtual" form factor can be used to designate logical interfaces (such as SVIs), and the "LAG" form factor can be used to desinate link aggregation groups to which physical interfaces can be assigned. Each interface can also be designated as management-only (for out-of-band management) and assigned a short description.
 
 Device bays represent the ability of a device to house child devices. For example, you might install four blade servers into a 2U chassis. The chassis would appear in the rack elevation as a 2U device with four device bays. Each server within it would be defined as a 0U device installed in one of the device bays. Child devices do not appear on rack elevations, but they are included in the "Non-Racked Devices" list within the rack view.
+
+---
+
+# Virtual Chassis
+
+A virtual chassis represents a set of devices which share a single control plane: for example, a stack of switches which are managed as a single device. Each device in the virtual chassis is assigned a position and (optionally) a priority. Exactly one device is designated the virtual chassis master: This device will typically be assigned a name, secrets, services, and other attributes related to its management.
+
+It's important to recognize the distinction between a virtual chassis and a chassis-based device. For instance, a virtual chassis is not used to model a chassis switch with removable line cards such as the Juniper EX9208, as its line cards are _not_ physically separate devices capable of operating independently.

@@ -121,7 +121,7 @@ input[name="pk"] {
 }
 
 /* Tables */
-.table > tbody > tr > th.pk, .table > tbody > tr > td.pk {
+th.pk, td.pk {
     padding-bottom: 6px;
     padding-top: 10px;
     width: 30px;

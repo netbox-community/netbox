@@ -5,7 +5,7 @@ Supported HTTP methods:
 * `GET`: Retrieve an object or list of objects
 * `POST`: Create a new object
 * `PUT`: Update an existing object, all mandatory fields must be specified
-* `PATCH`: Updates an existing object, only specifiying the field to be changed
+* `PATCH`: Updates an existing object, only specifying the field to be changed
 * `DELETE`: Delete an existing object
 
 To authenticate a request, attach your token in an `Authorization` header:
@@ -144,4 +144,4 @@ $ curl -v -X DELETE -H "Authorization: Token d2f763479f703d80de0ec15254237bc651f
 * Closing connection 0
 ```
 
-The response to a successfull `DELETE` request will have code 204 (No Content); the body of the response will be empty.
+The response to a successful `DELETE` request will have code 204 (No Content); the body of the response will be empty.

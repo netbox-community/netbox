@@ -225,12 +225,20 @@
                 <table class="table table-hover panel-body">
                     <tr>
                         <th>Units</th>
+                        <th>Tenant</th>
                         <th>Description</th>
                         <th></th>
                     </tr>
                     {% for resv in reservations %}
                         <tr>
                             <td>{{ resv.unit_list }}</td>
+                            <td>
+                                {% if resv.tenant %}
+                                    <a href="{{ resv.tenant.get_absolute_url }}">{{ resv.tenant }}</a>
+                                {% else %}
+                                    <span class="text-muted">None</span>
+                                {% endif %}
+                            </td>
                             <td>
                                 {{ resv.description }}<br />
                                 <small>{{ resv.user }} &middot; {{ resv.created }}</small>

@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from dcim.models import Site
-from .constants import CF_TYPE_SELECT
+from .constants import CF_FILTER_DISABLED, CF_FILTER_EXACT, CF_TYPE_BOOLEAN, CF_TYPE_SELECT
 from .models import CustomField, Graph, ExportTemplate, TopologyMap, UserAction
 
 
@@ -14,8 +14,9 @@ class CustomFieldFilter(django_filters.Filter):
     Filter objects by the presence of a CustomFieldValue. The filter's name is used as the CustomField name.
     """
 
-    def __init__(self, cf_type, *args, **kwargs):
-        self.cf_type = cf_type
+    def __init__(self, custom_field, *args, **kwargs):
+        self.cf_type = custom_field.type
+        self.filter_logic = custom_field.filter_logic
         super(CustomFieldFilter, self).__init__(*args, **kwargs)
 
     def filter(self, queryset, value):
@@ -41,10 +42,12 @@ class CustomFieldFilter(django_filters.Filter):
             except ValueError:
                 return queryset.none()
 
-        return queryset.filter(
-            custom_field_values__field__name=self.name,
-            custom_field_values__serialized_value__icontains=value,
-        )
+        # Apply the assigned filter logic (exact or loose)
+        queryset = queryset.filter(custom_field_values__field__name=self.name)
+        if self.cf_type == CF_TYPE_BOOLEAN or self.filter_logic == CF_FILTER_EXACT:
+            return queryset.filter(custom_field_values__serialized_value=value)
+        else:
+            return queryset.filter(custom_field_values__serialized_value__icontains=value)
 
 
 class CustomFieldFilterSet(django_filters.FilterSet):
@@ -56,9 +59,9 @@ class CustomFieldFilterSet(django_filters.FilterSet):
         super(CustomFieldFilterSet, self).__init__(*args, **kwargs)
 
         obj_type = ContentType.objects.get_for_model(self._meta.model)
-        custom_fields = CustomField.objects.filter(obj_type=obj_type, is_filterable=True)
+        custom_fields = CustomField.objects.filter(obj_type=obj_type).exclude(filter_logic=CF_FILTER_DISABLED)
         for cf in custom_fields:
-            self.filters['cf_{}'.format(cf.name)] = CustomFieldFilter(name=cf.name, cf_type=cf.type)
+            self.filters['cf_{}'.format(cf.name)] = CustomFieldFilter(name=cf.name, custom_field=cf)
 
 
 class GraphFilter(django_filters.FilterSet):

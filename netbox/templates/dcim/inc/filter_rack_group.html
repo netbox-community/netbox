@@ -1,0 +1,29 @@
+<script type="text/javascript">
+$(document).ready(function() {
+
+    var site_list = $('#id_site');
+    var rack_group_list = $('#id_group_id');
+
+    // Update rack group and rack options based on selected site
+    site_list.change(function() {
+        var selected_sites = $(this).val();
+        if (selected_sites) {
+
+            // Update rack group options
+            rack_group_list.empty();
+            $.ajax({
+                url: netbox_api_path + 'dcim/rack-groups/?limit=500&site=' + selected_sites.join('&site='),
+                dataType: 'json',
+                success: function (response, status) {
+                    $.each(response["results"], function (index, group) {
+                        var option = $("<option></option>").attr("value", group.id).text(group.name);
+                        rack_group_list.append(option);
+                    });
+                }
+            });
+
+        }
+    });
+
+});
+</script>

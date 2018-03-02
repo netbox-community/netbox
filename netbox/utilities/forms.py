@@ -119,7 +119,7 @@ class ColorSelect(forms.Select):
     """
     Extends the built-in Select widget to colorize each <option>.
     """
-    option_template_name = 'colorselect_option.html'
+    option_template_name = 'widgets/colorselect_option.html'
 
     def __init__(self, *args, **kwargs):
         kwargs['choices'] = COLOR_CHOICES
@@ -144,7 +144,14 @@ class SelectWithDisabled(forms.Select):
     Modified the stock Select widget to accept choices using a dict() for a label. The dict for each option must include
     'label' (string) and 'disabled' (boolean).
     """
-    option_template_name = 'selectwithdisabled_option.html'
+    option_template_name = 'widgets/selectwithdisabled_option.html'
+
+
+class SelectWithPK(forms.Select):
+    """
+    Include the primary key of each option in the option label (e.g. "Router7 (4721)").
+    """
+    option_template_name = 'widgets/select_option_with_pk.html'
 
 
 class ArrayFieldSelectMultiple(SelectWithDisabled, forms.SelectMultiple):
@@ -532,9 +539,11 @@ class ComponentForm(BootstrapMixin, forms.Form):
 
 class BulkEditForm(forms.Form):
 
-    def __init__(self, model, *args, **kwargs):
+    def __init__(self, model, parent_obj=None, *args, **kwargs):
         super(BulkEditForm, self).__init__(*args, **kwargs)
         self.model = model
+        self.parent_obj = parent_obj
+
         # Copy any nullable fields defined in Meta
         if hasattr(self.Meta, 'nullable_fields'):
             self.nullable_fields = [field for field in self.Meta.nullable_fields]

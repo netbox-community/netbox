@@ -2,11 +2,12 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
+from circuits.constants import CIRCUIT_STATUS_CHOICES
 from circuits.models import Provider, Circuit, CircuitTermination, CircuitType
 from dcim.api.serializers import NestedSiteSerializer, InterfaceSerializer
 from extras.api.customfields import CustomFieldModelSerializer
 from tenancy.api.serializers import NestedTenantSerializer
-from utilities.api import ValidatedModelSerializer
+from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer
 
 
 #
@@ -19,7 +20,7 @@ class ProviderSerializer(CustomFieldModelSerializer):
         model = Provider
         fields = [
             'id', 'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
-            'custom_fields',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -37,7 +38,7 @@ class WritableProviderSerializer(CustomFieldModelSerializer):
         model = Provider
         fields = [
             'id', 'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
-            'custom_fields',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -66,14 +67,15 @@ class NestedCircuitTypeSerializer(serializers.ModelSerializer):
 
 class CircuitSerializer(CustomFieldModelSerializer):
     provider = NestedProviderSerializer()
+    status = ChoiceFieldSerializer(choices=CIRCUIT_STATUS_CHOICES)
     type = NestedCircuitTypeSerializer()
     tenant = NestedTenantSerializer()
 
     class Meta:
         model = Circuit
         fields = [
-            'id', 'cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
-            'custom_fields',
+            'id', 'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description',
+            'comments', 'custom_fields', 'created', 'last_updated',
         ]
 
 
@@ -90,8 +92,8 @@ class WritableCircuitSerializer(CustomFieldModelSerializer):
     class Meta:
         model = Circuit
         fields = [
-            'id', 'cid', 'provider', 'type', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
-            'custom_fields',
+            'id', 'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description',
+            'comments', 'custom_fields', 'created', 'last_updated',
         ]
 
 

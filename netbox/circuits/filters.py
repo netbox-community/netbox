@@ -7,6 +7,7 @@ from dcim.models import Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NumericInFilter
+from .constants import CIRCUIT_STATUS_CHOICES
 from .models import Provider, Circuit, CircuitTermination, CircuitType
 
 
@@ -76,6 +77,10 @@ class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
         queryset=CircuitType.objects.all(),
         to_field_name='slug',
         label='Circuit type (slug)',
+    )
+    status = django_filters.MultipleChoiceFilter(
+        choices=CIRCUIT_STATUS_CHOICES,
+        null_value=None
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Tenant.objects.all(),

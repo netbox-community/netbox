@@ -8,6 +8,8 @@ class DCIMConfig(AppConfig):
     verbose_name = "DCIM"
 
     def ready(self):
+      
+        import dcim.signals
 
         # register webhook signals
         from extras.webhooks import register_signals
