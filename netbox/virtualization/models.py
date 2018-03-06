@@ -282,7 +282,7 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
 
     @property
     def serializer(self):
-        return 'virtualization.api.serializers.VirtualMachineGroupSerializer'
+        return 'virtualization.api.serializers.VirtualMachineSerializer'
 
     @property
     def primary_ip(self):
