@@ -2226,7 +2226,7 @@ class VirtualChassisAddMemberView(PermissionRequiredMixin, GetReturnURLMixin, Vi
             device = member_select_form.cleaned_data['device']
             device.virtual_chassis = virtual_chassis
             data = {k: request.POST[k] for k in ['vc_position', 'vc_priority']}
-            membership_form = forms.DeviceVCMembershipForm(data, validate_vc_position=True, instance=device)
+            membership_form = forms.DeviceVCMembershipForm(data=data, validate_vc_position=True, instance=device)
 
             if membership_form.is_valid():
 
@@ -2242,7 +2242,7 @@ class VirtualChassisAddMemberView(PermissionRequiredMixin, GetReturnURLMixin, Vi
 
         else:
 
-            membership_form = forms.DeviceVCMembershipForm(request.POST)
+            membership_form = forms.DeviceVCMembershipForm(data=request.POST)
 
         return render(request, 'dcim/virtualchassis_add_member.html', {
             'virtual_chassis': virtual_chassis,
