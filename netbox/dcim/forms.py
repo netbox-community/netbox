@@ -700,13 +700,21 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
 
 class PlatformCSVForm(forms.ModelForm):
     slug = SlugField()
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=True,
+        to_field_name='name',
+        help_text='Manufacturer name',
+        error_messages={
+            'invalid_choice': 'Manufacturer not found.',
+        }
+    )
 
     class Meta:
         model = Platform
         fields = Platform.csv_headers
         help_texts = {
             'name': 'Platform name',
-            'manufacturer': 'Manufacturer name',
         }
 
 
