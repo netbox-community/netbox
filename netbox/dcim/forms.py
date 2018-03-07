@@ -14,11 +14,11 @@ from ipam.models import IPAddress, VLAN, VLANGroup
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
-    BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField,
-    CommentField, ComponentForm, ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField,
-    FilterTreeNodeMultipleChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SelectWithPK,
-    SmallTextarea, SlugField,
+    AnnotatedMultipleChoiceField, APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple,
+    BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField,
+    ChainedModelMultipleChoiceField, CommentField, ComponentForm, ConfirmationForm, CSVChoiceField, ExpandableNameField,
+    FilterChoiceField, FilterTreeNodeMultipleChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled,
+    SelectWithPK, SmallTextarea, SlugField,
 )
 from virtualization.models import Cluster
 from .constants import (
@@ -172,17 +172,15 @@ class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['region', 'tenant', 'asn', 'description', 'time_zone']
 
 
-def site_status_choices():
-    status_counts = {}
-    for status in Site.objects.values('status').annotate(count=Count('status')).order_by('status'):
-        status_counts[status['status']] = status['count']
-    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in SITE_STATUS_CHOICES]
-
-
 class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Site
     q = forms.CharField(required=False, label='Search')
-    status = forms.MultipleChoiceField(choices=site_status_choices, required=False)
+    status = AnnotatedMultipleChoiceField(
+        choices=SITE_STATUS_CHOICES,
+        annotate=Site.objects.all(),
+        annotate_field='status',
+        required=False
+    )
     region = FilterTreeNodeMultipleChoiceField(
         queryset=Region.objects.annotate(filter_count=Count('sites')),
         to_field_name='slug',
@@ -1048,13 +1046,6 @@ class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['tenant', 'platform', 'serial']
 
 
-def device_status_choices():
-    status_counts = {}
-    for status in Device.objects.values('status').annotate(count=Count('status')).order_by('status'):
-        status_counts[status['status']] = status['count']
-    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in DEVICE_STATUS_CHOICES]
-
-
 class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Device
     q = forms.CharField(required=False, label='Search')
@@ -1092,7 +1083,12 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
         to_field_name='slug',
         null_label='-- None --',
     )
-    status = forms.MultipleChoiceField(choices=device_status_choices, required=False)
+    status = AnnotatedMultipleChoiceField(
+        choices=DEVICE_STATUS_CHOICES,
+        annotate=Device.objects.all(),
+        annotate_field='status',
+        required=False
+    )
     mac_address = forms.CharField(required=False, label='MAC address')
     has_primary_ip = forms.NullBooleanField(
         required=False,

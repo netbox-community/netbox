@@ -8,8 +8,8 @@ from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFi
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    APISelect, add_blank_choice, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField,
-    CSVChoiceField, FilterChoiceField, SmallTextarea, SlugField,
+    AnnotatedMultipleChoiceField, APISelect, add_blank_choice, BootstrapMixin, ChainedFieldsMixin,
+    ChainedModelChoiceField, CommentField, CSVChoiceField, FilterChoiceField, SmallTextarea, SlugField,
 )
 from .constants import CIRCUIT_STATUS_CHOICES
 from .models import Circuit, CircuitTermination, CircuitType, Provider
@@ -169,13 +169,6 @@ class CircuitBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['tenant', 'commit_rate', 'description', 'comments']
 
 
-def circuit_status_choices():
-    status_counts = {}
-    for status in Circuit.objects.values('status').annotate(count=Count('status')).order_by('status'):
-        status_counts[status['status']] = status['count']
-    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in CIRCUIT_STATUS_CHOICES]
-
-
 class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Circuit
     q = forms.CharField(required=False, label='Search')
@@ -187,7 +180,12 @@ class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=Provider.objects.annotate(filter_count=Count('circuits')),
         to_field_name='slug'
     )
-    status = forms.MultipleChoiceField(choices=circuit_status_choices, required=False)
+    status = AnnotatedMultipleChoiceField(
+        choices=CIRCUIT_STATUS_CHOICES,
+        annotate=Circuit.objects.all(),
+        annotate_field='status',
+        required=False
+    )
     tenant = FilterChoiceField(
         queryset=Tenant.objects.annotate(filter_count=Count('circuits')),
         to_field_name='slug',

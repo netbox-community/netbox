@@ -6,6 +6,7 @@ import re
 
 from django import forms
 from django.conf import settings
+from django.db.models import Count
 from django.urls import reverse_lazy
 from mptt.forms import TreeNodeMultipleChoiceField
 
@@ -448,6 +449,38 @@ class FilterChoiceField(FilterChoiceFieldMixin, forms.ModelMultipleChoiceField):
 
 class FilterTreeNodeMultipleChoiceField(FilterChoiceFieldMixin, TreeNodeMultipleChoiceField):
     pass
+
+
+class AnnotatedMultipleChoiceField(forms.MultipleChoiceField):
+    """
+    Render a set of static choices with each choice annotated to include a count of related objects. For example, this
+    field can be used to display a list of all available device statuses along with the number of devices currently
+    assigned to each status.
+    """
+
+    def annotate_choices(self):
+        queryset = self.annotate.values(
+            self.annotate_field
+        ).annotate(
+            count=Count(self.annotate_field)
+        ).order_by(
+            self.annotate_field
+        )
+        choice_counts = {
+            c[self.annotate_field]: c['count'] for c in queryset
+        }
+        annotated_choices = [
+            (c[0], '{} ({})'.format(c[1], choice_counts.get(c[0], 0))) for c in self.static_choices
+        ]
+
+        return annotated_choices
+
+    def __init__(self, choices, annotate, annotate_field, *args, **kwargs):
+        self.annotate = annotate
+        self.annotate_field = annotate_field
+        self.static_choices = choices
+
+        super(AnnotatedMultipleChoiceField, self).__init__(choices=self.annotate_choices, *args, **kwargs)
 
 
 class LaxURLField(forms.URLField):

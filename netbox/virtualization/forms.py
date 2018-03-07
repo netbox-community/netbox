@@ -13,9 +13,9 @@ from ipam.models import IPAddress
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
+    AnnotatedMultipleChoiceField, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ComponentForm,
-    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, SlugField, SmallTextarea,
+    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, SlugField, SmallTextarea, add_blank_choice
 )
 from .constants import VM_STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -361,13 +361,6 @@ class VirtualMachineBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
         nullable_fields = ['role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments']
 
 
-def vm_status_choices():
-    status_counts = {}
-    for status in VirtualMachine.objects.values('status').annotate(count=Count('status')).order_by('status'):
-        status_counts[status['status']] = status['count']
-    return [(s[0], '{} ({})'.format(s[1], status_counts.get(s[0], 0))) for s in VM_STATUS_CHOICES]
-
-
 class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = VirtualMachine
     q = forms.CharField(required=False, label='Search')
@@ -395,7 +388,12 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
         to_field_name='slug',
         null_label='-- None --'
     )
-    status = forms.MultipleChoiceField(choices=vm_status_choices, required=False)
+    status = AnnotatedMultipleChoiceField(
+        choices=VM_STATUS_CHOICES,
+        annotate=VirtualMachine.objects.all(),
+        annotate_field='status',
+        required=False
+    )
     tenant = FilterChoiceField(
         queryset=Tenant.objects.annotate(filter_count=Count('virtual_machines')),
         to_field_name='slug',
