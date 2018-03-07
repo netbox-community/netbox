@@ -13,16 +13,58 @@
             {% render_field form.mtu %}
             {% render_field form.mgmt_only %}
             {% render_field form.description %}
-        </div>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-heading"><strong>802.1Q Encapsulation</strong></div>
-        <div class="panel-body">
             {% render_field form.mode %}
-            {% render_field form.site %}
-            {% render_field form.vlan_group %}
-            {% render_field form.untagged_vlan %}
-            {% render_field form.tagged_vlans %}
         </div>
     </div>
+    {% with interface=form.instance %}
+        {% if interface.mode %}
+            <div class="panel panel-default">
+                <div class="panel-heading"><strong>802.1Q VLANs</strong></div>
+                <table class="table panel-body">
+                    <tr>
+                        <th>VID</th>
+                        <th>Name</th>
+                        <th>Untagged</th>
+                        <th>Tagged</th>
+                    </tr>
+                    {% if interface.untagged_vlan %}
+                        <tr>
+                            <td>{{ interface.untagged_vlan.vid }}</td>
+                            <td>{{ interface.untagged_vlan.name }}</td>
+                            <td>
+                                <input type="radio" name="untagged_vlan" value="{{ interface.untagged_vlan.pk }}" checked="true" />
+                            </td>
+                            <td>
+                                <input type="checkbox" name="tagged_vlans" value="{{ interface.untagged_vlan.pk }}" />
+                            </td>
+                        </tr>
+                    {% endif %}
+                    {% for vlan in interface.tagged_vlans.all %}
+                        <tr>
+                            <td>{{ vlan.vid }}</td>
+                            <td>{{ vlan.name }}</td>
+                            <td>
+                                <input type="radio" name="untagged_vlan" value="{{ vlan.pk }}" />
+                            </td>
+                            <td>
+                                <input type="checkbox" name="tagged_vlans" value="{{ vlan.pk }}" checked="true" />
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    {% if not interface.untagged_vlan and not interface.tagged_vlans.exists %}
+                        <tr>
+                            <td colspan="4">
+                                <span class="text-muted">No VLANs assigned</span>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </table>
+                <div class="panel-footer text-right">
+                    <a href="{% url 'dcim:interface_assign_vlans' pk=interface.pk %}?return_url={% url 'dcim:interface_edit' pk=interface.pk %}" class="btn btn-primary btn-xs">
+                        <i class="glyphicon glyphicon-plus"></i> Add VLANs
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    {% endwith %}
 {% endblock %}

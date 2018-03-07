@@ -1455,6 +1455,16 @@ class Interface(models.Model):
                                  "device/VM, or it must be global".format(self.untagged_vlan)
             })
 
+    def save(self, *args, **kwargs):
+
+        if self.mode is None:
+            self.untagged_vlan = None
+            self.tagged_vlans = []
+        elif self.mode is IFACE_MODE_ACCESS:
+            self.tagged_vlans = []
+
+        return super(Interface, self).save(*args, **kwargs)
+
     @property
     def parent(self):
         return self.device or self.virtual_machine
