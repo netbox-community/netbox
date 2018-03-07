@@ -47,8 +47,13 @@ REGION_ACTIONS = """
 """
 
 RACKGROUP_ACTIONS = """
+<a href="{% url 'dcim:rack_elevation_list' %}?site={{ record.site.slug }}&group_id={{ record.pk }}" class="btn btn-xs btn-primary" title="View elevations">
+    <i class="fa fa-eye"></i>
+</a>
 {% if perms.dcim.change_rackgroup %}
-    <a href="{% url 'dcim:rackgroup_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+    <a href="{% url 'dcim:rackgroup_edit' pk=record.pk %}" class="btn btn-xs btn-warning" title="Edit">
+        <i class="glyphicon glyphicon-pencil"></i>
+    </a>
 {% endif %}
 """
 
@@ -182,12 +187,21 @@ class SiteTable(BaseTable):
 
 class RackGroupTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(verbose_name='Name')
-    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
-    rack_count = tables.Column(verbose_name='Racks')
-    slug = tables.Column(verbose_name='Slug')
-    actions = tables.TemplateColumn(template_code=RACKGROUP_ACTIONS, attrs={'td': {'class': 'text-right'}},
-                                    verbose_name='')
+    name = tables.LinkColumn()
+    site = tables.LinkColumn(
+        viewname='dcim:site',
+        args=[Accessor('site.slug')],
+        verbose_name='Site'
+    )
+    rack_count = tables.Column(
+        verbose_name='Racks'
+    )
+    slug = tables.Column()
+    actions = tables.TemplateColumn(
+        template_code=RACKGROUP_ACTIONS,
+        attrs={'td': {'class': 'text-right'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = RackGroup
