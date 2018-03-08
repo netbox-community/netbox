@@ -1667,7 +1667,9 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
             'mode': '802.1Q Mode',
         }
         help_texts = {
-            'mode': "Nullifying the mode will clear any associated VLANs."
+            'mode': "Access: One untagged VLAN<br />"
+                    "Tagged: One untagged VLAN and/or one or more tagged VLANs<br />"
+                    "Tagged All: Implies all VLANs are available (w/optional untagged VLAN)"
         }
 
     def __init__(self, *args, **kwargs):
@@ -1693,13 +1695,20 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         untagged_vlan = self.cleaned_data['untagged_vlan']
         tagged_vlans = self.cleaned_data['tagged_vlans']
 
+        # A VLAN cannot be both tagged and untagged
+        if untagged_vlan and untagged_vlan in tagged_vlans:
+            raise forms.ValidationError("VLAN {} cannot be both tagged and untagged.".format(untagged_vlan))
+
+        # Untagged interfaces cannot be assigned tagged VLANs
         if self.cleaned_data['mode'] == IFACE_MODE_ACCESS and tagged_vlans:
             raise forms.ValidationError({
                 'mode': "An access interface cannot have tagged VLANs assigned."
             })
 
-        if untagged_vlan and untagged_vlan in tagged_vlans:
-            raise forms.ValidationError("VLAN {} cannot be both tagged and untagged.".format(untagged_vlan))
+        # Remove all tagged VLAN assignments from "tagged all" interfaces
+        elif self.cleaned_data['mode'] == IFACE_MODE_TAGGED_ALL:
+            self.cleaned_data['tagged_vlans'] = []
+
 
 class InterfaceAssignVLANsForm(BootstrapMixin, forms.ModelForm):
     vlans = forms.MultipleChoiceField(
@@ -1720,18 +1729,38 @@ class InterfaceAssignVLANsForm(BootstrapMixin, forms.ModelForm):
 
         super(InterfaceAssignVLANsForm, self).__init__(*args, **kwargs)
 
+        if self.instance.mode == IFACE_MODE_ACCESS:
+            self.initial['tagged'] = False
+
+        # Find all VLANs already assigned to the interface for exclusion from the list
+        assigned_vlans = [v.pk for v in self.instance.tagged_vlans.all()]
+        if self.instance.untagged_vlan is not None:
+            assigned_vlans.append(self.instance.untagged_vlan.pk)
+
         # Initialize VLAN choices
         device = self.instance.device
         vlan_choices = [
-            ('Global', [(vlan.pk, vlan) for vlan in VLAN.objects.filter(site=None)]),
-            (device.site.name, [(vlan.pk, vlan) for vlan in VLAN.objects.filter(site=device.site, group=None)]),
+            ('Global', [(vlan.pk, vlan) for vlan in VLAN.objects.filter(site=None).exclude(pk__in=assigned_vlans)]),
+            (device.site.name, [(vlan.pk, vlan) for vlan in VLAN.objects.filter(site=device.site, group=None).exclude(pk__in=assigned_vlans)]),
         ]
         for group in VLANGroup.objects.filter(site=device.site):
             vlan_choices.append((
                 '{} / {}'.format(group.site.name, group.name),
-                [(vlan.pk, vlan) for vlan in VLAN.objects.filter(group=group)]
+                [(vlan.pk, vlan) for vlan in VLAN.objects.filter(group=group).exclude(pk__in=assigned_vlans)]
             ))
         self.fields['vlans'].choices = vlan_choices
+
+    def clean(self):
+
+        super(InterfaceAssignVLANsForm, self).clean()
+
+        # Only untagged VLANs permitted on an access interface
+        if self.instance.mode == IFACE_MODE_ACCESS and len(self.cleaned_data['vlans']) > 1:
+            raise forms.ValidationError("Only one VLAN may be assigned to an access interface.")
+
+        # 'tagged' is required if more than one VLAN is selected
+        if not self.cleaned_data['tagged'] and len(self.cleaned_data['vlans']) > 1:
+            raise forms.ValidationError("Only one untagged VLAN may be selected.")
 
     def save(self, *args, **kwargs):
 
@@ -1739,12 +1768,12 @@ class InterfaceAssignVLANsForm(BootstrapMixin, forms.ModelForm):
             for vlan in self.cleaned_data['vlans']:
                 self.instance.tagged_vlans.add(vlan)
         else:
-            self.instance.untagged_vlan = self.cleaned_data['vlans'][0]
+            self.instance.untagged_vlan_id = self.cleaned_data['vlans'][0]
 
         return super(InterfaceAssignVLANsForm, self).save(*args, **kwargs)
 
 
-class InterfaceCreateForm(ComponentForm, forms.ModelForm):
+class InterfaceCreateForm(ComponentForm, forms.Form):
     name_pattern = ExpandableNameField(label='Name')
     form_factor = forms.ChoiceField(choices=IFACE_FF_CHOICES)
     enabled = forms.BooleanField(required=False)

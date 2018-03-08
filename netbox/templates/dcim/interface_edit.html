@@ -16,55 +16,93 @@
             {% render_field form.mode %}
         </div>
     </div>
-    {% with interface=form.instance %}
-        {% if interface.mode %}
-            <div class="panel panel-default">
-                <div class="panel-heading"><strong>802.1Q VLANs</strong></div>
-                <table class="table panel-body">
+    {% if obj.mode %}
+        <div class="panel panel-default" id="vlans_panel">
+            <div class="panel-heading"><strong>802.1Q VLANs</strong></div>
+            <table class="table panel-body">
+                <tr>
+                    <th>VID</th>
+                    <th>Name</th>
+                    <th>Untagged</th>
+                    <th>Tagged</th>
+                </tr>
+                {% if obj.untagged_vlan %}
                     <tr>
-                        <th>VID</th>
-                        <th>Name</th>
-                        <th>Untagged</th>
-                        <th>Tagged</th>
+                        <td>
+                            <a href="{{ obj.untagged_vlan.get_absolute_url }}">{{ obj.untagged_vlan.vid }}</a>
+                        </td>
+                        <td>{{ obj.untagged_vlan.name }}</td>
+                        <td>
+                            <input type="radio" name="untagged_vlan" value="{{ obj.untagged_vlan.pk }}" checked="true" />
+                        </td>
+                        <td>
+                            <input type="checkbox" name="tagged_vlans" value="{{ obj.untagged_vlan.pk }}" />
+                        </td>
                     </tr>
-                    {% if interface.untagged_vlan %}
-                        <tr>
-                            <td>{{ interface.untagged_vlan.vid }}</td>
-                            <td>{{ interface.untagged_vlan.name }}</td>
-                            <td>
-                                <input type="radio" name="untagged_vlan" value="{{ interface.untagged_vlan.pk }}" checked="true" />
-                            </td>
-                            <td>
-                                <input type="checkbox" name="tagged_vlans" value="{{ interface.untagged_vlan.pk }}" />
-                            </td>
-                        </tr>
-                    {% endif %}
-                    {% for vlan in interface.tagged_vlans.all %}
-                        <tr>
-                            <td>{{ vlan.vid }}</td>
-                            <td>{{ vlan.name }}</td>
-                            <td>
-                                <input type="radio" name="untagged_vlan" value="{{ vlan.pk }}" />
-                            </td>
-                            <td>
-                                <input type="checkbox" name="tagged_vlans" value="{{ vlan.pk }}" checked="true" />
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    {% if not interface.untagged_vlan and not interface.tagged_vlans.exists %}
-                        <tr>
-                            <td colspan="4">
-                                <span class="text-muted">No VLANs assigned</span>
-                            </td>
-                        </tr>
-                    {% endif %}
-                </table>
-                <div class="panel-footer text-right">
-                    <a href="{% url 'dcim:interface_assign_vlans' pk=interface.pk %}?return_url={% url 'dcim:interface_edit' pk=interface.pk %}" class="btn btn-primary btn-xs">
-                        <i class="glyphicon glyphicon-plus"></i> Add VLANs
-                    </a>
-                </div>
+                {% endif %}
+                {% for vlan in obj.tagged_vlans.all %}
+                    <tr>
+                        <td>
+                            <a href="{{ vlan.get_absolute_url }}">{{ vlan.vid }}</a>
+                        </td>
+                        <td>{{ vlan.name }}</td>
+                        <td>
+                            <input type="radio" name="untagged_vlan" value="{{ vlan.pk }}" />
+                        </td>
+                        <td>
+                            <input type="checkbox" name="tagged_vlans" value="{{ vlan.pk }}" checked="true" />
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% if not obj.untagged_vlan and not obj.tagged_vlans.exists %}
+                    <tr>
+                        <td colspan="4" class="text-muted text-center">
+                            No VLANs assigned
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="2"></td>
+                        <td>
+                            <a href="#" id="clear_untagged_vlan" class="btn btn-warning btn-xs">Clear</a>
+                        </td>
+                        <td>
+                            <a href="#" id="clear_tagged_vlans" class="btn btn-warning btn-xs">Clear All</a>
+                        </td>
+                    </tr>
+                {% endif %}
+            </table>
+            <div class="panel-footer text-right">
+                <a href="{% url 'dcim:interface_assign_vlans' pk=obj.pk %}?return_url={% url 'dcim:interface_edit' pk=obj.pk %}" class="btn btn-primary btn-xs{% if form.instance.mode == 100 and form.instance.untagged_vlan %} disabled{% endif %}">
+                    <i class="glyphicon glyphicon-plus"></i> Add VLANs
+                </a>
             </div>
-        {% endif %}
-    {% endwith %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block buttons %}
+    {% if obj.pk %}
+        <button type="submit" name="_update" class="btn btn-primary">Update</button>
+        <button type="submit" formaction="?return_url={% url 'dcim:interface_edit' pk=obj.pk %}" class="btn btn-primary">Update and Continue Editing</button>
+    {% else %}
+        <button type="submit" name="_create" class="btn btn-primary">Create</button>
+        <button type="submit" name="_addanother" class="btn btn-primary">Create and Add Another</button>
+    {% endif %}
+    <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#clear_untagged_vlan').click(function () {
+                $('input[name="untagged_vlan"]').prop("checked", false);
+                return false;
+            });
+            $('#clear_tagged_vlans').click(function () {
+                $('input[name="tagged_vlans"]').prop("checked", false);
+                return false;
+            });
+        });
+    </script>
 {% endblock %}

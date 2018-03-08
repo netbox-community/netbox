@@ -31,13 +31,15 @@
         </div>
         <div class="row">
             <div class="col-md-6 col-md-offset-3 text-right">
-                {% if obj.pk %}
-                    <button type="submit" name="_update" class="btn btn-primary">Update</button>
-                {% else %}
-                    <button type="submit" name="_create" class="btn btn-primary">Create</button>
-                    <button type="submit" name="_addanother" class="btn btn-primary">Create and Add Another</button>
-                {% endif %}
-                <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
+                {% block buttons %}
+                    {% if obj.pk %}
+                        <button type="submit" name="_update" class="btn btn-primary">Update</button>
+                    {% else %}
+                        <button type="submit" name="_create" class="btn btn-primary">Create</button>
+                        <button type="submit" name="_addanother" class="btn btn-primary">Create and Add Another</button>
+                    {% endif %}
+                    <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
+                {% endblock %}
             </div>
         </div>
     </form>

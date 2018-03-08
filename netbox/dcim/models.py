@@ -1457,11 +1457,13 @@ class Interface(models.Model):
 
     def save(self, *args, **kwargs):
 
+        # Remove untagged VLAN assignment for non-802.1Q interfaces
         if self.mode is None:
             self.untagged_vlan = None
-            self.tagged_vlans = []
-        elif self.mode is IFACE_MODE_ACCESS:
-            self.tagged_vlans = []
+
+        # Only "tagged" interfaces may have tagged VLANs assigned. ("tagged all" implies all VLANs are assigned.)
+        if self.mode is not IFACE_MODE_TAGGED:
+            self.tagged_vlans.clear()
 
         return super(Interface, self).save(*args, **kwargs)
 
