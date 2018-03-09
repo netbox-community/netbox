@@ -15,10 +15,16 @@ class CustomChoiceFieldInspector(FieldInspector):
         if isinstance(field, ChoiceFieldSerializer):
             value_schema = openapi.Schema(type=openapi.TYPE_INTEGER)
 
-            if set([None] + list(field._choices.keys())) == {None, True, False}:
-                # Special case face and connection_status because the only keys for choices are True and False,
-                # but the underlying field is still a NullBooleanField
-                value_schema = openapi.Schema(type=openapi.TYPE_BOOLEAN)
+            choices = list(field._choices.keys())
+            if set([None] + choices) == {None, True, False}:
+                # DeviceType.subdevice_role, Device.face and InterfaceConnection.connection_status all need to be
+                # differentiated since they each have subtly different values in their choice keys.
+                # - subdevice_role and connection_status are booleans, although subdevice_role includes None
+                # - face is an integer set {0, 1} which is easily confused with {False, True}
+                schema_type = openapi.TYPE_INTEGER
+                if all(type(x) == bool for x in [c for c in choices if c is not None]):
+                    schema_type = openapi.TYPE_BOOLEAN
+                value_schema = openapi.Schema(type=schema_type)
                 value_schema['x-nullable'] = True
 
             schema = SwaggerType(type=openapi.TYPE_OBJECT, required=["label", "value"], properties={
