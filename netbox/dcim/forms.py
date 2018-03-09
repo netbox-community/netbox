@@ -1692,12 +1692,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         super(InterfaceForm, self).clean()
 
         # Validate VLAN assignments
-        untagged_vlan = self.cleaned_data['untagged_vlan']
         tagged_vlans = self.cleaned_data['tagged_vlans']
-
-        # A VLAN cannot be both tagged and untagged
-        if untagged_vlan and untagged_vlan in tagged_vlans:
-            raise forms.ValidationError("VLAN {} cannot be both tagged and untagged.".format(untagged_vlan))
 
         # Untagged interfaces cannot be assigned tagged VLANs
         if self.cleaned_data['mode'] == IFACE_MODE_ACCESS and tagged_vlans:
