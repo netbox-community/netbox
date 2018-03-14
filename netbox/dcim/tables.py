@@ -133,6 +133,10 @@ SUBDEVICE_ROLE_TEMPLATE = """
 {% if record.subdevice_role == True %}Parent{% elif record.subdevice_role == False %}Child{% else %}&mdash;{% endif %}
 """
 
+DEVICETYPE_INSTANCES_TEMPLATE = """
+<a href="{% url 'dcim:device_list' %}?manufacturer_id={{ record.manufacturer_id }}&device_type_id={{ record.pk }}">{{ record.instance_count }}</a>
+"""
+
 UTILIZATION_GRAPH = """
 {% load helpers %}
 {% utilization_graph value %}
@@ -313,13 +317,23 @@ class ManufacturerTable(BaseTable):
 
 class DeviceTypeTable(BaseTable):
     pk = ToggleColumn()
-    model = tables.LinkColumn('dcim:devicetype', args=[Accessor('pk')], verbose_name='Device Type')
+    model = tables.LinkColumn(
+        viewname='dcim:devicetype',
+        args=[Accessor('pk')],
+        verbose_name='Device Type'
+    )
     is_full_depth = tables.BooleanColumn(verbose_name='Full Depth')
     is_console_server = tables.BooleanColumn(verbose_name='CS')
     is_pdu = tables.BooleanColumn(verbose_name='PDU')
     is_network_device = tables.BooleanColumn(verbose_name='Net')
-    subdevice_role = tables.TemplateColumn(SUBDEVICE_ROLE_TEMPLATE, verbose_name='Subdevice Role')
-    instance_count = tables.Column(verbose_name='Instances')
+    subdevice_role = tables.TemplateColumn(
+        template_code=SUBDEVICE_ROLE_TEMPLATE,
+        verbose_name='Subdevice Role'
+    )
+    instance_count = tables.TemplateColumn(
+        template_code=DEVICETYPE_INSTANCES_TEMPLATE,
+        verbose_name='Instances'
+    )
 
     class Meta(BaseTable.Meta):
         model = DeviceType
