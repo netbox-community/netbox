@@ -5,7 +5,8 @@ from django.core.exceptions import ValidationError
 from django.db.models import Count
 from mptt.forms import TreeNodeChoiceField
 
-from dcim.constants import IFACE_FF_VIRTUAL
+from dcim.constants import IFACE_FF_VIRTUAL, IFACE_MODE_ACCESS, IFACE_MODE_TAGGED_ALL
+from dcim.forms import INTERFACE_MODE_HELP_TEXT
 from dcim.formfields import MACAddressFormField
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
 from extras.forms import CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
@@ -414,11 +415,37 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Interface
-        fields = ['virtual_machine', 'name', 'form_factor', 'enabled', 'mac_address', 'mtu', 'description']
+        fields = [
+            'virtual_machine', 'name', 'form_factor', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
+            'untagged_vlan', 'tagged_vlans',
+        ]
         widgets = {
             'virtual_machine': forms.HiddenInput(),
             'form_factor': forms.HiddenInput(),
         }
+        labels = {
+            'mode': '802.1Q Mode',
+        }
+        help_texts = {
+            'mode': INTERFACE_MODE_HELP_TEXT,
+        }
+
+    def clean(self):
+
+        super(InterfaceForm, self).clean()
+
+        # Validate VLAN assignments
+        tagged_vlans = self.cleaned_data['tagged_vlans']
+
+        # Untagged interfaces cannot be assigned tagged VLANs
+        if self.cleaned_data['mode'] == IFACE_MODE_ACCESS and tagged_vlans:
+            raise forms.ValidationError({
+                'mode': "An access interface cannot have tagged VLANs assigned."
+            })
+
+        # Remove all tagged VLAN assignments from "tagged all" interfaces
+        elif self.cleaned_data['mode'] == IFACE_MODE_TAGGED_ALL:
+            self.cleaned_data['tagged_vlans'] = []
 
 
 class InterfaceCreateForm(ComponentForm):

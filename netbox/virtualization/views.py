@@ -329,6 +329,7 @@ class InterfaceEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_interface'
     model = Interface
     model_form = forms.InterfaceForm
+    template_name = 'virtualization/interface_edit.html'
 
 
 class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):

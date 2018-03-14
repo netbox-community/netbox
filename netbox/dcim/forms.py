@@ -14,11 +14,10 @@ from ipam.models import IPAddress, VLAN, VLANGroup
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    AnnotatedMultipleChoiceField, APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple,
-    BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField,
-    ChainedModelMultipleChoiceField, CommentField, ComponentForm, ConfirmationForm, CSVChoiceField, ExpandableNameField,
-    FilterChoiceField, FilterTreeNodeMultipleChoiceField, FlexibleModelChoiceField, Livesearch, SelectWithDisabled,
-    SelectWithPK, SmallTextarea, SlugField,
+    AnnotatedMultipleChoiceField, APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
+    BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, ComponentForm,
+    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FilterTreeNodeMultipleChoiceField,
+    FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SelectWithPK, SmallTextarea, SlugField,
 )
 from virtualization.models import Cluster
 from .constants import (
@@ -36,6 +35,12 @@ from .models import (
 )
 
 DEVICE_BY_PK_RE = '{\d+\}'
+
+INTERFACE_MODE_HELP_TEXT = """
+Access: One untagged VLAN<br />
+Tagged: One untagged VLAN and/or one or more tagged VLANs<br />
+Tagged All: Implies all VLANs are available (w/optional untagged VLAN)
+"""
 
 
 def get_device_by_name_or_pk(name):
@@ -1657,7 +1662,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Interface
         fields = [
-            'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
+            'device', 'name', 'form_factor', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description',
             'mode', 'untagged_vlan', 'tagged_vlans',
         ]
         widgets = {
@@ -1667,9 +1672,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
             'mode': '802.1Q Mode',
         }
         help_texts = {
-            'mode': "Access: One untagged VLAN<br />"
-                    "Tagged: One untagged VLAN and/or one or more tagged VLANs<br />"
-                    "Tagged All: Implies all VLANs are available (w/optional untagged VLAN)"
+            'mode': INTERFACE_MODE_HELP_TEXT,
         }
 
     def __init__(self, *args, **kwargs):
@@ -1732,17 +1735,37 @@ class InterfaceAssignVLANsForm(BootstrapMixin, forms.ModelForm):
         if self.instance.untagged_vlan is not None:
             assigned_vlans.append(self.instance.untagged_vlan.pk)
 
-        # Initialize VLAN choices
-        device = self.instance.device
-        vlan_choices = [
-            ('Global', [(vlan.pk, vlan) for vlan in VLAN.objects.filter(site=None).exclude(pk__in=assigned_vlans)]),
-            (device.site.name, [(vlan.pk, vlan) for vlan in VLAN.objects.filter(site=device.site, group=None).exclude(pk__in=assigned_vlans)]),
-        ]
-        for group in VLANGroup.objects.filter(site=device.site):
-            vlan_choices.append((
-                '{} / {}'.format(group.site.name, group.name),
-                [(vlan.pk, vlan) for vlan in VLAN.objects.filter(group=group).exclude(pk__in=assigned_vlans)]
-            ))
+        # Compile VLAN choices
+        vlan_choices = []
+
+        # Add global VLANs
+        global_vlans = VLAN.objects.filter(site=None, group=None).exclude(pk__in=assigned_vlans)
+        vlan_choices.append((
+            'Global', [(vlan.pk, vlan) for vlan in global_vlans])
+        )
+
+        # Add grouped global VLANs
+        for group in VLANGroup.objects.filter(site=None):
+            global_group_vlans = VLAN.objects.filter(group=group).exclude(pk__in=assigned_vlans)
+            vlan_choices.append(
+                (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
+            )
+
+        parent = self.instance.parent
+        if parent is not None:
+
+            # Add site VLANs
+            site_vlans = VLAN.objects.filter(site=parent.site, group=None).exclude(pk__in=assigned_vlans)
+            vlan_choices.append((parent.site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
+
+            # Add grouped site VLANs
+            for group in VLANGroup.objects.filter(site=parent.site):
+                site_group_vlans = VLAN.objects.filter(group=group).exclude(pk__in=assigned_vlans)
+                vlan_choices.append((
+                    '{} / {}'.format(group.site.name, group.name),
+                    [(vlan.pk, vlan) for vlan in site_group_vlans]
+                ))
+
         self.fields['vlans'].choices = vlan_choices
 
     def clean(self):
