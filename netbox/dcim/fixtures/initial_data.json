@@ -318,6 +318,7 @@
     "fields": {
         "name": "AIX",
         "slug": "aix",
+        "manufacturer": "IBM",
         "rpc_client": ""
     }
 },
@@ -327,6 +328,7 @@
     "fields": {
         "name": "HP-UX",
         "slug": "hp-ux",
+        "manufacturer": "HP",
         "rpc_client": ""
     }
 },
@@ -336,6 +338,7 @@
     "fields": {
         "name": "z/OS",
         "slug": "zos",
+        "manufacturer": "IBM",
         "rpc_client": ""
     }
 },
