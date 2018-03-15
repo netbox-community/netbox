@@ -204,6 +204,30 @@
     }
 },
 {
+    "model": "dcim.manufacturer",
+    "pk": 15,
+    "fields": {
+        "name": "F5",
+        "slug": "f5"
+    }
+},
+{
+    "model": "dcim.manufacturer",
+    "pk": 15,
+    "fields": {
+        "name": "A10",
+        "slug": "a10"
+    }
+},
+{
+    "model": "dcim.manufacturer",
+    "pk": 15,
+    "fields": {
+        "name": "Riverbed",
+        "slug": "riverbed"
+    }
+},
+{
     "model": "dcim.platform",
     "pk": 1,
     "fields": {
@@ -302,7 +326,7 @@
     "pk": 11,
     "fields": {
         "name": "HP-UX",
-        "slug": "hpux",
+        "slug": "hp-ux",
         "rpc_client": ""
     }
 },
