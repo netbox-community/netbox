@@ -196,6 +196,14 @@
     }
 },
 {
+    "model": "dcim.manufacturer",
+    "pk": 14,
+    "fields": {
+        "name": "Schneider-Electric",
+        "slug": "schneider-electric"
+    }
+},
+{
     "model": "dcim.platform",
     "pk": 1,
     "fields": {
