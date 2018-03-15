@@ -77,7 +77,18 @@
     "fields": {
         "name": "PDU",
         "slug": "pdu",
-        "color": "607d8b"
+        "color": "607d8b",
+        "vm_role": false
+    }
+},
+{
+    "model": "dcim.devicerole",
+    "pk": 10,
+    "fields": {
+        "name": "UPS",
+        "slug": "ups",
+        "color": "607d8b",
+        "vm_role": false
     }
 },
 {
@@ -144,12 +155,53 @@
         "slug": "super-micro"
     }
 },
+    {
+    "model": "dcim.manufacturer",
+    "pk": 9,
+    "fields": {
+        "name": "Fortinet",
+        "slug": "fortinet"
+    }
+},
+{
+    "model": "dcim.manufacturer",
+    "pk": 10,
+    "fields": {
+        "name": "IBM",
+        "slug": "ibm"
+    }
+},
+{
+    "model": "dcim.manufacturer",
+    "pk": 11,
+    "fields": {
+        "name": "CheckPoint",
+        "slug": "checkpoint"
+    }
+},
+{
+    "model": "dcim.manufacturer",
+    "pk": 12,
+    "fields": {
+        "name": "Lenovo",
+        "slug": "lenovo"
+    }
+},
+{
+    "model": "dcim.manufacturer",
+    "pk": 13,
+    "fields": {
+        "name": "Oracle",
+        "slug": "oracle"
+    }
+},
 {
     "model": "dcim.platform",
     "pk": 1,
     "fields": {
         "name": "Cisco IOS",
         "slug": "cisco-ios",
+        "manufacturer": "Cisco",
         "rpc_client": "cisco-ios"
     }
 },
@@ -159,6 +211,7 @@
     "fields": {
         "name": "Cisco NX-OS",
         "slug": "cisco-nx-os",
+        "manufacturer": "Cisco",
         "rpc_client": ""
     }
 },
@@ -168,6 +221,7 @@
     "fields": {
         "name": "Juniper Junos",
         "slug": "juniper-junos",
+        "manufacturer": "Juniper",
         "rpc_client": "juniper-junos"
     }
 },
@@ -177,6 +231,7 @@
     "fields": {
         "name": "Arista EOS",
         "slug": "arista-eos",
+        "manufacturer": "Arista",
         "rpc_client": ""
     }
 },
@@ -196,6 +251,96 @@
         "name": "Opengear",
         "slug": "opengear",
         "rpc_client": "opengear"
+    }
+},
+{
+    "model": "dcim.platform",
+    "pk": 7,
+    "fields": {
+        "name": "Windows",
+        "slug": "windows",
+        "rpc_client": ""
+    }
+},
+{
+    "model": "dcim.platform",
+    "pk": 8,
+    "fields": {
+        "name": "Solaris",
+        "slug": "solaris",
+        "rpc_client": ""
+    }
+},
+{
+    "model": "dcim.platform",
+    "pk": 9,
+    "fields": {
+        "name": "SmartDatacenter",
+        "slug": "sdc",
+        "rpc_client": ""
+    }
+},
+{
+    "model": "dcim.platform",
+    "pk": 10,
+    "fields": {
+        "name": "AIX",
+        "slug": "aix",
+        "rpc_client": ""
+    }
+},
+{
+    "model": "dcim.platform",
+    "pk": 11,
+    "fields": {
+        "name": "HP-UX",
+        "slug": "hpux",
+        "rpc_client": ""
+    }
+},
+{
+    "model": "dcim.platform",
+    "pk": 12,
+    "fields": {
+        "name": "z/OS",
+        "slug": "zos",
+        "rpc_client": ""
+    }
+},
+{
+    "model": "dcim.platform",
+    "pk": 13,
+    "fields": {
+        "name": "FreeBSD",
+        "slug": "freebsd",
+        "rpc_client": ""
+    }
+},
+{
+    "model": "dcim.platform",
+    "pk": 14,
+    "fields": {
+        "name": "OpenBSD",
+        "slug": "openbsd",
+        "rpc_client": ""
+    }
+},
+{
+    "model": "dcim.platform",
+    "pk": 15,
+    "fields": {
+        "name": "VyOS",
+        "slug": "vyos",
+        "rpc_client": ""
+    }
+},
+{
+    "model": "dcim.platform",
+    "pk": 16,
+    "fields": {
+        "name": "GAiA",
+        "slug": "gaia",
+        "rpc_client": ""
     }
 }
 ]
