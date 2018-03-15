@@ -67,7 +67,7 @@
 <script src="{% static 'bootstrap-3.3.7-dist/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/forms.js' %}?v{{ settings.VERSION }}"></script>
 <script type="text/javascript">
-    var netbox_api_path = "/{{ settings.BASE_PATH }}api/";
+    var netbox_api_path = "{{ settings.BASE_PATH }}api/";
     var loading = $(".loading");
     $(document).ajaxStart(function() {
         loading.show();
