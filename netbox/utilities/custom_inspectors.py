@@ -1,5 +1,5 @@
 from drf_yasg import openapi
-from drf_yasg.inspectors import FieldInspector, NotHandled, PaginatorInspector
+from drf_yasg.inspectors import FieldInspector, NotHandled, PaginatorInspector, FilterInspector
 from rest_framework.fields import ChoiceField
 
 from extras.api.customfields import CustomFieldsSerializer
@@ -49,6 +49,16 @@ class NullableBooleanFieldInspector(FieldInspector):
             if set(keys) == {None, True, False}:
                 result['x-nullable'] = True
                 result.type = 'boolean'
+
+        return result
+
+
+class IdInFilterInspector(FilterInspector):
+    def process_result(self, result, method_name, obj, **kwargs):
+        if isinstance(result, list):
+            params = [p for p in result if isinstance(p, openapi.Parameter) and p.name == 'id__in']
+            for p in params:
+                p.type = 'string'
 
         return result
 

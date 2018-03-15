@@ -260,6 +260,10 @@ SWAGGER_SETTINGS = {
         'drf_yasg.inspectors.SimpleFieldInspector',
         'drf_yasg.inspectors.StringDefaultFieldInspector',
     ],
+    'DEFAULT_FILTER_INSPECTORS': [
+        'utilities.custom_inspectors.IdInFilterInspector',
+        'drf_yasg.inspectors.CoreAPICompatInspector',
+    ],
     'DEFAULT_PAGINATOR_INSPECTORS': [
         'utilities.custom_inspectors.NullablePaginatorInspector',
         'drf_yasg.inspectors.DjangoRestResponsePagination',
