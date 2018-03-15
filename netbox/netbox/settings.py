@@ -195,13 +195,13 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_ROOT = BASE_DIR + '/static/'
-STATIC_URL = '/{}static/'.format(BASE_PATH)
+STATIC_URL = '{}static/'.format(BASE_PATH)
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "project-static"),
 )
 
 # Media
-MEDIA_URL = '/{}media/'.format(BASE_PATH)
+MEDIA_URL = '{}media/'.format(BASE_PATH)
 
 # Disable default limit of 1000 fields per request. Needed for bulk deletion of objects. (Added in Django 1.10.)
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
@@ -212,7 +212,7 @@ MESSAGE_TAGS = {
 }
 
 # Authentication URLs
-LOGIN_URL = '/{}login/'.format(BASE_PATH)
+LOGIN_URL = '{}login/'.format(BASE_PATH)
 
 # Secrets
 SECRETS_MIN_PUBKEY_SIZE = 2048
