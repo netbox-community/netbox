@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
+from dcim.models import Interface
 from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, ToggleColumn
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, VLAN, VLANGroup, VRF
@@ -135,6 +136,18 @@ VLANGROUP_ACTIONS = """
 {% endwith %}
 {% if perms.ipam.change_vlangroup %}
     <a href="{% url 'ipam:vlangroup_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+{% endif %}
+"""
+
+VLAN_MEMBER_UNTAGGED = """
+{% if record.untagged_vlan_id == vlan.pk %}
+    <i class="glyphicon glyphicon-ok">
+{% endif %}
+"""
+
+VLAN_MEMBER_ACTIONS = """
+{% if perms.dcim.change_interface %}
+    <a href="{% if record.device %}{% url 'dcim:interface_edit' pk=record.pk %}{% else %}{% url 'virtualization:interface_edit' pk=record.pk %}{% endif %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil"></i></a>
 {% endif %}
 """
 
@@ -361,3 +374,21 @@ class VLANDetailTable(VLANTable):
 
     class Meta(VLANTable.Meta):
         fields = ('pk', 'vid', 'site', 'group', 'name', 'prefixes', 'tenant', 'status', 'role', 'description')
+
+
+class VLANMemberTable(BaseTable):
+    parent = tables.LinkColumn(order_by=['device', 'virtual_machine'])
+    name = tables.Column(verbose_name='Interface')
+    untagged = tables.TemplateColumn(
+        template_code=VLAN_MEMBER_UNTAGGED,
+        orderable=False
+    )
+    actions = tables.TemplateColumn(
+        template_code=VLAN_MEMBER_ACTIONS,
+        attrs={'td': {'class': 'text-right'}},
+        verbose_name=''
+    )
+
+    class Meta(BaseTable.Meta):
+        model = Interface
+        fields = ('parent', 'name', 'untagged', 'actions')
