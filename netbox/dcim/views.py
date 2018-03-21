@@ -962,11 +962,9 @@ class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
     def get(self, request, pk):
 
         device = get_object_or_404(Device, pk=pk)
-        interfaces = Interface.objects.order_naturally(
+        interfaces = device.vc_interfaces.order_naturally(
             device.device_type.interface_ordering
-        ).connectable().filter(
-            device=device
-        ).select_related(
+        ).connectable().select_related(
             'connected_as_a', 'connected_as_b'
         )
 
