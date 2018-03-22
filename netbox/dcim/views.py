@@ -962,11 +962,9 @@ class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
     def get(self, request, pk):
 
         device = get_object_or_404(Device, pk=pk)
-        interfaces = Interface.objects.order_naturally(
+        interfaces = device.vc_interfaces.order_naturally(
             device.device_type.interface_ordering
-        ).connectable().filter(
-            device=device
-        ).select_related(
+        ).connectable().select_related(
             'connected_as_a', 'connected_as_b'
         )
 
@@ -1645,6 +1643,12 @@ class InterfaceEditView(PermissionRequiredMixin, ObjectEditView):
     template_name = 'dcim/interface_edit.html'
 
 
+class InterfaceAssignVLANsView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_interface'
+    model = Interface
+    model_form = forms.InterfaceAssignVLANsForm
+
+
 class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_interface'
     model = Interface
@@ -2226,7 +2230,7 @@ class VirtualChassisAddMemberView(PermissionRequiredMixin, GetReturnURLMixin, Vi
             device = member_select_form.cleaned_data['device']
             device.virtual_chassis = virtual_chassis
             data = {k: request.POST[k] for k in ['vc_position', 'vc_priority']}
-            membership_form = forms.DeviceVCMembershipForm(data, validate_vc_position=True, instance=device)
+            membership_form = forms.DeviceVCMembershipForm(data=data, validate_vc_position=True, instance=device)
 
             if membership_form.is_valid():
 
@@ -2242,7 +2246,7 @@ class VirtualChassisAddMemberView(PermissionRequiredMixin, GetReturnURLMixin, Vi
 
         else:
 
-            membership_form = forms.DeviceVCMembershipForm(request.POST)
+            membership_form = forms.DeviceVCMembershipForm(data=request.POST)
 
         return render(request, 'dcim/virtualchassis_add_member.html', {
             'virtual_chassis': virtual_chassis,

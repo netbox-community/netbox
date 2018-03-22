@@ -12,7 +12,7 @@ complete list of requirements, see `requirements.txt`. The code is available [on
 The complete documentation for NetBox can be found at [Read the Docs](http://netbox.readthedocs.io/en/stable/).
 
 Questions? Comments? Please subscribe to [the netbox-discuss mailing list](https://groups.google.com/forum/#!forum/netbox-discuss),
-or join us in the #netbox Slack channel on [NetworkToCode](https://slack.networktocode.com/)!
+or join us in the #netbox Slack channel on [NetworkToCode](https://networktocode.slack.com/)!
 
 ### Build Status
 
@@ -41,3 +41,4 @@ and run `upgrade.sh`.
 
 * [Docker container](https://github.com/ninech/netbox-docker) (via [@cimnine](https://github.com/cimnine))
 * [Vagrant deployment](https://github.com/ryanmerolle/netbox-vagrant) (via [@ryanmerolle](https://github.com/ryanmerolle))
+* [Ansible deployment](https://github.com/lae/ansible-role-netbox) (via [@lae](https://github.com/lae))

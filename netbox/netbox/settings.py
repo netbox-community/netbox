@@ -22,7 +22,7 @@ if sys.version_info[0] < 3:
         DeprecationWarning
     )
 
-VERSION = '2.3.1'
+VERSION = '2.3.2'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -133,7 +133,6 @@ INSTALLED_APPS = (
     'django_tables2',
     'mptt',
     'rest_framework',
-    'rest_framework_swagger',
     'timezone_field',
     'circuits',
     'dcim',
@@ -144,6 +143,7 @@ INSTALLED_APPS = (
     'users',
     'utilities',
     'virtualization',
+    'drf_yasg',
 )
 
 # Middleware
@@ -245,6 +245,32 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': PAGINATE_COUNT,
     'VIEW_NAME_FUNCTION': 'netbox.api.get_view_name',
 }
+
+# drf_yasg settings for Swagger
+SWAGGER_SETTINGS = {
+    'DEFAULT_FIELD_INSPECTORS': [
+        'utilities.custom_inspectors.NullableBooleanFieldInspector',
+        'utilities.custom_inspectors.CustomChoiceFieldInspector',
+        'drf_yasg.inspectors.CamelCaseJSONFilter',
+        'drf_yasg.inspectors.ReferencingSerializerInspector',
+        'drf_yasg.inspectors.RelatedFieldInspector',
+        'drf_yasg.inspectors.ChoiceFieldInspector',
+        'drf_yasg.inspectors.FileFieldInspector',
+        'drf_yasg.inspectors.DictFieldInspector',
+        'drf_yasg.inspectors.SimpleFieldInspector',
+        'drf_yasg.inspectors.StringDefaultFieldInspector',
+    ],
+    'DEFAULT_FILTER_INSPECTORS': [
+        'utilities.custom_inspectors.IdInFilterInspector',
+        'drf_yasg.inspectors.CoreAPICompatInspector',
+    ],
+    'DEFAULT_PAGINATOR_INSPECTORS': [
+        'utilities.custom_inspectors.NullablePaginatorInspector',
+        'drf_yasg.inspectors.DjangoRestResponsePagination',
+        'drf_yasg.inspectors.CoreAPICompatInspector',
+    ]
+}
+
 
 # Django debug toolbar
 INTERNAL_IPS = (

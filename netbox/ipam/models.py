@@ -6,6 +6,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
@@ -365,7 +366,8 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
             child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
             return int(float(child_prefixes.size) / self.prefix.size * 100)
         else:
-            child_count = self.get_child_ips().count()
+            # Compile an IPSet to avoid counting duplicate IPs
+            child_count = netaddr.IPSet([ip.address.ip for ip in self.get_child_ips()]).size
             prefix_size = self.prefix.size
             if self.family == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
                 prefix_size -= 2
@@ -614,6 +616,13 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
 
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]
+
+    def get_members(self):
+        # Return all interfaces assigned to this VLAN
+        return Interface.objects.filter(
+            Q(untagged_vlan_id=self.pk) |
+            Q(tagged_vlans=self.pk)
+        )
 
 
 @python_2_unicode_compatible

@@ -127,7 +127,7 @@ class CustomField(models.Model):
         """
         Convert a string into the object it represents depending on the type of field
         """
-        if serialized_value is '':
+        if serialized_value == '':
             return None
         if self.type == CF_TYPE_INTEGER:
             return int(serialized_value)

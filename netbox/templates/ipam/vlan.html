@@ -1,48 +1,7 @@
 {% extends '_base.html' %}
 
 {% block content %}
-<div class="row">
-    <div class="col-sm-8 col-md-9">
-        <ol class="breadcrumb">
-            <li><a href="{% url 'ipam:vlan_list' %}">VLANs</a></li>
-            {% if vlan.site %}
-                <li><a href="{% url 'ipam:vlan_list' %}?site={{ vlan.site.slug }}">{{ vlan.site }}</a></li>
-            {% endif %}
-            {% if vlan.group %}
-                <li><a href="{% url 'ipam:vlan_list' %}?group={{ vlan.group.slug }}">{{ vlan.group }}</a></li>
-            {% endif %}
-            <li>{{ vlan }}</li>
-        </ol>
-    </div>
-    <div class="col-sm-4 col-md-3">
-    <form action="{% url 'ipam:vlan_list' %}" method="get">
-        <div class="input-group">
-            <input type="text" name="q" class="form-control" placeholder="Search VLANs" />
-            <span class="input-group-btn">
-                <button type="submit" class="btn btn-primary">
-                    <span class="fa fa-search" aria-hidden="true"></span>
-                </button>
-            </span>
-        </div>
-    </form>
-    </div>
-</div>
-<div class="pull-right">
-    {% if perms.ipam.change_vlan %}
-        <a href="{% url 'ipam:vlan_edit' pk=vlan.pk %}" class="btn btn-warning">
-            <span class="fa fa-pencil" aria-hidden="true"></span>
-            Edit this VLAN
-        </a>
-    {% endif %}
-    {% if perms.ipam.delete_vlan %}
-        <a href="{% url 'ipam:vlan_delete' pk=vlan.pk %}" class="btn btn-danger">
-            <span class="fa fa-trash" aria-hidden="true"></span>
-            Delete this VLAN
-        </a>
-    {% endif %}
-</div>
-<h1>{% block title %}VLAN {{ vlan.display_name }}{% endblock %}</h1>
-{% include 'inc/created_updated.html' with obj=vlan %}
+{% include 'ipam/inc/vlan_header.html' with active_tab='vlan' %}
 <div class="row">
 	<div class="col-md-6">
         <div class="panel panel-default">

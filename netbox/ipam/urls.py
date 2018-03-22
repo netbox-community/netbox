@@ -80,6 +80,7 @@ urlpatterns = [
     url(r'^vlans/edit/$', views.VLANBulkEditView.as_view(), name='vlan_bulk_edit'),
     url(r'^vlans/delete/$', views.VLANBulkDeleteView.as_view(), name='vlan_bulk_delete'),
     url(r'^vlans/(?P<pk>\d+)/$', views.VLANView.as_view(), name='vlan'),
+    url(r'^vlans/(?P<pk>\d+)/members/$', views.VLANMembersView.as_view(), name='vlan_members'),
     url(r'^vlans/(?P<pk>\d+)/edit/$', views.VLANEditView.as_view(), name='vlan_edit'),
     url(r'^vlans/(?P<pk>\d+)/delete/$', views.VLANDeleteView.as_view(), name='vlan_delete'),
 

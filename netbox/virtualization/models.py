@@ -283,7 +283,6 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
         else:
             return None
 
+    @property
     def site(self):
-        # used when a child compent (eg Interface) needs to know its parent's site but
-        # the parent could be either a device or a virtual machine
         return self.cluster.site

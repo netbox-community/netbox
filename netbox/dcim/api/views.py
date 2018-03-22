@@ -6,6 +6,9 @@ from django.conf import settings
 from django.db import transaction
 from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
+from drf_yasg import openapi
+from drf_yasg.openapi import Parameter
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import detail_route
 from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
@@ -418,14 +421,20 @@ class ConnectedDeviceViewSet(ViewSet):
     * `peer-interface`: The name of the peer interface
     """
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
+    _device_param = Parameter('peer-device', 'query',
+                              description='The name of the peer device', required=True, type=openapi.TYPE_STRING)
+    _interface_param = Parameter('peer-interface', 'query',
+                                 description='The name of the peer interface', required=True, type=openapi.TYPE_STRING)
 
     def get_view_name(self):
         return "Connected Device Locator"
 
+    @swagger_auto_schema(
+        manual_parameters=[_device_param, _interface_param], responses={'200': serializers.DeviceSerializer})
     def list(self, request):
 
-        peer_device_name = request.query_params.get('peer-device')
-        peer_interface_name = request.query_params.get('peer-interface')
+        peer_device_name = request.query_params.get(self._device_param.name)
+        peer_interface_name = request.query_params.get(self._interface_param.name)
         if not peer_device_name or not peer_interface_name:
             raise MissingFilterException(detail='Request must include "peer-device" and "peer-interface" filters.')
 
