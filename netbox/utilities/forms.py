@@ -39,6 +39,7 @@ COLOR_CHOICES = (
     ('111111', 'Black'),
 )
 NUMERIC_EXPANSION_PATTERN = '\[((?:\d+[?:,-])+\d+)\]'
+ALPHANUMERIC_EXPANSION_PATTERN = '\[((?:[a-zA-Z0-9]+[?:,-])+[a-zA-Z0-9]+)\]'
 IP4_EXPANSION_PATTERN = '\[((?:[0-9]{1,3}[?:,-])+[0-9]{1,3})\]'
 IP6_EXPANSION_PATTERN = '\[((?:[0-9a-f]{1,4}[?:,-])+[0-9a-f]{1,4})\]'
 
@@ -72,6 +73,45 @@ def expand_numeric_pattern(string):
     for i in parsed_range:
         if re.search(NUMERIC_EXPANSION_PATTERN, remnant):
             for string in expand_numeric_pattern(remnant):
+                yield "{}{}{}".format(lead, i, string)
+        else:
+            yield "{}{}{}".format(lead, i, remnant)
+
+
+def parse_alphanumeric_range(string):
+    """
+    Expand an alphanumeric range (continuous or not) into a list.
+    'a-d,f' => [a, b, c, d, f]
+    '0-3,a-d' => [0, 1, 2, 3, a, b, c, d]
+    """
+    values = []
+    for dash_range in string.split(','):
+        try:
+            begin, end = dash_range.split('-')
+            vals = begin + end
+            # Break out of loop if there's an invalid pattern to return an error
+            if (not (vals.isdigit() or vals.isalpha())) or (vals.isalpha() and not (vals.isupper() or vals.islower())):
+                return []
+        except ValueError:
+            begin, end = dash_range, dash_range
+        if begin.isdigit() and end.isdigit():
+            for n in list(range(int(begin), int(end) + 1)):
+                values.append(n)
+        else:
+            for n in list(range(ord(begin), ord(end) + 1)):
+                values.append(chr(n))
+    return values
+
+
+def expand_alphanumeric_pattern(string):
+    """
+    Expand an alphabetic pattern into a list of strings.
+    """
+    lead, pattern, remnant = re.split(ALPHANUMERIC_EXPANSION_PATTERN, string, maxsplit=1)
+    parsed_range = parse_alphanumeric_range(pattern)
+    for i in parsed_range:
+        if re.search(ALPHANUMERIC_EXPANSION_PATTERN, remnant):
+            for string in expand_alphanumeric_pattern(remnant):
                 yield "{}{}{}".format(lead, i, string)
         else:
             yield "{}{}{}".format(lead, i, remnant)
@@ -306,12 +346,15 @@ class ExpandableNameField(forms.CharField):
     def __init__(self, *args, **kwargs):
         super(ExpandableNameField, self).__init__(*args, **kwargs)
         if not self.help_text:
-            self.help_text = 'Numeric ranges are supported for bulk creation.<br />'\
-                             'Example: <code>ge-0/0/[0-23,25,30]</code>'
+            self.help_text = 'Alphanumeric ranges are supported for bulk creation.<br />' \
+                             'Mixed cases and types within a single range are not supported.<br />' \
+                             'Examples:<ul><li><code>ge-0/0/[0-23,25,30]</code></li>' \
+                             '<li><code>e[0-3][a-d,f]</code></li>' \
+                             '<li><code>e[0-3,a-d,f]</code></li></ul>'
 
     def to_python(self, value):
-        if re.search(NUMERIC_EXPANSION_PATTERN, value):
-            return list(expand_numeric_pattern(value))
+        if re.search(ALPHANUMERIC_EXPANSION_PATTERN, value):
+            return list(expand_alphanumeric_pattern(value))
         return [value]
 
 
