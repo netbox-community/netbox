@@ -82,6 +82,7 @@ Once Apache is installed, proceed with the following configuration (Be sure to m
         ProxyPass !
     </Location>
 
+    RequestHeader set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
     ProxyPass / http://127.0.0.1:8001/
     ProxyPassReverse / http://127.0.0.1:8001/
 </VirtualHost>
@@ -92,6 +93,7 @@ Save the contents of the above example in `/etc/apache2/sites-available/netbox.c
 ```no-highlight
 # a2enmod proxy
 # a2enmod proxy_http
+# a2enmod headers
 # a2ensite netbox
 # service apache2 restart
 ```
