@@ -131,7 +131,7 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
 class SiteCSVForm(forms.ModelForm):
     status = CSVChoiceField(
-        choices=DEVICE_STATUS_CHOICES,
+        choices=SITE_STATUS_CHOICES,
         required=False,
         help_text='Operational status'
     )
