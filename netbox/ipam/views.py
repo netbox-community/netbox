@@ -729,8 +729,8 @@ class IPAddressAssignView(PermissionRequiredMixin, View):
                 'vrf', 'tenant', 'interface__device', 'interface__virtual_machine'
             ).filter(
                 vrf=form.cleaned_data['vrf'],
-                address__net_host=form.cleaned_data['address'],
-            )
+                address__istartswith=form.cleaned_data['address'],
+            )[:100]  # Limit to 100 results
             table = tables.IPAddressAssignTable(queryset)
 
         return render(request, 'ipam/ipaddress_assign.html', {
