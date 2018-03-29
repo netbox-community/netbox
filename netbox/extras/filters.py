@@ -43,11 +43,18 @@ class CustomFieldFilter(django_filters.Filter):
                 return queryset.none()
 
         # Apply the assigned filter logic (exact or loose)
-        queryset = queryset.filter(custom_field_values__field__name=self.name)
         if self.cf_type == CF_TYPE_BOOLEAN or self.filter_logic == CF_FILTER_EXACT:
-            return queryset.filter(custom_field_values__serialized_value=value)
+            queryset = queryset.filter(
+                custom_field_values__field__name=self.name,
+                custom_field_values__serialized_value=value
+            )
         else:
-            return queryset.filter(custom_field_values__serialized_value__icontains=value)
+            queryset = queryset.filter(
+                custom_field_values__field__name=self.name,
+                custom_field_values__serialized_value__icontains=value
+            )
+
+        return queryset
 
 
 class CustomFieldFilterSet(django_filters.FilterSet):
