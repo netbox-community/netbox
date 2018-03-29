@@ -41,11 +41,13 @@ class BulkRenameView(View):
     """
     An extendable view for renaming device components in bulk.
     """
-    model = None
+    queryset = None
     form = None
     template_name = 'dcim/bulk_rename.html'
 
     def post(self, request):
+
+        model = self.queryset.model
 
         return_url = request.GET.get('return_url')
         if not return_url or not is_safe_url(url=return_url, host=request.get_host()):
@@ -53,7 +55,7 @@ class BulkRenameView(View):
 
         if '_preview' in request.POST or '_apply' in request.POST:
             form = self.form(request.POST, initial={'pk': request.POST.getlist('pk')})
-            selected_objects = self.model.objects.filter(pk__in=form.initial['pk'])
+            selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
 
             if form.is_valid():
                 for obj in selected_objects:
@@ -65,17 +67,17 @@ class BulkRenameView(View):
                         obj.save()
                     messages.success(request, "Renamed {} {}".format(
                         len(selected_objects),
-                        self.model._meta.verbose_name_plural
+                        model._meta.verbose_name_plural
                     ))
                     return redirect(return_url)
 
         else:
             form = self.form(initial={'pk': request.POST.getlist('pk')})
-            selected_objects = self.model.objects.filter(pk__in=form.initial['pk'])
+            selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
 
         return render(request, self.template_name, {
             'form': form,
-            'obj_type_plural': self.model._meta.verbose_name_plural,
+            'obj_type_plural': model._meta.verbose_name_plural,
             'selected_objects': selected_objects,
             'return_url': return_url,
         })
@@ -1316,7 +1318,7 @@ class ConsoleServerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class ConsoleServerPortBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     permission_required = 'dcim.change_consoleserverport'
-    model = ConsoleServerPort
+    queryset = ConsoleServerPort.objects.all()
     form = forms.ConsoleServerPortBulkRenameForm
 
 
@@ -1600,7 +1602,7 @@ class PowerOutletDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class PowerOutletBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     permission_required = 'dcim.change_poweroutlet'
-    model = PowerOutlet
+    queryset = PowerOutlet.objects.all()
     form = forms.PowerOutletBulkRenameForm
 
 
@@ -1676,7 +1678,7 @@ class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
 
 class InterfaceBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     permission_required = 'dcim.change_interface'
-    model = Interface
+    queryset = Interface.objects.order_naturally()
     form = forms.InterfaceBulkRenameForm
 
 
@@ -1783,7 +1785,7 @@ class DeviceBayDepopulateView(PermissionRequiredMixin, View):
 
 class DeviceBayBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     permission_required = 'dcim.change_devicebay'
-    model = DeviceBay
+    queryset = DeviceBay.objects.all()
     form = forms.DeviceBayBulkRenameForm
 
 
