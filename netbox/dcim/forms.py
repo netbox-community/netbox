@@ -112,9 +112,8 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     class Meta:
         model = Site
         fields = [
-            'name', 'slug', 'status', 'region', 'tenant_group', 'tenant', 'facility', 'asn', 'description',
-            'physical_address', 'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'time_zone',
-            'comments',
+            'name', 'slug', 'status', 'region', 'tenant_group', 'tenant', 'facility', 'asn', 'time_zone', 'description',
+            'physical_address', 'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments',
         ]
         widgets = {
             'physical_address': SmallTextarea(attrs={'rows': 3}),
@@ -124,6 +123,8 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             'name': "Full name of the site",
             'facility': "Data center provider and facility (e.g. Equinix NY7)",
             'asn': "BGP autonomous system number",
+            'time_zone': "Local time zone",
+            'description': "Short description (will appear in sites list)",
             'physical_address': "Physical location of the building (e.g. for GPS)",
             'shipping_address': "If different from the physical address"
         }
