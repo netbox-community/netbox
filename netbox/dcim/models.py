@@ -804,6 +804,7 @@ class Platform(models.Model):
     slug = models.SlugField(unique=True)
     manufacturer = models.ForeignKey(
         to='Manufacturer',
+        on_delete=models.PROTECT,
         related_name='platforms',
         blank=True,
         null=True,
@@ -1373,6 +1374,7 @@ class Interface(models.Model):
     )
     untagged_vlan = models.ForeignKey(
         to='ipam.VLAN',
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         verbose_name='Untagged VLAN',

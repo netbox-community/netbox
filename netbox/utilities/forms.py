@@ -325,7 +325,7 @@ class CSVChoiceField(forms.ChoiceField):
     """
 
     def __init__(self, choices, *args, **kwargs):
-        super(CSVChoiceField, self).__init__(choices, *args, **kwargs)
+        super(CSVChoiceField, self).__init__(choices=choices, *args, **kwargs)
         self.choices = [(label, label) for value, label in choices]
         self.choice_values = {label: value for value, label in choices}
 
