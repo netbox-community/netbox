@@ -7,8 +7,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 from dcim.constants import STATUS_CLASSES
 from dcim.fields import ASNField
-from extras.models import CustomFieldModel, CustomFieldValue
-from tenancy.models import Tenant
+from extras.models import CustomFieldModel
 from utilities.models import CreatedUpdatedModel
 from .constants import CIRCUIT_STATUS_ACTIVE, CIRCUIT_STATUS_CHOICES, TERM_SIDE_CHOICES
 
@@ -19,15 +18,43 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
     Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model
     stores information pertinent to the user's relationship with the Provider.
     """
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
-    asn = ASNField(blank=True, null=True, verbose_name='ASN')
-    account = models.CharField(max_length=30, blank=True, verbose_name='Account number')
-    portal_url = models.URLField(blank=True, verbose_name='Portal')
-    noc_contact = models.TextField(blank=True, verbose_name='NOC contact')
-    admin_contact = models.TextField(blank=True, verbose_name='Admin contact')
-    comments = models.TextField(blank=True)
-    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+    name = models.CharField(
+        max_length=50,
+        unique=True
+    )
+    slug = models.SlugField(
+        unique=True
+    )
+    asn = ASNField(
+        blank=True,
+        null=True,
+        verbose_name='ASN'
+    )
+    account = models.CharField(
+        max_length=30,
+        blank=True,
+        verbose_name='Account number'
+    )
+    portal_url = models.URLField(
+        blank=True,
+        verbose_name='Portal'
+    )
+    noc_contact = models.TextField(
+        blank=True,
+        verbose_name='NOC contact'
+    )
+    admin_contact = models.TextField(
+        blank=True,
+        verbose_name='Admin contact'
+    )
+    comments = models.TextField(
+        blank=True
+    )
+    custom_field_values = GenericRelation(
+        to='extras.CustomFieldValue',
+        content_type_field='obj_type',
+        object_id_field='obj_id'
+    )
 
     csv_headers = ['name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments']
 
@@ -59,8 +86,13 @@ class CircuitType(models.Model):
     Circuits can be organized by their functional role. For example, a user might wish to define CircuitTypes named
     "Long Haul," "Metro," or "Out-of-Band".
     """
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(
+        max_length=50,
+        unique=True
+    )
+    slug = models.SlugField(
+        unique=True
+    )
 
     csv_headers = ['name', 'slug']
 
@@ -87,16 +119,52 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
     circuits. Each circuit is also assigned a CircuitType and a Site. A Circuit may be terminated to a specific device
     interface, but this is not required. Circuit port speed and commit rate are measured in Kbps.
     """
-    cid = models.CharField(max_length=50, verbose_name='Circuit ID')
-    provider = models.ForeignKey('Provider', related_name='circuits', on_delete=models.PROTECT)
-    type = models.ForeignKey('CircuitType', related_name='circuits', on_delete=models.PROTECT)
-    status = models.PositiveSmallIntegerField(choices=CIRCUIT_STATUS_CHOICES, default=CIRCUIT_STATUS_ACTIVE)
-    tenant = models.ForeignKey(Tenant, related_name='circuits', blank=True, null=True, on_delete=models.PROTECT)
-    install_date = models.DateField(blank=True, null=True, verbose_name='Date installed')
-    commit_rate = models.PositiveIntegerField(blank=True, null=True, verbose_name='Commit rate (Kbps)')
-    description = models.CharField(max_length=100, blank=True)
-    comments = models.TextField(blank=True)
-    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+    cid = models.CharField(
+        max_length=50,
+        verbose_name='Circuit ID'
+    )
+    provider = models.ForeignKey(
+        to='circuits.Provider',
+        on_delete=models.PROTECT,
+        related_name='circuits'
+    )
+    type = models.ForeignKey(
+        to='CircuitType',
+        on_delete=models.PROTECT,
+        related_name='circuits'
+    )
+    status = models.PositiveSmallIntegerField(
+        choices=CIRCUIT_STATUS_CHOICES,
+        default=CIRCUIT_STATUS_ACTIVE
+    )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='circuits',
+        blank=True,
+        null=True
+    )
+    install_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name='Date installed'
+    )
+    commit_rate = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        verbose_name='Commit rate (Kbps)')
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
+    comments = models.TextField(
+        blank=True
+    )
+    custom_field_values = GenericRelation(
+        to='extras.CustomFieldValue',
+        content_type_field='obj_type',
+        object_id_field='obj_id'
+    )
 
     csv_headers = [
         'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
@@ -145,19 +213,47 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
 
 @python_2_unicode_compatible
 class CircuitTermination(models.Model):
-    circuit = models.ForeignKey('Circuit', related_name='terminations', on_delete=models.CASCADE)
-    term_side = models.CharField(max_length=1, choices=TERM_SIDE_CHOICES, verbose_name='Termination')
-    site = models.ForeignKey('dcim.Site', related_name='circuit_terminations', on_delete=models.PROTECT)
-    interface = models.OneToOneField(
-        'dcim.Interface', related_name='circuit_termination', blank=True, null=True, on_delete=models.PROTECT
+    circuit = models.ForeignKey(
+        to='circuits.Circuit',
+        on_delete=models.CASCADE,
+        related_name='terminations'
     )
-    port_speed = models.PositiveIntegerField(verbose_name='Port speed (Kbps)')
+    term_side = models.CharField(
+        max_length=1,
+        choices=TERM_SIDE_CHOICES,
+        verbose_name='Termination'
+    )
+    site = models.ForeignKey(
+        to='dcim.Site',
+        on_delete=models.PROTECT,
+        related_name='circuit_terminations'
+    )
+    interface = models.OneToOneField(
+        to='dcim.Interface',
+        on_delete=models.PROTECT,
+        related_name='circuit_termination',
+        blank=True,
+        null=True
+    )
+    port_speed = models.PositiveIntegerField(
+        verbose_name='Port speed (Kbps)'
+    )
     upstream_speed = models.PositiveIntegerField(
-        blank=True, null=True, verbose_name='Upstream speed (Kbps)',
+        blank=True,
+        null=True,
+        verbose_name='Upstream speed (Kbps)',
         help_text='Upstream speed, if different from port speed'
     )
-    xconnect_id = models.CharField(max_length=50, blank=True, verbose_name='Cross-connect ID')
-    pp_info = models.CharField(max_length=100, blank=True, verbose_name='Patch panel/port(s)')
+    xconnect_id = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name='Cross-connect ID'
+    )
+    pp_info = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name='Patch panel/port(s)'
+    )
 
     class Meta:
         ordering = ['circuit', 'term_side']

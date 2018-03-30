@@ -5,7 +5,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 
-from extras.models import CustomFieldModel, CustomFieldValue
+from extras.models import CustomFieldModel
 from utilities.models import CreatedUpdatedModel
 
 
@@ -14,8 +14,13 @@ class TenantGroup(models.Model):
     """
     An arbitrary collection of Tenants.
     """
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(
+        max_length=50,
+        unique=True
+    )
+    slug = models.SlugField(
+        unique=True
+    )
 
     csv_headers = ['name', 'slug']
 
@@ -41,12 +46,33 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
     A Tenant represents an organization served by the NetBox owner. This is typically a customer or an internal
     department.
     """
-    name = models.CharField(max_length=30, unique=True)
-    slug = models.SlugField(unique=True)
-    group = models.ForeignKey('TenantGroup', related_name='tenants', blank=True, null=True, on_delete=models.SET_NULL)
-    description = models.CharField(max_length=100, blank=True, help_text="Long-form name (optional)")
-    comments = models.TextField(blank=True)
-    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+    name = models.CharField(
+        max_length=30,
+        unique=True
+    )
+    slug = models.SlugField(
+        unique=True
+    )
+    group = models.ForeignKey(
+        to='tenancy.TenantGroup',
+        on_delete=models.SET_NULL,
+        related_name='tenants',
+        blank=True,
+        null=True
+    )
+    description = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text='Long-form name (optional)'
+    )
+    comments = models.TextField(
+        blank=True
+    )
+    custom_field_values = GenericRelation(
+        to='extras.CustomFieldValue',
+        content_type_field='obj_type',
+        object_id_field='obj_id'
+    )
 
     csv_headers = ['name', 'slug', 'group', 'description', 'comments']
 
