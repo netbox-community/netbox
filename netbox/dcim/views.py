@@ -370,6 +370,7 @@ class RackElevationListView(View):
             'filter_form': forms.RackFilterForm(request.GET),
         })
 
+
 class RackElevationPrintView(View):
     """
     Display a set of rack elevations side-by-side for Print.
@@ -395,7 +396,7 @@ class RackElevationPrintView(View):
         except EmptyPage:
             page = paginator.page(paginator.num_pages)
 
-         # Determine rack face
+        # Determine rack face
         if request.GET.get('face') == '1':
             face_id = 1
         else:
@@ -408,6 +409,7 @@ class RackElevationPrintView(View):
             'face_id': face_id,
             'filter_form': forms.RackFilterForm(request.GET),
         })
+
 
 class RackView(View):
 
