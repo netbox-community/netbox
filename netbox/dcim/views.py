@@ -370,6 +370,44 @@ class RackElevationListView(View):
             'filter_form': forms.RackFilterForm(request.GET),
         })
 
+class RackElevationPrintView(View):
+    """
+    Display a set of rack elevations side-by-side for Print.
+    """
+
+    def get(self, request):
+
+        racks = Rack.objects.select_related(
+            'site', 'group', 'tenant', 'role'
+        ).prefetch_related(
+            'devices__device_type'
+        )
+        racks = filters.RackFilter(request.GET, racks).qs
+        total_count = racks.count()
+
+        # Pagination
+        paginator = EnhancedPaginator(racks, total_count)
+        page_number = request.GET.get('page', 1)
+        try:
+            page = paginator.page(page_number)
+        except PageNotAnInteger:
+            page = paginator.page(1)
+        except EmptyPage:
+            page = paginator.page(paginator.num_pages)
+
+         # Determine rack face
+        if request.GET.get('face') == '1':
+            face_id = 1
+        else:
+            face_id = 0
+
+        return render(request, 'dcim/rack_elevation_print.html', {
+            'paginator': paginator,
+            'page': page,
+            'total_count': total_count,
+            'face_id': face_id,
+            'filter_form': forms.RackFilterForm(request.GET),
+        })
 
 class RackView(View):
 
