@@ -5,6 +5,7 @@ import pytz
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import ManyToManyField
 from django.http import Http404
 from rest_framework import mixins
@@ -34,6 +35,64 @@ class IsAuthenticatedOrLoginNotRequired(BasePermission):
         if not settings.LOGIN_REQUIRED:
             return True
         return request.user.is_authenticated
+
+
+#
+# Fields
+#
+
+class ChoiceFieldSerializer(Field):
+    """
+    Represent a ChoiceField as {'value': <DB value>, 'label': <string>}.
+    """
+    def __init__(self, choices, **kwargs):
+        self._choices = dict()
+        for k, v in choices:
+            # Unpack grouped choices
+            if type(v) in [list, tuple]:
+                for k2, v2 in v:
+                    self._choices[k2] = v2
+            else:
+                self._choices[k] = v
+        super(ChoiceFieldSerializer, self).__init__(**kwargs)
+
+    def to_representation(self, obj):
+        return {'value': obj, 'label': self._choices[obj]}
+
+    def to_internal_value(self, data):
+        return data
+
+
+class ContentTypeFieldSerializer(Field):
+    """
+    Represent a ContentType as '<app_label>.<model>'
+    """
+    def to_representation(self, obj):
+        return "{}.{}".format(obj.app_label, obj.model)
+
+    def to_internal_value(self, data):
+        app_label, model = data.split('.')
+        try:
+            return ContentType.objects.get_by_natural_key(app_label=app_label, model=model)
+        except ContentType.DoesNotExist:
+            raise ValidationError("Invalid content type")
+
+
+class TimeZoneField(Field):
+    """
+    Represent a pytz time zone.
+    """
+
+    def to_representation(self, obj):
+        return obj.zone if obj else None
+
+    def to_internal_value(self, data):
+        if not data:
+            return ""
+        try:
+            return pytz.timezone(str(data))
+        except pytz.exceptions.UnknownTimeZoneError:
+            raise ValidationError('Invalid time zone "{}"'.format(data))
 
 
 #
@@ -67,58 +126,15 @@ class ValidatedModelSerializer(ModelSerializer):
         return data
 
 
-class ChoiceFieldSerializer(Field):
+class WritableNestedSerializer(ModelSerializer):
     """
-    Represent a ChoiceField as {'value': <DB value>, 'label': <string>}.
+    Returns a nested representation of an object on read, but accepts only a primary key on write.
     """
-    def __init__(self, choices, **kwargs):
-        self._choices = dict()
-        for k, v in choices:
-            # Unpack grouped choices
-            if type(v) in [list, tuple]:
-                for k2, v2 in v:
-                    self._choices[k2] = v2
-            else:
-                self._choices[k] = v
-        super(ChoiceFieldSerializer, self).__init__(**kwargs)
-
-    def to_representation(self, obj):
-        return {'value': obj, 'label': self._choices[obj]}
-
     def to_internal_value(self, data):
-        return self._choices.get(data)
-
-
-class ContentTypeFieldSerializer(Field):
-    """
-    Represent a ContentType as '<app_label>.<model>'
-    """
-    def to_representation(self, obj):
-        return "{}.{}".format(obj.app_label, obj.model)
-
-    def to_internal_value(self, data):
-        app_label, model = data.split('.')
         try:
-            return ContentType.objects.get_by_natural_key(app_label=app_label, model=model)
-        except ContentType.DoesNotExist:
-            raise ValidationError("Invalid content type")
-
-
-class TimeZoneField(Field):
-    """
-    Represent a pytz time zone.
-    """
-
-    def to_representation(self, obj):
-        return obj.zone if obj else None
-
-    def to_internal_value(self, data):
-        if not data:
-            return ""
-        try:
-            return pytz.timezone(str(data))
-        except pytz.exceptions.UnknownTimeZoneError:
-            raise ValidationError('Invalid time zone "{}"'.format(data))
+            return self.Meta.model.objects.get(pk=data)
+        except ObjectDoesNotExist:
+            raise ValidationError("Invalid ID")
 
 
 #
