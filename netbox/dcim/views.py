@@ -41,11 +41,13 @@ class BulkRenameView(View):
     """
     An extendable view for renaming device components in bulk.
     """
-    model = None
+    queryset = None
     form = None
     template_name = 'dcim/bulk_rename.html'
 
     def post(self, request):
+
+        model = self.queryset.model
 
         return_url = request.GET.get('return_url')
         if not return_url or not is_safe_url(url=return_url, host=request.get_host()):
@@ -53,7 +55,7 @@ class BulkRenameView(View):
 
         if '_preview' in request.POST or '_apply' in request.POST:
             form = self.form(request.POST, initial={'pk': request.POST.getlist('pk')})
-            selected_objects = self.model.objects.filter(pk__in=form.initial['pk'])
+            selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
 
             if form.is_valid():
                 for obj in selected_objects:
@@ -65,17 +67,17 @@ class BulkRenameView(View):
                         obj.save()
                     messages.success(request, "Renamed {} {}".format(
                         len(selected_objects),
-                        self.model._meta.verbose_name_plural
+                        model._meta.verbose_name_plural
                     ))
                     return redirect(return_url)
 
         else:
             form = self.form(initial={'pk': request.POST.getlist('pk')})
-            selected_objects = self.model.objects.filter(pk__in=form.initial['pk'])
+            selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
 
         return render(request, self.template_name, {
             'form': form,
-            'obj_type_plural': self.model._meta.verbose_name_plural,
+            'obj_type_plural': model._meta.verbose_name_plural,
             'selected_objects': selected_objects,
             'return_url': return_url,
         })
@@ -962,11 +964,9 @@ class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
     def get(self, request, pk):
 
         device = get_object_or_404(Device, pk=pk)
-        interfaces = Interface.objects.order_naturally(
+        interfaces = device.vc_interfaces.order_naturally(
             device.device_type.interface_ordering
-        ).connectable().filter(
-            device=device
-        ).select_related(
+        ).connectable().select_related(
             'connected_as_a', 'connected_as_b'
         )
 
@@ -1318,7 +1318,7 @@ class ConsoleServerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class ConsoleServerPortBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     permission_required = 'dcim.change_consoleserverport'
-    model = ConsoleServerPort
+    queryset = ConsoleServerPort.objects.all()
     form = forms.ConsoleServerPortBulkRenameForm
 
 
@@ -1602,7 +1602,7 @@ class PowerOutletDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class PowerOutletBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     permission_required = 'dcim.change_poweroutlet'
-    model = PowerOutlet
+    queryset = PowerOutlet.objects.all()
     form = forms.PowerOutletBulkRenameForm
 
 
@@ -1645,6 +1645,12 @@ class InterfaceEditView(PermissionRequiredMixin, ObjectEditView):
     template_name = 'dcim/interface_edit.html'
 
 
+class InterfaceAssignVLANsView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_interface'
+    model = Interface
+    model_form = forms.InterfaceAssignVLANsForm
+
+
 class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_interface'
     model = Interface
@@ -1672,7 +1678,7 @@ class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
 
 class InterfaceBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     permission_required = 'dcim.change_interface'
-    model = Interface
+    queryset = Interface.objects.order_naturally()
     form = forms.InterfaceBulkRenameForm
 
 
@@ -1779,7 +1785,7 @@ class DeviceBayDepopulateView(PermissionRequiredMixin, View):
 
 class DeviceBayBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     permission_required = 'dcim.change_devicebay'
-    model = DeviceBay
+    queryset = DeviceBay.objects.all()
     form = forms.DeviceBayBulkRenameForm
 
 
@@ -2226,7 +2232,7 @@ class VirtualChassisAddMemberView(PermissionRequiredMixin, GetReturnURLMixin, Vi
             device = member_select_form.cleaned_data['device']
             device.virtual_chassis = virtual_chassis
             data = {k: request.POST[k] for k in ['vc_position', 'vc_priority']}
-            membership_form = forms.DeviceVCMembershipForm(data, validate_vc_position=True, instance=device)
+            membership_form = forms.DeviceVCMembershipForm(data=data, validate_vc_position=True, instance=device)
 
             if membership_form.is_valid():
 
@@ -2242,7 +2248,7 @@ class VirtualChassisAddMemberView(PermissionRequiredMixin, GetReturnURLMixin, Vi
 
         else:
 
-            membership_form = forms.DeviceVCMembershipForm(request.POST)
+            membership_form = forms.DeviceVCMembershipForm(data=request.POST)
 
         return render(request, 'dcim/virtualchassis_add_member.html', {
             'virtual_chassis': virtual_chassis,

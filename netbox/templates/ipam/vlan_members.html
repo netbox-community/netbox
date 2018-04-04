@@ -1,0 +1,12 @@
+{% extends '_base.html' %}
+
+{% block title %}{{ vlan }} - Members{% endblock %}
+
+{% block content %}
+    {% include 'ipam/inc/vlan_header.html' with active_tab='members' %}
+    <div class="row">
+        <div class="col-md-12">
+            {% include 'utilities/obj_table.html' with table=members_table table_template='panel_table.html' heading='VLAN Members' parent=vlan %}
+        </div>
+    </div>
+{% endblock %}

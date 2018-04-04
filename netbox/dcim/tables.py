@@ -47,8 +47,13 @@ REGION_ACTIONS = """
 """
 
 RACKGROUP_ACTIONS = """
+<a href="{% url 'dcim:rack_elevation_list' %}?site={{ record.site.slug }}&group_id={{ record.pk }}" class="btn btn-xs btn-primary" title="View elevations">
+    <i class="fa fa-eye"></i>
+</a>
 {% if perms.dcim.change_rackgroup %}
-    <a href="{% url 'dcim:rackgroup_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+    <a href="{% url 'dcim:rackgroup_edit' pk=record.pk %}" class="btn btn-xs btn-warning" title="Edit">
+        <i class="glyphicon glyphicon-pencil"></i>
+    </a>
 {% endif %}
 """
 
@@ -128,6 +133,10 @@ SUBDEVICE_ROLE_TEMPLATE = """
 {% if record.subdevice_role == True %}Parent{% elif record.subdevice_role == False %}Child{% else %}&mdash;{% endif %}
 """
 
+DEVICETYPE_INSTANCES_TEMPLATE = """
+<a href="{% url 'dcim:device_list' %}?manufacturer_id={{ record.manufacturer_id }}&device_type_id={{ record.pk }}">{{ record.instance_count }}</a>
+"""
+
 UTILIZATION_GRAPH = """
 {% load helpers %}
 {% utilization_graph value %}
@@ -182,12 +191,21 @@ class SiteTable(BaseTable):
 
 class RackGroupTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(verbose_name='Name')
-    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
-    rack_count = tables.Column(verbose_name='Racks')
-    slug = tables.Column(verbose_name='Slug')
-    actions = tables.TemplateColumn(template_code=RACKGROUP_ACTIONS, attrs={'td': {'class': 'text-right'}},
-                                    verbose_name='')
+    name = tables.LinkColumn()
+    site = tables.LinkColumn(
+        viewname='dcim:site',
+        args=[Accessor('site.slug')],
+        verbose_name='Site'
+    )
+    rack_count = tables.Column(
+        verbose_name='Racks'
+    )
+    slug = tables.Column()
+    actions = tables.TemplateColumn(
+        template_code=RACKGROUP_ACTIONS,
+        attrs={'td': {'class': 'text-right'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = RackGroup
@@ -299,13 +317,23 @@ class ManufacturerTable(BaseTable):
 
 class DeviceTypeTable(BaseTable):
     pk = ToggleColumn()
-    model = tables.LinkColumn('dcim:devicetype', args=[Accessor('pk')], verbose_name='Device Type')
+    model = tables.LinkColumn(
+        viewname='dcim:devicetype',
+        args=[Accessor('pk')],
+        verbose_name='Device Type'
+    )
     is_full_depth = tables.BooleanColumn(verbose_name='Full Depth')
     is_console_server = tables.BooleanColumn(verbose_name='CS')
     is_pdu = tables.BooleanColumn(verbose_name='PDU')
     is_network_device = tables.BooleanColumn(verbose_name='Net')
-    subdevice_role = tables.TemplateColumn(SUBDEVICE_ROLE_TEMPLATE, verbose_name='Subdevice Role')
-    instance_count = tables.Column(verbose_name='Instances')
+    subdevice_role = tables.TemplateColumn(
+        template_code=SUBDEVICE_ROLE_TEMPLATE,
+        verbose_name='Subdevice Role'
+    )
+    instance_count = tables.TemplateColumn(
+        template_code=DEVICETYPE_INSTANCES_TEMPLATE,
+        verbose_name='Instances'
+    )
 
     class Meta(BaseTable.Meta):
         model = DeviceType

@@ -6,12 +6,9 @@
         <div class="panel-heading"><strong>Interface</strong></div>
         <div class="panel-body">
             {% render_field form.name %}
-            {% render_field form.form_factor %}
             {% render_field form.enabled %}
-            {% render_field form.lag %}
             {% render_field form.mac_address %}
             {% render_field form.mtu %}
-            {% render_field form.mgmt_only %}
             {% render_field form.description %}
             {% render_field form.mode %}
         </div>
@@ -21,7 +18,7 @@
             <div class="panel-heading"><strong>802.1Q VLANs</strong></div>
             {% include 'dcim/inc/interface_vlans_table.html' %}
             <div class="panel-footer text-right">
-                <a href="{% url 'dcim:interface_assign_vlans' pk=obj.pk %}?return_url={% url 'dcim:interface_edit' pk=obj.pk %}" class="btn btn-primary btn-xs{% if form.instance.mode == 100 and form.instance.untagged_vlan %} disabled{% endif %}">
+                <a href="{% url 'dcim:interface_assign_vlans' pk=obj.pk %}?return_url={% url 'virtualization:interface_edit' pk=obj.pk %}" class="btn btn-primary btn-xs{% if form.instance.mode == 100 and form.instance.untagged_vlan %} disabled{% endif %}">
                     <i class="glyphicon glyphicon-plus"></i> Add VLANs
                 </a>
             </div>
@@ -32,7 +29,7 @@
 {% block buttons %}
     {% if obj.pk %}
         <button type="submit" name="_update" class="btn btn-primary">Update</button>
-        <button type="submit" formaction="?return_url={% url 'dcim:interface_edit' pk=obj.pk %}" class="btn btn-primary">Update and Continue Editing</button>
+        <button type="submit" formaction="?return_url={% url 'virtualization:interface_edit' pk=obj.pk %}" class="btn btn-primary">Update and Continue Editing</button>
     {% else %}
         <button type="submit" name="_create" class="btn btn-primary">Create</button>
         <button type="submit" name="_addanother" class="btn btn-primary">Create and Add Another</button>

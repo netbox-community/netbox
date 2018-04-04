@@ -5,7 +5,9 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from dcim.constants import IFACE_FF_1GE_FIXED, IFACE_FF_LAG, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT
+from dcim.constants import (
+    IFACE_FF_1GE_FIXED, IFACE_FF_LAG, IFACE_MODE_TAGGED, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
+)
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
@@ -2319,6 +2321,7 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
         data = {
             'device': self.device.pk,
             'name': 'Test Interface 4',
+            'mode': IFACE_MODE_TAGGED,
             'tagged_vlans': [self.vlan1.id, self.vlan2.id],
             'untagged_vlan': self.vlan3.id
         }
@@ -2366,18 +2369,21 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 4',
+                'mode': IFACE_MODE_TAGGED,
                 'tagged_vlans': [self.vlan1.id],
                 'untagged_vlan': self.vlan2.id,
             },
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 5',
+                'mode': IFACE_MODE_TAGGED,
                 'tagged_vlans': [self.vlan1.id],
                 'untagged_vlan': self.vlan2.id,
             },
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 6',
+                'mode': IFACE_MODE_TAGGED,
                 'tagged_vlans': [self.vlan1.id],
                 'untagged_vlan': self.vlan2.id,
             },
