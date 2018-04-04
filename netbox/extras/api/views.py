@@ -67,7 +67,6 @@ class CustomFieldModelViewSet(ModelViewSet):
 class GraphViewSet(ModelViewSet):
     queryset = Graph.objects.all()
     serializer_class = serializers.GraphSerializer
-    write_serializer_class = serializers.WritableGraphSerializer
     filter_class = filters.GraphFilter
 
 
@@ -88,7 +87,6 @@ class ExportTemplateViewSet(ModelViewSet):
 class TopologyMapViewSet(ModelViewSet):
     queryset = TopologyMap.objects.select_related('site')
     serializer_class = serializers.TopologyMapSerializer
-    write_serializer_class = serializers.WritableTopologyMapSerializer
     filter_class = filters.TopologyMapFilter
 
     @detail_route()
@@ -118,7 +116,6 @@ class TopologyMapViewSet(ModelViewSet):
 class ImageAttachmentViewSet(ModelViewSet):
     queryset = ImageAttachment.objects.all()
     serializer_class = serializers.ImageAttachmentSerializer
-    write_serializer_class = serializers.WritableImageAttachmentSerializer
 
 
 #

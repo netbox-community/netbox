@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.models import User
+from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -2321,6 +2322,7 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
         self.assertEqual(interface4.device_id, data['device'])
         self.assertEqual(interface4.name, data['name'])
 
+    @override_settings(DEBUG=True)
     def test_create_interface_with_802_1q(self):
 
         data = {
@@ -2368,6 +2370,7 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
         self.assertEqual(response.data[1]['name'], data[1]['name'])
         self.assertEqual(response.data[2]['name'], data[2]['name'])
 
+    @override_settings(DEBUG=True)
     def test_create_interface_802_1q_bulk(self):
 
         data = [
@@ -2852,9 +2855,9 @@ class InterfaceConnectionTest(HttpStatusMixin, APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(InterfaceConnection.objects.count(), 6)
-        self.assertEqual(response.data[0]['interface_a'], data[0]['interface_a'])
-        self.assertEqual(response.data[1]['interface_a'], data[1]['interface_a'])
-        self.assertEqual(response.data[2]['interface_a'], data[2]['interface_a'])
+        for i in range(0, 3):
+            self.assertEqual(response.data[i]['interface_a']['id'], data[i]['interface_a'])
+            self.assertEqual(response.data[i]['interface_b']['id'], data[i]['interface_b'])
 
     def test_update_interfaceconnection(self):
 
@@ -3052,12 +3055,9 @@ class VirtualChassisTest(HttpStatusMixin, APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(VirtualChassis.objects.count(), 5)
-        self.assertEqual(response.data[0]['master'], data[0]['master'])
-        self.assertEqual(response.data[0]['domain'], data[0]['domain'])
-        self.assertEqual(response.data[1]['master'], data[1]['master'])
-        self.assertEqual(response.data[1]['domain'], data[1]['domain'])
-        self.assertEqual(response.data[2]['master'], data[2]['master'])
-        self.assertEqual(response.data[2]['domain'], data[2]['domain'])
+        for i in range(0, 3):
+            self.assertEqual(response.data[i]['master']['id'], data[i]['master'])
+            self.assertEqual(response.data[i]['domain'], data[i]['domain'])
 
     def test_update_virtualchassis(self):
 
