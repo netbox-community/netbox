@@ -6,7 +6,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from dcim.constants import (
-    IFACE_FF_1GE_FIXED, IFACE_FF_LAG, IFACE_MODE_TAGGED, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
+    IFACE_FF_1GE_FIXED, IFACE_FF_LAG, IFACE_MODE_TAGGED, SITE_STATUS_ACTIVE, SUBDEVICE_ROLE_CHILD,
+    SUBDEVICE_ROLE_PARENT,
 )
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -168,6 +169,7 @@ class SiteTest(HttpStatusMixin, APITestCase):
             'name': 'Test Site 4',
             'slug': 'test-site-4',
             'region': self.region1.pk,
+            'status': SITE_STATUS_ACTIVE,
         }
 
         url = reverse('dcim-api:site-list')
@@ -187,16 +189,19 @@ class SiteTest(HttpStatusMixin, APITestCase):
                 'name': 'Test Site 4',
                 'slug': 'test-site-4',
                 'region': self.region1.pk,
+                'status': SITE_STATUS_ACTIVE,
             },
             {
                 'name': 'Test Site 5',
                 'slug': 'test-site-5',
                 'region': self.region1.pk,
+                'status': SITE_STATUS_ACTIVE,
             },
             {
                 'name': 'Test Site 6',
                 'slug': 'test-site-6',
                 'region': self.region1.pk,
+                'status': SITE_STATUS_ACTIVE,
             },
         ]
 
