@@ -296,7 +296,6 @@ class ServiceSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer(required=False, allow_null=True)
     virtual_machine = NestedVirtualMachineSerializer(required=False, allow_null=True)
     protocol = ChoiceFieldSerializer(choices=IP_PROTOCOL_CHOICES)
-    ipaddresses = NestedIPAddressSerializer(many=True, required=False)
 
     class Meta:
         model = Service

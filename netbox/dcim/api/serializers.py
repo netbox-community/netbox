@@ -553,7 +553,6 @@ class InterfaceSerializer(ValidatedModelSerializer):
     circuit_termination = InterfaceCircuitTerminationSerializer(read_only=True)
     untagged_vlan = InterfaceVLANSerializer(required=False, allow_null=True)
     mode = ChoiceFieldSerializer(choices=IFACE_MODE_CHOICES, required=False)
-    tagged_vlans = InterfaceVLANSerializer(many=True, required=False)
 
     class Meta:
         model = Interface

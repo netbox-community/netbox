@@ -2402,15 +2402,10 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Interface.objects.count(), 6)
-        self.assertEqual(response.data[0]['name'], data[0]['name'])
-        self.assertEqual(response.data[1]['name'], data[1]['name'])
-        self.assertEqual(response.data[2]['name'], data[2]['name'])
-        self.assertEqual(len(response.data[0]['tagged_vlans']), 1)
-        self.assertEqual(len(response.data[1]['tagged_vlans']), 1)
-        self.assertEqual(len(response.data[2]['tagged_vlans']), 1)
-        self.assertEqual(response.data[0]['untagged_vlan'], self.vlan2.id)
-        self.assertEqual(response.data[1]['untagged_vlan'], self.vlan2.id)
-        self.assertEqual(response.data[2]['untagged_vlan'], self.vlan2.id)
+        for i in range(0, 3):
+            self.assertEqual(response.data[i]['name'], data[i]['name'])
+            self.assertEqual(response.data[i]['tagged_vlans'], data[i]['tagged_vlans'])
+            self.assertEqual(response.data[i]['untagged_vlan']['id'], data[i]['untagged_vlan'])
 
     def test_update_interface(self):
 
