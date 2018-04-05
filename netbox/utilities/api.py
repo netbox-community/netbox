@@ -131,6 +131,8 @@ class WritableNestedSerializer(ModelSerializer):
     Returns a nested representation of an object on read, but accepts only a primary key on write.
     """
     def to_internal_value(self, data):
+        if data is None:
+            return None
         try:
             return self.Meta.model.objects.get(pk=data)
         except ObjectDoesNotExist:
@@ -148,16 +150,8 @@ class ModelViewSet(mixins.CreateModelMixin,
                    mixins.ListModelMixin,
                    GenericViewSet):
     """
-    Substitute DRF's built-in ModelViewSet for our own, which introduces a bit of additional functionality:
-    1. Use an alternate serializer (if provided) for write operations
-    2. Accept either a single object or a list of objects to create
+    Accept either a single object or a list of objects to create.
     """
-    def get_serializer_class(self):
-        # Check for a different serializer to use for write operations
-        if self.action in WRITE_OPERATIONS and hasattr(self, 'write_serializer_class'):
-            return self.write_serializer_class
-        return self.serializer_class
-
     def get_serializer(self, *args, **kwargs):
         # If a list of objects has been provided, initialize the serializer with many=True
         if isinstance(kwargs.get('data', {}), list):

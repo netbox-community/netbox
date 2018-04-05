@@ -37,7 +37,7 @@ class NestedRegionSerializer(WritableNestedSerializer):
 
 
 class RegionSerializer(serializers.ModelSerializer):
-    parent = NestedRegionSerializer(required=False)
+    parent = NestedRegionSerializer(required=False, allow_null=True)
 
     class Meta:
         model = Region
@@ -50,8 +50,8 @@ class RegionSerializer(serializers.ModelSerializer):
 
 class SiteSerializer(CustomFieldModelSerializer):
     status = ChoiceFieldSerializer(choices=SITE_STATUS_CHOICES, required=False)
-    region = NestedRegionSerializer(required=False)
-    tenant = NestedTenantSerializer(required=False)
+    region = NestedRegionSerializer(required=False, allow_null=True)
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
     time_zone = TimeZoneField(required=False)
 
     class Meta:
@@ -117,9 +117,9 @@ class NestedRackRoleSerializer(WritableNestedSerializer):
 
 class RackSerializer(CustomFieldModelSerializer):
     site = NestedSiteSerializer()
-    group = NestedRackGroupSerializer(required=False)
-    tenant = NestedTenantSerializer(required=False)
-    role = NestedRackRoleSerializer(required=False)
+    group = NestedRackGroupSerializer(required=False, allow_null=True)
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
+    role = NestedRackRoleSerializer(required=False, allow_null=True)
     type = ChoiceFieldSerializer(choices=RACK_TYPE_CHOICES, required=False)
     width = ChoiceFieldSerializer(choices=RACK_WIDTH_CHOICES, required=False)
 
@@ -186,7 +186,7 @@ class RackUnitSerializer(serializers.Serializer):
 class RackReservationSerializer(ValidatedModelSerializer):
     rack = NestedRackSerializer()
     user = NestedUserSerializer()
-    tenant = NestedTenantSerializer(required=False)
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
 
     class Meta:
         model = RackReservation
@@ -337,7 +337,7 @@ class NestedDeviceRoleSerializer(WritableNestedSerializer):
 #
 
 class PlatformSerializer(ValidatedModelSerializer):
-    manufacturer = NestedManufacturerSerializer(required=False)
+    manufacturer = NestedManufacturerSerializer(required=False, allow_null=True)
 
     class Meta:
         model = Platform
@@ -387,18 +387,18 @@ class DeviceVirtualChassisSerializer(serializers.ModelSerializer):
 class DeviceSerializer(CustomFieldModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     device_role = NestedDeviceRoleSerializer()
-    tenant = NestedTenantSerializer(required=False)
-    platform = NestedPlatformSerializer(required=False)
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
+    platform = NestedPlatformSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer()
-    rack = NestedRackSerializer(required=False)
+    rack = NestedRackSerializer(required=False, allow_null=True)
     face = ChoiceFieldSerializer(choices=RACK_FACE_CHOICES, required=False)
     status = ChoiceFieldSerializer(choices=DEVICE_STATUS_CHOICES, required=False)
     primary_ip = DeviceIPAddressSerializer(read_only=True)
-    primary_ip4 = DeviceIPAddressSerializer(required=False)
-    primary_ip6 = DeviceIPAddressSerializer(required=False)
+    primary_ip4 = DeviceIPAddressSerializer(required=False, allow_null=True)
+    primary_ip6 = DeviceIPAddressSerializer(required=False, allow_null=True)
     parent_device = serializers.SerializerMethodField()
-    cluster = NestedClusterSerializer(required=False)
-    virtual_chassis = DeviceVirtualChassisSerializer(required=False)
+    cluster = NestedClusterSerializer(required=False, allow_null=True)
+    virtual_chassis = DeviceVirtualChassisSerializer(required=False, allow_null=True)
 
     class Meta:
         model = Device
@@ -462,7 +462,7 @@ class NestedConsoleServerPortSerializer(WritableNestedSerializer):
 
 class ConsolePortSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
-    cs_port = NestedConsoleServerPortSerializer(required=False)
+    cs_port = NestedConsoleServerPortSerializer(required=False, allow_null=True)
 
     class Meta:
         model = ConsolePort
@@ -497,7 +497,7 @@ class NestedPowerOutletSerializer(WritableNestedSerializer):
 
 class PowerPortSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
-    power_outlet = NestedPowerOutletSerializer(required=False)
+    power_outlet = NestedPowerOutletSerializer(required=False, allow_null=True)
 
     class Meta:
         model = PowerPort
@@ -547,11 +547,11 @@ class InterfaceVLANSerializer(WritableNestedSerializer):
 class InterfaceSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     form_factor = ChoiceFieldSerializer(choices=IFACE_FF_CHOICES, required=False)
-    lag = NestedInterfaceSerializer(required=False)
+    lag = NestedInterfaceSerializer(required=False, allow_null=True)
     is_connected = serializers.SerializerMethodField(read_only=True)
     interface_connection = serializers.SerializerMethodField(read_only=True)
-    circuit_termination = InterfaceCircuitTerminationSerializer(required=False)
-    untagged_vlan = InterfaceVLANSerializer(required=False)
+    circuit_termination = InterfaceCircuitTerminationSerializer(read_only=True)
+    untagged_vlan = InterfaceVLANSerializer(required=False, allow_null=True)
     mode = ChoiceFieldSerializer(choices=IFACE_MODE_CHOICES, required=False)
     tagged_vlans = InterfaceVLANSerializer(many=True, required=False)
 
@@ -603,27 +603,13 @@ class InterfaceSerializer(ValidatedModelSerializer):
         return None
 
 
-# class PeerInterfaceSerializer(serializers.ModelSerializer):
-#     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interface-detail')
-#     device = NestedDeviceSerializer()
-#     form_factor = ChoiceFieldSerializer(choices=IFACE_FF_CHOICES)
-#     lag = NestedInterfaceSerializer()
-#
-#     class Meta:
-#         model = Interface
-#         fields = [
-#             'id', 'url', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only',
-#             'description',
-#         ]
-
-
 #
 # Device bays
 #
 
 class DeviceBaySerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
-    installed_device = NestedDeviceSerializer(required=False)
+    installed_device = NestedDeviceSerializer(required=False, allow_null=True)
 
     class Meta:
         model = DeviceBay

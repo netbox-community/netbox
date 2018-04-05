@@ -59,7 +59,7 @@ class CircuitSerializer(CustomFieldModelSerializer):
     provider = NestedProviderSerializer()
     status = ChoiceFieldSerializer(choices=CIRCUIT_STATUS_CHOICES, required=False)
     type = NestedCircuitTypeSerializer()
-    tenant = NestedTenantSerializer(required=False)
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
 
     class Meta:
         model = Circuit
@@ -84,7 +84,7 @@ class NestedCircuitSerializer(WritableNestedSerializer):
 class CircuitTerminationSerializer(ValidatedModelSerializer):
     circuit = NestedCircuitSerializer()
     site = NestedSiteSerializer()
-    interface = InterfaceSerializer(required=False)
+    interface = InterfaceSerializer(required=False, allow_null=True)
 
     class Meta:
         model = CircuitTermination

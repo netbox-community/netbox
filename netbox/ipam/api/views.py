@@ -35,7 +35,6 @@ class IPAMFieldChoicesViewSet(FieldChoicesViewSet):
 class VRFViewSet(CustomFieldModelViewSet):
     queryset = VRF.objects.select_related('tenant')
     serializer_class = serializers.VRFSerializer
-    write_serializer_class = serializers.WritableVRFSerializer
     filter_class = filters.VRFFilter
 
 
@@ -56,7 +55,6 @@ class RIRViewSet(ModelViewSet):
 class AggregateViewSet(CustomFieldModelViewSet):
     queryset = Aggregate.objects.select_related('rir')
     serializer_class = serializers.AggregateSerializer
-    write_serializer_class = serializers.WritableAggregateSerializer
     filter_class = filters.AggregateFilter
 
 
@@ -77,7 +75,6 @@ class RoleViewSet(ModelViewSet):
 class PrefixViewSet(CustomFieldModelViewSet):
     queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
     serializer_class = serializers.PrefixSerializer
-    write_serializer_class = serializers.WritablePrefixSerializer
     filter_class = filters.PrefixFilter
 
     @detail_route(url_path='available-prefixes', methods=['get', 'post'])
@@ -120,9 +117,9 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
             # Initialize the serializer with a list or a single object depending on what was requested
             if isinstance(request.data, list):
-                serializer = serializers.WritablePrefixSerializer(data=requested_prefixes, many=True)
+                serializer = serializers.PrefixSerializer(data=requested_prefixes, many=True)
             else:
-                serializer = serializers.WritablePrefixSerializer(data=requested_prefixes[0])
+                serializer = serializers.PrefixSerializer(data=requested_prefixes[0])
 
             # Create the new Prefix(es)
             if serializer.is_valid():
@@ -177,9 +174,9 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
             # Initialize the serializer with a list or a single object depending on what was requested
             if isinstance(request.data, list):
-                serializer = serializers.WritableIPAddressSerializer(data=requested_ips, many=True)
+                serializer = serializers.IPAddressSerializer(data=requested_ips, many=True)
             else:
-                serializer = serializers.WritableIPAddressSerializer(data=requested_ips[0])
+                serializer = serializers.IPAddressSerializer(data=requested_ips[0])
 
             # Create the new IP address(es)
             if serializer.is_valid():
@@ -223,7 +220,6 @@ class IPAddressViewSet(CustomFieldModelViewSet):
         'nat_outside'
     )
     serializer_class = serializers.IPAddressSerializer
-    write_serializer_class = serializers.WritableIPAddressSerializer
     filter_class = filters.IPAddressFilter
 
 
@@ -234,7 +230,6 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 class VLANGroupViewSet(ModelViewSet):
     queryset = VLANGroup.objects.select_related('site')
     serializer_class = serializers.VLANGroupSerializer
-    write_serializer_class = serializers.WritableVLANGroupSerializer
     filter_class = filters.VLANGroupFilter
 
 
@@ -245,7 +240,6 @@ class VLANGroupViewSet(ModelViewSet):
 class VLANViewSet(CustomFieldModelViewSet):
     queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role')
     serializer_class = serializers.VLANSerializer
-    write_serializer_class = serializers.WritableVLANSerializer
     filter_class = filters.VLANFilter
 
 
@@ -256,5 +250,4 @@ class VLANViewSet(CustomFieldModelViewSet):
 class ServiceViewSet(ModelViewSet):
     queryset = Service.objects.select_related('device')
     serializer_class = serializers.ServiceSerializer
-    write_serializer_class = serializers.WritableServiceSerializer
     filter_class = filters.ServiceFilter
