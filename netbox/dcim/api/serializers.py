@@ -20,7 +20,9 @@ from extras.api.customfields import CustomFieldModelSerializer
 from ipam.models import IPAddress, VLAN
 from tenancy.api.serializers import NestedTenantSerializer
 from users.api.serializers import NestedUserSerializer
-from utilities.api import ChoiceFieldSerializer, TimeZoneField, ValidatedModelSerializer, WritableNestedSerializer
+from utilities.api import (
+    ChoiceFieldSerializer, SerializedPKRelatedField, TimeZoneField, ValidatedModelSerializer, WritableNestedSerializer,
+)
 from virtualization.models import Cluster
 
 
@@ -551,8 +553,14 @@ class InterfaceSerializer(ValidatedModelSerializer):
     is_connected = serializers.SerializerMethodField(read_only=True)
     interface_connection = serializers.SerializerMethodField(read_only=True)
     circuit_termination = InterfaceCircuitTerminationSerializer(read_only=True)
-    untagged_vlan = InterfaceVLANSerializer(required=False, allow_null=True)
     mode = ChoiceFieldSerializer(choices=IFACE_MODE_CHOICES, required=False)
+    untagged_vlan = InterfaceVLANSerializer(required=False, allow_null=True)
+    tagged_vlans = SerializedPKRelatedField(
+        queryset=VLAN.objects.all(),
+        serializer=InterfaceVLANSerializer,
+        required=False,
+        many=True
+    )
 
     class Meta:
         model = Interface

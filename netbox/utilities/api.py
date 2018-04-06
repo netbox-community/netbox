@@ -11,6 +11,7 @@ from django.http import Http404
 from rest_framework import mixins
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import BasePermission
+from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.response import Response
 from rest_framework.serializers import Field, ModelSerializer, ValidationError
 from rest_framework.viewsets import GenericViewSet, ViewSet
@@ -82,7 +83,6 @@ class TimeZoneField(Field):
     """
     Represent a pytz time zone.
     """
-
     def to_representation(self, obj):
         return obj.zone if obj else None
 
@@ -93,6 +93,20 @@ class TimeZoneField(Field):
             return pytz.timezone(str(data))
         except pytz.exceptions.UnknownTimeZoneError:
             raise ValidationError('Invalid time zone "{}"'.format(data))
+
+
+class SerializedPKRelatedField(PrimaryKeyRelatedField):
+    """
+    Extends PrimaryKeyRelatedField to return a serialized object on read. This is useful for representing related
+    objects in a ManyToManyField while still allowing a set of primary keys to be written.
+    """
+    def __init__(self, serializer, **kwargs):
+        self.serializer = serializer
+        self.pk_field = kwargs.pop('pk_field', None)
+        super(SerializedPKRelatedField, self).__init__(**kwargs)
+
+    def to_representation(self, value):
+        return self.serializer(value, context={'request': self.context['request']}).data
 
 
 #

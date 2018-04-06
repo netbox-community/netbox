@@ -14,7 +14,7 @@ from ipam.constants import (
 )
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from tenancy.api.serializers import NestedTenantSerializer
-from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer, WritableNestedSerializer
+from utilities.api import ChoiceFieldSerializer, SerializedPKRelatedField, ValidatedModelSerializer, WritableNestedSerializer
 from virtualization.api.serializers import NestedVirtualMachineSerializer
 
 
@@ -296,6 +296,12 @@ class ServiceSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer(required=False, allow_null=True)
     virtual_machine = NestedVirtualMachineSerializer(required=False, allow_null=True)
     protocol = ChoiceFieldSerializer(choices=IP_PROTOCOL_CHOICES)
+    ipaddresses = SerializedPKRelatedField(
+        queryset=IPAddress.objects.all(),
+        serializer=NestedIPAddressSerializer,
+        required=False,
+        many=True
+    )
 
     class Meta:
         model = Service
