@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Exit code starts at 0 but is modified if any checks fail
+# Exit code starts at 0 but is modified if any checks fail and a test
 EXIT=0
 
 # Output a line prefixed with a timestamp
