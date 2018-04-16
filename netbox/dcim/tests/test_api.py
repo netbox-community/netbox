@@ -2327,8 +2327,8 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
             'device': self.device.pk,
             'name': 'Test Interface 4',
             'mode': IFACE_MODE_TAGGED,
+            'untagged_vlan': self.vlan3.id,
             'tagged_vlans': [self.vlan1.id, self.vlan2.id],
-            'untagged_vlan': self.vlan3.id
         }
 
         url = reverse('dcim-api:interface-list')
@@ -2336,11 +2336,10 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Interface.objects.count(), 4)
-        interface5 = Interface.objects.get(pk=response.data['id'])
-        self.assertEqual(interface5.device_id, data['device'])
-        self.assertEqual(interface5.name, data['name'])
-        self.assertEqual(interface5.tagged_vlans.count(), 2)
-        self.assertEqual(interface5.untagged_vlan.id, data['untagged_vlan'])
+        self.assertEqual(response.data['device']['id'], data['device'])
+        self.assertEqual(response.data['name'], data['name'])
+        self.assertEqual(response.data['untagged_vlan']['id'], data['untagged_vlan'])
+        self.assertEqual([v['id'] for v in response.data['tagged_vlans']], data['tagged_vlans'])
 
     def test_create_interface_bulk(self):
 
@@ -2375,22 +2374,22 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
                 'device': self.device.pk,
                 'name': 'Test Interface 4',
                 'mode': IFACE_MODE_TAGGED,
-                'tagged_vlans': [self.vlan1.id],
                 'untagged_vlan': self.vlan2.id,
+                'tagged_vlans': [self.vlan1.id],
             },
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 5',
                 'mode': IFACE_MODE_TAGGED,
-                'tagged_vlans': [self.vlan1.id],
                 'untagged_vlan': self.vlan2.id,
+                'tagged_vlans': [self.vlan1.id],
             },
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 6',
                 'mode': IFACE_MODE_TAGGED,
-                'tagged_vlans': [self.vlan1.id],
                 'untagged_vlan': self.vlan2.id,
+                'tagged_vlans': [self.vlan1.id],
             },
         ]
 
@@ -2399,15 +2398,10 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Interface.objects.count(), 6)
-        self.assertEqual(response.data[0]['name'], data[0]['name'])
-        self.assertEqual(response.data[1]['name'], data[1]['name'])
-        self.assertEqual(response.data[2]['name'], data[2]['name'])
-        self.assertEqual(len(response.data[0]['tagged_vlans']), 1)
-        self.assertEqual(len(response.data[1]['tagged_vlans']), 1)
-        self.assertEqual(len(response.data[2]['tagged_vlans']), 1)
-        self.assertEqual(response.data[0]['untagged_vlan'], self.vlan2.id)
-        self.assertEqual(response.data[1]['untagged_vlan'], self.vlan2.id)
-        self.assertEqual(response.data[2]['untagged_vlan'], self.vlan2.id)
+        for i in range(0, 3):
+            self.assertEqual(response.data[i]['name'], data[i]['name'])
+            self.assertEqual([v['id'] for v in response.data[i]['tagged_vlans']], data[i]['tagged_vlans'])
+            self.assertEqual(response.data[i]['untagged_vlan']['id'], data[i]['untagged_vlan'])
 
     def test_update_interface(self):
 
@@ -2852,9 +2846,9 @@ class InterfaceConnectionTest(HttpStatusMixin, APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(InterfaceConnection.objects.count(), 6)
-        self.assertEqual(response.data[0]['interface_a'], data[0]['interface_a'])
-        self.assertEqual(response.data[1]['interface_a'], data[1]['interface_a'])
-        self.assertEqual(response.data[2]['interface_a'], data[2]['interface_a'])
+        for i in range(0, 3):
+            self.assertEqual(response.data[i]['interface_a']['id'], data[i]['interface_a'])
+            self.assertEqual(response.data[i]['interface_b']['id'], data[i]['interface_b'])
 
     def test_update_interfaceconnection(self):
 
@@ -3052,12 +3046,9 @@ class VirtualChassisTest(HttpStatusMixin, APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(VirtualChassis.objects.count(), 5)
-        self.assertEqual(response.data[0]['master'], data[0]['master'])
-        self.assertEqual(response.data[0]['domain'], data[0]['domain'])
-        self.assertEqual(response.data[1]['master'], data[1]['master'])
-        self.assertEqual(response.data[1]['domain'], data[1]['domain'])
-        self.assertEqual(response.data[2]['master'], data[2]['master'])
-        self.assertEqual(response.data[2]['domain'], data[2]['domain'])
+        for i in range(0, 3):
+            self.assertEqual(response.data[i]['master']['id'], data[i]['master'])
+            self.assertEqual(response.data[i]['domain'], data[i]['domain'])
 
     def test_update_virtualchassis(self):
 

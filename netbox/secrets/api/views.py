@@ -51,7 +51,6 @@ class SecretViewSet(ModelViewSet):
         'role__users', 'role__groups',
     )
     serializer_class = serializers.SecretSerializer
-    write_serializer_class = serializers.WritableSecretSerializer
     filter_class = filters.SecretFilter
 
     master_key = None

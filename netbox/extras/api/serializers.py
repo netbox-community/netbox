@@ -15,15 +15,8 @@ from utilities.api import ChoiceFieldSerializer, ContentTypeFieldSerializer, Val
 # Graphs
 #
 
-class GraphSerializer(serializers.ModelSerializer):
+class GraphSerializer(ValidatedModelSerializer):
     type = ChoiceFieldSerializer(choices=GRAPH_TYPE_CHOICES)
-
-    class Meta:
-        model = Graph
-        fields = ['id', 'type', 'weight', 'name', 'source', 'link']
-
-
-class WritableGraphSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Graph
@@ -50,7 +43,7 @@ class RenderedGraphSerializer(serializers.ModelSerializer):
 # Export templates
 #
 
-class ExportTemplateSerializer(serializers.ModelSerializer):
+class ExportTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ExportTemplate
@@ -61,15 +54,8 @@ class ExportTemplateSerializer(serializers.ModelSerializer):
 # Topology maps
 #
 
-class TopologyMapSerializer(serializers.ModelSerializer):
+class TopologyMapSerializer(ValidatedModelSerializer):
     site = NestedSiteSerializer()
-
-    class Meta:
-        model = TopologyMap
-        fields = ['id', 'name', 'slug', 'site', 'device_patterns', 'description']
-
-
-class WritableTopologyMapSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TopologyMap
@@ -80,12 +66,30 @@ class WritableTopologyMapSerializer(serializers.ModelSerializer):
 # Image attachments
 #
 
-class ImageAttachmentSerializer(serializers.ModelSerializer):
-    parent = serializers.SerializerMethodField()
+class ImageAttachmentSerializer(ValidatedModelSerializer):
+    content_type = ContentTypeFieldSerializer()
+    parent = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = ImageAttachment
-        fields = ['id', 'parent', 'name', 'image', 'image_height', 'image_width', 'created']
+        fields = [
+            'id', 'content_type', 'object_id', 'parent', 'name', 'image', 'image_height', 'image_width', 'created',
+        ]
+
+    def validate(self, data):
+
+        # Validate that the parent object exists
+        try:
+            data['content_type'].get_object_for_this_type(id=data['object_id'])
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError(
+                "Invalid parent object: {} ID {}".format(data['content_type'], data['object_id'])
+            )
+
+        # Enforce model validation
+        super(ImageAttachmentSerializer, self).validate(data)
+
+        return data
 
     def get_parent(self, obj):
 
@@ -100,29 +104,6 @@ class ImageAttachmentSerializer(serializers.ModelSerializer):
             raise Exception("Unexpected type of parent object for ImageAttachment")
 
         return serializer(obj.parent, context={'request': self.context['request']}).data
-
-
-class WritableImageAttachmentSerializer(ValidatedModelSerializer):
-    content_type = ContentTypeFieldSerializer()
-
-    class Meta:
-        model = ImageAttachment
-        fields = ['id', 'content_type', 'object_id', 'name', 'image']
-
-    def validate(self, data):
-
-        # Validate that the parent object exists
-        try:
-            data['content_type'].get_object_for_this_type(id=data['object_id'])
-        except ObjectDoesNotExist:
-            raise serializers.ValidationError(
-                "Invalid parent object: {} ID {}".format(data['content_type'], data['object_id'])
-            )
-
-        # Enforce model validation
-        super(WritableImageAttachmentSerializer, self).validate(data)
-
-        return data
 
 
 #
