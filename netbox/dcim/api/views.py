@@ -293,12 +293,24 @@ class DeviceViewSet(CustomFieldModelViewSet):
         # TODO: Improve error handling
         response = OrderedDict([(m, None) for m in napalm_methods])
         ip_address = str(device.primary_ip.address.ip)
+
+        # Merge NAPALM_ARGS settings and form data
+        optional_args = {}
+        if settings.NAPALM_ARGS:
+            optional_args.update(settings.NAPALM_ARGS)
+
+        if device.platform.napalm_port:
+            optional_args.update({'port': device.platform.napalm_port})
+
+        if device.platform.napalm_transport:
+            optional_args.update({'transport': device.platform.napalm_transport})
+
         d = driver(
             hostname=ip_address,
             username=settings.NAPALM_USERNAME,
             password=settings.NAPALM_PASSWORD,
             timeout=settings.NAPALM_TIMEOUT,
-            optional_args=settings.NAPALM_ARGS
+            optional_args=optional_args
         )
         try:
             d.open()

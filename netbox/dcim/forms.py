@@ -699,7 +699,7 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Platform
-        fields = ['name', 'slug', 'manufacturer', 'napalm_driver', 'rpc_client']
+        fields = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_port', 'napalm_transport', 'rpc_client']
 
 
 class PlatformCSVForm(forms.ModelForm):
