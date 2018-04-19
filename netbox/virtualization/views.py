@@ -160,6 +160,7 @@ class ClusterBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'virtualization.delete_cluster'
     cls = Cluster
     queryset = Cluster.objects.all()
+    filter = filters.ClusterFilter
     table = tables.ClusterTable
     default_return_url = 'virtualization:cluster_list'
 
