@@ -43,13 +43,13 @@ class InterfaceQuerySet(QuerySet):
         }[method]
 
         TYPE_RE = r"SUBSTRING({} FROM '^([^0-9]+)')"
-        ID_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)([0-9]+)$') AS integer)"
-        SLOT_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?([0-9]+)\/') AS integer)"
-        SUBSLOT_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?(?:[0-9]+\/)([0-9]+)') AS integer), 0)"
-        POSITION_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?(?:[0-9]+\/){{2}}([0-9]+)') AS integer), 0)"
-        SUBPOSITION_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?(?:[0-9]+\/){{3}}([0-9]+)') AS integer), 0)"
-        CHANNEL_RE = r"COALESCE(CAST(SUBSTRING({} FROM ':([0-9]+)(\.[0-9]+)?$') AS integer), 0)"
-        VC_RE = r"COALESCE(CAST(SUBSTRING({} FROM '\.([0-9]+)$') AS integer), 0)"
+        ID_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)(\d{{1,9}})$') AS integer)"
+        SLOT_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?(\d{{1,9}})\/') AS integer)"
+        SUBSLOT_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?(?:\d{{1,9}}\/)(\d{{1,9}})') AS integer), 0)"
+        POSITION_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?(?:\d{{1,9}}\/){{2}}(\d{{1,9}})') AS integer), 0)"
+        SUBPOSITION_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?(?:\d{{1,9}}\/){{3}}(\d{{1,9}})') AS integer), 0)"
+        CHANNEL_RE = r"COALESCE(CAST(SUBSTRING({} FROM ':(\d{{1,9}})(\.\d{{1,9}})?$') AS integer), 0)"
+        VC_RE = r"COALESCE(CAST(SUBSTRING({} FROM '\.(\d{{1,9}})$') AS integer), 0)"
 
         fields = {
             '_type': RawSQL(TYPE_RE.format(sql_col), []),

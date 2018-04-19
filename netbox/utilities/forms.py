@@ -205,7 +205,8 @@ class ArrayFieldSelectMultiple(SelectWithDisabled, forms.SelectMultiple):
 
     def optgroups(self, name, value, attrs=None):
         # Split the delimited string of values into a list
-        value = value[0].split(self.delimiter)
+        if value:
+            value = value[0].split(self.delimiter)
         return super(ArrayFieldSelectMultiple, self).optgroups(name, value, attrs)
 
     def value_from_datadict(self, data, files, name):

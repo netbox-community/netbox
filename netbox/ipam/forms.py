@@ -508,7 +508,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
 
         ipaddress = super(IPAddressForm, self).save(*args, **kwargs)
 
-        # Assign this IPAddress as the primary for the associated Device.
+        # Assign/clear this IPAddress as the primary for the associated Device/VirtualMachine.
         if self.cleaned_data['primary_for_parent']:
             parent = self.cleaned_data['interface'].parent
             if ipaddress.address.version == 4:
@@ -516,14 +516,12 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
             else:
                 parent.primary_ip6 = ipaddress
             parent.save()
-
-        # Clear assignment as primary for device if set.
         elif self.cleaned_data['interface']:
             parent = self.cleaned_data['interface'].parent
-            if ipaddress.address.version == 4 and parent.primary_ip4 == self:
+            if ipaddress.address.version == 4 and parent.primary_ip4 == ipaddress:
                 parent.primary_ip4 = None
                 parent.save()
-            elif ipaddress.address.version == 6 and parent.primary_ip6 == self:
+            elif ipaddress.address.version == 6 and parent.primary_ip6 == ipaddress:
                 parent.primary_ip6 = None
                 parent.save()
 

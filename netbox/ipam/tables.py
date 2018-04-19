@@ -329,7 +329,7 @@ class IPAddressAssignTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = IPAddress
-        fields = ('address', 'vrf', 'status', 'role', 'tenant', 'parent', 'interface')
+        fields = ('address', 'vrf', 'status', 'role', 'tenant', 'parent', 'interface', 'description')
         orderable = False
 
 
