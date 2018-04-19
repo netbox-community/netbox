@@ -706,7 +706,7 @@ class PlatformCSVForm(forms.ModelForm):
     slug = SlugField()
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
-        required=True,
+        required=False,
         to_field_name='name',
         help_text='Manufacturer name',
         error_messages={

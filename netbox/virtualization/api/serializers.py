@@ -3,10 +3,10 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 
 from dcim.api.serializers import NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer
-from dcim.constants import IFACE_FF_VIRTUAL
+from dcim.constants import IFACE_FF_VIRTUAL, IFACE_MODE_CHOICES
 from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
-from ipam.models import IPAddress
+from ipam.models import IPAddress, VLAN
 from tenancy.api.serializers import NestedTenantSerializer
 from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer, WritableNestedSerializer
 from virtualization.constants import VM_STATUS_CHOICES
@@ -116,14 +116,26 @@ class NestedVirtualMachineSerializer(WritableNestedSerializer):
 # VM interfaces
 #
 
-class InterfaceSerializer(ValidatedModelSerializer):
+# Cannot import ipam.api.serializers.NestedVLANSerializer due to circular dependency
+class InterfaceVLANSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlan-detail')
+
+    class Meta:
+        model = VLAN
+        fields = ['id', 'url', 'vid', 'name', 'display_name']
+
+
+class InterfaceSerializer(serializers.ModelSerializer):
     virtual_machine = NestedVirtualMachineSerializer()
-    form_factor = serializers.IntegerField(default=IFACE_FF_VIRTUAL)
+    mode = ChoiceFieldSerializer(choices=IFACE_MODE_CHOICES)
+    untagged_vlan = InterfaceVLANSerializer()
+    tagged_vlans = InterfaceVLANSerializer(many=True)
 
     class Meta:
         model = Interface
         fields = [
-            'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'description',
+            'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'mode', 'untagged_vlan', 'tagged_vlans',
+            'description',
         ]
 
 
