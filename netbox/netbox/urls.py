@@ -25,6 +25,8 @@ schema_view = get_schema_view(
 
 _patterns = [
 
+    url(r'^activity/', include('activity.urls', namespace='activity'), name='activity'),
+
     # Base views
     url(r'^$', HomeView.as_view(), name='home'),
     url(r'^search/$', SearchView.as_view(), name='search'),

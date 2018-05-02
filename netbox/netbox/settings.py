@@ -120,6 +120,7 @@ EMAIL_SUBJECT_PREFIX = '[NetBox] '
 
 # Installed applications
 INSTALLED_APPS = (
+    'activity',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
