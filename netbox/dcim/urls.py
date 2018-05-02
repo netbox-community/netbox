@@ -7,19 +7,20 @@ from ipam.views import ServiceCreateView
 from secrets.views import secret_add
 from . import views
 from .models import Device, Rack, Site
+from django.contrib.auth.decorators import login_required
 
 app_name = 'dcim'
 urlpatterns = [
 
     # Regions
-    url(r'^regions/$', views.RegionListView.as_view(), name='region_list'),
+    url(r'^regions/$', login_required(views.RegionListView.as_view()), name='region_list'),
     url(r'^regions/add/$', views.RegionCreateView.as_view(), name='region_add'),
     url(r'^regions/import/$', views.RegionBulkImportView.as_view(), name='region_import'),
     url(r'^regions/delete/$', views.RegionBulkDeleteView.as_view(), name='region_bulk_delete'),
     url(r'^regions/(?P<pk>\d+)/edit/$', views.RegionEditView.as_view(), name='region_edit'),
 
     # Sites
-    url(r'^sites/$', views.SiteListView.as_view(), name='site_list'),
+    url(r'^sites/$', login_required(views.SiteListView.as_view()), name='site_list'),
     url(r'^sites/add/$', views.SiteCreateView.as_view(), name='site_add'),
     url(r'^sites/import/$', views.SiteBulkImportView.as_view(), name='site_import'),
     url(r'^sites/edit/$', views.SiteBulkEditView.as_view(), name='site_bulk_edit'),
@@ -29,29 +30,31 @@ urlpatterns = [
     url(r'^sites/(?P<object_id>\d+)/images/add/$', ImageAttachmentEditView.as_view(), name='site_add_image', kwargs={'model': Site}),
 
     # Rack groups
-    url(r'^rack-groups/$', views.RackGroupListView.as_view(), name='rackgroup_list'),
+    url(r'^rack-groups/$', login_required(views.RackGroupListView.as_view()), name='rackgroup_list'),
     url(r'^rack-groups/add/$', views.RackGroupCreateView.as_view(), name='rackgroup_add'),
     url(r'^rack-groups/import/$', views.RackGroupBulkImportView.as_view(), name='rackgroup_import'),
     url(r'^rack-groups/delete/$', views.RackGroupBulkDeleteView.as_view(), name='rackgroup_bulk_delete'),
     url(r'^rack-groups/(?P<pk>\d+)/edit/$', views.RackGroupEditView.as_view(), name='rackgroup_edit'),
 
     # Rack roles
-    url(r'^rack-roles/$', views.RackRoleListView.as_view(), name='rackrole_list'),
+    url(r'^rack-roles/$', login_required(views.RackRoleListView.as_view()), name='rackrole_list'),
     url(r'^rack-roles/add/$', views.RackRoleCreateView.as_view(), name='rackrole_add'),
     url(r'^rack-roles/import/$', views.RackRoleBulkImportView.as_view(), name='rackrole_import'),
     url(r'^rack-roles/delete/$', views.RackRoleBulkDeleteView.as_view(), name='rackrole_bulk_delete'),
     url(r'^rack-roles/(?P<pk>\d+)/edit/$', views.RackRoleEditView.as_view(), name='rackrole_edit'),
 
     # Rack reservations
-    url(r'^rack-reservations/$', views.RackReservationListView.as_view(), name='rackreservation_list'),
+    url(r'^rack-reservations/$',
+        login_required(views.RackReservationListView.as_view()), name='rackreservation_list'),
     url(r'^rack-reservations/edit/$', views.RackReservationBulkEditView.as_view(), name='rackreservation_bulk_edit'),
     url(r'^rack-reservations/delete/$', views.RackReservationBulkDeleteView.as_view(), name='rackreservation_bulk_delete'),
     url(r'^rack-reservations/(?P<pk>\d+)/edit/$', views.RackReservationEditView.as_view(), name='rackreservation_edit'),
     url(r'^rack-reservations/(?P<pk>\d+)/delete/$', views.RackReservationDeleteView.as_view(), name='rackreservation_delete'),
 
     # Racks
-    url(r'^racks/$', views.RackListView.as_view(), name='rack_list'),
-    url(r'^rack-elevations/$', views.RackElevationListView.as_view(), name='rack_elevation_list'),
+    url(r'^racks/$', login_required(views.RackListView.as_view()), name='rack_list'),
+    url(r'^rack-elevations/$',
+        login_required(views.RackElevationListView.as_view()), name='rack_elevation_list'),
     url(r'^racks/add/$', views.RackEditView.as_view(), name='rack_add'),
     url(r'^racks/import/$', views.RackBulkImportView.as_view(), name='rack_import'),
     url(r'^racks/edit/$', views.RackBulkEditView.as_view(), name='rack_bulk_edit'),
@@ -63,14 +66,15 @@ urlpatterns = [
     url(r'^racks/(?P<object_id>\d+)/images/add/$', ImageAttachmentEditView.as_view(), name='rack_add_image', kwargs={'model': Rack}),
 
     # Manufacturers
-    url(r'^manufacturers/$', views.ManufacturerListView.as_view(), name='manufacturer_list'),
+    url(r'^manufacturers/$',
+            login_required(views.ManufacturerListView.as_view()), name='manufacturer_list'),
     url(r'^manufacturers/add/$', views.ManufacturerCreateView.as_view(), name='manufacturer_add'),
     url(r'^manufacturers/import/$', views.ManufacturerBulkImportView.as_view(), name='manufacturer_import'),
     url(r'^manufacturers/delete/$', views.ManufacturerBulkDeleteView.as_view(), name='manufacturer_bulk_delete'),
     url(r'^manufacturers/(?P<slug>[\w-]+)/edit/$', views.ManufacturerEditView.as_view(), name='manufacturer_edit'),
 
     # Device types
-    url(r'^device-types/$', views.DeviceTypeListView.as_view(), name='devicetype_list'),
+    url(r'^device-types/$', login_required(views.DeviceTypeListView.as_view()), name='devicetype_list'),
     url(r'^device-types/add/$', views.DeviceTypeCreateView.as_view(), name='devicetype_add'),
     url(r'^device-types/import/$', views.DeviceTypeBulkImportView.as_view(), name='devicetype_import'),
     url(r'^device-types/edit/$', views.DeviceTypeBulkEditView.as_view(), name='devicetype_bulk_edit'),
@@ -80,7 +84,8 @@ urlpatterns = [
     url(r'^device-types/(?P<pk>\d+)/delete/$', views.DeviceTypeDeleteView.as_view(), name='devicetype_delete'),
 
     # Console port templates
-    url(r'^device-types/(?P<pk>\d+)/console-ports/add/$', views.ConsolePortTemplateCreateView.as_view(), name='devicetype_add_consoleport'),
+    url(r'^device-types/(?P<pk>\d+)/console-ports/add/$',
+            login_required(views.ConsolePortTemplateCreateView.as_view()), name='devicetype_add_consoleport'),
     url(r'^device-types/(?P<pk>\d+)/console-ports/delete/$', views.ConsolePortTemplateBulkDeleteView.as_view(), name='devicetype_delete_consoleport'),
 
     # Console server port templates
@@ -105,21 +110,21 @@ urlpatterns = [
     url(r'^device-types/(?P<pk>\d+)/device-bays/delete/$', views.DeviceBayTemplateBulkDeleteView.as_view(), name='devicetype_delete_devicebay'),
 
     # Device roles
-    url(r'^device-roles/$', views.DeviceRoleListView.as_view(), name='devicerole_list'),
+    url(r'^device-roles/$', login_required(views.DeviceRoleListView.as_view()), name='devicerole_list'),
     url(r'^device-roles/add/$', views.DeviceRoleCreateView.as_view(), name='devicerole_add'),
     url(r'^device-roles/import/$', views.DeviceRoleBulkImportView.as_view(), name='devicerole_import'),
     url(r'^device-roles/delete/$', views.DeviceRoleBulkDeleteView.as_view(), name='devicerole_bulk_delete'),
     url(r'^device-roles/(?P<slug>[\w-]+)/edit/$', views.DeviceRoleEditView.as_view(), name='devicerole_edit'),
 
     # Platforms
-    url(r'^platforms/$', views.PlatformListView.as_view(), name='platform_list'),
+    url(r'^platforms/$', login_required(views.PlatformListView.as_view()), name='platform_list'),
     url(r'^platforms/add/$', views.PlatformCreateView.as_view(), name='platform_add'),
     url(r'^platforms/import/$', views.PlatformBulkImportView.as_view(), name='platform_import'),
     url(r'^platforms/delete/$', views.PlatformBulkDeleteView.as_view(), name='platform_bulk_delete'),
     url(r'^platforms/(?P<slug>[\w-]+)/edit/$', views.PlatformEditView.as_view(), name='platform_edit'),
 
     # Devices
-    url(r'^devices/$', views.DeviceListView.as_view(), name='device_list'),
+    url(r'^devices/$', login_required(views.DeviceListView.as_view()), name='device_list'),
     url(r'^devices/add/$', views.DeviceCreateView.as_view(), name='device_add'),
     url(r'^devices/import/$', views.DeviceBulkImportView.as_view(), name='device_import'),
     url(r'^devices/import/child-devices/$', views.ChildDeviceBulkImportView.as_view(), name='device_import_child'),
@@ -159,7 +164,8 @@ urlpatterns = [
     # Power ports
     url(r'^devices/power-ports/add/$', views.DeviceBulkAddPowerPortView.as_view(), name='device_bulk_add_powerport'),
     url(r'^devices/(?P<pk>\d+)/power-ports/add/$', views.PowerPortCreateView.as_view(), name='powerport_add'),
-    url(r'^devices/(?P<pk>\d+)/power-ports/delete/$', views.PowerPortBulkDeleteView.as_view(), name='powerport_bulk_delete'),
+    url(r'^devices/(?P<pk>\d+)/power-ports/delete/$',
+            login_required(views.PowerPortBulkDeleteView.as_view()), name='powerport_bulk_delete'),
     url(r'^power-ports/(?P<pk>\d+)/connect/$', views.PowerPortConnectView.as_view(), name='powerport_connect'),
     url(r'^power-ports/(?P<pk>\d+)/disconnect/$', views.PowerPortDisconnectView.as_view(), name='powerport_disconnect'),
     url(r'^power-ports/(?P<pk>\d+)/edit/$', views.PowerPortEditView.as_view(), name='powerport_edit'),
@@ -200,7 +206,8 @@ urlpatterns = [
     url(r'^device-bays/rename/$', views.DeviceBayBulkRenameView.as_view(), name='devicebay_bulk_rename'),
 
     # Inventory items
-    url(r'^inventory-items/$', views.InventoryItemListView.as_view(), name='inventoryitem_list'),
+    url(r'^inventory-items/$',
+            login_required(views.InventoryItemListView.as_view()), name='inventoryitem_list'),
     url(r'^inventory-items/import/$', views.InventoryItemBulkImportView.as_view(), name='inventoryitem_import'),
     url(r'^inventory-items/edit/$', views.InventoryItemBulkEditView.as_view(), name='inventoryitem_bulk_edit'),
     url(r'^inventory-items/delete/$', views.InventoryItemBulkDeleteView.as_view(), name='inventoryitem_bulk_delete'),
@@ -209,15 +216,19 @@ urlpatterns = [
     url(r'^devices/(?P<device>\d+)/inventory-items/add/$', views.InventoryItemEditView.as_view(), name='inventoryitem_add'),
 
     # Console/power/interface connections
-    url(r'^console-connections/$', views.ConsoleConnectionsListView.as_view(), name='console_connections_list'),
+    url(r'^console-connections/$',
+            login_required(views.ConsoleConnectionsListView.as_view()), name='console_connections_list'),
     url(r'^console-connections/import/$', views.ConsoleConnectionsBulkImportView.as_view(), name='console_connections_import'),
-    url(r'^power-connections/$', views.PowerConnectionsListView.as_view(), name='power_connections_list'),
+    url(r'^power-connections/$',
+            login_required(views.PowerConnectionsListView.as_view()), name='power_connections_list'),
     url(r'^power-connections/import/$', views.PowerConnectionsBulkImportView.as_view(), name='power_connections_import'),
-    url(r'^interface-connections/$', views.InterfaceConnectionsListView.as_view(), name='interface_connections_list'),
+    url(r'^interface-connections/$',
+            login_required(views.InterfaceConnectionsListView.as_view()), name='interface_connections_list'),
     url(r'^interface-connections/import/$', views.InterfaceConnectionsBulkImportView.as_view(), name='interface_connections_import'),
 
     # Virtual chassis
-    url(r'^virtual-chassis/$', views.VirtualChassisListView.as_view(), name='virtualchassis_list'),
+    url(r'^virtual-chassis/$',
+            login_required(views.VirtualChassisListView.as_view()), name='virtualchassis_list'),
     url(r'^virtual-chassis/add/$', views.VirtualChassisCreateView.as_view(), name='virtualchassis_add'),
     url(r'^virtual-chassis/(?P<pk>\d+)/edit/$', views.VirtualChassisEditView.as_view(), name='virtualchassis_edit'),
     url(r'^virtual-chassis/(?P<pk>\d+)/delete/$', views.VirtualChassisDeleteView.as_view(), name='virtualchassis_delete'),
