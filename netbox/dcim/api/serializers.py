@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+from taggit.models import Tag
 
 from circuits.models import Circuit, CircuitTermination
 from dcim.constants import (
@@ -21,7 +22,8 @@ from ipam.models import IPAddress, VLAN
 from tenancy.api.serializers import NestedTenantSerializer
 from users.api.serializers import NestedUserSerializer
 from utilities.api import (
-    ChoiceFieldSerializer, SerializedPKRelatedField, TimeZoneField, ValidatedModelSerializer, WritableNestedSerializer,
+    ChoiceFieldSerializer, SerializedPKRelatedField, TagField, TimeZoneField, ValidatedModelSerializer,
+    WritableNestedSerializer,
 )
 from virtualization.models import Cluster
 
@@ -55,14 +57,15 @@ class SiteSerializer(CustomFieldModelSerializer):
     region = NestedRegionSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     time_zone = TimeZoneField(required=False)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = Site
         fields = [
             'id', 'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description',
             'physical_address', 'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments',
-            'custom_fields', 'created', 'last_updated', 'count_prefixes', 'count_vlans', 'count_racks', 'count_devices',
-            'count_circuits',
+            'tags', 'custom_fields', 'created', 'last_updated', 'count_prefixes', 'count_vlans', 'count_racks',
+            'count_devices', 'count_circuits',
         ]
 
 
@@ -124,12 +127,13 @@ class RackSerializer(CustomFieldModelSerializer):
     role = NestedRackRoleSerializer(required=False, allow_null=True)
     type = ChoiceFieldSerializer(choices=RACK_TYPE_CHOICES, required=False)
     width = ChoiceFieldSerializer(choices=RACK_WIDTH_CHOICES, required=False)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = Rack
         fields = [
             'id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'serial', 'type', 'width',
-            'u_height', 'desc_units', 'comments', 'custom_fields', 'created', 'last_updated',
+            'u_height', 'desc_units', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         # Omit the UniqueTogetherValidator that would be automatically added to validate (site, facility_id). This
         # prevents facility_id from being interpreted as a required field.
@@ -223,12 +227,13 @@ class DeviceTypeSerializer(CustomFieldModelSerializer):
     interface_ordering = ChoiceFieldSerializer(choices=IFACE_ORDERING_CHOICES, required=False)
     subdevice_role = ChoiceFieldSerializer(choices=SUBDEVICE_ROLE_CHOICES, required=False)
     instance_count = serializers.IntegerField(source='instances.count', read_only=True)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = DeviceType
         fields = [
             'id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'interface_ordering',
-            'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments', 'custom_fields',
+            'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments', 'tags', 'custom_fields',
             'instance_count',
         ]
 
@@ -401,13 +406,14 @@ class DeviceSerializer(CustomFieldModelSerializer):
     parent_device = serializers.SerializerMethodField()
     cluster = NestedClusterSerializer(required=False, allow_null=True)
     virtual_chassis = DeviceVirtualChassisSerializer(required=False, allow_null=True)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = Device
         fields = [
             'id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'site', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4', 'primary_ip6',
-            'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'custom_fields', 'created',
+            'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'tags', 'custom_fields', 'created',
             'last_updated',
         ]
         validators = []

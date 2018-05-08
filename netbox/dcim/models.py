@@ -14,6 +14,7 @@ from django.db.models import Count, Q, ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from mptt.models import MPTTModel, TreeForeignKey
+from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
 
 from circuits.models import Circuit
@@ -161,6 +162,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     )
 
     objects = SiteManager()
+    tags = TaggableManager()
 
     csv_headers = [
         'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
@@ -388,6 +390,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
     )
 
     objects = RackManager()
+    tags = TaggableManager()
 
     csv_headers = [
         'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'serial', 'width', 'u_height',
@@ -745,6 +748,8 @@ class DeviceType(models.Model, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
+
+    tags = TaggableManager()
 
     csv_headers = [
         'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
@@ -1231,6 +1236,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     )
 
     objects = DeviceManager()
+    tags = TaggableManager()
 
     csv_headers = [
         'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',

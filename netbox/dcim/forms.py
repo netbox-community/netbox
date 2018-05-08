@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.db.models import Count, Q
 from mptt.forms import TreeNodeChoiceField
+from taggit.forms import TagField
 from timezone_field import TimeZoneFormField
 
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
@@ -108,12 +109,14 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     region = TreeNodeChoiceField(queryset=Region.objects.all(), required=False)
     slug = SlugField()
     comments = CommentField()
+    tags = TagField(required=False)
 
     class Meta:
         model = Site
         fields = [
             'name', 'slug', 'status', 'region', 'tenant_group', 'tenant', 'facility', 'asn', 'time_zone', 'description',
             'physical_address', 'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments',
+            'tags',
         ]
         widgets = {
             'physical_address': SmallTextarea(attrs={'rows': 3}),
@@ -274,12 +277,13 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         )
     )
     comments = CommentField()
+    tags = TagField(required=False)
 
     class Meta:
         model = Rack
         fields = [
             'site', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'role', 'serial', 'type', 'width',
-            'u_height', 'desc_units', 'comments',
+            'u_height', 'desc_units', 'comments', 'tags',
         ]
         help_texts = {
             'site': "The site at which the rack exists",
@@ -485,11 +489,14 @@ class ManufacturerCSVForm(forms.ModelForm):
 
 class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
     slug = SlugField(slug_source='model')
+    tags = TagField(required=False)
 
     class Meta:
         model = DeviceType
-        fields = ['manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
-                  'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering', 'comments']
+        fields = [
+            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
+            'is_network_device', 'subdevice_role', 'interface_ordering', 'comments', 'tags',
+        ]
         labels = {
             'interface_ordering': 'Order interfaces by',
         }
@@ -772,12 +779,13 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         )
     )
     comments = CommentField()
+    tags = TagField(required=False)
 
     class Meta:
         model = Device
         fields = [
-            'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'position', 'face', 'status',
-            'platform', 'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant', 'comments',
+            'name', 'device_role', 'tags', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'position', 'face',
+            'status', 'platform', 'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant', 'comments',
         ]
         help_texts = {
             'device_role': "The function this device serves",

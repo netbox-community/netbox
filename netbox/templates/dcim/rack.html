@@ -115,6 +115,10 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Tags</td>
+                    <td>{{ rack.tags.all|join:" " }}</td>
+                </tr>
+                <tr>
                     <td>Devices</td>
                     <td>
                         <a href="{% url 'dcim:device_list' %}?rack_id={{ rack.id }}">{{ rack.devices.count }}</a>

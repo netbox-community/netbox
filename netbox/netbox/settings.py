@@ -133,6 +133,7 @@ INSTALLED_APPS = (
     'django_tables2',
     'mptt',
     'rest_framework',
+    'taggit',
     'timezone_field',
     'circuits',
     'dcim',

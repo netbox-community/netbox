@@ -96,6 +96,10 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Tags</td>
+                    <td>{{ device.tags.all|join:" " }}</td>
+                </tr>
             </table>
         </div>
         {% if vc_members %}
