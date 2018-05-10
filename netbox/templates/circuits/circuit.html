@@ -110,6 +110,10 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Tags</td>
+                    <td>{{ circuit.tags.all|join:" " }}</td>
+                </tr>
             </table>
         </div>
         {% with circuit.get_custom_fields as custom_fields %}

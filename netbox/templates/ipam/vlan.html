@@ -81,6 +81,10 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Tags</td>
+                    <td>{{ vlan.tags.all|join:" " }}</td>
+                </tr>
 		    </table>
         </div>
         {% with vlan.get_custom_fields as custom_fields %}

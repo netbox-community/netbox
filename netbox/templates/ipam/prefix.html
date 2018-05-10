@@ -122,6 +122,10 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Tags</td>
+                    <td>{{ prefix.tags.all|join:" " }}</td>
+                </tr>
+                <tr>
                     <td>Utilization</td>
                     <td>{% utilization_graph prefix.get_utilization %}</td>
                 </tr>

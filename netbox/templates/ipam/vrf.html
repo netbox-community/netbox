@@ -78,6 +78,10 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Tags</td>
+                    <td>{{ vrf.tags.all|join:" " }}</td>
+                </tr>
 		    </table>
         </div>
         {% with vrf.get_custom_fields as custom_fields %}

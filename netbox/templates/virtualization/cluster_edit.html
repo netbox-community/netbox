@@ -3,12 +3,12 @@
 
 {% block form %}
     <div class="panel panel-default">
-        <div class="panel-heading"><strong>Aggregate</strong></div>
+        <div class="panel-heading"><strong>Cluster</strong></div>
         <div class="panel-body">
-            {% render_field form.prefix %}
-            {% render_field form.rir %}
-            {% render_field form.date_added %}
-            {% render_field form.description %}
+            {% render_field form.name %}
+            {% render_field form.type %}
+            {% render_field form.group %}
+            {% render_field form.site %}
         </div>
     </div>
     {% if form.custom_fields %}
@@ -19,6 +19,12 @@
             </div>
         </div>
     {% endif %}
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Comments</strong></div>
+        <div class="panel-body">
+            {% render_field form.comments %}
+        </div>
+    </div>
     <div class="panel panel-default">
         <div class="panel-heading"><strong>Tags</strong></div>
         <div class="panel-body">

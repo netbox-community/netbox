@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
+from taggit.managers import TaggableManager
 
 from dcim.models import Device
 from extras.models import CustomFieldModel
@@ -124,6 +125,8 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
+    tags = TaggableManager()
+
     csv_headers = ['name', 'type', 'group', 'site', 'comments']
 
     class Meta:
@@ -241,6 +244,8 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
+
+    tags = TaggableManager()
 
     csv_headers = [
         'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',

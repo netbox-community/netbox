@@ -4,6 +4,7 @@ from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from django import forms
 from django.db.models import Count
+from taggit.forms import TagField
 
 from dcim.models import Device
 from utilities.forms import BootstrapMixin, BulkEditForm, FilterChoiceField, FlexibleModelChoiceField, SlugField
@@ -70,10 +71,11 @@ class SecretForm(BootstrapMixin, forms.ModelForm):
         label='Plaintext (verify)',
         widget=forms.PasswordInput()
     )
+    tags = TagField(required=False)
 
     class Meta:
         model = Secret
-        fields = ['role', 'name', 'plaintext', 'plaintext2']
+        fields = ['role', 'name', 'plaintext', 'plaintext2', 'tags']
 
     def __init__(self, *args, **kwargs):
 

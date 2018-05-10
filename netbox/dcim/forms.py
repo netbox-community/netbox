@@ -784,8 +784,8 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     class Meta:
         model = Device
         fields = [
-            'name', 'device_role', 'tags', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'position', 'face',
-            'status', 'platform', 'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant', 'comments',
+            'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'position', 'face',
+            'status', 'platform', 'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant', 'comments', 'tags',
         ]
         help_texts = {
             'device_role': "The function this device serves",

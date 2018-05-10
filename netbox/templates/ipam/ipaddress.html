@@ -133,6 +133,10 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Tags</td>
+                    <td>{{ ipaddress.tags.all|join:" " }}</td>
+                </tr>
             </table>
         </div>
         {% with ipaddress.get_custom_fields as custom_fields %}

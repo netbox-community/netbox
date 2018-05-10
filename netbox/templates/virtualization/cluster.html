@@ -77,6 +77,10 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Tags</td>
+                    <td>{{ cluster.tags.all|join:" " }}</td>
+                </tr>
+                <tr>
                     <td>Virtual Machines</td>
                     <td><a href="{% url 'virtualization:virtualmachine_list' %}?cluster_id={{ cluster.pk }}">{{ cluster.virtual_machines.count }}</a></td>
                 </tr>

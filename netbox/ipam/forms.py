@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from django import forms
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Count
+from taggit.forms import TagField
 
 from dcim.models import Site, Rack, Device, Interface
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
@@ -32,10 +33,11 @@ IPADDRESS_MASK_LENGTH_CHOICES = add_blank_choice([(i, i) for i in range(1, 129)]
 #
 
 class VRFForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+    tags = TagField(required=False)
 
     class Meta:
         model = VRF
-        fields = ['name', 'rd', 'enforce_unique', 'description', 'tenant_group', 'tenant']
+        fields = ['name', 'rd', 'enforce_unique', 'description', 'tenant_group', 'tenant', 'tags']
         labels = {
             'rd': "RD",
         }
@@ -121,10 +123,11 @@ class RIRFilterForm(BootstrapMixin, forms.Form):
 #
 
 class AggregateForm(BootstrapMixin, CustomFieldForm):
+    tags = TagField(required=False)
 
     class Meta:
         model = Aggregate
-        fields = ['prefix', 'rir', 'date_added', 'description']
+        fields = ['prefix', 'rir', 'date_added', 'description', 'tags']
         help_texts = {
             'prefix': "IPv4 or IPv6 network",
             'rir': "Regional Internet Registry responsible for this prefix",
@@ -228,10 +231,14 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             api_url='/api/ipam/vlans/?site_id={{site}}&group_id={{vlan_group}}', display_field='display_name'
         )
     )
+    tags = TagField(required=False)
 
     class Meta:
         model = Prefix
-        fields = ['prefix', 'vrf', 'site', 'vlan', 'status', 'role', 'is_pool', 'description', 'tenant_group', 'tenant']
+        fields = [
+            'prefix', 'vrf', 'site', 'vlan', 'status', 'role', 'is_pool', 'description', 'tenant_group', 'tenant',
+            'tags',
+        ]
 
     def __init__(self, *args, **kwargs):
 
@@ -455,12 +462,13 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
         )
     )
     primary_for_parent = forms.BooleanField(required=False, label='Make this the primary IP for the device/VM')
+    tags = TagField(required=False)
 
     class Meta:
         model = IPAddress
         fields = [
             'address', 'vrf', 'status', 'role', 'description', 'interface', 'primary_for_parent', 'nat_site',
-            'nat_rack', 'nat_inside', 'tenant_group', 'tenant',
+            'nat_rack', 'nat_inside', 'tenant_group', 'tenant', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -780,10 +788,11 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             api_url='/api/ipam/vlan-groups/?site_id={{site}}',
         )
     )
+    tags = TagField(required=False)
 
     class Meta:
         model = VLAN
-        fields = ['site', 'group', 'vid', 'name', 'status', 'role', 'description', 'tenant_group', 'tenant']
+        fields = ['site', 'group', 'vid', 'name', 'status', 'role', 'description', 'tenant_group', 'tenant', 'tags']
         help_texts = {
             'site': "Leave blank if this VLAN spans multiple sites",
             'group': "VLAN group (optional)",

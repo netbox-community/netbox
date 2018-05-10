@@ -68,6 +68,10 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Tags</td>
+                    <td>{{ tenant.tags.all|join:" " }}</td>
+                </tr>
             </table>
         </div>
         {% with tenant.get_custom_fields as custom_fields %}

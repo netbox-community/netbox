@@ -5,6 +5,7 @@ from collections import OrderedDict
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework.validators import UniqueTogetherValidator
+from taggit.models import Tag
 
 from dcim.api.serializers import NestedDeviceSerializer, InterfaceSerializer, NestedSiteSerializer
 from dcim.models import Interface
@@ -14,7 +15,9 @@ from ipam.constants import (
 )
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from tenancy.api.serializers import NestedTenantSerializer
-from utilities.api import ChoiceFieldSerializer, SerializedPKRelatedField, ValidatedModelSerializer, WritableNestedSerializer
+from utilities.api import (
+    ChoiceFieldSerializer, SerializedPKRelatedField, TagField, ValidatedModelSerializer, WritableNestedSerializer,
+)
 from virtualization.api.serializers import NestedVirtualMachineSerializer
 
 
@@ -24,12 +27,13 @@ from virtualization.api.serializers import NestedVirtualMachineSerializer
 
 class VRFSerializer(CustomFieldModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = VRF
         fields = [
-            'id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'display_name', 'custom_fields', 'created',
-            'last_updated',
+            'id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'tags', 'display_name', 'custom_fields',
+            'created', 'last_updated',
         ]
 
 
@@ -85,11 +89,13 @@ class NestedRIRSerializer(WritableNestedSerializer):
 
 class AggregateSerializer(CustomFieldModelSerializer):
     rir = NestedRIRSerializer()
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = Aggregate
         fields = [
-            'id', 'family', 'prefix', 'rir', 'date_added', 'description', 'custom_fields', 'created', 'last_updated',
+            'id', 'family', 'prefix', 'rir', 'date_added', 'description', 'tags', 'custom_fields', 'created',
+            'last_updated',
         ]
         read_only_fields = ['family']
 
@@ -147,11 +153,12 @@ class VLANSerializer(CustomFieldModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceFieldSerializer(choices=VLAN_STATUS_CHOICES, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = VLAN
         fields = [
-            'id', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'display_name',
+            'id', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'tags', 'display_name',
             'custom_fields', 'created', 'last_updated',
         ]
         validators = []
@@ -190,12 +197,13 @@ class PrefixSerializer(CustomFieldModelSerializer):
     vlan = NestedVLANSerializer(required=False, allow_null=True)
     status = ChoiceFieldSerializer(choices=PREFIX_STATUS_CHOICES, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = Prefix
         fields = [
             'id', 'family', 'prefix', 'site', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'description',
-            'custom_fields', 'created', 'last_updated',
+            'tags', 'custom_fields', 'created', 'last_updated',
         ]
         read_only_fields = ['family']
 
@@ -252,12 +260,13 @@ class IPAddressSerializer(CustomFieldModelSerializer):
     status = ChoiceFieldSerializer(choices=IPADDRESS_STATUS_CHOICES, required=False)
     role = ChoiceFieldSerializer(choices=IPADDRESS_ROLE_CHOICES, required=False)
     interface = IPAddressInterfaceSerializer(required=False, allow_null=True)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = IPAddress
         fields = [
             'id', 'family', 'address', 'vrf', 'tenant', 'status', 'role', 'interface', 'description', 'nat_inside',
-            'nat_outside', 'custom_fields', 'created', 'last_updated',
+            'nat_outside', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         read_only_fields = ['family']
 

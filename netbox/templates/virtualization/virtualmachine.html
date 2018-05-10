@@ -121,6 +121,10 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Tags</td>
+                    <td>{{ vm.tags.all|join:" " }}</td>
+                </tr>
             </table>
         </div>
         {% include 'inc/custom_fields_panel.html' with custom_fields=vm.get_custom_fields %}

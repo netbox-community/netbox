@@ -18,6 +18,12 @@
             {% render_field form.tenant %}
         </div>
     </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Tags</strong></div>
+        <div class="panel-body">
+            {% render_field form.tags %}
+        </div>
+    </div>
     {% if form.custom_fields %}
         <div class="panel panel-default">
             <div class="panel-heading"><strong>Custom Fields</strong></div>

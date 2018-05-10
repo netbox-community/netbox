@@ -12,7 +12,6 @@
             {% render_field form.u_height %}
             {% render_field form.is_full_depth %}
             {% render_field form.interface_ordering %}
-            {% render_field form.tags %}
         </div>
     </div>
     <div class="panel panel-default">
@@ -36,6 +35,12 @@
         <div class="panel-heading"><strong>Comments</strong></div>
         <div class="panel-body">
             {% render_field form.comments %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Tags</strong></div>
+        <div class="panel-body">
+            {% render_field form.tags %}
         </div>
     </div>
 {% endblock %}
