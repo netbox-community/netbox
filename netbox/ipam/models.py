@@ -528,7 +528,7 @@ class VLANGroup(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return "{}?group_id={}".format(reverse('ipam:vlan_list'), self.pk)
+        return reverse('ipam:vlangroup_vlans', args=[self.pk])
 
     def to_csv(self):
         return (
