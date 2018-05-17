@@ -111,6 +111,7 @@ def add_available_vlans(vlan_group, vlans):
 
     return vlans
 
+
 #
 # VRFs
 #
@@ -854,7 +855,7 @@ class VLANGroupVLANsView(View):
 
         vlan_group = get_object_or_404(VLANGroup.objects.all(), pk=pk)
 
-        vlans = VLAN.objects.filter(group_id = pk)
+        vlans = VLAN.objects.filter(group_id=pk)
         vlans = add_available_vlans(vlan_group, vlans)
 
         first_available_vlan = 0
