@@ -70,7 +70,13 @@
                 </tr>
                 <tr>
                     <td>Tags</td>
-                    <td>{{ tenant.tags.all|join:" " }}</td>
+                    <td>
+                        {% for tag in tenant.tags.all %}
+                            {% tag 'tenancy:tenant_list' tag %}
+                        {% empty %}
+                            <span class="text-muted">N/A</span>
+                        {% endfor %}
+                    </td>
                 </tr>
             </table>
         </div>

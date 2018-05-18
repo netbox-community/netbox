@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load helpers %}
 
 {% block content %}
 <div class="row">
@@ -83,7 +84,13 @@
                 </tr>
                 <tr>
                     <td>Tags</td>
-                    <td>{{ aggregate.tags.all|join:" " }}</td>
+                    <td>
+                        {% for tag in aggregate.tags.all %}
+                            {% tag 'ipam:aggregate_list' tag %}
+                        {% empty %}
+                            <span class="text-muted">N/A</span>
+                        {% endfor %}
+                    </td>
                 </tr>
             </table>
         </div>

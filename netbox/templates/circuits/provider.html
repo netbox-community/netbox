@@ -104,7 +104,13 @@
                 </tr>
                 <tr>
                     <td>Tags</td>
-                    <td>{{ provider.tags.all|join:" " }}</td>
+                    <td>
+                        {% for tag in provider.tags.all %}
+                            {% tag 'circuits:provider_list' tag %}
+                        {% empty %}
+                            <span class="text-muted">N/A</span>
+                        {% endfor %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Circuits</td>

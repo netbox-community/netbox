@@ -123,7 +123,13 @@
                 </tr>
                 <tr>
                     <td>Tags</td>
-                    <td>{{ vm.tags.all|join:" " }}</td>
+                    <td>
+                        {% for tag in vm.tags.all %}
+                            {% tag 'virtualization:vm_list' tag %}
+                        {% empty %}
+                            <span class="text-muted">N/A</span>
+                        {% endfor %}
+                    </td>
                 </tr>
             </table>
         </div>

@@ -116,7 +116,13 @@
                 </tr>
                 <tr>
                     <td>Tags</td>
-                    <td>{{ rack.tags.all|join:" " }}</td>
+                    <td>
+                        {% for tag in rack.tags.all %}
+                            {% tag 'dcim:rack_list' tag %}
+                        {% empty %}
+                            <span class="text-muted">N/A</span>
+                        {% endfor %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Devices</td>

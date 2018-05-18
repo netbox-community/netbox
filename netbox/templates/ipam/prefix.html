@@ -123,7 +123,13 @@
                 </tr>
                 <tr>
                     <td>Tags</td>
-                    <td>{{ prefix.tags.all|join:" " }}</td>
+                    <td>
+                        {% for tag in prefix.tags.all %}
+                            {% tag 'ipam:prefix_list' tag %}
+                        {% empty %}
+                            <span class="text-muted">N/A</span>
+                        {% endfor %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Utilization</td>

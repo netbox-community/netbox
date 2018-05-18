@@ -78,7 +78,13 @@
                 </tr>
                 <tr>
                     <td>Tags</td>
-                    <td>{{ cluster.tags.all|join:" " }}</td>
+                    <td>
+                        {% for tag in cluster.tags.all %}
+                            {% tag 'virtualization:cluster_list' tag %}
+                        {% empty %}
+                            <span class="text-muted">N/A</span>
+                        {% endfor %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Virtual Machines</td>
