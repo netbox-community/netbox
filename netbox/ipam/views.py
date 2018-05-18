@@ -858,12 +858,6 @@ class VLANGroupVLANsView(View):
         vlans = VLAN.objects.filter(group_id=pk)
         vlans = add_available_vlans(vlan_group, vlans)
 
-        first_available_vlan = 0
-        for v in vlans:
-            if not type(v) == VLAN:
-                first_available_vlan = v['vid']
-                break
-
         vlan_table = tables.VLANDetailTable(vlans)
         if request.user.has_perm('ipam.change_vlan') or request.user.has_perm('ipam.delete_vlan'):
             vlan_table.columns.show('pk')
@@ -885,7 +879,7 @@ class VLANGroupVLANsView(View):
 
         return render(request, 'ipam/vlangroup_vlans.html', {
             'vlan_group': vlan_group,
-            'first_available_vlan': first_available_vlan,
+            'first_available_vlan': vlan_group.get_next_available_vid(),
             'vlan_table': vlan_table,
             'permissions': permissions,
         })

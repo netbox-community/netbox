@@ -1,6 +1,6 @@
 <div class="pull-right">
     {% if perms.ipam.add_vlan and first_available_vlan %}
-        <a href="{% url 'ipam:vlan_add' %}?vid={{ first_available_vlan }}&group={{ vlan_group.pk }}&site={{ vlan_group.site.pk }}" class="btn btn-success">
+        <a href="{% url 'ipam:vlan_add' %}?vid={{ first_available_vlan }}&group={{ vlan_group.pk }}{% if vlan_group.site %}&site={{ vlan_group.site.pk }}{% endif %}" class="btn btn-success">
             <i class="fa fa-plus" aria-hidden="true"></i> Add a VLAN
         </a>
     {% endif %}

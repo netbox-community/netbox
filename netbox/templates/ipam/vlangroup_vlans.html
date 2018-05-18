@@ -7,7 +7,9 @@
     <div class="col-sm-12 col-md-12">
         <ol class="breadcrumb">
             <li><a href="{% url 'ipam:vlangroup_list' %}">VLAN Groups</a></li>
-            <li><a href="{% url 'dcim:site' slug=vlan_group.site.slug %}">{{ vlan_group.site }}</a></li>
+            {% if vlan_group.site %}
+                <li><a href="{% url 'dcim:site' slug=vlan_group.site.slug %}">{{ vlan_group.site }}</a></li>
+            {% endif %}
             <li>{{ vlan_group }}</li>
         </ol>
     </div>
