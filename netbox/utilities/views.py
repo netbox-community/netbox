@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
-from django.db.models import ProtectedError
+from django.db.models import Count, ProtectedError
 from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.exceptions import TemplateSyntaxError
@@ -119,6 +119,12 @@ class ObjectListView(View):
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
 
+        # Construct queryset for tags list
+        if hasattr(model, 'tags'):
+            tags = model.tags.annotate(count=Count('taggit_taggeditem_items'))
+        else:
+            tags = None
+
         # Apply the request context
         paginate = {
             'klass': EnhancedPaginator,
@@ -131,6 +137,7 @@ class ObjectListView(View):
             'table': table,
             'permissions': permissions,
             'filter_form': self.filter_form(request.GET, label_suffix='') if self.filter_form else None,
+            'tags': tags,
         }
         context.update(self.extra_context())
 
