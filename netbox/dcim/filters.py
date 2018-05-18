@@ -82,6 +82,9 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Tenant (slug)',
     )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
+    )
 
     class Meta:
         model = Site
@@ -178,6 +181,9 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         queryset=RackRole.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
+    )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
     )
 
     class Meta:
@@ -285,6 +291,9 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
         queryset=Manufacturer.objects.all(),
         to_field_name='slug',
         label='Manufacturer (slug)',
+    )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
     )
 
     class Meta:
@@ -496,6 +505,9 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         name='virtual_chassis',
         queryset=VirtualChassis.objects.all(),
         label='Virtual chassis (ID)',
+    )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
     )
 
     class Meta:
