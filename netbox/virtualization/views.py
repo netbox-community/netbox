@@ -115,7 +115,7 @@ class ClusterView(View):
             'site', 'rack', 'tenant', 'device_type__manufacturer'
         )
         device_table = DeviceTable(list(devices), orderable=False)
-        if request.user.has_perm('virtualization:change_cluster'):
+        if request.user.has_perm('virtualization.change_cluster'):
             device_table.columns.show('pk')
 
         return render(request, 'virtualization/cluster.html', {
