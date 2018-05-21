@@ -105,7 +105,7 @@
                     <button class="btn btn-warning btn-xs interface-toggle connected" disabled="disabled" title="Circuits cannot be marked as planned or connected">
                         <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>
                     </button>
-                    <a href="{% url 'circuits:circuittermination_edit' pk=iface.circuit_termination.pk %}&return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs" title="Edit circuit termination">
+                    <a href="{% url 'circuits:circuittermination_edit' pk=iface.circuit_termination.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs" title="Edit circuit termination">
                         <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
                     </a>
                 {% else %}
