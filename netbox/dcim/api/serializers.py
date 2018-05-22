@@ -135,17 +135,17 @@ class RackSerializer(CustomFieldModelSerializer):
             'id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'serial', 'type', 'width',
             'u_height', 'desc_units', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        # Omit the UniqueTogetherValidator that would be automatically added to validate (site, facility_id). This
+        # Omit the UniqueTogetherValidator that would be automatically added to validate (group, facility_id). This
         # prevents facility_id from being interpreted as a required field.
         validators = [
-            UniqueTogetherValidator(queryset=Rack.objects.all(), fields=('site', 'name'))
+            UniqueTogetherValidator(queryset=Rack.objects.all(), fields=('group', 'name'))
         ]
 
     def validate(self, data):
 
-        # Validate uniqueness of (site, facility_id) since we omitted the automatically-created validator from Meta.
+        # Validate uniqueness of (group, facility_id) since we omitted the automatically-created validator from Meta.
         if data.get('facility_id', None):
-            validator = UniqueTogetherValidator(queryset=Rack.objects.all(), fields=('site', 'facility_id'))
+            validator = UniqueTogetherValidator(queryset=Rack.objects.all(), fields=('group', 'facility_id'))
             validator.set_context(self)
             validator(data)
 

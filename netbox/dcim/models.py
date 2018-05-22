@@ -398,10 +398,10 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
     ]
 
     class Meta:
-        ordering = ['site', 'name']
+        ordering = ['site', 'group', 'name']
         unique_together = [
-            ['site', 'name'],
-            ['site', 'facility_id'],
+            ['group', 'name'],
+            ['group', 'facility_id'],
         ]
 
     def __str__(self):

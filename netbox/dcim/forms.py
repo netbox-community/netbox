@@ -354,6 +354,8 @@ class RackCSVForm(forms.ModelForm):
 
         site = self.cleaned_data.get('site')
         group_name = self.cleaned_data.get('group_name')
+        name = self.cleaned_data.get('name')
+        facility_id = self.cleaned_data.get('facility_id')
 
         # Validate rack group
         if group_name:
@@ -361,6 +363,18 @@ class RackCSVForm(forms.ModelForm):
                 self.instance.group = RackGroup.objects.get(site=site, name=group_name)
             except RackGroup.DoesNotExist:
                 raise forms.ValidationError("Rack group {} not found for site {}".format(group_name, site))
+
+            # Validate uniqueness of rack name within group
+            if Rack.objects.filter(group=self.instance.group, name=name).exists():
+                raise forms.ValidationError(
+                    "A rack named {} already exists within group {}".format(name, group_name)
+                )
+
+            # Validate uniqueness of facility ID within group
+            if facility_id and Rack.objects.filter(group=self.instance.group, facility_id=facility_id).exists():
+                raise forms.ValidationError(
+                    "A rack with the facility ID {} already exists within group {}".format(facility_id, group_name)
+                )
 
 
 class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
