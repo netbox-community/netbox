@@ -609,10 +609,11 @@ class InterfaceSerializer(ValidatedModelSerializer):
 
     def get_interface_connection(self, obj):
         if obj.connection:
-            return OrderedDict((
-                ('interface', NestedInterfaceSerializer(obj.connected_interface, context=self.context).data),
-                ('status', obj.connection.connection_status),
-            ))
+            context = {
+                'request': self.context['request'],
+                'interface': obj.connected_interface,
+            }
+            return ContextualInterfaceConnectionSerializer(obj.connection, context=context).data
         return None
 
 
@@ -675,6 +676,21 @@ class NestedInterfaceConnectionSerializer(WritableNestedSerializer):
     class Meta:
         model = InterfaceConnection
         fields = ['id', 'url', 'connection_status']
+
+
+class ContextualInterfaceConnectionSerializer(serializers.ModelSerializer):
+    """
+    A read-only representation of an InterfaceConnection from the perspective of either of its two connected Interfaces.
+    """
+    interface = serializers.SerializerMethodField(read_only=True)
+    connection_status = ChoiceFieldSerializer(choices=CONNECTION_STATUS_CHOICES, read_only=True)
+
+    class Meta:
+        model = InterfaceConnection
+        fields = ['id', 'interface', 'connection_status']
+
+    def get_interface(self, obj):
+        return NestedInterfaceSerializer(self.context['interface'], context=self.context).data
 
 
 #
