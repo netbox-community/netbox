@@ -1,12 +1,14 @@
 from __future__ import unicode_literals
 
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import detail_route
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
+from taggit.models import Tag
 
 from extras import filters
 from extras.models import CustomField, ExportTemplate, Graph, ImageAttachment, ReportResult, TopologyMap, UserAction
@@ -107,6 +109,16 @@ class TopologyMapViewSet(ModelViewSet):
         response['Content-Disposition'] = 'inline; filename="{}.{}"'.format(tmap.slug, img_format)
 
         return response
+
+
+#
+# Tags
+#
+
+class TagViewSet(ModelViewSet):
+    queryset = Tag.objects.annotate(tagged_items=Count('taggit_taggeditem_items'))
+    serializer_class = serializers.TagSerializer
+    filter_class = filters.TagFilter
 
 
 #

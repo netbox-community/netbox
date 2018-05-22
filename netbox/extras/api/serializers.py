@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
+from taggit.models import Tag
 
 from dcim.api.serializers import NestedDeviceSerializer, NestedRackSerializer, NestedSiteSerializer
 from dcim.models import Device, Rack, Site
@@ -60,6 +61,18 @@ class TopologyMapSerializer(ValidatedModelSerializer):
     class Meta:
         model = TopologyMap
         fields = ['id', 'name', 'slug', 'site', 'device_patterns', 'description']
+
+
+#
+# Tags
+#
+
+class TagSerializer(ValidatedModelSerializer):
+    tagged_items = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Tag
+        fields = ['id', 'name', 'slug', 'tagged_items']
 
 
 #
