@@ -702,6 +702,7 @@ class InterfaceSerializer(serializers.ModelSerializer):
             return OrderedDict((
                 ('interface', PeerInterfaceSerializer(obj.connected_interface, context=self.context).data),
                 ('status', obj.connection.connection_status),
+                ('id', obj.connection.id),
             ))
         return None
 
