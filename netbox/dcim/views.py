@@ -157,6 +157,7 @@ class RegionBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_region'
     cls = Region
     queryset = Region.objects.annotate(site_count=Count('sites'))
+    filter = filters.RegionFilter
     table = tables.RegionTable
     default_return_url = 'dcim:region_list'
 
@@ -491,6 +492,7 @@ class RackReservationBulkEditView(PermissionRequiredMixin, BulkEditView):
 class RackReservationBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_rackreservation'
     cls = RackReservation
+    filter = filters.RackReservationFilter
     table = tables.RackReservationTable
     default_return_url = 'dcim:rackreservation_list'
 
