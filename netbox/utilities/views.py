@@ -202,13 +202,16 @@ class ObjectEditView(GetReturnURLMixin, View):
             obj_created = not form.instance.pk
             obj = form.save()
 
-            msg = 'Created ' if obj_created else 'Modified '
-            msg += self.model._meta.verbose_name
+            msg = '{} {}'.format(
+                'Created' if obj_created else 'Modified',
+                self.model._meta.verbose_name
+            )
             if hasattr(obj, 'get_absolute_url'):
                 msg = '{} <a href="{}">{}</a>'.format(msg, obj.get_absolute_url(), escape(obj))
             else:
                 msg = '{} {}'.format(msg, escape(obj))
             messages.success(request, mark_safe(msg))
+
             if obj_created:
                 UserAction.objects.log_create(request.user, obj, msg)
             else:
