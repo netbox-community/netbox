@@ -9,6 +9,7 @@ from drf_yasg import openapi
 
 from netbox.views import APIRootView, HomeView, SearchView
 from users.views import LoginView, LogoutView
+from django.contrib.auth.decorators import login_required
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -26,8 +27,8 @@ schema_view = get_schema_view(
 _patterns = [
 
     # Base views
-    url(r'^$', HomeView.as_view(), name='home'),
-    url(r'^search/$', SearchView.as_view(), name='search'),
+    url(r'^$', login_required(HomeView.as_view()), name='home'),
+    url(r'^search/$', login_required(SearchView.as_view()), name='search'),
 
     # Login/logout
     url(r'^login/$', LoginView.as_view(), name='login'),
