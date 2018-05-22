@@ -48,6 +48,22 @@
     }
 },
 {
+    "model": "virtualization.clustertype",
+    "pk": 7,
+    "fields": {
+        "name": "Kubernetes",
+        "slug": "kubernetes"
+    }
+},
+{
+    "model": "virtualization.clustertype",
+    "pk": 8,
+    "fields": {
+        "name": "SmartDatacenter",
+        "slug": "sdc"
+    }
+},
+{
     "model": "virtualization.clustergroup",
     "pk": 1,
     "fields": {
@@ -86,6 +102,28 @@
         "group": 1,
         "created": "2016-08-01",
         "last_updated": "2016-08-01T15:22:42.289Z"
+    }
+},
+{
+    "model": "virtualization.cluster",
+    "pk": 4,
+    "fields": {
+        "name": "Google Cloud Platform",
+        "type": 1,
+        "group": 1,
+        "created": "2018-03-16",
+        "last_updated": "2018-03-16T15:22:42.289Z"
+    }
+},
+{
+    "model": "virtualization.cluster",
+    "pk": 5,
+    "fields": {
+        "name": "IBM Cloud",
+        "type": 1,
+        "group": 1,
+        "created": "2018-03-16",
+        "last_updated": "2018-03-16T15:22:42.289Z"
     }
 }
 ]
