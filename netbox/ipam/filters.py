@@ -30,6 +30,9 @@ class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Tenant (slug)',
     )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
+    )
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -68,6 +71,9 @@ class AggregateFilter(CustomFieldFilterSet, django_filters.FilterSet):
         queryset=RIR.objects.all(),
         to_field_name='slug',
         label='RIR (slug)',
+    )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
     )
 
     class Meta:
@@ -166,6 +172,9 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=PREFIX_STATUS_CHOICES,
         null_value=None
+    )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
     )
 
     class Meta:
@@ -289,6 +298,9 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
     role = django_filters.MultipleChoiceFilter(
         choices=IPADDRESS_ROLE_CHOICES
     )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
+    )
 
     class Meta:
         model = IPAddress
@@ -393,6 +405,9 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=VLAN_STATUS_CHOICES,
         null_value=None
+    )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
     )
 
     class Meta:

@@ -1,0 +1,13 @@
+{% load helpers %}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <span class="fa fa-tags" aria-hidden="true"></span>
+        <strong>Tags</strong>
+    </div>
+    <div class="panel-body text-center">
+        {% for tag in tags %}
+            <a href="{% querystring request tag=tag.slug %}" class="btn btn-sm {% if tag.slug in request.GET.tag %}btn-primary{% else %}btn-link{% endif %}">{{ tag }} <span class="badge">{{ tag.count }}</span></a>
+        {% endfor %}
+    </div>
+</div>

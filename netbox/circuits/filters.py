@@ -28,6 +28,9 @@ class ProviderFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Site (slug)',
     )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
+    )
 
     class Meta:
         model = Provider
@@ -102,6 +105,9 @@ class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
+    )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
     )
 
     class Meta:

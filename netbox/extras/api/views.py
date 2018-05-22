@@ -1,12 +1,14 @@
 from __future__ import unicode_literals
 
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import detail_route
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
+from taggit.models import Tag
 
 from extras import filters
 from extras.models import CustomField, ExportTemplate, Graph, ImageAttachment, ReportResult, TopologyMap, UserAction
@@ -67,7 +69,6 @@ class CustomFieldModelViewSet(ModelViewSet):
 class GraphViewSet(ModelViewSet):
     queryset = Graph.objects.all()
     serializer_class = serializers.GraphSerializer
-    write_serializer_class = serializers.WritableGraphSerializer
     filter_class = filters.GraphFilter
 
 
@@ -88,7 +89,6 @@ class ExportTemplateViewSet(ModelViewSet):
 class TopologyMapViewSet(ModelViewSet):
     queryset = TopologyMap.objects.select_related('site')
     serializer_class = serializers.TopologyMapSerializer
-    write_serializer_class = serializers.WritableTopologyMapSerializer
     filter_class = filters.TopologyMapFilter
 
     @detail_route()
@@ -112,13 +112,22 @@ class TopologyMapViewSet(ModelViewSet):
 
 
 #
+# Tags
+#
+
+class TagViewSet(ModelViewSet):
+    queryset = Tag.objects.annotate(tagged_items=Count('taggit_taggeditem_items'))
+    serializer_class = serializers.TagSerializer
+    filter_class = filters.TagFilter
+
+
+#
 # Image attachments
 #
 
 class ImageAttachmentViewSet(ModelViewSet):
     queryset = ImageAttachment.objects.all()
     serializer_class = serializers.ImageAttachmentSerializer
-    write_serializer_class = serializers.WritableImageAttachmentSerializer
 
 
 #

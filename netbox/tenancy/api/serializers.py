@@ -1,10 +1,11 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
+from taggit.models import Tag
 
 from extras.api.customfields import CustomFieldModelSerializer
 from tenancy.models import Tenant, TenantGroup
-from utilities.api import ValidatedModelSerializer
+from utilities.api import TagField, ValidatedModelSerializer, WritableNestedSerializer
 
 
 #
@@ -18,7 +19,7 @@ class TenantGroupSerializer(ValidatedModelSerializer):
         fields = ['id', 'name', 'slug']
 
 
-class NestedTenantGroupSerializer(serializers.ModelSerializer):
+class NestedTenantGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenantgroup-detail')
 
     class Meta:
@@ -31,23 +32,20 @@ class NestedTenantGroupSerializer(serializers.ModelSerializer):
 #
 
 class TenantSerializer(CustomFieldModelSerializer):
-    group = NestedTenantGroupSerializer()
+    group = NestedTenantGroupSerializer(required=False)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = Tenant
-        fields = ['id', 'name', 'slug', 'group', 'description', 'comments', 'custom_fields', 'created', 'last_updated']
+        fields = [
+            'id', 'name', 'slug', 'group', 'description', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated',
+        ]
 
 
-class NestedTenantSerializer(serializers.ModelSerializer):
+class NestedTenantSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenant-detail')
 
     class Meta:
         model = Tenant
         fields = ['id', 'url', 'name', 'slug']
-
-
-class WritableTenantSerializer(CustomFieldModelSerializer):
-
-    class Meta:
-        model = Tenant
-        fields = ['id', 'name', 'slug', 'group', 'description', 'comments', 'custom_fields', 'created', 'last_updated']

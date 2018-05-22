@@ -32,5 +32,4 @@ class TenantGroupViewSet(ModelViewSet):
 class TenantViewSet(CustomFieldModelViewSet):
     queryset = Tenant.objects.select_related('group')
     serializer_class = serializers.TenantSerializer
-    write_serializer_class = serializers.WritableTenantSerializer
     filter_class = filters.TenantFilter

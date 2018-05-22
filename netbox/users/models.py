@@ -16,12 +16,31 @@ class Token(models.Model):
     An API token used for user authentication. This extends the stock model to allow each user to have multiple tokens.
     It also supports setting an expiration time and toggling write ability.
     """
-    user = models.ForeignKey(User, related_name='tokens', on_delete=models.CASCADE)
-    created = models.DateTimeField(auto_now_add=True)
-    expires = models.DateTimeField(blank=True, null=True)
-    key = models.CharField(max_length=40, unique=True, validators=[MinLengthValidator(40)])
-    write_enabled = models.BooleanField(default=True, help_text="Permit create/update/delete operations using this key")
-    description = models.CharField(max_length=100, blank=True)
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.CASCADE,
+        related_name='tokens'
+    )
+    created = models.DateTimeField(
+        auto_now_add=True
+    )
+    expires = models.DateTimeField(
+        blank=True,
+        null=True
+    )
+    key = models.CharField(
+        max_length=40,
+        unique=True,
+        validators=[MinLengthValidator(40)]
+    )
+    write_enabled = models.BooleanField(
+        default=True,
+        help_text='Permit create/update/delete operations using this key'
+    )
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
 
     class Meta:
         default_permissions = []

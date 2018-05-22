@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 import datetime
-import pytz
 
 from django import template
 from django.utils.safestring import mark_safe
@@ -159,4 +158,15 @@ def utilization_graph(utilization, warning_threshold=75, danger_threshold=90):
         'utilization': utilization,
         'warning_threshold': warning_threshold,
         'danger_threshold': danger_threshold,
+    }
+
+
+@register.inclusion_tag('utilities/templatetags/tag.html')
+def tag(url_name, tag):
+    """
+    Display a link to the given object list filtered by a specific Tag slug.
+    """
+    return {
+        'url_name': url_name,
+        'tag': tag,
     }

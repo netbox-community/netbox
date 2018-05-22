@@ -110,6 +110,16 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Tags</td>
+                    <td>
+                        {% for tag in circuit.tags.all %}
+                            {% tag 'circuits:circuit_list' tag %}
+                        {% empty %}
+                            <span class="text-muted">N/A</span>
+                        {% endfor %}
+                    </td>
+                </tr>
             </table>
         </div>
         {% with circuit.get_custom_fields as custom_fields %}

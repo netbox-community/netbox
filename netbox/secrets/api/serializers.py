@@ -2,10 +2,11 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+from taggit.models import Tag
 
 from dcim.api.serializers import NestedDeviceSerializer
 from secrets.models import Secret, SecretRole
-from utilities.api import ValidatedModelSerializer
+from utilities.api import TagField, ValidatedModelSerializer, WritableNestedSerializer
 
 
 #
@@ -19,7 +20,7 @@ class SecretRoleSerializer(ValidatedModelSerializer):
         fields = ['id', 'name', 'slug']
 
 
-class NestedSecretRoleSerializer(serializers.ModelSerializer):
+class NestedSecretRoleSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='secrets-api:secretrole-detail')
 
     class Meta:
@@ -31,21 +32,15 @@ class NestedSecretRoleSerializer(serializers.ModelSerializer):
 # Secrets
 #
 
-class SecretSerializer(serializers.ModelSerializer):
+class SecretSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     role = NestedSecretRoleSerializer()
-
-    class Meta:
-        model = Secret
-        fields = ['id', 'device', 'role', 'name', 'plaintext', 'hash', 'created', 'last_updated']
-
-
-class WritableSecretSerializer(serializers.ModelSerializer):
     plaintext = serializers.CharField()
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = Secret
-        fields = ['id', 'device', 'role', 'name', 'plaintext', 'hash', 'created', 'last_updated']
+        fields = ['id', 'device', 'role', 'name', 'plaintext', 'hash', 'tags', 'created', 'last_updated']
         validators = []
 
     def validate(self, data):
@@ -64,6 +59,6 @@ class WritableSecretSerializer(serializers.ModelSerializer):
             validator(data)
 
         # Enforce model validation
-        super(WritableSecretSerializer, self).validate(data)
+        super(SecretSerializer, self).validate(data)
 
         return data

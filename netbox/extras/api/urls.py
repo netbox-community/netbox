@@ -28,6 +28,9 @@ router.register(r'export-templates', views.ExportTemplateViewSet)
 # Topology maps
 router.register(r'topology-maps', views.TopologyMapViewSet)
 
+# Tags
+router.register(r'tags', views.TagViewSet)
+
 # Image attachments
 router.register(r'image-attachments', views.ImageAttachmentViewSet)
 

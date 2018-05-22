@@ -126,6 +126,7 @@ class ClusterView(View):
 
 class ClusterCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'virtualization.add_cluster'
+    template_name = 'virtualization/cluster_edit.html'
     model = Cluster
     model_form = forms.ClusterForm
 

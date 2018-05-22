@@ -5,7 +5,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from circuits.constants import TERM_SIDE_A, TERM_SIDE_Z
+from circuits.constants import CIRCUIT_STATUS_ACTIVE, TERM_SIDE_A, TERM_SIDE_Z
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from dcim.models import Site
 from extras.constants import GRAPH_TYPE_PROVIDER
@@ -231,6 +231,7 @@ class CircuitTest(HttpStatusMixin, APITestCase):
             'cid': 'TEST0004',
             'provider': self.provider1.pk,
             'type': self.circuittype1.pk,
+            'status': CIRCUIT_STATUS_ACTIVE,
         }
 
         url = reverse('circuits-api:circuit-list')
@@ -250,16 +251,19 @@ class CircuitTest(HttpStatusMixin, APITestCase):
                 'cid': 'TEST0004',
                 'provider': self.provider1.pk,
                 'type': self.circuittype1.pk,
+                'status': CIRCUIT_STATUS_ACTIVE,
             },
             {
                 'cid': 'TEST0005',
                 'provider': self.provider1.pk,
                 'type': self.circuittype1.pk,
+                'status': CIRCUIT_STATUS_ACTIVE,
             },
             {
                 'cid': 'TEST0006',
                 'provider': self.provider1.pk,
                 'type': self.circuittype1.pk,
+                'status': CIRCUIT_STATUS_ACTIVE,
             },
         ]
 

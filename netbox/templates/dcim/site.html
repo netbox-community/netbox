@@ -133,6 +133,16 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Tags</td>
+                    <td>
+                        {% for tag in site.tags.all %}
+                            {% tag 'dcim:site_list' tag %}
+                        {% empty %}
+                            <span class="text-muted">N/A</span>
+                        {% endfor %}
+                    </td>
+                </tr>
             </table>
         </div>
         <div class="panel panel-default">

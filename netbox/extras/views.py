@@ -2,16 +2,52 @@ from __future__ import unicode_literals
 
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.db.models import Count
 from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.safestring import mark_safe
 from django.views.generic import View
+from taggit.models import Tag
 
 from utilities.forms import ConfirmationForm
-from utilities.views import ObjectDeleteView, ObjectEditView
-from .forms import ImageAttachmentForm
+from utilities.views import BulkDeleteView, ObjectDeleteView, ObjectEditView, ObjectListView
+from .forms import ImageAttachmentForm, TagForm
 from .models import ImageAttachment, ReportResult, UserAction
 from .reports import get_report, get_reports
+from .tables import TagTable
+
+
+#
+# Tags
+#
+
+class TagListView(ObjectListView):
+    queryset = Tag.objects.annotate(items=Count('taggit_taggeditem_items')).order_by('name')
+    table = TagTable
+    template_name = 'extras/tag_list.html'
+
+
+class TagEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'taggit.change_tag'
+    model = Tag
+    model_form = TagForm
+
+    def get_return_url(self, request, obj):
+        return reverse('extras:tag', kwargs={'slug': obj.slug})
+
+
+class TagDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'taggit.delete_tag'
+    model = Tag
+    default_return_url = 'extras:tag_list'
+
+
+class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'circuits.delete_circuittype'
+    cls = Tag
+    queryset = Tag.objects.annotate(items=Count('taggit_taggeditem_items')).order_by('name')
+    table = TagTable
+    default_return_url = 'extras:tag_list'
 
 
 #

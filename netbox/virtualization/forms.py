@@ -4,6 +4,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Count
 from mptt.forms import TreeNodeChoiceField
+from taggit.forms import TagField
 
 from dcim.constants import IFACE_FF_VIRTUAL, IFACE_MODE_ACCESS, IFACE_MODE_TAGGED_ALL
 from dcim.forms import INTERFACE_MODE_HELP_TEXT
@@ -78,10 +79,11 @@ class ClusterGroupCSVForm(forms.ModelForm):
 
 class ClusterForm(BootstrapMixin, CustomFieldForm):
     comments = CommentField(widget=SmallTextarea)
+    tags = TagField(required=False)
 
     class Meta:
         model = Cluster
-        fields = ['name', 'type', 'group', 'site', 'comments']
+        fields = ['name', 'type', 'group', 'site', 'comments', 'tags']
 
 
 class ClusterCSVForm(forms.ModelForm):
@@ -244,12 +246,13 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             api_url='/api/virtualization/clusters/?group_id={{cluster_group}}'
         )
     )
+    tags = TagField(required=False)
 
     class Meta:
         model = VirtualMachine
         fields = [
             'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
-            'vcpus', 'memory', 'disk', 'comments',
+            'vcpus', 'memory', 'disk', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):

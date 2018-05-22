@@ -14,7 +14,7 @@ def csv_format(data):
     for value in data:
 
         # Represent None or False with empty string
-        if value in [None, False]:
+        if value is None or value is False:
             csv.append('')
             continue
 

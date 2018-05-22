@@ -115,6 +115,16 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Tags</td>
+                    <td>
+                        {% for tag in rack.tags.all %}
+                            {% tag 'dcim:rack_list' tag %}
+                        {% empty %}
+                            <span class="text-muted">N/A</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Devices</td>
                     <td>
                         <a href="{% url 'dcim:device_list' %}?rack_id={{ rack.id }}">{{ rack.devices.count }}</a>

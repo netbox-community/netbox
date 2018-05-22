@@ -1,14 +1,15 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
+from taggit.models import Tag
 
 from dcim.api.serializers import NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer
-from dcim.constants import IFACE_FF_VIRTUAL
+from dcim.constants import IFACE_MODE_CHOICES
 from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
-from ipam.models import IPAddress
+from ipam.models import IPAddress, VLAN
 from tenancy.api.serializers import NestedTenantSerializer
-from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer
+from utilities.api import ChoiceFieldSerializer, TagField, ValidatedModelSerializer, WritableNestedSerializer
 from virtualization.constants import VM_STATUS_CHOICES
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
@@ -24,7 +25,7 @@ class ClusterTypeSerializer(ValidatedModelSerializer):
         fields = ['id', 'name', 'slug']
 
 
-class NestedClusterTypeSerializer(serializers.ModelSerializer):
+class NestedClusterTypeSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustertype-detail')
 
     class Meta:
@@ -43,7 +44,7 @@ class ClusterGroupSerializer(ValidatedModelSerializer):
         fields = ['id', 'name', 'slug']
 
 
-class NestedClusterGroupSerializer(serializers.ModelSerializer):
+class NestedClusterGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustergroup-detail')
 
     class Meta:
@@ -57,27 +58,23 @@ class NestedClusterGroupSerializer(serializers.ModelSerializer):
 
 class ClusterSerializer(CustomFieldModelSerializer):
     type = NestedClusterTypeSerializer()
-    group = NestedClusterGroupSerializer()
-    site = NestedSiteSerializer()
+    group = NestedClusterGroupSerializer(required=False, allow_null=True)
+    site = NestedSiteSerializer(required=False, allow_null=True)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = Cluster
-        fields = ['id', 'name', 'type', 'group', 'site', 'comments', 'custom_fields', 'created', 'last_updated']
+        fields = [
+            'id', 'name', 'type', 'group', 'site', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+        ]
 
 
-class NestedClusterSerializer(serializers.ModelSerializer):
+class NestedClusterSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:cluster-detail')
 
     class Meta:
         model = Cluster
         fields = ['id', 'url', 'name']
-
-
-class WritableClusterSerializer(CustomFieldModelSerializer):
-
-    class Meta:
-        model = Cluster
-        fields = ['id', 'name', 'type', 'group', 'site', 'comments', 'custom_fields', 'created', 'last_updated']
 
 
 #
@@ -94,24 +91,25 @@ class VirtualMachineIPAddressSerializer(serializers.ModelSerializer):
 
 
 class VirtualMachineSerializer(CustomFieldModelSerializer):
-    status = ChoiceFieldSerializer(choices=VM_STATUS_CHOICES)
-    cluster = NestedClusterSerializer()
-    role = NestedDeviceRoleSerializer()
-    tenant = NestedTenantSerializer()
-    platform = NestedPlatformSerializer()
-    primary_ip = VirtualMachineIPAddressSerializer()
-    primary_ip4 = VirtualMachineIPAddressSerializer()
-    primary_ip6 = VirtualMachineIPAddressSerializer()
+    status = ChoiceFieldSerializer(choices=VM_STATUS_CHOICES, required=False)
+    cluster = NestedClusterSerializer(required=False, allow_null=True)
+    role = NestedDeviceRoleSerializer(required=False, allow_null=True)
+    tenant = NestedTenantSerializer(required=False, allow_null=True)
+    platform = NestedPlatformSerializer(required=False, allow_null=True)
+    primary_ip = VirtualMachineIPAddressSerializer(read_only=True)
+    primary_ip4 = VirtualMachineIPAddressSerializer(required=False, allow_null=True)
+    primary_ip6 = VirtualMachineIPAddressSerializer(required=False, allow_null=True)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = VirtualMachine
         fields = [
             'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6',
-            'vcpus', 'memory', 'disk', 'comments', 'custom_fields', 'created', 'last_updated',
+            'vcpus', 'memory', 'disk', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
 
-class NestedVirtualMachineSerializer(serializers.ModelSerializer):
+class NestedVirtualMachineSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:virtualmachine-detail')
 
     class Meta:
@@ -119,43 +117,36 @@ class NestedVirtualMachineSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'name']
 
 
-class WritableVirtualMachineSerializer(CustomFieldModelSerializer):
-
-    class Meta:
-        model = VirtualMachine
-        fields = [
-            'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'vcpus',
-            'memory', 'disk', 'comments', 'custom_fields', 'created', 'last_updated',
-        ]
-
-
 #
 # VM interfaces
 #
 
+# Cannot import ipam.api.serializers.NestedVLANSerializer due to circular dependency
+class InterfaceVLANSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlan-detail')
+
+    class Meta:
+        model = VLAN
+        fields = ['id', 'url', 'vid', 'name', 'display_name']
+
+
 class InterfaceSerializer(serializers.ModelSerializer):
     virtual_machine = NestedVirtualMachineSerializer()
+    mode = ChoiceFieldSerializer(choices=IFACE_MODE_CHOICES)
+    untagged_vlan = InterfaceVLANSerializer()
+    tagged_vlans = InterfaceVLANSerializer(many=True)
 
     class Meta:
         model = Interface
         fields = [
-            'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'description',
+            'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'mode', 'untagged_vlan', 'tagged_vlans',
+            'description',
         ]
 
 
-class NestedInterfaceSerializer(serializers.ModelSerializer):
+class NestedInterfaceSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:interface-detail')
 
     class Meta:
         model = Interface
         fields = ['id', 'url', 'name']
-
-
-class WritableInterfaceSerializer(ValidatedModelSerializer):
-    form_factor = serializers.IntegerField(default=IFACE_FF_VIRTUAL)
-
-    class Meta:
-        model = Interface
-        fields = [
-            'id', 'name', 'virtual_machine', 'form_factor', 'enabled', 'mac_address', 'mtu', 'description',
-        ]

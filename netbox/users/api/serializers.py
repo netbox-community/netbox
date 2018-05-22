@@ -1,10 +1,11 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.models import User
-from rest_framework import serializers
+
+from utilities.api import WritableNestedSerializer
 
 
-class NestedUserSerializer(serializers.ModelSerializer):
+class NestedUserSerializer(WritableNestedSerializer):
 
     class Meta:
         model = User
