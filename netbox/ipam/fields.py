@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django.core.exceptions import ValidationError
 from django.db import models
-from netaddr import IPNetwork
+from netaddr import AddrFormatError, IPNetwork
 
 from .formfields import IPFormField
 from . import lookups
@@ -26,7 +26,9 @@ class BaseIPField(models.Field):
             return value
         try:
             return IPNetwork(value)
-        except ValueError as e:
+        except AddrFormatError as e:
+            raise ValidationError("Invalid IP address format: {}".format(value))
+        except (TypeError, ValueError) as e:
             raise ValidationError(e)
 
     def get_prep_value(self, value):
