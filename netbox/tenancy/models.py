@@ -4,6 +4,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
+from taggit.managers import TaggableManager
 
 from extras.models import CustomFieldModel
 from utilities.models import CreatedUpdatedModel
@@ -73,6 +74,8 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
+
+    tags = TaggableManager()
 
     csv_headers = ['name', 'slug', 'group', 'description', 'comments']
 

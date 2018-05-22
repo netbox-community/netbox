@@ -4,6 +4,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
+from taggit.managers import TaggableManager
 
 from dcim.constants import STATUS_CLASSES
 from dcim.fields import ASNField
@@ -55,6 +56,8 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
+
+    tags = TaggableManager()
 
     csv_headers = ['name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments']
 
@@ -165,6 +168,8 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
+
+    tags = TaggableManager()
 
     csv_headers = [
         'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',

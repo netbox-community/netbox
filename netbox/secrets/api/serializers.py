@@ -2,10 +2,11 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+from taggit.models import Tag
 
 from dcim.api.serializers import NestedDeviceSerializer
 from secrets.models import Secret, SecretRole
-from utilities.api import ValidatedModelSerializer, WritableNestedSerializer
+from utilities.api import TagField, ValidatedModelSerializer, WritableNestedSerializer
 
 
 #
@@ -35,10 +36,11 @@ class SecretSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     role = NestedSecretRoleSerializer()
     plaintext = serializers.CharField()
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = Secret
-        fields = ['id', 'device', 'role', 'name', 'plaintext', 'hash', 'created', 'last_updated']
+        fields = ['id', 'device', 'role', 'name', 'plaintext', 'hash', 'tags', 'created', 'last_updated']
         validators = []
 
     def validate(self, data):

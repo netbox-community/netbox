@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django import forms
 from django.db.models import Count
+from taggit.forms import TagField
 
 from dcim.models import Site, Device, Interface, Rack
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
@@ -22,10 +23,11 @@ from .models import Circuit, CircuitTermination, CircuitType, Provider
 class ProviderForm(BootstrapMixin, CustomFieldForm):
     slug = SlugField()
     comments = CommentField()
+    tags = TagField(required=False)
 
     class Meta:
         model = Provider
-        fields = ['name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments']
+        fields = ['name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments', 'tags']
         widgets = {
             'noc_contact': SmallTextarea(attrs={'rows': 5}),
             'admin_contact': SmallTextarea(attrs={'rows': 5}),
@@ -102,12 +104,13 @@ class CircuitTypeCSVForm(forms.ModelForm):
 
 class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     comments = CommentField()
+    tags = TagField(required=False)
 
     class Meta:
         model = Circuit
         fields = [
             'cid', 'type', 'provider', 'status', 'install_date', 'commit_rate', 'description', 'tenant_group', 'tenant',
-            'comments',
+            'comments', 'tags',
         ]
         help_texts = {
             'cid': "Unique circuit ID",

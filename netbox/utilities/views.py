@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
-from django.db.models import ProtectedError
+from django.db.models import Count, ProtectedError
 from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.exceptions import TemplateSyntaxError
@@ -119,6 +119,12 @@ class ObjectListView(View):
         if 'pk' in table.base_columns and (permissions['change'] or permissions['delete']):
             table.columns.show('pk')
 
+        # Construct queryset for tags list
+        if hasattr(model, 'tags'):
+            tags = model.tags.annotate(count=Count('taggit_taggeditem_items')).order_by('-count', 'name')
+        else:
+            tags = None
+
         # Apply the request context
         paginate = {
             'klass': EnhancedPaginator,
@@ -131,6 +137,7 @@ class ObjectListView(View):
             'table': table,
             'permissions': permissions,
             'filter_form': self.filter_form(request.GET, label_suffix='') if self.filter_form else None,
+            'tags': tags,
         }
         context.update(self.extra_context())
 
@@ -195,13 +202,16 @@ class ObjectEditView(GetReturnURLMixin, View):
             obj_created = not form.instance.pk
             obj = form.save()
 
-            msg = 'Created ' if obj_created else 'Modified '
-            msg += self.model._meta.verbose_name
+            msg = '{} {}'.format(
+                'Created' if obj_created else 'Modified',
+                self.model._meta.verbose_name
+            )
             if hasattr(obj, 'get_absolute_url'):
                 msg = '{} <a href="{}">{}</a>'.format(msg, obj.get_absolute_url(), escape(obj))
             else:
                 msg = '{} {}'.format(msg, escape(obj))
             messages.success(request, mark_safe(msg))
+
             if obj_created:
                 UserAction.objects.log_create(request.user, obj, msg)
             else:

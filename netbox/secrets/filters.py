@@ -41,6 +41,9 @@ class SecretFilter(django_filters.FilterSet):
         to_field_name='name',
         label='Device (name)',
     )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
+    )
 
     class Meta:
         model = Secret

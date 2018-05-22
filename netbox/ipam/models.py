@@ -10,6 +10,7 @@ from django.db.models import Q
 from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
+from taggit.managers import TaggableManager
 
 from dcim.models import Interface
 from extras.models import CustomFieldModel
@@ -55,6 +56,8 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
+
+    tags = TaggableManager()
 
     csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
 
@@ -154,6 +157,8 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
+
+    tags = TaggableManager()
 
     csv_headers = ['prefix', 'rir', 'date_added', 'description']
 
@@ -325,6 +330,7 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
     )
 
     objects = PrefixQuerySet.as_manager()
+    tags = TaggableManager()
 
     csv_headers = [
         'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan_vid', 'status', 'role', 'is_pool', 'description',
@@ -564,6 +570,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     )
 
     objects = IPAddressManager()
+    tags = TaggableManager()
 
     csv_headers = [
         'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface_name', 'is_primary',
@@ -758,6 +765,8 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
+
+    tags = TaggableManager()
 
     csv_headers = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
 

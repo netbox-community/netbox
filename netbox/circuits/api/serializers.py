@@ -1,13 +1,14 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
+from taggit.models import Tag
 
 from circuits.constants import CIRCUIT_STATUS_CHOICES
 from circuits.models import Provider, Circuit, CircuitTermination, CircuitType
 from dcim.api.serializers import NestedSiteSerializer, InterfaceSerializer
 from extras.api.customfields import CustomFieldModelSerializer
 from tenancy.api.serializers import NestedTenantSerializer
-from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer, WritableNestedSerializer
+from utilities.api import ChoiceFieldSerializer, TagField, ValidatedModelSerializer, WritableNestedSerializer
 
 
 #
@@ -15,11 +16,12 @@ from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer, Writa
 #
 
 class ProviderSerializer(CustomFieldModelSerializer):
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = Provider
         fields = [
-            'id', 'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments',
+            'id', 'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
 
@@ -60,12 +62,13 @@ class CircuitSerializer(CustomFieldModelSerializer):
     status = ChoiceFieldSerializer(choices=CIRCUIT_STATUS_CHOICES, required=False)
     type = NestedCircuitTypeSerializer()
     tenant = NestedTenantSerializer(required=False, allow_null=True)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = Circuit
         fields = [
             'id', 'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description',
-            'comments', 'custom_fields', 'created', 'last_updated',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
 

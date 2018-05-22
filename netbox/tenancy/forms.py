@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django import forms
 from django.db.models import Count
+from taggit.forms import TagField
 
 from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from utilities.forms import (
@@ -40,10 +41,11 @@ class TenantGroupCSVForm(forms.ModelForm):
 class TenantForm(BootstrapMixin, CustomFieldForm):
     slug = SlugField()
     comments = CommentField()
+    tags = TagField(required=False)
 
     class Meta:
         model = Tenant
-        fields = ['name', 'slug', 'group', 'description', 'comments']
+        fields = ['name', 'slug', 'group', 'description', 'comments', 'tags']
 
 
 class TenantCSVForm(forms.ModelForm):

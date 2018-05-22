@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load helpers %}
 
 {% block content %}
 {% include 'ipam/inc/vlan_header.html' with active_tab='vlan' %}
@@ -79,6 +80,16 @@
                         {% else %}
                             <span class="text-muted">N/A</span>
                         {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Tags</td>
+                    <td>
+                        {% for tag in vlan.tags.all %}
+                            {% tag 'ipam:vlan_list' tag %}
+                        {% empty %}
+                            <span class="text-muted">N/A</span>
+                        {% endfor %}
                     </td>
                 </tr>
 		    </table>

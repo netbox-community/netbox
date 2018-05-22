@@ -4,11 +4,16 @@ from collections import OrderedDict
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from taggit.models import Tag
 
-from utilities.forms import BootstrapMixin, BulkEditForm, LaxURLField
+from utilities.forms import BootstrapMixin, BulkEditForm, LaxURLField, SlugField
 from .constants import CF_FILTER_DISABLED, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL
 from .models import CustomField, CustomFieldValue, ImageAttachment
 
+
+#
+# Custom fields
+#
 
 def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=False):
     """
@@ -161,6 +166,23 @@ class CustomFieldFilterForm(forms.Form):
             field.required = False
             self.fields[name] = field
 
+
+#
+# Tags
+#
+#
+
+class TagForm(BootstrapMixin, forms.ModelForm):
+    slug = SlugField()
+
+    class Meta:
+        model = Tag
+        fields = ['name', 'slug']
+
+
+#
+# Image attachments
+#
 
 class ImageAttachmentForm(BootstrapMixin, forms.ModelForm):
 

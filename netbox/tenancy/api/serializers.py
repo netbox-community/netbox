@@ -1,10 +1,11 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
+from taggit.models import Tag
 
 from extras.api.customfields import CustomFieldModelSerializer
 from tenancy.models import Tenant, TenantGroup
-from utilities.api import ValidatedModelSerializer, WritableNestedSerializer
+from utilities.api import TagField, ValidatedModelSerializer, WritableNestedSerializer
 
 
 #
@@ -32,10 +33,14 @@ class NestedTenantGroupSerializer(WritableNestedSerializer):
 
 class TenantSerializer(CustomFieldModelSerializer):
     group = NestedTenantGroupSerializer(required=False)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = Tenant
-        fields = ['id', 'name', 'slug', 'group', 'description', 'comments', 'custom_fields', 'created', 'last_updated']
+        fields = [
+            'id', 'name', 'slug', 'group', 'description', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated',
+        ]
 
 
 class NestedTenantSerializer(WritableNestedSerializer):

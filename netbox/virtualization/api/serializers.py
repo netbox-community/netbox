@@ -1,14 +1,15 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
+from taggit.models import Tag
 
 from dcim.api.serializers import NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer
-from dcim.constants import IFACE_FF_VIRTUAL, IFACE_MODE_CHOICES
+from dcim.constants import IFACE_MODE_CHOICES
 from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.models import IPAddress, VLAN
 from tenancy.api.serializers import NestedTenantSerializer
-from utilities.api import ChoiceFieldSerializer, ValidatedModelSerializer, WritableNestedSerializer
+from utilities.api import ChoiceFieldSerializer, TagField, ValidatedModelSerializer, WritableNestedSerializer
 from virtualization.constants import VM_STATUS_CHOICES
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
@@ -59,10 +60,13 @@ class ClusterSerializer(CustomFieldModelSerializer):
     type = NestedClusterTypeSerializer()
     group = NestedClusterGroupSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer(required=False, allow_null=True)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = Cluster
-        fields = ['id', 'name', 'type', 'group', 'site', 'comments', 'custom_fields', 'created', 'last_updated']
+        fields = [
+            'id', 'name', 'type', 'group', 'site', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+        ]
 
 
 class NestedClusterSerializer(WritableNestedSerializer):
@@ -95,12 +99,13 @@ class VirtualMachineSerializer(CustomFieldModelSerializer):
     primary_ip = VirtualMachineIPAddressSerializer(read_only=True)
     primary_ip4 = VirtualMachineIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = VirtualMachineIPAddressSerializer(required=False, allow_null=True)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = VirtualMachine
         fields = [
             'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6',
-            'vcpus', 'memory', 'disk', 'comments', 'custom_fields', 'created', 'last_updated',
+            'vcpus', 'memory', 'disk', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
 
 

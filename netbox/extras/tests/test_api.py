@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+from taggit.models import Tag
 
 from dcim.models import Device
 from extras.constants import GRAPH_TYPE_SITE
@@ -226,3 +227,96 @@ class ExportTemplateTest(HttpStatusMixin, APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ExportTemplate.objects.count(), 2)
+
+
+class TagTest(HttpStatusMixin, APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        self.tag1 = Tag.objects.create(name='Test Tag 1', slug='test-tag-1')
+        self.tag2 = Tag.objects.create(name='Test Tag 2', slug='test-tag-2')
+        self.tag3 = Tag.objects.create(name='Test Tag 3', slug='test-tag-3')
+
+    def test_get_tag(self):
+
+        url = reverse('extras-api:tag-detail', kwargs={'pk': self.tag1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.tag1.name)
+
+    def test_list_tags(self):
+
+        url = reverse('extras-api:tag-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_create_tag(self):
+
+        data = {
+            'name': 'Test Tag 4',
+            'slug': 'test-tag-4',
+        }
+
+        url = reverse('extras-api:tag-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Tag.objects.count(), 4)
+        tag4 = Tag.objects.get(pk=response.data['id'])
+        self.assertEqual(tag4.name, data['name'])
+        self.assertEqual(tag4.slug, data['slug'])
+
+    def test_create_tag_bulk(self):
+
+        data = [
+            {
+                'name': 'Test Tag 4',
+                'slug': 'test-tag-4',
+            },
+            {
+                'name': 'Test Tag 5',
+                'slug': 'test-tag-5',
+            },
+            {
+                'name': 'Test Tag 6',
+                'slug': 'test-tag-6',
+            },
+        ]
+
+        url = reverse('extras-api:tag-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Tag.objects.count(), 6)
+        self.assertEqual(response.data[0]['name'], data[0]['name'])
+        self.assertEqual(response.data[1]['name'], data[1]['name'])
+        self.assertEqual(response.data[2]['name'], data[2]['name'])
+
+    def test_update_tag(self):
+
+        data = {
+            'name': 'Test Tag X',
+            'slug': 'test-tag-x',
+        }
+
+        url = reverse('extras-api:tag-detail', kwargs={'pk': self.tag1.pk})
+        response = self.client.put(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(Tag.objects.count(), 3)
+        tag1 = Tag.objects.get(pk=response.data['id'])
+        self.assertEqual(tag1.name, data['name'])
+        self.assertEqual(tag1.slug, data['slug'])
+
+    def test_delete_tag(self):
+
+        url = reverse('extras-api:tag-detail', kwargs={'pk': self.tag1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Tag.objects.count(), 2)

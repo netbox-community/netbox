@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 import django_filters
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
+from taggit.models import Tag
 
 from dcim.models import Site
 from .constants import CF_FILTER_DISABLED, CF_FILTER_EXACT, CF_TYPE_BOOLEAN, CF_TYPE_SELECT
@@ -83,6 +85,25 @@ class ExportTemplateFilter(django_filters.FilterSet):
     class Meta:
         model = ExportTemplate
         fields = ['content_type', 'name']
+
+
+class TagFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+
+    class Meta:
+        model = Tag
+        fields = ['name', 'slug']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(slug__icontains=value)
+        )
 
 
 class TopologyMapFilter(django_filters.FilterSet):

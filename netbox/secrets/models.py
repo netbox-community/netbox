@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.encoding import force_bytes, python_2_unicode_compatible
+from taggit.managers import TaggableManager
 
 from utilities.models import CreatedUpdatedModel
 from .exceptions import InvalidKey
@@ -335,6 +336,8 @@ class Secret(CreatedUpdatedModel):
         max_length=128,
         editable=False
     )
+
+    tags = TaggableManager()
 
     plaintext = None
     csv_headers = ['device', 'role', 'name', 'plaintext']
