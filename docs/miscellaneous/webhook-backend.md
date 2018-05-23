@@ -107,7 +107,7 @@ directory = /opt/netbox/netbox/
 user = www-data
 
 [program:netbox-webhook-backend]
-command = python /opt/netbox/netbox/manage.py rqworker
+command = python3 /opt/netbox/netbox/manage.py rqworker
 directory = /opt/netbox/netbox/
 user = www-data
 
@@ -125,6 +125,12 @@ Then, restart the supervisor service to detect the changes:
 # service supervisor restart
 ```
 
+!!! note
+    Now any time you start or stop netbox using `supervisorctl`, you will need to refer to the
+    netbox process as `netbox:*` (before this was just `netbox`). This is due to the fact that
+    we are now running multiple processes with supervisor, and `netbox:*` tells supervisor to
+    act on all netbox processes (netbox-core and netbox-webhook-backend in this case).
+
 Now you need only add the configuration settings to connect to redis and enable the webhook backend feature.
 - In your `configuration.py` Set [WEBHOOK_BACKEND_ENABLED](../configuration/optional-settings/#webhook_backend_enabled) to `True`.
 - If needed, set the optional redis connection settings. By default, they will allow connecting to DB 0 on a locally installed redis server with no password.
@@ -137,7 +143,7 @@ Now you need only add the configuration settings to connect to redis and enable 
 Now you may restart NetBox as normal and the webhook backend should start running!
 
 ```no-highlight
-# sudo supervisorctl restart netbox
+# sudo supervisorctl restart netbox:*
 ```
 
 ## Backend Status
