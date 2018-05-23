@@ -31,22 +31,53 @@ class Webhook(models.Model):
     that endpoint with the configured payload.
     """
 
-    obj_type = models.ManyToManyField(ContentType, related_name='webhooks', verbose_name='Object(s)',
-                                      limit_choices_to={'model__in': WEBHOOK_MODELS},
-                                      help_text="The object(s) to which this Webhook applies.")
-    name = models.CharField(max_length=50, unique=True)
-    type_create = models.BooleanField(default=False, help_text="A POST will be sent to the URL when the object type(s) is created.")
-    type_update = models.BooleanField(default=False, help_text="A POST will be sent to the URL when the object type(s) is updated.")
-    type_delete = models.BooleanField(default=False, help_text="A POST will be sent to the URL when the object type(s) is deleted.")
-    payload_url = models.URLField(help_text="A POST will be sent to this URL based on the webhook criteria.")
-    content_type = models.PositiveSmallIntegerField(choices=WEBHOOK_CT_CHOICES, default=WEBHOOK_CT_JSON)
-    secret = models.CharField(max_length=255, blank=True, help_text="When provided the request will include a 'X-Hook-Signature' "
-                                                                    "header which is a HMAC hex digest of the payload body using "
-                                                                    "the secret as the key. The secret is not transmitted in "
-                                                                    "the request.")
-    enabled = models.BooleanField(default=True)
-    insecure_ssl = models.BooleanField(default=False, help_text="When enabled, secure SSL verification will be ignored. Use with "
-                                                                "caution!")
+    obj_type = models.ManyToManyField(
+        ContentType,
+        related_name='webhooks',
+        verbose_name='Object(s)',
+        limit_choices_to={'model__in': WEBHOOK_MODELS},
+        help_text="The object(s) to which this Webhook applies."
+    )
+    name = models.CharField(
+        max_length=50,
+        unique=True
+    )
+    type_create = models.BooleanField(
+        default=False,
+        help_text="A POST will be sent to the URL when the object type(s) is created."
+    )
+    type_update = models.BooleanField(
+        default=False,
+        help_text="A POST will be sent to the URL when the object type(s) is updated."
+    )
+    type_delete = models.BooleanField(
+        default=False,
+        help_text="A POST will be sent to the URL when the object type(s) is deleted."
+    )
+    payload_url = models.CharField(
+        max_length=500,
+        verbose_name="A POST will be sent to this URL based on the webhook criteria."
+    )
+    content_type = models.PositiveSmallIntegerField(
+        choices=WEBHOOK_CT_CHOICES,
+        default=WEBHOOK_CT_JSON
+    )
+    secret = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="When provided the request will include a 'X-Hook-Signature' "
+                  "header which is a HMAC hex digest of the payload body using "
+                  "the secret as the key. The secret is not transmitted in "
+                  "the request."
+    )
+    enabled = models.BooleanField(
+        default=True
+    )
+    insecure_ssl = models.BooleanField(
+        default=False,
+        help_text="When enabled, secure SSL verification will be ignored. Use with "
+                  "caution!"
+    )
 
     class Meta:
         unique_together = ('payload_url', 'type_create', "type_update", "type_delete",)

@@ -4,6 +4,7 @@ from django import forms
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
+from utilities.forms import LaxURLField
 from .models import (
     CustomField, CustomFieldChoice, Graph, ExportTemplate, TopologyMap, UserAction,
     Webhook
@@ -23,6 +24,8 @@ def order_content_types(field):
 #
 
 class WebhookForm(forms.ModelForm):
+
+    payload_url = LaxURLField()
 
     class Meta:
         model = Webhook
