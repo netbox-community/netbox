@@ -42,7 +42,7 @@ Then, delete `/etc/nginx/sites-enabled/default` and create a symlink in the `sit
 ```no-highlight
 # cd /etc/nginx/sites-enabled/
 # rm default
-# ln -s /etc/nginx/sites-available/netbox
+# ln -s /etc/nginx/sites-available/netbox default
 ```
 
 Restart the nginx service to use the new configuration.
