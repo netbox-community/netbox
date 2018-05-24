@@ -1236,7 +1236,7 @@ class ConsoleServerPort(models.Model):
             raise ValidationError("Console server ports must be assigned to devices.")
         device_type = self.device.device_type
         if not device_type.is_console_server:
-            raise ValidationError("The {} {} device type not support assignment of console server ports.".format(
+            raise ValidationError("The {} {} device type does not support assignment of console server ports.".format(
                 device_type.manufacturer, device_type
             ))
 
@@ -1318,7 +1318,7 @@ class PowerOutlet(models.Model):
             raise ValidationError("Power outlets must be assigned to devices.")
         device_type = self.device.device_type
         if not device_type.is_pdu:
-            raise ValidationError("The {} {} device type not support assignment of power outlets.".format(
+            raise ValidationError("The {} {} device type does not support assignment of power outlets.".format(
                 device_type.manufacturer, device_type
             ))
 
@@ -1403,7 +1403,7 @@ class Interface(models.Model):
         if self.device is not None:
             device_type = self.device.device_type
             if not device_type.is_network_device:
-                raise ValidationError("The {} {} device type not support assignment of network interfaces.".format(
+                raise ValidationError("The {} {} device type does not support assignment of network interfaces.".format(
                     device_type.manufacturer, device_type
                 ))
 
