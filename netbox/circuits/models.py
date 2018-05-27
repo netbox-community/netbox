@@ -61,6 +61,8 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
 
     csv_headers = ['name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments']
 
+    serializer = 'circuits.api.serializers.ProviderSerializer'
+
     class Meta:
         ordering = ['name']
 
@@ -81,10 +83,6 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
             self.admin_contact,
             self.comments,
         )
-
-    @property
-    def serializer(self):
-        return 'circuits.api.serializers.ProviderSerializer'
 
 
 @python_2_unicode_compatible
@@ -179,6 +177,8 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
         'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
     ]
 
+    serializer = 'circuits.api.serializers.CircuitSerializer'
+
     class Meta:
         ordering = ['provider', 'cid']
         unique_together = ['provider', 'cid']
@@ -218,10 +218,6 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
     @property
     def termination_z(self):
         return self._get_termination('Z')
-
-    @property
-    def serializer(self):
-        return 'circuits.api.serializers.CircuitSerializer'
 
 
 @python_2_unicode_compatible

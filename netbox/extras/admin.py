@@ -40,8 +40,8 @@ class WebhookForm(forms.ModelForm):
 @admin.register(Webhook)
 class WebhookAdmin(admin.ModelAdmin):
     list_display = [
-        'name', 'models', 'payload_url', 'content_type', 'type_create', 'type_update', 'type_delete',
-        'secret', 'enabled', 'insecure_ssl',
+        'name', 'models', 'payload_url', 'http_content_type', 'enabled', 'type_create', 'type_update',
+        'type_delete', 'ssl_verification',
     ]
     form = WebhookForm
 

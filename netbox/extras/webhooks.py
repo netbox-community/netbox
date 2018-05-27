@@ -122,7 +122,7 @@ def bulk_operation_receiver(sender, **kwargs):
             enqueue_webhooks(webhooks, sender, list(kwargs['instances']), event, signal_received_timestamp)
 
 
-# the bulk operation signal is used to overcome signals not being send for bulk model changes
+# the bulk operation signal is used to overcome signals not being sent for bulk model changes
 bulk_operation_signal = Signal(providing_args=["instances", "event"])
 bulk_operation_signal.connect(bulk_operation_receiver)
 

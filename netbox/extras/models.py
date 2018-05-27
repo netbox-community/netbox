@@ -39,7 +39,7 @@ class Webhook(models.Model):
         help_text="The object(s) to which this Webhook applies."
     )
     name = models.CharField(
-        max_length=50,
+        max_length=150,
         unique=True
     )
     type_create = models.BooleanField(
@@ -58,7 +58,7 @@ class Webhook(models.Model):
         max_length=500,
         verbose_name="A POST will be sent to this URL based on the webhook criteria."
     )
-    content_type = models.PositiveSmallIntegerField(
+    http_content_type = models.PositiveSmallIntegerField(
         choices=WEBHOOK_CT_CHOICES,
         default=WEBHOOK_CT_JSON
     )
@@ -73,10 +73,9 @@ class Webhook(models.Model):
     enabled = models.BooleanField(
         default=True
     )
-    insecure_ssl = models.BooleanField(
-        default=False,
-        help_text="When enabled, secure SSL verification will be ignored. Use with "
-                  "caution!"
+    ssl_verification = models.BooleanField(
+        default=True,
+        help_text="By default, use of proper SSL is verified. Disable with caution!"
     )
 
     class Meta:
@@ -94,11 +93,6 @@ class Webhook(models.Model):
             raise ValidationError(
                 "You must select at least one type. Either create, update, or delete."
             )
-
-        if self.insecure_ssl and not self.payload_url.startswith("https"):
-            raise ValidationError({
-                'insecure_ssl': 'Only applies to HTTPS payload urls.'
-            })
 
 
 #

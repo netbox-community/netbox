@@ -47,19 +47,19 @@ The webhook POST request is structured as so (assuming `application/json` as the
     "event": "created",
     "signal_received_timestamp": 1508769597,
     "model": "Site"
-    "instance": {
+    "data": {
         ...
     }
 }
 ```
 
-`instance` is the serialized representation of the model instance from the event. The same serializers from the NetBox API are used. So an example of the payload for a Site delete event would be:
+`data` is the serialized representation of the model instance(s) from the event. The same serializers from the NetBox API are used. So an example of the payload for a Site delete event would be:
 ```
 {
     "event": "deleted",
     "signal_received_timestamp": 1508781858.544069,
     "model": "Site",
-    "instance": {
+    "data": {
         "asn": None,
         "comments": "",
         "contact_email": "",

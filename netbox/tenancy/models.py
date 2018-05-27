@@ -25,6 +25,8 @@ class TenantGroup(models.Model):
 
     csv_headers = ['name', 'slug']
 
+    serializer = 'tenancy.api.serializers.TenantGroupSerializer'
+
     class Meta:
         ordering = ['name']
 
@@ -39,10 +41,6 @@ class TenantGroup(models.Model):
             self.name,
             self.slug,
         )
-
-    @property
-    def serializer(self):
-        return 'tenancy.api.serializers.TenantGroupSerializer'
 
 
 @python_2_unicode_compatible
@@ -83,6 +81,8 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
 
     csv_headers = ['name', 'slug', 'group', 'description', 'comments']
 
+    serializer = 'tenancy.api.serializers.TenantSerializer'
+
     class Meta:
         ordering = ['group', 'name']
 
@@ -100,7 +100,3 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
             self.description,
             self.comments,
         )
-
-    @property
-    def serializer(self):
-        return 'tenancy.api.serializers.TenantSerializer'

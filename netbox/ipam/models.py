@@ -61,6 +61,8 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
 
     csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
 
+    serializer = 'ipam.api.serializers.VRFSerializer'
+
     class Meta:
         ordering = ['name', 'rd']
         verbose_name = 'VRF'
@@ -86,10 +88,6 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
         if self.name and self.rd:
             return "{} ({})".format(self.name, self.rd)
         return None
-
-    @property
-    def serializer(self):
-        return 'ipam.api.serializers.VRFSerializer'
 
 
 @python_2_unicode_compatible
@@ -166,6 +164,8 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
 
     csv_headers = ['prefix', 'rir', 'date_added', 'description']
 
+    serializer = 'ipam.api.serializers.AggregateSerializer'
+
     class Meta:
         ordering = ['family', 'prefix']
 
@@ -225,10 +225,6 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
         queryset = Prefix.objects.filter(prefix__net_contained_or_equal=str(self.prefix))
         child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
         return int(float(child_prefixes.size) / self.prefix.size * 100)
-
-    @property
-    def serializer(self):
-        return 'ipam.api.serializers.AggregateSerializer'
 
 
 @python_2_unicode_compatible
@@ -343,6 +339,8 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
     csv_headers = [
         'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan_vid', 'status', 'role', 'is_pool', 'description',
     ]
+
+    serializer = 'ipam.api.serializers.PrefixSerializer'
 
     class Meta:
         ordering = ['vrf', 'family', 'prefix']
@@ -499,10 +497,6 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
                 return netaddr.IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
             return None
 
-    @property
-    def serializer(self):
-        return 'ipam.api.serializers.PrefixSerializer'
-
 
 class IPAddressManager(models.Manager):
 
@@ -599,6 +593,8 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
         'description',
     ]
 
+    serializer = 'ipam.api.serializers.IPAddressSerializer'
+
     class Meta:
         ordering = ['family', 'address']
         verbose_name = 'IP address'
@@ -672,10 +668,6 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]
 
-    @property
-    def serializer(self):
-        return 'ipam.api.serializers.IPAddressSerializer'
-
     def get_role_class(self):
         return ROLE_CHOICE_CLASSES[self.role]
 
@@ -698,6 +690,8 @@ class VLANGroup(models.Model):
     )
 
     csv_headers = ['name', 'slug', 'site']
+
+    serializer = 'ipam.api.serializers.VLANGroupSerializer'
 
     class Meta:
         ordering = ['site', 'name']
@@ -730,10 +724,6 @@ class VLANGroup(models.Model):
             if i not in vids:
                 return i
         return None
-
-    @property
-    def serializer(self):
-        return 'ipam.api.serializers.VLANGroupSerializer'
 
 
 @python_2_unicode_compatible
@@ -800,6 +790,8 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
 
     csv_headers = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
 
+    serializer = 'ipam.api.serializers.VLANSerializer'
+
     class Meta:
         ordering = ['site', 'group', 'vid']
         unique_together = [
@@ -851,10 +843,6 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
             Q(tagged_vlans=self.pk)
         )
 
-    @property
-    def serializer(self):
-        return 'ipam.api.serializers.VLANSerializer'
-
 
 @python_2_unicode_compatible
 class Service(CreatedUpdatedModel):
@@ -898,6 +886,8 @@ class Service(CreatedUpdatedModel):
         blank=True
     )
 
+    serializer = 'ipam.api.serializers.ServiceSerializer'
+
     class Meta:
         ordering = ['protocol', 'port']
 
@@ -915,7 +905,3 @@ class Service(CreatedUpdatedModel):
             raise ValidationError("A service cannot be associated with both a device and a virtual machine.")
         if not self.device and not self.virtual_machine:
             raise ValidationError("A service must be associated with either a device or a virtual machine.")
-
-    @property
-    def serializer(self):
-        return 'ipam.api.serializers.ServiceSerializer'

@@ -68,6 +68,8 @@ class ClusterGroup(models.Model):
 
     csv_headers = ['name', 'slug']
 
+    serializer = 'virtualization.api.serializers.ClusterGroupSerializer'
+
     class Meta:
         ordering = ['name']
 
@@ -82,10 +84,6 @@ class ClusterGroup(models.Model):
             self.name,
             self.slug,
         )
-
-    @property
-    def serializer(self):
-        return 'virtualization.api.serializers.ClusterGroupSerializer'
 
 
 #
@@ -133,6 +131,8 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
 
     csv_headers = ['name', 'type', 'group', 'site', 'comments']
 
+    serializer = 'virtualization.api.serializers.ClusterSerializer'
+
     class Meta:
         ordering = ['name']
 
@@ -162,10 +162,6 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
             self.site.name if self.site else None,
             self.comments,
         )
-
-    @property
-    def serializer(self):
-        return 'virtualization.api.serializers.ClusterSerializer'
 
 
 #
@@ -259,6 +255,8 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
         'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
     ]
 
+    serializer = 'virtualization.api.serializers.VirtualMachineSerializer'
+
     class Meta:
         ordering = ['name']
 
@@ -284,10 +282,6 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
 
     def get_status_class(self):
         return VM_STATUS_CLASSES[self.status]
-
-    @property
-    def serializer(self):
-        return 'virtualization.api.serializers.VirtualMachineSerializer'
 
     @property
     def primary_ip(self):

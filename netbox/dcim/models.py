@@ -169,6 +169,8 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
         'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments',
     ]
 
+    serializer = 'dcim.api.serializers.SiteSerializer'
+
     class Meta:
         ordering = ['name']
 
@@ -221,10 +223,6 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
         return Circuit.objects.filter(terminations__site=self).count()
 
     @property
-    def serializer(self):
-        return 'dcim.api.serializers.SiteSerializer'
-
-    @property
     def count_vms(self):
         from virtualization.models import VirtualMachine
         return VirtualMachine.objects.filter(cluster__site=self).count()
@@ -253,6 +251,8 @@ class RackGroup(models.Model):
 
     csv_headers = ['site', 'name', 'slug']
 
+    serializer = 'dcim.api.serializers.RackGroupSerializer'
+
     class Meta:
         ordering = ['site', 'name']
         unique_together = [
@@ -272,10 +272,6 @@ class RackGroup(models.Model):
             self.name,
             self.slug,
         )
-
-    @property
-    def serializer(self):
-        return 'dcim.api.serializers.RackGroupSerializer'
 
 
 @python_2_unicode_compatible
@@ -404,6 +400,8 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
         'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'serial', 'width', 'u_height',
         'desc_units', 'comments',
     ]
+
+    serializer = 'dcim.api.serializers.RackSerializer'
 
     class Meta:
         ordering = ['site', 'group', 'name']
@@ -573,10 +571,6 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
         """
         u_available = len(self.get_available_units())
         return int(float(self.u_height - u_available) / self.u_height * 100)
-
-    @property
-    def serializer(self):
-        return 'dcim.api.serializers.RackSerializer'
 
 
 @python_2_unicode_compatible
@@ -1255,6 +1249,8 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         'site', 'rack_group', 'rack_name', 'position', 'face', 'comments',
     ]
 
+    serializer = 'dcim.api.serializers.DeviceSerializer'
+
     class Meta:
         ordering = ['name']
         unique_together = [
@@ -1490,10 +1486,6 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         if not self.platform:
             return None
         return RPC_CLIENTS.get(self.platform.rpc_client)
-
-    @property
-    def serializer(self):
-        return 'dcim.api.serializers.DeviceSerializer'
 
 
 #
@@ -1784,6 +1776,8 @@ class Interface(models.Model):
 
     objects = InterfaceQuerySet.as_manager()
 
+    serializer = 'dcim.api.serializers.InterfaceSerializer'
+
     class Meta:
         ordering = ['device', 'name']
         unique_together = ['device', 'name']
@@ -1913,10 +1907,6 @@ class Interface(models.Model):
         except ObjectDoesNotExist:
             pass
         return None
-
-    @property
-    def serializer(self):
-        return 'dcim.api.serializers.InterfaceSerializer'
 
 
 class InterfaceConnection(models.Model):
