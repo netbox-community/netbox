@@ -207,7 +207,11 @@ When determining the primary IP address for a device, IPv6 is preferred over IPv
 
 ---
 
-## REDIS_DB
+## Redis Connection Settings
+
+The following settings are defined in the `REDIS` dictionary, much like the regular database settings.
+
+## DB
 
 Default: 0
 
@@ -215,7 +219,7 @@ When `WEBHOOK_BACKEND_ENABLED` is `True` connect to the redis database with this
 
 ---
 
-## REDIS_DEFAULT_TIMEOUT
+## DEFAULT_TIMEOUT
 
 Default: 300
 
@@ -223,7 +227,7 @@ When `WEBHOOK_BACKEND_ENABLED` is `True` use this value as the redis timeout. Th
 
 ---
 
-## REDIS_HOST
+## HOST
 
 Default: localhost
 
@@ -231,7 +235,7 @@ When `WEBHOOK_BACKEND_ENABLED` is `True` connect to this redis server host. This
 
 ---
 
-## REDIS_PASSWORD
+## PASSWORD
 
 Default: N/A (empty string value)
 
@@ -239,7 +243,7 @@ When `WEBHOOK_BACKEND_ENABLED` is `True` use this password to connect to the red
 
 ---
 
-## REDIS_PORT
+## PORT
 
 Default: 6379
 
