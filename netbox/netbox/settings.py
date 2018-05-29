@@ -66,11 +66,6 @@ PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 WEBHOOK_BACKEND_ENABLED = getattr(configuration, 'WEBHOOK_BACKEND_ENABLED', False)
 REDIS = getattr(configuration, 'REDIS', {})
-REDIS_HOST = REDIS.get('REDIS_HOST', 'localhost')
-REDIS_PORT = REDIS.get('REDIS_PORT', 6379)
-REDIS_DEFAULT_TIMEOUT = REDIS.get('REDIS_DEFAULT_TIMEOUT', 300)
-REDIS_PASSWORD = REDIS.get('REDIS_PASSWORD', '')
-REDIS_DB = REDIS.get('REDIS_DB', 0)
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
@@ -115,6 +110,13 @@ configuration.DATABASE.update({'ENGINE': 'django.db.backends.postgresql'})
 DATABASES = {
     'default': configuration.DATABASE,
 }
+
+# Redis
+REDIS_HOST = REDIS.get('REDIS_HOST', 'localhost')
+REDIS_PORT = REDIS.get('REDIS_PORT', 6379)
+REDIS_DEFAULT_TIMEOUT = REDIS.get('REDIS_DEFAULT_TIMEOUT', 300)
+REDIS_PASSWORD = REDIS.get('REDIS_PASSWORD', '')
+REDIS_DB = REDIS.get('REDIS_DB', 0)
 
 # Email
 EMAIL_HOST = EMAIL.get('SERVER')
