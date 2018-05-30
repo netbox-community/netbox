@@ -64,7 +64,7 @@ def post_save_receiver(sender, instance, created, **kwargs):
     Receives post_save signals from registered models. If the webhook
     backend is enabled, queue any webhooks that apply to the event.
     """
-    if settings.WEBHOOK_BACKEND_ENABLED:
+    if settings.WEBHOOKS_ENABLED:
         signal_received_timestamp = time.time()
         webhook_cache = get_or_set_webhook_cache()
         # look for any webhooks that match this event
@@ -88,7 +88,7 @@ def post_delete_receiver(sender, instance, **kwargs):
     Receives post_delete signals from registered models. If the webhook
     backend is enabled, queue any webhooks that apply to the event.
     """
-    if settings.WEBHOOK_BACKEND_ENABLED:
+    if settings.WEBHOOKS_ENABLED:
         signal_received_timestamp = time.time()
         webhook_cache = get_or_set_webhook_cache()
         obj_type = ContentType.objects.get_for_model(sender)
@@ -103,7 +103,7 @@ def bulk_operation_receiver(sender, **kwargs):
     Receives bulk_operation_signal signals from registered models. If the webhook
     backend is enabled, queue any webhooks that apply to the event.
     """
-    if settings.WEBHOOK_BACKEND_ENABLED:
+    if settings.WEBHOOKS_ENABLED:
         signal_received_timestamp = time.time()
         event = kwargs['event']
         webhook_cache = get_or_set_webhook_cache()
@@ -132,7 +132,7 @@ def register_signals(senders):
     Take a list of senders (Models) and register them to the post_save
     and post_delete signal receivers.
     """
-    if settings.WEBHOOK_BACKEND_ENABLED:
+    if settings.WEBHOOKS_ENABLED:
         # only register signals if the backend is enabled
         # this reduces load by not firing signals if the
         # webhook backend feature is disabled

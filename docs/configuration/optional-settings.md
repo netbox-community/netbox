@@ -207,50 +207,6 @@ When determining the primary IP address for a device, IPv6 is preferred over IPv
 
 ---
 
-## Redis Connection Settings
-
-The following settings are defined in the `REDIS` dictionary, much like the regular database settings.
-
-## DB
-
-Default: 0
-
-When `WEBHOOK_BACKEND_ENABLED` is `True` connect to the redis database with this ID. This is used in conjunction with the webhook backend. See the docs section on the webhook backend [here](../miscellaneous/webhook-backend/) for more information on setup and use.
-
----
-
-## DEFAULT_TIMEOUT
-
-Default: 300
-
-When `WEBHOOK_BACKEND_ENABLED` is `True` use this value as the redis timeout. This is used in conjunction with the webhook backend. See the docs section on the webhook backend [here](../miscellaneous/webhook-backend/) for more information on setup and use.
-
----
-
-## HOST
-
-Default: localhost
-
-When `WEBHOOK_BACKEND_ENABLED` is `True` connect to this redis server host. This is used in conjunction with the webhook backend. See the docs section on the webhook backend [here](../miscellaneous/webhook-backend/) for more information on setup and use.
-
----
-
-## PASSWORD
-
-Default: N/A (empty string value)
-
-When `WEBHOOK_BACKEND_ENABLED` is `True` use this password to connect to the redis server. This is used in conjunction with the webhook backend. See the docs section on the webhook backend [here](../miscellaneous/webhook-backend/) for more information on setup and use.
-
----
-
-## PORT
-
-Default: 6379
-
-When `WEBHOOK_BACKEND_ENABLED` is `True` use this port to connect to the redis server. This is used in conjunction with the webhook backend. See the docs section on the webhook backend [here](../miscellaneous/webhook-backend/) for more information on setup and use.
-
----
-
 ## REPORTS_ROOT
 
 Default: $BASE_DIR/netbox/reports/
@@ -267,11 +223,11 @@ The time zone NetBox will use when dealing with dates and times. It is recommend
 
 ---
 
-## WEBHOOK_BACKEND_ENABLED
+## WEBHOOKS_ENABLED
 
 Default: False
 
-Enable this option to run the webhook backend. See the docs section on the webhook backend [here](../miscellaneous/webhook-backend/) for more information on setup and use.
+Enable this option to run the webhook backend. See the docs section on the webhook backend [here](../miscellaneous/webhooks/) for more information on setup and use.
 
 ---
 
@@ -289,3 +245,49 @@ SHORT_TIME_FORMAT = 'H:i:s'          # 13:23:00
 DATETIME_FORMAT = 'N j, Y g:i a'     # June 26, 2016 1:23 p.m.
 SHORT_DATETIME_FORMAT = 'Y-m-d H:i'  # 2016-06-27 13:23
 ```
+
+---
+
+## Redis Connection Settings
+
+[Redis](https://redis.io/) is a key-value store which functions as a very lightweight database. It is required when enabling NetBox [webhooks](../miscellaneous/webhooks/). A Redis connection is configured using a dictionary similar to the following:
+
+```
+REDIS = {
+    'HOST': 'localhost',
+    'PORT': 6379,
+    'PASSWORD': '',
+    'DATABASE': 0,
+    'DEFAULT_TIMEOUT': 300,
+}
+```
+
+### DATABASE
+
+Default: 0
+
+The Redis database ID.
+
+### DEFAULT_TIMEOUT
+
+Default: 300
+
+The timeout value to use when connecting to the Redis server (in seconds).
+
+### HOST
+
+Default: localhost
+
+The hostname or IP address of the Redis server.
+
+### PORT
+
+Default: 6379
+
+The TCP port to use when connecting to the Redis server.
+
+### PASSWORD
+
+Default: None
+
+The password to use when authenticating to the Redis server (optional).

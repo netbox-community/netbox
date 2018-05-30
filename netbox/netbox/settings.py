@@ -64,13 +64,13 @@ NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
 PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
-WEBHOOK_BACKEND_ENABLED = getattr(configuration, 'WEBHOOK_BACKEND_ENABLED', False)
 REDIS = getattr(configuration, 'REDIS', {})
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
+WEBHOOKS_ENABLED = getattr(configuration, 'WEBHOOKS_ENABLED', False)
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
@@ -112,11 +112,17 @@ DATABASES = {
 }
 
 # Redis
-REDIS_HOST = REDIS.get('REDIS_HOST', 'localhost')
-REDIS_PORT = REDIS.get('REDIS_PORT', 6379)
-REDIS_DEFAULT_TIMEOUT = REDIS.get('REDIS_DEFAULT_TIMEOUT', 300)
-REDIS_PASSWORD = REDIS.get('REDIS_PASSWORD', '')
-REDIS_DB = REDIS.get('REDIS_DB', 0)
+REDIS_HOST = REDIS.get('HOST', 'localhost')
+REDIS_PORT = REDIS.get('PORT', 6379)
+REDIS_PASSWORD = REDIS.get('PASSWORD', '')
+REDIS_DATABASE = REDIS.get('DATABASE', 0)
+REDIS_DEFAULT_TIMEOUT = REDIS.get('DEFAULT_TIMEOUT', 300)
+
+print(REDIS_HOST)
+print(REDIS_PORT)
+print(REDIS_PASSWORD)
+print(REDIS_DATABASE)
+print(REDIS_DEFAULT_TIMEOUT)
 
 # Email
 EMAIL_HOST = EMAIL.get('SERVER')
@@ -156,8 +162,8 @@ INSTALLED_APPS = [
     'drf_yasg',
 ]
 
-# only load django-rq if the webhook backend is enabled
-if WEBHOOK_BACKEND_ENABLED:
+# Only load django-rq if the webhook backend is enabled
+if WEBHOOKS_ENABLED:
     INSTALLED_APPS.append('django_rq')
 
 # Middleware
@@ -259,12 +265,12 @@ REST_FRAMEWORK = {
     'VIEW_NAME_FUNCTION': 'netbox.api.get_view_name',
 }
 
-# Django RQ (Webhook backend)
+# Django RQ (Webhooks backend)
 RQ_QUEUES = {
     'default': {
         'HOST': REDIS_HOST,
         'PORT': REDIS_PORT,
-        'DB': REDIS_DB,
+        'DB': REDIS_DATABASE,
         'PASSWORD': REDIS_PASSWORD,
         'DEFAULT_TIMEOUT': REDIS_DEFAULT_TIMEOUT,
     }

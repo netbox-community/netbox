@@ -132,7 +132,7 @@ Then, restart the supervisor service to detect the changes:
     act on all netbox processes (netbox-core and netbox-webhook-backend in this case).
 
 Now you need only add the configuration settings to connect to redis and enable the webhook backend feature.
-- In your `configuration.py` Set [WEBHOOK_BACKEND_ENABLED](../configuration/optional-settings/#webhook_backend_enabled) to `True`.
+- In your `configuration.py` Set [WEBHOOKS_ENABLED](../configuration/optional-settings/#webhooks_enabled) to `True`.
 - If needed, set the optional redis connection settings. By default, they will allow connecting to DB 0 on a locally installed redis server with no password.
   - [REDIS_DB](../configuration/optional-settings/#redis_db)
   - [REDIS_DEFAULT_TIMEOUT](../configuration/optional-settings/#redis_default_timeout)

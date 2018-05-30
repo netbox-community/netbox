@@ -64,7 +64,7 @@ _patterns = [
 
 ]
 
-if settings.WEBHOOK_BACKEND_ENABLED:
+if settings.WEBHOOKS_ENABLED:
     _patterns += [
         url(r'^admin/webhook-backend-status/', include('django_rq.urls')),
     ]

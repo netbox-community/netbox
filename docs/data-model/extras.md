@@ -133,7 +133,6 @@ Certain objects within NetBox (namely sites, racks, and devices) can have photos
 
 # Webhooks
 
-When the [webhook backend](../miscellaneous/webhook-backend/) is enabled, webhooks define how NetBox should react to events surrounding certain models. The webhook model defines a payload URL and event types to which a set of models should be registered. These event types include `Create`, `Update`, and `Delete`. Upon a matching event, a POST request is sent to the payload URL. An optional `secret` can be configured which will append a `X-Hook-Signature` header to the request, consisting of a HMAC (sha512) hex digest of the request body using the secret as the key. You may also allow a webhook to use insecure ssl.
+A webhook defines an HTTP request that is sent to an external application when certain types of objects are created, updated, and/or deleted in NetBox. When a webhook is triggered, a POST request is sent to its configured URL. This request will include a full representation of the object being modified for consumption by the receiver.
 
-!!! warning
-    Using insecure ssl is generally a bad idea but is allowed as invalid ssl is commonly used in internal IT environments. Using insecure ssl in the webhook means ssl verification when making the POST request will not occur.
+An optional secret key can be configured for each webhook. This will append a `X-Hook-Signature` header to the request, consisting of a HMAC (SHA-512) hex digest of the request body using the secret as the key. This digest can be used by the receiver to authenticate the request's content.
