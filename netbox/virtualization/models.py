@@ -68,6 +68,8 @@ class ClusterGroup(models.Model):
 
     csv_headers = ['name', 'slug']
 
+    serializer = 'virtualization.api.serializers.ClusterGroupSerializer'
+
     class Meta:
         ordering = ['name']
 
@@ -128,6 +130,8 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
     tags = TaggableManager()
 
     csv_headers = ['name', 'type', 'group', 'site', 'comments']
+
+    serializer = 'virtualization.api.serializers.ClusterSerializer'
 
     class Meta:
         ordering = ['name']
@@ -250,6 +254,8 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
     csv_headers = [
         'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
     ]
+
+    serializer = 'virtualization.api.serializers.VirtualMachineSerializer'
 
     class Meta:
         ordering = ['name']

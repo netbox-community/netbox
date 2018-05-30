@@ -130,3 +130,10 @@ Certain objects within NetBox (namely sites, racks, and devices) can have photos
 
 !!! note
     If you experience a server error while attempting to upload an image attachment, verify that the system user NetBox runs as has write permission to the media root directory (`netbox/media/`).
+
+# Webhooks
+
+When the [webhook backend](../miscellaneous/webhook-backend/) is enabled, webhooks define how NetBox should react to events surrounding certain models. The webhook model defines a payload URL and event types to which a set of models should be registered. These event types include `Create`, `Update`, and `Delete`. Upon a matching event, a POST request is sent to the payload URL. An optional `secret` can be configured which will append a `X-Hook-Signature` header to the request, consisting of a HMAC (sha512) hex digest of the request body using the secret as the key. You may also allow a webhook to use insecure ssl.
+
+!!! warning
+    Using insecure ssl is generally a bad idea but is allowed as invalid ssl is commonly used in internal IT environments. Using insecure ssl in the webhook means ssl verification when making the POST request will not occur.

@@ -71,3 +71,14 @@ def foreground_color(bg_color):
         return '000000'
     else:
         return 'ffffff'
+
+
+def dynamic_import(name):
+    """
+    Dynamically import a class from an absolute path string
+    """
+    components = name.split('.')
+    mod = __import__(components[0])
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod

@@ -61,6 +61,8 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
 
     csv_headers = ['name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments']
 
+    serializer = 'circuits.api.serializers.ProviderSerializer'
+
     class Meta:
         ordering = ['name']
 
@@ -174,6 +176,8 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
     csv_headers = [
         'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
     ]
+
+    serializer = 'circuits.api.serializers.CircuitSerializer'
 
     class Meta:
         ordering = ['provider', 'cid']

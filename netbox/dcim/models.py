@@ -169,6 +169,8 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
         'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments',
     ]
 
+    serializer = 'dcim.api.serializers.SiteSerializer'
+
     class Meta:
         ordering = ['name']
 
@@ -248,6 +250,8 @@ class RackGroup(models.Model):
     )
 
     csv_headers = ['site', 'name', 'slug']
+
+    serializer = 'dcim.api.serializers.RackGroupSerializer'
 
     class Meta:
         ordering = ['site', 'name']
@@ -396,6 +400,8 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
         'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'serial', 'width', 'u_height',
         'desc_units', 'comments',
     ]
+
+    serializer = 'dcim.api.serializers.RackSerializer'
 
     class Meta:
         ordering = ['site', 'group', 'name']
@@ -1243,6 +1249,8 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         'site', 'rack_group', 'rack_name', 'position', 'face', 'comments',
     ]
 
+    serializer = 'dcim.api.serializers.DeviceSerializer'
+
     class Meta:
         ordering = ['name']
         unique_together = [
@@ -1767,6 +1775,8 @@ class Interface(models.Model):
     )
 
     objects = InterfaceQuerySet.as_manager()
+
+    serializer = 'dcim.api.serializers.InterfaceSerializer'
 
     class Meta:
         ordering = ['device', 'name']

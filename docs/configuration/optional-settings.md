@@ -207,6 +207,50 @@ When determining the primary IP address for a device, IPv6 is preferred over IPv
 
 ---
 
+## Redis Connection Settings
+
+The following settings are defined in the `REDIS` dictionary, much like the regular database settings.
+
+## DB
+
+Default: 0
+
+When `WEBHOOK_BACKEND_ENABLED` is `True` connect to the redis database with this ID. This is used in conjunction with the webhook backend. See the docs section on the webhook backend [here](../miscellaneous/webhook-backend/) for more information on setup and use.
+
+---
+
+## DEFAULT_TIMEOUT
+
+Default: 300
+
+When `WEBHOOK_BACKEND_ENABLED` is `True` use this value as the redis timeout. This is used in conjunction with the webhook backend. See the docs section on the webhook backend [here](../miscellaneous/webhook-backend/) for more information on setup and use.
+
+---
+
+## HOST
+
+Default: localhost
+
+When `WEBHOOK_BACKEND_ENABLED` is `True` connect to this redis server host. This is used in conjunction with the webhook backend. See the docs section on the webhook backend [here](../miscellaneous/webhook-backend/) for more information on setup and use.
+
+---
+
+## PASSWORD
+
+Default: N/A (empty string value)
+
+When `WEBHOOK_BACKEND_ENABLED` is `True` use this password to connect to the redis server. This is used in conjunction with the webhook backend. See the docs section on the webhook backend [here](../miscellaneous/webhook-backend/) for more information on setup and use.
+
+---
+
+## PORT
+
+Default: 6379
+
+When `WEBHOOK_BACKEND_ENABLED` is `True` use this port to connect to the redis server. This is used in conjunction with the webhook backend. See the docs section on the webhook backend [here](../miscellaneous/webhook-backend/) for more information on setup and use.
+
+---
+
 ## REPORTS_ROOT
 
 Default: $BASE_DIR/netbox/reports/
@@ -220,6 +264,14 @@ The file path to the location where custom reports will be kept. By default, thi
 Default: UTC
 
 The time zone NetBox will use when dealing with dates and times. It is recommended to use UTC time unless you have a specific need to use a local time zone. [List of available time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+
+---
+
+## WEBHOOK_BACKEND_ENABLED
+
+Default: False
+
+Enable this option to run the webhook backend. See the docs section on the webhook backend [here](../miscellaneous/webhook-backend/) for more information on setup and use.
 
 ---
 

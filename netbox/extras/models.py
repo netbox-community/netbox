@@ -22,6 +22,80 @@ from .constants import *
 
 
 #
+# Webhooks
+#
+
+class Webhook(models.Model):
+    """
+    Webhook model that represents all the details for an endoint and how to make a request to
+    that endpoint with the configured payload.
+    """
+
+    obj_type = models.ManyToManyField(
+        ContentType,
+        related_name='webhooks',
+        verbose_name='Object(s)',
+        limit_choices_to={'model__in': WEBHOOK_MODELS},
+        help_text="The object(s) to which this Webhook applies."
+    )
+    name = models.CharField(
+        max_length=150,
+        unique=True
+    )
+    type_create = models.BooleanField(
+        default=False,
+        help_text="A POST will be sent to the URL when the object type(s) is created."
+    )
+    type_update = models.BooleanField(
+        default=False,
+        help_text="A POST will be sent to the URL when the object type(s) is updated."
+    )
+    type_delete = models.BooleanField(
+        default=False,
+        help_text="A POST will be sent to the URL when the object type(s) is deleted."
+    )
+    payload_url = models.CharField(
+        max_length=500,
+        verbose_name="A POST will be sent to this URL based on the webhook criteria."
+    )
+    http_content_type = models.PositiveSmallIntegerField(
+        choices=WEBHOOK_CT_CHOICES,
+        default=WEBHOOK_CT_JSON
+    )
+    secret = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="When provided the request will include a 'X-Hook-Signature' "
+                  "header which is a HMAC hex digest of the payload body using "
+                  "the secret as the key. The secret is not transmitted in "
+                  "the request."
+    )
+    enabled = models.BooleanField(
+        default=True
+    )
+    ssl_verification = models.BooleanField(
+        default=True,
+        help_text="By default, use of proper SSL is verified. Disable with caution!"
+    )
+
+    class Meta:
+        unique_together = ('payload_url', 'type_create', "type_update", "type_delete",)
+
+    def __str__(self):
+        return self.name
+
+    def clean(self):
+        """
+        Validate model
+        """
+
+        if not self.type_create and not self.type_delete and not self.type_update:
+            raise ValidationError(
+                "You must select at least one type. Either create, update, or delete."
+            )
+
+
+#
 # Custom fields
 #
 

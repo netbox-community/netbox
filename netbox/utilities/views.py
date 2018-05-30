@@ -20,6 +20,7 @@ from django.views.generic import View
 from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate, UserAction
+from extras.webhooks import bulk_operation_signal
 from utilities.utils import queryset_to_csv
 from utilities.forms import BootstrapMixin, CSVDataField
 from .constants import M2M_FIELD_TYPES
@@ -772,6 +773,9 @@ class ComponentCreateView(View):
                                 field_links.append(field_link)
                         getattr(self.model, field).through.objects.bulk_create(field_links)
 
+                # send the bulk operations signal for webhooks
+                bulk_operation_signal.send(sender=self.model, instances=new_components, event="created")
+
                 messages.success(request, "Added {} {} to {}.".format(
                     len(new_components), self.model._meta.verbose_name_plural, parent
                 ))
@@ -848,6 +852,10 @@ class BulkComponentCreateView(View):
 
                 if not form.errors:
                     self.model.objects.bulk_create(new_components)
+
+                    # send the bulk operations signal for webhooks
+                    bulk_operation_signal.send(sender=self.model, instances=new_components, event="created")
+
                     messages.success(request, "Added {} {} to {} {}.".format(
                         len(new_components),
                         self.model._meta.verbose_name_plural,

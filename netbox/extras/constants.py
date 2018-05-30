@@ -97,3 +97,21 @@ LOG_LEVEL_CODES = {
     LOG_WARNING: 'warning',
     LOG_FAILURE: 'failure',
 }
+
+# webhook content types
+WEBHOOK_CT_JSON = 1
+WEBHOOK_CT_X_WWW_FORM_ENCODED = 2
+WEBHOOK_CT_CHOICES = (
+    (WEBHOOK_CT_JSON, 'application/json'),
+    (WEBHOOK_CT_X_WWW_FORM_ENCODED, 'application/x-www-form-urlencoded'),
+)
+
+# Models which support registered webhooks
+WEBHOOK_MODELS = (
+    'provider', 'circuit',                                           # Circuits
+    'site', 'rack', 'rackgroup', 'device', 'interface',              # DCIM
+    'aggregate', 'prefix', 'ipaddress', 'vlan', 'vlangroup', 'vrf',  # IPAM
+    'service',
+    'tenant', 'tenantgroup',                                         # Tenancy
+    'cluster', 'clustergroup', 'virtualmachine',                     # Virtualization
+)

@@ -61,6 +61,8 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
 
     csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
 
+    serializer = 'ipam.api.serializers.VRFSerializer'
+
     class Meta:
         ordering = ['name', 'rd']
         verbose_name = 'VRF'
@@ -161,6 +163,8 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
     tags = TaggableManager()
 
     csv_headers = ['prefix', 'rir', 'date_added', 'description']
+
+    serializer = 'ipam.api.serializers.AggregateSerializer'
 
     class Meta:
         ordering = ['family', 'prefix']
@@ -336,6 +340,8 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
         'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan_vid', 'status', 'role', 'is_pool', 'description',
     ]
 
+    serializer = 'ipam.api.serializers.PrefixSerializer'
+
     class Meta:
         ordering = ['vrf', 'family', 'prefix']
         verbose_name_plural = 'prefixes'
@@ -481,6 +487,16 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
                 prefix_size -= 2
             return int(float(child_count) / prefix_size * 100)
 
+    def new_subnet(self):
+        if self.family == 4:
+            if self.prefix.prefixlen <= 30:
+                return netaddr.IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
+            return None
+        if self.family == 6:
+            if self.prefix.prefixlen <= 126:
+                return netaddr.IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
+            return None
+
 
 class IPAddressManager(models.Manager):
 
@@ -577,6 +593,8 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
         'description',
     ]
 
+    serializer = 'ipam.api.serializers.IPAddressSerializer'
+
     class Meta:
         ordering = ['family', 'address']
         verbose_name = 'IP address'
@@ -672,6 +690,8 @@ class VLANGroup(models.Model):
     )
 
     csv_headers = ['name', 'slug', 'site']
+
+    serializer = 'ipam.api.serializers.VLANGroupSerializer'
 
     class Meta:
         ordering = ['site', 'name']
@@ -770,6 +790,8 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
 
     csv_headers = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
 
+    serializer = 'ipam.api.serializers.VLANSerializer'
+
     class Meta:
         ordering = ['site', 'group', 'vid']
         unique_together = [
@@ -863,6 +885,8 @@ class Service(CreatedUpdatedModel):
         max_length=100,
         blank=True
     )
+
+    serializer = 'ipam.api.serializers.ServiceSerializer'
 
     class Meta:
         ordering = ['protocol', 'port']
