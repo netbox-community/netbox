@@ -25,16 +25,18 @@ from .constants import *
 # Webhooks
 #
 
+@python_2_unicode_compatible
 class Webhook(models.Model):
     """
-    Webhook model that represents all the details for an endoint and how to make a request to
-    that endpoint with the configured payload.
+    A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
+    delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
+    Each Webhook can be limited to firing only on certain actions or certain object types.
     """
 
     obj_type = models.ManyToManyField(
-        ContentType,
+        to=ContentType,
         related_name='webhooks',
-        verbose_name='Object(s)',
+        verbose_name='Object types',
         limit_choices_to={'model__in': WEBHOOK_MODELS},
         help_text="The object(s) to which this Webhook applies."
     )
@@ -44,19 +46,20 @@ class Webhook(models.Model):
     )
     type_create = models.BooleanField(
         default=False,
-        help_text="A POST will be sent to the URL when the object type(s) is created."
+        help_text="Call this webhook when a matching object is created."
     )
     type_update = models.BooleanField(
         default=False,
-        help_text="A POST will be sent to the URL when the object type(s) is updated."
+        help_text="Call this webhook when a matching object is updated."
     )
     type_delete = models.BooleanField(
         default=False,
-        help_text="A POST will be sent to the URL when the object type(s) is deleted."
+        help_text="Call this webhook when a matching object is deleted."
     )
     payload_url = models.CharField(
         max_length=500,
-        verbose_name="A POST will be sent to this URL based on the webhook criteria."
+        verbose_name='URL',
+        help_text="A POST will be sent to this URL when the webhook is called."
     )
     http_content_type = models.PositiveSmallIntegerField(
         choices=WEBHOOK_CT_CHOICES,
@@ -65,8 +68,8 @@ class Webhook(models.Model):
     secret = models.CharField(
         max_length=255,
         blank=True,
-        help_text="When provided the request will include a 'X-Hook-Signature' "
-                  "header which is a HMAC hex digest of the payload body using "
+        help_text="When provided, the request will include a 'X-Hook-Signature' "
+                  "header containing a HMAC hex digest of the payload body using "
                   "the secret as the key. The secret is not transmitted in "
                   "the request."
     )
@@ -75,7 +78,7 @@ class Webhook(models.Model):
     )
     ssl_verification = models.BooleanField(
         default=True,
-        help_text="By default, use of proper SSL is verified. Disable with caution!"
+        help_text="Enable SSL certificate verification. Disable with caution!"
     )
 
     class Meta:
@@ -88,10 +91,9 @@ class Webhook(models.Model):
         """
         Validate model
         """
-
         if not self.type_create and not self.type_delete and not self.type_update:
             raise ValidationError(
-                "You must select at least one type. Either create, update, or delete."
+                "You must select at least one type: create, update, and/or delete."
             )
 
 
