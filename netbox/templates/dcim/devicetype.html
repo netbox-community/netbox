@@ -11,7 +11,6 @@
         </ol>
     </div>
 </div>
-
 {% if perms.dcim.change_devicetype or perms.dcim.delete_devicetype %}
     <div class="pull-right">
       {% if perms.dcim.change_devicetype %}
@@ -28,8 +27,8 @@
       {% endif %}
     </div>
 {% endif %}
-
 <h1>{% block title %}{{ devicetype.manufacturer }} {{ devicetype.model }}{% endblock %}</h1>
+{% include 'inc/created_updated.html' with obj=devicetype %}
 <div class="row">
     <div class="col-md-5">
         <div class="panel panel-default">

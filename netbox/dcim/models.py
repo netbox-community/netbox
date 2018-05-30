@@ -682,7 +682,7 @@ class Manufacturer(models.Model):
 
 
 @python_2_unicode_compatible
-class DeviceType(models.Model, CustomFieldModel):
+class DeviceType(CreatedUpdatedModel, CustomFieldModel):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
     well as high-level functional role(s).
