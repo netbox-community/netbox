@@ -31,7 +31,7 @@ Tenancy:
 - Tenant
 - TenantGroup
 
-Ciruits:
+Circuits:
 
 - Circuit
 - Provider
