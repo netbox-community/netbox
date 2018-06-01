@@ -487,16 +487,6 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
                 prefix_size -= 2
             return int(float(child_count) / prefix_size * 100)
 
-    def new_subnet(self):
-        if self.family == 4:
-            if self.prefix.prefixlen <= 30:
-                return netaddr.IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
-            return None
-        if self.family == 6:
-            if self.prefix.prefixlen <= 126:
-                return netaddr.IPNetwork('{}/{}'.format(self.prefix.network, self.prefix.prefixlen + 1))
-            return None
-
 
 class IPAddressManager(models.Manager):
 
