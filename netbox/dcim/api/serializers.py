@@ -80,7 +80,7 @@ class NestedSiteSerializer(serializers.ModelSerializer):
 
 
 class WritableSiteSerializer(CustomFieldModelSerializer):
-    time_zone = TimeZoneField(required=False)
+    time_zone = TimeZoneField(required=False, allow_null=True)
 
     class Meta:
         model = Site
