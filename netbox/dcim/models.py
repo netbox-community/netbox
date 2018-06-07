@@ -1536,6 +1536,18 @@ class InterfaceConnection(models.Model):
                 raise ValidationError({
                     'interface_b': "Cannot connect an interface to itself."
                 })
+            if self.interface_a.form_factor in NONCONNECTABLE_IFACE_TYPES:
+                raise ValidationError({
+                    'interface_a': '{} is not a connectable interface type.'.format(
+                        self.interface_a.get_form_factor_display()
+                    )
+                })
+            if self.interface_b.form_factor in NONCONNECTABLE_IFACE_TYPES:
+                raise ValidationError({
+                    'interface_b': '{} is not a connectable interface type.'.format(
+                        self.interface_b.get_form_factor_display()
+                    )
+                })
         except ObjectDoesNotExist:
             pass
 
