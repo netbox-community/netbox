@@ -1,22 +1,17 @@
 {% extends '_base.html' %}
-{% load helpers %}
+{% load buttons %}
 
 {% block content %}
 <div class="pull-right">
     {% if perms.dcim.add_rackrole %}
-        <a href="{% url 'dcim:rackrole_add' %}" class="btn btn-primary">
-            <span class="fa fa-plus" aria-hidden="true"></span>
-            Add a rack role
-        </a>
-        <a href="{% url 'dcim:rackrole_import' %}" class="btn btn-info">
-            <span class="fa fa-download" aria-hidden="true"></span>
-            Import rack roles
-        </a>
+        {% add_button 'dcim:rackrole_add' %}
+        {% import_button 'dcim:rackrole_import' %}
     {% endif %}
+    {% export_button content_type %}
 </div>
 <h1>{% block title %}Rack Roles{% endblock %}</h1>
 <div class="row">
-	<div class="col-md-12">
+    <div class="col-md-12">
         {% include 'utilities/obj_table.html' with bulk_delete_url='dcim:rackrole_bulk_delete' %}
     </div>
 </div>

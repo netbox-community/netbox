@@ -80,7 +80,7 @@ class NestedSiteSerializer(serializers.ModelSerializer):
 
 
 class WritableSiteSerializer(CustomFieldModelSerializer):
-    time_zone = TimeZoneField(required=False)
+    time_zone = TimeZoneField(required=False, allow_null=True)
 
     class Meta:
         model = Site
@@ -233,7 +233,7 @@ class WritableRackReservationSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = RackReservation
-        fields = ['id', 'rack', 'units', 'user', 'description']
+        fields = ['id', 'rack', 'units', 'user', 'tenant', 'description']
 
 
 #
