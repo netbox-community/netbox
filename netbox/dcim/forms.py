@@ -166,13 +166,37 @@ class SiteCSVForm(forms.ModelForm):
 
 
 class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Site.objects.all(), widget=forms.MultipleHiddenInput)
-    status = forms.ChoiceField(choices=add_blank_choice(SITE_STATUS_CHOICES), required=False, initial='')
-    region = TreeNodeChoiceField(queryset=Region.objects.all(), required=False)
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
-    asn = forms.IntegerField(min_value=1, max_value=4294967295, required=False, label='ASN')
-    description = forms.CharField(max_length=100, required=False)
-    time_zone = TimeZoneFormField(required=False)
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    status = forms.ChoiceField(
+        choices=add_blank_choice(SITE_STATUS_CHOICES),
+        required=False,
+        initial=''
+    )
+    region = TreeNodeChoiceField(
+        queryset=Region.objects.all(),
+        required=False
+    )
+    tenant = forms.ModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
+    asn = forms.IntegerField(
+        min_value=1,
+        max_value=4294967295,
+        required=False,
+        label='ASN'
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+    time_zone = TimeZoneFormField(
+        choices=add_blank_choice(TimeZoneFormField().choices),
+        required=False
+    )
 
     class Meta:
         nullable_fields = ['region', 'tenant', 'asn', 'description', 'time_zone']
