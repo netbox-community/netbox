@@ -11,7 +11,7 @@ from dcim.models import Site
 from extras.constants import GRAPH_TYPE_PROVIDER
 from extras.models import Graph
 from users.models import Token
-from utilities.tests import HttpStatusMixin
+from utilities.testing import HttpStatusMixin
 
 
 class ProviderTest(HttpStatusMixin, APITestCase):

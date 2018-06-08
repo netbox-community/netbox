@@ -11,7 +11,7 @@ from dcim.models import Device
 from extras.constants import GRAPH_TYPE_SITE
 from extras.models import Graph, ExportTemplate
 from users.models import Token
-from utilities.tests import HttpStatusMixin
+from utilities.testing import HttpStatusMixin
 
 
 class GraphTest(HttpStatusMixin, APITestCase):

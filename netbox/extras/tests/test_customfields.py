@@ -13,7 +13,7 @@ from dcim.models import Site
 from extras.constants import CF_TYPE_TEXT, CF_TYPE_INTEGER, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_SELECT, CF_TYPE_URL
 from extras.models import CustomField, CustomFieldValue, CustomFieldChoice
 from users.models import Token
-from utilities.tests import HttpStatusMixin
+from utilities.testing import HttpStatusMixin
 
 
 class CustomFieldTest(TestCase):

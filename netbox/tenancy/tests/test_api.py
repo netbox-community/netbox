@@ -7,7 +7,7 @@ from rest_framework.test import APITestCase
 
 from tenancy.models import Tenant, TenantGroup
 from users.models import Token
-from utilities.tests import HttpStatusMixin
+from utilities.testing import HttpStatusMixin
 
 
 class TenantGroupTest(HttpStatusMixin, APITestCase):

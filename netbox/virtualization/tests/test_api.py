@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from users.models import Token
-from utilities.tests import HttpStatusMixin
+from utilities.testing import HttpStatusMixin
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 

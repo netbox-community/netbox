@@ -10,7 +10,7 @@ from rest_framework.test import APITestCase
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
 from users.models import Token
-from utilities.tests import HttpStatusMixin
+from utilities.testing import HttpStatusMixin
 
 # Dummy RSA key pair for testing use only
 PRIVATE_KEY = """-----BEGIN RSA PRIVATE KEY-----

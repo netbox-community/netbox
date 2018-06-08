@@ -10,7 +10,7 @@ from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.constants import IP_PROTOCOL_TCP, IP_PROTOCOL_UDP
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from users.models import Token
-from utilities.tests import HttpStatusMixin
+from utilities.testing import HttpStatusMixin
 
 
 class VRFTest(HttpStatusMixin, APITestCase):

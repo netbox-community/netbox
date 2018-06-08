@@ -18,7 +18,7 @@ from dcim.models import (
 from ipam.models import VLAN
 from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from users.models import Token
-from utilities.tests import HttpStatusMixin
+from utilities.testing import HttpStatusMixin
 
 
 class RegionTest(HttpStatusMixin, APITestCase):
