@@ -97,6 +97,11 @@
                             <a href="{% url 'dcim:rackrole_list' %}">Rack Roles</a>
                         </li>
                         <li>
+                            {% if perms.dcim.add_rackrole %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:rack_elevation_print' %}" class="btn btn-xs btn-success" title="Export"><i class="fa fa-upload"></i></a>
+                                </div>
+                            {% endif %}
                             <a href="{% url 'dcim:rack_elevation_list' %}">Elevations</a>
                         </li>
                         <li>

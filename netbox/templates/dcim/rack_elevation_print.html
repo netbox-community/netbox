@@ -1,0 +1,39 @@
+{% extends '_base.html' %}
+{% load helpers %}
+
+{% block content %}
+    {% if page %}
+            <div style="white-space: wrap;">
+                {% for rack in page %}
+                    <div style="display: inline-block; width: 266px">
+                        <div class="rack_header">
+                            <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name|truncatechars:"25" }}</a></strong>
+                            <p><small class="text-muted">{{ rack.group|truncatechars:"30" }}</small></p>
+                        </div>
+                            {% include 'dcim/inc/rack_elevation.html' with primary_face=rack.get_front_elevation secondary_face=rack.get_rear_elevation reserved_units=rack.get_reserved_units %}
+                        <div class="clearfix"></div>
+                        <div class="rack_header">
+                            <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name|truncatechars:"25" }}</a></strong>
+                            <p><small class="text-muted">{{ rack.group|truncatechars:"30" }}</small></p>
+                        </div>
+                    </div>
+                {% endfor %}
+           </div>
+            <br />
+            {% include 'inc/paginator.html' %}
+        </div>
+
+    {% else %}
+        <div class="col-md-9">
+            <p>No racks found</p>
+        </div>
+    {% endif %}
+{% endblock %}
+</div>
+{% block javascript %}
+<script type="text/javascript">
+$(function() {
+  $('[data-toggle="popover"]').popover()
+})
+</script>
+{% endblock %}
