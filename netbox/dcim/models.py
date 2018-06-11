@@ -77,9 +77,7 @@ class Region(MPTTModel):
 #
 
 class SiteManager(NaturalOrderByManager):
-
-    def get_queryset(self):
-        return self.natural_order_by('name')
+    natural_order_field = 'name'
 
 
 @python_2_unicode_compatible
@@ -308,9 +306,7 @@ class RackRole(models.Model):
 
 
 class RackManager(NaturalOrderByManager):
-
-    def get_queryset(self):
-        return self.natural_order_by('site__name', 'name')
+    natural_order_field = 'name'
 
 
 @python_2_unicode_compatible
@@ -1098,9 +1094,7 @@ class Platform(models.Model):
 
 
 class DeviceManager(NaturalOrderByManager):
-
-    def get_queryset(self):
-        return self.natural_order_by('name')
+    natural_order_field = 'name'
 
 
 @python_2_unicode_compatible
