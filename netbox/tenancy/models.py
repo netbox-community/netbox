@@ -7,11 +7,11 @@ from django.utils.encoding import python_2_unicode_compatible
 from taggit.managers import TaggableManager
 
 from extras.models import CustomFieldModel
-from utilities.models import CreatedUpdatedModel
+from utilities.models import ChangeLoggedModel
 
 
 @python_2_unicode_compatible
-class TenantGroup(models.Model):
+class TenantGroup(ChangeLoggedModel):
     """
     An arbitrary collection of Tenants.
     """
@@ -23,9 +23,8 @@ class TenantGroup(models.Model):
         unique=True
     )
 
-    csv_headers = ['name', 'slug']
-
     serializer = 'tenancy.api.serializers.TenantGroupSerializer'
+    csv_headers = ['name', 'slug']
 
     class Meta:
         ordering = ['name']
@@ -44,7 +43,7 @@ class TenantGroup(models.Model):
 
 
 @python_2_unicode_compatible
-class Tenant(CreatedUpdatedModel, CustomFieldModel):
+class Tenant(ChangeLoggedModel, CustomFieldModel):
     """
     A Tenant represents an organization served by the NetBox owner. This is typically a customer or an internal
     department.
@@ -79,9 +78,8 @@ class Tenant(CreatedUpdatedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
-    csv_headers = ['name', 'slug', 'group', 'description', 'comments']
-
     serializer = 'tenancy.api.serializers.TenantSerializer'
+    csv_headers = ['name', 'slug', 'group', 'description', 'comments']
 
     class Meta:
         ordering = ['group', 'name']
