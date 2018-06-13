@@ -657,6 +657,71 @@ class ReportResult(models.Model):
 
 
 #
+# Change logging
+#
+
+@python_2_unicode_compatible
+class ObjectChange(models.Model):
+    """
+    Record a change to an object and the user account associated with that change.
+    """
+    time = models.DateTimeField(
+        auto_now_add=True,
+        editable=False
+    )
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.SET_NULL,
+        related_name='changes',
+        blank=True,
+        null=True
+    )
+    user_name = models.CharField(
+        max_length=150,
+        editable=False
+    )
+    action = models.PositiveSmallIntegerField(
+        choices=OBJECTCHANGE_ACTION_CHOICES
+    )
+    content_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE
+    )
+    object_id = models.PositiveIntegerField()
+    changed_object = GenericForeignKey(
+        ct_field='content_type',
+        fk_field='object_id'
+    )
+    object_repr = models.CharField(
+        max_length=200,
+        editable=False
+    )
+    object_data = JSONField(
+        editable=False
+    )
+
+    class Meta:
+        ordering = ['-time']
+
+    def __str__(self):
+        attribution = 'by {}'.format(self.user_name) if self.user_name else '(no attribution)'
+        return '{} {} {}'.format(
+            self.object_repr,
+            self.get_action_display().lower(),
+            attribution
+        )
+
+    def save(self, *args, **kwargs):
+
+        # Record the user's name and the object's representation as static strings
+        if self.user is not None:
+            self.user_name = self.user.username
+        self.object_repr = str(self.changed_object)
+
+        return super(ObjectChange, self).save(*args, **kwargs)
+
+
+#
 # User actions
 #
 

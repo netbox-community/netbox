@@ -5,9 +5,9 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 
 from utilities.forms import LaxURLField
+from .constants import OBJECTCHANGE_ACTION_CREATE, OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE
 from .models import (
-    CustomField, CustomFieldChoice, Graph, ExportTemplate, TopologyMap, UserAction,
-    Webhook
+    CustomField, CustomFieldChoice, Graph, ExportTemplate, ObjectChange, TopologyMap, UserAction, Webhook,
 )
 
 
@@ -123,6 +123,49 @@ class TopologyMapAdmin(admin.ModelAdmin):
     prepopulated_fields = {
         'slug': ['name'],
     }
+
+
+#
+# Change logging
+#
+
+@admin.register(ObjectChange)
+class ObjectChangeAdmin(admin.ModelAdmin):
+    actions = None
+    fields = ['time', 'content_type', 'display_object', 'action', 'display_user']
+    list_display = ['time', 'content_type', 'display_object', 'display_action', 'display_user']
+    list_filter = ['time', 'action', 'user__username']
+    list_select_related = ['content_type', 'user']
+    readonly_fields = fields
+    search_fields = ['user_name', 'object_repr']
+
+    def has_add_permission(self, request):
+        return False
+
+    def display_user(self, obj):
+        if obj.user is not None:
+            return obj.user
+        else:
+            return '{} (deleted)'.format(obj.user_name)
+    display_user.short_description = 'user'
+
+    def display_action(self, obj):
+        icon = {
+            OBJECTCHANGE_ACTION_CREATE: 'addlink',
+            OBJECTCHANGE_ACTION_UPDATE: 'changelink',
+            OBJECTCHANGE_ACTION_DELETE: 'deletelink',
+        }
+        return mark_safe('<span class="{}">{}</span>'.format(icon[obj.action], obj.get_action_display()))
+    display_user.short_description = 'action'
+
+    def display_object(self, obj):
+        if hasattr(obj.changed_object, 'get_absolute_url'):
+            return mark_safe('<a href="{}">{}</a>'.format(obj.changed_object.get_absolute_url(), obj.changed_object))
+        elif obj.changed_object is not None:
+            return obj.changed_object
+        else:
+            return '{} (deleted)'.format(obj.object_repr)
+    display_object.short_description = 'object'
 
 
 #
