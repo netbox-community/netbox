@@ -945,6 +945,7 @@ class DeviceInventoryView(View):
         return render(request, 'dcim/device_inventory.html', {
             'device': device,
             'inventory_items': inventory_items,
+            'active_tab': 'inventory',
         })
 
 
@@ -957,6 +958,7 @@ class DeviceStatusView(PermissionRequiredMixin, View):
 
         return render(request, 'dcim/device_status.html', {
             'device': device,
+            'active_tab': 'status',
         })
 
 
@@ -975,6 +977,7 @@ class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
         return render(request, 'dcim/device_lldp_neighbors.html', {
             'device': device,
             'interfaces': interfaces,
+            'active_tab': 'lldp-neighbors',
         })
 
 
@@ -987,6 +990,7 @@ class DeviceConfigView(PermissionRequiredMixin, View):
 
         return render(request, 'dcim/device_config.html', {
             'device': device,
+            'active_tab': 'config',
         })
 
 

@@ -34,6 +34,7 @@
                 {{ message }}
             </div>
         {% endfor %}
+        {% block header %}{% endblock %}
         {% block content %}{% endblock %}
         <div class="push"></div>
          {% if settings.BANNER_BOTTOM %}
