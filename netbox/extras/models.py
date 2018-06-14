@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from collections import OrderedDict
 from datetime import date
+import json
 
 import graphviz
 from django.contrib.auth.models import User
@@ -719,6 +720,10 @@ class ObjectChange(models.Model):
         self.object_repr = str(self.changed_object)
 
         return super(ObjectChange, self).save(*args, **kwargs)
+
+    @property
+    def object_data_pretty(self):
+        return json.dumps(self.object_data, indent=4, sort_keys=True)
 
 
 #

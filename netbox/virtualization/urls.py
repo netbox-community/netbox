@@ -2,8 +2,10 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
+from extras.views import ChangeLogView
 from ipam.views import ServiceCreateView
 from . import views
+from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 app_name = 'virtualization'
 urlpatterns = [
@@ -14,6 +16,7 @@ urlpatterns = [
     url(r'^cluster-types/import/$', views.ClusterTypeBulkImportView.as_view(), name='clustertype_import'),
     url(r'^cluster-types/delete/$', views.ClusterTypeBulkDeleteView.as_view(), name='clustertype_bulk_delete'),
     url(r'^cluster-types/(?P<slug>[\w-]+)/edit/$', views.ClusterTypeEditView.as_view(), name='clustertype_edit'),
+    url(r'^cluster-types/(?P<slug>[\w-]+)/changelog/$', ChangeLogView.as_view(), name='clustertype_changelog', kwargs={'model': ClusterType}),
 
     # Cluster groups
     url(r'^cluster-groups/$', views.ClusterGroupListView.as_view(), name='clustergroup_list'),
@@ -21,6 +24,7 @@ urlpatterns = [
     url(r'^cluster-groups/import/$', views.ClusterGroupBulkImportView.as_view(), name='clustergroup_import'),
     url(r'^cluster-groups/delete/$', views.ClusterGroupBulkDeleteView.as_view(), name='clustergroup_bulk_delete'),
     url(r'^cluster-groups/(?P<slug>[\w-]+)/edit/$', views.ClusterGroupEditView.as_view(), name='clustergroup_edit'),
+    url(r'^cluster-groups/(?P<slug>[\w-]+)/changelog/$', ChangeLogView.as_view(), name='clustergroup_changelog', kwargs={'model': ClusterGroup}),
 
     # Clusters
     url(r'^clusters/$', views.ClusterListView.as_view(), name='cluster_list'),
@@ -31,6 +35,7 @@ urlpatterns = [
     url(r'^clusters/(?P<pk>\d+)/$', views.ClusterView.as_view(), name='cluster'),
     url(r'^clusters/(?P<pk>\d+)/edit/$', views.ClusterEditView.as_view(), name='cluster_edit'),
     url(r'^clusters/(?P<pk>\d+)/delete/$', views.ClusterDeleteView.as_view(), name='cluster_delete'),
+    url(r'^clusters/(?P<pk>\d+)/changelog/$', ChangeLogView.as_view(), name='cluster_changelog', kwargs={'model': Cluster}),
     url(r'^clusters/(?P<pk>\d+)/devices/add/$', views.ClusterAddDevicesView.as_view(), name='cluster_add_devices'),
     url(r'^clusters/(?P<pk>\d+)/devices/remove/$', views.ClusterRemoveDevicesView.as_view(), name='cluster_remove_devices'),
 
@@ -43,6 +48,7 @@ urlpatterns = [
     url(r'^virtual-machines/(?P<pk>\d+)/$', views.VirtualMachineView.as_view(), name='virtualmachine'),
     url(r'^virtual-machines/(?P<pk>\d+)/edit/$', views.VirtualMachineEditView.as_view(), name='virtualmachine_edit'),
     url(r'^virtual-machines/(?P<pk>\d+)/delete/$', views.VirtualMachineDeleteView.as_view(), name='virtualmachine_delete'),
+    url(r'^virtual-machines/(?P<pk>\d+)/changelog/$', ChangeLogView.as_view(), name='virtualmachine_changelog', kwargs={'model': VirtualMachine}),
     url(r'^virtual-machines/(?P<virtualmachine>\d+)/services/assign/$', ServiceCreateView.as_view(), name='virtualmachine_service_assign'),
 
     # VM interfaces

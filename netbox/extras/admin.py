@@ -132,7 +132,7 @@ class TopologyMapAdmin(admin.ModelAdmin):
 @admin.register(ObjectChange)
 class ObjectChangeAdmin(admin.ModelAdmin):
     actions = None
-    fields = ['time', 'content_type', 'display_object', 'action', 'display_user']
+    fields = ['time', 'content_type', 'display_object', 'action', 'display_user', 'object_data']
     list_display = ['time', 'content_type', 'display_object', 'display_action', 'display_user']
     list_filter = ['time', 'action', 'user__username']
     list_select_related = ['content_type', 'user']
@@ -156,7 +156,7 @@ class ObjectChangeAdmin(admin.ModelAdmin):
             OBJECTCHANGE_ACTION_DELETE: 'deletelink',
         }
         return mark_safe('<span class="{}">{}</span>'.format(icon[obj.action], obj.get_action_display()))
-    display_user.short_description = 'action'
+    display_action.short_description = 'action'
 
     def display_object(self, obj):
         if hasattr(obj.changed_object, 'get_absolute_url'):

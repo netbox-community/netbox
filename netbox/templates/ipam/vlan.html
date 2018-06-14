@@ -45,8 +45,15 @@
     <h1>{% block title %}VLAN {{ vlan.display_name }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=vlan %}
     <ul class="nav nav-tabs" style="margin-bottom: 20px">
-        <li role="presentation"{% if not active_tab %} class="active"{% endif %}><a href="{% url 'ipam:vlan' pk=vlan.pk %}">VLAN</a></li>
-        <li role="presentation"{% if active_tab == 'members' %} class="active"{% endif %}><a href="{% url 'ipam:vlan_members' pk=vlan.pk %}">Members <span class="badge">{{ vlan.get_members.count }}</span></a></li>
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{% url 'ipam:vlan' pk=vlan.pk %}">VLAN</a>
+        </li>
+        <li role="presentation"{% if active_tab == 'members' %} class="active"{% endif %}>
+            <a href="{% url 'ipam:vlan_members' pk=vlan.pk %}">Members <span class="badge">{{ vlan.get_members.count }}</span></a>
+        </li>
+        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+            <a href="{% url 'ipam:vlan_changelog' pk=vlan.pk %}">Changelog</a>
+        </li>
     </ul>
 {% endblock %}
 

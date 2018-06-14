@@ -2,7 +2,9 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
+from extras.views import ChangeLogView
 from . import views
+from .models import Tenant, TenantGroup
 
 app_name = 'tenancy'
 urlpatterns = [
@@ -13,6 +15,7 @@ urlpatterns = [
     url(r'^tenant-groups/import/$', views.TenantGroupBulkImportView.as_view(), name='tenantgroup_import'),
     url(r'^tenant-groups/delete/$', views.TenantGroupBulkDeleteView.as_view(), name='tenantgroup_bulk_delete'),
     url(r'^tenant-groups/(?P<slug>[\w-]+)/edit/$', views.TenantGroupEditView.as_view(), name='tenantgroup_edit'),
+    url(r'^tenant-groups/(?P<slug>[\w-]+)/changelog/$', ChangeLogView.as_view(), name='tenantgroup_changelog', kwargs={'model': TenantGroup}),
 
     # Tenants
     url(r'^tenants/$', views.TenantListView.as_view(), name='tenant_list'),
@@ -23,5 +26,6 @@ urlpatterns = [
     url(r'^tenants/(?P<slug>[\w-]+)/$', views.TenantView.as_view(), name='tenant'),
     url(r'^tenants/(?P<slug>[\w-]+)/edit/$', views.TenantEditView.as_view(), name='tenant_edit'),
     url(r'^tenants/(?P<slug>[\w-]+)/delete/$', views.TenantDeleteView.as_view(), name='tenant_delete'),
+    url(r'^tenants/(?P<slug>[\w-]+)/changelog/$', ChangeLogView.as_view(), name='tenant_changelog', kwargs={'model': Tenant}),
 
 ]

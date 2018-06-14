@@ -1,7 +1,9 @@
 from __future__ import unicode_literals
 
+from django import template
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render, reverse
@@ -12,7 +14,7 @@ from taggit.models import Tag
 from utilities.forms import ConfirmationForm
 from utilities.views import BulkDeleteView, ObjectDeleteView, ObjectEditView, ObjectListView
 from .forms import ImageAttachmentForm, TagForm
-from .models import ImageAttachment, ReportResult, UserAction
+from .models import ImageAttachment, ObjectChange, ReportResult, UserAction
 from .reports import get_report, get_reports
 from .tables import TagTable
 
@@ -48,6 +50,41 @@ class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     queryset = Tag.objects.annotate(items=Count('taggit_taggeditem_items')).order_by('name')
     table = TagTable
     default_return_url = 'extras:tag_list'
+
+
+#
+# Change logging
+#
+
+class ChangeLogView(View):
+    """
+    Present a history of changes made to an object.
+    """
+
+    def get(self, request, model, **kwargs):
+
+        # Get object my model and kwargs (e.g. slug='foo')
+        obj = get_object_or_404(model, **kwargs)
+
+        # Gather all changes for this object
+        content_type = ContentType.objects.get_for_model(model)
+        changes = ObjectChange.objects.filter(content_type=content_type, object_id=obj.pk)
+
+        # Check whether a header template exists for this model
+        base_template = '{}/{}.html'.format(model._meta.app_label, model._meta.model_name)
+        try:
+            template.loader.get_template(base_template)
+            object_var = model._meta.model_name
+        except template.TemplateDoesNotExist:
+            base_template = '_base.html'
+            object_var = 'obj'
+
+        return render(request, 'extras/changelog.html', {
+            object_var: obj,
+            'changes': changes,
+            'base_template': base_template,
+            'active_tab': 'changelog',
+        })
 
 
 #
