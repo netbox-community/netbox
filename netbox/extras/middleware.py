@@ -57,7 +57,7 @@ class ChangeLoggingMiddleware(object):
         # record_object_change() to include the user associated with the current request.
         _record_object_change = curry(record_object_change, user)
 
-        post_save.connect(_record_object_change)
-        post_delete.connect(_record_object_change)
+        post_save.connect(_record_object_change, dispatch_uid='record_object_saved')
+        post_delete.connect(_record_object_change, dispatch_uid='record_object_deleted')
 
         return self.get_response(request)
