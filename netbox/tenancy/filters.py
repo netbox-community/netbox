@@ -34,7 +34,7 @@ class TenantFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = Tenant
-        fields = ['name']
+        fields = ['name', 'slug']
 
     def search(self, queryset, name, value):
         if not value.strip():
