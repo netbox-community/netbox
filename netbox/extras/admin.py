@@ -132,12 +132,12 @@ class TopologyMapAdmin(admin.ModelAdmin):
 @admin.register(ObjectChange)
 class ObjectChangeAdmin(admin.ModelAdmin):
     actions = None
-    fields = ['time', 'content_type', 'display_object', 'action', 'display_user', 'object_data']
-    list_display = ['time', 'content_type', 'display_object', 'display_action', 'display_user']
+    fields = ['time', 'content_type', 'display_object', 'action', 'display_user', 'request_id', 'object_data']
+    list_display = ['time', 'content_type', 'display_object', 'display_action', 'display_user', 'request_id']
     list_filter = ['time', 'action', 'user__username']
     list_select_related = ['content_type', 'user']
     readonly_fields = fields
-    search_fields = ['user_name', 'object_repr']
+    search_fields = ['user_name', 'object_repr', 'request_id']
 
     def has_add_permission(self, request):
         return False

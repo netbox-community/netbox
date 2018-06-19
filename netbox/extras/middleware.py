@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import json
+import uuid
 
 from django.core.serializers import serialize
 from django.db.models.signals import post_delete, post_save
@@ -11,7 +12,7 @@ from .constants import OBJECTCHANGE_ACTION_CREATE, OBJECTCHANGE_ACTION_DELETE, O
 from .models import ObjectChange
 
 
-def record_object_change(user, instance, **kwargs):
+def record_object_change(user, request_id, instance, **kwargs):
     """
     Create an ObjectChange in response to an object being created or deleted.
     """
@@ -31,6 +32,7 @@ def record_object_change(user, instance, **kwargs):
 
     ObjectChange(
         user=user,
+        request_id=request_id,
         changed_object=instance,
         action=action,
         object_data=object_data
@@ -53,9 +55,11 @@ class ChangeLoggingMiddleware(object):
         # detail, see https://stackoverflow.com/questions/26240832/
         user = SimpleLazyObject(lambda: get_user(request))
 
+        request_id = uuid.uuid4()
+
         # Django doesn't provide any request context with the post_save/post_delete signals, so we curry
         # record_object_change() to include the user associated with the current request.
-        _record_object_change = curry(record_object_change, user)
+        _record_object_change = curry(record_object_change, user, request_id)
 
         post_save.connect(_record_object_change, dispatch_uid='record_object_saved')
         post_delete.connect(_record_object_change, dispatch_uid='record_object_deleted')

@@ -681,6 +681,9 @@ class ObjectChange(models.Model):
         max_length=150,
         editable=False
     )
+    request_id = models.UUIDField(
+        editable=False
+    )
     action = models.PositiveSmallIntegerField(
         choices=OBJECTCHANGE_ACTION_CHOICES
     )

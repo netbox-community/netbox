@@ -167,12 +167,16 @@ class ObjectChangeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ObjectChange
-        fields = ['id', 'time', 'user', 'user_name', 'action', 'content_type', 'changed_object', 'object_data']
+        fields = [
+            'id', 'time', 'user', 'user_name', 'request_id', 'action', 'content_type', 'changed_object', 'object_data',
+        ]
 
     def get_changed_object(self, obj):
         """
         Serialize a nested representation of the changed object.
         """
+        if obj.changed_object is None:
+            return None
         serializer = get_serializer_for_model(obj.changed_object, prefix='Nested')
         if serializer is None:
             return obj.object_repr
