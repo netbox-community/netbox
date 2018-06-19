@@ -16,12 +16,28 @@ from rest_framework.response import Response
 from rest_framework.serializers import Field, ModelSerializer, RelatedField, ValidationError
 from rest_framework.viewsets import GenericViewSet, ViewSet
 
+from .utils import dynamic_import
+
 WRITE_OPERATIONS = ['create', 'update', 'partial_update', 'delete']
 
 
 class ServiceUnavailable(APIException):
     status_code = 503
     default_detail = "Service temporarily unavailable, please try again later."
+
+
+def get_serializer_for_model(model, prefix=''):
+    """
+    Dynamically resolve and return the appropriate serializer for a model.
+    """
+    app_name, model_name = model._meta.label.split('.')
+    serializer_name = '{}.api.serializers.{}{}Serializer'.format(
+        app_name, prefix, model_name
+    )
+    try:
+        return dynamic_import(serializer_name)
+    except ImportError:
+        return None
 
 
 #

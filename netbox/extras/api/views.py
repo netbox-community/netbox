@@ -11,7 +11,9 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 from taggit.models import Tag
 
 from extras import filters
-from extras.models import CustomField, ExportTemplate, Graph, ImageAttachment, ReportResult, TopologyMap, UserAction
+from extras.models import (
+    CustomField, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap, UserAction,
+)
 from extras.reports import get_report, get_reports
 from utilities.api import FieldChoicesViewSet, IsAuthenticatedOrLoginNotRequired, ModelViewSet
 from . import serializers
@@ -204,6 +206,19 @@ class ReportViewSet(ViewSet):
         serializer = serializers.ReportDetailSerializer(report)
 
         return Response(serializer.data)
+
+
+#
+# Change logging
+#
+
+class ObjectChangeViewSet(ReadOnlyModelViewSet):
+    """
+    Retrieve a list of recent changes.
+    """
+    queryset = ObjectChange.objects.select_related('user')
+    serializer_class = serializers.ObjectChangeSerializer
+    filter_class = filters.ObjectChangeFilter
 
 
 #

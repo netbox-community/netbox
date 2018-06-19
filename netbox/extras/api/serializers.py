@@ -6,11 +6,12 @@ from taggit.models import Tag
 
 from dcim.api.serializers import NestedDeviceSerializer, NestedRackSerializer, NestedSiteSerializer
 from dcim.models import Device, Rack, Site
-from extras.constants import ACTION_CHOICES, GRAPH_TYPE_CHOICES
-from extras.models import ExportTemplate, Graph, ImageAttachment, ReportResult, TopologyMap, UserAction
-from users.api.serializers import NestedUserSerializer
-from utilities.api import ChoiceFieldSerializer, ContentTypeFieldSerializer, ValidatedModelSerializer
+from extras.models import ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap, UserAction
 from extras.constants import *
+from users.api.serializers import NestedUserSerializer
+from utilities.api import (
+    ChoiceFieldSerializer, ContentTypeFieldSerializer, get_serializer_for_model, ValidatedModelSerializer,
+)
 
 
 #
@@ -153,6 +154,31 @@ class ReportSerializer(serializers.Serializer):
 
 class ReportDetailSerializer(ReportSerializer):
     result = ReportResultSerializer()
+
+
+#
+# Change logging
+#
+
+class ObjectChangeSerializer(serializers.ModelSerializer):
+    user = NestedUserSerializer(read_only=True)
+    content_type = ContentTypeFieldSerializer(read_only=True)
+    changed_object = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = ObjectChange
+        fields = ['id', 'time', 'user', 'user_name', 'action', 'content_type', 'changed_object', 'object_data']
+
+    def get_changed_object(self, obj):
+        """
+        Serialize a nested representation of the changed object.
+        """
+        serializer = get_serializer_for_model(obj.changed_object, prefix='Nested')
+        if serializer is None:
+            return obj.object_repr
+        context = {'request': self.context['request']}
+        data = serializer(obj.changed_object, context=context).data
+        return data
 
 
 #
