@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
-from extras.views import ChangeLogView, ImageAttachmentEditView
+from extras.views import ObjectChangeLogView, ImageAttachmentEditView
 from ipam.views import ServiceCreateView
 from secrets.views import secret_add
 from . import views
@@ -20,7 +20,7 @@ urlpatterns = [
     url(r'^regions/import/$', views.RegionBulkImportView.as_view(), name='region_import'),
     url(r'^regions/delete/$', views.RegionBulkDeleteView.as_view(), name='region_bulk_delete'),
     url(r'^regions/(?P<pk>\d+)/edit/$', views.RegionEditView.as_view(), name='region_edit'),
-    url(r'^regions/(?P<pk>\d+)/changelog/$', ChangeLogView.as_view(), name='region_changelog', kwargs={'model': Region}),
+    url(r'^regions/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='region_changelog', kwargs={'model': Region}),
 
     # Sites
     url(r'^sites/$', views.SiteListView.as_view(), name='site_list'),
@@ -30,7 +30,7 @@ urlpatterns = [
     url(r'^sites/(?P<slug>[\w-]+)/$', views.SiteView.as_view(), name='site'),
     url(r'^sites/(?P<slug>[\w-]+)/edit/$', views.SiteEditView.as_view(), name='site_edit'),
     url(r'^sites/(?P<slug>[\w-]+)/delete/$', views.SiteDeleteView.as_view(), name='site_delete'),
-    url(r'^sites/(?P<slug>[\w-]+)/changelog/$', ChangeLogView.as_view(), name='site_changelog', kwargs={'model': Site}),
+    url(r'^sites/(?P<slug>[\w-]+)/changelog/$', ObjectChangeLogView.as_view(), name='site_changelog', kwargs={'model': Site}),
     url(r'^sites/(?P<object_id>\d+)/images/add/$', ImageAttachmentEditView.as_view(), name='site_add_image', kwargs={'model': Site}),
 
     # Rack groups
@@ -39,7 +39,7 @@ urlpatterns = [
     url(r'^rack-groups/import/$', views.RackGroupBulkImportView.as_view(), name='rackgroup_import'),
     url(r'^rack-groups/delete/$', views.RackGroupBulkDeleteView.as_view(), name='rackgroup_bulk_delete'),
     url(r'^rack-groups/(?P<pk>\d+)/edit/$', views.RackGroupEditView.as_view(), name='rackgroup_edit'),
-    url(r'^rack-groups/(?P<pk>\d+)/changelog/$', ChangeLogView.as_view(), name='rackgroup_changelog', kwargs={'model': RackGroup}),
+    url(r'^rack-groups/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='rackgroup_changelog', kwargs={'model': RackGroup}),
 
     # Rack roles
     url(r'^rack-roles/$', views.RackRoleListView.as_view(), name='rackrole_list'),
@@ -47,7 +47,7 @@ urlpatterns = [
     url(r'^rack-roles/import/$', views.RackRoleBulkImportView.as_view(), name='rackrole_import'),
     url(r'^rack-roles/delete/$', views.RackRoleBulkDeleteView.as_view(), name='rackrole_bulk_delete'),
     url(r'^rack-roles/(?P<pk>\d+)/edit/$', views.RackRoleEditView.as_view(), name='rackrole_edit'),
-    url(r'^rack-roles/(?P<pk>\d+)/changelog/$', ChangeLogView.as_view(), name='rackrole_changelog', kwargs={'model': RackRole}),
+    url(r'^rack-roles/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='rackrole_changelog', kwargs={'model': RackRole}),
 
     # Rack reservations
     url(r'^rack-reservations/$', views.RackReservationListView.as_view(), name='rackreservation_list'),
@@ -55,7 +55,7 @@ urlpatterns = [
     url(r'^rack-reservations/delete/$', views.RackReservationBulkDeleteView.as_view(), name='rackreservation_bulk_delete'),
     url(r'^rack-reservations/(?P<pk>\d+)/edit/$', views.RackReservationEditView.as_view(), name='rackreservation_edit'),
     url(r'^rack-reservations/(?P<pk>\d+)/delete/$', views.RackReservationDeleteView.as_view(), name='rackreservation_delete'),
-    url(r'^rack-reservations/(?P<pk>\d+)/changelog/$', ChangeLogView.as_view(), name='rackreservation_changelog', kwargs={'model': RackReservation}),
+    url(r'^rack-reservations/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='rackreservation_changelog', kwargs={'model': RackReservation}),
 
     # Racks
     url(r'^racks/$', views.RackListView.as_view(), name='rack_list'),
@@ -67,7 +67,7 @@ urlpatterns = [
     url(r'^racks/(?P<pk>\d+)/$', views.RackView.as_view(), name='rack'),
     url(r'^racks/(?P<pk>\d+)/edit/$', views.RackEditView.as_view(), name='rack_edit'),
     url(r'^racks/(?P<pk>\d+)/delete/$', views.RackDeleteView.as_view(), name='rack_delete'),
-    url(r'^racks/(?P<pk>\d+)/changelog/$', ChangeLogView.as_view(), name='rack_changelog', kwargs={'model': Rack}),
+    url(r'^racks/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='rack_changelog', kwargs={'model': Rack}),
     url(r'^racks/(?P<rack>\d+)/reservations/add/$', views.RackReservationCreateView.as_view(), name='rack_add_reservation'),
     url(r'^racks/(?P<object_id>\d+)/images/add/$', ImageAttachmentEditView.as_view(), name='rack_add_image', kwargs={'model': Rack}),
 
@@ -77,7 +77,7 @@ urlpatterns = [
     url(r'^manufacturers/import/$', views.ManufacturerBulkImportView.as_view(), name='manufacturer_import'),
     url(r'^manufacturers/delete/$', views.ManufacturerBulkDeleteView.as_view(), name='manufacturer_bulk_delete'),
     url(r'^manufacturers/(?P<slug>[\w-]+)/edit/$', views.ManufacturerEditView.as_view(), name='manufacturer_edit'),
-    url(r'^manufacturers/(?P<slug>[\w-]+)/changelog/$', ChangeLogView.as_view(), name='manufacturer_changelog', kwargs={'model': Manufacturer}),
+    url(r'^manufacturers/(?P<slug>[\w-]+)/changelog/$', ObjectChangeLogView.as_view(), name='manufacturer_changelog', kwargs={'model': Manufacturer}),
 
     # Device types
     url(r'^device-types/$', views.DeviceTypeListView.as_view(), name='devicetype_list'),
@@ -88,7 +88,7 @@ urlpatterns = [
     url(r'^device-types/(?P<pk>\d+)/$', views.DeviceTypeView.as_view(), name='devicetype'),
     url(r'^device-types/(?P<pk>\d+)/edit/$', views.DeviceTypeEditView.as_view(), name='devicetype_edit'),
     url(r'^device-types/(?P<pk>\d+)/delete/$', views.DeviceTypeDeleteView.as_view(), name='devicetype_delete'),
-    url(r'^device-types/(?P<pk>\d+)/changelog/$', ChangeLogView.as_view(), name='devicetype_changelog', kwargs={'model': DeviceType}),
+    url(r'^device-types/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='devicetype_changelog', kwargs={'model': DeviceType}),
 
     # Console port templates
     url(r'^device-types/(?P<pk>\d+)/console-ports/add/$', views.ConsolePortTemplateCreateView.as_view(), name='devicetype_add_consoleport'),
@@ -121,7 +121,7 @@ urlpatterns = [
     url(r'^device-roles/import/$', views.DeviceRoleBulkImportView.as_view(), name='devicerole_import'),
     url(r'^device-roles/delete/$', views.DeviceRoleBulkDeleteView.as_view(), name='devicerole_bulk_delete'),
     url(r'^device-roles/(?P<slug>[\w-]+)/edit/$', views.DeviceRoleEditView.as_view(), name='devicerole_edit'),
-    url(r'^device-roles/(?P<slug>[\w-]+)/changelog/$', ChangeLogView.as_view(), name='devicerole_changelog', kwargs={'model': DeviceRole}),
+    url(r'^device-roles/(?P<slug>[\w-]+)/changelog/$', ObjectChangeLogView.as_view(), name='devicerole_changelog', kwargs={'model': DeviceRole}),
 
     # Platforms
     url(r'^platforms/$', views.PlatformListView.as_view(), name='platform_list'),
@@ -129,7 +129,7 @@ urlpatterns = [
     url(r'^platforms/import/$', views.PlatformBulkImportView.as_view(), name='platform_import'),
     url(r'^platforms/delete/$', views.PlatformBulkDeleteView.as_view(), name='platform_bulk_delete'),
     url(r'^platforms/(?P<slug>[\w-]+)/edit/$', views.PlatformEditView.as_view(), name='platform_edit'),
-    url(r'^platforms/(?P<slug>[\w-]+)/changelog/$', ChangeLogView.as_view(), name='platform_changelog', kwargs={'model': Platform}),
+    url(r'^platforms/(?P<slug>[\w-]+)/changelog/$', ObjectChangeLogView.as_view(), name='platform_changelog', kwargs={'model': Platform}),
 
     # Devices
     url(r'^devices/$', views.DeviceListView.as_view(), name='device_list'),
@@ -141,7 +141,7 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/$', views.DeviceView.as_view(), name='device'),
     url(r'^devices/(?P<pk>\d+)/edit/$', views.DeviceEditView.as_view(), name='device_edit'),
     url(r'^devices/(?P<pk>\d+)/delete/$', views.DeviceDeleteView.as_view(), name='device_delete'),
-    url(r'^devices/(?P<pk>\d+)/changelog/$', ChangeLogView.as_view(), name='device_changelog', kwargs={'model': Device}),
+    url(r'^devices/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='device_changelog', kwargs={'model': Device}),
     url(r'^devices/(?P<pk>\d+)/inventory/$', views.DeviceInventoryView.as_view(), name='device_inventory'),
     url(r'^devices/(?P<pk>\d+)/status/$', views.DeviceStatusView.as_view(), name='device_status'),
     url(r'^devices/(?P<pk>\d+)/lldp-neighbors/$', views.DeviceLLDPNeighborsView.as_view(), name='device_lldp_neighbors'),
@@ -235,7 +235,7 @@ urlpatterns = [
     url(r'^virtual-chassis/add/$', views.VirtualChassisCreateView.as_view(), name='virtualchassis_add'),
     url(r'^virtual-chassis/(?P<pk>\d+)/edit/$', views.VirtualChassisEditView.as_view(), name='virtualchassis_edit'),
     url(r'^virtual-chassis/(?P<pk>\d+)/delete/$', views.VirtualChassisDeleteView.as_view(), name='virtualchassis_delete'),
-    url(r'^virtual-chassis/(?P<pk>\d+)/changelog/$', ChangeLogView.as_view(), name='virtualchassis_changelog', kwargs={'model': VirtualChassis}),
+    url(r'^virtual-chassis/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='virtualchassis_changelog', kwargs={'model': VirtualChassis}),
     url(r'^virtual-chassis/(?P<pk>\d+)/add-member/$', views.VirtualChassisAddMemberView.as_view(), name='virtualchassis_add_member'),
     url(r'^virtual-chassis-members/(?P<pk>\d+)/delete/$', views.VirtualChassisRemoveMemberView.as_view(), name='virtualchassis_remove_member'),
 

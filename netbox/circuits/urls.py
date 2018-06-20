@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
-from extras.views import ChangeLogView
+from extras.views import ObjectChangeLogView
 from . import views
 from .models import Circuit, CircuitType, Provider
 
@@ -18,7 +18,7 @@ urlpatterns = [
     url(r'^providers/(?P<slug>[\w-]+)/$', views.ProviderView.as_view(), name='provider'),
     url(r'^providers/(?P<slug>[\w-]+)/edit/$', views.ProviderEditView.as_view(), name='provider_edit'),
     url(r'^providers/(?P<slug>[\w-]+)/delete/$', views.ProviderDeleteView.as_view(), name='provider_delete'),
-    url(r'^providers/(?P<slug>[\w-]+)/changelog/$', ChangeLogView.as_view(), name='provider_changelog', kwargs={'model': Provider}),
+    url(r'^providers/(?P<slug>[\w-]+)/changelog/$', ObjectChangeLogView.as_view(), name='provider_changelog', kwargs={'model': Provider}),
 
     # Circuit types
     url(r'^circuit-types/$', views.CircuitTypeListView.as_view(), name='circuittype_list'),
@@ -26,7 +26,7 @@ urlpatterns = [
     url(r'^circuit-types/import/$', views.CircuitTypeBulkImportView.as_view(), name='circuittype_import'),
     url(r'^circuit-types/delete/$', views.CircuitTypeBulkDeleteView.as_view(), name='circuittype_bulk_delete'),
     url(r'^circuit-types/(?P<slug>[\w-]+)/edit/$', views.CircuitTypeEditView.as_view(), name='circuittype_edit'),
-    url(r'^circuit-types/(?P<slug>[\w-]+)/changelog/$', ChangeLogView.as_view(), name='circuittype_changelog', kwargs={'model': CircuitType}),
+    url(r'^circuit-types/(?P<slug>[\w-]+)/changelog/$', ObjectChangeLogView.as_view(), name='circuittype_changelog', kwargs={'model': CircuitType}),
 
     # Circuits
     url(r'^circuits/$', views.CircuitListView.as_view(), name='circuit_list'),
@@ -37,7 +37,7 @@ urlpatterns = [
     url(r'^circuits/(?P<pk>\d+)/$', views.CircuitView.as_view(), name='circuit'),
     url(r'^circuits/(?P<pk>\d+)/edit/$', views.CircuitEditView.as_view(), name='circuit_edit'),
     url(r'^circuits/(?P<pk>\d+)/delete/$', views.CircuitDeleteView.as_view(), name='circuit_delete'),
-    url(r'^circuits/(?P<pk>\d+)/changelog/$', ChangeLogView.as_view(), name='circuit_changelog', kwargs={'model': Circuit}),
+    url(r'^circuits/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='circuit_changelog', kwargs={'model': Circuit}),
     url(r'^circuits/(?P<pk>\d+)/terminations/swap/$', views.circuit_terminations_swap, name='circuit_terminations_swap'),
 
     # Circuit terminations

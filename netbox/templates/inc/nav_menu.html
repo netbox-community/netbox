@@ -66,6 +66,9 @@
                         <li>
                             <a href="{% url 'extras:report_list' %}">Reports</a>
                         </li>
+                        <li>
+                            <a href="{% url 'extras:objectchange_list' %}">Changelog</a>
+                        </li>
                     </ul>
                 </li>
                 <li class="dropdown{% if request.path|contains:'/dcim/rack' %} active{% endif %}">

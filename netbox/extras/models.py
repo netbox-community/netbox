@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
+from django.core.urlresolvers import reverse
 from django.core.validators import ValidationError
 from django.db import models
 from django.db.models import Q
@@ -704,15 +705,18 @@ class ObjectChange(models.Model):
         editable=False
     )
 
+    serializer = 'extras.api.serializers.ObjectChangeSerializer'
+    csv_headers = ['time', 'user', 'request_id', 'action', 'content_type', 'object_id', 'object_repr', 'object_data']
+
     class Meta:
         ordering = ['-time']
 
     def __str__(self):
-        attribution = 'by {}'.format(self.user_name) if self.user_name else '(no attribution)'
-        return '{} {} {}'.format(
+        return '{} {} {} by {}'.format(
+            self.content_type,
             self.object_repr,
             self.get_action_display().lower(),
-            attribution
+            self.user_name
         )
 
     def save(self, *args, **kwargs):
@@ -723,6 +727,21 @@ class ObjectChange(models.Model):
         self.object_repr = str(self.changed_object)
 
         return super(ObjectChange, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('extras:objectchange', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.time,
+            self.user or self.user_name,
+            self.request_id,
+            self.get_action_display(),
+            self.content_type,
+            self.object_id,
+            self.object_repr,
+            self.object_data,
+        )
 
     @property
     def object_data_pretty(self):

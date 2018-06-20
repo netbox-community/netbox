@@ -129,6 +129,7 @@ class ObjectChangeFilter(django_filters.FilterSet):
         method='search',
         label='Search',
     )
+    time = django_filters.DateTimeFromToRangeFilter()
 
     class Meta:
         model = ObjectChange

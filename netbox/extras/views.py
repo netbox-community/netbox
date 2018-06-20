@@ -13,10 +13,11 @@ from taggit.models import Tag
 
 from utilities.forms import ConfirmationForm
 from utilities.views import BulkDeleteView, ObjectDeleteView, ObjectEditView, ObjectListView
-from .forms import ImageAttachmentForm, TagForm
+from . import filters
+from .forms import ObjectChangeFilterForm, ImageAttachmentForm, TagForm
 from .models import ImageAttachment, ObjectChange, ReportResult, UserAction
 from .reports import get_report, get_reports
-from .tables import TagTable
+from .tables import ObjectChangeTable, TagTable
 
 
 #
@@ -56,9 +57,36 @@ class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Change logging
 #
 
-class ChangeLogView(View):
+class ObjectChangeListView(ObjectListView):
+    queryset = ObjectChange.objects.select_related('user', 'content_type')
+    filter = filters.ObjectChangeFilter
+    filter_form = ObjectChangeFilterForm
+    table = ObjectChangeTable
+    template_name = 'extras/objectchange_list.html'
+
+
+class ObjectChangeView(View):
+
+    def get(self, request, pk):
+
+        objectchange = get_object_or_404(ObjectChange, pk=pk)
+
+        related_changes = ObjectChange.objects.filter(request_id=objectchange.request_id).exclude(pk=objectchange.pk)
+        related_changes_table = ObjectChangeTable(
+            data=related_changes[:50],
+            orderable=False
+        )
+
+        return render(request, 'extras/objectchange.html', {
+            'objectchange': objectchange,
+            'related_changes_table': related_changes_table,
+            'related_changes_count': related_changes.count()
+        })
+
+
+class ObjectChangeLogView(View):
     """
-    Present a history of changes made to an object.
+    Present a history of changes made to a particular object.
     """
 
     def get(self, request, model, **kwargs):
@@ -68,7 +96,16 @@ class ChangeLogView(View):
 
         # Gather all changes for this object
         content_type = ContentType.objects.get_for_model(model)
-        changes = ObjectChange.objects.filter(content_type=content_type, object_id=obj.pk)
+        objectchanges = ObjectChange.objects.select_related(
+            'user', 'content_type'
+        ).filter(
+            content_type=content_type,
+            object_id=obj.pk
+        )
+        objectchanges_table = ObjectChangeTable(
+            data=objectchanges,
+            orderable=False
+        )
 
         # Check whether a header template exists for this model
         base_template = '{}/{}.html'.format(model._meta.app_label, model._meta.model_name)
@@ -79,9 +116,9 @@ class ChangeLogView(View):
             base_template = '_base.html'
             object_var = 'obj'
 
-        return render(request, 'extras/changelog.html', {
+        return render(request, 'extras/object_changelog.html', {
             object_var: obj,
-            'changes': changes,
+            'objectchanges_table': objectchanges_table,
             'base_template': base_template,
             'active_tab': 'changelog',
         })
