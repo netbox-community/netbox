@@ -835,7 +835,7 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
 
 
 @python_2_unicode_compatible
-class Service(CreatedUpdatedModel):
+class Service(CreatedUpdatedModel, CustomFieldModel):
     """
     A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device or VirtualMachine. A Service may
     optionally be tied to one or more specific IPAddresses belonging to its parent.
@@ -874,6 +874,11 @@ class Service(CreatedUpdatedModel):
     description = models.CharField(
         max_length=100,
         blank=True
+    )
+    custom_field_values = GenericRelation(
+        to='extras.CustomFieldValue',
+        content_type_field='obj_type',
+        object_id_field='obj_id'
     )
 
     serializer = 'ipam.api.serializers.ServiceSerializer'

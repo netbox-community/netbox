@@ -11,9 +11,9 @@ from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFi
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    AnnotatedMultipleChoiceField, APISelect, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
-    ChainedModelChoiceField, CSVChoiceField, ExpandableIPAddressField, FilterChoiceField, FlexibleModelChoiceField,
-    Livesearch, ReturnURLForm, SlugField, add_blank_choice,
+    AnnotatedMultipleChoiceField, APISelect, BootstrapMixin, BulkEditNullBooleanSelect, ChainedModelChoiceField,
+    CSVChoiceField, ExpandableIPAddressField, FilterChoiceField, FlexibleModelChoiceField, Livesearch, ReturnURLForm,
+    SlugField, add_blank_choice,
 )
 from virtualization.models import VirtualMachine
 from .constants import (
@@ -917,7 +917,7 @@ class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Services
 #
 
-class ServiceForm(BootstrapMixin, forms.ModelForm):
+class ServiceForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = Service
@@ -947,7 +947,10 @@ class ServiceForm(BootstrapMixin, forms.ModelForm):
 
 class ServiceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Service
-    q = forms.CharField(required=False, label='Search')
+    q = forms.CharField(
+        required=False,
+        label='Search'
+    )
     protocol = forms.ChoiceField(
         choices=add_blank_choice(IP_PROTOCOL_CHOICES),
         required=False
@@ -957,7 +960,7 @@ class ServiceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     )
 
 
-class ServiceBulkEditForm(BootstrapMixin, BulkEditForm):
+class ServiceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Service.objects.all(), widget=forms.MultipleHiddenInput)
     protocol = forms.ChoiceField(choices=add_blank_choice(IP_PROTOCOL_CHOICES), required=False)
     port = forms.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(65535)], required=False)

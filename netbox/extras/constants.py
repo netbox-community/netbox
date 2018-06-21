@@ -3,11 +3,11 @@ from __future__ import unicode_literals
 
 # Models which support custom fields
 CUSTOMFIELD_MODELS = (
-    'provider', 'circuit',                                  # Circuits
-    'site', 'rack', 'devicetype', 'device',                 # DCIM
-    'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf',      # IPAM
-    'tenant',                                               # Tenancy
-    'cluster', 'virtualmachine',                            # Virtualization
+    'provider', 'circuit',                                         # Circuits
+    'site', 'rack', 'devicetype', 'device',                        # DCIM
+    'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf', 'service',  # IPAM
+    'tenant',                                                      # Tenancy
+    'cluster', 'virtualmachine',                                   # Virtualization
 )
 
 # Custom field types
