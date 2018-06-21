@@ -884,6 +884,9 @@ class Service(CreatedUpdatedModel):
     def __str__(self):
         return '{} ({}/{})'.format(self.name, self.port, self.get_protocol_display())
 
+    def get_absolute_url(self):
+        return reverse('ipam:service', args=[self.pk])
+
     @property
     def parent(self):
         return self.device or self.virtual_machine

@@ -6,7 +6,7 @@ from django_tables2.utils import Accessor
 from dcim.models import Interface
 from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, ToggleColumn
-from .models import Aggregate, IPAddress, Prefix, RIR, Role, VLAN, VLANGroup, VRF
+from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 RIR_UTILIZATION = """
 <div class="progress">
@@ -392,3 +392,19 @@ class VLANMemberTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Interface
         fields = ('parent', 'name', 'untagged', 'actions')
+
+
+#
+# Services
+#
+
+class ServiceTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.LinkColumn(
+        viewname='ipam:service',
+        args=[Accessor('pk')]
+    )
+
+    class Meta(BaseTable.Meta):
+        model = Service
+        fields = ('pk', 'name', 'parent', 'protocol', 'port', 'description')

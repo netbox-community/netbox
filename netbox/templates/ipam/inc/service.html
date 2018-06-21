@@ -1,5 +1,7 @@
 <tr>
-    <td>{{ service.name }}</td>
+    <td>
+        <a href="{{ service.get_absolute_url }}">{{ service.name }}</a>
+    </td>
     <td>
         {{ service.get_protocol_display }}/{{ service.port }}
     </td>

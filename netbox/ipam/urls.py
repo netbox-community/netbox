@@ -85,6 +85,10 @@ urlpatterns = [
     url(r'^vlans/(?P<pk>\d+)/delete/$', views.VLANDeleteView.as_view(), name='vlan_delete'),
 
     # Services
+    url(r'^services/$', views.ServiceListView.as_view(), name='service_list'),
+    url(r'^services/edit/$', views.ServiceBulkEditView.as_view(), name='service_bulk_edit'),
+    url(r'^services/delete/$', views.ServiceBulkDeleteView.as_view(), name='service_bulk_delete'),
+    url(r'^services/(?P<pk>\d+)/$', views.ServiceView.as_view(), name='service'),
     url(r'^services/(?P<pk>\d+)/edit/$', views.ServiceEditView.as_view(), name='service_edit'),
     url(r'^services/(?P<pk>\d+)/delete/$', views.ServiceDeleteView.as_view(), name='service_delete'),
 
