@@ -136,6 +136,18 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         max_length=200,
         blank=True
     )
+    latitude = models.DecimalField(
+        max_digits=8,
+        decimal_places=6,
+        blank=True,
+        null=True
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        blank=True,
+        null=True
+    )
     contact_name = models.CharField(
         max_length=50,
         blank=True
@@ -166,7 +178,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     serializer = 'dcim.api.serializers.SiteSerializer'
     csv_headers = [
         'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
-        'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments',
+        'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email', 'comments',
     ]
 
     class Meta:
@@ -191,6 +203,8 @@ class Site(ChangeLoggedModel, CustomFieldModel):
             self.description,
             self.physical_address,
             self.shipping_address,
+            self.latitude,
+            self.longitude,
             self.contact_name,
             self.contact_phone,
             self.contact_email,

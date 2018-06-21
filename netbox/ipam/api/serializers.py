@@ -301,7 +301,7 @@ class AvailableIPSerializer(serializers.Serializer):
 # Services
 #
 
-class ServiceSerializer(ValidatedModelSerializer):
+class ServiceSerializer(CustomFieldModelSerializer):
     device = NestedDeviceSerializer(required=False, allow_null=True)
     virtual_machine = NestedVirtualMachineSerializer(required=False, allow_null=True)
     protocol = ChoiceFieldSerializer(choices=IP_PROTOCOL_CHOICES)
@@ -315,6 +315,6 @@ class ServiceSerializer(ValidatedModelSerializer):
     class Meta:
         model = Service
         fields = [
-            'id', 'device', 'virtual_machine', 'name', 'port', 'protocol', 'ipaddresses', 'description', 'created',
-            'last_updated',
+            'id', 'device', 'virtual_machine', 'name', 'port', 'protocol', 'ipaddresses', 'description',
+            'custom_fields', 'created', 'last_updated',
         ]

@@ -426,6 +426,10 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
 
 class ServiceFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
     device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
         label='Device (ID)',
@@ -450,3 +454,9 @@ class ServiceFilter(django_filters.FilterSet):
     class Meta:
         model = Service
         fields = ['name', 'protocol', 'port']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = Q(name__icontains=value) | Q(description__icontains=value)
+        return queryset.filter(qs_filter)

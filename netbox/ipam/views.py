@@ -923,6 +923,25 @@ class VLANBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Services
 #
 
+class ServiceListView(ObjectListView):
+    queryset = Service.objects.select_related('device', 'virtual_machine')
+    filter = filters.ServiceFilter
+    filter_form = forms.ServiceFilterForm
+    table = tables.ServiceTable
+    template_name = 'ipam/service_list.html'
+
+
+class ServiceView(View):
+
+    def get(self, request, pk):
+
+        service = get_object_or_404(Service, pk=pk)
+
+        return render(request, 'ipam/service.html', {
+            'service': service,
+        })
+
+
 class ServiceCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_service'
     model = Service
@@ -936,9 +955,6 @@ class ServiceCreateView(PermissionRequiredMixin, ObjectEditView):
             obj.virtual_machine = get_object_or_404(VirtualMachine, pk=url_kwargs['virtualmachine'])
         return obj
 
-    def get_return_url(self, request, obj):
-        return obj.parent.get_absolute_url()
-
 
 class ServiceEditView(ServiceCreateView):
     permission_required = 'ipam.change_service'
@@ -947,3 +963,22 @@ class ServiceEditView(ServiceCreateView):
 class ServiceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'ipam.delete_service'
     model = Service
+
+
+class ServiceBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'ipam.change_service'
+    cls = Service
+    queryset = Service.objects.all()
+    filter = filters.ServiceFilter
+    table = tables.ServiceTable
+    form = forms.ServiceBulkEditForm
+    default_return_url = 'ipam:service_list'
+
+
+class ServiceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'ipam.delete_service'
+    cls = Service
+    queryset = Service.objects.all()
+    filter = filters.ServiceFilter
+    table = tables.ServiceTable
+    default_return_url = 'ipam:service_list'

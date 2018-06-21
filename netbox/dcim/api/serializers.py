@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
 
-from collections import OrderedDict
-
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from taggit.models import Tag
@@ -63,9 +61,9 @@ class SiteSerializer(CustomFieldModelSerializer):
         model = Site
         fields = [
             'id', 'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description',
-            'physical_address', 'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments',
-            'tags', 'custom_fields', 'created', 'last_updated', 'count_prefixes', 'count_vlans', 'count_racks',
-            'count_devices', 'count_circuits',
+            'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
+            'contact_email', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'count_prefixes',
+            'count_vlans', 'count_racks', 'count_devices', 'count_circuits',
         ]
 
 

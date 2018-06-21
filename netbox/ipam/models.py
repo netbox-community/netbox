@@ -831,7 +831,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
 
 
 @python_2_unicode_compatible
-class Service(ChangeLoggedModel):
+class Service(ChangeLoggedModel, CustomFieldModel):
     """
     A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device or VirtualMachine. A Service may
     optionally be tied to one or more specific IPAddresses belonging to its parent.
@@ -871,6 +871,11 @@ class Service(ChangeLoggedModel):
         max_length=100,
         blank=True
     )
+    custom_field_values = GenericRelation(
+        to='extras.CustomFieldValue',
+        content_type_field='obj_type',
+        object_id_field='obj_id'
+    )
 
     serializer = 'ipam.api.serializers.ServiceSerializer'
 
@@ -879,6 +884,9 @@ class Service(ChangeLoggedModel):
 
     def __str__(self):
         return '{} ({}/{})'.format(self.name, self.port, self.get_protocol_display())
+
+    def get_absolute_url(self):
+        return reverse('ipam:service', args=[self.pk])
 
     @property
     def parent(self):

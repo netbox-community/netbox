@@ -286,6 +286,11 @@
                             {% endif %}
                             <a href="{% url 'ipam:vlangroup_list' %}">VLAN Groups</a>
                         </li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Services</li>
+                        <li>
+                            <a href="{% url 'ipam:service_list' %}">Services</a>
+                        </li>
                     </ul>
                 </li>
                 <li class="dropdown{% if request.path|contains:'/virtualization/' %} active{% endif %}">

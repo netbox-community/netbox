@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django import forms
 from django.core.exceptions import MultipleObjectsReturned
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import Count
 from taggit.forms import TagField
 
@@ -15,7 +16,9 @@ from utilities.forms import (
     SlugField, add_blank_choice,
 )
 from virtualization.models import VirtualMachine
-from .constants import IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, PREFIX_STATUS_CHOICES, VLAN_STATUS_CHOICES
+from .constants import (
+    IP_PROTOCOL_CHOICES, IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, PREFIX_STATUS_CHOICES, VLAN_STATUS_CHOICES,
+)
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 IP_FAMILY_CHOICES = [
@@ -914,7 +917,7 @@ class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Services
 #
 
-class ServiceForm(BootstrapMixin, forms.ModelForm):
+class ServiceForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = Service
@@ -940,3 +943,28 @@ class ServiceForm(BootstrapMixin, forms.ModelForm):
             )
         else:
             self.fields['ipaddresses'].choices = []
+
+
+class ServiceFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Service
+    q = forms.CharField(
+        required=False,
+        label='Search'
+    )
+    protocol = forms.ChoiceField(
+        choices=add_blank_choice(IP_PROTOCOL_CHOICES),
+        required=False
+    )
+    port = forms.IntegerField(
+        required=False
+    )
+
+
+class ServiceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(queryset=Service.objects.all(), widget=forms.MultipleHiddenInput)
+    protocol = forms.ChoiceField(choices=add_blank_choice(IP_PROTOCOL_CHOICES), required=False)
+    port = forms.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(65535)], required=False)
+    description = forms.CharField(max_length=100, required=False)
+
+    class Meta:
+        nullable_fields = ['site', 'group', 'tenant', 'role', 'description']
