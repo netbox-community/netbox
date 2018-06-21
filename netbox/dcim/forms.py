@@ -115,8 +115,8 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         model = Site
         fields = [
             'name', 'slug', 'status', 'region', 'tenant_group', 'tenant', 'facility', 'asn', 'time_zone', 'description',
-            'physical_address', 'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments',
-            'tags',
+            'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
+            'contact_email', 'comments', 'tags',
         ]
         widgets = {
             'physical_address': SmallTextarea(attrs={'rows': 3}),
@@ -129,7 +129,9 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             'time_zone': "Local time zone",
             'description': "Short description (will appear in sites list)",
             'physical_address': "Physical location of the building (e.g. for GPS)",
-            'shipping_address': "If different from the physical address"
+            'shipping_address': "If different from the physical address",
+            'latitude': "Latitude in decimal format (xx.yyyyyy)",
+            'longitude': "Longitude in decimal format (xx.yyyyyy)"
         }
 
 
