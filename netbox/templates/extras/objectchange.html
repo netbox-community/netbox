@@ -62,7 +62,7 @@
                         <td>Object</td>
                         <td>
                             {% if objectchange.changed_object.get_absolute_url %}
-                                <a href="{{ objectchange.changed_object.get_aboslute_url }}">{{ objectchange.changed_object }}</a>
+                                <a href="{{ objectchange.changed_object.get_absolute_url }}">{{ objectchange.changed_object }}</a>
                             {% else %}
                                 {{ objectchange.object_repr }}
                             {% endif %}
