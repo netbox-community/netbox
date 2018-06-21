@@ -1,15 +1,12 @@
 from __future__ import unicode_literals
 
-import json
 import uuid
 
-from django.core.serializers import serialize
 from django.db.models.signals import post_delete, post_save
 from django.utils.functional import curry, SimpleLazyObject
 
 from utilities.models import ChangeLoggedModel
 from .constants import OBJECTCHANGE_ACTION_CREATE, OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE
-from .models import ObjectChange
 
 
 def record_object_change(user, request_id, instance, **kwargs):
@@ -26,17 +23,7 @@ def record_object_change(user, request_id, instance, **kwargs):
     else:
         action = OBJECTCHANGE_ACTION_DELETE
 
-    # Serialize the object using Django's built-in JSON serializer, then extract only the `fields` dict.
-    json_str = serialize('json', [instance])
-    object_data = json.loads(json_str)[0]['fields']
-
-    ObjectChange(
-        user=user,
-        request_id=request_id,
-        changed_object=instance,
-        action=action,
-        object_data=object_data
-    ).save()
+    instance.log_change(user, request_id, action)
 
 
 class ChangeLoggingMiddleware(object):
