@@ -15,7 +15,7 @@ from utilities.forms import ConfirmationForm
 from utilities.views import BulkDeleteView, ObjectDeleteView, ObjectEditView, ObjectListView
 from . import filters
 from .forms import ObjectChangeFilterForm, ImageAttachmentForm, TagForm
-from .models import ImageAttachment, ObjectChange, ReportResult, UserAction
+from .models import ImageAttachment, ObjectChange, ReportResult
 from .reports import get_report, get_reports
 from .tables import ObjectChangeTable, TagTable
 
@@ -223,6 +223,5 @@ class ReportRunView(PermissionRequiredMixin, View):
             result = 'failed' if report.failed else 'passed'
             msg = "Ran report {} ({})".format(report.full_name, result)
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_create(request.user, report.result, msg)
 
         return redirect('extras:report', name=report.full_name)
