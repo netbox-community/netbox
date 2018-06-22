@@ -815,6 +815,12 @@ class Platform(models.Model):
         verbose_name='NAPALM driver',
         help_text="The name of the NAPALM driver to use when interacting with devices"
     )
+    napalm_optional_args = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='NAPALM optional arguments',
+        help_text="Comma separated key=value pairs passed via optional_args to the driver."
+    )
     rpc_client = models.CharField(
         max_length=30,
         choices=RPC_CLIENT_CHOICES,
@@ -822,7 +828,7 @@ class Platform(models.Model):
         verbose_name="Legacy RPC client"
     )
 
-    csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver']
+    csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_optional_args']
 
     class Meta:
         ordering = ['name']
