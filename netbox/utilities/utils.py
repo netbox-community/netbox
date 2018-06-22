@@ -1,8 +1,10 @@
 from __future__ import unicode_literals
 
 import datetime
+import json
 import six
 
+from django.core.serializers import serialize
 from django.http import HttpResponse
 
 
@@ -82,3 +84,15 @@ def dynamic_import(name):
     for comp in components[1:]:
         mod = getattr(mod, comp)
     return mod
+
+
+def serialize_object(obj, extra=None):
+    """
+    Return a generic JSON representation of an object using Django's built-in serializer. (This is used for things like
+    change logging, not the REST API.)
+    """
+    json_str = serialize('json', [obj])
+    data = json.loads(json_str)[0]['fields']
+    if extra is not None:
+        data['extra'] = extra
+    return data

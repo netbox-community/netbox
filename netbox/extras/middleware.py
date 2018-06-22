@@ -5,7 +5,6 @@ import uuid
 from django.db.models.signals import post_delete, post_save
 from django.utils.functional import curry, SimpleLazyObject
 
-from utilities.models import ChangeLoggedModel
 from .constants import OBJECTCHANGE_ACTION_CREATE, OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE
 
 
@@ -13,7 +12,7 @@ def record_object_change(user, request_id, instance, **kwargs):
     """
     Create an ObjectChange in response to an object being created or deleted.
     """
-    if not isinstance(instance, ChangeLoggedModel):
+    if not hasattr(instance, 'log_change'):
         return
 
     # Determine what action is being performed. The post_save signal sends a `created` boolean, whereas post_delete
