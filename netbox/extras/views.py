@@ -58,7 +58,7 @@ class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class ObjectChangeListView(ObjectListView):
-    queryset = ObjectChange.objects.select_related('user', 'content_type')
+    queryset = ObjectChange.objects.select_related('user', 'changed_object_type')
     filter = filters.ObjectChangeFilter
     filter_form = ObjectChangeFilterForm
     table = ObjectChangeTable
