@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 from datetime import timedelta
-import logging
 import random
 import uuid
 
@@ -31,13 +30,11 @@ def record_object_change(user, request_id, instance, **kwargs):
     instance.log_change(user, request_id, action)
 
     # 1% chance of clearing out expired ObjectChanges
-    if settings.CHANGELOG_RETENTION and random.randint(1, 100):
+    if settings.CHANGELOG_RETENTION and random.randint(1, 100) == 1:
         cutoff = timezone.now() - timedelta(days=settings.CHANGELOG_RETENTION)
         purged_count, _ = ObjectChange.objects.filter(
             time__lt=cutoff
         ).delete()
-        logger = logging.getLogger('django')
-        logger.info("Automatically purged {} changes past the retention period".format(purged_count))
 
 
 class ChangeLoggingMiddleware(object):
