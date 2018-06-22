@@ -58,7 +58,7 @@ class ComponentModel(models.Model):
 #
 
 @python_2_unicode_compatible
-class Region(ChangeLoggedModel, MPTTModel):
+class Region(MPTTModel, ChangeLoggedModel):
     """
     Sites can be grouped within geographic Regions.
     """
