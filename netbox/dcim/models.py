@@ -18,14 +18,39 @@ from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
 
 from circuits.models import Circuit
-from extras.models import CustomFieldModel
+from extras.models import CustomFieldModel, ObjectChange
 from extras.rpc import RPC_CLIENTS
 from utilities.fields import ColorField, NullableCharField
 from utilities.managers import NaturalOrderByManager
 from utilities.models import ChangeLoggedModel
+from utilities.utils import serialize_object
 from .constants import *
 from .fields import ASNField, MACAddressField
 from .querysets import InterfaceQuerySet
+
+
+class ComponentModel(models.Model):
+
+    class Meta:
+        abstract = True
+
+    def get_component_parent(self):
+        raise NotImplementedError(
+            "ComponentModel must implement get_component_parent()"
+        )
+
+    def log_change(self, user, request_id, action):
+        """
+        Log an ObjectChange including the parent Device.
+        """
+        ObjectChange(
+            user=user,
+            request_id=request_id,
+            changed_object=self,
+            related_object=self.get_component_parent(),
+            action=action,
+            object_data=serialize_object(self)
+        ).save()
 
 
 #
@@ -866,7 +891,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
 
 
 @python_2_unicode_compatible
-class ConsolePortTemplate(models.Model):
+class ConsolePortTemplate(ComponentModel):
     """
     A template for a ConsolePort to be created for a new Device.
     """
@@ -886,9 +911,12 @@ class ConsolePortTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_component_parent(self):
+        return self.device_type
+
 
 @python_2_unicode_compatible
-class ConsoleServerPortTemplate(models.Model):
+class ConsoleServerPortTemplate(ComponentModel):
     """
     A template for a ConsoleServerPort to be created for a new Device.
     """
@@ -908,9 +936,12 @@ class ConsoleServerPortTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_component_parent(self):
+        return self.device_type
+
 
 @python_2_unicode_compatible
-class PowerPortTemplate(models.Model):
+class PowerPortTemplate(ComponentModel):
     """
     A template for a PowerPort to be created for a new Device.
     """
@@ -930,9 +961,12 @@ class PowerPortTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_component_parent(self):
+        return self.device_type
+
 
 @python_2_unicode_compatible
-class PowerOutletTemplate(models.Model):
+class PowerOutletTemplate(ComponentModel):
     """
     A template for a PowerOutlet to be created for a new Device.
     """
@@ -952,9 +986,12 @@ class PowerOutletTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_component_parent(self):
+        return self.device_type
+
 
 @python_2_unicode_compatible
-class InterfaceTemplate(models.Model):
+class InterfaceTemplate(ComponentModel):
     """
     A template for a physical data interface on a new Device.
     """
@@ -984,9 +1021,12 @@ class InterfaceTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_component_parent(self):
+        return self.device_type
+
 
 @python_2_unicode_compatible
-class DeviceBayTemplate(models.Model):
+class DeviceBayTemplate(ComponentModel):
     """
     A template for a DeviceBay to be created for a new parent Device.
     """
@@ -1005,6 +1045,9 @@ class DeviceBayTemplate(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_component_parent(self):
+        return self.device_type
 
 
 #
@@ -1502,7 +1545,7 @@ class Device(ChangeLoggedModel, CustomFieldModel):
 #
 
 @python_2_unicode_compatible
-class ConsolePort(models.Model):
+class ConsolePort(ComponentModel):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
@@ -1539,6 +1582,9 @@ class ConsolePort(models.Model):
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
+    def get_component_parent(self):
+        return self.device
+
     def to_csv(self):
         return (
             self.cs_port.device.identifier if self.cs_port else None,
@@ -1564,7 +1610,7 @@ class ConsoleServerPortManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class ConsoleServerPort(models.Model):
+class ConsoleServerPort(ComponentModel):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
@@ -1588,6 +1634,9 @@ class ConsoleServerPort(models.Model):
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
+    def get_component_parent(self):
+        return self.device
+
     def clean(self):
 
         # Check that the parent device's DeviceType is a console server
@@ -1605,7 +1654,7 @@ class ConsoleServerPort(models.Model):
 #
 
 @python_2_unicode_compatible
-class PowerPort(models.Model):
+class PowerPort(ComponentModel):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
@@ -1641,6 +1690,9 @@ class PowerPort(models.Model):
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
+    def get_component_parent(self):
+        return self.device
+
     def to_csv(self):
         return (
             self.power_outlet.device.identifier if self.power_outlet else None,
@@ -1666,7 +1718,7 @@ class PowerOutletManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class PowerOutlet(models.Model):
+class PowerOutlet(ComponentModel):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
@@ -1690,6 +1742,9 @@ class PowerOutlet(models.Model):
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
+    def get_component_parent(self):
+        return self.device
+
     def clean(self):
 
         # Check that the parent device's DeviceType is a PDU
@@ -1707,7 +1762,7 @@ class PowerOutlet(models.Model):
 #
 
 @python_2_unicode_compatible
-class Interface(models.Model):
+class Interface(ComponentModel):
     """
     A network interface within a Device or VirtualMachine. A physical Interface can connect to exactly one other
     Interface via the creation of an InterfaceConnection.
@@ -1797,6 +1852,9 @@ class Interface(models.Model):
     def get_absolute_url(self):
         return self.parent.get_absolute_url()
 
+    def get_component_parent(self):
+        return self.device or self.virtual_machine
+
     def clean(self):
 
         # Check that the parent device's DeviceType is a network device
@@ -1867,6 +1925,7 @@ class Interface(models.Model):
 
         return super(Interface, self).save(*args, **kwargs)
 
+    # TODO: Replace `parent` with get_component_parent() (from ComponentModel)
     @property
     def parent(self):
         return self.device or self.virtual_machine
@@ -1977,7 +2036,7 @@ class InterfaceConnection(models.Model):
 #
 
 @python_2_unicode_compatible
-class DeviceBay(models.Model):
+class DeviceBay(ComponentModel):
     """
     An empty space within a Device which can house a child device
     """
@@ -2008,6 +2067,9 @@ class DeviceBay(models.Model):
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
+    def get_component_parent(self):
+        return self.device
+
     def clean(self):
 
         # Validate that the parent Device can have DeviceBays
@@ -2026,7 +2088,7 @@ class DeviceBay(models.Model):
 #
 
 @python_2_unicode_compatible
-class InventoryItem(models.Model):
+class InventoryItem(ComponentModel):
     """
     An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply.
     InventoryItems are used only for inventory purposes.
@@ -2094,6 +2156,9 @@ class InventoryItem(models.Model):
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
+
+    def get_component_parent(self):
+        return self.device
 
     def to_csv(self):
         return (

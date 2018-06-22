@@ -4,7 +4,7 @@ from django import template
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.safestring import mark_safe
@@ -94,13 +94,13 @@ class ObjectChangeLogView(View):
         # Get object my model and kwargs (e.g. slug='foo')
         obj = get_object_or_404(model, **kwargs)
 
-        # Gather all changes for this object
+        # Gather all changes for this object (and its related objects)
         content_type = ContentType.objects.get_for_model(model)
         objectchanges = ObjectChange.objects.select_related(
-            'user', 'content_type'
+            'user', 'changed_object_type'
         ).filter(
-            content_type=content_type,
-            object_id=obj.pk
+            Q(changed_object_type=content_type, changed_object_id=obj.pk) |
+            Q(related_object_type=content_type, related_object_id=obj.pk)
         )
         objectchanges_table = ObjectChangeTable(
             data=objectchanges,

@@ -52,6 +52,9 @@ class ObjectChangeTable(BaseTable):
     action = tables.TemplateColumn(
         template_code=OBJECTCHANGE_ACTION
     )
+    changed_object_type = tables.Column(
+        verbose_name='Type'
+    )
     object_repr = tables.TemplateColumn(
         template_code=OBJECTCHANGE_OBJECT,
         verbose_name='Object'
@@ -62,4 +65,4 @@ class ObjectChangeTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ObjectChange
-        fields = ('time', 'user_name', 'action', 'content_type', 'object_repr', 'request_id')
+        fields = ('time', 'user_name', 'action', 'changed_object_type', 'object_repr', 'request_id')
