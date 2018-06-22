@@ -89,10 +89,10 @@ def dynamic_import(name):
 def serialize_object(obj, extra=None):
     """
     Return a generic JSON representation of an object using Django's built-in serializer. (This is used for things like
-    change logging, not the REST API.)
+    change logging, not the REST API.) Optionally include a dictionary to supplement the object data.
     """
     json_str = serialize('json', [obj])
     data = json.loads(json_str)[0]['fields']
     if extra is not None:
-        data['extra'] = extra
+        data.update(extra)
     return data
