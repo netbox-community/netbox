@@ -1,11 +1,17 @@
 from __future__ import unicode_literals
 
+from datetime import timedelta
+import logging
+import random
 import uuid
 
+from django.conf import settings
 from django.db.models.signals import post_delete, post_save
+from django.utils import timezone
 from django.utils.functional import curry, SimpleLazyObject
 
 from .constants import OBJECTCHANGE_ACTION_CREATE, OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE
+from .models import ObjectChange
 
 
 def record_object_change(user, request_id, instance, **kwargs):
@@ -23,6 +29,15 @@ def record_object_change(user, request_id, instance, **kwargs):
         action = OBJECTCHANGE_ACTION_DELETE
 
     instance.log_change(user, request_id, action)
+
+    # 1% chance of clearing out expired ObjectChanges
+    if settings.CHANGELOG_RETENTION and random.randint(1, 100):
+        cutoff = timezone.now() - timedelta(days=settings.CHANGELOG_RETENTION)
+        purged_count, _ = ObjectChange.objects.filter(
+            time__lt=cutoff
+        ).delete()
+        logger = logging.getLogger('django')
+        logger.info("Automatically purged {} changes past the retention period".format(purged_count))
 
 
 class ChangeLoggingMiddleware(object):
