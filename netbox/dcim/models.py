@@ -18,6 +18,7 @@ from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
 
 from circuits.models import Circuit
+from extras.constants import OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE
 from extras.models import CustomFieldModel, ObjectChange
 from extras.rpc import RPC_CLIENTS
 from utilities.fields import ColorField, NullableCharField
@@ -41,7 +42,7 @@ class ComponentModel(models.Model):
 
     def log_change(self, user, request_id, action):
         """
-        Log an ObjectChange including the parent Device.
+        Log an ObjectChange including the parent Device/VM.
         """
         ObjectChange(
             user=user,
@@ -1925,6 +1926,22 @@ class Interface(ComponentModel):
 
         return super(Interface, self).save(*args, **kwargs)
 
+    def log_change(self, user, request_id, action):
+        """
+        Include the connected Interface (if any).
+        """
+        ObjectChange(
+            user=user,
+            request_id=request_id,
+            changed_object=self,
+            related_object=self.get_component_parent(),
+            action=action,
+            object_data=serialize_object(self, extra={
+                'connected_interface': self.connected_interface.pk,
+                'connection_status': self.connection.connection_status if self.connection else None,
+            })
+        ).save()
+
     # TODO: Replace `parent` with get_component_parent() (from ComponentModel)
     @property
     def parent(self):
@@ -2029,6 +2046,33 @@ class InterfaceConnection(models.Model):
             self.interface_b.name,
             self.get_connection_status_display(),
         )
+
+    def log_change(self, user, request_id, action):
+        """
+        Create a new ObjectChange for each of the two affected Interfaces.
+        """
+        interfaces = (
+            (self.interface_a, self.interface_b),
+            (self.interface_b, self.interface_a),
+        )
+        for interface, peer_interface in interfaces:
+            if action == OBJECTCHANGE_ACTION_DELETE:
+                connection_data = {
+                    'connected_interface': None,
+                }
+            else:
+                connection_data = {
+                    'connected_interface': peer_interface.pk,
+                    'connection_status': self.connection_status
+                }
+            ObjectChange(
+                user=user,
+                request_id=request_id,
+                changed_object=interface,
+                related_object=interface.parent,
+                action=OBJECTCHANGE_ACTION_UPDATE,
+                object_data=serialize_object(interface, extra=connection_data)
+            ).save()
 
 
 #
