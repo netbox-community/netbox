@@ -313,7 +313,7 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
             return queryset
         try:
             query = str(netaddr.IPNetwork(value.strip()).ip)
-            return queryset.filter(address=query)
+            return queryset.filter(address__net_contains_or_equals=query, address__startswith=query + "/")
         except (AddrFormatError, ValueError):
             return queryset.none()
 
