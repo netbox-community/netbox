@@ -4,629 +4,699 @@
 
 {% block title %}{{ device }}{% endblock %}
 
-{% block content %}
-{% include 'dcim/inc/device_header.html' with active_tab='info' %}
-<div class="row">
-	<div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Device</strong>
-            </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Site</td>
-                    <td>
-                        {% if device.site.region %}
-                            <a href="{{ device.site.region.get_absolute_url }}">{{ device.site.region }}</a>
-                            <i class="fa fa-angle-right"></i>
-                        {% endif %}
-                        <a href="{% url 'dcim:site' slug=device.site.slug %}">{{ device.site }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Rack</td>
-                    <td>
-                        {% if device.rack %}
-                            {% if device.rack.group %}
-                                <a href="{{ device.rack.group.get_absolute_url }}">{{ device.rack.group }}</a>
-                                <i class="fa fa-angle-right"></i>
-                            {% endif %}
-                            <a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Position</td>
-                    <td>
-                        {% if device.parent_bay %}
-                            {% with device.parent_bay.device as parent %}
-                                <a href="{{ parent.get_absolute_url }}">{{ parent }}</a> <i class="fa fa-angle-right"></i> {{ device.parent_bay }}
-                                {% if parent.position %}
-                                    (U{{ parent.position }} / {{ parent.get_face_display }})
-                                {% endif %}
-                            {% endwith %}
-                        {% elif device.rack and device.position %}
-                            <span>U{{ device.position }} / {{ device.get_face_display }}</span>
-                        {% elif device.rack and device.device_type.u_height %}
-                            <span class="label label-warning">Not racked</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Tenant</td>
-                    <td>
-                        {% if device.tenant %}
-                            {% if device.tenant.group %}
-                                <a href="{{ device.tenant.group.get_absolute_url }}">{{ device.tenant.group }}</a>
-                                <i class="fa fa-angle-right"></i>
-                            {% endif %}
-                            <a href="{{ device.tenant.get_absolute_url }}">{{ device.tenant }}</a>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Device Type</td>
-                    <td>
-                        <span><a href="{% url 'dcim:devicetype' pk=device.device_type.pk %}">{{ device.device_type.full_name }}</a> ({{ device.device_type.u_height }}U)</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Serial Number</td>
-                    <td>
-                        {% if device.serial %}
-                            <span>{{ device.serial }}</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Asset Tag</td>
-                    <td>
-                        {% if device.asset_tag %}
-                            <span>{{ device.asset_tag }}</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Tags</td>
-                    <td>
-                        {% for tag in device.tags.all %}
-                            {% tag 'dcim:device_list' tag %}
-                        {% empty %}
-                            <span class="text-muted">N/A</span>
-                        {% endfor %}
-                    </td>
-                </tr>
-            </table>
+{% block header %}
+    <div class="row">
+        <div class="col-sm-8 col-md-9">
+        <ol class="breadcrumb">
+            <li><a href="{% url 'dcim:site' slug=device.site.slug %}">{{ device.site }}</a></li>
+            {% if device.rack %}
+                <li><a href="{% url 'dcim:rack_list' %}?site={{ device.site.slug }}">Racks</a></li>
+                <li><a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack }}</a></li>
+            {% endif %}
+            {% if device.parent_bay %}
+                <li><a href="{% url 'dcim:device' pk=device.parent_bay.device.pk %}">{{ device.parent_bay.device }}</a></li>
+                <li>{{ device.parent_bay }}</li>
+            {% endif %}
+            <li>{{ device }}</li>
+        </ol>
         </div>
-        {% if vc_members %}
+        <div class="col-sm-4 col-md-3">
+            <form action="{% url 'dcim:device_list' %}" method="get">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Search devices" />
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="fa fa-search" aria-hidden="true"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="pull-right">
+        {% if perms.dcim.change_device %}
+            <a href="{% url 'dcim:device_edit' pk=device.pk %}" class="btn btn-warning">
+                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                Edit this device
+            </a>
+        {% endif %}
+        {% if perms.dcim.delete_device %}
+            <a href="{% url 'dcim:device_delete' pk=device.pk %}" class="btn btn-danger">
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                Delete this device
+            </a>
+        {% endif %}
+    </div>
+    <h1>{{ device }}</h1>
+    {% include 'inc/created_updated.html' with obj=device %}
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{% url 'dcim:device' pk=device.pk %}">Device</a>
+        </li>
+        <li role="presentation"{% if active_tab == 'inventory' %} class="active"{% endif %}>
+            <a href="{% url 'dcim:device_inventory' pk=device.pk %}">Inventory</a>
+        </li>
+        {% if perms.dcim.napalm_read %}
+            {% if device.status != 1 %}
+                {% include 'dcim/inc/device_napalm_tabs.html' with disabled_message='Device must be in active status' %}
+            {% elif not device.platform %}
+                {% include 'dcim/inc/device_napalm_tabs.html' with disabled_message='No platform assigned to this device' %}
+            {% elif not device.platform.napalm_driver %}
+                {% include 'dcim/inc/device_napalm_tabs.html' with disabled_message='No NAPALM driver assigned for this platform' %}
+            {% elif not device.primary_ip %}
+                {% include 'dcim/inc/device_napalm_tabs.html' with disabled_message='No primary IP address assigned to this device' %}
+            {% else %}
+                {% include 'dcim/inc/device_napalm_tabs.html' %}
+            {% endif %}
+        {% endif %}
+        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+            <a href="{% url 'dcim:device_changelog' pk=device.pk %}">Changelog</a>
+        </li>
+    </ul>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <strong>Virtual Chassis</strong>
+                    <strong>Device</strong>
                 </div>
                 <table class="table table-hover panel-body attr-table">
                     <tr>
-                        <th>Device</th>
-                        <th>Position</th>
-                        <th>Master</th>
-                        <th>Priority</th>
+                        <td>Site</td>
+                        <td>
+                            {% if device.site.region %}
+                                <a href="{{ device.site.region.get_absolute_url }}">{{ device.site.region }}</a>
+                                <i class="fa fa-angle-right"></i>
+                            {% endif %}
+                            <a href="{% url 'dcim:site' slug=device.site.slug %}">{{ device.site }}</a>
+                        </td>
                     </tr>
-                    {% for vc_member in vc_members %}
-                        <tr{% if vc_member == device %} class="info"{% endif %}>
-                            <td>
-                                <a href="{{ vc_member.get_absolute_url }}">{{ vc_member }}</a>
-                            </td>
-                            <td><span class="badge badge-default">{{ vc_member.vc_position }}</span></td>
-                            <td>{% if device.virtual_chassis.master == vc_member %}<i class="fa fa-check"></i>{% endif %}</td>
-                            <td>{{ vc_member.vc_priority|default:"" }}</td>
-                        </tr>
-                    {% endfor %}
+                    <tr>
+                        <td>Rack</td>
+                        <td>
+                            {% if device.rack %}
+                                {% if device.rack.group %}
+                                    <a href="{{ device.rack.group.get_absolute_url }}">{{ device.rack.group }}</a>
+                                    <i class="fa fa-angle-right"></i>
+                                {% endif %}
+                                <a href="{% url 'dcim:rack' pk=device.rack.pk %}">{{ device.rack }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Position</td>
+                        <td>
+                            {% if device.parent_bay %}
+                                {% with device.parent_bay.device as parent %}
+                                    <a href="{{ parent.get_absolute_url }}">{{ parent }}</a> <i class="fa fa-angle-right"></i> {{ device.parent_bay }}
+                                    {% if parent.position %}
+                                        (U{{ parent.position }} / {{ parent.get_face_display }})
+                                    {% endif %}
+                                {% endwith %}
+                            {% elif device.rack and device.position %}
+                                <span>U{{ device.position }} / {{ device.get_face_display }}</span>
+                            {% elif device.rack and device.device_type.u_height %}
+                                <span class="label label-warning">Not racked</span>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Tenant</td>
+                        <td>
+                            {% if device.tenant %}
+                                {% if device.tenant.group %}
+                                    <a href="{{ device.tenant.group.get_absolute_url }}">{{ device.tenant.group }}</a>
+                                    <i class="fa fa-angle-right"></i>
+                                {% endif %}
+                                <a href="{{ device.tenant.get_absolute_url }}">{{ device.tenant }}</a>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Device Type</td>
+                        <td>
+                            <span><a href="{% url 'dcim:devicetype' pk=device.device_type.pk %}">{{ device.device_type.full_name }}</a> ({{ device.device_type.u_height }}U)</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Serial Number</td>
+                        <td>
+                            {% if device.serial %}
+                                <span>{{ device.serial }}</span>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Asset Tag</td>
+                        <td>
+                            {% if device.asset_tag %}
+                                <span>{{ device.asset_tag }}</span>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Tags</td>
+                        <td>
+                            {% for tag in device.tags.all %}
+                                {% tag 'dcim:device_list' tag %}
+                            {% empty %}
+                                <span class="text-muted">N/A</span>
+                            {% endfor %}
+                        </td>
+                    </tr>
                 </table>
-                <div class="panel-footer text-right">
-                    {% if perms.dcim.change_virtualchassis %}
-                        <a href="{% url 'dcim:virtualchassis_add_member' pk=device.virtual_chassis.pk %}?site={{ device.site.pk }}&rack={{ device.rack.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-primary btn-xs">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Member
-                        </a>
-                        <a href="{% url 'dcim:virtualchassis_edit' pk=device.virtual_chassis.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
-                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit Virtual Chassis
-                        </a>
+            </div>
+            {% if vc_members %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong>Virtual Chassis</strong>
+                    </div>
+                    <table class="table table-hover panel-body attr-table">
+                        <tr>
+                            <th>Device</th>
+                            <th>Position</th>
+                            <th>Master</th>
+                            <th>Priority</th>
+                        </tr>
+                        {% for vc_member in vc_members %}
+                            <tr{% if vc_member == device %} class="info"{% endif %}>
+                                <td>
+                                    <a href="{{ vc_member.get_absolute_url }}">{{ vc_member }}</a>
+                                </td>
+                                <td><span class="badge badge-default">{{ vc_member.vc_position }}</span></td>
+                                <td>{% if device.virtual_chassis.master == vc_member %}<i class="fa fa-check"></i>{% endif %}</td>
+                                <td>{{ vc_member.vc_priority|default:"" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    <div class="panel-footer text-right">
+                        {% if perms.dcim.change_virtualchassis %}
+                            <a href="{% url 'dcim:virtualchassis_add_member' pk=device.virtual_chassis.pk %}?site={{ device.site.pk }}&rack={{ device.rack.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-primary btn-xs">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Member
+                            </a>
+                            <a href="{% url 'dcim:virtualchassis_edit' pk=device.virtual_chassis.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
+                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit Virtual Chassis
+                            </a>
+                        {% endif %}
+                        {% if perms.dcim.delete_virtualchassis %}
+                            <a href="{% url 'dcim:virtualchassis_delete' pk=device.virtual_chassis.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete Virtual Chassis
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Management</strong>
+                </div>
+                <table class="table table-hover panel-body attr-table">
+                    <tr>
+                        <td>Role</td>
+                        <td>
+                            <a href="{{ device.device_role.get_absolute_url }}">{{ device.device_role }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Platform</td>
+                        <td>
+                            {% if device.platform %}
+                                <span>{{ device.platform }}</span>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Status</td>
+                        <td>
+                            <span class="label label-{{ device.get_status_class }}">{{ device.get_status_display }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Primary IPv4</td>
+                        <td>
+                            {% if device.primary_ip4 %}
+                                <a href="{% url 'ipam:ipaddress' pk=device.primary_ip4.pk %}">{{ device.primary_ip4.address.ip }}</a>
+                                {% if device.primary_ip4.nat_inside %}
+                                    <span>(NAT for {{ device.primary_ip4.nat_inside.address.ip }})</span>
+                                {% elif device.primary_ip4.nat_outside %}
+                                    <span>(NAT: {{ device.primary_ip4.nat_outside.address.ip }})</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Primary IPv6</td>
+                        <td>
+                            {% if device.primary_ip6 %}
+                                <a href="{% url 'ipam:ipaddress' pk=device.primary_ip6.pk %}">{{ device.primary_ip6.address.ip }}</a>
+                                {% if device.primary_ip6.nat_inside %}
+                                    <span>(NAT for {{ device.primary_ip6.nat_inside.address.ip }})</span>
+                                {% elif device.primary_ip6.nat_outside %}
+                                    <span>(NAT: {{ device.primary_ip6.nat_outside.address.ip }})</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% if device.cluster %}
+                        <tr>
+                            <td>Cluster</td>
+                            <td>
+                                {% if device.cluster.group %}
+                                    <a href="{{ device.cluster.group.get_absolute_url }}">{{ device.cluster.group }}</a>
+                                    <i class="fa fa-angle-right"></i>
+                                {% endif %}
+                                <a href="{{ device.cluster.get_absolute_url }}">{{ device.cluster }}</a>
+                            </td>
+                        </tr>
                     {% endif %}
-                    {% if perms.dcim.delete_virtualchassis %}
-                        <a href="{% url 'dcim:virtualchassis_delete' pk=device.virtual_chassis.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete Virtual Chassis
-                        </a>
+                </table>
+            </div>
+            {% with device.get_custom_fields as custom_fields %}
+                {% include 'inc/custom_fields_panel.html' %}
+            {% endwith %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Comments</strong>
+                </div>
+                <div class="panel-body">
+                    {% if device.comments %}
+                        {{ device.comments|gfm }}
+                    {% else %}
+                        <span class="text-muted">None</span>
                     {% endif %}
                 </div>
             </div>
-        {% endif %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Management</strong>
-            </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Role</td>
-                    <td>
-                        <a href="{{ device.device_role.get_absolute_url }}">{{ device.device_role }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Platform</td>
-                    <td>
-                        {% if device.platform %}
-                            <span>{{ device.platform }}</span>
-                        {% else %}
-                            <span class="text-muted">None</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Status</td>
-                    <td>
-                        <span class="label label-{{ device.get_status_class }}">{{ device.get_status_display }}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Primary IPv4</td>
-                    <td>
-                        {% if device.primary_ip4 %}
-                            <a href="{% url 'ipam:ipaddress' pk=device.primary_ip4.pk %}">{{ device.primary_ip4.address.ip }}</a>
-                            {% if device.primary_ip4.nat_inside %}
-                                <span>(NAT for {{ device.primary_ip4.nat_inside.address.ip }})</span>
-                            {% elif device.primary_ip4.nat_outside %}
-                                <span>(NAT: {{ device.primary_ip4.nat_outside.address.ip }})</span>
-                            {% endif %}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Primary IPv6</td>
-                    <td>
-                        {% if device.primary_ip6 %}
-                            <a href="{% url 'ipam:ipaddress' pk=device.primary_ip6.pk %}">{{ device.primary_ip6.address.ip }}</a>
-                            {% if device.primary_ip6.nat_inside %}
-                                <span>(NAT for {{ device.primary_ip6.nat_inside.address.ip }})</span>
-                            {% elif device.primary_ip6.nat_outside %}
-                                <span>(NAT: {{ device.primary_ip6.nat_outside.address.ip }})</span>
-                            {% endif %}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% if device.cluster %}
-                    <tr>
-                        <td>Cluster</td>
-                        <td>
-                            {% if device.cluster.group %}
-                                <a href="{{ device.cluster.group.get_absolute_url }}">{{ device.cluster.group }}</a>
-                                <i class="fa fa-angle-right"></i>
-                            {% endif %}
-                            <a href="{{ device.cluster.get_absolute_url }}">{{ device.cluster }}</a>
-                        </td>
-                    </tr>
-                {% endif %}
-            </table>
         </div>
-        {% with device.get_custom_fields as custom_fields %}
-            {% include 'inc/custom_fields_panel.html' %}
-        {% endwith %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Comments</strong>
-            </div>
-            <div class="panel-body">
-                {% if device.comments %}
-                    {{ device.comments|gfm }}
-                {% else %}
-                    <span class="text-muted">None</span>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Console / Power</strong>
+                </div>
+                <table class="table table-hover panel-body component-list">
+                    {% for cp in console_ports %}
+                        {% include 'dcim/inc/consoleport.html' %}
+                    {% empty %}
+                        {% if device.device_type.console_port_templates.exists %}
+                            <tr>
+                                <td colspan="6" class="alert-warning">
+                                    <i class="fa fa-fw fa-warning"></i> No console ports defined
+                                    {% if perms.dcim.add_consoleport %}
+                                        <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    {% for pp in power_ports %}
+                        {% include 'dcim/inc/powerport.html' %}
+                    {% empty %}
+                        {% if device.device_type.power_port_templates.exists %}
+                            <tr>
+                                <td colspan="6" class="alert-warning">
+                                    <i class="fa fa-fw fa-warning"></i> No power ports defined
+                                    {% if perms.dcim.add_powerport %}
+                                        <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+                {% if perms.dcim.add_interface or perms.dcim.add_consoleport or perms.dcim.add_powerport %}
+                    <div class="panel-footer text-right">
+                        {% if perms.dcim.add_consoleport %}
+                            <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console port
+                            </a>
+                        {% endif %}
+                        {% if perms.dcim.add_powerport %}
+                            <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power port
+                            </a>
+                        {% endif %}
+                    </div>
                 {% endif %}
             </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Console / Power</strong>
-            </div>
-            <table class="table table-hover panel-body component-list">
-                {% for cp in console_ports %}
-                    {% include 'dcim/inc/consoleport.html' %}
-                {% empty %}
-                    {% if device.device_type.console_port_templates.exists %}
-                        <tr>
-                            <td colspan="6" class="alert-warning">
-                                <i class="fa fa-fw fa-warning"></i> No console ports defined
-                                {% if perms.dcim.add_consoleport %}
-                                    <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
-                                {% endif %}
-                            </td>
-                        </tr>
+            {% if request.user.is_authenticated %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong>Secrets</strong>
+                    </div>
+                    {% if secrets %}
+                        <table class="table table-hover panel-body">
+                            {% for secret in secrets %}
+                                {% include 'secrets/inc/secret_tr.html' %}
+                            {% endfor %}
+                        </table>
+                    {% else %}
+                        <div class="panel-body text-muted">
+                            None found
+                        </div>
                     {% endif %}
-                {% endfor %}
-                {% for pp in power_ports %}
-                    {% include 'dcim/inc/powerport.html' %}
-                {% empty %}
-                    {% if device.device_type.power_port_templates.exists %}
-                        <tr>
-                            <td colspan="6" class="alert-warning">
-                                <i class="fa fa-fw fa-warning"></i> No power ports defined
-                                {% if perms.dcim.add_powerport %}
-                                    <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-            </table>
-            {% if perms.dcim.add_interface or perms.dcim.add_consoleport or perms.dcim.add_powerport %}
-                <div class="panel-footer text-right">
-                    {% if perms.dcim.add_consoleport %}
-                        <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console port
-                        </a>
-                    {% endif %}
-                    {% if perms.dcim.add_powerport %}
-                        <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power port
-                        </a>
+                    {% if perms.secrets.add_secret %}
+                        <form id="secret_form">
+                            {% csrf_token %}
+                        </form>
+                        <div class="panel-footer text-right">
+                            <a href="{% url 'dcim:device_addsecret' pk=device.pk %}" class="btn btn-xs btn-primary">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                Add secret
+                            </a>
+                        </div>
                     {% endif %}
                 </div>
             {% endif %}
-        </div>
-        {% if request.user.is_authenticated %}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <strong>Secrets</strong>
+                    <strong>Services</strong>
                 </div>
-                {% if secrets %}
+                {% if services %}
                     <table class="table table-hover panel-body">
-                        {% for secret in secrets %}
-                            {% include 'secrets/inc/secret_tr.html' %}
+                        {% for service in services %}
+                            {% include 'ipam/inc/service.html' %}
                         {% endfor %}
                     </table>
                 {% else %}
                     <div class="panel-body text-muted">
-                        None found
+                        None
                     </div>
                 {% endif %}
-                {% if perms.secrets.add_secret %}
-                    <form id="secret_form">
-                        {% csrf_token %}
-                    </form>
+                {% if perms.ipam.add_service %}
                     <div class="panel-footer text-right">
-                        <a href="{% url 'dcim:device_addsecret' pk=device.pk %}" class="btn btn-xs btn-primary">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                            Add secret
+                        <a href="{% url 'dcim:device_service_assign' device=device.pk %}" class="btn btn-xs btn-primary">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Assign service
                         </a>
                     </div>
                 {% endif %}
             </div>
-        {% endif %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Services</strong>
-            </div>
-            {% if services %}
-                <table class="table table-hover panel-body">
-                    {% for service in services %}
-                        {% include 'ipam/inc/service.html' %}
-                    {% endfor %}
-                </table>
-            {% else %}
-                <div class="panel-body text-muted">
-                    None
-                </div>
-            {% endif %}
-            {% if perms.ipam.add_service %}
-                <div class="panel-footer text-right">
-                    <a href="{% url 'dcim:device_service_assign' device=device.pk %}" class="btn btn-xs btn-primary">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Assign service
-                    </a>
-                </div>
-            {% endif %}
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Images</strong>
-            </div>
-            {% include 'inc/image_attachments.html' with images=device.images.all %}
-            {% if perms.extras.add_imageattachment %}
-                <div class="panel-footer text-right">
-                    <a href="{% url 'dcim:device_add_image' object_id=device.pk %}" class="btn btn-primary btn-xs">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                        Attach an image
-                    </a>
-                </div>
-            {% endif %}
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Related Devices</strong>
-            </div>
-            {% if related_devices %}
-                <table class="table table-hover panel-body">
-                    {% for rd in related_devices %}
-                        <tr>
-                            <td>
-                                <a href="{% url 'dcim:device' pk=rd.pk %}">{{ rd }}</a>
-                            </td>
-                            <td>
-                                {% if rd.rack %}
-                                    <a href="{% url 'dcim:rack' pk=rd.rack.pk %}">Rack {{ rd.rack }}</a>
-                                {% else %}
-                                    <span class="text-muted">&mdash;</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ rd.device_type.full_name }}</td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            {% else %}
-                <div class="panel-body text-muted">None found</div>
-            {% endif %}
-        </div>
-	</div>
-</div>
-<div class="row">
-	<div class="col-md-12">
-        {% if device_bays or device.device_type.is_parent_device %}
-            {% if perms.dcim.delete_devicebay %}
-                <form method="post" action="{% url 'dcim:devicebay_bulk_delete' pk=device.pk %}">
-                {% csrf_token %}
-            {% endif %}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <strong>Device Bays</strong>
+                    <strong>Images</strong>
                 </div>
-                <table class="table table-hover table-headings panel-body component-list">
-                    <thead>
-                        <tr>
-                            {% if perms.dcim.change_devicebay or perms.dcim.delete_devicebay %}
-                                <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
-                            {% endif %}
-                            <th>Name</th>
-                            <th colspan="2">Installed Device</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for devicebay in device_bays %}
-                            {% include 'dcim/inc/devicebay.html' %}
-                        {% empty %}
+                {% include 'inc/image_attachments.html' with images=device.images.all %}
+                {% if perms.extras.add_imageattachment %}
+                    <div class="panel-footer text-right">
+                        <a href="{% url 'dcim:device_add_image' object_id=device.pk %}" class="btn btn-primary btn-xs">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            Attach an image
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Related Devices</strong>
+                </div>
+                {% if related_devices %}
+                    <table class="table table-hover panel-body">
+                        {% for rd in related_devices %}
                             <tr>
-                                <td colspan="5" class="text-center text-muted">&mdash; No device bays defined &mdash;</td>
+                                <td>
+                                    <a href="{% url 'dcim:device' pk=rd.pk %}">{{ rd }}</a>
+                                </td>
+                                <td>
+                                    {% if rd.rack %}
+                                        <a href="{% url 'dcim:rack' pk=rd.rack.pk %}">Rack {{ rd.rack }}</a>
+                                    {% else %}
+                                        <span class="text-muted">&mdash;</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ rd.device_type.full_name }}</td>
                             </tr>
                         {% endfor %}
-                    </tbody>
-                </table>
-                <div class="panel-footer">
-                    {% if device_bays and perms.dcim.change_devicebay %}
-                        <button type="submit" name="_rename" formaction="{% url 'dcim:devicebay_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
-                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
-                        </button>
-                    {% endif %}
-                    {% if device_bays and perms.dcim.delete_devicebay %}
-                        <button type="submit" class="btn btn-danger btn-xs">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete selected
-                        </button>
-                    {% endif %}
-                    {% if perms.dcim.add_devicebay %}
-                        <div class="pull-right">
-                            <a href="{% url 'dcim:devicebay_add' pk=device.pk %}" class="btn btn-primary btn-xs">
-                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add device bays
-                            </a>
-                        </div>
-                        <div class="clearfix"></div>
-                    {% endif %}
-                 </div>
+                    </table>
+                {% else %}
+                    <div class="panel-body text-muted">None found</div>
+                {% endif %}
             </div>
-            {% if perms.dcim.delete_devicebay %}
-                </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% if device_bays or device.device_type.is_parent_device %}
+                {% if perms.dcim.delete_devicebay %}
+                    <form method="post" action="{% url 'dcim:devicebay_bulk_delete' pk=device.pk %}">
+                    {% csrf_token %}
+                {% endif %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong>Device Bays</strong>
+                    </div>
+                    <table class="table table-hover table-headings panel-body component-list">
+                        <thead>
+                            <tr>
+                                {% if perms.dcim.change_devicebay or perms.dcim.delete_devicebay %}
+                                    <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
+                                {% endif %}
+                                <th>Name</th>
+                                <th colspan="2">Installed Device</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for devicebay in device_bays %}
+                                {% include 'dcim/inc/devicebay.html' %}
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">&mdash; No device bays defined &mdash;</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="panel-footer">
+                        {% if device_bays and perms.dcim.change_devicebay %}
+                            <button type="submit" name="_rename" formaction="{% url 'dcim:devicebay_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
+                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
+                            </button>
+                        {% endif %}
+                        {% if device_bays and perms.dcim.delete_devicebay %}
+                            <button type="submit" class="btn btn-danger btn-xs">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete selected
+                            </button>
+                        {% endif %}
+                        {% if perms.dcim.add_devicebay %}
+                            <div class="pull-right">
+                                <a href="{% url 'dcim:devicebay_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add device bays
+                                </a>
+                            </div>
+                            <div class="clearfix"></div>
+                        {% endif %}
+                     </div>
+                </div>
+                {% if perms.dcim.delete_devicebay %}
+                    </form>
+                {% endif %}
             {% endif %}
-        {% endif %}
-        {% if interfaces or device.device_type.is_network_device %}
-            {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
-                <form method="post">
-                {% csrf_token %}
-                <input type="hidden" name="device" value="{{ device.pk }}" />
+            {% if interfaces or device.device_type.is_network_device %}
+                {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
+                    <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="device" value="{{ device.pk }}" />
+                {% endif %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong>Interfaces</strong>
+                        <div class="pull-right">
+                            <button class="btn btn-default btn-xs toggle-ips" selected="selected">
+                                <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Show IPs
+                            </button>
+                        </div>
+                    </div>
+                    <table id="interfaces_table" class="table table-hover table-headings panel-body component-list">
+                        <thead>
+                            <tr>
+                                {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
+                                    <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
+                                {% endif %}
+                                <th>Name</th>
+                                <th>LAG</th>
+                                <th>Description</th>
+                                <th>MTU</th>
+                                <th>MAC Address</th>
+                                <th colspan="2">Connection</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for iface in interfaces %}
+                                {% include 'dcim/inc/interface.html' %}
+                            {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted">&mdash; No interfaces defined &mdash;</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="panel-footer">
+                        {% if interfaces and perms.dcim.change_interface %}
+                            <button type="submit" name="_rename" formaction="{% url 'dcim:interface_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
+                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
+                            </button>
+                            <button type="submit" name="_edit" formaction="{% url 'dcim:interface_bulk_edit' pk=device.pk %}" class="btn btn-warning btn-xs">
+                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit
+                            </button>
+                        {% endif %}
+                        {% if interfaces and perms.dcim.delete_interfaceconnection %}
+                            <button type="submit" name="_disconnect" formaction="{% url 'dcim:interface_bulk_disconnect' pk=device.pk %}" class="btn btn-danger btn-xs">
+                                <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
+                            </button>
+                        {% endif %}
+                        {% if interfaces and perms.dcim.delete_interface %}
+                            <button type="submit" name="_delete" formaction="{% url 'dcim:interface_bulk_delete' pk=device.pk %}" class="btn btn-danger btn-xs">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
+                            </button>
+                        {% endif %}
+                        {% if perms.dcim.add_interface %}
+                            <div class="pull-right">
+                                <a href="{% url 'dcim:interface_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add interfaces
+                                </a>
+                            </div>
+                            <div class="clearfix"></div>
+                        {% endif %}
+                     </div>
+                </div>
+                {% if perms.dcim.delete_interface %}
+                    </form>
+                {% endif %}
             {% endif %}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Interfaces</strong>
-                    <div class="pull-right">
-                        <button class="btn btn-default btn-xs toggle-ips" selected="selected">
-                            <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Show IPs
-                        </button>
+            {% if cs_ports or device.device_type.is_console_server %}
+                {% if perms.dcim.delete_consoleserverport %}
+                    <form method="post" action="{% url 'dcim:consoleserverport_bulk_delete' pk=device.pk %}">
+                    {% csrf_token %}
+                {% endif %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong>Console Server Ports</strong>
+                    </div>
+                    <table class="table table-hover table-headings panel-body component-list">
+                        <thead>
+                            <tr>
+                                {% if perms.dcim.change_consoleserverport or perms.dcim.delete_consoleserverport %}
+                                    <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
+                                {% endif %}
+                                <th>Name</th>
+                                <th colspan="2">Connection</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for csp in cs_ports %}
+                                {% include 'dcim/inc/consoleserverport.html' %}
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">&mdash; No console server ports defined &mdash;</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="panel-footer">
+                        {% if cs_ports and perms.dcim.change_consoleport %}
+                            <button type="submit" name="_rename" formaction="{% url 'dcim:consoleserverport_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
+                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
+                            </button>
+                            <button type="submit" name="_disconnect" formaction="{% url 'dcim:consoleserverport_bulk_disconnect' pk=device.pk %}" class="btn btn-danger btn-xs">
+                                <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
+                            </button>
+                        {% endif %}
+                        {% if cs_ports and perms.dcim.delete_consoleserverport %}
+                            <button type="submit" class="btn btn-danger btn-xs">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
+                            </button>
+                        {% endif %}
+                        {% if perms.dcim.add_consoleserverport %}
+                            <div class="pull-right">
+                                <a href="{% url 'dcim:consoleserverport_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console server ports
+                                </a>
+                            </div>
+                            <div class="clearfix"></div>
+                        {% endif %}
                     </div>
                 </div>
-                <table id="interfaces_table" class="table table-hover table-headings panel-body component-list">
-                    <thead>
-                        <tr>
-                            {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
-                                <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
-                            {% endif %}
-                            <th>Name</th>
-                            <th>LAG</th>
-                            <th>Description</th>
-                            <th>MTU</th>
-                            <th>MAC Address</th>
-                            <th colspan="2">Connection</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for iface in interfaces %}
-                            {% include 'dcim/inc/interface.html' %}
-                        {% empty %}
+                {% if perms.dcim.delete_consoleserverport %}
+                    </form>
+                {% endif %}
+            {% endif %}
+            {% if power_outlets or device.device_type.is_pdu %}
+                {% if perms.dcim.delete_poweroutlet %}
+                    <form method="post" action="{% url 'dcim:poweroutlet_bulk_delete' pk=device.pk %}">
+                    {% csrf_token %}
+                {% endif %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong>Power Outlets</strong>
+                    </div>
+                    <table class="table table-hover table-headings panel-body component-list">
+                        <thead>
                             <tr>
-                                <td colspan="9" class="text-center text-muted">&mdash; No interfaces defined &mdash;</td>
+                                {% if perms.dcim.change_poweroutlet or perms.dcim.delete_poweroutlet %}
+                                    <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
+                                {% endif %}
+                                <th>Name</th>
+                                <th colspan="2">Connection</th>
+                                <th></th>
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <div class="panel-footer">
-                    {% if interfaces and perms.dcim.change_interface %}
-                        <button type="submit" name="_rename" formaction="{% url 'dcim:interface_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
-                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
-                        </button>
-                        <button type="submit" name="_edit" formaction="{% url 'dcim:interface_bulk_edit' pk=device.pk %}" class="btn btn-warning btn-xs">
-                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit
-                        </button>
-                    {% endif %}
-                    {% if interfaces and perms.dcim.delete_interfaceconnection %}
-                        <button type="submit" name="_disconnect" formaction="{% url 'dcim:interface_bulk_disconnect' pk=device.pk %}" class="btn btn-danger btn-xs">
-                            <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
-                        </button>
-                    {% endif %}
-                    {% if interfaces and perms.dcim.delete_interface %}
-                        <button type="submit" name="_delete" formaction="{% url 'dcim:interface_bulk_delete' pk=device.pk %}" class="btn btn-danger btn-xs">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
-                        </button>
-                    {% endif %}
-                    {% if perms.dcim.add_interface %}
-                        <div class="pull-right">
-                            <a href="{% url 'dcim:interface_add' pk=device.pk %}" class="btn btn-primary btn-xs">
-                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add interfaces
-                            </a>
-                        </div>
-                        <div class="clearfix"></div>
-                    {% endif %}
-                 </div>
-            </div>
-            {% if perms.dcim.delete_interface %}
-                </form>
-            {% endif %}
-        {% endif %}
-        {% if cs_ports or device.device_type.is_console_server %}
-            {% if perms.dcim.delete_consoleserverport %}
-                <form method="post" action="{% url 'dcim:consoleserverport_bulk_delete' pk=device.pk %}">
-                {% csrf_token %}
-            {% endif %}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Console Server Ports</strong>
+                        </thead>
+                        <tbody>
+                            {% for po in power_outlets %}
+                                {% include 'dcim/inc/poweroutlet.html' %}
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">&mdash; No power outlets defined &mdash;</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="panel-footer">
+                        {% if power_outlets and perms.dcim.change_powerport %}
+                            <button type="submit" name="_rename" formaction="{% url 'dcim:poweroutlet_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
+                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
+                            </button>
+                            <button type="submit" name="_disconnect" formaction="{% url 'dcim:poweroutlet_bulk_disconnect' pk=device.pk %}" class="btn btn-danger btn-xs">
+                                <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
+                            </button>
+                        {% endif %}
+                        {% if power_outlets and perms.dcim.delete_poweroutlet %}
+                            <button type="submit" class="btn btn-danger btn-xs">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
+                            </button>
+                        {% endif %}
+                        {% if perms.dcim.add_poweroutlet %}
+                            <div class="pull-right">
+                                <a href="{% url 'dcim:poweroutlet_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power outlets
+                                </a>
+                            </div>
+                            <div class="clearfix"></div>
+                        {% endif %}
+                    </div>
                 </div>
-                <table class="table table-hover table-headings panel-body component-list">
-                    <thead>
-                        <tr>
-                            {% if perms.dcim.change_consoleserverport or perms.dcim.delete_consoleserverport %}
-                                <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
-                            {% endif %}
-                            <th>Name</th>
-                            <th colspan="2">Connection</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for csp in cs_ports %}
-                            {% include 'dcim/inc/consoleserverport.html' %}
-                        {% empty %}
-                            <tr>
-                                <td colspan="5" class="text-center text-muted">&mdash; No console server ports defined &mdash;</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <div class="panel-footer">
-                    {% if cs_ports and perms.dcim.change_consoleport %}
-                        <button type="submit" name="_rename" formaction="{% url 'dcim:consoleserverport_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
-                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
-                        </button>
-                        <button type="submit" name="_disconnect" formaction="{% url 'dcim:consoleserverport_bulk_disconnect' pk=device.pk %}" class="btn btn-danger btn-xs">
-                            <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
-                        </button>
-                    {% endif %}
-                    {% if cs_ports and perms.dcim.delete_consoleserverport %}
-                        <button type="submit" class="btn btn-danger btn-xs">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
-                        </button>
-                    {% endif %}
-                    {% if perms.dcim.add_consoleserverport %}
-                        <div class="pull-right">
-                            <a href="{% url 'dcim:consoleserverport_add' pk=device.pk %}" class="btn btn-primary btn-xs">
-                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console server ports
-                            </a>
-                        </div>
-                        <div class="clearfix"></div>
-                    {% endif %}
-                </div>
-            </div>
-            {% if perms.dcim.delete_consoleserverport %}
-                </form>
+                {% if perms.dcim.delete_poweroutlet %}
+                    </form>
+                {% endif %}
             {% endif %}
-        {% endif %}
-        {% if power_outlets or device.device_type.is_pdu %}
-            {% if perms.dcim.delete_poweroutlet %}
-                <form method="post" action="{% url 'dcim:poweroutlet_bulk_delete' pk=device.pk %}">
-                {% csrf_token %}
-            {% endif %}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Power Outlets</strong>
-                </div>
-                <table class="table table-hover table-headings panel-body component-list">
-                    <thead>
-                        <tr>
-                            {% if perms.dcim.change_poweroutlet or perms.dcim.delete_poweroutlet %}
-                                <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
-                            {% endif %}
-                            <th>Name</th>
-                            <th colspan="2">Connection</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for po in power_outlets %}
-                            {% include 'dcim/inc/poweroutlet.html' %}
-                        {% empty %}
-                            <tr>
-                                <td colspan="5" class="text-center text-muted">&mdash; No power outlets defined &mdash;</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <div class="panel-footer">
-                    {% if power_outlets and perms.dcim.change_powerport %}
-                        <button type="submit" name="_rename" formaction="{% url 'dcim:poweroutlet_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
-                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
-                        </button>
-                        <button type="submit" name="_disconnect" formaction="{% url 'dcim:poweroutlet_bulk_disconnect' pk=device.pk %}" class="btn btn-danger btn-xs">
-                            <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
-                        </button>
-                    {% endif %}
-                    {% if power_outlets and perms.dcim.delete_poweroutlet %}
-                        <button type="submit" class="btn btn-danger btn-xs">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
-                        </button>
-                    {% endif %}
-                    {% if perms.dcim.add_poweroutlet %}
-                        <div class="pull-right">
-                            <a href="{% url 'dcim:poweroutlet_add' pk=device.pk %}" class="btn btn-primary btn-xs">
-                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power outlets
-                            </a>
-                        </div>
-                        <div class="clearfix"></div>
-                    {% endif %}
-                </div>
-            </div>
-            {% if perms.dcim.delete_poweroutlet %}
-                </form>
-            {% endif %}
-        {% endif %}
-	</div>
-</div>
+        </div>
+    </div>
 {% include 'inc/graphs_modal.html' %}
 {% include 'secrets/inc/private_key_modal.html' %}
 {% endblock %}

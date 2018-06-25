@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0059_devicetype_add_created_updated_times'),
+        ('dcim', '0058_relax_rack_naming_constraints'),
     ]
 
     operations = [

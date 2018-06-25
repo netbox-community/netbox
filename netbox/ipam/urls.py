@@ -2,7 +2,9 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
+from extras.views import ObjectChangeLogView
 from . import views
+from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 
 app_name = 'ipam'
@@ -17,6 +19,7 @@ urlpatterns = [
     url(r'^vrfs/(?P<pk>\d+)/$', views.VRFView.as_view(), name='vrf'),
     url(r'^vrfs/(?P<pk>\d+)/edit/$', views.VRFEditView.as_view(), name='vrf_edit'),
     url(r'^vrfs/(?P<pk>\d+)/delete/$', views.VRFDeleteView.as_view(), name='vrf_delete'),
+    url(r'^vrfs/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='vrf_changelog', kwargs={'model': VRF}),
 
     # RIRs
     url(r'^rirs/$', views.RIRListView.as_view(), name='rir_list'),
@@ -24,6 +27,7 @@ urlpatterns = [
     url(r'^rirs/import/$', views.RIRBulkImportView.as_view(), name='rir_import'),
     url(r'^rirs/delete/$', views.RIRBulkDeleteView.as_view(), name='rir_bulk_delete'),
     url(r'^rirs/(?P<slug>[\w-]+)/edit/$', views.RIREditView.as_view(), name='rir_edit'),
+    url(r'^vrfs/(?P<slug>[\w-]+)/changelog/$', ObjectChangeLogView.as_view(), name='rir_changelog', kwargs={'model': RIR}),
 
     # Aggregates
     url(r'^aggregates/$', views.AggregateListView.as_view(), name='aggregate_list'),
@@ -34,6 +38,7 @@ urlpatterns = [
     url(r'^aggregates/(?P<pk>\d+)/$', views.AggregateView.as_view(), name='aggregate'),
     url(r'^aggregates/(?P<pk>\d+)/edit/$', views.AggregateEditView.as_view(), name='aggregate_edit'),
     url(r'^aggregates/(?P<pk>\d+)/delete/$', views.AggregateDeleteView.as_view(), name='aggregate_delete'),
+    url(r'^aggregates/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='aggregate_changelog', kwargs={'model': Aggregate}),
 
     # Roles
     url(r'^roles/$', views.RoleListView.as_view(), name='role_list'),
@@ -41,6 +46,7 @@ urlpatterns = [
     url(r'^roles/import/$', views.RoleBulkImportView.as_view(), name='role_import'),
     url(r'^roles/delete/$', views.RoleBulkDeleteView.as_view(), name='role_bulk_delete'),
     url(r'^roles/(?P<slug>[\w-]+)/edit/$', views.RoleEditView.as_view(), name='role_edit'),
+    url(r'^roles/(?P<slug>[\w-]+)/changelog/$', ObjectChangeLogView.as_view(), name='role_changelog', kwargs={'model': Role}),
 
     # Prefixes
     url(r'^prefixes/$', views.PrefixListView.as_view(), name='prefix_list'),
@@ -51,6 +57,7 @@ urlpatterns = [
     url(r'^prefixes/(?P<pk>\d+)/$', views.PrefixView.as_view(), name='prefix'),
     url(r'^prefixes/(?P<pk>\d+)/edit/$', views.PrefixEditView.as_view(), name='prefix_edit'),
     url(r'^prefixes/(?P<pk>\d+)/delete/$', views.PrefixDeleteView.as_view(), name='prefix_delete'),
+    url(r'^prefixes/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='prefix_changelog', kwargs={'model': Prefix}),
     url(r'^prefixes/(?P<pk>\d+)/prefixes/$', views.PrefixPrefixesView.as_view(), name='prefix_prefixes'),
     url(r'^prefixes/(?P<pk>\d+)/ip-addresses/$', views.PrefixIPAddressesView.as_view(), name='prefix_ipaddresses'),
 
@@ -61,6 +68,7 @@ urlpatterns = [
     url(r'^ip-addresses/import/$', views.IPAddressBulkImportView.as_view(), name='ipaddress_import'),
     url(r'^ip-addresses/edit/$', views.IPAddressBulkEditView.as_view(), name='ipaddress_bulk_edit'),
     url(r'^ip-addresses/delete/$', views.IPAddressBulkDeleteView.as_view(), name='ipaddress_bulk_delete'),
+    url(r'^ip-addresses/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='ipaddress_changelog', kwargs={'model': IPAddress}),
     url(r'^ip-addresses/assign/$', views.IPAddressAssignView.as_view(), name='ipaddress_assign'),
     url(r'^ip-addresses/(?P<pk>\d+)/$', views.IPAddressView.as_view(), name='ipaddress'),
     url(r'^ip-addresses/(?P<pk>\d+)/edit/$', views.IPAddressEditView.as_view(), name='ipaddress_edit'),
@@ -72,6 +80,7 @@ urlpatterns = [
     url(r'^vlan-groups/import/$', views.VLANGroupBulkImportView.as_view(), name='vlangroup_import'),
     url(r'^vlan-groups/delete/$', views.VLANGroupBulkDeleteView.as_view(), name='vlangroup_bulk_delete'),
     url(r'^vlan-groups/(?P<pk>\d+)/edit/$', views.VLANGroupEditView.as_view(), name='vlangroup_edit'),
+    url(r'^vlan-groups/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='vlangroup_changelog', kwargs={'model': VLANGroup}),
 
     # VLANs
     url(r'^vlans/$', views.VLANListView.as_view(), name='vlan_list'),
@@ -83,6 +92,7 @@ urlpatterns = [
     url(r'^vlans/(?P<pk>\d+)/members/$', views.VLANMembersView.as_view(), name='vlan_members'),
     url(r'^vlans/(?P<pk>\d+)/edit/$', views.VLANEditView.as_view(), name='vlan_edit'),
     url(r'^vlans/(?P<pk>\d+)/delete/$', views.VLANDeleteView.as_view(), name='vlan_delete'),
+    url(r'^vlans/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='vlan_changelog', kwargs={'model': VLAN}),
 
     # Services
     url(r'^services/$', views.ServiceListView.as_view(), name='service_list'),
@@ -91,5 +101,6 @@ urlpatterns = [
     url(r'^services/(?P<pk>\d+)/$', views.ServiceView.as_view(), name='service'),
     url(r'^services/(?P<pk>\d+)/edit/$', views.ServiceEditView.as_view(), name='service_edit'),
     url(r'^services/(?P<pk>\d+)/delete/$', views.ServiceDeleteView.as_view(), name='service_delete'),
+    url(r'^services/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='service_changelog', kwargs={'model': Service}),
 
 ]

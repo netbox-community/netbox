@@ -258,12 +258,12 @@ class VirtualMachineView(View):
 
     def get(self, request, pk):
 
-        vm = get_object_or_404(VirtualMachine.objects.select_related('tenant__group'), pk=pk)
-        interfaces = Interface.objects.filter(virtual_machine=vm)
-        services = Service.objects.filter(virtual_machine=vm)
+        virtualmachine = get_object_or_404(VirtualMachine.objects.select_related('tenant__group'), pk=pk)
+        interfaces = Interface.objects.filter(virtual_machine=virtualmachine)
+        services = Service.objects.filter(virtual_machine=virtualmachine)
 
         return render(request, 'virtualization/virtualmachine.html', {
-            'vm': vm,
+            'virtualmachine': virtualmachine,
             'interfaces': interfaces,
             'services': services,
         })

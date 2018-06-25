@@ -10,7 +10,7 @@ from taggit.managers import TaggableManager
 
 from dcim.models import Device
 from extras.models import CustomFieldModel
-from utilities.models import CreatedUpdatedModel
+from utilities.models import ChangeLoggedModel
 from .constants import DEVICE_STATUS_ACTIVE, VM_STATUS_CHOICES, VM_STATUS_CLASSES
 
 
@@ -19,7 +19,7 @@ from .constants import DEVICE_STATUS_ACTIVE, VM_STATUS_CHOICES, VM_STATUS_CLASSE
 #
 
 @python_2_unicode_compatible
-class ClusterType(models.Model):
+class ClusterType(ChangeLoggedModel):
     """
     A type of Cluster.
     """
@@ -31,6 +31,7 @@ class ClusterType(models.Model):
         unique=True
     )
 
+    serializer = 'virtualization.api.serializers.ClusterTypeSerializer'
     csv_headers = ['name', 'slug']
 
     class Meta:
@@ -54,7 +55,7 @@ class ClusterType(models.Model):
 #
 
 @python_2_unicode_compatible
-class ClusterGroup(models.Model):
+class ClusterGroup(ChangeLoggedModel):
     """
     An organizational group of Clusters.
     """
@@ -66,9 +67,8 @@ class ClusterGroup(models.Model):
         unique=True
     )
 
-    csv_headers = ['name', 'slug']
-
     serializer = 'virtualization.api.serializers.ClusterGroupSerializer'
+    csv_headers = ['name', 'slug']
 
     class Meta:
         ordering = ['name']
@@ -91,7 +91,7 @@ class ClusterGroup(models.Model):
 #
 
 @python_2_unicode_compatible
-class Cluster(CreatedUpdatedModel, CustomFieldModel):
+class Cluster(ChangeLoggedModel, CustomFieldModel):
     """
     A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices.
     """
@@ -129,9 +129,8 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
-    csv_headers = ['name', 'type', 'group', 'site', 'comments']
-
     serializer = 'virtualization.api.serializers.ClusterSerializer'
+    csv_headers = ['name', 'type', 'group', 'site', 'comments']
 
     class Meta:
         ordering = ['name']
@@ -169,7 +168,7 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
 #
 
 @python_2_unicode_compatible
-class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
+class VirtualMachine(ChangeLoggedModel, CustomFieldModel):
     """
     A virtual machine which runs inside a Cluster.
     """
@@ -251,11 +250,10 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
+    serializer = 'virtualization.api.serializers.VirtualMachineSerializer'
     csv_headers = [
         'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
     ]
-
-    serializer = 'virtualization.api.serializers.VirtualMachineSerializer'
 
     class Meta:
         ordering = ['name']

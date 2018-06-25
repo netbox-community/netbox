@@ -18,7 +18,7 @@ from django.views.generic import View
 from natsort import natsorted
 
 from circuits.models import Circuit
-from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE, UserAction
+from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from ipam.models import Prefix, Service, VLAN
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
@@ -945,6 +945,7 @@ class DeviceInventoryView(View):
         return render(request, 'dcim/device_inventory.html', {
             'device': device,
             'inventory_items': inventory_items,
+            'active_tab': 'inventory',
         })
 
 
@@ -957,6 +958,7 @@ class DeviceStatusView(PermissionRequiredMixin, View):
 
         return render(request, 'dcim/device_status.html', {
             'device': device,
+            'active_tab': 'status',
         })
 
 
@@ -975,6 +977,7 @@ class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
         return render(request, 'dcim/device_lldp_neighbors.html', {
             'device': device,
             'interfaces': interfaces,
+            'active_tab': 'lldp-neighbors',
         })
 
 
@@ -987,6 +990,7 @@ class DeviceConfigView(PermissionRequiredMixin, View):
 
         return render(request, 'dcim/device_config.html', {
             'device': device,
+            'active_tab': 'config',
         })
 
 
@@ -1104,7 +1108,6 @@ class ConsolePortConnectView(PermissionRequiredMixin, View):
                 escape(consoleport.cs_port.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, consoleport, msg)
 
             return redirect('dcim:device', pk=consoleport.device.pk)
 
@@ -1155,7 +1158,6 @@ class ConsolePortDisconnectView(PermissionRequiredMixin, View):
                 escape(cs_port.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, consoleport, msg)
 
             return redirect('dcim:device', pk=consoleport.device.pk)
 
@@ -1244,7 +1246,6 @@ class ConsoleServerPortConnectView(PermissionRequiredMixin, View):
                 escape(consoleserverport.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, consoleport, msg)
 
             return redirect('dcim:device', pk=consoleserverport.device.pk)
 
@@ -1296,7 +1297,6 @@ class ConsoleServerPortDisconnectView(PermissionRequiredMixin, View):
                 escape(consoleserverport.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, consoleport, msg)
 
             return redirect('dcim:device', pk=consoleserverport.device.pk)
 
@@ -1390,7 +1390,6 @@ class PowerPortConnectView(PermissionRequiredMixin, View):
                 escape(powerport.power_outlet.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, powerport, msg)
 
             return redirect('dcim:device', pk=powerport.device.pk)
 
@@ -1441,7 +1440,6 @@ class PowerPortDisconnectView(PermissionRequiredMixin, View):
                 escape(power_outlet.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, powerport, msg)
 
             return redirect('dcim:device', pk=powerport.device.pk)
 
@@ -1529,7 +1527,6 @@ class PowerOutletConnectView(PermissionRequiredMixin, View):
                 escape(poweroutlet.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, powerport, msg)
 
             return redirect('dcim:device', pk=poweroutlet.device.pk)
 
@@ -1580,7 +1577,6 @@ class PowerOutletDisconnectView(PermissionRequiredMixin, View):
                 escape(poweroutlet.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, powerport, msg)
 
             return redirect('dcim:device', pk=poweroutlet.device.pk)
 
@@ -1910,7 +1906,6 @@ class InterfaceConnectionAddView(PermissionRequiredMixin, GetReturnURLMixin, Vie
                 escape(interfaceconnection.interface_b.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, interfaceconnection, msg)
 
             if '_addanother' in request.POST:
                 base_url = reverse('dcim:interfaceconnection_add', kwargs={'pk': device.pk})
@@ -1961,7 +1956,6 @@ class InterfaceConnectionDeleteView(PermissionRequiredMixin, GetReturnURLMixin, 
                 escape(interfaceconnection.interface_b.name),
             )
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_edit(request.user, interfaceconnection, msg)
 
             return redirect(self.get_return_url(request, interfaceconnection))
 
@@ -2241,7 +2235,6 @@ class VirtualChassisAddMemberView(PermissionRequiredMixin, GetReturnURLMixin, Vi
                 membership_form.save()
                 msg = 'Added member <a href="{}">{}</a>'.format(device.get_absolute_url(), escape(device))
                 messages.success(request, mark_safe(msg))
-                UserAction.objects.log_edit(request.user, device, msg)
 
                 if '_addanother' in request.POST:
                     return redirect(request.get_full_path())
@@ -2296,7 +2289,6 @@ class VirtualChassisRemoveMemberView(PermissionRequiredMixin, GetReturnURLMixin,
 
             msg = 'Removed {} from virtual chassis {}'.format(device, device.virtual_chassis)
             messages.success(request, msg)
-            UserAction.objects.log_edit(request.user, device, msg)
 
             return redirect(self.get_return_url(request, device))
 

@@ -37,6 +37,9 @@ router.register(r'image-attachments', views.ImageAttachmentViewSet)
 # Reports
 router.register(r'reports', views.ReportViewSet, base_name='report')
 
+# Change logging
+router.register(r'object-changes', views.ObjectChangeViewSet)
+
 # Recent activity
 router.register(r'recent-activity', views.RecentActivityViewSet)
 

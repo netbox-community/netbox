@@ -44,6 +44,7 @@ BANNER_TOP = getattr(configuration, 'BANNER_TOP', '')
 BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
+CHANGELOG_RETENTION = getattr(configuration, 'CHANGELOG_RETENTION', 90)
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
 CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
@@ -174,6 +175,7 @@ MIDDLEWARE = (
     'utilities.middleware.ExceptionHandlingMiddleware',
     'utilities.middleware.LoginRequiredMiddleware',
     'utilities.middleware.APIVersionMiddleware',
+    'extras.middleware.ChangeLoggingMiddleware',
 )
 
 ROOT_URLCONF = 'netbox.urls'

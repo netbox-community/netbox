@@ -22,4 +22,8 @@ urlpatterns = [
     url(r'^reports/(?P<name>[^/]+\.[^/]+)/$', views.ReportView.as_view(), name='report'),
     url(r'^reports/(?P<name>[^/]+\.[^/]+)/run/$', views.ReportRunView.as_view(), name='report_run'),
 
+    # Change logging
+    url(r'^changelog/$', views.ObjectChangeListView.as_view(), name='objectchange_list'),
+    url(r'^changelog/(?P<pk>\d+)/$', views.ObjectChangeView.as_view(), name='objectchange'),
+
 ]

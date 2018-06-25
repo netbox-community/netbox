@@ -18,14 +18,40 @@ from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
 
 from circuits.models import Circuit
-from extras.models import CustomFieldModel
+from extras.constants import OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE
+from extras.models import CustomFieldModel, ObjectChange
 from extras.rpc import RPC_CLIENTS
 from utilities.fields import ColorField, NullableCharField
 from utilities.managers import NaturalOrderByManager
-from utilities.models import CreatedUpdatedModel
+from utilities.models import ChangeLoggedModel
+from utilities.utils import serialize_object
 from .constants import *
 from .fields import ASNField, MACAddressField
 from .querysets import InterfaceQuerySet
+
+
+class ComponentModel(models.Model):
+
+    class Meta:
+        abstract = True
+
+    def get_component_parent(self):
+        raise NotImplementedError(
+            "ComponentModel must implement get_component_parent()"
+        )
+
+    def log_change(self, user, request_id, action):
+        """
+        Log an ObjectChange including the parent Device/VM.
+        """
+        ObjectChange(
+            user=user,
+            request_id=request_id,
+            changed_object=self,
+            related_object=self.get_component_parent(),
+            action=action,
+            object_data=serialize_object(self)
+        ).save()
 
 
 #
@@ -33,7 +59,7 @@ from .querysets import InterfaceQuerySet
 #
 
 @python_2_unicode_compatible
-class Region(MPTTModel):
+class Region(MPTTModel, ChangeLoggedModel):
     """
     Sites can be grouped within geographic Regions.
     """
@@ -53,6 +79,7 @@ class Region(MPTTModel):
         unique=True
     )
 
+    serializer = 'dcim.api.serializers.RegionSerializer'
     csv_headers = ['name', 'slug', 'parent']
 
     class MPTTMeta:
@@ -81,7 +108,7 @@ class SiteManager(NaturalOrderByManager):
 
 
 @python_2_unicode_compatible
-class Site(CreatedUpdatedModel, CustomFieldModel):
+class Site(ChangeLoggedModel, CustomFieldModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
     field can be used to include an external designation, such as a data center name (e.g. Equinix SV6).
@@ -174,12 +201,11 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
     objects = SiteManager()
     tags = TaggableManager()
 
+    serializer = 'dcim.api.serializers.SiteSerializer'
     csv_headers = [
         'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
         'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email', 'comments',
     ]
-
-    serializer = 'dcim.api.serializers.SiteSerializer'
 
     class Meta:
         ordering = ['name']
@@ -245,7 +271,7 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
 #
 
 @python_2_unicode_compatible
-class RackGroup(models.Model):
+class RackGroup(ChangeLoggedModel):
     """
     Racks can be grouped as subsets within a Site. The scope of a group will depend on how Sites are defined. For
     example, if a Site spans a corporate campus, a RackGroup might be defined to represent each building within that
@@ -261,9 +287,8 @@ class RackGroup(models.Model):
         related_name='rack_groups'
     )
 
-    csv_headers = ['site', 'name', 'slug']
-
     serializer = 'dcim.api.serializers.RackGroupSerializer'
+    csv_headers = ['site', 'name', 'slug']
 
     class Meta:
         ordering = ['site', 'name']
@@ -287,7 +312,7 @@ class RackGroup(models.Model):
 
 
 @python_2_unicode_compatible
-class RackRole(models.Model):
+class RackRole(ChangeLoggedModel):
     """
     Racks can be organized by functional role, similar to Devices.
     """
@@ -300,6 +325,7 @@ class RackRole(models.Model):
     )
     color = ColorField()
 
+    serializer = 'dcim.api.serializers.RackRoleSerializer'
     csv_headers = ['name', 'slug', 'color']
 
     class Meta:
@@ -324,7 +350,7 @@ class RackManager(NaturalOrderByManager):
 
 
 @python_2_unicode_compatible
-class Rack(CreatedUpdatedModel, CustomFieldModel):
+class Rack(ChangeLoggedModel, CustomFieldModel):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a RackGroup.
@@ -406,12 +432,11 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
     objects = RackManager()
     tags = TaggableManager()
 
+    serializer = 'dcim.api.serializers.RackSerializer'
     csv_headers = [
         'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'serial', 'width', 'u_height',
         'desc_units', 'comments',
     ]
-
-    serializer = 'dcim.api.serializers.RackSerializer'
 
     class Meta:
         ordering = ['site', 'group', 'name']
@@ -584,7 +609,7 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
 
 
 @python_2_unicode_compatible
-class RackReservation(models.Model):
+class RackReservation(ChangeLoggedModel):
     """
     One or more reserved units within a Rack.
     """
@@ -595,9 +620,6 @@ class RackReservation(models.Model):
     )
     units = ArrayField(
         base_field=models.PositiveSmallIntegerField()
-    )
-    created = models.DateTimeField(
-        auto_now_add=True
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -613,6 +635,8 @@ class RackReservation(models.Model):
     description = models.CharField(
         max_length=100
     )
+
+    serializer = 'dcim.api.serializers.RackReservationSerializer'
 
     class Meta:
         ordering = ['created']
@@ -661,7 +685,7 @@ class RackReservation(models.Model):
 #
 
 @python_2_unicode_compatible
-class Manufacturer(models.Model):
+class Manufacturer(ChangeLoggedModel):
     """
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
     """
@@ -673,6 +697,7 @@ class Manufacturer(models.Model):
         unique=True
     )
 
+    serializer = 'dcim.api.serializers.ManufacturerSerializer'
     csv_headers = ['name', 'slug']
 
     class Meta:
@@ -692,7 +717,7 @@ class Manufacturer(models.Model):
 
 
 @python_2_unicode_compatible
-class DeviceType(CreatedUpdatedModel, CustomFieldModel):
+class DeviceType(ChangeLoggedModel, CustomFieldModel):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
     well as high-level functional role(s).
@@ -767,6 +792,7 @@ class DeviceType(CreatedUpdatedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
+    serializer = 'dcim.api.serializers.DeviceTypeSerializer'
     csv_headers = [
         'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
         'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering', 'comments',
@@ -866,7 +892,7 @@ class DeviceType(CreatedUpdatedModel, CustomFieldModel):
 
 
 @python_2_unicode_compatible
-class ConsolePortTemplate(models.Model):
+class ConsolePortTemplate(ComponentModel):
     """
     A template for a ConsolePort to be created for a new Device.
     """
@@ -886,9 +912,12 @@ class ConsolePortTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_component_parent(self):
+        return self.device_type
+
 
 @python_2_unicode_compatible
-class ConsoleServerPortTemplate(models.Model):
+class ConsoleServerPortTemplate(ComponentModel):
     """
     A template for a ConsoleServerPort to be created for a new Device.
     """
@@ -908,9 +937,12 @@ class ConsoleServerPortTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_component_parent(self):
+        return self.device_type
+
 
 @python_2_unicode_compatible
-class PowerPortTemplate(models.Model):
+class PowerPortTemplate(ComponentModel):
     """
     A template for a PowerPort to be created for a new Device.
     """
@@ -930,9 +962,12 @@ class PowerPortTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_component_parent(self):
+        return self.device_type
+
 
 @python_2_unicode_compatible
-class PowerOutletTemplate(models.Model):
+class PowerOutletTemplate(ComponentModel):
     """
     A template for a PowerOutlet to be created for a new Device.
     """
@@ -952,9 +987,12 @@ class PowerOutletTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_component_parent(self):
+        return self.device_type
+
 
 @python_2_unicode_compatible
-class InterfaceTemplate(models.Model):
+class InterfaceTemplate(ComponentModel):
     """
     A template for a physical data interface on a new Device.
     """
@@ -984,9 +1022,12 @@ class InterfaceTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_component_parent(self):
+        return self.device_type
+
 
 @python_2_unicode_compatible
-class DeviceBayTemplate(models.Model):
+class DeviceBayTemplate(ComponentModel):
     """
     A template for a DeviceBay to be created for a new parent Device.
     """
@@ -1006,13 +1047,16 @@ class DeviceBayTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_component_parent(self):
+        return self.device_type
+
 
 #
 # Devices
 #
 
 @python_2_unicode_compatible
-class DeviceRole(models.Model):
+class DeviceRole(ChangeLoggedModel):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
     color to be used when displaying rack elevations. The vm_role field determines whether the role is applicable to
@@ -1032,6 +1076,7 @@ class DeviceRole(models.Model):
         help_text='Virtual machines may be assigned to this role'
     )
 
+    serializer = 'dcim.api.serializers.DeviceRoleSerializer'
     csv_headers = ['name', 'slug', 'color', 'vm_role']
 
     class Meta:
@@ -1053,7 +1098,7 @@ class DeviceRole(models.Model):
 
 
 @python_2_unicode_compatible
-class Platform(models.Model):
+class Platform(ChangeLoggedModel):
     """
     Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos".
     NetBox uses Platforms to determine how to interact with devices when pulling inventory data or other information by
@@ -1087,6 +1132,7 @@ class Platform(models.Model):
         verbose_name='Legacy RPC client'
     )
 
+    serializer = 'dcim.api.serializers.PlatformSerializer'
     csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver']
 
     class Meta:
@@ -1112,7 +1158,7 @@ class DeviceManager(NaturalOrderByManager):
 
 
 @python_2_unicode_compatible
-class Device(CreatedUpdatedModel, CustomFieldModel):
+class Device(ChangeLoggedModel, CustomFieldModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
     DeviceRole, and (optionally) a Platform. Device names are not required, however if one is set it must be unique.
@@ -1252,12 +1298,11 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     objects = DeviceManager()
     tags = TaggableManager()
 
+    serializer = 'dcim.api.serializers.DeviceSerializer'
     csv_headers = [
         'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
         'site', 'rack_group', 'rack_name', 'position', 'face', 'comments',
     ]
-
-    serializer = 'dcim.api.serializers.DeviceSerializer'
 
     class Meta:
         ordering = ['name']
@@ -1501,7 +1546,7 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
 #
 
 @python_2_unicode_compatible
-class ConsolePort(models.Model):
+class ConsolePort(ComponentModel):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
@@ -1538,6 +1583,9 @@ class ConsolePort(models.Model):
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
+    def get_component_parent(self):
+        return self.device
+
     def to_csv(self):
         return (
             self.cs_port.device.identifier if self.cs_port else None,
@@ -1563,7 +1611,7 @@ class ConsoleServerPortManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class ConsoleServerPort(models.Model):
+class ConsoleServerPort(ComponentModel):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
@@ -1587,6 +1635,9 @@ class ConsoleServerPort(models.Model):
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
+    def get_component_parent(self):
+        return self.device
+
     def clean(self):
 
         # Check that the parent device's DeviceType is a console server
@@ -1604,7 +1655,7 @@ class ConsoleServerPort(models.Model):
 #
 
 @python_2_unicode_compatible
-class PowerPort(models.Model):
+class PowerPort(ComponentModel):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
@@ -1640,6 +1691,9 @@ class PowerPort(models.Model):
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
+    def get_component_parent(self):
+        return self.device
+
     def to_csv(self):
         return (
             self.power_outlet.device.identifier if self.power_outlet else None,
@@ -1665,7 +1719,7 @@ class PowerOutletManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class PowerOutlet(models.Model):
+class PowerOutlet(ComponentModel):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
@@ -1689,6 +1743,9 @@ class PowerOutlet(models.Model):
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
+    def get_component_parent(self):
+        return self.device
+
     def clean(self):
 
         # Check that the parent device's DeviceType is a PDU
@@ -1706,7 +1763,7 @@ class PowerOutlet(models.Model):
 #
 
 @python_2_unicode_compatible
-class Interface(models.Model):
+class Interface(ComponentModel):
     """
     A network interface within a Device or VirtualMachine. A physical Interface can connect to exactly one other
     Interface via the creation of an InterfaceConnection.
@@ -1796,6 +1853,9 @@ class Interface(models.Model):
     def get_absolute_url(self):
         return self.parent.get_absolute_url()
 
+    def get_component_parent(self):
+        return self.device or self.virtual_machine
+
     def clean(self):
 
         # Check that the parent device's DeviceType is a network device
@@ -1866,6 +1926,23 @@ class Interface(models.Model):
 
         return super(Interface, self).save(*args, **kwargs)
 
+    def log_change(self, user, request_id, action):
+        """
+        Include the connected Interface (if any).
+        """
+        ObjectChange(
+            user=user,
+            request_id=request_id,
+            changed_object=self,
+            related_object=self.get_component_parent(),
+            action=action,
+            object_data=serialize_object(self, extra={
+                'connected_interface': self.connected_interface.pk if self.connection else None,
+                'connection_status': self.connection.connection_status if self.connection else None,
+            })
+        ).save()
+
+    # TODO: Replace `parent` with get_component_parent() (from ComponentModel)
     @property
     def parent(self):
         return self.device or self.virtual_machine
@@ -1970,13 +2047,40 @@ class InterfaceConnection(models.Model):
             self.get_connection_status_display(),
         )
 
+    def log_change(self, user, request_id, action):
+        """
+        Create a new ObjectChange for each of the two affected Interfaces.
+        """
+        interfaces = (
+            (self.interface_a, self.interface_b),
+            (self.interface_b, self.interface_a),
+        )
+        for interface, peer_interface in interfaces:
+            if action == OBJECTCHANGE_ACTION_DELETE:
+                connection_data = {
+                    'connected_interface': None,
+                }
+            else:
+                connection_data = {
+                    'connected_interface': peer_interface.pk,
+                    'connection_status': self.connection_status
+                }
+            ObjectChange(
+                user=user,
+                request_id=request_id,
+                changed_object=interface,
+                related_object=interface.parent,
+                action=OBJECTCHANGE_ACTION_UPDATE,
+                object_data=serialize_object(interface, extra=connection_data)
+            ).save()
+
 
 #
 # Device bays
 #
 
 @python_2_unicode_compatible
-class DeviceBay(models.Model):
+class DeviceBay(ComponentModel):
     """
     An empty space within a Device which can house a child device
     """
@@ -2007,6 +2111,9 @@ class DeviceBay(models.Model):
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
+    def get_component_parent(self):
+        return self.device
+
     def clean(self):
 
         # Validate that the parent Device can have DeviceBays
@@ -2025,7 +2132,7 @@ class DeviceBay(models.Model):
 #
 
 @python_2_unicode_compatible
-class InventoryItem(models.Model):
+class InventoryItem(ComponentModel):
     """
     An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply.
     InventoryItems are used only for inventory purposes.
@@ -2094,6 +2201,9 @@ class InventoryItem(models.Model):
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
+    def get_component_parent(self):
+        return self.device
+
     def to_csv(self):
         return (
             self.device.name or '{' + self.device.pk + '}',
@@ -2112,7 +2222,7 @@ class InventoryItem(models.Model):
 #
 
 @python_2_unicode_compatible
-class VirtualChassis(models.Model):
+class VirtualChassis(ChangeLoggedModel):
     """
     A collection of Devices which operate with a shared control plane (e.g. a switch stack).
     """
@@ -2125,6 +2235,8 @@ class VirtualChassis(models.Model):
         max_length=30,
         blank=True
     )
+
+    serializer = 'dcim.api.serializers.VirtualChassisSerializer'
 
     class Meta:
         ordering = ['master']

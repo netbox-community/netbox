@@ -2,12 +2,14 @@ from __future__ import unicode_literals
 
 from collections import OrderedDict
 from datetime import date
+import json
 
 import graphviz
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
+from django.urls import reverse
 from django.core.validators import ValidationError
 from django.db import models
 from django.db.models import Q
@@ -654,6 +656,119 @@ class ReportResult(models.Model):
 
     class Meta:
         ordering = ['report']
+
+
+#
+# Change logging
+#
+
+@python_2_unicode_compatible
+class ObjectChange(models.Model):
+    """
+    Record a change to an object and the user account associated with that change. A change record may optionally
+    indicate an object related to the one being changed. For example, a change to an interface may also indicate the
+    parent device. This will ensure changes made to component models appear in the parent model's changelog.
+    """
+    time = models.DateTimeField(
+        auto_now_add=True,
+        editable=False
+    )
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.SET_NULL,
+        related_name='changes',
+        blank=True,
+        null=True
+    )
+    user_name = models.CharField(
+        max_length=150,
+        editable=False
+    )
+    request_id = models.UUIDField(
+        editable=False
+    )
+    action = models.PositiveSmallIntegerField(
+        choices=OBJECTCHANGE_ACTION_CHOICES
+    )
+    changed_object_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.PROTECT,
+        related_name='+'
+    )
+    changed_object_id = models.PositiveIntegerField()
+    changed_object = GenericForeignKey(
+        ct_field='changed_object_type',
+        fk_field='changed_object_id'
+    )
+    related_object_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.PROTECT,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    related_object_id = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
+    related_object = GenericForeignKey(
+        ct_field='related_object_type',
+        fk_field='related_object_id'
+    )
+    object_repr = models.CharField(
+        max_length=200,
+        editable=False
+    )
+    object_data = JSONField(
+        editable=False
+    )
+
+    serializer = 'extras.api.serializers.ObjectChangeSerializer'
+    csv_headers = [
+        'time', 'user', 'user_name', 'request_id', 'action', 'changed_object_type', 'changed_object_id',
+        'related_object_type', 'related_object_id', 'object_repr', 'object_data',
+    ]
+
+    class Meta:
+        ordering = ['-time']
+
+    def __str__(self):
+        return '{} {} {} by {}'.format(
+            self.changed_object_type,
+            self.object_repr,
+            self.get_action_display().lower(),
+            self.user_name
+        )
+
+    def save(self, *args, **kwargs):
+
+        # Record the user's name and the object's representation as static strings
+        self.user_name = self.user.username
+        self.object_repr = str(self.changed_object)
+
+        return super(ObjectChange, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('extras:objectchange', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.time,
+            self.user,
+            self.user_name,
+            self.request_id,
+            self.get_action_display(),
+            self.changed_object_type,
+            self.changed_object_id,
+            self.related_object_type,
+            self.related_object_id,
+            self.object_repr,
+            self.object_data,
+        )
+
+    @property
+    def object_data_pretty(self):
+        return json.dumps(self.object_data, indent=4, sort_keys=True)
 
 
 #

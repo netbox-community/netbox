@@ -522,6 +522,7 @@ class PrefixPrefixesView(View):
             'prefix_table': prefix_table,
             'permissions': permissions,
             'bulk_querystring': 'vrf_id={}&within={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),
+            'active_tab': 'prefixes',
         })
 
 
@@ -560,6 +561,7 @@ class PrefixIPAddressesView(View):
             'ip_table': ip_table,
             'permissions': permissions,
             'bulk_querystring': 'vrf_id={}&parent={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),
+            'active_tab': 'ip-addresses',
         })
 
 
@@ -859,8 +861,6 @@ class VLANMembersView(View):
         members = vlan.get_members().select_related('device', 'virtual_machine')
 
         members_table = tables.VLANMemberTable(members)
-        # if request.user.has_perm('dcim.change_interface'):
-        #     members_table.columns.show('pk')
 
         paginate = {
             'klass': EnhancedPaginator,
@@ -868,18 +868,10 @@ class VLANMembersView(View):
         }
         RequestConfig(request, paginate).configure(members_table)
 
-        # Compile permissions list for rendering the object table
-        # permissions = {
-        #     'add': request.user.has_perm('ipam.add_ipaddress'),
-        #     'change': request.user.has_perm('ipam.change_ipaddress'),
-        #     'delete': request.user.has_perm('ipam.delete_ipaddress'),
-        # }
-
         return render(request, 'ipam/vlan_members.html', {
             'vlan': vlan,
             'members_table': members_table,
-            # 'permissions': permissions,
-            # 'bulk_querystring': 'vrf_id={}&parent={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),
+            'active_tab': 'members',
         })
 
 

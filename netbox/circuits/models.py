@@ -9,12 +9,12 @@ from taggit.managers import TaggableManager
 from dcim.constants import STATUS_CLASSES
 from dcim.fields import ASNField
 from extras.models import CustomFieldModel
-from utilities.models import CreatedUpdatedModel
+from utilities.models import ChangeLoggedModel
 from .constants import CIRCUIT_STATUS_ACTIVE, CIRCUIT_STATUS_CHOICES, TERM_SIDE_CHOICES
 
 
 @python_2_unicode_compatible
-class Provider(CreatedUpdatedModel, CustomFieldModel):
+class Provider(ChangeLoggedModel, CustomFieldModel):
     """
     Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model
     stores information pertinent to the user's relationship with the Provider.
@@ -59,9 +59,8 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
-    csv_headers = ['name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments']
-
     serializer = 'circuits.api.serializers.ProviderSerializer'
+    csv_headers = ['name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments']
 
     class Meta:
         ordering = ['name']
@@ -86,7 +85,7 @@ class Provider(CreatedUpdatedModel, CustomFieldModel):
 
 
 @python_2_unicode_compatible
-class CircuitType(models.Model):
+class CircuitType(ChangeLoggedModel):
     """
     Circuits can be organized by their functional role. For example, a user might wish to define CircuitTypes named
     "Long Haul," "Metro," or "Out-of-Band".
@@ -99,6 +98,7 @@ class CircuitType(models.Model):
         unique=True
     )
 
+    serializer = 'circuits.api.serializers.CircuitTypeSerializer'
     csv_headers = ['name', 'slug']
 
     class Meta:
@@ -118,7 +118,7 @@ class CircuitType(models.Model):
 
 
 @python_2_unicode_compatible
-class Circuit(CreatedUpdatedModel, CustomFieldModel):
+class Circuit(ChangeLoggedModel, CustomFieldModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
     circuits. Each circuit is also assigned a CircuitType and a Site. A Circuit may be terminated to a specific device
@@ -173,11 +173,10 @@ class Circuit(CreatedUpdatedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
+    serializer = 'circuits.api.serializers.CircuitSerializer'
     csv_headers = [
         'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
     ]
-
-    serializer = 'circuits.api.serializers.CircuitSerializer'
 
     class Meta:
         ordering = ['provider', 'cid']

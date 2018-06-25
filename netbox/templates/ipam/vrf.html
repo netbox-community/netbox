@@ -1,43 +1,54 @@
 {% extends '_base.html' %}
 {% load helpers %}
 
+{% block header %}
+    <div class="row">
+        <div class="col-sm-8 col-md-9">
+            <ol class="breadcrumb">
+                <li><a href="{% url 'ipam:vrf_list' %}">VRFs</a></li>
+                <li>{{ vrf }}</li>
+            </ol>
+        </div>
+        <div class="col-sm-4 col-md-3">
+            <form action="{% url 'ipam:vrf_list' %}" method="get">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Search VRFs" />
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="fa fa-search" aria-hidden="true"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="pull-right">
+        {% if perms.ipam.change_vrf %}
+            <a href="{% url 'ipam:vrf_edit' pk=vrf.pk %}" class="btn btn-warning">
+                <span class="fa fa-pencil" aria-hidden="true"></span>
+                Edit this VRF
+            </a>
+        {% endif %}
+        {% if perms.ipam.delete_vrf %}
+            <a href="{% url 'ipam:vrf_delete' pk=vrf.pk %}" class="btn btn-danger">
+                <span class="fa fa-trash" aria-hidden="true"></span>
+                Delete this VRF
+            </a>
+        {% endif %}
+    </div>
+    <h1>{% block title %}VRF {{ vrf }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' with obj=vrf %}
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ aggregate.get_absolute_url }}">VRF</a>
+        </li>
+        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+            <a href="{% url 'ipam:vrf_changelog' pk=vrf.pk %}">Changelog</a>
+        </li>
+    </ul>
+{% endblock %}
+
 {% block content %}
-<div class="row">
-    <div class="col-sm-8 col-md-9">
-        <ol class="breadcrumb">
-            <li><a href="{% url 'ipam:vrf_list' %}">VRFs</a></li>
-            <li>{{ vrf }}</li>
-        </ol>
-    </div>
-    <div class="col-sm-4 col-md-3">
-        <form action="{% url 'ipam:vrf_list' %}" method="get">
-            <div class="input-group">
-                <input type="text" name="q" class="form-control" placeholder="Search VRFs" />
-                <span class="input-group-btn">
-                    <button type="submit" class="btn btn-primary">
-                        <span class="fa fa-search" aria-hidden="true"></span>
-                    </button>
-                </span>
-            </div>
-        </form>
-    </div>
-</div>
-<div class="pull-right">
-    {% if perms.ipam.change_vrf %}
-        <a href="{% url 'ipam:vrf_edit' pk=vrf.pk %}" class="btn btn-warning">
-            <span class="fa fa-pencil" aria-hidden="true"></span>
-            Edit this VRF
-        </a>
-    {% endif %}
-    {% if perms.ipam.delete_vrf %}
-        <a href="{% url 'ipam:vrf_delete' pk=vrf.pk %}" class="btn btn-danger">
-            <span class="fa fa-trash" aria-hidden="true"></span>
-            Delete this VRF
-        </a>
-    {% endif %}
-</div>
-<h1>{% block title %}VRF {{ vrf }}{% endblock %}</h1>
-{% include 'inc/created_updated.html' with obj=vrf %}
 <div class="row">
 	<div class="col-md-6">
         <div class="panel panel-default">

@@ -14,14 +14,14 @@ from taggit.managers import TaggableManager
 
 from dcim.models import Interface
 from extras.models import CustomFieldModel
-from utilities.models import CreatedUpdatedModel
+from utilities.models import ChangeLoggedModel
 from .constants import *
 from .fields import IPNetworkField, IPAddressField
 from .querysets import PrefixQuerySet
 
 
 @python_2_unicode_compatible
-class VRF(CreatedUpdatedModel, CustomFieldModel):
+class VRF(ChangeLoggedModel, CustomFieldModel):
     """
     A virtual routing and forwarding (VRF) table represents a discrete layer three forwarding domain (e.g. a routing
     table). Prefixes and IPAddresses can optionally be assigned to VRFs. (Prefixes and IPAddresses not assigned to a VRF
@@ -59,9 +59,8 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
-    csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
-
     serializer = 'ipam.api.serializers.VRFSerializer'
+    csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
 
     class Meta:
         ordering = ['name', 'rd']
@@ -91,7 +90,7 @@ class VRF(CreatedUpdatedModel, CustomFieldModel):
 
 
 @python_2_unicode_compatible
-class RIR(models.Model):
+class RIR(ChangeLoggedModel):
     """
     A Regional Internet Registry (RIR) is responsible for the allocation of a large portion of the global IP address
     space. This can be an organization like ARIN or RIPE, or a governing standard such as RFC 1918.
@@ -109,6 +108,7 @@ class RIR(models.Model):
         help_text='IP space managed by this RIR is considered private'
     )
 
+    serializer = 'ipam.api.serializers.RIRSerializer'
     csv_headers = ['name', 'slug', 'is_private']
 
     class Meta:
@@ -131,7 +131,7 @@ class RIR(models.Model):
 
 
 @python_2_unicode_compatible
-class Aggregate(CreatedUpdatedModel, CustomFieldModel):
+class Aggregate(ChangeLoggedModel, CustomFieldModel):
     """
     An aggregate exists at the root level of the IP address space hierarchy in NetBox. Aggregates are used to organize
     the hierarchy and track the overall utilization of available address space. Each Aggregate is assigned to a RIR.
@@ -162,9 +162,8 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
-    csv_headers = ['prefix', 'rir', 'date_added', 'description']
-
     serializer = 'ipam.api.serializers.AggregateSerializer'
+    csv_headers = ['prefix', 'rir', 'date_added', 'description']
 
     class Meta:
         ordering = ['family', 'prefix']
@@ -228,7 +227,7 @@ class Aggregate(CreatedUpdatedModel, CustomFieldModel):
 
 
 @python_2_unicode_compatible
-class Role(models.Model):
+class Role(ChangeLoggedModel):
     """
     A Role represents the functional role of a Prefix or VLAN; for example, "Customer," "Infrastructure," or
     "Management."
@@ -244,6 +243,7 @@ class Role(models.Model):
         default=1000
     )
 
+    serializer = 'ipam.api.serializers.RoleSerializer'
     csv_headers = ['name', 'slug', 'weight']
 
     class Meta:
@@ -261,7 +261,7 @@ class Role(models.Model):
 
 
 @python_2_unicode_compatible
-class Prefix(CreatedUpdatedModel, CustomFieldModel):
+class Prefix(ChangeLoggedModel, CustomFieldModel):
     """
     A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be assigned to Sites and
     VRFs. A Prefix must be assigned a status and may optionally be assigned a used-define Role. A Prefix can also be
@@ -336,11 +336,10 @@ class Prefix(CreatedUpdatedModel, CustomFieldModel):
     objects = PrefixQuerySet.as_manager()
     tags = TaggableManager()
 
+    serializer = 'ipam.api.serializers.PrefixSerializer'
     csv_headers = [
         'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan_vid', 'status', 'role', 'is_pool', 'description',
     ]
-
-    serializer = 'ipam.api.serializers.PrefixSerializer'
 
     class Meta:
         ordering = ['vrf', 'family', 'prefix']
@@ -503,7 +502,7 @@ class IPAddressManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class IPAddress(CreatedUpdatedModel, CustomFieldModel):
+class IPAddress(ChangeLoggedModel, CustomFieldModel):
     """
     An IPAddress represents an individual IPv4 or IPv6 address and its mask. The mask length should match what is
     configured in the real world. (Typically, only loopback interfaces are configured with /32 or /128 masks.) Like
@@ -578,12 +577,11 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
     objects = IPAddressManager()
     tags = TaggableManager()
 
+    serializer = 'ipam.api.serializers.IPAddressSerializer'
     csv_headers = [
         'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface_name', 'is_primary',
         'description',
     ]
-
-    serializer = 'ipam.api.serializers.IPAddressSerializer'
 
     class Meta:
         ordering = ['family', 'address']
@@ -663,7 +661,7 @@ class IPAddress(CreatedUpdatedModel, CustomFieldModel):
 
 
 @python_2_unicode_compatible
-class VLANGroup(models.Model):
+class VLANGroup(ChangeLoggedModel):
     """
     A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique.
     """
@@ -679,9 +677,8 @@ class VLANGroup(models.Model):
         null=True
     )
 
-    csv_headers = ['name', 'slug', 'site']
-
     serializer = 'ipam.api.serializers.VLANGroupSerializer'
+    csv_headers = ['name', 'slug', 'site']
 
     class Meta:
         ordering = ['site', 'name']
@@ -717,7 +714,7 @@ class VLANGroup(models.Model):
 
 
 @python_2_unicode_compatible
-class VLAN(CreatedUpdatedModel, CustomFieldModel):
+class VLAN(ChangeLoggedModel, CustomFieldModel):
     """
     A VLAN is a distinct layer two forwarding domain identified by a 12-bit integer (1-4094). Each VLAN must be assigned
     to a Site, however VLAN IDs need not be unique within a Site. A VLAN may optionally be assigned to a VLANGroup,
@@ -778,9 +775,8 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
-    csv_headers = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
-
     serializer = 'ipam.api.serializers.VLANSerializer'
+    csv_headers = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
 
     class Meta:
         ordering = ['site', 'group', 'vid']
@@ -835,7 +831,7 @@ class VLAN(CreatedUpdatedModel, CustomFieldModel):
 
 
 @python_2_unicode_compatible
-class Service(CreatedUpdatedModel, CustomFieldModel):
+class Service(ChangeLoggedModel, CustomFieldModel):
     """
     A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device or VirtualMachine. A Service may
     optionally be tied to one or more specific IPAddresses belonging to its parent.

@@ -1,46 +1,57 @@
 {% extends '_base.html' %}
 {% load helpers %}
 
+{% block header %}
+    <div class="row" xmlns="http://www.w3.org/1999/html">
+        <div class="col-sm-8 col-md-9">
+            <ol class="breadcrumb">
+                <li><a href="{{ cluster.type.get_absolute_url }}">{{ cluster.type }}</a></li>
+                {% if cluster.group %}
+                    <li><a href="{{ cluster.group.get_absolute_url }}">{{ cluster.group }}</a></li>
+                {% endif %}
+                <li>{{ cluster }}</li>
+            </ol>
+        </div>
+        <div class="col-sm-4 col-md-3">
+            <form action="{% url 'virtualization:cluster_list' %}" method="get">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Search clusters" />
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="fa fa-search" aria-hidden="true"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="pull-right">
+        {% if perms.virtualization.change_cluster %}
+            <a href="{% url 'virtualization:cluster_edit' pk=cluster.pk %}" class="btn btn-warning">
+                <span class="fa fa-pencil" aria-hidden="true"></span>
+                Edit this cluster
+            </a>
+        {% endif %}
+        {% if perms.dcim.delete_cluster %}
+            <a href="{% url 'virtualization:cluster_delete' pk=cluster.pk %}" class="btn btn-danger">
+                <span class="fa fa-trash" aria-hidden="true"></span>
+                Delete this cluster
+            </a>
+        {% endif %}
+    </div>
+    <h1>{% block title %}{{ cluster }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' with obj=cluster %}
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ cluster.get_absolute_url }}">Cluster</a>
+        </li>
+        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+            <a href="{% url 'virtualization:cluster_changelog' pk=cluster.pk %}">Changelog</a>
+        </li>
+    </ul>
+{% endblock %}
+
 {% block content %}
-<div class="row" xmlns="http://www.w3.org/1999/html">
-    <div class="col-sm-8 col-md-9">
-        <ol class="breadcrumb">
-            <li><a href="{{ cluster.type.get_absolute_url }}">{{ cluster.type }}</a></li>
-            {% if cluster.group %}
-                <li><a href="{{ cluster.group.get_absolute_url }}">{{ cluster.group }}</a></li>
-            {% endif %}
-            <li>{{ cluster }}</li>
-        </ol>
-    </div>
-    <div class="col-sm-4 col-md-3">
-        <form action="{% url 'virtualization:cluster_list' %}" method="get">
-            <div class="input-group">
-                <input type="text" name="q" class="form-control" placeholder="Search clusters" />
-                <span class="input-group-btn">
-                    <button type="submit" class="btn btn-primary">
-                        <span class="fa fa-search" aria-hidden="true"></span>
-                    </button>
-                </span>
-            </div>
-        </form>
-    </div>
-</div>
-<div class="pull-right">
-    {% if perms.virtualization.change_cluster %}
-		<a href="{% url 'virtualization:cluster_edit' pk=cluster.pk %}" class="btn btn-warning">
-			<span class="fa fa-pencil" aria-hidden="true"></span>
-			Edit this cluster
-		</a>
-    {% endif %}
-    {% if perms.dcim.delete_cluster %}
-		<a href="{% url 'virtualization:cluster_delete' pk=cluster.pk %}" class="btn btn-danger">
-			<span class="fa fa-trash" aria-hidden="true"></span>
-			Delete this cluster
-		</a>
-    {% endif %}
-</div>
-<h1>{% block title %}{{ cluster }}{% endblock %}</h1>
-{% include 'inc/created_updated.html' with obj=cluster %}
 <div class="row">
 	<div class="col-md-5">
         <div class="panel panel-default">

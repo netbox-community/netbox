@@ -1,8 +1,10 @@
 from __future__ import unicode_literals
 
+from django import template
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.db.models import Count
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.safestring import mark_safe
@@ -11,10 +13,11 @@ from taggit.models import Tag
 
 from utilities.forms import ConfirmationForm
 from utilities.views import BulkDeleteView, ObjectDeleteView, ObjectEditView, ObjectListView
-from .forms import ImageAttachmentForm, TagForm
-from .models import ImageAttachment, ReportResult, UserAction
+from . import filters
+from .forms import ObjectChangeFilterForm, ImageAttachmentForm, TagForm
+from .models import ImageAttachment, ObjectChange, ReportResult
 from .reports import get_report, get_reports
-from .tables import TagTable
+from .tables import ObjectChangeTable, TagTable
 
 
 #
@@ -48,6 +51,77 @@ class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     queryset = Tag.objects.annotate(items=Count('taggit_taggeditem_items')).order_by('name')
     table = TagTable
     default_return_url = 'extras:tag_list'
+
+
+#
+# Change logging
+#
+
+class ObjectChangeListView(ObjectListView):
+    queryset = ObjectChange.objects.select_related('user', 'changed_object_type')
+    filter = filters.ObjectChangeFilter
+    filter_form = ObjectChangeFilterForm
+    table = ObjectChangeTable
+    template_name = 'extras/objectchange_list.html'
+
+
+class ObjectChangeView(View):
+
+    def get(self, request, pk):
+
+        objectchange = get_object_or_404(ObjectChange, pk=pk)
+
+        related_changes = ObjectChange.objects.filter(request_id=objectchange.request_id).exclude(pk=objectchange.pk)
+        related_changes_table = ObjectChangeTable(
+            data=related_changes[:50],
+            orderable=False
+        )
+
+        return render(request, 'extras/objectchange.html', {
+            'objectchange': objectchange,
+            'related_changes_table': related_changes_table,
+            'related_changes_count': related_changes.count()
+        })
+
+
+class ObjectChangeLogView(View):
+    """
+    Present a history of changes made to a particular object.
+    """
+
+    def get(self, request, model, **kwargs):
+
+        # Get object my model and kwargs (e.g. slug='foo')
+        obj = get_object_or_404(model, **kwargs)
+
+        # Gather all changes for this object (and its related objects)
+        content_type = ContentType.objects.get_for_model(model)
+        objectchanges = ObjectChange.objects.select_related(
+            'user', 'changed_object_type'
+        ).filter(
+            Q(changed_object_type=content_type, changed_object_id=obj.pk) |
+            Q(related_object_type=content_type, related_object_id=obj.pk)
+        )
+        objectchanges_table = ObjectChangeTable(
+            data=objectchanges,
+            orderable=False
+        )
+
+        # Check whether a header template exists for this model
+        base_template = '{}/{}.html'.format(model._meta.app_label, model._meta.model_name)
+        try:
+            template.loader.get_template(base_template)
+            object_var = model._meta.model_name
+        except template.TemplateDoesNotExist:
+            base_template = '_base.html'
+            object_var = 'obj'
+
+        return render(request, 'extras/object_changelog.html', {
+            object_var: obj,
+            'objectchanges_table': objectchanges_table,
+            'base_template': base_template,
+            'active_tab': 'changelog',
+        })
 
 
 #
@@ -149,6 +223,5 @@ class ReportRunView(PermissionRequiredMixin, View):
             result = 'failed' if report.failed else 'passed'
             msg = "Ran report {} ({})".format(report.full_name, result)
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_create(request.user, report.result, msg)
 
         return redirect('extras:report', name=report.full_name)

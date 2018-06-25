@@ -3,12 +3,16 @@ from __future__ import unicode_literals
 from collections import OrderedDict
 
 from django import forms
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from taggit.models import Tag
 
-from utilities.forms import BootstrapMixin, BulkEditForm, LaxURLField, SlugField
-from .constants import CF_FILTER_DISABLED, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL
-from .models import CustomField, CustomFieldValue, ImageAttachment
+from utilities.forms import add_blank_choice, BootstrapMixin, BulkEditForm, LaxURLField, SlugField
+from .constants import (
+    CF_FILTER_DISABLED, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL,
+    OBJECTCHANGE_ACTION_CHOICES,
+)
+from .models import CustomField, CustomFieldValue, ImageAttachment, ObjectChange
 
 
 #
@@ -189,3 +193,38 @@ class ImageAttachmentForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ImageAttachment
         fields = ['name', 'image']
+
+
+#
+# Change logging
+#
+
+class ObjectChangeFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = ObjectChange
+    q = forms.CharField(
+        required=False,
+        label='Search'
+    )
+    # TODO: Change time_0 and time_1 to time_after and time_before for django-filter==2.0
+    time_0 = forms.DateTimeField(
+        label='After',
+        required=False,
+        widget=forms.TextInput(
+            attrs={'placeholder': 'YYYY-MM-DD hh:mm:ss'}
+        )
+    )
+    time_1 = forms.DateTimeField(
+        label='Before',
+        required=False,
+        widget=forms.TextInput(
+            attrs={'placeholder': 'YYYY-MM-DD hh:mm:ss'}
+        )
+    )
+    action = forms.ChoiceField(
+        choices=add_blank_choice(OBJECTCHANGE_ACTION_CHOICES),
+        required=False
+    )
+    user = forms.ModelChoiceField(
+        queryset=User.objects.order_by('username'),
+        required=False
+    )

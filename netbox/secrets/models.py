@@ -14,7 +14,7 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes, python_2_unicode_compatible
 from taggit.managers import TaggableManager
 
-from utilities.models import CreatedUpdatedModel
+from utilities.models import ChangeLoggedModel
 from .exceptions import InvalidKey
 from .hashers import SecretValidationHasher
 from .querysets import UserKeyQuerySet
@@ -48,12 +48,18 @@ def decrypt_master_key(master_key_cipher, private_key):
 
 
 @python_2_unicode_compatible
-class UserKey(CreatedUpdatedModel):
+class UserKey(models.Model):
     """
     A UserKey stores a user's personal RSA (public) encryption key, which is used to generate their unique encrypted
     copy of the master encryption key. The encrypted instance of the master key can be decrypted only with the user's
     matching (private) decryption key.
     """
+    created = models.DateField(
+        auto_now_add=True
+    )
+    last_updated = models.DateTimeField(
+        auto_now=True
+    )
     user = models.OneToOneField(
         to=User,
         on_delete=models.CASCADE,
@@ -251,7 +257,7 @@ class SessionKey(models.Model):
 
 
 @python_2_unicode_compatible
-class SecretRole(models.Model):
+class SecretRole(ChangeLoggedModel):
     """
     A SecretRole represents an arbitrary functional classification of Secrets. For example, a user might define roles
     such as "Login Credentials" or "SNMP Communities."
@@ -277,6 +283,7 @@ class SecretRole(models.Model):
         blank=True
     )
 
+    serializer = 'ipam.api.secrets.SecretSerializer'
     csv_headers = ['name', 'slug']
 
     class Meta:
@@ -304,7 +311,7 @@ class SecretRole(models.Model):
 
 
 @python_2_unicode_compatible
-class Secret(CreatedUpdatedModel):
+class Secret(ChangeLoggedModel):
     """
     A Secret stores an AES256-encrypted copy of sensitive data, such as passwords or secret keys. An irreversible
     SHA-256 hash is stored along with the ciphertext for validation upon decryption. Each Secret is assigned to a
@@ -340,6 +347,7 @@ class Secret(CreatedUpdatedModel):
     tags = TaggableManager()
 
     plaintext = None
+    serializer = 'ipam.api.secrets.SecretSerializer'
     csv_headers = ['device', 'role', 'name', 'plaintext']
 
     class Meta:
