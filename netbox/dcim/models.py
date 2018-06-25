@@ -1937,7 +1937,7 @@ class Interface(ComponentModel):
             related_object=self.get_component_parent(),
             action=action,
             object_data=serialize_object(self, extra={
-                'connected_interface': self.connected_interface.pk,
+                'connected_interface': self.connected_interface.pk if self.connection else None,
                 'connection_status': self.connection.connection_status if self.connection else None,
             })
         ).save()
