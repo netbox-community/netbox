@@ -7,7 +7,8 @@ from django.utils.safestring import mark_safe
 from utilities.forms import LaxURLField
 from .constants import OBJECTCHANGE_ACTION_CREATE, OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE
 from .models import (
-    CustomField, CustomFieldChoice, Graph, ExportTemplate, ObjectChange, TopologyMap, UserAction, Webhook,
+    ConfigContext, CustomField, CustomFieldChoice, Graph, ExportTemplate, ObjectChange, TopologyMap, UserAction,
+    Webhook,
 )
 
 
@@ -123,6 +124,15 @@ class TopologyMapAdmin(admin.ModelAdmin):
     prepopulated_fields = {
         'slug': ['name'],
     }
+
+
+#
+# Config contexts
+#
+
+@admin.register(ConfigContext)
+class ConfigContextAdmin(admin.ModelAdmin):
+    list_display = ['name', 'weight']
 
 
 #

@@ -269,6 +269,18 @@ class VirtualMachineView(View):
         })
 
 
+class VirtualMachineConfigContextView(View):
+
+    def get(self, request, pk):
+
+        virtualmachine = get_object_or_404(VirtualMachine, pk=pk)
+
+        return render(request, 'virtualization/virtualmachine_configcontext.html', {
+            'virtualmachine': virtualmachine,
+            'active_tab': 'config-context',
+        })
+
+
 class VirtualMachineCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'virtualization.add_virtualmachine'
     model = VirtualMachine

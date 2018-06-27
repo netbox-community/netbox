@@ -630,6 +630,94 @@ class ImageAttachment(models.Model):
 
 
 #
+# Config contexts
+#
+
+class ConfigContext(models.Model):
+    """
+    A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned
+    qualifiers (region, site, etc.). For example, the data stored in a ConfigContext assigned to site A and tenant B
+    will be available to a Device in site A assigned to tenant B. Data is stored in JSON format.
+    """
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+    weight = models.PositiveSmallIntegerField(
+        default=1000
+    )
+    is_active = models.BooleanField(
+        default=True,
+    )
+    regions = models.ManyToManyField(
+        to='dcim.Region',
+        related_name='+',
+        blank=True
+    )
+    sites = models.ManyToManyField(
+        to='dcim.Site',
+        related_name='+',
+        blank=True
+    )
+    roles = models.ManyToManyField(
+        to='dcim.DeviceRole',
+        related_name='+',
+        blank=True
+    )
+    platforms = models.ManyToManyField(
+        to='dcim.Platform',
+        related_name='+',
+        blank=True
+    )
+    tenants = models.ManyToManyField(
+        to='tenancy.Tenant',
+        related_name='+',
+        blank=True
+    )
+    data = JSONField()
+
+    class Meta:
+        ordering = ['weight', 'name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('extras:configcontext', kwargs={'pk': self.pk})
+
+
+class ConfigContextModel(models.Model):
+
+    class Meta:
+        abstract = True
+
+    def get_config_context(self):
+        """
+        Return the rendered configuration context for a device or VM.
+        """
+
+        # `device_role` for Device; `role` for VirtualMachine
+        role = getattr(self, 'device_role', None) or self.role
+
+        # Gather all ConfigContexts orders by weight, name
+        contexts = ConfigContext.objects.filter(
+            Q(regions=self.site.region) | Q(regions=None),
+            Q(sites=self.site) | Q(sites=None),
+            Q(roles=role) | Q(roles=None),
+            Q(tenants=self.tenant) | Q(tenants=None),
+            Q(platforms=self.platform) | Q(platforms=None),
+            is_active=True,
+        ).order_by('weight', 'name')
+
+        # Compile all config data, overwriting lower-weight values with higher-weight values where a collision occurs
+        data = {}
+        for context in contexts:
+            data.update(context.data)
+
+        return data
+
+
+#
 # Report results
 #
 

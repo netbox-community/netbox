@@ -5,14 +5,16 @@ from collections import OrderedDict
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from mptt.forms import TreeNodeMultipleChoiceField
 from taggit.models import Tag
 
+from dcim.models import Region
 from utilities.forms import add_blank_choice, BootstrapMixin, BulkEditForm, LaxURLField, SlugField
 from .constants import (
     CF_FILTER_DISABLED, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL,
     OBJECTCHANGE_ACTION_CHOICES,
 )
-from .models import CustomField, CustomFieldValue, ImageAttachment, ObjectChange
+from .models import ConfigContext, CustomField, CustomFieldValue, ImageAttachment, ObjectChange
 
 
 #
@@ -174,7 +176,6 @@ class CustomFieldFilterForm(forms.Form):
 #
 # Tags
 #
-#
 
 class TagForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
@@ -182,6 +183,21 @@ class TagForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Tag
         fields = ['name', 'slug']
+
+
+#
+# Config contexts
+#
+
+class ConfigContextForm(BootstrapMixin, forms.ModelForm):
+    regions = TreeNodeMultipleChoiceField(
+        queryset=Region.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = ConfigContext
+        fields = ['name', 'weight', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'tenants', 'data']
 
 
 #

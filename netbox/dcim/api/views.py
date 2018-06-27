@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 from collections import OrderedDict
 
 from django.conf import settings
-from django.db import transaction
 from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
@@ -232,6 +231,11 @@ class DeviceViewSet(CustomFieldModelViewSet):
     )
     serializer_class = serializers.DeviceSerializer
     filter_class = filters.DeviceFilter
+
+    @detail_route(url_path='config-context')
+    def config_context(self, request, pk):
+        device = get_object_or_404(Device, pk=pk)
+        return Response(device.get_config_context())
 
     @detail_route(url_path='napalm')
     def napalm(self, request, pk):

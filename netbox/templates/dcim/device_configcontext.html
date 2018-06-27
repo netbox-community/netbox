@@ -1,0 +1,18 @@
+{% extends 'dcim/device.html' %}
+
+{% block title %}{{ device }} - Config Context{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Config Context</strong>
+                </div>
+                <div class="panel-body">
+                    <pre>{{ device.get_config_context }}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

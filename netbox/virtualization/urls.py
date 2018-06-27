@@ -48,6 +48,7 @@ urlpatterns = [
     url(r'^virtual-machines/(?P<pk>\d+)/$', views.VirtualMachineView.as_view(), name='virtualmachine'),
     url(r'^virtual-machines/(?P<pk>\d+)/edit/$', views.VirtualMachineEditView.as_view(), name='virtualmachine_edit'),
     url(r'^virtual-machines/(?P<pk>\d+)/delete/$', views.VirtualMachineDeleteView.as_view(), name='virtualmachine_delete'),
+    url(r'^virtual-machines/(?P<pk>\d+)/config-context/$', views.VirtualMachineConfigContextView.as_view(), name='virtualmachine_configcontext'),
     url(r'^virtual-machines/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='virtualmachine_changelog', kwargs={'model': VirtualMachine}),
     url(r'^virtual-machines/(?P<virtualmachine>\d+)/services/assign/$', ServiceCreateView.as_view(), name='virtualmachine_service_assign'),
 

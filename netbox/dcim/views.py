@@ -994,6 +994,18 @@ class DeviceConfigView(PermissionRequiredMixin, View):
         })
 
 
+class DeviceConfigContextView(View):
+
+    def get(self, request, pk):
+
+        device = get_object_or_404(Device, pk=pk)
+
+        return render(request, 'dcim/device_configcontext.html', {
+            'device': device,
+            'active_tab': 'config-context',
+        })
+
+
 class DeviceCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_device'
     model = Device

@@ -4,7 +4,7 @@ import django_tables2 as tables
 from taggit.models import Tag
 
 from utilities.tables import BaseTable, ToggleColumn
-from .models import ObjectChange
+from .models import ConfigContext, ObjectChange
 
 TAG_ACTIONS = """
 {% if perms.taggit.change_tag %}
@@ -12,6 +12,15 @@ TAG_ACTIONS = """
 {% endif %}
 {% if perms.taggit.delete_tag %}
     <a href="{% url 'extras:tag_delete' slug=record.slug %}" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-trash" aria-hidden="true"></i></a>
+{% endif %}
+"""
+
+CONFIGCONTEXT_ACTIONS = """
+{% if perms.extras.change_configcontext %}
+    <a href="{% url 'extras:configcontext_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+{% endif %}
+{% if perms.extras.delete_configcontext %}
+    <a href="{% url 'extras:configcontext_delete' pk=record.pk %}" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-trash" aria-hidden="true"></i></a>
 {% endif %}
 """
 
@@ -44,7 +53,21 @@ class TagTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Tag
-        fields = ('pk', 'name', 'items')
+        fields = ('pk', 'name', 'weight')
+
+
+class ConfigContextTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.LinkColumn()
+    actions = tables.TemplateColumn(
+        template_code=CONFIGCONTEXT_ACTIONS,
+        attrs={'td': {'class': 'text-right'}},
+        verbose_name=''
+    )
+
+    class Meta(BaseTable.Meta):
+        model = ConfigContext
+        fields = ('pk', 'name', 'weight', 'active')
 
 
 class ObjectChangeTable(BaseTable):
