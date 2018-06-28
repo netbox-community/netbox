@@ -1,4 +1,5 @@
 {% extends 'dcim/device.html' %}
+{% load helpers %}
 
 {% block title %}{{ device }} - Config Context{% endblock %}
 
@@ -10,7 +11,7 @@
                     <strong>Config Context</strong>
                 </div>
                 <div class="panel-body">
-                    <pre>{{ device.get_config_context }}</pre>
+                    <pre>{{ device.get_config_context|render_json }}</pre>
                 </div>
             </div>
         </div>

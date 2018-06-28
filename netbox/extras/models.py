@@ -854,10 +854,6 @@ class ObjectChange(models.Model):
             self.object_data,
         )
 
-    @property
-    def object_data_pretty(self):
-        return json.dumps(self.object_data, indent=4, sort_keys=True)
-
 
 #
 # User actions
