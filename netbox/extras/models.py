@@ -703,7 +703,7 @@ class ConfigContextModel(models.Model):
         for context in ConfigContext.objects.get_for_object(self):
             data.update(context.data)
 
-        return data
+        return sorted(data)
 
 
 #
