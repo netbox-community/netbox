@@ -59,6 +59,9 @@ class TagTable(BaseTable):
 class ConfigContextTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
+    is_active = tables.BooleanColumn(
+        verbose_name='Active'
+    )
     actions = tables.TemplateColumn(
         template_code=CONFIGCONTEXT_ACTIONS,
         attrs={'td': {'class': 'text-right'}},
@@ -67,7 +70,7 @@ class ConfigContextTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ConfigContext
-        fields = ('pk', 'name', 'weight', 'active')
+        fields = ('pk', 'name', 'weight', 'is_active')
 
 
 class ObjectChangeTable(BaseTable):
