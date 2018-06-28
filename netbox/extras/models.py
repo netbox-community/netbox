@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 from collections import OrderedDict
 from datetime import date
-import json
 
 import graphviz
 from django.contrib.auth.models import User
@@ -21,6 +20,7 @@ from django.utils.safestring import mark_safe
 from dcim.constants import CONNECTION_STATUS_CONNECTED
 from utilities.utils import foreground_color
 from .constants import *
+from .querysets import ConfigContextQuerySet
 
 
 #
@@ -676,6 +676,8 @@ class ConfigContext(models.Model):
     )
     data = JSONField()
 
+    objects = ConfigContextQuerySet.as_manager()
+
     class Meta:
         ordering = ['weight', 'name']
 
@@ -696,22 +698,9 @@ class ConfigContextModel(models.Model):
         Return the rendered configuration context for a device or VM.
         """
 
-        # `device_role` for Device; `role` for VirtualMachine
-        role = getattr(self, 'device_role', None) or self.role
-
-        # Gather all ConfigContexts orders by weight, name
-        contexts = ConfigContext.objects.filter(
-            Q(regions=self.site.region) | Q(regions=None),
-            Q(sites=self.site) | Q(sites=None),
-            Q(roles=role) | Q(roles=None),
-            Q(tenants=self.tenant) | Q(tenants=None),
-            Q(platforms=self.platform) | Q(platforms=None),
-            is_active=True,
-        ).order_by('weight', 'name')
-
         # Compile all config data, overwriting lower-weight values with higher-weight values where a collision occurs
         data = {}
-        for context in contexts:
+        for context in ConfigContext.objects.get_for_object(self):
             data.update(context.data)
 
         return data

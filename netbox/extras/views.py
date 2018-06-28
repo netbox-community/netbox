@@ -100,6 +100,24 @@ class ConfigContextBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     default_return_url = 'extras:configcontext_list'
 
 
+class ObjectConfigContextView(View):
+    object_class = None
+    base_template = None
+
+    def get(self, request, pk):
+
+        obj = get_object_or_404(self.object_class, pk=pk)
+        source_contexts = ConfigContext.objects.get_for_object(obj)
+
+        return render(request, 'extras/object_configcontext.html', {
+            self.object_class._meta.model_name: obj,
+            'rendered_context': obj.get_config_context(),
+            'source_contexts': source_contexts,
+            'base_template': self.base_template,
+            'active_tab': 'config-context',
+        })
+
+
 #
 # Change logging
 #

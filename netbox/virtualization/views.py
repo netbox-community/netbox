@@ -9,6 +9,7 @@ from django.views.generic import View
 
 from dcim.models import Device, Interface
 from dcim.tables import DeviceTable
+from extras.views import ObjectConfigContextView
 from ipam.models import Service
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ObjectDeleteView,
@@ -269,16 +270,9 @@ class VirtualMachineView(View):
         })
 
 
-class VirtualMachineConfigContextView(View):
-
-    def get(self, request, pk):
-
-        virtualmachine = get_object_or_404(VirtualMachine, pk=pk)
-
-        return render(request, 'virtualization/virtualmachine_configcontext.html', {
-            'virtualmachine': virtualmachine,
-            'active_tab': 'config-context',
-        })
+class VirtualMachineConfigContextView(ObjectConfigContextView):
+    object_class = VirtualMachine
+    base_template = 'virtualization/virtualmachine.html'
 
 
 class VirtualMachineCreateView(PermissionRequiredMixin, ObjectEditView):
