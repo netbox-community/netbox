@@ -4,30 +4,12 @@ from importlib import import_module
 from django.db.models.signals import post_save, post_delete
 from django.conf import settings
 from django.core.cache import caches
+from django.db.models import Q
 from django.dispatch import Signal
 from django.contrib.contenttypes.models import ContentType
 
 from utilities.utils import dynamic_import
-from .models import Webhook
-
-
-#
-# Webhooks signals regiters and receivers
-#
-
-def get_or_set_webhook_cache():
-    """
-    Retrieve the webhook cache. If it is None set it to the current
-    Webhook queryset
-    """
-    cache = caches['default']
-    webhook_cache = cache.get('webhook_cache', None)
-
-    if webhook_cache is None:
-        webhook_cache = Webhook.objects.all()
-        cache.set('webhook_cache', webhook_cache)
-
-    return webhook_cache
+from extras.models import Webhook
 
 
 def enqueue_webhooks(webhooks, model_class, data, event, signal_received_timestamp):
@@ -66,18 +48,17 @@ def post_save_receiver(sender, instance, created, **kwargs):
     """
     if settings.WEBHOOKS_ENABLED:
         signal_received_timestamp = time.time()
-        webhook_cache = get_or_set_webhook_cache()
         # look for any webhooks that match this event
         updated = not created
         obj_type = ContentType.objects.get_for_model(sender)
-        webhooks = [
-            x
-            for x in webhook_cache
-            if (
-                x.enabled and x.type_create == created or x.type_update == updated and
-                obj_type in x.obj_type.all()
-            )
-        ]
+        webhooks = Webhook.objects.filter(
+            Q(enabled=True) &
+            (
+                Q(type_create=created) |
+                Q(type_update=updated)
+            ) &
+            Q(obj_type=obj_type)
+        )
         event = 'created' if created else 'updated'
         if webhooks:
             enqueue_webhooks(webhooks, sender, instance, event, signal_received_timestamp)
@@ -90,10 +71,9 @@ def post_delete_receiver(sender, instance, **kwargs):
     """
     if settings.WEBHOOKS_ENABLED:
         signal_received_timestamp = time.time()
-        webhook_cache = get_or_set_webhook_cache()
         obj_type = ContentType.objects.get_for_model(sender)
         # look for any webhooks that match this event
-        webhooks = [x for x in webhook_cache if x.enabled and x.type_delete and obj_type in x.obj_type.all()]
+        webhooks = Webhook.objects.filter(enabled=True, type_delete=True, obj_type=obj_type)
         if webhooks:
             enqueue_webhooks(webhooks, sender, instance, 'deleted', signal_received_timestamp)
 
@@ -106,15 +86,14 @@ def bulk_operation_receiver(sender, **kwargs):
     if settings.WEBHOOKS_ENABLED:
         signal_received_timestamp = time.time()
         event = kwargs['event']
-        webhook_cache = get_or_set_webhook_cache()
         obj_type = ContentType.objects.get_for_model(sender)
         # look for any webhooks that match this event
         if event == 'created':
-            webhooks = [x for x in webhook_cache if x.enabled and x.type_create and obj_type in x.obj_type.all()]
+            webhooks = Webhook.objects.filter(enabled=True, type_create=True, obj_type=obj_type)
         elif event == 'updated':
-            webhooks = [x for x in webhook_cache if x.enabled and x.type_update and obj_type in x.obj_type.all()]
+            webhooks = Webhook.objects.filter(enabled=True, type_update=True, obj_type=obj_type)
         elif event == 'deleted':
-            webhooks = [x for x in webhook_cache if x.enabled and x.type_delete and obj_type in x.obj_type.all()]
+            webhooks = Webhook.objects.filter(enabled=True, type_delete=True, obj_type=obj_type)
         else:
             webhooks = None
 
