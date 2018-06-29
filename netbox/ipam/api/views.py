@@ -4,7 +4,7 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import detail_route
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
 
 from extras.api.views import CustomFieldModelViewSet
@@ -98,7 +98,23 @@ class PrefixViewSet(CustomFieldModelViewSet):
             requested_prefixes = request.data if isinstance(request.data, list) else [request.data]
 
             # Allocate prefixes to the requested objects based on availability within the parent
-            for requested_prefix in requested_prefixes:
+            for i, requested_prefix in enumerate(requested_prefixes):
+
+                # Validate requested prefix size
+                if 'prefix_length' not in requested_prefix:
+                    raise ValidationError("Item {}: prefix_length field missing".format(i))
+                elif not isinstance(requested_prefix['prefix_length'], int):
+                    raise ValidationError("Item {}: Invalid prefix length ({})".format(
+                        i, requested_prefix['prefix_length']
+                    ))
+                elif prefix.family == 4 and requested_prefix['prefix_length'] > 32:
+                    raise ValidationError("Item {}: Invalid prefix length ({}) for IPv4".format(
+                        i, requested_prefix['prefix_length']
+                    ))
+                elif prefix.family == 6 and requested_prefix['prefix_length'] > 128:
+                    raise ValidationError("Item {}: Invalid prefix length ({}) for IPv6".format(
+                        i, requested_prefix['prefix_length']
+                    ))
 
                 # Find the first available prefix equal to or larger than the requested size
                 for available_prefix in available_prefixes.iter_cidrs():
