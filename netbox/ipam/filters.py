@@ -230,6 +230,10 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         method='search',
         label='Search',
     )
+    address = django_filters.CharFilter(
+        method='search_by_address',
+        label='Exact address match',
+    )
     parent = django_filters.CharFilter(
         method='search_by_parent',
         label='Parent prefix',
@@ -307,6 +311,16 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
             Q(address__istartswith=value)
         )
         return queryset.filter(qs_filter)
+
+    def search_by_address(self, queryset, name, value):
+        value = value.strip()
+        if not value:
+            return queryset
+        try:
+            query = str(netaddr.IPNetwork(value.strip()).ip)
+            return queryset.filter(address__net_contains_or_equals=query, address__startswith=query + "/")
+        except (AddrFormatError, ValueError):
+            return queryset.none()
 
     def search_by_parent(self, queryset, name, value):
         value = value.strip()
