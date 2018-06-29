@@ -304,14 +304,6 @@ INTERNAL_IPS = (
     '::1',
 )
 
-# Django CACHE - local memory cache
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'webhooks',
-    }
-}
-
 
 try:
     HOSTNAME = socket.gethostname()
