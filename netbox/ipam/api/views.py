@@ -101,20 +101,28 @@ class PrefixViewSet(CustomFieldModelViewSet):
             for i, requested_prefix in enumerate(requested_prefixes):
 
                 # Validate requested prefix size
+                error_msg = None
                 if 'prefix_length' not in requested_prefix:
-                    raise ValidationError("Item {}: prefix_length field missing".format(i))
+                    error_msg = "Item {}: prefix_length field missing".format(i)
                 elif not isinstance(requested_prefix['prefix_length'], int):
-                    raise ValidationError("Item {}: Invalid prefix length ({})".format(
+                    error_msg = "Item {}: Invalid prefix length ({})".format(
                         i, requested_prefix['prefix_length']
-                    ))
+                    )
                 elif prefix.family == 4 and requested_prefix['prefix_length'] > 32:
-                    raise ValidationError("Item {}: Invalid prefix length ({}) for IPv4".format(
+                    error_msg = "Item {}: Invalid prefix length ({}) for IPv4".format(
                         i, requested_prefix['prefix_length']
-                    ))
+                    )
                 elif prefix.family == 6 and requested_prefix['prefix_length'] > 128:
-                    raise ValidationError("Item {}: Invalid prefix length ({}) for IPv6".format(
+                    error_msg = "Item {}: Invalid prefix length ({}) for IPv6".format(
                         i, requested_prefix['prefix_length']
-                    ))
+                    )
+                if error_msg:
+                    return Response(
+                        {
+                            "detail": error_msg
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
 
                 # Find the first available prefix equal to or larger than the requested size
                 for available_prefix in available_prefixes.iter_cidrs():
