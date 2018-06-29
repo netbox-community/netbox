@@ -70,7 +70,7 @@ class ConfigContextTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ConfigContext
-        fields = ('pk', 'name', 'weight', 'is_active')
+        fields = ('pk', 'name', 'weight', 'is_active', 'description', 'actions')
 
 
 class ObjectChangeTable(BaseTable):

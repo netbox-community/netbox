@@ -197,7 +197,9 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = ConfigContext
-        fields = ['name', 'weight', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'tenants', 'data']
+        fields = [
+            'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'tenants', 'data',
+        ]
 
 
 #

@@ -646,6 +646,10 @@ class ConfigContext(models.Model):
     weight = models.PositiveSmallIntegerField(
         default=1000
     )
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
     is_active = models.BooleanField(
         default=True,
     )

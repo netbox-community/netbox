@@ -26,6 +26,9 @@
                             <span class="text-muted">{{ context.weight }}</span>
                         </div>
                         <a href="{{ context.get_absolute_url }}"><strong>{{ context.name }}</strong></a>
+                        {% if context.description %}
+                            <br /><small>{{ context.description }}</small>
+                        {% endif %}
                         <pre>{{ context.data|render_json }}</pre>
                     </div>
                 {% endfor %}

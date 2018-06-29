@@ -7,7 +7,13 @@
         <div class="panel-body">
             {% render_field form.name %}
             {% render_field form.weight %}
+            {% render_field form.description %}
             {% render_field form.is_active %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Assignment</strong></div>
+        <div class="panel-body">
             {% render_field form.regions %}
             {% render_field form.sites %}
             {% render_field form.roles %}

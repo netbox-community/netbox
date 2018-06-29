@@ -140,7 +140,9 @@ class ConfigContextSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = ConfigContext
-        fields = ['name', 'weight', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'tenants', 'data']
+        fields = [
+            'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'tenants', 'data',
+        ]
 
 
 #
