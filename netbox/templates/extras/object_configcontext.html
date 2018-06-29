@@ -1,0 +1,38 @@
+{% extends base_template %}
+{% load helpers %}
+
+{% block title %}{{ block.super }} - Config Context{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Rendered Context</strong>
+                </div>
+                <div class="panel-body">
+                    <pre>{{ rendered_context|render_json }}</pre>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Source Contexts</strong>
+                </div>
+                {% for context in source_contexts %}
+                    <div class="panel-body">
+                        <div class="pull-right">
+                            <span class="text-muted">{{ context.weight }}</span>
+                        </div>
+                        <a href="{{ context.get_absolute_url }}"><strong>{{ context.name }}</strong></a>
+                        {% if context.description %}
+                            <br /><small>{{ context.description }}</small>
+                        {% endif %}
+                        <pre>{{ context.data|render_json }}</pre>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

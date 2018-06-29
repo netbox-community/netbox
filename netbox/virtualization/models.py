@@ -9,7 +9,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from taggit.managers import TaggableManager
 
 from dcim.models import Device
-from extras.models import CustomFieldModel
+from extras.models import ConfigContextModel, CustomFieldModel
 from utilities.models import ChangeLoggedModel
 from .constants import DEVICE_STATUS_ACTIVE, VM_STATUS_CHOICES, VM_STATUS_CLASSES
 
@@ -168,7 +168,7 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
 #
 
 @python_2_unicode_compatible
-class VirtualMachine(ChangeLoggedModel, CustomFieldModel):
+class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     """
     A virtual machine which runs inside a Cluster.
     """

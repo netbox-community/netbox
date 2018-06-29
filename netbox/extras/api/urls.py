@@ -34,6 +34,9 @@ router.register(r'tags', views.TagViewSet)
 # Image attachments
 router.register(r'image-attachments', views.ImageAttachmentViewSet)
 
+# Config contexts
+router.register(r'config-contexts', views.ConfigContextViewSet)
+
 # Reports
 router.register(r'reports', views.ReportViewSet, base_name='report')
 

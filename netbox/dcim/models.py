@@ -19,7 +19,7 @@ from timezone_field import TimeZoneField
 
 from circuits.models import Circuit
 from extras.constants import OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE
-from extras.models import CustomFieldModel, ObjectChange
+from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange
 from extras.rpc import RPC_CLIENTS
 from utilities.fields import ColorField, NullableCharField
 from utilities.managers import NaturalOrderByManager
@@ -1158,7 +1158,7 @@ class DeviceManager(NaturalOrderByManager):
 
 
 @python_2_unicode_compatible
-class Device(ChangeLoggedModel, CustomFieldModel):
+class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
     DeviceRole, and (optionally) a Platform. Device names are not required, however if one is set it must be unique.

@@ -19,6 +19,7 @@ from natsort import natsorted
 
 from circuits.models import Circuit
 from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
+from extras.views import ObjectConfigContextView
 from ipam.models import Prefix, Service, VLAN
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
@@ -992,6 +993,11 @@ class DeviceConfigView(PermissionRequiredMixin, View):
             'device': device,
             'active_tab': 'config',
         })
+
+
+class DeviceConfigContextView(ObjectConfigContextView):
+    object_class = Device
+    base_template = 'dcim/device.html'
 
 
 class DeviceCreateView(PermissionRequiredMixin, ObjectEditView):

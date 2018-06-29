@@ -1,5 +1,9 @@
 from __future__ import unicode_literals
 
+from django.shortcuts import get_object_or_404
+from rest_framework.decorators import detail_route
+from rest_framework.response import Response
+
 from dcim.models import Interface
 from extras.api.views import CustomFieldModelViewSet
 from utilities.api import FieldChoicesViewSet, ModelViewSet
@@ -48,6 +52,11 @@ class VirtualMachineViewSet(CustomFieldModelViewSet):
     queryset = VirtualMachine.objects.all()
     serializer_class = serializers.VirtualMachineSerializer
     filter_class = filters.VirtualMachineFilter
+
+    @detail_route(url_path='config-context')
+    def config_context(self, request, pk):
+        device = get_object_or_404(VirtualMachine, pk=pk)
+        return Response(device.get_config_context())
 
 
 class InterfaceViewSet(ModelViewSet):

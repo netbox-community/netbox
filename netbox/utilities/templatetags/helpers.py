@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import datetime
+import json
 
 from django import template
 from django.utils.safestring import mark_safe
@@ -44,6 +45,14 @@ def gfm(value):
     """
     html = markdown(value, extensions=['mdx_gfm'])
     return mark_safe(html)
+
+
+@register.filter()
+def render_json(value):
+    """
+    Render a dictionary as formatted JSON.
+    """
+    return json.dumps(value, indent=4, sort_keys=True)
 
 
 @register.filter()

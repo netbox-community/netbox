@@ -12,7 +12,8 @@ from taggit.models import Tag
 
 from extras import filters
 from extras.models import (
-    CustomField, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap, UserAction,
+    ConfigContext, CustomField, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
+    UserAction,
 )
 from extras.reports import get_report, get_reports
 from utilities.api import FieldChoicesViewSet, IsAuthenticatedOrLoginNotRequired, ModelViewSet
@@ -130,6 +131,15 @@ class TagViewSet(ModelViewSet):
 class ImageAttachmentViewSet(ModelViewSet):
     queryset = ImageAttachment.objects.all()
     serializer_class = serializers.ImageAttachmentSerializer
+
+
+#
+# Config contexts
+#
+
+class ConfigContextViewSet(ModelViewSet):
+    queryset = ConfigContext.objects.prefetch_related('regions', 'sites', 'roles', 'platforms', 'tenants')
+    serializer_class = serializers.ConfigContextSerializer
 
 
 #

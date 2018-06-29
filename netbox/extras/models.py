@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 from collections import OrderedDict
 from datetime import date
-import json
 
 import graphviz
 from django.contrib.auth.models import User
@@ -21,6 +20,7 @@ from django.utils.safestring import mark_safe
 from dcim.constants import CONNECTION_STATUS_CONNECTED
 from utilities.utils import foreground_color
 from .constants import *
+from .querysets import ConfigContextQuerySet
 
 
 #
@@ -630,6 +630,87 @@ class ImageAttachment(models.Model):
 
 
 #
+# Config contexts
+#
+
+class ConfigContext(models.Model):
+    """
+    A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned
+    qualifiers (region, site, etc.). For example, the data stored in a ConfigContext assigned to site A and tenant B
+    will be available to a Device in site A assigned to tenant B. Data is stored in JSON format.
+    """
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+    weight = models.PositiveSmallIntegerField(
+        default=1000
+    )
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
+    is_active = models.BooleanField(
+        default=True,
+    )
+    regions = models.ManyToManyField(
+        to='dcim.Region',
+        related_name='+',
+        blank=True
+    )
+    sites = models.ManyToManyField(
+        to='dcim.Site',
+        related_name='+',
+        blank=True
+    )
+    roles = models.ManyToManyField(
+        to='dcim.DeviceRole',
+        related_name='+',
+        blank=True
+    )
+    platforms = models.ManyToManyField(
+        to='dcim.Platform',
+        related_name='+',
+        blank=True
+    )
+    tenants = models.ManyToManyField(
+        to='tenancy.Tenant',
+        related_name='+',
+        blank=True
+    )
+    data = JSONField()
+
+    objects = ConfigContextQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['weight', 'name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('extras:configcontext', kwargs={'pk': self.pk})
+
+
+class ConfigContextModel(models.Model):
+
+    class Meta:
+        abstract = True
+
+    def get_config_context(self):
+        """
+        Return the rendered configuration context for a device or VM.
+        """
+
+        # Compile all config data, overwriting lower-weight values with higher-weight values where a collision occurs
+        data = OrderedDict()
+        for context in ConfigContext.objects.get_for_object(self):
+            data.update(context.data)
+
+        return data
+
+
+#
 # Report results
 #
 
@@ -765,10 +846,6 @@ class ObjectChange(models.Model):
             self.object_repr,
             self.object_data,
         )
-
-    @property
-    def object_data_pretty(self):
-        return json.dumps(self.object_data, indent=4, sort_keys=True)
 
 
 #

@@ -14,10 +14,10 @@ from taggit.models import Tag
 from utilities.forms import ConfirmationForm
 from utilities.views import BulkDeleteView, ObjectDeleteView, ObjectEditView, ObjectListView
 from . import filters
-from .forms import ObjectChangeFilterForm, ImageAttachmentForm, TagForm
-from .models import ImageAttachment, ObjectChange, ReportResult
+from .forms import ConfigContextForm, ImageAttachmentForm, ObjectChangeFilterForm, TagForm
+from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult
 from .reports import get_report, get_reports
-from .tables import ObjectChangeTable, TagTable
+from .tables import ConfigContextTable, ObjectChangeTable, TagTable
 
 
 #
@@ -51,6 +51,71 @@ class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     queryset = Tag.objects.annotate(items=Count('taggit_taggeditem_items')).order_by('name')
     table = TagTable
     default_return_url = 'extras:tag_list'
+
+
+#
+# Config contexts
+#
+
+class ConfigContextListView(ObjectListView):
+    queryset = ConfigContext.objects.all()
+    table = ConfigContextTable
+    template_name = 'extras/configcontext_list.html'
+
+
+class ConfigContextView(View):
+
+    def get(self, request, pk):
+
+        configcontext = get_object_or_404(ConfigContext, pk=pk)
+
+        return render(request, 'extras/configcontext.html', {
+            'configcontext': configcontext,
+        })
+
+
+class ConfigContextCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'extras.add_configcontext'
+    model = ConfigContext
+    model_form = ConfigContextForm
+    default_return_url = 'extras:configcontext_list'
+    template_name = 'extras/configcontext_edit.html'
+
+
+class ConfigContextEditView(ConfigContextCreateView):
+    permission_required = 'extras.change_configcontext'
+
+
+class ConfigContextDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'extras.delete_configcontext'
+    model = ConfigContext
+    default_return_url = 'extras:configcontext_list'
+
+
+class ConfigContextBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'extras.delete_cconfigcontext'
+    cls = ConfigContext
+    queryset = ConfigContext.objects.all()
+    table = ConfigContextTable
+    default_return_url = 'extras:configcontext_list'
+
+
+class ObjectConfigContextView(View):
+    object_class = None
+    base_template = None
+
+    def get(self, request, pk):
+
+        obj = get_object_or_404(self.object_class, pk=pk)
+        source_contexts = ConfigContext.objects.get_for_object(obj)
+
+        return render(request, 'extras/object_configcontext.html', {
+            self.object_class._meta.model_name: obj,
+            'rendered_context': obj.get_config_context(),
+            'source_contexts': source_contexts,
+            'base_template': self.base_template,
+            'active_tab': 'config-context',
+        })
 
 
 #

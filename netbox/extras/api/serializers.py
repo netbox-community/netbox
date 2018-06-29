@@ -4,10 +4,16 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from taggit.models import Tag
 
-from dcim.api.serializers import NestedDeviceSerializer, NestedRackSerializer, NestedSiteSerializer
+from dcim.api.serializers import (
+    NestedDeviceSerializer, NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedRackSerializer,
+    NestedRegionSerializer, NestedSiteSerializer,
+)
 from dcim.models import Device, Rack, Site
-from extras.models import ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap, UserAction
+from extras.models import (
+    ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap, UserAction,
+)
 from extras.constants import *
+from tenancy.api.serializers import NestedTenantSerializer
 from users.api.serializers import NestedUserSerializer
 from utilities.api import (
     ChoiceFieldSerializer, ContentTypeFieldSerializer, get_serializer_for_model, ValidatedModelSerializer,
@@ -119,6 +125,24 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
             raise Exception("Unexpected type of parent object for ImageAttachment")
 
         return serializer(obj.parent, context={'request': self.context['request']}).data
+
+
+#
+# Config contexts
+#
+
+class ConfigContextSerializer(ValidatedModelSerializer):
+    regions = NestedRegionSerializer(many=True)
+    sites = NestedSiteSerializer(many=True)
+    roles = NestedDeviceRoleSerializer(many=True)
+    platforms = NestedPlatformSerializer(many=True)
+    tenants = NestedTenantSerializer(many=True)
+
+    class Meta:
+        model = ConfigContext
+        fields = [
+            'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'tenants', 'data',
+        ]
 
 
 #
