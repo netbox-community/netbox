@@ -6,7 +6,7 @@ from itertools import count, groupby
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -1125,6 +1125,12 @@ class Platform(ChangeLoggedModel):
         verbose_name='NAPALM driver',
         help_text='The name of the NAPALM driver to use when interacting with devices'
     )
+    napalm_args = JSONField(
+        blank=True,
+        null=True,
+        verbose_name='NAPALM arguments',
+        help_text='Additional arguments to pass when initiating the NAPALM driver (JSON format)'
+    )
     rpc_client = models.CharField(
         max_length=30,
         choices=RPC_CLIENT_CHOICES,
@@ -1133,7 +1139,7 @@ class Platform(ChangeLoggedModel):
     )
 
     serializer = 'dcim.api.serializers.PlatformSerializer'
-    csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver']
+    csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args']
 
     class Meta:
         ordering = ['name']
@@ -1150,6 +1156,7 @@ class Platform(ChangeLoggedModel):
             self.slug,
             self.manufacturer.name if self.manufacturer else None,
             self.napalm_driver,
+            self.napalm_args,
         )
 
 

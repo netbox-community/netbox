@@ -746,7 +746,10 @@ class PlatformForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Platform
-        fields = ['name', 'slug', 'manufacturer', 'napalm_driver', 'rpc_client']
+        fields = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'rpc_client']
+        widgets = {
+            'napalm_args': SmallTextarea(),
+        }
 
 
 class PlatformCSVForm(forms.ModelForm):
