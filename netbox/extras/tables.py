@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import django_tables2 as tables
 from taggit.models import Tag
 
-from utilities.tables import BaseTable, ToggleColumn
+from utilities.tables import BaseTable, BooleanColumn, ToggleColumn
 from .models import ConfigContext, ObjectChange
 
 TAG_ACTIONS = """
@@ -59,7 +59,7 @@ class TagTable(BaseTable):
 class ConfigContextTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    is_active = tables.BooleanColumn(
+    is_active = BooleanColumn(
         verbose_name='Active'
     )
     actions = tables.TemplateColumn(

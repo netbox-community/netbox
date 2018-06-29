@@ -31,3 +31,18 @@ class ToggleColumn(tables.CheckBoxColumn):
     @property
     def header(self):
         return mark_safe('<input type="checkbox" class="toggle" title="Toggle all" />')
+
+
+class BooleanColumn(tables.Column):
+    """
+    Custom implementation of BooleanColumn to render a nicely-formatted checkmark or X icon instead of a Unicode
+    character.
+    """
+    def render(self, value):
+        if value is True:
+            rendered = '<span class="text-success"><i class="fa fa-check"></i></span>'
+        elif value is False:
+            rendered = '<span class="text-danger"><i class="fa fa-close"></i></span>'
+        else:
+            rendered = '<span class="text-muted">&mdash;</span>'
+        return mark_safe(rendered)

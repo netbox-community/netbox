@@ -4,7 +4,7 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, ToggleColumn
+from utilities.tables import BaseTable, BooleanColumn, ToggleColumn
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceTemplate, InventoryItem, Manufacturer, Platform,
@@ -346,10 +346,10 @@ class DeviceTypeTable(BaseTable):
         args=[Accessor('pk')],
         verbose_name='Device Type'
     )
-    is_full_depth = tables.BooleanColumn(verbose_name='Full Depth')
-    is_console_server = tables.BooleanColumn(verbose_name='CS')
-    is_pdu = tables.BooleanColumn(verbose_name='PDU')
-    is_network_device = tables.BooleanColumn(verbose_name='Net')
+    is_full_depth = BooleanColumn(verbose_name='Full Depth')
+    is_console_server = BooleanColumn(verbose_name='CS')
+    is_pdu = BooleanColumn(verbose_name='PDU')
+    is_network_device = BooleanColumn(verbose_name='Net')
     subdevice_role = tables.TemplateColumn(
         template_code=SUBDEVICE_ROLE_TEMPLATE,
         verbose_name='Subdevice Role'

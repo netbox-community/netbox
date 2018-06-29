@@ -5,7 +5,7 @@ from django_tables2.utils import Accessor
 
 from dcim.models import Interface
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, ToggleColumn
+from utilities.tables import BaseTable, BooleanColumn, ToggleColumn
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 RIR_UTILIZATION = """
@@ -193,7 +193,7 @@ class VRFTable(BaseTable):
 class RIRTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn(verbose_name='Name')
-    is_private = tables.BooleanColumn(verbose_name='Private')
+    is_private = BooleanColumn(verbose_name='Private')
     aggregate_count = tables.Column(verbose_name='Aggregates')
     actions = tables.TemplateColumn(template_code=RIR_ACTIONS, attrs={'td': {'class': 'text-right'}}, verbose_name='')
 
