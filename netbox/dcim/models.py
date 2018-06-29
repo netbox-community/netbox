@@ -963,6 +963,12 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
                 'face': "Must specify rack face when defining rack position.",
             })
 
+        # Prevent 0U devices from being assigned to a specific position
+        if self.position and self.device_type.u_height == 0:
+            raise ValidationError({
+                'position': "A U0 device type ({}) cannot be assigned to a rack position.".format(self.device_type)
+            })
+
         if self.rack:
 
             try:
