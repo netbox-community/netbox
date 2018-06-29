@@ -703,11 +703,11 @@ class ConfigContextModel(models.Model):
         """
 
         # Compile all config data, overwriting lower-weight values with higher-weight values where a collision occurs
-        data = {}
+        data = OrderedDict()
         for context in ConfigContext.objects.get_for_object(self):
             data.update(context.data)
 
-        return sorted(data)
+        return data
 
 
 #
