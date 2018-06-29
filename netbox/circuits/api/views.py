@@ -19,6 +19,7 @@ from . import serializers
 
 class CircuitsFieldChoicesViewSet(FieldChoicesViewSet):
     fields = (
+        (Circuit, ['status']),
         (CircuitTermination, ['term_side']),
     )
 
