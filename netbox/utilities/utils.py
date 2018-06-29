@@ -93,6 +93,15 @@ def serialize_object(obj, extra=None):
     """
     json_str = serialize('json', [obj])
     data = json.loads(json_str)[0]['fields']
+
+    # Include any custom fields
+    if hasattr(obj, 'get_custom_fields'):
+        data['custom_fields'] = {
+            field.name: value for field, value in obj.get_custom_fields().items()
+        }
+
+    # Append any extra data
     if extra is not None:
         data.update(extra)
+
     return data
