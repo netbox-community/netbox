@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
@@ -77,7 +77,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
     serializer_class = serializers.PrefixSerializer
     filter_class = filters.PrefixFilter
 
-    @detail_route(url_path='available-prefixes', methods=['get', 'post'])
+    @action(detail=True, url_path='available-prefixes', methods=['get', 'post'])
     def available_prefixes(self, request, pk=None):
         """
         A convenience method for returning available child prefixes within a parent.
@@ -137,7 +137,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
 
             return Response(serializer.data)
 
-    @detail_route(url_path='available-ips', methods=['get', 'post'])
+    @action(detail=True, url_path='available-ips', methods=['get', 'post'])
     def available_ips(self, request, pk=None):
         """
         A convenience method for returning available IP addresses within a prefix. By default, the number of IPs

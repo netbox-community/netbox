@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
 from drf_yasg.openapi import Parameter
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ViewSet
@@ -63,7 +63,7 @@ class SiteViewSet(CustomFieldModelViewSet):
     serializer_class = serializers.SiteSerializer
     filter_class = filters.SiteFilter
 
-    @detail_route()
+    @action(detail=True)
     def graphs(self, request, pk=None):
         """
         A convenience method for rendering graphs for a particular site.
@@ -103,7 +103,7 @@ class RackViewSet(CustomFieldModelViewSet):
     serializer_class = serializers.RackSerializer
     filter_class = filters.RackFilter
 
-    @detail_route()
+    @action(detail=True)
     def units(self, request, pk=None):
         """
         List rack units (by rack)
@@ -232,12 +232,12 @@ class DeviceViewSet(CustomFieldModelViewSet):
     serializer_class = serializers.DeviceSerializer
     filter_class = filters.DeviceFilter
 
-    @detail_route(url_path='config-context')
+    @action(detail=True, url_path='config-context')
     def config_context(self, request, pk):
         device = get_object_or_404(Device, pk=pk)
         return Response(device.get_config_context())
 
-    @detail_route(url_path='napalm')
+    @action(detail=True, url_path='napalm')
     def napalm(self, request, pk):
         """
         Execute a NAPALM method on a Device
@@ -337,7 +337,7 @@ class InterfaceViewSet(ModelViewSet):
     serializer_class = serializers.InterfaceSerializer
     filter_class = filters.InterfaceFilter
 
-    @detail_route()
+    @action(detail=True)
     def graphs(self, request, pk=None):
         """
         A convenience method for rendering graphs for a particular interface.

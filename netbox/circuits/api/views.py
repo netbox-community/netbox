@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import get_object_or_404
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from circuits import filters
@@ -32,7 +32,7 @@ class ProviderViewSet(CustomFieldModelViewSet):
     serializer_class = serializers.ProviderSerializer
     filter_class = filters.ProviderFilter
 
-    @detail_route()
+    @action(detail=True)
     def graphs(self, request, pk=None):
         """
         A convenience method for rendering graphs for a particular provider.

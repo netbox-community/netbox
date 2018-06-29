@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
@@ -94,7 +94,7 @@ class TopologyMapViewSet(ModelViewSet):
     serializer_class = serializers.TopologyMapSerializer
     filter_class = filters.TopologyMapFilter
 
-    @detail_route()
+    @action(detail=True)
     def render(self, request, pk):
 
         tmap = get_object_or_404(TopologyMap, pk=pk)
@@ -199,7 +199,7 @@ class ReportViewSet(ViewSet):
 
         return Response(serializer.data)
 
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def run(self, request, pk):
         """
         Run a Report and create a new ReportResult, overwriting any previous result for the Report.
