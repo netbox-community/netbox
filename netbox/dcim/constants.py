@@ -93,6 +93,11 @@ IFACE_FF_STACKWISE_PLUS = 5050
 IFACE_FF_FLEXSTACK = 5100
 IFACE_FF_FLEXSTACK_PLUS = 5150
 IFACE_FF_JUNIPER_VCP = 5200
+IFACE_FF_EXTREME_SS = 5300
+IFACE_FF_EXTREME_SS128 = 5310
+IFACE_FF_EXTREME_SS256 = 5320
+IFACE_FF_EXTREME_SS512 = 5330
+
 # Other
 IFACE_FF_OTHER = 32767
 
@@ -168,6 +173,10 @@ IFACE_FF_CHOICES = [
             [IFACE_FF_FLEXSTACK, 'Cisco FlexStack'],
             [IFACE_FF_FLEXSTACK_PLUS, 'Cisco FlexStack Plus'],
             [IFACE_FF_JUNIPER_VCP, 'Juniper VCP'],
+            [IFACE_FF_EXTREME_SS, 'Extreme SummitStack'],
+            [IFACE_FF_EXTREME_SS128, 'Extreme SummitStack-128'],
+            [IFACE_FF_EXTREME_SS128, 'Extreme SummitStack-256'],
+            [IFACE_FF_EXTREME_SS512, 'Extreme SummitStack-512'],
         ]
     ],
     [
