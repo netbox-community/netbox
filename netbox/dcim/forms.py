@@ -34,7 +34,7 @@ from .models import (
     RackRole, Region, Site, VirtualChassis
 )
 
-DEVICE_BY_PK_RE = '{\d+\}'
+DEVICE_BY_PK_RE = r'{\d+\}'
 
 INTERFACE_MODE_HELP_TEXT = """
 Access: One untagged VLAN<br />

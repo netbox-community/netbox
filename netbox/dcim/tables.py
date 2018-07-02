@@ -7,9 +7,9 @@ from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, ToggleColumn
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceTemplate, InventoryItem, Manufacturer, Platform,
-    PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, Region, Site,
-    VirtualChassis,
+    DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, InventoryItem,
+    Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
+    RackReservation, Region, Site, VirtualChassis,
 )
 
 REGION_LINK = """
@@ -594,7 +594,7 @@ class InterfaceConnectionTable(BaseTable):
     interface_b = tables.Column(verbose_name='Interface B')
 
     class Meta(BaseTable.Meta):
-        model = Interface
+        model = InterfaceConnection
         fields = ('device_a', 'interface_a', 'device_b', 'interface_b')
 
 

@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 from collections import OrderedDict
 
 from django.conf import settings
-from django.db import transaction
 from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
@@ -37,11 +36,12 @@ class DCIMFieldChoicesViewSet(FieldChoicesViewSet):
     fields = (
         (Device, ['face', 'status']),
         (ConsolePort, ['connection_status']),
-        (Interface, ['form_factor']),
+        (Interface, ['form_factor', 'mode']),
         (InterfaceConnection, ['connection_status']),
         (InterfaceTemplate, ['form_factor']),
         (PowerPort, ['connection_status']),
         (Rack, ['type', 'width']),
+        (Site, ['status']),
     )
 
 

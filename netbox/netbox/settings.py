@@ -22,7 +22,7 @@ if sys.version_info[0] < 3:
         DeprecationWarning
     )
 
-VERSION = '2.3.4'
+VERSION = '2.3.5'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -268,7 +268,15 @@ SWAGGER_SETTINGS = {
         'utilities.custom_inspectors.NullablePaginatorInspector',
         'drf_yasg.inspectors.DjangoRestResponsePagination',
         'drf_yasg.inspectors.CoreAPICompatInspector',
-    ]
+    ],
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+        }
+    },
+    'VALIDATOR_URL': None,
 }
 
 
@@ -281,5 +289,5 @@ INTERNAL_IPS = (
 
 try:
     HOSTNAME = socket.gethostname()
-except:
+except Exception:
     HOSTNAME = 'localhost'
