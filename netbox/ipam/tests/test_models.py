@@ -9,7 +9,6 @@ from ipam.models import IP_PROTOCOL_TCP
 from dcim.models import Manufacturer, DeviceType, Device, Site, DeviceRole
 
 
-
 class TestPrefix(TestCase):
 
     @override_settings(ENFORCE_GLOBAL_UNIQUE=False)

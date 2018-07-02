@@ -324,7 +324,7 @@ class RackFurnitureDeviceTypeCase(TestCase):
 
 
 class RackFurnitureDeviceCase(TestCase):
-    
+
     def setUp(self):
         self.manufacturer = Manufacturer.objects.create(
             name='Acme',

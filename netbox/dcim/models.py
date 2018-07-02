@@ -784,7 +784,7 @@ class PowerOutletTemplate(models.Model):
         return self.name
 
     def clean(self):
-    
+
         # Rack furniture device types cannot have power outlets
         if self.device_type.is_rack_furniture:
             raise ValidationError(
@@ -1359,6 +1359,7 @@ class ConsoleServerPort(models.Model):
             raise ValidationError("The {} {} device type does not support assignment of console server ports.".format(
                 device_type.manufacturer, device_type
             ))
+
 
 #
 # Power ports
