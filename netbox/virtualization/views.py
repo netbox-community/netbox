@@ -33,9 +33,7 @@ class ClusterTypeCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'virtualization.add_clustertype'
     model = ClusterType
     model_form = forms.ClusterTypeForm
-
-    def get_return_url(self, request, obj):
-        return reverse('virtualization:clustertype_list')
+    default_return_url = 'virtualization:clustertype_list'
 
 
 class ClusterTypeEditView(ClusterTypeCreateView):
@@ -71,9 +69,7 @@ class ClusterGroupCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'virtualization.add_clustergroup'
     model = ClusterGroup
     model_form = forms.ClusterGroupForm
-
-    def get_return_url(self, request, obj):
-        return reverse('virtualization:clustergroup_list')
+    default_return_url = 'virtualization:clustergroup_list'
 
 
 class ClusterGroupEditView(ClusterGroupCreateView):

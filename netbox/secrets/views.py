@@ -44,9 +44,7 @@ class SecretRoleCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'secrets.add_secretrole'
     model = SecretRole
     model_form = forms.SecretRoleForm
-
-    def get_return_url(self, request, obj):
-        return reverse('secrets:secretrole_list')
+    default_return_url = 'secrets:secretrole_list'
 
 
 class SecretRoleEditView(SecretRoleCreateView):
@@ -244,7 +242,7 @@ class SecretBulkImportView(BulkImportView):
             'form': self._import_form(request.POST),
             'fields': self.model_form().fields,
             'obj_type': self.model_form._meta.model._meta.verbose_name,
-            'return_url': self.default_return_url,
+            'return_url': self.get_return_url(request),
         })
 
 

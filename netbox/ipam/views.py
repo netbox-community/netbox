@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.views.generic import View
 from django_tables2 import RequestConfig
 
@@ -248,9 +247,7 @@ class RIRCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_rir'
     model = RIR
     model_form = forms.RIRForm
-
-    def get_return_url(self, request, obj):
-        return reverse('ipam:rir_list')
+    default_return_url = 'ipam:rir_list'
 
 
 class RIREditView(RIRCreateView):
@@ -401,9 +398,7 @@ class RoleCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_role'
     model = Role
     model_form = forms.RoleForm
-
-    def get_return_url(self, request, obj):
-        return reverse('ipam:role_list')
+    default_return_url = 'ipam:role_list'
 
 
 class RoleEditView(RoleCreateView):
@@ -799,9 +794,7 @@ class VLANGroupCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'ipam.add_vlangroup'
     model = VLANGroup
     model_form = forms.VLANGroupForm
-
-    def get_return_url(self, request, obj):
-        return reverse('ipam:vlangroup_list')
+    default_return_url = 'ipam:vlangroup_list'
 
 
 class VLANGroupEditView(VLANGroupCreateView):

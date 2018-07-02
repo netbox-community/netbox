@@ -52,14 +52,22 @@ class GetReturnURLMixin(object):
     """
     default_return_url = None
 
-    def get_return_url(self, request, obj):
+    def get_return_url(self, request, obj=None):
+
+        # First, see if `return_url` was specified as a query parameter. Use it only if it's considered safe.
         query_param = request.GET.get('return_url')
         if query_param and is_safe_url(url=query_param, host=request.get_host()):
             return query_param
+
+        # Next, check if the object being modified (if any) has an absolute URL.
         elif obj.pk and hasattr(obj, 'get_absolute_url'):
             return obj.get_absolute_url()
+
+        # Fall back to the default URL (if specified) for the view.
         elif self.default_return_url is not None:
             return reverse(self.default_return_url)
+
+        # If all else fails, return home. Ideally this should never happen.
         return reverse('home')
 
 
@@ -159,7 +167,6 @@ class ObjectEditView(GetReturnURLMixin, View):
     model: The model of the object being edited
     model_form: The form used to create or edit the object
     template_name: The name of the template
-    default_return_url: The name of the URL used to display a list of this object type
     """
     model = None
     model_form = None
@@ -236,7 +243,6 @@ class ObjectDeleteView(GetReturnURLMixin, View):
 
     model: The model of the object being deleted
     template_name: The name of the template
-    default_return_url: Name of the URL to which the user is redirected after deleting the object
     """
     model = None
     template_name = 'utilities/obj_delete.html'
@@ -289,20 +295,18 @@ class ObjectDeleteView(GetReturnURLMixin, View):
         })
 
 
-class BulkCreateView(View):
+class BulkCreateView(GetReturnURLMixin, View):
     """
     Create new objects in bulk.
 
     form: Form class which provides the `pattern` field
     model_form: The ModelForm used to create individual objects
     template_name: The name of the template
-    default_return_url: Name of the URL to which the user is redirected after creating the objects
     """
     form = None
     model_form = None
     pattern_target = ''
     template_name = None
-    default_return_url = 'home'
 
     def get(self, request):
 
@@ -319,7 +323,7 @@ class BulkCreateView(View):
             'obj_type': self.model_form._meta.model._meta.verbose_name,
             'form': form,
             'model_form': model_form,
-            'return_url': reverse(self.default_return_url),
+            'return_url': self.get_return_url(request),
         })
 
     def post(self, request):
@@ -362,7 +366,7 @@ class BulkCreateView(View):
 
                     if '_addanother' in request.POST:
                         return redirect(request.path)
-                    return redirect(self.default_return_url)
+                    return redirect(self.get_return_url(request))
 
             except IntegrityError:
                 pass
@@ -371,23 +375,21 @@ class BulkCreateView(View):
             'form': form,
             'model_form': model_form,
             'obj_type': model._meta.verbose_name,
-            'return_url': reverse(self.default_return_url),
+            'return_url': self.get_return_url(request),
         })
 
 
-class BulkImportView(View):
+class BulkImportView(GetReturnURLMixin, View):
     """
     Import objects in bulk (CSV format).
 
     model_form: The form used to create each imported object
     table: The django-tables2 Table used to render the list of imported objects
     template_name: The name of the template
-    default_return_url: The name of the URL to use for the cancel button
     widget_attrs: A dict of attributes to apply to the import widget (e.g. to require a session key)
     """
     model_form = None
     table = None
-    default_return_url = None
     template_name = 'utilities/obj_import.html'
     widget_attrs = {}
 
@@ -413,7 +415,7 @@ class BulkImportView(View):
             'form': self._import_form(),
             'fields': self.model_form().fields,
             'obj_type': self.model_form._meta.model._meta.verbose_name,
-            'return_url': self.default_return_url,
+            'return_url': self.get_return_url(request),
         })
 
     def post(self, request):
@@ -446,7 +448,7 @@ class BulkImportView(View):
 
                     return render(request, "import_success.html", {
                         'table': obj_table,
-                        'return_url': self.default_return_url,
+                        'return_url': self.get_return_url(request),
                     })
 
             except ValidationError:
@@ -456,11 +458,11 @@ class BulkImportView(View):
             'form': form,
             'fields': self.model_form().fields,
             'obj_type': self.model_form._meta.model._meta.verbose_name,
-            'return_url': self.default_return_url,
+            'return_url': self.get_return_url(request),
         })
 
 
-class BulkEditView(View):
+class BulkEditView(GetReturnURLMixin, View):
     """
     Edit objects in bulk.
 
@@ -471,8 +473,6 @@ class BulkEditView(View):
     table: The table used to display devices being edited
     form: The form class used to edit objects in bulk
     template_name: The name of the template
-    default_return_url: Name of the URL to which the user is redirected after editing the objects (can be overridden by
-                        POSTing return_url)
     """
     cls = None
     parent_cls = None
@@ -481,10 +481,9 @@ class BulkEditView(View):
     table = None
     form = None
     template_name = 'utilities/obj_bulk_edit.html'
-    default_return_url = 'home'
 
     def get(self, request):
-        return redirect(self.default_return_url)
+        return redirect(self.get_return_url(request))
 
     def post(self, request, **kwargs):
 
@@ -493,15 +492,6 @@ class BulkEditView(View):
             parent_obj = get_object_or_404(self.parent_cls, **kwargs)
         else:
             parent_obj = None
-
-        # Determine URL to redirect users upon modification of objects
-        posted_return_url = request.POST.get('return_url')
-        if posted_return_url and is_safe_url(url=posted_return_url, host=request.get_host()):
-            return_url = posted_return_url
-        elif parent_obj:
-            return_url = parent_obj.get_absolute_url()
-        else:
-            return_url = reverse(self.default_return_url)
 
         # Are we editing *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all') and self.filter is not None:
@@ -559,7 +549,7 @@ class BulkEditView(View):
                         msg = 'Updated {} {}'.format(updated_count, self.cls._meta.verbose_name_plural)
                         messages.success(self.request, msg)
 
-                    return redirect(return_url)
+                    return redirect(self.get_return_url(request))
 
                 except ValidationError as e:
                     messages.error(self.request, "{} failed validation: {}".format(obj, e))
@@ -574,17 +564,17 @@ class BulkEditView(View):
         table = self.table(queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:
             messages.warning(request, "No {} were selected.".format(self.cls._meta.verbose_name_plural))
-            return redirect(return_url)
+            return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
             'form': form,
             'table': table,
             'obj_type_plural': self.cls._meta.verbose_name_plural,
-            'return_url': return_url,
+            'return_url': self.get_return_url(request),
         })
 
 
-class BulkDeleteView(View):
+class BulkDeleteView(GetReturnURLMixin, View):
     """
     Delete objects in bulk.
 
@@ -595,8 +585,6 @@ class BulkDeleteView(View):
     table: The table used to display devices being deleted
     form: The form class used to delete objects in bulk
     template_name: The name of the template
-    default_return_url: Name of the URL to which the user is redirected after deleting the objects (can be overriden by
-                        POSTing return_url)
     """
     cls = None
     parent_cls = None
@@ -605,10 +593,9 @@ class BulkDeleteView(View):
     table = None
     form = None
     template_name = 'utilities/obj_bulk_delete.html'
-    default_return_url = 'home'
 
     def get(self, request):
-        return redirect(self.default_return_url)
+        return redirect(self.get_return_url(request))
 
     def post(self, request, **kwargs):
 
@@ -617,15 +604,6 @@ class BulkDeleteView(View):
             parent_obj = get_object_or_404(self.parent_cls, **kwargs)
         else:
             parent_obj = None
-
-        # Determine URL to redirect users upon deletion of objects
-        posted_return_url = request.POST.get('return_url')
-        if posted_return_url and is_safe_url(url=posted_return_url, host=request.get_host()):
-            return_url = posted_return_url
-        elif parent_obj:
-            return_url = parent_obj.get_absolute_url()
-        else:
-            return_url = reverse(self.default_return_url)
 
         # Are we deleting *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all'):
@@ -648,28 +626,31 @@ class BulkDeleteView(View):
                     deleted_count = queryset.delete()[1][self.cls._meta.label]
                 except ProtectedError as e:
                     handle_protectederror(list(queryset), request, e)
-                    return redirect(return_url)
+                    return redirect(self.get_return_url(request))
 
                 msg = 'Deleted {} {}'.format(deleted_count, self.cls._meta.verbose_name_plural)
                 messages.success(request, msg)
-                return redirect(return_url)
+                return redirect(self.get_return_url(request))
 
         else:
-            form = form_cls(initial={'pk': pk_list, 'return_url': return_url})
+            form = form_cls(initial={
+                'pk': pk_list,
+                'return_url': self.get_return_url(request),
+            })
 
         # Retrieve objects being deleted
         queryset = self.queryset or self.cls.objects.all()
         table = self.table(queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:
             messages.warning(request, "No {} were selected for deletion.".format(self.cls._meta.verbose_name_plural))
-            return redirect(return_url)
+            return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
             'form': form,
             'parent_obj': parent_obj,
             'obj_type_plural': self.cls._meta.verbose_name_plural,
             'table': table,
-            'return_url': return_url,
+            'return_url': self.get_return_url(request),
         })
 
     def get_form(self):
@@ -785,7 +766,7 @@ class ComponentCreateView(View):
         })
 
 
-class BulkComponentCreateView(View):
+class BulkComponentCreateView(GetReturnURLMixin, View):
     """
     Add one or more components (e.g. interfaces, console ports, etc.) to a set of Devices or VirtualMachines.
     """
@@ -797,7 +778,6 @@ class BulkComponentCreateView(View):
     filter = None
     table = None
     template_name = 'utilities/obj_bulk_add_component.html'
-    default_return_url = 'home'
 
     def post(self, request):
 
@@ -807,17 +787,10 @@ class BulkComponentCreateView(View):
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
-        # Determine URL to redirect users upon modification of objects
-        posted_return_url = request.POST.get('return_url')
-        if posted_return_url and is_safe_url(url=posted_return_url, host=request.get_host()):
-            return_url = posted_return_url
-        else:
-            return_url = reverse(self.default_return_url)
-
         selected_objects = self.parent_model.objects.filter(pk__in=pk_list)
         if not selected_objects:
             messages.warning(request, "No {} were selected.".format(self.parent_model._meta.verbose_name_plural))
-            return redirect(return_url)
+            return redirect(self.get_return_url(request))
         table = self.table(selected_objects)
 
         if '_create' in request.POST:
@@ -855,7 +828,7 @@ class BulkComponentCreateView(View):
                         len(form.cleaned_data['pk']),
                         self.parent_model._meta.verbose_name_plural
                     ))
-                    return redirect(return_url)
+                    return redirect(self.get_return_url(request))
 
         else:
             form = self.form(initial={'pk': pk_list})
@@ -864,5 +837,5 @@ class BulkComponentCreateView(View):
             'form': form,
             'component_name': self.model._meta.verbose_name_plural,
             'table': table,
-            'return_url': reverse(self.default_return_url),
+            'return_url': self.get_return_url(request),
         })

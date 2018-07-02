@@ -6,7 +6,6 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import transaction
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.views.generic import View
 
 from extras.models import Graph, GRAPH_TYPE_PROVIDER
@@ -106,9 +105,7 @@ class CircuitTypeCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.add_circuittype'
     model = CircuitType
     model_form = forms.CircuitTypeForm
-
-    def get_return_url(self, request, obj):
-        return reverse('circuits:circuittype_list')
+    default_return_url = 'circuits:circuittype_list'
 
 
 class CircuitTypeEditView(CircuitTypeCreateView):

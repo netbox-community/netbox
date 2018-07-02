@@ -12,7 +12,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
-from django.utils.http import is_safe_url, urlencode
+from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 from natsort import natsorted
@@ -38,7 +38,7 @@ from .models import (
 )
 
 
-class BulkRenameView(View):
+class BulkRenameView(GetReturnURLMixin, View):
     """
     An extendable view for renaming device components in bulk.
     """
@@ -49,10 +49,6 @@ class BulkRenameView(View):
     def post(self, request):
 
         model = self.queryset.model
-
-        return_url = request.GET.get('return_url')
-        if not return_url or not is_safe_url(url=return_url, host=request.get_host()):
-            return_url = 'home'
 
         if '_preview' in request.POST or '_apply' in request.POST:
             form = self.form(request.POST, initial={'pk': request.POST.getlist('pk')})
@@ -70,7 +66,7 @@ class BulkRenameView(View):
                         len(selected_objects),
                         model._meta.verbose_name_plural
                     ))
-                    return redirect(return_url)
+                    return redirect(self.get_return_url(request))
 
         else:
             form = self.form(initial={'pk': request.POST.getlist('pk')})
@@ -80,7 +76,7 @@ class BulkRenameView(View):
             'form': form,
             'obj_type_plural': model._meta.verbose_name_plural,
             'selected_objects': selected_objects,
-            'return_url': return_url,
+            'return_url': self.get_return_url(request),
         })
 
 
@@ -138,9 +134,7 @@ class RegionCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_region'
     model = Region
     model_form = forms.RegionForm
-
-    def get_return_url(self, request, obj):
-        return reverse('dcim:region_list')
+    default_return_url = 'dcim:region_list'
 
 
 class RegionEditView(RegionCreateView):
@@ -252,9 +246,7 @@ class RackGroupCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_rackgroup'
     model = RackGroup
     model_form = forms.RackGroupForm
-
-    def get_return_url(self, request, obj):
-        return reverse('dcim:rackgroup_list')
+    default_return_url = 'dcim:rackgroup_list'
 
 
 class RackGroupEditView(RackGroupCreateView):
@@ -291,9 +283,7 @@ class RackRoleCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_rackrole'
     model = RackRole
     model_form = forms.RackRoleForm
-
-    def get_return_url(self, request, obj):
-        return reverse('dcim:rackrole_list')
+    default_return_url = 'dcim:rackrole_list'
 
 
 class RackRoleEditView(RackRoleCreateView):
@@ -515,9 +505,7 @@ class ManufacturerCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_manufacturer'
     model = Manufacturer
     model_form = forms.ManufacturerForm
-
-    def get_return_url(self, request, obj):
-        return reverse('dcim:manufacturer_list')
+    default_return_url = 'dcim:manufacturer_list'
 
 
 class ManufacturerEditView(ManufacturerCreateView):
@@ -777,9 +765,7 @@ class DeviceRoleCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_devicerole'
     model = DeviceRole
     model_form = forms.DeviceRoleForm
-
-    def get_return_url(self, request, obj):
-        return reverse('dcim:devicerole_list')
+    default_return_url = 'dcim:devicerole_list'
 
 
 class DeviceRoleEditView(DeviceRoleCreateView):
@@ -815,9 +801,7 @@ class PlatformCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_platform'
     model = Platform
     model_form = forms.PlatformForm
-
-    def get_return_url(self, request, obj):
-        return reverse('dcim:platform_list')
+    default_return_url = 'dcim:platform_list'
 
 
 class PlatformEditView(PlatformCreateView):

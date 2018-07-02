@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, render
-from django.urls import reverse
 from django.views.generic import View
 
 from circuits.models import Circuit
@@ -31,9 +30,7 @@ class TenantGroupCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'tenancy.add_tenantgroup'
     model = TenantGroup
     model_form = forms.TenantGroupForm
-
-    def get_return_url(self, request, obj):
-        return reverse('tenancy:tenantgroup_list')
+    default_return_url = 'tenancy:tenantgroup_list'
 
 
 class TenantGroupEditView(TenantGroupCreateView):
