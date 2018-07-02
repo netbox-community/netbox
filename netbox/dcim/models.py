@@ -548,6 +548,11 @@ class DeviceType(models.Model, CustomFieldModel):
                                  help_text="This type of device has power outlets")
     is_network_device = models.BooleanField(default=True, verbose_name='Is a network device',
                                             help_text="This type of device has network interfaces")
+    is_rack_furniture = models.BooleanField(
+        default=False,
+        verbose_name="Is rack furniture",
+        help_text="This type of device is for rack furniture such as shelves or blanks",
+    )
     subdevice_role = models.NullBooleanField(default=None, verbose_name='Parent/child status',
                                              choices=SUBDEVICE_ROLE_CHOICES,
                                              help_text="Parent devices house child devices in device bays. Select "
@@ -557,7 +562,7 @@ class DeviceType(models.Model, CustomFieldModel):
 
     csv_headers = [
         'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
-        'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering', 'comments',
+        'is_pdu', 'is_network_device', 'is_rack_furniture', 'subdevice_role', 'interface_ordering', 'comments',
     ]
 
     class Meta:
@@ -590,6 +595,7 @@ class DeviceType(models.Model, CustomFieldModel):
             self.is_console_server,
             self.is_pdu,
             self.is_network_device,
+            self.is_rack_furniture,
             self.get_subdevice_role_display() if self.subdevice_role else None,
             self.get_interface_ordering_display(),
             self.comments,
@@ -627,6 +633,37 @@ class DeviceType(models.Model, CustomFieldModel):
             raise ValidationError({
                 'is_network_device': "Must delete all non-management-only interface templates associated with this "
                                      "device before declassifying it as a network device."
+            })
+
+        if self.is_rack_furniture and (self.is_console_server or self.is_pdu or self.is_network_device):
+            raise ValidationError({
+                'is_rack_furniture': "Rack furniture device types cannot simultaneously be any other device type."
+            })
+
+        if self.is_rack_furniture and self.subdevice_role:
+            raise ValidationError({
+                'is_rack_furniture': "Rack furniture device types cannot be a parent or child device type."
+            })
+
+        if self.is_rack_furniture and self.interface_templates.count():
+            # Rack furniture device types cannot have management interfaces
+            raise ValidationError({
+                'is_rack_furniture': "Must delete all interface templates associated with this "
+                                     "device before classifying it as rack furniture."
+            })
+
+        if self.is_rack_furniture and self.power_port_templates.count():
+            # Rack furniture device types cannot have power ports
+            raise ValidationError({
+                'is_rack_furniture': "Must delete all power ports associated with this "
+                                     "device before classifying it as rack furniture."
+            })
+
+        if self.is_rack_furniture and self.console_port_templates.count():
+            # Rack furniture device types cannot have power ports
+            raise ValidationError({
+                'is_rack_furniture': "Must delete all console ports associated with this "
+                                     "device before classifying it as rack furniture."
             })
 
         if self.subdevice_role != SUBDEVICE_ROLE_PARENT and self.device_bay_templates.count():
@@ -668,6 +705,17 @@ class ConsolePortTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def clean(self):
+        """
+        Validate model
+        """
+
+        # Rack furniture device types cannot have console ports
+        if self.device_type.is_rack_furniture:
+            raise ValidationError(
+                "Rack furniture device types cannot have console ports."
+            )
+
 
 @python_2_unicode_compatible
 class ConsoleServerPortTemplate(models.Model):
@@ -683,6 +731,14 @@ class ConsoleServerPortTemplate(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+
+        # Rack furniture device types cannot have console ports
+        if self.device_type.is_rack_furniture:
+            raise ValidationError(
+                "Rack furniture device types cannot have console server ports."
+            )
 
 
 @python_2_unicode_compatible
@@ -700,6 +756,17 @@ class PowerPortTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def clean(self):
+        """
+        Validate model
+        """
+
+        # Rack furniture device types cannot have power ports
+        if self.device_type.is_rack_furniture:
+            raise ValidationError(
+                "Rack furniture device types cannot have power ports."
+            )
+
 
 @python_2_unicode_compatible
 class PowerOutletTemplate(models.Model):
@@ -715,6 +782,14 @@ class PowerOutletTemplate(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+    
+        # Rack furniture device types cannot have power outlets
+        if self.device_type.is_rack_furniture:
+            raise ValidationError(
+                "Rack furniture device types cannot have power outlets."
+            )
 
 
 @python_2_unicode_compatible
@@ -735,6 +810,17 @@ class InterfaceTemplate(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        """
+        Validate model
+        """
+
+        # Rack furniture device types cannot have interfaces
+        if self.device_type.is_rack_furniture:
+            raise ValidationError(
+                "Rack furniture device types cannot have interfaces."
+            )
 
 
 @python_2_unicode_compatible
@@ -1003,6 +1089,11 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
                 pass
 
         # Validate primary IP addresses
+        if self.device_type.is_rack_furniture and (self.primary_ip4 or self.primary_ip6):
+            # Rack furniture device types cannot have an assigned primary IP
+            raise ValidationError(
+                "Rack furniture device types cannot have an assigned primary IP address."
+            )
         vc_interfaces = self.vc_interfaces.all()
         if self.primary_ip4:
             if self.primary_ip4.interface in vc_interfaces:
@@ -1033,10 +1124,22 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
                                 "to {}.".format(self.platform.manufacturer, self.device_type.manufacturer)
                 })
 
+        # Rack furniture device types cannot be assigned to a cluster
+        if self.cluster and self.device_type.is_rack_furniture:
+            raise ValidationError({
+                'cluster': "Rack furniture device types cannot be assigned to a cluster."
+            })
+
         # A Device can only be assigned to a Cluster in the same Site (or no Site)
         if self.cluster and self.cluster.site is not None and self.cluster.site != self.site:
             raise ValidationError({
                 'cluster': "The assigned cluster belongs to a different site ({})".format(self.cluster.site)
+            })
+
+        # Rack furniture device types cannot be assigned to a virtual chassis
+        if self.virtual_chassis and self.device_type.is_rack_furniture:
+            raise ValidationError({
+                'virtual_chassis': "Rack furniture device types cannot be assigned to a virtual chassis."
             })
 
         # Validate virtual chassis assignment
@@ -1201,6 +1304,17 @@ class ConsolePort(models.Model):
             self.get_connection_status_display(),
         )
 
+    def clean(self):
+        """
+        Validate model
+        """
+
+        # Rack furniture device types cannot have console ports
+        if self.device.device_type.is_rack_furniture:
+            raise ValidationError(
+                "Rack furniture device types cannot have console ports."
+            )
+
 
 #
 # Console server ports
@@ -1246,7 +1360,6 @@ class ConsoleServerPort(models.Model):
                 device_type.manufacturer, device_type
             ))
 
-
 #
 # Power ports
 #
@@ -1282,6 +1395,17 @@ class PowerPort(models.Model):
             self.name,
             self.get_connection_status_display(),
         )
+
+    def clean(self):
+        """
+        Validate model
+        """
+
+        # Rack furniture device types cannot have power ports
+        if self.device.device_type.is_rack_furniture:
+            raise ValidationError(
+                "Rack furniture device types cannot have power ports."
+            )
 
 
 #

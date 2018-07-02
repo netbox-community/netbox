@@ -260,3 +260,139 @@ class InterfaceTestCase(TestCase):
             list(Interface.objects.all().order_naturally()),
             [interface4, interface3, interface5, interface2, interface1, interface6]
         )
+
+
+class RackFurnitureDeviceTypeCase(TestCase):
+
+    def setUp(self):
+        self.manufacturer = Manufacturer.objects.create(
+            name='Acme',
+            slug='acme'
+        )
+        self.rack_furniture_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer,
+            model='The Best Shelf 9000',
+            slug='rf9000',
+            is_network_device=False,
+            is_rack_furniture=True,
+        )
+
+    def test_rack_furniture_cs_port_template(self):
+        cs_port_template = ConsoleServerPortTemplate(
+            device_type=self.rack_furniture_type,
+            name="CS Port Template"
+        )
+
+        with self.assertRaises(ValidationError):
+            cs_port_template.clean()
+
+    def test_rack_furniture_console_port_template(self):
+        console_port_template = ConsolePortTemplate(
+            device_type=self.rack_furniture_type,
+            name="Console Port Template"
+        )
+
+        with self.assertRaises(ValidationError):
+            console_port_template.clean()
+
+    def test_rack_furniture_power_port_template(self):
+        power_port_template = PowerPortTemplate(
+            device_type=self.rack_furniture_type,
+            name="Power Port Template"
+        )
+
+        with self.assertRaises(ValidationError):
+            power_port_template.clean()
+
+    def test_rack_furniture_power_outlet_template(self):
+        power_outlet_template = PowerOutletTemplate(
+            device_type=self.rack_furniture_type,
+            name="Power Outlet Template"
+        )
+
+        with self.assertRaises(ValidationError):
+            power_outlet_template.clean()
+
+    def test_rack_furniture_interface_template(self):
+        interface_template = InterfaceTemplate(
+            device_type=self.rack_furniture_type,
+            name="Interface Template"
+        )
+
+        with self.assertRaises(ValidationError):
+            interface_template.clean()
+
+
+class RackFurnitureDeviceCase(TestCase):
+    
+    def setUp(self):
+        self.manufacturer = Manufacturer.objects.create(
+            name='Acme',
+            slug='acme'
+        )
+        self.rack_furniture_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer,
+            model='The Best Shelf 9000',
+            slug='rf9000',
+            is_network_device=False,
+            is_rack_furniture=True,
+        )
+        self.site = Site.objects.create(
+            name="Site 1",
+            slug="site-1"
+        )
+        self.role = DeviceRole.objects.create(
+            name='RF',
+            slug='rf'
+        )
+        self.rack_furniture = Device.objects.create(
+            name="1U Blank",
+            device_type=self.rack_furniture_type,
+            site=self.site,
+            device_role=self.role,
+        )
+
+    def test_rack_furniture_cs_port(self):
+        cs_port = ConsoleServerPort(
+            device=self.rack_furniture,
+            name="CS Port"
+        )
+
+        with self.assertRaises(ValidationError):
+            cs_port.clean()
+
+    def test_rack_furniture_console_port(self):
+        console_port = ConsolePort(
+            device=self.rack_furniture,
+            name="Console Port"
+        )
+
+        with self.assertRaises(ValidationError):
+            console_port.clean()
+
+    def test_rack_furniture_power_port(self):
+        power_port = PowerPort(
+            device=self.rack_furniture,
+            name="Power Port"
+        )
+
+        with self.assertRaises(ValidationError):
+            power_port.clean()
+
+    def test_rack_furniture_power_outlet(self):
+        power_outlet = PowerOutlet(
+            device=self.rack_furniture,
+            name="Power Outlet"
+        )
+
+        with self.assertRaises(ValidationError):
+            power_outlet.clean()
+
+    def test_rack_furniture_interface(self):
+        interface = Interface(
+            device=self.rack_furniture,
+            name="Interface"
+        )
+
+        with self.assertRaises(ValidationError):
+            interface.clean()

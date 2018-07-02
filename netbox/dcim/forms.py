@@ -512,8 +512,11 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
 
     class Meta:
         model = DeviceType
-        fields = ['manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
-                  'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering', 'comments']
+        fields = [
+            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
+            'is_pdu', 'is_network_device', 'is_rack_furniture', 'subdevice_role', 'interface_ordering',
+            'comments'
+        ]
         labels = {
             'interface_ordering': 'Order interfaces by',
         }
@@ -562,6 +565,9 @@ class DeviceTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
     is_network_device = forms.NullBooleanField(
         required=False, widget=BulkEditNullBooleanSelect, label='Is a network device'
     )
+    is_rack_furniture = forms.NullBooleanField(
+        required=False, widget=BulkEditNullBooleanSelect, label='Is rack furniture'
+    )
 
     class Meta:
         nullable_fields = []
@@ -581,6 +587,9 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
     )
     is_network_device = forms.BooleanField(
         required=False, label='Is a network device', widget=forms.CheckboxInput(attrs={'value': 'True'})
+    )
+    is_rack_furniture = forms.BooleanField(
+        required=False, label='Is rack furniture', widget=forms.CheckboxInput(attrs={'value': 'True'})
     )
     subdevice_role = forms.NullBooleanField(
         required=False, label='Subdevice role', widget=forms.Select(choices=(

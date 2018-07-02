@@ -8,6 +8,7 @@ from django.test import TestCase
 
 from secrets.hashers import SecretValidationHasher
 from secrets.models import UserKey, Secret, encrypt_master_key, decrypt_master_key, generate_random_key
+from dcim.models import Manufacturer, DeviceType, Device, Site, DeviceRole
 
 
 class UserKeyTestCase(TestCase):
@@ -131,3 +132,39 @@ class SecretTestCase(TestCase):
         self.assertEqual(duplicate_ivs, [], "One or more duplicate IVs found!")
         duplicate_ciphertexts = [i for i, x in enumerate(ciphertexts) if ciphertexts.count(x) > 1]
         self.assertEqual(duplicate_ciphertexts, [], "One or more duplicate ciphertexts (first blocks) found!")
+
+    def test_03_rack_funiture_no_assign(self):
+        manufacturer = Manufacturer.objects.create(
+            name='Acme',
+            slug='acme'
+        )
+        rack_furniture_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='The Best Shelf 9000',
+            slug='rf9000',
+            is_network_device=False,
+            is_rack_furniture=True,
+        )
+        site = Site.objects.create(
+            name="Site 1",
+            slug="site-1"
+        )
+        role = DeviceRole.objects.create(
+            name='RF',
+            slug='rf'
+        )
+        rack_furniture = Device.objects.create(
+            name="1U Blank",
+            device_type=rack_furniture_type,
+            site=site,
+            device_role=role,
+        )
+
+        plaintext = "FooBar123"
+        secret_key = generate_random_key()
+        s = Secret(plaintext=plaintext)
+        s.encrypt(secret_key)
+        s.device = rack_furniture
+
+        with self.assertRaises(ValidationError):
+            s.clean()

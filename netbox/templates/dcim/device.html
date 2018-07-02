@@ -165,36 +165,38 @@
                         <span class="label label-{{ device.get_status_class }}">{{ device.get_status_display }}</span>
                     </td>
                 </tr>
-                <tr>
-                    <td>Primary IPv4</td>
-                    <td>
-                        {% if device.primary_ip4 %}
-                            <a href="{% url 'ipam:ipaddress' pk=device.primary_ip4.pk %}">{{ device.primary_ip4.address.ip }}</a>
-                            {% if device.primary_ip4.nat_inside %}
-                                <span>(NAT for {{ device.primary_ip4.nat_inside.address.ip }})</span>
-                            {% elif device.primary_ip4.nat_outside %}
-                                <span>(NAT: {{ device.primary_ip4.nat_outside.address.ip }})</span>
+                {% if not device.device_type.is_rack_furniture %}
+                    <tr>
+                        <td>Primary IPv4</td>
+                        <td>
+                            {% if device.primary_ip4 %}
+                                <a href="{% url 'ipam:ipaddress' pk=device.primary_ip4.pk %}">{{ device.primary_ip4.address.ip }}</a>
+                                {% if device.primary_ip4.nat_inside %}
+                                    <span>(NAT for {{ device.primary_ip4.nat_inside.address.ip }})</span>
+                                {% elif device.primary_ip4.nat_outside %}
+                                    <span>(NAT: {{ device.primary_ip4.nat_outside.address.ip }})</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">N/A</span>
                             {% endif %}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Primary IPv6</td>
-                    <td>
-                        {% if device.primary_ip6 %}
-                            <a href="{% url 'ipam:ipaddress' pk=device.primary_ip6.pk %}">{{ device.primary_ip6.address.ip }}</a>
-                            {% if device.primary_ip6.nat_inside %}
-                                <span>(NAT for {{ device.primary_ip6.nat_inside.address.ip }})</span>
-                            {% elif device.primary_ip6.nat_outside %}
-                                <span>(NAT: {{ device.primary_ip6.nat_outside.address.ip }})</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Primary IPv6</td>
+                        <td>
+                            {% if device.primary_ip6 %}
+                                <a href="{% url 'ipam:ipaddress' pk=device.primary_ip6.pk %}">{{ device.primary_ip6.address.ip }}</a>
+                                {% if device.primary_ip6.nat_inside %}
+                                    <span>(NAT for {{ device.primary_ip6.nat_inside.address.ip }})</span>
+                                {% elif device.primary_ip6.nat_outside %}
+                                    <span>(NAT: {{ device.primary_ip6.nat_outside.address.ip }})</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">N/A</span>
                             {% endif %}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                {% endif %}
                 {% if device.cluster %}
                     <tr>
                         <td>Cluster</td>
@@ -226,107 +228,109 @@
         </div>
     </div>
     <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Console / Power</strong>
+        {% if not device.device_type.is_rack_furniture %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Console / Power</strong>
+                </div>
+                <table class="table table-hover panel-body component-list">
+                    {% for cp in console_ports %}
+                        {% include 'dcim/inc/consoleport.html' %}
+                    {% empty %}
+                        {% if device.device_type.console_port_templates.exists %}
+                            <tr>
+                                <td colspan="6" class="alert-warning">
+                                    <i class="fa fa-fw fa-warning"></i> No console ports defined
+                                    {% if perms.dcim.add_consoleport %}
+                                        <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    {% for pp in power_ports %}
+                        {% include 'dcim/inc/powerport.html' %}
+                    {% empty %}
+                        {% if device.device_type.power_port_templates.exists %}
+                            <tr>
+                                <td colspan="6" class="alert-warning">
+                                    <i class="fa fa-fw fa-warning"></i> No power ports defined
+                                    {% if perms.dcim.add_powerport %}
+                                        <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+                {% if perms.dcim.add_interface or perms.dcim.add_consoleport or perms.dcim.add_powerport %}
+                    <div class="panel-footer text-right">
+                        {% if perms.dcim.add_consoleport %}
+                            <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console port
+                            </a>
+                        {% endif %}
+                        {% if perms.dcim.add_powerport %}
+                            <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power port
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
             </div>
-            <table class="table table-hover panel-body component-list">
-                {% for cp in console_ports %}
-                    {% include 'dcim/inc/consoleport.html' %}
-                {% empty %}
-                    {% if device.device_type.console_port_templates.exists %}
-                        <tr>
-                            <td colspan="6" class="alert-warning">
-                                <i class="fa fa-fw fa-warning"></i> No console ports defined
-                                {% if perms.dcim.add_consoleport %}
-                                    <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
-                                {% endif %}
-                            </td>
-                        </tr>
+            {% if request.user.is_authenticated %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong>Secrets</strong>
+                    </div>
+                    {% if secrets %}
+                        <table class="table table-hover panel-body">
+                            {% for secret in secrets %}
+                                {% include 'secrets/inc/secret_tr.html' %}
+                            {% endfor %}
+                        </table>
+                    {% else %}
+                        <div class="panel-body text-muted">
+                            None found
+                        </div>
                     {% endif %}
-                {% endfor %}
-                {% for pp in power_ports %}
-                    {% include 'dcim/inc/powerport.html' %}
-                {% empty %}
-                    {% if device.device_type.power_port_templates.exists %}
-                        <tr>
-                            <td colspan="6" class="alert-warning">
-                                <i class="fa fa-fw fa-warning"></i> No power ports defined
-                                {% if perms.dcim.add_powerport %}
-                                    <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-primary btn-xs pull-right"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-            </table>
-            {% if perms.dcim.add_interface or perms.dcim.add_consoleport or perms.dcim.add_powerport %}
-                <div class="panel-footer text-right">
-                    {% if perms.dcim.add_consoleport %}
-                        <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console port
-                        </a>
-                    {% endif %}
-                    {% if perms.dcim.add_powerport %}
-                        <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power port
-                        </a>
+                    {% if perms.secrets.add_secret %}
+                        <form id="secret_form">
+                            {% csrf_token %}
+                        </form>
+                        <div class="panel-footer text-right">
+                            <a href="{% url 'dcim:device_addsecret' pk=device.pk %}" class="btn btn-xs btn-primary">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                Add secret
+                            </a>
+                        </div>
                     {% endif %}
                 </div>
             {% endif %}
-        </div>
-        {% if request.user.is_authenticated %}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <strong>Secrets</strong>
+                    <strong>Services</strong>
                 </div>
-                {% if secrets %}
+                {% if services %}
                     <table class="table table-hover panel-body">
-                        {% for secret in secrets %}
-                            {% include 'secrets/inc/secret_tr.html' %}
+                        {% for service in services %}
+                            {% include 'ipam/inc/service.html' %}
                         {% endfor %}
                     </table>
                 {% else %}
                     <div class="panel-body text-muted">
-                        None found
+                        None
                     </div>
                 {% endif %}
-                {% if perms.secrets.add_secret %}
-                    <form id="secret_form">
-                        {% csrf_token %}
-                    </form>
+                {% if perms.ipam.add_service %}
                     <div class="panel-footer text-right">
-                        <a href="{% url 'dcim:device_addsecret' pk=device.pk %}" class="btn btn-xs btn-primary">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                            Add secret
+                        <a href="{% url 'dcim:device_service_assign' device=device.pk %}" class="btn btn-xs btn-primary">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Assign service
                         </a>
                     </div>
                 {% endif %}
             </div>
         {% endif %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Services</strong>
-            </div>
-            {% if services %}
-                <table class="table table-hover panel-body">
-                    {% for service in services %}
-                        {% include 'ipam/inc/service.html' %}
-                    {% endfor %}
-                </table>
-            {% else %}
-                <div class="panel-body text-muted">
-                    None
-                </div>
-            {% endif %}
-            {% if perms.ipam.add_service %}
-                <div class="panel-footer text-right">
-                    <a href="{% url 'dcim:device_service_assign' device=device.pk %}" class="btn btn-xs btn-primary">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Assign service
-                    </a>
-                </div>
-            {% endif %}
-        </div>
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Images</strong>

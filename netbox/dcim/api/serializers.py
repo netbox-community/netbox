@@ -269,8 +269,8 @@ class DeviceTypeSerializer(CustomFieldModelSerializer):
         model = DeviceType
         fields = [
             'id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'interface_ordering',
-            'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments', 'custom_fields',
-            'instance_count',
+            'is_console_server', 'is_pdu', 'is_network_device', 'is_rack_furniture', 'subdevice_role', 'comments',
+            'custom_fields', 'instance_count',
         ]
 
 
@@ -289,7 +289,8 @@ class WritableDeviceTypeSerializer(CustomFieldModelSerializer):
         model = DeviceType
         fields = [
             'id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'interface_ordering',
-            'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments', 'custom_fields',
+            'is_console_server', 'is_pdu', 'is_network_device', 'is_rack_furniture', 'subdevice_role', 'comments',
+            'custom_fields',
         ]
 
 

@@ -304,6 +304,17 @@ class Secret(CreatedUpdatedModel):
     def get_absolute_url(self):
         return reverse('secrets:secret', args=[self.pk])
 
+    def clean(self):
+        """
+        Validate model
+        """
+
+        # rack furniture cannot have assigned secrets
+        if self.device.device_type.is_rack_furniture:
+            raise ValidationError(
+                "Rack furniture device types cannot have secrets."
+            )
+
     def _pad(self, s):
         """
         Prepend the length of the plaintext (2B) and pad with garbage to a multiple of 16B (minimum of 64B).

@@ -56,7 +56,7 @@
         <div class="panel-body">
             {% render_field form.status %}
             {% render_field form.platform %}
-            {% if obj.pk %}
+            {% if obj.pk and not obj.device_type.is_rack_furniture %}
                 {% render_field form.primary_ip4 %}
                 {% render_field form.primary_ip6 %}
             {% endif %}

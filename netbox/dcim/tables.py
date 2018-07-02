@@ -326,6 +326,7 @@ class DeviceTypeTable(BaseTable):
     is_console_server = tables.BooleanColumn(verbose_name='CS')
     is_pdu = tables.BooleanColumn(verbose_name='PDU')
     is_network_device = tables.BooleanColumn(verbose_name='Net')
+    is_rack_furniture = tables.BooleanColumn(verbose_name='RF')
     subdevice_role = tables.TemplateColumn(
         template_code=SUBDEVICE_ROLE_TEMPLATE,
         verbose_name='Subdevice Role'
@@ -339,7 +340,7 @@ class DeviceTypeTable(BaseTable):
         model = DeviceType
         fields = (
             'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
-            'is_network_device', 'subdevice_role', 'instance_count',
+            'is_network_device', 'is_rack_furniture', 'subdevice_role', 'instance_count',
         )
 
 

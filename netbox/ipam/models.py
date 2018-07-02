@@ -684,3 +684,9 @@ class Service(CreatedUpdatedModel):
             raise ValidationError("A service cannot be associated with both a device and a virtual machine.")
         if not self.device and not self.virtual_machine:
             raise ValidationError("A service must be associated with either a device or a virtual machine.")
+
+        # rack furniture cannot have assgined services
+        if self.device and self.device.device_type.is_rack_furniture:
+            raise ValidationError(
+                "Rack furniture device types cannot have services."
+            )
