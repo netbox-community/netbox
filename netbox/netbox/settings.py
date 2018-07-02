@@ -268,7 +268,8 @@ SWAGGER_SETTINGS = {
         'utilities.custom_inspectors.NullablePaginatorInspector',
         'drf_yasg.inspectors.DjangoRestResponsePagination',
         'drf_yasg.inspectors.CoreAPICompatInspector',
-    ]
+    ],
+    'VALIDATOR_URL': None,
 }
 
 
