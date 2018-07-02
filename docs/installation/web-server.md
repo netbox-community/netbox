@@ -102,7 +102,7 @@ To enable SSL, consider this guide on [securing Apache with Let's Encrypt](https
 
 # gunicorn Installation
 
-Install gunicorn using `pip3` (Python 3) or `pip` (Python 2):
+Install gunicorn:
 
 ```no-highlight
 # pip3 install gunicorn

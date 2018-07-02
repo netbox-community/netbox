@@ -2,41 +2,19 @@
 
 This section of the documentation discusses installing and configuring the NetBox application.
 
-!!! note
-    Python 3 is strongly encouraged for new installations. Support for Python 2 will be discontinued in the near future. This documentation includes a guide on [migrating from Python 2 to Python 3](migrating-to-python3).
-
 **Ubuntu**
-
-Python 3:
 
 ```no-highlight
 # apt-get install -y python3 python3-dev python3-setuptools build-essential libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev zlib1g-dev
 # easy_install3 pip
 ```
 
-Python 2:
-
-```no-highlight
-# apt-get install -y python2.7 python-dev python-setuptools build-essential libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev zlib1g-dev
-# easy_install pip
-```
-
 **CentOS**
-
-Python 3:
 
 ```no-highlight
 # yum install -y epel-release
 # yum install -y gcc python34 python34-devel python34-setuptools libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel redhat-rpm-config
 # easy_install-3.4 pip
-```
-
-Python 2:
-
-```no-highlight
-# yum install -y epel-release
-# yum install -y gcc python2 python-devel python-setuptools libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel redhat-rpm-config
-# easy_install pip
 ```
 
 You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.
@@ -97,24 +75,16 @@ Checking connectivity... done.
 
 Install the required Python packages using pip. (If you encounter any compilation errors during this step, ensure that you've installed all of the system dependencies listed above.)
 
-Python 3:
-
 ```no-highlight
 # pip3 install -r requirements.txt
 ```
 
-Python 2:
-
-```no-highlight
-# pip install -r requirements.txt
-```
-
 !!! note
-    If you encounter errors while installing the required packages, check that you're running a recent version of pip (v9.0.1 or higher) with the command `pip -V` or `pip3 -V`.
+    If you encounter errors while installing the required packages, check that you're running a recent version of pip (v9.0.1 or higher) with the command `pip3 -V`.
 
 ### NAPALM Automation
 
-As of v2.1.0, NetBox supports integration with the [NAPALM automation](https://napalm-automation.net/) library. NAPALM allows NetBox to fetch live data from devices and return it to a requester via its REST API. Installation of NAPALM is optional. To enable it, install the `napalm` package using pip or pip3:
+NetBox supports integration with the [NAPALM automation](https://napalm-automation.net/) library. NAPALM allows NetBox to fetch live data from devices and return it to a requester via its REST API. Installation of NAPALM is optional. To enable it, install the `napalm` package using pip or pip3:
 
 ```no-highlight
 # pip3 install napalm
@@ -171,9 +141,6 @@ You may use the script located at `netbox/generate_secret_key.py` to generate a 
     In the case of a highly available installation with multiple web servers, `SECRET_KEY` must be identical among all servers in order to maintain a persistent user session state.
 
 # Run Database Migrations
-
-!!! warning
-    The examples on the rest of this page call the `python3` executable. Replace this with `python2` or `python` if you're using Python 2.
 
 Before NetBox can run, we need to install the database schema. This is done by running `python3 manage.py migrate` from the `netbox` directory (`/opt/netbox/netbox/` in our example):
 

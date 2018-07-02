@@ -7,13 +7,13 @@ This guide explains how to implement LDAP authentication using an external serve
 On Ubuntu:
 
 ```no-highlight
-sudo apt-get install -y python-dev libldap2-dev libsasl2-dev libssl-dev
+sudo apt-get install -y libldap2-dev libsasl2-dev libssl-dev
 ```
 
 On CentOS:
 
 ```no-highlight
-sudo yum install -y python-devel openldap-devel
+sudo yum install -y openldap-devel
 ```
 
 ## Install django-auth-ldap
