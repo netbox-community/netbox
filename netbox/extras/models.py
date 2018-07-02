@@ -172,8 +172,7 @@ class CustomField(models.Model):
     default = models.CharField(
         max_length=100,
         blank=True,
-        help_text='Default value for the field. Use "true" or "false" for '
-                  'booleans. N/A for selection fields.'
+        help_text='Default value for the field. Use "true" or "false" for booleans.'
     )
     weight = models.PositiveSmallIntegerField(
         default=100,

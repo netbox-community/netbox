@@ -38,10 +38,10 @@ COLOR_CHOICES = (
     ('607d8b', 'Dark grey'),
     ('111111', 'Black'),
 )
-NUMERIC_EXPANSION_PATTERN = '\[((?:\d+[?:,-])+\d+)\]'
-ALPHANUMERIC_EXPANSION_PATTERN = '\[((?:[a-zA-Z0-9]+[?:,-])+[a-zA-Z0-9]+)\]'
-IP4_EXPANSION_PATTERN = '\[((?:[0-9]{1,3}[?:,-])+[0-9]{1,3})\]'
-IP6_EXPANSION_PATTERN = '\[((?:[0-9a-f]{1,4}[?:,-])+[0-9a-f]{1,4})\]'
+NUMERIC_EXPANSION_PATTERN = r'\[((?:\d+[?:,-])+\d+)\]'
+ALPHANUMERIC_EXPANSION_PATTERN = r'\[((?:[a-zA-Z0-9]+[?:,-])+[a-zA-Z0-9]+)\]'
+IP4_EXPANSION_PATTERN = r'\[((?:[0-9]{1,3}[?:,-])+[0-9]{1,3})\]'
+IP6_EXPANSION_PATTERN = r'\[((?:[0-9a-f]{1,4}[?:,-])+[0-9a-f]{1,4})\]'
 
 
 def parse_numeric_range(string, base=10):
@@ -407,7 +407,7 @@ class FlexibleModelChoiceField(forms.ModelChoiceField):
         try:
             if not self.to_field_name:
                 key = 'pk'
-            elif re.match('^\{\d+\}$', value):
+            elif re.match(r'^\{\d+\}$', value):
                 key = 'pk'
                 value = value.strip('{}')
             else:

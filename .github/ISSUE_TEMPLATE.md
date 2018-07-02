@@ -21,6 +21,7 @@
 [ ] Feature request <!-- An enhancement of existing functionality -->
 [ ] Bug report      <!-- Unexpected or erroneous behavior -->
 [ ] Documentation   <!-- A modification to the documentation -->
+[ ] Housekeeping    <!-- Changes pertaining to the codebase itself -->
 
 <!--
     Please describe the environment in which you are running NetBox. (Be sure
@@ -31,7 +32,7 @@
 -->
 ### Environment
 * Python version:  <!-- Example: 3.5.4 -->
-* NetBox version:  <!-- Example: 2.1.3 -->
+* NetBox version:  <!-- Example: 2.3.5 -->
 
 <!--
     BUG REPORTS must include:

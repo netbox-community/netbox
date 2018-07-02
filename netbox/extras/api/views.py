@@ -102,7 +102,7 @@ class TopologyMapViewSet(ModelViewSet):
 
         try:
             data = tmap.render(img_format=img_format)
-        except:
+        except Exception:
             return HttpResponse(
                 "There was an error generating the requested graph. Ensure that the GraphViz executables have been "
                 "installed correctly."

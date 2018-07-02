@@ -9,7 +9,7 @@ python:
   - "3.5"
 install:
   - pip install -r requirements.txt
-  - pip install pep8
+  - pip install pycodestyle
 before_script:
   - psql --version
   - psql -U postgres -c 'SELECT version();'

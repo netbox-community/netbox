@@ -1352,6 +1352,12 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                 'face': "Must specify rack face when defining rack position.",
             })
 
+        # Prevent 0U devices from being assigned to a specific position
+        if self.position and self.device_type.u_height == 0:
+            raise ValidationError({
+                'position': "A U0 device type ({}) cannot be assigned to a rack position.".format(self.device_type)
+            })
+
         if self.rack:
 
             try:
@@ -1612,8 +1618,8 @@ class ConsoleServerPortManager(models.Manager):
     def get_queryset(self):
         # Pad any trailing digits to effect natural sorting
         return super(ConsoleServerPortManager, self).get_queryset().extra(select={
-            'name_padded': "CONCAT(REGEXP_REPLACE(dcim_consoleserverport.name, '\d+$', ''), "
-                           "LPAD(SUBSTRING(dcim_consoleserverport.name FROM '\d+$'), 8, '0'))",
+            'name_padded': r"CONCAT(REGEXP_REPLACE(dcim_consoleserverport.name, '\d+$', ''), "
+                           r"LPAD(SUBSTRING(dcim_consoleserverport.name FROM '\d+$'), 8, '0'))",
         }).order_by('device', 'name_padded')
 
 
@@ -1720,8 +1726,8 @@ class PowerOutletManager(models.Manager):
     def get_queryset(self):
         # Pad any trailing digits to effect natural sorting
         return super(PowerOutletManager, self).get_queryset().extra(select={
-            'name_padded': "CONCAT(REGEXP_REPLACE(dcim_poweroutlet.name, '\d+$', ''), "
-                           "LPAD(SUBSTRING(dcim_poweroutlet.name FROM '\d+$'), 8, '0'))",
+            'name_padded': r"CONCAT(REGEXP_REPLACE(dcim_poweroutlet.name, '\d+$', ''), "
+                           r"LPAD(SUBSTRING(dcim_poweroutlet.name FROM '\d+$'), 8, '0'))",
         }).order_by('device', 'name_padded')
 
 

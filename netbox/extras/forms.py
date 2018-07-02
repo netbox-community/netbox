@@ -5,6 +5,7 @@ from collections import OrderedDict
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from mptt.forms import TreeNodeMultipleChoiceField
 from taggit.models import Tag
 
@@ -64,7 +65,14 @@ def get_custom_fields_for_model(content_type, filterable_only=False, bulk_edit=F
             choices = [(cfc.pk, cfc) for cfc in cf.choices.all()]
             if not cf.required or bulk_edit or filterable_only:
                 choices = [(None, '---------')] + choices
-            field = forms.TypedChoiceField(choices=choices, coerce=int, required=cf.required)
+            # Check for a default choice
+            default_choice = None
+            if initial:
+                try:
+                    default_choice = cf.choices.get(value=initial).pk
+                except ObjectDoesNotExist:
+                    pass
+            field = forms.TypedChoiceField(choices=choices, coerce=int, required=cf.required, initial=default_choice)
 
         # URL
         elif cf.type == CF_TYPE_URL:

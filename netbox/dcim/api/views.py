@@ -36,11 +36,12 @@ class DCIMFieldChoicesViewSet(FieldChoicesViewSet):
     fields = (
         (Device, ['face', 'status']),
         (ConsolePort, ['connection_status']),
-        (Interface, ['form_factor']),
+        (Interface, ['form_factor', 'mode']),
         (InterfaceConnection, ['connection_status']),
         (InterfaceTemplate, ['form_factor']),
         (PowerPort, ['connection_status']),
         (Rack, ['type', 'width']),
+        (Site, ['status']),
     )
 
 

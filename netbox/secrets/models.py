@@ -105,7 +105,7 @@ class UserKey(models.Model):
                 raise ValidationError({
                     'public_key': "Invalid RSA key format."
                 })
-            except:
+            except Exception:
                 raise ValidationError("Something went wrong while trying to save your key. Please ensure that you're "
                                       "uploading a valid RSA public key in PEM format (no SSH/PGP).")
 

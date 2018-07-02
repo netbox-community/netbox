@@ -95,7 +95,31 @@ class PrefixViewSet(CustomFieldModelViewSet):
             requested_prefixes = request.data if isinstance(request.data, list) else [request.data]
 
             # Allocate prefixes to the requested objects based on availability within the parent
-            for requested_prefix in requested_prefixes:
+            for i, requested_prefix in enumerate(requested_prefixes):
+
+                # Validate requested prefix size
+                error_msg = None
+                if 'prefix_length' not in requested_prefix:
+                    error_msg = "Item {}: prefix_length field missing".format(i)
+                elif not isinstance(requested_prefix['prefix_length'], int):
+                    error_msg = "Item {}: Invalid prefix length ({})".format(
+                        i, requested_prefix['prefix_length']
+                    )
+                elif prefix.family == 4 and requested_prefix['prefix_length'] > 32:
+                    error_msg = "Item {}: Invalid prefix length ({}) for IPv4".format(
+                        i, requested_prefix['prefix_length']
+                    )
+                elif prefix.family == 6 and requested_prefix['prefix_length'] > 128:
+                    error_msg = "Item {}: Invalid prefix length ({}) for IPv6".format(
+                        i, requested_prefix['prefix_length']
+                    )
+                if error_msg:
+                    return Response(
+                        {
+                            "detail": error_msg
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
 
                 # Find the first available prefix equal to or larger than the requested size
                 for available_prefix in available_prefixes.iter_cidrs():
@@ -157,8 +181,8 @@ class PrefixViewSet(CustomFieldModelViewSet):
             requested_ips = request.data if isinstance(request.data, list) else [request.data]
 
             # Determine if the requested number of IPs is available
-            available_ips = list(prefix.get_available_ips())
-            if len(available_ips) < len(requested_ips):
+            available_ips = prefix.get_available_ips()
+            if available_ips.size < len(requested_ips):
                 return Response(
                     {
                         "detail": "An insufficient number of IP addresses are available within the prefix {} ({} "
@@ -168,8 +192,9 @@ class PrefixViewSet(CustomFieldModelViewSet):
                 )
 
             # Assign addresses from the list of available IPs and copy VRF assignment from the parent prefix
+            available_ips = iter(available_ips)
             for requested_ip in requested_ips:
-                requested_ip['address'] = available_ips.pop(0)
+                requested_ip['address'] = next(available_ips)
                 requested_ip['vrf'] = prefix.vrf.pk if prefix.vrf else None
 
             # Initialize the serializer with a list or a single object depending on what was requested
