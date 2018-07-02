@@ -281,5 +281,5 @@ INTERNAL_IPS = (
 
 try:
     HOSTNAME = socket.gethostname()
-except:
+except Exception:
     HOSTNAME = 'localhost'

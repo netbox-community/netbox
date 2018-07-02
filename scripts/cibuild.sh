@@ -23,8 +23,11 @@ fi
 
 # Check all python source files for PEP 8 compliance, but explicitly
 # ignore:
+#  - W504: line break after binary operator
 #  - E501: line greater than 80 characters in length
-pep8 --ignore=E501 netbox/
+pycodestyle \
+    --ignore=W504,E501 \
+    netbox/
 RC=$?
 if [[ $RC != 0 ]]; then
 	echo -e "\n$(info) one or more PEP 8 errors detected, failing build."

@@ -26,7 +26,7 @@ def validate_rsa_key(key, is_secret=True):
         raise forms.ValidationError("This looks like a private key. Please provide your public RSA key.")
     try:
         PKCS1_OAEP.new(key)
-    except:
+    except Exception:
         raise forms.ValidationError("Error validating RSA key. Please ensure that your key supports PKCS#1 OAEP.")
 
 
