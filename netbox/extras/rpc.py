@@ -163,8 +163,8 @@ class IOSSSH(SSHClient):
 
             sh_ver = self._send('show version').split('\r\n')
             return {
-                'serial': parse(sh_ver, 'Processor board ID ([^\s]+)'),
-                'description': parse(sh_ver, 'cisco ([^\s]+)')
+                'serial': parse(sh_ver, r'Processor board ID ([^\s]+)'),
+                'description': parse(sh_ver, r'cisco ([^\s]+)')
             }
 
         def items(chassis_serial=None):
@@ -172,9 +172,9 @@ class IOSSSH(SSHClient):
             for i in cmd:
                 i_fmt = i.replace('\r\n', ' ')
                 try:
-                    m_name = re.search('NAME: "([^"]+)"', i_fmt).group(1)
-                    m_pid = re.search('PID: ([^\s]+)', i_fmt).group(1)
-                    m_serial = re.search('SN: ([^\s]+)', i_fmt).group(1)
+                    m_name = re.search(r'NAME: "([^"]+)"', i_fmt).group(1)
+                    m_pid = re.search(r'PID: ([^\s]+)', i_fmt).group(1)
+                    m_serial = re.search(r'SN: ([^\s]+)', i_fmt).group(1)
                     # Omit built-in items and those with no PID
                     if m_serial != chassis_serial and m_pid.lower() != 'unspecified':
                         yield {
@@ -208,7 +208,7 @@ class OpengearSSH(SSHClient):
         try:
             stdin, stdout, stderr = self.ssh.exec_command("showserial")
             serial = stdout.readlines()[0].strip()
-        except:
+        except Exception:
             raise RuntimeError("Failed to glean chassis serial from device.")
         # Older models don't provide serial info
         if serial == "No serial number information available":
@@ -217,7 +217,7 @@ class OpengearSSH(SSHClient):
         try:
             stdin, stdout, stderr = self.ssh.exec_command("config -g config.system.model")
             description = stdout.readlines()[0].split(' ', 1)[1].strip()
-        except:
+        except Exception:
             raise RuntimeError("Failed to glean chassis description from device.")
 
         return {

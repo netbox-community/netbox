@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='customfield',
             name='default',
-            field=models.CharField(blank=True, help_text='Default value for the field. Use "true" or "false" for booleans. N/A for selection fields.', max_length=100),
+            field=models.CharField(blank=True, help_text='Default value for the field. Use "true" or "false" for booleans.', max_length=100),
         ),
         migrations.AlterField(
             model_name='customfield',
