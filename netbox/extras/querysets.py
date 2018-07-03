@@ -14,7 +14,7 @@ class ConfigContextQuerySet(QuerySet):
         role = getattr(obj, 'device_role', None) or obj.role
 
         return self.filter(
-            Q(regions=obj.site.region) | Q(regions=None),
+            Q(regions=getattr(obj.site, 'region', None)) | Q(regions=None),
             Q(sites=obj.site) | Q(sites=None),
             Q(roles=role) | Q(roles=None),
             Q(tenants=obj.tenant) | Q(tenants=None),
