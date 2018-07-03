@@ -762,9 +762,9 @@ $(".interface-toggle").click(function() {
 $('button.toggle-ips').click(function() {
     var selected = $(this).attr('selected');
     if (selected) {
-        $('#interfaces_table tr.ipaddress').hide();
+        $('#interfaces_table tr.ipaddresses').hide();
     } else {
-        $('#interfaces_table tr.ipaddress').show();
+        $('#interfaces_table tr.ipaddresses').show();
     }
     $(this).attr('selected', !selected);
     $(this).children('span').toggleClass('glyphicon-check glyphicon-unchecked');
