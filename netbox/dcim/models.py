@@ -815,6 +815,21 @@ class Platform(models.Model):
         verbose_name='NAPALM driver',
         help_text="The name of the NAPALM driver to use when interacting with devices"
     )
+
+    napalm_port = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        verbose_name='NAPALM port',
+        help_text="The port to be used by NAPALM driver when interacting with devices"
+    )
+
+    napalm_transport = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name='NAPALM transport type',
+        help_text="The transport protocol to be used by NAPALM driver when interacting with devices"
+    )
+
     rpc_client = models.CharField(
         max_length=30,
         choices=RPC_CLIENT_CHOICES,
