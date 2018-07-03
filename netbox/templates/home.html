@@ -157,7 +157,7 @@
                 </div>
                 <table class="table table-hover panel-body">
                     {% for result in report_results %}
-                        <span>
+                        <tr>
                             <td><a href="{% url 'extras:report' name=result.report %}">{{ result.report }}</a></td>
                             <td class="text-right"><span title="{{ result.created }}">{% include 'extras/inc/report_label.html' %}</span></td>
                         </tr>
@@ -167,14 +167,31 @@
         {% endif %}
         <div class="panel panel-default">
             <div class="panel-heading">
-                <strong>Recent Activity</strong>
+                <strong>Changelog</strong>
             </div>
             <div class="list-group">
-                {% for a in recent_activity %}
-                    <div class="list-group-item">
-                        {{ a.icon }} {{ a.message|safe }}<br />
-                        <small class="text-muted">{{ a.user }} - {{ a.time|date:'SHORT_DATETIME_FORMAT' }}</small>
-                    </div>
+                {% for change in changelog %}
+                    {% with action=change.get_action_display|lower %}
+                        <div class="list-group-item">
+                            {% if action == 'created' %}
+                                <span class="label label-success"><i class="fa fa-plus"></i></span>
+                            {% elif action == 'updated' %}
+                                <span class="label label-warning"><i class="fa fa-pencil"></i></span>
+                            {% elif action == 'deleted' %}
+                                <span class="label label-danger"><i class="fa fa-trash"></i></span>
+                            {% endif %}
+                            {% if change.changed_object.get_absolute_url %}
+                                <a href="{{ change.changed_object.get_absolute_url }}">{{ change.changed_object }}</a>
+                            {% else %}
+                                {{ change.changed_object|default:change.object_repr }}
+                            {% endif %}
+                            <br />
+                            <small>
+                                <span class="text-muted">{{ change.user|default:change.user_name }} -</span>
+                                <a href="{{ change.get_absolute_url }}" class="text-muted">{{ change.time|date:'SHORT_DATETIME_FORMAT' }}</a>
+                            </small>
+                        </div>
+                    {% endwith %}
                 {% empty %}
                     <div class="list-group-item">
                         Welcome to NetBox! {% if perms.add_site %} <a href="{% url 'dcim:site_add' %}">Add a site</a> to get started.{% endif %}
