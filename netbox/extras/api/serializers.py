@@ -132,16 +132,17 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 #
 
 class ConfigContextSerializer(ValidatedModelSerializer):
-    regions = NestedRegionSerializer(many=True)
-    sites = NestedSiteSerializer(many=True)
-    roles = NestedDeviceRoleSerializer(many=True)
-    platforms = NestedPlatformSerializer(many=True)
-    tenants = NestedTenantSerializer(many=True)
+    regions = NestedRegionSerializer(required=False, many=True)
+    sites = NestedSiteSerializer(required=False, many=True)
+    roles = NestedDeviceRoleSerializer(required=False, many=True)
+    platforms = NestedPlatformSerializer(required=False, many=True)
+    tenants = NestedTenantSerializer(required=False, many=True)
 
     class Meta:
         model = ConfigContext
         fields = [
-            'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'tenants', 'data',
+            'id', 'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'tenants',
+            'data',
         ]
 
 
