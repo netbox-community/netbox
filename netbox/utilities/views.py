@@ -60,7 +60,7 @@ class GetReturnURLMixin(object):
             return query_param
 
         # Next, check if the object being modified (if any) has an absolute URL.
-        elif obj.pk and hasattr(obj, 'get_absolute_url'):
+        elif obj is not None and obj.pk and hasattr(obj, 'get_absolute_url'):
             return obj.get_absolute_url()
 
         # Fall back to the default URL (if specified) for the view.
