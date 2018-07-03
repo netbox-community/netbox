@@ -53,7 +53,7 @@ class TagTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Tag
-        fields = ('pk', 'name', 'weight')
+        fields = ('pk', 'name', 'items', 'slug', 'actions')
 
 
 class ConfigContextTable(BaseTable):

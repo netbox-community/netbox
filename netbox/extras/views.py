@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
 from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 from taggit.models import Tag
@@ -34,9 +34,7 @@ class TagEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'taggit.change_tag'
     model = Tag
     model_form = TagForm
-
-    def get_return_url(self, request, obj):
-        return reverse('extras:tag', kwargs={'slug': obj.slug})
+    default_return_url = 'extras:tag_list'
 
 
 class TagDeleteView(PermissionRequiredMixin, ObjectDeleteView):
