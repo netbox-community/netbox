@@ -7,9 +7,9 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from taggit.models import Tag
 
-from dcim.models import Device
+from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from extras.constants import GRAPH_TYPE_SITE
-from extras.models import Graph, ExportTemplate
+from extras.models import ConfigContext, Graph, ExportTemplate
 from users.models import Token
 from utilities.testing import HttpStatusMixin
 
@@ -320,3 +320,180 @@ class TagTest(HttpStatusMixin, APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Tag.objects.count(), 2)
+
+
+class ConfigContextTest(HttpStatusMixin, APITestCase):
+
+    def setUp(self):
+
+        user = User.objects.create(username='testuser', is_superuser=True)
+        token = Token.objects.create(user=user)
+        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+
+        self.configcontext1 = ConfigContext.objects.create(
+            name='Test Config Context 1',
+            weight=100,
+            data={'foo': 123}
+        )
+        self.configcontext2 = ConfigContext.objects.create(
+            name='Test Config Context 2',
+            weight=200,
+            data={'bar': 456}
+        )
+        self.configcontext3 = ConfigContext.objects.create(
+            name='Test Config Context 3',
+            weight=300,
+            data={'baz': 789}
+        )
+
+    def test_get_configcontext(self):
+
+        url = reverse('extras-api:configcontext-detail', kwargs={'pk': self.configcontext1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.configcontext1.name)
+        self.assertEqual(response.data['data'], self.configcontext1.data)
+
+    def test_list_configcontexts(self):
+
+        url = reverse('extras-api:configcontext-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_create_configcontext(self):
+
+        data = {
+            'name': 'Test Config Context 4',
+            'weight': 1000,
+            'data': {'foo': 'XXX'}
+        }
+
+        url = reverse('extras-api:configcontext-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(ConfigContext.objects.count(), 4)
+        configcontext4 = ConfigContext.objects.get(pk=response.data['id'])
+        self.assertEqual(configcontext4.name, data['name'])
+        self.assertEqual(configcontext4.data, data['data'])
+
+    def test_create_configcontext_bulk(self):
+
+        data = [
+            {
+                'name': 'Test Config Context 4',
+                'data': {'more_foo': True},
+            },
+            {
+                'name': 'Test Config Context 5',
+                'data': {'more_bar': False},
+            },
+            {
+                'name': 'Test Config Context 6',
+                'data': {'more_baz': None},
+            },
+        ]
+
+        url = reverse('extras-api:configcontext-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(ConfigContext.objects.count(), 6)
+        for i in range(0, 3):
+            self.assertEqual(response.data[i]['name'], data[i]['name'])
+            self.assertEqual(response.data[i]['data'], data[i]['data'])
+
+    def test_update_configcontext(self):
+
+        data = {
+            'name': 'Test Config Context X',
+            'weight': 999,
+            'data': {'foo': 'XXX'}
+        }
+
+        url = reverse('extras-api:configcontext-detail', kwargs={'pk': self.configcontext1.pk})
+        response = self.client.put(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(ConfigContext.objects.count(), 3)
+        configcontext1 = ConfigContext.objects.get(pk=response.data['id'])
+        self.assertEqual(configcontext1.name, data['name'])
+        self.assertEqual(configcontext1.weight, data['weight'])
+        self.assertEqual(configcontext1.data, data['data'])
+
+    def test_delete_configcontext(self):
+
+        url = reverse('extras-api:configcontext-detail', kwargs={'pk': self.configcontext1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(ConfigContext.objects.count(), 2)
+
+    def test_render_configcontext_for_object(self):
+
+        # Create a Device for which we'll render a config context
+        manufacturer = Manufacturer.objects.create(
+            name='Test Manufacturer',
+            slug='test-manufacturer'
+        )
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Test Device Type'
+        )
+        device_role = DeviceRole.objects.create(
+            name='Test Role',
+            slug='test-role'
+        )
+        site = Site.objects.create(
+            name='Test Site',
+            slug='test-site'
+        )
+        device = Device.objects.create(
+            name='Test Device',
+            device_type=device_type,
+            device_role=device_role,
+            site=site
+        )
+
+        # Test default config contexts (created at test setup)
+        rendered_context = device.get_config_context()
+        self.assertEqual(rendered_context['foo'], 123)
+        self.assertEqual(rendered_context['bar'], 456)
+        self.assertEqual(rendered_context['baz'], 789)
+
+        # Add another context specific to the site
+        configcontext4 = ConfigContext(
+            name='Test Config Context 4',
+            data={'site_data': 'ABC'}
+        )
+        configcontext4.save()
+        configcontext4.sites.add(site)
+        rendered_context = device.get_config_context()
+        self.assertEqual(rendered_context['site_data'], 'ABC')
+
+        # Override one of the default contexts
+        configcontext5 = ConfigContext(
+            name='Test Config Context 5',
+            weight=2000,
+            data={'foo': 999}
+        )
+        configcontext5.save()
+        configcontext5.sites.add(site)
+        rendered_context = device.get_config_context()
+        self.assertEqual(rendered_context['foo'], 999)
+
+        # Add a context which does NOT match our device and ensure it does not apply
+        site2 = Site.objects.create(
+            name='Test Site 2',
+            slug='test-site-2'
+        )
+        configcontext6 = ConfigContext(
+            name='Test Config Context 6',
+            weight=2000,
+            data={'bar': 999}
+        )
+        configcontext6.save()
+        configcontext6.sites.add(site2)
+        rendered_context = device.get_config_context()
+        self.assertEqual(rendered_context['bar'], 456)
