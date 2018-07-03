@@ -109,6 +109,19 @@ class VirtualMachineSerializer(CustomFieldModelSerializer):
         ]
 
 
+class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
+    config_context = serializers.SerializerMethodField()
+
+    class Meta(VirtualMachineSerializer.Meta):
+        fields = [
+            'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6',
+            'vcpus', 'memory', 'disk', 'comments', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
+        ]
+
+    def get_config_context(self, obj):
+        return obj.get_config_context()
+
+
 class NestedVirtualMachineSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:virtualmachine-detail')
 

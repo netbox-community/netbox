@@ -1,9 +1,5 @@
 from __future__ import unicode_literals
 
-from django.shortcuts import get_object_or_404
-from rest_framework.decorators import action
-from rest_framework.response import Response
-
 from dcim.models import Interface
 from extras.api.views import CustomFieldModelViewSet
 from utilities.api import FieldChoicesViewSet, ModelViewSet
@@ -50,13 +46,15 @@ class ClusterViewSet(CustomFieldModelViewSet):
 
 class VirtualMachineViewSet(CustomFieldModelViewSet):
     queryset = VirtualMachine.objects.all()
-    serializer_class = serializers.VirtualMachineSerializer
     filter_class = filters.VirtualMachineFilter
 
-    @action(detail=True, url_path='config-context')
-    def config_context(self, request, pk):
-        device = get_object_or_404(VirtualMachine, pk=pk)
-        return Response(device.get_config_context())
+    def get_serializer_class(self):
+        """
+        Include rendered config context when retrieving a single VirtualMachine.
+        """
+        if self.action == 'retrieve':
+            return serializers.VirtualMachineWithConfigContextSerializer
+        return serializers.VirtualMachineSerializer
 
 
 class InterfaceViewSet(ModelViewSet):

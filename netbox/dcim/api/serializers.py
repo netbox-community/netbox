@@ -440,6 +440,21 @@ class DeviceSerializer(CustomFieldModelSerializer):
         return data
 
 
+class DeviceWithConfigContextSerializer(DeviceSerializer):
+    config_context = serializers.SerializerMethodField()
+
+    class Meta(DeviceSerializer.Meta):
+        fields = [
+            'id', 'name', 'display_name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
+            'site', 'rack', 'position', 'face', 'parent_device', 'status', 'primary_ip', 'primary_ip4', 'primary_ip6',
+            'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'comments', 'tags', 'custom_fields',
+            'config_context', 'created', 'last_updated',
+        ]
+
+    def get_config_context(self, obj):
+        return obj.get_config_context()
+
+
 #
 # Console server ports
 #

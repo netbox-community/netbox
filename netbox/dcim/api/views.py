@@ -230,13 +230,15 @@ class DeviceViewSet(CustomFieldModelViewSet):
     ).prefetch_related(
         'primary_ip4__nat_outside', 'primary_ip6__nat_outside',
     )
-    serializer_class = serializers.DeviceSerializer
     filter_class = filters.DeviceFilter
 
-    @action(detail=True, url_path='config-context')
-    def config_context(self, request, pk):
-        device = get_object_or_404(Device, pk=pk)
-        return Response(device.get_config_context())
+    def get_serializer_class(self):
+        """
+        Include rendered config context when retrieving a single Device.
+        """
+        if self.action == 'retrieve':
+            return serializers.DeviceWithConfigContextSerializer
+        return serializers.DeviceSerializer
 
     @action(detail=True, url_path='napalm')
     def napalm(self, request, pk):
