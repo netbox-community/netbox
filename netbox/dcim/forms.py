@@ -1780,8 +1780,9 @@ class InterfaceAssignVLANsForm(BootstrapMixin, forms.ModelForm):
         if parent is not None:
 
             # Add site VLANs
-            site_vlans = VLAN.objects.filter(site=parent.site, group=None).exclude(pk__in=assigned_vlans)
-            vlan_choices.append((parent.site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
+            if parent.site:
+                site_vlans = VLAN.objects.filter(site=parent.site, group=None).exclude(pk__in=assigned_vlans)
+                vlan_choices.append((parent.site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
 
             # Add grouped site VLANs
             for group in VLANGroup.objects.filter(site=parent.site):
