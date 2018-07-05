@@ -206,3 +206,28 @@ The maximum number of objects that can be returned is limited by the [`MAX_PAGE_
 
 !!! warning
     Disabling the page size limit introduces a potential for very resource-intensive requests, since one API request can effectively retrieve an entire table from the database.
+
+# Filtering
+
+A list of objects retrieved via the API can be filtered by passing one or more query parameters. The same parameters used by the web UI work for the API as well. For example, to return only prefixes with a status of "Active" (`1`):
+
+```
+GET /api/ipam/prefixes/?status=1
+```
+
+The same filter can be incldued multiple times. These will effect a logical OR and return objects matching any of the given values. For example, the following will return all active and reserved prefixes:
+
+```
+GET /api/ipam/prefixes/?status=1&status=2
+```
+
+## Custom Fields
+
+To filter on a custom field, prepend `cf_` to the field name. For example, the following query will return only sites where a custom field named `foo` is equal to 123:
+
+```
+GET /api/dcim/sites/?cf_foo=123
+```
+
+!!! note
+    Full versus partial matching when filtering is configurable per custom field. Filtering can be toggled (or disabled) for a custom field in the admin UI.
