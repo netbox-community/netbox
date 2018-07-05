@@ -44,7 +44,7 @@ class InterfaceQuerySet(QuerySet):
 
         TYPE_RE = r"SUBSTRING({} FROM '^([^0-9]+)')"
         ID_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)(\d{{1,9}})$') AS integer)"
-        SLOT_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?(\d{{1,9}})\/') AS integer)"
+        SLOT_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?(\d{{1,9}})\/?') AS integer)"
         SUBSLOT_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?(?:\d{{1,9}}\/)(\d{{1,9}})') AS integer), 0)"
         POSITION_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?(?:\d{{1,9}}\/){{2}}(\d{{1,9}})') AS integer), 0)"
         SUBPOSITION_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?(?:\d{{1,9}}\/){{3}}(\d{{1,9}})') AS integer), 0)"
