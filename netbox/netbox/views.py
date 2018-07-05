@@ -73,7 +73,7 @@ SEARCH_TYPES = OrderedDict((
         'url': 'dcim:device_list',
     }),
     ('virtualchassis', {
-        'queryset': VirtualChassis.objects.select_related('master'),
+        'queryset': VirtualChassis.objects.select_related('master').annotate(member_count=Count('members')),
         'filter': VirtualChassisFilter,
         'table': VirtualChassisTable,
         'url': 'dcim:virtualchassis_list',
