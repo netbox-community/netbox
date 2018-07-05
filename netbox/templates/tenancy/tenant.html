@@ -83,7 +83,7 @@
                     <td>Tags</td>
                     <td>
                         {% for tag in tenant.tags.all %}
-                            {% tag 'tenancy:tenant_list' tag %}
+                            {% tag tag 'tenancy:tenant_list' %}
                         {% empty %}
                             <span class="text-muted">N/A</span>
                         {% endfor %}

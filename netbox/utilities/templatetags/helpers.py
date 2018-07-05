@@ -171,11 +171,11 @@ def utilization_graph(utilization, warning_threshold=75, danger_threshold=90):
 
 
 @register.inclusion_tag('utilities/templatetags/tag.html')
-def tag(url_name, tag):
+def tag(tag, url_name=None):
     """
-    Display a link to the given object list filtered by a specific Tag slug.
+    Display a tag, optionally linked to a filtered list of objects.
     """
     return {
-        'url_name': url_name,
         'tag': tag,
+        'url_name': url_name,
     }

@@ -91,7 +91,7 @@
                     <td>Tags</td>
                     <td>
                         {% for tag in cluster.tags.all %}
-                            {% tag 'virtualization:cluster_list' tag %}
+                            {% tag tag 'virtualization:cluster_list' %}
                         {% empty %}
                             <span class="text-muted">N/A</span>
                         {% endfor %}

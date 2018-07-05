@@ -189,7 +189,7 @@
                         <td>Tags</td>
                         <td>
                             {% for tag in prefix.tags.all %}
-                                {% tag 'ipam:prefix_list' tag %}
+                                {% tag tag 'ipam:prefix_list' %}
                             {% empty %}
                                 <span class="text-muted">N/A</span>
                             {% endfor %}

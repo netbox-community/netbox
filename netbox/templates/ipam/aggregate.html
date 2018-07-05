@@ -97,7 +97,7 @@
                     <td>Tags</td>
                     <td>
                         {% for tag in aggregate.tags.all %}
-                            {% tag 'ipam:aggregate_list' tag %}
+                            {% tag tag 'ipam:aggregate_list' %}
                         {% empty %}
                             <span class="text-muted">N/A</span>
                         {% endfor %}

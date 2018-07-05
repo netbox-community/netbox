@@ -149,7 +149,7 @@
                     <td>Tags</td>
                     <td>
                         {% for tag in site.tags.all %}
-                            {% tag 'dcim:site_list' tag %}
+                            {% tag tag 'dcim:site_list' %}
                         {% empty %}
                             <span class="text-muted">N/A</span>
                         {% endfor %}

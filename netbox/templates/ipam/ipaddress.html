@@ -149,7 +149,7 @@
                     <td>Tags</td>
                     <td>
                         {% for tag in ipaddress.tags.all %}
-                            {% tag 'ipam:ipaddress_list' tag %}
+                            {% tag tag 'ipam:ipaddress_list' %}
                         {% empty %}
                             <span class="text-muted">N/A</span>
                         {% endfor %}

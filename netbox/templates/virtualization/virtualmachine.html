@@ -139,7 +139,7 @@
                     <td>Tags</td>
                     <td>
                         {% for tag in virtualmachine.tags.all %}
-                            {% tag 'virtualization:virtualmachine_list' tag %}
+                            {% tag tag 'virtualization:virtualmachine_list' %}
                         {% empty %}
                             <span class="text-muted">N/A</span>
                         {% endfor %}

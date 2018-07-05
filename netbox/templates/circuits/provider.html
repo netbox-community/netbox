@@ -119,7 +119,7 @@
                     <td>Tags</td>
                     <td>
                         {% for tag in provider.tags.all %}
-                            {% tag 'circuits:provider_list' tag %}
+                            {% tag tag 'circuits:provider_list' %}
                         {% empty %}
                             <span class="text-muted">N/A</span>
                         {% endfor %}

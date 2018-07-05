@@ -94,7 +94,7 @@
                     <td>Tags</td>
                     <td>
                         {% for tag in vrf.tags.all %}
-                            {% tag 'ipam:vrf_list' tag %}
+                            {% tag tag 'ipam:vrf_list' %}
                         {% empty %}
                             <span class="text-muted">N/A</span>
                         {% endfor %}
