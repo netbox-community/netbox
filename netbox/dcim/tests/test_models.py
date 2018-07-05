@@ -216,10 +216,9 @@ class InterfaceTestCase(TestCase):
             device=device1,
             name='Loopback1'
         )
-
         self.assertEqual(
             list(Interface.objects.all().order_naturally()),
-            [interface1, interface5, interface4, interface3, interface2, interface6]
+            [interface6, interface1, interface5, interface4, interface3, interface2]
         )
 
     def test_interface_order_natural_subinterfaces(self):
@@ -256,7 +255,15 @@ class InterfaceTestCase(TestCase):
             device=device1,
             name='GigabitEthernet0'
         )
+        interface7 = Interface.objects.create(
+            device=device1,
+            name='Loopback1'
+        )
+        interface8 = Interface.objects.create(
+            device=device1,
+            name='Loopback1.1'
+        )
         self.assertEqual(
             list(Interface.objects.all().order_naturally()),
-            [interface4, interface3, interface5, interface2, interface1, interface6]
+            [interface6, interface4, interface3, interface5, interface2, interface1, interface7, interface8]
         )
