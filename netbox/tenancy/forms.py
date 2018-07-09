@@ -46,7 +46,7 @@ class TenantForm(BootstrapMixin, CustomFieldForm):
         fields = ['name', 'slug', 'group', 'description', 'comments']
 
 
-class TenantCSVForm(forms.ModelForm):
+class TenantCSVForm(CustomFieldForm):
     slug = SlugField()
     group = forms.ModelChoiceField(
         queryset=TenantGroup.objects.all(),
