@@ -10,7 +10,7 @@ from dcim.constants import IFACE_FF_VIRTUAL, IFACE_MODE_ACCESS, IFACE_MODE_TAGGE
 from dcim.forms import INTERFACE_MODE_HELP_TEXT
 from dcim.formfields import MACAddressFormField
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
-from extras.forms import CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
+from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
 from ipam.models import IPAddress
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
@@ -119,7 +119,7 @@ class ClusterCSVForm(forms.ModelForm):
         fields = Cluster.csv_headers
 
 
-class ClusterBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Cluster.objects.all(), widget=forms.MultipleHiddenInput)
     type = forms.ModelChoiceField(queryset=ClusterType.objects.all(), required=False)
     group = forms.ModelChoiceField(queryset=ClusterGroup.objects.all(), required=False)
@@ -349,7 +349,7 @@ class VirtualMachineCSVForm(forms.ModelForm):
         fields = VirtualMachine.csv_headers
 
 
-class VirtualMachineBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VirtualMachine.objects.all(), widget=forms.MultipleHiddenInput)
     status = forms.ChoiceField(choices=add_blank_choice(VM_STATUS_CHOICES), required=False, initial='')
     cluster = forms.ModelChoiceField(queryset=Cluster.objects.all(), required=False)

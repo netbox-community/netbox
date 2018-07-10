@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from mptt.forms import TreeNodeMultipleChoiceField
+from taggit.forms import TagField
 from taggit.models import Tag
 
 from dcim.models import Region
@@ -191,6 +192,16 @@ class TagForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Tag
         fields = ['name', 'slug']
+
+
+class AddRemoveTagsForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        super(AddRemoveTagsForm, self).__init__(*args, **kwargs)
+
+        # Add add/remove tags fields
+        self.fields['add_tags'] = TagField(required=False)
+        self.fields['remove_tags'] = TagField(required=False)
 
 
 #

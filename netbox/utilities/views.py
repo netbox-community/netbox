@@ -543,6 +543,12 @@ class BulkEditView(GetReturnURLMixin, View):
                                     cfv.value = form.cleaned_data[name]
                                     cfv.save()
 
+                            # Add/remove tags
+                            if form.cleaned_data.get('add_tags', None):
+                                obj.tags.add(*form.cleaned_data['add_tags'])
+                            if form.cleaned_data.get('remove_tags', None):
+                                obj.tags.remove(*form.cleaned_data['remove_tags'])
+
                             updated_count += 1
 
                     if updated_count:

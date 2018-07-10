@@ -4,7 +4,7 @@ from django import forms
 from django.db.models import Count
 from taggit.forms import TagField
 
-from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
+from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from utilities.forms import (
     APISelect, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, FilterChoiceField, SlugField,
 )
@@ -69,7 +69,7 @@ class TenantCSVForm(forms.ModelForm):
         }
 
 
-class TenantBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class TenantBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Tenant.objects.all(), widget=forms.MultipleHiddenInput)
     group = forms.ModelChoiceField(queryset=TenantGroup.objects.all(), required=False)
 

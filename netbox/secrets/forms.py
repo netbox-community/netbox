@@ -7,6 +7,7 @@ from django.db.models import Count
 from taggit.forms import TagField
 
 from dcim.models import Device
+from extras.forms import AddRemoveTagsForm
 from utilities.forms import BootstrapMixin, BulkEditForm, FilterChoiceField, FlexibleModelChoiceField, SlugField
 from .models import Secret, SecretRole, UserKey
 
@@ -128,7 +129,7 @@ class SecretCSVForm(forms.ModelForm):
         return s
 
 
-class SecretBulkEditForm(BootstrapMixin, BulkEditForm):
+class SecretBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Secret.objects.all(), widget=forms.MultipleHiddenInput)
     role = forms.ModelChoiceField(queryset=SecretRole.objects.all(), required=False)
     name = forms.CharField(max_length=100, required=False)

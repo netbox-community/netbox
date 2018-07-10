@@ -10,7 +10,7 @@ from mptt.forms import TreeNodeChoiceField
 from taggit.forms import TagField
 from timezone_field import TimeZoneFormField
 
-from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
+from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from ipam.models import IPAddress, VLAN, VLANGroup
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
@@ -170,7 +170,7 @@ class SiteCSVForm(forms.ModelForm):
         }
 
 
-class SiteBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Site.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -403,7 +403,7 @@ class RackCSVForm(forms.ModelForm):
                 )
 
 
-class RackBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Rack.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site')
     group = forms.ModelChoiceField(queryset=RackGroup.objects.all(), required=False, label='Group')
@@ -572,7 +572,7 @@ class DeviceTypeCSVForm(forms.ModelForm):
         }
 
 
-class DeviceTypeBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class DeviceTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=DeviceType.objects.all(), widget=forms.MultipleHiddenInput)
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), required=False)
     u_height = forms.IntegerField(min_value=1, required=False)
@@ -1090,7 +1090,7 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
                 raise forms.ValidationError("Parent device/bay ({} {}) not found".format(parent, device_bay_name))
 
 
-class DeviceBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
     device_type = forms.ModelChoiceField(queryset=DeviceType.objects.all(), required=False, label='Type')
     device_role = forms.ModelChoiceField(queryset=DeviceRole.objects.all(), required=False, label='Role')

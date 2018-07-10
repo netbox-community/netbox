@@ -7,7 +7,7 @@ from django.db.models import Count
 from taggit.forms import TagField
 
 from dcim.models import Site, Rack, Device, Interface
-from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
+from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -68,7 +68,7 @@ class VRFCSVForm(forms.ModelForm):
         }
 
 
-class VRFBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class VRFBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VRF.objects.all(), widget=forms.MultipleHiddenInput)
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
     enforce_unique = forms.NullBooleanField(
@@ -153,7 +153,7 @@ class AggregateCSVForm(forms.ModelForm):
         fields = Aggregate.csv_headers
 
 
-class AggregateBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class AggregateBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Aggregate.objects.all(), widget=forms.MultipleHiddenInput)
     rir = forms.ModelChoiceField(queryset=RIR.objects.all(), required=False, label='RIR')
     date_added = forms.DateField(required=False)
@@ -346,7 +346,7 @@ class PrefixCSVForm(forms.ModelForm):
                 raise forms.ValidationError("Multiple VLANs with VID {} found".format(vlan_vid))
 
 
-class PrefixBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Prefix.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
     vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF')
@@ -678,7 +678,7 @@ class IPAddressCSVForm(forms.ModelForm):
         return ipaddress
 
 
-class IPAddressBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=IPAddress.objects.all(), widget=forms.MultipleHiddenInput)
     vrf = forms.ModelChoiceField(queryset=VRF.objects.all(), required=False, label='VRF')
     tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
@@ -869,7 +869,7 @@ class VLANCSVForm(forms.ModelForm):
                     raise forms.ValidationError("Global VLAN group {} not found".format(group_name))
 
 
-class VLANBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VLAN.objects.all(), widget=forms.MultipleHiddenInput)
     site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
     group = forms.ModelChoiceField(queryset=VLANGroup.objects.all(), required=False)

@@ -5,7 +5,7 @@ from django.db.models import Count
 from taggit.forms import TagField
 
 from dcim.models import Site, Device, Interface, Rack
-from extras.forms import CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
+from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
@@ -55,7 +55,7 @@ class ProviderCSVForm(forms.ModelForm):
         }
 
 
-class ProviderBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class ProviderBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Provider.objects.all(), widget=forms.MultipleHiddenInput)
     asn = forms.IntegerField(required=False, label='ASN')
     account = forms.CharField(max_length=30, required=False, label='Account number')
@@ -158,7 +158,7 @@ class CircuitCSVForm(forms.ModelForm):
         ]
 
 
-class CircuitBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Circuit.objects.all(), widget=forms.MultipleHiddenInput)
     type = forms.ModelChoiceField(queryset=CircuitType.objects.all(), required=False)
     provider = forms.ModelChoiceField(queryset=Provider.objects.all(), required=False)
