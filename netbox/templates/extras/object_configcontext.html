@@ -31,6 +31,10 @@
                         {% endif %}
                         <pre>{{ context.data|render_json }}</pre>
                     </div>
+                {% empty %}
+                    <div class="panel-body">
+                        <span class="text-muted">None found</span>
+                    </div>
                 {% endfor %}
             </div>
         </div>

@@ -11,7 +11,7 @@ from taggit.forms import TagField
 from taggit.models import Tag
 
 from dcim.models import Region
-from utilities.forms import add_blank_choice, BootstrapMixin, BulkEditForm, LaxURLField, SlugField
+from utilities.forms import add_blank_choice, BootstrapMixin, BulkEditForm, LaxURLField, JSONField, SlugField
 from .constants import (
     CF_FILTER_DISABLED, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL,
     OBJECTCHANGE_ACTION_CHOICES,
@@ -213,6 +213,7 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
         queryset=Region.objects.all(),
         required=False
     )
+    data = JSONField()
 
     class Meta:
         model = ConfigContext

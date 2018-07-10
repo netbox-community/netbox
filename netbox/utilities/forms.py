@@ -6,6 +6,7 @@ import re
 
 from django import forms
 from django.conf import settings
+from django.contrib.postgres.forms import JSONField as _JSONField
 from django.db.models import Count
 from django.urls import reverse_lazy
 from mptt.forms import TreeNodeMultipleChoiceField
@@ -534,6 +535,22 @@ class LaxURLField(forms.URLField):
       2) Remove the requirement for fully-qualified domain names (e.g. http://myserver/ is valid)
     """
     default_validators = [EnhancedURLValidator()]
+
+
+class JSONField(_JSONField):
+    """
+    Custom wrapper around Django's built-in JSONField to avoid presenting "null" as the default text.
+    """
+    def __init__(self, *args, **kwargs):
+        super(JSONField, self).__init__(*args, **kwargs)
+        if not self.help_text:
+            self.help_text = 'Enter context data in <a href="https://json.org/">JSON</a> format.'
+            self.widget.attrs['placeholder'] = ''
+
+    def prepare_value(self, value):
+        if value is None:
+            return ''
+        return super(JSONField, self).prepare_value(value)
 
 
 #
