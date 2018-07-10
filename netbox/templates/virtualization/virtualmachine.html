@@ -135,19 +135,10 @@
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <td>Tags</td>
-                    <td>
-                        {% for tag in virtualmachine.tags.all %}
-                            {% tag tag 'virtualization:virtualmachine_list' %}
-                        {% empty %}
-                            <span class="text-muted">N/A</span>
-                        {% endfor %}
-                    </td>
-                </tr>
             </table>
         </div>
         {% include 'inc/custom_fields_panel.html' with custom_fields=virtualmachine.get_custom_fields %}
+        {% include 'extras/inc/tags_panel.html' with tags=virtualmachine.tags.all url='virtualization:virtualmachine_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Comments</strong>

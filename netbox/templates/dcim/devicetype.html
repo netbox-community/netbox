@@ -86,16 +86,6 @@
                     <td>{{ devicetype.get_interface_ordering_display }}</td>
                 </tr>
                 <tr>
-                    <td>Tags</td>
-                    <td>
-                        {% for tag in devicetype.tags.all %}
-                            {% tag tag 'dcim:devicetype_list' %}
-                        {% empty %}
-                            <span class="text-muted">N/A</span>
-                        {% endfor %}
-                    </td>
-                </tr>
-                <tr>
                     <td>Instances</td>
                     <td><a href="{% url 'dcim:device_list' %}?device_type_id={{ devicetype.pk }}">{{ devicetype.instances.count }}</a></td>
                 </tr>
@@ -171,6 +161,7 @@
         {% with devicetype.get_custom_fields as custom_fields %}
             {% include 'inc/custom_fields_panel.html' %}
         {% endwith %}
+        {% include 'extras/inc/tags_panel.html' with tags=devicetype.tags.all url='dcim:devicetype_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Comments</strong>

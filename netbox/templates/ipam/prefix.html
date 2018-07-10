@@ -186,16 +186,6 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Tags</td>
-                        <td>
-                            {% for tag in prefix.tags.all %}
-                                {% tag tag 'ipam:prefix_list' %}
-                            {% empty %}
-                                <span class="text-muted">N/A</span>
-                            {% endfor %}
-                        </td>
-                    </tr>
-                    <tr>
                         <td>Utilization</td>
                         <td>{% utilization_graph prefix.get_utilization %}</td>
                     </tr>
@@ -204,7 +194,7 @@
             {% with prefix.get_custom_fields as custom_fields %}
                 {% include 'inc/custom_fields_panel.html' %}
             {% endwith %}
-            <br />
+            {% include 'extras/inc/tags_panel.html' with tags=prefix.tags.all url='ipam:prefix_list' %}
         </div>
         <div class="col-md-7">
             {% if duplicate_prefix_table.rows %}

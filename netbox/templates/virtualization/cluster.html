@@ -88,22 +88,13 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Tags</td>
-                    <td>
-                        {% for tag in cluster.tags.all %}
-                            {% tag tag 'virtualization:cluster_list' %}
-                        {% empty %}
-                            <span class="text-muted">N/A</span>
-                        {% endfor %}
-                    </td>
-                </tr>
-                <tr>
                     <td>Virtual Machines</td>
                     <td><a href="{% url 'virtualization:virtualmachine_list' %}?cluster_id={{ cluster.pk }}">{{ cluster.virtual_machines.count }}</a></td>
                 </tr>
             </table>
         </div>
         {% include 'inc/custom_fields_panel.html' with custom_fields=cluster.get_custom_fields %}
+        {% include 'extras/inc/tags_panel.html' with tags=cluster.tags.all url='virtualization:cluster_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Comments</strong>

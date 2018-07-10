@@ -126,16 +126,6 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Tags</td>
-                    <td>
-                        {% for tag in rack.tags.all %}
-                            {% tag tag 'dcim:rack_list' %}
-                        {% empty %}
-                            <span class="text-muted">N/A</span>
-                        {% endfor %}
-                    </td>
-                </tr>
-                <tr>
                     <td>Devices</td>
                     <td>
                         <a href="{% url 'dcim:device_list' %}?rack_id={{ rack.id }}">{{ rack.devices.count }}</a>
@@ -171,6 +161,19 @@
         {% with rack.get_custom_fields as custom_fields %}
             {% include 'inc/custom_fields_panel.html' %}
         {% endwith %}
+        {% include 'extras/inc/tags_panel.html' with tags=rack.tags.all url='dcim:rack_list' %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Comments</strong>
+            </div>
+            <div class="panel-body">
+                {% if rack.comments %}
+                    {{ rack.comments|gfm }}
+                {% else %}
+                    <span class="text-muted">None</span>
+                {% endif %}
+            </div>
+        </div>
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Non-Racked Devices</strong>
@@ -211,18 +214,6 @@
                     </a>
                 </div>
             {% endif %}
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Comments</strong>
-            </div>
-            <div class="panel-body">
-                {% if rack.comments %}
-                    {{ rack.comments|gfm }}
-                {% else %}
-                    <span class="text-muted">None</span>
-                {% endif %}
-            </div>
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">

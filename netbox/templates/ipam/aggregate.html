@@ -93,16 +93,6 @@
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <td>Tags</td>
-                    <td>
-                        {% for tag in aggregate.tags.all %}
-                            {% tag tag 'ipam:aggregate_list' %}
-                        {% empty %}
-                            <span class="text-muted">N/A</span>
-                        {% endfor %}
-                    </td>
-                </tr>
             </table>
         </div>
     </div>
@@ -110,6 +100,7 @@
         {% with aggregate.get_custom_fields as custom_fields %}
             {% include 'inc/custom_fields_panel.html' %}
         {% endwith %}
+        {% include 'extras/inc/tags_panel.html' with tags=aggregate.tags.all url='ipam:aggregate_list' %}
     </div>
 </div>
 <div class="row">

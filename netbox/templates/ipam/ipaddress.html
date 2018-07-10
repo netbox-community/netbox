@@ -145,21 +145,12 @@
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <td>Tags</td>
-                    <td>
-                        {% for tag in ipaddress.tags.all %}
-                            {% tag tag 'ipam:ipaddress_list' %}
-                        {% empty %}
-                            <span class="text-muted">N/A</span>
-                        {% endfor %}
-                    </td>
-                </tr>
             </table>
         </div>
         {% with ipaddress.get_custom_fields as custom_fields %}
             {% include 'inc/custom_fields_panel.html' %}
         {% endwith %}
+        {% include 'extras/inc/tags_panel.html' with tags=ipaddress.tags.all url='ipam:ipaddress_list' %}
 	</div>
 	<div class="col-md-8">
         {% include 'panel_table.html' with table=parent_prefixes_table heading='Parent Prefixes' %}

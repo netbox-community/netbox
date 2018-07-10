@@ -123,21 +123,12 @@
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <td>Tags</td>
-                    <td>
-                        {% for tag in circuit.tags.all %}
-                            {% tag tag 'circuits:circuit_list' %}
-                        {% empty %}
-                            <span class="text-muted">N/A</span>
-                        {% endfor %}
-                    </td>
-                </tr>
             </table>
         </div>
         {% with circuit.get_custom_fields as custom_fields %}
             {% include 'inc/custom_fields_panel.html' %}
         {% endwith %}
+        {% include 'extras/inc/tags_panel.html' with tags=circuit.tags.all url='circuits:circuit_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Comments</strong>

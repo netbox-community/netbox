@@ -137,21 +137,12 @@
                             {% endif %}
                         </td>
                     </tr>
-                    <tr>
-                        <td>Tags</td>
-                        <td>
-                            {% for tag in vlan.tags.all %}
-                                {% tag tag 'ipam:vlan_list' %}
-                            {% empty %}
-                                <span class="text-muted">N/A</span>
-                            {% endfor %}
-                        </td>
-                    </tr>
                 </table>
             </div>
             {% with vlan.get_custom_fields as custom_fields %}
                 {% include 'inc/custom_fields_panel.html' %}
             {% endwith %}
+            {% include 'extras/inc/tags_panel.html' with tags=vlan.tags.all url='ipam:vlan_list' %}
         </div>
         <div class="col-md-6">
             <div class="panel panel-default">
