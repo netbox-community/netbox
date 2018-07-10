@@ -20,9 +20,9 @@ class NaturalOrderByManager(Manager):
 
         # Append the three subfields derived from the designated natural ordering field
         queryset = queryset.extra(select={
-            '_nat1': "CAST(SUBSTRING({}.{} FROM '^(\d{{1,9}})') AS integer)".format(db_table, db_field),
-            '_nat2': "SUBSTRING({}.{} FROM '^\d*(.*?)\d*$')".format(db_table, db_field),
-            '_nat3': "CAST(SUBSTRING({}.{} FROM '(\d{{1,9}})$') AS integer)".format(db_table, db_field),
+            '_nat1': r"CAST(SUBSTRING({}.{} FROM '^(\d{{1,9}})') AS integer)".format(db_table, db_field),
+            '_nat2': r"SUBSTRING({}.{} FROM '^\d*(.*?)\d*$')".format(db_table, db_field),
+            '_nat3': r"CAST(SUBSTRING({}.{} FROM '(\d{{1,9}})$') AS integer)".format(db_table, db_field),
         })
 
         # Replace any instance of the designated natural ordering field with its three subfields
