@@ -1180,10 +1180,11 @@ class DeviceBulkAddInterfaceForm(DeviceBulkAddComponentForm):
 #
 
 class ConsolePortForm(BootstrapMixin, forms.ModelForm):
+    tags = TagField(required=False)
 
     class Meta:
         model = ConsolePort
-        fields = ['device', 'name']
+        fields = ['device', 'name', 'tags']
         widgets = {
             'device': forms.HiddenInput(),
         }
@@ -1349,10 +1350,11 @@ class ConsolePortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelF
 #
 
 class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
+    tags = TagField(required=False)
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['device', 'name']
+        fields = ['device', 'name', 'tags']
         widgets = {
             'device': forms.HiddenInput(),
         }
@@ -1445,10 +1447,11 @@ class ConsoleServerPortBulkDisconnectForm(ConfirmationForm):
 #
 
 class PowerPortForm(BootstrapMixin, forms.ModelForm):
+    tags = TagField(required=False)
 
     class Meta:
         model = PowerPort
-        fields = ['device', 'name']
+        fields = ['device', 'name', 'tags']
         widgets = {
             'device': forms.HiddenInput(),
         }
@@ -1614,10 +1617,11 @@ class PowerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
 #
 
 class PowerOutletForm(BootstrapMixin, forms.ModelForm):
+    tags = TagField(required=False)
 
     class Meta:
         model = PowerOutlet
-        fields = ['device', 'name']
+        fields = ['device', 'name', 'tags']
         widgets = {
             'device': forms.HiddenInput(),
         }
@@ -1710,12 +1714,13 @@ class PowerOutletBulkDisconnectForm(ConfirmationForm):
 #
 
 class InterfaceForm(BootstrapMixin, forms.ModelForm):
+    tags = TagField(required=False)
 
     class Meta:
         model = Interface
         fields = [
             'device', 'name', 'form_factor', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description',
-            'mode', 'untagged_vlan', 'tagged_vlans',
+            'mode', 'untagged_vlan', 'tagged_vlans', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -2082,10 +2087,11 @@ class InterfaceConnectionCSVForm(forms.ModelForm):
 #
 
 class DeviceBayForm(BootstrapMixin, forms.ModelForm):
+    tags = TagField(required=False)
 
     class Meta:
         model = DeviceBay
-        fields = ['device', 'name']
+        fields = ['device', 'name', 'tags']
         widgets = {
             'device': forms.HiddenInput(),
         }
@@ -2143,10 +2149,11 @@ class InterfaceConnectionFilterForm(BootstrapMixin, forms.Form):
 #
 
 class InventoryItemForm(BootstrapMixin, forms.ModelForm):
+    tags = TagField(required=False)
 
     class Meta:
         model = InventoryItem
-        fields = ['name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description']
+        fields = ['name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description', 'tags']
 
 
 class InventoryItemCSVForm(forms.ModelForm):
@@ -2202,10 +2209,11 @@ class DeviceSelectionForm(forms.Form):
 
 
 class VirtualChassisForm(BootstrapMixin, forms.ModelForm):
+    tags = TagField(required=False)
 
     class Meta:
         model = VirtualChassis
-        fields = ['master', 'domain']
+        fields = ['master', 'domain', 'tags']
         widgets = {
             'master': SelectWithPK,
         }

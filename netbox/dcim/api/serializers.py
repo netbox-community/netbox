@@ -461,10 +461,11 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
 
 class ConsoleServerPortSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['id', 'device', 'name', 'connected_console']
+        fields = ['id', 'device', 'name', 'connected_console', 'tags']
         read_only_fields = ['connected_console']
 
 
@@ -484,10 +485,11 @@ class NestedConsoleServerPortSerializer(WritableNestedSerializer):
 class ConsolePortSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     cs_port = NestedConsoleServerPortSerializer(required=False, allow_null=True)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = ConsolePort
-        fields = ['id', 'device', 'name', 'cs_port', 'connection_status']
+        fields = ['id', 'device', 'name', 'cs_port', 'connection_status', 'tags']
 
 
 #
@@ -496,10 +498,11 @@ class ConsolePortSerializer(ValidatedModelSerializer):
 
 class PowerOutletSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = PowerOutlet
-        fields = ['id', 'device', 'name', 'connected_port']
+        fields = ['id', 'device', 'name', 'connected_port', 'tags']
         read_only_fields = ['connected_port']
 
 
@@ -519,10 +522,11 @@ class NestedPowerOutletSerializer(WritableNestedSerializer):
 class PowerPortSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     power_outlet = NestedPowerOutletSerializer(required=False, allow_null=True)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = PowerPort
-        fields = ['id', 'device', 'name', 'power_outlet', 'connection_status']
+        fields = ['id', 'device', 'name', 'power_outlet', 'connection_status', 'tags']
 
 
 #
@@ -580,12 +584,14 @@ class InterfaceSerializer(ValidatedModelSerializer):
         required=False,
         many=True
     )
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = Interface
         fields = [
             'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
             'is_connected', 'interface_connection', 'circuit_termination', 'mode', 'untagged_vlan', 'tagged_vlans',
+            'tags',
         ]
 
     def validate(self, data):
@@ -637,10 +643,11 @@ class InterfaceSerializer(ValidatedModelSerializer):
 class DeviceBaySerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     installed_device = NestedDeviceSerializer(required=False, allow_null=True)
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = DeviceBay
-        fields = ['id', 'device', 'name', 'installed_device']
+        fields = ['id', 'device', 'name', 'installed_device', 'tags']
 
 
 class NestedDeviceBaySerializer(WritableNestedSerializer):
@@ -660,12 +667,13 @@ class InventoryItemSerializer(ValidatedModelSerializer):
     # Provide a default value to satisfy UniqueTogetherValidator
     parent = serializers.PrimaryKeyRelatedField(queryset=InventoryItem.objects.all(), allow_null=True, default=None)
     manufacturer = NestedManufacturerSerializer()
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = InventoryItem
         fields = [
             'id', 'device', 'parent', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered',
-            'description',
+            'description', 'tags',
         ]
 
 
@@ -712,10 +720,11 @@ class ContextualInterfaceConnectionSerializer(serializers.ModelSerializer):
 
 class VirtualChassisSerializer(ValidatedModelSerializer):
     master = NestedDeviceSerializer()
+    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
         model = VirtualChassis
-        fields = ['id', 'master', 'domain']
+        fields = ['id', 'master', 'domain', 'tags']
 
 
 class NestedVirtualChassisSerializer(WritableNestedSerializer):

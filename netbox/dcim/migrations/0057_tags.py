@@ -34,4 +34,44 @@ class Migration(migrations.Migration):
             name='tags',
             field=taggit.managers.TaggableManager(help_text='A comma-separated list of tags.', through='taggit.TaggedItem', to='taggit.Tag', verbose_name='Tags'),
         ),
+        migrations.AddField(
+            model_name='consoleport',
+            name='tags',
+            field=taggit.managers.TaggableManager(help_text='A comma-separated list of tags.', through='taggit.TaggedItem', to='taggit.Tag', verbose_name='Tags'),
+        ),
+        migrations.AddField(
+            model_name='consoleserverport',
+            name='tags',
+            field=taggit.managers.TaggableManager(help_text='A comma-separated list of tags.', through='taggit.TaggedItem', to='taggit.Tag', verbose_name='Tags'),
+        ),
+        migrations.AddField(
+            model_name='devicebay',
+            name='tags',
+            field=taggit.managers.TaggableManager(help_text='A comma-separated list of tags.', through='taggit.TaggedItem', to='taggit.Tag', verbose_name='Tags'),
+        ),
+        migrations.AddField(
+            model_name='interface',
+            name='tags',
+            field=taggit.managers.TaggableManager(help_text='A comma-separated list of tags.', through='taggit.TaggedItem', to='taggit.Tag', verbose_name='Tags'),
+        ),
+        migrations.AddField(
+            model_name='inventoryitem',
+            name='tags',
+            field=taggit.managers.TaggableManager(help_text='A comma-separated list of tags.', through='taggit.TaggedItem', to='taggit.Tag', verbose_name='Tags'),
+        ),
+        migrations.AddField(
+            model_name='poweroutlet',
+            name='tags',
+            field=taggit.managers.TaggableManager(help_text='A comma-separated list of tags.', through='taggit.TaggedItem', to='taggit.Tag', verbose_name='Tags'),
+        ),
+        migrations.AddField(
+            model_name='powerport',
+            name='tags',
+            field=taggit.managers.TaggableManager(help_text='A comma-separated list of tags.', through='taggit.TaggedItem', to='taggit.Tag', verbose_name='Tags'),
+        ),
+        migrations.AddField(
+            model_name='virtualchassis',
+            name='tags',
+            field=taggit.managers.TaggableManager(help_text='A comma-separated list of tags.', through='taggit.TaggedItem', to='taggit.Tag', verbose_name='Tags'),
+        ),
     ]

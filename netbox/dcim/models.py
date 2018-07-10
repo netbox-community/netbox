@@ -1584,6 +1584,8 @@ class ConsolePort(ComponentModel):
         default=CONNECTION_STATUS_CONNECTED
     )
 
+    tags = TaggableManager()
+
     csv_headers = ['console_server', 'cs_port', 'device', 'console_port', 'connection_status']
 
     class Meta:
@@ -1638,6 +1640,7 @@ class ConsoleServerPort(ComponentModel):
     )
 
     objects = ConsoleServerPortManager()
+    tags = TaggableManager()
 
     class Meta:
         unique_together = ['device', 'name']
@@ -1691,6 +1694,8 @@ class PowerPort(ComponentModel):
         choices=CONNECTION_STATUS_CHOICES,
         default=CONNECTION_STATUS_CONNECTED
     )
+
+    tags = TaggableManager()
 
     csv_headers = ['pdu', 'power_outlet', 'device', 'power_port', 'connection_status']
 
@@ -1746,6 +1751,7 @@ class PowerOutlet(ComponentModel):
     )
 
     objects = PowerOutletManager()
+    tags = TaggableManager()
 
     class Meta:
         unique_together = ['device', 'name']
@@ -1853,6 +1859,7 @@ class Interface(ComponentModel):
     )
 
     objects = InterfaceQuerySet.as_manager()
+    tags = TaggableManager()
 
     serializer = 'dcim.api.serializers.InterfaceSerializer'
 
@@ -2114,6 +2121,8 @@ class DeviceBay(ComponentModel):
         null=True
     )
 
+    tags = TaggableManager()
+
     class Meta:
         ordering = ['device', 'name']
         unique_together = ['device', 'name']
@@ -2200,6 +2209,8 @@ class InventoryItem(ComponentModel):
         blank=True
     )
 
+    tags = TaggableManager()
+
     csv_headers = [
         'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
     ]
@@ -2248,6 +2259,8 @@ class VirtualChassis(ChangeLoggedModel):
         max_length=30,
         blank=True
     )
+
+    tags = TaggableManager()
 
     serializer = 'dcim.api.serializers.VirtualChassisSerializer'
 
