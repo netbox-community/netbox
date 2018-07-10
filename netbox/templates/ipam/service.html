@@ -80,9 +80,7 @@
                 </tr>
 		    </table>
         </div>
-        {% with service.get_custom_fields as custom_fields %}
-            {% include 'inc/custom_fields_panel.html' %}
-        {% endwith %}
+        {% include 'inc/custom_fields_panel.html' with custom_fields=service.get_custom_fields %}
 	</div>
 </div>
 {% endblock %}

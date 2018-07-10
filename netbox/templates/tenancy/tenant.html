@@ -81,9 +81,7 @@
                 </tr>
             </table>
         </div>
-        {% with tenant.get_custom_fields as custom_fields %}
-            {% include 'inc/custom_fields_panel.html' %}
-        {% endwith %}
+        {% include 'inc/custom_fields_panel.html' with custom_fields=tenant.get_custom_fields %}
         {% include 'extras/inc/tags_panel.html' with tags=tenant.tags.all url='tenancy:tenant_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">

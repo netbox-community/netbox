@@ -191,9 +191,7 @@
                     </tr>
                 </table>
             </div>
-            {% with prefix.get_custom_fields as custom_fields %}
-                {% include 'inc/custom_fields_panel.html' %}
-            {% endwith %}
+            {% include 'inc/custom_fields_panel.html' with custom_fields=prefix.get_custom_fields %}
             {% include 'extras/inc/tags_panel.html' with tags=prefix.tags.all url='ipam:prefix_list' %}
         </div>
         <div class="col-md-7">
