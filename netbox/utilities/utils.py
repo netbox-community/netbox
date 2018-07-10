@@ -100,6 +100,10 @@ def serialize_object(obj, extra=None):
             field.name: value for field, value in obj.get_custom_fields().items()
         }
 
+    # Include any tags
+    if hasattr(obj, 'tags'):
+        data['tags'] = [tag.name for tag in obj.tags.all()]
+
     # Append any extra data
     if extra is not None:
         data.update(extra)
