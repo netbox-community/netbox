@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from collections import OrderedDict
 import pytz
+from taggit.models import Tag
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
