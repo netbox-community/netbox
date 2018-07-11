@@ -1871,7 +1871,7 @@ class Interface(ComponentModel):
         return self.name
 
     def get_absolute_url(self):
-        return self.parent.get_absolute_url()
+        return reverse('dcim:interface', kwargs={'pk': self.pk})
 
     def get_component_parent(self):
         return self.device or self.virtual_machine
@@ -1966,6 +1966,10 @@ class Interface(ComponentModel):
     @property
     def parent(self):
         return self.device or self.virtual_machine
+
+    @property
+    def is_connectable(self):
+        return self.form_factor not in NONCONNECTABLE_IFACE_TYPES
 
     @property
     def is_virtual(self):

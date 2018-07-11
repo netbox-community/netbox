@@ -11,7 +11,7 @@
     <td>
         <span title="{{ iface.get_form_factor_display }}">
             <i class="fa fa-fw fa-{% if iface.mgmt_only %}wrench{% elif iface.is_lag %}align-justify{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}exchange{% endif %}"></i>
-            {{ iface }}
+            <a href="{{ iface.get_absolute_url }}">{{ iface }}</a>
         </span>
     </td>
 
@@ -23,13 +23,10 @@
     </td>
 
     {# Description #}
-    <td>{{ iface.description }}</td>
+    <td>{{ iface.description|default:"&mdash;" }}</td>
 
-    {# MTU #}
-    <td>{{ iface.mtu|default:"" }}</td>
-
-    {# MAC address #}
-    <td>{{ iface.mac_address|default:"" }}</td>
+    {# 802.1Q mode #}
+    <td>{{ iface.get_mode_display }}</td>
 
     {# Connection or type #}
     {% if iface.is_lag %}
@@ -141,7 +138,7 @@
             {% endif %}
 
             {# IP addresses table #}
-            <td colspan="8" style="padding: 0">
+            <td colspan="7" style="padding: 0">
                 <table class="table table-condensed interface-ips">
                     <thead>
                         <tr class="text-muted">

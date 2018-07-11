@@ -342,6 +342,20 @@ class IPAddressAssignTable(BaseTable):
         orderable = False
 
 
+class InterfaceIPAddressTable(BaseTable):
+    """
+    List IP addresses assigned to a specific Interface.
+    """
+    address = tables.TemplateColumn(IPADDRESS_ASSIGN_LINK, verbose_name='IP Address')
+    vrf = tables.TemplateColumn(VRF_LINK, verbose_name='VRF')
+    status = tables.TemplateColumn(STATUS_LABEL)
+    tenant = tables.TemplateColumn(template_code=TENANT_LINK)
+
+    class Meta(BaseTable.Meta):
+        model = IPAddress
+        fields = ('address', 'vrf', 'status', 'role', 'tenant', 'description')
+
+
 #
 # VLAN groups
 #
@@ -401,6 +415,27 @@ class VLANMemberTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Interface
         fields = ('parent', 'name', 'untagged', 'actions')
+
+
+class InterfaceVLANTable(BaseTable):
+    """
+    List VLANs assigned to a specific Interface.
+    """
+    vid = tables.LinkColumn('ipam:vlan', args=[Accessor('pk')], verbose_name='ID')
+    tagged = BooleanColumn()
+    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
+    group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
+    tenant = tables.TemplateColumn(template_code=COL_TENANT)
+    status = tables.TemplateColumn(STATUS_LABEL)
+    role = tables.TemplateColumn(VLAN_ROLE_LINK)
+
+    class Meta(BaseTable.Meta):
+        model = VLAN
+        fields = ('vid', 'tagged', 'site', 'group', 'name', 'tenant', 'status', 'role', 'description')
+
+    def __init__(self, interface, *args, **kwargs):
+        self.interface = interface
+        super(InterfaceVLANTable, self).__init__(*args, **kwargs)
 
 
 #

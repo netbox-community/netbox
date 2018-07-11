@@ -261,8 +261,7 @@
                         <th>Name</th>
                         <th>LAG</th>
                         <th>Description</th>
-                        <th>MTU</th>
-                        <th>MAC Address</th>
+                        <th>Mode</th>
                         <th colspan="2">Connection</th>
                         <th></th>
                     </tr>
@@ -272,7 +271,7 @@
                         {% include 'dcim/inc/interface.html' with device=virtualmachine %}
                     {% empty %}
                         <tr>
-                            <td colspan="9" class="text-center text-muted">&mdash; No interfaces defined &mdash;</td>
+                            <td colspan="8" class="text-center text-muted">&mdash; No interfaces defined &mdash;</td>
                         </tr>
                     {% endfor %}
                 </tbody>

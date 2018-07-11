@@ -21,6 +21,7 @@ from circuits.models import Circuit
 from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from extras.views import ObjectConfigContextView
 from ipam.models import Prefix, Service, VLAN
+from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
@@ -1615,6 +1616,47 @@ class PowerOutletBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 # Interfaces
 #
+
+class InterfaceView(View):
+
+    def get(self, request, pk):
+
+        interface = get_object_or_404(Interface, pk=pk)
+
+        # Get connected interface
+        connected_interface = interface.connected_interface
+        if connected_interface is None and hasattr(interface, 'circuit_termination'):
+            peer_termination = interface.circuit_termination.get_peer_termination()
+            if peer_termination is not None:
+                connected_interface = peer_termination.interface
+
+        # Get assigned IP addresses
+        ipaddress_table = InterfaceIPAddressTable(
+            data=interface.ip_addresses.select_related('vrf', 'tenant'),
+            orderable=False
+        )
+
+        # Get assigned VLANs and annotate whether each is tagged or untagged
+        vlans = []
+        if interface.untagged_vlan is not None:
+            vlans.append(interface.untagged_vlan)
+            vlans[0].tagged = False
+        for vlan in interface.tagged_vlans.select_related('site', 'group', 'tenant', 'role'):
+            vlan.tagged = True
+            vlans.append(vlan)
+        vlan_table = InterfaceVLANTable(
+            interface=interface,
+            data=vlans,
+            orderable=False
+        )
+
+        return render(request, 'dcim/interface.html', {
+            'interface': interface,
+            'connected_interface': connected_interface,
+            'ipaddress_table': ipaddress_table,
+            'vlan_table': vlan_table,
+        })
+
 
 class InterfaceCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_interface'
