@@ -8,8 +8,9 @@ from taggit.managers import TaggableManager
 
 from dcim.constants import STATUS_CLASSES
 from dcim.fields import ASNField
-from extras.models import CustomFieldModel
+from extras.models import CustomFieldModel, ObjectChange
 from utilities.models import ChangeLoggedModel
+from utilities.utils import serialize_object
 from .constants import CIRCUIT_STATUS_ACTIVE, CIRCUIT_STATUS_CHOICES, TERM_SIDE_CHOICES
 
 
@@ -269,6 +270,19 @@ class CircuitTermination(models.Model):
 
     def __str__(self):
         return '{} (Side {})'.format(self.circuit, self.get_term_side_display())
+
+    def log_change(self, user, request_id, action):
+        """
+        Reference the parent circuit when recording the change.
+        """
+        ObjectChange(
+            user=user,
+            request_id=request_id,
+            changed_object=self,
+            related_object=self.circuit,
+            action=action,
+            object_data=serialize_object(self)
+        ).save()
 
     def get_peer_termination(self):
         peer_side = 'Z' if self.term_side == 'A' else 'A'
