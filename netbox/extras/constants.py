@@ -119,9 +119,9 @@ WEBHOOK_CT_CHOICES = (
 # Models which support registered webhooks
 WEBHOOK_MODELS = (
     'provider', 'circuit',                                           # Circuits
-    'site', 'rack', 'rackgroup', 'device', 'interface',              # DCIM
-    'aggregate', 'prefix', 'ipaddress', 'vlan', 'vlangroup', 'vrf',  # IPAM
-    'service',
-    'tenant', 'tenantgroup',                                         # Tenancy
-    'cluster', 'clustergroup', 'virtualmachine',                     # Virtualization
+    'site', 'rack', 'devicetype', 'device', 'virtualchassis',        # DCIM
+    'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf', 'service',    # IPAM
+    'secret',                                                        # Secrets
+    'tenant',                                                        # Tenancy
+    'cluster', 'virtualmachine',                                     # Virtualization
 )
