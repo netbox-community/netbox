@@ -24,6 +24,10 @@ CONFIGCONTEXT_ACTIONS = """
 {% endif %}
 """
 
+OBJECTCHANGE_TIME = """
+<a href="{{ record.get_absolute_url }}">{{ value|date:"SHORT_DATETIME_FORMAT" }}</a>
+"""
+
 OBJECTCHANGE_ACTION = """
 {% if record.action == 1 %}
     <span class="label label-success">Created</span>
@@ -40,6 +44,10 @@ OBJECTCHANGE_OBJECT = """
 {% else %}
     {{ record.object_repr }}
 {% endif %}
+"""
+
+OBJECTCHANGE_REQUEST_ID = """
+<a href="{% url 'extras:objectchange_list' %}?request_id={{ value }}">{{ value }}</a>
 """
 
 
@@ -74,7 +82,9 @@ class ConfigContextTable(BaseTable):
 
 
 class ObjectChangeTable(BaseTable):
-    time = tables.LinkColumn()
+    time = tables.TemplateColumn(
+        template_code=OBJECTCHANGE_TIME
+    )
     action = tables.TemplateColumn(
         template_code=OBJECTCHANGE_ACTION
     )
@@ -85,7 +95,8 @@ class ObjectChangeTable(BaseTable):
         template_code=OBJECTCHANGE_OBJECT,
         verbose_name='Object'
     )
-    request_id = tables.Column(
+    request_id = tables.TemplateColumn(
+        template_code=OBJECTCHANGE_REQUEST_ID,
         verbose_name='Request ID'
     )
 
