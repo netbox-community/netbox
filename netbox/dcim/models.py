@@ -2267,6 +2267,7 @@ class VirtualChassis(ChangeLoggedModel):
     tags = TaggableManager()
 
     serializer = 'dcim.api.serializers.VirtualChassisSerializer'
+    csv_headers = ['master', 'domain']
 
     class Meta:
         ordering = ['master']
@@ -2286,3 +2287,9 @@ class VirtualChassis(ChangeLoggedModel):
             raise ValidationError({
                 'master': "The selected master is not assigned to this virtual chassis."
             })
+
+    def to_csv(self):
+        return (
+            self.master,
+            self.domain,
+        )

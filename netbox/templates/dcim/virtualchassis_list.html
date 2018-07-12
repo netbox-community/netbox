@@ -1,7 +1,11 @@
 {% extends '_base.html' %}
+{% load buttons %}
 {% load helpers %}
 
 {% block content %}
+<div class="pull-right">
+    {% export_button content_type %}
+</div>
 <h1>{% block title %}Virtual Chassis{% endblock %}</h1>
 <div class="row">
 	<div class="col-md-9">
