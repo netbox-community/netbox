@@ -877,6 +877,8 @@ class Service(ChangeLoggedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
+    tags = TaggableManager()
+
     serializer = 'ipam.api.serializers.ServiceSerializer'
 
     class Meta:

@@ -466,6 +466,9 @@ class ServiceFilter(django_filters.FilterSet):
         to_field_name='name',
         label='Virtual machine (name)',
     )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
+    )
 
     class Meta:
         model = Service

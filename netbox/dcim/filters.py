@@ -558,6 +558,9 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         to_field_name='name',
         label='Device (name)',
     )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
+    )
 
 
 class ConsolePortFilter(DeviceComponentFilterSet):
@@ -615,6 +618,9 @@ class InterfaceFilter(django_filters.FilterSet):
     mac_address = django_filters.CharFilter(
         method='_mac_address',
         label='MAC address',
+    )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
     )
 
     class Meta:
@@ -721,6 +727,9 @@ class VirtualChassisFilter(django_filters.FilterSet):
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
+    )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
     )
 
     class Meta:

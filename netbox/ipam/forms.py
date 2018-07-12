@@ -918,10 +918,11 @@ class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
 #
 
 class ServiceForm(BootstrapMixin, CustomFieldForm):
+    tags = TagField(required=False)
 
     class Meta:
         model = Service
-        fields = ['name', 'protocol', 'port', 'ipaddresses', 'description']
+        fields = ['name', 'protocol', 'port', 'ipaddresses', 'description', 'tags']
         help_texts = {
             'ipaddresses': "IP address assignment is optional. If no IPs are selected, the service is assumed to be "
                            "reachable via all IPs assigned to the device.",
