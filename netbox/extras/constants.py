@@ -51,7 +51,7 @@ EXPORTTEMPLATE_MODELS = [
     'provider', 'circuit',                                                          # Circuits
     'site', 'region', 'rack', 'rackgroup', 'manufacturer', 'devicetype', 'device',  # DCIM
     'consoleport', 'powerport', 'interfaceconnection', 'virtualchassis',            # DCIM
-    'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf',                              # IPAM
+    'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf', 'service',                   # IPAM
     'tenant',                                                                       # Tenancy
     'cluster', 'virtualmachine',                                                    # Virtualization
 ]

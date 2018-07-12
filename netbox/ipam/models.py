@@ -880,6 +880,7 @@ class Service(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager()
 
     serializer = 'ipam.api.serializers.ServiceSerializer'
+    csv_headers = ['device', 'virtual_machine', 'name', 'protocol', 'description']
 
     class Meta:
         ordering = ['protocol', 'port']
@@ -901,3 +902,13 @@ class Service(ChangeLoggedModel, CustomFieldModel):
             raise ValidationError("A service cannot be associated with both a device and a virtual machine.")
         if not self.device and not self.virtual_machine:
             raise ValidationError("A service must be associated with either a device or a virtual machine.")
+
+    def to_csv(self):
+        return (
+            self.device.name if self.device else None,
+            self.virtual_machine.name if self.virtual_machine else None,
+            self.name,
+            self.get_protocol_display(),
+            self.port,
+            self.description,
+        )
