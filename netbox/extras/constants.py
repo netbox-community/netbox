@@ -120,6 +120,8 @@ WEBHOOK_CT_CHOICES = (
 WEBHOOK_MODELS = (
     'provider', 'circuit',                                           # Circuits
     'site', 'rack', 'devicetype', 'device', 'virtualchassis',        # DCIM
+    'consoleport', 'consoleserverport', 'powerport', 'poweroutlet',
+    'interface', 'devicebay', 'inventoryitem',
     'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf', 'service',    # IPAM
     'secret',                                                        # Secrets
     'tenant',                                                        # Tenancy
