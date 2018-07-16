@@ -1,5 +1,9 @@
 This section entails features of NetBox which are not crucial to its primary functions, but provide additional value.
 
+# Tags
+
+Tags are freeform labels which can be assigned to a variety of objects in NetBox. Tags can be used to categorize and filter objects in addition to built-in and custom fields. Each tag consists of a text label, as well as an auto-generated URL-friendly slug value. Objects can be filtered by the tags assigned to them. Tags can be used across different object types.
+
 # Custom Fields
 
 Each object in NetBox is represented in the database as a discrete table, and each attribute of an object exists as a column within its table. For example, sites are stored in the `dcim_site` table, which has columns named `name`, `facility`, `physical_address`, and so on. As new attributes are added to objects throughout the development of NetBox, tables are expanded to include new rows.
@@ -26,6 +30,10 @@ When creating a selection field, you should create at least two choices. These c
 When a single object is edited, the form will include any custom fields which have been defined for the object type. These fields are included in the "Custom Fields" panel. On the backend, each custom field value is saved separately from the core object as an independent database call, so it's best to avoid adding too many custom fields per object.
 
 When editing multiple objects, custom field values are saved in bulk. There is no significant difference in overhead when saving a custom field value for 100 objects versus one object. However, the bulk operation must be performed separately for each custom field.
+
+# Contextual Configuration Data
+
+Sometimes it is desirable to associate arbitrary data with a group of devices to aid in their configuration. (For example, you might want to associate a set of syslog servers for all devices at a particular site.) Context data enables the association of arbitrary data (expressed in JSON format) to devices and virtual machines grouped by region, site, role, platform, and/or tenancy. Context data is arranged hierarchically, so that data with a higher weight can be entered to override more general lower-weight data. Multiple instances of data are automatically merged by NetBox to present a single dictionary for each object.
 
 # Export Templates
 
