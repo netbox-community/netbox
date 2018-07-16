@@ -1,8 +1,7 @@
-import requests
-import hmac
 import hashlib
-from rq.utils import import_attribute
+import hmac
 
+import requests
 from django_rq import job
 
 from extras.constants import WEBHOOK_CT_JSON, WEBHOOK_CT_X_WWW_FORM_ENCODED
