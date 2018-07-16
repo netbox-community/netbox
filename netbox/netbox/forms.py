@@ -15,6 +15,7 @@ OBJ_TYPE_CHOICES = (
         ('rack', 'Racks'),
         ('devicetype', 'Device types'),
         ('device', 'Devices'),
+        ('virtualchassis', 'Virtual Chassis'),
     )),
     ('IPAM', (
         ('vrf', 'VRFs'),

@@ -2075,7 +2075,7 @@ class InventoryItemBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class VirtualChassisListView(ObjectListView):
-    queryset = VirtualChassis.objects.annotate(member_count=Count('members'))
+    queryset = VirtualChassis.objects.select_related('master').annotate(member_count=Count('members'))
     table = tables.VirtualChassisTable
     filter = filters.VirtualChassisFilter
     filter_form = forms.VirtualChassisFilterForm
