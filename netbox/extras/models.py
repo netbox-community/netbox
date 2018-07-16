@@ -65,7 +65,8 @@ class Webhook(models.Model):
     )
     http_content_type = models.PositiveSmallIntegerField(
         choices=WEBHOOK_CT_CHOICES,
-        default=WEBHOOK_CT_JSON
+        default=WEBHOOK_CT_JSON,
+        verbose_name='HTTP content type'
     )
     secret = models.CharField(
         max_length=255,
@@ -80,11 +81,12 @@ class Webhook(models.Model):
     )
     ssl_verification = models.BooleanField(
         default=True,
+        verbose_name='SSL verification',
         help_text="Enable SSL certificate verification. Disable with caution!"
     )
 
     class Meta:
-        unique_together = ('payload_url', 'type_create', "type_update", "type_delete",)
+        unique_together = ('payload_url', 'type_create', 'type_update', 'type_delete',)
 
     def __str__(self):
         return self.name

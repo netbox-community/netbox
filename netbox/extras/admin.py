@@ -25,8 +25,9 @@ def order_content_types(field):
 #
 
 class WebhookForm(forms.ModelForm):
-
-    payload_url = LaxURLField()
+    payload_url = LaxURLField(
+        label='URL'
+    )
 
     class Meta:
         model = Webhook
