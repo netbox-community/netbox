@@ -1,0 +1,34 @@
+{% extends '_base.html' %}
+{% load helpers %}
+
+{% block title %}{{ device }} - Activity{% endblock %}
+
+{% block content %}
+{% include 'dcim/inc/device_header.html' with active_tab='activity' %}
+
+<div class="row">
+  <div class="col-md-10">
+
+    {% if logItems.count == 0 %}
+      <h5>No activity yet.</h5>
+    {% endif %}
+
+    {% for logItem in logItems %}
+    <br>
+    {% if perms.activity.delete_logitem %}
+    <a class="btn btn-danger pull-right btn-xs" href="delete/{{ logItem.pk }}"><span class="glyphicon glyphicon-trash"></span></a>
+    {% endif %}
+    <p>{% if logItem.created_by is not None %}<b style="font-size:16px;margin-bottom:0">{{ logItem.created_by }}</b>{% endif %}{% if logItem.created_by == None %}A deleted user{% endif %} posted a comment at <b>{{ logItem.created_at }}</b>:<br><br>{{ logItem.body|gfm }}</p>
+    <br>
+    <hr>
+    {% endfor %}
+
+  </div>
+  <div class="col-md-2">
+    {% if perms.activity.add_logitem %}
+    <a class="btn btn-primary pull-right" href="add"><span class="fa fa-plus"></span> Add a comment</a>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

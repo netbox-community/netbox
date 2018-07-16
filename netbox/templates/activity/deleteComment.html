@@ -1,0 +1,6 @@
+{% extends 'utilities/obj_delete.html' %}
+
+{% block message %}
+  <p>Are you sure you want to delete the comment below?</p>
+  <pre>{{ obj.body }}</pre>
+{% endblock %}

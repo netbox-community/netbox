@@ -46,6 +46,9 @@
     <li role="presentation"{% if active_tab == 'info' %} class="active"{% endif %}>
         <a href="{% url 'dcim:device' pk=device.pk %}">Info</a>
     </li>
+    <li role="presentation"{% if active_tab == 'activity' %} class="active"{% endif %}>
+        <a href="/activity/{{ device.pk }}">Activity</a>
+    </li>
     <li role="presentation"{% if active_tab == 'inventory' %} class="active"{% endif %}>
         <a href="{% url 'dcim:device_inventory' pk=device.pk %}">Inventory</a>
     </li>
