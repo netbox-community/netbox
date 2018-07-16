@@ -37,7 +37,7 @@ def get_serializer_for_model(model, prefix=''):
     )
     try:
         return dynamic_import(serializer_name)
-    except ImportError:
+    except AttributeError:
         return None
 
 
