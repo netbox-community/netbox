@@ -271,6 +271,7 @@ RQ_QUEUES = {
         'DEFAULT_TIMEOUT': REDIS_DEFAULT_TIMEOUT,
     }
 }
+RQ_SHOW_ADMIN_LINK = True
 
 # drf_yasg settings for Swagger
 SWAGGER_SETTINGS = {
