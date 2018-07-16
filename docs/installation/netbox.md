@@ -82,12 +82,34 @@ Install the required Python packages using pip. (If you encounter any compilatio
 !!! note
     If you encounter errors while installing the required packages, check that you're running a recent version of pip (v9.0.1 or higher) with the command `pip3 -V`.
 
-### NAPALM Automation
+### NAPALM Automation (Optional)
 
 NetBox supports integration with the [NAPALM automation](https://napalm-automation.net/) library. NAPALM allows NetBox to fetch live data from devices and return it to a requester via its REST API. Installation of NAPALM is optional. To enable it, install the `napalm` package using pip or pip3:
 
 ```no-highlight
 # pip3 install napalm
+```
+
+### Webhooks (Optional)
+
+[Webhooks](../data-model/extras/#webhooks) allow NetBox to integrate with external services by pushing out a notification each time a relevant object is created, updated, or deleted. Enabling the webhooks feature requires [Redis](https://redis.io/), a lightweight in-memory database. You may opt to install a Redis sevice locally (see below) or connect to an external one.
+
+**Ubuntu**
+
+```no-highlight
+# apt-get install -y redis-server
+```
+
+**CentOS**
+
+```no-highlight
+# yum install -y redis
+```
+
+Enabling webhooks also requires installing the [`django-rq`](https://github.com/ui/django-rq) package. This allows NetBox to use the Redis database as a queue for outgoing webhooks.
+
+```no-highlight
+# pip3 install django-rq
 ```
 
 # Configuration
@@ -139,6 +161,21 @@ You may use the script located at `netbox/generate_secret_key.py` to generate a 
 
 !!! note
     In the case of a highly available installation with multiple web servers, `SECRET_KEY` must be identical among all servers in order to maintain a persistent user session state.
+
+## Webhooks Configuration
+
+If you have opted to enable the webhooks, set `WEBHOOKS_ENABLED = True` and define the relevant `REDIS` database parameters. Below is an example:
+
+```python
+WEBHOOKS_ENABLED = True
+REDIS = {
+    'HOST': 'localhost',
+    'PORT': 6379,
+    'PASSWORD': '',
+    'DATABASE': 0,
+    'DEFAULT_TIMEOUT': 300,
+}
+```
 
 # Run Database Migrations
 

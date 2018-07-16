@@ -92,3 +92,9 @@ Finally, restart the WSGI service to run the new code. If you followed this guid
 ```no-highlight
 # sudo supervisorctl restart netbox
 ```
+
+If using webhooks, also restart the Redis worker:
+
+```no-highlight
+# sudo supervisorctl restart netbox-rqworker
+```

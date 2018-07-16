@@ -133,6 +133,11 @@ Save the following as `/etc/supervisor/conf.d/netbox.conf`. Update the `command`
 command = gunicorn -c /opt/netbox/gunicorn_config.py netbox.wsgi
 directory = /opt/netbox/netbox/
 user = www-data
+
+[program:netbox-rqworker]
+command = python3 /opt/netbox/netbox/manage.py rqworker
+directory = /opt/netbox/netbox/
+user = www-data
 ```
 
 Then, restart the supervisor service to detect and run the gunicorn service:
