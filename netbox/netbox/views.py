@@ -12,9 +12,9 @@ from rest_framework.views import APIView
 from circuits.filters import CircuitFilter, ProviderFilter
 from circuits.models import Circuit, Provider
 from circuits.tables import CircuitTable, ProviderTable
-from dcim.filters import DeviceFilter, DeviceTypeFilter, RackFilter, SiteFilter
-from dcim.models import ConsolePort, Device, DeviceType, InterfaceConnection, PowerPort, Rack, Site
-from dcim.tables import DeviceDetailTable, DeviceTypeTable, RackTable, SiteTable
+from dcim.filters import DeviceFilter, DeviceTypeFilter, RackFilter, SiteFilter, VirtualChassisFilter
+from dcim.models import ConsolePort, Device, DeviceType, InterfaceConnection, PowerPort, Rack, Site, VirtualChassis
+from dcim.tables import DeviceDetailTable, DeviceTypeTable, RackTable, SiteTable, VirtualChassisTable
 from extras.models import ObjectChange, ReportResult, TopologyMap
 from ipam.filters import AggregateFilter, IPAddressFilter, PrefixFilter, VLANFilter, VRFFilter
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
@@ -71,6 +71,12 @@ SEARCH_TYPES = OrderedDict((
         'filter': DeviceFilter,
         'table': DeviceDetailTable,
         'url': 'dcim:device_list',
+    }),
+    ('virtualchassis', {
+        'queryset': VirtualChassis.objects.select_related('master').annotate(member_count=Count('members')),
+        'filter': VirtualChassisFilter,
+        'table': VirtualChassisTable,
+        'url': 'dcim:virtualchassis_list',
     }),
     # IPAM
     ('vrf', {

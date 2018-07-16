@@ -32,7 +32,7 @@ class DeviceIPsReport(Report):
 Within each report class, we'll create a number of test methods to execute our report's logic. In DeviceConnectionsReport, for instance, we want to ensure that every live device has a console connection, an out-of-band management connection, and two power connections.
 
 ```
-from dcim.constants import CONNECTION_STATUS_PLANNED, STATUS_ACTIVE
+from dcim.constants import CONNECTION_STATUS_PLANNED, DEVICE_STATUS_ACTIVE
 from dcim.models import ConsolePort, Device, PowerPort
 from extras.reports import Report
 
@@ -43,7 +43,7 @@ class DeviceConnectionsReport(Report):
     def test_console_connection(self):
 
         # Check that every console port for every active device has a connection defined.
-        for console_port in ConsolePort.objects.select_related('device').filter(device__status=STATUS_ACTIVE):
+        for console_port in ConsolePort.objects.select_related('device').filter(device__status=DEVICE_STATUS_ACTIVE):
             if console_port.cs_port is None:
                 self.log_failure(
                     console_port.device,
@@ -60,7 +60,7 @@ class DeviceConnectionsReport(Report):
     def test_power_connections(self):
 
         # Check that every active device has at least two connected power supplies.
-        for device in Device.objects.filter(status=STATUS_ACTIVE):
+        for device in Device.objects.filter(status=DEVICE_STATUS_ACTIVE):
             connected_ports = 0
             for power_port in PowerPort.objects.filter(device=device):
                 if power_port.power_outlet is not None:

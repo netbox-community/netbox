@@ -42,6 +42,8 @@ A device type represents a particular hardware model that exists in the real wor
 
 Device types are instantiated as devices installed within racks. For example, you might define a device type to represent a Juniper EX4300-48T network switch with 48 Ethernet interfaces. You can then create multiple devices of this type named "switch1," "switch2," and so on. Each device will inherit the components (such as interfaces) of its device type.
 
+A device type can be a parent, child, or neither. Parent devices house child devices in device bays. This relationship is used to model things like blade servers, where child devices function independently but share physical resources like rack space and power. Note that this is **not** intended to model chassis-based devices, wherein child members share a common control plane.
+
 ### Manufacturers
 
 Each device type belongs to one manufacturer; e.g. Cisco, Opengear, or APC. The model number of a device type must be unique to its manufacturer.
