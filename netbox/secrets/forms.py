@@ -7,8 +7,8 @@ from django.db.models import Count
 from taggit.forms import TagField
 
 from dcim.models import Device
-from extras.forms import AddRemoveTagsForm
-from utilities.forms import BootstrapMixin, BulkEditForm, FilterChoiceField, FlexibleModelChoiceField, SlugField
+from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldForm
+from utilities.forms import BootstrapMixin, FilterChoiceField, FlexibleModelChoiceField, SlugField
 from .models import Secret, SecretRole, UserKey
 
 
@@ -59,7 +59,7 @@ class SecretRoleCSVForm(forms.ModelForm):
 # Secrets
 #
 
-class SecretForm(BootstrapMixin, forms.ModelForm):
+class SecretForm(BootstrapMixin, CustomFieldForm):
     plaintext = forms.CharField(
         max_length=65535,
         required=False,
@@ -129,7 +129,7 @@ class SecretCSVForm(forms.ModelForm):
         return s
 
 
-class SecretBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+class SecretBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Secret.objects.all(), widget=forms.MultipleHiddenInput)
     role = forms.ModelChoiceField(queryset=SecretRole.objects.all(), required=False)
     name = forms.CharField(max_length=100, required=False)
@@ -138,7 +138,8 @@ class SecretBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         nullable_fields = ['name']
 
 
-class SecretFilterForm(BootstrapMixin, forms.Form):
+class SecretFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = Secret
     q = forms.CharField(required=False, label='Search')
     role = FilterChoiceField(
         queryset=SecretRole.objects.annotate(filter_count=Count('secrets')),

@@ -8,12 +8,14 @@ from Crypto.Util import strxor
 from django.conf import settings
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import Group, User
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.encoding import force_bytes, python_2_unicode_compatible
 from taggit.managers import TaggableManager
 
+from extras.models import CustomFieldModel
 from utilities.models import ChangeLoggedModel
 from .exceptions import InvalidKey
 from .hashers import SecretValidationHasher
@@ -311,7 +313,7 @@ class SecretRole(ChangeLoggedModel):
 
 
 @python_2_unicode_compatible
-class Secret(ChangeLoggedModel):
+class Secret(ChangeLoggedModel, CustomFieldModel):
     """
     A Secret stores an AES256-encrypted copy of sensitive data, such as passwords or secret keys. An irreversible
     SHA-256 hash is stored along with the ciphertext for validation upon decryption. Each Secret is assigned to a
@@ -342,6 +344,11 @@ class Secret(ChangeLoggedModel):
     hash = models.CharField(
         max_length=128,
         editable=False
+    )
+    custom_field_values = GenericRelation(
+        to='extras.CustomFieldValue',
+        content_type_field='obj_type',
+        object_id_field='obj_id'
     )
 
     tags = TaggableManager()
