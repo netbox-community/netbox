@@ -376,6 +376,14 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
     def get_absolute_url(self):
         return reverse('secrets:secret', args=[self.pk])
 
+    def to_csv(self):
+        return (
+            self.device,
+            self.role,
+            self.name,
+            self.plaintext or '',
+        )
+
     def _pad(self, s):
         """
         Prepend the length of the plaintext (2B) and pad with garbage to a multiple of 16B (minimum of 64B).

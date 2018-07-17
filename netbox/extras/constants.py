@@ -53,6 +53,7 @@ EXPORTTEMPLATE_MODELS = [
     'site', 'region', 'rack', 'rackgroup', 'manufacturer', 'devicetype', 'device',  # DCIM
     'consoleport', 'powerport', 'interfaceconnection', 'virtualchassis',            # DCIM
     'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf', 'service',                   # IPAM
+    'secret',                                                                       # Secrets
     'tenant',                                                                       # Tenancy
     'cluster', 'virtualmachine',                                                    # Virtualization
 ]
