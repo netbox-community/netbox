@@ -1,4 +1,4 @@
-The following are optional settings which may be declared in `netbox/netbox/configuration.py`.
+# Optional Configuration Settings
 
 ## ADMINS
 

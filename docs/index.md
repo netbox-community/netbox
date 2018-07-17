@@ -42,13 +42,15 @@ When given a choice between a relatively simple [80% solution](https://en.wikipe
 
 NetBox is built on the [Django](https://djangoproject.com/) Python framework and utilizes a [PostgreSQL](https://www.postgresql.org/) database. It runs as a WSGI service behind your choice of HTTP server.
 
-| Function     | Component         |
-|--------------|-------------------|
-| HTTP Service | nginx or Apache   |
-| WSGI Service | gunicorn or uWSGI |
-| Application  | Django/Python     |
-| Database     | PostgreSQL 9.4+   |
+| Function           | Component         |
+|--------------------|-------------------|
+| HTTP service       | nginx or Apache   |
+| WSGI service       | gunicorn or uWSGI |
+| Application        | Django/Python     |
+| Database           | PostgreSQL 9.4+   |
+| Task queuing       | Redis/django-rq   |
+| Live device access | NAPALM            |
 
 # Getting Started
 
-See the [installation guide](installation/postgresql.md) for help getting NetBox up and running quickly.
+See the [installation guide](installation/index.md) for help getting NetBox up and running quickly.

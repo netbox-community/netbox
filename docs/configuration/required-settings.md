@@ -1,4 +1,4 @@
-NetBox's local configuration is held in `netbox/netbox/configuration.py`. An example configuration is provided at `netbox/netbox/configuration.example.py`. You may copy or rename the example configuration and make changes as appropriate. NetBox will not run without a configuration file.
+# Required Configuration Settings
 
 ## ALLOWED_HOSTS
 
