@@ -1881,7 +1881,7 @@ class InterfaceCreateForm(ComponentForm, forms.Form):
             self.fields['lag'].queryset = Interface.objects.none()
 
 
-class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
+class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
     form_factor = forms.ChoiceField(choices=add_blank_choice(IFACE_FF_CHOICES), required=False)
     enabled = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect)
