@@ -6,6 +6,8 @@
     be able to accept.
 
     Please indicate the relevant feature request or bug report below.
+    IF YOUR PULL REQUEST DOES NOT REFERENCE AN ACCEPTED BUG REPORT OR
+    FEATURE REQUEST, IT WILL BE MARKED AS INVALID AND CLOSED.
 -->
 ### Fixes:
 
