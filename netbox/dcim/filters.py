@@ -521,7 +521,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
             Q(name__icontains=value) |
             Q(serial__icontains=value.strip()) |
             Q(inventory_items__serial__icontains=value.strip()) |
-            Q(asset_tag=value.strip()) |
+            Q(asset_tag__icontains=value.strip()) |
             Q(comments__icontains=value)
         ).distinct()
 

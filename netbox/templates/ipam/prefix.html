@@ -99,13 +99,6 @@
                                     <i class="fa fa-angle-right"></i>
                                 {% endif %}
                                 <a href="{{ prefix.tenant.get_absolute_url }}">{{ prefix.tenant }}</a>
-                            {% elif prefix.vrf.tenant %}
-                                {% if prefix.vrf.tenant.group %}
-                                    <a href="{{ prefix.vrf.tenant.group.get_absolute_url }}">{{ prefix.vrf.tenant.group }}</a>
-                                    <i class="fa fa-angle-right"></i>
-                                {% endif %}
-                                <a href="{{ prefix.vrf.tenant.get_absolute_url }}">{{ prefix.vrf.tenant }}</a>
-                                <label class="label label-info">Inherited</label>
                             {% else %}
                                 <span class="text-muted">None</span>
                             {% endif %}

@@ -77,10 +77,11 @@
                     <td>Tenant</td>
                     <td>
                         {% if ipaddress.tenant %}
+                            {% if ipaddress.tenant.group %}
+                                <a href="{{ ipaddress.tenant.group.get_absolute_url }}">{{ ipaddress.tenant.group }}</a>
+                                <i class="fa fa-angle-right"></i>
+                            {% endif %}
                             <a href="{{ ipaddress.tenant.get_absolute_url }}">{{ ipaddress.tenant }}</a>
-                        {% elif ipaddress.vrf.tenant %}
-                            <a href="{{ ipaddress.vrf.tenant.get_absolute_url }}">{{ ipaddress.vrf.tenant }}</a>
-                            <label class="label label-info">Inherited</label>
                         {% else %}
                             <span class="text-muted">None</span>
                         {% endif %}

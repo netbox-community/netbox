@@ -260,7 +260,7 @@ class DeviceViewSet(CustomFieldModelViewSet):
             import napalm
         except ImportError:
             raise ServiceUnavailable("NAPALM is not installed. Please see the documentation for instructions.")
-        from napalm.base.exceptions import ConnectAuthError, ModuleImportError
+        from napalm.base.exceptions import ModuleImportError
 
         # Validate the configured driver
         try:
@@ -274,16 +274,8 @@ class DeviceViewSet(CustomFieldModelViewSet):
         if not request.user.has_perm('dcim.napalm_read'):
             return HttpResponseForbidden()
 
-        # Validate requested NAPALM methods
+        # Connect to the device
         napalm_methods = request.GET.getlist('method')
-        for method in napalm_methods:
-            if not hasattr(driver, method):
-                return HttpResponseBadRequest("Unknown NAPALM method: {}".format(method))
-            elif not method.startswith('get_'):
-                return HttpResponseBadRequest("Unsupported NAPALM method: {}".format(method))
-
-        # Connect to the device and execute the requested methods
-        # TODO: Improve error handling
         response = OrderedDict([(m, None) for m in napalm_methods])
         ip_address = str(device.primary_ip.address.ip)
         optional_args = settings.NAPALM_ARGS.copy()
@@ -298,12 +290,23 @@ class DeviceViewSet(CustomFieldModelViewSet):
         )
         try:
             d.open()
-            for method in napalm_methods:
-                response[method] = getattr(d, method)()
         except Exception as e:
             raise ServiceUnavailable("Error connecting to the device at {}: {}".format(ip_address, e))
 
+        # Validate and execute each specified NAPALM method
+        for method in napalm_methods:
+            if not hasattr(driver, method):
+                response[method] = {'error': 'Unknown NAPALM method'}
+                continue
+            if not method.startswith('get_'):
+                response[method] = {'error': 'Only get_* NAPALM methods are supported'}
+                continue
+            try:
+                response[method] = getattr(d, method)()
+            except NotImplementedError:
+                response[method] = {'error': 'Method not implemented for NAPALM driver {}'.format(driver)}
         d.close()
+
         return Response(response)
 
 

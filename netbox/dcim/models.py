@@ -1085,9 +1085,6 @@ class DeviceRole(ChangeLoggedModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return "{}?role={}".format(reverse('dcim:device_list'), self.slug)
-
     def to_csv(self):
         return (
             self.name,
