@@ -408,7 +408,6 @@ class DeviceBayTemplateTable(BaseTable):
 
 class DeviceRoleTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(verbose_name='Name')
     device_count = tables.TemplateColumn(
         template_code=DEVICEROLE_DEVICE_COUNT,
         accessor=Accessor('devices.count'),
