@@ -275,7 +275,7 @@ class IPAddressInterfaceSerializer(serializers.ModelSerializer):
     class Meta(InterfaceSerializer.Meta):
         model = Interface
         fields = [
-            'id', 'url', 'device', 'virtual_machine', 'name',
+            'id', 'url', 'device', 'virtual_machine', 'name', 'mac_address',
         ]
 
     def get_url(self, obj):
