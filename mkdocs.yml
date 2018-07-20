@@ -35,7 +35,8 @@ pages:
         - Reports: 'additional-features/reports.md'
         - Webhooks: 'additional-features/webhooks.md'
         - Change Logging: 'additional-features/change-logging.md'
-        - NetBox Shell: 'additional-features/netbox-shell.md'
+    - Administration:
+        - Replicating NetBox: 'administration/replicating-netbox.md'
     - API:
         - Overview: 'api/overview.md'
         - Authentication: 'api/authentication.md'
