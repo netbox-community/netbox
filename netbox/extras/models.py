@@ -105,7 +105,10 @@ class Webhook(models.Model):
 # Custom fields
 #
 
-class CustomFieldModel(object):
+class CustomFieldModel(models.Model):
+
+    class Meta:
+        abstract = True
 
     def cf(self):
         """
