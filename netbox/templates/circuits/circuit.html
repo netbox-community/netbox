@@ -125,7 +125,7 @@
                 </tr>
             </table>
         </div>
-        {% include 'inc/custom_fields_panel.html' with custom_fields=circuit.get_custom_fields %}
+        {% include 'inc/custom_fields_panel.html' with obj=circuit %}
         {% include 'extras/inc/tags_panel.html' with tags=circuit.tags.all url='circuits:circuit_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">

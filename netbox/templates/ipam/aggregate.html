@@ -97,7 +97,7 @@
         </div>
     </div>
     <div class="col-md-6">
-        {% include 'inc/custom_fields_panel.html' with custom_fields=aggregate.get_custom_fields %}
+        {% include 'inc/custom_fields_panel.html' with obj=aggregate %}
         {% include 'extras/inc/tags_panel.html' with tags=aggregate.tags.all url='ipam:aggregate_list' %}
     </div>
 </div>

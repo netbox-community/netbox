@@ -282,7 +282,7 @@
                     {% endif %}
                 </table>
             </div>
-            {% include 'inc/custom_fields_panel.html' with custom_fields=device.get_custom_fields %}
+            {% include 'inc/custom_fields_panel.html' with obj=device %}
             {% include 'extras/inc/tags_panel.html' with tags=device.tags.all url='dcim:device_list' %}
             <div class="panel panel-default">
                 <div class="panel-heading">

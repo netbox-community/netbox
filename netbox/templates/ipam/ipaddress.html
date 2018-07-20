@@ -148,7 +148,7 @@
                 </tr>
             </table>
         </div>
-        {% include 'inc/custom_fields_panel.html' with custom_fields=ipaddress.get_custom_fields %}
+        {% include 'inc/custom_fields_panel.html' with obj=ipaddress %}
         {% include 'extras/inc/tags_panel.html' with tags=ipaddress.tags.all url='ipam:ipaddress_list' %}
 	</div>
 	<div class="col-md-8">

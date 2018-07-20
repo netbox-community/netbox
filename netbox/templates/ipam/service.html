@@ -80,7 +80,8 @@
                 </tr>
 		    </table>
         </div>
-        {% include 'inc/custom_fields_panel.html' with custom_fields=service.get_custom_fields %}
+        {% include 'inc/custom_fields_panel.html' with obj=service %}
+        {% include 'extras/inc/tags_panel.html' with tags=service.tags.all url='ipam:service_list' %}
 	</div>
 </div>
 {% endblock %}

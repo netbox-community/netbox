@@ -123,7 +123,7 @@
                 </tr>
             </table>
         </div>
-        {% include 'inc/custom_fields_panel.html' with custom_fields=provider.get_custom_fields %}
+        {% include 'inc/custom_fields_panel.html' with obj=provider %}
         {% include 'extras/inc/tags_panel.html' with tags=provider.tags.all url='circuits:provider_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">

@@ -158,7 +158,7 @@
                 </tr>
             </table>
         </div>
-        {% include 'inc/custom_fields_panel.html' with custom_fields=devicetype.get_custom_fields %}
+        {% include 'inc/custom_fields_panel.html' with obj=devicetype %}
         {% include 'extras/inc/tags_panel.html' with tags=devicetype.tags.all url='dcim:devicetype_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">

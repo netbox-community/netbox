@@ -137,7 +137,7 @@
                 </tr>
             </table>
         </div>
-        {% include 'inc/custom_fields_panel.html' with custom_fields=virtualmachine.get_custom_fields %}
+        {% include 'inc/custom_fields_panel.html' with obj=virtualmachine %}
         {% include 'extras/inc/tags_panel.html' with tags=virtualmachine.tags.all url='virtualization:virtualmachine_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">

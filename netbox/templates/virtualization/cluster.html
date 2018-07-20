@@ -93,7 +93,7 @@
                 </tr>
             </table>
         </div>
-        {% include 'inc/custom_fields_panel.html' with custom_fields=cluster.get_custom_fields %}
+        {% include 'inc/custom_fields_panel.html' with obj=cluster %}
         {% include 'extras/inc/tags_panel.html' with tags=cluster.tags.all url='virtualization:cluster_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">

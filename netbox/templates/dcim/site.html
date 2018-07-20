@@ -219,7 +219,7 @@
                 </tr>
             </table>
         </div>
-        {% include 'inc/custom_fields_panel.html' with custom_fields=site.get_custom_fields %}
+        {% include 'inc/custom_fields_panel.html' with obj=site %}
         {% include 'extras/inc/tags_panel.html' with tags=site.tags.all url='dcim:site_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">
