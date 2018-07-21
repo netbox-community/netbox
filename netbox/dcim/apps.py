@@ -10,8 +10,3 @@ class DCIMConfig(AppConfig):
     def ready(self):
 
         import dcim.signals
-
-        # register webhook signals
-        from extras.webhooks import register_signals
-        from .models import Site, Rack, RackGroup, Device, Interface
-        register_signals([Site, Rack, Device, Interface, RackGroup])

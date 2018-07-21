@@ -60,7 +60,6 @@ class Provider(ChangeLoggedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
-    serializer = 'circuits.api.serializers.ProviderSerializer'
     csv_headers = ['name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments']
 
     class Meta:
@@ -99,7 +98,6 @@ class CircuitType(ChangeLoggedModel):
         unique=True
     )
 
-    serializer = 'circuits.api.serializers.CircuitTypeSerializer'
     csv_headers = ['name', 'slug']
 
     class Meta:
@@ -174,7 +172,6 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
-    serializer = 'circuits.api.serializers.CircuitSerializer'
     csv_headers = [
         'cid', 'provider', 'type', 'status', 'tenant', 'install_date', 'commit_rate', 'description', 'comments',
     ]
