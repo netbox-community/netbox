@@ -631,7 +631,6 @@ class RackReservation(ChangeLoggedModel):
         max_length=100
     )
 
-    
     class Meta:
         ordering = ['created']
 
@@ -1847,7 +1846,6 @@ class Interface(ComponentModel):
     objects = InterfaceQuerySet.as_manager()
     tags = TaggableManager()
 
-    
     class Meta:
         ordering = ['device', 'name']
         unique_together = ['device', 'name']

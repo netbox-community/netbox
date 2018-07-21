@@ -26,7 +26,7 @@ def mark_object_changed(instance, **kwargs):
     We have to wait until the *end* of the request to the serialize the object, because related fields like tags and
     custom fields have not yet been updated when the post_save signal is emitted.
     """
-    if hasattr(instance, 'log_change') and not instance.__class__._meta.verbose_name in WEBHOOK_MODELS:
+    if hasattr(instance, 'log_change') and instance.__class__._meta.verbose_name not in WEBHOOK_MODELS:
         return
 
     # Determine what action is being performed. The post_save signal sends a `created` boolean, whereas post_delete
