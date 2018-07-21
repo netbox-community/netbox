@@ -46,7 +46,6 @@ class TenantGroupBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class TenantGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'tenancy.delete_tenantgroup'
-    cls = TenantGroup
     queryset = TenantGroup.objects.annotate(tenant_count=Count('tenants'))
     table = tables.TenantGroupTable
     default_return_url = 'tenancy:tenantgroup_list'
@@ -115,7 +114,6 @@ class TenantBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class TenantBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'tenancy.change_tenant'
-    cls = Tenant
     queryset = Tenant.objects.select_related('group')
     filter = filters.TenantFilter
     table = tables.TenantTable
@@ -125,7 +123,6 @@ class TenantBulkEditView(PermissionRequiredMixin, BulkEditView):
 
 class TenantBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'tenancy.delete_tenant'
-    cls = Tenant
     queryset = Tenant.objects.select_related('group')
     filter = filters.TenantFilter
     table = tables.TenantTable

@@ -49,7 +49,6 @@ class ClusterTypeBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class ClusterTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'virtualization.delete_clustertype'
-    cls = ClusterType
     queryset = ClusterType.objects.annotate(cluster_count=Count('clusters'))
     table = tables.ClusterTypeTable
     default_return_url = 'virtualization:clustertype_list'
@@ -85,7 +84,6 @@ class ClusterGroupBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class ClusterGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'virtualization.delete_clustergroup'
-    cls = ClusterGroup
     queryset = ClusterGroup.objects.annotate(cluster_count=Count('clusters'))
     table = tables.ClusterGroupTable
     default_return_url = 'virtualization:clustergroup_list'
@@ -96,7 +94,7 @@ class ClusterGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class ClusterListView(ObjectListView):
-    queryset = Cluster.objects.select_related('type', 'group')
+    queryset = Cluster.objects.select_related('type', 'group', 'site')
     table = tables.ClusterTable
     filter = filters.ClusterFilter
     filter_form = forms.ClusterFilterForm
@@ -147,7 +145,7 @@ class ClusterBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class ClusterBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'virtualization.change_cluster'
-    cls = Cluster
+    queryset = Cluster.objects.select_related('type', 'group', 'site')
     filter = filters.ClusterFilter
     table = tables.ClusterTable
     form = forms.ClusterBulkEditForm
@@ -156,8 +154,7 @@ class ClusterBulkEditView(PermissionRequiredMixin, BulkEditView):
 
 class ClusterBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'virtualization.delete_cluster'
-    cls = Cluster
-    queryset = Cluster.objects.all()
+    queryset = Cluster.objects.select_related('type', 'group', 'site')
     filter = filters.ClusterFilter
     table = tables.ClusterTable
     default_return_url = 'virtualization:cluster_list'
@@ -244,7 +241,7 @@ class ClusterRemoveDevicesView(PermissionRequiredMixin, View):
 #
 
 class VirtualMachineListView(ObjectListView):
-    queryset = VirtualMachine.objects.select_related('cluster', 'tenant', 'primary_ip4', 'primary_ip6')
+    queryset = VirtualMachine.objects.select_related('cluster', 'tenant', 'role', 'primary_ip4', 'primary_ip6')
     filter = filters.VirtualMachineFilter
     filter_form = forms.VirtualMachineFilterForm
     table = tables.VirtualMachineDetailTable
@@ -298,8 +295,7 @@ class VirtualMachineBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class VirtualMachineBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'virtualization.change_virtualmachine'
-    cls = VirtualMachine
-    queryset = VirtualMachine.objects.select_related('cluster', 'tenant')
+    queryset = VirtualMachine.objects.select_related('cluster', 'tenant', 'role')
     filter = filters.VirtualMachineFilter
     table = tables.VirtualMachineTable
     form = forms.VirtualMachineBulkEditForm
@@ -308,8 +304,7 @@ class VirtualMachineBulkEditView(PermissionRequiredMixin, BulkEditView):
 
 class VirtualMachineBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'virtualization.delete_virtualmachine'
-    cls = VirtualMachine
-    queryset = VirtualMachine.objects.select_related('cluster', 'tenant')
+    queryset = VirtualMachine.objects.select_related('cluster', 'tenant', 'role')
     filter = filters.VirtualMachineFilter
     table = tables.VirtualMachineTable
     default_return_url = 'virtualization:virtualmachine_list'
@@ -343,16 +338,16 @@ class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_interface'
-    cls = Interface
-    parent_cls = VirtualMachine
+    queryset = Interface.objects.all()
+    parent_model = VirtualMachine
     table = tables.InterfaceTable
     form = forms.InterfaceBulkEditForm
 
 
 class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_interface'
-    cls = Interface
-    parent_cls = VirtualMachine
+    queryset = Interface.objects.all()
+    parent_model = VirtualMachine
     table = tables.InterfaceTable
 
 

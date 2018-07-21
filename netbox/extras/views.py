@@ -45,7 +45,6 @@ class TagDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_circuittype'
-    cls = Tag
     queryset = Tag.objects.annotate(items=Count('taggit_taggeditem_items')).order_by('name')
     table = TagTable
     default_return_url = 'extras:tag_list'
@@ -92,7 +91,6 @@ class ConfigContextDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class ConfigContextBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'extras.delete_cconfigcontext'
-    cls = ConfigContext
     queryset = ConfigContext.objects.all()
     table = ConfigContextTable
     default_return_url = 'extras:configcontext_list'

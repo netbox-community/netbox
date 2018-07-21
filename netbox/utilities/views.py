@@ -301,6 +301,7 @@ class BulkCreateView(GetReturnURLMixin, View):
 
     form: Form class which provides the `pattern` field
     model_form: The ModelForm used to create individual objects
+    pattern_target: Name of the field to be evaluated as a pattern (if any)
     template_name: The name of the template
     """
     form = None
@@ -466,17 +467,15 @@ class BulkEditView(GetReturnURLMixin, View):
     """
     Edit objects in bulk.
 
-    cls: The model of the objects being edited
-    parent_cls: The model of the parent object (if any)
     queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
+    parent_model: The model of the parent object (if any)
     filter: FilterSet to apply when deleting by QuerySet
     table: The table used to display devices being edited
     form: The form class used to edit objects in bulk
     template_name: The name of the template
     """
-    cls = None
-    parent_cls = None
     queryset = None
+    parent_model = None
     filter = None
     table = None
     form = None
@@ -487,20 +486,22 @@ class BulkEditView(GetReturnURLMixin, View):
 
     def post(self, request, **kwargs):
 
+        model = self.queryset.model
+
         # Attempt to derive parent object if a parent class has been given
-        if self.parent_cls:
-            parent_obj = get_object_or_404(self.parent_cls, **kwargs)
+        if self.parent_model:
+            parent_obj = get_object_or_404(self.parent_model, **kwargs)
         else:
             parent_obj = None
 
         # Are we editing *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all') and self.filter is not None:
-            pk_list = [obj.pk for obj in self.filter(request.GET, self.cls.objects.only('pk')).qs]
+            pk_list = [obj.pk for obj in self.filter(request.GET, model.objects.only('pk')).qs]
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
         if '_apply' in request.POST:
-            form = self.form(self.cls, parent_obj, request.POST)
+            form = self.form(model, parent_obj, request.POST)
             if form.is_valid():
 
                 custom_fields = form.custom_fields if hasattr(form, 'custom_fields') else []
@@ -512,7 +513,7 @@ class BulkEditView(GetReturnURLMixin, View):
                     with transaction.atomic():
 
                         updated_count = 0
-                        for obj in self.cls.objects.filter(pk__in=pk_list):
+                        for obj in model.objects.filter(pk__in=pk_list):
 
                             # Update standard fields. If a field is listed in _nullify, delete its value.
                             for name in standard_fields:
@@ -524,7 +525,7 @@ class BulkEditView(GetReturnURLMixin, View):
                             obj.save()
 
                             # Update custom fields
-                            obj_type = ContentType.objects.get_for_model(self.cls)
+                            obj_type = ContentType.objects.get_for_model(model)
                             for name in custom_fields:
                                 field = form.fields[name].model
                                 if name in form.nullable_fields and name in nullified_fields:
@@ -552,7 +553,7 @@ class BulkEditView(GetReturnURLMixin, View):
                             updated_count += 1
 
                     if updated_count:
-                        msg = 'Updated {} {}'.format(updated_count, self.cls._meta.verbose_name_plural)
+                        msg = 'Updated {} {}'.format(updated_count, model._meta.verbose_name_plural)
                         messages.success(self.request, msg)
 
                     return redirect(self.get_return_url(request))
@@ -563,19 +564,18 @@ class BulkEditView(GetReturnURLMixin, View):
         else:
             initial_data = request.POST.copy()
             initial_data['pk'] = pk_list
-            form = self.form(self.cls, parent_obj, initial=initial_data)
+            form = self.form(model, parent_obj, initial=initial_data)
 
         # Retrieve objects being edited
-        queryset = self.queryset or self.cls.objects.all()
-        table = self.table(queryset.filter(pk__in=pk_list), orderable=False)
+        table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:
-            messages.warning(request, "No {} were selected.".format(self.cls._meta.verbose_name_plural))
+            messages.warning(request, "No {} were selected.".format(model._meta.verbose_name_plural))
             return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
             'form': form,
             'table': table,
-            'obj_type_plural': self.cls._meta.verbose_name_plural,
+            'obj_type_plural': model._meta.verbose_name_plural,
             'return_url': self.get_return_url(request),
         })
 
@@ -584,17 +584,15 @@ class BulkDeleteView(GetReturnURLMixin, View):
     """
     Delete objects in bulk.
 
-    cls: The model of the objects being deleted
-    parent_cls: The model of the parent object (if any)
     queryset: Custom queryset to use when retrieving objects (e.g. to select related objects)
+    parent_model: The model of the parent object (if any)
     filter: FilterSet to apply when deleting by QuerySet
     table: The table used to display devices being deleted
     form: The form class used to delete objects in bulk
     template_name: The name of the template
     """
-    cls = None
-    parent_cls = None
     queryset = None
+    parent_model = None
     filter = None
     table = None
     form = None
@@ -605,18 +603,20 @@ class BulkDeleteView(GetReturnURLMixin, View):
 
     def post(self, request, **kwargs):
 
+        model = self.queryset.model
+
         # Attempt to derive parent object if a parent class has been given
-        if self.parent_cls:
-            parent_obj = get_object_or_404(self.parent_cls, **kwargs)
+        if self.parent_model:
+            parent_obj = get_object_or_404(self.parent_model, **kwargs)
         else:
             parent_obj = None
 
         # Are we deleting *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all'):
             if self.filter is not None:
-                pk_list = [obj.pk for obj in self.filter(request.GET, self.cls.objects.only('pk')).qs]
+                pk_list = [obj.pk for obj in self.filter(request.GET, model.objects.only('pk')).qs]
             else:
-                pk_list = self.cls.objects.values_list('pk', flat=True)
+                pk_list = model.objects.values_list('pk', flat=True)
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
@@ -627,14 +627,14 @@ class BulkDeleteView(GetReturnURLMixin, View):
             if form.is_valid():
 
                 # Delete objects
-                queryset = self.cls.objects.filter(pk__in=pk_list)
+                queryset = model.objects.filter(pk__in=pk_list)
                 try:
-                    deleted_count = queryset.delete()[1][self.cls._meta.label]
+                    deleted_count = queryset.delete()[1][model._meta.label]
                 except ProtectedError as e:
                     handle_protectederror(list(queryset), request, e)
                     return redirect(self.get_return_url(request))
 
-                msg = 'Deleted {} {}'.format(deleted_count, self.cls._meta.verbose_name_plural)
+                msg = 'Deleted {} {}'.format(deleted_count, model._meta.verbose_name_plural)
                 messages.success(request, msg)
                 return redirect(self.get_return_url(request))
 
@@ -645,16 +645,15 @@ class BulkDeleteView(GetReturnURLMixin, View):
             })
 
         # Retrieve objects being deleted
-        queryset = self.queryset or self.cls.objects.all()
-        table = self.table(queryset.filter(pk__in=pk_list), orderable=False)
+        table = self.table(self.queryset.filter(pk__in=pk_list), orderable=False)
         if not table.rows:
-            messages.warning(request, "No {} were selected for deletion.".format(self.cls._meta.verbose_name_plural))
+            messages.warning(request, "No {} were selected for deletion.".format(model._meta.verbose_name_plural))
             return redirect(self.get_return_url(request))
 
         return render(request, self.template_name, {
             'form': form,
             'parent_obj': parent_obj,
-            'obj_type_plural': self.cls._meta.verbose_name_plural,
+            'obj_type_plural': model._meta.verbose_name_plural,
             'table': table,
             'return_url': self.get_return_url(request),
         })
@@ -665,7 +664,7 @@ class BulkDeleteView(GetReturnURLMixin, View):
         """
 
         class BulkDeleteForm(ConfirmationForm):
-            pk = ModelMultipleChoiceField(queryset=self.cls.objects.all(), widget=MultipleHiddenInput)
+            pk = ModelMultipleChoiceField(queryset=self.queryset, widget=MultipleHiddenInput)
 
         if self.form:
             return self.form
