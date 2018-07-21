@@ -62,14 +62,13 @@ class ChangeLoggingAndWebhookMiddleware(object):
 
         # Perform change logging and fire Webhook signals
         for obj, action in _thread_locals.changed_objects:
-            if obj.pk:
-                # Log object changes
-                if hasattr(obj, 'log_change'):
-                    obj.log_change(request.user, request.id, action)
+            # Log object changes
+            if obj.pk and hasattr(obj, 'log_change'):
+                obj.log_change(request.user, request.id, action)
 
-                # Enqueue Webhooks if they are enabled
-                if settings.WEBHOOKS_ENABLED and obj.__class__._meta.verbose_name in WEBHOOK_MODELS:
-                    enqueue_webhooks(obj, action)
+            # Enqueue Webhooks if they are enabled
+            if settings.WEBHOOKS_ENABLED and obj.__class__._meta.verbose_name in WEBHOOK_MODELS:
+                enqueue_webhooks(obj, action)
 
         # Housekeeping: 1% chance of clearing out expired ObjectChanges
         if _thread_locals.changed_objects and settings.CHANGELOG_RETENTION and random.randint(1, 100) == 1:
