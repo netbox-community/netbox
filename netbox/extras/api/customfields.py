@@ -103,6 +103,9 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
             for cfv in instance.custom_field_values.all():
                 if cfv.field.type == CF_TYPE_SELECT:
                     custom_fields[cfv.field.name] = CustomFieldChoiceSerializer(cfv.value).data
+                elif cfv.field.type == CF_TYPE_DATE:
+                    # convert datetime object to str
+                    custom_fields[cfv.field.name] = str(cfv.value)
                 else:
                     custom_fields[cfv.field.name] = cfv.value
             instance.custom_fields = custom_fields
