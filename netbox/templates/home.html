@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load helpers %}
 
 {% block content %}
 {% include 'search_form.html' %}
@@ -180,6 +181,7 @@
                             {% elif action == 'deleted' %}
                                 <span class="label label-danger"><i class="fa fa-trash"></i></span>
                             {% endif %}
+                            {{ change.changed_object_type.name|bettertitle }}
                             {% if change.changed_object.get_absolute_url %}
                                 <a href="{{ change.changed_object.get_absolute_url }}">{{ change.changed_object }}</a>
                             {% else %}
