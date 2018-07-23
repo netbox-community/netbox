@@ -28,6 +28,14 @@
         {% endif %}
     </div>
     <h1>{% block title %}{{ interface.parent }} / {{ interface.name }}{% endblock %}</h1>
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ interface.get_absolute_url }}">Interface</a>
+        </li>
+        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+            <a href="{% url 'dcim:interface_changelog' pk=interface.pk %}">Changelog</a>
+        </li>
+    </ul>
 {% endblock %}
 
 {% block content %}

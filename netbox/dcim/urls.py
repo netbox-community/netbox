@@ -7,8 +7,8 @@ from ipam.views import ServiceCreateView
 from secrets.views import secret_add
 from . import views
 from .models import (
-    Device, DeviceRole, DeviceType, Manufacturer, Platform, Rack, RackGroup, RackReservation, RackRole, Region, Site,
-    VirtualChassis,
+    Device, DeviceRole, DeviceType, Interface, Manufacturer, Platform, Rack, RackGroup, RackReservation, RackRole,
+    Region, Site, VirtualChassis,
 )
 
 app_name = 'dcim'
@@ -203,6 +203,7 @@ urlpatterns = [
     url(r'^interfaces/(?P<pk>\d+)/edit/$', views.InterfaceEditView.as_view(), name='interface_edit'),
     url(r'^interfaces/(?P<pk>\d+)/assign-vlans/$', views.InterfaceAssignVLANsView.as_view(), name='interface_assign_vlans'),
     url(r'^interfaces/(?P<pk>\d+)/delete/$', views.InterfaceDeleteView.as_view(), name='interface_delete'),
+    url(r'^interfaces/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='interface_changelog', kwargs={'model': Interface}),
     url(r'^interfaces/rename/$', views.InterfaceBulkRenameView.as_view(), name='interface_bulk_rename'),
 
     # Device bays
