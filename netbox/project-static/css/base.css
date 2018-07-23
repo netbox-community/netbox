@@ -378,6 +378,13 @@ table.reports td.stats label {
     margin-bottom: 0;
     min-width: 40px;
 }
+table.report th {
+    position: relative;
+}
+table.report th a {
+    position: absolute;
+    top: -51px;
+}
 
 /* AJAX loader */
 .loading {
