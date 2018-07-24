@@ -4,9 +4,10 @@ import sys
 
 from django.conf import settings
 from django.db import ProgrammingError
-from django.http import Http404, HttpResponseRedirect, HttpResponseServerError
-from django.template import loader
+from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
+
+from .views import server_error
 
 BASE_PATH = getattr(settings, 'BASE_PATH', False)
 LOGIN_REQUIRED = getattr(settings, 'LOGIN_REQUIRED', False)
@@ -78,11 +79,6 @@ class ExceptionHandlingMiddleware(object):
         ):
             custom_template = 'exceptions/permission_error.html'
 
-        # Return a custom error message, or fall back to Django's default 500 error handling (500.html)
+        # Return a custom error message, or fall back to Django's default 500 error handling
         if custom_template:
-            type_, error, traceback = sys.exc_info()
-            template = loader.get_template(custom_template)
-            return HttpResponseServerError(template.render({
-                'exception': str(type_),
-                'error': error,
-            }))
+            return server_error(request, template_name=custom_template)
