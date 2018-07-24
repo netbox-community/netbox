@@ -4,8 +4,8 @@ import sys
 
 from django.conf import settings
 from django.db import ProgrammingError
-from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import render
+from django.http import Http404, HttpResponseRedirect, HttpResponseServerError
+from django.template import loader
 from django.urls import reverse
 
 BASE_PATH = getattr(settings, 'BASE_PATH', False)
@@ -65,23 +65,24 @@ class ExceptionHandlingMiddleware(object):
         if isinstance(exception, Http404):
             return
 
-        # Determine the type of exception
+        # Determine the type of exception. If it's a common issue, return a custom error page with instructions.
+        custom_template = None
         if isinstance(exception, ProgrammingError):
-            template_name = 'exceptions/programming_error.html'
+            custom_template = 'exceptions/programming_error.html'
         elif isinstance(exception, ImportError):
-            template_name = 'exceptions/import_error.html'
+            custom_template = 'exceptions/import_error.html'
         elif (
             sys.version_info[0] >= 3 and isinstance(exception, PermissionError)
         ) or (
             isinstance(exception, OSError) and exception.errno == 13
         ):
-            template_name = 'exceptions/permission_error.html'
-        else:
-            template_name = '500.html'
+            custom_template = 'exceptions/permission_error.html'
 
-        # Return an error message
-        type_, error, traceback = sys.exc_info()
-        return render(request, template_name, {
-            'exception': str(type_),
-            'error': error,
-        }, status=500)
+        # Return a custom error message, or fall back to Django's default 500 error handling (500.html)
+        if custom_template:
+            type_, error, traceback = sys.exc_info()
+            template = loader.get_template(custom_template)
+            return HttpResponseServerError(template.render({
+                'exception': str(type_),
+                'error': error,
+            }))
