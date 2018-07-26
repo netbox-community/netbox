@@ -78,14 +78,8 @@ class TenantView(View):
             'rackreservation_count': RackReservation.objects.filter(tenant=tenant).count(),
             'device_count': Device.objects.filter(tenant=tenant).count(),
             'vrf_count': VRF.objects.filter(tenant=tenant).count(),
-            'prefix_count': Prefix.objects.filter(
-                Q(tenant=tenant) |
-                Q(tenant__isnull=True, vrf__tenant=tenant)
-            ).count(),
-            'ipaddress_count': IPAddress.objects.filter(
-                Q(tenant=tenant) |
-                Q(tenant__isnull=True, vrf__tenant=tenant)
-            ).count(),
+            'prefix_count': Prefix.objects.filter(tenant=tenant).count(),
+            'ipaddress_count': IPAddress.objects.filter(tenant=tenant).count(),
             'vlan_count': VLAN.objects.filter(tenant=tenant).count(),
             'circuit_count': Circuit.objects.filter(tenant=tenant).count(),
             'virtualmachine_count': VirtualMachine.objects.filter(tenant=tenant).count(),

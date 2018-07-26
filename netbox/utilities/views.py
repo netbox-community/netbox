@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from collections import OrderedDict
 from copy import deepcopy
+import sys
 
 from django.conf import settings
 from django.contrib import messages
@@ -10,12 +11,16 @@ from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
 from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
+from django.http import HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.exceptions import TemplateSyntaxError
+from django.template import loader
+from django.template.exceptions import TemplateDoesNotExist, TemplateSyntaxError
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
+from django.views.decorators.csrf import requires_csrf_token
+from django.views.defaults import ERROR_500_TEMPLATE_NAME
 from django.views.generic import View
 from django_tables2 import RequestConfig
 
@@ -858,3 +863,20 @@ class BulkComponentCreateView(View):
             'table': table,
             'return_url': reverse(self.default_return_url),
         })
+
+
+@requires_csrf_token
+def server_error(request, template_name=ERROR_500_TEMPLATE_NAME):
+    """
+    Custom 500 handler to provide additional context when rendering 500.html.
+    """
+    try:
+        template = loader.get_template(template_name)
+    except TemplateDoesNotExist:
+        return HttpResponseServerError('<h1>Server Error (500)</h1>', content_type='text/html')
+    type_, error, traceback = sys.exc_info()
+
+    return HttpResponseServerError(template.render({
+        'exception': str(type_),
+        'error': error,
+    }))
