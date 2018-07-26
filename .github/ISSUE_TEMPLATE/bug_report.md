@@ -1,6 +1,7 @@
 ---
-name: :bug: Bug Report
-about: Report a reproducible bug in the current release of NetBox
+name: Bug report
+about: Create a report to help us improve
+
 ---
 
 <!--
