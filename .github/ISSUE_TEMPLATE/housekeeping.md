@@ -1,5 +1,5 @@
 ---
-name: Housekeeping
+name: :house: Housekeeping
 about: A change pertaining to the codebase itself
 
 ---

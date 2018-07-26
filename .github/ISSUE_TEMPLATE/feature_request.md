@@ -1,5 +1,5 @@
 ---
-name: Feature Request
+name: :tada: Feature Request
 about: Propose a new NetBox feature or enhancement
 
 ---
