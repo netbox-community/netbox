@@ -1,5 +1,5 @@
 ---
-name: Bug report
+name: Bug Report
 about: Report a reproducible bug in the current release of NetBox
 
 ---

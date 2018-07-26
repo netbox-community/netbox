@@ -1,5 +1,5 @@
 ---
-name: Feature request
+name: Feature Request
 about: Propose a new NetBox feature or enhancement
 
 ---
