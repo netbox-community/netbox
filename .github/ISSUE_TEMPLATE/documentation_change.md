@@ -1,6 +1,7 @@
 ---
-name: :book: Documentation Change
+name: Documentation Change
 about: Suggest an addition or modification to the NetBox documentation
+
 ---
 
 <!--
