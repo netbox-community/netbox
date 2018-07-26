@@ -1,6 +1,7 @@
 ---
-name: :new: Feature Request
+name: Feature request
 about: Propose a new NetBox feature or enhancement
+
 ---
 
 <!--
