@@ -181,7 +181,12 @@
                     <td>GPS Coordinates</td>
                     <td>
                         {% if site.latitude and site.longitude %}
-                            {{ site.latitude }}, {{ site.longitude }}
+                            <div class="pull-right">
+                                <a href="http://maps.google.com/?q={{ site.latitude }},{{ site.longitude }}" target="_blank" class="btn btn-primary btn-xs">
+                                    <i class="glyphicon glyphicon-map-marker"></i> Map it
+                                </a>
+                            </div>
+                            <span>{{ site.latitude }}, {{ site.longitude }}</span>
                         {% else %}
                             <span class="text-muted">N/A</span>
                         {% endif %}
