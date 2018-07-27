@@ -13,7 +13,7 @@ from extras.models import (
     ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap, UserAction,
 )
 from extras.constants import *
-from tenancy.api.serializers import NestedTenantSerializer
+from tenancy.api.serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from users.api.serializers import NestedUserSerializer
 from utilities.api import (
     ChoiceFieldSerializer, ContentTypeFieldSerializer, get_serializer_for_model, ValidatedModelSerializer,
@@ -136,13 +136,14 @@ class ConfigContextSerializer(ValidatedModelSerializer):
     sites = NestedSiteSerializer(required=False, many=True)
     roles = NestedDeviceRoleSerializer(required=False, many=True)
     platforms = NestedPlatformSerializer(required=False, many=True)
+    tenant_groups = NestedTenantGroupSerializer(required=False, many=True)
     tenants = NestedTenantSerializer(required=False, many=True)
 
     class Meta:
         model = ConfigContext
         fields = [
-            'id', 'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'tenants',
-            'data',
+            'id', 'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms',
+            'tenant_groups', 'tenants', 'data',
         ]
 
 

@@ -677,6 +677,11 @@ class ConfigContext(models.Model):
         related_name='+',
         blank=True
     )
+    tenant_groups = models.ManyToManyField(
+        to='tenancy.TenantGroup',
+        related_name='+',
+        blank=True
+    )
     tenants = models.ManyToManyField(
         to='tenancy.Tenant',
         related_name='+',
