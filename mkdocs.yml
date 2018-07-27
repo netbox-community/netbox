@@ -43,6 +43,7 @@ pages:
         - Working with Secrets: 'api/working-with-secrets.md'
         - Examples: 'api/examples.md'
     - Development:
+        - Introduction: 'development/index.md'
         - Utility Views: 'development/utility-views.md'
 
 markdown_extensions:

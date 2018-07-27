@@ -13,7 +13,7 @@ A tenant represents a discrete entity for administrative purposes. Typically, te
 * Circuits
 * Virtual machines
 
-If a prefix or IP address is not assigned to a tenant, it will appear to inherit the tenant to which its parent VRF is assigned, if any.
+Tenant assignment is used to signify ownership of an object in NetBox. As such, each object may only be owned by a single tenant. For example, if you have a firewall dedicated to a particular customer, you would assign it to the tenant which represents that customer. However, if the firewall serves multiple customers, it doesn't *belong* to any particular customer, so tenant assignment would not be appropriate.
 
 ### Tenant Groups
 

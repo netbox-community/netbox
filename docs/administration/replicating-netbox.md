@@ -32,6 +32,8 @@ If you want to export only the database schema, and not the data itself (e.g. fo
 pg_dump -s netbox > netbox_schema.sql
 ```
 
+---
+
 # Replicating Media
 
 NetBox stored uploaded files (such as image attachments) in its media directory. To fully replicate an instance of NetBox, you'll need to copy both the database and the media files.

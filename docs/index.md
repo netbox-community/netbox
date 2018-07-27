@@ -1,3 +1,5 @@
+![NetBox](netbox_logo.png "NetBox logo")
+
 # What is NetBox?
 
 NetBox is an open source web application designed to help manage and document computer networks. Initially conceived by the network engineering team at [DigitalOcean](https://www.digitalocean.com/), NetBox was developed specifically to address the needs of network and infrastructure engineers. It encompasses the following aspects of network management:
@@ -10,7 +12,7 @@ NetBox is an open source web application designed to help manage and document co
 * **Data circuits** - Long-haul communications circuits and providers
 * **Secrets** - Encrypted storage of sensitive credentials
 
-# What NetBox Isn't
+# What NetBox Is Not
 
 While NetBox strives to cover many areas of network management, the scope of its feature set is necessarily limited. This ensures that development focuses on core functionality and that scope creep is reasonably contained. To that end, it might help to provide some examples of functionality that NetBox **does not** provide:
 

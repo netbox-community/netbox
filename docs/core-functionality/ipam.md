@@ -58,7 +58,7 @@ Also like prefixes, each IP address can be assigned a status and a role. Statuse
 * Deprecated
 * DHCP
 
-IP address roles are also hard-coded, and can be used to indicate a special condition of the IP address. Role assignment is optional. Available roles include:
+Each IP address can optionally be assigned a special role. Roles are used to indicate some special attribute of an IP address: for example, it is used as a loopback, or is a virtual IP maintained using VRRP. (Note that this differs in purpose from a _functional_ role, and thus cannot be customized.) Available roles include:
 
 * Loopback
 * Secondary
