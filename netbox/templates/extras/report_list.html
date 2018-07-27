@@ -38,7 +38,7 @@
                                         <td colspan="3" class="method">
                                             {{ method }}
                                         </td>
-                                        <td class="text-right stats">
+                                        <td class="text-right report-stats">
                                             <label class="label label-success">{{ stats.success }}</label>
                                             <label class="label label-info">{{ stats.info }}</label>
                                             <label class="label label-warning">{{ stats.warning }}</label>
@@ -69,7 +69,7 @@
                                 <a href="#report.{{ report.name }}" class="list-group-item">
                                     <i class="fa fa-list-alt"></i> {{ report.name }}
                                     <div class="pull-right">
-                                        {% include 'extras/inc/report_label.html' %}
+                                        {% include 'extras/inc/report_label.html' with result=report.result %}
                                     </div>
                                 </a>
                             {% endfor %}

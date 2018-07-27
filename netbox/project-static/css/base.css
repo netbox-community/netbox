@@ -376,11 +376,18 @@ table.reports td.method {
     font-family: monospace;
     padding-left: 30px;
 }
-table.reports td.stats label {
+td.report-stats label {
     display: inline-block;
     line-height: 14px;
     margin-bottom: 0;
     min-width: 40px;
+}
+table.report th {
+    position: relative;
+}
+table.report th a {
+    position: absolute;
+    top: -51px;
 }
 
 /* AJAX loader */

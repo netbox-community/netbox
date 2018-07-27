@@ -80,3 +80,5 @@ if settings.DEBUG:
 urlpatterns = [
     url(r'^{}'.format(settings.BASE_PATH), include(_patterns))
 ]
+
+handler500 = 'utilities.views.server_error'

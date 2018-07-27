@@ -189,9 +189,15 @@ class RIRListView(ObjectListView):
                 queryset = Prefix.objects.filter(prefix__net_contained_or_equal=str(aggregate.prefix))
 
                 # Find all consumed space for each prefix status (we ignore containers for this purpose).
-                active_prefixes = netaddr.cidr_merge([p.prefix for p in queryset.filter(status=PREFIX_STATUS_ACTIVE)])
-                reserved_prefixes = netaddr.cidr_merge([p.prefix for p in queryset.filter(status=PREFIX_STATUS_RESERVED)])
-                deprecated_prefixes = netaddr.cidr_merge([p.prefix for p in queryset.filter(status=PREFIX_STATUS_DEPRECATED)])
+                active_prefixes = netaddr.cidr_merge(
+                    [p.prefix for p in queryset.filter(status=PREFIX_STATUS_ACTIVE)]
+                )
+                reserved_prefixes = netaddr.cidr_merge(
+                    [p.prefix for p in queryset.filter(status=PREFIX_STATUS_RESERVED)]
+                )
+                deprecated_prefixes = netaddr.cidr_merge(
+                    [p.prefix for p in queryset.filter(status=PREFIX_STATUS_DEPRECATED)]
+                )
 
                 # Find all available prefixes by subtracting each of the existing prefix sets from the aggregate prefix.
                 available_prefixes = (
@@ -202,11 +208,11 @@ class RIRListView(ObjectListView):
                 )
 
                 # Add the size of each metric to the RIR total.
-                stats['total'] += aggregate.prefix.size / denominator
-                stats['active'] += netaddr.IPSet(active_prefixes).size / denominator
-                stats['reserved'] += netaddr.IPSet(reserved_prefixes).size / denominator
-                stats['deprecated'] += netaddr.IPSet(deprecated_prefixes).size / denominator
-                stats['available'] += available_prefixes.size / denominator
+                stats['total'] += int(aggregate.prefix.size / denominator)
+                stats['active'] += int(netaddr.IPSet(active_prefixes).size / denominator)
+                stats['reserved'] += int(netaddr.IPSet(reserved_prefixes).size / denominator)
+                stats['deprecated'] += int(netaddr.IPSet(deprecated_prefixes).size / denominator)
+                stats['available'] += int(available_prefixes.size / denominator)
 
             # Calculate the percentage of total space for each prefix status.
             total = float(stats['total'])
@@ -225,20 +231,6 @@ class RIRListView(ObjectListView):
             rirs.append(rir)
 
         return rirs
-
-    def extra_context(self):
-
-        totals = {
-            'total': sum([rir.stats['total'] for rir in self.queryset]),
-            'active': sum([rir.stats['active'] for rir in self.queryset]),
-            'reserved': sum([rir.stats['reserved'] for rir in self.queryset]),
-            'deprecated': sum([rir.stats['deprecated'] for rir in self.queryset]),
-            'available': sum([rir.stats['available'] for rir in self.queryset]),
-        }
-
-        return {
-            'totals': totals,
-        }
 
 
 class RIRCreateView(PermissionRequiredMixin, ObjectEditView):
