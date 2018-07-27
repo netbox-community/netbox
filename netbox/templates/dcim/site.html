@@ -255,6 +255,11 @@
                         <tr>
                             <td><i class="fa fa-fw fa-folder-o"></i> <a href="{{ rg.get_absolute_url }}">{{ rg }}</a></td>
                             <td>{{ rg.rack_count }}</td>
+                            <td class="text-right">
+                                <a href="{% url 'dcim:rack_elevation_list' %}?group_id={{ rg.pk }}" class="btn btn-xs btn-primary" title="View elevations">
+                                    <i class="fa fa-eye"></i>
+                                </a>
+                            </td>
                         </tr>
                     {% endfor %}
                 </table>
