@@ -9,7 +9,7 @@ from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.models import IPAddress, VLAN
 from tenancy.api.serializers import NestedTenantSerializer
-from utilities.api import ChoiceFieldSerializer, TagField, ValidatedModelSerializer, WritableNestedSerializer
+from utilities.api import ChoiceField, TagField, ValidatedModelSerializer, WritableNestedSerializer
 from virtualization.constants import VM_STATUS_CHOICES
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
@@ -91,7 +91,7 @@ class VirtualMachineIPAddressSerializer(serializers.ModelSerializer):
 
 
 class VirtualMachineSerializer(CustomFieldModelSerializer):
-    status = ChoiceFieldSerializer(choices=VM_STATUS_CHOICES, required=False)
+    status = ChoiceField(choices=VM_STATUS_CHOICES, required=False)
     cluster = NestedClusterSerializer(required=False, allow_null=True)
     role = NestedDeviceRoleSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
@@ -145,7 +145,7 @@ class InterfaceVLANSerializer(serializers.ModelSerializer):
 
 class InterfaceSerializer(serializers.ModelSerializer):
     virtual_machine = NestedVirtualMachineSerializer()
-    mode = ChoiceFieldSerializer(choices=IFACE_MODE_CHOICES)
+    mode = ChoiceField(choices=IFACE_MODE_CHOICES)
     untagged_vlan = InterfaceVLANSerializer()
     tagged_vlans = InterfaceVLANSerializer(many=True)
 

@@ -8,7 +8,7 @@ from circuits.models import Provider, Circuit, CircuitTermination, CircuitType
 from dcim.api.serializers import NestedSiteSerializer, InterfaceSerializer
 from extras.api.customfields import CustomFieldModelSerializer
 from tenancy.api.serializers import NestedTenantSerializer
-from utilities.api import ChoiceFieldSerializer, TagField, ValidatedModelSerializer, WritableNestedSerializer
+from utilities.api import ChoiceField, TagField, ValidatedModelSerializer, WritableNestedSerializer
 
 
 #
@@ -59,7 +59,7 @@ class NestedCircuitTypeSerializer(WritableNestedSerializer):
 
 class CircuitSerializer(CustomFieldModelSerializer):
     provider = NestedProviderSerializer()
-    status = ChoiceFieldSerializer(choices=CIRCUIT_STATUS_CHOICES, required=False)
+    status = ChoiceField(choices=CIRCUIT_STATUS_CHOICES, required=False)
     type = NestedCircuitTypeSerializer()
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     tags = TagField(queryset=Tag.objects.all(), required=False, many=True)

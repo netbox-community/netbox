@@ -20,7 +20,7 @@ from ipam.models import IPAddress, VLAN
 from tenancy.api.serializers import NestedTenantSerializer
 from users.api.serializers import NestedUserSerializer
 from utilities.api import (
-    ChoiceFieldSerializer, SerializedPKRelatedField, TagField, TimeZoneField, ValidatedModelSerializer,
+    ChoiceField, SerializedPKRelatedField, TagField, TimeZoneField, ValidatedModelSerializer,
     WritableNestedSerializer,
 )
 from virtualization.models import Cluster
@@ -51,7 +51,7 @@ class RegionSerializer(serializers.ModelSerializer):
 #
 
 class SiteSerializer(CustomFieldModelSerializer):
-    status = ChoiceFieldSerializer(choices=SITE_STATUS_CHOICES, required=False)
+    status = ChoiceField(choices=SITE_STATUS_CHOICES, required=False)
     region = NestedRegionSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     time_zone = TimeZoneField(required=False)
@@ -123,8 +123,8 @@ class RackSerializer(CustomFieldModelSerializer):
     group = NestedRackGroupSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     role = NestedRackRoleSerializer(required=False, allow_null=True)
-    type = ChoiceFieldSerializer(choices=RACK_TYPE_CHOICES, required=False)
-    width = ChoiceFieldSerializer(choices=RACK_WIDTH_CHOICES, required=False)
+    type = ChoiceField(choices=RACK_TYPE_CHOICES, required=False)
+    width = ChoiceField(choices=RACK_WIDTH_CHOICES, required=False)
     tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
     class Meta:
@@ -222,8 +222,8 @@ class NestedManufacturerSerializer(WritableNestedSerializer):
 
 class DeviceTypeSerializer(CustomFieldModelSerializer):
     manufacturer = NestedManufacturerSerializer()
-    interface_ordering = ChoiceFieldSerializer(choices=IFACE_ORDERING_CHOICES, required=False)
-    subdevice_role = ChoiceFieldSerializer(choices=SUBDEVICE_ROLE_CHOICES, required=False)
+    interface_ordering = ChoiceField(choices=IFACE_ORDERING_CHOICES, required=False)
+    subdevice_role = ChoiceField(choices=SUBDEVICE_ROLE_CHOICES, required=False)
     instance_count = serializers.IntegerField(source='instances.count', read_only=True)
     tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
@@ -299,7 +299,7 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
 
 class InterfaceTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
-    form_factor = ChoiceFieldSerializer(choices=IFACE_FF_CHOICES, required=False)
+    form_factor = ChoiceField(choices=IFACE_FF_CHOICES, required=False)
 
     class Meta:
         model = InterfaceTemplate
@@ -396,8 +396,8 @@ class DeviceSerializer(CustomFieldModelSerializer):
     platform = NestedPlatformSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer()
     rack = NestedRackSerializer(required=False, allow_null=True)
-    face = ChoiceFieldSerializer(choices=RACK_FACE_CHOICES, required=False)
-    status = ChoiceFieldSerializer(choices=DEVICE_STATUS_CHOICES, required=False)
+    face = ChoiceField(choices=RACK_FACE_CHOICES, required=False)
+    status = ChoiceField(choices=DEVICE_STATUS_CHOICES, required=False)
     primary_ip = DeviceIPAddressSerializer(read_only=True)
     primary_ip4 = DeviceIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = DeviceIPAddressSerializer(required=False, allow_null=True)
@@ -571,12 +571,12 @@ class InterfaceVLANSerializer(WritableNestedSerializer):
 
 class InterfaceSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
-    form_factor = ChoiceFieldSerializer(choices=IFACE_FF_CHOICES, required=False)
+    form_factor = ChoiceField(choices=IFACE_FF_CHOICES, required=False)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
     is_connected = serializers.SerializerMethodField(read_only=True)
     interface_connection = serializers.SerializerMethodField(read_only=True)
     circuit_termination = InterfaceCircuitTerminationSerializer(read_only=True)
-    mode = ChoiceFieldSerializer(choices=IFACE_MODE_CHOICES, required=False)
+    mode = ChoiceField(choices=IFACE_MODE_CHOICES, required=False)
     untagged_vlan = InterfaceVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
         queryset=VLAN.objects.all(),
@@ -684,7 +684,7 @@ class InventoryItemSerializer(ValidatedModelSerializer):
 class InterfaceConnectionSerializer(ValidatedModelSerializer):
     interface_a = NestedInterfaceSerializer()
     interface_b = NestedInterfaceSerializer()
-    connection_status = ChoiceFieldSerializer(choices=CONNECTION_STATUS_CHOICES, required=False)
+    connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, required=False)
 
     class Meta:
         model = InterfaceConnection
@@ -704,7 +704,7 @@ class ContextualInterfaceConnectionSerializer(serializers.ModelSerializer):
     A read-only representation of an InterfaceConnection from the perspective of either of its two connected Interfaces.
     """
     interface = serializers.SerializerMethodField(read_only=True)
-    connection_status = ChoiceFieldSerializer(choices=CONNECTION_STATUS_CHOICES, read_only=True)
+    connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, read_only=True)
 
     class Meta:
         model = InterfaceConnection

@@ -63,7 +63,6 @@ class TagField(RelatedField):
     """
     Represent a writable list of Tags associated with an object (use with many=True).
     """
-
     def to_internal_value(self, data):
         obj = self.parent.parent.instance
         content_type = ContentType.objects.get_for_model(obj)
@@ -74,7 +73,7 @@ class TagField(RelatedField):
         return value.name
 
 
-class ChoiceFieldSerializer(Field):
+class ChoiceField(Field):
     """
     Represent a ChoiceField as {'value': <DB value>, 'label': <string>}.
     """
@@ -87,7 +86,7 @@ class ChoiceFieldSerializer(Field):
                     self._choices[k2] = v2
             else:
                 self._choices[k] = v
-        super(ChoiceFieldSerializer, self).__init__(**kwargs)
+        super(ChoiceField, self).__init__(**kwargs)
 
     def to_representation(self, obj):
         return {'value': obj, 'label': self._choices[obj]}
@@ -96,7 +95,7 @@ class ChoiceFieldSerializer(Field):
         return data
 
 
-class ContentTypeFieldSerializer(Field):
+class ContentTypeField(Field):
     """
     Represent a ContentType as '<app_label>.<model>'
     """

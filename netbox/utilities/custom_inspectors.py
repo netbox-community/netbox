@@ -3,7 +3,7 @@ from drf_yasg.inspectors import FieldInspector, NotHandled, PaginatorInspector, 
 from rest_framework.fields import ChoiceField
 
 from extras.api.customfields import CustomFieldsSerializer
-from utilities.api import ChoiceFieldSerializer
+from utilities.api import ChoiceField
 
 
 class CustomChoiceFieldInspector(FieldInspector):
@@ -12,7 +12,7 @@ class CustomChoiceFieldInspector(FieldInspector):
         # https://drf-yasg.readthedocs.io/en/stable/_modules/drf_yasg/inspectors/base.html#FieldInspector._get_partial_types
         SwaggerType, _ = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
 
-        if isinstance(field, ChoiceFieldSerializer):
+        if isinstance(field, ChoiceField):
             value_schema = openapi.Schema(type=openapi.TYPE_INTEGER)
 
             choices = list(field._choices.keys())

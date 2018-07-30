@@ -16,7 +16,7 @@ from extras.constants import *
 from tenancy.api.serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from users.api.serializers import NestedUserSerializer
 from utilities.api import (
-    ChoiceFieldSerializer, ContentTypeFieldSerializer, get_serializer_for_model, ValidatedModelSerializer,
+    ChoiceField, ContentTypeField, get_serializer_for_model, ValidatedModelSerializer,
 )
 
 
@@ -25,7 +25,7 @@ from utilities.api import (
 #
 
 class GraphSerializer(ValidatedModelSerializer):
-    type = ChoiceFieldSerializer(choices=GRAPH_TYPE_CHOICES)
+    type = ChoiceField(choices=GRAPH_TYPE_CHOICES)
 
     class Meta:
         model = Graph
@@ -35,7 +35,7 @@ class GraphSerializer(ValidatedModelSerializer):
 class RenderedGraphSerializer(serializers.ModelSerializer):
     embed_url = serializers.SerializerMethodField()
     embed_link = serializers.SerializerMethodField()
-    type = ChoiceFieldSerializer(choices=GRAPH_TYPE_CHOICES)
+    type = ChoiceField(choices=GRAPH_TYPE_CHOICES)
 
     class Meta:
         model = Graph
@@ -88,7 +88,7 @@ class TagSerializer(ValidatedModelSerializer):
 #
 
 class ImageAttachmentSerializer(ValidatedModelSerializer):
-    content_type = ContentTypeFieldSerializer()
+    content_type = ContentTypeField()
     parent = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -188,7 +188,7 @@ class ReportDetailSerializer(ReportSerializer):
 
 class ObjectChangeSerializer(serializers.ModelSerializer):
     user = NestedUserSerializer(read_only=True)
-    content_type = ContentTypeFieldSerializer(read_only=True)
+    content_type = ContentTypeField(read_only=True)
     changed_object = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -217,7 +217,7 @@ class ObjectChangeSerializer(serializers.ModelSerializer):
 
 class UserActionSerializer(serializers.ModelSerializer):
     user = NestedUserSerializer()
-    action = ChoiceFieldSerializer(choices=ACTION_CHOICES)
+    action = ChoiceField(choices=ACTION_CHOICES)
 
     class Meta:
         model = UserAction

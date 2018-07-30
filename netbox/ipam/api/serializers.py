@@ -16,7 +16,7 @@ from ipam.constants import (
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from tenancy.api.serializers import NestedTenantSerializer
 from utilities.api import (
-    ChoiceFieldSerializer, SerializedPKRelatedField, TagField, ValidatedModelSerializer, WritableNestedSerializer,
+    ChoiceField, SerializedPKRelatedField, TagField, ValidatedModelSerializer, WritableNestedSerializer,
 )
 from virtualization.api.serializers import NestedVirtualMachineSerializer
 
@@ -151,7 +151,7 @@ class VLANSerializer(CustomFieldModelSerializer):
     site = NestedSiteSerializer(required=False, allow_null=True)
     group = NestedVLANGroupSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    status = ChoiceFieldSerializer(choices=VLAN_STATUS_CHOICES, required=False)
+    status = ChoiceField(choices=VLAN_STATUS_CHOICES, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
     tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
@@ -195,7 +195,7 @@ class PrefixSerializer(CustomFieldModelSerializer):
     vrf = NestedVRFSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     vlan = NestedVLANSerializer(required=False, allow_null=True)
-    status = ChoiceFieldSerializer(choices=PREFIX_STATUS_CHOICES, required=False)
+    status = ChoiceField(choices=PREFIX_STATUS_CHOICES, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
     tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
@@ -257,8 +257,8 @@ class IPAddressInterfaceSerializer(serializers.ModelSerializer):
 class IPAddressSerializer(CustomFieldModelSerializer):
     vrf = NestedVRFSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    status = ChoiceFieldSerializer(choices=IPADDRESS_STATUS_CHOICES, required=False)
-    role = ChoiceFieldSerializer(choices=IPADDRESS_ROLE_CHOICES, required=False)
+    status = ChoiceField(choices=IPADDRESS_STATUS_CHOICES, required=False)
+    role = ChoiceField(choices=IPADDRESS_ROLE_CHOICES, required=False)
     interface = IPAddressInterfaceSerializer(required=False, allow_null=True)
     tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
 
@@ -304,7 +304,7 @@ class AvailableIPSerializer(serializers.Serializer):
 class ServiceSerializer(CustomFieldModelSerializer):
     device = NestedDeviceSerializer(required=False, allow_null=True)
     virtual_machine = NestedVirtualMachineSerializer(required=False, allow_null=True)
-    protocol = ChoiceFieldSerializer(choices=IP_PROTOCOL_CHOICES)
+    protocol = ChoiceField(choices=IP_PROTOCOL_CHOICES)
     ipaddresses = SerializedPKRelatedField(
         queryset=IPAddress.objects.all(),
         serializer=NestedIPAddressSerializer,
