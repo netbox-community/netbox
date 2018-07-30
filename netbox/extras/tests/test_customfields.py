@@ -177,7 +177,7 @@ class CustomFieldAPITest(HttpStatusMixin, APITestCase):
             (self.cf_text, 'Test string'),
             (self.cf_integer, 1234),
             (self.cf_boolean, True),
-            (self.cf_date, "2016-06-23"),
+            (self.cf_date, date(2016, 6, 23)),
             (self.cf_url, 'http://example.com/'),
             (self.cf_select, self.cf_select_choice1.pk),
         ]

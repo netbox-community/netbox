@@ -13,9 +13,9 @@ def enqueue_webhooks(instance, action):
     Find Webhook(s) assigned to this instance + action and enqueue them
     to be processed
     """
-    type_create = True if action == OBJECTCHANGE_ACTION_CREATE else False
-    type_update = True if action == OBJECTCHANGE_ACTION_UPDATE else False
-    type_delete = True if action == OBJECTCHANGE_ACTION_DELETE else False
+    type_create = action == OBJECTCHANGE_ACTION_CREATE
+    type_update = action == OBJECTCHANGE_ACTION_UPDATE
+    type_delete = action == OBJECTCHANGE_ACTION_DELETE
 
     # Find assigned webhooks
     obj_type = ContentType.objects.get_for_model(instance.__class__)
@@ -37,7 +37,7 @@ def enqueue_webhooks(instance, action):
         }
         serializer = serializer_class(instance, context=serializer_context)
 
-        # We must only use django_rq if the Webhooks feature is enabled.
+        # We must only import django_rq if the Webhooks feature is enabled.
         # Only if we have gotten to ths point, is the feature enabled
         from django_rq import get_queue
         webhook_queue = get_queue('default')
