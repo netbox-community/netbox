@@ -22,7 +22,9 @@ class BaseTable(tables.Table):
 
 
 class ToggleColumn(tables.CheckBoxColumn):
-
+    """
+    Extend CheckBoxColumn to add a "toggle all" checkbox in the column header.
+    """
     def __init__(self, *args, **kwargs):
         default = kwargs.pop('default', '')
         visible = kwargs.pop('visible', False)
