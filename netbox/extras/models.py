@@ -813,7 +813,6 @@ class ObjectChange(models.Model):
         editable=False
     )
 
-    serializer = 'extras.api.serializers.ObjectChangeSerializer'
     csv_headers = [
         'time', 'user', 'user_name', 'request_id', 'action', 'changed_object_type', 'changed_object_id',
         'related_object_type', 'related_object_id', 'object_repr', 'object_data',

@@ -23,7 +23,6 @@ class TenantGroup(ChangeLoggedModel):
         unique=True
     )
 
-    serializer = 'tenancy.api.serializers.TenantGroupSerializer'
     csv_headers = ['name', 'slug']
 
     class Meta:
@@ -78,7 +77,6 @@ class Tenant(ChangeLoggedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
-    serializer = 'tenancy.api.serializers.TenantSerializer'
     csv_headers = ['name', 'slug', 'group', 'description', 'comments']
 
     class Meta:

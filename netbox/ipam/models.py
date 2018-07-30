@@ -59,7 +59,6 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
-    serializer = 'ipam.api.serializers.VRFSerializer'
     csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
 
     class Meta:
@@ -108,7 +107,6 @@ class RIR(ChangeLoggedModel):
         help_text='IP space managed by this RIR is considered private'
     )
 
-    serializer = 'ipam.api.serializers.RIRSerializer'
     csv_headers = ['name', 'slug', 'is_private']
 
     class Meta:
@@ -162,7 +160,6 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
-    serializer = 'ipam.api.serializers.AggregateSerializer'
     csv_headers = ['prefix', 'rir', 'date_added', 'description']
 
     class Meta:
@@ -243,7 +240,6 @@ class Role(ChangeLoggedModel):
         default=1000
     )
 
-    serializer = 'ipam.api.serializers.RoleSerializer'
     csv_headers = ['name', 'slug', 'weight']
 
     class Meta:
@@ -336,7 +332,6 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     objects = PrefixQuerySet.as_manager()
     tags = TaggableManager()
 
-    serializer = 'ipam.api.serializers.PrefixSerializer'
     csv_headers = [
         'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan_vid', 'status', 'role', 'is_pool', 'description',
     ]
@@ -577,7 +572,6 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
     objects = IPAddressManager()
     tags = TaggableManager()
 
-    serializer = 'ipam.api.serializers.IPAddressSerializer'
     csv_headers = [
         'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface_name', 'is_primary',
         'description',
@@ -677,7 +671,6 @@ class VLANGroup(ChangeLoggedModel):
         null=True
     )
 
-    serializer = 'ipam.api.serializers.VLANGroupSerializer'
     csv_headers = ['name', 'slug', 'site']
 
     class Meta:
@@ -775,7 +768,6 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
-    serializer = 'ipam.api.serializers.VLANSerializer'
     csv_headers = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
 
     class Meta:
@@ -879,7 +871,6 @@ class Service(ChangeLoggedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
-    serializer = 'ipam.api.serializers.ServiceSerializer'
     csv_headers = ['device', 'virtual_machine', 'name', 'protocol', 'description']
 
     class Meta:

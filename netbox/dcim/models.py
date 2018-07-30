@@ -79,7 +79,6 @@ class Region(MPTTModel, ChangeLoggedModel):
         unique=True
     )
 
-    serializer = 'dcim.api.serializers.RegionSerializer'
     csv_headers = ['name', 'slug', 'parent']
 
     class MPTTMeta:
@@ -201,7 +200,6 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     objects = SiteManager()
     tags = TaggableManager()
 
-    serializer = 'dcim.api.serializers.SiteSerializer'
     csv_headers = [
         'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
         'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email', 'comments',
@@ -287,7 +285,6 @@ class RackGroup(ChangeLoggedModel):
         related_name='rack_groups'
     )
 
-    serializer = 'dcim.api.serializers.RackGroupSerializer'
     csv_headers = ['site', 'name', 'slug']
 
     class Meta:
@@ -325,7 +322,6 @@ class RackRole(ChangeLoggedModel):
     )
     color = ColorField()
 
-    serializer = 'dcim.api.serializers.RackRoleSerializer'
     csv_headers = ['name', 'slug', 'color']
 
     class Meta:
@@ -432,7 +428,6 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     objects = RackManager()
     tags = TaggableManager()
 
-    serializer = 'dcim.api.serializers.RackSerializer'
     csv_headers = [
         'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'serial', 'width', 'u_height',
         'desc_units', 'comments',
@@ -636,8 +631,6 @@ class RackReservation(ChangeLoggedModel):
         max_length=100
     )
 
-    serializer = 'dcim.api.serializers.RackReservationSerializer'
-
     class Meta:
         ordering = ['created']
 
@@ -697,7 +690,6 @@ class Manufacturer(ChangeLoggedModel):
         unique=True
     )
 
-    serializer = 'dcim.api.serializers.ManufacturerSerializer'
     csv_headers = ['name', 'slug']
 
     class Meta:
@@ -792,7 +784,6 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
-    serializer = 'dcim.api.serializers.DeviceTypeSerializer'
     csv_headers = [
         'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
         'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering', 'comments',
@@ -1076,7 +1067,6 @@ class DeviceRole(ChangeLoggedModel):
         help_text='Virtual machines may be assigned to this role'
     )
 
-    serializer = 'dcim.api.serializers.DeviceRoleSerializer'
     csv_headers = ['name', 'slug', 'color', 'vm_role']
 
     class Meta:
@@ -1135,7 +1125,6 @@ class Platform(ChangeLoggedModel):
         verbose_name='Legacy RPC client'
     )
 
-    serializer = 'dcim.api.serializers.PlatformSerializer'
     csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args']
 
     class Meta:
@@ -1302,7 +1291,6 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     objects = DeviceManager()
     tags = TaggableManager()
 
-    serializer = 'dcim.api.serializers.DeviceSerializer'
     csv_headers = [
         'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
         'site', 'rack_group', 'rack_name', 'position', 'face', 'comments',
@@ -1858,8 +1846,6 @@ class Interface(ComponentModel):
     objects = InterfaceQuerySet.as_manager()
     tags = TaggableManager()
 
-    serializer = 'dcim.api.serializers.InterfaceSerializer'
-
     class Meta:
         ordering = ['device', 'name']
         unique_together = ['device', 'name']
@@ -2263,7 +2249,6 @@ class VirtualChassis(ChangeLoggedModel):
 
     tags = TaggableManager()
 
-    serializer = 'dcim.api.serializers.VirtualChassisSerializer'
     csv_headers = ['master', 'domain']
 
     class Meta:

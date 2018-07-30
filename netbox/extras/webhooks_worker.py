@@ -4,7 +4,7 @@ import hmac
 import requests
 from django_rq import job
 
-from extras.constants import WEBHOOK_CT_JSON, WEBHOOK_CT_X_WWW_FORM_ENCODED
+from extras.constants import WEBHOOK_CT_JSON, WEBHOOK_CT_X_WWW_FORM_ENCODED, OBJECTCHANGE_ACTION_CHOICES
 
 
 @job('default')
@@ -13,7 +13,7 @@ def process_webhook(webhook, data, model_class, event, timestamp):
     Make a POST request to the defined Webhook
     """
     payload = {
-        'event': event,
+        'event': dict(OBJECTCHANGE_ACTION_CHOICES)[event],
         'timestamp': timestamp,
         'model': model_class.__name__,
         'data': data

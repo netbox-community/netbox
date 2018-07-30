@@ -175,7 +175,7 @@ MIDDLEWARE = (
     'utilities.middleware.ExceptionHandlingMiddleware',
     'utilities.middleware.LoginRequiredMiddleware',
     'utilities.middleware.APIVersionMiddleware',
-    'extras.middleware.ChangeLoggingMiddleware',
+    'extras.middleware.ObjectChangeMiddleware',
 )
 
 ROOT_URLCONF = 'netbox.urls'

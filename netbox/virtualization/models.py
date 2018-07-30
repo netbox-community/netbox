@@ -31,7 +31,6 @@ class ClusterType(ChangeLoggedModel):
         unique=True
     )
 
-    serializer = 'virtualization.api.serializers.ClusterTypeSerializer'
     csv_headers = ['name', 'slug']
 
     class Meta:
@@ -67,7 +66,6 @@ class ClusterGroup(ChangeLoggedModel):
         unique=True
     )
 
-    serializer = 'virtualization.api.serializers.ClusterGroupSerializer'
     csv_headers = ['name', 'slug']
 
     class Meta:
@@ -129,7 +127,6 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
 
     tags = TaggableManager()
 
-    serializer = 'virtualization.api.serializers.ClusterSerializer'
     csv_headers = ['name', 'type', 'group', 'site', 'comments']
 
     class Meta:
@@ -250,7 +247,6 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 
     tags = TaggableManager()
 
-    serializer = 'virtualization.api.serializers.VirtualMachineSerializer'
     csv_headers = [
         'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
     ]

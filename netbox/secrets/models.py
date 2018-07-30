@@ -285,7 +285,6 @@ class SecretRole(ChangeLoggedModel):
         blank=True
     )
 
-    serializer = 'ipam.api.secrets.SecretSerializer'
     csv_headers = ['name', 'slug']
 
     class Meta:
@@ -354,7 +353,6 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager()
 
     plaintext = None
-    serializer = 'ipam.api.secrets.SecretSerializer'
     csv_headers = ['device', 'role', 'name', 'plaintext']
 
     class Meta:
