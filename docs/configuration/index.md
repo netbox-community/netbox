@@ -4,8 +4,8 @@ NetBox's local configuration is stored in `netbox/netbox/configuration.py`. An e
 
 While NetBox has many configuration settings, only a few of them must be defined at the time of installation.
 
-* [Required settings](configuration/required-settings.md)
-* [Optional settings](configuration/optional-settings.md)
+* [Required settings](required-settings.md)
+* [Optional settings](optional-settings.md)
 
 ## Changing the Configuration
 

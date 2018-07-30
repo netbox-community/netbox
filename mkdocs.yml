@@ -7,7 +7,7 @@ pages:
         - Installing NetBox: 'installation/index.md'
         - 1. PostgreSQL: 'installation/1-postgresql.md'
         - 2. NetBox: 'installation/2-netbox.md'
-        - 3. Web Server: 'installation/3-web-server.md'
+        - 3. HTTP Daemon: 'installation/3-http-daemon.md'
         - 4. LDAP (Optional): 'installation/4-ldap.md'
         - Upgrading NetBox: 'installation/upgrading.md'
         - Migrating to Python3: 'installation/migrating-to-python3.md'
