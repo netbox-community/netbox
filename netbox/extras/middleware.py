@@ -8,11 +8,11 @@ import uuid
 from django.conf import settings
 from django.db.models.signals import post_delete, post_save
 from django.utils import timezone
+from django.utils.functional import curry
 
 from extras.webhooks import enqueue_webhooks
 from .constants import (
     OBJECTCHANGE_ACTION_CREATE, OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE,
-    WEBHOOK_MODELS
 )
 from .models import ObjectChange
 
@@ -20,58 +20,69 @@ from .models import ObjectChange
 _thread_locals = threading.local()
 
 
-def mark_object_changed(instance, **kwargs):
-    """
-    Mark an object as having been created, saved, or updated. At the end of the request, this change will be recorded
-    and/or associated webhooks fired. We have to wait until the *end* of the request to the serialize the object,
-    because related fields like tags and custom fields have not yet been updated when the post_save signal is emitted.
-    """
+def cache_changed_object(instance, **kwargs):
 
-    # Determine what action is being performed. The post_save signal sends a `created` boolean, whereas post_delete
-    # does not.
-    if 'created' in kwargs:
-        action = OBJECTCHANGE_ACTION_CREATE if kwargs['created'] else OBJECTCHANGE_ACTION_UPDATE
-    else:
-        action = OBJECTCHANGE_ACTION_DELETE
+    action = OBJECTCHANGE_ACTION_CREATE if kwargs['created'] else OBJECTCHANGE_ACTION_UPDATE
 
-    _thread_locals.changed_objects.append((instance, action))
+    # Cache the object for further processing was the response has completed.
+    _thread_locals.changed_objects.append(
+        (instance, action)
+    )
+
+
+def _record_object_deleted(request, instance, **kwargs):
+
+    # Record that the object was deleted.
+    if hasattr(instance, 'log_change'):
+        instance.log_change(request.user, request.id, OBJECTCHANGE_ACTION_DELETE)
+
+    enqueue_webhooks(instance, OBJECTCHANGE_ACTION_DELETE)
 
 
 class ObjectChangeMiddleware(object):
     """
-    This middleware intercepts all requests to connects object signals to the Django runtime. The signals collect all
-    changed objects into a local thread by way of the `mark_object_changed()` receiver. At the end of the request,
-    the middleware iterates over the objects to process change events like Change Logging and Webhooks.
-    """
+    This middleware performs two functions in response to an object being created, updated, or deleted:
 
+        1. Create an ObjectChange to reflect the modification to the object in the changelog.
+        2. Enqueue any relevant webhooks.
+
+    The post_save and pre_delete signals are employed to catch object modifications, however changes are recorded a bit
+    differently for each. Objects being saved are cached into thread-local storage for action *after* the response has
+    completed. This ensures that serialization of the object is performed only after any related objects (e.g. tags)
+    have been created. Conversely, deletions are acted upon immediately, so that the serialized representation of the
+    object is recorded before it (and any related objects) are actually deleted from the database.
+    """
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
 
-        # Initialize the list of changed objects
+        # Initialize an empty list to cache objects being saved.
         _thread_locals.changed_objects = []
 
         # Assign a random unique ID to the request. This will be used to associate multiple object changes made during
         # the same request.
         request.id = uuid.uuid4()
 
-        # Connect mark_object_changed to the post_save and post_delete receivers
-        post_save.connect(mark_object_changed, dispatch_uid='record_object_saved')
-        post_delete.connect(mark_object_changed, dispatch_uid='record_object_deleted')
+        # Signals don't include the request context, so we're currying it into the pre_delete function ahead of time.
+        record_object_deleted = curry(_record_object_deleted, request)
+
+        # Connect our receivers to the post_save and pre_delete signals.
+        post_save.connect(cache_changed_object, dispatch_uid='record_object_saved')
+        post_delete.connect(record_object_deleted, dispatch_uid='record_object_deleted')
 
         # Process the request
         response = self.get_response(request)
 
-        # Perform change logging and fire Webhook signals
+        # Create records for any cached objects that were created/updated.
         for obj, action in _thread_locals.changed_objects:
-            # Log object changes
-            if obj.pk and hasattr(obj, 'log_change'):
+
+            # Record the change
+            if hasattr(obj, 'log_change'):
                 obj.log_change(request.user, request.id, action)
 
-            # Enqueue Webhooks if they are enabled
-            if settings.WEBHOOKS_ENABLED and obj.__class__.__name__.lower() in WEBHOOK_MODELS:
-                enqueue_webhooks(obj, action)
+            # Enqueue webhooks
+            enqueue_webhooks(obj, action)
 
         # Housekeeping: 1% chance of clearing out expired ObjectChanges
         if _thread_locals.changed_objects and settings.CHANGELOG_RETENTION and random.randint(1, 100) == 1:
