@@ -9,17 +9,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import ManyToManyField
 from django.http import Http404
-from rest_framework import mixins
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import BasePermission
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.response import Response
 from rest_framework.serializers import Field, ModelSerializer, RelatedField, ValidationError
-from rest_framework.viewsets import GenericViewSet, ViewSet
+from rest_framework.viewsets import ModelViewSet as _ModelViewSet, ViewSet
 
 from .utils import dynamic_import
-
-WRITE_OPERATIONS = ['create', 'update', 'partial_update', 'delete']
 
 
 class ServiceUnavailable(APIException):
@@ -188,19 +185,16 @@ class WritableNestedSerializer(ModelSerializer):
 # Viewsets
 #
 
-class ModelViewSet(mixins.CreateModelMixin,
-                   mixins.RetrieveModelMixin,
-                   mixins.UpdateModelMixin,
-                   mixins.DestroyModelMixin,
-                   mixins.ListModelMixin,
-                   GenericViewSet):
+class ModelViewSet(_ModelViewSet):
     """
     Accept either a single object or a list of objects to create.
     """
     def get_serializer(self, *args, **kwargs):
+
         # If a list of objects has been provided, initialize the serializer with many=True
         if isinstance(kwargs.get('data', {}), list):
             kwargs['many'] = True
+
         return super(ModelViewSet, self).get_serializer(*args, **kwargs)
 
 
