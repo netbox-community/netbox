@@ -7,9 +7,10 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from taggit.models import Tag
 
-from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
+from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Region, Site
 from extras.constants import GRAPH_TYPE_SITE
 from extras.models import ConfigContext, Graph, ExportTemplate
+from tenancy.models import Tenant, TenantGroup
 from users.models import Token
 from utilities.testing import HttpStatusMixin
 
@@ -363,9 +364,28 @@ class ConfigContextTest(HttpStatusMixin, APITestCase):
 
     def test_create_configcontext(self):
 
+        region1 = Region.objects.create(name='Test Region 1', slug='test-region-1')
+        region2 = Region.objects.create(name='Test Region 2', slug='test-region-2')
+        site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
+        role1 = DeviceRole.objects.create(name='Test Role 1', slug='test-role-1')
+        role2 = DeviceRole.objects.create(name='Test Role 2', slug='test-role-2')
+        platform1 = Platform.objects.create(name='Test Platform 1', slug='test-platform-1')
+        platform2 = Platform.objects.create(name='Test Platform 2', slug='test-platform-2')
+        tenantgroup1 = TenantGroup.objects.create(name='Test Tenant Group 1', slug='test-tenant-group-1')
+        tenantgroup2 = TenantGroup.objects.create(name='Test Tenant Group 2', slug='test-tenant-group-2')
+        tenant1 = Tenant.objects.create(name='Test Tenant 1', slug='test-tenant-1')
+        tenant2 = Tenant.objects.create(name='Test Tenant 2', slug='test-tenant-2')
+
         data = {
             'name': 'Test Config Context 4',
             'weight': 1000,
+            'regions': [region1.pk, region2.pk],
+            'sites': [site1.pk, site2.pk],
+            'roles': [role1.pk, role2.pk],
+            'platforms': [platform1.pk, platform2.pk],
+            'tenant_groups': [tenantgroup1.pk, tenantgroup2.pk],
+            'tenants': [tenant1.pk, tenant2.pk],
             'data': {'foo': 'XXX'}
         }
 
@@ -376,6 +396,18 @@ class ConfigContextTest(HttpStatusMixin, APITestCase):
         self.assertEqual(ConfigContext.objects.count(), 4)
         configcontext4 = ConfigContext.objects.get(pk=response.data['id'])
         self.assertEqual(configcontext4.name, data['name'])
+        self.assertEqual(region1.pk, data['regions'][0])
+        self.assertEqual(region2.pk, data['regions'][1])
+        self.assertEqual(site1.pk, data['sites'][0])
+        self.assertEqual(site2.pk, data['sites'][1])
+        self.assertEqual(role1.pk, data['roles'][0])
+        self.assertEqual(role2.pk, data['roles'][1])
+        self.assertEqual(platform1.pk, data['platforms'][0])
+        self.assertEqual(platform2.pk, data['platforms'][1])
+        self.assertEqual(tenantgroup1.pk, data['tenant_groups'][0])
+        self.assertEqual(tenantgroup2.pk, data['tenant_groups'][1])
+        self.assertEqual(tenant1.pk, data['tenants'][0])
+        self.assertEqual(tenant2.pk, data['tenants'][1])
         self.assertEqual(configcontext4.data, data['data'])
 
     def test_create_configcontext_bulk(self):

@@ -8,15 +8,16 @@ from dcim.api.serializers import (
     NestedDeviceSerializer, NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedRackSerializer,
     NestedRegionSerializer, NestedSiteSerializer,
 )
-from dcim.models import Device, Rack, Site
+from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
 from extras.models import (
     ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap, UserAction,
 )
 from extras.constants import *
 from tenancy.api.serializers import NestedTenantSerializer, NestedTenantGroupSerializer
+from tenancy.models import Tenant, TenantGroup
 from users.api.serializers import NestedUserSerializer
 from utilities.api import (
-    ChoiceField, ContentTypeField, get_serializer_for_model, ValidatedModelSerializer,
+    ChoiceField, ContentTypeField, get_serializer_for_model, SerializedPKRelatedField, ValidatedModelSerializer,
 )
 
 
@@ -132,12 +133,42 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 #
 
 class ConfigContextSerializer(ValidatedModelSerializer):
-    regions = NestedRegionSerializer(required=False, many=True)
-    sites = NestedSiteSerializer(required=False, many=True)
-    roles = NestedDeviceRoleSerializer(required=False, many=True)
-    platforms = NestedPlatformSerializer(required=False, many=True)
-    tenant_groups = NestedTenantGroupSerializer(required=False, many=True)
-    tenants = NestedTenantSerializer(required=False, many=True)
+    regions = SerializedPKRelatedField(
+        queryset=Region.objects.all(),
+        serializer=NestedRegionSerializer,
+        required=False,
+        many=True
+    )
+    sites = SerializedPKRelatedField(
+        queryset=Site.objects.all(),
+        serializer=NestedSiteSerializer,
+        required=False,
+        many=True
+    )
+    roles = SerializedPKRelatedField(
+        queryset=DeviceRole.objects.all(),
+        serializer=NestedDeviceRoleSerializer,
+        required=False,
+        many=True
+    )
+    platforms = SerializedPKRelatedField(
+        queryset=Platform.objects.all(),
+        serializer=NestedPlatformSerializer,
+        required=False,
+        many=True
+    )
+    tenant_groups = SerializedPKRelatedField(
+        queryset=TenantGroup.objects.all(),
+        serializer=NestedTenantGroupSerializer,
+        required=False,
+        many=True
+    )
+    tenants = SerializedPKRelatedField(
+        queryset=Tenant.objects.all(),
+        serializer=NestedTenantSerializer,
+        required=False,
+        many=True
+    )
 
     class Meta:
         model = ConfigContext
