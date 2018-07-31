@@ -284,6 +284,7 @@ class NestedDeviceTypeSerializer(serializers.ModelSerializer):
 
 
 class WritableDeviceTypeSerializer(CustomFieldModelSerializer):
+    subdevice_role = ChoiceFieldSerializer(choices=SUBDEVICE_ROLE_CHOICES, allow_null=True)
 
     class Meta:
         model = DeviceType
