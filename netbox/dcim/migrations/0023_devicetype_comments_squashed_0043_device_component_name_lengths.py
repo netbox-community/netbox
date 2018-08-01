@@ -28,6 +28,7 @@ def rpc_client_to_napalm_driver(apps, schema_editor):
     Platform.objects.filter(rpc_client='juniper-junos').update(napalm_driver='junos')
     Platform.objects.filter(rpc_client='cisco-ios').update(napalm_driver='ios')
 
+
 class Migration(migrations.Migration):
 
     replaces = [('dcim', '0023_devicetype_comments'), ('dcim', '0024_site_add_contact_fields'), ('dcim', '0025_devicetype_add_interface_ordering'), ('dcim', '0026_add_rack_reservations'), ('dcim', '0027_device_add_site'), ('dcim', '0028_device_copy_rack_to_site'), ('dcim', '0029_allow_rackless_devices'), ('dcim', '0030_interface_add_lag'), ('dcim', '0031_regions'), ('dcim', '0032_device_increase_name_length'), ('dcim', '0033_rackreservation_rack_editable'), ('dcim', '0034_rename_module_to_inventoryitem'), ('dcim', '0035_device_expand_status_choices'), ('dcim', '0036_add_ff_juniper_vcp'), ('dcim', '0037_unicode_literals'), ('dcim', '0038_wireless_interfaces'), ('dcim', '0039_interface_add_enabled_mtu'), ('dcim', '0040_inventoryitem_add_asset_tag_description'), ('dcim', '0041_napalm_integration'), ('dcim', '0042_interface_ff_10ge_cx4'), ('dcim', '0043_device_component_name_lengths')]
