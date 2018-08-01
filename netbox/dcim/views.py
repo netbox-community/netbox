@@ -35,6 +35,7 @@ from .models import (
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
     RackReservation, RackRole, Region, Site, VirtualChassis,
 )
+from re import sub
 
 
 class BulkRenameView(View):
@@ -59,7 +60,7 @@ class BulkRenameView(View):
 
             if form.is_valid():
                 for obj in selected_objects:
-                    obj.new_name = obj.name.replace(form.cleaned_data['find'], form.cleaned_data['replace'])
+                    obj.new_name = sub(form.cleaned_data['find'], form.cleaned_data['replace'], obj.name)
 
                 if '_apply' in request.POST:
                     for obj in selected_objects:
