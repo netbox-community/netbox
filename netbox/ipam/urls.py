@@ -72,6 +72,7 @@ urlpatterns = [
     url(r'^vlan-groups/import/$', views.VLANGroupBulkImportView.as_view(), name='vlangroup_import'),
     url(r'^vlan-groups/delete/$', views.VLANGroupBulkDeleteView.as_view(), name='vlangroup_bulk_delete'),
     url(r'^vlan-groups/(?P<pk>\d+)/edit/$', views.VLANGroupEditView.as_view(), name='vlangroup_edit'),
+    url(r'^vlan-groups/(?P<pk>\d+)/vlans/$', views.VLANGroupVLANsView.as_view(), name='vlangroup_vlans'),
 
     # VLANs
     url(r'^vlans/$', views.VLANListView.as_view(), name='vlan_list'),

@@ -110,6 +110,16 @@ STATUS_LABEL = """
 {% endif %}
 """
 
+VLAN_LINK = """
+{% if record.pk %}
+    <a href="{{ record.get_absolute_url }}">{{ record.vid }}</a>
+{% elif perms.ipam.add_vlan %}
+    <a href="{% url 'ipam:vlan_add' %}?vid={{ record.vid }}&group={{ vlan_group.pk }}{% if vlan_group.site %}&site={{ vlan_group.site.pk }}{% endif %}" class="btn btn-xs btn-success">{{ record.available }} VLAN{{ record.available|pluralize }} available</a>
+{% else %}
+    {{ record.available }} VLAN{{ record.available|pluralize }} available
+{% endif %}
+"""
+
 VLAN_PREFIXES = """
 {% for prefix in record.prefixes.all %}
     <a href="{% url 'ipam:prefix' pk=prefix.pk %}">{{ prefix }}</a>{% if not forloop.last %}<br />{% endif %}
@@ -375,9 +385,9 @@ class VLANGroupTable(BaseTable):
 
 class VLANTable(BaseTable):
     pk = ToggleColumn()
-    vid = tables.LinkColumn('ipam:vlan', args=[Accessor('pk')], verbose_name='ID')
+    vid = tables.TemplateColumn(VLAN_LINK, verbose_name='ID')
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
-    group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
+    group = tables.LinkColumn('ipam:vlangroup_vlans', args=[Accessor('group.pk')], verbose_name='Group')
     tenant = tables.TemplateColumn(template_code=COL_TENANT)
     status = tables.TemplateColumn(STATUS_LABEL)
     role = tables.TemplateColumn(VLAN_ROLE_LINK)
@@ -385,6 +395,9 @@ class VLANTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = VLAN
         fields = ('pk', 'vid', 'site', 'group', 'name', 'tenant', 'status', 'role', 'description')
+        row_attrs = {
+            'class': lambda record: 'success' if not isinstance(record, VLAN) else '',
+        }
 
 
 class VLANDetailTable(VLANTable):

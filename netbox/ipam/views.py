@@ -84,6 +84,34 @@ def add_available_ipaddresses(prefix, ipaddress_list, is_pool=False):
     return output
 
 
+def add_available_vlans(vlan_group, vlans):
+    """
+    Create fake records for all gaps between used VLANs
+    """
+    MIN_VLAN = 1
+    MAX_VLAN = 4094
+
+    if not vlans:
+        return [{'vid': MIN_VLAN, 'available': MAX_VLAN - MIN_VLAN + 1}]
+
+    prev_vid = MAX_VLAN
+    new_vlans = []
+    for vlan in vlans:
+        if vlan.vid - prev_vid > 1:
+            new_vlans.append({'vid': prev_vid + 1, 'available': vlan.vid - prev_vid - 1})
+        prev_vid = vlan.vid
+
+    if vlans[0].vid > MIN_VLAN:
+        new_vlans.append({'vid': MIN_VLAN, 'available': vlans[0].vid - MIN_VLAN})
+    if prev_vid < MAX_VLAN:
+        new_vlans.append({'vid': prev_vid + 1, 'available': MAX_VLAN - prev_vid})
+
+    vlans = list(vlans) + new_vlans
+    vlans.sort(key=lambda v: v.vid if type(v) == VLAN else v['vid'])
+
+    return vlans
+
+
 #
 # VRFs
 #
@@ -812,6 +840,41 @@ class VLANGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     filter = filters.VLANGroupFilter
     table = tables.VLANGroupTable
     default_return_url = 'ipam:vlangroup_list'
+
+
+class VLANGroupVLANsView(View):
+    def get(self, request, pk):
+
+        vlan_group = get_object_or_404(VLANGroup.objects.all(), pk=pk)
+
+        vlans = VLAN.objects.filter(group_id=pk)
+        vlans = add_available_vlans(vlan_group, vlans)
+
+        vlan_table = tables.VLANDetailTable(vlans)
+        if request.user.has_perm('ipam.change_vlan') or request.user.has_perm('ipam.delete_vlan'):
+            vlan_table.columns.show('pk')
+        vlan_table.columns.hide('site')
+        vlan_table.columns.hide('group')
+
+        paginate = {
+            'klass': EnhancedPaginator,
+            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+        }
+        RequestConfig(request, paginate).configure(vlan_table)
+
+        # Compile permissions list for rendering the object table
+        permissions = {
+            'add': request.user.has_perm('ipam.add_vlan'),
+            'change': request.user.has_perm('ipam.change_vlan'),
+            'delete': request.user.has_perm('ipam.delete_vlan'),
+        }
+
+        return render(request, 'ipam/vlangroup_vlans.html', {
+            'vlan_group': vlan_group,
+            'first_available_vlan': vlan_group.get_next_available_vid(),
+            'vlan_table': vlan_table,
+            'permissions': permissions,
+        })
 
 
 #

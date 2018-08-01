@@ -1,0 +1,24 @@
+{% extends '_base.html' %}
+
+{% block title %}{{ vlan_group }} - VLANs{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+        <ol class="breadcrumb">
+            <li><a href="{% url 'ipam:vlangroup_list' %}">VLAN Groups</a></li>
+            {% if vlan_group.site %}
+                <li><a href="{% url 'dcim:site' slug=vlan_group.site.slug %}">{{ vlan_group.site }}</a></li>
+            {% endif %}
+            <li>{{ vlan_group }}</li>
+        </ol>
+    </div>
+</div>
+    {% include 'ipam/inc/vlangroup_header.html' %}
+    <div class="row">
+        <div class="col-md-12">
+            {% include 'utilities/obj_table.html' with table=vlan_table table_template='panel_table.html' heading='VLANs' bulk_edit_url='ipam:vlan_bulk_edit' bulk_delete_url='ipam:vlan_bulk_delete' %}
+        </div>
+    </div>
+{% endblock %}
+
