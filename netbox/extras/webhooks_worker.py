@@ -1,8 +1,10 @@
 import hashlib
 import hmac
-
 import requests
+import json
+
 from django_rq import job
+from rest_framework.utils.encoders import JSONEncoder
 
 from extras.constants import WEBHOOK_CT_JSON, WEBHOOK_CT_X_WWW_FORM_ENCODED, OBJECTCHANGE_ACTION_CHOICES
 
@@ -13,9 +15,9 @@ def process_webhook(webhook, data, model_class, event, timestamp):
     Make a POST request to the defined Webhook
     """
     payload = {
-        'event': dict(OBJECTCHANGE_ACTION_CHOICES)[event],
+        'event': dict(OBJECTCHANGE_ACTION_CHOICES)[event].lower(),
         'timestamp': timestamp,
-        'model': model_class.__name__,
+        'model': model_class._meta.model_name,
         'data': data
     }
     headers = {
@@ -28,7 +30,7 @@ def process_webhook(webhook, data, model_class, event, timestamp):
     }
 
     if webhook.http_content_type == WEBHOOK_CT_JSON:
-        params.update({'json': payload})
+        params.update({'data': json.dumps(payload, cls=JSONEncoder)})
     elif webhook.http_content_type == WEBHOOK_CT_X_WWW_FORM_ENCODED:
         params.update({'data': payload})
 
