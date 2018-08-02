@@ -1,8 +1,8 @@
 Django>=1.11,<2.1
-django-cors-headers==2.3.0
+django-cors-headers==2.4.0
 django-debug-toolbar==1.9.1
 django-filter==1.1.0
-django-mptt==0.9.0
+django-mptt==0.9.1
 django-tables2==1.21.2
 django-taggit==0.22.2
 django-timezone-field==2.1
