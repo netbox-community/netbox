@@ -45,6 +45,7 @@ pages:
     - Development:
         - Introduction: 'development/index.md'
         - Utility Views: 'development/utility-views.md'
+        - Release Checklist: 'development/release-checklist.md'
 
 markdown_extensions:
     - admonition:
