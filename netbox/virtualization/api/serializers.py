@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
-from taggit.models import Tag
+from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from dcim.api.serializers import NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer
 from dcim.constants import IFACE_MODE_CHOICES
@@ -9,7 +9,7 @@ from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.models import IPAddress, VLAN
 from tenancy.api.serializers import NestedTenantSerializer
-from utilities.api import ChoiceField, TagField, ValidatedModelSerializer, WritableNestedSerializer
+from utilities.api import ChoiceField, ValidatedModelSerializer, WritableNestedSerializer
 from virtualization.constants import VM_STATUS_CHOICES
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
@@ -56,11 +56,11 @@ class NestedClusterGroupSerializer(WritableNestedSerializer):
 # Clusters
 #
 
-class ClusterSerializer(CustomFieldModelSerializer):
+class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):
     type = NestedClusterTypeSerializer()
     group = NestedClusterGroupSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer(required=False, allow_null=True)
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Cluster
@@ -90,7 +90,7 @@ class VirtualMachineIPAddressSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'family', 'address']
 
 
-class VirtualMachineSerializer(CustomFieldModelSerializer):
+class VirtualMachineSerializer(TaggitSerializer, CustomFieldModelSerializer):
     status = ChoiceField(choices=VM_STATUS_CHOICES, required=False)
     cluster = NestedClusterSerializer(required=False, allow_null=True)
     role = NestedDeviceRoleSerializer(required=False, allow_null=True)
@@ -99,7 +99,7 @@ class VirtualMachineSerializer(CustomFieldModelSerializer):
     primary_ip = VirtualMachineIPAddressSerializer(read_only=True)
     primary_ip4 = VirtualMachineIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = VirtualMachineIPAddressSerializer(required=False, allow_null=True)
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = VirtualMachine

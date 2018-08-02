@@ -5,7 +5,7 @@ from collections import OrderedDict
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework.validators import UniqueTogetherValidator
-from taggit.models import Tag
+from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from dcim.api.serializers import NestedDeviceSerializer, InterfaceSerializer, NestedSiteSerializer
 from dcim.models import Interface
@@ -16,7 +16,7 @@ from ipam.constants import (
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from tenancy.api.serializers import NestedTenantSerializer
 from utilities.api import (
-    ChoiceField, SerializedPKRelatedField, TagField, ValidatedModelSerializer, WritableNestedSerializer,
+    ChoiceField, SerializedPKRelatedField, ValidatedModelSerializer, WritableNestedSerializer,
 )
 from virtualization.api.serializers import NestedVirtualMachineSerializer
 
@@ -25,9 +25,9 @@ from virtualization.api.serializers import NestedVirtualMachineSerializer
 # VRFs
 #
 
-class VRFSerializer(CustomFieldModelSerializer):
+class VRFSerializer(TaggitSerializer, CustomFieldModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = VRF
@@ -87,9 +87,9 @@ class NestedRIRSerializer(WritableNestedSerializer):
 # Aggregates
 #
 
-class AggregateSerializer(CustomFieldModelSerializer):
+class AggregateSerializer(TaggitSerializer, CustomFieldModelSerializer):
     rir = NestedRIRSerializer()
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Aggregate
@@ -147,13 +147,13 @@ class NestedVLANGroupSerializer(WritableNestedSerializer):
 # VLANs
 #
 
-class VLANSerializer(CustomFieldModelSerializer):
+class VLANSerializer(TaggitSerializer, CustomFieldModelSerializer):
     site = NestedSiteSerializer(required=False, allow_null=True)
     group = NestedVLANGroupSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=VLAN_STATUS_CHOICES, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = VLAN
@@ -190,14 +190,14 @@ class NestedVLANSerializer(WritableNestedSerializer):
 # Prefixes
 #
 
-class PrefixSerializer(CustomFieldModelSerializer):
+class PrefixSerializer(TaggitSerializer, CustomFieldModelSerializer):
     site = NestedSiteSerializer(required=False, allow_null=True)
     vrf = NestedVRFSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     vlan = NestedVLANSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=PREFIX_STATUS_CHOICES, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Prefix
@@ -254,13 +254,13 @@ class IPAddressInterfaceSerializer(serializers.ModelSerializer):
         return reverse(url_name, kwargs={'pk': obj.pk}, request=self.context['request'])
 
 
-class IPAddressSerializer(CustomFieldModelSerializer):
+class IPAddressSerializer(TaggitSerializer, CustomFieldModelSerializer):
     vrf = NestedVRFSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=IPADDRESS_STATUS_CHOICES, required=False)
     role = ChoiceField(choices=IPADDRESS_ROLE_CHOICES, required=False)
     interface = IPAddressInterfaceSerializer(required=False, allow_null=True)
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = IPAddress

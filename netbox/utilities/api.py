@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 from collections import OrderedDict
 import pytz
-from taggit.models import Tag
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -13,7 +12,7 @@ from rest_framework.exceptions import APIException
 from rest_framework.permissions import BasePermission
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.response import Response
-from rest_framework.serializers import Field, ModelSerializer, RelatedField, ValidationError
+from rest_framework.serializers import Field, ModelSerializer, ValidationError
 from rest_framework.viewsets import ModelViewSet as _ModelViewSet, ViewSet
 
 from .utils import dynamic_import
@@ -55,20 +54,6 @@ class IsAuthenticatedOrLoginNotRequired(BasePermission):
 #
 # Fields
 #
-
-class TagField(RelatedField):
-    """
-    Represent a writable list of Tags associated with an object (use with many=True).
-    """
-    def to_internal_value(self, data):
-        obj = self.parent.parent.instance
-        content_type = ContentType.objects.get_for_model(obj)
-        tag, _ = Tag.objects.get_or_create(content_type=content_type, object_id=obj.pk, name=data)
-        return tag
-
-    def to_representation(self, value):
-        return value.name
-
 
 class ChoiceField(Field):
     """
@@ -147,9 +132,10 @@ class ValidatedModelSerializer(ModelSerializer):
     """
     def validate(self, data):
 
-        # Remove custom field data (if any) prior to model validation
+        # Remove custom fields data and tags (if any) prior to model validation
         attrs = data.copy()
         attrs.pop('custom_fields', None)
+        attrs.pop('tags', None)
 
         # Run clean() on an instance of the model
         if self.instance is None:

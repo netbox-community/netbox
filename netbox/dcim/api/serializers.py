@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from taggit.models import Tag
+from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from circuits.models import Circuit, CircuitTermination
 from dcim.constants import (
@@ -20,7 +20,7 @@ from ipam.models import IPAddress, VLAN
 from tenancy.api.serializers import NestedTenantSerializer
 from users.api.serializers import NestedUserSerializer
 from utilities.api import (
-    ChoiceField, SerializedPKRelatedField, TagField, TimeZoneField, ValidatedModelSerializer,
+    ChoiceField, SerializedPKRelatedField, TimeZoneField, ValidatedModelSerializer,
     WritableNestedSerializer,
 )
 from virtualization.models import Cluster
@@ -50,12 +50,12 @@ class RegionSerializer(serializers.ModelSerializer):
 # Sites
 #
 
-class SiteSerializer(CustomFieldModelSerializer):
+class SiteSerializer(TaggitSerializer, CustomFieldModelSerializer):
     status = ChoiceField(choices=SITE_STATUS_CHOICES, required=False)
     region = NestedRegionSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     time_zone = TimeZoneField(required=False)
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Site
@@ -118,14 +118,14 @@ class NestedRackRoleSerializer(WritableNestedSerializer):
 # Racks
 #
 
-class RackSerializer(CustomFieldModelSerializer):
+class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
     site = NestedSiteSerializer()
     group = NestedRackGroupSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     role = NestedRackRoleSerializer(required=False, allow_null=True)
     type = ChoiceField(choices=RACK_TYPE_CHOICES, required=False)
     width = ChoiceField(choices=RACK_WIDTH_CHOICES, required=False)
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Rack
@@ -220,12 +220,12 @@ class NestedManufacturerSerializer(WritableNestedSerializer):
 # Device types
 #
 
-class DeviceTypeSerializer(CustomFieldModelSerializer):
+class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
     manufacturer = NestedManufacturerSerializer()
     interface_ordering = ChoiceField(choices=IFACE_ORDERING_CHOICES, required=False)
     subdevice_role = ChoiceField(choices=SUBDEVICE_ROLE_CHOICES, required=False)
     instance_count = serializers.IntegerField(source='instances.count', read_only=True)
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = DeviceType
@@ -389,7 +389,7 @@ class DeviceVirtualChassisSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'master']
 
 
-class DeviceSerializer(CustomFieldModelSerializer):
+class DeviceSerializer(TaggitSerializer, CustomFieldModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     device_role = NestedDeviceRoleSerializer()
     tenant = NestedTenantSerializer(required=False, allow_null=True)
@@ -404,7 +404,7 @@ class DeviceSerializer(CustomFieldModelSerializer):
     parent_device = serializers.SerializerMethodField()
     cluster = NestedClusterSerializer(required=False, allow_null=True)
     virtual_chassis = DeviceVirtualChassisSerializer(required=False, allow_null=True)
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Device
@@ -459,9 +459,9 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
 # Console server ports
 #
 
-class ConsoleServerPortSerializer(ValidatedModelSerializer):
+class ConsoleServerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = ConsoleServerPort
@@ -482,10 +482,10 @@ class NestedConsoleServerPortSerializer(WritableNestedSerializer):
 # Console ports
 #
 
-class ConsolePortSerializer(ValidatedModelSerializer):
+class ConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     cs_port = NestedConsoleServerPortSerializer(required=False, allow_null=True)
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = ConsolePort
@@ -496,9 +496,9 @@ class ConsolePortSerializer(ValidatedModelSerializer):
 # Power outlets
 #
 
-class PowerOutletSerializer(ValidatedModelSerializer):
+class PowerOutletSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = PowerOutlet
@@ -519,10 +519,10 @@ class NestedPowerOutletSerializer(WritableNestedSerializer):
 # Power ports
 #
 
-class PowerPortSerializer(ValidatedModelSerializer):
+class PowerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     power_outlet = NestedPowerOutletSerializer(required=False, allow_null=True)
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = PowerPort
@@ -569,7 +569,7 @@ class InterfaceVLANSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'vid', 'name', 'display_name']
 
 
-class InterfaceSerializer(ValidatedModelSerializer):
+class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     form_factor = ChoiceField(choices=IFACE_FF_CHOICES, required=False)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
@@ -584,7 +584,7 @@ class InterfaceSerializer(ValidatedModelSerializer):
         required=False,
         many=True
     )
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Interface
@@ -640,10 +640,10 @@ class InterfaceSerializer(ValidatedModelSerializer):
 # Device bays
 #
 
-class DeviceBaySerializer(ValidatedModelSerializer):
+class DeviceBaySerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     installed_device = NestedDeviceSerializer(required=False, allow_null=True)
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = DeviceBay
@@ -662,12 +662,12 @@ class NestedDeviceBaySerializer(WritableNestedSerializer):
 # Inventory items
 #
 
-class InventoryItemSerializer(ValidatedModelSerializer):
+class InventoryItemSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     # Provide a default value to satisfy UniqueTogetherValidator
     parent = serializers.PrimaryKeyRelatedField(queryset=InventoryItem.objects.all(), allow_null=True, default=None)
     manufacturer = NestedManufacturerSerializer()
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = InventoryItem
@@ -718,9 +718,9 @@ class ContextualInterfaceConnectionSerializer(serializers.ModelSerializer):
 # Virtual chassis
 #
 
-class VirtualChassisSerializer(ValidatedModelSerializer):
+class VirtualChassisSerializer(TaggitSerializer, ValidatedModelSerializer):
     master = NestedDeviceSerializer()
-    tags = TagField(queryset=Tag.objects.all(), required=False, many=True)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = VirtualChassis
