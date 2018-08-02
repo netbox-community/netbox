@@ -237,7 +237,7 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
 
 class RecentActivityViewSet(ReadOnlyModelViewSet):
     """
-    List all UserActions to provide a log of recent activity.
+    DEPRECATED: List all UserActions to provide a log of recent activity.
     """
     queryset = UserAction.objects.all()
     serializer_class = serializers.UserActionSerializer

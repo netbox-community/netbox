@@ -903,10 +903,11 @@ class UserActionManager(models.Manager):
         self.log_bulk_action(user, content_type, ACTION_BULK_DELETE, message)
 
 
+# TODO: Remove UserAction, which has been replaced by ObjectChange.
 @python_2_unicode_compatible
 class UserAction(models.Model):
     """
-    A record of an action (add, edit, or delete) performed on an object by a User.
+    DEPRECATED: A record of an action (add, edit, or delete) performed on an object by a User.
     """
     time = models.DateTimeField(
         auto_now_add=True,
