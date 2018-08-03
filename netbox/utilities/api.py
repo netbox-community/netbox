@@ -126,6 +126,8 @@ class SerializedPKRelatedField(PrimaryKeyRelatedField):
 # Serializers
 #
 
+# TODO: We should probably take a fresh look at exactly what we're doing with this. There might be a more elegant
+# way to enforce model validation on the serializer.
 class ValidatedModelSerializer(ModelSerializer):
     """
     Extends the built-in ModelSerializer to enforce calling clean() on the associated model during validation.
@@ -137,13 +139,13 @@ class ValidatedModelSerializer(ModelSerializer):
         attrs.pop('custom_fields', None)
         attrs.pop('tags', None)
 
+        # Skip ManyToManyFields
+        for field in self.Meta.model._meta.get_fields():
+            if isinstance(field, ManyToManyField):
+                attrs.pop(field.name, None)
+
         # Run clean() on an instance of the model
         if self.instance is None:
-            model = self.Meta.model
-            # Ignore ManyToManyFields for new instances (a PK is needed for validation)
-            for field in model._meta.get_fields():
-                if isinstance(field, ManyToManyField) and field.name in attrs:
-                    attrs.pop(field.name)
             instance = self.Meta.model(**attrs)
         else:
             instance = self.instance

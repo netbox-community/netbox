@@ -438,9 +438,13 @@ class ConfigContextTest(HttpStatusMixin, APITestCase):
 
     def test_update_configcontext(self):
 
+        region1 = Region.objects.create(name='Test Region 1', slug='test-region-1')
+        region2 = Region.objects.create(name='Test Region 2', slug='test-region-2')
+
         data = {
             'name': 'Test Config Context X',
             'weight': 999,
+            'regions': [region1.pk, region2.pk],
             'data': {'foo': 'XXX'}
         }
 
@@ -452,6 +456,7 @@ class ConfigContextTest(HttpStatusMixin, APITestCase):
         configcontext1 = ConfigContext.objects.get(pk=response.data['id'])
         self.assertEqual(configcontext1.name, data['name'])
         self.assertEqual(configcontext1.weight, data['weight'])
+        self.assertEqual(sorted([r.pk for r in configcontext1.regions.all()]), sorted(data['regions']))
         self.assertEqual(configcontext1.data, data['data'])
 
     def test_delete_configcontext(self):
