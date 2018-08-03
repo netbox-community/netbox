@@ -1,25 +1,20 @@
 from __future__ import unicode_literals
 
-from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase
 
 from dcim.models import Site
-from users.models import Token
-from utilities.testing import HttpStatusMixin
+from utilities.testing import APITestCase
 
 
-class TaggedItemTest(HttpStatusMixin, APITestCase):
+class TaggedItemTest(APITestCase):
     """
     Test the application of Tags to and item (a Site, for example) upon creation (POST) and modification (PATCH).
     """
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(TaggedItemTest, self).setUp()
 
     def test_create_tagged_item(self):
 

@@ -1,27 +1,22 @@
 from __future__ import unicode_literals
 
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase
 from taggit.models import Tag
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Platform, Region, Site
 from extras.constants import GRAPH_TYPE_SITE
 from extras.models import ConfigContext, Graph, ExportTemplate
 from tenancy.models import Tenant, TenantGroup
-from users.models import Token
-from utilities.testing import HttpStatusMixin
+from utilities.testing import APITestCase
 
 
-class GraphTest(HttpStatusMixin, APITestCase):
+class GraphTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(GraphTest, self).setUp()
 
         self.graph1 = Graph.objects.create(
             type=GRAPH_TYPE_SITE, name='Test Graph 1', source='http://example.com/graphs.py?site={{ obj.name }}&foo=1'
@@ -121,13 +116,11 @@ class GraphTest(HttpStatusMixin, APITestCase):
         self.assertEqual(Graph.objects.count(), 2)
 
 
-class ExportTemplateTest(HttpStatusMixin, APITestCase):
+class ExportTemplateTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(ExportTemplateTest, self).setUp()
 
         self.content_type = ContentType.objects.get_for_model(Device)
         self.exporttemplate1 = ExportTemplate.objects.create(
@@ -230,13 +223,11 @@ class ExportTemplateTest(HttpStatusMixin, APITestCase):
         self.assertEqual(ExportTemplate.objects.count(), 2)
 
 
-class TagTest(HttpStatusMixin, APITestCase):
+class TagTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(TagTest, self).setUp()
 
         self.tag1 = Tag.objects.create(name='Test Tag 1', slug='test-tag-1')
         self.tag2 = Tag.objects.create(name='Test Tag 2', slug='test-tag-2')
@@ -323,13 +314,11 @@ class TagTest(HttpStatusMixin, APITestCase):
         self.assertEqual(Tag.objects.count(), 2)
 
 
-class ConfigContextTest(HttpStatusMixin, APITestCase):
+class ConfigContextTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(ConfigContextTest, self).setUp()
 
         self.configcontext1 = ConfigContext.objects.create(
             name='Test Config Context 1',

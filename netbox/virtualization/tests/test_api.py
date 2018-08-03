@@ -1,22 +1,17 @@
 from __future__ import unicode_literals
 
-from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase
 
-from users.models import Token
-from utilities.testing import HttpStatusMixin
+from utilities.testing import APITestCase
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
-class ClusterTypeTest(HttpStatusMixin, APITestCase):
+class ClusterTypeTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(ClusterTypeTest, self).setUp()
 
         self.clustertype1 = ClusterType.objects.create(name='Test Cluster Type 1', slug='test-cluster-type-1')
         self.clustertype2 = ClusterType.objects.create(name='Test Cluster Type 2', slug='test-cluster-type-2')
@@ -103,13 +98,11 @@ class ClusterTypeTest(HttpStatusMixin, APITestCase):
         self.assertEqual(ClusterType.objects.count(), 2)
 
 
-class ClusterGroupTest(HttpStatusMixin, APITestCase):
+class ClusterGroupTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(ClusterGroupTest, self).setUp()
 
         self.clustergroup1 = ClusterGroup.objects.create(name='Test Cluster Group 1', slug='test-cluster-group-1')
         self.clustergroup2 = ClusterGroup.objects.create(name='Test Cluster Group 2', slug='test-cluster-group-2')
@@ -196,13 +189,11 @@ class ClusterGroupTest(HttpStatusMixin, APITestCase):
         self.assertEqual(ClusterGroup.objects.count(), 2)
 
 
-class ClusterTest(HttpStatusMixin, APITestCase):
+class ClusterTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(ClusterTest, self).setUp()
 
         cluster_type = ClusterType.objects.create(name='Test Cluster Type 1', slug='test-cluster-type-1')
         cluster_group = ClusterGroup.objects.create(name='Test Cluster Group 1', slug='test-cluster-group-1')
@@ -301,13 +292,11 @@ class ClusterTest(HttpStatusMixin, APITestCase):
         self.assertEqual(Cluster.objects.count(), 2)
 
 
-class VirtualMachineTest(HttpStatusMixin, APITestCase):
+class VirtualMachineTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(VirtualMachineTest, self).setUp()
 
         cluster_type = ClusterType.objects.create(name='Test Cluster Type 1', slug='test-cluster-type-1')
         cluster_group = ClusterGroup.objects.create(name='Test Cluster Group 1', slug='test-cluster-group-1')

@@ -1,25 +1,20 @@
 from __future__ import unicode_literals
 
-from django.contrib.auth.models import User
 from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
-from rest_framework.test import APITestCase
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.constants import IP_PROTOCOL_TCP, IP_PROTOCOL_UDP
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
-from users.models import Token
-from utilities.testing import HttpStatusMixin
+from utilities.testing import APITestCase
 
 
-class VRFTest(HttpStatusMixin, APITestCase):
+class VRFTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(VRFTest, self).setUp()
 
         self.vrf1 = VRF.objects.create(name='Test VRF 1', rd='65000:1')
         self.vrf2 = VRF.objects.create(name='Test VRF 2', rd='65000:2')
@@ -106,13 +101,11 @@ class VRFTest(HttpStatusMixin, APITestCase):
         self.assertEqual(VRF.objects.count(), 2)
 
 
-class RIRTest(HttpStatusMixin, APITestCase):
+class RIRTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(RIRTest, self).setUp()
 
         self.rir1 = RIR.objects.create(name='Test RIR 1', slug='test-rir-1')
         self.rir2 = RIR.objects.create(name='Test RIR 2', slug='test-rir-2')
@@ -199,13 +192,11 @@ class RIRTest(HttpStatusMixin, APITestCase):
         self.assertEqual(RIR.objects.count(), 2)
 
 
-class AggregateTest(HttpStatusMixin, APITestCase):
+class AggregateTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(AggregateTest, self).setUp()
 
         self.rir1 = RIR.objects.create(name='Test RIR 1', slug='test-rir-1')
         self.rir2 = RIR.objects.create(name='Test RIR 2', slug='test-rir-2')
@@ -294,13 +285,11 @@ class AggregateTest(HttpStatusMixin, APITestCase):
         self.assertEqual(Aggregate.objects.count(), 2)
 
 
-class RoleTest(HttpStatusMixin, APITestCase):
+class RoleTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(RoleTest, self).setUp()
 
         self.role1 = Role.objects.create(name='Test Role 1', slug='test-role-1')
         self.role2 = Role.objects.create(name='Test Role 2', slug='test-role-2')
@@ -387,13 +376,11 @@ class RoleTest(HttpStatusMixin, APITestCase):
         self.assertEqual(Role.objects.count(), 2)
 
 
-class PrefixTest(HttpStatusMixin, APITestCase):
+class PrefixTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(PrefixTest, self).setUp()
 
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.vrf1 = VRF.objects.create(name='Test VRF 1', rd='65000:1')
@@ -614,13 +601,11 @@ class PrefixTest(HttpStatusMixin, APITestCase):
         self.assertEqual(len(response.data), 8)
 
 
-class IPAddressTest(HttpStatusMixin, APITestCase):
+class IPAddressTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(IPAddressTest, self).setUp()
 
         self.vrf1 = VRF.objects.create(name='Test VRF 1', rd='65000:1')
         self.ipaddress1 = IPAddress.objects.create(address=IPNetwork('192.168.0.1/24'))
@@ -705,13 +690,11 @@ class IPAddressTest(HttpStatusMixin, APITestCase):
         self.assertEqual(IPAddress.objects.count(), 2)
 
 
-class VLANGroupTest(HttpStatusMixin, APITestCase):
+class VLANGroupTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(VLANGroupTest, self).setUp()
 
         self.vlangroup1 = VLANGroup.objects.create(name='Test VLAN Group 1', slug='test-vlan-group-1')
         self.vlangroup2 = VLANGroup.objects.create(name='Test VLAN Group 2', slug='test-vlan-group-2')
@@ -798,13 +781,11 @@ class VLANGroupTest(HttpStatusMixin, APITestCase):
         self.assertEqual(VLANGroup.objects.count(), 2)
 
 
-class VLANTest(HttpStatusMixin, APITestCase):
+class VLANTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(VLANTest, self).setUp()
 
         self.vlan1 = VLAN.objects.create(vid=1, name='Test VLAN 1')
         self.vlan2 = VLAN.objects.create(vid=2, name='Test VLAN 2')
@@ -891,13 +872,11 @@ class VLANTest(HttpStatusMixin, APITestCase):
         self.assertEqual(VLAN.objects.count(), 2)
 
 
-class ServiceTest(HttpStatusMixin, APITestCase):
+class ServiceTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(ServiceTest, self).setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
