@@ -234,10 +234,10 @@ class AvailablePrefixSerializer(serializers.Serializer):
 # IP addresses
 #
 
-class IPAddressInterfaceSerializer(serializers.ModelSerializer):
+class IPAddressInterfaceSerializer(WritableNestedSerializer):
     url = serializers.SerializerMethodField()  # We're imitating a HyperlinkedIdentityField here
-    device = NestedDeviceSerializer()
-    virtual_machine = NestedVirtualMachineSerializer()
+    device = NestedDeviceSerializer(read_only=True)
+    virtual_machine = NestedVirtualMachineSerializer(read_only=True)
 
     class Meta(InterfaceSerializer.Meta):
         model = Interface
