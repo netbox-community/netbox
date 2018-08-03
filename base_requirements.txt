@@ -7,6 +7,7 @@ django-filter==1.1.0
 django-mptt
 django-tables2
 django-taggit
+django-taggit-serializer
 django-timezone-field
 # https://github.com/encode/django-rest-framework/issues/6053
 djangorestframework==3.8.1
