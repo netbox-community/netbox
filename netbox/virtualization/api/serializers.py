@@ -4,12 +4,12 @@ from rest_framework import serializers
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from dcim.api.serializers import NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer
-from dcim.constants import IFACE_MODE_CHOICES
+from dcim.constants import IFACE_FF_CHOICES, IFACE_FF_VIRTUAL, IFACE_MODE_CHOICES
 from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.models import IPAddress, VLAN
 from tenancy.api.serializers import NestedTenantSerializer
-from utilities.api import ChoiceField, ValidatedModelSerializer, WritableNestedSerializer
+from utilities.api import ChoiceField, SerializedPKRelatedField, ValidatedModelSerializer, WritableNestedSerializer
 from virtualization.constants import VM_STATUS_CHOICES
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
@@ -135,7 +135,7 @@ class NestedVirtualMachineSerializer(WritableNestedSerializer):
 #
 
 # Cannot import ipam.api.serializers.NestedVLANSerializer due to circular dependency
-class InterfaceVLANSerializer(serializers.ModelSerializer):
+class InterfaceVLANSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlan-detail')
 
     class Meta:
@@ -143,17 +143,24 @@ class InterfaceVLANSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'vid', 'name', 'display_name']
 
 
-class InterfaceSerializer(serializers.ModelSerializer):
+class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
     virtual_machine = NestedVirtualMachineSerializer()
-    mode = ChoiceField(choices=IFACE_MODE_CHOICES)
-    untagged_vlan = InterfaceVLANSerializer()
-    tagged_vlans = InterfaceVLANSerializer(many=True)
+    form_factor = ChoiceField(choices=IFACE_FF_CHOICES, default=IFACE_FF_VIRTUAL, required=False)
+    mode = ChoiceField(choices=IFACE_MODE_CHOICES, required=False)
+    untagged_vlan = InterfaceVLANSerializer(required=False, allow_null=True)
+    tagged_vlans = SerializedPKRelatedField(
+        queryset=VLAN.objects.all(),
+        serializer=InterfaceVLANSerializer,
+        required=False,
+        many=True
+    )
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Interface
         fields = [
-            'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'mode', 'untagged_vlan', 'tagged_vlans',
-            'description',
+            'id', 'virtual_machine', 'name', 'form_factor', 'enabled', 'mtu', 'mac_address', 'description', 'mode',
+            'untagged_vlan', 'tagged_vlans', 'tags',
         ]
 
 
