@@ -1,0 +1,16 @@
+{% extends '_base.html' %}
+{% load buttons %}
+
+{% block content %}
+    <div class="pull-right">
+        {% if perms.extras.add_configcontext %}
+            {% add_button 'extras:configcontext_add' %}
+        {% endif %}
+    </div>
+    <h1>{% block title %}Config Contexts{% endblock %}</h1>
+    <div class="row">
+        <div class="col-md-12">
+            {% include 'utilities/obj_table.html' with bulk_delete_url='extras:configcontext_bulk_delete' %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends '_base.html' %}
+{% load helpers %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-8 col-md-9">
+        <ol class="breadcrumb">
+            <li><a href="{% url 'ipam:service_list' %}">Services</a></li>
+            <li><a href="{{ service.parent.get_absolute_url }}">{{ service.parent }}</a></li>
+            <li>{{ service }}</li>
+        </ol>
+    </div>
+    <div class="col-sm-4 col-md-3">
+        <form action="{% url 'ipam:service_list' %}" method="get">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Search Services" />
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="fa fa-search" aria-hidden="true"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
+{% if perms.dcim.change_service %}
+    <div class="pull-right">
+        <a href="{% url 'ipam:service_edit' pk=service.pk %}" class="btn btn-warning">
+          <span class="fa fa-pencil" aria-hidden="true"></span>
+          Edit this service
+        </a>
+    </div>
+{% endif %}
+<h1>{% block title %}{{ service }}{% endblock %}</h1>
+{% include 'inc/created_updated.html' with obj=service %}
+<div class="row">
+	<div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Service</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+                <tr>
+                    <td>Name</td>
+                    <td>{{ service.name }}</td>
+                </tr>
+                <tr>
+                    <td>Parent</td>
+                    <td>
+                        <a href="{{ service.parent.get_absolute_url }}">{{ service.parent }}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Protocol</td>
+                    <td>{{ service.get_protocol_display }}</td>
+                </tr>
+                <tr>
+                    <td>Port</td>
+                    <td>{{ service.port }}</td>
+                </tr>
+                <tr>
+                    <td>IP Addresses</td>
+                    <td>
+                        {% for ipaddress in service.ipaddresses.all %}
+                            <a href="{{ ipaddress.get_absolute_url }}">{{ ipaddress }}</a><br />
+                        {% empty %}
+                            <span class="text-muted">None</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Description</td>
+                    <td>
+                        {% if service.description %}
+                            {{ service.description }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+		    </table>
+        </div>
+        {% include 'inc/custom_fields_panel.html' with obj=service %}
+        {% include 'extras/inc/tags_panel.html' with tags=service.tags.all url='ipam:service_list' %}
+	</div>
+</div>
+{% endblock %}

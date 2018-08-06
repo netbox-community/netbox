@@ -16,7 +16,7 @@ or join us in the #netbox Slack channel on [NetworkToCode](https://networktocode
 
 ### Build Status
 
-NetBox is built against both Python 2.7 and 3.5.  Python 3.5 is recommended.
+NetBox is built against both Python 2.7 and 3.5. Python 3.5 or higher is strongly recommended.
 
 |             | status |
 |-------------|------------|

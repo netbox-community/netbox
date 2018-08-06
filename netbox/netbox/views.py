@@ -15,7 +15,7 @@ from circuits.tables import CircuitTable, ProviderTable
 from dcim.filters import DeviceFilter, DeviceTypeFilter, RackFilter, SiteFilter, VirtualChassisFilter
 from dcim.models import ConsolePort, Device, DeviceType, InterfaceConnection, PowerPort, Rack, Site, VirtualChassis
 from dcim.tables import DeviceDetailTable, DeviceTypeTable, RackTable, SiteTable, VirtualChassisTable
-from extras.models import ReportResult, TopologyMap, UserAction
+from extras.models import ObjectChange, ReportResult, TopologyMap
 from ipam.filters import AggregateFilter, IPAddressFilter, PrefixFilter, VLANFilter, VRFFilter
 from ipam.models import Aggregate, IPAddress, Prefix, VLAN, VRF
 from ipam.tables import AggregateTable, IPAddressTable, PrefixTable, VLANTable, VRFTable
@@ -184,7 +184,7 @@ class HomeView(View):
             'stats': stats,
             'topology_maps': TopologyMap.objects.filter(site__isnull=True),
             'report_results': ReportResult.objects.order_by('-created')[:10],
-            'recent_activity': UserAction.objects.select_related('user')[:50]
+            'changelog': ObjectChange.objects.select_related('user')[:50]
         })
 
 

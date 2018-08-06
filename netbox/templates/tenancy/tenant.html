@@ -1,46 +1,57 @@
 {% extends '_base.html' %}
 {% load helpers %}
 
+{% block header %}
+    <div class="row">
+        <div class="col-sm-8 col-md-9">
+            <ol class="breadcrumb">
+                <li><a href="{% url 'tenancy:tenant_list' %}">Tenants</a></li>
+                {% if tenant.group %}
+                    <li><a href="{% url 'tenancy:tenant_list' %}?group={{ tenant.group.slug }}">{{ tenant.group }}</a></li>
+                {% endif %}
+                <li>{{ tenant }}</li>
+            </ol>
+        </div>
+        <div class="col-sm-4 col-md-3">
+            <form action="{% url 'tenancy:tenant_list' %}" method="get">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Name" />
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="fa fa-search" aria-hidden="true"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="pull-right">
+        {% if perms.tenancy.change_tenant %}
+            <a href="{% url 'tenancy:tenant_edit' slug=tenant.slug %}" class="btn btn-warning">
+                <span class="fa fa-pencil" aria-hidden="true"></span>
+                Edit this tenant
+            </a>
+        {% endif %}
+        {% if perms.tenancy.delete_tenant %}
+            <a href="{% url 'tenancy:tenant_delete' slug=tenant.slug %}" class="btn btn-danger">
+                <span class="fa fa-trash" aria-hidden="true"></span>
+                Delete this tenant
+            </a>
+        {% endif %}
+    </div>
+    <h1>{% block title %}{{ tenant }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' with obj=tenant %}
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ tenant.get_absolute_url }}">Tenant</a>
+        </li>
+        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+            <a href="{% url 'tenancy:tenant_changelog' slug=tenant.slug %}">Changelog</a>
+        </li>
+    </ul>
+{% endblock %}
+
 {% block content %}
-<div class="row">
-    <div class="col-sm-8 col-md-9">
-        <ol class="breadcrumb">
-            <li><a href="{% url 'tenancy:tenant_list' %}">Tenants</a></li>
-            {% if tenant.group %}
-                <li><a href="{% url 'tenancy:tenant_list' %}?group={{ tenant.group.slug }}">{{ tenant.group }}</a></li>
-            {% endif %}
-            <li>{{ tenant }}</li>
-        </ol>
-    </div>
-    <div class="col-sm-4 col-md-3">
-        <form action="{% url 'tenancy:tenant_list' %}" method="get">
-            <div class="input-group">
-                <input type="text" name="q" class="form-control" placeholder="Name" />
-                <span class="input-group-btn">
-                    <button type="submit" class="btn btn-primary">
-                        <span class="fa fa-search" aria-hidden="true"></span>
-                    </button>
-                </span>
-            </div>
-        </form>
-    </div>
-</div>
-<div class="pull-right">
-    {% if perms.tenancy.change_tenant %}
-		<a href="{% url 'tenancy:tenant_edit' slug=tenant.slug %}" class="btn btn-warning">
-			<span class="fa fa-pencil" aria-hidden="true"></span>
-			Edit this tenant
-		</a>
-    {% endif %}
-    {% if perms.tenancy.delete_tenant %}
-		<a href="{% url 'tenancy:tenant_delete' slug=tenant.slug %}" class="btn btn-danger">
-			<span class="fa fa-trash" aria-hidden="true"></span>
-			Delete this tenant
-		</a>
-    {% endif %}
-</div>
-<h1>{% block title %}{{ tenant }}{% endblock %}</h1>
-{% include 'inc/created_updated.html' with obj=tenant %}
 <div class="row">
 	<div class="col-md-7">
         <div class="panel panel-default">
@@ -70,9 +81,8 @@
                 </tr>
             </table>
         </div>
-        {% with tenant.get_custom_fields as custom_fields %}
-            {% include 'inc/custom_fields_panel.html' %}
-        {% endwith %}
+        {% include 'inc/custom_fields_panel.html' with obj=tenant %}
+        {% include 'extras/inc/tags_panel.html' with tags=tenant.tags.all url='tenancy:tenant_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Comments</strong>

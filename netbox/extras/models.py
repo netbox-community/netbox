@@ -13,19 +13,102 @@ from django.db import models
 from django.db.models import Q
 from django.http import HttpResponse
 from django.template import Template, Context
+from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.safestring import mark_safe
 
 from dcim.constants import CONNECTION_STATUS_CONNECTED
 from utilities.utils import foreground_color
 from .constants import *
+from .querysets import ConfigContextQuerySet
+
+
+#
+# Webhooks
+#
+
+@python_2_unicode_compatible
+class Webhook(models.Model):
+    """
+    A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
+    delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
+    Each Webhook can be limited to firing only on certain actions or certain object types.
+    """
+
+    obj_type = models.ManyToManyField(
+        to=ContentType,
+        related_name='webhooks',
+        verbose_name='Object types',
+        limit_choices_to={'model__in': WEBHOOK_MODELS},
+        help_text="The object(s) to which this Webhook applies."
+    )
+    name = models.CharField(
+        max_length=150,
+        unique=True
+    )
+    type_create = models.BooleanField(
+        default=False,
+        help_text="Call this webhook when a matching object is created."
+    )
+    type_update = models.BooleanField(
+        default=False,
+        help_text="Call this webhook when a matching object is updated."
+    )
+    type_delete = models.BooleanField(
+        default=False,
+        help_text="Call this webhook when a matching object is deleted."
+    )
+    payload_url = models.CharField(
+        max_length=500,
+        verbose_name='URL',
+        help_text="A POST will be sent to this URL when the webhook is called."
+    )
+    http_content_type = models.PositiveSmallIntegerField(
+        choices=WEBHOOK_CT_CHOICES,
+        default=WEBHOOK_CT_JSON,
+        verbose_name='HTTP content type'
+    )
+    secret = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="When provided, the request will include a 'X-Hook-Signature' "
+                  "header containing a HMAC hex digest of the payload body using "
+                  "the secret as the key. The secret is not transmitted in "
+                  "the request."
+    )
+    enabled = models.BooleanField(
+        default=True
+    )
+    ssl_verification = models.BooleanField(
+        default=True,
+        verbose_name='SSL verification',
+        help_text="Enable SSL certificate verification. Disable with caution!"
+    )
+
+    class Meta:
+        unique_together = ('payload_url', 'type_create', 'type_update', 'type_delete',)
+
+    def __str__(self):
+        return self.name
+
+    def clean(self):
+        """
+        Validate model
+        """
+        if not self.type_create and not self.type_delete and not self.type_update:
+            raise ValidationError(
+                "You must select at least one type: create, update, and/or delete."
+            )
 
 
 #
 # Custom fields
 #
 
-class CustomFieldModel(object):
+class CustomFieldModel(models.Model):
+
+    class Meta:
+        abstract = True
 
     def cf(self):
         """
@@ -73,7 +156,8 @@ class CustomField(models.Model):
     label = models.CharField(
         max_length=50,
         blank=True,
-        help_text='Name of the field as displayed to users (if not provided, the field\'s name will be used)'
+        help_text='Name of the field as displayed to users (if not provided, '
+                  'the field\'s name will be used)'
     )
     description = models.CharField(
         max_length=100,
@@ -81,12 +165,14 @@ class CustomField(models.Model):
     )
     required = models.BooleanField(
         default=False,
-        help_text='If true, this field is required when creating new objects or editing an existing object.'
+        help_text='If true, this field is required when creating new objects '
+                  'or editing an existing object.'
     )
     filter_logic = models.PositiveSmallIntegerField(
         choices=CF_FILTER_CHOICES,
         default=CF_FILTER_LOOSE,
-        help_text="Loose matches any instance of a given string; exact matches the entire field."
+        help_text='Loose matches any instance of a given string; exact '
+                  'matches the entire field.'
     )
     default = models.CharField(
         max_length=100,
@@ -143,11 +229,24 @@ class CustomField(models.Model):
 
 @python_2_unicode_compatible
 class CustomFieldValue(models.Model):
-    field = models.ForeignKey('CustomField', related_name='values', on_delete=models.CASCADE)
-    obj_type = models.ForeignKey(ContentType, related_name='+', on_delete=models.PROTECT)
+    field = models.ForeignKey(
+        to='extras.CustomField',
+        on_delete=models.CASCADE,
+        related_name='values'
+    )
+    obj_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.PROTECT,
+        related_name='+'
+    )
     obj_id = models.PositiveIntegerField()
-    obj = GenericForeignKey('obj_type', 'obj_id')
-    serialized_value = models.CharField(max_length=255)
+    obj = GenericForeignKey(
+        ct_field='obj_type',
+        fk_field='obj_id'
+    )
+    serialized_value = models.CharField(
+        max_length=255
+    )
 
     class Meta:
         ordering = ['obj_type', 'obj_id']
@@ -174,10 +273,19 @@ class CustomFieldValue(models.Model):
 
 @python_2_unicode_compatible
 class CustomFieldChoice(models.Model):
-    field = models.ForeignKey('CustomField', related_name='choices', limit_choices_to={'type': CF_TYPE_SELECT},
-                              on_delete=models.CASCADE)
-    value = models.CharField(max_length=100)
-    weight = models.PositiveSmallIntegerField(default=100, help_text="Higher weights appear lower in the list")
+    field = models.ForeignKey(
+        to='extras.CustomField',
+        on_delete=models.CASCADE,
+        related_name='choices',
+        limit_choices_to={'type': CF_TYPE_SELECT}
+    )
+    value = models.CharField(
+        max_length=100
+    )
+    weight = models.PositiveSmallIntegerField(
+        default=100,
+        help_text='Higher weights appear lower in the list'
+    )
 
     class Meta:
         ordering = ['field', 'weight', 'value']
@@ -203,11 +311,24 @@ class CustomFieldChoice(models.Model):
 
 @python_2_unicode_compatible
 class Graph(models.Model):
-    type = models.PositiveSmallIntegerField(choices=GRAPH_TYPE_CHOICES)
-    weight = models.PositiveSmallIntegerField(default=1000)
-    name = models.CharField(max_length=100, verbose_name='Name')
-    source = models.CharField(max_length=500, verbose_name='Source URL')
-    link = models.URLField(verbose_name='Link URL', blank=True)
+    type = models.PositiveSmallIntegerField(
+        choices=GRAPH_TYPE_CHOICES
+    )
+    weight = models.PositiveSmallIntegerField(
+        default=1000
+    )
+    name = models.CharField(
+        max_length=100,
+        verbose_name='Name'
+    )
+    source = models.CharField(
+        max_length=500,
+        verbose_name='Source URL'
+    )
+    link = models.URLField(
+        blank=True,
+        verbose_name='Link URL'
+    )
 
     class Meta:
         ordering = ['type', 'weight', 'name']
@@ -233,13 +354,26 @@ class Graph(models.Model):
 @python_2_unicode_compatible
 class ExportTemplate(models.Model):
     content_type = models.ForeignKey(
-        ContentType, limit_choices_to={'model__in': EXPORTTEMPLATE_MODELS}, on_delete=models.CASCADE
+        to=ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to={'model__in': EXPORTTEMPLATE_MODELS}
     )
-    name = models.CharField(max_length=100)
-    description = models.CharField(max_length=200, blank=True)
+    name = models.CharField(
+        max_length=100
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
     template_code = models.TextField()
-    mime_type = models.CharField(max_length=15, blank=True)
-    file_extension = models.CharField(max_length=15, blank=True)
+    mime_type = models.CharField(
+        max_length=15,
+        blank=True
+    )
+    file_extension = models.CharField(
+        max_length=15,
+        blank=True
+    )
 
     class Meta:
         ordering = ['content_type', 'name']
@@ -278,25 +412,35 @@ class ExportTemplate(models.Model):
 
 @python_2_unicode_compatible
 class TopologyMap(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(
+        max_length=50,
+        unique=True
+    )
+    slug = models.SlugField(
+        unique=True
+    )
     type = models.PositiveSmallIntegerField(
         choices=TOPOLOGYMAP_TYPE_CHOICES,
         default=TOPOLOGYMAP_TYPE_NETWORK
     )
     site = models.ForeignKey(
         to='dcim.Site',
+        on_delete=models.CASCADE,
         related_name='topology_maps',
         blank=True,
-        null=True,
-        on_delete=models.CASCADE
+        null=True
     )
     device_patterns = models.TextField(
-        help_text="Identify devices to include in the diagram using regular expressions, one per line. Each line will "
-                  "result in a new tier of the drawing. Separate multiple regexes within a line using semicolons. "
-                  "Devices will be rendered in the order they are defined."
+        help_text='Identify devices to include in the diagram using regular '
+                  'expressions, one per line. Each line will result in a new '
+                  'tier of the drawing. Separate multiple regexes within a '
+                  'line using semicolons. Devices will be rendered in the '
+                  'order they are defined.'
     )
-    description = models.CharField(max_length=100, blank=True)
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
 
     class Meta:
         ordering = ['name']
@@ -432,14 +576,29 @@ class ImageAttachment(models.Model):
     """
     An uploaded image which is associated with an object.
     """
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE
+    )
     object_id = models.PositiveIntegerField()
-    parent = GenericForeignKey('content_type', 'object_id')
-    image = models.ImageField(upload_to=image_upload, height_field='image_height', width_field='image_width')
+    parent = GenericForeignKey(
+        ct_field='content_type',
+        fk_field='object_id'
+    )
+    image = models.ImageField(
+        upload_to=image_upload,
+        height_field='image_height',
+        width_field='image_width'
+    )
     image_height = models.PositiveSmallIntegerField()
     image_width = models.PositiveSmallIntegerField()
-    name = models.CharField(max_length=50, blank=True)
-    created = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(
+        max_length=50,
+        blank=True
+    )
+    created = models.DateTimeField(
+        auto_now_add=True
+    )
 
     class Meta:
         ordering = ['name']
@@ -475,6 +634,92 @@ class ImageAttachment(models.Model):
 
 
 #
+# Config contexts
+#
+
+class ConfigContext(models.Model):
+    """
+    A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned
+    qualifiers (region, site, etc.). For example, the data stored in a ConfigContext assigned to site A and tenant B
+    will be available to a Device in site A assigned to tenant B. Data is stored in JSON format.
+    """
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+    weight = models.PositiveSmallIntegerField(
+        default=1000
+    )
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
+    is_active = models.BooleanField(
+        default=True,
+    )
+    regions = models.ManyToManyField(
+        to='dcim.Region',
+        related_name='+',
+        blank=True
+    )
+    sites = models.ManyToManyField(
+        to='dcim.Site',
+        related_name='+',
+        blank=True
+    )
+    roles = models.ManyToManyField(
+        to='dcim.DeviceRole',
+        related_name='+',
+        blank=True
+    )
+    platforms = models.ManyToManyField(
+        to='dcim.Platform',
+        related_name='+',
+        blank=True
+    )
+    tenant_groups = models.ManyToManyField(
+        to='tenancy.TenantGroup',
+        related_name='+',
+        blank=True
+    )
+    tenants = models.ManyToManyField(
+        to='tenancy.Tenant',
+        related_name='+',
+        blank=True
+    )
+    data = JSONField()
+
+    objects = ConfigContextQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['weight', 'name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('extras:configcontext', kwargs={'pk': self.pk})
+
+
+class ConfigContextModel(models.Model):
+
+    class Meta:
+        abstract = True
+
+    def get_config_context(self):
+        """
+        Return the rendered configuration context for a device or VM.
+        """
+
+        # Compile all config data, overwriting lower-weight values with higher-weight values where a collision occurs
+        data = OrderedDict()
+        for context in ConfigContext.objects.get_for_object(self):
+            data.update(context.data)
+
+        return data
+
+
+#
 # Report results
 #
 
@@ -482,14 +727,133 @@ class ReportResult(models.Model):
     """
     This model stores the results from running a user-defined report.
     """
-    report = models.CharField(max_length=255, unique=True)
-    created = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='+', blank=True, null=True)
+    report = models.CharField(
+        max_length=255,
+        unique=True
+    )
+    created = models.DateTimeField(
+        auto_now_add=True
+    )
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True
+    )
     failed = models.BooleanField()
     data = JSONField()
 
     class Meta:
         ordering = ['report']
+
+
+#
+# Change logging
+#
+
+@python_2_unicode_compatible
+class ObjectChange(models.Model):
+    """
+    Record a change to an object and the user account associated with that change. A change record may optionally
+    indicate an object related to the one being changed. For example, a change to an interface may also indicate the
+    parent device. This will ensure changes made to component models appear in the parent model's changelog.
+    """
+    time = models.DateTimeField(
+        auto_now_add=True,
+        editable=False
+    )
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.SET_NULL,
+        related_name='changes',
+        blank=True,
+        null=True
+    )
+    user_name = models.CharField(
+        max_length=150,
+        editable=False
+    )
+    request_id = models.UUIDField(
+        editable=False
+    )
+    action = models.PositiveSmallIntegerField(
+        choices=OBJECTCHANGE_ACTION_CHOICES
+    )
+    changed_object_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.PROTECT,
+        related_name='+'
+    )
+    changed_object_id = models.PositiveIntegerField()
+    changed_object = GenericForeignKey(
+        ct_field='changed_object_type',
+        fk_field='changed_object_id'
+    )
+    related_object_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.PROTECT,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    related_object_id = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
+    related_object = GenericForeignKey(
+        ct_field='related_object_type',
+        fk_field='related_object_id'
+    )
+    object_repr = models.CharField(
+        max_length=200,
+        editable=False
+    )
+    object_data = JSONField(
+        editable=False
+    )
+
+    csv_headers = [
+        'time', 'user', 'user_name', 'request_id', 'action', 'changed_object_type', 'changed_object_id',
+        'related_object_type', 'related_object_id', 'object_repr', 'object_data',
+    ]
+
+    class Meta:
+        ordering = ['-time']
+
+    def __str__(self):
+        return '{} {} {} by {}'.format(
+            self.changed_object_type,
+            self.object_repr,
+            self.get_action_display().lower(),
+            self.user_name
+        )
+
+    def save(self, *args, **kwargs):
+
+        # Record the user's name and the object's representation as static strings
+        self.user_name = self.user.username
+        self.object_repr = str(self.changed_object)
+
+        return super(ObjectChange, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('extras:objectchange', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.time,
+            self.user,
+            self.user_name,
+            self.request_id,
+            self.get_action_display(),
+            self.changed_object_type,
+            self.changed_object_id,
+            self.related_object_type,
+            self.related_object_id,
+            self.object_repr,
+            self.object_data,
+        )
 
 
 #
@@ -539,17 +903,35 @@ class UserActionManager(models.Manager):
         self.log_bulk_action(user, content_type, ACTION_BULK_DELETE, message)
 
 
+# TODO: Remove UserAction, which has been replaced by ObjectChange.
 @python_2_unicode_compatible
 class UserAction(models.Model):
     """
-    A record of an action (add, edit, or delete) performed on an object by a User.
+    DEPRECATED: A record of an action (add, edit, or delete) performed on an object by a User.
     """
-    time = models.DateTimeField(auto_now_add=True, editable=False)
-    user = models.ForeignKey(User, related_name='actions', on_delete=models.CASCADE)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField(blank=True, null=True)
-    action = models.PositiveSmallIntegerField(choices=ACTION_CHOICES)
-    message = models.TextField(blank=True)
+    time = models.DateTimeField(
+        auto_now_add=True,
+        editable=False
+    )
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.CASCADE,
+        related_name='actions'
+    )
+    content_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE
+    )
+    object_id = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
+    action = models.PositiveSmallIntegerField(
+        choices=ACTION_CHOICES
+    )
+    message = models.TextField(
+        blank=True
+    )
 
     objects = UserActionManager()
 

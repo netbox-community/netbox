@@ -50,6 +50,9 @@ BANNER_LOGIN = ''
 # BASE_PATH = 'netbox/'
 BASE_PATH = ''
 
+# Maximum number of days to retain logged changes. Set to 0 to retain changes indefinitely. (Default: 90)
+CHANGELOG_RETENTION = 90
+
 # API Cross-Origin Resource Sharing (CORS) settings. If CORS_ORIGIN_ALLOW_ALL is set to True, all origins will be
 # allowed. Otherwise, define a list of allowed origins using either CORS_ORIGIN_WHITELIST or
 # CORS_ORIGIN_REGEX_WHITELIST. For more information, see https://github.com/ottoyiu/django-cors-headers
@@ -117,6 +120,19 @@ PAGINATE_COUNT = 50
 # When determining the primary IP address for a device, IPv6 is preferred over IPv4 by default. Set this to True to
 # prefer IPv4 instead.
 PREFER_IPV4 = False
+
+# The Webhook event backend is disabled by default. Set this to True to enable it. Note that this requires a Redis
+# database be configured and accessible by NetBox (see `REDIS` below).
+WEBHOOKS_ENABLED = False
+
+# Redis database settings (optional). A Redis database is required only if the webhooks backend is enabled.
+REDIS = {
+    'HOST': 'localhost',
+    'PORT': 6379,
+    'PASSWORD': '',
+    'DATABASE': 0,
+    'DEFAULT_TIMEOUT': 300,
+}
 
 # The file path where custom reports will be stored. A trailing slash is not needed. Note that the default value of
 # this setting is derived from the installed location.

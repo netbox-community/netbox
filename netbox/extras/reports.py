@@ -46,8 +46,8 @@ def get_reports():
 
     # Iterate through all modules within the reports path. These are the user-created files in which reports are
     # defined.
-    for importer, module_name, is_pkg in pkgutil.walk_packages([settings.REPORTS_ROOT]):
-        module = importlib.import_module('reports.{}'.format(module_name))
+    for importer, module_name, _ in pkgutil.iter_modules([settings.REPORTS_ROOT]):
+        module = importer.find_module(module_name).load_module(module_name)
         report_list = [cls() for _, cls in inspect.getmembers(module, is_report)]
         module_list.append((module_name, report_list))
 
@@ -104,7 +104,7 @@ class Report(object):
 
     @property
     def module(self):
-        return self.__module__.rsplit('.', 1)[1]
+        return self.__module__
 
     @property
     def name(self):

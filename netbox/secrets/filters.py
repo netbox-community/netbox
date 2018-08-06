@@ -4,6 +4,7 @@ import django_filters
 from django.db.models import Q
 
 from dcim.models import Device
+from extras.filters import CustomFieldFilterSet
 from utilities.filters import NumericInFilter
 from .models import Secret, SecretRole
 
@@ -15,7 +16,7 @@ class SecretRoleFilter(django_filters.FilterSet):
         fields = ['name', 'slug']
 
 
-class SecretFilter(django_filters.FilterSet):
+class SecretFilter(CustomFieldFilterSet, django_filters.FilterSet):
     id__in = NumericInFilter(name='id', lookup_expr='in')
     q = django_filters.CharFilter(
         method='search',
@@ -40,6 +41,9 @@ class SecretFilter(django_filters.FilterSet):
         queryset=Device.objects.all(),
         to_field_name='name',
         label='Device (name)',
+    )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
     )
 
     class Meta:

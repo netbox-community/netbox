@@ -21,7 +21,7 @@ class LoginRequiredMiddleware(object):
         self.get_response = get_response
 
     def __call__(self, request):
-        if LOGIN_REQUIRED and not request.user.is_authenticated():
+        if LOGIN_REQUIRED and not request.user.is_authenticated:
             # Redirect unauthenticated requests to the login page. API requests are exempt from redirection as the API
             # performs its own authentication.
             api_path = reverse('api-root')

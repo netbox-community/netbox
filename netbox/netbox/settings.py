@@ -22,7 +22,7 @@ if sys.version_info[0] < 3:
         DeprecationWarning
     )
 
-VERSION = '2.3.7'
+VERSION = '2.4.0'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -44,6 +44,7 @@ BANNER_TOP = getattr(configuration, 'BANNER_TOP', '')
 BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
+CHANGELOG_RETENTION = getattr(configuration, 'CHANGELOG_RETENTION', 90)
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
 CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
@@ -64,11 +65,13 @@ NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
 PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
+REDIS = getattr(configuration, 'REDIS', {})
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
+WEBHOOKS_ENABLED = getattr(configuration, 'WEBHOOKS_ENABLED', False)
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
@@ -109,6 +112,13 @@ DATABASES = {
     'default': configuration.DATABASE,
 }
 
+# Redis
+REDIS_HOST = REDIS.get('HOST', 'localhost')
+REDIS_PORT = REDIS.get('PORT', 6379)
+REDIS_PASSWORD = REDIS.get('PASSWORD', '')
+REDIS_DATABASE = REDIS.get('DATABASE', 0)
+REDIS_DEFAULT_TIMEOUT = REDIS.get('DEFAULT_TIMEOUT', 300)
+
 # Email
 EMAIL_HOST = EMAIL.get('SERVER')
 EMAIL_PORT = EMAIL.get('PORT', 25)
@@ -119,7 +129,7 @@ SERVER_EMAIL = EMAIL.get('FROM_EMAIL')
 EMAIL_SUBJECT_PREFIX = '[NetBox] '
 
 # Installed applications
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -133,6 +143,8 @@ INSTALLED_APPS = (
     'django_tables2',
     'mptt',
     'rest_framework',
+    'taggit',
+    'taggit_serializer',
     'timezone_field',
     'circuits',
     'dcim',
@@ -144,7 +156,11 @@ INSTALLED_APPS = (
     'utilities',
     'virtualization',
     'drf_yasg',
-)
+]
+
+# Only load django-rq if the webhook backend is enabled
+if WEBHOOKS_ENABLED:
+    INSTALLED_APPS.append('django_rq')
 
 # Middleware
 MIDDLEWARE = (
@@ -154,13 +170,13 @@ MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'utilities.middleware.ExceptionHandlingMiddleware',
     'utilities.middleware.LoginRequiredMiddleware',
     'utilities.middleware.APIVersionMiddleware',
+    'extras.middleware.ObjectChangeMiddleware',
 )
 
 ROOT_URLCONF = 'netbox.urls'
@@ -245,6 +261,18 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': PAGINATE_COUNT,
     'VIEW_NAME_FUNCTION': 'netbox.api.get_view_name',
 }
+
+# Django RQ (Webhooks backend)
+RQ_QUEUES = {
+    'default': {
+        'HOST': REDIS_HOST,
+        'PORT': REDIS_PORT,
+        'DB': REDIS_DATABASE,
+        'PASSWORD': REDIS_PASSWORD,
+        'DEFAULT_TIMEOUT': REDIS_DEFAULT_TIMEOUT,
+    }
+}
+RQ_SHOW_ADMIN_LINK = True
 
 # drf_yasg settings for Swagger
 SWAGGER_SETTINGS = {

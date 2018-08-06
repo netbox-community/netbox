@@ -1,0 +1,14 @@
+<div class="pull-right">
+    {% if perms.ipam.add_vlan and first_available_vlan %}
+        <a href="{% url 'ipam:vlan_add' %}?vid={{ first_available_vlan }}&group={{ vlan_group.pk }}{% if vlan_group.site %}&site={{ vlan_group.site.pk }}{% endif %}" class="btn btn-success">
+            <i class="fa fa-plus" aria-hidden="true"></i> Add a VLAN
+        </a>
+    {% endif %}
+    {% if perms.ipam.change_vlangroup %}
+               <a href="{% url 'ipam:vlangroup_edit' pk=vlan_group.pk %}" class="btn btn-warning">
+                       <span class="fa fa-pencil" aria-hidden="true"></span>
+                       Edit this VLAN Group
+               </a>
+    {% endif %}
+</div>
+<h1>{{ vlan_group }}</h1>

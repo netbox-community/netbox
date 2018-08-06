@@ -16,6 +16,12 @@
             {% render_field form.mode %}
         </div>
     </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Tags</strong></div>
+        <div class="panel-body">
+            {% render_field form.tags %}
+        </div>
+    </div>
     {% if obj.mode %}
         <div class="panel panel-default" id="vlans_panel">
             <div class="panel-heading"><strong>802.1Q VLANs</strong></div>

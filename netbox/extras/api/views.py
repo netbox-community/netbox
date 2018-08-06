@@ -1,15 +1,20 @@
 from __future__ import unicode_literals
 
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
+from taggit.models import Tag
 
 from extras import filters
-from extras.models import CustomField, ExportTemplate, Graph, ImageAttachment, ReportResult, TopologyMap, UserAction
+from extras.models import (
+    ConfigContext, CustomField, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
+    UserAction,
+)
 from extras.reports import get_report, get_reports
 from utilities.api import FieldChoicesViewSet, IsAuthenticatedOrLoginNotRequired, ModelViewSet
 from . import serializers
@@ -67,7 +72,6 @@ class CustomFieldModelViewSet(ModelViewSet):
 class GraphViewSet(ModelViewSet):
     queryset = Graph.objects.all()
     serializer_class = serializers.GraphSerializer
-    write_serializer_class = serializers.WritableGraphSerializer
     filter_class = filters.GraphFilter
 
 
@@ -88,10 +92,9 @@ class ExportTemplateViewSet(ModelViewSet):
 class TopologyMapViewSet(ModelViewSet):
     queryset = TopologyMap.objects.select_related('site')
     serializer_class = serializers.TopologyMapSerializer
-    write_serializer_class = serializers.WritableTopologyMapSerializer
     filter_class = filters.TopologyMapFilter
 
-    @detail_route()
+    @action(detail=True)
     def render(self, request, pk):
 
         tmap = get_object_or_404(TopologyMap, pk=pk)
@@ -112,13 +115,31 @@ class TopologyMapViewSet(ModelViewSet):
 
 
 #
+# Tags
+#
+
+class TagViewSet(ModelViewSet):
+    queryset = Tag.objects.annotate(tagged_items=Count('taggit_taggeditem_items'))
+    serializer_class = serializers.TagSerializer
+    filter_class = filters.TagFilter
+
+
+#
 # Image attachments
 #
 
 class ImageAttachmentViewSet(ModelViewSet):
     queryset = ImageAttachment.objects.all()
     serializer_class = serializers.ImageAttachmentSerializer
-    write_serializer_class = serializers.WritableImageAttachmentSerializer
+
+
+#
+# Config contexts
+#
+
+class ConfigContextViewSet(ModelViewSet):
+    queryset = ConfigContext.objects.prefetch_related('regions', 'sites', 'roles', 'platforms', 'tenants')
+    serializer_class = serializers.ConfigContextSerializer
 
 
 #
@@ -178,7 +199,7 @@ class ReportViewSet(ViewSet):
 
         return Response(serializer.data)
 
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def run(self, request, pk):
         """
         Run a Report and create a new ReportResult, overwriting any previous result for the Report.
@@ -198,12 +219,25 @@ class ReportViewSet(ViewSet):
 
 
 #
+# Change logging
+#
+
+class ObjectChangeViewSet(ReadOnlyModelViewSet):
+    """
+    Retrieve a list of recent changes.
+    """
+    queryset = ObjectChange.objects.select_related('user')
+    serializer_class = serializers.ObjectChangeSerializer
+    filter_class = filters.ObjectChangeFilter
+
+
+#
 # User activity
 #
 
 class RecentActivityViewSet(ReadOnlyModelViewSet):
     """
-    List all UserActions to provide a log of recent activity.
+    DEPRECATED: List all UserActions to provide a log of recent activity.
     """
     queryset = UserAction.objects.all()
     serializer_class = serializers.UserActionSerializer

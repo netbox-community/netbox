@@ -1,0 +1,25 @@
+# django-filter-1.1.0 breaks with Django-2.1
+Django>=1.11,<2.1
+django-cors-headers
+django-debug-toolbar
+# django-filter-2.0.0 drops Python 2 support (blocked by #2000)
+django-filter==1.1.0
+django-mptt
+django-tables2
+django-taggit
+django-taggit-serializer
+django-timezone-field
+# https://github.com/encode/django-rest-framework/issues/6053
+djangorestframework==3.8.1
+drf-yasg[validation]
+graphviz
+Markdown
+natsort
+ncclient
+netaddr
+paramiko
+Pillow
+psycopg2-binary
+py-gfm
+pycryptodome
+xmltodict

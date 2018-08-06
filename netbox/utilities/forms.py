@@ -6,6 +6,7 @@ import re
 
 from django import forms
 from django.conf import settings
+from django.contrib.postgres.forms import JSONField as _JSONField
 from django.db.models import Count
 from django.urls import reverse_lazy
 from mptt.forms import TreeNodeMultipleChoiceField
@@ -153,6 +154,9 @@ def add_blank_choice(choices):
 #
 
 class SmallTextarea(forms.Textarea):
+    """
+    Subclass used for rendering a smaller textarea element.
+    """
     pass
 
 
@@ -168,6 +172,9 @@ class ColorSelect(forms.Select):
 
 
 class BulkEditNullBooleanSelect(forms.NullBooleanSelect):
+    """
+    A Select widget for NullBooleanFields
+    """
 
     def __init__(self, *args, **kwargs):
         super(BulkEditNullBooleanSelect, self).__init__(*args, **kwargs)
@@ -326,7 +333,7 @@ class CSVChoiceField(forms.ChoiceField):
     """
 
     def __init__(self, choices, *args, **kwargs):
-        super(CSVChoiceField, self).__init__(choices, *args, **kwargs)
+        super(CSVChoiceField, self).__init__(choices=choices, *args, **kwargs)
         self.choices = [(label, label) for value, label in choices]
         self.choice_values = {label: value for value, label in choices}
 
@@ -447,7 +454,9 @@ class ChainedModelMultipleChoiceField(forms.ModelMultipleChoiceField):
 
 
 class SlugField(forms.SlugField):
-
+    """
+    Extend the built-in SlugField to automatically populate from a field called `name` unless otherwise specified.
+    """
     def __init__(self, slug_source='name', *args, **kwargs):
         label = kwargs.pop('label', "Slug")
         help_text = kwargs.pop('help_text', "URL-friendly unique shorthand")
@@ -536,16 +545,36 @@ class LaxURLField(forms.URLField):
     default_validators = [EnhancedURLValidator()]
 
 
+class JSONField(_JSONField):
+    """
+    Custom wrapper around Django's built-in JSONField to avoid presenting "null" as the default text.
+    """
+    def __init__(self, *args, **kwargs):
+        super(JSONField, self).__init__(*args, **kwargs)
+        if not self.help_text:
+            self.help_text = 'Enter context data in <a href="https://json.org/">JSON</a> format.'
+            self.widget.attrs['placeholder'] = ''
+
+    def prepare_value(self, value):
+        if value is None:
+            return ''
+        return super(JSONField, self).prepare_value(value)
+
+
 #
 # Forms
 #
 
 class BootstrapMixin(forms.BaseForm):
-
+    """
+    Add the base Bootstrap CSS classes to form elements.
+    """
     def __init__(self, *args, **kwargs):
         super(BootstrapMixin, self).__init__(*args, **kwargs)
 
-        exempt_widgets = [forms.CheckboxInput, forms.ClearableFileInput, forms.FileInput, forms.RadioSelect]
+        exempt_widgets = [
+            forms.CheckboxInput, forms.ClearableFileInput, forms.FileInput, forms.RadioSelect
+        ]
 
         for field_name, field in self.fields.items():
             if field.widget.__class__ not in exempt_widgets:
@@ -615,14 +644,15 @@ class ComponentForm(BootstrapMixin, forms.Form):
 
 
 class BulkEditForm(forms.Form):
-
+    """
+    Base form for editing multiple objects in bulk
+    """
     def __init__(self, model, parent_obj=None, *args, **kwargs):
         super(BulkEditForm, self).__init__(*args, **kwargs)
         self.model = model
         self.parent_obj = parent_obj
+        self.nullable_fields = []
 
         # Copy any nullable fields defined in Meta
         if hasattr(self.Meta, 'nullable_fields'):
-            self.nullable_fields = [field for field in self.Meta.nullable_fields]
-        else:
-            self.nullable_fields = []
+            self.nullable_fields = self.Meta.nullable_fields

@@ -1,48 +1,59 @@
 {% extends '_base.html' %}
 {% load helpers %}
 
+{% block header %}
+    <div class="row">
+        <div class="col-sm-8 col-md-9">
+            <ol class="breadcrumb">
+                <li><a href="{% url 'dcim:rack_list' %}">Racks</a></li>
+                <li><a href="{% url 'dcim:rack_list' %}?site={{ rack.site.slug }}">{{ rack.site }}</a></li>
+                <li>{{ rack }}</li>
+            </ol>
+        </div>
+        <div class="col-sm-4 col-md-3">
+            <form action="{% url 'dcim:rack_list' %}" method="get">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Search racks" />
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="fa fa-search" aria-hidden="true"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="pull-right">
+        <a {% if prev_rack %}href="{% url 'dcim:rack' pk=prev_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
+            <span class="fa fa-chevron-left" aria-hidden="true"></span> Previous Rack
+        </a>
+        <a {% if next_rack %}href="{% url 'dcim:rack' pk=next_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
+            <span class="fa fa-chevron-right" aria-hidden="true"></span> Next Rack
+        </a>
+        {% if perms.dcim.change_rack %}
+            <a href="{% url 'dcim:rack_edit' pk=rack.pk %}" class="btn btn-warning">
+                <span class="fa fa-pencil" aria-hidden="true"></span> Edit this rack
+            </a>
+        {% endif %}
+        {% if perms.dcim.delete_rack %}
+            <a href="{% url 'dcim:rack_delete' pk=rack.pk %}" class="btn btn-danger">
+                <span class="fa fa-trash" aria-hidden="true"></span> Delete this rack
+            </a>
+        {% endif %}
+    </div>
+    <h1>{% block title %}Rack {{ rack }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' with obj=rack %}
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ rack.get_absolute_url }}">Rack</a>
+        </li>
+        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+            <a href="{% url 'dcim:rack_changelog' pk=rack.pk %}">Changelog</a>
+        </li>
+    </ul>
+{% endblock %}
+
 {% block content %}
-<div class="row">
-    <div class="col-sm-8 col-md-9">
-        <ol class="breadcrumb">
-            <li><a href="{% url 'dcim:rack_list' %}">Racks</a></li>
-            <li><a href="{% url 'dcim:rack_list' %}?site={{ rack.site.slug }}">{{ rack.site }}</a></li>
-            <li>{{ rack }}</li>
-        </ol>
-    </div>
-    <div class="col-sm-4 col-md-3">
-        <form action="{% url 'dcim:rack_list' %}" method="get">
-            <div class="input-group">
-                <input type="text" name="q" class="form-control" placeholder="Search racks" />
-                <span class="input-group-btn">
-                    <button type="submit" class="btn btn-primary">
-                        <span class="fa fa-search" aria-hidden="true"></span>
-                    </button>
-                </span>
-            </div>
-        </form>
-    </div>
-</div>
-<div class="pull-right">
-    <a {% if prev_rack %}href="{% url 'dcim:rack' pk=prev_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
-        <span class="fa fa-chevron-left" aria-hidden="true"></span> Previous Rack
-    </a>
-    <a {% if next_rack %}href="{% url 'dcim:rack' pk=next_rack.pk %}"{% else %}disabled="disabled"{% endif %} class="btn btn-primary">
-        <span class="fa fa-chevron-right" aria-hidden="true"></span> Next Rack
-    </a>
-    {% if perms.dcim.change_rack %}
-		<a href="{% url 'dcim:rack_edit' pk=rack.pk %}" class="btn btn-warning">
-			<span class="fa fa-pencil" aria-hidden="true"></span> Edit this rack
-		</a>
-    {% endif %}
-    {% if perms.dcim.delete_rack %}
-		<a href="{% url 'dcim:rack_delete' pk=rack.pk %}" class="btn btn-danger">
-			<span class="fa fa-trash" aria-hidden="true"></span> Delete this rack
-		</a>
-    {% endif %}
-</div>
-<h1>{% block title %}Rack {{ rack }}{% endblock %}</h1>
-{% include 'inc/created_updated.html' with obj=rack %}
 <div class="row">
 	<div class="col-md-6">
         <div class="panel panel-default">
@@ -147,9 +158,20 @@
                 </tr>
             </table>
         </div>
-        {% with rack.get_custom_fields as custom_fields %}
-            {% include 'inc/custom_fields_panel.html' %}
-        {% endwith %}
+        {% include 'inc/custom_fields_panel.html' with obj=rack %}
+        {% include 'extras/inc/tags_panel.html' with tags=rack.tags.all url='dcim:rack_list' %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Comments</strong>
+            </div>
+            <div class="panel-body">
+                {% if rack.comments %}
+                    {{ rack.comments|gfm }}
+                {% else %}
+                    <span class="text-muted">None</span>
+                {% endif %}
+            </div>
+        </div>
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Non-Racked Devices</strong>
@@ -190,18 +212,6 @@
                     </a>
                 </div>
             {% endif %}
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Comments</strong>
-            </div>
-            <div class="panel-body">
-                {% if rack.comments %}
-                    {{ rack.comments|gfm }}
-                {% else %}
-                    <span class="text-muted">None</span>
-                {% endif %}
-            </div>
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">

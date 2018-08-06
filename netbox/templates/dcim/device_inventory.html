@@ -1,77 +1,76 @@
-{% extends '_base.html' %}
+{% extends 'dcim/device.html' %}
 
 {% block title %}{{ device }} - Inventory{% endblock %}
 
 {% block content %}
-{% include 'dcim/inc/device_header.html' with active_tab='inventory' %}
-<div class="row">
-    <div class="col-md-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Chassis</strong>
-            </div>
-            <table class="table table-hover panel-body attr-table">
-                <tr>
-                    <td>Model</td>
-                    <td>{{ device.device_type.full_name }}</td>
-                </tr>
-                <tr>
-                    <td>Serial Number</td>
-                    <td>
-                        {% if device.serial %}
-                            <span>{{ device.serial }}</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Asset Tag</td>
-                    <td>
-                        {% if device.asset_tag %}
-                            <span>{{ device.asset_tag }}</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
-                </tr>
-            </table>
-        </div>
-    </div>
-    <div class="col-md-8">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Hardware</strong>
-            </div>
-            <table class="table table-hover table-condensed panel-body" id="hardware">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th></th>
-                        <th>Manufacturer</th>
-                        <th>Part Number</th>
-                        <th>Serial Number</th>
-                        <th>Asset Tag</th>
-                        <th>Description</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in inventory_items %}
-                        {% with template_name='dcim/inc/inventoryitem.html' indent=0 %}
-                            {% include template_name %}
-                        {% endwith %}
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% if perms.dcim.add_inventoryitem %}
-                <div class="panel-footer text-right">
-                    <a href="{% url 'dcim:inventoryitem_add' device=device.pk %}" class="btn btn-primary btn-xs">
-                        <span class="fa fa-plus" aria-hidden="true"></span> Add Inventory Item
-                    </a>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Chassis</strong>
                 </div>
-            {% endif %}
+                <table class="table table-hover panel-body attr-table">
+                    <tr>
+                        <td>Model</td>
+                        <td>{{ device.device_type.full_name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Serial Number</td>
+                        <td>
+                            {% if device.serial %}
+                                <span>{{ device.serial }}</span>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Asset Tag</td>
+                        <td>
+                            {% if device.asset_tag %}
+                                <span>{{ device.asset_tag }}</span>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Hardware</strong>
+                </div>
+                <table class="table table-hover table-condensed panel-body" id="hardware">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th></th>
+                            <th>Manufacturer</th>
+                            <th>Part Number</th>
+                            <th>Serial Number</th>
+                            <th>Asset Tag</th>
+                            <th>Description</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in inventory_items %}
+                            {% with template_name='dcim/inc/inventoryitem.html' indent=0 %}
+                                {% include template_name %}
+                            {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% if perms.dcim.add_inventoryitem %}
+                    <div class="panel-footer text-right">
+                        <a href="{% url 'dcim:inventoryitem_add' device=device.pk %}" class="btn btn-primary btn-xs">
+                            <span class="fa fa-plus" aria-hidden="true"></span> Add Inventory Item
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}

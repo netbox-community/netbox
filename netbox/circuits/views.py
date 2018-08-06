@@ -6,7 +6,6 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import transaction
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.views.generic import View
 
 from extras.models import Graph, GRAPH_TYPE_PROVIDER
@@ -77,7 +76,7 @@ class ProviderBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class ProviderBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'circuits.change_provider'
-    cls = Provider
+    queryset = Provider.objects.all()
     filter = filters.ProviderFilter
     table = tables.ProviderTable
     form = forms.ProviderBulkEditForm
@@ -86,7 +85,7 @@ class ProviderBulkEditView(PermissionRequiredMixin, BulkEditView):
 
 class ProviderBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_provider'
-    cls = Provider
+    queryset = Provider.objects.all()
     filter = filters.ProviderFilter
     table = tables.ProviderTable
     default_return_url = 'circuits:provider_list'
@@ -106,9 +105,7 @@ class CircuitTypeCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'circuits.add_circuittype'
     model = CircuitType
     model_form = forms.CircuitTypeForm
-
-    def get_return_url(self, request, obj):
-        return reverse('circuits:circuittype_list')
+    default_return_url = 'circuits:circuittype_list'
 
 
 class CircuitTypeEditView(CircuitTypeCreateView):
@@ -124,7 +121,6 @@ class CircuitTypeBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_circuittype'
-    cls = CircuitType
     queryset = CircuitType.objects.annotate(circuit_count=Count('circuits'))
     table = tables.CircuitTypeTable
     default_return_url = 'circuits:circuittype_list'
@@ -196,7 +192,6 @@ class CircuitBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class CircuitBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'circuits.change_circuit'
-    cls = Circuit
     queryset = Circuit.objects.select_related('provider', 'type', 'tenant').prefetch_related('terminations__site')
     filter = filters.CircuitFilter
     table = tables.CircuitTable
@@ -206,7 +201,6 @@ class CircuitBulkEditView(PermissionRequiredMixin, BulkEditView):
 
 class CircuitBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_circuit'
-    cls = Circuit
     queryset = Circuit.objects.select_related('provider', 'type', 'tenant').prefetch_related('terminations__site')
     filter = filters.CircuitFilter
     table = tables.CircuitTable

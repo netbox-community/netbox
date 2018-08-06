@@ -2,18 +2,15 @@ from __future__ import unicode_literals
 
 from datetime import date
 
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase
 
 from dcim.models import Site
 from extras.constants import CF_TYPE_TEXT, CF_TYPE_INTEGER, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_SELECT, CF_TYPE_URL
 from extras.models import CustomField, CustomFieldValue, CustomFieldChoice
-from users.models import Token
-from utilities.tests import HttpStatusMixin
+from utilities.testing import APITestCase
 
 
 class CustomFieldTest(TestCase):
@@ -45,7 +42,7 @@ class CustomFieldTest(TestCase):
             # Create a custom field
             cf = CustomField(type=data['field_type'], name='my_field', required=False)
             cf.save()
-            cf.obj_type = [obj_type]
+            cf.obj_type.set([obj_type])
             cf.save()
 
             # Assign a value to the first Site
@@ -73,7 +70,7 @@ class CustomFieldTest(TestCase):
         # Create a custom field
         cf = CustomField(type=CF_TYPE_SELECT, name='my_field', required=False)
         cf.save()
-        cf.obj_type = [obj_type]
+        cf.obj_type.set([obj_type])
         cf.save()
 
         # Create some choices for the field
@@ -102,50 +99,48 @@ class CustomFieldTest(TestCase):
         cf.delete()
 
 
-class CustomFieldAPITest(HttpStatusMixin, APITestCase):
+class CustomFieldAPITest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(CustomFieldAPITest, self).setUp()
 
         content_type = ContentType.objects.get_for_model(Site)
 
         # Text custom field
         self.cf_text = CustomField(type=CF_TYPE_TEXT, name='magic_word')
         self.cf_text.save()
-        self.cf_text.obj_type = [content_type]
+        self.cf_text.obj_type.set([content_type])
         self.cf_text.save()
 
         # Integer custom field
         self.cf_integer = CustomField(type=CF_TYPE_INTEGER, name='magic_number')
         self.cf_integer.save()
-        self.cf_integer.obj_type = [content_type]
+        self.cf_integer.obj_type.set([content_type])
         self.cf_integer.save()
 
         # Boolean custom field
         self.cf_boolean = CustomField(type=CF_TYPE_BOOLEAN, name='is_magic')
         self.cf_boolean.save()
-        self.cf_boolean.obj_type = [content_type]
+        self.cf_boolean.obj_type.set([content_type])
         self.cf_boolean.save()
 
         # Date custom field
         self.cf_date = CustomField(type=CF_TYPE_DATE, name='magic_date')
         self.cf_date.save()
-        self.cf_date.obj_type = [content_type]
+        self.cf_date.obj_type.set([content_type])
         self.cf_date.save()
 
         # URL custom field
         self.cf_url = CustomField(type=CF_TYPE_URL, name='magic_url')
         self.cf_url.save()
-        self.cf_url.obj_type = [content_type]
+        self.cf_url.obj_type.set([content_type])
         self.cf_url.save()
 
         # Select custom field
         self.cf_select = CustomField(type=CF_TYPE_SELECT, name='magic_choice')
         self.cf_select.save()
-        self.cf_select.obj_type = [content_type]
+        self.cf_select.obj_type.set([content_type])
         self.cf_select.save()
         self.cf_select_choice1 = CustomFieldChoice(field=self.cf_select, value='Foo')
         self.cf_select_choice1.save()

@@ -4,12 +4,13 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Count
 from mptt.forms import TreeNodeChoiceField
+from taggit.forms import TagField
 
 from dcim.constants import IFACE_FF_VIRTUAL, IFACE_MODE_ACCESS, IFACE_MODE_TAGGED_ALL
 from dcim.forms import INTERFACE_MODE_HELP_TEXT
 from dcim.formfields import MACAddressFormField
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
-from extras.forms import CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
+from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
 from ipam.models import IPAddress
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
@@ -78,10 +79,11 @@ class ClusterGroupCSVForm(forms.ModelForm):
 
 class ClusterForm(BootstrapMixin, CustomFieldForm):
     comments = CommentField(widget=SmallTextarea)
+    tags = TagField(required=False)
 
     class Meta:
         model = Cluster
-        fields = ['name', 'type', 'group', 'site', 'comments']
+        fields = ['name', 'type', 'group', 'site', 'comments', 'tags']
 
 
 class ClusterCSVForm(forms.ModelForm):
@@ -117,7 +119,7 @@ class ClusterCSVForm(forms.ModelForm):
         fields = Cluster.csv_headers
 
 
-class ClusterBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=Cluster.objects.all(), widget=forms.MultipleHiddenInput)
     type = forms.ModelChoiceField(queryset=ClusterType.objects.all(), required=False)
     group = forms.ModelChoiceField(queryset=ClusterGroup.objects.all(), required=False)
@@ -244,12 +246,13 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             api_url='/api/virtualization/clusters/?group_id={{cluster_group}}'
         )
     )
+    tags = TagField(required=False)
 
     class Meta:
         model = VirtualMachine
         fields = [
             'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
-            'vcpus', 'memory', 'disk', 'comments',
+            'vcpus', 'memory', 'disk', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -346,7 +349,7 @@ class VirtualMachineCSVForm(forms.ModelForm):
         fields = VirtualMachine.csv_headers
 
 
-class VirtualMachineBulkEditForm(BootstrapMixin, CustomFieldBulkEditForm):
+class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
     pk = forms.ModelMultipleChoiceField(queryset=VirtualMachine.objects.all(), widget=forms.MultipleHiddenInput)
     status = forms.ChoiceField(choices=add_blank_choice(VM_STATUS_CHOICES), required=False, initial='')
     cluster = forms.ModelChoiceField(queryset=Cluster.objects.all(), required=False)

@@ -3,54 +3,66 @@
 {% load tz %}
 {% load helpers %}
 
+{% block header %}
+    <div class="row">
+        <div class="col-sm-8 col-md-9">
+            <ol class="breadcrumb">
+                <li><a href="{% url 'dcim:site_list' %}">Sites</a></li>
+                {% if site.region %}
+                    {% for region in site.region.get_ancestors %}
+                        <li><a href="{{ region.get_absolute_url }}">{{ region }}</a></li>
+                    {% endfor %}
+                    <li><a href="{{ site.region.get_absolute_url }}">{{ site.region }}</a></li>
+                {% endif %}
+                <li>{{ site }}</li>
+            </ol>
+        </div>
+        <div class="col-sm-4 col-md-3">
+            <form action="{% url 'dcim:site_list' %}" method="get">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Search sites" />
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="fa fa-search" aria-hidden="true"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="pull-right">
+        {% if show_graphs %}
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ site.name }}" data-url="{% url 'dcim-api:site-graphs' pk=site.pk %}" title="Show graphs">
+                <i class="fa fa-signal" aria-hidden="true"></i>
+                Graphs
+            </button>
+        {% endif %}
+        {% if perms.dcim.change_site %}
+            <a href="{% url 'dcim:site_edit' slug=site.slug %}" class="btn btn-warning">
+                <span class="fa fa-pencil" aria-hidden="true"></span>
+                Edit this site
+            </a>
+        {% endif %}
+        {% if perms.dcim.delete_site %}
+            <a href="{% url 'dcim:site_delete' slug=site.slug %}" class="btn btn-danger">
+                <span class="fa fa-trash" aria-hidden="true"></span>
+                Delete this site
+            </a>
+        {% endif %}
+    </div>
+    <h1>{% block title %}{{ site }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' with obj=site %}
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ site.get_absolute_url }}">Site</a>
+        </li>
+        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+            <a href="{% url 'dcim:site_changelog' slug=site.slug %}">Changelog</a>
+        </li>
+    </ul>
+{% endblock %}
+
 {% block content %}
-<div class="row">
-    <div class="col-sm-8 col-md-9">
-        <ol class="breadcrumb">
-            {% if site.region %}
-                {% for region in site.region.get_ancestors %}
-                    <li><a href="{{ region.get_absolute_url }}">{{ region }}</a></li>
-                {% endfor %}
-                <li><a href="{{ site.region.get_absolute_url }}">{{ site.region }}</a></li>
-            {% endif %}
-            <li>{{ site }}</li>
-        </ol>
-    </div>
-    <div class="col-sm-4 col-md-3">
-        <form action="{% url 'dcim:site_list' %}" method="get">
-            <div class="input-group">
-                <input type="text" name="q" class="form-control" placeholder="Search sites" />
-                <span class="input-group-btn">
-                    <button type="submit" class="btn btn-primary">
-                        <span class="fa fa-search" aria-hidden="true"></span>
-                    </button>
-                </span>
-            </div>
-        </form>
-    </div>
-</div>
-<div class="pull-right">
-    {% if show_graphs %}
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ site.name }}" data-url="{% url 'dcim-api:site-graphs' pk=site.pk %}" title="Show graphs">
-            <i class="fa fa-signal" aria-hidden="true"></i>
-            Graphs
-        </button>
-    {% endif %}
-    {% if perms.dcim.change_site %}
-		<a href="{% url 'dcim:site_edit' slug=site.slug %}" class="btn btn-warning">
-			<span class="fa fa-pencil" aria-hidden="true"></span>
-			Edit this site
-		</a>
-    {% endif %}
-    {% if perms.dcim.delete_site %}
-		<a href="{% url 'dcim:site_delete' slug=site.slug %}" class="btn btn-danger">
-			<span class="fa fa-trash" aria-hidden="true"></span>
-			Delete this site
-		</a>
-    {% endif %}
-</div>
-<h1>{% block title %}{{ site }}{% endblock %}</h1>
-{% include 'inc/created_updated.html' with obj=site %}
 <div class="row">
 	<div class="col-md-7">
         <div class="panel panel-default">
@@ -166,6 +178,21 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>GPS Coordinates</td>
+                    <td>
+                        {% if site.latitude and site.longitude %}
+                            <div class="pull-right">
+                                <a href="http://maps.google.com/?q={{ site.latitude }},{{ site.longitude }}" target="_blank" class="btn btn-primary btn-xs">
+                                    <i class="glyphicon glyphicon-map-marker"></i> Map it
+                                </a>
+                            </div>
+                            <span>{{ site.latitude }}, {{ site.longitude }}</span>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <td>Contact Name</td>
                     <td>
                         {% if site.contact_name %}
@@ -197,9 +224,8 @@
                 </tr>
             </table>
         </div>
-        {% with site.get_custom_fields as custom_fields %}
-            {% include 'inc/custom_fields_panel.html' %}
-        {% endwith %}
+        {% include 'inc/custom_fields_panel.html' with obj=site %}
+        {% include 'extras/inc/tags_panel.html' with tags=site.tags.all url='dcim:site_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Comments</strong>
@@ -255,6 +281,11 @@
                         <tr>
                             <td><i class="fa fa-fw fa-folder-o"></i> <a href="{{ rg.get_absolute_url }}">{{ rg }}</a></td>
                             <td>{{ rg.rack_count }}</td>
+                            <td class="text-right">
+                                <a href="{% url 'dcim:rack_elevation_list' %}?group_id={{ rg.pk }}" class="btn btn-xs btn-primary" title="View elevations">
+                                    <i class="fa fa-eye"></i>
+                                </a>
+                            </td>
                         </tr>
                     {% endfor %}
                 </table>

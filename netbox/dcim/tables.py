@@ -4,7 +4,7 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from tenancy.tables import COL_TENANT
-from utilities.tables import BaseTable, ToggleColumn
+from utilities.tables import BaseTable, BooleanColumn, ToggleColumn
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, InventoryItem,
@@ -41,12 +41,18 @@ DEVICE_LINK = """
 """
 
 REGION_ACTIONS = """
+<a href="{% url 'dcim:region_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Changelog">
+    <i class="fa fa-history"></i>
+</a>
 {% if perms.dcim.change_region %}
     <a href="{% url 'dcim:region_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
 RACKGROUP_ACTIONS = """
+<a href="{% url 'dcim:rackgroup_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Changelog">
+    <i class="fa fa-history"></i>
+</a>
 <a href="{% url 'dcim:rack_elevation_list' %}?site={{ record.site.slug }}&group_id={{ record.pk }}" class="btn btn-xs btn-primary" title="View elevations">
     <i class="fa fa-eye"></i>
 </a>
@@ -58,6 +64,9 @@ RACKGROUP_ACTIONS = """
 """
 
 RACKROLE_ACTIONS = """
+<a href="{% url 'dcim:rackrole_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Changelog">
+    <i class="fa fa-history"></i>
+</a>
 {% if perms.dcim.change_rackrole %}
     <a href="{% url 'dcim:rackrole_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
@@ -76,20 +85,29 @@ RACK_DEVICE_COUNT = """
 """
 
 RACKRESERVATION_ACTIONS = """
+<a href="{% url 'dcim:rackreservation_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Changelog">
+    <i class="fa fa-history"></i>
+</a>
 {% if perms.dcim.change_rackreservation %}
     <a href="{% url 'dcim:rackreservation_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
-DEVICEROLE_ACTIONS = """
-{% if perms.dcim.change_devicerole %}
-    <a href="{% url 'dcim:devicerole_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+MANUFACTURER_ACTIONS = """
+<a href="{% url 'dcim:manufacturer_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
+    <i class="fa fa-history"></i>
+</a>
+{% if perms.dcim.change_manufacturer %}
+    <a href="{% url 'dcim:manufacturer_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
-MANUFACTURER_ACTIONS = """
-{% if perms.dcim.change_manufacturer %}
-    <a href="{% url 'dcim:manufacturer_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+DEVICEROLE_ACTIONS = """
+<a href="{% url 'dcim:devicerole_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
+    <i class="fa fa-history"></i>
+</a>
+{% if perms.dcim.change_devicerole %}
+    <a href="{% url 'dcim:devicerole_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
@@ -110,6 +128,9 @@ PLATFORM_VM_COUNT = """
 """
 
 PLATFORM_ACTIONS = """
+<a href="{% url 'dcim:platform_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
+    <i class="fa fa-history"></i>
+</a>
 {% if perms.dcim.change_platform %}
     <a href="{% url 'dcim:platform_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
@@ -143,6 +164,9 @@ UTILIZATION_GRAPH = """
 """
 
 VIRTUALCHASSIS_ACTIONS = """
+<a href="{% url 'dcim:virtualchassis_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Changelog">
+    <i class="fa fa-history"></i>
+</a>
 {% if perms.dcim.change_virtualchassis %}
     <a href="{% url 'dcim:virtualchassis_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
@@ -175,7 +199,7 @@ class RegionTable(BaseTable):
 
 class SiteTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.LinkColumn(order_by=('_nat1', '_nat2', '_nat3'))
     status = tables.TemplateColumn(template_code=STATUS_LABEL, verbose_name='Status')
     region = tables.TemplateColumn(template_code=SITE_REGION_LINK)
     tenant = tables.TemplateColumn(template_code=COL_TENANT)
@@ -236,7 +260,7 @@ class RackRoleTable(BaseTable):
 
 class RackTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn()
+    name = tables.LinkColumn(order_by=('_nat1', '_nat2', '_nat3'))
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
     tenant = tables.TemplateColumn(template_code=COL_TENANT)
@@ -322,10 +346,10 @@ class DeviceTypeTable(BaseTable):
         args=[Accessor('pk')],
         verbose_name='Device Type'
     )
-    is_full_depth = tables.BooleanColumn(verbose_name='Full Depth')
-    is_console_server = tables.BooleanColumn(verbose_name='CS')
-    is_pdu = tables.BooleanColumn(verbose_name='PDU')
-    is_network_device = tables.BooleanColumn(verbose_name='Net')
+    is_full_depth = BooleanColumn(verbose_name='Full Depth')
+    is_console_server = BooleanColumn(verbose_name='CS')
+    is_pdu = BooleanColumn(verbose_name='PDU')
+    is_network_device = BooleanColumn(verbose_name='Net')
     subdevice_role = tables.TemplateColumn(
         template_code=SUBDEVICE_ROLE_TEMPLATE,
         verbose_name='Subdevice Role'
@@ -468,7 +492,10 @@ class PlatformTable(BaseTable):
 
 class DeviceTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.TemplateColumn(template_code=DEVICE_LINK)
+    name = tables.TemplateColumn(
+        order_by=('_nat1', '_nat2', '_nat3'),
+        template_code=DEVICE_LINK
+    )
     status = tables.TemplateColumn(template_code=STATUS_LABEL, verbose_name='Status')
     tenant = tables.TemplateColumn(template_code=COL_TENANT)
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])

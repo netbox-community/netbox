@@ -1,33 +1,38 @@
 # Migration
 
-Remove Python 2 packages
+!!! warning
+    Beginning with v2.5, NetBox will no longer support Python 2. It is strongly recommended that you upgrade to Python 3 as soon as possible.
+
+## Ubuntu
+
+Remove the Python2 version of gunicorn:
 
 ```no-highlight
-# apt-get remove --purge -y python-dev python-pip
+# pip uninstall -y gunicorn
 ```
 
-Install Python 3 packages
+Install Python3 and pip3, Python's package management tool:
 
 ```no-highlight
-# apt-get install -y python3 python3-dev python3-pip
+# apt-get update
+# apt-get install -y python3 python3-dev python3-setuptools
+# easy_install3 pip
 ```
 
-Install Python Packages
+Install the Python3 packages required by NetBox:
 
 ```no-highlight
-# cd /opt/netbox
 # pip3 install -r requirements.txt
 ```
 
-Gunicorn Update
+Replace gunicorn with the Python3 version:
 
 ```no-highlight
-# pip uninstall gunicorn
 # pip3 install gunicorn
 ```
 
-Re-install LDAP Module (optional if using LDAP for auth)
+If using LDAP authentication, install the `django-auth-ldap` package:
 
 ```no-highlight
-sudo pip3 install django-auth-ldap
+# pip3 install django-auth-ldap
 ```

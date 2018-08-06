@@ -6,7 +6,7 @@ from itertools import count, groupby
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -14,18 +14,44 @@ from django.db.models import Count, Q, ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from mptt.models import MPTTModel, TreeForeignKey
+from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
 
 from circuits.models import Circuit
-from extras.models import CustomFieldModel, CustomFieldValue, ImageAttachment
+from extras.constants import OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE
+from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange
 from extras.rpc import RPC_CLIENTS
-from tenancy.models import Tenant
 from utilities.fields import ColorField, NullableCharField
 from utilities.managers import NaturalOrderByManager
-from utilities.models import CreatedUpdatedModel
+from utilities.models import ChangeLoggedModel
+from utilities.utils import serialize_object
 from .constants import *
 from .fields import ASNField, MACAddressField
 from .querysets import InterfaceQuerySet
+
+
+class ComponentModel(models.Model):
+
+    class Meta:
+        abstract = True
+
+    def get_component_parent(self):
+        raise NotImplementedError(
+            "ComponentModel must implement get_component_parent()"
+        )
+
+    def log_change(self, user, request_id, action):
+        """
+        Log an ObjectChange including the parent Device/VM.
+        """
+        ObjectChange(
+            user=user,
+            request_id=request_id,
+            changed_object=self,
+            related_object=self.get_component_parent(),
+            action=action,
+            object_data=serialize_object(self)
+        ).save()
 
 
 #
@@ -33,15 +59,25 @@ from .querysets import InterfaceQuerySet
 #
 
 @python_2_unicode_compatible
-class Region(MPTTModel):
+class Region(MPTTModel, ChangeLoggedModel):
     """
     Sites can be grouped within geographic Regions.
     """
     parent = TreeForeignKey(
-        'self', null=True, blank=True, related_name='children', db_index=True, on_delete=models.CASCADE
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='children',
+        blank=True,
+        null=True,
+        db_index=True
     )
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(
+        max_length=50,
+        unique=True
+    )
+    slug = models.SlugField(
+        unique=True
+    )
 
     csv_headers = ['name', 'slug', 'parent']
 
@@ -67,40 +103,106 @@ class Region(MPTTModel):
 #
 
 class SiteManager(NaturalOrderByManager):
-
-    def get_queryset(self):
-        return self.natural_order_by('name')
+    natural_order_field = 'name'
 
 
 @python_2_unicode_compatible
-class Site(CreatedUpdatedModel, CustomFieldModel):
+class Site(ChangeLoggedModel, CustomFieldModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
     field can be used to include an external designation, such as a data center name (e.g. Equinix SV6).
     """
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
-    status = models.PositiveSmallIntegerField(choices=SITE_STATUS_CHOICES, default=SITE_STATUS_ACTIVE)
-    region = models.ForeignKey('Region', related_name='sites', blank=True, null=True, on_delete=models.SET_NULL)
-    tenant = models.ForeignKey(Tenant, related_name='sites', blank=True, null=True, on_delete=models.PROTECT)
-    facility = models.CharField(max_length=50, blank=True)
-    asn = ASNField(blank=True, null=True, verbose_name='ASN')
-    time_zone = TimeZoneField(blank=True)
-    description = models.CharField(max_length=100, blank=True)
-    physical_address = models.CharField(max_length=200, blank=True)
-    shipping_address = models.CharField(max_length=200, blank=True)
-    contact_name = models.CharField(max_length=50, blank=True)
-    contact_phone = models.CharField(max_length=20, blank=True)
-    contact_email = models.EmailField(blank=True, verbose_name="Contact E-mail")
-    comments = models.TextField(blank=True)
-    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
-    images = GenericRelation(ImageAttachment)
+    name = models.CharField(
+        max_length=50,
+        unique=True
+    )
+    slug = models.SlugField(
+        unique=True
+    )
+    status = models.PositiveSmallIntegerField(
+        choices=SITE_STATUS_CHOICES,
+        default=SITE_STATUS_ACTIVE
+    )
+    region = models.ForeignKey(
+        to='dcim.Region',
+        on_delete=models.SET_NULL,
+        related_name='sites',
+        blank=True,
+        null=True
+    )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='sites',
+        blank=True,
+        null=True
+    )
+    facility = models.CharField(
+        max_length=50,
+        blank=True
+    )
+    asn = ASNField(
+        blank=True,
+        null=True,
+        verbose_name='ASN'
+    )
+    time_zone = TimeZoneField(
+        blank=True
+    )
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
+    physical_address = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    shipping_address = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    latitude = models.DecimalField(
+        max_digits=8,
+        decimal_places=6,
+        blank=True,
+        null=True
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        blank=True,
+        null=True
+    )
+    contact_name = models.CharField(
+        max_length=50,
+        blank=True
+    )
+    contact_phone = models.CharField(
+        max_length=20,
+        blank=True
+    )
+    contact_email = models.EmailField(
+        blank=True,
+        verbose_name='Contact E-mail'
+    )
+    comments = models.TextField(
+        blank=True
+    )
+    custom_field_values = GenericRelation(
+        to='extras.CustomFieldValue',
+        content_type_field='obj_type',
+        object_id_field='obj_id'
+    )
+    images = GenericRelation(
+        to='extras.ImageAttachment'
+    )
 
     objects = SiteManager()
+    tags = TaggableManager()
 
     csv_headers = [
         'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
-        'shipping_address', 'contact_name', 'contact_phone', 'contact_email', 'comments',
+        'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone', 'contact_email', 'comments',
     ]
 
     class Meta:
@@ -125,6 +227,8 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
             self.description,
             self.physical_address,
             self.shipping_address,
+            self.latitude,
+            self.longitude,
             self.contact_name,
             self.contact_phone,
             self.contact_email,
@@ -165,15 +269,21 @@ class Site(CreatedUpdatedModel, CustomFieldModel):
 #
 
 @python_2_unicode_compatible
-class RackGroup(models.Model):
+class RackGroup(ChangeLoggedModel):
     """
     Racks can be grouped as subsets within a Site. The scope of a group will depend on how Sites are defined. For
     example, if a Site spans a corporate campus, a RackGroup might be defined to represent each building within that
     campus. If a Site instead represents a single building, a RackGroup might represent a single room or floor.
     """
-    name = models.CharField(max_length=50)
+    name = models.CharField(
+        max_length=50
+    )
     slug = models.SlugField()
-    site = models.ForeignKey('Site', related_name='rack_groups', on_delete=models.CASCADE)
+    site = models.ForeignKey(
+        to='dcim.Site',
+        on_delete=models.CASCADE,
+        related_name='rack_groups'
+    )
 
     csv_headers = ['site', 'name', 'slug']
 
@@ -199,12 +309,17 @@ class RackGroup(models.Model):
 
 
 @python_2_unicode_compatible
-class RackRole(models.Model):
+class RackRole(ChangeLoggedModel):
     """
     Racks can be organized by functional role, similar to Devices.
     """
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(
+        max_length=50,
+        unique=True
+    )
+    slug = models.SlugField(
+        unique=True
+    )
     color = ColorField()
 
     csv_headers = ['name', 'slug', 'color']
@@ -227,36 +342,91 @@ class RackRole(models.Model):
 
 
 class RackManager(NaturalOrderByManager):
-
-    def get_queryset(self):
-        return self.natural_order_by('site__name', 'name')
+    natural_order_field = 'name'
 
 
 @python_2_unicode_compatible
-class Rack(CreatedUpdatedModel, CustomFieldModel):
+class Rack(ChangeLoggedModel, CustomFieldModel):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a RackGroup.
     """
-    name = models.CharField(max_length=50)
-    facility_id = NullableCharField(max_length=50, blank=True, null=True, verbose_name='Facility ID')
-    site = models.ForeignKey('Site', related_name='racks', on_delete=models.PROTECT)
-    group = models.ForeignKey('RackGroup', related_name='racks', blank=True, null=True, on_delete=models.SET_NULL)
-    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='racks', on_delete=models.PROTECT)
-    role = models.ForeignKey('RackRole', related_name='racks', blank=True, null=True, on_delete=models.PROTECT)
-    serial = models.CharField(max_length=50, blank=True, verbose_name='Serial number')
-    type = models.PositiveSmallIntegerField(choices=RACK_TYPE_CHOICES, blank=True, null=True, verbose_name='Type')
-    width = models.PositiveSmallIntegerField(choices=RACK_WIDTH_CHOICES, default=RACK_WIDTH_19IN, verbose_name='Width',
-                                             help_text='Rail-to-rail width')
-    u_height = models.PositiveSmallIntegerField(default=42, verbose_name='Height (U)',
-                                                validators=[MinValueValidator(1), MaxValueValidator(100)])
-    desc_units = models.BooleanField(default=False, verbose_name='Descending units',
-                                     help_text='Units are numbered top-to-bottom')
-    comments = models.TextField(blank=True)
-    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
-    images = GenericRelation(ImageAttachment)
+    name = models.CharField(
+        max_length=50
+    )
+    facility_id = NullableCharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        verbose_name='Facility ID'
+    )
+    site = models.ForeignKey(
+        to='dcim.Site',
+        on_delete=models.PROTECT,
+        related_name='racks'
+    )
+    group = models.ForeignKey(
+        to='dcim.RackGroup',
+        on_delete=models.SET_NULL,
+        related_name='racks',
+        blank=True,
+        null=True
+    )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='racks',
+        blank=True,
+        null=True
+    )
+    role = models.ForeignKey(
+        to='dcim.RackRole',
+        on_delete=models.PROTECT,
+        related_name='racks',
+        blank=True,
+        null=True
+    )
+    serial = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name='Serial number'
+    )
+    type = models.PositiveSmallIntegerField(
+        choices=RACK_TYPE_CHOICES,
+        blank=True,
+        null=True,
+        verbose_name='Type'
+    )
+    width = models.PositiveSmallIntegerField(
+        choices=RACK_WIDTH_CHOICES,
+        default=RACK_WIDTH_19IN,
+        verbose_name='Width',
+        help_text='Rail-to-rail width'
+    )
+    u_height = models.PositiveSmallIntegerField(
+        default=42,
+        verbose_name='Height (U)',
+        validators=[MinValueValidator(1), MaxValueValidator(100)]
+    )
+    desc_units = models.BooleanField(
+        default=False,
+        verbose_name='Descending units',
+        help_text='Units are numbered top-to-bottom'
+    )
+    comments = models.TextField(
+        blank=True
+    )
+    custom_field_values = GenericRelation(
+        to='extras.CustomFieldValue',
+        content_type_field='obj_type',
+        object_id_field='obj_id'
+    )
+    images = GenericRelation(
+        to='extras.ImageAttachment'
+    )
 
     objects = RackManager()
+    tags = TaggableManager()
 
     csv_headers = [
         'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'serial', 'width', 'u_height',
@@ -264,10 +434,10 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
     ]
 
     class Meta:
-        ordering = ['site', 'name']
+        ordering = ['site', 'group', 'name']
         unique_together = [
-            ['site', 'name'],
-            ['site', 'facility_id'],
+            ['group', 'name'],
+            ['group', 'facility_id'],
         ]
 
     def __str__(self):
@@ -434,16 +604,32 @@ class Rack(CreatedUpdatedModel, CustomFieldModel):
 
 
 @python_2_unicode_compatible
-class RackReservation(models.Model):
+class RackReservation(ChangeLoggedModel):
     """
     One or more reserved units within a Rack.
     """
-    rack = models.ForeignKey('Rack', related_name='reservations', on_delete=models.CASCADE)
-    units = ArrayField(models.PositiveSmallIntegerField())
-    created = models.DateTimeField(auto_now_add=True)
-    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='rackreservations', on_delete=models.PROTECT)
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
-    description = models.CharField(max_length=100)
+    rack = models.ForeignKey(
+        to='dcim.Rack',
+        on_delete=models.CASCADE,
+        related_name='reservations'
+    )
+    units = ArrayField(
+        base_field=models.PositiveSmallIntegerField()
+    )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='rackreservations',
+        blank=True,
+        null=True
+    )
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.PROTECT
+    )
+    description = models.CharField(
+        max_length=100
+    )
 
     class Meta:
         ordering = ['created']
@@ -492,12 +678,17 @@ class RackReservation(models.Model):
 #
 
 @python_2_unicode_compatible
-class Manufacturer(models.Model):
+class Manufacturer(ChangeLoggedModel):
     """
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
     """
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(
+        max_length=50,
+        unique=True
+    )
+    slug = models.SlugField(
+        unique=True
+    )
 
     csv_headers = ['name', 'slug']
 
@@ -518,7 +709,7 @@ class Manufacturer(models.Model):
 
 
 @python_2_unicode_compatible
-class DeviceType(models.Model, CustomFieldModel):
+class DeviceType(ChangeLoggedModel, CustomFieldModel):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
     well as high-level functional role(s).
@@ -533,27 +724,65 @@ class DeviceType(models.Model, CustomFieldModel):
     When a new Device of this type is created, the appropriate console, power, and interface objects (as defined by the
     DeviceType) are automatically created as well.
     """
-    manufacturer = models.ForeignKey('Manufacturer', related_name='device_types', on_delete=models.PROTECT)
-    model = models.CharField(max_length=50)
+    manufacturer = models.ForeignKey(
+        to='dcim.Manufacturer',
+        on_delete=models.PROTECT,
+        related_name='device_types'
+    )
+    model = models.CharField(
+        max_length=50
+    )
     slug = models.SlugField()
-    part_number = models.CharField(max_length=50, blank=True, help_text="Discrete part number (optional)")
-    u_height = models.PositiveSmallIntegerField(verbose_name='Height (U)', default=1)
-    is_full_depth = models.BooleanField(default=True, verbose_name="Is full depth",
-                                        help_text="Device consumes both front and rear rack faces")
-    interface_ordering = models.PositiveSmallIntegerField(choices=IFACE_ORDERING_CHOICES,
-                                                          default=IFACE_ORDERING_POSITION)
-    is_console_server = models.BooleanField(default=False, verbose_name='Is a console server',
-                                            help_text="This type of device has console server ports")
-    is_pdu = models.BooleanField(default=False, verbose_name='Is a PDU',
-                                 help_text="This type of device has power outlets")
-    is_network_device = models.BooleanField(default=True, verbose_name='Is a network device',
-                                            help_text="This type of device has network interfaces")
-    subdevice_role = models.NullBooleanField(default=None, verbose_name='Parent/child status',
-                                             choices=SUBDEVICE_ROLE_CHOICES,
-                                             help_text="Parent devices house child devices in device bays. Select "
-                                                       "\"None\" if this device type is neither a parent nor a child.")
-    comments = models.TextField(blank=True)
-    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
+    part_number = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text='Discrete part number (optional)'
+    )
+    u_height = models.PositiveSmallIntegerField(
+        default=1,
+        verbose_name='Height (U)'
+    )
+    is_full_depth = models.BooleanField(
+        default=True,
+        verbose_name='Is full depth',
+        help_text='Device consumes both front and rear rack faces'
+    )
+    interface_ordering = models.PositiveSmallIntegerField(
+        choices=IFACE_ORDERING_CHOICES,
+        default=IFACE_ORDERING_POSITION
+    )
+    is_console_server = models.BooleanField(
+        default=False,
+        verbose_name='Is a console server',
+        help_text='This type of device has console server ports'
+    )
+    is_pdu = models.BooleanField(
+        default=False,
+        verbose_name='Is a PDU',
+        help_text='This type of device has power outlets'
+    )
+    is_network_device = models.BooleanField(
+        default=True,
+        verbose_name='Is a network device',
+        help_text='This type of device has network interfaces'
+    )
+    subdevice_role = models.NullBooleanField(
+        default=None,
+        verbose_name='Parent/child status',
+        choices=SUBDEVICE_ROLE_CHOICES,
+        help_text='Parent devices house child devices in device bays. Select '
+                  '"None" if this device type is neither a parent nor a child.'
+    )
+    comments = models.TextField(
+        blank=True
+    )
+    custom_field_values = GenericRelation(
+        to='extras.CustomFieldValue',
+        content_type_field='obj_type',
+        object_id_field='obj_id'
+    )
+
+    tags = TaggableManager()
 
     csv_headers = [
         'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
@@ -654,12 +883,18 @@ class DeviceType(models.Model, CustomFieldModel):
 
 
 @python_2_unicode_compatible
-class ConsolePortTemplate(models.Model):
+class ConsolePortTemplate(ComponentModel):
     """
     A template for a ConsolePort to be created for a new Device.
     """
-    device_type = models.ForeignKey('DeviceType', related_name='console_port_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
+    device_type = models.ForeignKey(
+        to='dcim.DeviceType',
+        on_delete=models.CASCADE,
+        related_name='console_port_templates'
+    )
+    name = models.CharField(
+        max_length=50
+    )
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -668,14 +903,23 @@ class ConsolePortTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_component_parent(self):
+        return self.device_type
+
 
 @python_2_unicode_compatible
-class ConsoleServerPortTemplate(models.Model):
+class ConsoleServerPortTemplate(ComponentModel):
     """
     A template for a ConsoleServerPort to be created for a new Device.
     """
-    device_type = models.ForeignKey('DeviceType', related_name='cs_port_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
+    device_type = models.ForeignKey(
+        to='dcim.DeviceType',
+        on_delete=models.CASCADE,
+        related_name='cs_port_templates'
+    )
+    name = models.CharField(
+        max_length=50
+    )
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -684,14 +928,23 @@ class ConsoleServerPortTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_component_parent(self):
+        return self.device_type
+
 
 @python_2_unicode_compatible
-class PowerPortTemplate(models.Model):
+class PowerPortTemplate(ComponentModel):
     """
     A template for a PowerPort to be created for a new Device.
     """
-    device_type = models.ForeignKey('DeviceType', related_name='power_port_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
+    device_type = models.ForeignKey(
+        to='dcim.DeviceType',
+        on_delete=models.CASCADE,
+        related_name='power_port_templates'
+    )
+    name = models.CharField(
+        max_length=50
+    )
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -700,14 +953,23 @@ class PowerPortTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_component_parent(self):
+        return self.device_type
+
 
 @python_2_unicode_compatible
-class PowerOutletTemplate(models.Model):
+class PowerOutletTemplate(ComponentModel):
     """
     A template for a PowerOutlet to be created for a new Device.
     """
-    device_type = models.ForeignKey('DeviceType', related_name='power_outlet_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
+    device_type = models.ForeignKey(
+        to='dcim.DeviceType',
+        on_delete=models.CASCADE,
+        related_name='power_outlet_templates'
+    )
+    name = models.CharField(
+        max_length=50
+    )
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -716,16 +978,31 @@ class PowerOutletTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_component_parent(self):
+        return self.device_type
+
 
 @python_2_unicode_compatible
-class InterfaceTemplate(models.Model):
+class InterfaceTemplate(ComponentModel):
     """
     A template for a physical data interface on a new Device.
     """
-    device_type = models.ForeignKey('DeviceType', related_name='interface_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=64)
-    form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_10GE_SFP_PLUS)
-    mgmt_only = models.BooleanField(default=False, verbose_name='Management only')
+    device_type = models.ForeignKey(
+        to='dcim.DeviceType',
+        on_delete=models.CASCADE,
+        related_name='interface_templates'
+    )
+    name = models.CharField(
+        max_length=64
+    )
+    form_factor = models.PositiveSmallIntegerField(
+        choices=IFACE_FF_CHOICES,
+        default=IFACE_FF_10GE_SFP_PLUS
+    )
+    mgmt_only = models.BooleanField(
+        default=False,
+        verbose_name='Management only'
+    )
 
     objects = InterfaceQuerySet.as_manager()
 
@@ -736,14 +1013,23 @@ class InterfaceTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_component_parent(self):
+        return self.device_type
+
 
 @python_2_unicode_compatible
-class DeviceBayTemplate(models.Model):
+class DeviceBayTemplate(ComponentModel):
     """
     A template for a DeviceBay to be created for a new parent Device.
     """
-    device_type = models.ForeignKey('DeviceType', related_name='device_bay_templates', on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
+    device_type = models.ForeignKey(
+        to='dcim.DeviceType',
+        on_delete=models.CASCADE,
+        related_name='device_bay_templates'
+    )
+    name = models.CharField(
+        max_length=50
+    )
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -752,25 +1038,33 @@ class DeviceBayTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_component_parent(self):
+        return self.device_type
+
 
 #
 # Devices
 #
 
 @python_2_unicode_compatible
-class DeviceRole(models.Model):
+class DeviceRole(ChangeLoggedModel):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
     color to be used when displaying rack elevations. The vm_role field determines whether the role is applicable to
     virtual machines as well.
     """
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(
+        max_length=50,
+        unique=True
+    )
+    slug = models.SlugField(
+        unique=True
+    )
     color = ColorField()
     vm_role = models.BooleanField(
         default=True,
-        verbose_name="VM Role",
-        help_text="Virtual machines may be assigned to this role"
+        verbose_name='VM Role',
+        help_text='Virtual machines may be assigned to this role'
     )
 
     csv_headers = ['name', 'slug', 'color', 'vm_role']
@@ -791,35 +1085,47 @@ class DeviceRole(models.Model):
 
 
 @python_2_unicode_compatible
-class Platform(models.Model):
+class Platform(ChangeLoggedModel):
     """
     Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos".
     NetBox uses Platforms to determine how to interact with devices when pulling inventory data or other information by
     specifying a NAPALM driver.
     """
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(
+        max_length=50,
+        unique=True
+    )
+    slug = models.SlugField(
+        unique=True
+    )
     manufacturer = models.ForeignKey(
-        to='Manufacturer',
+        to='dcim.Manufacturer',
+        on_delete=models.PROTECT,
         related_name='platforms',
         blank=True,
         null=True,
-        help_text="Optionally limit this platform to devices of a certain manufacturer"
+        help_text='Optionally limit this platform to devices of a certain manufacturer'
     )
     napalm_driver = models.CharField(
         max_length=50,
         blank=True,
         verbose_name='NAPALM driver',
-        help_text="The name of the NAPALM driver to use when interacting with devices"
+        help_text='The name of the NAPALM driver to use when interacting with devices'
+    )
+    napalm_args = JSONField(
+        blank=True,
+        null=True,
+        verbose_name='NAPALM arguments',
+        help_text='Additional arguments to pass when initiating the NAPALM driver (JSON format)'
     )
     rpc_client = models.CharField(
         max_length=30,
         choices=RPC_CLIENT_CHOICES,
         blank=True,
-        verbose_name="Legacy RPC client"
+        verbose_name='Legacy RPC client'
     )
 
-    csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver']
+    csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args']
 
     class Meta:
         ordering = ['name']
@@ -836,17 +1142,16 @@ class Platform(models.Model):
             self.slug,
             self.manufacturer.name if self.manufacturer else None,
             self.napalm_driver,
+            self.napalm_args,
         )
 
 
 class DeviceManager(NaturalOrderByManager):
-
-    def get_queryset(self):
-        return self.natural_order_by('name')
+    natural_order_field = 'name'
 
 
 @python_2_unicode_compatible
-class Device(CreatedUpdatedModel, CustomFieldModel):
+class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
     DeviceRole, and (optionally) a Platform. Device names are not required, however if one is set it must be unique.
@@ -858,30 +1163,93 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
     by the component templates assigned to its DeviceType. Components can also be added, modified, or deleted after the
     creation of a Device.
     """
-    device_type = models.ForeignKey('DeviceType', related_name='instances', on_delete=models.PROTECT)
-    device_role = models.ForeignKey('DeviceRole', related_name='devices', on_delete=models.PROTECT)
-    tenant = models.ForeignKey(Tenant, blank=True, null=True, related_name='devices', on_delete=models.PROTECT)
-    platform = models.ForeignKey('Platform', related_name='devices', blank=True, null=True, on_delete=models.SET_NULL)
-    name = NullableCharField(max_length=64, blank=True, null=True, unique=True)
-    serial = models.CharField(max_length=50, blank=True, verbose_name='Serial number')
+    device_type = models.ForeignKey(
+        to='dcim.DeviceType',
+        on_delete=models.PROTECT,
+        related_name='instances'
+    )
+    device_role = models.ForeignKey(
+        to='dcim.DeviceRole',
+        on_delete=models.PROTECT,
+        related_name='devices'
+    )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='devices',
+        blank=True,
+        null=True
+    )
+    platform = models.ForeignKey(
+        to='dcim.Platform',
+        on_delete=models.SET_NULL,
+        related_name='devices',
+        blank=True,
+        null=True
+    )
+    name = NullableCharField(
+        max_length=64,
+        blank=True,
+        null=True,
+        unique=True
+    )
+    serial = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name='Serial number'
+    )
     asset_tag = NullableCharField(
-        max_length=50, blank=True, null=True, unique=True, verbose_name='Asset tag',
+        max_length=50,
+        blank=True,
+        null=True,
+        unique=True,
+        verbose_name='Asset tag',
         help_text='A unique tag used to identify this device'
     )
-    site = models.ForeignKey('Site', related_name='devices', on_delete=models.PROTECT)
-    rack = models.ForeignKey('Rack', related_name='devices', blank=True, null=True, on_delete=models.PROTECT)
+    site = models.ForeignKey(
+        to='dcim.Site',
+        on_delete=models.PROTECT,
+        related_name='devices'
+    )
+    rack = models.ForeignKey(
+        to='dcim.Rack',
+        on_delete=models.PROTECT,
+        related_name='devices',
+        blank=True,
+        null=True
+    )
     position = models.PositiveSmallIntegerField(
-        blank=True, null=True, validators=[MinValueValidator(1)], verbose_name='Position (U)',
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1)],
+        verbose_name='Position (U)',
         help_text='The lowest-numbered unit occupied by the device'
     )
-    face = models.PositiveSmallIntegerField(blank=True, null=True, choices=RACK_FACE_CHOICES, verbose_name='Rack face')
-    status = models.PositiveSmallIntegerField(choices=DEVICE_STATUS_CHOICES, default=DEVICE_STATUS_ACTIVE, verbose_name='Status')
+    face = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        choices=RACK_FACE_CHOICES,
+        verbose_name='Rack face'
+    )
+    status = models.PositiveSmallIntegerField(
+        choices=DEVICE_STATUS_CHOICES,
+        default=DEVICE_STATUS_ACTIVE,
+        verbose_name='Status'
+    )
     primary_ip4 = models.OneToOneField(
-        'ipam.IPAddress', related_name='primary_ip4_for', on_delete=models.SET_NULL, blank=True, null=True,
+        to='ipam.IPAddress',
+        on_delete=models.SET_NULL,
+        related_name='primary_ip4_for',
+        blank=True,
+        null=True,
         verbose_name='Primary IPv4'
     )
     primary_ip6 = models.OneToOneField(
-        'ipam.IPAddress', related_name='primary_ip6_for', on_delete=models.SET_NULL, blank=True, null=True,
+        to='ipam.IPAddress',
+        on_delete=models.SET_NULL,
+        related_name='primary_ip6_for',
+        blank=True,
+        null=True,
         verbose_name='Primary IPv6'
     )
     cluster = models.ForeignKey(
@@ -908,11 +1276,20 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
         null=True,
         validators=[MaxValueValidator(255)]
     )
-    comments = models.TextField(blank=True)
-    custom_field_values = GenericRelation(CustomFieldValue, content_type_field='obj_type', object_id_field='obj_id')
-    images = GenericRelation(ImageAttachment)
+    comments = models.TextField(
+        blank=True
+    )
+    custom_field_values = GenericRelation(
+        to='extras.CustomFieldValue',
+        content_type_field='obj_type',
+        object_id_field='obj_id'
+    )
+    images = GenericRelation(
+        to='extras.ImageAttachment'
+    )
 
     objects = DeviceManager()
+    tags = TaggableManager()
 
     csv_headers = [
         'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
@@ -1167,15 +1544,32 @@ class Device(CreatedUpdatedModel, CustomFieldModel):
 #
 
 @python_2_unicode_compatible
-class ConsolePort(models.Model):
+class ConsolePort(ComponentModel):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
-    device = models.ForeignKey('Device', related_name='console_ports', on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
-    cs_port = models.OneToOneField('ConsoleServerPort', related_name='connected_console', on_delete=models.SET_NULL,
-                                   verbose_name='Console server port', blank=True, null=True)
-    connection_status = models.NullBooleanField(choices=CONNECTION_STATUS_CHOICES, default=CONNECTION_STATUS_CONNECTED)
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        related_name='console_ports'
+    )
+    name = models.CharField(
+        max_length=50
+    )
+    cs_port = models.OneToOneField(
+        to='dcim.ConsoleServerPort',
+        on_delete=models.SET_NULL,
+        related_name='connected_console',
+        verbose_name='Console server port',
+        blank=True,
+        null=True
+    )
+    connection_status = models.NullBooleanField(
+        choices=CONNECTION_STATUS_CHOICES,
+        default=CONNECTION_STATUS_CONNECTED
+    )
+
+    tags = TaggableManager()
 
     csv_headers = ['console_server', 'cs_port', 'device', 'console_port', 'connection_status']
 
@@ -1188,6 +1582,9 @@ class ConsolePort(models.Model):
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
+
+    def get_component_parent(self):
+        return self.device
 
     def to_csv(self):
         return (
@@ -1214,14 +1611,21 @@ class ConsoleServerPortManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class ConsoleServerPort(models.Model):
+class ConsoleServerPort(ComponentModel):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
-    device = models.ForeignKey('Device', related_name='cs_ports', on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        related_name='cs_ports'
+    )
+    name = models.CharField(
+        max_length=50
+    )
 
     objects = ConsoleServerPortManager()
+    tags = TaggableManager()
 
     class Meta:
         unique_together = ['device', 'name']
@@ -1231,6 +1635,9 @@ class ConsoleServerPort(models.Model):
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
+
+    def get_component_parent(self):
+        return self.device
 
     def clean(self):
 
@@ -1249,15 +1656,31 @@ class ConsoleServerPort(models.Model):
 #
 
 @python_2_unicode_compatible
-class PowerPort(models.Model):
+class PowerPort(ComponentModel):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
-    device = models.ForeignKey('Device', related_name='power_ports', on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
-    power_outlet = models.OneToOneField('PowerOutlet', related_name='connected_port', on_delete=models.SET_NULL,
-                                        blank=True, null=True)
-    connection_status = models.NullBooleanField(choices=CONNECTION_STATUS_CHOICES, default=CONNECTION_STATUS_CONNECTED)
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        related_name='power_ports'
+    )
+    name = models.CharField(
+        max_length=50
+    )
+    power_outlet = models.OneToOneField(
+        to='dcim.PowerOutlet',
+        on_delete=models.SET_NULL,
+        related_name='connected_port',
+        blank=True,
+        null=True
+    )
+    connection_status = models.NullBooleanField(
+        choices=CONNECTION_STATUS_CHOICES,
+        default=CONNECTION_STATUS_CONNECTED
+    )
+
+    tags = TaggableManager()
 
     csv_headers = ['pdu', 'power_outlet', 'device', 'power_port', 'connection_status']
 
@@ -1270,6 +1693,9 @@ class PowerPort(models.Model):
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
+
+    def get_component_parent(self):
+        return self.device
 
     def to_csv(self):
         return (
@@ -1296,14 +1722,21 @@ class PowerOutletManager(models.Manager):
 
 
 @python_2_unicode_compatible
-class PowerOutlet(models.Model):
+class PowerOutlet(ComponentModel):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
-    device = models.ForeignKey('Device', related_name='power_outlets', on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        related_name='power_outlets'
+    )
+    name = models.CharField(
+        max_length=50
+    )
 
     objects = PowerOutletManager()
+    tags = TaggableManager()
 
     class Meta:
         unique_together = ['device', 'name']
@@ -1313,6 +1746,9 @@ class PowerOutlet(models.Model):
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
+
+    def get_component_parent(self):
+        return self.device
 
     def clean(self):
 
@@ -1331,7 +1767,7 @@ class PowerOutlet(models.Model):
 #
 
 @python_2_unicode_compatible
-class Interface(models.Model):
+class Interface(ComponentModel):
     """
     A network interface within a Device or VirtualMachine. A physical Interface can connect to exactly one other
     Interface via the creation of an InterfaceConnection.
@@ -1358,17 +1794,35 @@ class Interface(models.Model):
         blank=True,
         verbose_name='Parent LAG'
     )
-    name = models.CharField(max_length=64)
-    form_factor = models.PositiveSmallIntegerField(choices=IFACE_FF_CHOICES, default=IFACE_FF_10GE_SFP_PLUS)
-    enabled = models.BooleanField(default=True)
-    mac_address = MACAddressField(null=True, blank=True, verbose_name='MAC Address')
-    mtu = models.PositiveSmallIntegerField(blank=True, null=True, verbose_name='MTU')
+    name = models.CharField(
+        max_length=64
+    )
+    form_factor = models.PositiveSmallIntegerField(
+        choices=IFACE_FF_CHOICES,
+        default=IFACE_FF_10GE_SFP_PLUS
+    )
+    enabled = models.BooleanField(
+        default=True
+    )
+    mac_address = MACAddressField(
+        null=True,
+        blank=True,
+        verbose_name='MAC Address'
+    )
+    mtu = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        verbose_name='MTU'
+    )
     mgmt_only = models.BooleanField(
         default=False,
         verbose_name='OOB Management',
-        help_text="This interface is used only for out-of-band management"
+        help_text='This interface is used only for out-of-band management'
     )
-    description = models.CharField(max_length=100, blank=True)
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
     mode = models.PositiveSmallIntegerField(
         choices=IFACE_MODE_CHOICES,
         blank=True,
@@ -1376,19 +1830,21 @@ class Interface(models.Model):
     )
     untagged_vlan = models.ForeignKey(
         to='ipam.VLAN',
+        on_delete=models.SET_NULL,
+        related_name='interfaces_as_untagged',
         null=True,
         blank=True,
-        verbose_name='Untagged VLAN',
-        related_name='interfaces_as_untagged'
+        verbose_name='Untagged VLAN'
     )
     tagged_vlans = models.ManyToManyField(
         to='ipam.VLAN',
+        related_name='interfaces_as_tagged',
         blank=True,
-        verbose_name='Tagged VLANs',
-        related_name='interfaces_as_tagged'
+        verbose_name='Tagged VLANs'
     )
 
     objects = InterfaceQuerySet.as_manager()
+    tags = TaggableManager()
 
     class Meta:
         ordering = ['device', 'name']
@@ -1398,7 +1854,10 @@ class Interface(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return self.parent.get_absolute_url()
+        return reverse('dcim:interface', kwargs={'pk': self.pk})
+
+    def get_component_parent(self):
+        return self.device or self.virtual_machine
 
     def clean(self):
 
@@ -1470,9 +1929,30 @@ class Interface(models.Model):
 
         return super(Interface, self).save(*args, **kwargs)
 
+    def log_change(self, user, request_id, action):
+        """
+        Include the connected Interface (if any).
+        """
+        ObjectChange(
+            user=user,
+            request_id=request_id,
+            changed_object=self,
+            related_object=self.get_component_parent(),
+            action=action,
+            object_data=serialize_object(self, extra={
+                'connected_interface': self.connected_interface.pk if self.connection else None,
+                'connection_status': self.connection.connection_status if self.connection else None,
+            })
+        ).save()
+
+    # TODO: Replace `parent` with get_component_parent() (from ComponentModel)
     @property
     def parent(self):
         return self.device or self.virtual_machine
+
+    @property
+    def is_connectable(self):
+        return self.form_factor not in NONCONNECTABLE_IFACE_TYPES
 
     @property
     def is_virtual(self):
@@ -1526,10 +2006,21 @@ class InterfaceConnection(models.Model):
     An InterfaceConnection represents a symmetrical, one-to-one connection between two Interfaces. There is no
     significant difference between the interface_a and interface_b fields.
     """
-    interface_a = models.OneToOneField('Interface', related_name='connected_as_a', on_delete=models.CASCADE)
-    interface_b = models.OneToOneField('Interface', related_name='connected_as_b', on_delete=models.CASCADE)
-    connection_status = models.BooleanField(choices=CONNECTION_STATUS_CHOICES, default=CONNECTION_STATUS_CONNECTED,
-                                            verbose_name='Status')
+    interface_a = models.OneToOneField(
+        to='dcim.Interface',
+        on_delete=models.CASCADE,
+        related_name='connected_as_a'
+    )
+    interface_b = models.OneToOneField(
+        to='dcim.Interface',
+        on_delete=models.CASCADE,
+        related_name='connected_as_b'
+    )
+    connection_status = models.BooleanField(
+        choices=CONNECTION_STATUS_CHOICES,
+        default=CONNECTION_STATUS_CONNECTED,
+        verbose_name='Status'
+    )
 
     csv_headers = ['device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status']
 
@@ -1563,20 +2054,61 @@ class InterfaceConnection(models.Model):
             self.get_connection_status_display(),
         )
 
+    def log_change(self, user, request_id, action):
+        """
+        Create a new ObjectChange for each of the two affected Interfaces.
+        """
+        interfaces = (
+            (self.interface_a, self.interface_b),
+            (self.interface_b, self.interface_a),
+        )
+        for interface, peer_interface in interfaces:
+            if action == OBJECTCHANGE_ACTION_DELETE:
+                connection_data = {
+                    'connected_interface': None,
+                }
+            else:
+                connection_data = {
+                    'connected_interface': peer_interface.pk,
+                    'connection_status': self.connection_status
+                }
+            ObjectChange(
+                user=user,
+                request_id=request_id,
+                changed_object=interface,
+                related_object=interface.parent,
+                action=OBJECTCHANGE_ACTION_UPDATE,
+                object_data=serialize_object(interface, extra=connection_data)
+            ).save()
+
 
 #
 # Device bays
 #
 
 @python_2_unicode_compatible
-class DeviceBay(models.Model):
+class DeviceBay(ComponentModel):
     """
     An empty space within a Device which can house a child device
     """
-    device = models.ForeignKey('Device', related_name='device_bays', on_delete=models.CASCADE)
-    name = models.CharField(max_length=50, verbose_name='Name')
-    installed_device = models.OneToOneField('Device', related_name='parent_bay', on_delete=models.SET_NULL, blank=True,
-                                            null=True)
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        related_name='device_bays'
+    )
+    name = models.CharField(
+        max_length=50,
+        verbose_name='Name'
+    )
+    installed_device = models.OneToOneField(
+        to='dcim.Device',
+        on_delete=models.SET_NULL,
+        related_name='parent_bay',
+        blank=True,
+        null=True
+    )
+
+    tags = TaggableManager()
 
     class Meta:
         ordering = ['device', 'name']
@@ -1587,6 +2119,9 @@ class DeviceBay(models.Model):
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
+
+    def get_component_parent(self):
+        return self.device
 
     def clean(self):
 
@@ -1606,25 +2141,62 @@ class DeviceBay(models.Model):
 #
 
 @python_2_unicode_compatible
-class InventoryItem(models.Model):
+class InventoryItem(ComponentModel):
     """
     An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply.
     InventoryItems are used only for inventory purposes.
     """
-    device = models.ForeignKey('Device', related_name='inventory_items', on_delete=models.CASCADE)
-    parent = models.ForeignKey('self', related_name='child_items', blank=True, null=True, on_delete=models.CASCADE)
-    name = models.CharField(max_length=50, verbose_name='Name')
-    manufacturer = models.ForeignKey(
-        'Manufacturer', models.PROTECT, related_name='inventory_items', blank=True, null=True
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        related_name='inventory_items'
     )
-    part_id = models.CharField(max_length=50, verbose_name='Part ID', blank=True)
-    serial = models.CharField(max_length=50, verbose_name='Serial number', blank=True)
+    parent = models.ForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='child_items',
+        blank=True,
+        null=True
+    )
+    name = models.CharField(
+        max_length=50,
+        verbose_name='Name'
+    )
+    manufacturer = models.ForeignKey(
+        to='dcim.Manufacturer',
+        on_delete=models.PROTECT,
+        related_name='inventory_items',
+        blank=True,
+        null=True
+    )
+    part_id = models.CharField(
+        max_length=50,
+        verbose_name='Part ID',
+        blank=True
+    )
+    serial = models.CharField(
+        max_length=50,
+        verbose_name='Serial number',
+        blank=True
+    )
     asset_tag = NullableCharField(
-        max_length=50, blank=True, null=True, unique=True, verbose_name='Asset tag',
+        max_length=50,
+        unique=True,
+        blank=True,
+        null=True,
+        verbose_name='Asset tag',
         help_text='A unique tag used to identify this item'
     )
-    discovered = models.BooleanField(default=False, verbose_name='Discovered')
-    description = models.CharField(max_length=100, blank=True)
+    discovered = models.BooleanField(
+        default=False,
+        verbose_name='Discovered'
+    )
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    tags = TaggableManager()
 
     csv_headers = [
         'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
@@ -1639,6 +2211,9 @@ class InventoryItem(models.Model):
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
+
+    def get_component_parent(self):
+        return self.device
 
     def to_csv(self):
         return (
@@ -1658,7 +2233,7 @@ class InventoryItem(models.Model):
 #
 
 @python_2_unicode_compatible
-class VirtualChassis(models.Model):
+class VirtualChassis(ChangeLoggedModel):
     """
     A collection of Devices which operate with a shared control plane (e.g. a switch stack).
     """
@@ -1671,6 +2246,10 @@ class VirtualChassis(models.Model):
         max_length=30,
         blank=True
     )
+
+    tags = TaggableManager()
+
+    csv_headers = ['master', 'domain']
 
     class Meta:
         ordering = ['master']
@@ -1690,3 +2269,9 @@ class VirtualChassis(models.Model):
             raise ValidationError({
                 'master': "The selected master is not assigned to this virtual chassis."
             })
+
+    def to_csv(self):
+        return (
+            self.master,
+            self.domain,
+        )

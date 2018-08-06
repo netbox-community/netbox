@@ -3,11 +3,12 @@ from __future__ import unicode_literals
 
 # Models which support custom fields
 CUSTOMFIELD_MODELS = (
-    'provider', 'circuit',                                  # Circuits
-    'site', 'rack', 'devicetype', 'device',                 # DCIM
-    'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf',      # IPAM
-    'tenant',                                               # Tenancy
-    'cluster', 'virtualmachine',                            # Virtualization
+    'provider', 'circuit',                                         # Circuits
+    'site', 'rack', 'devicetype', 'device',                        # DCIM
+    'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf', 'service',  # IPAM
+    'secret',                                                      # Secrets
+    'tenant',                                                      # Tenancy
+    'cluster', 'virtualmachine',                                   # Virtualization
 )
 
 # Custom field types
@@ -50,8 +51,9 @@ GRAPH_TYPE_CHOICES = (
 EXPORTTEMPLATE_MODELS = [
     'provider', 'circuit',                                                          # Circuits
     'site', 'region', 'rack', 'rackgroup', 'manufacturer', 'devicetype', 'device',  # DCIM
-    'consoleport', 'powerport', 'interfaceconnection',                              # DCIM
-    'aggregate', 'prefix', 'ipaddress', 'vlan',                                     # IPAM
+    'consoleport', 'powerport', 'interfaceconnection', 'virtualchassis',            # DCIM
+    'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf', 'service',                   # IPAM
+    'secret',                                                                       # Secrets
     'tenant',                                                                       # Tenancy
     'cluster', 'virtualmachine',                                                    # Virtualization
 ]
@@ -64,6 +66,16 @@ TOPOLOGYMAP_TYPE_CHOICES = (
     (TOPOLOGYMAP_TYPE_NETWORK, 'Network'),
     (TOPOLOGYMAP_TYPE_CONSOLE, 'Console'),
     (TOPOLOGYMAP_TYPE_POWER, 'Power'),
+)
+
+# Change log actions
+OBJECTCHANGE_ACTION_CREATE = 1
+OBJECTCHANGE_ACTION_UPDATE = 2
+OBJECTCHANGE_ACTION_DELETE = 3
+OBJECTCHANGE_ACTION_CHOICES = (
+    (OBJECTCHANGE_ACTION_CREATE, 'Created'),
+    (OBJECTCHANGE_ACTION_UPDATE, 'Updated'),
+    (OBJECTCHANGE_ACTION_DELETE, 'Deleted'),
 )
 
 # User action types
@@ -97,3 +109,23 @@ LOG_LEVEL_CODES = {
     LOG_WARNING: 'warning',
     LOG_FAILURE: 'failure',
 }
+
+# webhook content types
+WEBHOOK_CT_JSON = 1
+WEBHOOK_CT_X_WWW_FORM_ENCODED = 2
+WEBHOOK_CT_CHOICES = (
+    (WEBHOOK_CT_JSON, 'application/json'),
+    (WEBHOOK_CT_X_WWW_FORM_ENCODED, 'application/x-www-form-urlencoded'),
+)
+
+# Models which support registered webhooks
+WEBHOOK_MODELS = (
+    'provider', 'circuit',                                           # Circuits
+    'site', 'rack', 'devicetype', 'device', 'virtualchassis',        # DCIM
+    'consoleport', 'consoleserverport', 'powerport', 'poweroutlet',
+    'interface', 'devicebay', 'inventoryitem',
+    'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf', 'service',    # IPAM
+    'secret',                                                        # Secrets
+    'tenant',                                                        # Tenancy
+    'cluster', 'virtualmachine',                                     # Virtualization
+)
