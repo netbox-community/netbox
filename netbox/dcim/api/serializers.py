@@ -362,7 +362,7 @@ class NestedPlatformSerializer(WritableNestedSerializer):
 #
 
 # Cannot import ipam.api.NestedIPAddressSerializer due to circular dependency
-class DeviceIPAddressSerializer(serializers.ModelSerializer):
+class DeviceIPAddressSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:ipaddress-detail')
 
     class Meta:
@@ -371,7 +371,7 @@ class DeviceIPAddressSerializer(serializers.ModelSerializer):
 
 
 # Cannot import virtualization.api.NestedClusterSerializer due to circular dependency
-class NestedClusterSerializer(serializers.ModelSerializer):
+class NestedClusterSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:cluster-detail')
 
     class Meta:
@@ -380,7 +380,7 @@ class NestedClusterSerializer(serializers.ModelSerializer):
 
 
 # Cannot import NestedVirtualChassisSerializer due to circular dependency
-class DeviceVirtualChassisSerializer(serializers.ModelSerializer):
+class DeviceVirtualChassisSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualchassis-detail')
     master = NestedDeviceSerializer()
 
