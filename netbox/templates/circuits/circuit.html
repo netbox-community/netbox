@@ -1,44 +1,57 @@
 {% extends '_base.html' %}
 {% load helpers %}
 
+{% block title %}{{ circuit }}{% endblock %}
+
+{% block header %}
+    <div class="row">
+        <div class="col-sm-8 col-md-9">
+            <ol class="breadcrumb">
+                <li><a href="{% url 'circuits:circuit_list' %}">Circuits</a></li>
+                <li><a href="{% url 'circuits:circuit_list' %}?provider={{ circuit.provider.slug }}">{{ circuit.provider }}</a></li>
+                <li>{{ circuit.cid }}</li>
+            </ol>
+        </div>
+        <div class="col-sm-4 col-md-3">
+            <form action="{% url 'circuits:circuit_list' %}" method="get">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" />
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="fa fa-search" aria-hidden="true"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="pull-right">
+        {% if perms.circuits.change_circuit %}
+            <a href="{% url 'circuits:circuit_edit' pk=circuit.pk %}" class="btn btn-warning">
+                <span class="fa fa-pencil" aria-hidden="true"></span>
+                Edit this circuit
+            </a>
+        {% endif %}
+        {% if perms.circuits.delete_circuit %}
+            <a href="{% url 'circuits:circuit_delete' pk=circuit.pk %}" class="btn btn-danger">
+                <span class="fa fa-trash" aria-hidden="true"></span>
+                Delete this circuit
+            </a>
+        {% endif %}
+    </div>
+    <h1>{{ circuit }}</h1>
+    {% include 'inc/created_updated.html' with obj=circuit %}
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ circuit.get_absolute_url }}">Circuit</a>
+        </li>
+        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+            <a href="{% url 'circuits:circuit_changelog' pk=circuit.pk %}">Changelog</a>
+        </li>
+    </ul>
+{% endblock %}
+
 {% block content %}
-<div class="row">
-    <div class="col-sm-8 col-md-9">
-        <ol class="breadcrumb">
-            <li><a href="{% url 'circuits:circuit_list' %}">Circuits</a></li>
-            <li><a href="{% url 'circuits:circuit_list' %}?provider={{ circuit.provider.slug }}">{{ circuit.provider }}</a></li>
-            <li>{{ circuit.cid }}</li>
-        </ol>
-    </div>
-    <div class="col-sm-4 col-md-3">
-        <form action="{% url 'circuits:circuit_list' %}" method="get">
-            <div class="input-group">
-                <input type="text" name="q" class="form-control" />
-                <span class="input-group-btn">
-                    <button type="submit" class="btn btn-primary">
-                        <span class="fa fa-search" aria-hidden="true"></span>
-                    </button>
-                </span>
-            </div>
-        </form>
-    </div>
-</div>
-<div class="pull-right">
-    {% if perms.circuits.change_circuit %}
-		<a href="{% url 'circuits:circuit_edit' pk=circuit.pk %}" class="btn btn-warning">
-			<span class="fa fa-pencil" aria-hidden="true"></span>
-			Edit this circuit
-		</a>
-    {% endif %}
-    {% if perms.circuits.delete_circuit %}
-		<a href="{% url 'circuits:circuit_delete' pk=circuit.pk %}" class="btn btn-danger">
-			<span class="fa fa-trash" aria-hidden="true"></span>
-			Delete this circuit
-		</a>
-    {% endif %}
-</div>
-<h1>{% block title %}{{ circuit.provider }} - {{ circuit.cid }}{% endblock %}</h1>
-{% include 'inc/created_updated.html' with obj=circuit %}
 <div class="row">
 	<div class="col-md-6">
         <div class="panel panel-default">
@@ -112,9 +125,8 @@
                 </tr>
             </table>
         </div>
-        {% with circuit.get_custom_fields as custom_fields %}
-            {% include 'inc/custom_fields_panel.html' %}
-        {% endwith %}
+        {% include 'inc/custom_fields_panel.html' with obj=circuit %}
+        {% include 'extras/inc/tags_panel.html' with tags=circuit.tags.all url='circuits:circuit_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Comments</strong>

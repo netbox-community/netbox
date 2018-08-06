@@ -127,4 +127,54 @@ $(document).ready(function() {
         });
 
     });
+
+    // Auto-complete tags
+    function split_tags(val) {
+      return val.split(/,\s*/);
+    }
+    $("#id_tags")
+      .on("keydown", function(event) {
+        if (event.keyCode === $.ui.keyCode.TAB &&
+            $(this).autocomplete("instance").menu.active) {
+          event.preventDefault();
+        }
+      })
+      .autocomplete({
+        source: function(request, response) {
+            $.ajax({
+                type: 'GET',
+                url: netbox_api_path + 'extras/tags/',
+                data: 'q=' + split_tags(request.term).pop(),
+                success: function(data) {
+                    var choices = [];
+                    $.each(data.results, function (index, choice) {
+                        choices.push(choice.name);
+                    });
+                    response(choices);
+                }
+            });
+        },
+        search: function() {
+          // Need 3 or more characters to begin searching
+          var term = split_tags(this.value).pop();
+          if (term.length < 3) {
+            return false;
+          }
+        },
+        focus: function() {
+          // prevent value inserted on focus
+          return false;
+        },
+        select: function(event, ui) {
+          var terms = split_tags(this.value);
+          // remove the current input
+          terms.pop();
+          // add the selected item
+          terms.push(ui.item.value);
+          // add placeholder to get the comma-and-space at the end
+          terms.push("");
+          this.value = terms.join(", ");
+          return false;
+        }
+      });
 });

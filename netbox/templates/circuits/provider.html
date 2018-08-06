@@ -2,49 +2,62 @@
 {% load static from staticfiles %}
 {% load helpers %}
 
+{% block title %}{{ provider }}{% endblock %}
+
+{% block header %}
+    <div class="row">
+        <div class="col-sm-8 col-md-9">
+            <ol class="breadcrumb">
+                <li><a href="{% url 'circuits:provider_list' %}">Providers</a></li>
+                <li>{{ provider }}</li>
+            </ol>
+        </div>
+        <div class="col-sm-4 col-md-3">
+            <form action="{% url 'circuits:provider_list' %}" method="get">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" />
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="fa fa-search" aria-hidden="true"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="pull-right">
+        {% if show_graphs %}
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ provider.name }}" data-url="{% url 'circuits-api:provider-graphs' pk=provider.pk %}" title="Show graphs">
+                <i class="fa fa-signal" aria-hidden="true"></i>
+                Graphs
+            </button>
+        {% endif %}
+        {% if perms.circuits.change_provider %}
+            <a href="{% url 'circuits:provider_edit' slug=provider.slug %}" class="btn btn-warning">
+                <span class="fa fa-pencil" aria-hidden="true"></span>
+                Edit this provider
+            </a>
+        {% endif %}
+        {% if perms.circuits.delete_provider %}
+            <a href="{% url 'circuits:provider_delete' slug=provider.slug %}" class="btn btn-danger">
+                <span class="fa fa-trash" aria-hidden="true"></span>
+                Delete this provider
+            </a>
+        {% endif %}
+    </div>
+    <h1>{{ provider }}</h1>
+    {% include 'inc/created_updated.html' with obj=provider %}
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ provider.get_absolute_url }}">Provider</a>
+        </li>
+        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+            <a href="{% url 'circuits:provider_changelog' slug=provider.slug %}">Changelog</a>
+        </li>
+    </ul>
+{% endblock %}
+
 {% block content %}
-<div class="row">
-    <div class="col-sm-8 col-md-9">
-        <ol class="breadcrumb">
-            <li><a href="{% url 'circuits:provider_list' %}">Providers</a></li>
-            <li>{{ provider }}</li>
-        </ol>
-    </div>
-    <div class="col-sm-4 col-md-3">
-        <form action="{% url 'circuits:provider_list' %}" method="get">
-            <div class="input-group">
-                <input type="text" name="q" class="form-control" />
-                <span class="input-group-btn">
-                    <button type="submit" class="btn btn-primary">
-                        <span class="fa fa-search" aria-hidden="true"></span>
-                    </button>
-                </span>
-            </div>
-        </form>
-    </div>
-</div>
-<div class="pull-right">
-    {% if show_graphs %}
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ provider.name }}" data-url="{% url 'circuits-api:provider-graphs' pk=provider.pk %}" title="Show graphs">
-            <i class="fa fa-signal" aria-hidden="true"></i>
-            Graphs
-        </button>
-    {% endif %}
-    {% if perms.circuits.change_provider %}
-		<a href="{% url 'circuits:provider_edit' slug=provider.slug %}" class="btn btn-warning">
-			<span class="fa fa-pencil" aria-hidden="true"></span>
-			Edit this provider
-		</a>
-    {% endif %}
-    {% if perms.circuits.delete_provider %}
-		<a href="{% url 'circuits:provider_delete' slug=provider.slug %}" class="btn btn-danger">
-			<span class="fa fa-trash" aria-hidden="true"></span>
-			Delete this provider
-		</a>
-    {% endif %}
-</div>
-<h1>{% block title %}{{ provider }}{% endblock %}</h1>
-{% include 'inc/created_updated.html' with obj=provider %}
 <div class="row">
 	<div class="col-md-4">
         <div class="panel panel-default">
@@ -110,9 +123,8 @@
                 </tr>
             </table>
         </div>
-        {% with provider.get_custom_fields as custom_fields %}
-            {% include 'inc/custom_fields_panel.html' %}
-        {% endwith %}
+        {% include 'inc/custom_fields_panel.html' with obj=provider %}
+        {% include 'extras/inc/tags_panel.html' with tags=provider.tags.all url='circuits:provider_list' %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Comments</strong>

@@ -1,0 +1,5 @@
+{% if url_name %}
+    <a href="{% url url_name %}?tag={{ tag.slug }}"><span class="label label-default">{{ tag }}</span></a>
+{% else %}
+    <span class="label label-default">{{ tag }}</span>
+{% endif %}

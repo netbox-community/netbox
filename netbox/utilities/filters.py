@@ -19,6 +19,9 @@ class NumericInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
 
 
 class NullableCharFieldFilter(django_filters.CharFilter):
+    """
+    Allow matching on null field values by passing a special string used to signify NULL.
+    """
     null_value = 'NULL'
 
     def filter(self, qs, value):

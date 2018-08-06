@@ -2,15 +2,12 @@ from __future__ import unicode_literals
 
 import base64
 
-from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from secrets.models import Secret, SecretRole, SessionKey, UserKey
-from users.models import Token
-from utilities.tests import HttpStatusMixin
+from utilities.testing import APITestCase
 
 # Dummy RSA key pair for testing use only
 PRIVATE_KEY = """-----BEGIN RSA PRIVATE KEY-----
@@ -52,13 +49,11 @@ qQIDAQAB
 -----END PUBLIC KEY-----"""
 
 
-class SecretRoleTest(HttpStatusMixin, APITestCase):
+class SecretRoleTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(SecretRoleTest, self).setUp()
 
         self.secretrole1 = SecretRole.objects.create(name='Test Secret Role 1', slug='test-secret-role-1')
         self.secretrole2 = SecretRole.objects.create(name='Test Secret Role 2', slug='test-secret-role-2')
@@ -145,21 +140,20 @@ class SecretRoleTest(HttpStatusMixin, APITestCase):
         self.assertEqual(SecretRole.objects.count(), 2)
 
 
-class SecretTest(HttpStatusMixin, APITestCase):
+class SecretTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
+        super(SecretTest, self).setUp()
 
-        userkey = UserKey(user=user, public_key=PUBLIC_KEY)
+        userkey = UserKey(user=self.user, public_key=PUBLIC_KEY)
         userkey.save()
         self.master_key = userkey.get_master_key(PRIVATE_KEY)
         session_key = SessionKey(userkey=userkey)
         session_key.save(self.master_key)
 
         self.header = {
-            'HTTP_AUTHORIZATION': 'Token {}'.format(token.key),
+            'HTTP_AUTHORIZATION': 'Token {}'.format(self.token.key),
             'HTTP_X_SESSION_KEY': base64.b64encode(session_key.key),
         }
 
@@ -288,21 +282,20 @@ class SecretTest(HttpStatusMixin, APITestCase):
         self.assertEqual(Secret.objects.count(), 2)
 
 
-class GetSessionKeyTest(HttpStatusMixin, APITestCase):
+class GetSessionKeyTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
+        super(GetSessionKeyTest, self).setUp()
 
-        userkey = UserKey(user=user, public_key=PUBLIC_KEY)
+        userkey = UserKey(user=self.user, public_key=PUBLIC_KEY)
         userkey.save()
         master_key = userkey.get_master_key(PRIVATE_KEY)
         self.session_key = SessionKey(userkey=userkey)
         self.session_key.save(master_key)
 
         self.header = {
-            'HTTP_AUTHORIZATION': 'Token {}'.format(token.key),
+            'HTTP_AUTHORIZATION': 'Token {}'.format(self.token.key),
         }
 
     def test_get_session_key(self):

@@ -1,0 +1,8 @@
+{% extends base_template %}
+
+{% block title %}{% if obj %}{{ obj }}{% else %}{{ block.super }}{% endif %} - Changelog{% endblock %}
+
+{% block content %}
+    {% if obj %}<h1>{{ obj }}</h1>{% endif %}
+    {% include 'panel_table.html' with table=objectchanges_table %}
+{% endblock %}

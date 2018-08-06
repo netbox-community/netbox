@@ -4,7 +4,12 @@ from django import forms
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from .models import CustomField, CustomFieldChoice, Graph, ExportTemplate, TopologyMap, UserAction
+from utilities.forms import LaxURLField
+from .constants import OBJECTCHANGE_ACTION_CREATE, OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE
+from .models import (
+    ConfigContext, CustomField, CustomFieldChoice, Graph, ExportTemplate, ObjectChange, TopologyMap, UserAction,
+    Webhook,
+)
 
 
 def order_content_types(field):
@@ -13,6 +18,37 @@ def order_content_types(field):
     """
     queryset = field.queryset.order_by('app_label', 'model')
     field.choices = [(ct.pk, '{} > {}'.format(ct.app_label, ct.name)) for ct in queryset]
+
+
+#
+# Webhooks
+#
+
+class WebhookForm(forms.ModelForm):
+    payload_url = LaxURLField(
+        label='URL'
+    )
+
+    class Meta:
+        model = Webhook
+        exclude = []
+
+    def __init__(self, *args, **kwargs):
+        super(WebhookForm, self).__init__(*args, **kwargs)
+
+        order_content_types(self.fields['obj_type'])
+
+
+@admin.register(Webhook)
+class WebhookAdmin(admin.ModelAdmin):
+    list_display = [
+        'name', 'models', 'payload_url', 'http_content_type', 'enabled', 'type_create', 'type_update',
+        'type_delete', 'ssl_verification',
+    ]
+    form = WebhookForm
+
+    def models(self, obj):
+        return ', '.join([ct.name for ct in obj.obj_type.all()])
 
 
 #

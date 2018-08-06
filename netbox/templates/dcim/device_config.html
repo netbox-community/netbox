@@ -1,11 +1,10 @@
-{% extends '_base.html' %}
+{% extends 'dcim/device.html' %}
 {% load staticfiles %}
 
 {% block title %}{{ device }} - Config{% endblock %}
 
 {% block content %}
     {% include 'inc/ajax_loader.html' %}
-    {% include 'dcim/inc/device_header.html' with active_tab='config' %}
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
             <div class="panel panel-default">

@@ -1,29 +1,31 @@
-{% if custom_fields %}
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <strong>Custom Fields</strong>
+{% with custom_fields=obj.custom_fields %}
+    {% if custom_fields %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Custom Fields</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+                {% for field, value in custom_fields.items %}
+                    <tr>
+                        <td>{{ field }}</td>
+                        <td>
+                            {% if field.type == 300 and value == True %}
+                                <i class="glyphicon glyphicon-ok text-success" title="True"></i>
+                            {% elif field.type == 300 and value == False %}
+                                <i class="glyphicon glyphicon-remove text-danger" title="False"></i>
+                            {% elif field.type == 500 and value %}
+                                <a href="{{ value }}">{{ value|truncatechars:70 }}</a>
+                            {% elif field.type == 200 or value %}
+                                {{ value }}
+                            {% elif field.required %}
+                                <span class="text-warning">Not defined</span>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
         </div>
-        <table class="table table-hover panel-body attr-table">
-            {% for field, value in custom_fields.items %}
-                <tr>
-                    <td>{{ field }}</td>
-                    <td>
-                        {% if field.type == 300 and value == True %}
-                            <i class="glyphicon glyphicon-ok text-success" title="True"></i>
-                        {% elif field.type == 300 and value == False %}
-                            <i class="glyphicon glyphicon-remove text-danger" title="False"></i>
-                        {% elif field.type == 500 and value %}
-                            <a href="{{ value }}">{{ value|truncatechars:70 }}</a>
-                        {% elif field.type == 200 or value %}
-                            {{ value }}
-                        {% elif field.required %}
-                            <span class="text-warning">Not defined</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
-    </div>
-{% endif %}
+    {% endif %}
+{% endwith %}

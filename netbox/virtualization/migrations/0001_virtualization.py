@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import django.db.models.deletion
-import extras.models
 
 
 class Migration(migrations.Migration):
@@ -30,7 +29,6 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ['name'],
             },
-            bases=(models.Model, extras.models.CustomFieldModel),
         ),
         migrations.CreateModel(
             name='ClusterGroup',
@@ -74,7 +72,6 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ['name'],
             },
-            bases=(models.Model, extras.models.CustomFieldModel),
         ),
         migrations.AddField(
             model_name='cluster',

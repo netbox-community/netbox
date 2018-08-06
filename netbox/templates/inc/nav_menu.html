@@ -16,7 +16,7 @@
         <div id="navbar" class="navbar-collapse collapse">
             {% if request.user.is_authenticated or not settings.LOGIN_REQUIRED %}
             <ul class="nav navbar-nav">
-                <li class="dropdown{% if request.path|contains:'/dcim/sites/,/dcim/regions/,/tenancy/,/extras/reports/' %} active{% endif %}">
+                <li class="dropdown{% if request.path|contains:'/dcim/sites/,/dcim/regions/,/tenancy/,/extras/tags/,/extras/reports/' %} active{% endif %}">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Organization <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li class="dropdown-header">Sites</li>
@@ -61,7 +61,16 @@
                         <li class="divider"></li>
                         <li class="dropdown-header">Miscellaneous</li>
                         <li>
+                            <a href="{% url 'extras:tag_list' %}">Tags</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'extras:configcontext_list' %}">Config Contexts</a>
+                        </li>
+                        <li>
                             <a href="{% url 'extras:report_list' %}">Reports</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'extras:objectchange_list' %}">Changelog</a>
                         </li>
                     </ul>
                 </li>
@@ -279,6 +288,11 @@
                                 </div>
                             {% endif %}
                             <a href="{% url 'ipam:vlangroup_list' %}">VLAN Groups</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Services</li>
+                        <li>
+                            <a href="{% url 'ipam:service_list' %}">Services</a>
                         </li>
                     </ul>
                 </li>

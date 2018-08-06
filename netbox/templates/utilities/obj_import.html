@@ -22,7 +22,7 @@
                 <div class="col-md-12 text-right">
 		            <button type="submit" class="btn btn-primary">Submit</button>
 		            {% if return_url %}
-                        <a href="{% url return_url %}" class="btn btn-default">Cancel</a>
+                        <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
                     {% endif %}
                 </div>
             </div>

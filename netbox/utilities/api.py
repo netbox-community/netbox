@@ -5,21 +5,36 @@ import pytz
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import ManyToManyField
 from django.http import Http404
-from rest_framework import mixins
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import BasePermission
+from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.response import Response
 from rest_framework.serializers import Field, ModelSerializer, ValidationError
-from rest_framework.viewsets import GenericViewSet, ViewSet
+from rest_framework.viewsets import ModelViewSet as _ModelViewSet, ViewSet
 
-WRITE_OPERATIONS = ['create', 'update', 'partial_update', 'delete']
+from .utils import dynamic_import
 
 
 class ServiceUnavailable(APIException):
     status_code = 503
     default_detail = "Service temporarily unavailable, please try again later."
+
+
+def get_serializer_for_model(model, prefix=''):
+    """
+    Dynamically resolve and return the appropriate serializer for a model.
+    """
+    app_name, model_name = model._meta.label.split('.')
+    serializer_name = '{}.api.serializers.{}{}Serializer'.format(
+        app_name, prefix, model_name
+    )
+    try:
+        return dynamic_import(serializer_name)
+    except AttributeError:
+        return None
 
 
 #
@@ -33,41 +48,14 @@ class IsAuthenticatedOrLoginNotRequired(BasePermission):
     def has_permission(self, request, view):
         if not settings.LOGIN_REQUIRED:
             return True
-        return request.user.is_authenticated()
+        return request.user.is_authenticated
 
 
 #
-# Serializers
+# Fields
 #
 
-class ValidatedModelSerializer(ModelSerializer):
-    """
-    Extends the built-in ModelSerializer to enforce calling clean() on the associated model during validation.
-    """
-    def validate(self, data):
-
-        # Remove custom field data (if any) prior to model validation
-        attrs = data.copy()
-        attrs.pop('custom_fields', None)
-
-        # Run clean() on an instance of the model
-        if self.instance is None:
-            model = self.Meta.model
-            # Ignore ManyToManyFields for new instances (a PK is needed for validation)
-            for field in model._meta.get_fields():
-                if isinstance(field, ManyToManyField) and field.name in attrs:
-                    attrs.pop(field.name)
-            instance = self.Meta.model(**attrs)
-        else:
-            instance = self.instance
-            for k, v in attrs.items():
-                setattr(instance, k, v)
-        instance.clean()
-
-        return data
-
-
-class ChoiceFieldSerializer(Field):
+class ChoiceField(Field):
     """
     Represent a ChoiceField as {'value': <DB value>, 'label': <string>}.
     """
@@ -80,16 +68,16 @@ class ChoiceFieldSerializer(Field):
                     self._choices[k2] = v2
             else:
                 self._choices[k] = v
-        super(ChoiceFieldSerializer, self).__init__(**kwargs)
+        super(ChoiceField, self).__init__(**kwargs)
 
     def to_representation(self, obj):
         return {'value': obj, 'label': self._choices[obj]}
 
     def to_internal_value(self, data):
-        return self._choices.get(data)
+        return data
 
 
-class ContentTypeFieldSerializer(Field):
+class ContentTypeField(Field):
     """
     Represent a ContentType as '<app_label>.<model>'
     """
@@ -108,7 +96,6 @@ class TimeZoneField(Field):
     """
     Represent a pytz time zone.
     """
-
     def to_representation(self, obj):
         return obj.zone if obj else None
 
@@ -121,31 +108,81 @@ class TimeZoneField(Field):
             raise ValidationError('Invalid time zone "{}"'.format(data))
 
 
+class SerializedPKRelatedField(PrimaryKeyRelatedField):
+    """
+    Extends PrimaryKeyRelatedField to return a serialized object on read. This is useful for representing related
+    objects in a ManyToManyField while still allowing a set of primary keys to be written.
+    """
+    def __init__(self, serializer, **kwargs):
+        self.serializer = serializer
+        self.pk_field = kwargs.pop('pk_field', None)
+        super(SerializedPKRelatedField, self).__init__(**kwargs)
+
+    def to_representation(self, value):
+        return self.serializer(value, context={'request': self.context['request']}).data
+
+
+#
+# Serializers
+#
+
+# TODO: We should probably take a fresh look at exactly what we're doing with this. There might be a more elegant
+# way to enforce model validation on the serializer.
+class ValidatedModelSerializer(ModelSerializer):
+    """
+    Extends the built-in ModelSerializer to enforce calling clean() on the associated model during validation.
+    """
+    def validate(self, data):
+
+        # Remove custom fields data and tags (if any) prior to model validation
+        attrs = data.copy()
+        attrs.pop('custom_fields', None)
+        attrs.pop('tags', None)
+
+        # Skip ManyToManyFields
+        for field in self.Meta.model._meta.get_fields():
+            if isinstance(field, ManyToManyField):
+                attrs.pop(field.name, None)
+
+        # Run clean() on an instance of the model
+        if self.instance is None:
+            instance = self.Meta.model(**attrs)
+        else:
+            instance = self.instance
+            for k, v in attrs.items():
+                setattr(instance, k, v)
+        instance.clean()
+
+        return data
+
+
+class WritableNestedSerializer(ModelSerializer):
+    """
+    Returns a nested representation of an object on read, but accepts only a primary key on write.
+    """
+    def to_internal_value(self, data):
+        if data is None:
+            return None
+        try:
+            return self.Meta.model.objects.get(pk=data)
+        except ObjectDoesNotExist:
+            raise ValidationError("Invalid ID")
+
+
 #
 # Viewsets
 #
 
-class ModelViewSet(mixins.CreateModelMixin,
-                   mixins.RetrieveModelMixin,
-                   mixins.UpdateModelMixin,
-                   mixins.DestroyModelMixin,
-                   mixins.ListModelMixin,
-                   GenericViewSet):
+class ModelViewSet(_ModelViewSet):
     """
-    Substitute DRF's built-in ModelViewSet for our own, which introduces a bit of additional functionality:
-    1. Use an alternate serializer (if provided) for write operations
-    2. Accept either a single object or a list of objects to create
+    Accept either a single object or a list of objects to create.
     """
-    def get_serializer_class(self):
-        # Check for a different serializer to use for write operations
-        if self.action in WRITE_OPERATIONS and hasattr(self, 'write_serializer_class'):
-            return self.write_serializer_class
-        return self.serializer_class
-
     def get_serializer(self, *args, **kwargs):
+
         # If a list of objects has been provided, initialize the serializer with many=True
         if isinstance(kwargs.get('data', {}), list):
             kwargs['many'] = True
+
         return super(ModelViewSet, self).get_serializer(*args, **kwargs)
 
 

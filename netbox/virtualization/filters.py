@@ -63,6 +63,9 @@ class ClusterFilter(CustomFieldFilterSet):
         to_field_name='slug',
         label='Site (slug)',
     )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
+    )
 
     class Meta:
         model = Cluster
@@ -153,6 +156,9 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         queryset=Platform.objects.all(),
         to_field_name='slug',
         label='Platform (slug)',
+    )
+    tag = django_filters.CharFilter(
+        name='tags__slug',
     )
 
     class Meta:

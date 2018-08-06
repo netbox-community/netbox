@@ -1,8 +1,10 @@
 from __future__ import unicode_literals
 
 import datetime
+import json
 import six
 
+from django.core.serializers import serialize
 from django.http import HttpResponse
 
 
@@ -71,3 +73,39 @@ def foreground_color(bg_color):
         return '000000'
     else:
         return 'ffffff'
+
+
+def dynamic_import(name):
+    """
+    Dynamically import a class from an absolute path string
+    """
+    components = name.split('.')
+    mod = __import__(components[0])
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod
+
+
+def serialize_object(obj, extra=None):
+    """
+    Return a generic JSON representation of an object using Django's built-in serializer. (This is used for things like
+    change logging, not the REST API.) Optionally include a dictionary to supplement the object data.
+    """
+    json_str = serialize('json', [obj])
+    data = json.loads(json_str)[0]['fields']
+
+    # Include any custom fields
+    if hasattr(obj, 'get_custom_fields'):
+        data['custom_fields'] = {
+            field.name: str(value) for field, value in obj.get_custom_fields().items()
+        }
+
+    # Include any tags
+    # if hasattr(obj, 'tags'):
+    #     data['tags'] = [tag.name for tag in obj.tags.all()]
+
+    # Append any extra data
+    if extra is not None:
+        data.update(extra)
+
+    return data

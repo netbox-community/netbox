@@ -1,17 +1,188 @@
 from __future__ import unicode_literals
 
+from django import template
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
 from django.views.generic import View
+from taggit.models import Tag
 
 from utilities.forms import ConfirmationForm
-from utilities.views import ObjectDeleteView, ObjectEditView
-from .forms import ImageAttachmentForm
-from .models import ImageAttachment, ReportResult, UserAction
+from utilities.views import BulkDeleteView, ObjectDeleteView, ObjectEditView, ObjectListView
+from . import filters
+from .forms import ConfigContextForm, ImageAttachmentForm, ObjectChangeFilterForm, TagForm
+from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult
 from .reports import get_report, get_reports
+from .tables import ConfigContextTable, ObjectChangeTable, TagTable
+
+
+#
+# Tags
+#
+
+class TagListView(ObjectListView):
+    queryset = Tag.objects.annotate(items=Count('taggit_taggeditem_items')).order_by('name')
+    table = TagTable
+    template_name = 'extras/tag_list.html'
+
+
+class TagEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'taggit.change_tag'
+    model = Tag
+    model_form = TagForm
+    default_return_url = 'extras:tag_list'
+
+
+class TagDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'taggit.delete_tag'
+    model = Tag
+    default_return_url = 'extras:tag_list'
+
+
+class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'circuits.delete_circuittype'
+    queryset = Tag.objects.annotate(items=Count('taggit_taggeditem_items')).order_by('name')
+    table = TagTable
+    default_return_url = 'extras:tag_list'
+
+
+#
+# Config contexts
+#
+
+class ConfigContextListView(ObjectListView):
+    queryset = ConfigContext.objects.all()
+    table = ConfigContextTable
+    template_name = 'extras/configcontext_list.html'
+
+
+class ConfigContextView(View):
+
+    def get(self, request, pk):
+
+        configcontext = get_object_or_404(ConfigContext, pk=pk)
+
+        return render(request, 'extras/configcontext.html', {
+            'configcontext': configcontext,
+        })
+
+
+class ConfigContextCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'extras.add_configcontext'
+    model = ConfigContext
+    model_form = ConfigContextForm
+    default_return_url = 'extras:configcontext_list'
+    template_name = 'extras/configcontext_edit.html'
+
+
+class ConfigContextEditView(ConfigContextCreateView):
+    permission_required = 'extras.change_configcontext'
+
+
+class ConfigContextDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'extras.delete_configcontext'
+    model = ConfigContext
+    default_return_url = 'extras:configcontext_list'
+
+
+class ConfigContextBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'extras.delete_cconfigcontext'
+    queryset = ConfigContext.objects.all()
+    table = ConfigContextTable
+    default_return_url = 'extras:configcontext_list'
+
+
+class ObjectConfigContextView(View):
+    object_class = None
+    base_template = None
+
+    def get(self, request, pk):
+
+        obj = get_object_or_404(self.object_class, pk=pk)
+        source_contexts = ConfigContext.objects.get_for_object(obj)
+
+        return render(request, 'extras/object_configcontext.html', {
+            self.object_class._meta.model_name: obj,
+            'rendered_context': obj.get_config_context(),
+            'source_contexts': source_contexts,
+            'base_template': self.base_template,
+            'active_tab': 'config-context',
+        })
+
+
+#
+# Change logging
+#
+
+class ObjectChangeListView(ObjectListView):
+    queryset = ObjectChange.objects.select_related('user', 'changed_object_type')
+    filter = filters.ObjectChangeFilter
+    filter_form = ObjectChangeFilterForm
+    table = ObjectChangeTable
+    template_name = 'extras/objectchange_list.html'
+
+
+class ObjectChangeView(View):
+
+    def get(self, request, pk):
+
+        objectchange = get_object_or_404(ObjectChange, pk=pk)
+
+        related_changes = ObjectChange.objects.filter(request_id=objectchange.request_id).exclude(pk=objectchange.pk)
+        related_changes_table = ObjectChangeTable(
+            data=related_changes[:50],
+            orderable=False
+        )
+
+        return render(request, 'extras/objectchange.html', {
+            'objectchange': objectchange,
+            'related_changes_table': related_changes_table,
+            'related_changes_count': related_changes.count()
+        })
+
+
+class ObjectChangeLogView(View):
+    """
+    Present a history of changes made to a particular object.
+    """
+
+    def get(self, request, model, **kwargs):
+
+        # Get object my model and kwargs (e.g. slug='foo')
+        obj = get_object_or_404(model, **kwargs)
+
+        # Gather all changes for this object (and its related objects)
+        content_type = ContentType.objects.get_for_model(model)
+        objectchanges = ObjectChange.objects.select_related(
+            'user', 'changed_object_type'
+        ).filter(
+            Q(changed_object_type=content_type, changed_object_id=obj.pk) |
+            Q(related_object_type=content_type, related_object_id=obj.pk)
+        )
+        objectchanges_table = ObjectChangeTable(
+            data=objectchanges,
+            orderable=False
+        )
+
+        # Check whether a header template exists for this model
+        base_template = '{}/{}.html'.format(model._meta.app_label, model._meta.model_name)
+        try:
+            template.loader.get_template(base_template)
+            object_var = model._meta.model_name
+        except template.TemplateDoesNotExist:
+            base_template = '_base.html'
+            object_var = 'obj'
+
+        return render(request, 'extras/object_changelog.html', {
+            object_var: obj,
+            'objectchanges_table': objectchanges_table,
+            'base_template': base_template,
+            'active_tab': 'changelog',
+        })
 
 
 #
@@ -113,6 +284,5 @@ class ReportRunView(PermissionRequiredMixin, View):
             result = 'failed' if report.failed else 'passed'
             msg = "Ran report {} ({})".format(report.full_name, result)
             messages.success(request, mark_safe(msg))
-            UserAction.objects.log_create(request.user, report.result, msg)
 
         return redirect('extras:report', name=report.full_name)

@@ -3,10 +3,12 @@ from __future__ import unicode_literals
 import django_filters
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
+from taggit.models import Tag
 
 from dcim.models import Site
 from .constants import CF_FILTER_DISABLED, CF_FILTER_EXACT, CF_TYPE_BOOLEAN, CF_TYPE_SELECT
-from .models import CustomField, Graph, ExportTemplate, TopologyMap, UserAction
+from .models import CustomField, Graph, ExportTemplate, ObjectChange, TopologyMap, UserAction
 
 
 class CustomFieldFilter(django_filters.Filter):
@@ -85,6 +87,25 @@ class ExportTemplateFilter(django_filters.FilterSet):
         fields = ['content_type', 'name']
 
 
+class TagFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+
+    class Meta:
+        model = Tag
+        fields = ['name', 'slug']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(slug__icontains=value)
+        )
+
+
 class TopologyMapFilter(django_filters.FilterSet):
     site_id = django_filters.ModelMultipleChoiceFilter(
         name='site',
@@ -101,6 +122,26 @@ class TopologyMapFilter(django_filters.FilterSet):
     class Meta:
         model = TopologyMap
         fields = ['name', 'slug']
+
+
+class ObjectChangeFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    time = django_filters.DateTimeFromToRangeFilter()
+
+    class Meta:
+        model = ObjectChange
+        fields = ['user', 'user_name', 'request_id', 'action', 'changed_object_type', 'object_repr']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(user_name__icontains=value) |
+            Q(object_repr__icontains=value)
+        )
 
 
 class UserActionFilter(django_filters.FilterSet):

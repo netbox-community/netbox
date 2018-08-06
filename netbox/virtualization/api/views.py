@@ -37,7 +37,6 @@ class ClusterGroupViewSet(ModelViewSet):
 class ClusterViewSet(CustomFieldModelViewSet):
     queryset = Cluster.objects.select_related('type', 'group')
     serializer_class = serializers.ClusterSerializer
-    write_serializer_class = serializers.WritableClusterSerializer
     filter_class = filters.ClusterFilter
 
 
@@ -47,13 +46,18 @@ class ClusterViewSet(CustomFieldModelViewSet):
 
 class VirtualMachineViewSet(CustomFieldModelViewSet):
     queryset = VirtualMachine.objects.all()
-    serializer_class = serializers.VirtualMachineSerializer
-    write_serializer_class = serializers.WritableVirtualMachineSerializer
     filter_class = filters.VirtualMachineFilter
+
+    def get_serializer_class(self):
+        """
+        Include rendered config context when retrieving a single VirtualMachine.
+        """
+        if self.action == 'retrieve':
+            return serializers.VirtualMachineWithConfigContextSerializer
+        return serializers.VirtualMachineSerializer
 
 
 class InterfaceViewSet(ModelViewSet):
     queryset = Interface.objects.filter(virtual_machine__isnull=False).select_related('virtual_machine')
     serializer_class = serializers.InterfaceSerializer
-    write_serializer_class = serializers.WritableInterfaceSerializer
     filter_class = filters.InterfaceFilter

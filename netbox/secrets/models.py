@@ -8,13 +8,15 @@ from Crypto.Util import strxor
 from django.conf import settings
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import Group, User
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.encoding import force_bytes, python_2_unicode_compatible
+from taggit.managers import TaggableManager
 
-from dcim.models import Device
-from utilities.models import CreatedUpdatedModel
+from extras.models import CustomFieldModel
+from utilities.models import ChangeLoggedModel
 from .exceptions import InvalidKey
 from .hashers import SecretValidationHasher
 from .querysets import UserKeyQuerySet
@@ -48,15 +50,33 @@ def decrypt_master_key(master_key_cipher, private_key):
 
 
 @python_2_unicode_compatible
-class UserKey(CreatedUpdatedModel):
+class UserKey(models.Model):
     """
     A UserKey stores a user's personal RSA (public) encryption key, which is used to generate their unique encrypted
     copy of the master encryption key. The encrypted instance of the master key can be decrypted only with the user's
     matching (private) decryption key.
     """
-    user = models.OneToOneField(User, related_name='user_key', editable=False, on_delete=models.CASCADE)
-    public_key = models.TextField(verbose_name='RSA public key')
-    master_key_cipher = models.BinaryField(max_length=512, blank=True, null=True, editable=False)
+    created = models.DateField(
+        auto_now_add=True
+    )
+    last_updated = models.DateTimeField(
+        auto_now=True
+    )
+    user = models.OneToOneField(
+        to=User,
+        on_delete=models.CASCADE,
+        related_name='user_key',
+        editable=False
+    )
+    public_key = models.TextField(
+        verbose_name='RSA public key'
+    )
+    master_key_cipher = models.BinaryField(
+        max_length=512,
+        blank=True,
+        null=True,
+        editable=False
+    )
 
     objects = UserKeyQuerySet.as_manager()
 
@@ -172,10 +192,23 @@ class SessionKey(models.Model):
     """
     A SessionKey stores a User's temporary key to be used for the encryption and decryption of secrets.
     """
-    userkey = models.OneToOneField(UserKey, related_name='session_key', on_delete=models.CASCADE, editable=False)
-    cipher = models.BinaryField(max_length=512, editable=False)
-    hash = models.CharField(max_length=128, editable=False)
-    created = models.DateTimeField(auto_now_add=True)
+    userkey = models.OneToOneField(
+        to='secrets.UserKey',
+        on_delete=models.CASCADE,
+        related_name='session_key',
+        editable=False
+    )
+    cipher = models.BinaryField(
+        max_length=512,
+        editable=False
+    )
+    hash = models.CharField(
+        max_length=128,
+        editable=False
+    )
+    created = models.DateTimeField(
+        auto_now_add=True
+    )
 
     key = None
 
@@ -226,7 +259,7 @@ class SessionKey(models.Model):
 
 
 @python_2_unicode_compatible
-class SecretRole(models.Model):
+class SecretRole(ChangeLoggedModel):
     """
     A SecretRole represents an arbitrary functional classification of Secrets. For example, a user might define roles
     such as "Login Credentials" or "SNMP Communities."
@@ -234,10 +267,23 @@ class SecretRole(models.Model):
     By default, only superusers will have access to decrypt Secrets. To allow other users to decrypt Secrets, grant them
     access to the appropriate SecretRoles either individually or by group.
     """
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
-    users = models.ManyToManyField(User, related_name='secretroles', blank=True)
-    groups = models.ManyToManyField(Group, related_name='secretroles', blank=True)
+    name = models.CharField(
+        max_length=50,
+        unique=True
+    )
+    slug = models.SlugField(
+        unique=True
+    )
+    users = models.ManyToManyField(
+        to=User,
+        related_name='secretroles',
+        blank=True
+    )
+    groups = models.ManyToManyField(
+        to=Group,
+        related_name='secretroles',
+        blank=True
+    )
 
     csv_headers = ['name', 'slug']
 
@@ -266,7 +312,7 @@ class SecretRole(models.Model):
 
 
 @python_2_unicode_compatible
-class Secret(CreatedUpdatedModel):
+class Secret(ChangeLoggedModel, CustomFieldModel):
     """
     A Secret stores an AES256-encrypted copy of sensitive data, such as passwords or secret keys. An irreversible
     SHA-256 hash is stored along with the ciphertext for validation upon decryption. Each Secret is assigned to a
@@ -276,11 +322,35 @@ class Secret(CreatedUpdatedModel):
     A Secret can be up to 65,536 bytes (64KB) in length. Each secret string will be padded with random data to a minimum
     of 64 bytes during encryption in order to protect short strings from ciphertext analysis.
     """
-    device = models.ForeignKey(Device, related_name='secrets', on_delete=models.CASCADE)
-    role = models.ForeignKey('SecretRole', related_name='secrets', on_delete=models.PROTECT)
-    name = models.CharField(max_length=100, blank=True)
-    ciphertext = models.BinaryField(editable=False, max_length=65568)  # 16B IV + 2B pad length + {62-65550}B padded
-    hash = models.CharField(max_length=128, editable=False)
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        related_name='secrets'
+    )
+    role = models.ForeignKey(
+        to='secrets.SecretRole',
+        on_delete=models.PROTECT,
+        related_name='secrets'
+    )
+    name = models.CharField(
+        max_length=100,
+        blank=True
+    )
+    ciphertext = models.BinaryField(
+        max_length=65568,  # 16B IV + 2B pad length + {62-65550}B padded
+        editable=False
+    )
+    hash = models.CharField(
+        max_length=128,
+        editable=False
+    )
+    custom_field_values = GenericRelation(
+        to='extras.CustomFieldValue',
+        content_type_field='obj_type',
+        object_id_field='obj_id'
+    )
+
+    tags = TaggableManager()
 
     plaintext = None
     csv_headers = ['device', 'role', 'name', 'plaintext']
@@ -303,6 +373,14 @@ class Secret(CreatedUpdatedModel):
 
     def get_absolute_url(self):
         return reverse('secrets:secret', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.device,
+            self.role,
+            self.name,
+            self.plaintext or '',
+        )
 
     def _pad(self, s):
         """

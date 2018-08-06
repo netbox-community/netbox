@@ -1,12 +1,11 @@
 from __future__ import unicode_literals
 
-from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase
 
 from dcim.constants import (
-    IFACE_FF_1GE_FIXED, IFACE_FF_LAG, IFACE_MODE_TAGGED, SUBDEVICE_ROLE_CHILD, SUBDEVICE_ROLE_PARENT,
+    IFACE_FF_1GE_FIXED, IFACE_FF_LAG, IFACE_MODE_TAGGED, SITE_STATUS_ACTIVE, SUBDEVICE_ROLE_CHILD,
+    SUBDEVICE_ROLE_PARENT,
 )
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -16,17 +15,14 @@ from dcim.models import (
 )
 from ipam.models import VLAN
 from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
-from users.models import Token
-from utilities.tests import HttpStatusMixin
+from utilities.testing import APITestCase
 
 
-class RegionTest(HttpStatusMixin, APITestCase):
+class RegionTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(RegionTest, self).setUp()
 
         self.region1 = Region.objects.create(name='Test Region 1', slug='test-region-1')
         self.region2 = Region.objects.create(name='Test Region 2', slug='test-region-2')
@@ -113,13 +109,11 @@ class RegionTest(HttpStatusMixin, APITestCase):
         self.assertEqual(Region.objects.count(), 2)
 
 
-class SiteTest(HttpStatusMixin, APITestCase):
+class SiteTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(SiteTest, self).setUp()
 
         self.region1 = Region.objects.create(name='Test Region 1', slug='test-region-1')
         self.region2 = Region.objects.create(name='Test Region 2', slug='test-region-2')
@@ -168,6 +162,7 @@ class SiteTest(HttpStatusMixin, APITestCase):
             'name': 'Test Site 4',
             'slug': 'test-site-4',
             'region': self.region1.pk,
+            'status': SITE_STATUS_ACTIVE,
         }
 
         url = reverse('dcim-api:site-list')
@@ -187,16 +182,19 @@ class SiteTest(HttpStatusMixin, APITestCase):
                 'name': 'Test Site 4',
                 'slug': 'test-site-4',
                 'region': self.region1.pk,
+                'status': SITE_STATUS_ACTIVE,
             },
             {
                 'name': 'Test Site 5',
                 'slug': 'test-site-5',
                 'region': self.region1.pk,
+                'status': SITE_STATUS_ACTIVE,
             },
             {
                 'name': 'Test Site 6',
                 'slug': 'test-site-6',
                 'region': self.region1.pk,
+                'status': SITE_STATUS_ACTIVE,
             },
         ]
 
@@ -236,13 +234,11 @@ class SiteTest(HttpStatusMixin, APITestCase):
         self.assertEqual(Site.objects.count(), 2)
 
 
-class RackGroupTest(HttpStatusMixin, APITestCase):
+class RackGroupTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(RackGroupTest, self).setUp()
 
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
@@ -338,13 +334,11 @@ class RackGroupTest(HttpStatusMixin, APITestCase):
         self.assertEqual(RackGroup.objects.count(), 2)
 
 
-class RackRoleTest(HttpStatusMixin, APITestCase):
+class RackRoleTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(RackRoleTest, self).setUp()
 
         self.rackrole1 = RackRole.objects.create(name='Test Rack Role 1', slug='test-rack-role-1', color='ff0000')
         self.rackrole2 = RackRole.objects.create(name='Test Rack Role 2', slug='test-rack-role-2', color='00ff00')
@@ -438,13 +432,11 @@ class RackRoleTest(HttpStatusMixin, APITestCase):
         self.assertEqual(RackRole.objects.count(), 2)
 
 
-class RackTest(HttpStatusMixin, APITestCase):
+class RackTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(RackTest, self).setUp()
 
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
@@ -564,25 +556,22 @@ class RackTest(HttpStatusMixin, APITestCase):
         self.assertEqual(Rack.objects.count(), 2)
 
 
-class RackReservationTest(HttpStatusMixin, APITestCase):
+class RackReservationTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(RackReservationTest, self).setUp()
 
-        self.user1 = user
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.rack1 = Rack.objects.create(site=self.site1, name='Test Rack 1')
         self.rackreservation1 = RackReservation.objects.create(
-            rack=self.rack1, units=[1, 2, 3], user=user, description='Reservation #1',
+            rack=self.rack1, units=[1, 2, 3], user=self.user, description='Reservation #1',
         )
         self.rackreservation2 = RackReservation.objects.create(
-            rack=self.rack1, units=[4, 5, 6], user=user, description='Reservation #2',
+            rack=self.rack1, units=[4, 5, 6], user=self.user, description='Reservation #2',
         )
         self.rackreservation3 = RackReservation.objects.create(
-            rack=self.rack1, units=[7, 8, 9], user=user, description='Reservation #3',
+            rack=self.rack1, units=[7, 8, 9], user=self.user, description='Reservation #3',
         )
 
     def test_get_rackreservation(self):
@@ -604,7 +593,7 @@ class RackReservationTest(HttpStatusMixin, APITestCase):
         data = {
             'rack': self.rack1.pk,
             'units': [10, 11, 12],
-            'user': self.user1.pk,
+            'user': self.user.pk,
             'description': 'Fourth reservation',
         }
 
@@ -625,19 +614,19 @@ class RackReservationTest(HttpStatusMixin, APITestCase):
             {
                 'rack': self.rack1.pk,
                 'units': [10, 11, 12],
-                'user': self.user1.pk,
+                'user': self.user.pk,
                 'description': 'Reservation #4',
             },
             {
                 'rack': self.rack1.pk,
                 'units': [13, 14, 15],
-                'user': self.user1.pk,
+                'user': self.user.pk,
                 'description': 'Reservation #5',
             },
             {
                 'rack': self.rack1.pk,
                 'units': [16, 17, 18],
-                'user': self.user1.pk,
+                'user': self.user.pk,
                 'description': 'Reservation #6',
             },
         ]
@@ -656,7 +645,7 @@ class RackReservationTest(HttpStatusMixin, APITestCase):
         data = {
             'rack': self.rack1.pk,
             'units': [10, 11, 12],
-            'user': self.user1.pk,
+            'user': self.user.pk,
             'description': 'Modified reservation',
         }
 
@@ -678,13 +667,11 @@ class RackReservationTest(HttpStatusMixin, APITestCase):
         self.assertEqual(RackReservation.objects.count(), 2)
 
 
-class ManufacturerTest(HttpStatusMixin, APITestCase):
+class ManufacturerTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(ManufacturerTest, self).setUp()
 
         self.manufacturer1 = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.manufacturer2 = Manufacturer.objects.create(name='Test Manufacturer 2', slug='test-manufacturer-2')
@@ -771,13 +758,11 @@ class ManufacturerTest(HttpStatusMixin, APITestCase):
         self.assertEqual(Manufacturer.objects.count(), 2)
 
 
-class DeviceTypeTest(HttpStatusMixin, APITestCase):
+class DeviceTypeTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(DeviceTypeTest, self).setUp()
 
         self.manufacturer1 = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.manufacturer2 = Manufacturer.objects.create(name='Test Manufacturer 2', slug='test-manufacturer-2')
@@ -879,13 +864,11 @@ class DeviceTypeTest(HttpStatusMixin, APITestCase):
         self.assertEqual(DeviceType.objects.count(), 2)
 
 
-class ConsolePortTemplateTest(HttpStatusMixin, APITestCase):
+class ConsolePortTemplateTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(ConsolePortTemplateTest, self).setUp()
 
         self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.devicetype = DeviceType.objects.create(
@@ -981,13 +964,11 @@ class ConsolePortTemplateTest(HttpStatusMixin, APITestCase):
         self.assertEqual(ConsolePortTemplate.objects.count(), 2)
 
 
-class ConsoleServerPortTemplateTest(HttpStatusMixin, APITestCase):
+class ConsoleServerPortTemplateTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(ConsoleServerPortTemplateTest, self).setUp()
 
         self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.devicetype = DeviceType.objects.create(
@@ -1083,13 +1064,11 @@ class ConsoleServerPortTemplateTest(HttpStatusMixin, APITestCase):
         self.assertEqual(ConsoleServerPortTemplate.objects.count(), 2)
 
 
-class PowerPortTemplateTest(HttpStatusMixin, APITestCase):
+class PowerPortTemplateTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(PowerPortTemplateTest, self).setUp()
 
         self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.devicetype = DeviceType.objects.create(
@@ -1185,13 +1164,11 @@ class PowerPortTemplateTest(HttpStatusMixin, APITestCase):
         self.assertEqual(PowerPortTemplate.objects.count(), 2)
 
 
-class PowerOutletTemplateTest(HttpStatusMixin, APITestCase):
+class PowerOutletTemplateTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(PowerOutletTemplateTest, self).setUp()
 
         self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.devicetype = DeviceType.objects.create(
@@ -1287,13 +1264,11 @@ class PowerOutletTemplateTest(HttpStatusMixin, APITestCase):
         self.assertEqual(PowerOutletTemplate.objects.count(), 2)
 
 
-class InterfaceTemplateTest(HttpStatusMixin, APITestCase):
+class InterfaceTemplateTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(InterfaceTemplateTest, self).setUp()
 
         self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.devicetype = DeviceType.objects.create(
@@ -1389,13 +1364,11 @@ class InterfaceTemplateTest(HttpStatusMixin, APITestCase):
         self.assertEqual(InterfaceTemplate.objects.count(), 2)
 
 
-class DeviceBayTemplateTest(HttpStatusMixin, APITestCase):
+class DeviceBayTemplateTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(DeviceBayTemplateTest, self).setUp()
 
         self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.devicetype = DeviceType.objects.create(
@@ -1491,13 +1464,11 @@ class DeviceBayTemplateTest(HttpStatusMixin, APITestCase):
         self.assertEqual(DeviceBayTemplate.objects.count(), 2)
 
 
-class DeviceRoleTest(HttpStatusMixin, APITestCase):
+class DeviceRoleTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(DeviceRoleTest, self).setUp()
 
         self.devicerole1 = DeviceRole.objects.create(
             name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
@@ -1597,13 +1568,11 @@ class DeviceRoleTest(HttpStatusMixin, APITestCase):
         self.assertEqual(DeviceRole.objects.count(), 2)
 
 
-class PlatformTest(HttpStatusMixin, APITestCase):
+class PlatformTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(PlatformTest, self).setUp()
 
         self.platform1 = Platform.objects.create(name='Test Platform 1', slug='test-platform-1')
         self.platform2 = Platform.objects.create(name='Test Platform 2', slug='test-platform-2')
@@ -1690,13 +1659,11 @@ class PlatformTest(HttpStatusMixin, APITestCase):
         self.assertEqual(Platform.objects.count(), 2)
 
 
-class DeviceTest(HttpStatusMixin, APITestCase):
+class DeviceTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(DeviceTest, self).setUp()
 
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
@@ -1818,13 +1785,11 @@ class DeviceTest(HttpStatusMixin, APITestCase):
         self.assertEqual(Device.objects.count(), 2)
 
 
-class ConsolePortTest(HttpStatusMixin, APITestCase):
+class ConsolePortTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(ConsolePortTest, self).setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -1925,13 +1890,11 @@ class ConsolePortTest(HttpStatusMixin, APITestCase):
         self.assertEqual(ConsolePort.objects.count(), 2)
 
 
-class ConsoleServerPortTest(HttpStatusMixin, APITestCase):
+class ConsoleServerPortTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(ConsoleServerPortTest, self).setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -2028,13 +1991,11 @@ class ConsoleServerPortTest(HttpStatusMixin, APITestCase):
         self.assertEqual(ConsoleServerPort.objects.count(), 2)
 
 
-class PowerPortTest(HttpStatusMixin, APITestCase):
+class PowerPortTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(PowerPortTest, self).setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -2135,13 +2096,11 @@ class PowerPortTest(HttpStatusMixin, APITestCase):
         self.assertEqual(PowerPort.objects.count(), 2)
 
 
-class PowerOutletTest(HttpStatusMixin, APITestCase):
+class PowerOutletTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(PowerOutletTest, self).setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -2238,13 +2197,11 @@ class PowerOutletTest(HttpStatusMixin, APITestCase):
         self.assertEqual(PowerOutlet.objects.count(), 2)
 
 
-class InterfaceTest(HttpStatusMixin, APITestCase):
+class InterfaceTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(InterfaceTest, self).setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -2322,8 +2279,8 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
             'device': self.device.pk,
             'name': 'Test Interface 4',
             'mode': IFACE_MODE_TAGGED,
+            'untagged_vlan': self.vlan3.id,
             'tagged_vlans': [self.vlan1.id, self.vlan2.id],
-            'untagged_vlan': self.vlan3.id
         }
 
         url = reverse('dcim-api:interface-list')
@@ -2331,11 +2288,10 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Interface.objects.count(), 4)
-        interface5 = Interface.objects.get(pk=response.data['id'])
-        self.assertEqual(interface5.device_id, data['device'])
-        self.assertEqual(interface5.name, data['name'])
-        self.assertEqual(interface5.tagged_vlans.count(), 2)
-        self.assertEqual(interface5.untagged_vlan.id, data['untagged_vlan'])
+        self.assertEqual(response.data['device']['id'], data['device'])
+        self.assertEqual(response.data['name'], data['name'])
+        self.assertEqual(response.data['untagged_vlan']['id'], data['untagged_vlan'])
+        self.assertEqual([v['id'] for v in response.data['tagged_vlans']], data['tagged_vlans'])
 
     def test_create_interface_bulk(self):
 
@@ -2370,22 +2326,22 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
                 'device': self.device.pk,
                 'name': 'Test Interface 4',
                 'mode': IFACE_MODE_TAGGED,
-                'tagged_vlans': [self.vlan1.id],
                 'untagged_vlan': self.vlan2.id,
+                'tagged_vlans': [self.vlan1.id],
             },
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 5',
                 'mode': IFACE_MODE_TAGGED,
-                'tagged_vlans': [self.vlan1.id],
                 'untagged_vlan': self.vlan2.id,
+                'tagged_vlans': [self.vlan1.id],
             },
             {
                 'device': self.device.pk,
                 'name': 'Test Interface 6',
                 'mode': IFACE_MODE_TAGGED,
-                'tagged_vlans': [self.vlan1.id],
                 'untagged_vlan': self.vlan2.id,
+                'tagged_vlans': [self.vlan1.id],
             },
         ]
 
@@ -2394,15 +2350,10 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Interface.objects.count(), 6)
-        self.assertEqual(response.data[0]['name'], data[0]['name'])
-        self.assertEqual(response.data[1]['name'], data[1]['name'])
-        self.assertEqual(response.data[2]['name'], data[2]['name'])
-        self.assertEqual(len(response.data[0]['tagged_vlans']), 1)
-        self.assertEqual(len(response.data[1]['tagged_vlans']), 1)
-        self.assertEqual(len(response.data[2]['tagged_vlans']), 1)
-        self.assertEqual(response.data[0]['untagged_vlan'], self.vlan2.id)
-        self.assertEqual(response.data[1]['untagged_vlan'], self.vlan2.id)
-        self.assertEqual(response.data[2]['untagged_vlan'], self.vlan2.id)
+        for i in range(0, 3):
+            self.assertEqual(response.data[i]['name'], data[i]['name'])
+            self.assertEqual([v['id'] for v in response.data[i]['tagged_vlans']], data[i]['tagged_vlans'])
+            self.assertEqual(response.data[i]['untagged_vlan']['id'], data[i]['untagged_vlan'])
 
     def test_update_interface(self):
 
@@ -2434,13 +2385,11 @@ class InterfaceTest(HttpStatusMixin, APITestCase):
         self.assertEqual(Interface.objects.count(), 2)
 
 
-class DeviceBayTest(HttpStatusMixin, APITestCase):
+class DeviceBayTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(DeviceBayTest, self).setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -2549,13 +2498,11 @@ class DeviceBayTest(HttpStatusMixin, APITestCase):
         self.assertEqual(DeviceBay.objects.count(), 2)
 
 
-class InventoryItemTest(HttpStatusMixin, APITestCase):
+class InventoryItemTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(InventoryItemTest, self).setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -2667,13 +2614,11 @@ class InventoryItemTest(HttpStatusMixin, APITestCase):
         self.assertEqual(InventoryItem.objects.count(), 2)
 
 
-class ConsoleConnectionTest(HttpStatusMixin, APITestCase):
+class ConsoleConnectionTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(ConsoleConnectionTest, self).setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -2710,13 +2655,11 @@ class ConsoleConnectionTest(HttpStatusMixin, APITestCase):
         self.assertEqual(response.data['count'], 3)
 
 
-class PowerConnectionTest(HttpStatusMixin, APITestCase):
+class PowerConnectionTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(PowerConnectionTest, self).setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -2753,13 +2696,11 @@ class PowerConnectionTest(HttpStatusMixin, APITestCase):
         self.assertEqual(response.data['count'], 3)
 
 
-class InterfaceConnectionTest(HttpStatusMixin, APITestCase):
+class InterfaceConnectionTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(InterfaceConnectionTest, self).setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -2847,9 +2788,9 @@ class InterfaceConnectionTest(HttpStatusMixin, APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(InterfaceConnection.objects.count(), 6)
-        self.assertEqual(response.data[0]['interface_a'], data[0]['interface_a'])
-        self.assertEqual(response.data[1]['interface_a'], data[1]['interface_a'])
-        self.assertEqual(response.data[2]['interface_a'], data[2]['interface_a'])
+        for i in range(0, 3):
+            self.assertEqual(response.data[i]['interface_a']['id'], data[i]['interface_a'])
+            self.assertEqual(response.data[i]['interface_b']['id'], data[i]['interface_b'])
 
     def test_update_interfaceconnection(self):
 
@@ -2880,13 +2821,11 @@ class InterfaceConnectionTest(HttpStatusMixin, APITestCase):
         self.assertEqual(InterfaceConnection.objects.count(), 2)
 
 
-class ConnectedDeviceTest(HttpStatusMixin, APITestCase):
+class ConnectedDeviceTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(ConnectedDeviceTest, self).setUp()
 
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
@@ -2922,13 +2861,11 @@ class ConnectedDeviceTest(HttpStatusMixin, APITestCase):
         self.assertEqual(response.data['name'], self.device1.name)
 
 
-class VirtualChassisTest(HttpStatusMixin, APITestCase):
+class VirtualChassisTest(APITestCase):
 
     def setUp(self):
 
-        user = User.objects.create(username='testuser', is_superuser=True)
-        token = Token.objects.create(user=user)
-        self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(token.key)}
+        super(VirtualChassisTest, self).setUp()
 
         site = Site.objects.create(name='Test Site', slug='test-site')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer', slug='test-manufacturer')
@@ -3047,12 +2984,9 @@ class VirtualChassisTest(HttpStatusMixin, APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(VirtualChassis.objects.count(), 5)
-        self.assertEqual(response.data[0]['master'], data[0]['master'])
-        self.assertEqual(response.data[0]['domain'], data[0]['domain'])
-        self.assertEqual(response.data[1]['master'], data[1]['master'])
-        self.assertEqual(response.data[1]['domain'], data[1]['domain'])
-        self.assertEqual(response.data[2]['master'], data[2]['master'])
-        self.assertEqual(response.data[2]['domain'], data[2]['domain'])
+        for i in range(0, 3):
+            self.assertEqual(response.data[i]['master']['id'], data[i]['master'])
+            self.assertEqual(response.data[i]['domain'], data[i]['domain'])
 
     def test_update_virtualchassis(self):
 

@@ -1,0 +1,13 @@
+{% load helpers %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong>Tags</strong>
+    </div>
+    <div class="panel-body">
+        {% for tag in tags %}
+            {% tag tag url %}
+        {% empty %}
+            <span class="text-muted">No tags assigned</span>
+        {% endfor %}
+    </div>
+</div>

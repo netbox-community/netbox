@@ -6,10 +6,11 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
+from taggit.managers import TaggableManager
 
 from dcim.models import Device
-from extras.models import CustomFieldModel, CustomFieldValue
-from utilities.models import CreatedUpdatedModel
+from extras.models import ConfigContextModel, CustomFieldModel
+from utilities.models import ChangeLoggedModel
 from .constants import DEVICE_STATUS_ACTIVE, VM_STATUS_CHOICES, VM_STATUS_CLASSES
 
 
@@ -18,7 +19,7 @@ from .constants import DEVICE_STATUS_ACTIVE, VM_STATUS_CHOICES, VM_STATUS_CLASSE
 #
 
 @python_2_unicode_compatible
-class ClusterType(models.Model):
+class ClusterType(ChangeLoggedModel):
     """
     A type of Cluster.
     """
@@ -53,7 +54,7 @@ class ClusterType(models.Model):
 #
 
 @python_2_unicode_compatible
-class ClusterGroup(models.Model):
+class ClusterGroup(ChangeLoggedModel):
     """
     An organizational group of Clusters.
     """
@@ -88,7 +89,7 @@ class ClusterGroup(models.Model):
 #
 
 @python_2_unicode_compatible
-class Cluster(CreatedUpdatedModel, CustomFieldModel):
+class Cluster(ChangeLoggedModel, CustomFieldModel):
     """
     A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices.
     """
@@ -119,10 +120,12 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
         blank=True
     )
     custom_field_values = GenericRelation(
-        to=CustomFieldValue,
+        to='extras.CustomFieldValue',
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
+
+    tags = TaggableManager()
 
     csv_headers = ['name', 'type', 'group', 'site', 'comments']
 
@@ -162,12 +165,12 @@ class Cluster(CreatedUpdatedModel, CustomFieldModel):
 #
 
 @python_2_unicode_compatible
-class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
+class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     """
     A virtual machine which runs inside a Cluster.
     """
     cluster = models.ForeignKey(
-        to=Cluster,
+        to='virtualization.Cluster',
         on_delete=models.PROTECT,
         related_name='virtual_machines'
     )
@@ -196,9 +199,9 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
     )
     role = models.ForeignKey(
         to='dcim.DeviceRole',
-        limit_choices_to={'vm_role': True},
         on_delete=models.PROTECT,
         related_name='virtual_machines',
+        limit_choices_to={'vm_role': True},
         blank=True,
         null=True
     )
@@ -237,10 +240,12 @@ class VirtualMachine(CreatedUpdatedModel, CustomFieldModel):
         blank=True
     )
     custom_field_values = GenericRelation(
-        to=CustomFieldValue,
+        to='extras.CustomFieldValue',
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
+
+    tags = TaggableManager()
 
     csv_headers = [
         'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',

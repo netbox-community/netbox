@@ -27,6 +27,8 @@
         <div class="panel-body">
             {% render_field form.physical_address %}
             {% render_field form.shipping_address %}
+            {% render_field form.latitude %}
+            {% render_field form.longitude %}
             {% render_field form.contact_name %}
             {% render_field form.contact_phone %}
             {% render_field form.contact_email %}
@@ -40,6 +42,12 @@
             </div>
         </div>
     {% endif %}
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Tags</strong></div>
+        <div class="panel-body">
+            {% render_field form.tags %}
+        </div>
+    </div>
     <div class="panel panel-default">
         <div class="panel-heading"><strong>Comments</strong></div>
         <div class="panel-body">

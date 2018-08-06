@@ -9,7 +9,6 @@ class EnhancedURLValidator(URLValidator):
     """
     Extends Django's built-in URLValidator to permit the use of hostnames with no domain extension.
     """
-
     class AnyURLScheme(object):
         """
         A fake URL list which "contains" all scheme names abiding by the syntax defined in RFC 3986 section 3.1
