@@ -123,7 +123,7 @@ class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
     group = NestedRackGroupSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     role = NestedRackRoleSerializer(required=False, allow_null=True)
-    type = ChoiceField(choices=RACK_TYPE_CHOICES, required=False)
+    type = ChoiceField(choices=RACK_TYPE_CHOICES, required=False, allow_null=True)
     width = ChoiceField(choices=RACK_WIDTH_CHOICES, required=False)
     tags = TagListSerializerField(required=False)
 
@@ -223,7 +223,7 @@ class NestedManufacturerSerializer(WritableNestedSerializer):
 class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
     manufacturer = NestedManufacturerSerializer()
     interface_ordering = ChoiceField(choices=IFACE_ORDERING_CHOICES, required=False)
-    subdevice_role = ChoiceField(choices=SUBDEVICE_ROLE_CHOICES, required=False)
+    subdevice_role = ChoiceField(choices=SUBDEVICE_ROLE_CHOICES, required=False, allow_null=True)
     instance_count = serializers.IntegerField(source='instances.count', read_only=True)
     tags = TagListSerializerField(required=False)
 
@@ -396,7 +396,7 @@ class DeviceSerializer(TaggitSerializer, CustomFieldModelSerializer):
     platform = NestedPlatformSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer()
     rack = NestedRackSerializer(required=False, allow_null=True)
-    face = ChoiceField(choices=RACK_FACE_CHOICES, required=False)
+    face = ChoiceField(choices=RACK_FACE_CHOICES, required=False, allow_null=True)
     status = ChoiceField(choices=DEVICE_STATUS_CHOICES, required=False)
     primary_ip = DeviceIPAddressSerializer(read_only=True)
     primary_ip4 = DeviceIPAddressSerializer(required=False, allow_null=True)
@@ -576,7 +576,7 @@ class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
     is_connected = serializers.SerializerMethodField(read_only=True)
     interface_connection = serializers.SerializerMethodField(read_only=True)
     circuit_termination = InterfaceCircuitTerminationSerializer(read_only=True)
-    mode = ChoiceField(choices=IFACE_MODE_CHOICES, required=False)
+    mode = ChoiceField(choices=IFACE_MODE_CHOICES, required=False, allow_null=True)
     untagged_vlan = InterfaceVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
         queryset=VLAN.objects.all(),
