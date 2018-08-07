@@ -1,11 +1,12 @@
 from __future__ import unicode_literals
 
 from django.urls import reverse
+from netaddr import IPNetwork
 from rest_framework import status
 
 from dcim.constants import IFACE_FF_VIRTUAL, IFACE_MODE_TAGGED
 from dcim.models import Interface
-from ipam.models import VLAN
+from ipam.models import IPAddress, VLAN
 from utilities.testing import APITestCase
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
@@ -367,6 +368,10 @@ class VirtualMachineTest(APITestCase):
 
     def test_update_virtualmachine(self):
 
+        interface = Interface.objects.create(name='Test Interface 1', virtual_machine=self.virtualmachine1)
+        ip4_address = IPAddress.objects.create(address=IPNetwork('192.0.2.1/24'), interface=interface)
+        ip6_address = IPAddress.objects.create(address=IPNetwork('2001:db8::1/64'), interface=interface)
+
         cluster2 = Cluster.objects.create(
             name='Test Cluster 2',
             type=ClusterType.objects.first(),
@@ -375,6 +380,8 @@ class VirtualMachineTest(APITestCase):
         data = {
             'name': 'Test Virtual Machine X',
             'cluster': cluster2.pk,
+            'primary_ip4': ip4_address.pk,
+            'primary_ip6': ip6_address.pk,
         }
 
         url = reverse('virtualization-api:virtualmachine-detail', kwargs={'pk': self.virtualmachine1.pk})
@@ -385,6 +392,8 @@ class VirtualMachineTest(APITestCase):
         virtualmachine1 = VirtualMachine.objects.get(pk=response.data['id'])
         self.assertEqual(virtualmachine1.name, data['name'])
         self.assertEqual(virtualmachine1.cluster.pk, data['cluster'])
+        self.assertEqual(virtualmachine1.primary_ip4.pk, data['primary_ip4'])
+        self.assertEqual(virtualmachine1.primary_ip6.pk, data['primary_ip6'])
 
     def test_delete_virtualmachine(self):
 

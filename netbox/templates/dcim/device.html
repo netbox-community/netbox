@@ -553,7 +553,7 @@
                             </button>
                         {% endif %}
                         {% if interfaces and perms.dcim.delete_interface %}
-                            <button type="submit" name="_delete" formaction="{% url 'dcim:interface_bulk_delete' pk=device.pk %}" class="btn btn-danger btn-xs">
+                            <button type="submit" name="_delete" formaction="{% url 'dcim:interface_bulk_delete' pk=device.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
                             </button>
                         {% endif %}

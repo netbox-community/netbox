@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.urls import reverse
+from netaddr import IPNetwork
 from rest_framework import status
 
 from dcim.constants import (
@@ -13,9 +14,10 @@ from dcim.models import (
     InventoryItem, Platform, PowerPort, PowerPortTemplate, PowerOutlet, PowerOutletTemplate, Rack, RackGroup,
     RackReservation, RackRole, Region, Site, VirtualChassis,
 )
-from ipam.models import VLAN
+from ipam.models import IPAddress, VLAN
 from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from utilities.testing import APITestCase
+from virtualization.models import Cluster, ClusterType
 
 
 class RegionTest(APITestCase):
@@ -1680,14 +1682,28 @@ class DeviceTest(APITestCase):
         self.devicerole2 = DeviceRole.objects.create(
             name='Test Device Role 2', slug='test-device-role-2', color='00ff00'
         )
+        cluster_type = ClusterType.objects.create(name='Test Cluster Type 1', slug='test-cluster-type-1')
+        self.cluster1 = Cluster.objects.create(name='Test Cluster 1', type=cluster_type)
         self.device1 = Device.objects.create(
-            device_type=self.devicetype1, device_role=self.devicerole1, name='Test Device 1', site=self.site1
+            device_type=self.devicetype1,
+            device_role=self.devicerole1,
+            name='Test Device 1',
+            site=self.site1,
+            cluster=self.cluster1
         )
         self.device2 = Device.objects.create(
-            device_type=self.devicetype1, device_role=self.devicerole1, name='Test Device 2', site=self.site1
+            device_type=self.devicetype1,
+            device_role=self.devicerole1,
+            name='Test Device 2',
+            site=self.site1,
+            cluster=self.cluster1
         )
         self.device3 = Device.objects.create(
-            device_type=self.devicetype1, device_role=self.devicerole1, name='Test Device 3', site=self.site1
+            device_type=self.devicetype1,
+            device_role=self.devicerole1,
+            name='Test Device 3',
+            site=self.site1,
+            cluster=self.cluster1
         )
 
     def test_get_device(self):
@@ -1696,6 +1712,8 @@ class DeviceTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['name'], self.device1.name)
+        self.assertEqual(response.data['device_role']['id'], self.devicerole1.pk)
+        self.assertEqual(response.data['cluster']['id'], self.cluster1.pk)
 
     def test_list_devices(self):
 
@@ -1711,6 +1729,7 @@ class DeviceTest(APITestCase):
             'device_role': self.devicerole1.pk,
             'name': 'Test Device 4',
             'site': self.site1.pk,
+            'cluster': self.cluster1.pk,
         }
 
         url = reverse('dcim-api:device-list')
@@ -1722,7 +1741,8 @@ class DeviceTest(APITestCase):
         self.assertEqual(device4.device_type_id, data['device_type'])
         self.assertEqual(device4.device_role_id, data['device_role'])
         self.assertEqual(device4.name, data['name'])
-        self.assertEqual(device4.site_id, data['site'])
+        self.assertEqual(device4.site.pk, data['site'])
+        self.assertEqual(device4.cluster.pk, data['cluster'])
 
     def test_create_device_bulk(self):
 
@@ -1758,11 +1778,17 @@ class DeviceTest(APITestCase):
 
     def test_update_device(self):
 
+        interface = Interface.objects.create(name='Test Interface 1', device=self.device1)
+        ip4_address = IPAddress.objects.create(address=IPNetwork('192.0.2.1/24'), interface=interface)
+        ip6_address = IPAddress.objects.create(address=IPNetwork('2001:db8::1/64'), interface=interface)
+
         data = {
             'device_type': self.devicetype2.pk,
             'device_role': self.devicerole2.pk,
             'name': 'Test Device X',
             'site': self.site2.pk,
+            'primary_ip4': ip4_address.pk,
+            'primary_ip6': ip6_address.pk,
         }
 
         url = reverse('dcim-api:device-detail', kwargs={'pk': self.device1.pk})
@@ -1774,7 +1800,9 @@ class DeviceTest(APITestCase):
         self.assertEqual(device1.device_type_id, data['device_type'])
         self.assertEqual(device1.device_role_id, data['device_role'])
         self.assertEqual(device1.name, data['name'])
-        self.assertEqual(device1.site_id, data['site'])
+        self.assertEqual(device1.site.pk, data['site'])
+        self.assertEqual(device1.primary_ip4.pk, data['primary_ip4'])
+        self.assertEqual(device1.primary_ip6.pk, data['primary_ip6'])
 
     def test_delete_device(self):
 

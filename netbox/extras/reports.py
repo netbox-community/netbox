@@ -16,16 +16,14 @@ def is_report(obj):
     """
     Returns True if the given object is a Report.
     """
-    if obj in Report.__subclasses__():
-        return True
-    return False
+    return obj in Report.__subclasses__()
 
 
 def get_report(module_name, report_name):
     """
     Return a specific report from within a module.
     """
-    module = importlib.import_module('reports.{}'.format(module_name))
+    module = importlib.import_module(module_name)
     report = getattr(module, report_name, None)
     if report is None:
         return None

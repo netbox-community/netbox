@@ -82,7 +82,7 @@ class NestedClusterSerializer(WritableNestedSerializer):
 #
 
 # Cannot import ipam.api.NestedIPAddressSerializer due to circular dependency
-class VirtualMachineIPAddressSerializer(serializers.ModelSerializer):
+class VirtualMachineIPAddressSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:ipaddress-detail')
 
     class Meta:
