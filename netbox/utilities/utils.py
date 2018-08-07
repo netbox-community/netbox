@@ -101,8 +101,8 @@ def serialize_object(obj, extra=None):
         }
 
     # Include any tags
-    # if hasattr(obj, 'tags'):
-    #     data['tags'] = [tag.name for tag in obj.tags.all()]
+    if hasattr(obj, 'tags'):
+        data['tags'] = [tag.name for tag in obj.tags.all()]
 
     # Append any extra data
     if extra is not None:
