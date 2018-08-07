@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import ArrayField, JSONField
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, Q, ObjectDoesNotExist
@@ -1933,11 +1933,20 @@ class Interface(ComponentModel):
         """
         Include the connected Interface (if any).
         """
+
+        # It's possible that an Interface can be deleted _after_ its parent Device/VM, in which case trying to resolve
+        # the component parent will raise DoesNotExist. For more discussion, see
+        # https://github.com/digitalocean/netbox/issues/2323
+        try:
+            parent_obj = self.get_component_parent()
+        except ObjectDoesNotExist:
+            parent_obj = None
+
         ObjectChange(
             user=user,
             request_id=request_id,
             changed_object=self,
-            related_object=self.get_component_parent(),
+            related_object=parent_obj,
             action=action,
             object_data=serialize_object(self, extra={
                 'connected_interface': self.connected_interface.pk if self.connection else None,
