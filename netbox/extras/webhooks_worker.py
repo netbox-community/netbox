@@ -37,8 +37,12 @@ def process_webhook(webhook, data, model_class, event, timestamp):
     prepared_request = requests.Request(**params).prepare()
 
     if webhook.secret != '':
-        # sign the request with the secret
-        hmac_prep = hmac.new(bytearray(webhook.secret, 'utf8'), prepared_request.body, digestmod=hashlib.sha512)
+        # Sign the request with a hash of the secret key and its content.
+        hmac_prep = hmac.new(
+            key=webhook.secret.encode('utf8'),
+            msg=prepared_request.body.encode('utf8'),
+            digestmod=hashlib.sha512
+        )
         prepared_request.headers['X-Hook-Signature'] = hmac_prep.hexdigest()
 
     with requests.Session() as session:
