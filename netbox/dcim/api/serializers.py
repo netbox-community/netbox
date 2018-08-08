@@ -120,7 +120,7 @@ class NestedRackRoleSerializer(WritableNestedSerializer):
 
 class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
     site = NestedSiteSerializer()
-    group = NestedRackGroupSerializer(required=False, allow_null=True)
+    group = NestedRackGroupSerializer(required=False, allow_null=True, default=None)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     role = NestedRackRoleSerializer(required=False, allow_null=True)
     type = ChoiceField(choices=RACK_TYPE_CHOICES, required=False, allow_null=True)
