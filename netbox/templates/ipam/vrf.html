@@ -40,7 +40,7 @@
     {% include 'inc/created_updated.html' with obj=vrf %}
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{{ aggregate.get_absolute_url }}">VRF</a>
+            <a href="{{ vrf.get_absolute_url }}">VRF</a>
         </li>
         <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
             <a href="{% url 'ipam:vrf_changelog' pk=vrf.pk %}">Changelog</a>
