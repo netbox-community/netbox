@@ -2,7 +2,6 @@ import datetime
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
 
 from extras.models import Webhook
 from extras.constants import OBJECTCHANGE_ACTION_CREATE, OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE
@@ -18,23 +17,16 @@ def enqueue_webhooks(instance, action):
     if not settings.WEBHOOKS_ENABLED or instance._meta.model_name not in WEBHOOK_MODELS:
         return
 
-    type_create = action == OBJECTCHANGE_ACTION_CREATE
-    type_update = action == OBJECTCHANGE_ACTION_UPDATE
-    type_delete = action == OBJECTCHANGE_ACTION_DELETE
-
-    # Find assigned webhooks
+    # Retrieve any applicable Webhooks
+    action_flag = {
+        OBJECTCHANGE_ACTION_CREATE: 'type_create',
+        OBJECTCHANGE_ACTION_UPDATE: 'type_update',
+        OBJECTCHANGE_ACTION_DELETE: 'type_delete',
+    }[action]
     obj_type = ContentType.objects.get_for_model(instance.__class__)
-    webhooks = Webhook.objects.filter(
-        Q(enabled=True) &
-        (
-            Q(type_create=type_create) |
-            Q(type_update=type_update) |
-            Q(type_delete=type_delete)
-        ) &
-        Q(obj_type=obj_type)
-    )
+    webhooks = Webhook.objects.filter(obj_type=obj_type, enabled=True, **{action_flag: True})
 
-    if webhooks:
+    if webhooks.exists():
         # Get the Model's API serializer class and serialize the object
         serializer_class = get_serializer_for_model(instance.__class__)
         serializer_context = {

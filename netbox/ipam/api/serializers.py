@@ -258,7 +258,7 @@ class IPAddressSerializer(TaggitSerializer, CustomFieldModelSerializer):
     vrf = NestedVRFSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=IPADDRESS_STATUS_CHOICES, required=False)
-    role = ChoiceField(choices=IPADDRESS_ROLE_CHOICES, required=False)
+    role = ChoiceField(choices=IPADDRESS_ROLE_CHOICES, required=False, allow_null=True)
     interface = IPAddressInterfaceSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
 
