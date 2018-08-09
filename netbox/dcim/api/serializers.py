@@ -120,7 +120,7 @@ class NestedRackRoleSerializer(WritableNestedSerializer):
 
 class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
     site = NestedSiteSerializer()
-    group = NestedRackGroupSerializer(required=False, allow_null=True)
+    group = NestedRackGroupSerializer(required=False, allow_null=True, default=None)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     role = NestedRackRoleSerializer(required=False, allow_null=True)
     type = ChoiceField(choices=RACK_TYPE_CHOICES, required=False, allow_null=True)
@@ -666,7 +666,7 @@ class InventoryItemSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     # Provide a default value to satisfy UniqueTogetherValidator
     parent = serializers.PrimaryKeyRelatedField(queryset=InventoryItem.objects.all(), allow_null=True, default=None)
-    manufacturer = NestedManufacturerSerializer()
+    manufacturer = NestedManufacturerSerializer(required=False, allow_null=True, default=None)
     tags = TagListSerializerField(required=False)
 
     class Meta:

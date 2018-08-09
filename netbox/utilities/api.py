@@ -170,7 +170,9 @@ class WritableNestedSerializer(ModelSerializer):
         if data is None:
             return None
         try:
-            return self.Meta.model.objects.get(pk=data)
+            return self.Meta.model.objects.get(pk=int(data))
+        except (TypeError, ValueError):
+            raise ValidationError("Primary key must be an integer")
         except ObjectDoesNotExist:
             raise ValidationError("Invalid ID")
 

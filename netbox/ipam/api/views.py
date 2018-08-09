@@ -140,10 +140,11 @@ class PrefixViewSet(CustomFieldModelViewSet):
                 available_prefixes.remove(allocated_prefix)
 
             # Initialize the serializer with a list or a single object depending on what was requested
+            context = {'request': request}
             if isinstance(request.data, list):
-                serializer = serializers.PrefixSerializer(data=requested_prefixes, many=True)
+                serializer = serializers.PrefixSerializer(data=requested_prefixes, many=True, context=context)
             else:
-                serializer = serializers.PrefixSerializer(data=requested_prefixes[0])
+                serializer = serializers.PrefixSerializer(data=requested_prefixes[0], context=context)
 
             # Create the new Prefix(es)
             if serializer.is_valid():
@@ -199,10 +200,11 @@ class PrefixViewSet(CustomFieldModelViewSet):
                 requested_ip['vrf'] = prefix.vrf.pk if prefix.vrf else None
 
             # Initialize the serializer with a list or a single object depending on what was requested
+            context = {'request': request}
             if isinstance(request.data, list):
-                serializer = serializers.IPAddressSerializer(data=requested_ips, many=True)
+                serializer = serializers.IPAddressSerializer(data=requested_ips, many=True, context=context)
             else:
-                serializer = serializers.IPAddressSerializer(data=requested_ips[0])
+                serializer = serializers.IPAddressSerializer(data=requested_ips[0], context=context)
 
             # Create the new IP address(es)
             if serializer.is_valid():

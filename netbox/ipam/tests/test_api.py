@@ -494,7 +494,8 @@ class PrefixTest(APITestCase):
 
     def test_create_single_available_prefix(self):
 
-        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), is_pool=True)
+        vrf = VRF.objects.create(name='Test VRF 1', rd='1234')
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
 
         # Create four available prefixes with individual requests
@@ -512,6 +513,7 @@ class PrefixTest(APITestCase):
             response = self.client.post(url, data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
             self.assertEqual(response.data['prefix'], prefixes_to_be_created[i])
+            self.assertEqual(response.data['vrf']['id'], vrf.pk)
             self.assertEqual(response.data['description'], data['description'])
 
         # Try to create one more prefix
@@ -562,7 +564,8 @@ class PrefixTest(APITestCase):
 
     def test_create_single_available_ip(self):
 
-        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/30'), is_pool=True)
+        vrf = VRF.objects.create(name='Test VRF 1', rd='1234')
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/30'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
 
         # Create all four available IPs with individual requests
@@ -572,6 +575,7 @@ class PrefixTest(APITestCase):
             }
             response = self.client.post(url, data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            self.assertEqual(response.data['vrf']['id'], vrf.pk)
             self.assertEqual(response.data['description'], data['description'])
 
         # Try to create one more IP

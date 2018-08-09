@@ -260,6 +260,22 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     def get_absolute_url(self):
         return reverse('virtualization:virtualmachine', args=[self.pk])
 
+    def clean(self):
+
+        # Validate primary IP addresses
+        interfaces = self.interfaces.all()
+        for field in ['primary_ip4', 'primary_ip6']:
+            ip = getattr(self, field)
+            if ip is not None:
+                if ip.interface in interfaces:
+                    pass
+                elif self.primary_ip4.nat_inside is not None and self.primary_ip4.nat_inside.interface in interfaces:
+                    pass
+                else:
+                    raise ValidationError({
+                        field: "The specified IP address ({}) is not assigned to this VM.".format(ip),
+                    })
+
     def to_csv(self):
         return (
             self.name,

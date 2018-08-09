@@ -1795,7 +1795,7 @@ class InterfaceAssignVLANsForm(BootstrapMixin, forms.ModelForm):
         # Compile VLAN choices
         vlan_choices = []
 
-        # Add global VLANs
+        # Add non-grouped global VLANs
         global_vlans = VLAN.objects.filter(site=None, group=None).exclude(pk__in=assigned_vlans)
         vlan_choices.append((
             'Global', [(vlan.pk, vlan) for vlan in global_vlans])
@@ -1808,16 +1808,15 @@ class InterfaceAssignVLANsForm(BootstrapMixin, forms.ModelForm):
                 (group.name, [(vlan.pk, vlan) for vlan in global_group_vlans])
             )
 
-        parent = self.instance.parent
-        if parent is not None:
+        site = getattr(self.instance.parent, 'site', None)
+        if site is not None:
 
-            # Add site VLANs
-            if parent.site:
-                site_vlans = VLAN.objects.filter(site=parent.site, group=None).exclude(pk__in=assigned_vlans)
-                vlan_choices.append((parent.site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
+            # Add non-grouped site VLANs
+            site_vlans = VLAN.objects.filter(site=site, group=None).exclude(pk__in=assigned_vlans)
+            vlan_choices.append((site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
 
             # Add grouped site VLANs
-            for group in VLANGroup.objects.filter(site=parent.site):
+            for group in VLANGroup.objects.filter(site=site):
                 site_group_vlans = VLAN.objects.filter(group=group).exclude(pk__in=assigned_vlans)
                 vlan_choices.append((
                     '{} / {}'.format(group.site.name, group.name),

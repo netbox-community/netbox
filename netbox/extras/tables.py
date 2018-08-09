@@ -72,15 +72,10 @@ class ConfigContextTable(BaseTable):
     is_active = BooleanColumn(
         verbose_name='Active'
     )
-    actions = tables.TemplateColumn(
-        template_code=CONFIGCONTEXT_ACTIONS,
-        attrs={'td': {'class': 'text-right'}},
-        verbose_name=''
-    )
 
     class Meta(BaseTable.Meta):
         model = ConfigContext
-        fields = ('pk', 'name', 'weight', 'is_active', 'description', 'actions')
+        fields = ('pk', 'name', 'weight', 'is_active', 'description')
 
 
 class ObjectChangeTable(BaseTable):
