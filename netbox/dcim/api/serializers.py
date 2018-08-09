@@ -666,7 +666,7 @@ class InventoryItemSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     # Provide a default value to satisfy UniqueTogetherValidator
     parent = serializers.PrimaryKeyRelatedField(queryset=InventoryItem.objects.all(), allow_null=True, default=None)
-    manufacturer = NestedManufacturerSerializer()
+    manufacturer = NestedManufacturerSerializer(required=False, allow_null=True, default=None)
     tags = TagListSerializerField(required=False)
 
     class Meta:
