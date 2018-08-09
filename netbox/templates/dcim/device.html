@@ -631,7 +631,7 @@
             {% endif %}
             {% if power_outlets or device.device_type.is_pdu %}
                 {% if perms.dcim.delete_poweroutlet %}
-                    <form method="post"">
+                    <form method="post">
                     {% csrf_token %}
                 {% endif %}
                 <div class="panel panel-default">
