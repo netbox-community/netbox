@@ -141,6 +141,20 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>Tenant Groups</td>
+                        <td>
+                            {% if configcontext.tenant_groups.all %}
+                                <ul>
+                                    {% for tenant_group in configcontext.tenant_groups.all %}
+                                        <li><a href="{{ tenant_group.get_absolute_url }}">{{ tenant_group }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="text-muted">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
                         <td>Tenants</td>
                         <td>
                             {% if configcontext.tenants.all %}
