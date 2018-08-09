@@ -1817,12 +1817,13 @@ class InterfaceAssignVLANsForm(BootstrapMixin, forms.ModelForm):
                 vlan_choices.append((parent.site.name, [(vlan.pk, vlan) for vlan in site_vlans]))
 
             # Add grouped site VLANs
-            for group in VLANGroup.objects.filter(site=parent.site):
-                site_group_vlans = VLAN.objects.filter(group=group).exclude(pk__in=assigned_vlans)
-                vlan_choices.append((
-                    '{} / {}'.format(group.site.name, group.name),
-                    [(vlan.pk, vlan) for vlan in site_group_vlans]
-                ))
+            if parent.site:
+                for group in VLANGroup.objects.filter(site=parent.site):
+                    site_group_vlans = VLAN.objects.filter(group=group).exclude(pk__in=assigned_vlans)
+                    vlan_choices.append((
+                        '{} / {}'.format(group.site.name, group.name),
+                        [(vlan.pk, vlan) for vlan in site_group_vlans]
+                    ))
 
         self.fields['vlans'].choices = vlan_choices
 
