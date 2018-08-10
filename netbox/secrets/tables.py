@@ -39,8 +39,8 @@ class SecretRoleTable(BaseTable):
 
 class SecretTable(BaseTable):
     pk = ToggleColumn()
-    device = tables.LinkColumn()
+    object = tables.LinkColumn()
 
     class Meta(BaseTable.Meta):
         model = Secret
-        fields = ('pk', 'device', 'role', 'name', 'last_updated')
+        fields = ('pk', 'object', 'role', 'name', 'last_updated')

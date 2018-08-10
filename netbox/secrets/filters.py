@@ -34,7 +34,7 @@ class SecretFilter(CustomFieldFilterSet, django_filters.FilterSet):
     )
     device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
-        label='Device (ID)',
+        label='Object (ID)',
     )
     device = django_filters.ModelMultipleChoiceFilter(
         name='device__name',

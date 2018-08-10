@@ -8,7 +8,9 @@ from Crypto.Util import strxor
 from django.conf import settings
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import Group, User
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -322,11 +324,6 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
     A Secret can be up to 65,536 bytes (64KB) in length. Each secret string will be padded with random data to a minimum
     of 64 bytes during encryption in order to protect short strings from ciphertext analysis.
     """
-    device = models.ForeignKey(
-        to='dcim.Device',
-        on_delete=models.CASCADE,
-        related_name='secrets'
-    )
     role = models.ForeignKey(
         to='secrets.SecretRole',
         on_delete=models.PROTECT,
@@ -350,37 +347,59 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        default= ContentType.objects.get(app_label='dcim', model='device').pk
+    )
+    object_id = models.PositiveIntegerField(default=1)
+    object = GenericForeignKey('content_type', 'object_id')
+
     tags = TaggableManager()
 
     plaintext = None
-    csv_headers = ['device', 'role', 'name', 'plaintext']
+    csv_headers = ['object_id', 'content_type', 'role', 'name', 'plaintext']
 
     class Meta:
-        ordering = ['device', 'role', 'name']
-        unique_together = ['device', 'role', 'name']
+        ordering = ['content_type', 'object_id', 'role', 'name']
+        unique_together = ['content_type', 'object_id', 'role', 'name']
 
     def __init__(self, *args, **kwargs):
         self.plaintext = kwargs.pop('plaintext', None)
         super(Secret, self).__init__(*args, **kwargs)
 
     def __str__(self):
-        if self.role and self.device and self.name:
-            return '{} for {} ({})'.format(self.role, self.device, self.name)
+        if self.role and self.name and self.object:
+            return '{} for {} ({})'.format(self.role, self.object, self.name)
         # Return role and device if no name is set
-        if self.role and self.device:
-            return '{} for {}'.format(self.role, self.device)
+        if self.role:
+            return '{} for {}'.format(self.role, self.object)
         return 'Secret'
+
+    def get_device_secrets(device):
+        """
+            Returns Secrets given a device
+        """
+        return Secret.objects.filter(
+            content_type=ContentType.objects.get(
+                app_label='dcim', model='device'
+            ),
+            object_id=device.pk
+        )
 
     def get_absolute_url(self):
         return reverse('secrets:secret', args=[self.pk])
 
     def to_csv(self):
         return (
-            self.device,
+            self.object,
             self.role,
             self.name,
             self.plaintext or '',
         )
+
+    def object_label(self):
+        return(str(self.content_type).capitalize())
 
     def _pad(self, s):
         """
