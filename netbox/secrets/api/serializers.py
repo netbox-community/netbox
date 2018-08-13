@@ -43,6 +43,7 @@ class SecretObjectRelatedField(serializers.RelatedField):
             dict.update({'class': 'device'})
             return dict
 
+
 class SecretSerializer(TaggitSerializer, CustomFieldModelSerializer):
     object = SecretObjectRelatedField(queryset=Secret.objects.all(), required=False)
     role = NestedSecretRoleSerializer()

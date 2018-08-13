@@ -100,9 +100,9 @@ def secret_add(request, pk):
     object = path.split(os.sep)[2]
     secret = {
         'devices': lambda pk: Secret(
-                object_id=pk,
-                content_type=ContentType.objects.get(app_label='dcim',model='device')
-            )
+            object_id=pk,
+            content_type=ContentType.objects.get(app_label='dcim', model='device')
+        )
     }[object](pk)
 
     session_key = get_session_key(request)

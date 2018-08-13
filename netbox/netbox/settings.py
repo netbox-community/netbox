@@ -130,8 +130,6 @@ EMAIL_SUBJECT_PREFIX = '[NetBox] '
 
 # Installed applications
 INSTALLED_APPS = [
-    'corsheaders',
-    'debug_toolbar',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -139,9 +137,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'corsheaders',
+    'debug_toolbar',
     'django_filters',
     'django_tables2',
-    'drf_yasg',
     'mptt',
     'rest_framework',
     'taggit',
@@ -156,6 +155,7 @@ INSTALLED_APPS = [
     'users',
     'utilities',
     'virtualization',
+    'drf_yasg',
 ]
 
 # Only load django-rq if the webhook backend is enabled

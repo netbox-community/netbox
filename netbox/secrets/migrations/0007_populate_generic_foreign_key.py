@@ -2,6 +2,7 @@
 
 from django.db import migrations
 
+
 def migrate_device_secret(apps, schema_editor):
     """
         Move data from device foreign key into GenericForeignKey
@@ -17,6 +18,7 @@ def migrate_device_secret(apps, schema_editor):
             secret.object_id = secret.device.pk
             secret.save()
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -25,5 +27,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-    migrations.RunPython(migrate_device_secret)
+        migrations.RunPython(migrate_device_secret)
     ]

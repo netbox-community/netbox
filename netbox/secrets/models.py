@@ -350,7 +350,7 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
-        default= ContentType.objects.get(app_label='dcim', model='device').pk
+        default=ContentType.objects.get(app_label='dcim', model='device').pk
     )
     object_id = models.PositiveIntegerField(default=1)
     object = GenericForeignKey('content_type', 'object_id')

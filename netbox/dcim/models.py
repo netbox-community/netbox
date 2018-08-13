@@ -1293,7 +1293,6 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 
     objects = DeviceManager()
     tags = TaggableManager()
-    
 
     csv_headers = [
         'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
