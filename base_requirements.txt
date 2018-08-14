@@ -1,5 +1,5 @@
 # django-filter-1.1.0 breaks with Django-2.1
-Django>=1.11,<2.1
+Django>=2.0,<2.1
 django-cors-headers
 django-debug-toolbar
 # django-filter-2.0.0 drops Python 2 support (blocked by #2000)

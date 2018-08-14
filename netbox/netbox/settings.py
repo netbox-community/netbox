@@ -7,19 +7,18 @@ import warnings
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
 
+# Check for Python 3.5+
+if sys.version_info < (3, 5):
+    raise RuntimeError(
+        "NetBox requires Python 3.5 or higher (current: Python {})".format(sys.version.split()[0])
+    )
+
+# Check for configuration file
 try:
     from netbox import configuration
 except ImportError:
     raise ImproperlyConfigured(
         "Configuration file is not present. Please define netbox/netbox/configuration.py per the documentation."
-    )
-
-# Raise a deprecation warning for Python 2.x
-if sys.version_info[0] < 3:
-    warnings.warn(
-        "Support for Python 2 will be removed in NetBox v2.5. Please consider migration to Python 3 at your earliest "
-        "opportunity. Guidance is available in the documentation at http://netbox.readthedocs.io/.",
-        DeprecationWarning
     )
 
 VERSION = '2.4.4-dev'

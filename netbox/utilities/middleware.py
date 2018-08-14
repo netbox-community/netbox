@@ -72,11 +72,7 @@ class ExceptionHandlingMiddleware(object):
             custom_template = 'exceptions/programming_error.html'
         elif isinstance(exception, ImportError):
             custom_template = 'exceptions/import_error.html'
-        elif (
-            sys.version_info[0] >= 3 and isinstance(exception, PermissionError)
-        ) or (
-            isinstance(exception, OSError) and exception.errno == 13
-        ):
+        elif isinstance(exception, PermissionError):
             custom_template = 'exceptions/permission_error.html'
 
         # Return a custom error message, or fall back to Django's default 500 error handling
