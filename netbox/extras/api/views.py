@@ -11,7 +11,6 @@ from taggit.models import Tag
 from extras import filters
 from extras.models import (
     ConfigContext, CustomField, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
-    UserAction,
 )
 from extras.reports import get_report, get_reports
 from utilities.api import FieldChoicesViewSet, IsAuthenticatedOrLoginNotRequired, ModelViewSet
@@ -230,16 +229,3 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     queryset = ObjectChange.objects.select_related('user')
     serializer_class = serializers.ObjectChangeSerializer
     filter_class = filters.ObjectChangeFilter
-
-
-#
-# User activity
-#
-
-class RecentActivityViewSet(ReadOnlyModelViewSet):
-    """
-    DEPRECATED: List all UserActions to provide a log of recent activity.
-    """
-    queryset = UserAction.objects.all()
-    serializer_class = serializers.UserActionSerializer
-    filter_class = filters.UserActionFilter

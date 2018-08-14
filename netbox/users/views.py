@@ -196,18 +196,6 @@ class SessionKeyDeleteView(LoginRequiredMixin, View):
         })
 
 
-@method_decorator(login_required, name='dispatch')
-class RecentActivityView(View):
-    template_name = 'users/recent_activity.html'
-
-    def get(self, request):
-
-        return render(request, self.template_name, {
-            'recent_activity': request.user.actions.all()[:50],
-            'active_tab': 'recent_activity',
-        })
-
-
 #
 # API tokens
 #

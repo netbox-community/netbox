@@ -8,7 +8,7 @@ from dcim.api.serializers import (
 )
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
 from extras.models import (
-    ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap, UserAction,
+    ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
 )
 from extras.constants import *
 from tenancy.api.serializers import NestedTenantSerializer, NestedTenantGroupSerializer
@@ -238,16 +238,3 @@ class ObjectChangeSerializer(serializers.ModelSerializer):
         context = {'request': self.context['request']}
         data = serializer(obj.changed_object, context=context).data
         return data
-
-
-#
-# User actions
-#
-
-class UserActionSerializer(serializers.ModelSerializer):
-    user = NestedUserSerializer()
-    action = ChoiceField(choices=ACTION_CHOICES)
-
-    class Meta:
-        model = UserAction
-        fields = ['id', 'time', 'user', 'action', 'message']

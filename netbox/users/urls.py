@@ -14,6 +14,5 @@ urlpatterns = [
     url(r'^user-key/$', views.UserKeyView.as_view(), name='userkey'),
     url(r'^user-key/edit/$', views.UserKeyEditView.as_view(), name='userkey_edit'),
     url(r'^session-key/delete/$', views.SessionKeyDeleteView.as_view(), name='sessionkey_delete'),
-    url(r'^recent-activity/$', views.RecentActivityView.as_view(), name='recent_activity'),
 
 ]

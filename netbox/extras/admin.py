@@ -1,13 +1,8 @@
 from django import forms
 from django.contrib import admin
-from django.utils.safestring import mark_safe
 
 from utilities.forms import LaxURLField
-from .constants import OBJECTCHANGE_ACTION_CREATE, OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE
-from .models import (
-    ConfigContext, CustomField, CustomFieldChoice, Graph, ExportTemplate, ObjectChange, TopologyMap, UserAction,
-    Webhook,
-)
+from .models import CustomField, CustomFieldChoice, Graph, ExportTemplate, TopologyMap, Webhook
 
 
 def order_content_types(field):
@@ -123,16 +118,3 @@ class TopologyMapAdmin(admin.ModelAdmin):
     prepopulated_fields = {
         'slug': ['name'],
     }
-
-
-#
-# User actions
-#
-
-@admin.register(UserAction)
-class UserActionAdmin(admin.ModelAdmin):
-    actions = None
-    list_display = ['user', 'action', 'content_type', 'object_id', '_message']
-
-    def _message(self, obj):
-        return mark_safe(obj.message)
