@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from rest_framework import authentication, exceptions
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import DjangoModelPermissions, SAFE_METHODS

@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.urls import reverse
 from rest_framework import status
 

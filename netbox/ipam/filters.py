@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import django_filters
 from django.core.exceptions import ValidationError
 from django.db.models import Q

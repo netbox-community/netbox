@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import binascii
 import os
 
@@ -7,10 +5,8 @@ from django.contrib.auth.models import User
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
 
 
-@python_2_unicode_compatible
 class Token(models.Model):
     """
     An API token used for user authentication. This extends the stock model to allow each user to have multiple tokens.

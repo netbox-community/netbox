@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from collections import OrderedDict
 from datetime import date
 
@@ -14,7 +12,6 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.template import Template, Context
 from django.urls import reverse
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.safestring import mark_safe
 
 from dcim.constants import CONNECTION_STATUS_CONNECTED
@@ -27,7 +24,6 @@ from .querysets import ConfigContextQuerySet
 # Webhooks
 #
 
-@python_2_unicode_compatible
 class Webhook(models.Model):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
@@ -136,7 +132,6 @@ class CustomFieldModel(models.Model):
             return OrderedDict([(field, None) for field in fields])
 
 
-@python_2_unicode_compatible
 class CustomField(models.Model):
     obj_type = models.ManyToManyField(
         to=ContentType,
@@ -227,7 +222,6 @@ class CustomField(models.Model):
         return serialized_value
 
 
-@python_2_unicode_compatible
 class CustomFieldValue(models.Model):
     field = models.ForeignKey(
         to='extras.CustomField',
@@ -271,7 +265,6 @@ class CustomFieldValue(models.Model):
             super(CustomFieldValue, self).save(*args, **kwargs)
 
 
-@python_2_unicode_compatible
 class CustomFieldChoice(models.Model):
     field = models.ForeignKey(
         to='extras.CustomField',
@@ -309,7 +302,6 @@ class CustomFieldChoice(models.Model):
 # Graphs
 #
 
-@python_2_unicode_compatible
 class Graph(models.Model):
     type = models.PositiveSmallIntegerField(
         choices=GRAPH_TYPE_CHOICES
@@ -351,7 +343,6 @@ class Graph(models.Model):
 # Export templates
 #
 
-@python_2_unicode_compatible
 class ExportTemplate(models.Model):
     content_type = models.ForeignKey(
         to=ContentType,
@@ -410,7 +401,6 @@ class ExportTemplate(models.Model):
 # Topology maps
 #
 
-@python_2_unicode_compatible
 class TopologyMap(models.Model):
     name = models.CharField(
         max_length=50,
@@ -571,7 +561,6 @@ def image_upload(instance, filename):
     return '{}{}_{}_{}'.format(path, instance.content_type.name, instance.object_id, filename)
 
 
-@python_2_unicode_compatible
 class ImageAttachment(models.Model):
     """
     An uploaded image which is associated with an object.
@@ -752,7 +741,6 @@ class ReportResult(models.Model):
 # Change logging
 #
 
-@python_2_unicode_compatible
 class ObjectChange(models.Model):
     """
     Record a change to an object and the user account associated with that change. A change record may optionally
@@ -904,7 +892,6 @@ class UserActionManager(models.Manager):
 
 
 # TODO: Remove UserAction, which has been replaced by ObjectChange.
-@python_2_unicode_compatible
 class UserAction(models.Model):
     """
     DEPRECATED: A record of an action (add, edit, or delete) performed on an object by a User.

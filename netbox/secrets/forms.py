@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from django import forms

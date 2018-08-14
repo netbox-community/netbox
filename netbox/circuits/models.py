@@ -1,9 +1,6 @@
-from __future__ import unicode_literals
-
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
-from django.utils.encoding import python_2_unicode_compatible
 from taggit.managers import TaggableManager
 
 from dcim.constants import STATUS_CLASSES
@@ -14,7 +11,6 @@ from utilities.utils import serialize_object
 from .constants import CIRCUIT_STATUS_ACTIVE, CIRCUIT_STATUS_CHOICES, TERM_SIDE_CHOICES
 
 
-@python_2_unicode_compatible
 class Provider(ChangeLoggedModel, CustomFieldModel):
     """
     Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model
@@ -84,7 +80,6 @@ class Provider(ChangeLoggedModel, CustomFieldModel):
         )
 
 
-@python_2_unicode_compatible
 class CircuitType(ChangeLoggedModel):
     """
     Circuits can be organized by their functional role. For example, a user might wish to define CircuitTypes named
@@ -116,7 +111,6 @@ class CircuitType(ChangeLoggedModel):
         )
 
 
-@python_2_unicode_compatible
 class Circuit(ChangeLoggedModel, CustomFieldModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
@@ -217,7 +211,6 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         return self._get_termination('Z')
 
 
-@python_2_unicode_compatible
 class CircuitTermination(models.Model):
     circuit = models.ForeignKey(
         to='circuits.Circuit',

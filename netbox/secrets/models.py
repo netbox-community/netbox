@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import os
 
 from Crypto.Cipher import AES, PKCS1_OAEP
@@ -12,7 +10,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
-from django.utils.encoding import force_bytes, python_2_unicode_compatible
+from django.utils.encoding import force_bytes
 from taggit.managers import TaggableManager
 
 from extras.models import CustomFieldModel
@@ -49,7 +47,6 @@ def decrypt_master_key(master_key_cipher, private_key):
     return cipher.decrypt(master_key_cipher)
 
 
-@python_2_unicode_compatible
 class UserKey(models.Model):
     """
     A UserKey stores a user's personal RSA (public) encryption key, which is used to generate their unique encrypted
@@ -187,7 +184,6 @@ class UserKey(models.Model):
         self.save()
 
 
-@python_2_unicode_compatible
 class SessionKey(models.Model):
     """
     A SessionKey stores a User's temporary key to be used for the encryption and decryption of secrets.
@@ -258,7 +254,6 @@ class SessionKey(models.Model):
         return session_key
 
 
-@python_2_unicode_compatible
 class SecretRole(ChangeLoggedModel):
     """
     A SecretRole represents an arbitrary functional classification of Secrets. For example, a user might define roles
@@ -311,7 +306,6 @@ class SecretRole(ChangeLoggedModel):
         return user in self.users.all() or user.groups.filter(pk__in=self.groups.all()).exists()
 
 
-@python_2_unicode_compatible
 class Secret(ChangeLoggedModel, CustomFieldModel):
     """
     A Secret stores an AES256-encrypted copy of sensitive data, such as passwords or secret keys. An irreversible

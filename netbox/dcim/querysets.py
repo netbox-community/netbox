@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.db.models import QuerySet
 from django.db.models.expressions import RawSQL
 

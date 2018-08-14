@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import django_filters
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType

@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django import forms
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.validators import MaxValueValidator, MinValueValidator

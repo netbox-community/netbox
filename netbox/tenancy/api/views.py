@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from extras.api.views import CustomFieldModelViewSet
 from tenancy import filters
 from tenancy.models import Tenant, TenantGroup

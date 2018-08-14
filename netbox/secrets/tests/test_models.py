@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from Crypto.PublicKey import RSA
 from django.conf import settings
 from django.contrib.auth.models import User

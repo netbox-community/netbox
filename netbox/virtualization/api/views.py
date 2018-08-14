@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from dcim.models import Interface
 from extras.api.views import CustomFieldModelViewSet
 from utilities.api import FieldChoicesViewSet, ModelViewSet

@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 
 # Models which support custom fields
 CUSTOMFIELD_MODELS = (

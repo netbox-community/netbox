@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField

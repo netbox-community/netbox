@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from collections import OrderedDict
 from itertools import count, groupby
 
@@ -12,7 +10,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, Q, ObjectDoesNotExist
 from django.urls import reverse
-from django.utils.encoding import python_2_unicode_compatible
 from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
@@ -58,7 +55,6 @@ class ComponentModel(models.Model):
 # Regions
 #
 
-@python_2_unicode_compatible
 class Region(MPTTModel, ChangeLoggedModel):
     """
     Sites can be grouped within geographic Regions.
@@ -106,7 +102,6 @@ class SiteManager(NaturalOrderByManager):
     natural_order_field = 'name'
 
 
-@python_2_unicode_compatible
 class Site(ChangeLoggedModel, CustomFieldModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
@@ -268,7 +263,6 @@ class Site(ChangeLoggedModel, CustomFieldModel):
 # Racks
 #
 
-@python_2_unicode_compatible
 class RackGroup(ChangeLoggedModel):
     """
     Racks can be grouped as subsets within a Site. The scope of a group will depend on how Sites are defined. For
@@ -308,7 +302,6 @@ class RackGroup(ChangeLoggedModel):
         )
 
 
-@python_2_unicode_compatible
 class RackRole(ChangeLoggedModel):
     """
     Racks can be organized by functional role, similar to Devices.
@@ -345,7 +338,6 @@ class RackManager(NaturalOrderByManager):
     natural_order_field = 'name'
 
 
-@python_2_unicode_compatible
 class Rack(ChangeLoggedModel, CustomFieldModel):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
@@ -603,7 +595,6 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         return int(float(self.u_height - u_available) / self.u_height * 100)
 
 
-@python_2_unicode_compatible
 class RackReservation(ChangeLoggedModel):
     """
     One or more reserved units within a Rack.
@@ -677,7 +668,6 @@ class RackReservation(ChangeLoggedModel):
 # Device Types
 #
 
-@python_2_unicode_compatible
 class Manufacturer(ChangeLoggedModel):
     """
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
@@ -708,7 +698,6 @@ class Manufacturer(ChangeLoggedModel):
         )
 
 
-@python_2_unicode_compatible
 class DeviceType(ChangeLoggedModel, CustomFieldModel):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
@@ -882,7 +871,6 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         return bool(self.subdevice_role is False)
 
 
-@python_2_unicode_compatible
 class ConsolePortTemplate(ComponentModel):
     """
     A template for a ConsolePort to be created for a new Device.
@@ -907,7 +895,6 @@ class ConsolePortTemplate(ComponentModel):
         return self.device_type
 
 
-@python_2_unicode_compatible
 class ConsoleServerPortTemplate(ComponentModel):
     """
     A template for a ConsoleServerPort to be created for a new Device.
@@ -932,7 +919,6 @@ class ConsoleServerPortTemplate(ComponentModel):
         return self.device_type
 
 
-@python_2_unicode_compatible
 class PowerPortTemplate(ComponentModel):
     """
     A template for a PowerPort to be created for a new Device.
@@ -957,7 +943,6 @@ class PowerPortTemplate(ComponentModel):
         return self.device_type
 
 
-@python_2_unicode_compatible
 class PowerOutletTemplate(ComponentModel):
     """
     A template for a PowerOutlet to be created for a new Device.
@@ -982,7 +967,6 @@ class PowerOutletTemplate(ComponentModel):
         return self.device_type
 
 
-@python_2_unicode_compatible
 class InterfaceTemplate(ComponentModel):
     """
     A template for a physical data interface on a new Device.
@@ -1017,7 +1001,6 @@ class InterfaceTemplate(ComponentModel):
         return self.device_type
 
 
-@python_2_unicode_compatible
 class DeviceBayTemplate(ComponentModel):
     """
     A template for a DeviceBay to be created for a new parent Device.
@@ -1046,7 +1029,6 @@ class DeviceBayTemplate(ComponentModel):
 # Devices
 #
 
-@python_2_unicode_compatible
 class DeviceRole(ChangeLoggedModel):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
@@ -1084,7 +1066,6 @@ class DeviceRole(ChangeLoggedModel):
         )
 
 
-@python_2_unicode_compatible
 class Platform(ChangeLoggedModel):
     """
     Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos".
@@ -1150,7 +1131,6 @@ class DeviceManager(NaturalOrderByManager):
     natural_order_field = 'name'
 
 
-@python_2_unicode_compatible
 class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
@@ -1543,7 +1523,6 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 # Console ports
 #
 
-@python_2_unicode_compatible
 class ConsolePort(ComponentModel):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
@@ -1610,7 +1589,6 @@ class ConsoleServerPortManager(models.Manager):
         }).order_by('device', 'name_padded')
 
 
-@python_2_unicode_compatible
 class ConsoleServerPort(ComponentModel):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
@@ -1655,7 +1633,6 @@ class ConsoleServerPort(ComponentModel):
 # Power ports
 #
 
-@python_2_unicode_compatible
 class PowerPort(ComponentModel):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
@@ -1721,7 +1698,6 @@ class PowerOutletManager(models.Manager):
         }).order_by('device', 'name_padded')
 
 
-@python_2_unicode_compatible
 class PowerOutlet(ComponentModel):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
@@ -1766,7 +1742,6 @@ class PowerOutlet(ComponentModel):
 # Interfaces
 #
 
-@python_2_unicode_compatible
 class Interface(ComponentModel):
     """
     A network interface within a Device or VirtualMachine. A physical Interface can connect to exactly one other
@@ -2095,7 +2070,6 @@ class InterfaceConnection(models.Model):
 # Device bays
 #
 
-@python_2_unicode_compatible
 class DeviceBay(ComponentModel):
     """
     An empty space within a Device which can house a child device
@@ -2149,7 +2123,6 @@ class DeviceBay(ComponentModel):
 # Inventory items
 #
 
-@python_2_unicode_compatible
 class InventoryItem(ComponentModel):
     """
     An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply.
@@ -2241,7 +2214,6 @@ class InventoryItem(ComponentModel):
 # Virtual chassis
 #
 
-@python_2_unicode_compatible
 class VirtualChassis(ChangeLoggedModel):
     """
     A collection of Devices which operate with a shared control plane (e.g. a switch stack).

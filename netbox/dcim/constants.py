@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 
 # Rack types
 RACK_TYPE_2POST = 100
