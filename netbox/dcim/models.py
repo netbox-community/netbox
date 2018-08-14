@@ -27,25 +27,40 @@ from .fields import ASNField, MACAddressField
 from .querysets import InterfaceQuerySet
 
 
-class ComponentModel(models.Model):
+class ComponentTemplateModel(models.Model):
 
     class Meta:
         abstract = True
 
-    def get_component_parent(self):
-        raise NotImplementedError(
-            "ComponentModel must implement get_component_parent()"
-        )
-
     def log_change(self, user, request_id, action):
         """
-        Log an ObjectChange including the parent Device/VM.
+        Log an ObjectChange including the parent DeviceType.
         """
         ObjectChange(
             user=user,
             request_id=request_id,
             changed_object=self,
-            related_object=self.get_component_parent(),
+            related_object=self.device_type,
+            action=action,
+            object_data=serialize_object(self)
+        ).save()
+
+
+class ComponentModel(models.Model):
+
+    class Meta:
+        abstract = True
+
+    def log_change(self, user, request_id, action):
+        """
+        Log an ObjectChange including the parent Device/VM.
+        """
+        parent = self.device if self.device is not None else getattr(self, 'virtual_machine', None)
+        ObjectChange(
+            user=user,
+            request_id=request_id,
+            changed_object=self,
+            related_object=parent,
             action=action,
             object_data=serialize_object(self)
         ).save()
@@ -871,7 +886,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         return bool(self.subdevice_role is False)
 
 
-class ConsolePortTemplate(ComponentModel):
+class ConsolePortTemplate(ComponentTemplateModel):
     """
     A template for a ConsolePort to be created for a new Device.
     """
@@ -891,11 +906,8 @@ class ConsolePortTemplate(ComponentModel):
     def __str__(self):
         return self.name
 
-    def get_component_parent(self):
-        return self.device_type
 
-
-class ConsoleServerPortTemplate(ComponentModel):
+class ConsoleServerPortTemplate(ComponentTemplateModel):
     """
     A template for a ConsoleServerPort to be created for a new Device.
     """
@@ -915,11 +927,8 @@ class ConsoleServerPortTemplate(ComponentModel):
     def __str__(self):
         return self.name
 
-    def get_component_parent(self):
-        return self.device_type
 
-
-class PowerPortTemplate(ComponentModel):
+class PowerPortTemplate(ComponentTemplateModel):
     """
     A template for a PowerPort to be created for a new Device.
     """
@@ -939,11 +948,8 @@ class PowerPortTemplate(ComponentModel):
     def __str__(self):
         return self.name
 
-    def get_component_parent(self):
-        return self.device_type
 
-
-class PowerOutletTemplate(ComponentModel):
+class PowerOutletTemplate(ComponentTemplateModel):
     """
     A template for a PowerOutlet to be created for a new Device.
     """
@@ -963,11 +969,8 @@ class PowerOutletTemplate(ComponentModel):
     def __str__(self):
         return self.name
 
-    def get_component_parent(self):
-        return self.device_type
 
-
-class InterfaceTemplate(ComponentModel):
+class InterfaceTemplate(ComponentTemplateModel):
     """
     A template for a physical data interface on a new Device.
     """
@@ -997,11 +1000,8 @@ class InterfaceTemplate(ComponentModel):
     def __str__(self):
         return self.name
 
-    def get_component_parent(self):
-        return self.device_type
 
-
-class DeviceBayTemplate(ComponentModel):
+class DeviceBayTemplate(ComponentTemplateModel):
     """
     A template for a DeviceBay to be created for a new parent Device.
     """
@@ -1020,9 +1020,6 @@ class DeviceBayTemplate(ComponentModel):
 
     def __str__(self):
         return self.name
-
-    def get_component_parent(self):
-        return self.device_type
 
 
 #
@@ -1562,9 +1559,6 @@ class ConsolePort(ComponentModel):
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
-    def get_component_parent(self):
-        return self.device
-
     def to_csv(self):
         return (
             self.cs_port.device.identifier if self.cs_port else None,
@@ -1613,9 +1607,6 @@ class ConsoleServerPort(ComponentModel):
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
-
-    def get_component_parent(self):
-        return self.device
 
     def clean(self):
 
@@ -1671,9 +1662,6 @@ class PowerPort(ComponentModel):
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
-    def get_component_parent(self):
-        return self.device
-
     def to_csv(self):
         return (
             self.power_outlet.device.identifier if self.power_outlet else None,
@@ -1722,9 +1710,6 @@ class PowerOutlet(ComponentModel):
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
-
-    def get_component_parent(self):
-        return self.device
 
     def clean(self):
 
@@ -1831,9 +1816,6 @@ class Interface(ComponentModel):
     def get_absolute_url(self):
         return reverse('dcim:interface', kwargs={'pk': self.pk})
 
-    def get_component_parent(self):
-        return self.device or self.virtual_machine
-
     def clean(self):
 
         # Check that the parent device's DeviceType is a network device
@@ -1913,7 +1895,7 @@ class Interface(ComponentModel):
         # the component parent will raise DoesNotExist. For more discussion, see
         # https://github.com/digitalocean/netbox/issues/2323
         try:
-            parent_obj = self.get_component_parent()
+            parent_obj = self.device or self.virtual_machine
         except ObjectDoesNotExist:
             parent_obj = None
 
@@ -1929,7 +1911,6 @@ class Interface(ComponentModel):
             })
         ).save()
 
-    # TODO: Replace `parent` with get_component_parent() (from ComponentModel)
     @property
     def parent(self):
         return self.device or self.virtual_machine
@@ -2103,9 +2084,6 @@ class DeviceBay(ComponentModel):
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
-    def get_component_parent(self):
-        return self.device
-
     def clean(self):
 
         # Validate that the parent Device can have DeviceBays
@@ -2193,9 +2171,6 @@ class InventoryItem(ComponentModel):
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
-
-    def get_component_parent(self):
-        return self.device
 
     def to_csv(self):
         return (
