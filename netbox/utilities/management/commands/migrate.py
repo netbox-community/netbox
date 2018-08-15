@@ -1,5 +1,5 @@
 # noinspection PyUnresolvedReferences
-from django.core.management.commands.makemigrations import Command
+from django.core.management.commands.migrate import Command
 from django.db import models
 from . import custom_deconstruct
 
