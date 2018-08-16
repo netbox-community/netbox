@@ -1903,8 +1903,7 @@
     "pk": 1,
     "fields": {
         "name": "Juniper Junos",
-        "slug": "juniper-junos",
-        "rpc_client": "juniper-junos"
+        "slug": "juniper-junos"
     }
 },
 {
@@ -1912,8 +1911,7 @@
     "pk": 2,
     "fields": {
         "name": "Opengear",
-        "slug": "opengear",
-        "rpc_client": "opengear"
+        "slug": "opengear"
     }
 },
 {

@@ -243,13 +243,3 @@ CONNECTION_STATUS_CHOICES = [
     [CONNECTION_STATUS_PLANNED, 'Planned'],
     [CONNECTION_STATUS_CONNECTED, 'Connected'],
 ]
-
-# Platform -> RPC client mappings
-RPC_CLIENT_JUNIPER_JUNOS = 'juniper-junos'
-RPC_CLIENT_CISCO_IOS = 'cisco-ios'
-RPC_CLIENT_OPENGEAR = 'opengear'
-RPC_CLIENT_CHOICES = [
-    [RPC_CLIENT_JUNIPER_JUNOS, 'Juniper Junos (NETCONF)'],
-    [RPC_CLIENT_CISCO_IOS, 'Cisco IOS (SSH)'],
-    [RPC_CLIENT_OPENGEAR, 'Opengear (SSH)'],
-]

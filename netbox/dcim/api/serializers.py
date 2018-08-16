@@ -344,7 +344,7 @@ class PlatformSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = Platform
-        fields = ['id', 'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'rpc_client']
+        fields = ['id', 'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args']
 
 
 class NestedPlatformSerializer(WritableNestedSerializer):

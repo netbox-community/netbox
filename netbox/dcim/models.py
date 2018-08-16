@@ -17,7 +17,6 @@ from timezone_field import TimeZoneField
 from circuits.models import Circuit
 from extras.constants import OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE
 from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange
-from extras.rpc import RPC_CLIENTS
 from utilities.fields import ColorField, NullableCharField
 from utilities.managers import NaturalOrderByManager
 from utilities.models import ChangeLoggedModel
@@ -1096,12 +1095,6 @@ class Platform(ChangeLoggedModel):
         verbose_name='NAPALM arguments',
         help_text='Additional arguments to pass when initiating the NAPALM driver (JSON format)'
     )
-    rpc_client = models.CharField(
-        max_length=30,
-        choices=RPC_CLIENT_CHOICES,
-        blank=True,
-        verbose_name='Legacy RPC client'
-    )
 
     csv_headers = ['name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args']
 
@@ -1506,14 +1499,6 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 
     def get_status_class(self):
         return STATUS_CLASSES[self.status]
-
-    def get_rpc_client(self):
-        """
-        Return the appropriate RPC (e.g. NETCONF, ssh, etc.) client for this device's platform, if one is defined.
-        """
-        if not self.platform:
-            return None
-        return RPC_CLIENTS.get(self.platform.rpc_client)
 
 
 #

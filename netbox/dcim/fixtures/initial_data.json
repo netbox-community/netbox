@@ -149,8 +149,7 @@
     "pk": 1,
     "fields": {
         "name": "Cisco IOS",
-        "slug": "cisco-ios",
-        "rpc_client": "cisco-ios"
+        "slug": "cisco-ios"
     }
 },
 {
@@ -158,8 +157,7 @@
     "pk": 2,
     "fields": {
         "name": "Cisco NX-OS",
-        "slug": "cisco-nx-os",
-        "rpc_client": ""
+        "slug": "cisco-nx-os"
     }
 },
 {
@@ -167,8 +165,7 @@
     "pk": 3,
     "fields": {
         "name": "Juniper Junos",
-        "slug": "juniper-junos",
-        "rpc_client": "juniper-junos"
+        "slug": "juniper-junos"
     }
 },
 {
@@ -176,8 +173,7 @@
     "pk": 4,
     "fields": {
         "name": "Arista EOS",
-        "slug": "arista-eos",
-        "rpc_client": ""
+        "slug": "arista-eos"
     }
 },
 {
@@ -185,8 +181,7 @@
     "pk": 5,
     "fields": {
         "name": "Linux",
-        "slug": "linux",
-        "rpc_client": ""
+        "slug": "linux"
     }
 },
 {
@@ -194,8 +189,7 @@
     "pk": 6,
     "fields": {
         "name": "Opengear",
-        "slug": "opengear",
-        "rpc_client": "opengear"
+        "slug": "opengear"
     }
 }
 ]
