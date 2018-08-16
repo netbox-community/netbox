@@ -3,11 +3,12 @@ from __future__ import unicode_literals
 from django.contrib import admin, messages
 from django.shortcuts import redirect, render
 
+from netbox.admin import admin_site
 from .forms import ActivateUserKeyForm
 from .models import UserKey
 
 
-@admin.register(UserKey)
+@admin.register(UserKey, site=admin_site)
 class UserKeyAdmin(admin.ModelAdmin):
     actions = ['activate_selected']
     list_display = ['user', 'is_filled', 'is_active', 'created']
