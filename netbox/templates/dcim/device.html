@@ -54,7 +54,9 @@
             <a href="{% url 'dcim:device' pk=device.pk %}">Device</a>
         </li>
         <li role="presentation"{% if active_tab == 'inventory' %} class="active"{% endif %}>
-            <a href="{% url 'dcim:device_inventory' pk=device.pk %}">Inventory</a>
+            <a href="{% url 'dcim:device_inventory' pk=device.pk %}">
+                Inventory <span class="badge">{{ device.inventory_items.count }}</span>
+            </a>
         </li>
         {% if perms.dcim.napalm_read %}
             {% if device.status != 1 %}
