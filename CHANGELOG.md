@@ -1,3 +1,24 @@
+v2.5.0 (FUTURE)
+
+---
+
+## Notes
+
+* As promised, Python 2 support has been completed removed. Python 3.5 or higher is now required to run NetBox.
+* The UserAction model, which was deprecated by the new change logging feature in NetBox v2.4, has been removed. If you need to archive user activity, do so prior to upgrading to NetBox v2.5, as the database migration will remove all data associated with this model.
+
+## Enhancements
+
+* [#2000](https://github.com/digitalocean/netbox/issues/2000) - Dropped support for Python 2
+* [#2292](https://github.com/digitalocean/netbox/issues/2292) - Removed the deprecated UserAction model
+* [#2367](https://github.com/digitalocean/netbox/issues/2367) - Removed deprecated RPCClient functionality
+
+## API Changes
+
+* The `rpc_client` field has been removed from dcim.Platform (see #2367)
+
+---
+
 v2.4.4 (FUTURE)
 
 ## Enhancements
