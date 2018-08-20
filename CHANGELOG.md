@@ -10,6 +10,7 @@ v2.4.4 (FUTURE)
 
 * [#2355](https://github.com/digitalocean/netbox/issues/2355) - Added item count to inventory tab on device view
 * [#2368](https://github.com/digitalocean/netbox/issues/2368) - Record change in device changelog when altering cluster assignment
+* [#2370](https://github.com/digitalocean/netbox/issues/2370) - Redirect to parent device after deleting device bays
 * [#2374](https://github.com/digitalocean/netbox/issues/2374) - Fix toggling display of IP addresses in virtual machine interfaces list
 
 ---
