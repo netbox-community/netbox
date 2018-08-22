@@ -1809,9 +1809,10 @@ class Interface(ComponentModel):
         blank=True,
         verbose_name='MAC Address'
     )
-    mtu = models.PositiveSmallIntegerField(
+    mtu = models.PositiveIntegerField(
         blank=True,
         null=True,
+        validators=[MinValueValidator(1), MaxValueValidator(65536)],
         verbose_name='MTU'
     )
     mgmt_only = models.BooleanField(
