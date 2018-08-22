@@ -48,9 +48,9 @@ Close the release milestone on GitHub. Ensure that there are no remaining open i
 
 Ensure that continuous integration testing on the `develop` branch is completing successfully.
 
-## Update VERSION
+## Update Version and Changelog
 
-Update the `VERSION` constant in `settings.py` to the new release.
+Update the `VERSION` constant in `settings.py` to the new release version and add the current date to the release notes in `CHANGELOG.md`.
 
 ## Submit a Pull Request
 
