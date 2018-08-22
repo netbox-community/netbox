@@ -56,7 +56,7 @@ To enable SSL, consider this guide on [securing nginx with Let's Encrypt](https:
 ## Option B: Apache
 
 ```no-highlight
-# apt-get install -y apache2 libapache2-mod-wsgi-py3
+# apt-get install -y apache2
 ```
 
 Once Apache is installed, proceed with the following configuration (Be sure to modify the `ServerName` appropriately):
