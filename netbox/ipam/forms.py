@@ -49,7 +49,7 @@ class VRFForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class VRFCSVForm(forms.ModelForm):
+class VRFCSVForm(CustomFieldForm):
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
@@ -138,7 +138,7 @@ class AggregateForm(BootstrapMixin, CustomFieldForm):
         }
 
 
-class AggregateCSVForm(forms.ModelForm):
+class AggregateCSVForm(CustomFieldForm):
     rir = forms.ModelChoiceField(
         queryset=RIR.objects.all(),
         to_field_name='name',
@@ -257,7 +257,7 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         self.fields['vrf'].empty_label = 'Global'
 
 
-class PrefixCSVForm(forms.ModelForm):
+class PrefixCSVForm(CustomFieldForm):
     vrf = forms.ModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -554,7 +554,7 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         self.fields['vrf'].empty_label = 'Global'
 
 
-class IPAddressCSVForm(forms.ModelForm):
+class IPAddressCSVForm(CustomFieldForm):
     vrf = forms.ModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -806,7 +806,7 @@ class VLANForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class VLANCSVForm(forms.ModelForm):
+class VLANCSVForm(CustomFieldForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,

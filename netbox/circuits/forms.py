@@ -41,7 +41,7 @@ class ProviderForm(BootstrapMixin, CustomFieldForm):
         }
 
 
-class ProviderCSVForm(forms.ModelForm):
+class ProviderCSVForm(CustomFieldForm):
     slug = SlugField()
 
     class Meta:
@@ -119,7 +119,7 @@ class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         }
 
 
-class CircuitCSVForm(forms.ModelForm):
+class CircuitCSVForm(CustomFieldForm):
     provider = forms.ModelChoiceField(
         queryset=Provider.objects.all(),
         to_field_name='name',
