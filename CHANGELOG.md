@@ -13,6 +13,7 @@ v2.4.4 (FUTURE)
 * [#2369](https://github.com/digitalocean/netbox/issues/2369) - Corrected time zone validation on site API serializer
 * [#2370](https://github.com/digitalocean/netbox/issues/2370) - Redirect to parent device after deleting device bays
 * [#2374](https://github.com/digitalocean/netbox/issues/2374) - Fix toggling display of IP addresses in virtual machine interfaces list
+* [#2378](https://github.com/digitalocean/netbox/issues/2378) - Corrected "edit" link for virtual machine interfaces
 
 ---
 
