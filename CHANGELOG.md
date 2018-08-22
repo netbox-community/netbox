@@ -8,6 +8,7 @@ v2.4.4 (FUTURE)
 
 ## Bug Fixes
 
+* [#2353](https://github.com/digitalocean/netbox/issues/2353) - Handle `DoesNotExist` exception when deleting a device with connected interfaces
 * [#2354](https://github.com/digitalocean/netbox/issues/2354) - Increased maximum MTU for interfaces to 65536 bytes
 * [#2355](https://github.com/digitalocean/netbox/issues/2355) - Added item count to inventory tab on device view
 * [#2368](https://github.com/digitalocean/netbox/issues/2368) - Record change in device changelog when altering cluster assignment
