@@ -1809,9 +1809,10 @@ class Interface(ComponentModel):
         blank=True,
         verbose_name='MAC Address'
     )
-    mtu = models.PositiveSmallIntegerField(
+    mtu = models.PositiveIntegerField(
         blank=True,
         null=True,
+        validators=[MinValueValidator(1), MaxValueValidator(65536)],
         verbose_name='MTU'
     )
     mgmt_only = models.BooleanField(
@@ -2071,6 +2072,7 @@ class InterfaceConnection(models.Model):
             (self.interface_a, self.interface_b),
             (self.interface_b, self.interface_a),
         )
+
         for interface, peer_interface in interfaces:
             if action == OBJECTCHANGE_ACTION_DELETE:
                 connection_data = {
@@ -2081,11 +2083,17 @@ class InterfaceConnection(models.Model):
                     'connected_interface': peer_interface.pk,
                     'connection_status': self.connection_status
                 }
+
+            try:
+                parent_obj = interface.parent
+            except ObjectDoesNotExist:
+                parent_obj = None
+
             ObjectChange(
                 user=user,
                 request_id=request_id,
                 changed_object=interface,
-                related_object=interface.parent,
+                related_object=parent_obj,
                 action=OBJECTCHANGE_ACTION_UPDATE,
                 object_data=serialize_object(interface, extra=connection_data)
             ).save()

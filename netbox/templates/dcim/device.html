@@ -54,7 +54,9 @@
             <a href="{% url 'dcim:device' pk=device.pk %}">Device</a>
         </li>
         <li role="presentation"{% if active_tab == 'inventory' %} class="active"{% endif %}>
-            <a href="{% url 'dcim:device_inventory' pk=device.pk %}">Inventory</a>
+            <a href="{% url 'dcim:device_inventory' pk=device.pk %}">
+                Inventory <span class="badge">{{ device.inventory_items.count }}</span>
+            </a>
         </li>
         {% if perms.dcim.napalm_read %}
             {% if device.status != 1 %}
@@ -445,7 +447,7 @@
         <div class="col-md-12">
             {% if device_bays or device.device_type.is_parent_device %}
                 {% if perms.dcim.delete_devicebay %}
-                    <form method="post" action="{% url 'dcim:devicebay_bulk_delete' pk=device.pk %}">
+                    <form method="post">
                     {% csrf_token %}
                 {% endif %}
                 <div class="panel panel-default">
@@ -481,7 +483,7 @@
                             </button>
                         {% endif %}
                         {% if device_bays and perms.dcim.delete_devicebay %}
-                            <button type="submit" class="btn btn-danger btn-xs">
+                            <button type="submit" formaction="{% url 'dcim:devicebay_bulk_delete' pk=device.pk  %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete selected
                             </button>
                         {% endif %}

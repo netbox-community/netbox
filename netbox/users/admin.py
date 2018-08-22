@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from django import forms
 from django.contrib import admin
 
+from netbox.admin import admin_site
 from .models import Token
 
 
@@ -14,7 +15,7 @@ class TokenAdminForm(forms.ModelForm):
         model = Token
 
 
-@admin.register(Token)
+@admin.register(Token, site=admin_site)
 class TokenAdmin(admin.ModelAdmin):
     form = TokenAdminForm
     list_display = ['key', 'user', 'created', 'expires', 'write_enabled', 'description']

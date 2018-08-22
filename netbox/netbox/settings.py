@@ -22,7 +22,7 @@ if sys.version_info[0] < 3:
         DeprecationWarning
     )
 
-VERSION = '2.4.3'
+VERSION = '2.4.4'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -272,7 +272,6 @@ RQ_QUEUES = {
         'DEFAULT_TIMEOUT': REDIS_DEFAULT_TIMEOUT,
     }
 }
-RQ_SHOW_ADMIN_LINK = True
 
 # drf_yasg settings for Swagger
 SWAGGER_SETTINGS = {

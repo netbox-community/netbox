@@ -108,10 +108,9 @@ class TimeZoneField(Field):
     def to_internal_value(self, data):
         if not data:
             return ""
-        try:
-            return pytz.timezone(str(data))
-        except pytz.exceptions.UnknownTimeZoneError:
-            raise ValidationError('Invalid time zone "{}"'.format(data))
+        if data not in pytz.common_timezones:
+            raise ValidationError('Unknown time zone "{}" (see pytz.common_timezones for all options)'.format(data))
+        return pytz.timezone(data)
 
 
 class SerializedPKRelatedField(PrimaryKeyRelatedField):
