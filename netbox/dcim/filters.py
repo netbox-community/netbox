@@ -110,6 +110,10 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
 
 class RackGroupFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         label='Site (ID)',
@@ -124,6 +128,15 @@ class RackGroupFilter(django_filters.FilterSet):
     class Meta:
         model = RackGroup
         fields = ['site_id', 'name', 'slug']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(name__icontains=value) |
+            Q(slug__icontains=value)
+        )
+        return queryset.filter(qs_filter)
 
 
 class RackRoleFilter(django_filters.FilterSet):

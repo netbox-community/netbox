@@ -19,16 +19,25 @@ v2.5.0 (FUTURE)
 
 ---
 
-v2.4.4 (FUTURE)
+v2.4.4 (2018-08-22)
 
 ## Enhancements
 
+* [#2168](https://github.com/digitalocean/netbox/issues/2168) - Added Extreme SummitStack interface form factors
 * [#2356](https://github.com/digitalocean/netbox/issues/2356) - Include cluster site as read-only field in VirtualMachine serializer
 * [#2362](https://github.com/digitalocean/netbox/issues/2362) - Implemented custom admin site to properly handle BASE_PATH
+* [#2254](https://github.com/digitalocean/netbox/issues/2254) - Implemented searchability for Rack Groups
 
 ## Bug Fixes
 
+* [#2353](https://github.com/digitalocean/netbox/issues/2353) - Handle `DoesNotExist` exception when deleting a device with connected interfaces
+* [#2354](https://github.com/digitalocean/netbox/issues/2354) - Increased maximum MTU for interfaces to 65536 bytes
 * [#2355](https://github.com/digitalocean/netbox/issues/2355) - Added item count to inventory tab on device view
+* [#2368](https://github.com/digitalocean/netbox/issues/2368) - Record change in device changelog when altering cluster assignment
+* [#2369](https://github.com/digitalocean/netbox/issues/2369) - Corrected time zone validation on site API serializer
+* [#2370](https://github.com/digitalocean/netbox/issues/2370) - Redirect to parent device after deleting device bays
+* [#2374](https://github.com/digitalocean/netbox/issues/2374) - Fix toggling display of IP addresses in virtual machine interfaces list
+* [#2378](https://github.com/digitalocean/netbox/issues/2378) - Corrected "edit" link for virtual machine interfaces
 
 ---
 

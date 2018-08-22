@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.db import transaction
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -181,17 +182,21 @@ class ClusterAddDevicesView(PermissionRequiredMixin, View):
 
         if form.is_valid():
 
-            # Assign the selected Devices to the Cluster
-            devices = form.cleaned_data['devices']
-            Device.objects.filter(pk__in=devices).update(cluster=cluster)
+            device_pks = form.cleaned_data['devices']
+            with transaction.atomic():
+
+                # Assign the selected Devices to the Cluster
+                for device in Device.objects.filter(pk__in=device_pks):
+                    device.cluster = cluster
+                    device.save()
 
             messages.success(request, "Added {} devices to cluster {}".format(
-                len(devices), cluster
+                len(device_pks), cluster
             ))
             return redirect(cluster.get_absolute_url())
 
         return render(request, self.template_name, {
-            'cluser': cluster,
+            'cluster': cluster,
             'form': form,
             'return_url': cluster.get_absolute_url(),
         })
@@ -210,12 +215,16 @@ class ClusterRemoveDevicesView(PermissionRequiredMixin, View):
             form = self.form(request.POST)
             if form.is_valid():
 
-                # Remove the selected Devices from the Cluster
-                devices = form.cleaned_data['pk']
-                Device.objects.filter(pk__in=devices).update(cluster=None)
+                device_pks = form.cleaned_data['pk']
+                with transaction.atomic():
+
+                    # Remove the selected Devices from the Cluster
+                    for device in Device.objects.filter(pk__in=device_pks):
+                        device.cluster = None
+                        device.save()
 
                 messages.success(request, "Removed {} devices from cluster {}".format(
-                    len(devices), cluster
+                    len(device_pks), cluster
                 ))
                 return redirect(cluster.get_absolute_url())
 

@@ -12,5 +12,5 @@ While NetBox has many configuration settings, only a few of them must be defined
 Configuration settings may be changed at any time. However, the NetBox service must be restarted before the changes will take effect:
 
 ```no-highlight
-# sudo supervsiorctl restart netbox
+# sudo supervisorctl restart netbox
 ```
