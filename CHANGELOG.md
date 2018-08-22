@@ -2,6 +2,7 @@ v2.4.4 (FUTURE)
 
 ## Enhancements
 
+* [#2168](https://github.com/digitalocean/netbox/issues/2168) - Added Extreme SummitStack interface form factors
 * [#2356](https://github.com/digitalocean/netbox/issues/2356) - Include cluster site as read-only field in VirtualMachine serializer
 * [#2362](https://github.com/digitalocean/netbox/issues/2362) - Implemented custom admin site to properly handle BASE_PATH
 * [#2254](https://github.com/digitalocean/netbox/issues/2254) - Implemented searchability for Rack Groups
