@@ -23,8 +23,9 @@ admin_site.register(User, UserAdmin)
 admin_site.register(Tag, TagAdmin)
 
 # Modify the template to include an RQ link if django_rq is installed (see RQ_SHOW_ADMIN_LINK)
-try:
-    import django_rq
-    admin_site.index_template = 'django_rq/index.html'
-except ImportError:
-    pass
+if settings.WEBHOOKS_ENABLED:
+    try:
+        import django_rq
+        admin_site.index_template = 'django_rq/index.html'
+    except ImportError:
+        pass
