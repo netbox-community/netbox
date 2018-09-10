@@ -4,12 +4,9 @@ from django import forms
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
+from netbox.admin import admin_site
 from utilities.forms import LaxURLField
-from .constants import OBJECTCHANGE_ACTION_CREATE, OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE
-from .models import (
-    ConfigContext, CustomField, CustomFieldChoice, Graph, ExportTemplate, ObjectChange, TopologyMap, UserAction,
-    Webhook,
-)
+from .models import CustomField, CustomFieldChoice, Graph, ExportTemplate, TopologyMap, UserAction, Webhook
 
 
 def order_content_types(field):
@@ -39,7 +36,7 @@ class WebhookForm(forms.ModelForm):
         order_content_types(self.fields['obj_type'])
 
 
-@admin.register(Webhook)
+@admin.register(Webhook, site=admin_site)
 class WebhookAdmin(admin.ModelAdmin):
     list_display = [
         'name', 'models', 'payload_url', 'http_content_type', 'enabled', 'type_create', 'type_update',
@@ -72,7 +69,7 @@ class CustomFieldChoiceAdmin(admin.TabularInline):
     extra = 5
 
 
-@admin.register(CustomField)
+@admin.register(CustomField, site=admin_site)
 class CustomFieldAdmin(admin.ModelAdmin):
     inlines = [CustomFieldChoiceAdmin]
     list_display = ['name', 'models', 'type', 'required', 'filter_logic', 'default', 'weight', 'description']
@@ -86,7 +83,7 @@ class CustomFieldAdmin(admin.ModelAdmin):
 # Graphs
 #
 
-@admin.register(Graph)
+@admin.register(Graph, site=admin_site)
 class GraphAdmin(admin.ModelAdmin):
     list_display = ['name', 'type', 'weight', 'source']
 
@@ -109,7 +106,7 @@ class ExportTemplateForm(forms.ModelForm):
         self.fields['content_type'].choices.insert(0, ('', '---------'))
 
 
-@admin.register(ExportTemplate)
+@admin.register(ExportTemplate, site=admin_site)
 class ExportTemplateAdmin(admin.ModelAdmin):
     list_display = ['name', 'content_type', 'description', 'mime_type', 'file_extension']
     form = ExportTemplateForm
@@ -119,7 +116,7 @@ class ExportTemplateAdmin(admin.ModelAdmin):
 # Topology maps
 #
 
-@admin.register(TopologyMap)
+@admin.register(TopologyMap, site=admin_site)
 class TopologyMapAdmin(admin.ModelAdmin):
     list_display = ['name', 'slug', 'site']
     prepopulated_fields = {
@@ -131,7 +128,7 @@ class TopologyMapAdmin(admin.ModelAdmin):
 # User actions
 #
 
-@admin.register(UserAction)
+@admin.register(UserAction, site=admin_site)
 class UserActionAdmin(admin.ModelAdmin):
     actions = None
     list_display = ['user', 'action', 'content_type', 'object_id', '_message']

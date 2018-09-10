@@ -45,7 +45,9 @@ class ClusterViewSet(CustomFieldModelViewSet):
 #
 
 class VirtualMachineViewSet(CustomFieldModelViewSet):
-    queryset = VirtualMachine.objects.all()
+    queryset = VirtualMachine.objects.select_related(
+        'cluster__site', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6'
+    )
     filter_class = filters.VirtualMachineFilter
 
     def get_serializer_class(self):
