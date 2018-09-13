@@ -1,5 +1,9 @@
 v2.4.5 (FUTURE)
 
+## Enhancements
+
+* [#2402](https://github.com/digitalocean/netbox/issues/2402) - Order and format JSON data in form fields
+
 ## Bug Fixes
 
 * [#2406](https://github.com/digitalocean/netbox/issues/2406) - Remove hard-coded limit of 1000 objects from API-populated form fields
