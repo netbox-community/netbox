@@ -278,6 +278,7 @@ SWAGGER_SETTINGS = {
     'DEFAULT_FIELD_INSPECTORS': [
         'utilities.custom_inspectors.NullableBooleanFieldInspector',
         'utilities.custom_inspectors.CustomChoiceFieldInspector',
+        'utilities.custom_inspectors.TagListFieldInspector',
         'drf_yasg.inspectors.CamelCaseJSONFilter',
         'drf_yasg.inspectors.ReferencingSerializerInspector',
         'drf_yasg.inspectors.RelatedFieldInspector',

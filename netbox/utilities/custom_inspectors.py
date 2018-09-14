@@ -1,9 +1,23 @@
 from drf_yasg import openapi
 from drf_yasg.inspectors import FieldInspector, NotHandled, PaginatorInspector, FilterInspector
 from rest_framework.fields import ChoiceField
+from taggit_serializer.serializers import TagListSerializerField
 
 from extras.api.customfields import CustomFieldsSerializer
 from utilities.api import ChoiceField
+
+
+class TagListFieldInspector(FieldInspector):
+    def field_to_swagger_object(self, field, swagger_object_type, use_references, **kwargs):
+        SwaggerType, ChildSwaggerType = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
+        if isinstance(field, TagListSerializerField):
+            child_schema = self.probe_field_inspectors(field.child, ChildSwaggerType, use_references)
+            return SwaggerType(
+                type=openapi.TYPE_ARRAY,
+                items=child_schema,
+            )
+
+        return NotHandled
 
 
 class CustomChoiceFieldInspector(FieldInspector):
