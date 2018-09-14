@@ -1287,6 +1287,9 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
+    secrets = GenericRelation(
+        to='secret.Secret'
+    )
 
     objects = DeviceManager()
     tags = TaggableManager()

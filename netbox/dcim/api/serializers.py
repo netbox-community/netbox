@@ -17,6 +17,7 @@ from dcim.models import (
 )
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.models import IPAddress, VLAN
+from secrets.models import Secret
 from tenancy.api.serializers import NestedTenantSerializer
 from users.api.serializers import NestedUserSerializer
 from utilities.api import (

@@ -46,7 +46,7 @@ class SecretRoleViewSet(ModelViewSet):
 
 class SecretViewSet(ModelViewSet):
     queryset = Secret.objects.select_related(
-        'device__primary_ip4', 'device__primary_ip6', 'role',
+        'role',
     ).prefetch_related(
         'role__users', 'role__groups',
     )

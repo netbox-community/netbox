@@ -1,10 +1,12 @@
 from __future__ import unicode_literals
 
 import base64
+import os
 
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -71,7 +73,7 @@ class SecretRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 @method_decorator(login_required, name='dispatch')
 class SecretListView(ObjectListView):
-    queryset = Secret.objects.select_related('role', 'device')
+    queryset = Secret.objects.select_related('role').prefetch_related('object')
     filter = filters.SecretFilter
     filter_form = forms.SecretFilterForm
     table = tables.SecretTable
@@ -93,11 +95,16 @@ class SecretView(View):
 @permission_required('secrets.add_secret')
 @userkey_required()
 def secret_add(request, pk):
+    path = request.path
+    path = os.path.normpath(path)
+    object = path.split(os.sep)[2]
+    secret = {
+        'devices': lambda pk: Secret(
+            object_id=pk,
+            content_type=ContentType.objects.get(app_label='dcim', model='device')
+        )
+    }[object](pk)
 
-    # Retrieve device
-    device = get_object_or_404(Device, pk=pk)
-
-    secret = Secret(device=device)
     session_key = get_session_key(request)
 
     if request.method == 'POST':
@@ -131,10 +138,14 @@ def secret_add(request, pk):
     else:
         form = forms.SecretForm(instance=secret)
 
+    return_url = {
+        'devices': Device.objects.get(pk=pk).get_absolute_url()
+    }[object]
+
     return render(request, 'secrets/secret_edit.html', {
         'secret': secret,
         'form': form,
-        'return_url': device.get_absolute_url(),
+        'return_url': return_url,
     })
 
 
@@ -247,7 +258,7 @@ class SecretBulkImportView(BulkImportView):
 
 class SecretBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'secrets.change_secret'
-    queryset = Secret.objects.select_related('role', 'device')
+    queryset = Secret.objects.select_related('role').prefetch_related('object')
     filter = filters.SecretFilter
     table = tables.SecretTable
     form = forms.SecretBulkEditForm
@@ -256,7 +267,7 @@ class SecretBulkEditView(PermissionRequiredMixin, BulkEditView):
 
 class SecretBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'secrets.delete_secret'
-    queryset = Secret.objects.select_related('role', 'device')
+    queryset = Secret.objects.select_related('role').prefetch_related('object')
     filter = filters.SecretFilter
     table = tables.SecretTable
     default_return_url = 'secrets:secret_list'
