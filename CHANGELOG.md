@@ -6,6 +6,7 @@ v2.4.5 (FUTURE)
 
 ## Bug Fixes
 
+* [#2400](https://github.com/digitalocean/netbox/issues/2400) - API variable type mismatch at creating/modifying an entry
 * [#2406](https://github.com/digitalocean/netbox/issues/2406) - Remove hard-coded limit of 1000 objects from API-populated form fields
 
 ---

@@ -1,10 +1,30 @@
 from drf_yasg import openapi
-from drf_yasg.inspectors import FieldInspector, NotHandled, PaginatorInspector, FilterInspector
+from drf_yasg.inspectors import FieldInspector, NotHandled, PaginatorInspector, FilterInspector, SwaggerAutoSchema
 from rest_framework.fields import ChoiceField
+from rest_framework.relations import ManyRelatedField
 from taggit_serializer.serializers import TagListSerializerField
 
 from extras.api.customfields import CustomFieldsSerializer
-from utilities.api import ChoiceField, SerializedPKRelatedField
+from utilities.api import ChoiceField, SerializedPKRelatedField, WritableNestedSerializer
+
+
+class NetBoxSwaggerAutoSchema(SwaggerAutoSchema):
+    def get_request_serializer(self):
+        serializer = super().get_request_serializer()
+
+        if serializer is not None and self.method in self.implicit_body_methods:
+            properties = {}
+            for child_name, child in serializer.fields.items():
+                if isinstance(child, (ChoiceField, WritableNestedSerializer)):
+                    properties[child_name] = None
+                elif isinstance(child, ManyRelatedField) and isinstance(child.child_relation, SerializedPKRelatedField):
+                    properties[child_name] = None
+
+            if properties:
+                writable_class = type('Writable' + type(serializer).__name__, (type(serializer),), properties)
+                serializer = writable_class()
+
+        return serializer
 
 
 class SerializedPKRelatedFieldInspector(FieldInspector):
