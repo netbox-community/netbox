@@ -173,17 +173,17 @@ class SecretTest(APITestCase):
         self.secretrole1 = SecretRole.objects.create(name='Test Secret Role 1', slug='test-secret-role-1')
         self.secretrole2 = SecretRole.objects.create(name='Test Secret Role 2', slug='test-secret-role-2')
         self.secret1 = Secret(
-            device=self.device, role=self.secretrole1, name='Test Secret 1', plaintext=self.plaintext['secret1']
+            object=self.device, role=self.secretrole1, name='Test Secret 1', plaintext=self.plaintext['secret1']
         )
         self.secret1.encrypt(self.master_key)
         self.secret1.save()
         self.secret2 = Secret(
-            device=self.device, role=self.secretrole1, name='Test Secret 2', plaintext=self.plaintext['secret2']
+            object=self.device, role=self.secretrole1, name='Test Secret 2', plaintext=self.plaintext['secret2']
         )
         self.secret2.encrypt(self.master_key)
         self.secret2.save()
         self.secret3 = Secret(
-            device=self.device, role=self.secretrole1, name='Test Secret 3', plaintext=self.plaintext['secret3']
+            object=self.device, role=self.secretrole1, name='Test Secret 3', plaintext=self.plaintext['secret3']
         )
         self.secret3.encrypt(self.master_key)
         self.secret3.save()
@@ -205,7 +205,8 @@ class SecretTest(APITestCase):
     def test_create_secret(self):
 
         data = {
-            'device': self.device.pk,
+            'object_id': self.device.pk,
+            'content_type': '33',
             'role': self.secretrole1.pk,
             'name': 'Test Secret 4',
             'plaintext': 'Secret #4 Plaintext',
@@ -226,19 +227,22 @@ class SecretTest(APITestCase):
 
         data = [
             {
-                'device': self.device.pk,
+                'object_id': self.device.pk,
+                'content_type': '33',
                 'role': self.secretrole1.pk,
                 'name': 'Test Secret 4',
                 'plaintext': 'Secret #4 Plaintext',
             },
             {
-                'device': self.device.pk,
+                'object_id': self.device.pk,
+                'content_type': '33',
                 'role': self.secretrole1.pk,
                 'name': 'Test Secret 5',
                 'plaintext': 'Secret #5 Plaintext',
             },
             {
-                'device': self.device.pk,
+                'object_id': self.device.pk,
+                'content_type': '33',
                 'role': self.secretrole1.pk,
                 'name': 'Test Secret 6',
                 'plaintext': 'Secret #6 Plaintext',
@@ -257,7 +261,8 @@ class SecretTest(APITestCase):
     def test_update_secret(self):
 
         data = {
-            'device': self.device.pk,
+            'object_id': self.device.pk,
+            'content_type': '33',
             'role': self.secretrole2.pk,
             'plaintext': 'NewPlaintext',
         }

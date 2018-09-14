@@ -5,6 +5,7 @@ from rest_framework.validators import UniqueTogetherValidator
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from dcim.api.serializers import NestedDeviceSerializer
+from dcim.models import Device
 from extras.api.customfields import CustomFieldModelSerializer
 from secrets.models import Secret, SecretRole
 from utilities.api import ValidatedModelSerializer, WritableNestedSerializer
@@ -33,8 +34,19 @@ class NestedSecretRoleSerializer(WritableNestedSerializer):
 # Secrets
 #
 
+class SecretObjectRelatedField(serializers.RelatedField):
+    """
+        GenericRelation object can be extended with different Object types
+    """
+    def to_representation(self, value):
+        if isinstance(value, Device):
+            object_serial = NestedDeviceSerializer(value, context=self.context)
+            dict = object_serial.data.copy()
+            dict.update({'class': 'device'})
+            return dict
+
 class SecretSerializer(TaggitSerializer, CustomFieldModelSerializer):
-    device = NestedDeviceSerializer()
+    object = SecretObjectRelatedField(queryset=Secret.objects.all(), required=False)
     role = NestedSecretRoleSerializer()
     plaintext = serializers.CharField()
     tags = TagListSerializerField(required=False)
@@ -42,12 +54,11 @@ class SecretSerializer(TaggitSerializer, CustomFieldModelSerializer):
     class Meta:
         model = Secret
         fields = [
-            'id', 'device', 'role', 'name', 'plaintext', 'hash', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'object', 'role', 'name', 'plaintext', 'hash', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         validators = []
 
     def validate(self, data):
-
         # Encrypt plaintext data using the master key provided from the view context
         if data.get('plaintext'):
             s = Secret(plaintext=data['plaintext'])
@@ -57,7 +68,7 @@ class SecretSerializer(TaggitSerializer, CustomFieldModelSerializer):
 
         # Validate uniqueness of name if one has been provided.
         if data.get('name'):
-            validator = UniqueTogetherValidator(queryset=Secret.objects.all(), fields=('device', 'role', 'name'))
+            validator = UniqueTogetherValidator(queryset=Secret.objects.all(), fields=('object', 'role', 'name'))
             validator.set_context(self)
             validator(data)
 
