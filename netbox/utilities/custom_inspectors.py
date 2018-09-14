@@ -4,7 +4,16 @@ from rest_framework.fields import ChoiceField
 from taggit_serializer.serializers import TagListSerializerField
 
 from extras.api.customfields import CustomFieldsSerializer
-from utilities.api import ChoiceField
+from utilities.api import ChoiceField, SerializedPKRelatedField
+
+
+class SerializedPKRelatedFieldInspector(FieldInspector):
+    def field_to_swagger_object(self, field, swagger_object_type, use_references, **kwargs):
+        SwaggerType, ChildSwaggerType = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
+        if isinstance(field, SerializedPKRelatedField):
+            return self.probe_field_inspectors(field.serializer(), ChildSwaggerType, use_references)
+
+        return NotHandled
 
 
 class TagListFieldInspector(FieldInspector):
