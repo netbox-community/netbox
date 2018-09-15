@@ -9,7 +9,8 @@
 
     {# Icon and name #}
     <td>
-        <span title="{{ iface.get_form_factor_display }}">
+        <span title="{{ iface.get_form_factor_display }}{% if iface.untagged_vlan is not None %}
+ 13 Access VLAN: {{ iface.untagged_vlan }}{% endif %}">
             <i class="fa fa-fw fa-{% if iface.mgmt_only %}wrench{% elif iface.is_lag %}align-justify{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}exchange{% endif %}"></i>
             <a href="{{ iface.get_absolute_url }}">{{ iface }}</a>
         </span>
