@@ -844,6 +844,56 @@ class BulkComponentCreateView(GetReturnURLMixin, View):
         })
 
 
+class ObjectSetFieldNullView(ObjectDeleteView):
+    """
+    Given a field name, set it to None (null) and save the object.
+
+    field: The field to be nulled
+    field_friendly_name: Human friendly name for the field in the UI.
+    """
+    template_name = 'utilities/object_set_field_null.html'
+    field_human_friendly_name = None
+
+    def get(self, request, **kwargs):
+    
+        obj = self.get_object(kwargs)
+        form = ConfirmationForm(initial=request.GET)
+
+        return render(request, self.template_name, {
+            'obj': obj,
+            'form': form,
+            'obj_type': self.model._meta.verbose_name,
+            'field_human_friendly_name': self.field_human_friendly_name,
+            'return_url': self.get_return_url(request, obj),
+        })
+
+    def post(self, request, **kwargs):
+
+        obj = self.get_object(kwargs)
+        form = ConfirmationForm(request.POST)
+        if form.is_valid():
+
+            setattr(obj, self.field, None)
+            obj.save()
+
+            msg = 'Cleared {} on {} {}'.format(self.field_human_friendly_name, self.model._meta.verbose_name, obj)
+            messages.success(request, msg)
+
+            return_url = form.cleaned_data.get('return_url')
+            if return_url is not None and is_safe_url(url=return_url, host=request.get_host()):
+                return redirect(return_url)
+            else:
+                return redirect(self.get_return_url(request, obj))
+
+        return render(request, self.template_name, {
+            'obj': obj,
+            'form': form,
+            'obj_type': self.model._meta.verbose_name,
+            'field_human_friendly_name': self.field_human_friendly_name,
+            'return_url': self.get_return_url(request, obj),
+        })
+
+
 @requires_csrf_token
 def server_error(request, template_name=ERROR_500_TEMPLATE_NAME):
     """

@@ -716,6 +716,10 @@ class ConfigContextModel(models.Model):
         for context in ConfigContext.objects.get_for_object(self):
             data.update(context.data)
 
+        # If the object has local config context data defined, that data overwrites all rendered data
+        if self.local_config_context_data is not None:
+            data.update(self.local_config_context_data)
+
         return data
 
 

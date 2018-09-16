@@ -18,6 +18,38 @@
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
+                    <strong>Local Context</strong>
+                </div>
+                <div class="panel-body">
+                    {% if obj.local_config_context_data %}
+                        <pre>{{ obj.local_config_context_data|render_json }}</pre>
+                    {% else %}
+                        <span class="text-muted">None</span>
+                    {% endif %}
+                    <span class="help-block">
+                        <i class="fa fa-info-circle"></i>
+                        The local config context overwrites all source contexts.
+                    </span>
+                </div>
+                <div class="panel-footer">
+                    {% if perm_string in perms %}
+                        {% if obj.local_config_context_data %}
+                            <a href="{% url edit_url pk=obj.pk %}?return_url={{ obj.get_absolute_url }}config-context/" class="btn btn-warning btn-xs">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Edit
+                            </a>
+                            <a href="{% url delete_url pk=obj.pk %}?return_url={{ obj.get_absolute_url }}config-context/" class="btn btn-danger btn-xs">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
+                            </a>
+                        {% else %}
+                            <a href="{% url edit_url pk=obj.pk %}?return_url={{ obj.get_absolute_url }}config-context/" class="btn btn-success btn-xs">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add local context
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
                     <strong>Source Contexts</strong>
                 </div>
                 {% for context in source_contexts %}

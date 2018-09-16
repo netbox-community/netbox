@@ -14,7 +14,7 @@ from extras.views import ObjectConfigContextView
 from ipam.models import Service
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, ObjectDeleteView,
-    ObjectEditView, ObjectListView,
+    ObjectEditView, ObjectListView, ObjectSetFieldNullView,
 )
 from . import filters, forms, tables
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -283,6 +283,19 @@ class VirtualMachineCreateView(PermissionRequiredMixin, ObjectEditView):
     model_form = forms.VirtualMachineForm
     template_name = 'virtualization/virtualmachine_edit.html'
     default_return_url = 'virtualization:virtualmachine_list'
+
+
+class VirtualMachineEditLocalConfigContextView(VirtualMachineCreateView):
+    permission_required = 'virtualization.change_device'
+    model_form = forms.VirtualMachineLocalConfigContextForm
+    template_name = 'virtualization/virtualmachine_edit_local_config_context.html'
+
+
+class VirtualMachineClearLocalContextDataView(ObjectSetFieldNullView):
+    permission_required = 'virtualization.change_virtualmachine'
+    model = VirtualMachine
+    field = 'local_config_context_data'
+    field_human_friendly_name = 'local config context'
 
 
 class VirtualMachineEditView(VirtualMachineCreateView):

@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -243,6 +244,10 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         to='extras.CustomFieldValue',
         content_type_field='obj_type',
         object_id_field='obj_id'
+    )
+    local_config_context_data = JSONField(
+        blank=True,
+        null=True,
     )
 
     tags = TaggableManager()

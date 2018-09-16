@@ -1287,6 +1287,10 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
+    local_config_context_data = JSONField(
+        blank=True,
+        null=True,
+    )
 
     objects = DeviceManager()
     tags = TaggableManager()

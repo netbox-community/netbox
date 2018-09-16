@@ -106,9 +106,15 @@ class ObjectConfigContextView(View):
 
         obj = get_object_or_404(self.object_class, pk=pk)
         source_contexts = ConfigContext.objects.get_for_object(obj)
+        model_name = self.object_class._meta.model_name
+        app_label = self.object_class._meta.app_label
 
         return render(request, 'extras/object_configcontext.html', {
-            self.object_class._meta.model_name: obj,
+            model_name: obj,
+            'obj': obj,
+            'perm_string': '{}.change_{}'.format(app_label, model_name),
+            'edit_url':'{}:{}_edit_localconfigcontext'.format(app_label, model_name),
+            'delete_url':'{}:{}_delete_localconfigcontext'.format(app_label, model_name),
             'rendered_context': obj.get_config_context(),
             'source_contexts': source_contexts,
             'base_template': self.base_template,

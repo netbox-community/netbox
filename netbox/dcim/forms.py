@@ -18,7 +18,7 @@ from utilities.forms import (
     AnnotatedMultipleChoiceField, APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
     BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, ComponentForm,
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FilterTreeNodeMultipleChoiceField,
-    FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SelectWithPK, SmallTextarea, SlugField,
+    FlexibleModelChoiceField, JSONField, Livesearch, SelectWithDisabled, SelectWithPK, SmallTextarea, SlugField,
 )
 from virtualization.models import Cluster
 from .constants import (
@@ -918,6 +918,16 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             self.fields['rack'].disabled = True
             self.initial['site'] = self.instance.parent_bay.device.site_id
             self.initial['rack'] = self.instance.parent_bay.device.rack_id
+
+
+class DeviceLocalConfigContextForm(BootstrapMixin, forms.ModelForm):
+    local_config_context_data = JSONField()
+
+    class Meta:
+        model = Device
+        fields = [
+            'local_config_context_data',
+        ]
 
 
 class BaseDeviceCSVForm(forms.ModelForm):

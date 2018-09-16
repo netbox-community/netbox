@@ -17,7 +17,8 @@ from tenancy.models import Tenant
 from utilities.forms import (
     AnnotatedMultipleChoiceField, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ComponentForm,
-    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, SlugField, SmallTextarea, add_blank_choice
+    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, JSONField, SlugField, SmallTextarea,
+    add_blank_choice
 )
 from .constants import VM_STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -300,6 +301,16 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             self.fields['primary_ip4'].widget.attrs['readonly'] = True
             self.fields['primary_ip6'].choices = []
             self.fields['primary_ip6'].widget.attrs['readonly'] = True
+
+
+class VirtualMachineLocalConfigContextForm(BootstrapMixin, forms.ModelForm):
+    local_config_context_data = JSONField()
+
+    class Meta:
+        model = VirtualMachine
+        fields = [
+            'local_config_context_data',
+        ]
 
 
 class VirtualMachineCSVForm(forms.ModelForm):
