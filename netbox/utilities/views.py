@@ -855,7 +855,7 @@ class ObjectSetFieldNullView(ObjectDeleteView):
     field_human_friendly_name = None
 
     def get(self, request, **kwargs):
-    
+
         obj = self.get_object(kwargs)
         form = ConfirmationForm(initial=request.GET)
 
