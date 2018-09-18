@@ -8,6 +8,7 @@ v2.4.5 (FUTURE)
 ## Bug Fixes
 
 * [#2406](https://github.com/digitalocean/netbox/issues/2406) - Remove hard-coded limit of 1000 objects from API-populated form fields
+* [#2443](https://github.com/digitalocean/netbox/issues/2443) - Enforce JSON object format when creating config contexts
 
 ---
 

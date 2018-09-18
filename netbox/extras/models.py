@@ -700,6 +700,14 @@ class ConfigContext(models.Model):
     def get_absolute_url(self):
         return reverse('extras:configcontext', kwargs={'pk': self.pk})
 
+    def clean(self):
+
+        # Verify that JSON data is provided as an object
+        if type(self.data) is not dict:
+            raise ValidationError(
+                {'data': 'JSON data must be in object form. Example: {"foo": 123}'}
+            )
+
 
 class ConfigContextModel(models.Model):
 
