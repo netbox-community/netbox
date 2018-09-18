@@ -8,7 +8,6 @@ from taggit.forms import TagField
 
 from dcim.constants import IFACE_FF_VIRTUAL, IFACE_MODE_ACCESS, IFACE_MODE_TAGGED_ALL
 from dcim.forms import INTERFACE_MODE_HELP_TEXT
-from dcim.formfields import MACAddressFormField
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
 from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
 from ipam.models import IPAddress
@@ -461,7 +460,7 @@ class InterfaceCreateForm(ComponentForm):
     form_factor = forms.ChoiceField(choices=VIFACE_FF_CHOICES, initial=IFACE_FF_VIRTUAL, widget=forms.HiddenInput())
     enabled = forms.BooleanField(required=False)
     mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
-    mac_address = MACAddressFormField(required=False, label='MAC Address')
+    mac_address = forms.CharField(required=False, label='MAC Address')
     description = forms.CharField(max_length=100, required=False)
 
     def __init__(self, *args, **kwargs):

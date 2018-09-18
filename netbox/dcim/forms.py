@@ -27,7 +27,6 @@ from .constants import (
     RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, RACK_WIDTH_19IN, RACK_WIDTH_23IN, SITE_STATUS_CHOICES, SUBDEVICE_ROLE_CHILD,
     SUBDEVICE_ROLE_PARENT, SUBDEVICE_ROLE_CHOICES,
 )
-from .formfields import MACAddressFormField
 from .models import (
     DeviceBay, DeviceBayTemplate, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate,
     Device, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, InventoryItem,
@@ -1857,7 +1856,7 @@ class InterfaceCreateForm(ComponentForm, forms.Form):
     enabled = forms.BooleanField(required=False)
     lag = forms.ModelChoiceField(queryset=Interface.objects.all(), required=False, label='Parent LAG')
     mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
-    mac_address = MACAddressFormField(required=False, label='MAC Address')
+    mac_address = forms.CharField(required=False, label='MAC Address')
     mgmt_only = forms.BooleanField(
         required=False,
         label='OOB Management',
