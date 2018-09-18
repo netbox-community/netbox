@@ -703,6 +703,11 @@ class ConfigContext(models.Model):
 
 class ConfigContextModel(models.Model):
 
+    local_context_data = JSONField(
+        blank=True,
+        null=True,
+    )
+
     class Meta:
         abstract = True
 
@@ -717,8 +722,8 @@ class ConfigContextModel(models.Model):
             data.update(context.data)
 
         # If the object has local config context data defined, that data overwrites all rendered data
-        if self.local_config_context_data is not None:
-            data.update(self.local_config_context_data)
+        if self.local_context_data is not None:
+            data.update(self.local_context_data)
 
         return data
 

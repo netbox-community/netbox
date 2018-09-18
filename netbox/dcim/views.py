@@ -26,7 +26,7 @@ from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, GetReturnURLMixin,
-    ObjectDeleteView, ObjectEditView, ObjectListView, ObjectSetFieldNullView,
+    ObjectDeleteView, ObjectEditView, ObjectListView,
 )
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
@@ -981,19 +981,6 @@ class DeviceCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class DeviceEditView(DeviceCreateView):
     permission_required = 'dcim.change_device'
-
-
-class DeviceEditLocalConfigContextView(DeviceCreateView):
-    permission_required = 'dcim.change_device'
-    model_form = forms.DeviceLocalConfigContextForm
-    template_name = 'dcim/device_edit_local_config_context.html'
-
-
-class DeviceClearLocalContextDataView(ObjectSetFieldNullView):
-    permission_required = 'dcim.change_device'
-    model = Device
-    field = 'local_config_context_data'
-    field_human_friendly_name = 'local config context'
 
 
 class DeviceDeleteView(PermissionRequiredMixin, ObjectDeleteView):

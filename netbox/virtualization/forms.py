@@ -248,6 +248,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         )
     )
     tags = TagField(required=False)
+    local_context_data = JSONField(required=False)
 
     class Meta:
         model = VirtualMachine
@@ -255,6 +256,9 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
             'vcpus', 'memory', 'disk', 'comments', 'tags',
         ]
+        help_texts = {
+            'local_context_data': "Local config context data overwrites all sources contexts in the final rendered config context",
+        }
 
     def __init__(self, *args, **kwargs):
 
@@ -301,16 +305,6 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             self.fields['primary_ip4'].widget.attrs['readonly'] = True
             self.fields['primary_ip6'].choices = []
             self.fields['primary_ip6'].widget.attrs['readonly'] = True
-
-
-class VirtualMachineLocalConfigContextForm(BootstrapMixin, forms.ModelForm):
-    local_config_context_data = JSONField()
-
-    class Meta:
-        model = VirtualMachine
-        fields = [
-            'local_config_context_data',
-        ]
 
 
 class VirtualMachineCSVForm(forms.ModelForm):

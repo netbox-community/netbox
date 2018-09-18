@@ -245,10 +245,6 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         content_type_field='obj_type',
         object_id_field='obj_id'
     )
-    local_config_context_data = JSONField(
-        blank=True,
-        null=True,
-    )
 
     tags = TaggableManager()
 

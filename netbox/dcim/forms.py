@@ -823,16 +823,19 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     )
     comments = CommentField()
     tags = TagField(required=False)
+    local_context_data = JSONField(required=False)
 
     class Meta:
         model = Device
         fields = [
             'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'position', 'face',
             'status', 'platform', 'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant', 'comments', 'tags',
+            'local_context_data'
         ]
         help_texts = {
             'device_role': "The function this device serves",
             'serial': "Chassis serial number",
+            'local_context_data': "Local config context data overwrites all sources contexts in the final rendered config context"
         }
         widgets = {
             'face': forms.Select(attrs={'filter-for': 'position'}),
@@ -918,16 +921,6 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             self.fields['rack'].disabled = True
             self.initial['site'] = self.instance.parent_bay.device.site_id
             self.initial['rack'] = self.instance.parent_bay.device.rack_id
-
-
-class DeviceLocalConfigContextForm(BootstrapMixin, forms.ModelForm):
-    local_config_context_data = JSONField()
-
-    class Meta:
-        model = Device
-        fields = [
-            'local_config_context_data',
-        ]
 
 
 class BaseDeviceCSVForm(forms.ModelForm):

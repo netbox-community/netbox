@@ -142,8 +142,6 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/edit/$', views.DeviceEditView.as_view(), name='device_edit'),
     url(r'^devices/(?P<pk>\d+)/delete/$', views.DeviceDeleteView.as_view(), name='device_delete'),
     url(r'^devices/(?P<pk>\d+)/config-context/$', views.DeviceConfigContextView.as_view(), name='device_configcontext'),
-    url(r'^devices/(?P<pk>\d+)/config-context/edit-local/$', views.DeviceEditLocalConfigContextView.as_view(), name='device_edit_localconfigcontext'),
-    url(r'^devices/(?P<pk>\d+)/config-context/clear-local/$', views.DeviceClearLocalContextDataView.as_view(), name='device_delete_localconfigcontext'),
     url(r'^devices/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='device_changelog', kwargs={'model': Device}),
     url(r'^devices/(?P<pk>\d+)/inventory/$', views.DeviceInventoryView.as_view(), name='device_inventory'),
     url(r'^devices/(?P<pk>\d+)/status/$', views.DeviceStatusView.as_view(), name='device_status'),

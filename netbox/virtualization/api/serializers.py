@@ -107,7 +107,7 @@ class VirtualMachineSerializer(TaggitSerializer, CustomFieldModelSerializer):
         fields = [
             'id', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'platform', 'primary_ip', 'primary_ip4',
             'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
-            'local_config_context_data',
+            'local_context_data',
         ]
 
 
@@ -118,7 +118,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
         fields = [
             'id', 'name', 'status', 'cluster', 'role', 'tenant', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6',
             'vcpus', 'memory', 'disk', 'comments', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
-            'local_config_context_data',
+            'local_context_data',
         ]
 
     def get_config_context(self, obj):
