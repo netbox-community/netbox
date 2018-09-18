@@ -8,6 +8,7 @@ v2.4.5 (FUTURE)
 ## Bug Fixes
 
 * [#2406](https://github.com/digitalocean/netbox/issues/2406) - Remove hard-coded limit of 1000 objects from API-populated form fields
+* [#2442](https://github.com/digitalocean/netbox/issues/2442) - Nullify "next" link in API when limit=0 is passed
 * [#2443](https://github.com/digitalocean/netbox/issues/2443) - Enforce JSON object format when creating config contexts
 * [#2444](https://github.com/digitalocean/netbox/issues/2444) - Improve validation of interface MAC addresses
 
