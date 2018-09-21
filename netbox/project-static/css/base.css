@@ -8,8 +8,10 @@ html {
 html, body {
     height: 100%;
 }
-body {
-    padding-top: 70px;
+@media screen {
+    body {
+        padding-top: 70px;
+    }
 }
 .container {
     width: auto;
@@ -448,6 +450,15 @@ textarea {
 
 /* Hide some elements for printing */
 @media print {
+    .footer {
+        display: none;
+    }
+    .btn {
+        display: none;
+    }
+    .nav-tabs, .nav-pills {
+        display: none;
+    }
     .sub-header {
         display: none;
     }
@@ -456,5 +467,8 @@ textarea {
     }
     #panel-tags {
         display: none;
+    }
+    a[href]:after {
+        content: none;
     }
 }
