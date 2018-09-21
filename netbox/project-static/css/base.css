@@ -451,4 +451,10 @@ textarea {
     .sub-header {
         display: none;
     }
+    #panel-search {
+        display: none;
+    }
+    #panel-tags {
+        display: none;
+    }
 }
