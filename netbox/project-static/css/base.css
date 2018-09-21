@@ -445,3 +445,10 @@ td .progress {
 textarea {
     font-family: Consolas, Lucida Console, monospace;
 }
+
+/* Hide some elements for printing */
+@media print {
+    .sub-header {
+        display: none;
+    }
+}
