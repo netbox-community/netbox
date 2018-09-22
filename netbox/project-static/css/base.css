@@ -462,6 +462,9 @@ textarea {
     .sub-header {
         display: none;
     }
+    #related {
+        display: none;
+    }
     #panel-search {
         display: none;
     }

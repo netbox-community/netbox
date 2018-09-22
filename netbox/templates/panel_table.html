@@ -1,6 +1,6 @@
 {% load render_table from django_tables2 %}
 
-<div class="panel panel-{{ panel_class|default:'default' }}">
+<div class="panel panel-{{ panel_class|default:'default' }}" {% if panel_id %}id="{{ panel_id }}"{% endif %}">
     {% if heading %}
         <div class="panel-heading">
             <strong>{{ heading }}</strong>
