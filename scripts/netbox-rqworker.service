@@ -1,0 +1,17 @@
+# Alternative to using supervisord for running the NetBox Redis Worker
+# 1. Create in /etc/systemd/system/netbox-rqworker.service
+# 2. systemctl enable netbox-rqworker && systemctl restart netbox-rqworker
+
+[Unit]
+Description=NetBox rqworker
+
+[Service]
+Type=simple
+User=netbox
+Group=netbox
+Environment=LC_ALL=C.UTF-8 LANG=C.UTF-8
+ExecStart=/usr/bin/python3 /opt/netbox/netbox/manage.py rqworker
+WorkingDirectory=/opt/netbox/netbox
+
+[Install]
+WantedBy=redis-server.service
