@@ -1,0 +1,17 @@
+{
+    "listeners": {
+        "*:8001": {
+            "application": "netbox"
+        }
+    },
+    "applications": {
+        "netbox": {
+            "type": "python 3.6",
+            "user": "netbox",
+            "group": "netbox",
+            "processes": 2,
+            "path": "/opt/netbox/netbox/",
+            "module": "netbox.wsgi"
+        }
+    }
+}
