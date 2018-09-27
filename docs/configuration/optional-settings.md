@@ -223,6 +223,43 @@ The file path to the location where custom reports will be kept. By default, thi
 
 ---
 
+## S3 Storage for Media files
+
+You can store media files not in the local file system and instead make use of an external object store.
+This can be on AWS or an compatible solution on premise like [minio](https://minio.io/).
+
+### S3 Basic Configuration
+You need at least your ` Amazon Web Services access key`, `Amazon Web Services secret access key` and `Amazon Web Services storage bucket name`.
+
+```python
+S3_STORAGE_ENABLED = True
+
+AWS_ACCESS_KEY_ID = 'abcde'
+AWS_SECRET_ACCESS_KEY = '12345abcde67890'
+AWS_STORAGE_BUCKET_NAME = 'unique.bucketname'
+```
+
+#### S3 Region
+In case you want to use a specific region for the s3 storage you have to supply a specific endpoint. Choose an endpoint from the [official AWS List](https://docs.aws.amazon.com/en_us/general/latest/gr/rande.html#s3_region).
+```python
+AWS_S3_ENDPOINT_URL= 'https://s3.eu-central-1.amazonaws.com'
+```
+
+#### Minio
+Minio has its own endpoint url as you deploy it yourself. You have to adjust the hostname accordingly.
+You can choose from a bucketname as you want and use the secret key and access key from your minio installation. The example credentials will not work for you as they are copied from the official minio docs.
+
+```python
+S3_STORAGE_ENABLED = True
+
+AWS_ACCESS_KEY_ID = 'BKIKJAA5BMMU2RHO6IBB'
+AWS_SECRET_ACCESS_KEY = 'V7f1CwQqAcwo80UEIJEjc5gVQUSSx5ohQ9GSrr12'
+AWS_STORAGE_BUCKET_NAME = 'netboxmedia'
+AWS_S3_ENDPOINT_URL = 'http://minio:9000'
+```
+
+---
+
 ## TIME_ZONE
 
 Default: UTC

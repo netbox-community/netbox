@@ -149,3 +149,12 @@ TIME_FORMAT = 'g:i a'
 SHORT_TIME_FORMAT = 'H:i:s'
 DATETIME_FORMAT = 'N j, Y g:i a'
 SHORT_DATETIME_FORMAT = 'Y-m-d H:i'
+
+# Default is to store the uploaded media files on local storage.
+# If you want to upload it to AWS or Minio you have to enable it explicitly
+S3_STORAGE_ENABLED = False
+# S3 Credentials for media file storage 
+AWS_ACCESS_KEY_ID = ''
+AWS_SECRET_ACCESS_KEY = ''
+AWS_S3_ENDPOINT_URL = ''
+AWS_STORAGE_BUCKET_NAME = ''

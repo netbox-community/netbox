@@ -72,6 +72,15 @@ SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 WEBHOOKS_ENABLED = getattr(configuration, 'WEBHOOKS_ENABLED', False)
+S3_STORAGE_ENABLED = getattr(configuration, 'S3_STORAGE_ENABLED', False)
+
+if S3_STORAGE_ENABLED:
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    AWS_ACCESS_KEY_ID = getattr(configuration, 'AWS_ACCESS_ID', '')
+    AWS_SECRET_ACCESS_KEY = getattr(configuration, 'AWS_SECRET_ACCESS_KEY', '')
+    AWS_S3_ENDPOINT_URL = getattr(configuration, 'AWS_S3_ENDPOINT_URL')
+    AWS_STORAGE_BUCKET_NAME = getattr(configuration, 'AWS_STORAGE_BUCKET_NAME', 'netboxmedia')
+
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
