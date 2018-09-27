@@ -239,6 +239,14 @@ Enable this option to run the webhook backend. See the docs section on the webho
 
 ---
 
+## WHITENOISE_ENABLED
+
+Default: False
+
+Enable this option to use whitenoise for serving and compressing the static assets. See the documentation of whitenoise [here](http://whitenoise.evans.io/en/stable/) for additional customization and background.
+
+---
+
 ## Date and Time Formatting
 
 You may define custom formatting for date and times. For detailed instructions on writing format strings, please see [the Django documentation](https://docs.djangoproject.com/en/dev/ref/templates/builtins/#date).
