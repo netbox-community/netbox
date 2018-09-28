@@ -18,7 +18,7 @@ from utilities.forms import (
     AnnotatedMultipleChoiceField, APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
     BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, ComponentForm,
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FilterTreeNodeMultipleChoiceField,
-    FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SelectWithPK, SmallTextarea, SlugField,
+    FlexibleModelChoiceField, JSONField, Livesearch, SelectWithDisabled, SelectWithPK, SmallTextarea, SlugField,
 )
 from virtualization.models import Cluster
 from .constants import (
@@ -822,16 +822,19 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     )
     comments = CommentField()
     tags = TagField(required=False)
+    local_context_data = JSONField(required=False)
 
     class Meta:
         model = Device
         fields = [
             'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'position', 'face',
             'status', 'platform', 'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant', 'comments', 'tags',
+            'local_context_data'
         ]
         help_texts = {
             'device_role': "The function this device serves",
             'serial': "Chassis serial number",
+            'local_context_data': "Local config context data overwrites all sources contexts in the final rendered config context"
         }
         widgets = {
             'face': forms.Select(attrs={'filter-for': 'position'}),

@@ -711,6 +711,11 @@ class ConfigContext(models.Model):
 
 class ConfigContextModel(models.Model):
 
+    local_context_data = JSONField(
+        blank=True,
+        null=True,
+    )
+
     class Meta:
         abstract = True
 
@@ -723,6 +728,10 @@ class ConfigContextModel(models.Model):
         data = OrderedDict()
         for context in ConfigContext.objects.get_for_object(self):
             data.update(context.data)
+
+        # If the object has local config context data defined, that data overwrites all rendered data
+        if self.local_context_data is not None:
+            data.update(self.local_context_data)
 
         return data
 

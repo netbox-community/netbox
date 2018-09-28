@@ -16,7 +16,8 @@ from tenancy.models import Tenant
 from utilities.forms import (
     AnnotatedMultipleChoiceField, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ComponentForm,
-    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, SlugField, SmallTextarea, add_blank_choice
+    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, JSONField, SlugField, SmallTextarea,
+    add_blank_choice
 )
 from .constants import VM_STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -246,6 +247,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         )
     )
     tags = TagField(required=False)
+    local_context_data = JSONField(required=False)
 
     class Meta:
         model = VirtualMachine
@@ -253,6 +255,9 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
             'vcpus', 'memory', 'disk', 'comments', 'tags',
         ]
+        help_texts = {
+            'local_context_data': "Local config context data overwrites all sources contexts in the final rendered config context",
+        }
 
     def __init__(self, *args, **kwargs):
 
