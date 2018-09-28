@@ -713,19 +713,24 @@ class ComponentCreateView(View):
             data = deepcopy(form.cleaned_data)
 
             for name in form.cleaned_data['name_pattern']:
+
+                # Initialize data for the individual component form
                 component_data = {
                     self.parent_field: parent.pk,
                     'name': name,
                 }
+
                 # Replace objects with their primary key to keep component_form.clean() happy
                 for k, v in data.items():
                     if hasattr(v, 'pk'):
                         component_data[k] = v.pk
                     else:
                         component_data[k] = v
+
                 component_form = self.model_form(component_data)
+
                 if component_form.is_valid():
-                    new_components.append(component_form.save(commit=False))
+                    new_components.append(component_form)
                 else:
                     for field, errors in component_form.errors.as_data().items():
                         # Assign errors on the child form's name field to name_pattern on the parent form
@@ -735,26 +740,10 @@ class ComponentCreateView(View):
                             form.add_error(field, '{}: {}'.format(name, ', '.join(e)))
 
             if not form.errors:
-                self.model.objects.bulk_create(new_components)
 
-                # ManyToMany relations are bulk created via the through model
-                m2m_fields = [field for field in component_form.fields if type(component_form.fields[field]) in M2M_FIELD_TYPES]
-                if m2m_fields:
-                    for field in m2m_fields:
-                        field_links = []
-                        for new_component in new_components:
-                            for related_obj in component_form.cleaned_data[field]:
-                                # The through model columns are the id's of our M2M relation objects
-                                through_kwargs = {}
-                                new_component_column = new_component.__class__.__name__ + '_id'
-                                related_obj_column = related_obj.__class__.__name__ + '_id'
-                                through_kwargs.update({
-                                    new_component_column.lower(): new_component.id,
-                                    related_obj_column.lower(): related_obj.id
-                                })
-                                field_link = getattr(self.model, field).through(**through_kwargs)
-                                field_links.append(field_link)
-                        getattr(self.model, field).through.objects.bulk_create(field_links)
+                # Create the new components
+                for component_form in new_components:
+                    component_form.save()
 
                 messages.success(request, "Added {} {} to {}.".format(
                     len(new_components), self.model._meta.verbose_name_plural, parent
