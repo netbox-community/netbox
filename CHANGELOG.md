@@ -2,6 +2,7 @@ v2.4.5 (FUTURE)
 
 ## Enhancements
 
+* [#2392](https://github.com/digitalocean/netbox/issues/2392) - Implemented local context data for devices and virtual machines
 * [#2402](https://github.com/digitalocean/netbox/issues/2402) - Order and format JSON data in form fields
 * [#2432](https://github.com/digitalocean/netbox/issues/2432) - Link remote interface connections to the Interface view
 
