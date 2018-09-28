@@ -48,7 +48,7 @@ class SecretViewSet(ModelViewSet):
     queryset = Secret.objects.select_related(
         'device__primary_ip4', 'device__primary_ip6', 'role',
     ).prefetch_related(
-        'role__users', 'role__groups',
+        'role__users', 'role__groups', 'tags',
     )
     serializer_class = serializers.SecretSerializer
     filter_class = filters.SecretFilter
