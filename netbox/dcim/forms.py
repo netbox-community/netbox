@@ -1194,6 +1194,7 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
 
 class ConsolePortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
+    tags = TagField(required=False)
 
 
 class ConsoleConnectionCSVForm(forms.ModelForm):
@@ -1364,6 +1365,7 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
 
 class ConsoleServerPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
+    tags = TagField(required=False)
 
 
 class ConsoleServerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
@@ -1461,6 +1463,7 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
 
 class PowerPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
+    tags = TagField(required=False)
 
 
 class PowerConnectionCSVForm(forms.ModelForm):
@@ -1631,6 +1634,7 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
 
 class PowerOutletCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
+    tags = TagField(required=False)
 
 
 class PowerOutletConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
@@ -1864,6 +1868,7 @@ class InterfaceCreateForm(ComponentForm, forms.Form):
     )
     description = forms.CharField(max_length=100, required=False)
     mode = forms.ChoiceField(choices=add_blank_choice(IFACE_MODE_CHOICES), required=False)
+    tags = TagField(required=False)
 
     def __init__(self, *args, **kwargs):
 
@@ -2101,6 +2106,7 @@ class DeviceBayForm(BootstrapMixin, forms.ModelForm):
 
 class DeviceBayCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
+    tags = TagField(required=False)
 
 
 class PopulateDeviceBayForm(BootstrapMixin, forms.Form):

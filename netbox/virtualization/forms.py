@@ -419,11 +419,12 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
 #
 
 class InterfaceForm(BootstrapMixin, forms.ModelForm):
+    tags = TagField(required=False)
 
     class Meta:
         model = Interface
         fields = [
-            'virtual_machine', 'name', 'form_factor', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
+            'virtual_machine', 'name', 'form_factor', 'enabled', 'mac_address', 'mtu', 'description', 'mode', 'tags',
             'untagged_vlan', 'tagged_vlans',
         ]
         widgets = {
@@ -462,6 +463,7 @@ class InterfaceCreateForm(ComponentForm):
     mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
     mac_address = forms.CharField(required=False, label='MAC Address')
     description = forms.CharField(max_length=100, required=False)
+    tags = TagField(required=False)
 
     def __init__(self, *args, **kwargs):
 
