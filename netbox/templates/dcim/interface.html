@@ -134,7 +134,9 @@
                         </tr>
                         <tr>
                             <td>Name</td>
-                            <td>{{ connected_interface.name }}</td>
+                            <td>
+                                <a href="{{ connected_interface.get_absolute_url }}">{{ connected_interface.name }}</a>
+                            </td>
                         </tr>
                         <tr>
                             <td>Type</td>

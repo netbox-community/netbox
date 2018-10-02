@@ -1,3 +1,24 @@
+v2.4.5 (2018-10-02)
+
+## Enhancements
+
+* [#2392](https://github.com/digitalocean/netbox/issues/2392) - Implemented local context data for devices and virtual machines
+* [#2402](https://github.com/digitalocean/netbox/issues/2402) - Order and format JSON data in form fields
+* [#2432](https://github.com/digitalocean/netbox/issues/2432) - Link remote interface connections to the Interface view
+* [#2438](https://github.com/digitalocean/netbox/issues/2438) - API optimizations for tagged objects
+
+## Bug Fixes
+
+* [#2406](https://github.com/digitalocean/netbox/issues/2406) - Remove hard-coded limit of 1000 objects from API-populated form fields
+* [#2414](https://github.com/digitalocean/netbox/issues/2414) - Tags field missing from device/VM component creation forms
+* [#2442](https://github.com/digitalocean/netbox/issues/2442) - Nullify "next" link in API when limit=0 is passed
+* [#2443](https://github.com/digitalocean/netbox/issues/2443) - Enforce JSON object format when creating config contexts
+* [#2444](https://github.com/digitalocean/netbox/issues/2444) - Improve validation of interface MAC addresses
+* [#2455](https://github.com/digitalocean/netbox/issues/2455) - Ignore unique address enforcement for IPs with a shared/virtual role
+* [#2470](https://github.com/digitalocean/netbox/issues/2470) - Log the creation of device/VM components as object changes
+
+---
+
 v2.4.4 (2018-08-22)
 
 ## Enhancements

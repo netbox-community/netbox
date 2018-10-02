@@ -8,7 +8,6 @@ from taggit.forms import TagField
 
 from dcim.constants import IFACE_FF_VIRTUAL, IFACE_MODE_ACCESS, IFACE_MODE_TAGGED_ALL
 from dcim.forms import INTERFACE_MODE_HELP_TEXT
-from dcim.formfields import MACAddressFormField
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
 from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
 from ipam.models import IPAddress
@@ -17,7 +16,8 @@ from tenancy.models import Tenant
 from utilities.forms import (
     AnnotatedMultipleChoiceField, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ComponentForm,
-    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, SlugField, SmallTextarea, add_blank_choice
+    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, JSONField, SlugField, SmallTextarea,
+    add_blank_choice
 )
 from .constants import VM_STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -247,6 +247,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         )
     )
     tags = TagField(required=False)
+    local_context_data = JSONField(required=False)
 
     class Meta:
         model = VirtualMachine
@@ -254,6 +255,9 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
             'vcpus', 'memory', 'disk', 'comments', 'tags',
         ]
+        help_texts = {
+            'local_context_data': "Local config context data overwrites all sources contexts in the final rendered config context",
+        }
 
     def __init__(self, *args, **kwargs):
 
@@ -415,11 +419,12 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
 #
 
 class InterfaceForm(BootstrapMixin, forms.ModelForm):
+    tags = TagField(required=False)
 
     class Meta:
         model = Interface
         fields = [
-            'virtual_machine', 'name', 'form_factor', 'enabled', 'mac_address', 'mtu', 'description', 'mode',
+            'virtual_machine', 'name', 'form_factor', 'enabled', 'mac_address', 'mtu', 'description', 'mode', 'tags',
             'untagged_vlan', 'tagged_vlans',
         ]
         widgets = {
@@ -456,8 +461,9 @@ class InterfaceCreateForm(ComponentForm):
     form_factor = forms.ChoiceField(choices=VIFACE_FF_CHOICES, initial=IFACE_FF_VIRTUAL, widget=forms.HiddenInput())
     enabled = forms.BooleanField(required=False)
     mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
-    mac_address = MACAddressFormField(required=False, label='MAC Address')
+    mac_address = forms.CharField(required=False, label='MAC Address')
     description = forms.CharField(max_length=100, required=False)
+    tags = TagField(required=False)
 
     def __init__(self, *args, **kwargs):
 

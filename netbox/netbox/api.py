@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from django.conf import settings
 from rest_framework import authentication, exceptions
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import DjangoModelPermissions, SAFE_METHODS
@@ -104,8 +105,6 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
 
     def get_limit(self, request):
 
-        from django.conf import settings
-
         if self.limit_query_param:
             try:
                 limit = int(request.query_params[self.limit_query_param])
@@ -122,6 +121,22 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
                 pass
 
         return self.default_limit
+
+    def get_next_link(self):
+
+        # Pagination has been disabled
+        if not self.limit:
+            return None
+
+        return super(OptionalLimitOffsetPagination, self).get_next_link()
+
+    def get_previous_link(self):
+
+        # Pagination has been disabled
+        if not self.limit:
+            return None
+
+        return super(OptionalLimitOffsetPagination, self).get_previous_link()
 
 
 #

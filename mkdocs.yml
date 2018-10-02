@@ -1,4 +1,5 @@
 site_name: NetBox
+theme: readthedocs
 repo_url: https://github.com/digitalocean/netbox
 
 pages:
