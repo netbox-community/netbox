@@ -1,3 +1,11 @@
+v2.4.6 (FUTURE)
+
+## Bug Fixes
+
+[#2483](https://github.com/digitalocean/netbox/issues/2483) - Set max item count of API-populated form fields to MAX_PAGE_SIZE
+
+---
+
 v2.4.5 (2018-10-02)
 
 ## Enhancements

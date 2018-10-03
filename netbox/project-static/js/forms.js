@@ -82,7 +82,7 @@ $(document).ready(function() {
             }
 
             if ($(parent).val() || $(parent).attr('nullable') == 'true') {
-                var api_url = child_field.attr('api-url');
+                var api_url = child_field.attr('api-url') + '&limit=0';
                 var disabled_indicator = child_field.attr('disabled-indicator');
                 var initial_value = child_field.attr('initial');
                 var display_field = child_field.attr('display-field') || 'name';
