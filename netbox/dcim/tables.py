@@ -5,9 +5,10 @@ from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, BooleanColumn, ToggleColumn
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, InventoryItem,
-    Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, Region, Site, VirtualChassis,
+    DeviceBayTemplate, DeviceRole, DeviceType, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceConnection,
+    InterfaceTemplate, InventoryItem, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
+    PowerPortTemplate, Rack, RackGroup, RackReservation, RearPanelPort, RearPanelPortTemplate, Region, Site,
+    VirtualChassis,
 )
 
 REGION_LINK = """
@@ -348,6 +349,7 @@ class DeviceTypeTable(BaseTable):
     is_console_server = BooleanColumn(verbose_name='CS')
     is_pdu = BooleanColumn(verbose_name='PDU')
     is_network_device = BooleanColumn(verbose_name='Net')
+    is_patch_panel = BooleanColumn(verbose_name='PP')
     subdevice_role = tables.TemplateColumn(
         template_code=SUBDEVICE_ROLE_TEMPLATE,
         verbose_name='Subdevice Role'
@@ -361,7 +363,7 @@ class DeviceTypeTable(BaseTable):
         model = DeviceType
         fields = (
             'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
-            'is_network_device', 'subdevice_role', 'instance_count',
+            'is_network_device', 'is_patch_panel', 'subdevice_role', 'instance_count',
         )
 
 
@@ -412,6 +414,24 @@ class InterfaceTemplateTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = InterfaceTemplate
         fields = ('pk', 'name', 'mgmt_only', 'form_factor')
+        empty_text = "None"
+
+
+class FrontPanelPortTemplateTable(BaseTable):
+    pk = ToggleColumn()
+
+    class Meta(BaseTable.Meta):
+        model = FrontPanelPortTemplate
+        fields = ('pk', 'name', 'type', 'rear_port', 'rear_port_position')
+        empty_text = "None"
+
+
+class RearPanelPortTemplateTable(BaseTable):
+    pk = ToggleColumn()
+
+    class Meta(BaseTable.Meta):
+        model = RearPanelPortTemplate
+        fields = ('pk', 'name', 'type', 'positions')
         empty_text = "None"
 
 
@@ -572,6 +592,22 @@ class InterfaceTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Interface
         fields = ('name', 'form_factor', 'lag', 'enabled', 'mgmt_only', 'description')
+
+
+class FrontPanelPortTable(BaseTable):
+
+    class Meta(BaseTable.Meta):
+        model = FrontPanelPort
+        fields = ('name', 'type', 'rear_port', 'rear_port_position')
+        empty_text = "None"
+
+
+class RearPanelPortTable(BaseTable):
+
+    class Meta(BaseTable.Meta):
+        model = RearPanelPort
+        fields = ('name', 'type', 'positions')
+        empty_text = "None"
 
 
 class DeviceBayTable(BaseTable):

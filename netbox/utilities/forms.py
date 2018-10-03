@@ -643,6 +643,9 @@ class ComponentForm(BootstrapMixin, forms.Form):
         self.parent = parent
         super(ComponentForm, self).__init__(*args, **kwargs)
 
+    def get_iterative_data(self, iteration):
+        return {}
+
 
 class BulkEditForm(forms.Form):
     """

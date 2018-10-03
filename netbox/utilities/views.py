@@ -711,10 +711,11 @@ class ComponentCreateView(View):
             data = deepcopy(request.POST)
             data[self.parent_field] = parent.pk
 
-            for name in form.cleaned_data['name_pattern']:
+            for i, name in enumerate(form.cleaned_data['name_pattern']):
 
                 # Initialize the individual component form
                 data['name'] = name
+                data.update(form.get_iterative_data(i))
                 component_form = self.model_form(data)
 
                 if component_form.is_valid():

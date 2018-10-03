@@ -109,6 +109,14 @@ urlpatterns = [
     url(r'^device-types/(?P<pk>\d+)/interfaces/edit/$', views.InterfaceTemplateBulkEditView.as_view(), name='devicetype_bulkedit_interface'),
     url(r'^device-types/(?P<pk>\d+)/interfaces/delete/$', views.InterfaceTemplateBulkDeleteView.as_view(), name='devicetype_delete_interface'),
 
+    # Front panel port templates
+    url(r'^device-types/(?P<pk>\d+)/front-panel-ports/add/$', views.FrontPanelPortTemplateCreateView.as_view(), name='devicetype_add_frontpanelport'),
+    url(r'^device-types/(?P<pk>\d+)/front-panel-ports/delete/$', views.FrontPanelPortTemplateBulkDeleteView.as_view(), name='devicetype_delete_frontpanelport'),
+
+    # Front panel port templates
+    url(r'^device-types/(?P<pk>\d+)/rear-panel-ports/add/$', views.RearPanelPortTemplateCreateView.as_view(), name='devicetype_add_rearpanelport'),
+    url(r'^device-types/(?P<pk>\d+)/rear-panel-ports/delete/$', views.RearPanelPortTemplateBulkDeleteView.as_view(), name='devicetype_delete_rearpanelport'),
+
     # Device bay templates
     url(r'^device-types/(?P<pk>\d+)/device-bays/add/$', views.DeviceBayTemplateCreateView.as_view(), name='devicetype_add_devicebay'),
     url(r'^device-types/(?P<pk>\d+)/device-bays/delete/$', views.DeviceBayTemplateBulkDeleteView.as_view(), name='devicetype_delete_devicebay'),
@@ -203,6 +211,22 @@ urlpatterns = [
     url(r'^interfaces/(?P<pk>\d+)/delete/$', views.InterfaceDeleteView.as_view(), name='interface_delete'),
     url(r'^interfaces/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='interface_changelog', kwargs={'model': Interface}),
     url(r'^interfaces/rename/$', views.InterfaceBulkRenameView.as_view(), name='interface_bulk_rename'),
+
+    # Front panel ports
+    # url(r'^devices/front-panel-ports/add/$', views.DeviceBulkAddFrontPanelPortView.as_view(), name='device_bulk_add_frontpanelport'),
+    url(r'^devices/(?P<pk>\d+)/front-panel-ports/add/$', views.FrontPanelPortCreateView.as_view(), name='frontpanelport_add'),
+    url(r'^devices/(?P<pk>\d+)/front-panel-ports/delete/$', views.FrontPanelPortBulkDeleteView.as_view(), name='frontpanelport_bulk_delete'),
+    url(r'^front-panel-ports/(?P<pk>\d+)/edit/$', views.FrontPanelPortEditView.as_view(), name='frontpanelport_edit'),
+    url(r'^front-panel-ports/(?P<pk>\d+)/delete/$', views.FrontPanelPortDeleteView.as_view(), name='frontpanelport_delete'),
+    url(r'^front-panel-ports/rename/$', views.FrontPanelPortBulkRenameView.as_view(), name='frontpanelport_bulk_rename'),
+
+    # Rear panel ports
+    # url(r'^devices/rear-panel-ports/add/$', views.DeviceBulkAddRearPanelPortView.as_view(), name='device_bulk_add_rearpanelport'),
+    url(r'^devices/(?P<pk>\d+)/rear-panel-ports/add/$', views.RearPanelPortCreateView.as_view(), name='rearpanelport_add'),
+    url(r'^devices/(?P<pk>\d+)/rear-panel-ports/delete/$', views.RearPanelPortBulkDeleteView.as_view(), name='rearpanelport_bulk_delete'),
+    url(r'^rear-panel-ports/(?P<pk>\d+)/edit/$', views.RearPanelPortEditView.as_view(), name='rearpanelport_edit'),
+    url(r'^rear-panel-ports/(?P<pk>\d+)/delete/$', views.RearPanelPortDeleteView.as_view(), name='rearpanelport_delete'),
+    url(r'^rear-panel-ports/rename/$', views.RearPanelPortBulkRenameView.as_view(), name='rearpanelport_bulk_rename'),
 
     # Device bays
     url(r'^devices/device-bays/add/$', views.DeviceBulkAddDeviceBayView.as_view(), name='device_bulk_add_devicebay'),

@@ -31,9 +31,10 @@ from . import filters, forms, tables
 from .constants import CONNECTION_STATUS_CONNECTED
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer,
-    InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, Region, Site, VirtualChassis,
+    DeviceBayTemplate, DeviceRole, DeviceType, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceConnection,
+    InterfaceTemplate, Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
+    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPanelPort, RearPanelPortTemplate, Region, Site,
+    VirtualChassis,
 )
 
 
@@ -559,6 +560,14 @@ class DeviceTypeView(View):
             ).filter(device_type=devicetype)),
             orderable=False
         )
+        front_panel_port_table = tables.FrontPanelPortTemplateTable(
+            natsorted(FrontPanelPortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name')),
+            orderable=False
+        )
+        rear_panel_port_table = tables.RearPanelPortTemplateTable(
+            natsorted(RearPanelPortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name')),
+            orderable=False
+        )
         devicebay_table = tables.DeviceBayTemplateTable(
             natsorted(DeviceBayTemplate.objects.filter(device_type=devicetype), key=attrgetter('name')),
             orderable=False
@@ -569,6 +578,8 @@ class DeviceTypeView(View):
             powerport_table.columns.show('pk')
             poweroutlet_table.columns.show('pk')
             interface_table.columns.show('pk')
+            front_panel_port_table.columns.show('pk')
+            rear_panel_port_table.columns.show('pk')
             devicebay_table.columns.show('pk')
 
         return render(request, 'dcim/devicetype.html', {
@@ -578,6 +589,8 @@ class DeviceTypeView(View):
             'powerport_table': powerport_table,
             'poweroutlet_table': poweroutlet_table,
             'interface_table': interface_table,
+            'front_panel_port_table': front_panel_port_table,
+            'rear_panel_port_table': rear_panel_port_table,
             'devicebay_table': devicebay_table,
         })
 
@@ -721,6 +734,40 @@ class InterfaceTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     table = tables.InterfaceTemplateTable
 
 
+class FrontPanelPortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
+    permission_required = 'dcim.add_frontpanelporttemplate'
+    parent_model = DeviceType
+    parent_field = 'device_type'
+    model = FrontPanelPortTemplate
+    form = forms.FrontPanelPortTemplateCreateForm
+    model_form = forms.FrontPanelPortTemplateForm
+    template_name = 'dcim/device_component_add.html'
+
+
+class FrontPanelPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_frontpanelporttemplate'
+    queryset = FrontPanelPortTemplate.objects.all()
+    parent_model = DeviceType
+    table = tables.FrontPanelPortTemplateTable
+
+
+class RearPanelPortTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
+    permission_required = 'dcim.add_rearpanelporttemplate'
+    parent_model = DeviceType
+    parent_field = 'device_type'
+    model = RearPanelPortTemplate
+    form = forms.RearPanelPortTemplateCreateForm
+    model_form = forms.RearPanelPortTemplateForm
+    template_name = 'dcim/device_component_add.html'
+
+
+class RearPanelPortTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_rearpanelporttemplate'
+    queryset = RearPanelPortTemplate.objects.all()
+    parent_model = DeviceType
+    table = tables.RearPanelPortTemplateTable
+
+
 class DeviceBayTemplateCreateView(PermissionRequiredMixin, ComponentCreateView):
     permission_required = 'dcim.add_devicebaytemplate'
     parent_model = DeviceType
@@ -859,6 +906,12 @@ class DeviceView(View):
             'circuit_termination__circuit'
         ).prefetch_related('ip_addresses')
 
+        # Front panel ports
+        front_panel_ports = device.front_panel_ports.select_related('rear_port')
+
+        # Rear panel ports
+        rear_panel_ports = device.rear_panel_ports.all()
+
         # Device bays
         device_bays = natsorted(
             DeviceBay.objects.filter(device=device).select_related('installed_device__device_type__manufacturer'),
@@ -891,6 +944,8 @@ class DeviceView(View):
             'power_outlets': power_outlets,
             'interfaces': interfaces,
             'device_bays': device_bays,
+            'front_panel_ports': front_panel_ports,
+            'rear_panel_ports': rear_panel_ports,
             'services': services,
             'secrets': secrets,
             'vc_members': vc_members,
@@ -1699,6 +1754,82 @@ class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     queryset = Interface.objects.all()
     parent_model = Device
     table = tables.InterfaceTable
+
+
+#
+# Front panel ports
+#
+
+class FrontPanelPortCreateView(PermissionRequiredMixin, ComponentCreateView):
+    permission_required = 'dcim.add_frontpanelport'
+    parent_model = Device
+    parent_field = 'device'
+    model = FrontPanelPort
+    form = forms.FrontPanelPortCreateForm
+    model_form = forms.FrontPanelPortForm
+    template_name = 'dcim/device_component_add.html'
+
+
+class FrontPanelPortEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_frontpanelport'
+    model = FrontPanelPort
+    model_form = forms.FrontPanelPortForm
+
+
+class FrontPanelPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_frontpanelport'
+    model = FrontPanelPort
+
+
+class FrontPanelPortBulkRenameView(PermissionRequiredMixin, BulkRenameView):
+    permission_required = 'dcim.change_frontpanelport'
+    queryset = FrontPanelPort.objects.all()
+    form = forms.FrontPanelPortBulkRenameForm
+
+
+class FrontPanelPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_frontpanelport'
+    queryset = FrontPanelPort.objects.all()
+    parent_model = Device
+    table = tables.FrontPanelPortTable
+
+
+#
+# Rear panel ports
+#
+
+class RearPanelPortCreateView(PermissionRequiredMixin, ComponentCreateView):
+    permission_required = 'dcim.add_rearpanelport'
+    parent_model = Device
+    parent_field = 'device'
+    model = RearPanelPort
+    form = forms.RearPanelPortCreateForm
+    model_form = forms.RearPanelPortForm
+    template_name = 'dcim/device_component_add.html'
+
+
+class RearPanelPortEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_rearpanelport'
+    model = RearPanelPort
+    model_form = forms.RearPanelPortForm
+
+
+class RearPanelPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_rearpanelport'
+    model = RearPanelPort
+
+
+class RearPanelPortBulkRenameView(PermissionRequiredMixin, BulkRenameView):
+    permission_required = 'dcim.change_rearpanelport'
+    queryset = RearPanelPort.objects.all()
+    form = forms.RearPanelPortBulkRenameForm
+
+
+class RearPanelPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_rearpanelport'
+    queryset = RearPanelPort.objects.all()
+    parent_model = Device
+    table = tables.RearPanelPortTable
 
 
 #

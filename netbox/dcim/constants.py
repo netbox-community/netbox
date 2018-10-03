@@ -209,6 +209,36 @@ IFACE_MODE_CHOICES = [
     [IFACE_MODE_TAGGED_ALL, 'Tagged All'],
 ]
 
+# Patch panel port types
+PANELPORT_TYPE_8P8C = 1000
+PANELPORT_TYPE_ST = 2000
+PANELPORT_TYPE_SC_SIMPLEX = 2100
+PANELPORT_TYPE_SC_DUPLEX = 2110
+PANELPORT_TYPE_FC = 2200
+PANELPORT_TYPE_LC = 2300
+PANELPORT_TYPE_MTRJ = 2400
+PANELPORT_TYPE_MPO = 2500
+PANELPORT_TYPE_CHOICES = [
+    [
+        'Copper',
+        [
+            [PANELPORT_TYPE_8P8C, '8P8C'],
+        ],
+    ],
+    [
+        'Fiber Optic',
+        [
+            [PANELPORT_TYPE_ST, 'ST'],
+            [PANELPORT_TYPE_SC_SIMPLEX, 'SC (Simplex)'],
+            [PANELPORT_TYPE_SC_DUPLEX, 'SC (Duplex)'],
+            [PANELPORT_TYPE_FC, 'FC'],
+            [PANELPORT_TYPE_LC, 'LC'],
+            [PANELPORT_TYPE_MTRJ, 'MTRJ'],
+            [PANELPORT_TYPE_MPO, 'MPO'],
+        ]
+    ]
+]
+
 # Device statuses
 DEVICE_STATUS_OFFLINE = 0
 DEVICE_STATUS_ACTIVE = 1

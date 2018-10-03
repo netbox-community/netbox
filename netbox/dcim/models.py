@@ -769,6 +769,11 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         verbose_name='Is a network device',
         help_text='This type of device has network interfaces'
     )
+    is_patch_panel = models.BooleanField(
+        default=False,
+        verbose_name='Is a patch panel',
+        help_text='This type of device has patch panel ports'
+    )
     subdevice_role = models.NullBooleanField(
         default=None,
         verbose_name='Parent/child status',
@@ -789,7 +794,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
 
     csv_headers = [
         'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
-        'is_pdu', 'is_network_device', 'subdevice_role', 'interface_ordering', 'comments',
+        'is_pdu', 'is_network_device', 'is_patch_panel', 'subdevice_role', 'interface_ordering', 'comments',
     ]
 
     class Meta:
@@ -822,6 +827,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
             self.is_console_server,
             self.is_pdu,
             self.is_network_device,
+            self.is_patch_panel,
             self.get_subdevice_role_display() if self.subdevice_role else None,
             self.get_interface_ordering_display(),
             self.comments,
@@ -859,6 +865,14 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
             raise ValidationError({
                 'is_network_device': "Must delete all non-management-only interface templates associated with this "
                                      "device before declassifying it as a network device."
+            })
+
+        if not self.is_patch_panel and (
+                self.front_panel_port_templates.exists() or self.rear_panel_port_templates.exists()
+        ):
+            raise ValidationError({
+                'is_patch_panel': "Must delete all patch panel port templates associated with this device before "
+                                  "declassifying it as a network device."
             })
 
         if self.subdevice_role != SUBDEVICE_ROLE_PARENT and self.device_bay_templates.count():
@@ -991,6 +1005,86 @@ class InterfaceTemplate(ComponentTemplateModel):
     )
 
     objects = InterfaceQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['device_type', 'name']
+        unique_together = ['device_type', 'name']
+
+    def __str__(self):
+        return self.name
+
+
+class FrontPanelPortTemplate(ComponentTemplateModel):
+    """
+    A template for a front patch panel port on a new Device.
+    """
+    device_type = models.ForeignKey(
+        to='dcim.DeviceType',
+        on_delete=models.CASCADE,
+        related_name='front_panel_port_templates'
+    )
+    name = models.CharField(
+        max_length=64
+    )
+    type = models.PositiveSmallIntegerField(
+        choices=PANELPORT_TYPE_CHOICES
+    )
+    rear_port = models.ForeignKey(
+        to='dcim.RearPanelPortTemplate',
+        on_delete=models.CASCADE,
+        related_name='front_panel_port_templates'
+    )
+    rear_port_position = models.PositiveSmallIntegerField(
+        default=1,
+        validators=[MinValueValidator(1), MaxValueValidator(64)]
+    )
+
+    class Meta:
+        ordering = ['device_type', 'name']
+        unique_together = [
+            ['device_type', 'name'],
+            ['rear_port', 'rear_port_position'],
+        ]
+
+    def __str__(self):
+        return self.name
+
+    def clean(self):
+
+        # Validate rear port assignment
+        if self.rear_port.device_type != self.device_type:
+            raise ValidationError(
+                "Rear port ({}) must belong to the same device type".format(self.rear_port)
+            )
+
+        # Validate rear port position assignment
+        if self.rear_port_position > self.rear_port.positions:
+            raise ValidationError(
+                "Invalid rear port position ({}); rear port {} has only {} positions".format(
+                    self.rear_port_position, self.rear_port.name, self.rear_port.positions
+                )
+            )
+
+
+class RearPanelPortTemplate(ComponentTemplateModel):
+    """
+    A template for a rear patch panel port on a new Device.
+    """
+    device_type = models.ForeignKey(
+        to='dcim.DeviceType',
+        on_delete=models.CASCADE,
+        related_name='rear_panel_port_templates'
+    )
+    name = models.CharField(
+        max_length=64
+    )
+    type = models.PositiveSmallIntegerField(
+        choices=PANELPORT_TYPE_CHOICES
+    )
+    positions = models.PositiveSmallIntegerField(
+        default=1,
+        validators=[MinValueValidator(1), MaxValueValidator(64)]
+    )
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -1417,6 +1511,23 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                 [Interface(device=self, name=template.name, form_factor=template.form_factor,
                            mgmt_only=template.mgmt_only) for template in self.device_type.interface_templates.all()]
             )
+            RearPanelPort.objects.bulk_create([
+                RearPanelPort(
+                    device=self,
+                    name=template.name,
+                    type=template.type,
+                    positions=template.positions
+                ) for template in self.device_type.rear_panel_port_templates.all()
+            ])
+            FrontPanelPort.objects.bulk_create([
+                FrontPanelPort(
+                    device=self,
+                    name=template.name,
+                    type=template.type,
+                    rear_port=RearPanelPort.objects.get(device=self, name=template.rear_port.name),
+                    rear_port_position=template.rear_port_position,
+                ) for template in self.device_type.front_panel_port_templates.all()
+            ])
             DeviceBay.objects.bulk_create(
                 [DeviceBay(device=self, name=template.name) for template in
                  self.device_type.device_bay_templates.all()]
@@ -2038,6 +2149,94 @@ class InterfaceConnection(models.Model):
                 action=OBJECTCHANGE_ACTION_UPDATE,
                 object_data=serialize_object(interface, extra=connection_data)
             ).save()
+
+
+#
+# Patch panel ports
+#
+
+class FrontPanelPort(ComponentModel):
+    """
+    A port on the front of a patch panel.
+    """
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        related_name='front_panel_ports'
+    )
+    name = models.CharField(
+        max_length=64
+    )
+    type = models.PositiveSmallIntegerField(
+        choices=PANELPORT_TYPE_CHOICES
+    )
+    rear_port = models.ForeignKey(
+        to='dcim.RearPanelPort',
+        on_delete=models.CASCADE,
+        related_name='front_panel_ports'
+    )
+    rear_port_position = models.PositiveSmallIntegerField(
+        default=1,
+        validators=[MinValueValidator(1), MaxValueValidator(64)]
+    )
+
+    tags = TaggableManager()
+
+    class Meta:
+        ordering = ['device', 'name']
+        unique_together = [
+            ['device', 'name'],
+            ['rear_port', 'rear_port_position'],
+        ]
+
+    def __str__(self):
+        return self.name
+
+    def clean(self):
+
+        # Validate rear port assignment
+        if self.rear_port.device != self.device:
+            raise ValidationError(
+                "Rear port ({}) must belong to the same device".format(self.rear_port)
+            )
+
+        # Validate rear port position assignment
+        if self.rear_port_position > self.rear_port.positions:
+            raise ValidationError(
+                "Invalid rear port position ({}); rear port {} has only {} positions".format(
+                    self.rear_port_position, self.rear_port.name, self.rear_port.positions
+                )
+            )
+
+
+class RearPanelPort(ComponentModel):
+    """
+    A port on the rear of a patch panel.
+    """
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        related_name='rear_panel_ports'
+    )
+    name = models.CharField(
+        max_length=64
+    )
+    type = models.PositiveSmallIntegerField(
+        choices=PANELPORT_TYPE_CHOICES
+    )
+    positions = models.PositiveSmallIntegerField(
+        default=1,
+        validators=[MinValueValidator(1), MaxValueValidator(64)]
+    )
+
+    tags = TaggableManager()
+
+    class Meta:
+        ordering = ['device', 'name']
+        unique_together = ['device', 'name']
+
+    def __str__(self):
+        return self.name
 
 
 #
