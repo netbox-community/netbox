@@ -44,7 +44,7 @@
                 <a href="{% url 'dcim:device' pk=connected_iface.device.pk %}">{{ connected_iface.device }}</a>
             </td>
             <td>
-                <span title="{{ connected_iface.get_form_factor_display }}">{{ connected_iface }}</span>
+                <a href="{% url 'dcim:interface' pk=connected_iface.pk %}"><span title="{{ connected_iface.get_form_factor_display }}">{{ connected_iface }}</span></a>
             </td>
         {% endwith %}
     {% elif iface.circuit_termination %}

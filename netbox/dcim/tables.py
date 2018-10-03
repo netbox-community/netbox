@@ -612,10 +612,12 @@ class PowerConnectionTable(BaseTable):
 class InterfaceConnectionTable(BaseTable):
     device_a = tables.LinkColumn('dcim:device', accessor=Accessor('interface_a.device'),
                                  args=[Accessor('interface_a.device.pk')], verbose_name='Device A')
-    interface_a = tables.Column(verbose_name='Interface A')
+    interface_a = tables.LinkColumn('dcim:interface', accessor=Accessor('interface_a'),
+                                    args=[Accessor('interface_a.pk')], verbose_name='Interface A')
     device_b = tables.LinkColumn('dcim:device', accessor=Accessor('interface_b.device'),
                                  args=[Accessor('interface_b.device.pk')], verbose_name='Device B')
-    interface_b = tables.Column(verbose_name='Interface B')
+    interface_b = tables.LinkColumn('dcim:interface', accessor=Accessor('interface_b'),
+                                    args=[Accessor('interface_b.pk')], verbose_name='Interface B')
 
     class Meta(BaseTable.Meta):
         model = InterfaceConnection

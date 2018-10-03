@@ -28,6 +28,6 @@ class TenantGroupViewSet(ModelViewSet):
 #
 
 class TenantViewSet(CustomFieldModelViewSet):
-    queryset = Tenant.objects.select_related('group')
+    queryset = Tenant.objects.select_related('group').prefetch_related('tags')
     serializer_class = serializers.TenantSerializer
     filter_class = filters.TenantFilter

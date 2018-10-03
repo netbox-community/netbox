@@ -16,7 +16,7 @@ from utilities.forms import (
     AnnotatedMultipleChoiceField, APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
     BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, ComponentForm,
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FilterTreeNodeMultipleChoiceField,
-    FlexibleModelChoiceField, Livesearch, SelectWithDisabled, SelectWithPK, SmallTextarea, SlugField,
+    FlexibleModelChoiceField, JSONField, Livesearch, SelectWithDisabled, SelectWithPK, SmallTextarea, SlugField,
 )
 from virtualization.models import Cluster
 from .constants import (
@@ -25,7 +25,6 @@ from .constants import (
     RACK_TYPE_CHOICES, RACK_WIDTH_CHOICES, RACK_WIDTH_19IN, RACK_WIDTH_23IN, SITE_STATUS_CHOICES, SUBDEVICE_ROLE_CHILD,
     SUBDEVICE_ROLE_PARENT, SUBDEVICE_ROLE_CHOICES,
 )
-from .formfields import MACAddressFormField
 from .models import (
     DeviceBay, DeviceBayTemplate, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate,
     Device, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, Manufacturer, InventoryItem,
@@ -821,16 +820,19 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     )
     comments = CommentField()
     tags = TagField(required=False)
+    local_context_data = JSONField(required=False)
 
     class Meta:
         model = Device
         fields = [
             'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'position', 'face',
             'status', 'platform', 'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant', 'comments', 'tags',
+            'local_context_data'
         ]
         help_texts = {
             'device_role': "The function this device serves",
             'serial': "Chassis serial number",
+            'local_context_data': "Local config context data overwrites all sources contexts in the final rendered config context"
         }
         widgets = {
             'face': forms.Select(attrs={'filter-for': 'position'}),
@@ -1190,6 +1192,7 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
 
 class ConsolePortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
+    tags = TagField(required=False)
 
 
 class ConsoleConnectionCSVForm(forms.ModelForm):
@@ -1360,6 +1363,7 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
 
 class ConsoleServerPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
+    tags = TagField(required=False)
 
 
 class ConsoleServerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
@@ -1457,6 +1461,7 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
 
 class PowerPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
+    tags = TagField(required=False)
 
 
 class PowerConnectionCSVForm(forms.ModelForm):
@@ -1627,6 +1632,7 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
 
 class PowerOutletCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
+    tags = TagField(required=False)
 
 
 class PowerOutletConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
@@ -1852,7 +1858,7 @@ class InterfaceCreateForm(ComponentForm, forms.Form):
     enabled = forms.BooleanField(required=False)
     lag = forms.ModelChoiceField(queryset=Interface.objects.all(), required=False, label='Parent LAG')
     mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
-    mac_address = MACAddressFormField(required=False, label='MAC Address')
+    mac_address = forms.CharField(required=False, label='MAC Address')
     mgmt_only = forms.BooleanField(
         required=False,
         label='OOB Management',
@@ -1860,6 +1866,7 @@ class InterfaceCreateForm(ComponentForm, forms.Form):
     )
     description = forms.CharField(max_length=100, required=False)
     mode = forms.ChoiceField(choices=add_blank_choice(IFACE_MODE_CHOICES), required=False)
+    tags = TagField(required=False)
 
     def __init__(self, *args, **kwargs):
 
@@ -2097,6 +2104,7 @@ class DeviceBayForm(BootstrapMixin, forms.ModelForm):
 
 class DeviceBayCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
+    tags = TagField(required=False)
 
 
 class PopulateDeviceBayForm(BootstrapMixin, forms.Form):

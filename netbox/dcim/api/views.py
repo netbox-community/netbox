@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from django.conf import settings
-from django.http import HttpResponseBadRequest, HttpResponseForbidden
+from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
 from drf_yasg.openapi import Parameter
@@ -58,7 +58,7 @@ class RegionViewSet(ModelViewSet):
 #
 
 class SiteViewSet(CustomFieldModelViewSet):
-    queryset = Site.objects.select_related('region', 'tenant')
+    queryset = Site.objects.select_related('region', 'tenant').prefetch_related('tags')
     serializer_class = serializers.SiteSerializer
     filter_class = filters.SiteFilter
 
@@ -98,7 +98,7 @@ class RackRoleViewSet(ModelViewSet):
 #
 
 class RackViewSet(CustomFieldModelViewSet):
-    queryset = Rack.objects.select_related('site', 'group__site', 'tenant')
+    queryset = Rack.objects.select_related('site', 'group__site', 'tenant').prefetch_related('tags')
     serializer_class = serializers.RackSerializer
     filter_class = filters.RackFilter
 
@@ -152,7 +152,7 @@ class ManufacturerViewSet(ModelViewSet):
 #
 
 class DeviceTypeViewSet(CustomFieldModelViewSet):
-    queryset = DeviceType.objects.select_related('manufacturer')
+    queryset = DeviceType.objects.select_related('manufacturer').prefetch_related('tags')
     serializer_class = serializers.DeviceTypeSerializer
     filter_class = filters.DeviceTypeFilter
 
@@ -226,7 +226,7 @@ class DeviceViewSet(CustomFieldModelViewSet):
         'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'rack', 'parent_bay',
         'virtual_chassis__master',
     ).prefetch_related(
-        'primary_ip4__nat_outside', 'primary_ip6__nat_outside',
+        'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'tags',
     )
     filter_class = filters.DeviceFilter
 
@@ -313,31 +313,31 @@ class DeviceViewSet(CustomFieldModelViewSet):
 #
 
 class ConsolePortViewSet(ModelViewSet):
-    queryset = ConsolePort.objects.select_related('device', 'cs_port__device')
+    queryset = ConsolePort.objects.select_related('device', 'cs_port__device').prefetch_related('tags')
     serializer_class = serializers.ConsolePortSerializer
     filter_class = filters.ConsolePortFilter
 
 
 class ConsoleServerPortViewSet(ModelViewSet):
-    queryset = ConsoleServerPort.objects.select_related('device', 'connected_console__device')
+    queryset = ConsoleServerPort.objects.select_related('device', 'connected_console__device').prefetch_related('tags')
     serializer_class = serializers.ConsoleServerPortSerializer
     filter_class = filters.ConsoleServerPortFilter
 
 
 class PowerPortViewSet(ModelViewSet):
-    queryset = PowerPort.objects.select_related('device', 'power_outlet__device')
+    queryset = PowerPort.objects.select_related('device', 'power_outlet__device').prefetch_related('tags')
     serializer_class = serializers.PowerPortSerializer
     filter_class = filters.PowerPortFilter
 
 
 class PowerOutletViewSet(ModelViewSet):
-    queryset = PowerOutlet.objects.select_related('device', 'connected_port__device')
+    queryset = PowerOutlet.objects.select_related('device', 'connected_port__device').prefetch_related('tags')
     serializer_class = serializers.PowerOutletSerializer
     filter_class = filters.PowerOutletFilter
 
 
 class InterfaceViewSet(ModelViewSet):
-    queryset = Interface.objects.select_related('device')
+    queryset = Interface.objects.select_related('device').prefetch_related('tags')
     serializer_class = serializers.InterfaceSerializer
     filter_class = filters.InterfaceFilter
 
@@ -353,13 +353,13 @@ class InterfaceViewSet(ModelViewSet):
 
 
 class DeviceBayViewSet(ModelViewSet):
-    queryset = DeviceBay.objects.select_related('installed_device')
+    queryset = DeviceBay.objects.select_related('installed_device').prefetch_related('tags')
     serializer_class = serializers.DeviceBaySerializer
     filter_class = filters.DeviceBayFilter
 
 
 class InventoryItemViewSet(ModelViewSet):
-    queryset = InventoryItem.objects.select_related('device', 'manufacturer')
+    queryset = InventoryItem.objects.select_related('device', 'manufacturer').prefetch_related('tags')
     serializer_class = serializers.InventoryItemSerializer
     filter_class = filters.InventoryItemFilter
 
@@ -391,7 +391,7 @@ class InterfaceConnectionViewSet(ModelViewSet):
 #
 
 class VirtualChassisViewSet(ModelViewSet):
-    queryset = VirtualChassis.objects.all()
+    queryset = VirtualChassis.objects.prefetch_related('tags')
     serializer_class = serializers.VirtualChassisSerializer
 
 

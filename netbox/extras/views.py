@@ -104,9 +104,11 @@ class ObjectConfigContextView(View):
 
         obj = get_object_or_404(self.object_class, pk=pk)
         source_contexts = ConfigContext.objects.get_for_object(obj)
+        model_name = self.object_class._meta.model_name
 
         return render(request, 'extras/object_configcontext.html', {
-            self.object_class._meta.model_name: obj,
+            model_name: obj,
+            'obj': obj,
             'rendered_context': obj.get_config_context(),
             'source_contexts': source_contexts,
             'base_template': self.base_template,

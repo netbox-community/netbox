@@ -27,7 +27,7 @@ class CircuitsFieldChoicesViewSet(FieldChoicesViewSet):
 #
 
 class ProviderViewSet(CustomFieldModelViewSet):
-    queryset = Provider.objects.all()
+    queryset = Provider.objects.prefetch_related('tags')
     serializer_class = serializers.ProviderSerializer
     filter_class = filters.ProviderFilter
 
@@ -57,7 +57,7 @@ class CircuitTypeViewSet(ModelViewSet):
 #
 
 class CircuitViewSet(CustomFieldModelViewSet):
-    queryset = Circuit.objects.select_related('type', 'tenant', 'provider')
+    queryset = Circuit.objects.select_related('type', 'tenant', 'provider').prefetch_related('tags')
     serializer_class = serializers.CircuitSerializer
     filter_class = filters.CircuitFilter
 

@@ -1,10 +1,11 @@
 import csv
 from io import StringIO
+import json
 import re
 
 from django import forms
 from django.conf import settings
-from django.contrib.postgres.forms import JSONField as _JSONField
+from django.contrib.postgres.forms.jsonb import JSONField as _JSONField, InvalidJSONInput
 from django.db.models import Count
 from django.urls import reverse_lazy
 from mptt.forms import TreeNodeMultipleChoiceField
@@ -554,9 +555,11 @@ class JSONField(_JSONField):
             self.widget.attrs['placeholder'] = ''
 
     def prepare_value(self, value):
+        if isinstance(value, InvalidJSONInput):
+            return value
         if value is None:
             return ''
-        return super(JSONField, self).prepare_value(value)
+        return json.dumps(value, sort_keys=True, indent=4)
 
 
 #

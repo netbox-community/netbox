@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0062_interface_mtu'),
+        ('dcim', '0063_device_local_context_data'),
     ]
 
     operations = [
