@@ -1,5 +1,9 @@
 v2.4.6 (FUTURE)
 
+## Enhancements
+
+* [#2487](https://github.com/digitalocean/netbox/issues/2487) - Return abbreviated API output when passed `?brief=1`
+
 ## Bug Fixes
 
 * [#2483](https://github.com/digitalocean/netbox/issues/2483) - Set max item count of API-populated form fields to MAX_PAGE_SIZE
