@@ -31,6 +31,16 @@ class TenantGroupTest(APITestCase):
 
         self.assertEqual(response.data['count'], 3)
 
+    def test_list_tenantgroups_brief(self):
+
+        url = reverse('tenancy-api:tenantgroup-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'slug', 'url']
+        )
+
     def test_create_tenantgroup(self):
 
         data = {
@@ -123,6 +133,16 @@ class TenantTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_tenants_brief(self):
+
+        url = reverse('tenancy-api:tenant-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'slug', 'url']
+        )
 
     def test_create_tenant(self):
 
