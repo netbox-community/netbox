@@ -56,6 +56,11 @@ class VirtualMachineViewSet(CustomFieldModelViewSet):
         """
         if self.action == 'retrieve':
             return serializers.VirtualMachineWithConfigContextSerializer
+
+        request = self.get_serializer_context()['request']
+        if request.query_params.get('brief', False):
+            return serializers.NestedVirtualMachineSerializer
+
         return serializers.VirtualMachineSerializer
 
 
@@ -65,3 +70,10 @@ class InterfaceViewSet(ModelViewSet):
     ).select_related('virtual_machine').prefetch_related('tags')
     serializer_class = serializers.InterfaceSerializer
     filter_class = filters.InterfaceFilter
+
+    def get_serializer_class(self):
+        request = self.get_serializer_context()['request']
+        if request.query_params.get('brief', False):
+            # Override get_serializer_for_model(), which will return the DCIM NestedInterfaceSerializer
+            return serializers.NestedInterfaceSerializer
+        return serializers.InterfaceSerializer

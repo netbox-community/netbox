@@ -34,6 +34,16 @@ class VRFTest(APITestCase):
 
         self.assertEqual(response.data['count'], 3)
 
+    def test_list_vrfs_brief(self):
+
+        url = reverse('ipam-api:vrf-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'rd', 'url']
+        )
+
     def test_create_vrf(self):
 
         data = {
@@ -124,6 +134,16 @@ class RIRTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_rirs_brief(self):
+
+        url = reverse('ipam-api:rir-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'slug', 'url']
+        )
 
     def test_create_rir(self):
 
@@ -218,6 +238,16 @@ class AggregateTest(APITestCase):
 
         self.assertEqual(response.data['count'], 3)
 
+    def test_list_aggregates_brief(self):
+
+        url = reverse('ipam-api:aggregate-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['family', 'id', 'prefix','url']
+        )
+
     def test_create_aggregate(self):
 
         data = {
@@ -309,6 +339,16 @@ class RoleTest(APITestCase):
 
         self.assertEqual(response.data['count'], 3)
 
+    def test_list_roles_brief(self):
+
+        url = reverse('ipam-api:role-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'slug', 'url']
+        )
+
     def test_create_role(self):
 
         data = {
@@ -397,12 +437,22 @@ class PrefixTest(APITestCase):
 
         self.assertEqual(response.data['prefix'], str(self.prefix1.prefix))
 
-    def test_list_prefixs(self):
+    def test_list_prefixes(self):
 
         url = reverse('ipam-api:prefix-list')
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_prefixes_brief(self):
+
+        url = reverse('ipam-api:prefix-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['family', 'id', 'prefix', 'url']
+        )
 
     def test_create_prefix(self):
 
@@ -630,6 +680,16 @@ class IPAddressTest(APITestCase):
 
         self.assertEqual(response.data['count'], 3)
 
+    def test_list_ipaddresses_brief(self):
+
+        url = reverse('ipam-api:ipaddress-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['address', 'family', 'id', 'url']
+        )
+
     def test_create_ipaddress(self):
 
         data = {
@@ -717,6 +777,16 @@ class VLANGroupTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_vlangroups_brief(self):
+
+        url = reverse('ipam-api:vlangroup-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'slug', 'url']
+        )
 
     def test_create_vlangroup(self):
 
@@ -808,6 +878,16 @@ class VLANTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_vlans_brief(self):
+
+        url = reverse('ipam-api:vlan-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['display_name', 'id', 'name', 'url', 'vid']
+        )
 
     def test_create_vlan(self):
 

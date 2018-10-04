@@ -56,6 +56,16 @@ class ProviderTest(APITestCase):
 
         self.assertEqual(response.data['count'], 3)
 
+    def test_list_providers_brief(self):
+
+        url = reverse('circuits-api:provider-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'slug', 'url']
+        )
+
     def test_create_provider(self):
 
         data = {
@@ -147,6 +157,16 @@ class CircuitTypeTest(APITestCase):
 
         self.assertEqual(response.data['count'], 3)
 
+    def test_list_circuittypes_brief(self):
+
+        url = reverse('circuits-api:circuittype-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'slug', 'url']
+        )
+
     def test_create_circuittype(self):
 
         data = {
@@ -215,6 +235,16 @@ class CircuitTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_circuits_brief(self):
+
+        url = reverse('circuits-api:circuit-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['cid', 'id', 'url']
+        )
 
     def test_create_circuit(self):
 

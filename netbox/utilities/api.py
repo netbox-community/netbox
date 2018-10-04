@@ -192,6 +192,19 @@ class ModelViewSet(_ModelViewSet):
 
         return super(ModelViewSet, self).get_serializer(*args, **kwargs)
 
+    def get_serializer_class(self):
+
+        # If 'brief' has been passed as a query param, find and return the nested serializer for this model, if one
+        # exists
+        request = self.get_serializer_context()['request']
+        if request.query_params.get('brief', False):
+            serializer_class = get_serializer_for_model(self.queryset.model, prefix='Nested')
+            if serializer_class is not None:
+                return serializer_class
+
+        # Fall back to the hard-coded serializer class
+        return self.serializer_class
+
 
 class FieldChoicesViewSet(ViewSet):
     """
