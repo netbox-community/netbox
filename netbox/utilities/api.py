@@ -197,7 +197,7 @@ class ModelViewSet(_ModelViewSet):
         # If 'brief' has been passed as a query param, find and return the nested serializer for this model, if one
         # exists
         request = self.get_serializer_context()['request']
-        if 'brief' in request.query_params:
+        if request.query_params.get('brief', False):
             serializer_class = get_serializer_for_model(self.queryset.model, prefix='Nested')
             if serializer_class is not None:
                 return serializer_class
