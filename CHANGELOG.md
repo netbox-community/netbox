@@ -7,6 +7,7 @@ v2.4.6 (FUTURE)
 
 ## Bug Fixes
 
+* [#2393](https://github.com/digitalocean/netbox/issues/2393) - Fix Unicode support for CSV import under Python 2
 * [#2483](https://github.com/digitalocean/netbox/issues/2483) - Set max item count of API-populated form fields to MAX_PAGE_SIZE
 * [#2484](https://github.com/digitalocean/netbox/issues/2484) - Local config context not available on the Virtual Machine Edit Form
 * [#2485](https://github.com/digitalocean/netbox/issues/2485) - Fix cancel button when assigning a service to a device/VM
