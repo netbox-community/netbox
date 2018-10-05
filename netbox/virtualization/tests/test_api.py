@@ -35,6 +35,16 @@ class ClusterTypeTest(APITestCase):
 
         self.assertEqual(response.data['count'], 3)
 
+    def test_list_clustertypes_brief(self):
+
+        url = reverse('virtualization-api:clustertype-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'slug', 'url']
+        )
+
     def test_create_clustertype(self):
 
         data = {
@@ -125,6 +135,16 @@ class ClusterGroupTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_clustergroups_brief(self):
+
+        url = reverse('virtualization-api:clustergroup-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'slug', 'url']
+        )
 
     def test_create_clustergroup(self):
 
@@ -219,6 +239,16 @@ class ClusterTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_clusters_brief(self):
+
+        url = reverse('virtualization-api:cluster-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'url']
+        )
 
     def test_create_cluster(self):
 
@@ -323,6 +353,16 @@ class VirtualMachineTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_virtualmachines_brief(self):
+
+        url = reverse('virtualization-api:virtualmachine-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'url']
+        )
 
     def test_create_virtualmachine(self):
 
@@ -446,6 +486,16 @@ class InterfaceTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_interfaces_brief(self):
+
+        url = reverse('virtualization-api:interface-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'url', 'virtual_machine']
+        )
 
     def test_create_interface(self):
 

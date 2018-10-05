@@ -3,8 +3,8 @@ from __future__ import unicode_literals
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -231,8 +231,12 @@ class TokenEditView(LoginRequiredMixin, View):
     def get(self, request, pk=None):
 
         if pk is not None:
+            if not request.user.has_perm('users.change_token'):
+                return HttpResponseForbidden()
             token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
         else:
+            if not request.user.has_perm('users.add_token'):
+                return HttpResponseForbidden()
             token = Token(user=request.user)
 
         form = TokenForm(instance=token)
@@ -274,7 +278,8 @@ class TokenEditView(LoginRequiredMixin, View):
         })
 
 
-class TokenDeleteView(LoginRequiredMixin, View):
+class TokenDeleteView(PermissionRequiredMixin, View):
+    permission_required = 'users.delete_token'
 
     def get(self, request, pk):
 

@@ -4,6 +4,7 @@ import csv
 from io import StringIO
 import json
 import re
+import sys
 
 from django import forms
 from django.conf import settings
@@ -148,6 +149,11 @@ def add_blank_choice(choices):
     Add a blank choice to the beginning of a choices list.
     """
     return ((None, '---------'),) + tuple(choices)
+
+
+def utf8_encoder(data):
+    for line in data:
+        yield line.encode('utf-8')
 
 
 #
@@ -303,7 +309,12 @@ class CSVDataField(forms.CharField):
     def to_python(self, value):
 
         records = []
-        reader = csv.reader(StringIO(value))
+
+        # Python 2 hack for Unicode support in the CSV reader
+        if sys.version_info[0] < 3:
+            reader = csv.reader(utf8_encoder(StringIO(value)))
+        else:
+            reader = csv.reader(StringIO(value))
 
         # Consume and validate the first line of CSV data as column headers
         headers = next(reader)
