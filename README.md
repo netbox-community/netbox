@@ -57,3 +57,6 @@ and run `upgrade.sh`.
 
 - [netbox-as-ansible-inventory](https://github.com/AAbouZaid/netbox-as-ansible-inventory) Ansible dynamic inventory script for Netbox.
 
+
+## NOTE
+Fork version
