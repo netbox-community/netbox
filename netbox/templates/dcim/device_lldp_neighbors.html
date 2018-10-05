@@ -64,8 +64,10 @@ $(document).ready(function() {
                 }
 
                 // Clean up hostnames/interfaces learned via LLDP
-                var lldp_device = neighbor['hostname'].split(".")[0];  // Strip off any trailing domain name
-                var lldp_interface = neighbor['port'].split(".")[0];   // Strip off any trailing subinterface ID
+                var neighbor_host = neighbor['hostname'] || ""; // sanitize hostname if it's null to avoid breaking the split func
+                var neighbor_port = neighbor['port'] || ""; // sanitize port if it's null to avoid breaking the split func
+                var lldp_device = neighbor_host.split(".")[0];  // Strip off any trailing domain name
+                var lldp_interface = neighbor_port.split(".")[0];   // Strip off any trailing subinterface ID
 
                 // Add LLDP neighbors to table
                 row.children('td.device').html(lldp_device);
