@@ -2,6 +2,7 @@ v2.4.6 (FUTURE)
 
 ## Enhancements
 
+* [#2479](https://github.com/digitalocean/netbox/issues/2479) - Add user permissions for creating/modifying API tokens
 * [#2487](https://github.com/digitalocean/netbox/issues/2487) - Return abbreviated API output when passed `?brief=1`
 
 ## Bug Fixes
