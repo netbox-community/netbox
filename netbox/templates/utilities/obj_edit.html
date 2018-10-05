@@ -10,6 +10,10 @@
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
                 <h3>{% block title %}{% if obj.pk %}Editing {{ obj_type }} {{ obj }}{% else %}Add a new {{ obj_type }}{% endif %}{% endblock %}</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
                 {% block tabs %}{% endblock %}
                 {% if form.non_field_errors %}
                     <div class="panel panel-danger">
@@ -28,18 +32,30 @@
                     </div>
                 {% endblock %}
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3 text-right">
-                {% block buttons %}
-                    {% if obj.pk %}
-                        <button type="submit" name="_update" class="btn btn-primary">Update</button>
-                    {% else %}
-                        <button type="submit" name="_create" class="btn btn-primary">Create</button>
-                        <button type="submit" name="_addanother" class="btn btn-primary">Create and Add Another</button>
-                    {% endif %}
-                    <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
-                {% endblock %}
+            <div class="col-md-3">
+                <div style="position: fixed">
+                    {% block buttons %}
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-save"></i> Save
+                            </button>
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <button type="submit" name="_continue" class="btn btn-link">Save and Continue Editing</button>
+                                    {% if enable_add_another %}
+                                        <button type="submit" name="_addanother" class="btn btn-link">Save and Add Another</button>
+                                    {% endif %}
+                                </li>
+                            </ul>
+                        </div>
+                        <div style="margin-top: 12px">
+                            <a href="{{ return_url }}" class="btn btn-default"><i class="fa fa-ban"></i> Cancel</a>
+                        </div>
+                    {% endblock %}
+                </div>
             </div>
         </div>
     </form>

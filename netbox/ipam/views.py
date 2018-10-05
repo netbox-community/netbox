@@ -983,6 +983,7 @@ class ServiceCreateView(PermissionRequiredMixin, ObjectEditView):
     model = Service
     model_form = forms.ServiceForm
     template_name = 'ipam/service_edit.html'
+    enable_add_another = False
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
         if 'device' in url_kwargs:

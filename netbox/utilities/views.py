@@ -15,7 +15,7 @@ from django.http import HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist, TemplateSyntaxError
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
@@ -171,10 +171,14 @@ class ObjectEditView(GetReturnURLMixin, View):
     model: The model of the object being edited
     model_form: The form used to create or edit the object
     template_name: The name of the template
+    enable_continue_editing: Enable the option to save and continue editing the object
+    enable_add_another: Enable the option to save the object and create another
     """
     model = None
     model_form = None
     template_name = 'utilities/obj_edit.html'
+    enable_continue_editing = True
+    enable_add_another = True
 
     def get_object(self, kwargs):
         # Look up object by slug or PK. Return None if neither was provided.
@@ -189,6 +193,36 @@ class ObjectEditView(GetReturnURLMixin, View):
         # given some parameter from the request URL.
         return obj
 
+    def get_edit_url(self, obj):
+        """
+        Return the URL for editing an existing object (used for "save and continue editing" button).
+        """
+        url_name = '{}:{}_edit'.format(
+            self.model._meta.app_label,
+            self.model._meta.model_name
+        )
+        if hasattr(obj, 'slug'):
+            kwargs = {'slug': obj.slug}
+        else:
+            kwargs = {'pk': obj.pk}
+        try:
+            return reverse(url_name, kwargs=kwargs)
+        except NoReverseMatch:
+            return None
+
+    def get_add_url(self, obj):
+        """
+        Return the URL for creating a new object (used for "save and add another" button).
+        """
+        url_name = '{}:{}_add'.format(
+            self.model._meta.app_label,
+            self.model._meta.model_name
+        )
+        try:
+            return reverse(url_name)
+        except NoReverseMatch:
+            return None
+
     def get(self, request, *args, **kwargs):
 
         obj = self.get_object(kwargs)
@@ -201,6 +235,8 @@ class ObjectEditView(GetReturnURLMixin, View):
             'obj': obj,
             'obj_type': self.model._meta.verbose_name,
             'form': form,
+            'enable_continue_editing': self.enable_continue_editing,
+            'enable_add_another': self.enable_add_another,
             'return_url': self.get_return_url(request, obj),
         })
 
@@ -224,8 +260,17 @@ class ObjectEditView(GetReturnURLMixin, View):
                 msg = '{} {}'.format(msg, escape(obj))
             messages.success(request, mark_safe(msg))
 
-            if '_addanother' in request.POST:
-                return redirect(request.get_full_path())
+            # Continue editing the current object
+            if '_continue' in request.POST and self.enable_continue_editing:
+                edit_url = self.get_edit_url(obj)
+                if edit_url is not None:
+                    return redirect(edit_url)
+
+            # Create another object of the same type
+            elif '_addanother' in request.POST and self.enable_add_another:
+                add_url = self.get_add_url(obj)
+                if add_url is not None:
+                    return redirect(add_url)
 
             return_url = form.cleaned_data.get('return_url')
             if return_url is not None and is_safe_url(url=return_url, host=request.get_host()):

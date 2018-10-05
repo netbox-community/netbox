@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import transaction
 from django.db.models import Count
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.views.generic import View
 
 from extras.models import Graph, GRAPH_TYPE_PROVIDER
@@ -261,6 +261,7 @@ class CircuitTerminationCreateView(PermissionRequiredMixin, ObjectEditView):
     model = CircuitTermination
     model_form = forms.CircuitTerminationForm
     template_name = 'circuits/circuittermination_edit.html'
+    enable_add_another = False
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
         if 'circuit' in url_kwargs:

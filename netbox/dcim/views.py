@@ -452,6 +452,9 @@ class RackReservationCreateView(PermissionRequiredMixin, ObjectEditView):
     def get_return_url(self, request, obj):
         return obj.rack.get_absolute_url()
 
+    def get_add_url(self, obj):
+        return reverse('dcim:rack_add_reservation', kwargs={'rack': obj.rack.pk})
+
 
 class RackReservationEditView(RackReservationCreateView):
     permission_required = 'dcim.change_rackreservation'

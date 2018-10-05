@@ -132,7 +132,7 @@ def secret_add(request, pk):
         form = forms.SecretForm(instance=secret)
 
     return render(request, 'secrets/secret_edit.html', {
-        'secret': secret,
+        'obj': secret,
         'form': form,
         'return_url': device.get_absolute_url(),
     })
@@ -185,7 +185,7 @@ def secret_edit(request, pk):
         form = forms.SecretForm(instance=secret)
 
     return render(request, 'secrets/secret_edit.html', {
-        'secret': secret,
+        'obj': secret,
         'form': form,
         'return_url': reverse('secrets:secret', kwargs={'pk': secret.pk}),
     })
