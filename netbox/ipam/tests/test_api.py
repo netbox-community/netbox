@@ -245,7 +245,7 @@ class AggregateTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['family', 'id', 'prefix','url']
+            ['family', 'id', 'prefix', 'url']
         )
 
     def test_create_aggregate(self):
