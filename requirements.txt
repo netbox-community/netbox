@@ -20,4 +20,4 @@ psycopg2-binary==2.7.5
 py-gfm==0.1.3
 pycryptodome==3.6.4
 xmltodict==0.11.0
-
+deepmerge==0.0.4

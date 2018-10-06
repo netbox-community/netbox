@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from collections import OrderedDict
+from deepmerge import Merger
 from datetime import date
 
 import graphviz
@@ -724,14 +725,24 @@ class ConfigContextModel(models.Model):
         Return the rendered configuration context for a device or VM.
         """
 
+        # Create a merger overriding everithing but dicts to avoid merging array type configuration
+        config_merger = Merger(
+            [
+                (list, ["override"]),
+                (dict, ["merge"])
+            ],
+            ["override"],
+            ["override"]
+        )
+
         # Compile all config data, overwriting lower-weight values with higher-weight values where a collision occurs
-        data = OrderedDict()
+        data = {}
         for context in ConfigContext.objects.get_for_object(self):
-            data.update(context.data)
+            config_merger.merge(data, context.data)
 
         # If the object has local config context data defined, that data overwrites all rendered data
         if self.local_context_data is not None:
-            data.update(self.local_context_data)
+            config_merger.merge(data, self.local_context_data)
 
         return data
 
