@@ -43,8 +43,6 @@ and run `upgrade.sh`.
 * [Vagrant deployment](https://github.com/ryanmerolle/netbox-vagrant) (via [@ryanmerolle](https://github.com/ryanmerolle))
 * [Ansible deployment](https://github.com/lae/ansible-role-netbox) (via [@lae](https://github.com/lae))
 
-# Related projects
-
 ## Supported SDK
 
 - [pynetbox](https://github.com/digitalocean/pynetbox) Python API client library for Netbox.
@@ -56,4 +54,3 @@ and run `upgrade.sh`.
 ## Ansible Inventory
 
 - [netbox-as-ansible-inventory](https://github.com/AAbouZaid/netbox-as-ansible-inventory) Ansible dynamic inventory script for Netbox.
-
