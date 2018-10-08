@@ -596,11 +596,11 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         if self.address:
 
             # Enforce unique IP space (if applicable)
-            if self.role not in IPADDRESS_ROLES_NONUNIQUE and (
+            if self.role not in IPADDRESS_ROLES_NONUNIQUE and ((
                 self.vrf is None and settings.ENFORCE_GLOBAL_UNIQUE
             ) or (
                 self.vrf and self.vrf.enforce_unique
-            ):
+            )):
                 duplicate_ips = self.get_duplicates()
                 if duplicate_ips:
                     raise ValidationError({
