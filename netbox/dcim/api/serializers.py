@@ -490,6 +490,15 @@ class ConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
         fields = ['id', 'device', 'name', 'cs_port', 'connection_status', 'tags']
 
 
+class NestedConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleport-detail')
+    device = NestedDeviceSerializer(read_only=True)
+
+    class Meta:
+        model = ConsolePort
+        fields = ['id', 'url', 'device', 'name']
+
+
 #
 # Power outlets
 #
@@ -525,6 +534,15 @@ class PowerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
     class Meta:
         model = PowerPort
         fields = ['id', 'device', 'name', 'power_outlet', 'connection_status', 'tags']
+
+
+class NestedPowerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerport-detail')
+    device = NestedDeviceSerializer(read_only=True)
+
+    class Meta:
+        model = PowerPort
+        fields = ['id', 'url', 'device', 'name']
 
 
 #
@@ -650,10 +668,11 @@ class DeviceBaySerializer(TaggitSerializer, ValidatedModelSerializer):
 
 class NestedDeviceBaySerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicebay-detail')
+    device = NestedDeviceSerializer(read_only=True)
 
     class Meta:
         model = DeviceBay
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'device', 'name']
 
 
 #

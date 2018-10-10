@@ -42,6 +42,16 @@ class RegionTest(APITestCase):
 
         self.assertEqual(response.data['count'], 3)
 
+    def test_list_regions_brief(self):
+
+        url = reverse('dcim-api:region-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'slug', 'url']
+        )
+
     def test_create_region(self):
 
         data = {
@@ -156,6 +166,16 @@ class SiteTest(APITestCase):
 
         self.assertEqual(response.data['count'], 3)
 
+    def test_list_sites_brief(self):
+
+        url = reverse('dcim-api:site-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'slug', 'url']
+        )
+
     def test_create_site(self):
 
         data = {
@@ -260,6 +280,16 @@ class RackGroupTest(APITestCase):
 
         self.assertEqual(response.data['count'], 3)
 
+    def test_list_rackgroups_brief(self):
+
+        url = reverse('dcim-api:rackgroup-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'slug', 'url']
+        )
+
     def test_create_rackgroup(self):
 
         data = {
@@ -357,6 +387,16 @@ class RackRoleTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_rackroles_brief(self):
+
+        url = reverse('dcim-api:rackrole-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'slug', 'url']
+        )
 
     def test_create_rackrole(self):
 
@@ -474,6 +514,16 @@ class RackTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_racks_brief(self):
+
+        url = reverse('dcim-api:rack-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['display_name', 'id', 'name', 'url']
+        )
 
     def test_create_rack(self):
 
@@ -691,6 +741,16 @@ class ManufacturerTest(APITestCase):
 
         self.assertEqual(response.data['count'], 3)
 
+    def test_list_manufacturers_brief(self):
+
+        url = reverse('dcim-api:manufacturer-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'slug', 'url']
+        )
+
     def test_create_manufacturer(self):
 
         data = {
@@ -789,6 +849,16 @@ class DeviceTypeTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_devicetypes_brief(self):
+
+        url = reverse('dcim-api:devicetype-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'manufacturer', 'model', 'slug', 'url']
+        )
 
     def test_create_devicetype(self):
 
@@ -1494,6 +1564,16 @@ class DeviceRoleTest(APITestCase):
 
         self.assertEqual(response.data['count'], 3)
 
+    def test_list_deviceroles_brief(self):
+
+        url = reverse('dcim-api:devicerole-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'slug', 'url']
+        )
+
     def test_create_devicerole(self):
 
         data = {
@@ -1591,6 +1671,16 @@ class PlatformTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_platforms_brief(self):
+
+        url = reverse('dcim-api:platform-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'slug', 'url']
+        )
 
     def test_create_platform(self):
 
@@ -1720,6 +1810,16 @@ class DeviceTest(APITestCase):
 
         self.assertEqual(response.data['count'], 3)
 
+    def test_list_devices_brief(self):
+
+        url = reverse('dcim-api:device-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['display_name', 'id', 'name', 'url']
+        )
+
     def test_create_device(self):
 
         data = {
@@ -1846,6 +1946,16 @@ class ConsolePortTest(APITestCase):
 
         self.assertEqual(response.data['count'], 3)
 
+    def test_list_consoleports_brief(self):
+
+        url = reverse('dcim-api:consoleport-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['device', 'id', 'name', 'url']
+        )
+
     def test_create_consoleport(self):
 
         data = {
@@ -1951,6 +2061,16 @@ class ConsoleServerPortTest(APITestCase):
 
         self.assertEqual(response.data['count'], 3)
 
+    def test_list_consoleserverports_brief(self):
+
+        url = reverse('dcim-api:consoleserverport-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['device', 'id', 'name', 'url']
+        )
+
     def test_create_consoleserverport(self):
 
         data = {
@@ -2051,6 +2171,16 @@ class PowerPortTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_powerports_brief(self):
+
+        url = reverse('dcim-api:powerport-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['device', 'id', 'name', 'url']
+        )
 
     def test_create_powerport(self):
 
@@ -2156,6 +2286,16 @@ class PowerOutletTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_poweroutlets_brief(self):
+
+        url = reverse('dcim-api:poweroutlet-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['device', 'id', 'name', 'url']
+        )
 
     def test_create_poweroutlet(self):
 
@@ -2282,6 +2422,16 @@ class InterfaceTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_interfaces_brief(self):
+
+        url = reverse('dcim-api:interface-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['device', 'id', 'name', 'url']
+        )
 
     def test_create_interface(self):
 
@@ -2453,6 +2603,16 @@ class DeviceBayTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_devicebays_brief(self):
+
+        url = reverse('dcim-api:devicebay-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['device', 'id', 'name', 'url']
+        )
 
     def test_create_devicebay(self):
 
@@ -2776,6 +2936,16 @@ class InterfaceConnectionTest(APITestCase):
 
         self.assertEqual(response.data['count'], 3)
 
+    def test_list_interfaceconnections_brief(self):
+
+        url = reverse('dcim-api:interfaceconnection-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['connection_status', 'id', 'url']
+        )
+
     def test_create_interfaceconnection(self):
 
         data = {
@@ -2970,6 +3140,16 @@ class VirtualChassisTest(APITestCase):
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['count'], 2)
+
+    def test_list_virtualchassis_brief(self):
+
+        url = reverse('dcim-api:virtualchassis-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'url']
+        )
 
     def test_create_virtualchassis(self):
 

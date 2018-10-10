@@ -10,8 +10,12 @@
                 <div class="panel panel-{% if token.is_expired %}danger{% else %}default{% endif %}">
                     <div class="panel-heading">
                         <div class="pull-right">
-                            <a href="{% url 'user:token_edit' pk=token.pk %}" class="btn btn-xs btn-warning">Edit</a>
-                            <a href="{% url 'user:token_delete' pk=token.pk %}" class="btn btn-xs btn-danger">Delete</a>
+                            {% if perms.users.change_token %}
+                                <a href="{% url 'user:token_edit' pk=token.pk %}" class="btn btn-xs btn-warning">Edit</a>
+                            {% endif %}
+                            {% if perms.users.delete_token %}
+                                <a href="{% url 'user:token_delete' pk=token.pk %}" class="btn btn-xs btn-danger">Delete</a>
+                            {% endif %}
                         </div>
                         <i class="fa fa-key"></i> {{ token.key }}
                         {% if token.is_expired %}
@@ -49,10 +53,16 @@
             {% empty %}
                 <p>You do not have any API tokens.</p>
             {% endfor %}
-            <a href="{% url 'user:token_add' %}" class="btn btn-primary">
-                <span class="fa fa-plus" aria-hidden="true"></span>
-                Add a token
-            </a>
+            {% if perms.users.add_token %}
+                <a href="{% url 'user:token_add' %}" class="btn btn-primary">
+                    <span class="fa fa-plus" aria-hidden="true"></span>
+                    Add a token
+                </a>
+            {% else %}
+                <div class="alert alert-info text-center" role="alert">
+                    You do not have permission to create new API tokens. If needed, ask an administrator to enable token creation for your account or an assigned group.
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

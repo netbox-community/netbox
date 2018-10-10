@@ -1370,7 +1370,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                 })
 
         # Validate manufacturer/platform
-        if self.device_type and self.platform:
+        if hasattr(self, 'device_type') and self.platform:
             if self.platform.manufacturer and self.platform.manufacturer != self.device_type.manufacturer:
                 raise ValidationError({
                     'platform': "The assigned platform is limited to {} device types, but this device's type belongs "
