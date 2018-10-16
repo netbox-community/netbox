@@ -58,7 +58,7 @@ A device is said to be full depth if its installation on one rack face prevents 
 
 ## Device Roles
 
-Devices can be organized by functional roles. These roles are fully cusomizable. For example, you might create roles for core switches, distribution switches, and access switches.
+Devices can be organized by functional roles. These roles are fully customizable. For example, you might create roles for core switches, distribution switches, and access switches.
 
 ---
 
