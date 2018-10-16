@@ -2035,25 +2035,44 @@ class InterfaceConnection(models.Model):
     csv_headers = ['device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status']
 
     def clean(self):
-        try:
-            if self.interface_a == self.interface_b:
-                raise ValidationError({
-                    'interface_b': "Cannot connect an interface to itself."
-                })
-            if self.interface_a.form_factor in NONCONNECTABLE_IFACE_TYPES:
-                raise ValidationError({
-                    'interface_a': '{} is not a connectable interface type.'.format(
-                        self.interface_a.get_form_factor_display()
-                    )
-                })
-            if self.interface_b.form_factor in NONCONNECTABLE_IFACE_TYPES:
-                raise ValidationError({
-                    'interface_b': '{} is not a connectable interface type.'.format(
-                        self.interface_b.get_form_factor_display()
-                    )
-                })
-        except ObjectDoesNotExist:
-            pass
+
+        # An interface cannot be connected to itself
+        if self.interface_a == self.interface_b:
+            raise ValidationError({
+                'interface_b': "Cannot connect an interface to itself."
+            })
+
+        # Only connectable interface types are permitted
+        if self.interface_a.form_factor in NONCONNECTABLE_IFACE_TYPES:
+            raise ValidationError({
+                'interface_a': '{} is not a connectable interface type.'.format(
+                    self.interface_a.get_form_factor_display()
+                )
+            })
+        if self.interface_b.form_factor in NONCONNECTABLE_IFACE_TYPES:
+            raise ValidationError({
+                'interface_b': '{} is not a connectable interface type.'.format(
+                    self.interface_b.get_form_factor_display()
+                )
+            })
+
+        # Prevent the A side of one connection from being the B side of another
+        interface_a_connections = InterfaceConnection.objects.filter(
+            Q(interface_a=self.interface_a) |
+            Q(interface_b=self.interface_a)
+        ).exclude(pk=self.pk)
+        if interface_a_connections.exists():
+            raise ValidationError({
+                'interface_a': "This interface is already connected."
+            })
+        interface_b_connections = InterfaceConnection.objects.filter(
+            Q(interface_a=self.interface_b) |
+            Q(interface_b=self.interface_b)
+        ).exclude(pk=self.pk)
+        if interface_b_connections.exists():
+            raise ValidationError({
+                'interface_b': "This interface is already connected."
+            })
 
     def to_csv(self):
         return (
