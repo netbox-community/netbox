@@ -282,3 +282,20 @@ CONNECTION_STATUS_CHOICES = [
     [CONNECTION_STATUS_PLANNED, 'Planned'],
     [CONNECTION_STATUS_CONNECTED, 'Connected'],
 ]
+
+# Cable endpoint types
+CABLE_ENDPOINT_TYPES = (
+    'consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport',
+)
+CABLE_CONNECTION_TYPES = CABLE_ENDPOINT_TYPES + (
+    'frontpanelport', 'rearpanelport',
+)
+
+# Cable types
+# TODO: Add more types
+CABLE_TYPE_COPPER = 1000
+CABLE_TYPE_FIBER = 2000
+CABLE_TYPE_CHOICES = (
+    (CABLE_TYPE_COPPER, 'Copper'),
+    (CABLE_TYPE_FIBER, 'Fiber'),
+)

@@ -3,7 +3,8 @@ from itertools import count, groupby
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -63,6 +64,32 @@ class ComponentModel(models.Model):
             action=action,
             object_data=serialize_object(self)
         ).save()
+
+
+class ConnectableModel(models.Model):
+    connected_endpoint_type = models.ForeignKey(
+        to=ContentType,
+        limit_choices_to={'model__in': CABLE_ENDPOINT_TYPES},
+        on_delete=models.PROTECT,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    connected_endpoint_id = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
+    connected_endpoint = GenericForeignKey(
+        ct_field='connected_endpoint_type',
+        fk_field='connected_endpoint_id'
+    )
+    connection_status = models.NullBooleanField(
+        choices=CONNECTION_STATUS_CHOICES,
+        default=CONNECTION_STATUS_CONNECTED
+    )
+
+    class Meta:
+        abstract = True
 
 
 #
@@ -1616,7 +1643,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 # Console ports
 #
 
-class ConsolePort(ComponentModel):
+class ConsolePort(ConnectableModel, ComponentModel):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
@@ -1679,7 +1706,7 @@ class ConsoleServerPortManager(models.Manager):
         }).order_by('device', 'name_padded')
 
 
-class ConsoleServerPort(ComponentModel):
+class ConsoleServerPort(ConnectableModel, ComponentModel):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
@@ -1720,7 +1747,7 @@ class ConsoleServerPort(ComponentModel):
 # Power ports
 #
 
-class PowerPort(ComponentModel):
+class PowerPort(ConnectableModel, ComponentModel):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
@@ -1782,7 +1809,7 @@ class PowerOutletManager(models.Manager):
         }).order_by('device', 'name_padded')
 
 
-class PowerOutlet(ComponentModel):
+class PowerOutlet(ConnectableModel, ComponentModel):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
@@ -1823,7 +1850,7 @@ class PowerOutlet(ComponentModel):
 # Interfaces
 #
 
-class Interface(ComponentModel):
+class Interface(ConnectableModel, ComponentModel):
     """
     A network interface within a Device or VirtualMachine. A physical Interface can connect to exactly one other
     Interface via the creation of an InterfaceConnection.
@@ -2423,3 +2450,64 @@ class VirtualChassis(ChangeLoggedModel):
             self.master,
             self.domain,
         )
+
+
+#
+# Cables
+#
+
+class Cable(ChangeLoggedModel):
+    """
+    A physical connection between two endpoints.
+    """
+    endpoint_a_type = models.ForeignKey(
+        to=ContentType,
+        limit_choices_to={'model__in': CABLE_CONNECTION_TYPES},
+        on_delete=models.PROTECT,
+        related_name='+'
+    )
+    endpoint_a_id = models.PositiveIntegerField()
+    endpoint_a = GenericForeignKey(
+        ct_field='endpoint_a_type',
+        fk_field='endpoint_a_id'
+    )
+    endpoint_b_type = models.ForeignKey(
+        to=ContentType,
+        limit_choices_to={'model__in': CABLE_CONNECTION_TYPES},
+        on_delete=models.PROTECT,
+        related_name='+'
+    )
+    endpoint_b_id = models.PositiveIntegerField()
+    endpoint_b = GenericForeignKey(
+        ct_field='endpoint_b_type',
+        fk_field='endpoint_b_id'
+    )
+    type = models.PositiveSmallIntegerField(
+        choices=CABLE_TYPE_CHOICES,
+        blank=True,
+        null=True
+    )
+    status = models.BooleanField(
+        choices=CONNECTION_STATUS_CHOICES,
+        default=CONNECTION_STATUS_CONNECTED
+    )
+    label = models.CharField(
+        max_length=100,
+        blank=True
+    )
+    color = ColorField(
+        blank=True
+    )
+
+    class Meta:
+        unique_together = (
+            ('endpoint_a_type', 'endpoint_a_id'),
+            ('endpoint_b_type', 'endpoint_b_id'),
+        )
+
+    # TODO: This should follow all cables in a path
+    def get_path_endpoints(self):
+        """
+        Return the endpoints connected by this cable path.
+        """
+        return (self.endpoint_a, self.endpoint_b)

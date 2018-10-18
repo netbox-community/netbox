@@ -1,7 +1,7 @@
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 
-from .models import Device, VirtualChassis
+from .models import Cable, Device, VirtualChassis
 
 
 @receiver(post_save, sender=VirtualChassis)
@@ -19,3 +19,27 @@ def clear_virtualchassis_members(instance, **kwargs):
     When a VirtualChassis is deleted, nullify the vc_position and vc_priority fields of its prior members.
     """
     Device.objects.filter(virtual_chassis=instance.pk).update(vc_position=None, vc_priority=None)
+
+
+@receiver(post_save, sender=Cable)
+def update_connected_endpoints(instance, **kwargs):
+    """
+    When a Cable is saved, update its connected endpoints.
+    """
+    endpoint_a, endpoint_b = instance.get_path_endpoints()
+    endpoint_a.connected_endpoint = endpoint_b
+    endpoint_a.save()
+    endpoint_b.connected_endpoint = endpoint_a
+    endpoint_b.save()
+
+
+@receiver(post_delete, sender=Cable)
+def nullify_connected_endpoints(instance, **kwargs):
+    """
+    When a Cable is deleted, nullify its connected endpoints.
+    """
+    endpoint_a, endpoint_b = instance.get_path_endpoints()
+    endpoint_a.connected_endpoint = None
+    endpoint_a.save()
+    endpoint_b.connected_endpoint = None
+    endpoint_b.save()
