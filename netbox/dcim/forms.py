@@ -1421,7 +1421,7 @@ class ConsolePortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelF
         label='Port',
         widget=APISelect(
             api_url='/api/dcim/console-server-ports/?device_id={{console_server}}',
-            disabled_indicator='connected_console',
+            disabled_indicator='is_connected',
         )
     )
 
@@ -1512,7 +1512,7 @@ class ConsoleServerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.
         label='Port',
         widget=APISelect(
             api_url='/api/dcim/console-ports/?device_id={{device}}',
-            disabled_indicator='cs_port'
+            disabled_indicator='is_connected'
         )
     )
     connection_status = forms.BooleanField(
@@ -1690,7 +1690,7 @@ class PowerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
         label='Outlet',
         widget=APISelect(
             api_url='/api/dcim/power-outlets/?device_id={{pdu}}',
-            disabled_indicator='connected_port'
+            disabled_indicator='is_connected'
         )
     )
 
@@ -1781,7 +1781,7 @@ class PowerOutletConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
         label='Port',
         widget=APISelect(
             api_url='/api/dcim/power-ports/?device_id={{device}}',
-            disabled_indicator='power_outlet'
+            disabled_indicator='is_connected'
         )
     )
     connection_status = forms.BooleanField(

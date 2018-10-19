@@ -167,7 +167,8 @@ class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
 
 class NestedInterfaceSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:interface-detail')
+    virtual_machine = NestedVirtualMachineSerializer(read_only=True)
 
     class Meta:
         model = Interface
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'virtual_machine', 'name']

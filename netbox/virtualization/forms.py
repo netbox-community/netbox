@@ -251,7 +251,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         model = VirtualMachine
         fields = [
             'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
-            'vcpus', 'memory', 'disk', 'comments', 'tags',
+            'vcpus', 'memory', 'disk', 'comments', 'tags', 'local_context_data',
         ]
         help_texts = {
             'local_context_data': "Local config context data overwrites all sources contexts in the final rendered config context",

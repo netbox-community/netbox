@@ -249,6 +249,11 @@ class DeviceViewSet(CustomFieldModelViewSet):
         """
         if self.action == 'retrieve':
             return serializers.DeviceWithConfigContextSerializer
+
+        request = self.get_serializer_context()['request']
+        if request.query_params.get('brief', False):
+            return serializers.NestedDeviceSerializer
+
         return serializers.DeviceSerializer
 
     @action(detail=True, url_path='napalm')

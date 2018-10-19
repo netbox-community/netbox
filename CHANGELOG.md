@@ -1,7 +1,5 @@
 v2.5.0 (FUTURE)
 
----
-
 ## Notes
 
 * As promised, Python 2 support has been completed removed. Python 3.5 or higher is now required to run NetBox.
@@ -16,6 +14,33 @@ v2.5.0 (FUTURE)
 ## API Changes
 
 * The `rpc_client` field has been removed from dcim.Platform (see #2367)
+
+---
+
+v2.4.7 (FUTURE)
+
+## Bug Fixes
+
+* [#2514](https://github.com/digitalocean/netbox/issues/2514) - Prevent new connections to already connected interfaces
+* [#2515](https://github.com/digitalocean/netbox/issues/2515) - Only use django-rq admin tmeplate if webhooks are enabled
+
+---
+
+v2.4.6 (2018-10-05)
+
+## Enhancements
+
+* [#2479](https://github.com/digitalocean/netbox/issues/2479) - Add user permissions for creating/modifying API tokens
+* [#2487](https://github.com/digitalocean/netbox/issues/2487) - Return abbreviated API output when passed `?brief=1`
+
+## Bug Fixes
+
+* [#2393](https://github.com/digitalocean/netbox/issues/2393) - Fix Unicode support for CSV import under Python 2
+* [#2483](https://github.com/digitalocean/netbox/issues/2483) - Set max item count of API-populated form fields to MAX_PAGE_SIZE
+* [#2484](https://github.com/digitalocean/netbox/issues/2484) - Local config context not available on the Virtual Machine Edit Form
+* [#2485](https://github.com/digitalocean/netbox/issues/2485) - Fix cancel button when assigning a service to a device/VM
+* [#2491](https://github.com/digitalocean/netbox/issues/2491) - Fix exception when importing devices with invalid device type
+* [#2492](https://github.com/digitalocean/netbox/issues/2492) - Sanitize hostname and port values returned through LLDP
 
 ---
 

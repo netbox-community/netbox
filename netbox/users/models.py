@@ -39,7 +39,7 @@ class Token(models.Model):
     )
 
     class Meta:
-        default_permissions = []
+        pass
 
     def __str__(self):
         # Only display the last 24 bits of the token to avoid accidental exposure.
