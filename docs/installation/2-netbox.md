@@ -71,7 +71,7 @@ Checking connectivity... done.
 
     `# chown -R netbox:netbox /opt/netbox/netbox/media/`
 
-## Install Python Packages
+# Install Python Packages
 
 Install the required Python packages using pip. (If you encounter any compilation errors during this step, ensure that you've installed all of the system dependencies listed above.)
 
@@ -82,7 +82,7 @@ Install the required Python packages using pip. (If you encounter any compilatio
 !!! note
     If you encounter errors while installing the required packages, check that you're running a recent version of pip (v9.0.1 or higher) with the command `pip3 -V`.
 
-### NAPALM Automation (Optional)
+## NAPALM Automation (Optional)
 
 NetBox supports integration with the [NAPALM automation](https://napalm-automation.net/) library. NAPALM allows NetBox to fetch live data from devices and return it to a requester via its REST API. Installation of NAPALM is optional. To enable it, install the `napalm` package using pip or pip3:
 
@@ -90,7 +90,7 @@ NetBox supports integration with the [NAPALM automation](https://napalm-automati
 # pip3 install napalm
 ```
 
-### Webhooks (Optional)
+## Webhooks (Optional)
 
 [Webhooks](../data-model/extras/#webhooks) allow NetBox to integrate with external services by pushing out a notification each time a relevant object is created, updated, or deleted. Enabling the webhooks feature requires [Redis](https://redis.io/), a lightweight in-memory database. You may opt to install a Redis sevice locally (see below) or connect to an external one.
 
