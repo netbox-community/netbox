@@ -131,3 +131,26 @@ class SecretTestCase(TestCase):
         self.assertEqual(duplicate_ivs, [], "One or more duplicate IVs found!")
         duplicate_ciphertexts = [i for i, x in enumerate(ciphertexts) if ciphertexts.count(x) > 1]
         self.assertEqual(duplicate_ciphertexts, [], "One or more duplicate ciphertexts (first blocks) found!")
+
+    def test_03_encrypt_longer_plaintext(self):
+        """
+        Test basic encryption and decryption using a plaintext string with
+        more than 128 and less than 256 characters to trigger any potential
+        padding bugs which would prevent decryption
+        """
+        plaintext = "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFDpfiHbXIB/J9Gpds6Ad3qkd7+nRWFjIzT/njvE3LZsz+ZIMtMS1bZeD16grrDPvEVPdj3TpIAHaBMUsdCq4g8= root@test"
+        secret_key = generate_random_key()
+        s = Secret(plaintext=plaintext)
+        s.encrypt(secret_key)
+
+        # Enforce minimum ciphertext length
+        self.assertGreaterEqual(len(s.ciphertext), 80, "Ciphertext must be at least 80 bytes (16B IV + 64B+ ciphertext")
+
+        # Test hash validation
+        self.assertTrue(s.validate(plaintext), "Plaintext does not validate against the generated hash")
+        self.assertFalse(s.validate(""), "Empty plaintext validated against hash")
+        self.assertFalse(s.validate("Invalid plaintext"), "Invalid plaintext validated against hash")
+
+        # Test decryption
+        s.decrypt(secret_key)
+        self.assertEqual(plaintext, s.plaintext, "Decrypting Secret returned incorrect plaintext")

@@ -400,8 +400,8 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
         else:
             pad_length = 0
         return (
-            chr(len(s) >> 8).encode() +
-            chr(len(s) % 256).encode() +
+            chr(len(s) >> 8).encode('latin-1') +
+            chr(len(s) % 256).encode('latin-1') +
             s +
             os.urandom(pad_length)
         )
