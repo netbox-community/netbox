@@ -66,32 +66,6 @@ class ComponentModel(models.Model):
         ).save()
 
 
-class ConnectableModel(models.Model):
-    connected_endpoint_type = models.ForeignKey(
-        to=ContentType,
-        limit_choices_to={'model__in': CABLE_ENDPOINT_TYPES},
-        on_delete=models.PROTECT,
-        related_name='+',
-        blank=True,
-        null=True
-    )
-    connected_endpoint_id = models.PositiveIntegerField(
-        blank=True,
-        null=True
-    )
-    connected_endpoint = GenericForeignKey(
-        ct_field='connected_endpoint_type',
-        fk_field='connected_endpoint_id'
-    )
-    connection_status = models.NullBooleanField(
-        choices=CONNECTION_STATUS_CHOICES,
-        default=CONNECTION_STATUS_CONNECTED
-    )
-
-    class Meta:
-        abstract = True
-
-
 #
 # Regions
 #
@@ -1643,7 +1617,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 # Console ports
 #
 
-class ConsolePort(ConnectableModel, ComponentModel):
+class ConsolePort(ComponentModel):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
@@ -1706,7 +1680,7 @@ class ConsoleServerPortManager(models.Manager):
         }).order_by('device', 'name_padded')
 
 
-class ConsoleServerPort(ConnectableModel, ComponentModel):
+class ConsoleServerPort(ComponentModel):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
@@ -1747,7 +1721,7 @@ class ConsoleServerPort(ConnectableModel, ComponentModel):
 # Power ports
 #
 
-class PowerPort(ConnectableModel, ComponentModel):
+class PowerPort(ComponentModel):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
@@ -1809,7 +1783,7 @@ class PowerOutletManager(models.Manager):
         }).order_by('device', 'name_padded')
 
 
-class PowerOutlet(ConnectableModel, ComponentModel):
+class PowerOutlet(ComponentModel):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
@@ -1850,7 +1824,7 @@ class PowerOutlet(ConnectableModel, ComponentModel):
 # Interfaces
 #
 
-class Interface(ConnectableModel, ComponentModel):
+class Interface(ComponentModel):
     """
     A network interface within a Device or VirtualMachine. A physical Interface can connect to exactly one other
     Interface via the creation of an InterfaceConnection.
