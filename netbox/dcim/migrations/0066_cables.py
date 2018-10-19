@@ -9,13 +9,14 @@ def console_connections_to_cables(apps, schema_editor):
     """
     Copy all existing console connections as Cables
     """
+    ContentType = apps.get_model('contenttypes', 'ContentType')
     ConsolePort = apps.get_model('dcim', 'ConsolePort')
+    ConsoleServerPort = apps.get_model('dcim', 'ConsoleServerPort')
     Cable = apps.get_model('dcim', 'Cable')
 
     # Load content types
-    ContentType = apps.get_model('contenttypes', 'ContentType')
-    consoleport_type = ContentType.objects.get(app_label='dcim', model='consoleport')
-    consoleserverport_type = ContentType.objects.get(app_label='dcim', model='consoleserverport')
+    consoleport_type = ContentType.objects.get_for_model(ConsolePort)
+    consoleserverport_type = ContentType.objects.get_for_model(ConsoleServerPort)
 
     # Create a new Cable instance from each console connection
     for consoleport in ConsolePort.objects.filter(cs_port__isnull=False):
@@ -33,13 +34,14 @@ def power_connections_to_cables(apps, schema_editor):
     """
     Copy all existing power connections as Cables
     """
+    ContentType = apps.get_model('contenttypes', 'ContentType')
     PowerPort = apps.get_model('dcim', 'PowerPort')
+    PowerOutlet = apps.get_model('dcim', 'PowerOutlet')
     Cable = apps.get_model('dcim', 'Cable')
 
     # Load content types
-    ContentType = apps.get_model('contenttypes', 'ContentType')
-    powerport_type = ContentType.objects.get(app_label='dcim', model='powerport')
-    poweroutlet_type = ContentType.objects.get(app_label='dcim', model='poweroutlet')
+    powerport_type = ContentType.objects.get_for_model(PowerPort)
+    poweroutlet_type = ContentType.objects.get_for_model(PowerOutlet)
 
     # Create a new Cable instance from each power connection
     for powerport in PowerPort.objects.filter(power_outlet__isnull=False):
@@ -57,12 +59,13 @@ def interface_connections_to_cables(apps, schema_editor):
     """
     Copy all InterfaceConnections as Cables
     """
+    ContentType = apps.get_model('contenttypes', 'ContentType')
+    Interface = apps.get_model('dcim', 'Interface')
     InterfaceConnection = apps.get_model('dcim', 'InterfaceConnection')
     Cable = apps.get_model('dcim', 'Cable')
 
     # Load content types
-    ContentType = apps.get_model('contenttypes', 'ContentType')
-    interface_type = ContentType.objects.get(app_label='dcim', model='interface')
+    interface_type = ContentType.objects.get_for_model(Interface)
 
     # Create a new Cable instance from each InterfaceConnection
     for conn in InterfaceConnection.objects.all():
