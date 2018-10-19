@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import os
+import sys
 
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
@@ -399,10 +400,16 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
             pad_length = 16 - ((len(s) + 2) % 16)
         else:
             pad_length = 0
+
+        if sys.version_info[0] < 3:
+            b1 = chr(len(s) >> 8)
+            b2 = chr(len(s) % 256)
+        else:
+            b1 = chr(len(s) >> 8).encode('latin-1')
+            b2 = chr(len(s) % 256).encode('latin-1')
+
         return (
-            chr(len(s) >> 8).encode('latin-1') +
-            chr(len(s) % 256).encode('latin-1') +
-            s +
+            b1 + b2 + s +
             os.urandom(pad_length)
         )
 
