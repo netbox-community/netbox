@@ -2455,7 +2455,7 @@ class Cable(ChangeLoggedModel):
     """
     endpoint_a_type = models.ForeignKey(
         to=ContentType,
-        limit_choices_to={'model__in': CABLE_CONNECTION_TYPES},
+        limit_choices_to={'model__in': CABLE_ENDPOINT_TYPES},
         on_delete=models.PROTECT,
         related_name='+'
     )
@@ -2466,7 +2466,7 @@ class Cable(ChangeLoggedModel):
     )
     endpoint_b_type = models.ForeignKey(
         to=ContentType,
-        limit_choices_to={'model__in': CABLE_CONNECTION_TYPES},
+        limit_choices_to={'model__in': CABLE_ENDPOINT_TYPES},
         on_delete=models.PROTECT,
         related_name='+'
     )

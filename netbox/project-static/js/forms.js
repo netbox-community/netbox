@@ -93,7 +93,10 @@ $(document).ready(function() {
                 var rendered_url = api_url;
                 while (match = filter_regex.exec(api_url)) {
                     var filter_field = $('#id_' + match[1]);
-                    if (filter_field.val()) {
+                    var custom_attr = $('option:selected', filter_field).attr('api-value');
+                    if (custom_attr) {
+                        rendered_url = rendered_url.replace(match[0], custom_attr);
+                    } else if (filter_field.val()) {
                         rendered_url = rendered_url.replace(match[0], filter_field.val());
                     } else if (filter_field.attr('nullable') == 'true') {
                         rendered_url = rendered_url.replace(match[0], '0');

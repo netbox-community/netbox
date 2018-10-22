@@ -284,12 +284,9 @@ CONNECTION_STATUS_CHOICES = [
 ]
 
 # Cable endpoint types
-CABLE_ENDPOINT_TYPES = (
-    'consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport',
-)
-CABLE_CONNECTION_TYPES = CABLE_ENDPOINT_TYPES + (
-    'frontpanelport', 'rearpanelport',
-)
+CABLE_ENDPOINT_TYPES = [
+    'consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontpanelport', 'rearpanelport',
+]
 
 # Cable types
 # TODO: Add more types
@@ -299,3 +296,24 @@ CABLE_TYPE_CHOICES = (
     (CABLE_TYPE_COPPER, 'Copper'),
     (CABLE_TYPE_FIBER, 'Fiber'),
 )
+
+CABLE_ENDPOINT_TYPE_CHOICES = {
+    # (API endpoint, human-friendly name)
+    'consoleport': ('console-ports', 'Console port'),
+    'consoleserverport': ('console-server-ports', 'Console server port'),
+    'powerport': ('power-ports', 'Power port'),
+    'poweroutlet': ('power-outlets', 'Power outlet'),
+    'interface': ('interfaces', 'Interface'),
+    'frontpanelport': ('front-panel-ports', 'Front panel port'),
+    'rearpanelport': ('rear-panel-ports', 'Rear panel port'),
+}
+
+COMPATIBLE_ENDPOINT_TYPES = {
+    'consoleport': ['consoleserverport', 'frontpanelport', 'rearpanelport'],
+    'consoleserverport': ['consoleport', 'frontpanelport', 'rearpanelport'],
+    'powerport': ['poweroutlet'],
+    'poweroutlet': ['powerport'],
+    'interface': ['interface', 'frontpanelport', 'rearpanelport'],
+    'frontpanelport': ['consoleport', 'consoleserverport', 'interface', 'frontpanelport', 'rearpanelport'],
+    'rearpanelport': ['consoleport', 'consoleserverport', 'interface', 'frontpanelport', 'rearpanelport'],
+}

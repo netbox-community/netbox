@@ -2,6 +2,7 @@ import re
 
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.db.models import Count, Q
 from mptt.forms import TreeNodeChoiceField
@@ -19,11 +20,12 @@ from utilities.forms import (
     BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, ComponentForm,
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FilterTreeNodeMultipleChoiceField,
     FlexibleModelChoiceField, JSONField, Livesearch, SelectWithDisabled, SelectWithPK, SmallTextarea, SlugField,
+    ContentTypeSelect
 )
 from virtualization.models import Cluster
 from .constants import *
 from .models import (
-    DeviceBay, DeviceBayTemplate, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate,
+    Cable, DeviceBay, DeviceBayTemplate, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate,
     Device, DeviceRole, DeviceType, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceConnection,
     InterfaceTemplate, Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPanelPort, RearPanelPortTemplate, Region, Site,
@@ -2296,6 +2298,95 @@ class RearPanelPortBulkRenameForm(BulkRenameForm):
         queryset=RearPanelPort.objects.all(),
         widget=forms.MultipleHiddenInput
     )
+
+
+#
+# Cables
+#
+
+class CableForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
+    endpoint_b_site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        label='Site',
+        required=False,
+        widget=forms.Select(
+            attrs={'filter-for': 'endpoint_b_rack'}
+        )
+    )
+    endpoint_b_rack = ChainedModelChoiceField(
+        queryset=Rack.objects.all(),
+        chains=(
+            ('site', 'endpoint_b_site'),
+        ),
+        label='Rack',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/racks/?site_id={{endpoint_b_site}}',
+            attrs={'filter-for': 'endpoint_b_device', 'nullable': 'true'}
+        )
+    )
+    endpoint_b_device = ChainedModelChoiceField(
+        queryset=Device.objects.all(),
+        chains=(
+            ('site', 'endpoint_b_site'),
+            ('rack', 'endpoint_b_rack'),
+        ),
+        label='Device',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/devices/?site_id={{endpoint_b_site}}&rack_id={{endpoint_b_rack}}',
+            display_field='display_name',
+            attrs={'filter-for': 'endpoint_b_id'}
+        )
+    )
+    livesearch = forms.CharField(
+        required=False,
+        label='Device',
+        widget=Livesearch(
+            query_key='q',
+            query_url='dcim-api:device-list',
+            field_to_update='endpoint_b_device'
+        )
+    )
+    endpoint_b_type = forms.ModelChoiceField(
+        queryset=ContentType.objects.all(),
+        label='Type',
+        widget=ContentTypeSelect(
+            attrs={'filter-for': 'endpoint_b_id'}
+        )
+    )
+    endpoint_b_id = forms.ChoiceField(
+        choices=[],
+        label='Name',
+        widget=APISelect(
+            api_url='/api/dcim/{{endpoint_b_type}}s/?device_id={{endpoint_b_device}}',
+            disabled_indicator='is_connected'
+        )
+    )
+
+    class Meta:
+        model = Cable
+        fields = [
+            'endpoint_b_site', 'endpoint_b_rack', 'endpoint_b_device', 'livesearch', 'endpoint_b_type',
+            'endpoint_b_id', 'status', 'label',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super(CableForm, self).__init__(*args, **kwargs)
+
+        # Define available types for endpoint B based on the type of endpoint A
+        endpoint_a_type = self.instance.endpoint_a._meta.model_name
+        self.fields['endpoint_b_type'].queryset = ContentType.objects.filter(
+            model__in=COMPATIBLE_ENDPOINT_TYPES.get(endpoint_a_type)
+        )
+
+    def clean(self):
+
+        # Assign endpoint B
+        cleaned_data = super(CableForm, self).clean()
+
+
+
 
 
 #

@@ -1,0 +1,106 @@
+{% extends '_base.html' %}
+{% load static from staticfiles %}
+{% load form_helpers %}
+
+{% block content %}
+<form action="." method="post" class="form form-horizontal">
+    {% csrf_token %}
+    {% for field in form.hidden_fields %}
+        {{ field }}
+    {% endfor %}
+    {% if form.non_field_errors %}
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <div class="panel panel-danger">
+                    <div class="panel-heading"><strong>Errors</strong></div>
+                    <div class="panel-body">
+                        {{ form.non_field_errors }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% with endpoint_a=form.instance.endpoint_a %}
+        <h3>{% block title %}Connect {{ endpoint_a.device }} {{ endpoint_a }}{% endblock %}</h3>
+        <div class="row">
+            <div class="col-md-5">
+                <div class="panel panel-default">
+                    <div class="panel-heading text-center">
+                        <strong>A Side</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label class="col-md-3 control-label required">Site</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static">{{ endpoint_a.device.site }}</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label required">Rack</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static">{{ endpoint_a.device.rack|default:"None" }}</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label required">Device</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static">{{ endpoint_a.device }}</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label required">Name</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static">{{ endpoint_a }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 text-center" style="padding-top: 90px;">
+                <i class="fa fa-exchange fa-4x"></i>
+            </div>
+            <div class="col-md-5">
+                <div class="panel panel-default">
+                    <div class="panel-heading text-center">
+                        <strong>B Side</strong>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" class="active"><a href="#search" aria-controls="search" role="tab" data-toggle="tab">Search</a></li>
+                            <li role="presentation"><a href="#select" aria-controls="home" role="tab" data-toggle="tab">Select</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="search">
+                                {% render_field form.livesearch %}
+                            </div>
+                            <div class="tab-pane" id="select">
+                                {% render_field form.endpoint_b_site %}
+                                {% render_field form.endpoint_b_rack %}
+                                {% render_field form.endpoint_b_device %}
+                            </div>
+                        </div>
+                        {% render_field form.endpoint_b_type %}
+                        {% render_field form.endpoint_b_id %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 col-md-offset-4">
+                {% render_field form.status %}
+                {% render_field form.label %}
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-12 text-center">
+                <button type="submit" name="_update" class="btn btn-primary">Connect</button>
+                <a href="{{ return_url }}" class="btn btn-default">Cancel</a>
+            </div>
+        </div>
+    {% endwith %}
+</form>
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static 'js/livesearch.js' %}?v{{ settings.VERSION }}"></script>
+{% endblock %}

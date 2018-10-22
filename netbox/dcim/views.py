@@ -1,12 +1,14 @@
 from operator import attrgetter
 
+from django.apps import apps
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
 from django.db.models import Count, Q
 from django.forms import modelformset_factory
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
@@ -30,7 +32,7 @@ from virtualization.models import VirtualMachine
 from . import filters, forms, tables
 from .constants import CONNECTION_STATUS_CONNECTED
 from .models import (
-    ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceConnection,
     InterfaceTemplate, Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
     PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPanelPort, RearPanelPortTemplate, Region, Site,
@@ -2150,6 +2152,27 @@ class InterfaceConnectionsListView(ObjectListView):
     filter_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable
     template_name = 'dcim/interface_connections_list.html'
+
+
+class CableConnectView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.add_cable'
+    model = Cable
+    model_form = forms.CableForm
+    template_name = 'dcim/cable_connect.html'
+
+    def alter_obj(self, obj, request, url_args, url_kwargs):
+        # Retrieve endpoint A based on the given type and PK
+        endpoint_a_type = url_kwargs.get('endpoint_a_type')
+        endpoint_a_id = url_kwargs.get('endpoint_a_id')
+        try:
+            model = apps.get_model(
+                app_label='dcim',
+                model_name=endpoint_a_type
+            )
+            obj.endpoint_a = model.objects.get(pk=endpoint_a_id)
+        except ObjectDoesNotExist:
+            raise Http404
+        return obj
 
 
 #

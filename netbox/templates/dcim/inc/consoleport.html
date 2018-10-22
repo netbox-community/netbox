@@ -30,7 +30,7 @@
                     <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
                 </a>
             {% else %}
-                <a href="{% url 'dcim:consoleport_connect' pk=cp.pk %}" title="Connect" class="btn btn-success btn-xs">
+                <a href="{% url 'dcim:consoleport_connect' endpoint_a_id=cp.pk %}" title="Connect" class="btn btn-success btn-xs">
                     <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
                 </a>
             {% endif %}
