@@ -2161,17 +2161,12 @@ class CableConnectView(PermissionRequiredMixin, ObjectEditView):
     template_name = 'dcim/cable_connect.html'
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
+
         # Retrieve endpoint A based on the given type and PK
         endpoint_a_type = url_kwargs.get('endpoint_a_type')
         endpoint_a_id = url_kwargs.get('endpoint_a_id')
-        try:
-            model = apps.get_model(
-                app_label='dcim',
-                model_name=endpoint_a_type
-            )
-            obj.endpoint_a = model.objects.get(pk=endpoint_a_id)
-        except ObjectDoesNotExist:
-            raise Http404
+        obj.endpoint_a = endpoint_a_type.objects.get(pk=endpoint_a_id)
+
         return obj
 
 

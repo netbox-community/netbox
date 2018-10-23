@@ -5,8 +5,8 @@ from ipam.views import ServiceCreateView
 from secrets.views import secret_add
 from . import views
 from .models import (
-    Device, DeviceRole, DeviceType, Interface, Manufacturer, Platform, Rack, RackGroup, RackReservation, RackRole,
-    Region, Site, VirtualChassis,
+    ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, Interface, Manufacturer, Platform, PowerPort,
+    PowerOutlet, Rack, RackGroup, RackReservation, RackRole, Region, Site, VirtualChassis,
 )
 
 app_name = 'dcim'
@@ -162,7 +162,7 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/console-ports/add/$', views.ConsolePortCreateView.as_view(), name='consoleport_add'),
     url(r'^devices/(?P<pk>\d+)/console-ports/delete/$', views.ConsolePortBulkDeleteView.as_view(), name='consoleport_bulk_delete'),
     # url(r'^console-ports/(?P<pk>\d+)/connect/$', views.ConsolePortConnectView.as_view(), name='consoleport_connect'),
-    url(r'^console-ports/(?P<endpoint_a_id>\d+)/connect/$', views.CableConnectView.as_view(), name='consoleport_connect', kwargs={'endpoint_a_type': 'consoleport'}),
+    url(r'^console-ports/(?P<endpoint_a_id>\d+)/connect/$', views.CableConnectView.as_view(), name='consoleport_connect', kwargs={'endpoint_a_type': ConsolePort}),
     url(r'^console-ports/(?P<pk>\d+)/disconnect/$', views.ConsolePortDisconnectView.as_view(), name='consoleport_disconnect'),
     url(r'^console-ports/(?P<pk>\d+)/edit/$', views.ConsolePortEditView.as_view(), name='consoleport_edit'),
     url(r'^console-ports/(?P<pk>\d+)/delete/$', views.ConsolePortDeleteView.as_view(), name='consoleport_delete'),
@@ -173,7 +173,7 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/console-server-ports/disconnect/$', views.ConsoleServerPortBulkDisconnectView.as_view(), name='consoleserverport_bulk_disconnect'),
     url(r'^devices/(?P<pk>\d+)/console-server-ports/delete/$', views.ConsoleServerPortBulkDeleteView.as_view(), name='consoleserverport_bulk_delete'),
     # url(r'^console-server-ports/(?P<pk>\d+)/connect/$', views.ConsoleServerPortConnectView.as_view(), name='consoleserverport_connect'),
-    url(r'^console-server-ports/(?P<endpoint_a_id>\d+)/connect/$', views.CableConnectView.as_view(), name='consoleserverport_connect', kwargs={'endpoint_a_type': 'consoleserverport'}),
+    url(r'^console-server-ports/(?P<endpoint_a_id>\d+)/connect/$', views.CableConnectView.as_view(), name='consoleserverport_connect', kwargs={'endpoint_a_type': ConsoleServerPort}),
     url(r'^console-server-ports/(?P<pk>\d+)/disconnect/$', views.ConsoleServerPortDisconnectView.as_view(), name='consoleserverport_disconnect'),
     url(r'^console-server-ports/(?P<pk>\d+)/edit/$', views.ConsoleServerPortEditView.as_view(), name='consoleserverport_edit'),
     url(r'^console-server-ports/(?P<pk>\d+)/delete/$', views.ConsoleServerPortDeleteView.as_view(), name='consoleserverport_delete'),
@@ -184,7 +184,7 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/power-ports/add/$', views.PowerPortCreateView.as_view(), name='powerport_add'),
     url(r'^devices/(?P<pk>\d+)/power-ports/delete/$', views.PowerPortBulkDeleteView.as_view(), name='powerport_bulk_delete'),
     # url(r'^power-ports/(?P<pk>\d+)/connect/$', views.PowerPortConnectView.as_view(), name='powerport_connect'),
-    url(r'^power-ports/(?P<endpoint_a_id>\d+)/connect/$', views.CableConnectView.as_view(), name='powerport_connect', kwargs={'endpoint_a_type': 'powerport'}),
+    url(r'^power-ports/(?P<endpoint_a_id>\d+)/connect/$', views.CableConnectView.as_view(), name='powerport_connect', kwargs={'endpoint_a_type': PowerPort}),
     url(r'^power-ports/(?P<pk>\d+)/disconnect/$', views.PowerPortDisconnectView.as_view(), name='powerport_disconnect'),
     url(r'^power-ports/(?P<pk>\d+)/edit/$', views.PowerPortEditView.as_view(), name='powerport_edit'),
     url(r'^power-ports/(?P<pk>\d+)/delete/$', views.PowerPortDeleteView.as_view(), name='powerport_delete'),
@@ -195,7 +195,7 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/power-outlets/disconnect/$', views.PowerOutletBulkDisconnectView.as_view(), name='poweroutlet_bulk_disconnect'),
     url(r'^devices/(?P<pk>\d+)/power-outlets/delete/$', views.PowerOutletBulkDeleteView.as_view(), name='poweroutlet_bulk_delete'),
     # url(r'^power-outlets/(?P<pk>\d+)/connect/$', views.PowerOutletConnectView.as_view(), name='poweroutlet_connect'),
-    url(r'^power-outlets/(?P<endpoint_a_id>\d+)/connect/$', views.CableConnectView.as_view(), name='poweroutlet_connect', kwargs={'endpoint_a_type': 'poweroutlet'}),
+    url(r'^power-outlets/(?P<endpoint_a_id>\d+)/connect/$', views.CableConnectView.as_view(), name='poweroutlet_connect', kwargs={'endpoint_a_type': PowerOutlet}),
     url(r'^power-outlets/(?P<pk>\d+)/disconnect/$', views.PowerOutletDisconnectView.as_view(), name='poweroutlet_disconnect'),
     url(r'^power-outlets/(?P<pk>\d+)/edit/$', views.PowerOutletEditView.as_view(), name='poweroutlet_edit'),
     url(r'^power-outlets/(?P<pk>\d+)/delete/$', views.PowerOutletDeleteView.as_view(), name='poweroutlet_delete'),

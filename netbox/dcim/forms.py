@@ -2355,8 +2355,7 @@ class CableForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
             attrs={'filter-for': 'endpoint_b_id'}
         )
     )
-    endpoint_b_id = forms.ChoiceField(
-        choices=[],
+    endpoint_b_id = forms.IntegerField(
         label='Name',
         widget=APISelect(
             api_url='/api/dcim/{{endpoint_b_type}}s/?device_id={{endpoint_b_device}}',
@@ -2379,14 +2378,6 @@ class CableForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
         self.fields['endpoint_b_type'].queryset = ContentType.objects.filter(
             model__in=COMPATIBLE_ENDPOINT_TYPES.get(endpoint_a_type)
         )
-
-    def clean(self):
-
-        # Assign endpoint B
-        cleaned_data = super(CableForm, self).clean()
-
-
-
 
 
 #
