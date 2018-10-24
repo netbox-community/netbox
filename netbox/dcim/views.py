@@ -1,18 +1,14 @@
 from operator import attrgetter
 
-from django.apps import apps
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
-from django.db.models import Count, F, Q
+from django.db.models import Count, F
 from django.forms import modelformset_factory
-from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
-from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 from natsort import natsorted
@@ -2014,6 +2010,43 @@ class DeviceBulkAddDeviceBayView(PermissionRequiredMixin, BulkComponentCreateVie
 
 
 #
+# Cables
+#
+
+class CableListView(ObjectListView):
+    queryset = Cable.objects.prefetch_related(
+        'endpoint_a__device', 'endpoint_b__device'
+    )
+    # filter = filters.CableFilter
+    # filter_form = forms.CableFilterForm
+    table = tables.CableTable
+    template_name = 'dcim/cable_list.html'
+
+
+class CableCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.add_cable'
+    model = Cable
+    model_form = forms.CableForm
+    template_name = 'dcim/cable_connect.html'
+
+    def alter_obj(self, obj, request, url_args, url_kwargs):
+
+        # Retrieve endpoint A based on the given type and PK
+        endpoint_a_type = url_kwargs.get('endpoint_a_type')
+        endpoint_a_id = url_kwargs.get('endpoint_a_id')
+        obj.endpoint_a = endpoint_a_type.objects.get(pk=endpoint_a_id)
+
+        return obj
+
+
+class CableDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_cable'
+    model = Cable
+    default_return_url = 'dcim:cable_list'
+
+
+
+#
 # Connections
 #
 
@@ -2056,22 +2089,6 @@ class InterfaceConnectionsListView(ObjectListView):
     filter_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable
     template_name = 'dcim/interface_connections_list.html'
-
-
-class CableConnectView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'dcim.add_cable'
-    model = Cable
-    model_form = forms.CableForm
-    template_name = 'dcim/cable_connect.html'
-
-    def alter_obj(self, obj, request, url_args, url_kwargs):
-
-        # Retrieve endpoint A based on the given type and PK
-        endpoint_a_type = url_kwargs.get('endpoint_a_type')
-        endpoint_a_id = url_kwargs.get('endpoint_a_id')
-        obj.endpoint_a = endpoint_a_type.objects.get(pk=endpoint_a_id)
-
-        return obj
 
 
 #

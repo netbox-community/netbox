@@ -4,7 +4,7 @@ from django_tables2.utils import Accessor
 from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, BooleanColumn, ToggleColumn
 from .models import (
-    ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceTemplate,
     InventoryItem, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
     RackGroup, RackReservation, RearPanelPort, RearPanelPortTemplate, Region, Site, VirtualChassis,
@@ -614,6 +614,42 @@ class DeviceBayTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = DeviceBay
         fields = ('name',)
+
+
+#
+# Cables
+#
+
+class CableTable(BaseTable):
+    device_a = tables.LinkColumn(
+        viewname='dcim:device',
+        accessor=Accessor('endpoint_a.device'),
+        args=[Accessor('endpoint_a.device.pk')],
+        verbose_name='Device A'
+    )
+    termination_a = tables.Column(
+        accessor=Accessor('endpoint_a.name'),
+        verbose_name='Component'
+    )
+    device_b = tables.LinkColumn(
+        viewname='dcim:device',
+        accessor=Accessor('endpoint_b.device'),
+        args=[Accessor('endpoint_b.device.pk')],
+        verbose_name='Device B'
+    )
+    termination_b = tables.Column(
+        accessor=Accessor('endpoint_b.name'),
+        verbose_name='Component'
+    )
+    # django-tables2 adds CSS `class="label"` which causes rendering issues
+    _label = tables.Column(
+        accessor=Accessor('label'),
+        verbose_name='Label'
+    )
+
+    class Meta(BaseTable.Meta):
+        model = Cable
+        fields = ('device_a', 'termination_a', 'device_b', 'termination_b', 'status', '_label', 'color')
 
 
 #
