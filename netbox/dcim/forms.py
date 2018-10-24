@@ -2137,38 +2137,38 @@ class RearPanelPortBulkRenameForm(BulkRenameForm):
 #
 
 class CableForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
-    endpoint_b_site = forms.ModelChoiceField(
+    termination_b_site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         label='Site',
         required=False,
         widget=forms.Select(
-            attrs={'filter-for': 'endpoint_b_rack'}
+            attrs={'filter-for': 'termination_b_rack'}
         )
     )
-    endpoint_b_rack = ChainedModelChoiceField(
+    termination_b_rack = ChainedModelChoiceField(
         queryset=Rack.objects.all(),
         chains=(
-            ('site', 'endpoint_b_site'),
+            ('site', 'termination_b_site'),
         ),
         label='Rack',
         required=False,
         widget=APISelect(
-            api_url='/api/dcim/racks/?site_id={{endpoint_b_site}}',
-            attrs={'filter-for': 'endpoint_b_device', 'nullable': 'true'}
+            api_url='/api/dcim/racks/?site_id={{termination_b_site}}',
+            attrs={'filter-for': 'termination_b_device', 'nullable': 'true'}
         )
     )
-    endpoint_b_device = ChainedModelChoiceField(
+    termination_b_device = ChainedModelChoiceField(
         queryset=Device.objects.all(),
         chains=(
-            ('site', 'endpoint_b_site'),
-            ('rack', 'endpoint_b_rack'),
+            ('site', 'termination_b_site'),
+            ('rack', 'termination_b_rack'),
         ),
         label='Device',
         required=False,
         widget=APISelect(
-            api_url='/api/dcim/devices/?site_id={{endpoint_b_site}}&rack_id={{endpoint_b_rack}}',
+            api_url='/api/dcim/devices/?site_id={termination_b_site}}&rack_id={{termination_b_rack}}',
             display_field='display_name',
-            attrs={'filter-for': 'endpoint_b_id'}
+            attrs={'filter-for': 'termination_b_id'}
         )
     )
     livesearch = forms.CharField(
@@ -2177,20 +2177,20 @@ class CableForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
         widget=Livesearch(
             query_key='q',
             query_url='dcim-api:device-list',
-            field_to_update='endpoint_b_device'
+            field_to_update='termination_b_device'
         )
     )
-    endpoint_b_type = forms.ModelChoiceField(
+    termination_b_type = forms.ModelChoiceField(
         queryset=ContentType.objects.all(),
         label='Type',
         widget=ContentTypeSelect(
-            attrs={'filter-for': 'endpoint_b_id'}
+            attrs={'filter-for': 'termination_b_id'}
         )
     )
-    endpoint_b_id = forms.IntegerField(
+    termination_b_id = forms.IntegerField(
         label='Name',
         widget=APISelect(
-            api_url='/api/dcim/{{endpoint_b_type}}s/?device_id={{endpoint_b_device}}',
+            api_url='/api/dcim/{{termination_b_type}}s/?device_id={{termination_b_device}}',
             disabled_indicator='is_connected'
         )
     )
@@ -2198,17 +2198,17 @@ class CableForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
     class Meta:
         model = Cable
         fields = [
-            'endpoint_b_site', 'endpoint_b_rack', 'endpoint_b_device', 'livesearch', 'endpoint_b_type',
-            'endpoint_b_id', 'status', 'label',
+            'termination_b_site', 'termination_b_rack', 'termination_b_device', 'livesearch', 'termination_b_type',
+            'termination_b_id', 'status', 'label',
         ]
 
     def __init__(self, *args, **kwargs):
         super(CableForm, self).__init__(*args, **kwargs)
 
         # Define available types for endpoint B based on the type of endpoint A
-        endpoint_a_type = self.instance.endpoint_a._meta.model_name
-        self.fields['endpoint_b_type'].queryset = ContentType.objects.filter(
-            model__in=COMPATIBLE_ENDPOINT_TYPES.get(endpoint_a_type)
+        termination_a_type = self.instance.termination_a._meta.model_name
+        self.fields['termination_b_type'].queryset = ContentType.objects.filter(
+            model__in=COMPATIBLE_TERMINATION_TYPES.get(termination_a_type)
         )
 
 

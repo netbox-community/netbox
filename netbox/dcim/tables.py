@@ -623,22 +623,22 @@ class DeviceBayTable(BaseTable):
 class CableTable(BaseTable):
     device_a = tables.LinkColumn(
         viewname='dcim:device',
-        accessor=Accessor('endpoint_a.device'),
-        args=[Accessor('endpoint_a.device.pk')],
+        accessor=Accessor('termination_a.device'),
+        args=[Accessor('termination_a.device.pk')],
         verbose_name='Device A'
     )
     termination_a = tables.Column(
-        accessor=Accessor('endpoint_a.name'),
+        accessor=Accessor('termination_a.name'),
         verbose_name='Component'
     )
     device_b = tables.LinkColumn(
         viewname='dcim:device',
-        accessor=Accessor('endpoint_b.device'),
-        args=[Accessor('endpoint_b.device.pk')],
+        accessor=Accessor('termination_b.device'),
+        args=[Accessor('termination_b.device.pk')],
         verbose_name='Device B'
     )
     termination_b = tables.Column(
-        accessor=Accessor('endpoint_b.name'),
+        accessor=Accessor('termination_b.name'),
         verbose_name='Component'
     )
     # django-tables2 adds CSS `class="label"` which causes rendering issues

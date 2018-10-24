@@ -2015,7 +2015,7 @@ class DeviceBulkAddDeviceBayView(PermissionRequiredMixin, BulkComponentCreateVie
 
 class CableListView(ObjectListView):
     queryset = Cable.objects.prefetch_related(
-        'endpoint_a__device', 'endpoint_b__device'
+        'termination_a__device', 'termination_b__device'
     )
     # filter = filters.CableFilter
     # filter_form = forms.CableFilterForm
@@ -2032,9 +2032,9 @@ class CableCreateView(PermissionRequiredMixin, ObjectEditView):
     def alter_obj(self, obj, request, url_args, url_kwargs):
 
         # Retrieve endpoint A based on the given type and PK
-        endpoint_a_type = url_kwargs.get('endpoint_a_type')
-        endpoint_a_id = url_kwargs.get('endpoint_a_id')
-        obj.endpoint_a = endpoint_a_type.objects.get(pk=endpoint_a_id)
+        termination_a_type = url_kwargs.get('termination_a_type')
+        termination_a_id = url_kwargs.get('termination_a_id')
+        obj.termination_a = termination_a_type.objects.get(pk=termination_a_id)
 
         return obj
 

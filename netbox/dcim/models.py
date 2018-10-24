@@ -2327,27 +2327,27 @@ class Cable(ChangeLoggedModel):
     """
     A physical connection between two endpoints.
     """
-    endpoint_a_type = models.ForeignKey(
+    termination_a_type = models.ForeignKey(
         to=ContentType,
-        limit_choices_to={'model__in': CABLE_ENDPOINT_TYPES},
+        limit_choices_to={'model__in': CABLE_TERMINATION_TYPES},
         on_delete=models.PROTECT,
         related_name='+'
     )
-    endpoint_a_id = models.PositiveIntegerField()
-    endpoint_a = GenericForeignKey(
-        ct_field='endpoint_a_type',
-        fk_field='endpoint_a_id'
+    termination_a_id = models.PositiveIntegerField()
+    termination_a = GenericForeignKey(
+        ct_field='termination_a_type',
+        fk_field='termination_a_id'
     )
-    endpoint_b_type = models.ForeignKey(
+    termination_b_type = models.ForeignKey(
         to=ContentType,
-        limit_choices_to={'model__in': CABLE_ENDPOINT_TYPES},
+        limit_choices_to={'model__in': CABLE_TERMINATION_TYPES},
         on_delete=models.PROTECT,
         related_name='+'
     )
-    endpoint_b_id = models.PositiveIntegerField()
-    endpoint_b = GenericForeignKey(
-        ct_field='endpoint_b_type',
-        fk_field='endpoint_b_id'
+    termination_b_id = models.PositiveIntegerField()
+    termination_b = GenericForeignKey(
+        ct_field='termination_b_type',
+        fk_field='termination_b_id'
     )
     type = models.PositiveSmallIntegerField(
         choices=CABLE_TYPE_CHOICES,
@@ -2368,8 +2368,8 @@ class Cable(ChangeLoggedModel):
 
     class Meta:
         unique_together = (
-            ('endpoint_a_type', 'endpoint_a_id'),
-            ('endpoint_b_type', 'endpoint_b_id'),
+            ('termination_a_type', 'termination_a_id'),
+            ('termination_b_type', 'termination_b_id'),
         )
 
     # TODO: This should follow all cables in a path
@@ -2377,4 +2377,4 @@ class Cable(ChangeLoggedModel):
         """
         Return the endpoints connected by this cable path.
         """
-        return (self.endpoint_a, self.endpoint_b)
+        return (self.termination_a, self.termination_b)

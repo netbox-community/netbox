@@ -106,7 +106,7 @@
                         <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
                     </a>
                 {% else %}
-                    <a href="{% url 'dcim:interface_connect' endpoint_a_id=device.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-success btn-xs" title="Connect">
+                    <a href="{% url 'dcim:interface_connect' termination_a_id=device.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-success btn-xs" title="Connect">
                         <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
                     </a>
                 {% endif %}

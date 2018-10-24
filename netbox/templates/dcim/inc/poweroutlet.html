@@ -35,7 +35,7 @@
                     <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
                 </a>
             {% else %}
-                <a href="{% url 'dcim:poweroutlet_connect' endpoint_a_id=po.pk %}" title="Connect" class="btn btn-success btn-xs">
+                <a href="{% url 'dcim:poweroutlet_connect' termination_a_id=po.pk %}" title="Connect" class="btn btn-success btn-xs">
                     <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
                 </a>
             {% endif %}

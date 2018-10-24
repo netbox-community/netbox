@@ -26,11 +26,11 @@ def update_connected_endpoints(instance, **kwargs):
     """
     When a Cable is saved, update its connected endpoints.
     """
-    endpoint_a, endpoint_b = instance.get_path_endpoints()
-    endpoint_a.connected_endpoint = endpoint_b
-    endpoint_a.save()
-    endpoint_b.connected_endpoint = endpoint_a
-    endpoint_b.save()
+    termination_a, termination_b = instance.get_path_endpoints()
+    termination_a.connected_endpoint = termination_b
+    termination_a.save()
+    termination_b.connected_endpoint = termination_a
+    termination_b.save()
 
 
 @receiver(post_delete, sender=Cable)
@@ -38,8 +38,8 @@ def nullify_connected_endpoints(instance, **kwargs):
     """
     When a Cable is deleted, nullify its connected endpoints.
     """
-    endpoint_a, endpoint_b = instance.get_path_endpoints()
-    endpoint_a.connected_endpoint = None
-    endpoint_a.save()
-    endpoint_b.connected_endpoint = None
-    endpoint_b.save()
+    termination_a, termination_b = instance.get_path_endpoints()
+    termination_a.connected_endpoint = None
+    termination_a.save()
+    termination_b.connected_endpoint = None
+    termination_b.save()
