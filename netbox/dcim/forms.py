@@ -17,10 +17,11 @@ from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
     AnnotatedMultipleChoiceField, APISelect, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
-    BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, ComponentForm,
-    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FilterTreeNodeMultipleChoiceField,
-    FlexibleModelChoiceField, JSONField, Livesearch, SelectWithDisabled, SelectWithPK, SmallTextarea, SlugField,
-    ContentTypeSelect
+    BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField, ComponentForm,
+    ConfirmationForm, ContentTypeSelect, CSVChoiceField, ExpandableNameField, FilterChoiceField,
+    FilterTreeNodeMultipleChoiceField, FlexibleModelChoiceField, JSONField, Livesearch, SelectWithPK, SmallTextarea,
+    SlugField, COLOR_CHOICES,
+
 )
 from virtualization.models import Cluster
 from .constants import *
@@ -2210,6 +2211,22 @@ class CableForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
         self.fields['termination_b_type'].queryset = ContentType.objects.filter(
             model__in=COMPATIBLE_TERMINATION_TYPES.get(termination_a_type)
         )
+
+
+class CableFilterForm(BootstrapMixin, forms.Form):
+    model = Cable
+    q = forms.CharField(required=False, label='Search')
+    type = AnnotatedMultipleChoiceField(
+        choices=CABLE_TYPE_CHOICES,
+        annotate=Cable.objects.all(),
+        annotate_field='type',
+        required=False
+    )
+    color = forms.ChoiceField(
+        choices=add_blank_choice(COLOR_CHOICES),
+        widget=ColorSelect(),
+        required=False
+    )
 
 
 #

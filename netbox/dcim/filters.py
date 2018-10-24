@@ -13,7 +13,7 @@ from .constants import (
     WIRELESS_IFACE_TYPES,
 )
 from .models import (
-    ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceTemplate,
     InventoryItem, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
     RackGroup, RackReservation, RackRole, RearPanelPort, RearPanelPortTemplate, Region, Site, VirtualChassis,
@@ -783,6 +783,13 @@ class VirtualChassisFilter(django_filters.FilterSet):
             Q(domain__icontains=value)
         )
         return queryset.filter(qs_filter)
+
+
+class CableFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = Cable
+        fields = ['type', 'status', 'color']
 
 
 class ConsoleConnectionFilter(django_filters.FilterSet):

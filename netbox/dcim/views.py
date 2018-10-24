@@ -2017,8 +2017,8 @@ class CableListView(ObjectListView):
     queryset = Cable.objects.prefetch_related(
         'termination_a__device', 'termination_b__device'
     )
-    # filter = filters.CableFilter
-    # filter_form = forms.CableFilterForm
+    filter = filters.CableFilter
+    filter_form = forms.CableFilterForm
     table = tables.CableTable
     template_name = 'dcim/cable_list.html'
 
