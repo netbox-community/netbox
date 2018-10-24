@@ -504,15 +504,18 @@ class TopologyMap(models.Model):
     def add_network_connections(self, devices):
 
         from circuits.models import CircuitTermination
-        from dcim.models import InterfaceConnection
+        from dcim.models import Interface
 
         # Add all interface connections to the graph
-        connections = InterfaceConnection.objects.filter(
-            interface_a__device__in=devices, interface_b__device__in=devices
+        connected_interfaces = Interface.objects.select_related(
+            'connected_endpoint__device'
+        ).filter(
+            Q(device__in=devices) | Q(connected_endpoint__device__in=devices),
+            connected_endpoint__isnull=False,
         )
-        for c in connections:
-            style = 'solid' if c.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
-            self.graph.edge(c.interface_a.device.name, c.interface_b.device.name, style=style)
+        for interface in connected_interfaces:
+            style = 'solid' if interface.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
+            self.graph.edge(interface.device.name, interface.connected_endpoint.device.name, style=style)
 
         # Add all circuits to the graph
         for termination in CircuitTermination.objects.filter(term_side='A', interface__device__in=devices):

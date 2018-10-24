@@ -5,10 +5,9 @@ from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, BooleanColumn, ToggleColumn
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceConnection,
-    InterfaceTemplate, InventoryItem, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
-    PowerPortTemplate, Rack, RackGroup, RackReservation, RearPanelPort, RearPanelPortTemplate, Region, Site,
-    VirtualChassis,
+    DeviceBayTemplate, DeviceRole, DeviceType, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceTemplate,
+    InventoryItem, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
+    RackGroup, RackReservation, RearPanelPort, RearPanelPortTemplate, Region, Site, VirtualChassis,
 )
 
 REGION_LINK = """
@@ -654,17 +653,33 @@ class PowerConnectionTable(BaseTable):
 
 
 class InterfaceConnectionTable(BaseTable):
-    device_a = tables.LinkColumn('dcim:device', accessor=Accessor('interface_a.device'),
-                                 args=[Accessor('interface_a.device.pk')], verbose_name='Device A')
-    interface_a = tables.LinkColumn('dcim:interface', accessor=Accessor('interface_a'),
-                                    args=[Accessor('interface_a.pk')], verbose_name='Interface A')
-    device_b = tables.LinkColumn('dcim:device', accessor=Accessor('interface_b.device'),
-                                 args=[Accessor('interface_b.device.pk')], verbose_name='Device B')
-    interface_b = tables.LinkColumn('dcim:interface', accessor=Accessor('interface_b'),
-                                    args=[Accessor('interface_b.pk')], verbose_name='Interface B')
+    device_a = tables.LinkColumn(
+        viewname='dcim:device',
+        accessor=Accessor('device'),
+        args=[Accessor('device.pk')],
+        verbose_name='Device A'
+    )
+    interface_a = tables.LinkColumn(
+        viewname='dcim:interface',
+        accessor=Accessor('name'),
+        args=[Accessor('pk')],
+        verbose_name='Interface A'
+    )
+    device_b = tables.LinkColumn(
+        viewname='dcim:device',
+        accessor=Accessor('connected_endpoint.device'),
+        args=[Accessor('connected_endpoint.device.pk')],
+        verbose_name='Device B'
+    )
+    interface_b = tables.LinkColumn(
+        viewname='dcim:interface',
+        accessor=Accessor('connected_endpoint.name'),
+        args=[Accessor('connected_endpoint.pk')],
+        verbose_name='Interface B'
+    )
 
     class Meta(BaseTable.Meta):
-        model = InterfaceConnection
+        model = Interface
         fields = ('device_a', 'interface_a', 'device_b', 'interface_b')
 
 

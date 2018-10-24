@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
-from django.db.models import Count, Q
+from django.db.models import Count, F, Q
 from django.forms import modelformset_factory
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -33,10 +33,9 @@ from . import filters, forms, tables
 from .constants import CONNECTION_STATUS_CONNECTED
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceConnection,
-    InterfaceTemplate, Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
-    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPanelPort, RearPanelPortTemplate, Region, Site,
-    VirtualChassis,
+    DeviceBayTemplate, DeviceRole, DeviceType, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceTemplate,
+    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
+    RackGroup, RackReservation, RackRole, RearPanelPort, RearPanelPortTemplate, Region, Site, VirtualChassis,
 )
 
 
@@ -905,8 +904,7 @@ class DeviceView(View):
         interfaces = device.vc_interfaces.order_naturally(
             device.device_type.interface_ordering
         ).select_related(
-            'connected_as_a__interface_b__device', 'connected_as_b__interface_a__device',
-            'circuit_termination__circuit'
+            'connected_endpoint__device', 'circuit_termination__circuit'
         ).prefetch_related('ip_addresses')
 
         # Front panel ports
@@ -999,7 +997,7 @@ class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
         interfaces = device.vc_interfaces.order_naturally(
             device.device_type.interface_ordering
         ).connectable().select_related(
-            'connected_as_a', 'connected_as_b'
+            'connected_endpoint__device'
         )
 
         return render(request, 'dcim/device_lldp_neighbors.html', {
@@ -1736,10 +1734,9 @@ class InterfaceBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
     form = forms.InterfaceBulkDisconnectForm
 
     def disconnect_objects(self, interfaces):
-        count, _ = InterfaceConnection.objects.filter(
-            Q(interface_a__in=interfaces) | Q(interface_b__in=interfaces)
-        ).delete()
-        return count
+        return Interface.objects.filter(connected_endpoint__in=interfaces).update(
+            connected_endpoint=None, connection_status=None
+        )
 
 
 class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
@@ -2017,115 +2014,6 @@ class DeviceBulkAddDeviceBayView(PermissionRequiredMixin, BulkComponentCreateVie
 
 
 #
-# Interface connections
-#
-
-class InterfaceConnectionAddView(PermissionRequiredMixin, GetReturnURLMixin, View):
-    permission_required = 'dcim.add_interfaceconnection'
-    default_return_url = 'dcim:device_list'
-
-    def get(self, request, pk):
-
-        device = get_object_or_404(Device, pk=pk)
-        form = forms.InterfaceConnectionForm(device, initial={
-            'interface_a': request.GET.get('interface_a'),
-            'site_b': request.GET.get('site_b'),
-            'rack_b': request.GET.get('rack_b'),
-            'device_b': request.GET.get('device_b'),
-            'interface_b': request.GET.get('interface_b'),
-        })
-
-        return render(request, 'dcim/interfaceconnection_edit.html', {
-            'device': device,
-            'form': form,
-            'return_url': device.get_absolute_url(),
-        })
-
-    def post(self, request, pk):
-
-        device = get_object_or_404(Device, pk=pk)
-        form = forms.InterfaceConnectionForm(device, request.POST)
-
-        if form.is_valid():
-
-            interfaceconnection = form.save()
-            msg = 'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
-                interfaceconnection.interface_a.device.get_absolute_url(),
-                escape(interfaceconnection.interface_a.device),
-                escape(interfaceconnection.interface_a.name),
-                interfaceconnection.interface_b.device.get_absolute_url(),
-                escape(interfaceconnection.interface_b.device),
-                escape(interfaceconnection.interface_b.name),
-            )
-            messages.success(request, mark_safe(msg))
-
-            if '_addanother' in request.POST:
-                base_url = reverse('dcim:interfaceconnection_add', kwargs={'pk': device.pk})
-                device_b = interfaceconnection.interface_b.device
-                params = urlencode({
-                    'rack_b': device_b.rack.pk if device_b.rack else '',
-                    'device_b': device_b.pk,
-                })
-                return HttpResponseRedirect('{}?{}'.format(base_url, params))
-            else:
-                return redirect('dcim:device', pk=device.pk)
-
-        return render(request, 'dcim/interfaceconnection_edit.html', {
-            'device': device,
-            'form': form,
-            'return_url': device.get_absolute_url(),
-        })
-
-
-class InterfaceConnectionDeleteView(PermissionRequiredMixin, GetReturnURLMixin, View):
-    permission_required = 'dcim.delete_interfaceconnection'
-    default_return_url = 'dcim:device_list'
-
-    def get(self, request, pk):
-
-        interfaceconnection = get_object_or_404(InterfaceConnection, pk=pk)
-        form = forms.ConfirmationForm()
-
-        return render(request, 'dcim/interfaceconnection_delete.html', {
-            'interfaceconnection': interfaceconnection,
-            'form': form,
-            'return_url': self.get_return_url(request, interfaceconnection),
-        })
-
-    def post(self, request, pk):
-
-        interfaceconnection = get_object_or_404(InterfaceConnection, pk=pk)
-        form = forms.ConfirmationForm(request.POST)
-
-        if form.is_valid():
-            interfaceconnection.delete()
-            msg = 'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
-                interfaceconnection.interface_a.device.get_absolute_url(),
-                escape(interfaceconnection.interface_a.device),
-                escape(interfaceconnection.interface_a.name),
-                interfaceconnection.interface_b.device.get_absolute_url(),
-                escape(interfaceconnection.interface_b.device),
-                escape(interfaceconnection.interface_b.name),
-            )
-            messages.success(request, mark_safe(msg))
-
-            return redirect(self.get_return_url(request, interfaceconnection))
-
-        return render(request, 'dcim/interfaceconnection_delete.html', {
-            'interfaceconnection': interfaceconnection,
-            'form': form,
-            'return_url': self.get_return_url(request, interfaceconnection),
-        })
-
-
-class InterfaceConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
-    permission_required = 'dcim.change_interface'
-    model_form = forms.InterfaceConnectionCSVForm
-    table = tables.InterfaceConnectionTable
-    default_return_url = 'dcim:interface_connections_list'
-
-
-#
 # Connections
 #
 
@@ -2158,10 +2046,11 @@ class PowerConnectionsListView(ObjectListView):
 
 
 class InterfaceConnectionsListView(ObjectListView):
-    queryset = InterfaceConnection.objects.select_related(
-        'interface_a__device', 'interface_b__device'
-    ).order_by(
-        'interface_a__device__name', 'interface_a__name'
+    queryset = Interface.objects.select_related(
+        'connected_endpoint__device',
+    ).filter(
+        connected_endpoint__isnull=False,
+        pk__lt=F('connected_endpoint'),
     )
     filter = filters.InterfaceConnectionFilter
     filter_form = forms.InterfaceConnectionFilterForm

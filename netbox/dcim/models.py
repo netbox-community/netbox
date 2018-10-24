@@ -1826,7 +1826,7 @@ class PowerOutlet(ComponentModel):
 class Interface(ComponentModel):
     """
     A network interface within a Device or VirtualMachine. A physical Interface can connect to exactly one other
-    Interface via the creation of an InterfaceConnection.
+    Interface.
     """
     device = models.ForeignKey(
         to='Device',
@@ -1842,6 +1842,20 @@ class Interface(ComponentModel):
         null=True,
         blank=True
     )
+    name = models.CharField(
+        max_length=64
+    )
+    connected_endpoint = models.OneToOneField(
+        to='self',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    connection_status = models.NullBooleanField(
+        choices=CONNECTION_STATUS_CHOICES,
+        default=CONNECTION_STATUS_CONNECTED
+    )
     lag = models.ForeignKey(
         to='self',
         on_delete=models.SET_NULL,
@@ -1849,9 +1863,6 @@ class Interface(ComponentModel):
         null=True,
         blank=True,
         verbose_name='Parent LAG'
-    )
-    name = models.CharField(
-        max_length=64
     )
     form_factor = models.PositiveSmallIntegerField(
         choices=IFACE_FF_CHOICES,
@@ -2002,10 +2013,7 @@ class Interface(ComponentModel):
             changed_object=self,
             related_object=parent_obj,
             action=action,
-            object_data=serialize_object(self, extra={
-                'connected_interface': self.connected_interface.pk if self.connection else None,
-                'connection_status': self.connection.connection_status if self.connection else None,
-            })
+            object_data=serialize_object(self)
         ).save()
 
     @property
@@ -2034,140 +2042,7 @@ class Interface(ComponentModel):
             return bool(self.circuit_termination)
         except ObjectDoesNotExist:
             pass
-        return bool(self.connection)
-
-    @property
-    def connection(self):
-        try:
-            return self.connected_as_a
-        except ObjectDoesNotExist:
-            pass
-        try:
-            return self.connected_as_b
-        except ObjectDoesNotExist:
-            pass
-        return None
-
-    @property
-    def connected_interface(self):
-        try:
-            if self.connected_as_a:
-                return self.connected_as_a.interface_b
-        except ObjectDoesNotExist:
-            pass
-        try:
-            if self.connected_as_b:
-                return self.connected_as_b.interface_a
-        except ObjectDoesNotExist:
-            pass
-        return None
-
-
-class InterfaceConnection(models.Model):
-    """
-    An InterfaceConnection represents a symmetrical, one-to-one connection between two Interfaces. There is no
-    significant difference between the interface_a and interface_b fields.
-    """
-    interface_a = models.OneToOneField(
-        to='dcim.Interface',
-        on_delete=models.CASCADE,
-        related_name='connected_as_a'
-    )
-    interface_b = models.OneToOneField(
-        to='dcim.Interface',
-        on_delete=models.CASCADE,
-        related_name='connected_as_b'
-    )
-    connection_status = models.BooleanField(
-        choices=CONNECTION_STATUS_CHOICES,
-        default=CONNECTION_STATUS_CONNECTED,
-        verbose_name='Status'
-    )
-
-    csv_headers = ['device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status']
-
-    def clean(self):
-
-        # An interface cannot be connected to itself
-        if self.interface_a == self.interface_b:
-            raise ValidationError({
-                'interface_b': "Cannot connect an interface to itself."
-            })
-
-        # Only connectable interface types are permitted
-        if self.interface_a.form_factor in NONCONNECTABLE_IFACE_TYPES:
-            raise ValidationError({
-                'interface_a': '{} is not a connectable interface type.'.format(
-                    self.interface_a.get_form_factor_display()
-                )
-            })
-        if self.interface_b.form_factor in NONCONNECTABLE_IFACE_TYPES:
-            raise ValidationError({
-                'interface_b': '{} is not a connectable interface type.'.format(
-                    self.interface_b.get_form_factor_display()
-                )
-            })
-
-        # Prevent the A side of one connection from being the B side of another
-        interface_a_connections = InterfaceConnection.objects.filter(
-            Q(interface_a=self.interface_a) |
-            Q(interface_b=self.interface_a)
-        ).exclude(pk=self.pk)
-        if interface_a_connections.exists():
-            raise ValidationError({
-                'interface_a': "This interface is already connected."
-            })
-        interface_b_connections = InterfaceConnection.objects.filter(
-            Q(interface_a=self.interface_b) |
-            Q(interface_b=self.interface_b)
-        ).exclude(pk=self.pk)
-        if interface_b_connections.exists():
-            raise ValidationError({
-                'interface_b': "This interface is already connected."
-            })
-
-    def to_csv(self):
-        return (
-            self.interface_a.device.identifier,
-            self.interface_a.name,
-            self.interface_b.device.identifier,
-            self.interface_b.name,
-            self.get_connection_status_display(),
-        )
-
-    def log_change(self, user, request_id, action):
-        """
-        Create a new ObjectChange for each of the two affected Interfaces.
-        """
-        interfaces = (
-            (self.interface_a, self.interface_b),
-            (self.interface_b, self.interface_a),
-        )
-
-        for interface, peer_interface in interfaces:
-            if action == OBJECTCHANGE_ACTION_DELETE:
-                connection_data = {
-                    'connected_interface': None,
-                }
-            else:
-                connection_data = {
-                    'connected_interface': peer_interface.pk,
-                    'connection_status': self.connection_status
-                }
-
-            try:
-                parent_obj = interface.parent
-            except ObjectDoesNotExist:
-                parent_obj = None
-
-            ObjectChange(
-                user=user,
-                request_id=request_id,
-                changed_object=interface,
-                related_object=parent_obj,
-                action=OBJECTCHANGE_ACTION_UPDATE,
-                object_data=serialize_object(interface, extra=connection_data)
-            ).save()
+        return bool(self.connected_endpoint)
 
 
 #

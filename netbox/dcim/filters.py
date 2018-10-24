@@ -14,10 +14,9 @@ from .constants import (
 )
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceConnection,
-    InterfaceTemplate, InventoryItem, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
-    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPanelPort, RearPanelPortTemplate, Region, Site,
-    VirtualChassis,
+    DeviceBayTemplate, DeviceRole, DeviceType, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceTemplate,
+    InventoryItem, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
+    RackGroup, RackReservation, RackRole, RearPanelPort, RearPanelPortTemplate, Region, Site, VirtualChassis,
 )
 
 
@@ -853,21 +852,21 @@ class InterfaceConnectionFilter(django_filters.FilterSet):
     )
 
     class Meta:
-        model = InterfaceConnection
+        model = Interface
         fields = ['connection_status']
 
     def filter_site(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(interface_a__device__site__slug=value) |
-            Q(interface_b__device__site__slug=value)
+            Q(device__site__slug=value) |
+            Q(connected_endpoint__device__site__slug=value)
         )
 
     def filter_device(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(interface_a__device__name__icontains=value) |
-            Q(interface_b__device__name__icontains=value)
+            Q(device__name__icontains=value) |
+            Q(connected_endpoint__device__name__icontains=value)
         )

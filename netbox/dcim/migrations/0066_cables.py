@@ -17,6 +17,7 @@ def console_connections_to_cables(apps, schema_editor):
     consoleserverport_type = ContentType.objects.get_for_model(ConsoleServerPort)
 
     # Create a new Cable instance from each console connection
+    print("\n    Adding console connections... ", end='', flush=True)
     for consoleport in ConsolePort.objects.filter(connected_endpoint__isnull=False):
         c = Cable()
         # We have to assign GFK fields manually because we're inside a migration.
@@ -26,6 +27,9 @@ def console_connections_to_cables(apps, schema_editor):
         c.endpoint_b_id = consoleport.connected_endpoint_id
         c.connection_status = consoleport.connection_status
         c.save()
+
+    cable_count = Cable.objects.filter(endpoint_a_type=consoleport_type).count()
+    print("{} cables created".format(cable_count))
 
 
 def power_connections_to_cables(apps, schema_editor):
@@ -42,6 +46,7 @@ def power_connections_to_cables(apps, schema_editor):
     poweroutlet_type = ContentType.objects.get_for_model(PowerOutlet)
 
     # Create a new Cable instance from each power connection
+    print("    Adding power connections... ", end='', flush=True)
     for powerport in PowerPort.objects.filter(connected_endpoint__isnull=False):
         c = Cable()
         # We have to assign GFK fields manually because we're inside a migration.
@@ -51,6 +56,9 @@ def power_connections_to_cables(apps, schema_editor):
         c.endpoint_b_id = powerport.connected_endpoint_id
         c.connection_status = powerport.connection_status
         c.save()
+
+    cable_count = Cable.objects.filter(endpoint_a_type=powerport_type).count()
+    print("{} cables created".format(cable_count))
 
 
 def interface_connections_to_cables(apps, schema_editor):
@@ -66,6 +74,7 @@ def interface_connections_to_cables(apps, schema_editor):
     interface_type = ContentType.objects.get_for_model(Interface)
 
     # Create a new Cable instance from each InterfaceConnection
+    print("    Adding interface connections... ", end='', flush=True)
     for conn in InterfaceConnection.objects.all():
         c = Cable()
         # We have to assign GFK fields manually because we're inside a migration.
@@ -76,8 +85,23 @@ def interface_connections_to_cables(apps, schema_editor):
         c.connection_status = conn.connection_status
         c.save()
 
+        # connected_endpoint and connection_status must be manually assigned
+        # since these are new fields on Interface
+        Interface.objects.filter(pk=conn.interface_a_id).update(
+            connected_endpoint=conn.interface_b_id,
+            connection_status=conn.connection_status
+        )
+        Interface.objects.filter(pk=conn.interface_b_id).update(
+            connected_endpoint=conn.interface_a_id,
+            connection_status=conn.connection_status
+        )
+
+    cable_count = Cable.objects.filter(endpoint_a_type=interface_type).count()
+    print("{} cables created".format(cable_count))
+
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
@@ -142,9 +166,34 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='poweroutlets', to='dcim.Device'),
         ),
 
+        # Alter the Interface model
+        migrations.AddField(
+            model_name='interface',
+            name='connected_endpoint',
+            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.Interface'),
+        ),
+        migrations.AddField(
+            model_name='interface',
+            name='connection_status',
+            field=models.NullBooleanField(default=True),
+        ),
+
         # Copy console/power/interface connections as Cables
         migrations.RunPython(console_connections_to_cables),
         migrations.RunPython(power_connections_to_cables),
         migrations.RunPython(interface_connections_to_cables),
+
+        # Delete the InterfaceConnection model
+        migrations.RemoveField(
+            model_name='interfaceconnection',
+            name='interface_a',
+        ),
+        migrations.RemoveField(
+            model_name='interfaceconnection',
+            name='interface_b',
+        ),
+        migrations.DeleteModel(
+            name='InterfaceConnection',
+        ),
 
     ]

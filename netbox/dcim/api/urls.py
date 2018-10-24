@@ -60,7 +60,7 @@ router.register(r'inventory-items', views.InventoryItemViewSet)
 # Connections
 router.register(r'console-connections', views.ConsoleConnectionViewSet, base_name='consoleconnections')
 router.register(r'power-connections', views.PowerConnectionViewSet, base_name='powerconnections')
-router.register(r'interface-connections', views.InterfaceConnectionViewSet)
+router.register(r'interface-connections', views.InterfaceConnectionViewSet, base_name='interfaceconnections')
 
 # Virtual chassis
 router.register(r'virtual-chassis', views.VirtualChassisViewSet)

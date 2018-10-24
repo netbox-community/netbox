@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 from django.conf import settings
+from django.db.models import F
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
@@ -14,10 +15,9 @@ from rest_framework.viewsets import GenericViewSet, ViewSet
 from dcim import filters
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceConnection,
-    InterfaceTemplate, Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
-    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPanelPort, RearPanelPortTemplate, Region, Site,
-    VirtualChassis,
+    DeviceBayTemplate, DeviceRole, DeviceType, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceTemplate,
+    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
+    RackGroup, RackReservation, RackRole, RearPanelPort, RearPanelPortTemplate, Region, Site, VirtualChassis,
 )
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
@@ -35,8 +35,7 @@ class DCIMFieldChoicesViewSet(FieldChoicesViewSet):
     fields = (
         (Device, ['face', 'status']),
         (ConsolePort, ['connection_status']),
-        (Interface, ['form_factor', 'mode']),
-        (InterfaceConnection, ['connection_status']),
+        (Interface, ['connection_status', 'form_factor', 'mode']),
         (InterfaceTemplate, ['form_factor']),
         (PowerPort, ['connection_status']),
         (Rack, ['type', 'width']),
@@ -419,7 +418,12 @@ class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
 
 
 class InterfaceConnectionViewSet(ModelViewSet):
-    queryset = InterfaceConnection.objects.select_related('interface_a__device', 'interface_b__device')
+    queryset = Interface.objects.select_related(
+        'device', 'connected_endpoint__device'
+    ).filter(
+        connected_endpoint__isnull=False,
+        pk__lt=F('connected_endpoint')
+    )
     serializer_class = serializers.InterfaceConnectionSerializer
     filter_class = filters.InterfaceConnectionFilter
 

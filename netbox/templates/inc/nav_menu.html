@@ -180,27 +180,12 @@
                         <li class="divider"></li>
                         <li class="dropdown-header">Connections</li>
                         <li>
-                            {% if perms.dcim.change_consoleport %}
-                                <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:console_connections_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
-                                </div>
-                            {% endif %}
                             <a href="{% url 'dcim:console_connections_list' %}">Console Connections</a>
                         </li>
                         <li>
-                            {% if perms.dcim.change_powerport %}
-                                <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:power_connections_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
-                                </div>
-                            {% endif %}
                             <a href="{% url 'dcim:power_connections_list' %}">Power Connections</a>
                         </li>
                         <li>
-                            {% if perms.dcim.add_interfaceconnection %}
-                                <div class="buttons pull-right">
-                                    <a href="{% url 'dcim:interface_connections_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
-                                </div>
-                            {% endif %}
                             <a href="{% url 'dcim:interface_connections_list' %}">Interface Connections</a>
                         </li>
                     </ul>

@@ -6,10 +6,9 @@ from circuits.models import Circuit, CircuitTermination
 from dcim.constants import *
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceType, DeviceRole, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceConnection,
-    InterfaceTemplate, Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort,
-    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPanelPort, RearPanelPortTemplate, Region, Site,
-    VirtualChassis,
+    DeviceBayTemplate, DeviceType, DeviceRole, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceTemplate,
+    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
+    RackGroup, RackReservation, RackRole, RearPanelPort, RearPanelPortTemplate, Region, Site, VirtualChassis,
 )
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.models import IPAddress, VLAN
@@ -614,7 +613,7 @@ class IsConnectedMixin(object):
         """
         Return True if the interface has a connected interface or circuit.
         """
-        if obj.connection:
+        if obj.connected_endpoint:
             return True
         if hasattr(obj, 'circuit_termination') and obj.circuit_termination is not None:
             return True
@@ -662,8 +661,8 @@ class InterfaceSerializer(TaggitSerializer, IsConnectedMixin, ValidatedModelSeri
     device = NestedDeviceSerializer()
     form_factor = ChoiceField(choices=IFACE_FF_CHOICES, required=False)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
+    connected_endpoint = NestedInterfaceSerializer(required=False, allow_null=True)
     is_connected = serializers.SerializerMethodField(read_only=True)
-    interface_connection = serializers.SerializerMethodField(read_only=True)
     circuit_termination = InterfaceCircuitTerminationSerializer(read_only=True)
     mode = ChoiceField(choices=IFACE_MODE_CHOICES, required=False, allow_null=True)
     untagged_vlan = InterfaceVLANSerializer(required=False, allow_null=True)
@@ -679,7 +678,7 @@ class InterfaceSerializer(TaggitSerializer, IsConnectedMixin, ValidatedModelSeri
         model = Interface
         fields = [
             'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
-            'is_connected', 'interface_connection', 'circuit_termination', 'mode', 'untagged_vlan', 'tagged_vlans',
+            'is_connected', 'connected_endpoint', 'circuit_termination', 'mode', 'untagged_vlan', 'tagged_vlans',
             'tags',
         ]
 
@@ -701,15 +700,6 @@ class InterfaceSerializer(TaggitSerializer, IsConnectedMixin, ValidatedModelSeri
                 })
 
         return super(InterfaceSerializer, self).validate(data)
-
-    def get_interface_connection(self, obj):
-        if obj.connection:
-            context = {
-                'request': self.context['request'],
-                'interface': obj.connected_interface,
-            }
-            return ContextualInterfaceConnectionSerializer(obj.connection, context=context).data
-        return None
 
 
 #
@@ -804,36 +794,17 @@ class InventoryItemSerializer(TaggitSerializer, ValidatedModelSerializer):
 #
 
 class InterfaceConnectionSerializer(ValidatedModelSerializer):
-    interface_a = NestedInterfaceSerializer()
-    interface_b = NestedInterfaceSerializer()
+    interface_a = serializers.SerializerMethodField()
+    interface_b = NestedInterfaceSerializer(source='connected_endpoint')
     connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, required=False)
 
     class Meta:
-        model = InterfaceConnection
-        fields = ['id', 'interface_a', 'interface_b', 'connection_status']
+        model = Interface
+        fields = ['interface_a', 'interface_b', 'connection_status']
 
-
-class NestedInterfaceConnectionSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interfaceconnection-detail')
-
-    class Meta:
-        model = InterfaceConnection
-        fields = ['id', 'url', 'connection_status']
-
-
-class ContextualInterfaceConnectionSerializer(serializers.ModelSerializer):
-    """
-    A read-only representation of an InterfaceConnection from the perspective of either of its two connected Interfaces.
-    """
-    interface = serializers.SerializerMethodField(read_only=True)
-    connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, read_only=True)
-
-    class Meta:
-        model = InterfaceConnection
-        fields = ['id', 'interface', 'connection_status']
-
-    def get_interface(self, obj):
-        return NestedInterfaceSerializer(self.context['interface'], context=self.context).data
+    def get_interface_a(self, obj):
+        context = {'request': self.context['request']}
+        return NestedInterfaceSerializer(instance=obj, context=context).data
 
 
 #

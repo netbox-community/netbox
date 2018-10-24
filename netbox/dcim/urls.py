@@ -207,8 +207,9 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/interfaces/edit/$', views.InterfaceBulkEditView.as_view(), name='interface_bulk_edit'),
     url(r'^devices/(?P<pk>\d+)/interfaces/disconnect/$', views.InterfaceBulkDisconnectView.as_view(), name='interface_bulk_disconnect'),
     url(r'^devices/(?P<pk>\d+)/interfaces/delete/$', views.InterfaceBulkDeleteView.as_view(), name='interface_bulk_delete'),
-    url(r'^devices/(?P<pk>\d+)/interface-connections/add/$', views.InterfaceConnectionAddView.as_view(), name='interfaceconnection_add'),
-    url(r'^interface-connections/(?P<pk>\d+)/delete/$', views.InterfaceConnectionDeleteView.as_view(), name='interfaceconnection_delete'),
+    # url(r'^devices/(?P<pk>\d+)/interface-connections/add/$', views.InterfaceConnectionAddView.as_view(), name='interfaceconnection_add'),
+    url(r'^interfaces/(?P<endpoint_a_id>\d+)/connect/$', views.CableConnectView.as_view(), name='interface_connect', kwargs={'endpoint_a_type': Interface}),
+    # url(r'^interface-connections/(?P<pk>\d+)/delete/$', views.InterfaceConnectionDeleteView.as_view(), name='interfaceconnection_delete'),
     url(r'^interfaces/(?P<pk>\d+)/$', views.InterfaceView.as_view(), name='interface'),
     url(r'^interfaces/(?P<pk>\d+)/edit/$', views.InterfaceEditView.as_view(), name='interface_edit'),
     url(r'^interfaces/(?P<pk>\d+)/assign-vlans/$', views.InterfaceAssignVLANsView.as_view(), name='interface_assign_vlans'),
@@ -253,11 +254,11 @@ urlpatterns = [
 
     # Console/power/interface connections
     url(r'^console-connections/$', views.ConsoleConnectionsListView.as_view(), name='console_connections_list'),
-    url(r'^console-connections/import/$', views.ConsoleConnectionsBulkImportView.as_view(), name='console_connections_import'),
+    # url(r'^console-connections/import/$', views.ConsoleConnectionsBulkImportView.as_view(), name='console_connections_import'),
     url(r'^power-connections/$', views.PowerConnectionsListView.as_view(), name='power_connections_list'),
-    url(r'^power-connections/import/$', views.PowerConnectionsBulkImportView.as_view(), name='power_connections_import'),
+    # url(r'^power-connections/import/$', views.PowerConnectionsBulkImportView.as_view(), name='power_connections_import'),
     url(r'^interface-connections/$', views.InterfaceConnectionsListView.as_view(), name='interface_connections_list'),
-    url(r'^interface-connections/import/$', views.InterfaceConnectionsBulkImportView.as_view(), name='interface_connections_import'),
+    # url(r'^interface-connections/import/$', views.InterfaceConnectionsBulkImportView.as_view(), name='interface_connections_import'),
 
     # Virtual chassis
     url(r'^virtual-chassis/$', views.VirtualChassisListView.as_view(), name='virtualchassis_list'),

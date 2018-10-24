@@ -237,9 +237,7 @@ class CircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm
         )
     )
     interface = ChainedModelChoiceField(
-        queryset=Interface.objects.connectable().select_related(
-            'circuit_termination', 'connected_as_a', 'connected_as_b'
-        ),
+        queryset=Interface.objects.connectable().select_related('circuit_termination'),
         chains=(
             ('device', 'device'),
         ),
