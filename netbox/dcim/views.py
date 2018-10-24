@@ -1662,7 +1662,7 @@ class InterfaceView(View):
         interface = get_object_or_404(Interface, pk=pk)
 
         # Get connected interface
-        connected_interface = interface.connected_interface
+        connected_interface = interface.connected_endpoint
         if connected_interface is None and hasattr(interface, 'circuit_termination'):
             peer_termination = interface.circuit_termination.get_peer_termination()
             if peer_termination is not None:

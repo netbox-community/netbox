@@ -1,4 +1,4 @@
-<tr class="interface{% if not iface.enabled %} danger{% elif iface.connection and iface.connection.connection_status or iface.circuit_termination %} success{% elif iface.connection and not iface.connection.connection_status %} info{% elif iface.is_virtual %} warning{% endif %}" id="iface_{{ iface.name }}">
+<tr class="interface{% if not iface.enabled %} danger{% elif iface.connected_endpoint %} {% if iface.connection_status %}success{% else %}info{% endif %}{% elif iface.circuit_termination %} success{% elif iface.is_virtual %} warning{% endif %}" id="iface_{{ iface.name }}">
 
     {# Checkbox #}
     {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
@@ -38,8 +38,8 @@
         <td colspan="2" class="text-muted">Virtual interface</td>
     {% elif iface.is_wireless %}
         <td colspan="2" class="text-muted">Wireless interface</td>
-    {% elif iface.connection %}
-        {% with iface.connected_interface as connected_iface %}
+    {% elif iface.connected_endpoint %}
+        {% with connected_iface=iface.connected_endpoint %}
             <td>
                 <a href="{% url 'dcim:device' pk=connected_iface.device.pk %}">{{ connected_iface.device }}</a>
             </td>
