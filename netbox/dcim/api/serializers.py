@@ -504,8 +504,8 @@ class ConsoleServerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['id', 'device', 'name', 'connected_console', 'tags']
-        read_only_fields = ['connected_console']
+        fields = ['id', 'device', 'name', 'connected_endpoint', 'tags']
+        read_only_fields = ['connected_endpoint']
 
 
 class NestedConsoleServerPortSerializer(WritableNestedSerializer):
@@ -518,7 +518,7 @@ class NestedConsoleServerPortSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'device', 'name', 'is_connected']
 
     def get_is_connected(self, obj):
-        return hasattr(obj, 'connected_console') and obj.connected_console is not None
+        return hasattr(obj, 'connected_endpoint') and obj.connected_endpoint is not None
 
 
 #
@@ -527,12 +527,12 @@ class NestedConsoleServerPortSerializer(WritableNestedSerializer):
 
 class ConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
-    cs_port = NestedConsoleServerPortSerializer(required=False, allow_null=True)
+    connected_endpoint = NestedConsoleServerPortSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = ConsolePort
-        fields = ['id', 'device', 'name', 'cs_port', 'connection_status', 'tags']
+        fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'tags']
 
 
 class NestedConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
@@ -545,7 +545,7 @@ class NestedConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
         fields = ['id', 'url', 'device', 'name', 'is_connected']
 
     def get_is_connected(self, obj):
-        return obj.cs_port is not None
+        return obj.connected_endpoint is not None
 
 
 #

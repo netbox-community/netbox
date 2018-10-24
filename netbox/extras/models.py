@@ -526,10 +526,10 @@ class TopologyMap(models.Model):
         from dcim.models import ConsolePort
 
         # Add all console connections to the graph
-        console_ports = ConsolePort.objects.filter(device__in=devices, cs_port__device__in=devices)
+        console_ports = ConsolePort.objects.filter(device__in=devices, connected_endpoint__device__in=devices)
         for cp in console_ports:
             style = 'solid' if cp.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
-            self.graph.edge(cp.cs_port.device.name, cp.device.name, style=style)
+            self.graph.edge(cp.connected_endpoint.device.name, cp.device.name, style=style)
 
     def add_power_connections(self, devices):
 

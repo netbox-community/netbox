@@ -622,15 +622,19 @@ class DeviceBayTable(BaseTable):
 #
 
 class ConsoleConnectionTable(BaseTable):
-    console_server = tables.LinkColumn('dcim:device', accessor=Accessor('cs_port.device'),
-                                       args=[Accessor('cs_port.device.pk')], verbose_name='Console server')
-    cs_port = tables.Column(verbose_name='Port')
+    console_server = tables.LinkColumn(
+        'dcim:device',
+        accessor=Accessor('connected_endpoint.device'),
+        args=[Accessor('connected_endpoint.device.pk')],
+        verbose_name='Console server'
+    )
+    connected_endpoint = tables.Column(verbose_name='Port')
     device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
     name = tables.Column(verbose_name='Console port')
 
     class Meta(BaseTable.Meta):
         model = ConsolePort
-        fields = ('console_server', 'cs_port', 'device', 'name')
+        fields = ('console_server', 'connected_endpoint', 'device', 'name')
 
 
 class PowerConnectionTable(BaseTable):

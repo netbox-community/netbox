@@ -331,13 +331,13 @@ class DeviceViewSet(CustomFieldModelViewSet):
 #
 
 class ConsolePortViewSet(ModelViewSet):
-    queryset = ConsolePort.objects.select_related('device', 'cs_port__device').prefetch_related('tags')
+    queryset = ConsolePort.objects.select_related('device', 'connected_endpoint__device').prefetch_related('tags')
     serializer_class = serializers.ConsolePortSerializer
     filter_class = filters.ConsolePortFilter
 
 
 class ConsoleServerPortViewSet(ModelViewSet):
-    queryset = ConsoleServerPort.objects.select_related('device', 'connected_console__device').prefetch_related('tags')
+    queryset = ConsoleServerPort.objects.select_related('device', 'connected_endpoint__device').prefetch_related('tags')
     serializer_class = serializers.ConsoleServerPortSerializer
     filter_class = filters.ConsoleServerPortFilter
 
@@ -399,7 +399,7 @@ class InventoryItemViewSet(ModelViewSet):
 #
 
 class ConsoleConnectionViewSet(ListModelMixin, GenericViewSet):
-    queryset = ConsolePort.objects.select_related('device', 'cs_port__device').filter(cs_port__isnull=False)
+    queryset = ConsolePort.objects.select_related('device', 'connected_endpoint__device').filter(connected_endpoint__isnull=False)
     serializer_class = serializers.ConsolePortSerializer
     filter_class = filters.ConsoleConnectionFilter
 

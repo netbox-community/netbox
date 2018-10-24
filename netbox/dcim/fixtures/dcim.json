@@ -2151,7 +2151,7 @@
     "fields": {
         "device": 1,
         "name": "Console (RE0)",
-        "cs_port": 27,
+        "connected_endpoint": 27,
         "connection_status": true
     }
 },
@@ -2161,7 +2161,7 @@
     "fields": {
         "device": 1,
         "name": "Console (RE1)",
-        "cs_port": 38,
+        "connected_endpoint": 38,
         "connection_status": true
     }
 },
@@ -2171,7 +2171,7 @@
     "fields": {
         "device": 2,
         "name": "Console (RE0)",
-        "cs_port": 5,
+        "connected_endpoint": 5,
         "connection_status": true
     }
 },
@@ -2181,7 +2181,7 @@
     "fields": {
         "device": 2,
         "name": "Console (RE1)",
-        "cs_port": 16,
+        "connected_endpoint": 16,
         "connection_status": true
     }
 },
@@ -2191,7 +2191,7 @@
     "fields": {
         "device": 3,
         "name": "Console",
-        "cs_port": 49,
+        "connected_endpoint": 49,
         "connection_status": true
     }
 },
@@ -2201,7 +2201,7 @@
     "fields": {
         "device": 4,
         "name": "Console",
-        "cs_port": 48,
+        "connected_endpoint": 48,
         "connection_status": true
     }
 },
@@ -2211,7 +2211,7 @@
     "fields": {
         "device": 5,
         "name": "Console",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2221,7 +2221,7 @@
     "fields": {
         "device": 6,
         "name": "Console",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2231,7 +2231,7 @@
     "fields": {
         "device": 7,
         "name": "Console (RE0)",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2241,7 +2241,7 @@
     "fields": {
         "device": 7,
         "name": "Console (RE1)",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2251,7 +2251,7 @@
     "fields": {
         "device": 8,
         "name": "Console (RE0)",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2261,7 +2261,7 @@
     "fields": {
         "device": 8,
         "name": "Console (RE1)",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2271,7 +2271,7 @@
     "fields": {
         "device": 9,
         "name": "Console",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2281,7 +2281,7 @@
     "fields": {
         "device": 11,
         "name": "Serial",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2291,7 +2291,7 @@
     "fields": {
         "device": 12,
         "name": "Serial",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },

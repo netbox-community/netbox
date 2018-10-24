@@ -886,11 +886,11 @@ class DeviceView(View):
 
         # Console ports
         console_ports = natsorted(
-            ConsolePort.objects.filter(device=device).select_related('cs_port__device'), key=attrgetter('name')
+            ConsolePort.objects.filter(device=device).select_related('connected_endpoint__device'), key=attrgetter('name')
         )
 
         # Console server ports
-        cs_ports = ConsoleServerPort.objects.filter(device=device).select_related('connected_console')
+        consoleserverports = ConsoleServerPort.objects.filter(device=device).select_related('connected_endpoint')
 
         # Power ports
         power_ports = natsorted(
@@ -941,7 +941,7 @@ class DeviceView(View):
         return render(request, 'dcim/device.html', {
             'device': device,
             'console_ports': console_ports,
-            'cs_ports': cs_ports,
+            'consoleserverports': consoleserverports,
             'power_ports': power_ports,
             'power_outlets': power_outlets,
             'interfaces': interfaces,
@@ -1133,9 +1133,9 @@ class ConsolePortConnectView(PermissionRequiredMixin, View):
                 consoleport.device.get_absolute_url(),
                 escape(consoleport.device),
                 escape(consoleport.name),
-                consoleport.cs_port.device.get_absolute_url(),
-                escape(consoleport.cs_port.device),
-                escape(consoleport.cs_port.name),
+                consoleport.connected_endpoint.device.get_absolute_url(),
+                escape(consoleport.connected_endpoint.device),
+                escape(consoleport.connected_endpoint.name),
             )
             messages.success(request, mark_safe(msg))
 
@@ -1156,7 +1156,7 @@ class ConsolePortDisconnectView(PermissionRequiredMixin, View):
         consoleport = get_object_or_404(ConsolePort, pk=pk)
         form = ConfirmationForm()
 
-        if not consoleport.cs_port:
+        if not consoleport.connected_endpoint:
             messages.warning(
                 request, "Cannot disconnect console port {}: It is not connected to anything.".format(consoleport)
             )
@@ -1174,18 +1174,17 @@ class ConsolePortDisconnectView(PermissionRequiredMixin, View):
         form = ConfirmationForm(request.POST)
 
         if form.is_valid():
-
-            cs_port = consoleport.cs_port
-            consoleport.cs_port = None
+            consoleserverport = consoleport.connected_endpoint
+            consoleport.connected_endpoint = None
             consoleport.connection_status = None
             consoleport.save()
             msg = 'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
                 consoleport.device.get_absolute_url(),
                 escape(consoleport.device),
                 escape(consoleport.name),
-                cs_port.device.get_absolute_url(),
-                escape(cs_port.device),
-                escape(cs_port.name),
+                consoleserverport.device.get_absolute_url(),
+                escape(consoleserverport.device),
+                escape(consoleserverport.name),
             )
             messages.success(request, mark_safe(msg))
 
@@ -1264,7 +1263,7 @@ class ConsoleServerPortConnectView(PermissionRequiredMixin, View):
         if form.is_valid():
 
             consoleport = form.cleaned_data['port']
-            consoleport.cs_port = consoleserverport
+            consoleport.connected_endpoint = consoleserverport
             consoleport.connection_status = form.cleaned_data['connection_status']
             consoleport.save()
             msg = 'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
@@ -1294,7 +1293,7 @@ class ConsoleServerPortDisconnectView(PermissionRequiredMixin, View):
         consoleserverport = get_object_or_404(ConsoleServerPort, pk=pk)
         form = ConfirmationForm()
 
-        if not hasattr(consoleserverport, 'connected_console'):
+        if not hasattr(consoleserverport, 'connected_endpoint'):
             messages.warning(
                 request,
                 "Cannot disconnect console server port {}: Nothing is connected to it.".format(consoleserverport)
@@ -1314,8 +1313,8 @@ class ConsoleServerPortDisconnectView(PermissionRequiredMixin, View):
 
         if form.is_valid():
 
-            consoleport = consoleserverport.connected_console
-            consoleport.cs_port = None
+            consoleport = consoleserverport.connected_endpoint
+            consoleport.connected_endpoint = None
             consoleport.connection_status = None
             consoleport.save()
             msg = 'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
@@ -1359,8 +1358,13 @@ class ConsoleServerPortBulkDisconnectView(PermissionRequiredMixin, BulkDisconnec
     model = ConsoleServerPort
     form = forms.ConsoleServerPortBulkDisconnectForm
 
-    def disconnect_objects(self, cs_ports):
-        return ConsolePort.objects.filter(cs_port__in=cs_ports).update(cs_port=None, connection_status=None)
+    def disconnect_objects(self, consoleserverports):
+        return ConsolePort.objects.filter(
+            connected_endpoint__in=consoleserverports
+        ).update(
+            connected_endpoint=None,
+            connection_status=None
+        )
 
 
 class ConsoleServerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -2125,8 +2129,13 @@ class InterfaceConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView
 #
 
 class ConsoleConnectionsListView(ObjectListView):
-    queryset = ConsolePort.objects.select_related('device', 'cs_port__device').filter(cs_port__isnull=False) \
-        .order_by('cs_port__device__name', 'cs_port__name')
+    queryset = ConsolePort.objects.select_related(
+        'device', 'connected_endpoint__device'
+    ).filter(
+        connected_endpoint__isnull=False
+    ).order_by(
+        'connected_endpoint__device__name', 'connected_endpoint__name'
+    )
     filter = filters.ConsoleConnectionFilter
     filter_form = forms.ConsoleConnectionFilterForm
     table = tables.ConsoleConnectionTable

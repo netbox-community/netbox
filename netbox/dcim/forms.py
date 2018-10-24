@@ -1301,8 +1301,8 @@ class ConsoleConnectionCSVForm(forms.ModelForm):
             'invalid_choice': 'Console server not found',
         }
     )
-    cs_port = forms.CharField(
-        help_text='Console server port name'
+    connected_endpoint = forms.CharField(
+        help_text='Console server port'
     )
     device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
@@ -1322,7 +1322,7 @@ class ConsoleConnectionCSVForm(forms.ModelForm):
 
     class Meta:
         model = ConsolePort
-        fields = ['console_server', 'cs_port', 'device', 'console_port', 'connection_status']
+        fields = ['console_server', 'connected_endpoint', 'device', 'console_port', 'connection_status']
 
     def clean_console_port(self):
 
@@ -1336,7 +1336,7 @@ class ConsoleConnectionCSVForm(forms.ModelForm):
                 device=self.cleaned_data['device'], name=console_port_name
             )
             # Check if the console port is already connected
-            if consoleport.cs_port is not None:
+            if consoleport.connected_endpoint is not None:
                 raise forms.ValidationError("{} {} is already connected".format(
                     self.cleaned_data['device'], console_port_name
                 ))
@@ -1348,28 +1348,28 @@ class ConsoleConnectionCSVForm(forms.ModelForm):
         self.instance = consoleport
         return consoleport
 
-    def clean_cs_port(self):
+    def clean_connected_endpoint(self):
 
-        cs_port_name = self.cleaned_data.get('cs_port')
-        if not self.cleaned_data.get('console_server') or not cs_port_name:
+        consoleserverport_name = self.cleaned_data.get('connected_endpoint')
+        if not self.cleaned_data.get('console_server') or not consoleserverport_name:
             return None
 
         try:
             # Retrieve console server port by name
-            cs_port = ConsoleServerPort.objects.get(
-                device=self.cleaned_data['console_server'], name=cs_port_name
+            consoleserverport = ConsoleServerPort.objects.get(
+                device=self.cleaned_data['console_server'], name=consoleserverport_name
             )
             # Check if the console server port is already connected
-            if ConsolePort.objects.filter(cs_port=cs_port).count():
+            if ConsolePort.objects.filter(connected_endpoint=consoleserverport).count():
                 raise forms.ValidationError("{} {} is already connected".format(
-                    self.cleaned_data['console_server'], cs_port_name
+                    self.cleaned_data['console_server'], consoleserverport_name
                 ))
         except ConsoleServerPort.DoesNotExist:
             raise forms.ValidationError("Invalid console server port ({} {})".format(
-                self.cleaned_data['console_server'], cs_port_name
+                self.cleaned_data['console_server'], consoleserverport_name
             ))
 
-        return cs_port
+        return consoleserverport
 
 
 class ConsolePortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
@@ -1403,7 +1403,7 @@ class ConsolePortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelF
         widget=APISelect(
             api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}&is_console_server=True',
             display_field='display_name',
-            attrs={'filter-for': 'cs_port'}
+            attrs={'filter-for': 'connected_endpoint'}
         )
     )
     livesearch = forms.CharField(
@@ -1415,7 +1415,7 @@ class ConsolePortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelF
             field_to_update='console_server',
         )
     )
-    cs_port = ChainedModelChoiceField(
+    connected_endpoint = ChainedModelChoiceField(
         queryset=ConsoleServerPort.objects.all(),
         chains=(
             ('device', 'console_server'),
@@ -1429,9 +1429,9 @@ class ConsolePortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelF
 
     class Meta:
         model = ConsolePort
-        fields = ['site', 'rack', 'console_server', 'livesearch', 'cs_port', 'connection_status']
+        fields = ['site', 'rack', 'console_server', 'livesearch', 'connected_endpoint', 'connection_status']
         labels = {
-            'cs_port': 'Port',
+            'connected_endpoint': 'Port',
             'connection_status': 'Status',
         }
 

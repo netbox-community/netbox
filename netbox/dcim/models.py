@@ -1629,11 +1629,10 @@ class ConsolePort(ComponentModel):
     name = models.CharField(
         max_length=50
     )
-    cs_port = models.OneToOneField(
+    connected_endpoint = models.OneToOneField(
         to='dcim.ConsoleServerPort',
         on_delete=models.SET_NULL,
-        related_name='connected_console',
-        verbose_name='Console server port',
+        related_name='connected_endpoint',
         blank=True,
         null=True
     )
@@ -1644,7 +1643,7 @@ class ConsolePort(ComponentModel):
 
     tags = TaggableManager()
 
-    csv_headers = ['console_server', 'cs_port', 'device', 'console_port', 'connection_status']
+    csv_headers = ['console_server', 'connected_endpoint', 'device', 'console_port', 'connection_status']
 
     class Meta:
         ordering = ['device', 'name']
@@ -1658,8 +1657,8 @@ class ConsolePort(ComponentModel):
 
     def to_csv(self):
         return (
-            self.cs_port.device.identifier if self.cs_port else None,
-            self.cs_port.name if self.cs_port else None,
+            self.connected_endpoint.device.identifier if self.connected_endpoint else None,
+            self.connected_endpoint.name if self.connected_endpoint else None,
             self.device.identifier,
             self.name,
             self.get_connection_status_display(),
@@ -1687,7 +1686,7 @@ class ConsoleServerPort(ComponentModel):
     device = models.ForeignKey(
         to='dcim.Device',
         on_delete=models.CASCADE,
-        related_name='cs_ports'
+        related_name='consoleserverports'
     )
     name = models.CharField(
         max_length=50

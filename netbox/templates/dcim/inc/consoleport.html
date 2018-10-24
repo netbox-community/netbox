@@ -1,13 +1,13 @@
-<tr class="consoleport{% if cp.cs_port and not cp.connection_status %} info{% endif %}">
+<tr class="consoleport{% if cp.connected_endpoint %} {% if cp.connection_status %}success{% else %}info{% endif %}{% endif %}">
     <td>
         <i class="fa fa-fw fa-keyboard-o"></i> {{ cp }}
     </td>
-    {% if cp.cs_port %}
+    {% if cp.connected_endpoint %}
         <td>
-            <a href="{% url 'dcim:device' pk=cp.cs_port.device.pk %}">{{ cp.cs_port.device }}</a>
+            <a href="{% url 'dcim:device' pk=cp.connected_endpoint.device.pk %}">{{ cp.connected_endpoint.device }}</a>
         </td>
         <td>
-            {{ cp.cs_port }}
+            {{ cp.connected_endpoint }}
         </td>
     {% else %}
         <td colspan="2">
@@ -16,7 +16,7 @@
     {% endif %}
     <td class="text-right">
         {% if perms.dcim.change_consoleport %}
-            {% if cp.cs_port %}
+            {% if cp.connected_endpoint %}
                 {% if cp.connection_status %}
                     <a href="#" class="btn btn-warning btn-xs consoleport-toggle connected" title="Mark planned" data="{{ cp.pk }}">
                         <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>
@@ -39,7 +39,7 @@
             </a>
         {% endif %}
         {% if perms.dcim.delete_consoleport %}
-            {% if cp.cs_port %}
+            {% if cp.connected_endpoint %}
                 <button class="btn btn-danger btn-xs" disabled="disabled">
                     <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </button>

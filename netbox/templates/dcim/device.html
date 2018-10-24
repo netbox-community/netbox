@@ -573,7 +573,7 @@
                     </form>
                 {% endif %}
             {% endif %}
-            {% if cs_ports or device.device_type.is_console_server %}
+            {% if consoleserverports or device.device_type.is_console_server %}
                 {% if perms.dcim.delete_consoleserverport %}
                     <form method="post">
                     {% csrf_token %}
@@ -594,7 +594,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for csp in cs_ports %}
+                            {% for csp in consoleserverports %}
                                 {% include 'dcim/inc/consoleserverport.html' %}
                             {% empty %}
                                 <tr>
@@ -604,7 +604,7 @@
                         </tbody>
                     </table>
                     <div class="panel-footer">
-                        {% if cs_ports and perms.dcim.change_consoleport %}
+                        {% if consoleserverports and perms.dcim.change_consoleport %}
                             <button type="submit" name="_rename" formaction="{% url 'dcim:consoleserverport_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
                                 <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
                             </button>
@@ -612,7 +612,7 @@
                                 <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
                             </button>
                         {% endif %}
-                        {% if cs_ports and perms.dcim.delete_consoleserverport %}
+                        {% if consoleserverports and perms.dcim.delete_consoleserverport %}
                             <button type="submit" formaction="{% url 'dcim:consoleserverport_bulk_delete' pk=device.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
                             </button>

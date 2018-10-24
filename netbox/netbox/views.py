@@ -167,7 +167,7 @@ class HomeView(View):
             'rack_count': Rack.objects.count(),
             'device_count': Device.objects.count(),
             'interface_connections_count': InterfaceConnection.objects.count(),
-            'console_connections_count': ConsolePort.objects.filter(cs_port__isnull=False).count(),
+            'console_connections_count': ConsolePort.objects.filter(connected_endpoint__isnull=False).count(),
             'power_connections_count': PowerPort.objects.filter(power_outlet__isnull=False).count(),
 
             # IPAM

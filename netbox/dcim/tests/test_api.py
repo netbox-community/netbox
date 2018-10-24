@@ -2005,7 +2005,7 @@ class ConsolePortTest(APITestCase):
         data = {
             'device': self.device.pk,
             'name': 'Test Console Port X',
-            'cs_port': consoleserverport.pk,
+            'connected_endpoint': consoleserverport.pk,
         }
 
         url = reverse('dcim-api:consoleport-detail', kwargs={'pk': self.consoleport1.pk})
@@ -2015,7 +2015,7 @@ class ConsolePortTest(APITestCase):
         self.assertEqual(ConsolePort.objects.count(), 3)
         consoleport1 = ConsolePort.objects.get(pk=response.data['id'])
         self.assertEqual(consoleport1.name, data['name'])
-        self.assertEqual(consoleport1.cs_port_id, data['cs_port'])
+        self.assertEqual(consoleport1.connected_endpoint_id, data['connected_endpoint'])
 
     def test_delete_consoleport(self):
 
@@ -2820,17 +2820,17 @@ class ConsoleConnectionTest(APITestCase):
         device2 = Device.objects.create(
             device_type=devicetype, device_role=devicerole, name='Test Device 2', site=site
         )
-        cs_port1 = ConsoleServerPort.objects.create(device=device1, name='Test CS Port 1')
-        cs_port2 = ConsoleServerPort.objects.create(device=device1, name='Test CS Port 2')
-        cs_port3 = ConsoleServerPort.objects.create(device=device1, name='Test CS Port 3')
+        consoleserverport1 = ConsoleServerPort.objects.create(device=device1, name='Test Console Server Port 1')
+        consoleserverport2 = ConsoleServerPort.objects.create(device=device1, name='Test Console Server Port 2')
+        consoleserverport3 = ConsoleServerPort.objects.create(device=device1, name='Test Console Server Port 3')
         ConsolePort.objects.create(
-            device=device2, cs_port=cs_port1, name='Test Console Port 1', connection_status=True
+            device=device2, connected_endpoint=consoleserverport1, name='Test Console Port 1', connection_status=True
         )
         ConsolePort.objects.create(
-            device=device2, cs_port=cs_port2, name='Test Console Port 2', connection_status=True
+            device=device2, connected_endpoint=consoleserverport2, name='Test Console Port 2', connection_status=True
         )
         ConsolePort.objects.create(
-            device=device2, cs_port=cs_port3, name='Test Console Port 3', connection_status=True
+            device=device2, connected_endpoint=consoleserverport3, name='Test Console Port 3', connection_status=True
         )
 
     def test_list_consoleconnections(self):
