@@ -343,13 +343,13 @@ class ConsoleServerPortViewSet(ModelViewSet):
 
 
 class PowerPortViewSet(ModelViewSet):
-    queryset = PowerPort.objects.select_related('device', 'power_outlet__device').prefetch_related('tags')
+    queryset = PowerPort.objects.select_related('device', 'connected_endpoint__device').prefetch_related('tags')
     serializer_class = serializers.PowerPortSerializer
     filter_class = filters.PowerPortFilter
 
 
 class PowerOutletViewSet(ModelViewSet):
-    queryset = PowerOutlet.objects.select_related('device', 'connected_port__device').prefetch_related('tags')
+    queryset = PowerOutlet.objects.select_related('device', 'connected_endpoint__device').prefetch_related('tags')
     serializer_class = serializers.PowerOutletSerializer
     filter_class = filters.PowerOutletFilter
 
@@ -399,13 +399,21 @@ class InventoryItemViewSet(ModelViewSet):
 #
 
 class ConsoleConnectionViewSet(ListModelMixin, GenericViewSet):
-    queryset = ConsolePort.objects.select_related('device', 'connected_endpoint__device').filter(connected_endpoint__isnull=False)
+    queryset = ConsolePort.objects.select_related(
+        'device', 'connected_endpoint__device'
+    ).filter(
+        connected_endpoint__isnull=False
+    )
     serializer_class = serializers.ConsolePortSerializer
     filter_class = filters.ConsoleConnectionFilter
 
 
 class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
-    queryset = PowerPort.objects.select_related('device', 'power_outlet__device').filter(power_outlet__isnull=False)
+    queryset = PowerPort.objects.select_related(
+        'device', 'connected_endpoint__device'
+    ).filter(
+        connected_endpoint__isnull=False
+    )
     serializer_class = serializers.PowerPortSerializer
     filter_class = filters.PowerConnectionFilter
 

@@ -42,13 +42,13 @@ def power_connections_to_cables(apps, schema_editor):
     poweroutlet_type = ContentType.objects.get_for_model(PowerOutlet)
 
     # Create a new Cable instance from each power connection
-    for powerport in PowerPort.objects.filter(power_outlet__isnull=False):
+    for powerport in PowerPort.objects.filter(connected_endpoint__isnull=False):
         c = Cable()
         # We have to assign GFK fields manually because we're inside a migration.
         c.endpoint_a_type = powerport_type
         c.endpoint_a_id = powerport.id
         c.endpoint_b_type = poweroutlet_type
-        c.endpoint_b_id = powerport.power_outlet_id
+        c.endpoint_b_id = powerport.connected_endpoint_id
         c.connection_status = powerport.connection_status
         c.save()
 
@@ -108,7 +108,7 @@ class Migration(migrations.Migration):
             unique_together={('endpoint_b_type', 'endpoint_b_id'), ('endpoint_a_type', 'endpoint_a_id')},
         ),
 
-        # Rename model fields
+        # Alter console port models
         migrations.RenameField(
             model_name='consoleport',
             old_name='cs_port',
@@ -123,6 +123,23 @@ class Migration(migrations.Migration):
             model_name='consoleserverport',
             name='device',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='consoleserverports', to='dcim.Device'),
+        ),
+
+        # Alter power port models
+        migrations.RenameField(
+            model_name='powerport',
+            old_name='power_outlet',
+            new_name='connected_endpoint'
+        ),
+        migrations.AlterField(
+            model_name='powerport',
+            name='connected_endpoint',
+            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='connected_endpoint', to='dcim.PowerOutlet'),
+        ),
+        migrations.AlterField(
+            model_name='poweroutlet',
+            name='device',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='poweroutlets', to='dcim.Device'),
         ),
 
         # Copy console/power/interface connections as Cables

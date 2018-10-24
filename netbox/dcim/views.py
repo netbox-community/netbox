@@ -862,8 +862,9 @@ class PlatformBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class DeviceListView(ObjectListView):
-    queryset = Device.objects.select_related('device_type__manufacturer', 'device_role', 'tenant', 'site', 'rack',
-                                             'primary_ip4', 'primary_ip6')
+    queryset = Device.objects.select_related(
+        'device_type__manufacturer', 'device_role', 'tenant', 'site', 'rack', 'primary_ip4', 'primary_ip6'
+    )
     filter = filters.DeviceFilter
     filter_form = forms.DeviceFilterForm
     table = tables.DeviceDetailTable
@@ -894,11 +895,11 @@ class DeviceView(View):
 
         # Power ports
         power_ports = natsorted(
-            PowerPort.objects.filter(device=device).select_related('power_outlet__device'), key=attrgetter('name')
+            PowerPort.objects.filter(device=device).select_related('connected_endpoint__device'), key=attrgetter('name')
         )
 
         # Power outlets
-        power_outlets = PowerOutlet.objects.filter(device=device).select_related('connected_port')
+        poweroutlets = PowerOutlet.objects.filter(device=device).select_related('connected_endpoint')
 
         # Interfaces
         interfaces = device.vc_interfaces.order_naturally(
@@ -943,7 +944,7 @@ class DeviceView(View):
             'console_ports': console_ports,
             'consoleserverports': consoleserverports,
             'power_ports': power_ports,
-            'power_outlets': power_outlets,
+            'poweroutlets': poweroutlets,
             'interfaces': interfaces,
             'device_bays': device_bays,
             'front_panel_ports': front_panel_ports,
@@ -1419,9 +1420,9 @@ class PowerPortConnectView(PermissionRequiredMixin, View):
                 powerport.device.get_absolute_url(),
                 escape(powerport.device),
                 escape(powerport.name),
-                powerport.power_outlet.device.get_absolute_url(),
-                escape(powerport.power_outlet.device),
-                escape(powerport.power_outlet.name),
+                powerport.connected_endpoint.device.get_absolute_url(),
+                escape(powerport.connected_endpoint.device),
+                escape(powerport.connected_endpoint.name),
             )
             messages.success(request, mark_safe(msg))
 
@@ -1442,7 +1443,7 @@ class PowerPortDisconnectView(PermissionRequiredMixin, View):
         powerport = get_object_or_404(PowerPort, pk=pk)
         form = ConfirmationForm()
 
-        if not powerport.power_outlet:
+        if not powerport.connected_endpoint:
             messages.warning(
                 request, "Cannot disconnect power port {}: It is not connected to an outlet.".format(powerport)
             )
@@ -1461,17 +1462,17 @@ class PowerPortDisconnectView(PermissionRequiredMixin, View):
 
         if form.is_valid():
 
-            power_outlet = powerport.power_outlet
-            powerport.power_outlet = None
+            poweroutlet = powerport.connected_endpoint
+            powerport.connected_endpoint = None
             powerport.connection_status = None
             powerport.save()
             msg = 'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
                 powerport.device.get_absolute_url(),
                 escape(powerport.device),
                 escape(powerport.name),
-                power_outlet.device.get_absolute_url(),
-                escape(power_outlet.device),
-                escape(power_outlet.name),
+                poweroutlet.device.get_absolute_url(),
+                escape(poweroutlet.device),
+                escape(poweroutlet.name),
             )
             messages.success(request, mark_safe(msg))
 
@@ -1549,7 +1550,7 @@ class PowerOutletConnectView(PermissionRequiredMixin, View):
 
         if form.is_valid():
             powerport = form.cleaned_data['port']
-            powerport.power_outlet = poweroutlet
+            powerport.connected_endpoint = poweroutlet
             powerport.connection_status = form.cleaned_data['connection_status']
             powerport.save()
             msg = 'Connected <a href="{}">{}</a> {} to <a href="{}">{}</a> {}'.format(
@@ -1579,7 +1580,7 @@ class PowerOutletDisconnectView(PermissionRequiredMixin, View):
         poweroutlet = get_object_or_404(PowerOutlet, pk=pk)
         form = ConfirmationForm()
 
-        if not hasattr(poweroutlet, 'connected_port'):
+        if not hasattr(poweroutlet, 'connected_endpoint'):
             messages.warning(
                 request, "Cannot disconnect power outlet {}: Nothing is connected to it.".format(poweroutlet)
             )
@@ -1598,8 +1599,8 @@ class PowerOutletDisconnectView(PermissionRequiredMixin, View):
 
         if form.is_valid():
 
-            powerport = poweroutlet.connected_port
-            powerport.power_outlet = None
+            powerport = poweroutlet.connected_endpoint
+            powerport.connected_endpoint = None
             powerport.connection_status = None
             powerport.save()
             msg = 'Disconnected <a href="{}">{}</a> {} from <a href="{}">{}</a> {}'.format(
@@ -1643,9 +1644,9 @@ class PowerOutletBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView)
     model = PowerOutlet
     form = forms.PowerOutletBulkDisconnectForm
 
-    def disconnect_objects(self, power_outlets):
-        return PowerPort.objects.filter(power_outlet__in=power_outlets).update(
-            power_outlet=None, connection_status=None
+    def disconnect_objects(self, poweroutlets):
+        return PowerPort.objects.filter(connected_endpoint__in=poweroutlets).update(
+            connected_endpoint=None, connection_status=None
         )
 
 
@@ -2143,8 +2144,13 @@ class ConsoleConnectionsListView(ObjectListView):
 
 
 class PowerConnectionsListView(ObjectListView):
-    queryset = PowerPort.objects.select_related('device', 'power_outlet__device').filter(power_outlet__isnull=False) \
-        .order_by('power_outlet__device__name', 'power_outlet__name')
+    queryset = PowerPort.objects.select_related(
+        'device', 'connected_endpoint__device'
+    ).filter(
+        connected_endpoint__isnull=False
+    ).order_by(
+        'connected_endpoint__device__name', 'connected_endpoint__name'
+    )
     filter = filters.PowerConnectionFilter
     filter_form = forms.PowerConnectionFilterForm
     table = tables.PowerConnectionTable

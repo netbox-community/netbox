@@ -1,13 +1,13 @@
-<tr class="powerport{% if pp.power_outlet and not pp.connection_status %} info{% endif %}">
+<tr class="powerport{% if pp.connected_endpoint %} {% if pp.connection_status %}success{% else %}info{% endif %}{% endif %}">
     <td>
         <i class="fa fa-fw fa-bolt"></i> {{ pp }}
     </td>
-    {% if pp.power_outlet %}
+    {% if pp.connected_endpoint %}
         <td>
-            <a href="{% url 'dcim:device' pk=pp.power_outlet.device.pk %}">{{ pp.power_outlet.device }}</a>
+            <a href="{% url 'dcim:device' pk=pp.connected_endpoint.device.pk %}">{{ pp.connected_endpoint.device }}</a>
         </td>
         <td>
-            {{ pp.power_outlet }}
+            {{ pp.connected_endpoint }}
         </td>
     {% else %}
         <td colspan="2">
@@ -16,7 +16,7 @@
     {% endif %}
     <td class="text-right">
         {% if perms.dcim.change_powerport %}
-            {% if pp.power_outlet %}
+            {% if pp.connected_endpoint %}
                 {% if pp.connection_status %}
                     <a href="#" class="btn btn-warning btn-xs powerport-toggle connected" title="Mark planned" data="{{ pp.pk }}">
                         <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>
@@ -39,7 +39,7 @@
             </a>
         {% endif %}
         {% if perms.dcim.delete_powerport %}
-            {% if pp.power_outlet %}
+            {% if pp.connected_endpoint %}
                 <button class="btn btn-danger btn-xs" disabled="disabled">
                     <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </button>

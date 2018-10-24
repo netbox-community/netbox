@@ -2231,7 +2231,7 @@ class PowerPortTest(APITestCase):
         data = {
             'device': self.device.pk,
             'name': 'Test Power Port X',
-            'power_outlet': poweroutlet.pk,
+            'connected_endpoint': poweroutlet.pk,
         }
 
         url = reverse('dcim-api:powerport-detail', kwargs={'pk': self.powerport1.pk})
@@ -2241,7 +2241,7 @@ class PowerPortTest(APITestCase):
         self.assertEqual(PowerPort.objects.count(), 3)
         powerport1 = PowerPort.objects.get(pk=response.data['id'])
         self.assertEqual(powerport1.name, data['name'])
-        self.assertEqual(powerport1.power_outlet_id, data['power_outlet'])
+        self.assertEqual(powerport1.connected_endpoint_id, data['connected_endpoint'])
 
     def test_delete_powerport(self):
 
@@ -2861,17 +2861,17 @@ class PowerConnectionTest(APITestCase):
         device2 = Device.objects.create(
             device_type=devicetype, device_role=devicerole, name='Test Device 2', site=site
         )
-        power_outlet1 = PowerOutlet.objects.create(device=device1, name='Test Power Outlet 1')
-        power_outlet2 = PowerOutlet.objects.create(device=device1, name='Test Power Outlet 2')
-        power_outlet3 = PowerOutlet.objects.create(device=device1, name='Test Power Outlet 3')
+        poweroutlet1 = PowerOutlet.objects.create(device=device1, name='Test Power Outlet 1')
+        poweroutlet2 = PowerOutlet.objects.create(device=device1, name='Test Power Outlet 2')
+        poweroutlet3 = PowerOutlet.objects.create(device=device1, name='Test Power Outlet 3')
         PowerPort.objects.create(
-            device=device2, power_outlet=power_outlet1, name='Test Power Port 1', connection_status=True
+            device=device2, connected_endpoint=poweroutlet1, name='Test Power Port 1', connection_status=True
         )
         PowerPort.objects.create(
-            device=device2, power_outlet=power_outlet2, name='Test Power Port 2', connection_status=True
+            device=device2, connected_endpoint=poweroutlet2, name='Test Power Port 2', connection_status=True
         )
         PowerPort.objects.create(
-            device=device2, power_outlet=power_outlet3, name='Test Power Port 3', connection_status=True
+            device=device2, connected_endpoint=poweroutlet3, name='Test Power Port 3', connection_status=True
         )
 
     def test_list_powerconnections(self):

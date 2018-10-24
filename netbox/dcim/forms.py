@@ -1570,7 +1570,7 @@ class PowerConnectionCSVForm(forms.ModelForm):
             'invalid_choice': 'PDU not found.',
         }
     )
-    power_outlet = forms.CharField(
+    connected_endpoint = forms.CharField(
         help_text='Power outlet name'
     )
     device = FlexibleModelChoiceField(
@@ -1591,7 +1591,7 @@ class PowerConnectionCSVForm(forms.ModelForm):
 
     class Meta:
         model = PowerPort
-        fields = ['pdu', 'power_outlet', 'device', 'power_port', 'connection_status']
+        fields = ['pdu', 'connected_endpoint', 'device', 'power_port', 'connection_status']
 
     def clean_power_port(self):
 
@@ -1605,7 +1605,7 @@ class PowerConnectionCSVForm(forms.ModelForm):
                 device=self.cleaned_data['device'], name=power_port_name
             )
             # Check if the power port is already connected
-            if powerport.power_outlet is not None:
+            if powerport.connected_endpoint is not None:
                 raise forms.ValidationError("{} {} is already connected".format(
                     self.cleaned_data['device'], power_port_name
                 ))
@@ -1617,28 +1617,28 @@ class PowerConnectionCSVForm(forms.ModelForm):
         self.instance = powerport
         return powerport
 
-    def clean_power_outlet(self):
+    def clean_connected_endpoint(self):
 
-        power_outlet_name = self.cleaned_data.get('power_outlet')
-        if not self.cleaned_data.get('pdu') or not power_outlet_name:
+        poweroutlet_name = self.cleaned_data.get('connected_endpoint')
+        if not self.cleaned_data.get('pdu') or not poweroutlet_name:
             return None
 
         try:
             # Retrieve power outlet by name
-            power_outlet = PowerOutlet.objects.get(
-                device=self.cleaned_data['pdu'], name=power_outlet_name
+            poweroutlet = PowerOutlet.objects.get(
+                device=self.cleaned_data['pdu'], name=poweroutlet_name
             )
             # Check if the power outlet is already connected
-            if PowerPort.objects.filter(power_outlet=power_outlet).count():
+            if PowerPort.objects.filter(connected_endpoint=poweroutlet).count():
                 raise forms.ValidationError("{} {} is already connected".format(
-                    self.cleaned_data['pdu'], power_outlet_name
+                    self.cleaned_data['pdu'], poweroutlet_name
                 ))
         except PowerOutlet.DoesNotExist:
             raise forms.ValidationError("Invalid power outlet ({} {})".format(
-                self.cleaned_data['pdu'], power_outlet_name
+                self.cleaned_data['pdu'], poweroutlet_name
             ))
 
-        return power_outlet
+        return poweroutlet
 
 
 class PowerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
@@ -1672,7 +1672,7 @@ class PowerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
         widget=APISelect(
             api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}&is_pdu=True',
             display_field='display_name',
-            attrs={'filter-for': 'power_outlet'}
+            attrs={'filter-for': 'connected_endpoint'}
         )
     )
     livesearch = forms.CharField(
@@ -1684,7 +1684,7 @@ class PowerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
             field_to_update='pdu'
         )
     )
-    power_outlet = ChainedModelChoiceField(
+    connected_endpoint = ChainedModelChoiceField(
         queryset=PowerOutlet.objects.all(),
         chains=(
             ('device', 'pdu'),
@@ -1698,9 +1698,9 @@ class PowerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
 
     class Meta:
         model = PowerPort
-        fields = ['site', 'rack', 'pdu', 'livesearch', 'power_outlet', 'connection_status']
+        fields = ['site', 'rack', 'pdu', 'livesearch', 'connected_endpoint', 'connection_status']
         labels = {
-            'power_outlet': 'Outlet',
+            'connected_endpoint': 'Outlet',
             'connection_status': 'Status',
         }
 

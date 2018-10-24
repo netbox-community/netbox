@@ -4,5 +4,5 @@
 {% block title %}Disconnect power port {{ powerport }}?{% endblock %}
 
 {% block message %}
-    <p>Are you sure you want to disconnect this power port from {{ powerport.power_outlet.device }} {{ powerport.power_outlet }}?</p>
+    <p>Are you sure you want to disconnect this power port from {{ powerport.connected_endpoint.device }} {{ powerport.connected_endpoint }}?</p>
 {% endblock %}

@@ -558,8 +558,8 @@ class PowerOutletSerializer(TaggitSerializer, ValidatedModelSerializer):
 
     class Meta:
         model = PowerOutlet
-        fields = ['id', 'device', 'name', 'connected_port', 'tags']
-        read_only_fields = ['connected_port']
+        fields = ['id', 'device', 'name', 'connected_endpoint', 'tags']
+        read_only_fields = ['connected_endpoint']
 
 
 class NestedPowerOutletSerializer(WritableNestedSerializer):
@@ -572,7 +572,7 @@ class NestedPowerOutletSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'device', 'name', 'is_connected']
 
     def get_is_connected(self, obj):
-        return hasattr(obj, 'connected_port') and obj.connected_port is not None
+        return hasattr(obj, 'connected_endpoint') and obj.connected_endpoint is not None
 
 
 #
@@ -581,12 +581,12 @@ class NestedPowerOutletSerializer(WritableNestedSerializer):
 
 class PowerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
-    power_outlet = NestedPowerOutletSerializer(required=False, allow_null=True)
+    connected_endpoint = NestedPowerOutletSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = PowerPort
-        fields = ['id', 'device', 'name', 'power_outlet', 'connection_status', 'tags']
+        fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'tags']
 
 
 class NestedPowerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
@@ -599,7 +599,7 @@ class NestedPowerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
         fields = ['id', 'url', 'device', 'name', 'is_connected']
 
     def get_is_connected(self, obj):
-        return obj.power_outlet is not None
+        return obj.connected_endpoint is not None
 
 
 #

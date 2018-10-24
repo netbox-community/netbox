@@ -1732,10 +1732,10 @@ class PowerPort(ComponentModel):
     name = models.CharField(
         max_length=50
     )
-    power_outlet = models.OneToOneField(
+    connected_endpoint = models.OneToOneField(
         to='dcim.PowerOutlet',
         on_delete=models.SET_NULL,
-        related_name='connected_port',
+        related_name='connected_endpoint',
         blank=True,
         null=True
     )
@@ -1746,7 +1746,7 @@ class PowerPort(ComponentModel):
 
     tags = TaggableManager()
 
-    csv_headers = ['pdu', 'power_outlet', 'device', 'power_port', 'connection_status']
+    csv_headers = ['pdu', 'connected_endpoint', 'device', 'power_port', 'connection_status']
 
     class Meta:
         ordering = ['device', 'name']
@@ -1760,8 +1760,8 @@ class PowerPort(ComponentModel):
 
     def to_csv(self):
         return (
-            self.power_outlet.device.identifier if self.power_outlet else None,
-            self.power_outlet.name if self.power_outlet else None,
+            self.connected_endpoint.device.identifier if self.connected_endpoint else None,
+            self.connected_endpoint.name if self.connected_endpoint else None,
             self.device.identifier,
             self.name,
             self.get_connection_status_display(),
@@ -1789,7 +1789,7 @@ class PowerOutlet(ComponentModel):
     device = models.ForeignKey(
         to='dcim.Device',
         on_delete=models.CASCADE,
-        related_name='power_outlets'
+        related_name='poweroutlets'
     )
     name = models.CharField(
         max_length=50

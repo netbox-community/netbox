@@ -1,4 +1,4 @@
-<tr class="poweroutlet{% if po.connected_port and not po.connected_port.connection_status %} info{% endif %}">
+<tr class="poweroutlet{% if po.connected_endpoint %} {% if po.connected_endpoint.connection_status %}success{% else %}info{% endif %}{% endif %}">
     {% if perms.dcim.change_poweroutlet or perms.dcim.delete_poweroutlet %}
         <td class="pk">
             <input name="pk" type="checkbox" value="{{ po.pk }}" />
@@ -7,12 +7,12 @@
     <td>
         <i class="fa fa-fw fa-bolt"></i> {{ po }}
     </td>
-    {% if po.connected_port %}
+    {% if po.connected_endpoint %}
         <td>
-            <a href="{% url 'dcim:device' pk=po.connected_port.device.pk %}">{{ po.connected_port.device }}</a>
+            <a href="{% url 'dcim:device' pk=po.connected_endpoint.device.pk %}">{{ po.connected_endpoint.device }}</a>
         </td>
         <td>
-            {{ po.connected_port }}
+            {{ po.connected_endpoint }}
         </td>
     {% else %}
         <td colspan="2">
@@ -21,13 +21,13 @@
     {% endif %}
     <td class="text-right">
         {% if perms.dcim.change_poweroutlet %}
-            {% if po.connected_port %}
-                {% if po.connected_port.connection_status %}
-                    <a href="#" class="btn btn-warning btn-xs powerport-toggle connected" title="Mark planned" data="{{ po.connected_port.pk }}">
+            {% if po.connected_endpoint %}
+                {% if po.connected_endpoint.connection_status %}
+                    <a href="#" class="btn btn-warning btn-xs powerport-toggle connected" title="Mark planned" data="{{ po.connected_endpoint.pk }}">
                         <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>
                     </a>
                 {% else %}
-                    <a href="#" class="btn btn-success btn-xs powerport-toggle" title="Mark installed" data="{{ po.connected_port.pk }}">
+                    <a href="#" class="btn btn-success btn-xs powerport-toggle" title="Mark installed" data="{{ po.connected_endpoint.pk }}">
                         <i class="fa fa-plug" aria-hidden="true"></i>
                     </a>
                 {% endif %}
@@ -44,7 +44,7 @@
             </a>
         {% endif %}
         {% if perms.dcim.delete_poweroutlet %}
-            {% if po.connected_port %}
+            {% if po.connected_endpoint %}
                 <button class="btn btn-danger btn-xs" disabled="disabled">
                     <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </button>

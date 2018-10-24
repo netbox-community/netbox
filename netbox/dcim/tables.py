@@ -638,15 +638,19 @@ class ConsoleConnectionTable(BaseTable):
 
 
 class PowerConnectionTable(BaseTable):
-    pdu = tables.LinkColumn('dcim:device', accessor=Accessor('power_outlet.device'),
-                            args=[Accessor('power_outlet.device.pk')], verbose_name='PDU')
-    power_outlet = tables.Column(verbose_name='Outlet')
+    pdu = tables.LinkColumn(
+        'dcim:device',
+        accessor=Accessor('connected_endpoint.device'),
+        args=[Accessor('connected_endpoint.device.pk')],
+        verbose_name='PDU'
+    )
+    connected_endpoint = tables.Column(verbose_name='Outlet')
     device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
     name = tables.Column(verbose_name='Power Port')
 
     class Meta(BaseTable.Meta):
         model = PowerPort
-        fields = ('pdu', 'power_outlet', 'device', 'name')
+        fields = ('pdu', 'connected_endpoint', 'device', 'name')
 
 
 class InterfaceConnectionTable(BaseTable):
