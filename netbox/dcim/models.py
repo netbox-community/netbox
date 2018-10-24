@@ -2372,9 +2372,49 @@ class Cable(ChangeLoggedModel):
             ('termination_b_type', 'termination_b_id'),
         )
 
-    # TODO: This should follow all cables in a path
     def get_path_endpoints(self):
         """
-        Return the endpoints connected by this cable path.
+        Traverse both ends of a cable path and return its connected endpoints. Note that one or both endpoints may be
+        None.
         """
-        return (self.termination_a, self.termination_b)
+        def trace_cable(termination, position=None):
+
+            # Given a front port, follow the cable connected to the corresponding rear port/position
+            if isinstance(termination, FrontPanelPort):
+                rear_port = termination.rear_port
+                port_type = ContentType.objects.get_for_model(rear_port)
+                next_cable = Cable.objects.filter(
+                    Q(termination_a_type=port_type, termination_a_id=rear_port.pk) |
+                    Q(termination_b_type=port_type, termination_b_id=rear_port.pk)
+                ).first()
+                if next_cable is None:
+                    return None
+                if next_cable.termination_a == termination.rear_port:
+                    return trace_cable(next_cable.termination_b, termination.rear_port_position)
+                else:
+                    return trace_cable(next_cable.termination_a, termination.rear_port_position)
+
+            # Given a rear port/position, follow the cable connected to the corresponding front port
+            if isinstance(termination, RearPanelPort):
+                if position is None:
+                    raise Exception("Must specify a position when tracing a path from a rear panel port")
+                front_port = FrontPanelPort.objects.get(
+                    rear_port=termination,
+                    rear_port_position=position,
+                )
+                port_type = ContentType.objects.get_for_model(front_port)
+                next_cable = Cable.objects.filter(
+                    Q(termination_a_type=port_type, termination_a_id=front_port.pk) |
+                    Q(termination_b_type=port_type, termination_b_id=front_port.pk)
+                ).first()
+                if next_cable is None:
+                    return None
+                if next_cable.termination_a == front_port:
+                    return trace_cable(next_cable.termination_b)
+                else:
+                    return trace_cable(next_cable.termination_a)
+
+            # Termination is not a panel port, so we've reached the end of the path
+            return termination
+
+        return trace_cable(self.termination_a), trace_cable(self.termination_b)

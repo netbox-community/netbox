@@ -27,10 +27,11 @@ def update_connected_endpoints(instance, **kwargs):
     When a Cable is saved, update its connected endpoints.
     """
     termination_a, termination_b = instance.get_path_endpoints()
-    termination_a.connected_endpoint = termination_b
-    termination_a.save()
-    termination_b.connected_endpoint = termination_a
-    termination_b.save()
+    if termination_a is not None and termination_b is not None:
+        termination_a.connected_endpoint = termination_b
+        termination_a.save()
+        termination_b.connected_endpoint = termination_a
+        termination_b.save()
 
 
 @receiver(post_delete, sender=Cable)
