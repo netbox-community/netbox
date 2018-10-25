@@ -252,6 +252,8 @@ urlpatterns = [
 
     # Cables
     url(r'^cables/$', views.CableListView.as_view(), name='cable_list'),
+    url(r'^cables/(?P<pk>\d+)/$', views.CableView.as_view(), name='cable'),
+    url(r'^cables/(?P<pk>\d+)/edit/$', views.CableEditView.as_view(), name='cable_edit'),
     url(r'^cables/(?P<pk>\d+)/delete/$', views.CableDeleteView.as_view(), name='cable_delete'),
 
     # Console/power/interface connections

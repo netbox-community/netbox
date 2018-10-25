@@ -621,9 +621,10 @@ class DeviceBayTable(BaseTable):
 
 class CableTable(BaseTable):
     # django-tables2 adds CSS `class="label"` which causes rendering issues
-    _label = tables.Column(
-        accessor=Accessor('label'),
-        verbose_name='Label'
+    pk = tables.LinkColumn(
+        viewname='dcim:cable',
+        args=[Accessor('pk')],
+        verbose_name='PK'
     )
     device_a = tables.LinkColumn(
         viewname='dcim:device',
@@ -652,7 +653,7 @@ class CableTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Cable
-        fields = ('_label', 'device_a', 'termination_a', 'device_b', 'termination_b', 'status', 'type', 'color')
+        fields = ('pk', 'device_a', 'termination_a', 'device_b', 'termination_b', 'status', 'type', 'color')
 
 
 #

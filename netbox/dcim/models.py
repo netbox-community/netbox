@@ -2380,6 +2380,9 @@ class Cable(ChangeLoggedModel):
             return '{} (#{})'.format(self.label, self.pk)
         return '#{}'.format(self.pk)
 
+    def get_absolute_url(self):
+        return reverse('dcim:cable', args=[self.pk])
+
     def get_path_endpoints(self):
         """
         Traverse both ends of a cable path and return its connected endpoints. Note that one or both endpoints may be

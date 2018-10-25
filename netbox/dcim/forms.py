@@ -2131,7 +2131,7 @@ class RearPortBulkRenameForm(BulkRenameForm):
 # Cables
 #
 
-class CableForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
+class CableCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
     termination_b_site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         label='Site',
@@ -2198,13 +2198,20 @@ class CableForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
-        super(CableForm, self).__init__(*args, **kwargs)
+        super(CableCreateForm, self).__init__(*args, **kwargs)
 
         # Define available types for endpoint B based on the type of endpoint A
         termination_a_type = self.instance.termination_a._meta.model_name
         self.fields['termination_b_type'].queryset = ContentType.objects.filter(
             model__in=COMPATIBLE_TERMINATION_TYPES.get(termination_a_type)
         )
+
+
+class CableForm(BootstrapMixin, forms.ModelForm):
+
+    class Meta:
+        model = Cable
+        fields = ('type', 'status', 'label', 'color')
 
 
 class CableFilterForm(BootstrapMixin, forms.Form):

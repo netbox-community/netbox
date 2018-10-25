@@ -2023,10 +2023,21 @@ class CableListView(ObjectListView):
     template_name = 'dcim/cable_list.html'
 
 
+class CableView(View):
+
+    def get(self, request, pk):
+
+        cable = get_object_or_404(Cable, pk=pk)
+
+        return render(request, 'dcim/cable.html', {
+            'cable': cable,
+        })
+
+
 class CableCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_cable'
     model = Cable
-    model_form = forms.CableForm
+    model_form = forms.CableCreateForm
     template_name = 'dcim/cable_connect.html'
 
     def alter_obj(self, obj, request, url_args, url_kwargs):
@@ -2037,6 +2048,13 @@ class CableCreateView(PermissionRequiredMixin, ObjectEditView):
         obj.termination_a = termination_a_type.objects.get(pk=termination_a_id)
 
         return obj
+
+
+class CableEditView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.change_cable'
+    model = Cable
+    model_form = forms.CableForm
+    default_return_url = 'dcim:cable_list'
 
 
 class CableDeleteView(PermissionRequiredMixin, ObjectDeleteView):
