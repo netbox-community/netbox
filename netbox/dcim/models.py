@@ -2377,44 +2377,44 @@ class Cable(ChangeLoggedModel):
         Traverse both ends of a cable path and return its connected endpoints. Note that one or both endpoints may be
         None.
         """
-        def trace_cable(termination, position=None):
+        def trace_cable(termination, position=1):
 
             # Given a front port, follow the cable connected to the corresponding rear port/position
             if isinstance(termination, FrontPanelPort):
-                rear_port = termination.rear_port
-                port_type = ContentType.objects.get_for_model(rear_port)
-                next_cable = Cable.objects.filter(
-                    Q(termination_a_type=port_type, termination_a_id=rear_port.pk) |
-                    Q(termination_b_type=port_type, termination_b_id=rear_port.pk)
-                ).first()
-                if next_cable is None:
-                    return None
-                if next_cable.termination_a == termination.rear_port:
-                    return trace_cable(next_cable.termination_b, termination.rear_port_position)
-                else:
-                    return trace_cable(next_cable.termination_a, termination.rear_port_position)
+                peer_port = termination.rear_port
+                position = termination.rear_port_position
 
             # Given a rear port/position, follow the cable connected to the corresponding front port
-            if isinstance(termination, RearPanelPort):
-                if position is None:
-                    raise Exception("Must specify a position when tracing a path from a rear panel port")
-                front_port = FrontPanelPort.objects.get(
+            elif isinstance(termination, RearPanelPort):
+                if position not in range(1, termination.positions + 1):
+                    raise Exception("Invalid position for {} ({} positions): {})".format(
+                        termination, termination.positions, position
+                    ))
+                peer_port = FrontPanelPort.objects.get(
                     rear_port=termination,
                     rear_port_position=position,
                 )
-                port_type = ContentType.objects.get_for_model(front_port)
-                next_cable = Cable.objects.filter(
-                    Q(termination_a_type=port_type, termination_a_id=front_port.pk) |
-                    Q(termination_b_type=port_type, termination_b_id=front_port.pk)
-                ).first()
-                if next_cable is None:
-                    return None
-                if next_cable.termination_a == front_port:
-                    return trace_cable(next_cable.termination_b)
-                else:
-                    return trace_cable(next_cable.termination_a)
+                position=1
 
             # Termination is not a panel port, so we've reached the end of the path
-            return termination
+            else:
+                return termination
+
+            # Find the cable (if any) attached to the peer port
+            port_type = ContentType.objects.get_for_model(peer_port)
+            next_cable = Cable.objects.filter(
+                Q(termination_a_type=port_type, termination_a_id=peer_port.pk) |
+                Q(termination_b_type=port_type, termination_b_id=peer_port.pk)
+            ).first()
+
+            # If no cable exists, return None
+            if next_cable is None:
+                return None
+
+            # Return the far side termination of the cable
+            if next_cable.termination_a == peer_port:
+                return trace_cable(next_cable.termination_b, position)
+            else:
+                return trace_cable(next_cable.termination_a, position)
 
         return trace_cable(self.termination_a), trace_cable(self.termination_b)

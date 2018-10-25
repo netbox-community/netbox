@@ -29,8 +29,10 @@ def update_connected_endpoints(instance, **kwargs):
     termination_a, termination_b = instance.get_path_endpoints()
     if termination_a is not None and termination_b is not None:
         termination_a.connected_endpoint = termination_b
+        termination_a.connection_status = True
         termination_a.save()
         termination_b.connected_endpoint = termination_a
+        termination_a.connection_status = True
         termination_b.save()
 
 
@@ -40,7 +42,10 @@ def nullify_connected_endpoints(instance, **kwargs):
     When a Cable is deleted, nullify its connected endpoints.
     """
     termination_a, termination_b = instance.get_path_endpoints()
-    termination_a.connected_endpoint = None
-    termination_a.save()
-    termination_b.connected_endpoint = None
-    termination_b.save()
+    if termination_a is not None and termination_b is not None:
+        termination_a.connected_endpoint = None
+        termination_a.connection_status = None
+        termination_a.save()
+        termination_b.connected_endpoint = None
+        termination_b.connection_status = None
+        termination_b.save()
