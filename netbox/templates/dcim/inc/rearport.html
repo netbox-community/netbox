@@ -1,0 +1,24 @@
+<tr class="rearport">
+    {% if perms.dcim.change_rearport or perms.dcim.delete_rearport %}
+        <td class="pk">
+            <input name="pk" type="checkbox" value="{{ rearport.pk }}" />
+        </td>
+    {% endif %}
+    <td>
+        <i class="fa fa-fw fa-square-o"></i> {{ rearport }}
+    </td>
+    <td>{{ rearport.get_type_display }}</td>
+    <td>{{ rearport.positions }}</td>
+    <td class="text-right">
+        {% if perms.dcim.change_rearport %}
+            <a href="{% url 'dcim:rearport_edit' pk=rearport.pk %}?return_url={{ device.get_absolute_url }}" title="Edit port" class="btn btn-info btn-xs">
+                <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+            </a>
+        {% endif %}
+        {% if perms.dcim.delete_rearport %}
+            <a href="{% url 'dcim:rearport_delete' pk=rearport.pk %}?return_url={{ device.get_absolute_url }}" title="Delete port" class="btn btn-danger btn-xs">
+                <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+            </a>
+        {% endif %}
+    </td>
+</tr>

@@ -201,11 +201,11 @@
         {% if devicetype.is_pdu or poweroutlet_table.rows %}
             {% include 'dcim/inc/devicetype_component_table.html' with table=poweroutlet_table title='Power Outlets' add_url='dcim:devicetype_add_poweroutlet' delete_url='dcim:devicetype_delete_poweroutlet' %}
         {% endif %}
-        {% if devicetype.is_patch_panel or front_panel_port_table.rows %}
-            {% include 'dcim/inc/devicetype_component_table.html' with table=front_panel_port_table title='Front Panel Ports' add_url='dcim:devicetype_add_frontpanelport' delete_url='dcim:devicetype_delete_frontpanelport' %}
+        {% if devicetype.is_patch_panel or front_port_table.rows %}
+            {% include 'dcim/inc/devicetype_component_table.html' with table=front_port_table title='Front Panel Ports' add_url='dcim:devicetype_add_frontport' delete_url='dcim:devicetype_delete_frontport' %}
         {% endif %}
-        {% if devicetype.is_patch_panel or rear_panel_port_table.rows %}
-            {% include 'dcim/inc/devicetype_component_table.html' with table=rear_panel_port_table title='Rear Panel Ports' add_url='dcim:devicetype_add_rearpanelport' delete_url='dcim:devicetype_delete_rearpanelport' %}
+        {% if devicetype.is_patch_panel or rear_port_table.rows %}
+            {% include 'dcim/inc/devicetype_component_table.html' with table=rear_port_table title='Rear Panel Ports' add_url='dcim:devicetype_add_rearport' delete_url='dcim:devicetype_delete_rearport' %}
         {% endif %}
     </div>
 </div>

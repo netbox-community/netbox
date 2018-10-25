@@ -689,7 +689,7 @@
                     </form>
                 {% endif %}
             {% endif %}
-            {% if front_panel_ports or device.device_type.is_patch_panel %}
+            {% if front_ports or device.device_type.is_patch_panel %}
                 <form method="post">
                 {% csrf_token %}
                     <div class="panel panel-default">
@@ -699,7 +699,7 @@
                         <table class="table table-hover table-headings panel-body component-list">
                             <thead>
                                 <tr>
-                                    {% if perms.dcim.change_frontpanelport or perms.dcim.delete_frontpanelport %}
+                                    {% if perms.dcim.change_frontport or perms.dcim.delete_frontport %}
                                         <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
                                     {% endif %}
                                     <th>Name</th>
@@ -710,8 +710,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for frontpanelport in front_panel_ports %}
-                                    {% include 'dcim/inc/frontpanelport.html' %}
+                                {% for frontport in front_ports %}
+                                    {% include 'dcim/inc/frontport.html' %}
                                 {% empty %}
                                     <tr>
                                         <td colspan="5" class="text-center text-muted">&mdash; No front panel ports defined &mdash;</td>
@@ -720,19 +720,19 @@
                             </tbody>
                         </table>
                         <div class="panel-footer">
-                            {% if front_panel_ports and perms.dcim.change_frontpanelport %}
-                                <button type="submit" name="_rename" formaction="{% url 'dcim:frontpanelport_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
+                            {% if front_ports and perms.dcim.change_frontport %}
+                                <button type="submit" name="_rename" formaction="{% url 'dcim:frontport_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
                                     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
                                 </button>
                             {% endif %}
-                            {% if front_panel_ports and perms.dcim.delete_frontpanelport %}
-                                <button type="submit" formaction="{% url 'dcim:frontpanelport_bulk_delete' pk=device.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
+                            {% if front_ports and perms.dcim.delete_frontport %}
+                                <button type="submit" formaction="{% url 'dcim:frontport_bulk_delete' pk=device.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                                     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
                                 </button>
                             {% endif %}
-                            {% if perms.dcim.add_frontpanelport %}
+                            {% if perms.dcim.add_frontport %}
                                 <div class="pull-right">
-                                    <a href="{% url 'dcim:frontpanelport_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                    <a href="{% url 'dcim:frontport_add' pk=device.pk %}" class="btn btn-primary btn-xs">
                                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add front panel ports
                                     </a>
                                 </div>
@@ -742,7 +742,7 @@
                     </div>
                 </form>
             {% endif %}
-            {% if rear_panel_ports or device.device_type.is_patch_panel %}
+            {% if rear_ports or device.device_type.is_patch_panel %}
                 <form method="post">
                 {% csrf_token %}
                     <div class="panel panel-default">
@@ -752,7 +752,7 @@
                         <table class="table table-hover table-headings panel-body component-list">
                             <thead>
                                 <tr>
-                                    {% if perms.dcim.change_rearpanelport or perms.dcim.delete_rearpanelport %}
+                                    {% if perms.dcim.change_rearport or perms.dcim.delete_rearport %}
                                         <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
                                     {% endif %}
                                     <th>Name</th>
@@ -762,8 +762,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for rearpanelport in rear_panel_ports %}
-                                    {% include 'dcim/inc/rearpanelport.html' %}
+                                {% for rearport in rear_ports %}
+                                    {% include 'dcim/inc/rearport.html' %}
                                 {% empty %}
                                     <tr>
                                         <td colspan="5" class="text-center text-muted">&mdash; No rear panel ports defined &mdash;</td>
@@ -772,19 +772,19 @@
                             </tbody>
                         </table>
                         <div class="panel-footer">
-                            {% if rear_panel_ports and perms.dcim.change_rearpanelport %}
-                                <button type="submit" name="_rename" formaction="{% url 'dcim:rearpanelport_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
+                            {% if rear_ports and perms.dcim.change_rearport %}
+                                <button type="submit" name="_rename" formaction="{% url 'dcim:rearport_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
                                     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
                                 </button>
                             {% endif %}
-                            {% if rear_panel_ports and perms.dcim.delete_rearpanelport %}
-                                <button type="submit" formaction="{% url 'dcim:rearpanelport_bulk_delete' pk=device.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
+                            {% if rear_ports and perms.dcim.delete_rearport %}
+                                <button type="submit" formaction="{% url 'dcim:rearport_bulk_delete' pk=device.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                                     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
                                 </button>
                             {% endif %}
-                            {% if perms.dcim.add_rearpanelport %}
+                            {% if perms.dcim.add_rearport %}
                                 <div class="pull-right">
-                                    <a href="{% url 'dcim:rearpanelport_add' pk=device.pk %}" class="btn btn-primary btn-xs">
+                                    <a href="{% url 'dcim:rearport_add' pk=device.pk %}" class="btn btn-primary btn-xs">
                                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add rear panel ports
                                     </a>
                                 </div>

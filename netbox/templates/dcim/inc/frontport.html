@@ -1,0 +1,25 @@
+<tr class="frontport">
+    {% if perms.dcim.change_frontport or perms.dcim.delete_frontport %}
+        <td class="pk">
+            <input name="pk" type="checkbox" value="{{ frontport.pk }}" />
+        </td>
+    {% endif %}
+    <td>
+        <i class="fa fa-fw fa-square-o"></i> {{ frontport }}
+    </td>
+    <td>{{ frontport.get_type_display }}</td>
+    <td>{{ frontport.rear_port }}</td>
+    <td>{{ frontport.rear_port_position }}</td>
+    <td class="text-right">
+        {% if perms.dcim.change_frontport %}
+            <a href="{% url 'dcim:frontport_edit' pk=frontport.pk %}?return_url={{ device.get_absolute_url }}" title="Edit port" class="btn btn-info btn-xs">
+                <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+            </a>
+        {% endif %}
+        {% if perms.dcim.delete_frontport %}
+            <a href="{% url 'dcim:frontport_delete' pk=frontport.pk %}?return_url={{ device.get_absolute_url }}" title="Delete port" class="btn btn-danger btn-xs">
+                <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+            </a>
+        {% endif %}
+    </td>
+</tr>

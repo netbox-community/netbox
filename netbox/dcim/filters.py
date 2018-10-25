@@ -14,9 +14,9 @@ from .constants import (
 )
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceTemplate,
+    DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
     InventoryItem, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
-    RackGroup, RackReservation, RackRole, RearPanelPort, RearPanelPortTemplate, Region, Site, VirtualChassis,
+    RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
 )
 
 
@@ -368,17 +368,17 @@ class InterfaceTemplateFilter(DeviceTypeComponentFilterSet):
         fields = ['name', 'form_factor', 'mgmt_only']
 
 
-class FrontPanelPortTemplateFilter(DeviceTypeComponentFilterSet):
+class FrontPortTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
-        model = FrontPanelPortTemplate
+        model = FrontPortTemplate
         fields = ['name', 'type']
 
 
-class RearPanelPortTemplateFilter(DeviceTypeComponentFilterSet):
+class RearPortTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
-        model = RearPanelPortTemplate
+        model = RearPortTemplate
         fields = ['name', 'type']
 
 
@@ -681,17 +681,17 @@ class InterfaceFilter(django_filters.FilterSet):
             return queryset.none()
 
 
-class FrontPanelPortFilter(DeviceComponentFilterSet):
+class FrontPortFilter(DeviceComponentFilterSet):
 
     class Meta:
-        model = FrontPanelPort
+        model = FrontPort
         fields = ['name', 'type']
 
 
-class RearPanelPortFilter(DeviceComponentFilterSet):
+class RearPortFilter(DeviceComponentFilterSet):
 
     class Meta:
-        model = RearPanelPort
+        model = RearPort
         fields = ['name', 'type']
 
 

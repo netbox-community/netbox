@@ -5,9 +5,9 @@ from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, BooleanColumn, ToggleColumn
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceTemplate,
+    DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
     InventoryItem, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
-    RackGroup, RackReservation, RearPanelPort, RearPanelPortTemplate, Region, Site, VirtualChassis,
+    RackGroup, RackReservation, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
 )
 
 REGION_LINK = """
@@ -416,20 +416,20 @@ class InterfaceTemplateTable(BaseTable):
         empty_text = "None"
 
 
-class FrontPanelPortTemplateTable(BaseTable):
+class FrontPortTemplateTable(BaseTable):
     pk = ToggleColumn()
 
     class Meta(BaseTable.Meta):
-        model = FrontPanelPortTemplate
+        model = FrontPortTemplate
         fields = ('pk', 'name', 'type', 'rear_port', 'rear_port_position')
         empty_text = "None"
 
 
-class RearPanelPortTemplateTable(BaseTable):
+class RearPortTemplateTable(BaseTable):
     pk = ToggleColumn()
 
     class Meta(BaseTable.Meta):
-        model = RearPanelPortTemplate
+        model = RearPortTemplate
         fields = ('pk', 'name', 'type', 'positions')
         empty_text = "None"
 
@@ -593,18 +593,18 @@ class InterfaceTable(BaseTable):
         fields = ('name', 'form_factor', 'lag', 'enabled', 'mgmt_only', 'description')
 
 
-class FrontPanelPortTable(BaseTable):
+class FrontPortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
-        model = FrontPanelPort
+        model = FrontPort
         fields = ('name', 'type', 'rear_port', 'rear_port_position')
         empty_text = "None"
 
 
-class RearPanelPortTable(BaseTable):
+class RearPortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
-        model = RearPanelPort
+        model = RearPort
         fields = ('name', 'type', 'positions')
         empty_text = "None"
 

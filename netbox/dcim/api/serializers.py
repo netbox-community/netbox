@@ -6,9 +6,9 @@ from circuits.models import Circuit, CircuitTermination
 from dcim.constants import *
 from dcim.models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceType, DeviceRole, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceTemplate,
+    DeviceBayTemplate, DeviceType, DeviceRole, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
     Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
-    RackGroup, RackReservation, RackRole, RearPanelPort, RearPanelPortTemplate, Region, Site, VirtualChassis,
+    RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
 )
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.models import IPAddress, VLAN
@@ -302,45 +302,45 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
 
 
 #
-# Rear panel port templates
+# Rear port templates
 #
 
-class RearPanelPortTemplateSerializer(ValidatedModelSerializer):
+class RearPortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
-    type = ChoiceField(choices=PANELPORT_TYPE_CHOICES)
+    type = ChoiceField(choices=PORT_TYPE_CHOICES)
 
     class Meta:
-        model = RearPanelPortTemplate
+        model = RearPortTemplate
         fields = ['id', 'device_type', 'name', 'type', 'positions']
 
 
-class NestedRearPanelPortTemplateSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rearpanelporttemplate-detail')
+class NestedRearPortTemplateSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rearporttemplate-detail')
 
     class Meta:
-        model = RearPanelPortTemplate
+        model = RearPortTemplate
         fields = ['id', 'url', 'name']
 
 
 #
-# Front panel port templates
+# Front port templates
 #
 
-class FrontPanelPortTemplateSerializer(ValidatedModelSerializer):
+class FrontPortTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
-    type = ChoiceField(choices=PANELPORT_TYPE_CHOICES)
-    rear_port = NestedRearPanelPortTemplateSerializer()
+    type = ChoiceField(choices=PORT_TYPE_CHOICES)
+    rear_port = NestedRearPortTemplateSerializer()
 
     class Meta:
-        model = FrontPanelPortTemplate
+        model = FrontPortTemplate
         fields = ['id', 'device_type', 'name', 'type', 'rear_port', 'rear_port_position']
 
 
-class NestedFrontPanelPortTemplateSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:frontpanelporttemplate-detail')
+class NestedFrontPortTemplateSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:frontporttemplate-detail')
 
     class Meta:
-        model = FrontPanelPortTemplate
+        model = FrontPortTemplate
         fields = ['id', 'url', 'name']
 
 
@@ -703,47 +703,47 @@ class InterfaceSerializer(TaggitSerializer, IsConnectedMixin, ValidatedModelSeri
 
 
 #
-# Rear panel ports
+# Rear ports
 #
 
-class RearPanelPortSerializer(ValidatedModelSerializer):
+class RearPortSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
-    type = ChoiceField(choices=PANELPORT_TYPE_CHOICES)
+    type = ChoiceField(choices=PORT_TYPE_CHOICES)
     tags = TagListSerializerField(required=False)
 
     class Meta:
-        model = RearPanelPort
+        model = RearPort
         fields = ['id', 'device', 'name', 'type', 'positions', 'tags']
 
 
-class NestedRearPanelPortSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rearpanelport-detail')
+class NestedRearPortSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rearport-detail')
 
     class Meta:
-        model = RearPanelPort
+        model = RearPort
         fields = ['id', 'url', 'name']
 
 
 #
-# Front panel ports
+# Front ports
 #
 
-class FrontPanelPortSerializer(ValidatedModelSerializer):
+class FrontPortSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
-    type = ChoiceField(choices=PANELPORT_TYPE_CHOICES)
-    rear_port = NestedRearPanelPortSerializer()
+    type = ChoiceField(choices=PORT_TYPE_CHOICES)
+    rear_port = NestedRearPortSerializer()
     tags = TagListSerializerField(required=False)
 
     class Meta:
-        model = FrontPanelPort
+        model = FrontPort
         fields = ['id', 'device', 'name', 'type', 'rear_port', 'rear_port_position', 'tags']
 
 
-class NestedFrontPanelPortSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:frontpanelport-detail')
+class NestedFrontPortSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:frontport-detail')
 
     class Meta:
-        model = FrontPanelPort
+        model = FrontPort
         fields = ['id', 'url', 'name']
 
 

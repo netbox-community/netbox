@@ -105,7 +105,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('dcim', '0065_patch_panel_ports'),
+        ('dcim', '0065_front_rear_ports'),
     ]
 
     operations = [
@@ -123,8 +123,8 @@ class Migration(migrations.Migration):
                 ('status', models.BooleanField(default=True)),
                 ('label', models.CharField(blank=True, max_length=100)),
                 ('color', utilities.fields.ColorField(blank=True, max_length=6)),
-                ('termination_a_type', models.ForeignKey(limit_choices_to={'model__in': ['consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontpanelport', 'rearpanelport']}, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.ContentType')),
-                ('termination_b_type', models.ForeignKey(limit_choices_to={'model__in': ['consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontpanelport', 'rearpanelport']}, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.ContentType')),
+                ('termination_a_type', models.ForeignKey(limit_choices_to={'model__in': ['consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontport', 'rearport']}, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.ContentType')),
+                ('termination_b_type', models.ForeignKey(limit_choices_to={'model__in': ['consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontport', 'rearport']}, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.ContentType')),
             ],
         ),
         migrations.AlterUniqueTogether(

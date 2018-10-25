@@ -209,32 +209,32 @@ IFACE_MODE_CHOICES = [
     [IFACE_MODE_TAGGED_ALL, 'Tagged All'],
 ]
 
-# Patch panel port types
-PANELPORT_TYPE_8P8C = 1000
-PANELPORT_TYPE_ST = 2000
-PANELPORT_TYPE_SC_SIMPLEX = 2100
-PANELPORT_TYPE_SC_DUPLEX = 2110
-PANELPORT_TYPE_FC = 2200
-PANELPORT_TYPE_LC = 2300
-PANELPORT_TYPE_MTRJ = 2400
-PANELPORT_TYPE_MPO = 2500
-PANELPORT_TYPE_CHOICES = [
+# Pass-through port types
+PORT_TYPE_8P8C = 1000
+PORT_TYPE_ST = 2000
+PORT_TYPE_SC_SIMPLEX = 2100
+PORT_TYPE_SC_DUPLEX = 2110
+PORT_TYPE_FC = 2200
+PORT_TYPE_LC = 2300
+PORT_TYPE_MTRJ = 2400
+PORT_TYPE_MPO = 2500
+PORT_TYPE_CHOICES = [
     [
         'Copper',
         [
-            [PANELPORT_TYPE_8P8C, '8P8C'],
+            [PORT_TYPE_8P8C, '8P8C'],
         ],
     ],
     [
         'Fiber Optic',
         [
-            [PANELPORT_TYPE_ST, 'ST'],
-            [PANELPORT_TYPE_SC_SIMPLEX, 'SC (Simplex)'],
-            [PANELPORT_TYPE_SC_DUPLEX, 'SC (Duplex)'],
-            [PANELPORT_TYPE_FC, 'FC'],
-            [PANELPORT_TYPE_LC, 'LC'],
-            [PANELPORT_TYPE_MTRJ, 'MTRJ'],
-            [PANELPORT_TYPE_MPO, 'MPO'],
+            [PORT_TYPE_ST, 'ST'],
+            [PORT_TYPE_SC_SIMPLEX, 'SC (Simplex)'],
+            [PORT_TYPE_SC_DUPLEX, 'SC (Duplex)'],
+            [PORT_TYPE_FC, 'FC'],
+            [PORT_TYPE_LC, 'LC'],
+            [PORT_TYPE_MTRJ, 'MTRJ'],
+            [PORT_TYPE_MPO, 'MPO'],
         ]
     ]
 ]
@@ -285,7 +285,7 @@ CONNECTION_STATUS_CHOICES = [
 
 # Cable endpoint types
 CABLE_TERMINATION_TYPES = [
-    'consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontpanelport', 'rearpanelport',
+    'consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontport', 'rearport',
 ]
 
 # Cable types
@@ -304,16 +304,16 @@ CABLE_TERMINATION_TYPE_CHOICES = {
     'powerport': ('power-ports', 'Power port'),
     'poweroutlet': ('power-outlets', 'Power outlet'),
     'interface': ('interfaces', 'Interface'),
-    'frontpanelport': ('front-panel-ports', 'Front panel port'),
-    'rearpanelport': ('rear-panel-ports', 'Rear panel port'),
+    'frontport': ('front-ports', 'Front panel port'),
+    'rearport': ('rear-ports', 'Rear panel port'),
 }
 
 COMPATIBLE_TERMINATION_TYPES = {
-    'consoleport': ['consoleserverport', 'frontpanelport', 'rearpanelport'],
-    'consoleserverport': ['consoleport', 'frontpanelport', 'rearpanelport'],
+    'consoleport': ['consoleserverport', 'frontport', 'rearport'],
+    'consoleserverport': ['consoleport', 'frontport', 'rearport'],
     'powerport': ['poweroutlet'],
     'poweroutlet': ['powerport'],
-    'interface': ['interface', 'frontpanelport', 'rearpanelport'],
-    'frontpanelport': ['consoleport', 'consoleserverport', 'interface', 'frontpanelport', 'rearpanelport'],
-    'rearpanelport': ['consoleport', 'consoleserverport', 'interface', 'frontpanelport', 'rearpanelport'],
+    'interface': ['interface', 'frontport', 'rearport'],
+    'frontport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport'],
+    'rearport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport'],
 }

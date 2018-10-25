@@ -869,7 +869,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
             })
 
         if not self.is_patch_panel and (
-                self.front_panel_port_templates.exists() or self.rear_panel_port_templates.exists()
+                self.front_port_templates.exists() or self.rear_port_templates.exists()
         ):
             raise ValidationError({
                 'is_patch_panel': "Must delete all patch panel port templates associated with this device before "
@@ -1015,25 +1015,25 @@ class InterfaceTemplate(ComponentTemplateModel):
         return self.name
 
 
-class FrontPanelPortTemplate(ComponentTemplateModel):
+class FrontPortTemplate(ComponentTemplateModel):
     """
-    A template for a front patch panel port on a new Device.
+    Template for a pass-through port on the front of a new Device.
     """
     device_type = models.ForeignKey(
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
-        related_name='front_panel_port_templates'
+        related_name='front_port_templates'
     )
     name = models.CharField(
         max_length=64
     )
     type = models.PositiveSmallIntegerField(
-        choices=PANELPORT_TYPE_CHOICES
+        choices=PORT_TYPE_CHOICES
     )
     rear_port = models.ForeignKey(
-        to='dcim.RearPanelPortTemplate',
+        to='dcim.RearPortTemplate',
         on_delete=models.CASCADE,
-        related_name='front_panel_port_templates'
+        related_name='front_port_templates'
     )
     rear_port_position = models.PositiveSmallIntegerField(
         default=1,
@@ -1067,20 +1067,20 @@ class FrontPanelPortTemplate(ComponentTemplateModel):
             )
 
 
-class RearPanelPortTemplate(ComponentTemplateModel):
+class RearPortTemplate(ComponentTemplateModel):
     """
-    A template for a rear patch panel port on a new Device.
+    Template for a pass-through port on the rear of a new Device.
     """
     device_type = models.ForeignKey(
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
-        related_name='rear_panel_port_templates'
+        related_name='rear_port_templates'
     )
     name = models.CharField(
         max_length=64
     )
     type = models.PositiveSmallIntegerField(
-        choices=PANELPORT_TYPE_CHOICES
+        choices=PORT_TYPE_CHOICES
     )
     positions = models.PositiveSmallIntegerField(
         default=1,
@@ -1512,22 +1512,22 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                 [Interface(device=self, name=template.name, form_factor=template.form_factor,
                            mgmt_only=template.mgmt_only) for template in self.device_type.interface_templates.all()]
             )
-            RearPanelPort.objects.bulk_create([
-                RearPanelPort(
+            RearPort.objects.bulk_create([
+                RearPort(
                     device=self,
                     name=template.name,
                     type=template.type,
                     positions=template.positions
-                ) for template in self.device_type.rear_panel_port_templates.all()
+                ) for template in self.device_type.rear_port_templates.all()
             ])
-            FrontPanelPort.objects.bulk_create([
-                FrontPanelPort(
+            FrontPort.objects.bulk_create([
+                FrontPort(
                     device=self,
                     name=template.name,
                     type=template.type,
-                    rear_port=RearPanelPort.objects.get(device=self, name=template.rear_port.name),
+                    rear_port=RearPort.objects.get(device=self, name=template.rear_port.name),
                     rear_port_position=template.rear_port_position,
-                ) for template in self.device_type.front_panel_port_templates.all()
+                ) for template in self.device_type.front_port_templates.all()
             ])
             DeviceBay.objects.bulk_create(
                 [DeviceBay(device=self, name=template.name) for template in
@@ -2046,28 +2046,28 @@ class Interface(ComponentModel):
 
 
 #
-# Patch panel ports
+# Pass-through ports
 #
 
-class FrontPanelPort(ComponentModel):
+class FrontPort(ComponentModel):
     """
-    A port on the front of a patch panel.
+    A pass-through port on the front of a Device.
     """
     device = models.ForeignKey(
         to='dcim.Device',
         on_delete=models.CASCADE,
-        related_name='front_panel_ports'
+        related_name='front_ports'
     )
     name = models.CharField(
         max_length=64
     )
     type = models.PositiveSmallIntegerField(
-        choices=PANELPORT_TYPE_CHOICES
+        choices=PORT_TYPE_CHOICES
     )
     rear_port = models.ForeignKey(
-        to='dcim.RearPanelPort',
+        to='dcim.RearPort',
         on_delete=models.CASCADE,
-        related_name='front_panel_ports'
+        related_name='front_ports'
     )
     rear_port_position = models.PositiveSmallIntegerField(
         default=1,
@@ -2103,20 +2103,20 @@ class FrontPanelPort(ComponentModel):
             )
 
 
-class RearPanelPort(ComponentModel):
+class RearPort(ComponentModel):
     """
-    A port on the rear of a patch panel.
+    A pass-through port on the rear of a Device.
     """
     device = models.ForeignKey(
         to='dcim.Device',
         on_delete=models.CASCADE,
-        related_name='rear_panel_ports'
+        related_name='rear_ports'
     )
     name = models.CharField(
         max_length=64
     )
     type = models.PositiveSmallIntegerField(
-        choices=PANELPORT_TYPE_CHOICES
+        choices=PORT_TYPE_CHOICES
     )
     positions = models.PositiveSmallIntegerField(
         default=1,
@@ -2380,23 +2380,23 @@ class Cable(ChangeLoggedModel):
         def trace_cable(termination, position=1):
 
             # Given a front port, follow the cable connected to the corresponding rear port/position
-            if isinstance(termination, FrontPanelPort):
+            if isinstance(termination, FrontPort):
                 peer_port = termination.rear_port
                 position = termination.rear_port_position
 
             # Given a rear port/position, follow the cable connected to the corresponding front port
-            elif isinstance(termination, RearPanelPort):
+            elif isinstance(termination, RearPort):
                 if position not in range(1, termination.positions + 1):
                     raise Exception("Invalid position for {} ({} positions): {})".format(
                         termination, termination.positions, position
                     ))
-                peer_port = FrontPanelPort.objects.get(
+                peer_port = FrontPort.objects.get(
                     rear_port=termination,
                     rear_port_position=position,
                 )
                 position=1
 
-            # Termination is not a panel port, so we've reached the end of the path
+            # Termination is not a pass-through port, so we've reached the end of the path
             else:
                 return termination
 

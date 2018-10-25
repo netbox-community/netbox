@@ -37,8 +37,8 @@ router.register(r'console-server-port-templates', views.ConsoleServerPortTemplat
 router.register(r'power-port-templates', views.PowerPortTemplateViewSet)
 router.register(r'power-outlet-templates', views.PowerOutletTemplateViewSet)
 router.register(r'interface-templates', views.InterfaceTemplateViewSet)
-router.register(r'front-panel-port-templates', views.FrontPanelPortTemplateViewSet)
-router.register(r'rear-panel-port-templates', views.RearPanelPortTemplateViewSet)
+router.register(r'front-port-templates', views.FrontPortTemplateViewSet)
+router.register(r'rear-port-templates', views.RearPortTemplateViewSet)
 router.register(r'device-bay-templates', views.DeviceBayTemplateViewSet)
 
 # Devices
@@ -52,8 +52,8 @@ router.register(r'console-server-ports', views.ConsoleServerPortViewSet)
 router.register(r'power-ports', views.PowerPortViewSet)
 router.register(r'power-outlets', views.PowerOutletViewSet)
 router.register(r'interfaces', views.InterfaceViewSet)
-router.register(r'front-panel-ports', views.FrontPanelPortViewSet)
-router.register(r'rear-panel-ports', views.RearPanelPortViewSet)
+router.register(r'front-ports', views.FrontPortViewSet)
+router.register(r'rear-ports', views.RearPortViewSet)
 router.register(r'device-bays', views.DeviceBayViewSet)
 router.register(r'inventory-items', views.InventoryItemViewSet)
 

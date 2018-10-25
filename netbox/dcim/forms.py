@@ -27,9 +27,9 @@ from virtualization.models import Cluster
 from .constants import *
 from .models import (
     Cable, DeviceBay, DeviceBayTemplate, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate,
-    Device, DeviceRole, DeviceType, FrontPanelPort, FrontPanelPortTemplate, Interface, InterfaceTemplate, Manufacturer,
+    Device, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, RearPanelPort, RearPanelPortTemplate, Region, Site, VirtualChassis,
+    RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
 )
 
 DEVICE_BY_PK_RE = r'{\d+\}'
@@ -702,22 +702,22 @@ class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         nullable_fields = []
 
 
-class FrontPanelPortTemplateForm(BootstrapMixin, forms.ModelForm):
+class FrontPortTemplateForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
-        model = FrontPanelPortTemplate
+        model = FrontPortTemplate
         fields = ['device_type', 'name', 'type', 'rear_port', 'rear_port_position']
         widgets = {
             'device_type': forms.HiddenInput(),
         }
 
 
-class FrontPanelPortTemplateCreateForm(ComponentForm):
+class FrontPortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=PANELPORT_TYPE_CHOICES
+        choices=PORT_TYPE_CHOICES
     )
     rear_port_set = forms.MultipleChoiceField(
         choices=[],
@@ -727,17 +727,17 @@ class FrontPanelPortTemplateCreateForm(ComponentForm):
 
     def __init__(self, *args, **kwargs):
 
-        super(FrontPanelPortTemplateCreateForm, self).__init__(*args, **kwargs)
+        super(FrontPortTemplateCreateForm, self).__init__(*args, **kwargs)
 
         # Determine which rear port positions are occupied. These will be excluded from the list of available mappings.
         occupied_port_positions = [
             (front_port.rear_port_id, front_port.rear_port_position)
-            for front_port in self.parent.front_panel_port_templates.all()
+            for front_port in self.parent.front_port_templates.all()
         ]
 
         # Populate rear port choices
         choices = []
-        rear_ports = natsorted(RearPanelPortTemplate.objects.filter(device_type=self.parent), key=attrgetter('name'))
+        rear_ports = natsorted(RearPortTemplate.objects.filter(device_type=self.parent), key=attrgetter('name'))
         for rear_port in rear_ports:
             for i in range(1, rear_port.positions + 1):
                 if (rear_port.pk, i) not in occupied_port_positions:
@@ -768,22 +768,22 @@ class FrontPanelPortTemplateCreateForm(ComponentForm):
         }
 
 
-class RearPanelPortTemplateForm(BootstrapMixin, forms.ModelForm):
+class RearPortTemplateForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
-        model = RearPanelPortTemplate
+        model = RearPortTemplate
         fields = ['device_type', 'name', 'type', 'positions']
         widgets = {
             'device_type': forms.HiddenInput(),
         }
 
 
-class RearPanelPortTemplateCreateForm(ComponentForm):
+class RearPortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=PANELPORT_TYPE_CHOICES
+        choices=PORT_TYPE_CHOICES
     )
     positions = forms.IntegerField(
         min_value=1,
@@ -2018,27 +2018,27 @@ class InterfaceBulkDisconnectForm(ConfirmationForm):
 
 
 #
-# Front panel ports
+# Front pass-through ports
 #
 
-class FrontPanelPortForm(BootstrapMixin, forms.ModelForm):
+class FrontPortForm(BootstrapMixin, forms.ModelForm):
     tags = TagField(required=False)
 
     class Meta:
-        model = FrontPanelPort
+        model = FrontPort
         fields = ['device', 'name', 'type', 'rear_port', 'rear_port_position', 'tags']
         widgets = {
             'device': forms.HiddenInput(),
         }
 
 
-# TODO: Merge with  FrontPanelPortTemplateCreateForm to remove duplicate logic
-class FrontPanelPortCreateForm(ComponentForm):
+# TODO: Merge with  FrontPortTemplateCreateForm to remove duplicate logic
+class FrontPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=PANELPORT_TYPE_CHOICES
+        choices=PORT_TYPE_CHOICES
     )
     rear_port_set = forms.MultipleChoiceField(
         choices=[],
@@ -2048,17 +2048,17 @@ class FrontPanelPortCreateForm(ComponentForm):
 
     def __init__(self, *args, **kwargs):
 
-        super(FrontPanelPortCreateForm, self).__init__(*args, **kwargs)
+        super(FrontPortCreateForm, self).__init__(*args, **kwargs)
 
         # Determine which rear port positions are occupied. These will be excluded from the list of available mappings.
         occupied_port_positions = [
             (front_port.rear_port_id, front_port.rear_port_position)
-            for front_port in self.parent.front_panel_port_templates.all()
+            for front_port in self.parent.front_port_templates.all()
         ]
 
         # Populate rear port choices
         choices = []
-        rear_ports = natsorted(RearPanelPort.objects.filter(device=self.parent), key=attrgetter('name'))
+        rear_ports = natsorted(RearPort.objects.filter(device=self.parent), key=attrgetter('name'))
         for rear_port in rear_ports:
             for i in range(1, rear_port.positions + 1):
                 if (rear_port.pk, i) not in occupied_port_positions:
@@ -2089,34 +2089,34 @@ class FrontPanelPortCreateForm(ComponentForm):
         }
 
 
-class FrontPanelPortBulkRenameForm(BulkRenameForm):
+class FrontPortBulkRenameForm(BulkRenameForm):
     pk = forms.ModelMultipleChoiceField(
-        queryset=FrontPanelPort.objects.all(),
+        queryset=FrontPort.objects.all(),
         widget=forms.MultipleHiddenInput
     )
 
 
 #
-# Rear panel ports
+# Rear pass-through ports
 #
 
-class RearPanelPortForm(BootstrapMixin, forms.ModelForm):
+class RearPortForm(BootstrapMixin, forms.ModelForm):
     tags = TagField(required=False)
 
     class Meta:
-        model = RearPanelPort
+        model = RearPort
         fields = ['device', 'name', 'type', 'positions', 'tags']
         widgets = {
             'device': forms.HiddenInput(),
         }
 
 
-class RearPanelPortCreateForm(ComponentForm):
+class RearPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
     )
     type = forms.ChoiceField(
-        choices=PANELPORT_TYPE_CHOICES
+        choices=PORT_TYPE_CHOICES
     )
     positions = forms.IntegerField(
         min_value=1,
@@ -2126,9 +2126,9 @@ class RearPanelPortCreateForm(ComponentForm):
     )
 
 
-class RearPanelPortBulkRenameForm(BulkRenameForm):
+class RearPortBulkRenameForm(BulkRenameForm):
     pk = forms.ModelMultipleChoiceField(
-        queryset=RearPanelPort.objects.all(),
+        queryset=RearPort.objects.all(),
         widget=forms.MultipleHiddenInput
     )
 

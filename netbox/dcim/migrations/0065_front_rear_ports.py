@@ -15,20 +15,20 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='FrontPanelPort',
+            name='FrontPort',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
                 ('type', models.PositiveSmallIntegerField()),
                 ('rear_port_position', models.PositiveSmallIntegerField(default=1, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(64)])),
-                ('device', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='front_panel_ports', to='dcim.Device')),
+                ('device', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='front_ports', to='dcim.Device')),
             ],
             options={
                 'ordering': ['device', 'name'],
             },
         ),
         migrations.CreateModel(
-            name='FrontPanelPortTemplate',
+            name='FrontPortTemplate',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
@@ -40,13 +40,13 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='RearPanelPort',
+            name='RearPort',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
                 ('type', models.PositiveSmallIntegerField()),
                 ('positions', models.PositiveSmallIntegerField(default=1, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(64)])),
-                ('device', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rear_panel_ports', to='dcim.Device')),
+                ('device', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rear_ports', to='dcim.Device')),
                 ('tags', taggit.managers.TaggableManager(through='taggit.TaggedItem', to='taggit.Tag')),
             ],
             options={
@@ -54,7 +54,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='RearPanelPortTemplate',
+            name='RearPortTemplate',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=64)),
@@ -71,44 +71,44 @@ class Migration(migrations.Migration):
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='rearpanelporttemplate',
+            model_name='rearporttemplate',
             name='device_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rear_panel_port_templates', to='dcim.DeviceType'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rear_port_templates', to='dcim.DeviceType'),
         ),
         migrations.AddField(
-            model_name='frontpanelporttemplate',
+            model_name='frontporttemplate',
             name='device_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='front_panel_port_templates', to='dcim.DeviceType'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='front_port_templates', to='dcim.DeviceType'),
         ),
         migrations.AddField(
-            model_name='frontpanelporttemplate',
+            model_name='frontporttemplate',
             name='rear_port',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='front_panel_port_templates', to='dcim.RearPanelPortTemplate'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='front_port_templates', to='dcim.RearPortTemplate'),
         ),
         migrations.AddField(
-            model_name='frontpanelport',
+            model_name='frontport',
             name='rear_port',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='front_panel_ports', to='dcim.RearPanelPort'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='front_ports', to='dcim.RearPort'),
         ),
         migrations.AddField(
-            model_name='frontpanelport',
+            model_name='frontport',
             name='tags',
             field=taggit.managers.TaggableManager(through='taggit.TaggedItem', to='taggit.Tag'),
         ),
         migrations.AlterUniqueTogether(
-            name='rearpanelporttemplate',
+            name='rearporttemplate',
             unique_together={('device_type', 'name')},
         ),
         migrations.AlterUniqueTogether(
-            name='rearpanelport',
+            name='rearport',
             unique_together={('device', 'name')},
         ),
         migrations.AlterUniqueTogether(
-            name='frontpanelporttemplate',
+            name='frontporttemplate',
             unique_together={('rear_port', 'rear_port_position'), ('device_type', 'name')},
         ),
         migrations.AlterUniqueTogether(
-            name='frontpanelport',
+            name='frontport',
             unique_together={('device', 'name'), ('rear_port', 'rear_port_position')},
         ),
     ]
