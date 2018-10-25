@@ -226,7 +226,7 @@ class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
         model = DeviceType
         fields = [
             'id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'interface_ordering',
-            'is_console_server', 'is_pdu', 'is_network_device', 'is_patch_panel', 'subdevice_role', 'comments', 'tags',
+            'is_console_server', 'is_pdu', 'is_network_device', 'subdevice_role', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated', 'instance_count',
         ]
 

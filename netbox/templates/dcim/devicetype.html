@@ -137,19 +137,6 @@
                 </tr>
                 <tr>
                     <td class="text-right">
-                        {% if devicetype.is_patch_panel %}
-                            <i class="glyphicon glyphicon-ok text-success" title="Yes"></i>
-                        {% else %}
-                            <i class="glyphicon glyphicon-remove text-danger" title="No"></i>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <strong>Patch Panel</strong><br />
-                        <small class="text-muted">This device {% if devicetype.is_patch_panel %}has{% else %}does not have{% endif %} patch panel ports</small>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="text-right">
                         {% if devicetype.subdevice_role == True %}
                             <label class="label label-primary">Parent</label>
                         {% elif devicetype.subdevice_role == False %}
@@ -201,12 +188,16 @@
         {% if devicetype.is_pdu or poweroutlet_table.rows %}
             {% include 'dcim/inc/devicetype_component_table.html' with table=poweroutlet_table title='Power Outlets' add_url='dcim:devicetype_add_poweroutlet' delete_url='dcim:devicetype_delete_poweroutlet' %}
         {% endif %}
-        {% if devicetype.is_patch_panel or front_port_table.rows %}
-            {% include 'dcim/inc/devicetype_component_table.html' with table=front_port_table title='Front Panel Ports' add_url='dcim:devicetype_add_frontport' delete_url='dcim:devicetype_delete_frontport' %}
-        {% endif %}
-        {% if devicetype.is_patch_panel or rear_port_table.rows %}
-            {% include 'dcim/inc/devicetype_component_table.html' with table=rear_port_table title='Rear Panel Ports' add_url='dcim:devicetype_add_rearport' delete_url='dcim:devicetype_delete_rearport' %}
-        {% endif %}
     </div>
 </div>
+{% if devicetype.front_port_templates.exists or devicetype.rear_port_templates.exists %}
+    <div class="row">
+        <div class="col-md-6">
+            {% include 'dcim/inc/devicetype_component_table.html' with table=front_port_table title='Front Ports' add_url='dcim:devicetype_add_frontport' delete_url='dcim:devicetype_delete_frontport' %}
+        </div>
+        <div class="col-md-6">
+            {% include 'dcim/inc/devicetype_component_table.html' with table=rear_port_table title='Rear Ports' add_url='dcim:devicetype_add_rearport' delete_url='dcim:devicetype_delete_rearport' %}
+        </div>
+    </div>
+{% endif %}
 {% endblock %}

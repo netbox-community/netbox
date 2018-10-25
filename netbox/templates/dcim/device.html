@@ -689,12 +689,12 @@
                     </form>
                 {% endif %}
             {% endif %}
-            {% if front_ports or device.device_type.is_patch_panel %}
+            {% if front_ports %}
                 <form method="post">
                 {% csrf_token %}
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <strong>Front Panel Ports</strong>
+                            <strong>Front Ports</strong>
                         </div>
                         <table class="table table-hover table-headings panel-body component-list">
                             <thead>
@@ -742,12 +742,12 @@
                     </div>
                 </form>
             {% endif %}
-            {% if rear_ports or device.device_type.is_patch_panel %}
+            {% if rear_ports %}
                 <form method="post">
                 {% csrf_token %}
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <strong>Rear Panel Ports</strong>
+                            <strong>Rear Ports</strong>
                         </div>
                         <table class="table table-hover table-headings panel-body component-list">
                             <thead>

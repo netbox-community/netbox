@@ -532,7 +532,7 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
         model = DeviceType
         fields = [
             'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
-            'is_network_device', 'is_patch_panel', 'subdevice_role', 'interface_ordering', 'comments', 'tags',
+            'is_network_device', 'subdevice_role', 'interface_ordering', 'comments', 'tags',
         ]
         labels = {
             'interface_ordering': 'Order interfaces by',
@@ -582,9 +582,6 @@ class DeviceTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkE
     is_network_device = forms.NullBooleanField(
         required=False, widget=BulkEditNullBooleanSelect, label='Is a network device'
     )
-    is_patch_panel = forms.NullBooleanField(
-        required=False, widget=BulkEditNullBooleanSelect, label='Is a patch panel'
-    )
 
     class Meta:
         nullable_fields = []
@@ -604,9 +601,6 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
     )
     is_network_device = forms.BooleanField(
         required=False, label='Is a network device', widget=forms.CheckboxInput(attrs={'value': 'True'})
-    )
-    is_patch_panel = forms.BooleanField(
-        required=False, label='Is a patch panel', widget=forms.CheckboxInput(attrs={'value': 'True'})
     )
     subdevice_role = forms.NullBooleanField(
         required=False, label='Subdevice role', widget=forms.Select(choices=(

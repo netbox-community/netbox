@@ -770,11 +770,6 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         verbose_name='Is a network device',
         help_text='This type of device has network interfaces'
     )
-    is_patch_panel = models.BooleanField(
-        default=False,
-        verbose_name='Is a patch panel',
-        help_text='This type of device has patch panel ports'
-    )
     subdevice_role = models.NullBooleanField(
         default=None,
         verbose_name='Parent/child status',
@@ -794,8 +789,8 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager()
 
     csv_headers = [
-        'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server',
-        'is_pdu', 'is_network_device', 'is_patch_panel', 'subdevice_role', 'interface_ordering', 'comments',
+        'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
+        'is_network_device', 'subdevice_role', 'interface_ordering', 'comments',
     ]
 
     class Meta:
@@ -828,7 +823,6 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
             self.is_console_server,
             self.is_pdu,
             self.is_network_device,
-            self.is_patch_panel,
             self.get_subdevice_role_display() if self.subdevice_role else None,
             self.get_interface_ordering_display(),
             self.comments,
@@ -866,14 +860,6 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
             raise ValidationError({
                 'is_network_device': "Must delete all non-management-only interface templates associated with this "
                                      "device before declassifying it as a network device."
-            })
-
-        if not self.is_patch_panel and (
-                self.front_port_templates.exists() or self.rear_port_templates.exists()
-        ):
-            raise ValidationError({
-                'is_patch_panel': "Must delete all patch panel port templates associated with this device before "
-                                  "declassifying it as a network device."
             })
 
         if self.subdevice_role != SUBDEVICE_ROLE_PARENT and self.device_bay_templates.count():
