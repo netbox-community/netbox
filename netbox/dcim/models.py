@@ -16,7 +16,6 @@ from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
 
 from circuits.models import Circuit
-from extras.constants import OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE
 from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange
 from utilities.fields import ColorField, NullableCharField
 from utilities.managers import NaturalOrderByManager
@@ -24,7 +23,7 @@ from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
 from .constants import *
 from .fields import ASNField, MACAddressField
-from .querysets import InterfaceQuerySet
+from .querysets import CableQuerySet, InterfaceQuerySet
 
 
 class ComponentTemplateModel(models.Model):
@@ -64,6 +63,22 @@ class ComponentModel(models.Model):
             action=action,
             object_data=serialize_object(self)
         ).save()
+
+
+class CableTermination(models.Model):
+
+    class Meta:
+        abstract = True
+
+    def get_connected_cable(self):
+        """
+        Return the connected cable if one exists; else None. Assign the far end of the connection on the Cable instance.
+        """
+        cable = Cable.objects.get_for_termination(self)
+        if cable is None:
+            return None
+        cable.far_end = cable.termination_b if cable.termination_a == self else cable.termination_a
+        return cable
 
 
 #
@@ -1603,7 +1618,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 # Console ports
 #
 
-class ConsolePort(ComponentModel):
+class ConsolePort(CableTermination, ComponentModel):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
@@ -1665,7 +1680,7 @@ class ConsoleServerPortManager(models.Manager):
         }).order_by('device', 'name_padded')
 
 
-class ConsoleServerPort(ComponentModel):
+class ConsoleServerPort(CableTermination, ComponentModel):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
@@ -1706,7 +1721,7 @@ class ConsoleServerPort(ComponentModel):
 # Power ports
 #
 
-class PowerPort(ComponentModel):
+class PowerPort(CableTermination, ComponentModel):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
@@ -1768,7 +1783,7 @@ class PowerOutletManager(models.Manager):
         }).order_by('device', 'name_padded')
 
 
-class PowerOutlet(ComponentModel):
+class PowerOutlet(CableTermination, ComponentModel):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
@@ -1809,7 +1824,7 @@ class PowerOutlet(ComponentModel):
 # Interfaces
 #
 
-class Interface(ComponentModel):
+class Interface(CableTermination, ComponentModel):
     """
     A network interface within a Device or VirtualMachine. A physical Interface can connect to exactly one other
     Interface.
@@ -2035,7 +2050,7 @@ class Interface(ComponentModel):
 # Pass-through ports
 #
 
-class FrontPort(ComponentModel):
+class FrontPort(CableTermination, ComponentModel):
     """
     A pass-through port on the front of a Device.
     """
@@ -2089,7 +2104,7 @@ class FrontPort(ComponentModel):
             )
 
 
-class RearPort(ComponentModel):
+class RearPort(CableTermination, ComponentModel):
     """
     A pass-through port on the rear of a Device.
     """
@@ -2352,11 +2367,18 @@ class Cable(ChangeLoggedModel):
         blank=True
     )
 
+    objects = CableQuerySet.as_manager()
+
     class Meta:
         unique_together = (
             ('termination_a_type', 'termination_a_id'),
             ('termination_b_type', 'termination_b_id'),
         )
+
+    def __str__(self):
+        if self.label:
+            return '{} (#{})'.format(self.label, self.pk)
+        return '#{}'.format(self.pk)
 
     def get_path_endpoints(self):
         """
@@ -2387,20 +2409,13 @@ class Cable(ChangeLoggedModel):
                 return termination
 
             # Find the cable (if any) attached to the peer port
-            port_type = ContentType.objects.get_for_model(peer_port)
-            next_cable = Cable.objects.filter(
-                Q(termination_a_type=port_type, termination_a_id=peer_port.pk) |
-                Q(termination_b_type=port_type, termination_b_id=peer_port.pk)
-            ).first()
+            next_cable, far_end = peer_port.get_connection()
 
             # If no cable exists, return None
             if next_cable is None:
                 return None
 
             # Return the far side termination of the cable
-            if next_cable.termination_a == peer_port:
-                return trace_cable(next_cable.termination_b, position)
-            else:
-                return trace_cable(next_cable.termination_a, position)
+            return trace_cable(far_end, position)
 
         return trace_cable(self.termination_a), trace_cable(self.termination_b)

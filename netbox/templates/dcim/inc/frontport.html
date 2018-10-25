@@ -10,6 +10,15 @@
     <td>{{ frontport.get_type_display }}</td>
     <td>{{ frontport.rear_port }}</td>
     <td>{{ frontport.rear_port_position }}</td>
+    {% with cable=frontport.get_connected_cable %}
+        <td>
+            {% if cable %}
+                <a href="#">{{ cable }}</a> to <a href="{{ cable.far_end.device.get_absolute_url }}">{{ cable.far_end.device }}</a> <a href="{{ cable.far_end.get_absolute_url }}">{{ cable.far_end }}</a>
+            {% else %}
+                <span class="text-muted">Not connected</span>
+            {% endif %}
+        </td>
+    {% endwith %}
     <td class="text-right">
         {% if perms.dcim.change_frontport %}
             <a href="{% url 'dcim:frontport_edit' pk=frontport.pk %}?return_url={{ device.get_absolute_url }}" title="Edit port" class="btn btn-info btn-xs">
