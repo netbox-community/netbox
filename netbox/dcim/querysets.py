@@ -79,6 +79,6 @@ class CableQuerySet(QuerySet):
         """
         content_type = ContentType.objects.get_for_model(termination)
         return self.filter(
-                Q(termination_a_type=content_type, termination_a_id=termination.pk) |
-                Q(termination_b_type=content_type, termination_b_id=termination.pk)
-            ).first()
+            Q(termination_a_type=content_type, termination_a_id=termination.pk) |
+            Q(termination_b_type=content_type, termination_b_id=termination.pk)
+        ).first()

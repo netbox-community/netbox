@@ -2063,7 +2063,6 @@ class CableDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'dcim:cable_list'
 
 
-
 #
 # Connections
 #

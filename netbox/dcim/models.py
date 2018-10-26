@@ -2427,7 +2427,7 @@ class Cable(ChangeLoggedModel):
                     rear_port=termination,
                     rear_port_position=position,
                 )
-                position=1
+                position = 1
 
             # Termination is not a pass-through port, so we've reached the end of the path
             else:
