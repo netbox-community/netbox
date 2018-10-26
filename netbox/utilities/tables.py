@@ -46,3 +46,13 @@ class BooleanColumn(tables.Column):
         else:
             rendered = '<span class="text-muted">&mdash;</span>'
         return mark_safe(rendered)
+
+
+class ColorColumn(tables.Column):
+    """
+    Display a color (#RRGGBB).
+    """
+    def render(self, value):
+        return mark_safe(
+            '<span class="label color-block" style="background-color: #{}">&nbsp;</span>'.format(value)
+        )
