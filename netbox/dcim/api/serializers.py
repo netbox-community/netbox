@@ -5,7 +5,7 @@ from taggit_serializer.serializers import TaggitSerializer, TagListSerializerFie
 from circuits.models import Circuit, CircuitTermination
 from dcim.constants import *
 from dcim.models import (
-    ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceType, DeviceRole, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
     Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
     RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
@@ -15,8 +15,8 @@ from ipam.models import IPAddress, VLAN
 from tenancy.api.serializers import NestedTenantSerializer
 from users.api.serializers import NestedUserSerializer
 from utilities.api import (
-    ChoiceField, SerializedPKRelatedField, TimeZoneField, ValidatedModelSerializer,
-    WritableNestedSerializer,
+    ChoiceField, ContentTypeField, SerializedPKRelatedField, TimeZoneField, ValidatedModelSerializer,
+    WritableNestedSerializer, get_serializer_for_model,
 )
 from virtualization.models import Cluster
 
@@ -717,11 +717,12 @@ class RearPortSerializer(ValidatedModelSerializer):
 
 
 class NestedRearPortSerializer(WritableNestedSerializer):
+    device = NestedDeviceSerializer(read_only=True)
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rearport-detail')
 
     class Meta:
         model = RearPort
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'device', 'name']
 
 
 #
@@ -740,11 +741,12 @@ class FrontPortSerializer(ValidatedModelSerializer):
 
 
 class NestedFrontPortSerializer(WritableNestedSerializer):
+    device = NestedDeviceSerializer(read_only=True)
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:frontport-detail')
 
     class Meta:
         model = FrontPort
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'device', 'name']
 
 
 #
@@ -805,6 +807,47 @@ class InterfaceConnectionSerializer(ValidatedModelSerializer):
     def get_interface_a(self, obj):
         context = {'request': self.context['request']}
         return NestedInterfaceSerializer(instance=obj, context=context).data
+
+
+#
+# Cables
+#
+
+class CableSerializer(ValidatedModelSerializer):
+    termination_a_type = ContentTypeField()
+    termination_b_type = ContentTypeField()
+    termination_a = serializers.SerializerMethodField(read_only=True)
+    termination_b = serializers.SerializerMethodField(read_only=True)
+    status = ChoiceField(choices=CONNECTION_STATUS_CHOICES)
+    length_unit = ChoiceField(choices=LENGTH_UNIT_CHOICES)
+
+    class Meta:
+        model = Cable
+        fields = [
+            'id', 'termination_a_type', 'termination_a_id', 'termination_a', 'termination_b_type', 'termination_b_id',
+            'termination_b', 'type', 'status', 'label', 'color', 'length', 'length_unit',
+        ]
+
+    def _get_termination(self, obj, side):
+        """
+        Serialize a nested representation of a termination.
+        """
+        if side.lower() not in ['a', 'b']:
+            raise ValueError("Termination side must be either A or B.")
+        termination = getattr(obj, 'termination_{}'.format(side.lower()))
+        if termination is None:
+            return None
+        serializer = get_serializer_for_model(termination, prefix='Nested')
+        context = {'request': self.context['request']}
+        data = serializer(termination, context=context).data
+
+        return data
+
+    def get_termination_a(self, obj):
+        return self._get_termination(obj, 'a')
+
+    def get_termination_b(self, obj):
+        return self._get_termination(obj, 'b')
 
 
 #

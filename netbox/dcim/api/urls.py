@@ -62,6 +62,9 @@ router.register(r'console-connections', views.ConsoleConnectionViewSet, base_nam
 router.register(r'power-connections', views.PowerConnectionViewSet, base_name='powerconnections')
 router.register(r'interface-connections', views.InterfaceConnectionViewSet, base_name='interfaceconnections')
 
+# Cables
+router.register(r'cables', views.CableViewSet)
+
 # Virtual chassis
 router.register(r'virtual-chassis', views.VirtualChassisViewSet)
 

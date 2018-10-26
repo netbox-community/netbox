@@ -69,6 +69,8 @@ class ChoiceField(Field):
         super(ChoiceField, self).__init__(**kwargs)
 
     def to_representation(self, obj):
+        if obj is '':
+            return None
         return {'value': obj, 'label': self._choices[obj]}
 
     def to_internal_value(self, data):

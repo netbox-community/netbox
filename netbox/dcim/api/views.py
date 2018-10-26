@@ -14,7 +14,7 @@ from rest_framework.viewsets import GenericViewSet, ViewSet
 
 from dcim import filters
 from dcim.models import (
-    ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
     Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
     RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
@@ -426,6 +426,16 @@ class InterfaceConnectionViewSet(ModelViewSet):
     )
     serializer_class = serializers.InterfaceConnectionSerializer
     filter_class = filters.InterfaceConnectionFilter
+
+
+#
+# Cables
+#
+
+class CableViewSet(ModelViewSet):
+    queryset = Cable.objects.prefetch_related('termination_a__device', 'termination_b__device')
+    serializer_class = serializers.CableSerializer
+    filter_class = filters.CableFilter
 
 
 #
