@@ -786,10 +786,19 @@ class VirtualChassisFilter(django_filters.FilterSet):
 
 
 class CableFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
 
     class Meta:
         model = Cable
-        fields = ['type', 'status', 'color']
+        fields = ['type', 'status', 'color', 'length', 'length_unit']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(label__icontains=value)
 
 
 class ConsoleConnectionFilter(django_filters.FilterSet):

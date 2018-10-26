@@ -5,6 +5,8 @@ import six
 from django.core.serializers import serialize
 from django.http import HttpResponse
 
+from dcim.constants import LENGTH_UNIT_CENTIMETER, LENGTH_UNIT_FOOT, LENGTH_UNIT_INCH, LENGTH_UNIT_METER
+
 
 def csv_format(data):
     """
@@ -107,3 +109,21 @@ def serialize_object(obj, extra=None):
         data.update(extra)
 
     return data
+
+
+def to_meters(length, unit):
+    """
+    Convert the given length to meters.
+    """
+    length = int(length)
+    if length < 0:
+        raise ValueError("Length must be a positive integer")
+    if unit == LENGTH_UNIT_METER:
+        return length
+    if unit == LENGTH_UNIT_CENTIMETER:
+        return length / 100
+    if unit == LENGTH_UNIT_FOOT:
+        return length * 0.3048
+    if unit == LENGTH_UNIT_INCH:
+        return length * 0.3048 * 12
+    raise ValueError("Unknown unit {}. Must be 'm', 'cm', 'ft', or 'in'.".format(unit))

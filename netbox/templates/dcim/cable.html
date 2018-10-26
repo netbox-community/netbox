@@ -48,7 +48,17 @@
                     <tr>
                         <td>Color</td>
                         <td>
-                            <label class="label" style="background-color: #{{ cable.color }}">{{ cable.color }}</label>
+                            <span style="background-color: #{{ cable.color }}">{{ cable.color }}A</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Length</td>
+                        <td>
+                            {% if cable.length %}
+                                {{ cable.length }} {{ cable.get_length_unit_display }}
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
                         </td>
                     </tr>
                 </table>

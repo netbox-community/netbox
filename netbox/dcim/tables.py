@@ -170,6 +170,10 @@ VIRTUALCHASSIS_ACTIONS = """
 {% endif %}
 """
 
+CABLE_LENGTH = """
+{% if record.length %}{{ record.length }}{{ record.length_unit }}{% else %}&mdash;{% endif %}
+"""
+
 
 #
 # Regions
@@ -626,6 +630,10 @@ class CableTable(BaseTable):
         args=[Accessor('pk')],
         verbose_name='PK'
     )
+    label_ = tables.Column(
+        accessor=Accessor('label'),
+        verbose_name='Label'
+    )
     device_a = tables.LinkColumn(
         viewname='dcim:device',
         accessor=Accessor('termination_a.device'),
@@ -650,10 +658,14 @@ class CableTable(BaseTable):
         orderable=False,
         verbose_name='Component'
     )
+    length = tables.TemplateColumn(
+        template_code=CABLE_LENGTH,
+        order_by='_abs_length'
+    )
 
     class Meta(BaseTable.Meta):
         model = Cable
-        fields = ('pk', 'device_a', 'termination_a', 'device_b', 'termination_b', 'status', 'type', 'color')
+        fields = ('pk', 'label_', 'device_a', 'termination_a', 'device_b', 'termination_b', 'status', 'type', 'color')
 
 
 #

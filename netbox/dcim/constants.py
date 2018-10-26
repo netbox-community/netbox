@@ -317,3 +317,14 @@ COMPATIBLE_TERMINATION_TYPES = {
     'frontport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport'],
     'rearport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport'],
 }
+
+LENGTH_UNIT_METER = 'm'
+LENGTH_UNIT_CENTIMETER = 'cm'
+LENGTH_UNIT_FOOT = 'ft'
+LENGTH_UNIT_INCH = 'in'
+LENGTH_UNIT_CHOICES = (
+    (LENGTH_UNIT_METER, 'Meters'),
+    (LENGTH_UNIT_CENTIMETER, 'Centimeters'),
+    (LENGTH_UNIT_FOOT, 'Feet'),
+    (LENGTH_UNIT_INCH, 'Inches'),
+)

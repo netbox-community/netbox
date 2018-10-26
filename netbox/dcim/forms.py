@@ -2211,7 +2211,7 @@ class CableForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Cable
-        fields = ('type', 'status', 'label', 'color')
+        fields = ('type', 'status', 'label', 'color', 'length', 'length_unit')
 
 
 class CableFilterForm(BootstrapMixin, forms.Form):

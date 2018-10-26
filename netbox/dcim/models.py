@@ -20,7 +20,7 @@ from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange
 from utilities.fields import ColorField, NullableCharField
 from utilities.managers import NaturalOrderByManager
 from utilities.models import ChangeLoggedModel
-from utilities.utils import serialize_object
+from utilities.utils import serialize_object, to_meters
 from .constants import *
 from .fields import ASNField, MACAddressField
 from .querysets import CableQuerySet, InterfaceQuerySet
@@ -2366,6 +2366,22 @@ class Cable(ChangeLoggedModel):
     color = ColorField(
         blank=True
     )
+    length = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True
+    )
+    length_unit = models.CharField(
+        choices=LENGTH_UNIT_CHOICES,
+        max_length=2,
+        blank=True
+    )
+    # Stores the normalized length (in meters) for database ordering
+    _abs_length = models.DecimalField(
+        max_digits=10,
+        decimal_places=4,
+        blank=True,
+        null=True
+    )
 
     objects = CableQuerySet.as_manager()
 
@@ -2382,6 +2398,14 @@ class Cable(ChangeLoggedModel):
 
     def get_absolute_url(self):
         return reverse('dcim:cable', args=[self.pk])
+
+    def save(self, *args, **kwargs):
+
+        # Store the given length (if any) in meters for use in database ordering
+        if self.length and self.length_unit:
+            self._abs_length = to_meters(self.length, self.length_unit)
+
+        super(Cable, self).save(*args, **kwargs)
 
     def get_path_endpoints(self):
         """
@@ -2412,13 +2436,13 @@ class Cable(ChangeLoggedModel):
                 return termination
 
             # Find the cable (if any) attached to the peer port
-            next_cable, far_end = peer_port.get_connection()
+            next_cable = peer_port.get_connected_cable()
 
             # If no cable exists, return None
             if next_cable is None:
                 return None
 
             # Return the far side termination of the cable
-            return trace_cable(far_end, position)
+            return trace_cable(next_cable.far_end, position)
 
         return trace_cable(self.termination_a), trace_cable(self.termination_b)
