@@ -22,7 +22,7 @@
         {# Cable #}
         <td>
             {% if cable %}
-                <a href="{{ cable.get_absolute_url }}">{{ cable }}</a> to <a href="{{ cable.far_end.device.get_absolute_url }}">{{ cable.far_end.device }}</a> <a href="{{ cable.far_end.get_absolute_url }}">{{ cable.far_end }}</a>
+                <a href="{{ cable.get_absolute_url }}">{{ cable }}</a> to <a href="{{ cable.far_end.device.get_absolute_url }}">{{ cable.far_end.device }}</a> {{ cable.far_end }}
             {% else %}
                 <span class="text-muted">Not connected</span>
             {% endif %}

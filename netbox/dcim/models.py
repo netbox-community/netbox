@@ -2392,9 +2392,7 @@ class Cable(ChangeLoggedModel):
         )
 
     def __str__(self):
-        if self.label:
-            return '{} (#{})'.format(self.label, self.pk)
-        return '#{}'.format(self.pk)
+        return self.label if self.label else '#{}'.format(self.pk)
 
     def get_absolute_url(self):
         return reverse('dcim:cable', args=[self.pk])

@@ -12,6 +12,18 @@
         <i class="fa fa-fw fa-keyboard-o"></i> {{ csp }}
     </td>
 
+    {# Cable #}
+    <td>
+        {% with cable=csp.get_connected_cable %}
+            {% if cable %}
+                <a href="{{ cable.get_absolute_url }}">{{ cable }}</a>
+                {% if cable.far_end != csp.connected_endpoint %}
+                    to <a href="{{ cable.far_end.device.get_absolute_url }}">{{ cable.far_end.device }}</a> {{ cable.far_end }}
+                {% endif %}
+            {% endif %}
+        {% endwith %}
+    </td>
+
     {# Connection #}
     {% if csp.connected_endpoint %}
         <td>
@@ -25,18 +37,6 @@
             <span class="text-muted">Not connected</span>
         </td>
     {% endif %}
-
-    {# Cable #}
-    <td>
-        {% with cable=csp.get_connected_cable %}
-            {% if cable %}
-                <a href="{{ cable.get_absolute_url }}">{{ cable }}</a>
-                {% if cable.far_end != csp.connected_endpoint %}
-                    to <a href="{{ cable.far_end.device.get_absolute_url }}">{{ cable.far_end.device }}</a> {{ cable.far_end }}
-                {% endif %}
-            {% endif %}
-        {% endwith %}
-    </td>
 
     {# Actions #}
     <td class="text-right">

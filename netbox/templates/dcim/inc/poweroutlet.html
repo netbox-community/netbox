@@ -12,6 +12,15 @@
         <i class="fa fa-fw fa-bolt"></i> {{ po }}
     </td>
 
+    {# Cable #}
+    <td>
+        {% with cable=po.get_connected_cable %}
+            {% if cable %}
+                <a href="{{ cable.get_absolute_url }}">{{ cable }}</a>
+            {% endif %}
+        {% endwith %}
+    </td>
+
     {# Connection #}
     {% if po.connected_endpoint %}
         <td>
@@ -25,15 +34,6 @@
             <span class="text-muted">Not connected</span>
         </td>
     {% endif %}
-
-    {# Cable #}
-    <td>
-        {% with cable=po.get_connected_cable %}
-            {% if cable %}
-                <a href="{{ cable.get_absolute_url }}">{{ cable }}</a>
-            {% endif %}
-        {% endwith %}
-    </td>
 
     {# Actions #}
     <td class="text-right">
