@@ -770,21 +770,6 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         choices=IFACE_ORDERING_CHOICES,
         default=IFACE_ORDERING_POSITION
     )
-    is_console_server = models.BooleanField(
-        default=False,
-        verbose_name='Is a console server',
-        help_text='This type of device has console server ports'
-    )
-    is_pdu = models.BooleanField(
-        default=False,
-        verbose_name='Is a PDU',
-        help_text='This type of device has power outlets'
-    )
-    is_network_device = models.BooleanField(
-        default=True,
-        verbose_name='Is a network device',
-        help_text='This type of device has network interfaces'
-    )
     subdevice_role = models.NullBooleanField(
         default=None,
         verbose_name='Parent/child status',
@@ -804,8 +789,8 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager()
 
     csv_headers = [
-        'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
-        'is_network_device', 'subdevice_role', 'interface_ordering', 'comments',
+        'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+        'interface_ordering', 'comments',
     ]
 
     class Meta:
@@ -835,9 +820,6 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
             self.part_number,
             self.u_height,
             self.is_full_depth,
-            self.is_console_server,
-            self.is_pdu,
-            self.is_network_device,
             self.get_subdevice_role_display() if self.subdevice_role else None,
             self.get_interface_ordering_display(),
             self.comments,
@@ -858,24 +840,6 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
                         'u_height': "Device {} in rack {} does not have sufficient space to accommodate a height of "
                                     "{}U".format(d, d.rack, self.u_height)
                     })
-
-        if not self.is_console_server and self.cs_port_templates.count():
-            raise ValidationError({
-                'is_console_server': "Must delete all console server port templates associated with this device before "
-                                     "declassifying it as a console server."
-            })
-
-        if not self.is_pdu and self.power_outlet_templates.count():
-            raise ValidationError({
-                'is_pdu': "Must delete all power outlet templates associated with this device before declassifying it "
-                          "as a PDU."
-            })
-
-        if not self.is_network_device and self.interface_templates.filter(mgmt_only=False).count():
-            raise ValidationError({
-                'is_network_device': "Must delete all non-management-only interface templates associated with this "
-                                     "device before declassifying it as a network device."
-            })
 
         if self.subdevice_role != SUBDEVICE_ROLE_PARENT and self.device_bay_templates.count():
             raise ValidationError({
@@ -1705,17 +1669,6 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     def get_absolute_url(self):
         return self.device.get_absolute_url()
 
-    def clean(self):
-
-        # Check that the parent device's DeviceType is a console server
-        if self.device is None:
-            raise ValidationError("Console server ports must be assigned to devices.")
-        device_type = self.device.device_type
-        if not device_type.is_console_server:
-            raise ValidationError("The {} {} device type does not support assignment of console server ports.".format(
-                device_type.manufacturer, device_type
-            ))
-
 
 #
 # Power ports
@@ -1807,17 +1760,6 @@ class PowerOutlet(CableTermination, ComponentModel):
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
-
-    def clean(self):
-
-        # Check that the parent device's DeviceType is a PDU
-        if self.device is None:
-            raise ValidationError("Power outlets must be assigned to devices.")
-        device_type = self.device.device_type
-        if not device_type.is_pdu:
-            raise ValidationError("The {} {} device type does not support assignment of power outlets.".format(
-                device_type.manufacturer, device_type
-            ))
 
 
 #
@@ -1926,14 +1868,6 @@ class Interface(CableTermination, ComponentModel):
         return reverse('dcim:interface', kwargs={'pk': self.pk})
 
     def clean(self):
-
-        # Check that the parent device's DeviceType is a network device
-        if self.device is not None:
-            device_type = self.device.device_type
-            if not device_type.is_network_device:
-                raise ValidationError("The {} {} device type does not support assignment of network interfaces.".format(
-                    device_type.manufacturer, device_type
-                ))
 
         # An Interface must belong to a Device *or* to a VirtualMachine
         if self.device and self.virtual_machine:

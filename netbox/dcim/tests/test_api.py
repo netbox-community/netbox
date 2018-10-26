@@ -2035,7 +2035,7 @@ class ConsoleServerPortTest(APITestCase):
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         devicetype = DeviceType.objects.create(
-            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1', is_console_server=True
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
         )
         devicerole = DeviceRole.objects.create(
             name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
@@ -2261,7 +2261,7 @@ class PowerOutletTest(APITestCase):
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         devicetype = DeviceType.objects.create(
-            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1', is_pdu=True
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
         )
         devicerole = DeviceRole.objects.create(
             name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
@@ -2372,7 +2372,7 @@ class InterfaceTest(APITestCase):
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         devicetype = DeviceType.objects.create(
-            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1', is_network_device=True
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
         )
         devicerole = DeviceRole.objects.create(
             name='Test Device Role 1', slug='test-device-role-1', color='ff0000'

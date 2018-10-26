@@ -531,8 +531,8 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
     class Meta:
         model = DeviceType
         fields = [
-            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
-            'is_network_device', 'subdevice_role', 'interface_ordering', 'comments', 'tags',
+            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'interface_ordering', 'comments', 'tags',
         ]
         labels = {
             'interface_ordering': 'Order interfaces by',
@@ -575,13 +575,6 @@ class DeviceTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkE
     u_height = forms.IntegerField(min_value=1, required=False)
     is_full_depth = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect, label='Is full depth')
     interface_ordering = forms.ChoiceField(choices=add_blank_choice(IFACE_ORDERING_CHOICES), required=False)
-    is_console_server = forms.NullBooleanField(
-        required=False, widget=BulkEditNullBooleanSelect, label='Is a console server'
-    )
-    is_pdu = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect, label='Is a PDU')
-    is_network_device = forms.NullBooleanField(
-        required=False, widget=BulkEditNullBooleanSelect, label='Is a network device'
-    )
 
     class Meta:
         nullable_fields = []
@@ -593,14 +586,6 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
     manufacturer = FilterChoiceField(
         queryset=Manufacturer.objects.annotate(filter_count=Count('device_types')),
         to_field_name='slug'
-    )
-    is_console_server = forms.BooleanField(
-        required=False, label='Is a console server', widget=forms.CheckboxInput(attrs={'value': 'True'}))
-    is_pdu = forms.BooleanField(
-        required=False, label='Is a PDU', widget=forms.CheckboxInput(attrs={'value': 'True'})
-    )
-    is_network_device = forms.BooleanField(
-        required=False, label='Is a network device', widget=forms.CheckboxInput(attrs={'value': 'True'})
     )
     subdevice_role = forms.NullBooleanField(
         required=False, label='Subdevice role', widget=forms.Select(choices=(
@@ -1288,7 +1273,7 @@ class ConsolePortCreateForm(ComponentForm):
 
 class ConsoleConnectionCSVForm(forms.ModelForm):
     console_server = FlexibleModelChoiceField(
-        queryset=Device.objects.filter(device_type__is_console_server=True),
+        queryset=Device.objects.all(),
         to_field_name='name',
         help_text='Console server name or ID',
         error_messages={
@@ -1387,7 +1372,7 @@ class ConsolePortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelF
         )
     )
     console_server = ChainedModelChoiceField(
-        queryset=Device.objects.filter(device_type__is_console_server=True),
+        queryset=Device.objects.all(),
         chains=(
             ('site', 'site'),
             ('rack', 'rack'),
@@ -1395,7 +1380,7 @@ class ConsolePortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelF
         label='Console Server',
         required=False,
         widget=APISelect(
-            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}&is_console_server=True',
+            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
             display_field='display_name',
             attrs={'filter-for': 'connected_endpoint'}
         )
@@ -1557,7 +1542,7 @@ class PowerPortCreateForm(ComponentForm):
 
 class PowerConnectionCSVForm(forms.ModelForm):
     pdu = FlexibleModelChoiceField(
-        queryset=Device.objects.filter(device_type__is_pdu=True),
+        queryset=Device.objects.all(),
         to_field_name='name',
         help_text='PDU name or ID',
         error_messages={
@@ -1664,7 +1649,7 @@ class PowerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFor
         label='PDU',
         required=False,
         widget=APISelect(
-            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}&is_pdu=True',
+            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
             display_field='display_name',
             attrs={'filter-for': 'connected_endpoint'}
         )

@@ -76,10 +76,7 @@
         "model": "MX960",
         "slug": "mx960",
         "u_height": 16,
-        "is_full_depth": true,
-        "is_console_server": false,
-        "is_pdu": false,
-        "is_network_device": true
+        "is_full_depth": true
     }
 },
 {
@@ -92,10 +89,7 @@
         "model": "EX9214",
         "slug": "ex9214",
         "u_height": 16,
-        "is_full_depth": true,
-        "is_console_server": false,
-        "is_pdu": false,
-        "is_network_device": true
+        "is_full_depth": true
     }
 },
 {
@@ -108,10 +102,7 @@
         "model": "QFX5100-24Q",
         "slug": "qfx5100-24q",
         "u_height": 1,
-        "is_full_depth": true,
-        "is_console_server": false,
-        "is_pdu": false,
-        "is_network_device": true
+        "is_full_depth": true
     }
 },
 {
@@ -124,10 +115,7 @@
         "model": "QFX5100-48S",
         "slug": "qfx5100-48s",
         "u_height": 1,
-        "is_full_depth": true,
-        "is_console_server": false,
-        "is_pdu": false,
-        "is_network_device": true
+        "is_full_depth": true
     }
 },
 {
@@ -140,10 +128,7 @@
         "model": "CM4148",
         "slug": "cm4148",
         "u_height": 1,
-        "is_full_depth": true,
-        "is_console_server": true,
-        "is_pdu": false,
-        "is_network_device": false
+        "is_full_depth": true
     }
 },
 {
@@ -156,10 +141,7 @@
         "model": "CWG-24VYM415C9",
         "slug": "cwg-24vym415c9",
         "u_height": 0,
-        "is_full_depth": false,
-        "is_console_server": false,
-        "is_pdu": true,
-        "is_network_device": false
+        "is_full_depth": false
     }
 },
 {

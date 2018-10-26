@@ -1,6 +1,6 @@
 import django_filters
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Count, Q
 from netaddr import EUI
 from netaddr.core import AddrFormatError
 
@@ -310,8 +310,7 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
     class Meta:
         model = DeviceType
         fields = [
-            'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'is_console_server', 'is_pdu',
-            'is_network_device', 'subdevice_role',
+            'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
         ]
 
     def search(self, queryset, name, value):
@@ -506,18 +505,19 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         name='device_type__is_full_depth',
         label='Is full depth',
     )
-    is_console_server = django_filters.BooleanFilter(
-        name='device_type__is_console_server',
-        label='Is a console server',
-    )
-    is_pdu = django_filters.BooleanFilter(
-        name='device_type__is_pdu',
-        label='Is a PDU',
-    )
-    is_network_device = django_filters.BooleanFilter(
-        name='device_type__is_network_device',
-        label='Is a network device',
-    )
+    # TODO: Replace these filters
+    # is_console_server = django_filters.BooleanFilter(
+    #     name='device_type__is_console_server',
+    #     label='Is a console server',
+    # )
+    # is_pdu = django_filters.BooleanFilter(
+    #     name='device_type__is_pdu',
+    #     label='Is a PDU',
+    # )
+    # is_network_device = django_filters.BooleanFilter(
+    #     name='device_type__is_network_device',
+    #     label='Is a network device',
+    # )
     mac_address = django_filters.CharFilter(
         method='_mac_address',
         label='MAC address',
