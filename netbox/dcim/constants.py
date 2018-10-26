@@ -289,12 +289,39 @@ CABLE_TERMINATION_TYPES = [
 ]
 
 # Cable types
-# TODO: Add more types
-CABLE_TYPE_COPPER = 1000
-CABLE_TYPE_FIBER = 2000
+CABLE_TYPE_CAT3 = 1300
+CABLE_TYPE_CAT5 = 1500
+CABLE_TYPE_CAT5E = 1510
+CABLE_TYPE_CAT6 = 1600
+CABLE_TYPE_CAT6A = 1610
+CABLE_TYPE_CAT7 = 1700
+CABLE_TYPE_MMF_OM1 = 3010
+CABLE_TYPE_MMF_OM2 = 3020
+CABLE_TYPE_MMF_OM3 = 3030
+CABLE_TYPE_MMF_OM4 = 3040
+CABLE_TYPE_SMF = 3500
+CABLE_TYPE_POWER = 5000
 CABLE_TYPE_CHOICES = (
-    (CABLE_TYPE_COPPER, 'Copper'),
-    (CABLE_TYPE_FIBER, 'Fiber'),
+    (
+        'Copper', (
+            (CABLE_TYPE_CAT3, 'CAT3'),
+            (CABLE_TYPE_CAT5, 'CAT5'),
+            (CABLE_TYPE_CAT5E, 'CAT5e'),
+            (CABLE_TYPE_CAT6, 'CAT6'),
+            (CABLE_TYPE_CAT6A, 'CAT6a'),
+            (CABLE_TYPE_CAT7, 'CAT7'),
+        ),
+    ),
+    (
+        'Fiber', (
+            (CABLE_TYPE_MMF_OM1, 'Multimode Fiber (OM1)'),
+            (CABLE_TYPE_MMF_OM2, 'Multimode Fiber (OM2)'),
+            (CABLE_TYPE_MMF_OM3, 'Multimode Fiber (OM3)'),
+            (CABLE_TYPE_MMF_OM4, 'Multimode Fiber (OM4)'),
+            (CABLE_TYPE_SMF, 'Singlemode Fiber'),
+        ),
+    ),
+    (CABLE_TYPE_POWER, 'Power'),
 )
 
 CABLE_TERMINATION_TYPE_CHOICES = {
