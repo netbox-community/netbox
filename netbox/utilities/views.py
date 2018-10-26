@@ -212,13 +212,6 @@ class ObjectEditView(GetReturnURLMixin, View):
             obj_created = not form.instance.pk
             obj = form.save()
 
-            print("Connecting {} {} to {} {}".format(
-                obj.termination_a.device,
-                obj.termination_a,
-                obj.termination_b.device,
-                obj.termination_b
-            ))
-
             msg = '{} {}'.format(
                 'Created' if obj_created else 'Modified',
                 self.model._meta.verbose_name
