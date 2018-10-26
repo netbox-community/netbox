@@ -1,7 +1,11 @@
 <tr class="powerport{% if pp.connected_endpoint %} {% if pp.connection_status %}success{% else %}info{% endif %}{% endif %}">
+
+    {# Name #}
     <td>
         <i class="fa fa-fw fa-bolt"></i> {{ pp }}
     </td>
+
+    {# Connection #}
     {% if pp.connected_endpoint %}
         <td>
             <a href="{% url 'dcim:device' pk=pp.connected_endpoint.device.pk %}">{{ pp.connected_endpoint.device }}</a>
@@ -14,6 +18,17 @@
             <span class="text-muted">Not connected</span>
         </td>
     {% endif %}
+
+    {# Cable #}
+    <td>
+        {% with cable=pp.get_connected_cable %}
+            {% if cable %}
+                via <a href="{{ cable.get_absolute_url }}">{{ cable }}</a>
+            {% endif %}
+        {% endwith %}
+    </td>
+
+    {# Actions #}
     <td class="text-right">
         {% if perms.dcim.change_powerport %}
             {% if pp.connected_endpoint %}

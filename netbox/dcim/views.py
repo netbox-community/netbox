@@ -886,7 +886,7 @@ class DeviceView(View):
         )
 
         # Console server ports
-        consoleserverports = ConsoleServerPort.objects.filter(device=device).select_related('connected_endpoint')
+        consoleserverports = ConsoleServerPort.objects.filter(device=device).select_related('connected_endpoint__device')
 
         # Power ports
         power_ports = natsorted(
@@ -894,7 +894,7 @@ class DeviceView(View):
         )
 
         # Power outlets
-        poweroutlets = PowerOutlet.objects.filter(device=device).select_related('connected_endpoint')
+        poweroutlets = PowerOutlet.objects.filter(device=device).select_related('connected_endpoint__device')
 
         # Interfaces
         interfaces = device.vc_interfaces.order_naturally(
