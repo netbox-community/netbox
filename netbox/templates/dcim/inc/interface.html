@@ -32,6 +32,9 @@
     <td>
         {% if iface.cable %}
             <a href="{{ iface.cable.get_absolute_url }}">{{ iface.cable }}</a>
+            <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#cabletrace_modal" data-obj="{{ device.name }} - {{ iface.name }}" data-url="{% url 'dcim-api:interface-trace' pk=iface.pk %}" title="Trace cable">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </button>
         {% else %}
             &mdash;
         {% endif %}

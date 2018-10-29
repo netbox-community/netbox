@@ -776,7 +776,8 @@
             {% endif %}
         </div>
     </div>
-{% include 'inc/graphs_modal.html' %}
+{% include 'inc/modal.html' with modal_name='graphs' %}
+{% include 'inc/modal.html' with modal_name='cabletrace' %}
 {% include 'secrets/inc/private_key_modal.html' %}
 {% endblock %}
 
@@ -847,6 +848,7 @@ $('button.toggle-ips').click(function() {
     return false;
 });
 </script>
+<script src="{% static 'js/cabletrace.js' %}?v{{ settings.VERSION }}"></script>
 <script src="{% static 'js/graphs.js' %}?v{{ settings.VERSION }}"></script>
 <script src="{% static 'js/secrets.js' %}?v{{ settings.VERSION }}"></script>
 {% endblock %}
