@@ -1,4 +1,4 @@
-<tr class="frontport{% if cable %} {% if cable.status %}success{% else %}info{% endif %}{% endif %}">
+<tr class="frontport{% if frontport.cable %} {% if frontport.cable.status %}success{% else %}info{% endif %}{% endif %}">
 
     {# Checkbox #}
     {% if perms.dcim.change_frontport or perms.dcim.delete_frontport %}
@@ -9,7 +9,7 @@
 
     {# Name #}
     <td>
-        <i class="fa fa-fw fa-square{% if not cable %}-o{% endif %}"></i> {{ frontport }}
+        <i class="fa fa-fw fa-square{% if not frontport.cable %}-o{% endif %}"></i> {{ frontport }}
     </td>
 
     {# Type #}

@@ -1,4 +1,4 @@
-<tr class="rearport{% if cable %} {% if cable.status %}success{% else %}info{% endif %}{% endif %}">
+<tr class="rearport{% if rearport.cable %} {% if rearport.cable.status %}success{% else %}info{% endif %}{% endif %}">
 
     {# Checkbox #}
     {% if perms.dcim.change_rearport or perms.dcim.delete_rearport %}
@@ -9,7 +9,7 @@
 
     {# Name #}
     <td>
-        <i class="fa fa-fw fa-square{% if not cable %}-o{% endif %}"></i> {{ rearport }}
+        <i class="fa fa-fw fa-square{% if not rearport.cable %}-o{% endif %}"></i> {{ rearport }}
     </td>
 
     {# Type #}
