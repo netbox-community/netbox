@@ -785,10 +785,18 @@ class NestedRearPortSerializer(WritableNestedSerializer):
 # Front ports
 #
 
+class FrontPortRearPortSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rearport-detail')
+
+    class Meta:
+        model = RearPort
+        fields = ['id', 'url', 'name']
+
+
 class FrontPortSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=PORT_TYPE_CHOICES)
-    rear_port = NestedRearPortSerializer()
+    rear_port = FrontPortRearPortSerializer()
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
@@ -821,7 +829,7 @@ class DeviceBaySerializer(TaggitSerializer, ValidatedModelSerializer):
 
 
 class NestedDeviceBaySerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicebay-detail')
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rearport-detail')
     device = NestedDeviceSerializer(read_only=True)
 
     class Meta:

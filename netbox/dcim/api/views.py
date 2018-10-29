@@ -330,31 +330,51 @@ class DeviceViewSet(CustomFieldModelViewSet):
 #
 
 class ConsolePortViewSet(ModelViewSet):
-    queryset = ConsolePort.objects.select_related('device', 'connected_endpoint__device').prefetch_related('tags')
+    queryset = ConsolePort.objects.select_related(
+        'device', 'connected_endpoint__device', 'cable'
+    ).prefetch_related(
+        'tags'
+    )
     serializer_class = serializers.ConsolePortSerializer
     filter_class = filters.ConsolePortFilter
 
 
 class ConsoleServerPortViewSet(ModelViewSet):
-    queryset = ConsoleServerPort.objects.select_related('device', 'connected_endpoint__device').prefetch_related('tags')
+    queryset = ConsoleServerPort.objects.select_related(
+        'device', 'connected_endpoint__device', 'cable'
+    ).prefetch_related(
+        'tags'
+    )
     serializer_class = serializers.ConsoleServerPortSerializer
     filter_class = filters.ConsoleServerPortFilter
 
 
 class PowerPortViewSet(ModelViewSet):
-    queryset = PowerPort.objects.select_related('device', 'connected_endpoint__device').prefetch_related('tags')
+    queryset = PowerPort.objects.select_related(
+        'device', 'connected_endpoint__device', 'cable'
+    ).prefetch_related(
+        'tags'
+    )
     serializer_class = serializers.PowerPortSerializer
     filter_class = filters.PowerPortFilter
 
 
 class PowerOutletViewSet(ModelViewSet):
-    queryset = PowerOutlet.objects.select_related('device', 'connected_endpoint__device').prefetch_related('tags')
+    queryset = PowerOutlet.objects.select_related(
+        'device', 'connected_endpoint__device', 'cable'
+    ).prefetch_related(
+        'tags'
+    )
     serializer_class = serializers.PowerOutletSerializer
     filter_class = filters.PowerOutletFilter
 
 
 class InterfaceViewSet(ModelViewSet):
-    queryset = Interface.objects.select_related('device').prefetch_related('tags')
+    queryset = Interface.objects.select_related(
+        'device', 'connected_endpoint__device', 'cable'
+    ).prefetch_related(
+        'tags'
+    )
     serializer_class = serializers.InterfaceSerializer
     filter_class = filters.InterfaceFilter
 
@@ -370,13 +390,21 @@ class InterfaceViewSet(ModelViewSet):
 
 
 class FrontPortViewSet(ModelViewSet):
-    queryset = FrontPort.objects.select_related('device__device_type__manufacturer', 'rear_port')
+    queryset = FrontPort.objects.select_related(
+        'device__device_type__manufacturer', 'rear_port', 'cable'
+    ).prefetch_related(
+        'tags'
+    )
     serializer_class = serializers.FrontPortSerializer
     filter_class = filters.FrontPortFilter
 
 
 class RearPortViewSet(ModelViewSet):
-    queryset = RearPort.objects.select_related('device__device_type__manufacturer')
+    queryset = RearPort.objects.select_related(
+        'device__device_type__manufacturer', 'cable'
+    ).prefetch_related(
+        'tags'
+    )
     serializer_class = serializers.RearPortSerializer
     filter_class = filters.RearPortFilter
 
