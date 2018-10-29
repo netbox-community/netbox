@@ -81,7 +81,7 @@
     {# Buttons #}
     <td class="text-right text-nowrap">
         {% if show_graphs %}
-            {% if iface.circuit_termination or iface.connection %}
+            {% if iface.circuit_termination or iface.connected_endpoint %}
                 <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ device.name }} - {{ iface.name }}" data-url="{% url 'dcim-api:interface-graphs' pk=iface.pk %}" title="Show graphs">
                     <i class="glyphicon glyphicon-signal" aria-hidden="true"></i>
                 </button>
@@ -94,17 +94,17 @@
         {% endif %}
         {% if perms.dcim.change_interface %}
             {% if not iface.is_virtual %}
-                {% if iface.connection %}
-                    {% if iface.connection.connection_status %}
-                        <a href="#" class="btn btn-warning btn-xs interface-toggle connected" data="{{ iface.connection.pk }}" title="Mark planned">
+                {% if iface.cable %}
+                    {% if iface.cable.status %}
+                        <a href="#" class="btn btn-warning btn-xs interface-toggle connected" data="{{ iface.cable.pk }}" title="Mark planned">
                             <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>
                         </a>
                     {% else %}
-                        <a href="#" class="btn btn-success btn-xs interface-toggle" data="{{ iface.connection.pk }}" title="Mark installed">
+                        <a href="#" class="btn btn-success btn-xs interface-toggle" data="{{ iface.cable.pk }}" title="Mark installed">
                             <i class="fa fa-plug" aria-hidden="true"></i>
                         </a>
                     {% endif %}
-                    <a href="{% url 'dcim:interfaceconnection_delete' pk=iface.connection.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs" title="Disconnect">
+                    <a href="{% url 'dcim:cable_delete' pk=iface.cable.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs" title="Remove cable">
                         <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
                     </a>
                 {% elif iface.circuit_termination and perms.circuits.change_circuittermination %}

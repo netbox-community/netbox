@@ -196,18 +196,16 @@
                             <td>802.1Q Mode</td>
                             <td>{{ connected_interface.get_mode_display }}</td>
                         </tr>
-                        {% if interface.connection %}
-                            <tr>
-                                <td>Connection Status</td>
-                                <td>
-                                    {% if interface.connection.connection_status %}
-                                        <span class="label label-success">{{ interface.connection.get_connection_status_display }}</span>
-                                    {% else %}
-                                        <span class="label label-info">{{ interface.connection.get_connection_status_display }}</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endif %}
+                        <tr>
+                            <td>Connection Status</td>
+                            <td>
+                                {% if interface.connection_status %}
+                                    <span class="label label-success">{{ interface.get_connection_status_display }}</span>
+                                {% else %}
+                                    <span class="label label-info">{{ interface.get_connection_status_display }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
                     </table>
                 {% else %}
                     <div class="panel-body text-muted">
