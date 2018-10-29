@@ -533,6 +533,19 @@ class CableSerializer(ValidatedModelSerializer):
         return self._get_termination(obj, 'b')
 
 
+class TracedCableSerializer(serializers.ModelSerializer):
+    """
+    Used only while tracing a cable path.
+    """
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cable-detail')
+
+    class Meta:
+        model = Cable
+        fields = [
+            'id', 'url', 'type', 'status', 'label', 'color', 'length', 'length_unit',
+        ]
+
+
 class NestedCableSerializer(serializers.Serializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cable-detail')
 

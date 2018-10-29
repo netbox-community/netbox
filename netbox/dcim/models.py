@@ -76,6 +76,55 @@ class CableTermination(models.Model):
     class Meta:
         abstract = True
 
+    def trace(self, position=1):
+        """
+        Return a list representing a complete cable path, with each individual segment represented as a three-tuple:
+            [
+                (termination A, cable, termination B),
+                (termination C, cable, termination D),
+                (termination E, cable, termination F)
+            ]
+        """
+        def get_peer_port(termination, position=1):
+
+            # Map a front port to its corresponding rear port
+            if isinstance(termination, FrontPort):
+                return termination.rear_port, termination.rear_port_position
+
+            # Map a rear port/position to its corresponding front port
+            elif isinstance(termination, RearPort):
+                if position not in range(1, termination.positions + 1):
+                    raise Exception("Invalid position for {} ({} positions): {})".format(
+                        termination, termination.positions, position
+                    ))
+                peer_port = FrontPort.objects.get(
+                    rear_port=termination,
+                    rear_port_position=position,
+                )
+                return peer_port, 1
+
+            # Termination is not a pass-through port
+            else:
+                return None, None
+
+        if not self.cable:
+            return [(self, None, None)]
+
+        far_end = self.cable.termination_b if self.cable.termination_a == self else self.cable.termination_a
+        path = [(self, self.cable, far_end)]
+
+        peer_port, position = get_peer_port(far_end, position)
+        if peer_port is None:
+            return path
+
+        next_segment = peer_port.trace(position)
+        if next_segment is None:
+            return path + [(peer_port, None, None)]
+
+        return path + next_segment
+
+
+    # TODO: Deprecate in favor of obj.cable
     def get_connected_cable(self):
         """
         Return the connected cable if one exists; else None. Assign the far end of the connection on the Cable instance.

@@ -22,7 +22,9 @@ from dcim.models import (
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
 from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
-from utilities.api import IsAuthenticatedOrLoginNotRequired, FieldChoicesViewSet, ModelViewSet, ServiceUnavailable
+from utilities.api import (
+    get_serializer_for_model, IsAuthenticatedOrLoginNotRequired, FieldChoicesViewSet, ModelViewSet, ServiceUnavailable,
+)
 from . import serializers
 from .exceptions import MissingFilterException
 
@@ -41,6 +43,40 @@ class DCIMFieldChoicesViewSet(FieldChoicesViewSet):
         (Rack, ['type', 'width']),
         (Site, ['status']),
     )
+
+
+# Mixins
+
+class CableTraceMixin(object):
+
+    @action(detail=True, url_path='trace')
+    def trace(self, request, pk):
+        """
+        Trace a complete cable path and return each segment as a three-tuple of (termination, cable, termination).
+        """
+        obj = get_object_or_404(self.queryset.model, pk=pk)
+
+        # Initialize the path array
+        path = []
+
+        for near_end, cable, far_end in obj.trace():
+
+            # Serialize each object
+            serializer_a = get_serializer_for_model(near_end, prefix='Nested')
+            x = serializer_a(near_end, context={'request': request}).data
+            if cable is not None:
+                y = serializers.TracedCableSerializer(cable, context={'request': request}).data
+            else:
+                y = None
+            if far_end is not None:
+                serializer_b = get_serializer_for_model(far_end, prefix='Nested')
+                z = serializer_b(far_end, context={'request': request}).data
+            else:
+                z = None
+
+            path.append((x, y, z))
+
+        return Response(path)
 
 
 #
@@ -329,7 +365,7 @@ class DeviceViewSet(CustomFieldModelViewSet):
 # Device components
 #
 
-class ConsolePortViewSet(ModelViewSet):
+class ConsolePortViewSet(CableTraceMixin, ModelViewSet):
     queryset = ConsolePort.objects.select_related(
         'device', 'connected_endpoint__device', 'cable'
     ).prefetch_related(
@@ -339,7 +375,7 @@ class ConsolePortViewSet(ModelViewSet):
     filter_class = filters.ConsolePortFilter
 
 
-class ConsoleServerPortViewSet(ModelViewSet):
+class ConsoleServerPortViewSet(CableTraceMixin, ModelViewSet):
     queryset = ConsoleServerPort.objects.select_related(
         'device', 'connected_endpoint__device', 'cable'
     ).prefetch_related(
@@ -349,7 +385,7 @@ class ConsoleServerPortViewSet(ModelViewSet):
     filter_class = filters.ConsoleServerPortFilter
 
 
-class PowerPortViewSet(ModelViewSet):
+class PowerPortViewSet(CableTraceMixin, ModelViewSet):
     queryset = PowerPort.objects.select_related(
         'device', 'connected_endpoint__device', 'cable'
     ).prefetch_related(
@@ -359,7 +395,7 @@ class PowerPortViewSet(ModelViewSet):
     filter_class = filters.PowerPortFilter
 
 
-class PowerOutletViewSet(ModelViewSet):
+class PowerOutletViewSet(CableTraceMixin, ModelViewSet):
     queryset = PowerOutlet.objects.select_related(
         'device', 'connected_endpoint__device', 'cable'
     ).prefetch_related(
@@ -369,7 +405,7 @@ class PowerOutletViewSet(ModelViewSet):
     filter_class = filters.PowerOutletFilter
 
 
-class InterfaceViewSet(ModelViewSet):
+class InterfaceViewSet(CableTraceMixin, ModelViewSet):
     queryset = Interface.objects.select_related(
         'device', 'connected_endpoint__device', 'cable'
     ).prefetch_related(
