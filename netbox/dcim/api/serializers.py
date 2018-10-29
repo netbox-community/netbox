@@ -547,13 +547,13 @@ class NestedCableSerializer(serializers.Serializer):
 
 class ConsoleServerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
-    cable = NestedCableSerializer()
+    cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = ConsoleServerPort
         fields = ['id', 'device', 'name', 'connected_endpoint', 'cable', 'tags']
-        read_only_fields = ['connected_endpoint', 'cable']
+        read_only_fields = ['connected_endpoint']
 
 
 class NestedConsoleServerPortSerializer(WritableNestedSerializer):
@@ -576,13 +576,13 @@ class NestedConsoleServerPortSerializer(WritableNestedSerializer):
 class ConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     connected_endpoint = NestedConsoleServerPortSerializer(required=False, allow_null=True)
-    cable = NestedCableSerializer()
+    cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = ConsolePort
         fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'cable', 'tags']
-        read_only_fields = ['connected_endpoint', 'cable']
+        read_only_fields = ['connected_endpoint']
 
 
 class NestedConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
@@ -604,13 +604,13 @@ class NestedConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
 
 class PowerOutletSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
-    cable = NestedCableSerializer()
+    cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = PowerOutlet
         fields = ['id', 'device', 'name', 'connected_endpoint', 'cable', 'tags']
-        read_only_fields = ['connected_endpoint', 'cable']
+        read_only_fields = ['connected_endpoint']
 
 
 class NestedPowerOutletSerializer(WritableNestedSerializer):
@@ -633,13 +633,13 @@ class NestedPowerOutletSerializer(WritableNestedSerializer):
 class PowerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     connected_endpoint = NestedPowerOutletSerializer(required=False, allow_null=True)
-    cable = NestedCableSerializer()
+    cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = PowerPort
         fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'cable', 'tags']
-        read_only_fields = ['connected_endpoint', 'cable']
+        read_only_fields = ['connected_endpoint']
 
 
 class NestedPowerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
@@ -715,7 +715,7 @@ class InterfaceSerializer(TaggitSerializer, IsConnectedMixin, ValidatedModelSeri
     device = NestedDeviceSerializer()
     form_factor = ChoiceField(choices=IFACE_FF_CHOICES, required=False)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
-    connected_endpoint = NestedInterfaceSerializer(required=False, allow_null=True)
+    connected_endpoint = NestedInterfaceSerializer(read_only=True)
     is_connected = serializers.SerializerMethodField(read_only=True)
     circuit_termination = InterfaceCircuitTerminationSerializer(read_only=True)
     mode = ChoiceField(choices=IFACE_MODE_CHOICES, required=False, allow_null=True)
@@ -726,7 +726,7 @@ class InterfaceSerializer(TaggitSerializer, IsConnectedMixin, ValidatedModelSeri
         required=False,
         many=True
     )
-    cable = NestedCableSerializer()
+    cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
@@ -764,7 +764,7 @@ class InterfaceSerializer(TaggitSerializer, IsConnectedMixin, ValidatedModelSeri
 class RearPortSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=PORT_TYPE_CHOICES)
-    cable = NestedCableSerializer()
+    cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
@@ -789,7 +789,7 @@ class FrontPortSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=PORT_TYPE_CHOICES)
     rear_port = NestedRearPortSerializer()
-    cable = NestedCableSerializer()
+    cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
