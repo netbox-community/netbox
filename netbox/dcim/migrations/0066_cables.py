@@ -158,6 +158,11 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name='consoleport',
+            name='device',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='consoleports', to='dcim.Device'),
+        ),
+        migrations.AlterField(
+            model_name='consoleport',
             name='connected_endpoint',
             field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='connected_endpoint', to='dcim.ConsoleServerPort'),
         ),
@@ -182,6 +187,11 @@ class Migration(migrations.Migration):
             model_name='powerport',
             old_name='power_outlet',
             new_name='connected_endpoint'
+        ),
+        migrations.AlterField(
+            model_name='powerport',
+            name='device',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='powerports', to='dcim.Device'),
         ),
         migrations.AlterField(
             model_name='powerport',

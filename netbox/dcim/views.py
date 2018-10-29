@@ -884,7 +884,7 @@ class DeviceView(View):
 
         # Console ports
         console_ports = natsorted(
-            device.console_ports.select_related('connected_endpoint__device', 'cable'),
+            device.consoleports.select_related('connected_endpoint__device', 'cable'),
             key=attrgetter('name')
         )
 
@@ -893,7 +893,7 @@ class DeviceView(View):
 
         # Power ports
         power_ports = natsorted(
-            device.power_ports.select_related('connected_endpoint__device', 'cable'),
+            device.powerports.select_related('connected_endpoint__device', 'cable'),
             key=attrgetter('name')
         )
 
@@ -910,10 +910,10 @@ class DeviceView(View):
         )
 
         # Front ports
-        front_ports = device.front_ports.select_related('rear_port', 'cable')
+        front_ports = device.frontports.select_related('rear_port', 'cable')
 
         # Rear ports
-        rear_ports = device.rear_ports.select_related('cable')
+        rear_ports = device.rearports.select_related('cable')
 
         # Device bays
         device_bays = natsorted(

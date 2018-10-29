@@ -1595,7 +1595,7 @@ class ConsolePort(CableTermination, ComponentModel):
     device = models.ForeignKey(
         to='dcim.Device',
         on_delete=models.CASCADE,
-        related_name='console_ports'
+        related_name='consoleports'
     )
     name = models.CharField(
         max_length=50
@@ -1687,7 +1687,7 @@ class PowerPort(CableTermination, ComponentModel):
     device = models.ForeignKey(
         to='dcim.Device',
         on_delete=models.CASCADE,
-        related_name='power_ports'
+        related_name='powerports'
     )
     name = models.CharField(
         max_length=50
@@ -1991,7 +1991,7 @@ class FrontPort(CableTermination, ComponentModel):
     device = models.ForeignKey(
         to='dcim.Device',
         on_delete=models.CASCADE,
-        related_name='front_ports'
+        related_name='frontports'
     )
     name = models.CharField(
         max_length=64
@@ -2045,7 +2045,7 @@ class RearPort(CableTermination, ComponentModel):
     device = models.ForeignKey(
         to='dcim.Device',
         on_delete=models.CASCADE,
-        related_name='rear_ports'
+        related_name='rearports'
     )
     name = models.CharField(
         max_length=64
