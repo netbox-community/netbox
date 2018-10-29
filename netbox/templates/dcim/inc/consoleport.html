@@ -9,7 +9,10 @@
     <td>
         {% with cable=cp.get_connected_cable %}
             {% if cable %}
-                via <a href="{{ cable.get_absolute_url }}">{{ cable }}</a>
+                Cable <a href="{{ cable.get_absolute_url }}">{{ cable }}</a>
+                {% if cable.far_end != cp.connected_endpoint %}
+                    to <a href="{{ cable.far_end.device.get_absolute_url }}">{{ cable.far_end.device }}</a> {{ cable.far_end }}
+                {% endif %}
             {% endif %}
         {% endwith %}
     </td>
