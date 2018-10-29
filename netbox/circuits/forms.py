@@ -245,7 +245,7 @@ class CircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm
         label='Interface',
         widget=APISelect(
             api_url='/api/dcim/interfaces/?device_id={{device}}&type=physical',
-            disabled_indicator='is_connected'
+            disabled_indicator='cable'
         )
     )
 
@@ -276,12 +276,12 @@ class CircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm
 
         super(CircuitTerminationForm, self).__init__(*args, **kwargs)
 
-        # Mark connected interfaces as disabled
+        # Mark occupied interfaces as disabled
         self.fields['interface'].choices = []
         for iface in self.fields['interface'].queryset:
             self.fields['interface'].choices.append(
                 (iface.id, {
                     'label': iface.name,
-                    'disabled': iface.is_connected and iface.pk != self.initial.get('interface'),
+                    'disabled': bool(iface.cable) and iface.pk != self.initial.get('interface'),
                 })
             )

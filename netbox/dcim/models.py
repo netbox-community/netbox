@@ -1888,7 +1888,9 @@ class Interface(CableTermination, ComponentModel):
             })
 
         # Virtual interfaces cannot be connected
-        if self.form_factor in NONCONNECTABLE_IFACE_TYPES and self.is_connected:
+        if self.form_factor in NONCONNECTABLE_IFACE_TYPES and (
+                self.cable or getattr(self, 'circuit_termination', False)
+        ):
             raise ValidationError({
                 'form_factor': "Virtual and wireless interfaces cannot be connected to another interface or circuit. "
                                "Disconnect the interface or choose a suitable form factor."
@@ -1976,14 +1978,6 @@ class Interface(CableTermination, ComponentModel):
     @property
     def is_lag(self):
         return self.form_factor == IFACE_FF_LAG
-
-    @property
-    def is_connected(self):
-        try:
-            return bool(self.circuit_termination)
-        except ObjectDoesNotExist:
-            pass
-        return bool(self.connected_endpoint)
 
 
 #
