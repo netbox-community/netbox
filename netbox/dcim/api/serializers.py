@@ -493,17 +493,67 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
 
 
 #
+# Cables
+#
+
+class CableSerializer(ValidatedModelSerializer):
+    termination_a_type = ContentTypeField()
+    termination_b_type = ContentTypeField()
+    termination_a = serializers.SerializerMethodField(read_only=True)
+    termination_b = serializers.SerializerMethodField(read_only=True)
+    status = ChoiceField(choices=CONNECTION_STATUS_CHOICES)
+    length_unit = ChoiceField(choices=LENGTH_UNIT_CHOICES)
+
+    class Meta:
+        model = Cable
+        fields = [
+            'id', 'termination_a_type', 'termination_a_id', 'termination_a', 'termination_b_type', 'termination_b_id',
+            'termination_b', 'type', 'status', 'label', 'color', 'length', 'length_unit',
+        ]
+
+    def _get_termination(self, obj, side):
+        """
+        Serialize a nested representation of a termination.
+        """
+        if side.lower() not in ['a', 'b']:
+            raise ValueError("Termination side must be either A or B.")
+        termination = getattr(obj, 'termination_{}'.format(side.lower()))
+        if termination is None:
+            return None
+        serializer = get_serializer_for_model(termination, prefix='Nested')
+        context = {'request': self.context['request']}
+        data = serializer(termination, context=context).data
+
+        return data
+
+    def get_termination_a(self, obj):
+        return self._get_termination(obj, 'a')
+
+    def get_termination_b(self, obj):
+        return self._get_termination(obj, 'b')
+
+
+class NestedCableSerializer(serializers.Serializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cable-detail')
+
+    class Meta:
+        model = Cable
+        fields = ['id', 'url', 'label']
+
+
+#
 # Console server ports
 #
 
 class ConsoleServerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
+    cable = NestedCableSerializer()
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['id', 'device', 'name', 'connected_endpoint', 'tags']
-        read_only_fields = ['connected_endpoint']
+        fields = ['id', 'device', 'name', 'connected_endpoint', 'cable', 'tags']
+        read_only_fields = ['connected_endpoint', 'cable']
 
 
 class NestedConsoleServerPortSerializer(WritableNestedSerializer):
@@ -526,11 +576,13 @@ class NestedConsoleServerPortSerializer(WritableNestedSerializer):
 class ConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     connected_endpoint = NestedConsoleServerPortSerializer(required=False, allow_null=True)
+    cable = NestedCableSerializer()
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = ConsolePort
-        fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'tags']
+        fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'cable', 'tags']
+        read_only_fields = ['connected_endpoint', 'cable']
 
 
 class NestedConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
@@ -552,12 +604,13 @@ class NestedConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
 
 class PowerOutletSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
+    cable = NestedCableSerializer()
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = PowerOutlet
-        fields = ['id', 'device', 'name', 'connected_endpoint', 'tags']
-        read_only_fields = ['connected_endpoint']
+        fields = ['id', 'device', 'name', 'connected_endpoint', 'cable', 'tags']
+        read_only_fields = ['connected_endpoint', 'cable']
 
 
 class NestedPowerOutletSerializer(WritableNestedSerializer):
@@ -580,11 +633,13 @@ class NestedPowerOutletSerializer(WritableNestedSerializer):
 class PowerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     connected_endpoint = NestedPowerOutletSerializer(required=False, allow_null=True)
+    cable = NestedCableSerializer()
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = PowerPort
-        fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'tags']
+        fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'cable', 'tags']
+        read_only_fields = ['connected_endpoint', 'cable']
 
 
 class NestedPowerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
@@ -671,14 +726,15 @@ class InterfaceSerializer(TaggitSerializer, IsConnectedMixin, ValidatedModelSeri
         required=False,
         many=True
     )
+    cable = NestedCableSerializer()
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Interface
         fields = [
             'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
-            'is_connected', 'connected_endpoint', 'circuit_termination', 'mode', 'untagged_vlan', 'tagged_vlans',
-            'tags',
+            'is_connected', 'connected_endpoint', 'circuit_termination', 'cable', 'mode', 'untagged_vlan',
+            'tagged_vlans', 'tags',
         ]
 
     def validate(self, data):
@@ -708,11 +764,12 @@ class InterfaceSerializer(TaggitSerializer, IsConnectedMixin, ValidatedModelSeri
 class RearPortSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=PORT_TYPE_CHOICES)
+    cable = NestedCableSerializer()
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = RearPort
-        fields = ['id', 'device', 'name', 'type', 'positions', 'tags']
+        fields = ['id', 'device', 'name', 'type', 'positions', 'cable', 'tags']
 
 
 class NestedRearPortSerializer(WritableNestedSerializer):
@@ -732,11 +789,12 @@ class FrontPortSerializer(ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=PORT_TYPE_CHOICES)
     rear_port = NestedRearPortSerializer()
+    cable = NestedCableSerializer()
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = FrontPort
-        fields = ['id', 'device', 'name', 'type', 'rear_port', 'rear_port_position', 'tags']
+        fields = ['id', 'device', 'name', 'type', 'rear_port', 'rear_port_position', 'cable', 'tags']
 
 
 class NestedFrontPortSerializer(WritableNestedSerializer):
@@ -806,47 +864,6 @@ class InterfaceConnectionSerializer(ValidatedModelSerializer):
     def get_interface_a(self, obj):
         context = {'request': self.context['request']}
         return NestedInterfaceSerializer(instance=obj, context=context).data
-
-
-#
-# Cables
-#
-
-class CableSerializer(ValidatedModelSerializer):
-    termination_a_type = ContentTypeField()
-    termination_b_type = ContentTypeField()
-    termination_a = serializers.SerializerMethodField(read_only=True)
-    termination_b = serializers.SerializerMethodField(read_only=True)
-    status = ChoiceField(choices=CONNECTION_STATUS_CHOICES)
-    length_unit = ChoiceField(choices=LENGTH_UNIT_CHOICES)
-
-    class Meta:
-        model = Cable
-        fields = [
-            'id', 'termination_a_type', 'termination_a_id', 'termination_a', 'termination_b_type', 'termination_b_id',
-            'termination_b', 'type', 'status', 'label', 'color', 'length', 'length_unit',
-        ]
-
-    def _get_termination(self, obj, side):
-        """
-        Serialize a nested representation of a termination.
-        """
-        if side.lower() not in ['a', 'b']:
-            raise ValueError("Termination side must be either A or B.")
-        termination = getattr(obj, 'termination_{}'.format(side.lower()))
-        if termination is None:
-            return None
-        serializer = get_serializer_for_model(termination, prefix='Nested')
-        context = {'request': self.context['request']}
-        data = serializer(termination, context=context).data
-
-        return data
-
-    def get_termination_a(self, obj):
-        return self._get_termination(obj, 'a')
-
-    def get_termination_b(self, obj):
-        return self._get_termination(obj, 'b')
 
 
 #
