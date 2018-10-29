@@ -20,6 +20,7 @@ def console_connections_to_cables(apps, schema_editor):
     print("\n    Adding console connections... ", end='', flush=True)
     for consoleport in ConsolePort.objects.filter(connected_endpoint__isnull=False):
         c = Cable()
+
         # We have to assign GFK fields manually because we're inside a migration.
         c.termination_a_type = consoleport_type
         c.termination_a_id = consoleport.id
@@ -27,6 +28,10 @@ def console_connections_to_cables(apps, schema_editor):
         c.termination_b_id = consoleport.connected_endpoint_id
         c.connection_status = consoleport.connection_status
         c.save()
+
+        # Cache the Cable on its two termination points (replicate Cable.save())
+        ConsolePort.objects.filter(pk=consoleport.id).update(cable=c)
+        ConsoleServerPort.objects.filter(pk=consoleport.connected_endpoint_id).update(cable=c)
 
     cable_count = Cable.objects.filter(termination_a_type=consoleport_type).count()
     print("{} cables created".format(cable_count))
@@ -49,6 +54,7 @@ def power_connections_to_cables(apps, schema_editor):
     print("    Adding power connections... ", end='', flush=True)
     for powerport in PowerPort.objects.filter(connected_endpoint__isnull=False):
         c = Cable()
+
         # We have to assign GFK fields manually because we're inside a migration.
         c.termination_a_type = powerport_type
         c.termination_a_id = powerport.id
@@ -56,6 +62,10 @@ def power_connections_to_cables(apps, schema_editor):
         c.termination_b_id = powerport.connected_endpoint_id
         c.connection_status = powerport.connection_status
         c.save()
+
+        # Cache the Cable on its two termination points (replicate Cable.save())
+        PowerPort.objects.filter(pk=powerport.id).update(cable=c)
+        PowerOutlet.objects.filter(pk=powerport.connected_endpoint_id).update(cable=c)
 
     cable_count = Cable.objects.filter(termination_a_type=powerport_type).count()
     print("{} cables created".format(cable_count))
@@ -77,11 +87,14 @@ def interface_connections_to_cables(apps, schema_editor):
     print("    Adding interface connections... ", end='', flush=True)
     for conn in InterfaceConnection.objects.all():
         c = Cable()
+
         # We have to assign GFK fields manually because we're inside a migration.
         c.termination_a_type = interface_type
         c.termination_a_id = conn.interface_a_id
+        c.termination_a = conn.interface_a
         c.termination_b_type = interface_type
         c.termination_b_id = conn.interface_b_id
+        c.termination_b = conn.interface_b
         c.connection_status = conn.connection_status
         c.save()
 
@@ -89,11 +102,13 @@ def interface_connections_to_cables(apps, schema_editor):
         # since these are new fields on Interface
         Interface.objects.filter(pk=conn.interface_a_id).update(
             connected_endpoint=conn.interface_b_id,
-            connection_status=conn.connection_status
+            connection_status=conn.connection_status,
+            cable=c
         )
         Interface.objects.filter(pk=conn.interface_b_id).update(
             connected_endpoint=conn.interface_a_id,
-            connection_status=conn.connection_status
+            connection_status=conn.connection_status,
+            cable=c
         )
 
     cable_count = Cable.objects.filter(termination_a_type=interface_type).count()
@@ -146,10 +161,20 @@ class Migration(migrations.Migration):
             name='connected_endpoint',
             field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='connected_endpoint', to='dcim.ConsoleServerPort'),
         ),
+        migrations.AddField(
+            model_name='consoleport',
+            name='cable',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.Cable'),
+        ),
         migrations.AlterField(
             model_name='consoleserverport',
             name='device',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='consoleserverports', to='dcim.Device'),
+        ),
+        migrations.AddField(
+            model_name='consoleserverport',
+            name='cable',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.Cable'),
         ),
 
         # Alter power port models
@@ -163,10 +188,20 @@ class Migration(migrations.Migration):
             name='connected_endpoint',
             field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='connected_endpoint', to='dcim.PowerOutlet'),
         ),
+        migrations.AddField(
+            model_name='powerport',
+            name='cable',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.Cable'),
+        ),
         migrations.AlterField(
             model_name='poweroutlet',
             name='device',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='poweroutlets', to='dcim.Device'),
+        ),
+        migrations.AddField(
+            model_name='poweroutlet',
+            name='cable',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.Cable'),
         ),
 
         # Alter the Interface model
@@ -179,6 +214,23 @@ class Migration(migrations.Migration):
             model_name='interface',
             name='connection_status',
             field=models.NullBooleanField(default=True),
+        ),
+        migrations.AddField(
+            model_name='interface',
+            name='cable',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.Cable'),
+        ),
+
+        # Alter front/rear port models
+        migrations.AddField(
+            model_name='frontport',
+            name='cable',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.Cable'),
+        ),
+        migrations.AddField(
+            model_name='rearport',
+            name='cable',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.Cable'),
         ),
 
         # Copy console/power/interface connections as Cables

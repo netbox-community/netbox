@@ -32,7 +32,7 @@ def update_connected_endpoints(instance, **kwargs):
         termination_a.connection_status = True
         termination_a.save()
         termination_b.connected_endpoint = termination_a
-        termination_a.connection_status = True
+        termination_b.connection_status = True
         termination_b.save()
 
 

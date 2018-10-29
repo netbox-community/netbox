@@ -26,18 +26,15 @@
     <td>{{ iface.description|default:"&mdash;" }}</td>
 
     {# 802.1Q mode #}
-    <td>{{ iface.get_mode_display }}</td>
+    <td>{{ iface.get_mode_display|default:"&mdash;" }}</td>
 
     {# Cable #}
     <td>
-        {% with cable=iface.get_connected_cable %}
-            {% if cable %}
-                <a href="{{ cable.get_absolute_url }}">{{ cable }}</a>
-                {% if cable.far_end != iface.connected_endpoint %}
-                    to <a href="{{ cable.far_end.device.get_absolute_url }}">{{ cable.far_end.device }}</a> {{ cable.far_end }}
-                {% endif %}
-            {% endif %}
-        {% endwith %}
+        {% if iface.cable %}
+            <a href="{{ iface.cable.get_absolute_url }}">{{ iface.cable }}</a>
+        {% else %}
+            &mdash;
+        {% endif %}
     </td>
 
     {# Connection or type #}

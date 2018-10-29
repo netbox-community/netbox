@@ -876,47 +876,53 @@ class DeviceView(View):
 
         # VirtualChassis members
         if device.virtual_chassis is not None:
-            vc_members = Device.objects.filter(virtual_chassis=device.virtual_chassis).order_by('vc_position')
+            vc_members = Device.objects.filter(
+                virtual_chassis=device.virtual_chassis
+            ).order_by('vc_position')
         else:
             vc_members = []
 
         # Console ports
         console_ports = natsorted(
-            ConsolePort.objects.filter(device=device).select_related('connected_endpoint__device'), key=attrgetter('name')
+            device.console_ports.select_related('connected_endpoint__device', 'cable'),
+            key=attrgetter('name')
         )
 
         # Console server ports
-        consoleserverports = ConsoleServerPort.objects.filter(device=device).select_related('connected_endpoint__device')
+        consoleserverports = device.consoleserverports.select_related('connected_endpoint__device', 'cable')
 
         # Power ports
         power_ports = natsorted(
-            PowerPort.objects.filter(device=device).select_related('connected_endpoint__device'), key=attrgetter('name')
+            device.power_ports.select_related('connected_endpoint__device', 'cable'),
+            key=attrgetter('name')
         )
 
         # Power outlets
-        poweroutlets = PowerOutlet.objects.filter(device=device).select_related('connected_endpoint__device')
+        poweroutlets = device.poweroutlets.select_related('connected_endpoint__device', 'cable')
 
         # Interfaces
         interfaces = device.vc_interfaces.order_naturally(
             device.device_type.interface_ordering
         ).select_related(
-            'connected_endpoint__device', 'circuit_termination__circuit'
-        ).prefetch_related('ip_addresses')
+            'lag', 'connected_endpoint__device', 'circuit_termination__circuit', 'cable'
+        ).prefetch_related(
+            'cable__termination_a', 'cable__termination_b', 'ip_addresses'
+        )
 
         # Front ports
-        front_ports = device.front_ports.select_related('rear_port')
+        front_ports = device.front_ports.select_related('rear_port', 'cable')
 
         # Rear ports
-        rear_ports = device.rear_ports.all()
+        rear_ports = device.rear_ports.select_related('cable')
 
         # Device bays
         device_bays = natsorted(
-            DeviceBay.objects.filter(device=device).select_related('installed_device__device_type__manufacturer'),
+            device.device_bays.select_related('installed_device__device_type__manufacturer'),
             key=attrgetter('name')
         )
 
         # Services
-        services = Service.objects.filter(device=device)
+        services = device.services.all()
 
         # Secrets
         secrets = device.secrets.all()
