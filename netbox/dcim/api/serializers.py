@@ -546,7 +546,7 @@ class TracedCableSerializer(serializers.ModelSerializer):
         ]
 
 
-class NestedCableSerializer(serializers.Serializer):
+class NestedCableSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cable-detail')
 
     class Meta:
