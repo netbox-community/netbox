@@ -122,7 +122,6 @@ class CableTermination(models.Model):
 
         return path + next_segment
 
-
     # TODO: Deprecate in favor of obj.cable
     def get_connected_cable(self):
         """
