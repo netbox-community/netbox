@@ -501,8 +501,8 @@ class CableSerializer(ValidatedModelSerializer):
     termination_b_type = ContentTypeField()
     termination_a = serializers.SerializerMethodField(read_only=True)
     termination_b = serializers.SerializerMethodField(read_only=True)
-    status = ChoiceField(choices=CONNECTION_STATUS_CHOICES)
-    length_unit = ChoiceField(choices=LENGTH_UNIT_CHOICES)
+    status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, required=False)
+    length_unit = ChoiceField(choices=LENGTH_UNIT_CHOICES, required=False)
 
     class Meta:
         model = Cable
