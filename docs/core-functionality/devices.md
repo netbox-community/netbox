@@ -4,12 +4,6 @@ A device type represents a particular make and model of hardware that exists in 
 
 Device types are instantiated as devices installed within racks. For example, you might define a device type to represent a Juniper EX4300-48T network switch with 48 Ethernet interfaces. You can then create multiple devices of this type named "switch1," "switch2," and so on. Each device will inherit the components (such as interfaces) of its device type at the time of creation. (However, changes made to a device type will **not** apply to instances of that device type retroactively.)
 
-The device type model includes three flags which inform what type of components may be added to it:
-
-* `is_console_server`: This device type has console server ports
-* `is_pdu`: This device type has power outlets
-* `is_network_device`: This device type has network interfaces
-
 Some devices house child devices which share physical resources, like space and power, but which functional independently from one another. A common example of this is blade server chassis. Each device type is designated as one of the following:
 
 * A parent device (which has device bays)
@@ -32,6 +26,8 @@ Each device type is assigned a number of component templates which define the ph
 * Power ports
 * Power outlets
 * Network interfaces
+* Front ports
+* Rear ports
 * Device bays (which house child devices)
 
 Whenever a new device is created, its components are automatically created per the templates assigned to its device type. For example, a Juniper EX4300-48T device type might have the following component templates defined:
@@ -56,32 +52,28 @@ When assigning a multi-U device to a rack, it is considered to be mounted in the
 
 A device is said to be full depth if its installation on one rack face prevents the installation of any other device on the opposite face within the same rack unit(s). This could be either because the device is physically too deep to allow a device behind it, or because the installation of an opposing device would impede airflow.
 
-## Device Roles
+## Device Components
 
-Devices can be organized by functional roles. These roles are fully customizable. For example, you might create roles for core switches, distribution switches, and access switches.
-
----
-
-# Device Components
-
-There are six types of device components which comprise all of the interconnection logic with NetBox:
+There are eight types of device components which comprise all of the interconnection logic with NetBox:
 
 * Console ports
 * Console server ports
 * Power ports
 * Power outlets
 * Network interfaces
+* Front ports
+* Rear ports
 * Device bays
 
-## Console
+### Console
 
 Console ports connect only to console server ports. Console connections can be marked as either *planned* or *connected*.
 
-## Power
+### Power
 
 Power ports connect only to power outlets. Power connections can be marked as either *planned* or *connected*.
 
-## Interfaces
+### Interfaces
 
 Interfaces connect to one another in a symmetric manner: If interface A connects to interface B, interface B therefore connects to interface A. Each type of connection can be classified as either *planned* or *connected*.
 
@@ -91,9 +83,21 @@ Each interface can also be enabled or disabled, and optionally designated as man
 
 VLANs can be assigned to each interface as either tagged or untagged. (An interface may have only one untagged VLAN.)
 
-## Device Bays
+### Pass-through Ports
+
+Pass-through ports are used to model physical terminations which comprise part of a longer path, such as a cable terminated to a patch panel. Each front port maps to a position on a rear port. A 24-port UTP patch panel, for instance, would have 24 front ports and 24 rear ports. Although this relationship is typically one-to-one, a rear port may have multiple front ports mapped to it. This can be useful for modeling instances where multiple paths share a common cable (for example, six different fiber connections sharing a 12-strand MPO cable).
+
+Pass-through ports can also be used to model "bump in the wire" devices, such as a media convertor or passive tap.
+
+### Device Bays
 
 Device bays represent the ability of a device to house child devices. For example, you might install four blade servers into a 2U chassis. The chassis would appear in the rack elevation as a 2U device with four device bays. Each server within it would be defined as a 0U device installed in one of the device bays. Child devices do not appear within rack elevations, but they are included in the "Non-Racked Devices" list within the rack view.
+
+---
+
+# Device Roles
+
+Devices can be organized by functional roles. These roles are fully customizable. For example, you might create roles for core switches, distribution switches, and access switches.
 
 ---
 
