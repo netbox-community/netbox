@@ -5,6 +5,7 @@ from taggit.managers import TaggableManager
 
 from dcim.constants import CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_CONNECTED, STATUS_CLASSES
 from dcim.fields import ASNField
+from dcim.models import CableTermination
 from extras.models import CustomFieldModel, ObjectChange
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object
@@ -211,7 +212,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         return self._get_termination('Z')
 
 
-class CircuitTermination(models.Model):
+class CircuitTermination(CableTermination):
     circuit = models.ForeignKey(
         to='circuits.Circuit',
         on_delete=models.CASCADE,

@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
 
     operations = [
 
-        # Add CircuitTermination.connected_endpoint
+        # Add new CircuitTermination fields
         migrations.AddField(
             model_name='circuittermination',
             name='connected_endpoint',
@@ -68,11 +68,16 @@ class Migration(migrations.Migration):
             name='connection_status',
             field=models.NullBooleanField(default=True),
         ),
+        migrations.AddField(
+            model_name='circuittermination',
+            name='cable',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.Cable'),
+        ),
 
         # Copy CircuitTermination connections to Interfaces as Cables
         migrations.RunPython(circuit_terminations_to_cables),
 
-        # Model changes
+        # Remove interface field from CircuitTermination
         migrations.RemoveField(
             model_name='circuittermination',
             name='interface',

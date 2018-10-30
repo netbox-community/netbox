@@ -15,7 +15,6 @@ from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
 
-from circuits.models import Circuit, CircuitTermination
 from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange
 from utilities.fields import ColorField, NullableCharField
 from utilities.managers import NaturalOrderByManager
@@ -336,6 +335,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
 
     @property
     def count_circuits(self):
+        from circuits.models import Circuit
         return Circuit.objects.filter(terminations__site=self).count()
 
     @property
@@ -2023,6 +2023,8 @@ class Interface(CableTermination, ComponentModel):
 
     @connected_endpoint.setter
     def connected_endpoint(self, value):
+        from circuits.models import CircuitTermination
+
         if value is None:
             self._connected_interface = None
             self._connected_circuittermination = None
