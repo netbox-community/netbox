@@ -50,17 +50,17 @@
         <td colspan="2" class="text-muted">Virtual interface</td>
     {% elif iface.is_wireless %}
         <td colspan="2" class="text-muted">Wireless interface</td>
-    {% elif iface.connected_endpoint %}
-        {% with connected_iface=iface.connected_endpoint %}
-            <td>
-                <a href="{% url 'dcim:device' pk=connected_iface.device.pk %}">{{ connected_iface.device }}</a>
-            </td>
-            <td>
-                <a href="{% url 'dcim:interface' pk=connected_iface.pk %}"><span title="{{ connected_iface.get_form_factor_display }}">{{ connected_iface }}</span></a>
-            </td>
-        {% endwith %}
-    {% elif iface.circuit_termination %}
-        {% with iface.circuit_termination.get_peer_termination as peer_termination %}
+    {% elif iface.connected_endpoint.name %}
+        {# Connected to an Interface #}
+        <td>
+            <a href="{% url 'dcim:device' pk=iface.connected_endpoint.device.pk %}">{{ iface.connected_endpoint.device }}</a>
+        </td>
+        <td>
+            <a href="{% url 'dcim:interface' pk=iface.connected_endpoint.pk %}"><span title="{{ iface.connected_endpoint.get_form_factor_display }}">{{ iface.connected_endpoint }}</span></a>
+        </td>
+    {% elif iface.connected_endpoint.term_side %}
+        {# Connected to a CircuitTermination #}
+        {% with iface.connected_endpoint.get_peer_termination as peer_termination %}
             <td colspan="2">
                 <i class="fa fa-fw fa-globe" title="Circuit"></i>
                 {% if peer_termination %}
@@ -72,7 +72,7 @@
                     {% endif %}
                     via
                 {% endif %}
-                <a href="{% url 'circuits:circuit' pk=iface.circuit_termination.circuit_id %}">{{ iface.circuit_termination.circuit }}</a>
+                <a href="{% url 'circuits:circuit' pk=iface.connected_endpoint.circuit_id %}">{{ iface.connected_endpoint.circuit }}</a>
             </td>
         {% endwith %}
     {% else %}
@@ -84,7 +84,7 @@
     {# Buttons #}
     <td class="text-right text-nowrap">
         {% if show_graphs %}
-            {% if iface.circuit_termination or iface.connected_endpoint %}
+            {% if iface.connected_endpoint %}
                 <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ device.name }} - {{ iface.name }}" data-url="{% url 'dcim-api:interface-graphs' pk=iface.pk %}" title="Show graphs">
                     <i class="glyphicon glyphicon-signal" aria-hidden="true"></i>
                 </button>
@@ -108,13 +108,6 @@
                         </a>
                     {% endif %}
                     <a href="{% url 'dcim:cable_delete' pk=iface.cable.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs" title="Remove cable">
-                        <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
-                    </a>
-                {% elif iface.circuit_termination and perms.circuits.change_circuittermination %}
-                    <button class="btn btn-warning btn-xs interface-toggle connected" disabled="disabled" title="Circuits cannot be marked as planned or connected">
-                        <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>
-                    </button>
-                    <a href="{% url 'circuits:circuittermination_edit' pk=iface.circuit_termination.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs" title="Edit circuit termination">
                         <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
                     </a>
                 {% else %}

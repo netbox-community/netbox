@@ -340,9 +340,10 @@ COMPATIBLE_TERMINATION_TYPES = {
     'consoleserverport': ['consoleport', 'frontport', 'rearport'],
     'powerport': ['poweroutlet'],
     'poweroutlet': ['powerport'],
-    'interface': ['interface', 'frontport', 'rearport'],
+    'interface': ['interface', 'circuittermination', 'frontport', 'rearport'],
     'frontport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport'],
     'rearport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport'],
+    'circuittermination': ['interface', 'frontport', 'rearport'],
 }
 
 LENGTH_UNIT_METER = 'm'

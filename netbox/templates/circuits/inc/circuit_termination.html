@@ -39,10 +39,17 @@
             <tr>
                 <td>Termination</td>
                 <td>
-                    {% if termination.interface %}
-                        <a href="{% url 'dcim:device' pk=termination.interface.device.pk %}">{{ termination.interface.device }}</a>
-                        <i class="fa fa-angle-right"></i> {{ termination.interface }}
+                    {% if termination.connected_endpoint %}
+                        <a href="{% url 'dcim:device' pk=termination.connected_endpoint.device.pk %}">{{ termination.connected_endpoint.device }}</a>
+                        <i class="fa fa-angle-right"></i> {{ termination.connected_endpoint }}
                     {% else %}
+                        {% if perms.circuits.change_circuittermination %}
+                            <div class="pull-right">
+                                <a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk %}?return_url={{ circuit.get_absolute_url }}" class="btn btn-success btn-xs" title="Connect">
+                                    <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i> Connect
+                                </a>
+                            </div>
+                        {% endif %}
                         <span class="text-muted">Not defined</span>
                     {% endif %}
                 </td>
@@ -61,8 +68,8 @@
             <tr>
                 <td>IP Addressing</td>
                 <td>
-                    {% if termination.interface %}
-                        {% for ip in termination.interface.ip_addresses.all %}
+                    {% if termination.connected_endpoint %}
+                        {% for ip in termination.connected_endpoint.ip_addresses.all %}
                             {% if not forloop.first %}<br />{% endif %}
                             <a href="{% url 'ipam:ipaddress' pk=ip.pk %}">{{ ip }}</a> ({{ ip.vrf|default:"Global" }})
                         {% empty %}

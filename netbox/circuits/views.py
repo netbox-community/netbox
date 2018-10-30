@@ -132,7 +132,7 @@ class CircuitListView(ObjectListView):
     queryset = Circuit.objects.select_related(
         'provider', 'type', 'tenant'
     ).prefetch_related(
-        'terminations__site', 'terminations__interface__device'
+        'terminations__site'
     )
     filter = filters.CircuitFilter
     filter_form = forms.CircuitFilterForm
@@ -146,12 +146,12 @@ class CircuitView(View):
 
         circuit = get_object_or_404(Circuit.objects.select_related('provider', 'type', 'tenant__group'), pk=pk)
         termination_a = CircuitTermination.objects.select_related(
-            'site__region', 'interface__device'
+            'site__region', 'connected_endpoint__device'
         ).filter(
             circuit=circuit, term_side=TERM_SIDE_A
         ).first()
         termination_z = CircuitTermination.objects.select_related(
-            'site__region', 'interface__device'
+            'site__region', 'connected_endpoint__device'
         ).filter(
             circuit=circuit, term_side=TERM_SIDE_Z
         ).first()

@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from django.conf import settings
-from django.db.models import F
+from django.db.models import F, Q
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
@@ -407,7 +407,7 @@ class PowerOutletViewSet(CableTraceMixin, ModelViewSet):
 
 class InterfaceViewSet(CableTraceMixin, ModelViewSet):
     queryset = Interface.objects.select_related(
-        'device', 'connected_endpoint__device', 'cable'
+        'device', '_connected_interface', '_connected_circuittermination', 'cable'
     ).prefetch_related(
         'tags'
     )
@@ -483,10 +483,11 @@ class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
 
 class InterfaceConnectionViewSet(ModelViewSet):
     queryset = Interface.objects.select_related(
-        'device', 'connected_endpoint__device'
+        'device', '_connected_interface', '_connected_circuittermination'
     ).filter(
-        connected_endpoint__isnull=False,
-        pk__lt=F('connected_endpoint')
+        # Avoid duplicate connections by only selecting the lower PK in a connected pair
+        Q(_connected_interface__isnull=False, pk__lt=F('_connected_interface')) |
+        Q(_connected_circuittermination__isnull=False)
     )
     serializer_class = serializers.InterfaceConnectionSerializer
     filter_class = filters.InterfaceConnectionFilter

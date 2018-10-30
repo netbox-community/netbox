@@ -2,7 +2,7 @@ from django import forms
 from django.db.models import Count
 from taggit.forms import TagField
 
-from dcim.models import Site, Device, Interface, Rack
+from dcim.models import Site, Device, Rack
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
@@ -203,57 +203,12 @@ class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
 # Circuit terminations
 #
 
-class CircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
-    site = forms.ModelChoiceField(
-        queryset=Site.objects.all(),
-        widget=forms.Select(
-            attrs={'filter-for': 'rack'}
-        )
-    )
-    rack = ChainedModelChoiceField(
-        queryset=Rack.objects.all(),
-        chains=(
-            ('site', 'site'),
-        ),
-        required=False,
-        label='Rack',
-        widget=APISelect(
-            api_url='/api/dcim/racks/?site_id={{site}}',
-            attrs={'filter-for': 'device', 'nullable': 'true'}
-        )
-    )
-    device = ChainedModelChoiceField(
-        queryset=Device.objects.all(),
-        chains=(
-            ('site', 'site'),
-            ('rack', 'rack'),
-        ),
-        required=False,
-        label='Device',
-        widget=APISelect(
-            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
-            display_field='display_name',
-            attrs={'filter-for': 'interface'}
-        )
-    )
-    interface = ChainedModelChoiceField(
-        queryset=Interface.objects.connectable().select_related('circuit_termination'),
-        chains=(
-            ('device', 'device'),
-        ),
-        required=False,
-        label='Interface',
-        widget=APISelect(
-            api_url='/api/dcim/interfaces/?device_id={{device}}&type=physical',
-            disabled_indicator='cable'
-        )
-    )
+class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = CircuitTermination
         fields = [
-            'term_side', 'site', 'rack', 'device', 'interface', 'port_speed', 'upstream_speed', 'xconnect_id',
-            'pp_info',
+            'term_side', 'site', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
         ]
         help_texts = {
             'port_speed': "Physical circuit speed",
@@ -263,25 +218,3 @@ class CircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm
         widgets = {
             'term_side': forms.HiddenInput(),
         }
-
-    def __init__(self, *args, **kwargs):
-
-        # Initialize helper selectors
-        instance = kwargs.get('instance')
-        if instance and instance.interface is not None:
-            initial = kwargs.get('initial', {}).copy()
-            initial['rack'] = instance.interface.device.rack
-            initial['device'] = instance.interface.device
-            kwargs['initial'] = initial
-
-        super(CircuitTerminationForm, self).__init__(*args, **kwargs)
-
-        # Mark occupied interfaces as disabled
-        self.fields['interface'].choices = []
-        for iface in self.fields['interface'].queryset:
-            self.fields['interface'].choices.append(
-                (iface.id, {
-                    'label': iface.name,
-                    'disabled': bool(iface.cable) and iface.pk != self.initial.get('interface'),
-                })
-            )

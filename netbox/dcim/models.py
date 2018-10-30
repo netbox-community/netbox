@@ -15,7 +15,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
 
-from circuits.models import Circuit
+from circuits.models import Circuit, CircuitTermination
 from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange
 from utilities.fields import ColorField, NullableCharField
 from utilities.managers import NaturalOrderByManager
@@ -1843,8 +1843,15 @@ class Interface(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=64
     )
-    connected_endpoint = models.OneToOneField(
+    _connected_interface = models.OneToOneField(
         to='self',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    _connected_circuittermination = models.OneToOneField(
+        to='circuits.CircuitTermination',
         on_delete=models.SET_NULL,
         related_name='+',
         blank=True,
@@ -2007,6 +2014,28 @@ class Interface(CableTermination, ComponentModel):
             action=action,
             object_data=serialize_object(self)
         ).save()
+
+    @property
+    def connected_endpoint(self):
+        if self._connected_interface:
+            return self._connected_interface
+        return self._connected_circuittermination
+
+    @connected_endpoint.setter
+    def connected_endpoint(self, value):
+        if value is None:
+            self._connected_interface = None
+            self._connected_circuittermination = None
+        elif isinstance(value, Interface):
+            self._connected_interface = value
+            self._connected_circuittermination = None
+        elif isinstance(value, CircuitTermination):
+            self._connected_interface = None
+            self._connected_circuittermination = value
+        else:
+            raise ValueError(
+                "Connected endpoint must be an Interface or CircuitTermination, not {}.".format(type(value))
+            )
 
     @property
     def parent(self):

@@ -163,8 +163,8 @@ class HomeView(View):
             connected_endpoint__isnull=False
         )
         connected_interfaces = Interface.objects.filter(
-            connected_endpoint__isnull=False,
-            pk__lt=F('connected_endpoint')
+            _connected_interface__isnull=False,
+            pk__lt=F('_connected_interface')
         )
 
         stats = {

@@ -696,8 +696,7 @@ class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     form_factor = ChoiceField(choices=IFACE_FF_CHOICES, required=False)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
-    connected_endpoint = NestedInterfaceSerializer(read_only=True)
-    circuit_termination = InterfaceCircuitTerminationSerializer(read_only=True)
+    connected_endpoint = serializers.SerializerMethodField(read_only=True)
     mode = ChoiceField(choices=IFACE_MODE_CHOICES, required=False, allow_null=True)
     untagged_vlan = InterfaceVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
@@ -713,7 +712,7 @@ class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
         model = Interface
         fields = [
             'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
-            'connected_endpoint', 'circuit_termination', 'cable', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags',
+            'connected_endpoint', 'cable', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags',
         ]
 
     def validate(self, data):
@@ -734,6 +733,19 @@ class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
                 })
 
         return super(InterfaceSerializer, self).validate(data)
+
+    def get_connected_endpoint(self, obj):
+        """
+        Return the appropriate serializer for the type of connected object.
+        """
+        if obj.connected_endpoint is None:
+            return None
+
+        serializer = get_serializer_for_model(obj.connected_endpoint, prefix='Nested')
+        context = {'request': self.context['request']}
+        data = serializer(obj.connected_endpoint, context=context).data
+
+        return data
 
 
 #

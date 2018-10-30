@@ -67,6 +67,6 @@ class CircuitViewSet(CustomFieldModelViewSet):
 #
 
 class CircuitTerminationViewSet(ModelViewSet):
-    queryset = CircuitTermination.objects.select_related('circuit', 'site', 'interface__device')
+    queryset = CircuitTermination.objects.select_related('circuit', 'site')
     serializer_class = serializers.CircuitTerminationSerializer
     filter_class = filters.CircuitTerminationFilter

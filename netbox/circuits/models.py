@@ -3,7 +3,7 @@ from django.db import models
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
-from dcim.constants import STATUS_CLASSES
+from dcim.constants import CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_CONNECTED, STATUS_CLASSES
 from dcim.fields import ASNField
 from extras.models import CustomFieldModel, ObjectChange
 from utilities.models import ChangeLoggedModel
@@ -114,8 +114,8 @@ class CircuitType(ChangeLoggedModel):
 class Circuit(ChangeLoggedModel, CustomFieldModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
-    circuits. Each circuit is also assigned a CircuitType and a Site. A Circuit may be terminated to a specific device
-    interface, but this is not required. Circuit port speed and commit rate are measured in Kbps.
+    circuits. Each circuit is also assigned a CircuitType and a Site.  Circuit port speed and commit rate are measured
+    in Kbps.
     """
     cid = models.CharField(
         max_length=50,
@@ -227,12 +227,16 @@ class CircuitTermination(models.Model):
         on_delete=models.PROTECT,
         related_name='circuit_terminations'
     )
-    interface = models.OneToOneField(
+    connected_endpoint = models.OneToOneField(
         to='dcim.Interface',
-        on_delete=models.PROTECT,
-        related_name='circuit_termination',
+        on_delete=models.SET_NULL,
+        related_name='+',
         blank=True,
         null=True
+    )
+    connection_status = models.NullBooleanField(
+        choices=CONNECTION_STATUS_CHOICES,
+        default=CONNECTION_STATUS_CONNECTED
     )
     port_speed = models.PositiveIntegerField(
         verbose_name='Port speed (Kbps)'

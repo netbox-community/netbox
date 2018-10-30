@@ -904,7 +904,7 @@ class DeviceView(View):
         interfaces = device.vc_interfaces.order_naturally(
             device.device_type.interface_ordering
         ).select_related(
-            'lag', 'connected_endpoint__device', 'circuit_termination__circuit', 'cable'
+            'lag', '_connected_interface__device', '_connected_circuittermination__circuit', 'cable'
         ).prefetch_related(
             'cable__termination_a', 'cable__termination_b', 'ip_addresses'
         )
@@ -999,7 +999,7 @@ class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
         interfaces = device.vc_interfaces.order_naturally(
             device.device_type.interface_ordering
         ).connectable().select_related(
-            'connected_endpoint__device'
+            '_connected_interface__device'
         )
 
         return render(request, 'dcim/device_lldp_neighbors.html', {
@@ -1667,13 +1667,6 @@ class InterfaceView(View):
 
         interface = get_object_or_404(Interface, pk=pk)
 
-        # Get connected interface
-        connected_interface = interface.connected_endpoint
-        if connected_interface is None and hasattr(interface, 'circuit_termination'):
-            peer_termination = interface.circuit_termination.get_peer_termination()
-            if peer_termination is not None:
-                connected_interface = peer_termination.interface
-
         # Get assigned IP addresses
         ipaddress_table = InterfaceIPAddressTable(
             data=interface.ip_addresses.select_related('vrf', 'tenant'),
@@ -1696,7 +1689,8 @@ class InterfaceView(View):
 
         return render(request, 'dcim/interface.html', {
             'interface': interface,
-            'connected_interface': connected_interface,
+            # TODO: Also handle connected CircuitTerminations
+            'connected_interface': interface._connected_interface,
             'ipaddress_table': ipaddress_table,
             'vlan_table': vlan_table,
         })
@@ -1736,8 +1730,8 @@ class InterfaceBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
     form = forms.InterfaceBulkDisconnectForm
 
     def disconnect_objects(self, interfaces):
-        return Interface.objects.filter(connected_endpoint__in=interfaces).update(
-            connected_endpoint=None, connection_status=None
+        return Interface.objects.filter(_connected_interface__in=interfaces).update(
+            _connected_interface=None, connection_status=None
         )
 
 
@@ -2103,10 +2097,11 @@ class PowerConnectionsListView(ObjectListView):
 
 class InterfaceConnectionsListView(ObjectListView):
     queryset = Interface.objects.select_related(
-        'connected_endpoint__device',
+        '_connected_interface', '_connected_circuittermination'
     ).filter(
-        connected_endpoint__isnull=False,
-        pk__lt=F('connected_endpoint'),
+        # Avoid duplicate connections by only selecting the lower PK in a connected pair
+        _connected_interface__isnull=False,
+        pk__lt=F('_connected_interface')
     )
     filter = filters.InterfaceConnectionFilter
     filter_form = forms.InterfaceConnectionFilterForm

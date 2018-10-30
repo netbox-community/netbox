@@ -29,30 +29,59 @@
                         <strong>A Side</strong>
                     </div>
                     <div class="panel-body">
-                        <div class="form-group">
-                            <label class="col-md-3 control-label required">Site</label>
-                            <div class="col-md-9">
-                                <p class="form-control-static">{{ termination_a.device.site }}</p>
+                        {% if termination_a.device %}
+                            {# Device component #}
+                            <div class="form-group">
+                                <label class="col-md-3 control-label required">Site</label>
+                                <div class="col-md-9">
+                                    <p class="form-control-static">{{ termination_a.device.site }}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 control-label required">Rack</label>
-                            <div class="col-md-9">
-                                <p class="form-control-static">{{ termination_a.device.rack|default:"None" }}</p>
+                            <div class="form-group">
+                                <label class="col-md-3 control-label required">Rack</label>
+                                <div class="col-md-9">
+                                    <p class="form-control-static">{{ termination_a.device.rack|default:"None" }}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 control-label required">Device</label>
-                            <div class="col-md-9">
-                                <p class="form-control-static">{{ termination_a.device }}</p>
+                            <div class="form-group">
+                                <label class="col-md-3 control-label required">Device</label>
+                                <div class="col-md-9">
+                                    <p class="form-control-static">{{ termination_a.device }}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-3 control-label required">Name</label>
-                            <div class="col-md-9">
-                                <p class="form-control-static">{{ termination_a }}</p>
+                            <div class="form-group">
+                                <label class="col-md-3 control-label required">Name</label>
+                                <div class="col-md-9">
+                                    <p class="form-control-static">{{ termination_a }}</p>
+                                </div>
                             </div>
-                        </div>
+                        {% else %}
+                            {# Circuit termination #}
+                            <div class="form-group">
+                                <label class="col-md-3 control-label required">Site</label>
+                                <div class="col-md-9">
+                                    <p class="form-control-static">{{ termination_a.site }}</p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-3 control-label required">Provider</label>
+                                <div class="col-md-9">
+                                    <p class="form-control-static">{{ termination_a.circuit.provider }}</p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-3 control-label required">Circuit</label>
+                                <div class="col-md-9">
+                                    <p class="form-control-static">{{ termination_a.circuit.cid }}</p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-3 control-label required">Side</label>
+                                <div class="col-md-9">
+                                    <p class="form-control-static">{{ termination_a.term_side }}</p>
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

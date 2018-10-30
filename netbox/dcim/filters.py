@@ -1,6 +1,6 @@
 import django_filters
 from django.contrib.auth.models import User
-from django.db.models import Count, Q
+from django.db.models import Q
 from netaddr import EUI
 from netaddr.core import AddrFormatError
 
@@ -876,7 +876,7 @@ class InterfaceConnectionFilter(django_filters.FilterSet):
             return queryset
         return queryset.filter(
             Q(device__site__slug=value) |
-            Q(connected_endpoint__device__site__slug=value)
+            Q(_connected_interface__device__site__slug=value)
         )
 
     def filter_device(self, queryset, name, value):
@@ -884,5 +884,5 @@ class InterfaceConnectionFilter(django_filters.FilterSet):
             return queryset
         return queryset.filter(
             Q(device__name__icontains=value) |
-            Q(connected_endpoint__device__name__icontains=value)
+            Q(_connected_interface__device__name__icontains=value)
         )

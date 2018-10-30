@@ -88,28 +88,26 @@ def interface_connections_to_cables(apps, schema_editor):
     for conn in InterfaceConnection.objects.all():
         c = Cable()
 
-        # We have to assign GFK fields manually because we're inside a migration.
+        # We have to assign all fields manually because we're inside a migration.
         c.termination_a_type = interface_type
         c.termination_a_id = conn.interface_a_id
-        c.termination_a = conn.interface_a
         c.termination_b_type = interface_type
         c.termination_b_id = conn.interface_b_id
-        c.termination_b = conn.interface_b
         c.connection_status = conn.connection_status
         c.save()
 
-        # connected_endpoint and connection_status must be manually assigned
-        # since these are new fields on Interface
-        Interface.objects.filter(pk=conn.interface_a_id).update(
-            connected_endpoint=conn.interface_b_id,
-            connection_status=conn.connection_status,
-            cable=c
-        )
-        Interface.objects.filter(pk=conn.interface_b_id).update(
-            connected_endpoint=conn.interface_a_id,
-            connection_status=conn.connection_status,
-            cable=c
-        )
+        # Cache the connected Cable on each Interface
+        interface_a = conn.interface_a
+        interface_a._connected_interface = conn.interface_b
+        interface_a.connection_status = conn.connection_status
+        interface_a.cable = c
+        interface_a.save()
+
+        interface_b = conn.interface_b
+        interface_b._connected_interface = conn.interface_a
+        interface_b.connection_status = conn.connection_status
+        interface_b.cable = c
+        interface_b.save()
 
     cable_count = Cable.objects.filter(termination_a_type=interface_type).count()
     print("{} cables created".format(cable_count))
@@ -120,6 +118,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
+        ('circuits', '0006_terminations'),
         ('dcim', '0065_front_rear_ports'),
     ]
 
@@ -217,7 +216,12 @@ class Migration(migrations.Migration):
         # Alter the Interface model
         migrations.AddField(
             model_name='interface',
-            name='connected_endpoint',
+            name='_connected_circuittermination',
+            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='circuits.CircuitTermination'),
+        ),
+        migrations.AddField(
+            model_name='interface',
+            name='_connected_interface',
             field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.Interface'),
         ),
         migrations.AddField(
