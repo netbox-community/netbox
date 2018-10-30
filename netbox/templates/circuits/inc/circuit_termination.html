@@ -39,9 +39,12 @@
             <tr>
                 <td>Termination</td>
                 <td>
-                    {% if termination.connected_endpoint %}
-                        <a href="{% url 'dcim:device' pk=termination.connected_endpoint.device.pk %}">{{ termination.connected_endpoint.device }}</a>
-                        <i class="fa fa-angle-right"></i> {{ termination.connected_endpoint }}
+                    {% if termination.cable %}
+                        <a href="{{ termination.cable.get_absolute_url }}">{{ termination.cable }}</a>
+                        {% if termination.connected_endpoint %}
+                            to <a href="{% url 'dcim:device' pk=termination.connected_endpoint.device.pk %}">{{ termination.connected_endpoint.device }}</a>
+                            <i class="fa fa-angle-right"></i> {{ termination.connected_endpoint }}
+                        {% endif %}
                     {% else %}
                         {% if perms.circuits.change_circuittermination %}
                             <div class="pull-right">

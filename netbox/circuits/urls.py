@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from dcim.views import CableCreateView
+from dcim.views import CableCreateView, CableTraceView
 from extras.views import ObjectChangeLogView
 from . import views
 from .models import Circuit, CircuitTermination, CircuitType, Provider
@@ -44,5 +44,6 @@ urlpatterns = [
     url(r'^circuit-terminations/(?P<pk>\d+)/edit/$', views.CircuitTerminationEditView.as_view(), name='circuittermination_edit'),
     url(r'^circuit-terminations/(?P<pk>\d+)/delete/$', views.CircuitTerminationDeleteView.as_view(), name='circuittermination_delete'),
     url(r'^circuit-terminations/(?P<termination_a_id>\d+)/connect/$', CableCreateView.as_view(), name='circuittermination_connect', kwargs={'termination_a_type': CircuitTermination}),
+    url(r'^circuit-terminations/(?P<pk>\d+)/trace/$', CableTraceView.as_view(), name='circuittermination_trace', kwargs={'model': CircuitTermination}),
 
 ]

@@ -2063,6 +2063,21 @@ class CableDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'dcim:cable_list'
 
 
+class CableTraceView(View):
+    """
+    Trace a cable path beginning from the given termination.
+    """
+
+    def get(self, request, model, pk):
+
+        obj = get_object_or_404(model, pk=pk)
+
+        return render(request, 'dcim/cable_trace.html', {
+            'obj': obj,
+            'trace': obj.trace(),
+        })
+
+
 #
 # Connections
 #

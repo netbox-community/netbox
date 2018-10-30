@@ -85,6 +85,7 @@ class CableTermination(models.Model):
             ]
         """
         def get_peer_port(termination, position=1):
+            from circuits.models import CircuitTermination
 
             # Map a front port to its corresponding rear port
             if isinstance(termination, FrontPort):
@@ -101,6 +102,13 @@ class CableTermination(models.Model):
                     rear_port_position=position,
                 )
                 return peer_port, 1
+
+            # Follow a circuit to its other termination
+            elif isinstance(termination, CircuitTermination):
+                peer_termination = termination.get_peer_termination()
+                if peer_termination is None:
+                    return None, None
+                return peer_termination, position
 
             # Termination is not a pass-through port
             else:

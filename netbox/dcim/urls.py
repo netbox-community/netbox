@@ -5,8 +5,8 @@ from ipam.views import ServiceCreateView
 from secrets.views import secret_add
 from . import views
 from .models import (
-    ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, Interface, Manufacturer, Platform, PowerPort,
-    PowerOutlet, Rack, RackGroup, RackReservation, RackRole, Region, Site, VirtualChassis,
+    ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, FrontPort, Interface, Manufacturer, Platform,
+    PowerPort, PowerOutlet, Rack, RackGroup, RackReservation, RackRole, RearPort, Region, Site, VirtualChassis,
 )
 
 app_name = 'dcim'
@@ -166,6 +166,7 @@ urlpatterns = [
     url(r'^console-ports/(?P<pk>\d+)/disconnect/$', views.ConsolePortDisconnectView.as_view(), name='consoleport_disconnect'),
     url(r'^console-ports/(?P<pk>\d+)/edit/$', views.ConsolePortEditView.as_view(), name='consoleport_edit'),
     url(r'^console-ports/(?P<pk>\d+)/delete/$', views.ConsolePortDeleteView.as_view(), name='consoleport_delete'),
+    url(r'^console-ports/(?P<pk>\d+)/trace/$', views.CableTraceView.as_view(), name='consoleport_trace', kwargs={'model': ConsolePort}),
 
     # Console server ports
     url(r'^devices/console-server-ports/add/$', views.DeviceBulkAddConsoleServerPortView.as_view(), name='device_bulk_add_consoleserverport'),
@@ -177,6 +178,7 @@ urlpatterns = [
     url(r'^console-server-ports/(?P<pk>\d+)/disconnect/$', views.ConsoleServerPortDisconnectView.as_view(), name='consoleserverport_disconnect'),
     url(r'^console-server-ports/(?P<pk>\d+)/edit/$', views.ConsoleServerPortEditView.as_view(), name='consoleserverport_edit'),
     url(r'^console-server-ports/(?P<pk>\d+)/delete/$', views.ConsoleServerPortDeleteView.as_view(), name='consoleserverport_delete'),
+    url(r'^console-server-ports/(?P<pk>\d+)/trace/$', views.CableTraceView.as_view(), name='consoleserverport_trace', kwargs={'model': ConsoleServerPort}),
     url(r'^console-server-ports/rename/$', views.ConsoleServerPortBulkRenameView.as_view(), name='consoleserverport_bulk_rename'),
 
     # Power ports
@@ -188,6 +190,7 @@ urlpatterns = [
     url(r'^power-ports/(?P<pk>\d+)/disconnect/$', views.PowerPortDisconnectView.as_view(), name='powerport_disconnect'),
     url(r'^power-ports/(?P<pk>\d+)/edit/$', views.PowerPortEditView.as_view(), name='powerport_edit'),
     url(r'^power-ports/(?P<pk>\d+)/delete/$', views.PowerPortDeleteView.as_view(), name='powerport_delete'),
+    url(r'^power-ports/(?P<pk>\d+)/trace/$', views.CableTraceView.as_view(), name='powerport_trace', kwargs={'model': PowerPort}),
 
     # Power outlets
     url(r'^devices/power-outlets/add/$', views.DeviceBulkAddPowerOutletView.as_view(), name='device_bulk_add_poweroutlet'),
@@ -199,6 +202,7 @@ urlpatterns = [
     url(r'^power-outlets/(?P<pk>\d+)/disconnect/$', views.PowerOutletDisconnectView.as_view(), name='poweroutlet_disconnect'),
     url(r'^power-outlets/(?P<pk>\d+)/edit/$', views.PowerOutletEditView.as_view(), name='poweroutlet_edit'),
     url(r'^power-outlets/(?P<pk>\d+)/delete/$', views.PowerOutletDeleteView.as_view(), name='poweroutlet_delete'),
+    url(r'^power-outlets/(?P<pk>\d+)/trace/$', views.CableTraceView.as_view(), name='poweroutlet_trace', kwargs={'model': PowerOutlet}),
     url(r'^power-outlets/rename/$', views.PowerOutletBulkRenameView.as_view(), name='poweroutlet_bulk_rename'),
 
     # Interfaces
@@ -213,6 +217,7 @@ urlpatterns = [
     url(r'^interfaces/(?P<pk>\d+)/assign-vlans/$', views.InterfaceAssignVLANsView.as_view(), name='interface_assign_vlans'),
     url(r'^interfaces/(?P<pk>\d+)/delete/$', views.InterfaceDeleteView.as_view(), name='interface_delete'),
     url(r'^interfaces/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='interface_changelog', kwargs={'model': Interface}),
+    url(r'^interfaces/(?P<pk>\d+)/trace/$', views.CableTraceView.as_view(), name='interface_trace', kwargs={'model': Interface}),
     url(r'^interfaces/rename/$', views.InterfaceBulkRenameView.as_view(), name='interface_bulk_rename'),
 
     # Front ports
@@ -221,6 +226,7 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/front-ports/delete/$', views.FrontPortBulkDeleteView.as_view(), name='frontport_bulk_delete'),
     url(r'^front-ports/(?P<pk>\d+)/edit/$', views.FrontPortEditView.as_view(), name='frontport_edit'),
     url(r'^front-ports/(?P<pk>\d+)/delete/$', views.FrontPortDeleteView.as_view(), name='frontport_delete'),
+    url(r'^front-ports/(?P<pk>\d+)/trace/$', views.CableTraceView.as_view(), name='frontport_trace', kwargs={'model': FrontPort}),
     url(r'^front-ports/rename/$', views.FrontPortBulkRenameView.as_view(), name='frontport_bulk_rename'),
 
     # Rear ports
@@ -229,6 +235,7 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/rear-ports/delete/$', views.RearPortBulkDeleteView.as_view(), name='rearport_bulk_delete'),
     url(r'^rear-ports/(?P<pk>\d+)/edit/$', views.RearPortEditView.as_view(), name='rearport_edit'),
     url(r'^rear-ports/(?P<pk>\d+)/delete/$', views.RearPortDeleteView.as_view(), name='rearport_delete'),
+    url(r'^rear-ports/(?P<pk>\d+)/trace/$', views.CableTraceView.as_view(), name='rearport_trace', kwargs={'model': RearPort}),
     url(r'^rear-ports/rename/$', views.RearPortBulkRenameView.as_view(), name='rearport_bulk_rename'),
 
     # Device bays
