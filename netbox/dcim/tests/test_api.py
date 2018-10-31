@@ -2805,6 +2805,147 @@ class CableTest(APITestCase):
 
         super(CableTest, self).setUp()
 
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        devicerole = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        self.device1 = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
+        )
+        self.device2 = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Device 2', site=site
+        )
+        for device in [self.device1, self.device2]:
+            for i in range(0, 10):
+                Interface(device=device, form_factor=IFACE_FF_1GE_FIXED, name='eth{}'.format(i)).save()
+
+        self.cable1 = Cable(
+            termination_a=self.device1.interfaces.get(name='eth0'),
+            termination_b=self.device2.interfaces.get(name='eth0'),
+            label='Test Cable 1'
+        )
+        self.cable1.save()
+        self.cable2 = Cable(
+            termination_a=self.device1.interfaces.get(name='eth1'),
+            termination_b=self.device2.interfaces.get(name='eth1'),
+            label='Test Cable 2'
+        )
+        self.cable2.save()
+        self.cable3 = Cable(
+            termination_a=self.device1.interfaces.get(name='eth2'),
+            termination_b=self.device2.interfaces.get(name='eth2'),
+            label='Test Cable 3'
+        )
+        self.cable3.save()
+
+    def test_get_cable(self):
+
+        url = reverse('dcim-api:cable-detail', kwargs={'pk': self.cable1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['id'], self.cable1.pk)
+
+    def test_list_cables(self):
+
+        url = reverse('dcim-api:cable-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_create_cable(self):
+
+        interface_a = self.device1.interfaces.get(name='eth3')
+        interface_b = self.device2.interfaces.get(name='eth3')
+        data = {
+            'termination_a_type': 'dcim.interface',
+            'termination_a_id': interface_a.pk,
+            'termination_b_type': 'dcim.interface',
+            'termination_b_id': interface_b.pk,
+            'status': CONNECTION_STATUS_PLANNED,
+            'label': 'Test Cable 4',
+        }
+
+        url = reverse('dcim-api:cable-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Cable.objects.count(), 4)
+        cable4 = Cable.objects.get(pk=response.data['id'])
+        self.assertEqual(cable4.termination_a, interface_a)
+        self.assertEqual(cable4.termination_b, interface_b)
+        self.assertEqual(cable4.status, data['status'])
+        self.assertEqual(cable4.label, data['label'])
+
+    def test_create_cable_bulk(self):
+
+        data = [
+            {
+                'termination_a_type': 'dcim.interface',
+                'termination_a_id': self.device1.interfaces.get(name='eth3').pk,
+                'termination_b_type': 'dcim.interface',
+                'termination_b_id': self.device2.interfaces.get(name='eth3').pk,
+                'label': 'Test Cable 4',
+            },
+            {
+                'termination_a_type': 'dcim.interface',
+                'termination_a_id': self.device1.interfaces.get(name='eth4').pk,
+                'termination_b_type': 'dcim.interface',
+                'termination_b_id': self.device2.interfaces.get(name='eth4').pk,
+                'label': 'Test Cable 5',
+            },
+            {
+                'termination_a_type': 'dcim.interface',
+                'termination_a_id': self.device1.interfaces.get(name='eth5').pk,
+                'termination_b_type': 'dcim.interface',
+                'termination_b_id': self.device2.interfaces.get(name='eth5').pk,
+                'label': 'Test Cable 6',
+            },
+        ]
+
+        url = reverse('dcim-api:cable-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(Cable.objects.count(), 6)
+        self.assertEqual(response.data[0]['label'], data[0]['label'])
+        self.assertEqual(response.data[1]['label'], data[1]['label'])
+        self.assertEqual(response.data[2]['label'], data[2]['label'])
+
+    def test_update_cable(self):
+
+        data = {
+            'label': 'Test Cable X',
+            'status': CONNECTION_STATUS_CONNECTED,
+        }
+
+        url = reverse('dcim-api:cable-detail', kwargs={'pk': self.cable1.pk})
+        response = self.client.patch(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(Cable.objects.count(), 3)
+        cable1 = Cable.objects.get(pk=response.data['id'])
+        self.assertEqual(cable1.status, data['status'])
+        self.assertEqual(cable1.label, data['label'])
+
+    def test_delete_cable(self):
+
+        url = reverse('dcim-api:cable-detail', kwargs={'pk': self.cable1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Cable.objects.count(), 2)
+
+
+class ConnectionTest(APITestCase):
+
+    def setUp(self):
+
+        super(ConnectionTest, self).setUp()
+
         self.site = Site.objects.create(
             name='Test Site 1', slug='test-site-1'
         )
@@ -3161,88 +3302,6 @@ class CableTest(APITestCase):
         circuittermination1 = CircuitTermination.objects.get(pk=circuittermination1.pk)
         self.assertEqual(interface1.connected_endpoint, circuittermination1)
         self.assertEqual(circuittermination1.connected_endpoint, interface1)
-
-
-class ConsoleConnectionTest(APITestCase):
-
-    def setUp(self):
-
-        super(ConsoleConnectionTest, self).setUp()
-
-        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
-        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
-        devicetype = DeviceType.objects.create(
-            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
-        )
-        devicerole = DeviceRole.objects.create(
-            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
-        )
-        device1 = Device.objects.create(
-            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
-        )
-        device2 = Device.objects.create(
-            device_type=devicetype, device_role=devicerole, name='Test Device 2', site=site
-        )
-        consoleserverport1 = ConsoleServerPort.objects.create(device=device1, name='Test Console Server Port 1')
-        consoleserverport2 = ConsoleServerPort.objects.create(device=device1, name='Test Console Server Port 2')
-        consoleserverport3 = ConsoleServerPort.objects.create(device=device1, name='Test Console Server Port 3')
-        ConsolePort.objects.create(
-            device=device2, connected_endpoint=consoleserverport1, name='Test Console Port 1', connection_status=True
-        )
-        ConsolePort.objects.create(
-            device=device2, connected_endpoint=consoleserverport2, name='Test Console Port 2', connection_status=True
-        )
-        ConsolePort.objects.create(
-            device=device2, connected_endpoint=consoleserverport3, name='Test Console Port 3', connection_status=True
-        )
-
-    def test_list_consoleconnections(self):
-
-        url = reverse('dcim-api:consoleconnections-list')
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.data['count'], 3)
-
-
-class PowerConnectionTest(APITestCase):
-
-    def setUp(self):
-
-        super(PowerConnectionTest, self).setUp()
-
-        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
-        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
-        devicetype = DeviceType.objects.create(
-            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
-        )
-        devicerole = DeviceRole.objects.create(
-            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
-        )
-        device1 = Device.objects.create(
-            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
-        )
-        device2 = Device.objects.create(
-            device_type=devicetype, device_role=devicerole, name='Test Device 2', site=site
-        )
-        poweroutlet1 = PowerOutlet.objects.create(device=device1, name='Test Power Outlet 1')
-        poweroutlet2 = PowerOutlet.objects.create(device=device1, name='Test Power Outlet 2')
-        poweroutlet3 = PowerOutlet.objects.create(device=device1, name='Test Power Outlet 3')
-        PowerPort.objects.create(
-            device=device2, connected_endpoint=poweroutlet1, name='Test Power Port 1', connection_status=True
-        )
-        PowerPort.objects.create(
-            device=device2, connected_endpoint=poweroutlet2, name='Test Power Port 2', connection_status=True
-        )
-        PowerPort.objects.create(
-            device=device2, connected_endpoint=poweroutlet3, name='Test Power Port 3', connection_status=True
-        )
-
-    def test_list_powerconnections(self):
-
-        url = reverse('dcim-api:powerconnections-list')
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.data['count'], 3)
 
 
 # class ConnectedDeviceTest(APITestCase):
