@@ -19,19 +19,19 @@ def console_connections_to_cables(apps, schema_editor):
     # Create a new Cable instance from each console connection
     print("\n    Adding console connections... ", end='', flush=True)
     for consoleport in ConsolePort.objects.filter(connected_endpoint__isnull=False):
-        c = Cable()
 
-        # We have to assign GFK fields manually because we're inside a migration.
-        c.termination_a_type = consoleport_type
-        c.termination_a_id = consoleport.id
-        c.termination_b_type = consoleserverport_type
-        c.termination_b_id = consoleport.connected_endpoint_id
-        c.connection_status = consoleport.connection_status
-        c.save()
+        # Create the new Cable
+        cable = Cable.objects.create(
+            termination_a_type=consoleport_type,
+            termination_a_id=consoleport.id,
+            termination_b_type=consoleserverport_type,
+            termination_b_id=consoleport.connected_endpoint_id,
+            status=consoleport.connection_status
+        )
 
-        # Cache the Cable on its two termination points (replicate Cable.save())
-        ConsolePort.objects.filter(pk=consoleport.id).update(cable=c)
-        ConsoleServerPort.objects.filter(pk=consoleport.connected_endpoint_id).update(cable=c)
+        # Cache the Cable on its two termination points
+        ConsolePort.objects.filter(pk=consoleport.id).update(cable=cable)
+        ConsoleServerPort.objects.filter(pk=consoleport.connected_endpoint_id).update(cable=cable)
 
     cable_count = Cable.objects.filter(termination_a_type=consoleport_type).count()
     print("{} cables created".format(cable_count))
@@ -53,19 +53,19 @@ def power_connections_to_cables(apps, schema_editor):
     # Create a new Cable instance from each power connection
     print("    Adding power connections... ", end='', flush=True)
     for powerport in PowerPort.objects.filter(connected_endpoint__isnull=False):
-        c = Cable()
 
-        # We have to assign GFK fields manually because we're inside a migration.
-        c.termination_a_type = powerport_type
-        c.termination_a_id = powerport.id
-        c.termination_b_type = poweroutlet_type
-        c.termination_b_id = powerport.connected_endpoint_id
-        c.connection_status = powerport.connection_status
-        c.save()
+        # Create the new Cable
+        cable = Cable.objects.create(
+            termination_a_type=powerport_type,
+            termination_a_id=powerport.id,
+            termination_b_type=poweroutlet_type,
+            termination_b_id=powerport.connected_endpoint_id,
+            status=powerport.connection_status
+        )
 
-        # Cache the Cable on its two termination points (replicate Cable.save())
-        PowerPort.objects.filter(pk=powerport.id).update(cable=c)
-        PowerOutlet.objects.filter(pk=powerport.connected_endpoint_id).update(cable=c)
+        # Cache the Cable on its two termination points
+        PowerPort.objects.filter(pk=powerport.id).update(cable=cable)
+        PowerOutlet.objects.filter(pk=powerport.connected_endpoint_id).update(cable=cable)
 
     cable_count = Cable.objects.filter(termination_a_type=powerport_type).count()
     print("{} cables created".format(cable_count))
@@ -86,28 +86,27 @@ def interface_connections_to_cables(apps, schema_editor):
     # Create a new Cable instance from each InterfaceConnection
     print("    Adding interface connections... ", end='', flush=True)
     for conn in InterfaceConnection.objects.all():
-        c = Cable()
 
-        # We have to assign all fields manually because we're inside a migration.
-        c.termination_a_type = interface_type
-        c.termination_a_id = conn.interface_a_id
-        c.termination_b_type = interface_type
-        c.termination_b_id = conn.interface_b_id
-        c.connection_status = conn.connection_status
-        c.save()
+        # Create the new Cable
+        cable = Cable.objects.create(
+            termination_a_type=interface_type,
+            termination_a_id=conn.interface_a_id,
+            termination_b_type=interface_type,
+            termination_b_id=conn.interface_b_id,
+            status=conn.connection_status
+        )
 
         # Cache the connected Cable on each Interface
-        interface_a = conn.interface_a
-        interface_a._connected_interface = conn.interface_b
-        interface_a.connection_status = conn.connection_status
-        interface_a.cable = c
-        interface_a.save()
-
-        interface_b = conn.interface_b
-        interface_b._connected_interface = conn.interface_a
-        interface_b.connection_status = conn.connection_status
-        interface_b.cable = c
-        interface_b.save()
+        Interface.objects.filter(pk=conn.interface_a_id).update(
+            _connected_interface=conn.interface_b,
+            connection_status=conn.connection_status,
+            cable=cable
+        )
+        Interface.objects.filter(pk=conn.interface_b_id).update(
+            _connected_interface=conn.interface_a,
+            connection_status=conn.connection_status,
+            cable=cable
+        )
 
     cable_count = Cable.objects.filter(termination_a_type=interface_type).count()
     print("{} cables created".format(cable_count))

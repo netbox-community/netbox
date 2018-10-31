@@ -20,28 +20,28 @@ def circuit_terminations_to_cables(apps, schema_editor):
     # Create a new Cable instance from each console connection
     print("\n    Adding circuit terminations... ", end='', flush=True)
     for circuittermination in CircuitTermination.objects.filter(interface__isnull=False):
-        c = Cable()
 
-        # We have to assign all fields manually because we're inside a migration.
-        c.termination_a_type = circuittermination_type
-        c.termination_a_id = circuittermination.id
-        c.termination_b_type = interface_type
-        c.termination_b_id = circuittermination.interface_id
-        c.connection_status = CONNECTION_STATUS_CONNECTED
-        c.save()
+        # Create the new Cable
+        cable = Cable.objects.create(
+            termination_a_type=circuittermination_type,
+            termination_a_id=circuittermination.id,
+            termination_b_type=interface_type,
+            termination_b_id=circuittermination.interface_id,
+            status=CONNECTION_STATUS_CONNECTED
+        )
 
-        # Cache the connected Cable on the CircuitTermination
-        circuittermination.cable = c
-        circuittermination.connected_endpoint = circuittermination.interface
-        circuittermination.connection_status = CONNECTION_STATUS_CONNECTED
-        circuittermination.save()
-
+        # Cache the Cable on its two termination points
+        CircuitTermination.objects.filter(pk=circuittermination.pk).update(
+            cable=cable,
+            connected_endpoint=circuittermination.interface,
+            connection_status=CONNECTION_STATUS_CONNECTED
+        )
         # Cache the connected Cable on the Interface
-        interface = circuittermination.interface
-        interface.cable = c
-        interface._connected_circuittermination = circuittermination
-        interface.connection_status = CONNECTION_STATUS_CONNECTED
-        interface.save()
+        Interface.objects.filter(pk=circuittermination.interface_id).update(
+            cable=cable,
+            _connected_circuittermination=circuittermination,
+            connection_status=CONNECTION_STATUS_CONNECTED
+        )
 
     cable_count = Cable.objects.filter(termination_a_type=circuittermination_type).count()
     print("{} cables created".format(cable_count))
