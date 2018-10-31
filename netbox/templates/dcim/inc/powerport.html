@@ -41,9 +41,9 @@
                         <i class="fa fa-plug" aria-hidden="true"></i>
                     </a>
                 {% endif %}
-            <a href="{% url 'dcim:powerport_disconnect' pk=pp.pk %}" title="Delete connection" class="btn btn-danger btn-xs">
-                <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
-            </a>
+                <a href="{% url 'dcim:cable_delete' pk=pp.cable.pk %}" title="Remove cable" class="btn btn-danger btn-xs">
+                    <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
+                </a>
             {% else %}
                 <a href="{% url 'dcim:powerport_connect' termination_a_id=pp.pk %}" title="Connect" class="btn btn-success btn-xs">
                     <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>

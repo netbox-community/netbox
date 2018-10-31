@@ -41,7 +41,7 @@
                         <i class="fa fa-plug" aria-hidden="true"></i>
                     </a>
                 {% endif %}
-                <a href="{% url 'dcim:consoleport_disconnect' pk=cp.pk %}" title="Delete connection" class="btn btn-danger btn-xs">
+                <a href="{% url 'dcim:cable_delete' pk=cp.cable.pk %}" title="Remove cable" class="btn btn-danger btn-xs">
                     <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
                 </a>
             {% else %}
