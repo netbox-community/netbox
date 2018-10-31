@@ -116,8 +116,12 @@
         </div>
         <div class="row">
             <div class="col-md-4 col-md-offset-4">
+                {% render_field form.type %}
                 {% render_field form.status %}
                 {% render_field form.label %}
+                {% render_field form.color %}
+                {% render_field form.length %}
+                {% render_field form.length_unit %}
             </div>
         </div>
         <div class="form-group">

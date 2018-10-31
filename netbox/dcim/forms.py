@@ -2179,7 +2179,7 @@ class CableCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
         model = Cable
         fields = [
             'termination_b_site', 'termination_b_rack', 'termination_b_device', 'livesearch', 'termination_b_type',
-            'termination_b_id', 'status', 'label',
+            'termination_b_id', 'type', 'status', 'label', 'color', 'length', 'length_unit',
         ]
 
     def __init__(self, *args, **kwargs):
