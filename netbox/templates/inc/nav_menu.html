@@ -180,6 +180,11 @@
                         <li class="divider"></li>
                         <li class="dropdown-header">Connections</li>
                         <li>
+                            {% if perms.dcim.add_cable %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:cable_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
                             <a href="{% url 'dcim:cable_list' %}">Cables</a>
                         </li>
                         <li>

@@ -1121,13 +1121,6 @@ class ConsolePortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     table = tables.ConsolePortTable
 
 
-class ConsoleConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
-    permission_required = 'dcim.change_consoleport'
-    model_form = forms.ConsoleConnectionCSVForm
-    table = tables.ConsoleConnectionTable
-    default_return_url = 'dcim:console_connections_list'
-
-
 #
 # Console server ports
 #
@@ -1210,13 +1203,6 @@ class PowerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     queryset = PowerPort.objects.all()
     parent_model = Device
     table = tables.PowerPortTable
-
-
-class PowerConnectionsBulkImportView(PermissionRequiredMixin, BulkImportView):
-    permission_required = 'dcim.change_powerport'
-    model_form = forms.PowerConnectionCSVForm
-    table = tables.PowerConnectionTable
-    default_return_url = 'dcim:power_connections_list'
 
 
 #
@@ -1645,6 +1631,21 @@ class CableView(View):
         })
 
 
+class CableTraceView(View):
+    """
+    Trace a cable path beginning from the given termination.
+    """
+
+    def get(self, request, model, pk):
+
+        obj = get_object_or_404(model, pk=pk)
+
+        return render(request, 'dcim/cable_trace.html', {
+            'obj': obj,
+            'trace': obj.trace(),
+        })
+
+
 class CableCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_cable'
     model = Cable
@@ -1674,19 +1675,11 @@ class CableDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     default_return_url = 'dcim:cable_list'
 
 
-class CableTraceView(View):
-    """
-    Trace a cable path beginning from the given termination.
-    """
-
-    def get(self, request, model, pk):
-
-        obj = get_object_or_404(model, pk=pk)
-
-        return render(request, 'dcim/cable_trace.html', {
-            'obj': obj,
-            'trace': obj.trace(),
-        })
+class CableBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_cable'
+    model_form = forms.CableCSVForm
+    table = tables.CableTable
+    default_return_url = 'dcim:cable_list'
 
 
 #

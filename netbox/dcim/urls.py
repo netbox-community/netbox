@@ -251,17 +251,15 @@ urlpatterns = [
 
     # Cables
     url(r'^cables/$', views.CableListView.as_view(), name='cable_list'),
+    url(r'^cables/import/$', views.CableBulkImportView.as_view(), name='cable_import'),
     url(r'^cables/(?P<pk>\d+)/$', views.CableView.as_view(), name='cable'),
     url(r'^cables/(?P<pk>\d+)/edit/$', views.CableEditView.as_view(), name='cable_edit'),
     url(r'^cables/(?P<pk>\d+)/delete/$', views.CableDeleteView.as_view(), name='cable_delete'),
 
-    # Console/power/interface connections
+    # Console/power/interface connections (read-only)
     url(r'^console-connections/$', views.ConsoleConnectionsListView.as_view(), name='console_connections_list'),
-    # url(r'^console-connections/import/$', views.ConsoleConnectionsBulkImportView.as_view(), name='console_connections_import'),
     url(r'^power-connections/$', views.PowerConnectionsListView.as_view(), name='power_connections_list'),
-    # url(r'^power-connections/import/$', views.PowerConnectionsBulkImportView.as_view(), name='power_connections_import'),
     url(r'^interface-connections/$', views.InterfaceConnectionsListView.as_view(), name='interface_connections_list'),
-    # url(r'^interface-connections/import/$', views.InterfaceConnectionsBulkImportView.as_view(), name='interface_connections_import'),
 
     # Virtual chassis
     url(r'^virtual-chassis/$', views.VirtualChassisListView.as_view(), name='virtualchassis_list'),

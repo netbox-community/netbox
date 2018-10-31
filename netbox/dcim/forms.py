@@ -4,6 +4,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms.array import SimpleArrayField
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count, Q
 from mptt.forms import TreeNodeChoiceField
 from natsort import natsorted
@@ -1271,157 +1272,6 @@ class ConsolePortCreateForm(ComponentForm):
     tags = TagField(required=False)
 
 
-class ConsoleConnectionCSVForm(forms.ModelForm):
-    console_server = FlexibleModelChoiceField(
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        help_text='Console server name or ID',
-        error_messages={
-            'invalid_choice': 'Console server not found',
-        }
-    )
-    connected_endpoint = forms.CharField(
-        help_text='Console server port'
-    )
-    device = FlexibleModelChoiceField(
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        help_text='Device name or ID',
-        error_messages={
-            'invalid_choice': 'Device not found',
-        }
-    )
-    console_port = forms.CharField(
-        help_text='Console port name'
-    )
-    connection_status = CSVChoiceField(
-        choices=CONNECTION_STATUS_CHOICES,
-        help_text='Connection status'
-    )
-
-    class Meta:
-        model = ConsolePort
-        fields = ['console_server', 'connected_endpoint', 'device', 'console_port', 'connection_status']
-
-    def clean_console_port(self):
-
-        console_port_name = self.cleaned_data.get('console_port')
-        if not self.cleaned_data.get('device') or not console_port_name:
-            return None
-
-        try:
-            # Retrieve console port by name
-            consoleport = ConsolePort.objects.get(
-                device=self.cleaned_data['device'], name=console_port_name
-            )
-            # Check if the console port is already connected
-            if consoleport.connected_endpoint is not None:
-                raise forms.ValidationError("{} {} is already connected".format(
-                    self.cleaned_data['device'], console_port_name
-                ))
-        except ConsolePort.DoesNotExist:
-            raise forms.ValidationError("Invalid console port ({} {})".format(
-                self.cleaned_data['device'], console_port_name
-            ))
-
-        self.instance = consoleport
-        return consoleport
-
-    def clean_connected_endpoint(self):
-
-        consoleserverport_name = self.cleaned_data.get('connected_endpoint')
-        if not self.cleaned_data.get('console_server') or not consoleserverport_name:
-            return None
-
-        try:
-            # Retrieve console server port by name
-            consoleserverport = ConsoleServerPort.objects.get(
-                device=self.cleaned_data['console_server'], name=consoleserverport_name
-            )
-            # Check if the console server port is already connected
-            if ConsolePort.objects.filter(connected_endpoint=consoleserverport).count():
-                raise forms.ValidationError("{} {} is already connected".format(
-                    self.cleaned_data['console_server'], consoleserverport_name
-                ))
-        except ConsoleServerPort.DoesNotExist:
-            raise forms.ValidationError("Invalid console server port ({} {})".format(
-                self.cleaned_data['console_server'], consoleserverport_name
-            ))
-
-        return consoleserverport
-
-
-class ConsolePortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
-    site = forms.ModelChoiceField(
-        queryset=Site.objects.all(),
-        required=False,
-        widget=forms.Select(
-            attrs={'filter-for': 'rack'}
-        )
-    )
-    rack = ChainedModelChoiceField(
-        queryset=Rack.objects.all(),
-        chains=(
-            ('site', 'site'),
-        ),
-        label='Rack',
-        required=False,
-        widget=APISelect(
-            api_url='/api/dcim/racks/?site_id={{site}}',
-            attrs={'filter-for': 'console_server', 'nullable': 'true'}
-        )
-    )
-    console_server = ChainedModelChoiceField(
-        queryset=Device.objects.all(),
-        chains=(
-            ('site', 'site'),
-            ('rack', 'rack'),
-        ),
-        label='Console Server',
-        required=False,
-        widget=APISelect(
-            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
-            display_field='display_name',
-            attrs={'filter-for': 'connected_endpoint'}
-        )
-    )
-    livesearch = forms.CharField(
-        required=False,
-        label='Console Server',
-        widget=Livesearch(
-            query_key='q',
-            query_url='dcim-api:device-list',
-            field_to_update='console_server',
-        )
-    )
-    connected_endpoint = ChainedModelChoiceField(
-        queryset=ConsoleServerPort.objects.all(),
-        chains=(
-            ('device', 'console_server'),
-        ),
-        label='Port',
-        widget=APISelect(
-            api_url='/api/dcim/console-server-ports/?device_id={{console_server}}',
-            disabled_indicator='cable',
-        )
-    )
-
-    class Meta:
-        model = ConsolePort
-        fields = ['site', 'rack', 'console_server', 'livesearch', 'connected_endpoint', 'connection_status']
-        labels = {
-            'connected_endpoint': 'Port',
-            'connection_status': 'Status',
-        }
-
-    def __init__(self, *args, **kwargs):
-
-        super(ConsolePortConnectionForm, self).__init__(*args, **kwargs)
-
-        if not self.instance.pk:
-            raise RuntimeError("ConsolePortConnectionForm must be initialized with an existing ConsolePort instance.")
-
-
 #
 # Console server ports
 #
@@ -1440,76 +1290,6 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
 class ConsoleServerPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
     tags = TagField(required=False)
-
-
-class ConsoleServerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
-    site = forms.ModelChoiceField(
-        queryset=Site.objects.all(),
-        required=False,
-        widget=forms.Select(
-            attrs={'filter-for': 'rack'}
-        )
-    )
-    rack = ChainedModelChoiceField(
-        queryset=Rack.objects.all(),
-        chains=(
-            ('site', 'site'),
-        ),
-        label='Rack',
-        required=False,
-        widget=APISelect(
-            api_url='/api/dcim/racks/?site_id={{site}}',
-            attrs={'filter-for': 'device', 'nullable': 'true'}
-        )
-    )
-    device = ChainedModelChoiceField(
-        queryset=Device.objects.all(),
-        chains=(
-            ('site', 'site'),
-            ('rack', 'rack'),
-        ),
-        label='Device',
-        required=False,
-        widget=APISelect(
-            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
-            display_field='display_name',
-            attrs={'filter-for': 'port'}
-        )
-    )
-    livesearch = forms.CharField(
-        required=False,
-        label='Device',
-        widget=Livesearch(
-            query_key='q',
-            query_url='dcim-api:device-list',
-            field_to_update='device'
-        )
-    )
-    port = ChainedModelChoiceField(
-        queryset=ConsolePort.objects.all(),
-        chains=(
-            ('device', 'device'),
-        ),
-        label='Port',
-        widget=APISelect(
-            api_url='/api/dcim/console-ports/?device_id={{device}}',
-            disabled_indicator='cable'
-        )
-    )
-    connection_status = forms.BooleanField(
-        required=False,
-        initial=CONNECTION_STATUS_CONNECTED,
-        label='Status',
-        widget=forms.Select(
-            choices=CONNECTION_STATUS_CHOICES
-        )
-    )
-
-    class Meta:
-        fields = ['site', 'rack', 'device', 'livesearch', 'port', 'connection_status']
-        labels = {
-            'connection_status': 'Status',
-        }
 
 
 class ConsoleServerPortBulkRenameForm(BulkRenameForm):
@@ -1540,157 +1320,6 @@ class PowerPortCreateForm(ComponentForm):
     tags = TagField(required=False)
 
 
-class PowerConnectionCSVForm(forms.ModelForm):
-    pdu = FlexibleModelChoiceField(
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        help_text='PDU name or ID',
-        error_messages={
-            'invalid_choice': 'PDU not found.',
-        }
-    )
-    connected_endpoint = forms.CharField(
-        help_text='Power outlet name'
-    )
-    device = FlexibleModelChoiceField(
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        help_text='Device name or ID',
-        error_messages={
-            'invalid_choice': 'Device not found',
-        }
-    )
-    power_port = forms.CharField(
-        help_text='Power port name'
-    )
-    connection_status = CSVChoiceField(
-        choices=CONNECTION_STATUS_CHOICES,
-        help_text='Connection status'
-    )
-
-    class Meta:
-        model = PowerPort
-        fields = ['pdu', 'connected_endpoint', 'device', 'power_port', 'connection_status']
-
-    def clean_power_port(self):
-
-        power_port_name = self.cleaned_data.get('power_port')
-        if not self.cleaned_data.get('device') or not power_port_name:
-            return None
-
-        try:
-            # Retrieve power port by name
-            powerport = PowerPort.objects.get(
-                device=self.cleaned_data['device'], name=power_port_name
-            )
-            # Check if the power port is already connected
-            if powerport.connected_endpoint is not None:
-                raise forms.ValidationError("{} {} is already connected".format(
-                    self.cleaned_data['device'], power_port_name
-                ))
-        except PowerPort.DoesNotExist:
-            raise forms.ValidationError("Invalid power port ({} {})".format(
-                self.cleaned_data['device'], power_port_name
-            ))
-
-        self.instance = powerport
-        return powerport
-
-    def clean_connected_endpoint(self):
-
-        poweroutlet_name = self.cleaned_data.get('connected_endpoint')
-        if not self.cleaned_data.get('pdu') or not poweroutlet_name:
-            return None
-
-        try:
-            # Retrieve power outlet by name
-            poweroutlet = PowerOutlet.objects.get(
-                device=self.cleaned_data['pdu'], name=poweroutlet_name
-            )
-            # Check if the power outlet is already connected
-            if PowerPort.objects.filter(connected_endpoint=poweroutlet).count():
-                raise forms.ValidationError("{} {} is already connected".format(
-                    self.cleaned_data['pdu'], poweroutlet_name
-                ))
-        except PowerOutlet.DoesNotExist:
-            raise forms.ValidationError("Invalid power outlet ({} {})".format(
-                self.cleaned_data['pdu'], poweroutlet_name
-            ))
-
-        return poweroutlet
-
-
-class PowerPortConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
-    site = forms.ModelChoiceField(
-        queryset=Site.objects.all(),
-        required=False,
-        widget=forms.Select(
-            attrs={'filter-for': 'rack'}
-        )
-    )
-    rack = ChainedModelChoiceField(
-        queryset=Rack.objects.all(),
-        chains=(
-            ('site', 'site'),
-        ),
-        label='Rack',
-        required=False,
-        widget=APISelect(
-            api_url='/api/dcim/racks/?site_id={{site}}',
-            attrs={'filter-for': 'pdu', 'nullable': 'true'}
-        )
-    )
-    pdu = ChainedModelChoiceField(
-        queryset=Device.objects.all(),
-        chains=(
-            ('site', 'site'),
-            ('rack', 'rack'),
-        ),
-        label='PDU',
-        required=False,
-        widget=APISelect(
-            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
-            display_field='display_name',
-            attrs={'filter-for': 'connected_endpoint'}
-        )
-    )
-    livesearch = forms.CharField(
-        required=False,
-        label='PDU',
-        widget=Livesearch(
-            query_key='q',
-            query_url='dcim-api:device-list',
-            field_to_update='pdu'
-        )
-    )
-    connected_endpoint = ChainedModelChoiceField(
-        queryset=PowerOutlet.objects.all(),
-        chains=(
-            ('device', 'pdu'),
-        ),
-        label='Outlet',
-        widget=APISelect(
-            api_url='/api/dcim/power-outlets/?device_id={{pdu}}',
-            disabled_indicator='cable'
-        )
-    )
-
-    class Meta:
-        model = PowerPort
-        fields = ['site', 'rack', 'pdu', 'livesearch', 'connected_endpoint', 'connection_status']
-        labels = {
-            'connected_endpoint': 'Outlet',
-            'connection_status': 'Status',
-        }
-
-    def __init__(self, *args, **kwargs):
-
-        super(PowerPortConnectionForm, self).__init__(*args, **kwargs)
-
-        if not self.instance.pk:
-            raise RuntimeError("PowerPortConnectionForm must be initialized with an existing PowerPort instance.")
-
-
 #
 # Power outlets
 #
@@ -1709,76 +1338,6 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
 class PowerOutletCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(label='Name')
     tags = TagField(required=False)
-
-
-class PowerOutletConnectionForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
-    site = forms.ModelChoiceField(
-        queryset=Site.objects.all(),
-        required=False,
-        widget=forms.Select(
-            attrs={'filter-for': 'rack'}
-        )
-    )
-    rack = ChainedModelChoiceField(
-        queryset=Rack.objects.all(),
-        chains=(
-            ('site', 'site'),
-        ),
-        label='Rack',
-        required=False,
-        widget=APISelect(
-            api_url='/api/dcim/racks/?site_id={{site}}',
-            attrs={'filter-for': 'device', 'nullable': 'true'}
-        )
-    )
-    device = ChainedModelChoiceField(
-        queryset=Device.objects.all(),
-        chains=(
-            ('site', 'site'),
-            ('rack', 'rack'),
-        ),
-        label='Device',
-        required=False,
-        widget=APISelect(
-            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
-            display_field='display_name',
-            attrs={'filter-for': 'port'}
-        )
-    )
-    livesearch = forms.CharField(
-        required=False,
-        label='Device',
-        widget=Livesearch(
-            query_key='q',
-            query_url='dcim-api:device-list',
-            field_to_update='device'
-        )
-    )
-    port = ChainedModelChoiceField(
-        queryset=PowerPort.objects.all(),
-        chains=(
-            ('device', 'device'),
-        ),
-        label='Port',
-        widget=APISelect(
-            api_url='/api/dcim/power-ports/?device_id={{device}}',
-            disabled_indicator='cable'
-        )
-    )
-    connection_status = forms.BooleanField(
-        required=False,
-        initial=CONNECTION_STATUS_CONNECTED,
-        label='Status',
-        widget=forms.Select(
-            choices=CONNECTION_STATUS_CHOICES
-        )
-    )
-
-    class Meta:
-        fields = ['site', 'rack', 'device', 'livesearch', 'port', 'connection_status']
-        labels = {
-            'connection_status': 'Status',
-        }
 
 
 class PowerOutletBulkRenameForm(BulkRenameForm):
@@ -2197,6 +1756,108 @@ class CableForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Cable
         fields = ('type', 'status', 'label', 'color', 'length', 'length_unit')
+
+
+class CableCSVForm(forms.ModelForm):
+
+    # Termination A
+    side_a_device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Console server name or ID',
+        error_messages={
+            'invalid_choice': 'Side A device not found',
+        }
+    )
+    side_a_type = forms.ModelChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to={'model__in': CABLE_TERMINATION_TYPES},
+        to_field_name='model'
+    )
+    side_a_name = forms.CharField()
+
+    # Termination B
+    side_b_device = FlexibleModelChoiceField(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text='Console server name or ID',
+        error_messages={
+            'invalid_choice': 'Side B device not found',
+        }
+    )
+    side_b_type = forms.ModelChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to={'model__in': CABLE_TERMINATION_TYPES},
+        to_field_name='model'
+    )
+    side_b_name = forms.CharField()
+
+    # Cable attributes
+    status = CSVChoiceField(
+        choices=CONNECTION_STATUS_CHOICES,
+        required=False,
+        help_text='Connection status'
+    )
+
+    class Meta:
+        model = Cable
+        fields = [
+            'side_a_device', 'side_a_type', 'side_a_name', 'side_b_device', 'side_b_type', 'side_b_name', 'status',
+            'label',
+        ]
+
+    # TODO: Merge the clean() methods for either end
+    def clean_side_a_name(self):
+
+        device = self.cleaned_data.get('side_a_device')
+        content_type = self.cleaned_data.get('side_a_type')
+        name = self.cleaned_data.get('side_a_name')
+        if not device or not content_type or not name:
+            return None
+
+        model = content_type.model_class()
+        try:
+            termination_object = model.objects.get(
+                device=device,
+                name=name
+            )
+            if termination_object.cable is not None:
+                raise forms.ValidationError(
+                    "Side A: {} {} is already connected".format(device, termination_object)
+                )
+        except ObjectDoesNotExist:
+            raise forms.ValidationError(
+                "A side termination not found: {} {}".format(device, name)
+            )
+
+        self.instance.termination_a = termination_object
+        return termination_object
+
+    def clean_side_b_name(self):
+
+        device = self.cleaned_data.get('side_b_device')
+        content_type = self.cleaned_data.get('side_b_type')
+        name = self.cleaned_data.get('side_b_name')
+        if not device or not content_type or not name:
+            return None
+
+        model = content_type.model_class()
+        try:
+            termination_object = model.objects.get(
+                device=device,
+                name=name
+            )
+            if termination_object.cable is not None:
+                raise forms.ValidationError(
+                    "Side B: {} {} is already connected".format(device, termination_object)
+                )
+        except ObjectDoesNotExist:
+            raise forms.ValidationError(
+                "B side termination not found: {} {}".format(device, name)
+            )
+
+        self.instance.termination_b = termination_object
+        return termination_object
 
 
 class CableFilterForm(BootstrapMixin, forms.Form):
