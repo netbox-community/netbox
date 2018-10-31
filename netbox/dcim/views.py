@@ -1723,7 +1723,7 @@ class PowerConnectionsListView(ObjectListView):
 
 class InterfaceConnectionsListView(ObjectListView):
     queryset = Interface.objects.select_related(
-        '_connected_interface', '_connected_circuittermination'
+        'device', '_connected_interface__device'
     ).filter(
         # Avoid duplicate connections by only selecting the lower PK in a connected pair
         _connected_interface__isnull=False,
