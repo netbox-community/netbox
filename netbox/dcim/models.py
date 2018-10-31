@@ -68,6 +68,7 @@ class CableTermination(models.Model):
     cable = models.ForeignKey(
         to='dcim.Cable',
         on_delete=models.SET_NULL,
+        related_name='+',
         blank=True,
         null=True
     )
@@ -2425,12 +2426,6 @@ class Cable(ChangeLoggedModel):
             self._abs_length = to_meters(self.length, self.length_unit)
 
         super(Cable, self).save(*args, **kwargs)
-
-        # Cache the Cable on its two termination points
-        self.termination_a.cable = self
-        self.termination_a.save()
-        self.termination_b.cable = self
-        self.termination_b.save()
 
     def get_path_endpoints(self):
         """

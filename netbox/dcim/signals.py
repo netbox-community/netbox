@@ -23,9 +23,14 @@ def clear_virtualchassis_members(instance, **kwargs):
 
 @receiver(post_save, sender=Cable)
 def update_connected_endpoints(instance, **kwargs):
-    """
-    When a Cable is saved, update its connected endpoints.
-    """
+
+    # Cache the Cable on its two termination points
+    instance.termination_a.cable = instance
+    instance.termination_a.save()
+    instance.termination_b.cable = instance
+    instance.termination_b.save()
+
+    # Check if this Cable has formed a complete path. If so, update both endpoints.
     endpoint_a, endpoint_b = instance.get_path_endpoints()
     if endpoint_a is not None and endpoint_b is not None:
         endpoint_a.connected_endpoint = endpoint_b
@@ -36,11 +41,16 @@ def update_connected_endpoints(instance, **kwargs):
         endpoint_b.save()
 
 
-@receiver(post_delete, sender=Cable)
+@receiver(pre_delete, sender=Cable)
 def nullify_connected_endpoints(instance, **kwargs):
-    """
-    When a Cable is deleted, nullify its connected endpoints.
-    """
+
+    # Disassociate the Cable from its termination points
+    instance.termination_a.cable = None
+    instance.termination_a.save()
+    instance.termination_b.cable = None
+    instance.termination_b.save()
+
+    # If this Cable was part of a complete path, tear it down
     endpoint_a, endpoint_b = instance.get_path_endpoints()
     if endpoint_a is not None and endpoint_b is not None:
         endpoint_a.connected_endpoint = None
