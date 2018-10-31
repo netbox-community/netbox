@@ -8,7 +8,7 @@
     {% endif %}
 
     {# Icon and name #}
-    <td>
+    <td class="text-nowrap">
         <span title="{{ iface.get_form_factor_display }}">
             <i class="fa fa-fw fa-{% if iface.mgmt_only %}wrench{% elif iface.is_lag %}align-justify{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}exchange{% endif %}"></i>
             <a href="{{ iface.get_absolute_url }}">{{ iface }}</a>
@@ -29,7 +29,7 @@
     <td>{{ iface.get_mode_display|default:"&mdash;" }}</td>
 
     {# Cable #}
-    <td>
+    <td class="text-nowrap">
         {% if iface.cable %}
             <a href="{{ iface.cable.get_absolute_url }}">{{ iface.cable }}</a>
             <a href="{% url 'dcim:interface_trace' pk=iface.pk %}" class="btn btn-primary btn-xs" title="Trace">
@@ -61,19 +61,27 @@
     {% elif iface.connected_endpoint.term_side %}
         {# Connected to a CircuitTermination #}
         {% with iface.connected_endpoint.get_peer_termination as peer_termination %}
-            <td colspan="2">
-                <i class="fa fa-fw fa-globe" title="Circuit"></i>
-                {% if peer_termination %}
-                    {% if peer_termination.interface %}
-                        <a href="{% url 'dcim:device' pk=peer_termination.interface.device.pk %}">{{ peer_termination.interface.device }}</a>
-                        (<a href="{% url 'dcim:site' slug=peer_termination.site.slug %}">{{ peer_termination.site }}</a>)
-                    {% else %}
+            {% if peer_termination %}
+                {% if peer_termination.connected_endpoint %}
+                    <td>
+                        <a href="{% url 'dcim:device' pk=peer_termination.connected_endpoint.device.pk %}">{{ peer_termination.connected_endpoint.device }}</a><br/>
+                        <small>via <i class="fa fa-fw fa-globe" title="Circuit"></i> <a href="{% url 'circuits:circuit' pk=iface.connected_endpoint.circuit_id %}">{{ iface.connected_endpoint.circuit }}</a></small>
+                    </td>
+                    <td>
+                        {{ peer_termination.connected_endpoint }}
+                    </td>
+                {% else %}
+                    <td colspan="2">
                         <a href="{% url 'dcim:site' slug=peer_termination.site.slug %}">{{ peer_termination.site }}</a>
-                    {% endif %}
-                    via
+                        via <i class="fa fa-fw fa-globe" title="Circuit"></i> <a href="{% url 'circuits:circuit' pk=iface.connected_endpoint.circuit_id %}">{{ iface.connected_endpoint.circuit }}</a>
+                    </td>
                 {% endif %}
-                <a href="{% url 'circuits:circuit' pk=iface.connected_endpoint.circuit_id %}">{{ iface.connected_endpoint.circuit }}</a>
-            </td>
+            {% else %}
+                <td colspan="2">
+                    <i class="fa fa-fw fa-globe" title="Circuit"></i>
+                    <a href="{% url 'circuits:circuit' pk=iface.connected_endpoint.circuit_id %}">{{ iface.connected_endpoint.circuit }}</a>
+                </td>
+            {% endif %}
         {% endwith %}
     {% else %}
         <td colspan="2">
