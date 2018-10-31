@@ -2146,7 +2146,7 @@ class CableCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
         label='Device',
         required=False,
         widget=APISelect(
-            api_url='/api/dcim/devices/?site_id={termination_b_site}}&rack_id={{termination_b_rack}}',
+            api_url='/api/dcim/devices/?site_id={{termination_b_site}}&rack_id={{termination_b_rack}}',
             display_field='display_name',
             attrs={'filter-for': 'termination_b_id'}
         )
