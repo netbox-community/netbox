@@ -167,7 +167,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='consoleport',
             name='cable',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.Cable'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.Cable'),
         ),
         migrations.AlterField(
             model_name='consoleserverport',
@@ -177,7 +177,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='consoleserverport',
             name='cable',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.Cable'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.Cable'),
         ),
 
         # Alter power port models
@@ -199,7 +199,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='powerport',
             name='cable',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.Cable'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.Cable'),
         ),
         migrations.AlterField(
             model_name='poweroutlet',
@@ -209,7 +209,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='poweroutlet',
             name='cable',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.Cable'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.Cable'),
         ),
 
         # Alter the Interface model
@@ -231,19 +231,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='interface',
             name='cable',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.Cable'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.Cable'),
         ),
 
         # Alter front/rear port models
         migrations.AddField(
             model_name='frontport',
             name='cable',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.Cable'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.Cable'),
         ),
         migrations.AddField(
             model_name='rearport',
             name='cable',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.Cable'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.Cable'),
         ),
 
         # Copy console/power/interface connections as Cables
