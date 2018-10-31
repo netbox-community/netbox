@@ -26,14 +26,14 @@ def update_connected_endpoints(instance, **kwargs):
     """
     When a Cable is saved, update its connected endpoints.
     """
-    termination_a, termination_b = instance.get_path_endpoints()
-    if termination_a is not None and termination_b is not None:
-        termination_a.connected_endpoint = termination_b
-        termination_a.connection_status = True
-        termination_a.save()
-        termination_b.connected_endpoint = termination_a
-        termination_b.connection_status = True
-        termination_b.save()
+    endpoint_a, endpoint_b = instance.get_path_endpoints()
+    if endpoint_a is not None and endpoint_b is not None:
+        endpoint_a.connected_endpoint = endpoint_b
+        endpoint_a.connection_status = True
+        endpoint_a.save()
+        endpoint_b.connected_endpoint = endpoint_a
+        endpoint_b.connection_status = True
+        endpoint_b.save()
 
 
 @receiver(post_delete, sender=Cable)
@@ -41,11 +41,11 @@ def nullify_connected_endpoints(instance, **kwargs):
     """
     When a Cable is deleted, nullify its connected endpoints.
     """
-    termination_a, termination_b = instance.get_path_endpoints()
-    if termination_a is not None and termination_b is not None:
-        termination_a.connected_endpoint = None
-        termination_a.connection_status = None
-        termination_a.save()
-        termination_b.connected_endpoint = None
-        termination_b.connection_status = None
-        termination_b.save()
+    endpoint_a, endpoint_b = instance.get_path_endpoints()
+    if endpoint_a is not None and endpoint_b is not None:
+        endpoint_a.connected_endpoint = None
+        endpoint_a.connection_status = None
+        endpoint_a.save()
+        endpoint_b.connected_endpoint = None
+        endpoint_b.connection_status = None
+        endpoint_b.save()
