@@ -584,14 +584,13 @@ class NestedConsoleServerPortSerializer(WritableNestedSerializer):
 
 class ConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
-    connected_endpoint = NestedConsoleServerPortSerializer(required=False, allow_null=True)
+    connected_endpoint = NestedConsoleServerPortSerializer(read_only=True)
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = ConsolePort
         fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'cable', 'tags']
-        read_only_fields = ['connected_endpoint']
 
 
 class NestedConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
@@ -633,14 +632,13 @@ class NestedPowerOutletSerializer(WritableNestedSerializer):
 
 class PowerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
-    connected_endpoint = NestedPowerOutletSerializer(required=False, allow_null=True)
+    connected_endpoint = NestedPowerOutletSerializer(read_only=True)
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = PowerPort
         fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'cable', 'tags']
-        read_only_fields = ['connected_endpoint']
 
 
 class NestedPowerPortSerializer(TaggitSerializer, ValidatedModelSerializer):

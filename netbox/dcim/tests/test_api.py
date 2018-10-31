@@ -2003,7 +2003,6 @@ class ConsolePortTest(APITestCase):
         data = {
             'device': self.device.pk,
             'name': 'Test Console Port X',
-            'connected_endpoint': consoleserverport.pk,
         }
 
         url = reverse('dcim-api:consoleport-detail', kwargs={'pk': self.consoleport1.pk})
@@ -2013,7 +2012,6 @@ class ConsolePortTest(APITestCase):
         self.assertEqual(ConsolePort.objects.count(), 3)
         consoleport1 = ConsolePort.objects.get(pk=response.data['id'])
         self.assertEqual(consoleport1.name, data['name'])
-        self.assertEqual(consoleport1.connected_endpoint_id, data['connected_endpoint'])
 
     def test_delete_consoleport(self):
 
@@ -2229,7 +2227,6 @@ class PowerPortTest(APITestCase):
         data = {
             'device': self.device.pk,
             'name': 'Test Power Port X',
-            'connected_endpoint': poweroutlet.pk,
         }
 
         url = reverse('dcim-api:powerport-detail', kwargs={'pk': self.powerport1.pk})
@@ -2239,7 +2236,6 @@ class PowerPortTest(APITestCase):
         self.assertEqual(PowerPort.objects.count(), 3)
         powerport1 = PowerPort.objects.get(pk=response.data['id'])
         self.assertEqual(powerport1.name, data['name'])
-        self.assertEqual(powerport1.connected_endpoint_id, data['connected_endpoint'])
 
     def test_delete_powerport(self):
 
