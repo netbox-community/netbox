@@ -498,7 +498,9 @@ class InterfaceConnectionViewSet(ModelViewSet):
 #
 
 class CableViewSet(ModelViewSet):
-    queryset = Cable.objects.prefetch_related('termination_a__device', 'termination_b__device')
+    queryset = Cable.objects.prefetch_related(
+        'termination_a', 'termination_b'
+    )
     serializer_class = serializers.CableSerializer
     filter_class = filters.CableFilter
 

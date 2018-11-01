@@ -264,7 +264,7 @@ class CircuitTermination(CableTermination):
         unique_together = ['circuit', 'term_side']
 
     def __str__(self):
-        return '{} (Side {})'.format(self.circuit, self.get_term_side_display())
+        return 'Side {}'.format(self.get_term_side_display())
 
     def log_change(self, user, request_id, action):
         """

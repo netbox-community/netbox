@@ -170,6 +170,14 @@ VIRTUALCHASSIS_ACTIONS = """
 {% endif %}
 """
 
+CABLE_TERMINATION_PARENT = """
+{% if value.device %}
+    <a href="{{ value.device.get_absolute_url }}">{{ value.device }}</a>
+{% else %}
+    <a href="{{ value.circuit.get_absolute_url }}">{{ value.circuit }}</a>
+{% endif %}
+"""
+
 CABLE_LENGTH = """
 {% if record.length %}{{ record.length }}{{ record.length_unit }}{% else %}&mdash;{% endif %}
 """
@@ -632,29 +640,27 @@ class CableTable(BaseTable):
         accessor=Accessor('label'),
         verbose_name='Label'
     )
-    device_a = tables.LinkColumn(
-        viewname='dcim:device',
-        accessor=Accessor('termination_a.device'),
-        args=[Accessor('termination_a.device.pk')],
+    termination_a_parent = tables.TemplateColumn(
+        template_code=CABLE_TERMINATION_PARENT,
+        accessor=Accessor('termination_a'),
         orderable=False,
-        verbose_name='Device A'
+        verbose_name='Termination A'
     )
     termination_a = tables.Column(
-        accessor=Accessor('termination_a.name'),
+        accessor=Accessor('termination_a'),
         orderable=False,
-        verbose_name='Component'
+        verbose_name=''
     )
-    device_b = tables.LinkColumn(
-        viewname='dcim:device',
-        accessor=Accessor('termination_b.device'),
-        args=[Accessor('termination_b.device.pk')],
+    termination_b_parent = tables.TemplateColumn(
+        template_code=CABLE_TERMINATION_PARENT,
+        accessor=Accessor('termination_b'),
         orderable=False,
-        verbose_name='Device B'
+        verbose_name='Termination B'
     )
     termination_b = tables.Column(
-        accessor=Accessor('termination_b.name'),
+        accessor=Accessor('termination_b'),
         orderable=False,
-        verbose_name='Component'
+        verbose_name=''
     )
     length = tables.TemplateColumn(
         template_code=CABLE_LENGTH,
@@ -665,7 +671,8 @@ class CableTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Cable
         fields = (
-            'pk', 'id', 'label_', 'device_a', 'termination_a', 'device_b', 'termination_b', 'status', 'type', 'color',
+            'pk', 'id', 'label_', 'termination_a_parent', 'termination_a', 'termination_b_parent', 'termination_b',
+            'status', 'type', 'color', 'length',
         )
 
 

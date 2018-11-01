@@ -1612,7 +1612,7 @@ class DeviceBulkAddDeviceBayView(PermissionRequiredMixin, BulkComponentCreateVie
 
 class CableListView(ObjectListView):
     queryset = Cable.objects.prefetch_related(
-        'termination_a__device', 'termination_b__device'
+        'termination_a', 'termination_b'
     )
     filter = filters.CableFilter
     filter_form = forms.CableFilterForm
