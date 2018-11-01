@@ -2413,20 +2413,6 @@ class Cable(ChangeLoggedModel):
             ('termination_b_type', 'termination_b_id'),
         )
 
-    def __str__(self):
-        return self.label or self.id_string
-
-    def get_absolute_url(self):
-        return reverse('dcim:cable', args=[self.pk])
-
-    def save(self, *args, **kwargs):
-
-        # Store the given length (if any) in meters for use in database ordering
-        if self.length and self.length_unit:
-            self._abs_length = to_meters(self.length, self.length_unit)
-
-        super(Cable, self).save(*args, **kwargs)
-
     def __init__(self, *args, **kwargs):
 
         super(Cable, self).__init__(*args, **kwargs)
@@ -2435,6 +2421,45 @@ class Cable(ChangeLoggedModel):
         # is called.
         self.id_string = '#{}'.format(self.pk)
 
+    def __str__(self):
+        return self.label or self.id_string
+
+    def get_absolute_url(self):
+        return reverse('dcim:cable', args=[self.pk])
+
+    def clean(self):
+
+        # Check that termination types are compatible
+        type_a = self.termination_a_type.model
+        type_b = self.termination_b_type.model
+        if type_b not in COMPATIBLE_TERMINATION_TYPES.get(type_a):
+            raise ValidationError("Incompatible termination types: {} and {}".format(
+                self.termination_a_type, self.termination_b_type
+            ))
+
+        # Check for an existing Cable connected to either termination object
+        if self.termination_a.cable is not None:
+            raise ValidationError("{} already has a cable attached (#{})".format(
+                self.termination_a, self.termination_a.cable_id
+            ))
+        if self.termination_b.cable is not None:
+            raise ValidationError("{} already has a cable attached (#{})".format(
+                self.termination_b, self.termination_b.cable_id
+            ))
+
+        # Validate length and length_unit
+        if self.length and not self.length_unit:
+            raise ValidationError("Must specify a unit when setting a cable length")
+        if self.length_unit and self.length is None:
+            self.length_unit = None
+
+    def save(self, *args, **kwargs):
+
+        # Store the given length (if any) in meters for use in database ordering
+        if self.length and self.length_unit:
+            self._abs_length = to_meters(self.length, self.length_unit)
+
+        super(Cable, self).save(*args, **kwargs)
 
     def get_path_endpoints(self):
         """
