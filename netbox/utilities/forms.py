@@ -209,7 +209,7 @@ class ColorSelect(forms.Select):
     option_template_name = 'widgets/colorselect_option.html'
 
     def __init__(self, *args, **kwargs):
-        kwargs['choices'] = COLOR_CHOICES
+        kwargs['choices'] = add_blank_choice(COLOR_CHOICES)
         super(ColorSelect, self).__init__(*args, **kwargs)
 
 
