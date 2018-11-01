@@ -341,8 +341,8 @@ COMPATIBLE_TERMINATION_TYPES = {
     'powerport': ['poweroutlet'],
     'poweroutlet': ['powerport'],
     'interface': ['interface', 'circuittermination', 'frontport', 'rearport'],
-    'frontport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport'],
-    'rearport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport'],
+    'frontport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport', 'circuittermination'],
+    'rearport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport', 'circuittermination'],
     'circuittermination': ['interface', 'frontport', 'rearport'],
 }
 
