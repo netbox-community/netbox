@@ -5,7 +5,7 @@ from ipam.views import ServiceCreateView
 from secrets.views import secret_add
 from . import views
 from .models import (
-    ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, FrontPort, Interface, Manufacturer, Platform,
+    Cable, ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, FrontPort, Interface, Manufacturer, Platform,
     PowerPort, PowerOutlet, Rack, RackGroup, RackReservation, RackRole, RearPort, Region, Site, VirtualChassis,
 )
 
@@ -255,6 +255,7 @@ urlpatterns = [
     url(r'^cables/(?P<pk>\d+)/$', views.CableView.as_view(), name='cable'),
     url(r'^cables/(?P<pk>\d+)/edit/$', views.CableEditView.as_view(), name='cable_edit'),
     url(r'^cables/(?P<pk>\d+)/delete/$', views.CableDeleteView.as_view(), name='cable_delete'),
+    url(r'^cables/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='cable_changelog', kwargs={'model': Cable}),
 
     # Console/power/interface connections (read-only)
     url(r'^console-connections/$', views.ConsoleConnectionsListView.as_view(), name='console_connections_list'),

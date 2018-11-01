@@ -23,6 +23,14 @@
         {% endif %}
     </div>
     <h1>{% block title %}Cable {{ cable }}{% endblock %}</h1>
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ cable.get_absolute_url }}">Cable</a>
+        </li>
+        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+            <a href="{% url 'dcim:cable_changelog' pk=cable.pk %}">Changelog</a>
+        </li>
+    </ul>
 {% endblock %}
 
 {% block content %}
