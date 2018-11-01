@@ -149,6 +149,43 @@ def add_blank_choice(choices):
     return ((None, '---------'),) + tuple(choices)
 
 
+def unpack_grouped_choices(choices):
+    """
+    Unpack a grouped choices hierarchy into a flat list of two-tuples. For example:
+
+    choices = (
+        ('Foo', (
+            (1, 'A'),
+            (2, 'B')
+        )),
+        ('Bar', (
+            (3, 'C'),
+            (4, 'D')
+        ))
+    )
+
+    becomes:
+
+    choices = (
+        (1, 'A'),
+        (2, 'B'),
+        (3, 'C'),
+        (4, 'D')
+    )
+    """
+    unpacked_choices = []
+    for key, value in choices:
+        if key == 1300:
+            breakme = True
+        if isinstance(value, (list, tuple)):
+            # Entered an optgroup
+            for optgroup_key, optgroup_value in value:
+                unpacked_choices.append((optgroup_key, optgroup_value))
+        else:
+            unpacked_choices.append((key, value))
+    return unpacked_choices
+
+
 def utf8_encoder(data):
     for line in data:
         yield line.encode('utf-8')
@@ -353,8 +390,8 @@ class CSVChoiceField(forms.ChoiceField):
 
     def __init__(self, choices, *args, **kwargs):
         super(CSVChoiceField, self).__init__(choices=choices, *args, **kwargs)
-        self.choices = [(label, label) for value, label in choices]
-        self.choice_values = {label: value for value, label in choices}
+        self.choices = [(label, label) for value, label in unpack_grouped_choices(choices)]
+        self.choice_values = {label: value for value, label in unpack_grouped_choices(choices)}
 
     def clean(self, value):
         value = super(CSVChoiceField, self).clean(value)

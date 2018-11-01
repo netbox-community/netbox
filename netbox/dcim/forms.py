@@ -1764,7 +1764,7 @@ class CableCSVForm(forms.ModelForm):
     side_a_device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Console server name or ID',
+        help_text='Side A device name or ID',
         error_messages={
             'invalid_choice': 'Side A device not found',
         }
@@ -1772,15 +1772,18 @@ class CableCSVForm(forms.ModelForm):
     side_a_type = forms.ModelChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to={'model__in': CABLE_TERMINATION_TYPES},
-        to_field_name='model'
+        to_field_name='model',
+        help_text='Side A type'
     )
-    side_a_name = forms.CharField()
+    side_a_name = forms.CharField(
+        help_text='Side A component'
+    )
 
     # Termination B
     side_b_device = FlexibleModelChoiceField(
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Console server name or ID',
+        help_text='Side B device name or ID',
         error_messages={
             'invalid_choice': 'Side B device not found',
         }
@@ -1788,9 +1791,12 @@ class CableCSVForm(forms.ModelForm):
     side_b_type = forms.ModelChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to={'model__in': CABLE_TERMINATION_TYPES},
-        to_field_name='model'
+        to_field_name='model',
+        help_text='Side B type'
     )
-    side_b_name = forms.CharField()
+    side_b_name = forms.CharField(
+        help_text='Side B component'
+    )
 
     # Cable attributes
     status = CSVChoiceField(
@@ -1798,13 +1804,26 @@ class CableCSVForm(forms.ModelForm):
         required=False,
         help_text='Connection status'
     )
+    type = CSVChoiceField(
+        choices=CABLE_TYPE_CHOICES,
+        required=False,
+        help_text='Cable type'
+    )
+    length_unit = CSVChoiceField(
+        choices=LENGTH_UNIT_CHOICES,
+        required=False,
+        help_text='Length unit'
+    )
 
     class Meta:
         model = Cable
         fields = [
-            'side_a_device', 'side_a_type', 'side_a_name', 'side_b_device', 'side_b_type', 'side_b_name', 'status',
-            'label',
+            'side_a_device', 'side_a_type', 'side_a_name', 'side_b_device', 'side_b_type', 'side_b_name', 'type',
+            'status', 'label', 'color', 'length', 'length_unit',
         ]
+        help_texts = {
+            'color': 'RGB color in hexadecimal (e.g. 00ff00)'
+        }
 
     # TODO: Merge the clean() methods for either end
     def clean_side_a_name(self):

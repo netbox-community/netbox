@@ -5,6 +5,9 @@ from django import template
 from django.utils.safestring import mark_safe
 from markdown import markdown
 
+from utilities.forms import unpack_grouped_choices
+
+
 register = template.Library()
 
 
@@ -113,14 +116,16 @@ def example_choices(field, arg=3):
     """
     examples = []
     if hasattr(field, 'queryset'):
-        choices = [(obj.pk, getattr(obj, field.to_field_name)) for obj in field.queryset[:arg + 1]]
+        choices = [
+            (obj.pk, getattr(obj, field.to_field_name)) for obj in field.queryset[:arg + 1]
+        ]
     else:
         choices = field.choices
-    for id, label in choices:
+    for value, label in unpack_grouped_choices(choices):
         if len(examples) == arg:
             examples.append('etc.')
             break
-        if not id or not label:
+        if not value or not label:
             continue
         examples.append(label)
     return ', '.join(examples) or 'None'
