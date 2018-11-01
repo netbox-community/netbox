@@ -2407,6 +2407,11 @@ class Cable(ChangeLoggedModel):
 
     objects = CableQuerySet.as_manager()
 
+    csv_headers = [
+        'termination_a_type', 'termination_a_id', 'termination_b_type', 'termination_b_id', 'type', 'status', 'label',
+        'color', 'length', 'length_unit',
+    ]
+
     class Meta:
         unique_together = (
             ('termination_a_type', 'termination_a_id'),
@@ -2460,6 +2465,20 @@ class Cable(ChangeLoggedModel):
             self._abs_length = to_meters(self.length, self.length_unit)
 
         super(Cable, self).save(*args, **kwargs)
+
+    def to_csv(self):
+        return (
+            '{}.{}'.format(self.termination_a_type.app_label, self.termination_a_type.model),
+            self.termination_a_id,
+            '{}.{}'.format(self.termination_b_type.app_label, self.termination_b_type.model),
+            self.termination_b_id,
+            self.get_type_display(),
+            self.get_status_display(),
+            self.label,
+            self.color,
+            self.length,
+            self.length_unit,
+        )
 
     def get_path_endpoints(self):
         """
