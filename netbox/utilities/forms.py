@@ -587,7 +587,7 @@ class AnnotatedMultipleChoiceField(forms.MultipleChoiceField):
     def __init__(self, choices, annotate, annotate_field, *args, **kwargs):
         self.annotate = annotate
         self.annotate_field = annotate_field
-        self.static_choices = choices
+        self.static_choices = unpack_grouped_choices(choices)
 
         super(AnnotatedMultipleChoiceField, self).__init__(choices=self.annotate_choices, *args, **kwargs)
 
