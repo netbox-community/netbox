@@ -464,6 +464,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         null=True
     )
+    status = models.PositiveSmallIntegerField(
+        choices=RACK_STATUS_CHOICES,
+        default=RACK_STATUS_ACTIVE
+    )
     role = models.ForeignKey(
         to='dcim.RackRole',
         on_delete=models.PROTECT,
@@ -514,7 +518,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager()
 
     csv_headers = [
-        'site', 'group_name', 'name', 'facility_id', 'tenant', 'role', 'type', 'serial', 'width', 'u_height',
+        'site', 'group_name', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'width', 'u_height',
         'desc_units', 'comments',
     ]
 
@@ -571,6 +575,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
             self.name,
             self.facility_id,
             self.tenant.name if self.tenant else None,
+            self.get_status_display(),
             self.role.name if self.role else None,
             self.get_type_display() if self.type else None,
             self.serial,
@@ -594,6 +599,9 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         elif self.name:
             return self.name
         return ""
+
+    def get_status_class(self):
+        return STATUS_CLASSES[self.status]
 
     def get_rack_units(self, face=RACK_FACE_FRONT, exclude=None, remove_redundant=False):
         """

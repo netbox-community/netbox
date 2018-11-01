@@ -106,6 +106,12 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Status</td>
+                    <td>
+                        {{ rack.get_status_display }}
+                    </td>
+                </tr>
+                <tr>
                     <td>Role</td>
                     <td>
                         {% if rack.role %}

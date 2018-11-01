@@ -274,12 +274,13 @@ class RackTable(BaseTable):
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
     tenant = tables.TemplateColumn(template_code=COL_TENANT)
+    status = tables.TemplateColumn(STATUS_LABEL)
     role = tables.TemplateColumn(RACK_ROLE)
     u_height = tables.TemplateColumn("{{ record.u_height }}U", verbose_name='Height')
 
     class Meta(BaseTable.Meta):
         model = Rack
-        fields = ('pk', 'name', 'site', 'group', 'facility_id', 'tenant', 'role', 'u_height')
+        fields = ('pk', 'name', 'site', 'group', 'status', 'facility_id', 'tenant', 'role', 'u_height')
 
 
 class RackDetailTable(RackTable):
@@ -291,22 +292,9 @@ class RackDetailTable(RackTable):
 
     class Meta(RackTable.Meta):
         fields = (
-            'pk', 'name', 'site', 'group', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',
+            'pk', 'name', 'site', 'group', 'status', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',
             'get_utilization',
         )
-
-
-class RackImportTable(BaseTable):
-    name = tables.LinkColumn('dcim:rack', args=[Accessor('pk')], verbose_name='Name')
-    site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
-    group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
-    facility_id = tables.Column(verbose_name='Facility ID')
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
-    u_height = tables.Column(verbose_name='Height (U)')
-
-    class Meta(BaseTable.Meta):
-        model = Rack
-        fields = ('name', 'site', 'group', 'facility_id', 'tenant', 'u_height')
 
 
 #

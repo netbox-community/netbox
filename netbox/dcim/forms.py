@@ -306,8 +306,8 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     class Meta:
         model = Rack
         fields = [
-            'site', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'role', 'serial', 'type', 'width',
-            'u_height', 'desc_units', 'comments', 'tags',
+            'site', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial', 'type',
+            'width', 'u_height', 'desc_units', 'comments', 'tags',
         ]
         help_texts = {
             'site': "The site at which the rack exists",
@@ -341,6 +341,11 @@ class RackCSVForm(forms.ModelForm):
         error_messages={
             'invalid_choice': 'Tenant not found.',
         }
+    )
+    status = CSVChoiceField(
+        choices=RACK_STATUS_CHOICES,
+        required=False,
+        help_text='Operational status'
     )
     role = forms.ModelChoiceField(
         queryset=RackRole.objects.all(),
@@ -402,17 +407,56 @@ class RackCSVForm(forms.ModelForm):
 
 
 class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Rack.objects.all(), widget=forms.MultipleHiddenInput)
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False, label='Site')
-    group = forms.ModelChoiceField(queryset=RackGroup.objects.all(), required=False, label='Group')
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
-    role = forms.ModelChoiceField(queryset=RackRole.objects.all(), required=False)
-    serial = forms.CharField(max_length=50, required=False, label='Serial Number')
-    type = forms.ChoiceField(choices=add_blank_choice(RACK_TYPE_CHOICES), required=False, label='Type')
-    width = forms.ChoiceField(choices=add_blank_choice(RACK_WIDTH_CHOICES), required=False, label='Width')
-    u_height = forms.IntegerField(required=False, label='Height (U)')
-    desc_units = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect, label='Descending units')
-    comments = CommentField(widget=SmallTextarea)
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Rack.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False
+    )
+    group = forms.ModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False
+    )
+    tenant = forms.ModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
+    status = forms.ChoiceField(
+        choices=add_blank_choice(RACK_STATUS_CHOICES),
+        required=False,
+        initial=''
+    )
+    role = forms.ModelChoiceField(
+        queryset=RackRole.objects.all(),
+        required=False
+    )
+    serial = forms.CharField(
+        max_length=50,
+        required=False,
+        label='Serial Number'
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(RACK_TYPE_CHOICES),
+        required=False
+    )
+    width = forms.ChoiceField(
+        choices=add_blank_choice(RACK_WIDTH_CHOICES),
+        required=False
+    )
+    u_height = forms.IntegerField(
+        required=False,
+        label='Height (U)'
+    )
+    desc_units = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect,
+        label='Descending units'
+    )
+    comments = CommentField(
+        widget=SmallTextarea
+    )
 
     class Meta:
         nullable_fields = ['group', 'tenant', 'role', 'serial', 'comments']
@@ -434,6 +478,12 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=Tenant.objects.annotate(filter_count=Count('racks')),
         to_field_name='slug',
         null_label='-- None --'
+    )
+    status = AnnotatedMultipleChoiceField(
+        choices=RACK_STATUS_CHOICES,
+        annotate=Rack.objects.all(),
+        annotate_field='status',
+        required=False
     )
     role = FilterChoiceField(
         queryset=RackRole.objects.annotate(filter_count=Count('racks')),

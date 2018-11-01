@@ -29,6 +29,20 @@ RACK_FACE_CHOICES = [
     [RACK_FACE_REAR, 'Rear'],
 ]
 
+# Rack statuses
+RACK_STATUS_RESERVED = 0
+RACK_STATUS_AVAILABLE = 1
+RACK_STATUS_PLANNED = 2
+RACK_STATUS_ACTIVE = 3
+RACK_STATUS_DEPRECATED = 4
+RACK_STATUS_CHOICES = [
+    [RACK_STATUS_ACTIVE, 'Active'],
+    [RACK_STATUS_PLANNED, 'Planned'],
+    [RACK_STATUS_RESERVED, 'Reserved'],
+    [RACK_STATUS_AVAILABLE, 'Available'],
+    [RACK_STATUS_DEPRECATED, 'Deprecated'],
+]
+
 # Parent/child device roles
 SUBDEVICE_ROLE_PARENT = True
 SUBDEVICE_ROLE_CHILD = False
@@ -265,7 +279,7 @@ SITE_STATUS_CHOICES = [
     [SITE_STATUS_RETIRED, 'Retired'],
 ]
 
-# Bootstrap CSS classes for device statuses
+# Bootstrap CSS classes for device/rack statuses
 STATUS_CLASSES = {
     0: 'warning',
     1: 'success',

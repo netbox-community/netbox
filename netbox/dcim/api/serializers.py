@@ -117,6 +117,7 @@ class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
     site = NestedSiteSerializer()
     group = NestedRackGroupSerializer(required=False, allow_null=True, default=None)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
+    status = ChoiceField(choices=RACK_STATUS_CHOICES, required=False)
     role = NestedRackRoleSerializer(required=False, allow_null=True)
     type = ChoiceField(choices=RACK_TYPE_CHOICES, required=False, allow_null=True)
     width = ChoiceField(choices=RACK_WIDTH_CHOICES, required=False)
@@ -125,8 +126,8 @@ class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
     class Meta:
         model = Rack
         fields = [
-            'id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'role', 'serial', 'type', 'width',
-            'u_height', 'desc_units', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'status', 'role', 'serial', 'type',
+            'width', 'u_height', 'desc_units', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         # Omit the UniqueTogetherValidator that would be automatically added to validate (group, facility_id). This
         # prevents facility_id from being interpreted as a required field.

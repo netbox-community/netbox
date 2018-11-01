@@ -401,7 +401,7 @@ class RackDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 class RackBulkImportView(PermissionRequiredMixin, BulkImportView):
     permission_required = 'dcim.add_rack'
     model_form = forms.RackCSVForm
-    table = tables.RackImportTable
+    table = tables.RackTable
     default_return_url = 'dcim:rack_list'
 
 
