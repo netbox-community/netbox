@@ -1666,6 +1666,7 @@ class CableEditView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.change_cable'
     model = Cable
     model_form = forms.CableForm
+    template_name = 'dcim/cable_edit.html'
     default_return_url = 'dcim:cable_list'
 
 
