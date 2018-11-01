@@ -672,7 +672,7 @@ class CableTable(BaseTable):
 
 class ConsoleConnectionTable(BaseTable):
     console_server = tables.LinkColumn(
-        'dcim:device',
+        viewname='dcim:device',
         accessor=Accessor('connected_endpoint.device'),
         args=[Accessor('connected_endpoint.device.pk')],
         verbose_name='Console server'
@@ -680,15 +680,19 @@ class ConsoleConnectionTable(BaseTable):
     connected_endpoint = tables.Column(verbose_name='Port')
     device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
     name = tables.Column(verbose_name='Console port')
+    cable = tables.LinkColumn(
+        viewname='dcim:cable',
+        args=[Accessor('cable.pk')]
+    )
 
     class Meta(BaseTable.Meta):
         model = ConsolePort
-        fields = ('console_server', 'connected_endpoint', 'device', 'name')
+        fields = ('console_server', 'connected_endpoint', 'device', 'name', 'cable')
 
 
 class PowerConnectionTable(BaseTable):
     pdu = tables.LinkColumn(
-        'dcim:device',
+        viewname='dcim:device',
         accessor=Accessor('connected_endpoint.device'),
         args=[Accessor('connected_endpoint.device.pk')],
         verbose_name='PDU'
@@ -696,10 +700,14 @@ class PowerConnectionTable(BaseTable):
     connected_endpoint = tables.Column(verbose_name='Outlet')
     device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
     name = tables.Column(verbose_name='Power Port')
+    cable = tables.LinkColumn(
+        viewname='dcim:cable',
+        args=[Accessor('cable.pk')]
+    )
 
     class Meta(BaseTable.Meta):
         model = PowerPort
-        fields = ('pdu', 'connected_endpoint', 'device', 'name')
+        fields = ('pdu', 'connected_endpoint', 'device', 'name', 'cable')
 
 
 class InterfaceConnectionTable(BaseTable):
@@ -727,10 +735,14 @@ class InterfaceConnectionTable(BaseTable):
         args=[Accessor('connected_endpoint.pk')],
         verbose_name='Interface B'
     )
+    cable = tables.LinkColumn(
+        viewname='dcim:cable',
+        args=[Accessor('cable.pk')]
+    )
 
     class Meta(BaseTable.Meta):
         model = Interface
-        fields = ('device_a', 'interface_a', 'device_b', 'interface_b')
+        fields = ('device_a', 'interface_a', 'device_b', 'interface_b', 'cable')
 
 
 #

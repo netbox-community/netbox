@@ -1692,7 +1692,7 @@ class ConsoleConnectionsListView(ObjectListView):
     ).filter(
         connected_endpoint__isnull=False
     ).order_by(
-        'connected_endpoint__device__name', 'connected_endpoint__name'
+        'cable', 'connected_endpoint__device__name', 'connected_endpoint__name'
     )
     filter = filters.ConsoleConnectionFilter
     filter_form = forms.ConsoleConnectionFilterForm
@@ -1706,7 +1706,7 @@ class PowerConnectionsListView(ObjectListView):
     ).filter(
         connected_endpoint__isnull=False
     ).order_by(
-        'connected_endpoint__device__name', 'connected_endpoint__name'
+        'cable', 'connected_endpoint__device__name', 'connected_endpoint__name'
     )
     filter = filters.PowerConnectionFilter
     filter_form = forms.PowerConnectionFilterForm
@@ -1716,7 +1716,7 @@ class PowerConnectionsListView(ObjectListView):
 
 class InterfaceConnectionsListView(ObjectListView):
     queryset = Interface.objects.select_related(
-        'device', '_connected_interface__device'
+        'device', 'cable', '_connected_interface__device'
     ).filter(
         # Avoid duplicate connections by only selecting the lower PK in a connected pair
         _connected_interface__isnull=False,
