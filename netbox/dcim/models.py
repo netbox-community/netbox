@@ -2414,7 +2414,7 @@ class Cable(ChangeLoggedModel):
         )
 
     def __str__(self):
-        return self.label if self.label else '#{}'.format(self.pk)
+        return self.label or self.id_string
 
     def get_absolute_url(self):
         return reverse('dcim:cable', args=[self.pk])
@@ -2426,6 +2426,15 @@ class Cable(ChangeLoggedModel):
             self._abs_length = to_meters(self.length, self.length_unit)
 
         super(Cable, self).save(*args, **kwargs)
+
+    def __init__(self, *args, **kwargs):
+
+        super(Cable, self).__init__(*args, **kwargs)
+
+        # Create an ID string for use by __str__(). We have to save a copy of pk since it's nullified after .delete()
+        # is called.
+        self.id_string = '#{}'.format(self.pk)
+
 
     def get_path_endpoints(self):
         """
