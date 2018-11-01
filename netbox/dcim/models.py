@@ -2438,11 +2438,11 @@ class Cable(ChangeLoggedModel):
             ))
 
         # Check for an existing Cable connected to either termination object
-        if self.termination_a.cable is not None:
+        if self.termination_a.cable not in (None, self):
             raise ValidationError("{} already has a cable attached (#{})".format(
                 self.termination_a, self.termination_a.cable_id
             ))
-        if self.termination_b.cable is not None:
+        if self.termination_b.cable not in (None, self):
             raise ValidationError("{} already has a cable attached (#{})".format(
                 self.termination_b, self.termination_b.cable_id
             ))
@@ -2451,7 +2451,7 @@ class Cable(ChangeLoggedModel):
         if self.length and not self.length_unit:
             raise ValidationError("Must specify a unit when setting a cable length")
         if self.length_unit and self.length is None:
-            self.length_unit = None
+            self.length_unit = ''
 
     def save(self, *args, **kwargs):
 
