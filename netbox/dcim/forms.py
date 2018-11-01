@@ -1879,6 +1879,54 @@ class CableCSVForm(forms.ModelForm):
         return termination_object
 
 
+class CableBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Cable.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(CABLE_TYPE_CHOICES),
+        required=False,
+        initial=''
+    )
+    status = forms.ChoiceField(
+        choices=add_blank_choice(CONNECTION_STATUS_CHOICES),
+        required=False,
+        initial=''
+    )
+    label = forms.CharField(
+        max_length=100,
+        required=False
+    )
+    color = forms.CharField(
+        max_length=6,
+        required=False,
+        widget=ColorSelect()
+    )
+    length = forms.IntegerField(
+        min_value=1,
+        required=False
+    )
+    length_unit = forms.ChoiceField(
+        choices=add_blank_choice(LENGTH_UNIT_CHOICES),
+        required=False,
+        initial=''
+    )
+
+    class Meta:
+        nullable_fields = ['type', 'status', 'label', 'color', 'length']
+
+    def clean(self):
+
+        # Validate length/unit
+        length = self.cleaned_data.get('length')
+        length_unit = self.cleaned_data.get('length_unit')
+        if length and not length_unit:
+            raise forms.ValidationError({
+                'length_unit': "Must specify a unit when setting length"
+            })
+
+
 class CableFilterForm(BootstrapMixin, forms.Form):
     model = Cable
     q = forms.CharField(required=False, label='Search')

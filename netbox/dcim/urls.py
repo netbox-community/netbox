@@ -252,6 +252,8 @@ urlpatterns = [
     # Cables
     url(r'^cables/$', views.CableListView.as_view(), name='cable_list'),
     url(r'^cables/import/$', views.CableBulkImportView.as_view(), name='cable_import'),
+    url(r'^cables/edit/$', views.CableBulkEditView.as_view(), name='cable_bulk_edit'),
+    url(r'^cables/delete/$', views.CableBulkDeleteView.as_view(), name='cable_bulk_delete'),
     url(r'^cables/(?P<pk>\d+)/$', views.CableView.as_view(), name='cable'),
     url(r'^cables/(?P<pk>\d+)/edit/$', views.CableEditView.as_view(), name='cable_edit'),
     url(r'^cables/(?P<pk>\d+)/delete/$', views.CableDeleteView.as_view(), name='cable_delete'),

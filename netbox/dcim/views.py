@@ -1683,6 +1683,23 @@ class CableBulkImportView(PermissionRequiredMixin, BulkImportView):
     default_return_url = 'dcim:cable_list'
 
 
+class CableBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_cable'
+    queryset = Cable.objects.prefetch_related('termination_a', 'termination_b')
+    filter = filters.CableFilter
+    table = tables.CableTable
+    form = forms.CableBulkEditForm
+    default_return_url = 'dcim:cable_list'
+
+
+class CableBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_cable'
+    queryset = Cable.objects.prefetch_related('termination_a', 'termination_b')
+    filter = filters.CableFilter
+    table = tables.CableTable
+    default_return_url = 'dcim:cable_list'
+
+
 #
 # Connections
 #
