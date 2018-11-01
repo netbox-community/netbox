@@ -93,9 +93,7 @@ Pass-through ports can also be used to model "bump in the wire" devices, such as
 
 Device bays represent the ability of a device to house child devices. For example, you might install four blade servers into a 2U chassis. The chassis would appear in the rack elevation as a 2U device with four device bays. Each server within it would be defined as a 0U device installed in one of the device bays. Child devices do not appear within rack elevations, but they are included in the "Non-Racked Devices" list within the rack view.
 
----
-
-# Device Roles
+## Device Roles
 
 Devices can be organized by functional roles. These roles are fully customizable. For example, you might create roles for core switches, distribution switches, and access switches.
 
@@ -122,3 +120,25 @@ Inventory items represent hardware components installed within a device, such as
 A virtual chassis represents a set of devices which share a single control plane: a stack of switches which are managed as a single device, for example. Each device in the virtual chassis is assigned a position and (optionally) a priority. Exactly one device is designated the virtual chassis master: This device will typically be assigned a name, secrets, services, and other attributes related to its management.
 
 It's important to recognize the distinction between a virtual chassis and a chassis-based device. For instance, a virtual chassis is not used to model a chassis switch with removable line cards such as the Juniper EX9208, as its line cards are _not_ physically separate devices capable of operating independently.
+
+---
+
+# Cables
+
+A cable represents a physical connection between two termination points, such as between a console port and a patch panel port, or between two network interfaces. Cables can be traced through pass-through ports to form a complete path between two endpoints. In the example below, three individual cables comprise a path between the two connected endpoints.
+
+```
+|<------------------------------------------ Cable Path ------------------------------------------->|
+
+  Device A                   Patch Panel A                 Patch Panel B                  Device B
++-----------+               +-------------+               +-------------+               +-----------+
+| Interface | --- Cable --- | Front Port  |               | Front Port  | --- Cable --- | Interface |
++-----------+               +-------------+               +-------------+               +-----------+
+                            +-------------+               +-------------+
+                            |  Rear Port  | --- Cable --- |  Rear Port  |
+                            +-------------+               +-------------+
+```
+
+All connections between device components in NetBox are represented using cables. However, defining the actual cable plant is optional: Components can be be directly connected using cables with no type or other attributes assigned.
+
+Cables are also used to associated ports and interfaces with circuit terminations. To do this, first create the circuit termination, then navigate the desired component and connect a cable between the two.
