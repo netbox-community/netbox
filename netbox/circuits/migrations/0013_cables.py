@@ -1,3 +1,5 @@
+import sys
+
 from django.db import migrations, models
 import django.db.models.deletion
 
@@ -18,7 +20,8 @@ def circuit_terminations_to_cables(apps, schema_editor):
     interface_type = ContentType.objects.get_for_model(Interface)
 
     # Create a new Cable instance from each console connection
-    print("\n    Adding circuit terminations... ", end='', flush=True)
+    if 'test' not in sys.argv:
+        print("\n    Adding circuit terminations... ", end='', flush=True)
     for circuittermination in CircuitTermination.objects.filter(interface__isnull=False):
 
         # Create the new Cable
@@ -44,7 +47,8 @@ def circuit_terminations_to_cables(apps, schema_editor):
         )
 
     cable_count = Cable.objects.filter(termination_a_type=circuittermination_type).count()
-    print("{} cables created".format(cable_count))
+    if 'test' not in sys.argv:
+        print("{} cables created".format(cable_count))
 
 
 class Migration(migrations.Migration):
@@ -71,7 +75,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='circuittermination',
             name='cable',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.Cable'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.Cable'),
         ),
 
         # Copy CircuitTermination connections to Interfaces as Cables

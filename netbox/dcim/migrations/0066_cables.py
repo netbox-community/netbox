@@ -1,5 +1,8 @@
+import sys
+
 from django.db import migrations, models
 import django.db.models.deletion
+
 import utilities.fields
 
 
@@ -17,7 +20,8 @@ def console_connections_to_cables(apps, schema_editor):
     consoleserverport_type = ContentType.objects.get_for_model(ConsoleServerPort)
 
     # Create a new Cable instance from each console connection
-    print("\n    Adding console connections... ", end='', flush=True)
+    if 'test' not in sys.argv:
+        print("\n    Adding console connections... ", end='', flush=True)
     for consoleport in ConsolePort.objects.filter(connected_endpoint__isnull=False):
 
         # Create the new Cable
@@ -34,7 +38,8 @@ def console_connections_to_cables(apps, schema_editor):
         ConsoleServerPort.objects.filter(pk=consoleport.connected_endpoint_id).update(cable=cable)
 
     cable_count = Cable.objects.filter(termination_a_type=consoleport_type).count()
-    print("{} cables created".format(cable_count))
+    if 'test' not in sys.argv:
+        print("{} cables created".format(cable_count))
 
 
 def power_connections_to_cables(apps, schema_editor):
@@ -51,7 +56,8 @@ def power_connections_to_cables(apps, schema_editor):
     poweroutlet_type = ContentType.objects.get_for_model(PowerOutlet)
 
     # Create a new Cable instance from each power connection
-    print("    Adding power connections... ", end='', flush=True)
+    if 'test' not in sys.argv:
+        print("    Adding power connections... ", end='', flush=True)
     for powerport in PowerPort.objects.filter(connected_endpoint__isnull=False):
 
         # Create the new Cable
@@ -68,7 +74,8 @@ def power_connections_to_cables(apps, schema_editor):
         PowerOutlet.objects.filter(pk=powerport.connected_endpoint_id).update(cable=cable)
 
     cable_count = Cable.objects.filter(termination_a_type=powerport_type).count()
-    print("{} cables created".format(cable_count))
+    if 'test' not in sys.argv:
+        print("{} cables created".format(cable_count))
 
 
 def interface_connections_to_cables(apps, schema_editor):
@@ -84,7 +91,8 @@ def interface_connections_to_cables(apps, schema_editor):
     interface_type = ContentType.objects.get_for_model(Interface)
 
     # Create a new Cable instance from each InterfaceConnection
-    print("    Adding interface connections... ", end='', flush=True)
+    if 'test' not in sys.argv:
+        print("    Adding interface connections... ", end='', flush=True)
     for conn in InterfaceConnection.objects.all():
 
         # Create the new Cable
@@ -109,7 +117,8 @@ def interface_connections_to_cables(apps, schema_editor):
         )
 
     cable_count = Cable.objects.filter(termination_a_type=interface_type).count()
-    print("{} cables created".format(cable_count))
+    if 'test' not in sys.argv:
+        print("{} cables created".format(cable_count))
 
 
 class Migration(migrations.Migration):
