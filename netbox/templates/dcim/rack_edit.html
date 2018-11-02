@@ -28,6 +28,18 @@
             {% render_field form.type %}
             {% render_field form.width %}
             {% render_field form.u_height %}
+            <div class="form-group">
+                <label class="col-md-3 control-label">Outer dimensions</label>
+                <div class="col-md-3">
+                    {{ form.outer_width }}
+                </div>
+                <div class="col-md-3">
+                    {{ form.outer_depth }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.outer_unit }}
+                </div>
+            </div>
             {% render_field form.desc_units %}
         </div>
     </div>

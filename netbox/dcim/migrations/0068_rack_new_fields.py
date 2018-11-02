@@ -20,4 +20,19 @@ class Migration(migrations.Migration):
             name='asset_tag',
             field=utilities.fields.NullableCharField(blank=True, max_length=50, null=True, unique=True),
         ),
+        migrations.AddField(
+            model_name='rack',
+            name='outer_depth',
+            field=models.PositiveSmallIntegerField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='rack',
+            name='outer_unit',
+            field=models.CharField(blank=True, max_length=2),
+        ),
+        migrations.AddField(
+            model_name='rack',
+            name='outer_width',
+            field=models.PositiveSmallIntegerField(blank=True, null=True),
+        ),
     ]

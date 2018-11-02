@@ -172,6 +172,26 @@
                     <td>Height</td>
                     <td>{{ rack.u_height }}U ({% if rack.desc_units %}descending{% else %}ascending{% endif %})</td>
                 </tr>
+                <tr>
+                    <td>Outer Width</td>
+                    <td>
+                        {% if rack.outer_width %}
+                            <span>{{ rack.outer_width }}{{ rack.outer_unit }}</span>
+                        {% else %}
+                            <span class="text-muted">&mdash;</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Outer Depth</td>
+                    <td>
+                        {% if rack.outer_depth %}
+                            <span>{{ rack.outer_depth }}{{ rack.outer_unit }}</span>
+                        {% else %}
+                            <span class="text-muted">&mdash;</span>
+                        {% endif %}
+                    </td>
+                </tr>
             </table>
         </div>
         {% include 'inc/custom_fields_panel.html' with obj=rack %}

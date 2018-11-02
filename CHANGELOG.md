@@ -7,6 +7,7 @@ v2.5.0 (FUTURE)
 
 ## Enhancements
 
+* [#450](https://github.com/digitalocean/netbox/issues/450) - Added `outer_width` and `outer_depth` fields to rack model
 * [#1444](https://github.com/digitalocean/netbox/issues/1444) - Added an `asset_tag` field for racks
 * [#2000](https://github.com/digitalocean/netbox/issues/2000) - Dropped support for Python 2
 * [#2104](https://github.com/digitalocean/netbox/issues/2104) - Added a `status` field for racks

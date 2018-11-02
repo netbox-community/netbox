@@ -307,7 +307,7 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         model = Rack
         fields = [
             'site', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial', 'asset_tag',
-            'type', 'width', 'u_height', 'desc_units', 'comments', 'tags',
+            'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'comments', 'tags',
         ]
         help_texts = {
             'site': "The site at which the rack exists",
@@ -367,6 +367,11 @@ class RackCSVForm(forms.ModelForm):
             (RACK_WIDTH_23IN, '23'),
         ),
         help_text='Rail-to-rail width (in inches)'
+    )
+    outer_unit = CSVChoiceField(
+        choices=RACK_DIMENSION_UNIT_CHOICES,
+        required=False,
+        help_text='Unit for outer dimensions'
     )
 
     class Meta:
@@ -458,12 +463,26 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         widget=BulkEditNullBooleanSelect,
         label='Descending units'
     )
+    outer_width = forms.IntegerField(
+        required=False,
+        min_value=1
+    )
+    outer_depth = forms.IntegerField(
+        required=False,
+        min_value=1
+    )
+    outer_unit = forms.ChoiceField(
+        choices=add_blank_choice(RACK_DIMENSION_UNIT_CHOICES),
+        required=False
+    )
     comments = CommentField(
         widget=SmallTextarea
     )
 
     class Meta:
-        nullable_fields = ['group', 'tenant', 'role', 'serial', 'asset_tag', 'comments']
+        nullable_fields = [
+            'group', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
+        ]
 
 
 class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -1864,7 +1883,7 @@ class CableCSVForm(forms.ModelForm):
         help_text='Cable type'
     )
     length_unit = CSVChoiceField(
-        choices=LENGTH_UNIT_CHOICES,
+        choices=CABLE_LENGTH_UNIT_CHOICES,
         required=False,
         help_text='Length unit'
     )
@@ -1962,7 +1981,7 @@ class CableBulkEditForm(BootstrapMixin, BulkEditForm):
         required=False
     )
     length_unit = forms.ChoiceField(
-        choices=add_blank_choice(LENGTH_UNIT_CHOICES),
+        choices=add_blank_choice(CABLE_LENGTH_UNIT_CHOICES),
         required=False,
         initial=''
     )

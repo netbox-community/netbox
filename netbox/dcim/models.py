@@ -510,6 +510,19 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         verbose_name='Descending units',
         help_text='Units are numbered top-to-bottom'
     )
+    outer_width = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True
+    )
+    outer_depth = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True
+    )
+    outer_unit = models.CharField(
+        choices=RACK_DIMENSION_UNIT_CHOICES,
+        max_length=2,
+        blank=True
+    )
     comments = models.TextField(
         blank=True
     )
@@ -527,7 +540,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
     csv_headers = [
         'site', 'group_name', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
-        'u_height', 'desc_units', 'comments',
+        'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'comments',
     ]
 
     class Meta:
@@ -544,6 +557,14 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         return reverse('dcim:rack', args=[self.pk])
 
     def clean(self):
+
+        # Validate outer dimensions and unit
+        if self.outer_width and not self.outer_unit:
+            raise ValidationError("Must specify a unit when setting an outer width")
+        if self.outer_depth and not self.outer_unit:
+            raise ValidationError("Must specify a unit when setting an outer depth")
+        if self.outer_unit and self.outer_width is None and self.outer_depth is None:
+            self.length_unit = ''
 
         if self.pk:
             # Validate that Rack is tall enough to house the installed Devices
@@ -591,6 +612,9 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
             self.width,
             self.u_height,
             self.desc_units,
+            self.outer_width,
+            self.outer_depth,
+            self.outer_unit,
             self.comments,
         )
 
@@ -2410,7 +2434,7 @@ class Cable(ChangeLoggedModel):
         null=True
     )
     length_unit = models.CharField(
-        choices=LENGTH_UNIT_CHOICES,
+        choices=CABLE_LENGTH_UNIT_CHOICES,
         max_length=2,
         blank=True
     )

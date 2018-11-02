@@ -121,14 +121,15 @@ class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
     role = NestedRackRoleSerializer(required=False, allow_null=True)
     type = ChoiceField(choices=RACK_TYPE_CHOICES, required=False, allow_null=True)
     width = ChoiceField(choices=RACK_WIDTH_CHOICES, required=False)
+    outer_unit = ChoiceField(choices=RACK_DIMENSION_UNIT_CHOICES, required=False)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Rack
         fields = [
             'id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'status', 'role', 'serial',
-            'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         # Omit the UniqueTogetherValidator that would be automatically added to validate (group, facility_id). This
         # prevents facility_id from being interpreted as a required field.
@@ -504,7 +505,7 @@ class CableSerializer(ValidatedModelSerializer):
     termination_a = serializers.SerializerMethodField(read_only=True)
     termination_b = serializers.SerializerMethodField(read_only=True)
     status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, required=False)
-    length_unit = ChoiceField(choices=LENGTH_UNIT_CHOICES, required=False)
+    length_unit = ChoiceField(choices=CABLE_LENGTH_UNIT_CHOICES, required=False)
 
     class Meta:
         model = Cable
