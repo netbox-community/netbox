@@ -10,6 +10,7 @@ from extras.constants import GRAPH_TYPE_PROVIDER
 from extras.models import Graph
 from utilities.testing import APITestCase
 
+
 class ProviderTest(APITestCase):
 
     def setUp(self):
