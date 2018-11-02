@@ -355,19 +355,19 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     def _console_ports(self, queryset, name, value):
         value = value.strip()
-        return queryset.exclude(console_port_templates__isnull=bool(value))
+        return queryset.exclude(consoleport_templates__isnull=bool(value))
 
     def _console_server_ports(self, queryset, name, value):
         value = value.strip()
-        return queryset.exclude(cs_port_templates__isnull=bool(value))
+        return queryset.exclude(consoleserverport_templates__isnull=bool(value))
 
     def _power_ports(self, queryset, name, value):
         value = value.strip()
-        return queryset.exclude(power_port_templates__isnull=bool(value))
+        return queryset.exclude(powerport_templates__isnull=bool(value))
 
     def _power_outlets(self, queryset, name, value):
         value = value.strip()
-        return queryset.exclude(power_outlet_templates__isnull=bool(value))
+        return queryset.exclude(poweroutlet_templates__isnull=bool(value))
 
     def _interfaces(self, queryset, name, value):
         value = value.strip()
@@ -376,8 +376,8 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
     def _pass_through_ports(self, queryset, name, value):
         value = value.strip()
         return queryset.exclude(
-            front_port_templates__isnull=bool(value),
-            rear_port_templates__isnull=bool(value)
+            frontport_templates__isnull=bool(value),
+            rearport_templates__isnull=bool(value)
         )
 
 

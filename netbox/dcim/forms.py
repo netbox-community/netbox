@@ -807,7 +807,7 @@ class FrontPortTemplateCreateForm(ComponentForm):
         # Determine which rear port positions are occupied. These will be excluded from the list of available mappings.
         occupied_port_positions = [
             (front_port.rear_port_id, front_port.rear_port_position)
-            for front_port in self.parent.front_port_templates.all()
+            for front_port in self.parent.frontport_templates.all()
         ]
 
         # Populate rear port choices

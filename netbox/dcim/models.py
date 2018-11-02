@@ -965,7 +965,7 @@ class ConsolePortTemplate(ComponentTemplateModel):
     device_type = models.ForeignKey(
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
-        related_name='console_port_templates'
+        related_name='consoleport_templates'
     )
     name = models.CharField(
         max_length=50
@@ -986,7 +986,7 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
     device_type = models.ForeignKey(
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
-        related_name='cs_port_templates'
+        related_name='consoleserverport_templates'
     )
     name = models.CharField(
         max_length=50
@@ -1007,7 +1007,7 @@ class PowerPortTemplate(ComponentTemplateModel):
     device_type = models.ForeignKey(
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
-        related_name='power_port_templates'
+        related_name='powerport_templates'
     )
     name = models.CharField(
         max_length=50
@@ -1028,7 +1028,7 @@ class PowerOutletTemplate(ComponentTemplateModel):
     device_type = models.ForeignKey(
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
-        related_name='power_outlet_templates'
+        related_name='poweroutlet_templates'
     )
     name = models.CharField(
         max_length=50
@@ -1080,7 +1080,7 @@ class FrontPortTemplate(ComponentTemplateModel):
     device_type = models.ForeignKey(
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
-        related_name='front_port_templates'
+        related_name='frontport_templates'
     )
     name = models.CharField(
         max_length=64
@@ -1091,7 +1091,7 @@ class FrontPortTemplate(ComponentTemplateModel):
     rear_port = models.ForeignKey(
         to='dcim.RearPortTemplate',
         on_delete=models.CASCADE,
-        related_name='front_port_templates'
+        related_name='frontport_templates'
     )
     rear_port_position = models.PositiveSmallIntegerField(
         default=1,
@@ -1132,7 +1132,7 @@ class RearPortTemplate(ComponentTemplateModel):
     device_type = models.ForeignKey(
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
-        related_name='rear_port_templates'
+        related_name='rearport_templates'
     )
     name = models.CharField(
         max_length=64
@@ -1552,19 +1552,19 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         if is_new:
             ConsolePort.objects.bulk_create(
                 [ConsolePort(device=self, name=template.name) for template in
-                 self.device_type.console_port_templates.all()]
+                 self.device_type.consoleport_templates.all()]
             )
             ConsoleServerPort.objects.bulk_create(
                 [ConsoleServerPort(device=self, name=template.name) for template in
-                 self.device_type.cs_port_templates.all()]
+                 self.device_type.consoleserverport_templates.all()]
             )
             PowerPort.objects.bulk_create(
                 [PowerPort(device=self, name=template.name) for template in
-                 self.device_type.power_port_templates.all()]
+                 self.device_type.powerport_templates.all()]
             )
             PowerOutlet.objects.bulk_create(
                 [PowerOutlet(device=self, name=template.name) for template in
-                 self.device_type.power_outlet_templates.all()]
+                 self.device_type.poweroutlet_templates.all()]
             )
             Interface.objects.bulk_create(
                 [Interface(device=self, name=template.name, form_factor=template.form_factor,
@@ -1576,7 +1576,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                     name=template.name,
                     type=template.type,
                     positions=template.positions
-                ) for template in self.device_type.rear_port_templates.all()
+                ) for template in self.device_type.rearport_templates.all()
             ])
             FrontPort.objects.bulk_create([
                 FrontPort(
@@ -1585,7 +1585,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                     type=template.type,
                     rear_port=RearPort.objects.get(device=self, name=template.rear_port.name),
                     rear_port_position=template.rear_port_position,
-                ) for template in self.device_type.front_port_templates.all()
+                ) for template in self.device_type.frontport_templates.all()
             ])
             DeviceBay.objects.bulk_create(
                 [DeviceBay(device=self, name=template.name) for template in
@@ -2120,7 +2120,7 @@ class FrontPort(CableTermination, ComponentModel):
     rear_port = models.ForeignKey(
         to='dcim.RearPort',
         on_delete=models.CASCADE,
-        related_name='front_ports'
+        related_name='frontports'
     )
     rear_port_position = models.PositiveSmallIntegerField(
         default=1,
@@ -2546,7 +2546,7 @@ class Cable(ChangeLoggedModel):
             if next_cable is None:
                 return None
 
-            far_end = next_cable.termination_b if next_cable.termination_a == peer_port else next_cable.terimation_a
+            far_end = next_cable.termination_b if next_cable.termination_a == peer_port else next_cable.termination_a
 
             # Return the far side termination of the cable
             return trace_cable(far_end, position)
