@@ -5,6 +5,12 @@ v2.5.0 (FUTURE)
 * As promised, Python 2 support has been completed removed. Python 3.5 or higher is now required to run NetBox.
 * The UserAction model, which was deprecated by the new change logging feature in NetBox v2.4, has been removed. If you need to archive user activity, do so prior to upgrading to NetBox v2.5, as the database migration will remove all data associated with this model.
 
+## New Features
+
+### Patch Panels and Cables ([#81](https://github.com/digitalocean/netbox/issues/20))
+
+NetBox now supports modeling physical cables for console, power, and interface connections. The new pass-through port component type has also been introduced to model patch panels and similar devices.
+
 ## Enhancements
 
 * [#450](https://github.com/digitalocean/netbox/issues/450) - Added `outer_width` and `outer_depth` fields to rack model
@@ -16,7 +22,11 @@ v2.5.0 (FUTURE)
 
 ## API Changes
 
+* The `/extras/recent-activity/` endpoint (replaced by change logging in v2.4) has been removed
 * The `rpc_client` field has been removed from dcim.Platform (see #2367)
+* Introduced a new API endpoint for cables at `/dcim/cables/`
+* New endpoints for front and rear pass-through ports (and their templates) in parallel with existing device components
+* New fields for dcim.Rack: `status`, `asset_tag`, `outer_width`, `outer_depth`, `outer_unit`
 
 ---
 
