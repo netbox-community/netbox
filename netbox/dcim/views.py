@@ -1286,8 +1286,8 @@ class InterfaceView(View):
 
         return render(request, 'dcim/interface.html', {
             'interface': interface,
-            # TODO: Also handle connected CircuitTerminations
             'connected_interface': interface._connected_interface,
+            'connected_circuittermination': interface._connected_circuittermination,
             'ipaddress_table': ipaddress_table,
             'vlan_table': vlan_table,
         })
