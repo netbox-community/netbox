@@ -131,17 +131,6 @@ class CableTermination(models.Model):
 
         return path + next_segment
 
-    # TODO: Deprecate in favor of obj.cable
-    def get_connected_cable(self):
-        """
-        Return the connected cable if one exists; else None. Assign the far end of the connection on the Cable instance.
-        """
-        cable = Cable.objects.get_for_termination(self)
-        if cable is None:
-            return None
-        cable.far_end = cable.termination_b if cable.termination_a == self else cable.termination_a
-        return cable
-
 
 #
 # Regions
@@ -2550,13 +2539,15 @@ class Cable(ChangeLoggedModel):
                 return termination
 
             # Find the cable (if any) attached to the peer port
-            next_cable = peer_port.get_connected_cable()
+            next_cable = peer_port.cable
 
             # If no cable exists, return None
             if next_cable is None:
                 return None
 
+            far_end = next_cable.termination_b if next_cable.termination_a == peer_port else next_cable.terimation_a
+
             # Return the far side termination of the cable
-            return trace_cable(next_cable.far_end, position)
+            return trace_cable(far_end, position)
 
         return trace_cable(self.termination_a), trace_cable(self.termination_b)
