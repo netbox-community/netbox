@@ -309,6 +309,30 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Manufacturer (slug)',
     )
+    console_ports = django_filters.CharFilter(
+        method='_console_ports',
+        label='Has console ports',
+    )
+    console_server_ports = django_filters.CharFilter(
+        method='_console_server_ports',
+        label='Has console server ports',
+    )
+    power_ports = django_filters.CharFilter(
+        method='_power_ports',
+        label='Has power ports',
+    )
+    power_outlets = django_filters.CharFilter(
+        method='_power_outlets',
+        label='Has power outlets',
+    )
+    interfaces = django_filters.CharFilter(
+        method='_interfaces',
+        label='Has interfaces',
+    )
+    pass_through_ports = django_filters.CharFilter(
+        method='_pass_through_ports',
+        label='Has pass-through ports',
+    )
     tag = django_filters.CharFilter(
         name='tags__slug',
     )
@@ -327,6 +351,33 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
             Q(model__icontains=value) |
             Q(part_number__icontains=value) |
             Q(comments__icontains=value)
+        )
+
+    def _console_ports(self, queryset, name, value):
+        value = value.strip()
+        return queryset.exclude(console_port_templates__isnull=bool(value))
+
+    def _console_server_ports(self, queryset, name, value):
+        value = value.strip()
+        return queryset.exclude(cs_port_templates__isnull=bool(value))
+
+    def _power_ports(self, queryset, name, value):
+        value = value.strip()
+        return queryset.exclude(power_port_templates__isnull=bool(value))
+
+    def _power_outlets(self, queryset, name, value):
+        value = value.strip()
+        return queryset.exclude(power_outlet_templates__isnull=bool(value))
+
+    def _interfaces(self, queryset, name, value):
+        value = value.strip()
+        return queryset.exclude(interface_templates__isnull=bool(value))
+
+    def _pass_through_ports(self, queryset, name, value):
+        value = value.strip()
+        return queryset.exclude(
+            front_port_templates__isnull=bool(value),
+            rear_port_templates__isnull=bool(value)
         )
 
 
@@ -511,19 +562,30 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         name='device_type__is_full_depth',
         label='Is full depth',
     )
-    # TODO: Replace these filters
-    # is_console_server = django_filters.BooleanFilter(
-    #     name='device_type__is_console_server',
-    #     label='Is a console server',
-    # )
-    # is_pdu = django_filters.BooleanFilter(
-    #     name='device_type__is_pdu',
-    #     label='Is a PDU',
-    # )
-    # is_network_device = django_filters.BooleanFilter(
-    #     name='device_type__is_network_device',
-    #     label='Is a network device',
-    # )
+    console_ports = django_filters.CharFilter(
+        method='_console_ports',
+        label='Has console ports',
+    )
+    console_server_ports = django_filters.CharFilter(
+        method='_console_server_ports',
+        label='Has console server ports',
+    )
+    power_ports = django_filters.CharFilter(
+        method='_power_ports',
+        label='Has power ports',
+    )
+    power_outlets = django_filters.CharFilter(
+        method='_power_outlets',
+        label='Has power outlets',
+    )
+    interfaces = django_filters.CharFilter(
+        method='_interfaces',
+        label='Has interfaces',
+    )
+    pass_through_ports = django_filters.CharFilter(
+        method='_pass_through_ports',
+        label='Has pass-through ports',
+    )
     mac_address = django_filters.CharFilter(
         method='_mac_address',
         label='MAC address',
@@ -577,6 +639,33 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
                 Q(primary_ip4__isnull=False) |
                 Q(primary_ip6__isnull=False)
             )
+
+    def _console_ports(self, queryset, name, value):
+        value = value.strip()
+        return queryset.exclude(consoleports__isnull=bool(value))
+
+    def _console_server_ports(self, queryset, name, value):
+        value = value.strip()
+        return queryset.exclude(consoleserverports__isnull=bool(value))
+
+    def _power_ports(self, queryset, name, value):
+        value = value.strip()
+        return queryset.exclude(powerports__isnull=bool(value))
+
+    def _power_outlets(self, queryset, name, value):
+        value = value.strip()
+        return queryset.exclude(poweroutlets__isnull=bool(value))
+
+    def _interfaces(self, queryset, name, value):
+        value = value.strip()
+        return queryset.exclude(interfaces__isnull=bool(value))
+
+    def _pass_through_ports(self, queryset, name, value):
+        value = value.strip()
+        return queryset.exclude(
+            frontports__isnull=bool(value),
+            rearports__isnull=bool(value)
+        )
 
 
 class DeviceComponentFilterSet(django_filters.FilterSet):

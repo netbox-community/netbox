@@ -661,12 +661,34 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=Manufacturer.objects.annotate(filter_count=Count('device_types')),
         to_field_name='slug'
     )
+    console_ports = forms.BooleanField(
+        required=False,
+        label='Has console ports'
+    )
+    console_server_ports = forms.BooleanField(
+        required=False,
+        label='Has console server ports'
+    )
+    power_ports = forms.BooleanField(
+        required=False,
+        label='Has power ports'
+    )
+    power_outlets = forms.BooleanField(
+        required=False,
+        label='Has power outlets'
+    )
+    interfaces = forms.BooleanField(
+        required=False,
+        label='Has interfaces'
+    )
+    pass_through_ports = forms.BooleanField(
+        required=False,
+        label='Has pass-through ports'
+    )
     subdevice_role = forms.NullBooleanField(
-        required=False, label='Subdevice role', widget=forms.Select(choices=(
-            ('', '---------'),
-            (SUBDEVICE_ROLE_PARENT, 'Parent'),
-            (SUBDEVICE_ROLE_CHILD, 'Child'),
-        ))
+        required=False,
+        label='Subdevice role',
+        widget=forms.Select(choices=add_blank_choice(SUBDEVICE_ROLE_CHOICES))
     )
 
 

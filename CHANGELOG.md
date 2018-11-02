@@ -27,6 +27,14 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * Introduced a new API endpoint for cables at `/dcim/cables/`
 * New endpoints for front and rear pass-through ports (and their templates) in parallel with existing device components
 * New fields for dcim.Rack: `status`, `asset_tag`, `outer_width`, `outer_depth`, `outer_unit`
+* The following boolean filters on dcim.Device and dcim.DeviceType have been renamed:
+    * `is_console_server`: `console_server_ports`
+    * `is_pdu`: `power_outlets`
+    * `is_network_device`: `interfaces`
+* The following new boolean filters have been introduced for dcim.Device and dcim.DeviceType:
+    * `console_ports`
+    * `power_ports`
+    * `pass_through_ports`
 
 ---
 
