@@ -8,6 +8,7 @@ v2.5.0 (FUTURE)
 ## Enhancements
 
 * [#2000](https://github.com/digitalocean/netbox/issues/2000) - Dropped support for Python 2
+* [#2104](https://github.com/digitalocean/netbox/issues/2104) - Added a `status` field for racks
 * [#2292](https://github.com/digitalocean/netbox/issues/2292) - Removed the deprecated UserAction model
 * [#2367](https://github.com/digitalocean/netbox/issues/2367) - Removed deprecated RPCClient functionality
 
