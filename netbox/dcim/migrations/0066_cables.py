@@ -135,6 +135,7 @@ class Migration(migrations.Migration):
         # Create the Cable model
         migrations.CreateModel(
             name='Cable',
+            options={'ordering': ['pk']},
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('created', models.DateField(auto_now_add=True, null=True)),

@@ -2443,6 +2443,7 @@ class Cable(ChangeLoggedModel):
     ]
 
     class Meta:
+        ordering = ['pk']
         unique_together = (
             ('termination_a_type', 'termination_a_id'),
             ('termination_b_type', 'termination_b_id'),
