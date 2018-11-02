@@ -25,7 +25,6 @@ from django_tables2 import RequestConfig
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from utilities.utils import queryset_to_csv
 from utilities.forms import BootstrapMixin, CSVDataField
-from .constants import M2M_FIELD_TYPES
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
 from .paginator import EnhancedPaginator
@@ -138,7 +137,7 @@ class ObjectListView(View):
 
         # Apply the request context
         paginate = {
-            'klass': EnhancedPaginator,
+            'paginator_class': EnhancedPaginator,
             'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
         }
         RequestConfig(request, paginate).configure(table)

@@ -623,11 +623,6 @@ class CableTable(BaseTable):
         args=[Accessor('pk')],
         verbose_name='ID'
     )
-    # django-tables2 adds CSS `class="label"` which causes rendering issues
-    label_ = tables.Column(
-        accessor=Accessor('label'),
-        verbose_name='Label'
-    )
     termination_a_parent = tables.TemplateColumn(
         template_code=CABLE_TERMINATION_PARENT,
         accessor=Accessor('termination_a'),
@@ -659,7 +654,7 @@ class CableTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Cable
         fields = (
-            'pk', 'id', 'label_', 'termination_a_parent', 'termination_a', 'termination_b_parent', 'termination_b',
+            'pk', 'id', 'label', 'termination_a_parent', 'termination_a', 'termination_b_parent', 'termination_b',
             'status', 'type', 'color', 'length',
         )
 
