@@ -480,6 +480,14 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         verbose_name='Serial number'
     )
+    asset_tag = NullableCharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        unique=True,
+        verbose_name='Asset tag',
+        help_text='A unique tag used to identify this rack'
+    )
     type = models.PositiveSmallIntegerField(
         choices=RACK_TYPE_CHOICES,
         blank=True,
@@ -518,8 +526,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager()
 
     csv_headers = [
-        'site', 'group_name', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'width', 'u_height',
-        'desc_units', 'comments',
+        'site', 'group_name', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
+        'u_height', 'desc_units', 'comments',
     ]
 
     class Meta:
@@ -579,6 +587,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
             self.role.name if self.role else None,
             self.get_type_display() if self.type else None,
             self.serial,
+            self.asset_tag,
             self.width,
             self.u_height,
             self.desc_units,

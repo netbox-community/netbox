@@ -194,13 +194,14 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Role (slug)',
     )
+    asset_tag = NullableCharFieldFilter()
     tag = django_filters.CharFilter(
         name='tags__slug',
     )
 
     class Meta:
         model = Rack
-        fields = ['name', 'serial', 'type', 'width', 'u_height', 'desc_units']
+        fields = ['name', 'serial', 'asset_tag', 'type', 'width', 'u_height', 'desc_units']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -209,6 +210,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
             Q(name__icontains=value) |
             Q(facility_id__icontains=value) |
             Q(serial__icontains=value.strip()) |
+            Q(asset_tag__icontains=value.strip()) |
             Q(comments__icontains=value)
         )
 

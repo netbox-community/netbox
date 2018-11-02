@@ -131,6 +131,16 @@
                         {% endif %}
                     </td>
                 </tr>
+                    <tr>
+                        <td>Asset Tag</td>
+                        <td>
+                            {% if rack.asset_tag %}
+                                <span>{{ rack.asset_tag }}</span>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                    </tr>
                 <tr>
                     <td>Devices</td>
                     <td>

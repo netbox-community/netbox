@@ -306,8 +306,8 @@ class RackForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     class Meta:
         model = Rack
         fields = [
-            'site', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial', 'type',
-            'width', 'u_height', 'desc_units', 'comments', 'tags',
+            'site', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial', 'asset_tag',
+            'type', 'width', 'u_height', 'desc_units', 'comments', 'tags',
         ]
         help_texts = {
             'site': "The site at which the rack exists",
@@ -437,6 +437,10 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         required=False,
         label='Serial Number'
     )
+    asset_tag = forms.CharField(
+        max_length=50,
+        required=False
+    )
     type = forms.ChoiceField(
         choices=add_blank_choice(RACK_TYPE_CHOICES),
         required=False
@@ -459,7 +463,7 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
     )
 
     class Meta:
-        nullable_fields = ['group', 'tenant', 'role', 'serial', 'comments']
+        nullable_fields = ['group', 'tenant', 'role', 'serial', 'asset_tag', 'comments']
 
 
 class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
