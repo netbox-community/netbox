@@ -7,10 +7,10 @@ from dcim.api.serializers import (
     NestedRegionSerializer, NestedSiteSerializer,
 )
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
+from extras.constants import *
 from extras.models import (
     ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
 )
-from extras.constants import *
 from tenancy.api.serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
 from users.api.serializers import NestedUserSerializer

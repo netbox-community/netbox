@@ -2,8 +2,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from netaddr import AddrFormatError, IPNetwork
 
-from .formfields import IPFormField
 from . import lookups
+from .formfields import IPFormField
 
 
 def prefix_validator(prefix):

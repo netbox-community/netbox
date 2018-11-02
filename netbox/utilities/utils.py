@@ -1,6 +1,5 @@
 import datetime
 import json
-import six
 
 from django.core.serializers import serialize
 from django.http import HttpResponse
@@ -25,7 +24,7 @@ def csv_format(data):
             value = value.isoformat()
 
         # Force conversion to string first so we can check for any commas
-        if not isinstance(value, six.string_types):
+        if not isinstance(value, str):
             value = '{}'.format(value)
 
         # Double-quote the value if it contains a comma

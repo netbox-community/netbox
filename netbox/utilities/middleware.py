@@ -1,5 +1,3 @@
-import sys
-
 from django.conf import settings
 from django.db import ProgrammingError
 from django.http import Http404, HttpResponseRedirect

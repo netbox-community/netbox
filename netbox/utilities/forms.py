@@ -1,7 +1,7 @@
 import csv
-from io import StringIO
 import json
 import re
+from io import StringIO
 
 from django import forms
 from django.conf import settings

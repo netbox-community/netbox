@@ -1,7 +1,7 @@
 import django_filters
+import netaddr
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-import netaddr
 from netaddr.core import AddrFormatError
 
 from dcim.models import Site, Device, Interface

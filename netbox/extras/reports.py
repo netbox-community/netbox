@@ -1,7 +1,7 @@
-from collections import OrderedDict
 import importlib
 import inspect
 import pkgutil
+from collections import OrderedDict
 
 from django.conf import settings
 from django.utils import timezone

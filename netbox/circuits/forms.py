@@ -2,13 +2,13 @@ from django import forms
 from django.db.models import Count
 from taggit.forms import TagField
 
-from dcim.models import Site, Device, Rack
+from dcim.models import Site
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    AnnotatedMultipleChoiceField, APISelect, add_blank_choice, BootstrapMixin, ChainedFieldsMixin,
-    ChainedModelChoiceField, CommentField, CSVChoiceField, FilterChoiceField, SmallTextarea, SlugField,
+    AnnotatedMultipleChoiceField, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField, FilterChoiceField,
+    SmallTextarea, SlugField,
 )
 from .constants import CIRCUIT_STATUS_CHOICES
 from .models import Circuit, CircuitTermination, CircuitType, Provider

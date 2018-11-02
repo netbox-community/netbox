@@ -4,7 +4,6 @@ from extras.views import ObjectChangeLogView
 from . import views
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
-
 app_name = 'ipam'
 urlpatterns = [
 

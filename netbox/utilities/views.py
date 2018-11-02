@@ -1,6 +1,6 @@
+import sys
 from collections import OrderedDict
 from copy import deepcopy
-import sys
 
 from django.conf import settings
 from django.contrib import messages
@@ -23,8 +23,8 @@ from django.views.generic import View
 from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
-from utilities.utils import queryset_to_csv
 from utilities.forms import BootstrapMixin, CSVDataField
+from utilities.utils import queryset_to_csv
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
 from .paginator import EnhancedPaginator

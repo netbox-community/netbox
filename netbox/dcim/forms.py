@@ -1,4 +1,5 @@
 import re
+from operator import attrgetter
 
 from django import forms
 from django.contrib.auth.models import User
@@ -8,7 +9,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count, Q
 from mptt.forms import TreeNodeChoiceField
 from natsort import natsorted
-from operator import attrgetter
 from taggit.forms import TagField
 from timezone_field import TimeZoneFormField
 
