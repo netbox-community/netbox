@@ -15,7 +15,7 @@ router = routers.DefaultRouter()
 router.APIRootView = DCIMRootView
 
 # Field choices
-router.register(r'_choices', views.DCIMFieldChoicesViewSet, base_name='field-choice')
+router.register(r'_choices', views.DCIMFieldChoicesViewSet, basename='field-choice')
 
 # Sites
 router.register(r'regions', views.RegionViewSet)
@@ -58,9 +58,9 @@ router.register(r'device-bays', views.DeviceBayViewSet)
 router.register(r'inventory-items', views.InventoryItemViewSet)
 
 # Connections
-router.register(r'console-connections', views.ConsoleConnectionViewSet, base_name='consoleconnections')
-router.register(r'power-connections', views.PowerConnectionViewSet, base_name='powerconnections')
-router.register(r'interface-connections', views.InterfaceConnectionViewSet, base_name='interfaceconnections')
+router.register(r'console-connections', views.ConsoleConnectionViewSet, basename='consoleconnections')
+router.register(r'power-connections', views.PowerConnectionViewSet, basename='powerconnections')
+router.register(r'interface-connections', views.InterfaceConnectionViewSet, basename='interfaceconnections')
 
 # Cables
 router.register(r'cables', views.CableViewSet)
@@ -69,7 +69,7 @@ router.register(r'cables', views.CableViewSet)
 router.register(r'virtual-chassis', views.VirtualChassisViewSet)
 
 # Miscellaneous
-router.register(r'connected-device', views.ConnectedDeviceViewSet, base_name='connected-device')
+router.register(r'connected-device', views.ConnectedDeviceViewSet, basename='connected-device')
 
 app_name = 'dcim-api'
 urlpatterns = router.urls

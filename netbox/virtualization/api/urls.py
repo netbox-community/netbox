@@ -15,7 +15,7 @@ router = routers.DefaultRouter()
 router.APIRootView = VirtualizationRootView
 
 # Field choices
-router.register(r'_choices', views.VirtualizationFieldChoicesViewSet, base_name='field-choice')
+router.register(r'_choices', views.VirtualizationFieldChoicesViewSet, basename='field-choice')
 
 # Clusters
 router.register(r'cluster-types', views.ClusterTypeViewSet)
