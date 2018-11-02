@@ -69,16 +69,3 @@ class InterfaceQuerySet(QuerySet):
         wireless).
         """
         return self.exclude(form_factor__in=NONCONNECTABLE_IFACE_TYPES)
-
-
-class CableQuerySet(QuerySet):
-
-    def get_for_termination(self, termination):
-        """
-        Return the Cable (or None) connected to a given termination point.
-        """
-        content_type = ContentType.objects.get_for_model(termination)
-        return self.filter(
-            Q(termination_a_type=content_type, termination_a_id=termination.pk) |
-            Q(termination_b_type=content_type, termination_b_id=termination.pk)
-        ).first()

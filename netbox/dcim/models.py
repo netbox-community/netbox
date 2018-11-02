@@ -22,7 +22,7 @@ from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object, to_meters
 from .constants import *
 from .fields import ASNField, MACAddressField
-from .querysets import CableQuerySet, InterfaceQuerySet
+from .querysets import InterfaceQuerySet
 
 
 class ComponentTemplateModel(models.Model):
@@ -2434,8 +2434,6 @@ class Cable(ChangeLoggedModel):
         blank=True,
         null=True
     )
-
-    objects = CableQuerySet.as_manager()
 
     csv_headers = [
         'termination_a_type', 'termination_a_id', 'termination_b_type', 'termination_b_id', 'type', 'status', 'label',
