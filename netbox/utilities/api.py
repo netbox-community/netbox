@@ -165,6 +165,13 @@ class WritableNestedSerializer(ModelSerializer):
     """
     Returns a nested representation of an object on read, but accepts only a primary key on write.
     """
+    def run_validators(self, value):
+        # DRF v3.8.2: Skip running validators on the data, since we only accept an integer PK instead of a dict. For
+        # more context, see:
+        #  https://github.com/encode/django-rest-framework/pull/5922/commits/2227bc47f8b287b66775948ffb60b2d9378ac84f
+        #  https://github.com/encode/django-rest-framework/issues/6053
+        return
+
     def to_internal_value(self, data):
         if data is None:
             return None

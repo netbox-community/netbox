@@ -7,7 +7,7 @@ django-tables2==1.21.2
 django-taggit==0.22.2
 django-taggit-serializer==0.1.7
 django-timezone-field==2.1
-djangorestframework==3.8.1
+djangorestframework==3.8.2
 drf-yasg[validation]==1.9.2
 graphviz==0.8.4
 Markdown==2.6.11
