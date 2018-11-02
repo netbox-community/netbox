@@ -69,7 +69,7 @@ class CustomFieldModelViewSet(ModelViewSet):
 class GraphViewSet(ModelViewSet):
     queryset = Graph.objects.all()
     serializer_class = serializers.GraphSerializer
-    filter_class = filters.GraphFilter
+    filterset_class = filters.GraphFilter
 
 
 #
@@ -79,7 +79,7 @@ class GraphViewSet(ModelViewSet):
 class ExportTemplateViewSet(ModelViewSet):
     queryset = ExportTemplate.objects.all()
     serializer_class = serializers.ExportTemplateSerializer
-    filter_class = filters.ExportTemplateFilter
+    filterset_class = filters.ExportTemplateFilter
 
 
 #
@@ -89,7 +89,7 @@ class ExportTemplateViewSet(ModelViewSet):
 class TopologyMapViewSet(ModelViewSet):
     queryset = TopologyMap.objects.select_related('site')
     serializer_class = serializers.TopologyMapSerializer
-    filter_class = filters.TopologyMapFilter
+    filterset_class = filters.TopologyMapFilter
 
     @action(detail=True)
     def render(self, request, pk):
@@ -118,7 +118,7 @@ class TopologyMapViewSet(ModelViewSet):
 class TagViewSet(ModelViewSet):
     queryset = Tag.objects.annotate(tagged_items=Count('taggit_taggeditem_items'))
     serializer_class = serializers.TagSerializer
-    filter_class = filters.TagFilter
+    filterset_class = filters.TagFilter
 
 
 #
@@ -139,7 +139,7 @@ class ConfigContextViewSet(ModelViewSet):
         'regions', 'sites', 'roles', 'platforms', 'tenant_groups', 'tenants',
     )
     serializer_class = serializers.ConfigContextSerializer
-    filter_class = filters.ConfigContextFilter
+    filterset_class = filters.ConfigContextFilter
 
 
 #
@@ -228,4 +228,4 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     """
     queryset = ObjectChange.objects.select_related('user')
     serializer_class = serializers.ObjectChangeSerializer
-    filter_class = filters.ObjectChangeFilter
+    filterset_class = filters.ObjectChangeFilter

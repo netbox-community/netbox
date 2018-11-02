@@ -15,7 +15,10 @@ class SecretRoleFilter(django_filters.FilterSet):
 
 
 class SecretFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    id__in = NumericInFilter(name='id', lookup_expr='in')
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -25,7 +28,7 @@ class SecretFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Role (ID)',
     )
     role = django_filters.ModelMultipleChoiceFilter(
-        name='role__slug',
+        field_name='role__slug',
         queryset=SecretRole.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
@@ -35,13 +38,13 @@ class SecretFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Device (ID)',
     )
     device = django_filters.ModelMultipleChoiceFilter(
-        name='device__name',
+        field_name='device__name',
         queryset=Device.objects.all(),
         to_field_name='name',
         label='Device (name)',
     )
     tag = django_filters.CharFilter(
-        name='tags__slug',
+        field_name='tags__slug',
     )
 
     class Meta:

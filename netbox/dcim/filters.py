@@ -27,7 +27,7 @@ class RegionFilter(django_filters.FilterSet):
         label='Parent region (ID)',
     )
     parent = django_filters.ModelMultipleChoiceFilter(
-        name='parent__slug',
+        field_name='parent__slug',
         queryset=Region.objects.all(),
         to_field_name='slug',
         label='Parent region (slug)',
@@ -48,7 +48,10 @@ class RegionFilter(django_filters.FilterSet):
 
 
 class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    id__in = NumericInFilter(name='id', lookup_expr='in')
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -62,7 +65,7 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Region (ID)',
     )
     region = django_filters.ModelMultipleChoiceFilter(
-        name='region__slug',
+        field_name='region__slug',
         queryset=Region.objects.all(),
         to_field_name='slug',
         label='Region (slug)',
@@ -72,13 +75,13 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Tenant (ID)',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
-        name='tenant__slug',
+        field_name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
     )
     tag = django_filters.CharFilter(
-        name='tags__slug',
+        field_name='tags__slug',
     )
 
     class Meta:
@@ -116,7 +119,7 @@ class RackGroupFilter(django_filters.FilterSet):
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='site__slug',
+        field_name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
@@ -144,7 +147,10 @@ class RackRoleFilter(django_filters.FilterSet):
 
 
 class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    id__in = NumericInFilter(name='id', lookup_expr='in')
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -155,7 +161,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='site__slug',
+        field_name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
@@ -165,7 +171,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Group (ID)',
     )
     group = django_filters.ModelMultipleChoiceFilter(
-        name='group__slug',
+        field_name='group__slug',
         queryset=RackGroup.objects.all(),
         to_field_name='slug',
         label='Group',
@@ -175,7 +181,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Tenant (ID)',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
-        name='tenant__slug',
+        field_name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
@@ -189,14 +195,14 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Role (ID)',
     )
     role = django_filters.ModelMultipleChoiceFilter(
-        name='role__slug',
+        field_name='role__slug',
         queryset=RackRole.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
     )
     asset_tag = NullableCharFieldFilter()
     tag = django_filters.CharFilter(
-        name='tags__slug',
+        field_name='tags__slug',
     )
 
     class Meta:
@@ -219,7 +225,10 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
 
 class RackReservationFilter(django_filters.FilterSet):
-    id__in = NumericInFilter(name='id', lookup_expr='in')
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -229,23 +238,23 @@ class RackReservationFilter(django_filters.FilterSet):
         label='Rack (ID)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
-        name='rack__site',
+        field_name='rack__site',
         queryset=Site.objects.all(),
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='rack__site__slug',
+        field_name='rack__site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
     )
     group_id = django_filters.ModelMultipleChoiceFilter(
-        name='rack__group',
+        field_name='rack__group',
         queryset=RackGroup.objects.all(),
         label='Group (ID)',
     )
     group = django_filters.ModelMultipleChoiceFilter(
-        name='rack__group__slug',
+        field_name='rack__group__slug',
         queryset=RackGroup.objects.all(),
         to_field_name='slug',
         label='Group',
@@ -255,7 +264,7 @@ class RackReservationFilter(django_filters.FilterSet):
         label='Tenant (ID)',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
-        name='tenant__slug',
+        field_name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
@@ -265,7 +274,7 @@ class RackReservationFilter(django_filters.FilterSet):
         label='User (ID)',
     )
     user = django_filters.ModelMultipleChoiceFilter(
-        name='user',
+        field_name='user',
         queryset=User.objects.all(),
         to_field_name='username',
         label='User (name)',
@@ -294,7 +303,10 @@ class ManufacturerFilter(django_filters.FilterSet):
 
 
 class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    id__in = NumericInFilter(name='id', lookup_expr='in')
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -304,7 +316,7 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Manufacturer (ID)',
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
-        name='manufacturer__slug',
+        field_name='manufacturer__slug',
         queryset=Manufacturer.objects.all(),
         to_field_name='slug',
         label='Manufacturer (slug)',
@@ -334,7 +346,7 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Has pass-through ports',
     )
     tag = django_filters.CharFilter(
-        name='tags__slug',
+        field_name='tags__slug',
     )
 
     class Meta:
@@ -384,7 +396,7 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
 class DeviceTypeComponentFilterSet(django_filters.FilterSet):
     devicetype_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceType.objects.all(),
-        name='device_type_id',
+        field_name='device_type_id',
         label='Device type (ID)',
     )
 
@@ -454,12 +466,12 @@ class DeviceRoleFilter(django_filters.FilterSet):
 
 class PlatformFilter(django_filters.FilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
-        name='manufacturer',
+        field_name='manufacturer',
         queryset=Manufacturer.objects.all(),
         label='Manufacturer (ID)',
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
-        name='manufacturer__slug',
+        field_name='manufacturer__slug',
         queryset=Manufacturer.objects.all(),
         to_field_name='slug',
         label='Manufacturer (slug)',
@@ -471,18 +483,21 @@ class PlatformFilter(django_filters.FilterSet):
 
 
 class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    id__in = NumericInFilter(name='id', lookup_expr='in')
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
     )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
-        name='device_type__manufacturer',
+        field_name='device_type__manufacturer',
         queryset=Manufacturer.objects.all(),
         label='Manufacturer (ID)',
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
-        name='device_type__manufacturer__slug',
+        field_name='device_type__manufacturer__slug',
         queryset=Manufacturer.objects.all(),
         to_field_name='slug',
         label='Manufacturer (slug)',
@@ -492,12 +507,12 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Device type (ID)',
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
-        name='device_role_id',
+        field_name='device_role_id',
         queryset=DeviceRole.objects.all(),
         label='Role (ID)',
     )
     role = django_filters.ModelMultipleChoiceFilter(
-        name='device_role__slug',
+        field_name='device_role__slug',
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
@@ -507,7 +522,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Tenant (ID)',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
-        name='tenant__slug',
+        field_name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
@@ -517,7 +532,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Platform (ID)',
     )
     platform = django_filters.ModelMultipleChoiceFilter(
-        name='platform__slug',
+        field_name='platform__slug',
         queryset=Platform.objects.all(),
         to_field_name='slug',
         label='Platform (slug)',
@@ -529,18 +544,18 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='site__slug',
+        field_name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site name (slug)',
     )
     rack_group_id = django_filters.ModelMultipleChoiceFilter(
-        name='rack__group',
+        field_name='rack__group',
         queryset=RackGroup.objects.all(),
         label='Rack group (ID)',
     )
     rack_id = django_filters.ModelMultipleChoiceFilter(
-        name='rack',
+        field_name='rack',
         queryset=Rack.objects.all(),
         label='Rack (ID)',
     )
@@ -549,7 +564,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='VM cluster (ID)',
     )
     model = django_filters.ModelMultipleChoiceFilter(
-        name='device_type__slug',
+        field_name='device_type__slug',
         queryset=DeviceType.objects.all(),
         to_field_name='slug',
         label='Device model (slug)',
@@ -559,7 +574,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         null_value=None
     )
     is_full_depth = django_filters.BooleanFilter(
-        name='device_type__is_full_depth',
+        field_name='device_type__is_full_depth',
         label='Is full depth',
     )
     console_ports = django_filters.CharFilter(
@@ -595,12 +610,12 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Has a primary IP',
     )
     virtual_chassis_id = django_filters.ModelMultipleChoiceFilter(
-        name='virtual_chassis',
+        field_name='virtual_chassis',
         queryset=VirtualChassis.objects.all(),
         label='Virtual chassis (ID)',
     )
     tag = django_filters.CharFilter(
-        name='tags__slug',
+        field_name='tags__slug',
     )
 
     class Meta:
@@ -679,7 +694,7 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         label='Device (name)',
     )
     tag = django_filters.CharFilter(
-        name='tags__slug',
+        field_name='tags__slug',
     )
 
 
@@ -718,12 +733,12 @@ class InterfaceFilter(django_filters.FilterSet):
     """
     device = django_filters.CharFilter(
         method='filter_device',
-        name='name',
+        field_name='name',
         label='Device',
     )
     device_id = django_filters.NumberFilter(
         method='filter_device',
-        name='pk',
+        field_name='pk',
         label='Device (ID)',
     )
     type = django_filters.CharFilter(
@@ -731,7 +746,7 @@ class InterfaceFilter(django_filters.FilterSet):
         label='Interface type',
     )
     lag_id = django_filters.ModelMultipleChoiceFilter(
-        name='lag',
+        field_name='lag',
         queryset=Interface.objects.all(),
         label='LAG interface (ID)',
     )
@@ -740,7 +755,7 @@ class InterfaceFilter(django_filters.FilterSet):
         label='MAC address',
     )
     tag = django_filters.CharFilter(
-        name='tags__slug',
+        field_name='tags__slug',
     )
 
     class Meta:
@@ -811,7 +826,7 @@ class InventoryItemFilter(DeviceComponentFilterSet):
         label='Manufacturer (ID)',
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
-        name='manufacturer__slug',
+        field_name='manufacturer__slug',
         queryset=Manufacturer.objects.all(),
         to_field_name='slug',
         label='Manufacturer (slug)',
@@ -841,29 +856,29 @@ class VirtualChassisFilter(django_filters.FilterSet):
         label='Search',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
-        name='master__site',
+        field_name='master__site',
         queryset=Site.objects.all(),
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='master__site__slug',
+        field_name='master__site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site name (slug)',
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
-        name='master__tenant',
+        field_name='master__tenant',
         queryset=Tenant.objects.all(),
         label='Tenant (ID)',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
-        name='master__tenant__slug',
+        field_name='master__tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
     )
     tag = django_filters.CharFilter(
-        name='tags__slug',
+        field_name='tags__slug',
     )
 
     class Meta:

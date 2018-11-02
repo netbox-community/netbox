@@ -29,7 +29,7 @@ class CircuitsFieldChoicesViewSet(FieldChoicesViewSet):
 class ProviderViewSet(CustomFieldModelViewSet):
     queryset = Provider.objects.prefetch_related('tags')
     serializer_class = serializers.ProviderSerializer
-    filter_class = filters.ProviderFilter
+    filterset_class = filters.ProviderFilter
 
     @action(detail=True)
     def graphs(self, request, pk=None):
@@ -49,7 +49,7 @@ class ProviderViewSet(CustomFieldModelViewSet):
 class CircuitTypeViewSet(ModelViewSet):
     queryset = CircuitType.objects.all()
     serializer_class = serializers.CircuitTypeSerializer
-    filter_class = filters.CircuitTypeFilter
+    filterset_class = filters.CircuitTypeFilter
 
 
 #
@@ -59,7 +59,7 @@ class CircuitTypeViewSet(ModelViewSet):
 class CircuitViewSet(CustomFieldModelViewSet):
     queryset = Circuit.objects.select_related('type', 'tenant', 'provider').prefetch_related('tags')
     serializer_class = serializers.CircuitSerializer
-    filter_class = filters.CircuitFilter
+    filterset_class = filters.CircuitFilter
 
 
 #
@@ -69,4 +69,4 @@ class CircuitViewSet(CustomFieldModelViewSet):
 class CircuitTerminationViewSet(ModelViewSet):
     queryset = CircuitTermination.objects.select_related('circuit', 'site')
     serializer_class = serializers.CircuitTerminationSerializer
-    filter_class = filters.CircuitTerminationFilter
+    filterset_class = filters.CircuitTerminationFilter

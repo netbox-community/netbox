@@ -35,7 +35,7 @@ class SecretRoleViewSet(ModelViewSet):
     queryset = SecretRole.objects.all()
     serializer_class = serializers.SecretRoleSerializer
     permission_classes = [IsAuthenticated]
-    filter_class = filters.SecretRoleFilter
+    filterset_class = filters.SecretRoleFilter
 
 
 #
@@ -49,7 +49,7 @@ class SecretViewSet(ModelViewSet):
         'role__users', 'role__groups', 'tags',
     )
     serializer_class = serializers.SecretSerializer
-    filter_class = filters.SecretFilter
+    filterset_class = filters.SecretFilter
 
     master_key = None
 
