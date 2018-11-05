@@ -4,8 +4,8 @@ from rest_framework import serializers
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from circuits.constants import CIRCUIT_STATUS_CHOICES
-from circuits.models import Provider, Circuit, CircuitTermination, CircuitType
-from dcim.api.serializers import NestedSiteSerializer, InterfaceSerializer
+from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
+from dcim.api.serializers import NestedInterfaceSerializer, NestedSiteSerializer
 from extras.api.customfields import CustomFieldModelSerializer
 from tenancy.api.serializers import NestedTenantSerializer
 from utilities.api import ChoiceField, ValidatedModelSerializer, WritableNestedSerializer
@@ -87,7 +87,7 @@ class NestedCircuitSerializer(WritableNestedSerializer):
 class CircuitTerminationSerializer(ValidatedModelSerializer):
     circuit = NestedCircuitSerializer()
     site = NestedSiteSerializer()
-    interface = InterfaceSerializer(required=False, allow_null=True)
+    interface = NestedInterfaceSerializer(required=False, allow_null=True)
 
     class Meta:
         model = CircuitTermination
