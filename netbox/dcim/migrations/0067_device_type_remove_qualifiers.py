@@ -22,4 +22,8 @@ class Migration(migrations.Migration):
             model_name='devicetype',
             name='is_pdu',
         ),
+        migrations.RemoveField(
+            model_name='devicetype',
+            name='interface_ordering',
+        ),
     ]

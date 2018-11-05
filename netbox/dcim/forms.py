@@ -605,12 +605,9 @@ class DeviceTypeForm(BootstrapMixin, CustomFieldForm):
     class Meta:
         model = DeviceType
         fields = [
-            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
-            'interface_ordering', 'comments', 'tags',
+            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'comments',
+            'tags',
         ]
-        labels = {
-            'interface_ordering': 'Order interfaces by',
-        }
 
 
 class DeviceTypeCSVForm(forms.ModelForm):
@@ -628,11 +625,6 @@ class DeviceTypeCSVForm(forms.ModelForm):
         required=False,
         help_text='Parent/child status'
     )
-    interface_ordering = CSVChoiceField(
-        choices=IFACE_ORDERING_CHOICES,
-        required=False,
-        help_text='Interface ordering'
-    )
 
     class Meta:
         model = DeviceType
@@ -648,7 +640,6 @@ class DeviceTypeBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkE
     manufacturer = forms.ModelChoiceField(queryset=Manufacturer.objects.all(), required=False)
     u_height = forms.IntegerField(min_value=1, required=False)
     is_full_depth = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect, label='Is full depth')
-    interface_ordering = forms.ChoiceField(choices=add_blank_choice(IFACE_ORDERING_CHOICES), required=False)
 
     class Meta:
         nullable_fields = []

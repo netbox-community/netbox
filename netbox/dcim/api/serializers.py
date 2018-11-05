@@ -220,7 +220,6 @@ class NestedManufacturerSerializer(WritableNestedSerializer):
 
 class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
     manufacturer = NestedManufacturerSerializer()
-    interface_ordering = ChoiceField(choices=IFACE_ORDERING_CHOICES, required=False)
     subdevice_role = ChoiceField(choices=SUBDEVICE_ROLE_CHOICES, required=False, allow_null=True)
     instance_count = serializers.IntegerField(source='instances.count', read_only=True)
     tags = TagListSerializerField(required=False)
@@ -228,8 +227,8 @@ class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
     class Meta:
         model = DeviceType
         fields = [
-            'id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'interface_ordering',
-            'subdevice_role', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'instance_count',
+            'id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'instance_count',
         ]
 
 

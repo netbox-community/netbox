@@ -859,10 +859,6 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         verbose_name='Is full depth',
         help_text='Device consumes both front and rear rack faces'
     )
-    interface_ordering = models.PositiveSmallIntegerField(
-        choices=IFACE_ORDERING_CHOICES,
-        default=IFACE_ORDERING_POSITION
-    )
     subdevice_role = models.NullBooleanField(
         default=None,
         verbose_name='Parent/child status',
@@ -882,8 +878,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager()
 
     csv_headers = [
-        'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
-        'interface_ordering', 'comments',
+        'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'comments',
     ]
 
     class Meta:
@@ -914,7 +909,6 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
             self.u_height,
             self.is_full_depth,
             self.get_subdevice_role_display() if self.subdevice_role else None,
-            self.get_interface_ordering_display(),
             self.comments,
         )
 
