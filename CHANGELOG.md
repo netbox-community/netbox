@@ -25,6 +25,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#450](https://github.com/digitalocean/netbox/issues/450) - Added `outer_width` and `outer_depth` fields to rack model
 * [#867](https://github.com/digitalocean/netbox/issues/867) - Added `description` field to circuit terminations
 * [#1444](https://github.com/digitalocean/netbox/issues/1444) - Added an `asset_tag` field for racks
+* [#1931](https://github.com/digitalocean/netbox/issues/1931) - Added a count of assigned IP addresses to the interface API serializer
 * [#2000](https://github.com/digitalocean/netbox/issues/2000) - Dropped support for Python 2
 * [#2104](https://github.com/digitalocean/netbox/issues/2104) - Added a `status` field for racks
 * [#2165](https://github.com/digitalocean/netbox/issues/2165) - Improved natural ordering of Interfaces
@@ -48,6 +49,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
     * `pass_through_ports`
 * The field `interface_ordering` has been removed from the DeviceType serializer
 * Added a `description` field to the CircuitTermination serializer
+* Added `ipaddress_count` to InterfaceSerializer to show the count of assigned IP addresses for each interface
 
 ---
 
