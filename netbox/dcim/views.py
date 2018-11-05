@@ -1732,6 +1732,8 @@ class InterfaceConnectionsListView(ObjectListView):
         # Avoid duplicate connections by only selecting the lower PK in a connected pair
         _connected_interface__isnull=False,
         pk__lt=F('_connected_interface')
+    ).order_by(
+        'device'
     )
     filter = filters.InterfaceConnectionFilter
     filter_form = forms.InterfaceConnectionFilterForm

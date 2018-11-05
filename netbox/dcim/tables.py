@@ -716,6 +716,10 @@ class InterfaceConnectionTable(BaseTable):
         args=[Accessor('pk')],
         verbose_name='Interface A'
     )
+    description_a = tables.Column(
+        accessor=Accessor('description'),
+        verbose_name='Description'
+    )
     device_b = tables.LinkColumn(
         viewname='dcim:device',
         accessor=Accessor('connected_endpoint.device'),
@@ -728,6 +732,10 @@ class InterfaceConnectionTable(BaseTable):
         args=[Accessor('connected_endpoint.pk')],
         verbose_name='Interface B'
     )
+    description_b = tables.Column(
+        accessor=Accessor('connected_endpoint.description'),
+        verbose_name='Description'
+    )
     cable = tables.LinkColumn(
         viewname='dcim:cable',
         args=[Accessor('cable.pk')]
@@ -735,7 +743,7 @@ class InterfaceConnectionTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Interface
-        fields = ('device_a', 'interface_a', 'device_b', 'interface_b', 'cable')
+        fields = ('device_a', 'interface_a', 'description_a', 'device_b', 'interface_b', 'description_b', 'cable')
 
 
 #

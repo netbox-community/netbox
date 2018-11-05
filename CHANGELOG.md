@@ -27,6 +27,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#1444](https://github.com/digitalocean/netbox/issues/1444) - Added an `asset_tag` field for racks
 * [#1931](https://github.com/digitalocean/netbox/issues/1931) - Added a count of assigned IP addresses to the interface API serializer
 * [#2000](https://github.com/digitalocean/netbox/issues/2000) - Dropped support for Python 2
+* [#2057](https://github.com/digitalocean/netbox/issues/2057) - Added description columns to interface connections list
 * [#2104](https://github.com/digitalocean/netbox/issues/2104) - Added a `status` field for racks
 * [#2165](https://github.com/digitalocean/netbox/issues/2165) - Improved natural ordering of Interfaces
 * [#2292](https://github.com/digitalocean/netbox/issues/2292) - Removed the deprecated UserAction model
