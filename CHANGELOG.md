@@ -2,8 +2,17 @@ v2.5.0 (FUTURE)
 
 ## Notes
 
-* As promised, Python 2 support has been completed removed. Python 3.5 or higher is now required to run NetBox.
-* The UserAction model, which was deprecated by the new change logging feature in NetBox v2.4, has been removed. If you need to archive user activity, do so prior to upgrading to NetBox v2.5, as the database migration will remove all data associated with this model.
+### Python 3 Required
+
+As promised, Python 2 support has been completed removed. Python 3.5 or higher is now required to run NetBox. Please see [our Python 3 migration guide](https://netbox.readthedocs.io/en/stable/installation/migrating-to-python3/) for assistance with upgrading.
+
+### Removed Deprecated User Activity Log
+
+The UserAction model, which was deprecated by the new change logging feature in NetBox v2.4, has been removed. If you need to archive legacy user activity, do so prior to upgrading to NetBox v2.5, as the database migration will remove all data associated with this model.
+
+### View Permissions in Django 2.1
+
+Django 2.1 introduces view permissions for object types (not to be confused with object-level permissions). Implementation of [#323](https://github.com/digitalocean/netbox/issues/323) is planned for NetBox v2.6. Users are encourage to begin assigning view permissions as desired in preparation for their eventual enforcement.
 
 ## New Features
 
