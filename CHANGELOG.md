@@ -2,6 +2,7 @@ v2.4.7 (FUTURE)
 
 ## Bug Fixes
 
+* [#2427](https://github.com/digitalocean/netbox/issues/2427) - Allow filtering of interfaces by assigned VLAN or VLAN ID
 * [#2502](https://github.com/digitalocean/netbox/issues/2502) - Allow duplicate VIPs inside a uniqueness-enforced VRF
 * [#2514](https://github.com/digitalocean/netbox/issues/2514) - Prevent new connections to already connected interfaces
 * [#2515](https://github.com/digitalocean/netbox/issues/2515) - Only use django-rq admin tmeplate if webhooks are enabled
