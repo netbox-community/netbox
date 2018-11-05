@@ -142,7 +142,7 @@
                             {% elif device.rack and device.device_type.u_height %}
                                 <span class="label label-warning">Not racked</span>
                             {% else %}
-                                <span class="text-muted">N/A</span>
+                                <span class="text-muted">&mdash;</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -168,23 +168,11 @@
                     </tr>
                     <tr>
                         <td>Serial Number</td>
-                        <td>
-                            {% if device.serial %}
-                                <span>{{ device.serial }}</span>
-                            {% else %}
-                                <span class="text-muted">N/A</span>
-                            {% endif %}
-                        </td>
+                        <td><span>{{ device.serial|placeholder }}</span></td>
                     </tr>
                     <tr>
                         <td>Asset Tag</td>
-                        <td>
-                            {% if device.asset_tag %}
-                                <span>{{ device.asset_tag }}</span>
-                            {% else %}
-                                <span class="text-muted">N/A</span>
-                            {% endif %}
-                        </td>
+                        <td><span>{{ device.asset_tag|placeholder }}</span></td>
                     </tr>
                 </table>
             </div>
@@ -266,7 +254,7 @@
                                     <span>(NAT: {{ device.primary_ip4.nat_outside.address.ip }})</span>
                                 {% endif %}
                             {% else %}
-                                <span class="text-muted">N/A</span>
+                                <span class="text-muted">&mdash;</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -281,7 +269,7 @@
                                     <span>(NAT: {{ device.primary_ip6.nat_outside.address.ip }})</span>
                                 {% endif %}
                             {% else %}
-                                <span class="text-muted">N/A</span>
+                                <span class="text-muted">&mdash;</span>
                             {% endif %}
                         </td>
                     </tr>

@@ -74,13 +74,7 @@
                 </tr>
                 <tr>
                     <td>Part Number</td>
-                    <td>
-                        {% if devicetype.part_number %}
-                            {{ devicetype.part_number }}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ devicetype.part_number|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Height (U)</td>
@@ -104,7 +98,7 @@
                         {% elif devicetype.subdevice_role == False %}
                             <label class="label label-info">Child</label>
                         {% else %}
-                            <span class="text-muted">N/A</span>
+                            <span class="text-muted">&mdash;</span>
                         {% endif %}
                     </td>
                 </tr>

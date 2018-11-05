@@ -79,29 +79,17 @@
                             <span class="text-muted">None</span>
                         {% endfor %}
                     {% else %}
-                        <span class="text-muted">N/A</span>
+                        <span class="text-muted">&mdash;</span>
                     {% endif %}
                 </td>
             </tr>
             <tr>
                 <td>Cross-Connect</td>
-                <td>
-                    {% if termination.xconnect_id %}
-                        {{ termination.xconnect_id }}
-                    {% else %}
-                        <span class="text-muted">N/A</span>
-                    {% endif %}
-                </td>
+                <td>{{ termination.xconnect_id|placeholder }}</td>
             </tr>
             <tr>
                 <td>Patch Panel/Port</td>
-                <td>
-                    {% if termination.pp_info %}
-                        {{ termination.pp_info }}
-                    {% else %}
-                        <span class="text-muted">N/A</span>
-                    {% endif %}
-                </td>
+                <td>{{ termination.pp_info|placeholder }}</td>
             </tr>
         </table>
     {% else %}

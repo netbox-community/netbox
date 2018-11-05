@@ -1,4 +1,5 @@
 {% extends 'dcim/device.html' %}
+{% load helpers %}
 
 {% block title %}{{ device }} - Inventory{% endblock %}
 
@@ -16,23 +17,11 @@
                     </tr>
                     <tr>
                         <td>Serial Number</td>
-                        <td>
-                            {% if device.serial %}
-                                <span>{{ device.serial }}</span>
-                            {% else %}
-                                <span class="text-muted">N/A</span>
-                            {% endif %}
-                        </td>
+                        <td><span>{{ device.serial|placeholder }}</span></td>
                     </tr>
                     <tr>
                         <td>Asset Tag</td>
-                        <td>
-                            {% if device.asset_tag %}
-                                <span>{{ device.asset_tag }}</span>
-                            {% else %}
-                                <span class="text-muted">N/A</span>
-                            {% endif %}
-                        </td>
+                        <td><span>{{ device.asset_tag|placeholder }}</span></td>
                     </tr>
                 </table>
             </div>

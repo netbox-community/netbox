@@ -106,23 +106,11 @@
                 </tr>
                 <tr>
                     <td>Facility</td>
-                    <td>
-                        {% if site.facility %}
-                            {{ site.facility }}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ site.facility|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>AS Number</td>
-                    <td>
-                        {% if site.asn %}
-                            {{ site.asn }}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ site.asn|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Time Zone</td>
@@ -131,19 +119,13 @@
                             {{ site.time_zone }} (UTC {{ site.time_zone|tzoffset }})<br />
                             <small class="text-muted">Site time: {% timezone site.time_zone %}{% now "SHORT_DATETIME_FORMAT" %}{% endtimezone %}</small>
                         {% else %}
-                            <span class="text-muted">N/A</span>
+                            <span class="text-muted">&mdash;</span>
                         {% endif %}
                     </td>
                 </tr>
                 <tr>
                     <td>Description</td>
-                    <td>
-                        {% if site.description %}
-                            {{ site.description }}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ site.description|placeholder }}</td>
                 </tr>
             </table>
         </div>
@@ -163,19 +145,13 @@
                             </div>
                             <span>{{ site.physical_address|linebreaksbr }}</span>
                         {% else %}
-                            <span class="text-muted">N/A</span>
+                            <span class="text-muted">&mdash;</span>
                         {% endif %}
                     </td>
                 </tr>
                 <tr>
                     <td>Shipping Address</td>
-                    <td>
-                        {% if site.shipping_address %}
-                            <span>{{ site.shipping_address|linebreaksbr }}</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ site.shipping_address|linebreaksbr|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>GPS Coordinates</td>
@@ -188,19 +164,13 @@
                             </div>
                             <span>{{ site.latitude }}, {{ site.longitude }}</span>
                         {% else %}
-                            <span class="text-muted">N/A</span>
+                            <span class="text-muted">&mdash;</span>
                         {% endif %}
                     </td>
                 </tr>
                 <tr>
                     <td>Contact Name</td>
-                    <td>
-                        {% if site.contact_name %}
-                            <span>{{ site.contact_name }}</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ site.contact_name|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Contact Phone</td>
@@ -208,7 +178,7 @@
                         {% if site.contact_phone %}
                             <a href="tel:{{ site.contact_phone }}">{{ site.contact_phone }}</a>
                         {% else %}
-                            <span class="text-muted">N/A</span>
+                            <span class="text-muted">&mdash;</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -218,7 +188,7 @@
                         {% if site.contact_email %}
                             <a href="mailto:{{ site.contact_email }}">{{ site.contact_email }}</a>
                         {% else %}
-                            <span class="text-muted">N/A</span>
+                            <span class="text-muted">&mdash;</span>
                         {% endif %}
                     </td>
                 </tr>

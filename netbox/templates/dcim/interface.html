@@ -82,33 +82,15 @@
                 </tr>
                 <tr>
                     <td>Description</td>
-                    <td>
-                        {% if interface.description %}
-                            <span>{{ interface.description }}</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ interface.description|placeholder }} </td>
                 </tr>
                 <tr>
                     <td>MTU</td>
-                    <td>
-                        {% if interface.mtu %}
-                            <span>{{ interface.mtu }}</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ interface.mtu|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>MAC Address</td>
-                    <td>
-                        {% if interface.mac_address %}
-                            <span>{{ interface.mac_address }}</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ interface.mac_address|placeholder }}</span></td>
                 </tr>
                 <tr>
                     <td>802.1Q Mode</td>
@@ -165,33 +147,15 @@
                             </tr>
                             <tr>
                                 <td>Description</td>
-                                <td>
-                                    {% if connected_interface.description %}
-                                        <span>{{ connected_interface.description }}</span>
-                                    {% else %}
-                                        <span class="text-muted">N/A</span>
-                                    {% endif %}
-                                </td>
+                                <td>{{ connected_interface.description|placeholder }}</td>
                             </tr>
                             <tr>
                                 <td>MTU</td>
-                                <td>
-                                    {% if connected_interface.mtu %}
-                                        <span>{{ connected_interface.mtu }}</span>
-                                    {% else %}
-                                        <span class="text-muted">N/A</span>
-                                    {% endif %}
-                                </td>
+                                <td>{{ connected_interface.mtu|placeholder }}</td>
                             </tr>
                             <tr>
                                 <td>MAC Address</td>
-                                <td>
-                                    {% if connected_interface.mac_address %}
-                                        <span>{{ connected_interface.mac_address }}</span>
-                                    {% else %}
-                                        <span class="text-muted">N/A</span>
-                                    {% endif %}
-                                </td>
+                                <td>{{ connected_interface.mac_address|placeholder }}</td>
                             </tr>
                             <tr>
                                 <td>802.1Q Mode</td>

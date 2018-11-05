@@ -82,13 +82,7 @@
                 </tr>
                 <tr>
                     <td>Description</td>
-                    <td>
-                        {% if vrf.description %}
-                            <span>{{ vrf.description }}</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ vrf.description|placeholder }}</td>
                 </tr>
 		    </table>
         </div>

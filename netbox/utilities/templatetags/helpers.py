@@ -22,6 +22,16 @@ def oneline(value):
     """
     return value.replace('\n', ' ')
 
+@register.filter()
+def placeholder(value):
+    """
+    Render a muted placeholder if value equates to False.
+    """
+    if value:
+        return value
+    placeholder = '<span class="text-muted">&mdash;</span>'
+    return mark_safe(placeholder)
+
 
 @register.filter()
 def getlist(value, arg):
@@ -97,6 +107,8 @@ def humanize_speed(speed):
         100000 => "100 Mbps"
         10000000 => "10 Gbps"
     """
+    if not speed:
+        return ''
     if speed >= 1000000000 and speed % 1000000000 == 0:
         return '{} Tbps'.format(int(speed / 1000000000))
     elif speed >= 1000000 and speed % 1000000 == 0:

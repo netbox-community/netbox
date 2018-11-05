@@ -95,33 +95,15 @@
                 </tr>
                 <tr>
                     <td>Install Date</td>
-                    <td>
-                        {% if circuit.install_date %}
-                            {{ circuit.install_date }}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ circuit.install_date|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Commit Rate</td>
-                    <td>
-                        {% if circuit.commit_rate %}
-                            {{ circuit.commit_rate|humanize_speed }}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ circuit.commit_rate|humanize_speed|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Description</td>
-                    <td>
-                        {% if circuit.description %}
-                            {{ circuit.description }}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ circuit.description|placeholder }}</td>
                 </tr>
             </table>
         </div>

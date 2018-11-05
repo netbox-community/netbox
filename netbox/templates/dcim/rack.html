@@ -83,13 +83,7 @@
                 </tr>
                 <tr>
                     <td>Facility ID</td>
-                    <td>
-                        {% if rack.facility_id %}
-                            <span>{{ rack.facility_id }}</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ rack.facility_id|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Tenant</td>
@@ -123,23 +117,11 @@
                 </tr>
                 <tr>
                     <td>Serial Number</td>
-                    <td>
-                        {% if rack.serial %}
-                            <span>{{ rack.serial }}</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ rack.serial|placeholder }}</td>
                 </tr>
                     <tr>
                         <td>Asset Tag</td>
-                        <td>
-                            {% if rack.asset_tag %}
-                                <span>{{ rack.asset_tag }}</span>
-                            {% else %}
-                                <span class="text-muted">N/A</span>
-                            {% endif %}
-                        </td>
+                        <td>{{ rack.asset_tag|placeholder }}</td>
                     </tr>
                 <tr>
                     <td>Devices</td>
@@ -231,7 +213,7 @@
                                 {% if device.parent_bay %}
                                     <a href="{{ device.parent_bay.device.get_absolute_url }}">{{ device.parent_bay }}</a>
                                 {% else %}
-                                    <span class="text-muted">N/A</span>
+                                    <span class="text-muted">&mdash;</span>
                                 {% endif %}
                             </td>
                         </tr>
