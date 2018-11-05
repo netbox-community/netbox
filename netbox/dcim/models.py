@@ -2091,6 +2091,10 @@ class Interface(CableTermination, ComponentModel):
     def is_lag(self):
         return self.form_factor == IFACE_FF_LAG
 
+    @property
+    def count_ipaddresses(self):
+        return self.ip_addresses.count()
+
 
 #
 # Pass-through ports

@@ -712,7 +712,7 @@ class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
         model = Interface
         fields = [
             'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
-            'connected_endpoint', 'cable', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags',
+            'connected_endpoint', 'cable', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags', 'count_ipaddresses',
         ]
 
     def validate(self, data):
