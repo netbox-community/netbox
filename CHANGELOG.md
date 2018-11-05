@@ -17,6 +17,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#1444](https://github.com/digitalocean/netbox/issues/1444) - Added an `asset_tag` field for racks
 * [#2000](https://github.com/digitalocean/netbox/issues/2000) - Dropped support for Python 2
 * [#2104](https://github.com/digitalocean/netbox/issues/2104) - Added a `status` field for racks
+* [#2165](https://github.com/digitalocean/netbox/issues/2165) - Improved natural ordering of Interfaces
 * [#2292](https://github.com/digitalocean/netbox/issues/2292) - Removed the deprecated UserAction model
 * [#2367](https://github.com/digitalocean/netbox/issues/2367) - Removed deprecated RPCClient functionality
 
@@ -35,6 +36,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
     * `console_ports`
     * `power_ports`
     * `pass_through_ports`
+* The field `interface_ordering` has been removed from the DeviceType serializer
 
 ---
 
