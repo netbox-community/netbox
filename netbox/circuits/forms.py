@@ -208,7 +208,7 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = CircuitTermination
         fields = [
-            'term_side', 'site', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
+            'term_side', 'site', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', 'description',
         ]
         help_texts = {
             'port_speed': "Physical circuit speed",

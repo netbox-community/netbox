@@ -258,6 +258,10 @@ class CircuitTermination(CableTermination):
         blank=True,
         verbose_name='Patch panel/port(s)'
     )
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
 
     class Meta:
         ordering = ['circuit', 'term_side']

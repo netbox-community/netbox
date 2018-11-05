@@ -92,7 +92,7 @@ class CircuitTerminationSerializer(ValidatedModelSerializer):
         model = CircuitTermination
         fields = [
             'id', 'circuit', 'term_side', 'site', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
-            'connected_endpoint', 'cable',
+            'description', 'connected_endpoint', 'cable',
         ]
 
 
