@@ -6,7 +6,7 @@ v2.4.7 (FUTURE)
 * [#2502](https://github.com/digitalocean/netbox/issues/2502) - Allow duplicate VIPs inside a uniqueness-enforced VRF
 * [#2514](https://github.com/digitalocean/netbox/issues/2514) - Prevent new connections to already connected interfaces
 * [#2515](https://github.com/digitalocean/netbox/issues/2515) - Only use django-rq admin tmeplate if webhooks are enabled
-* [#2528](https://github.com/digitalocean/netbox/issues/2528) - 
+* [#2528](https://github.com/digitalocean/netbox/issues/2528) - Enable creating circuit terminations with interface assignment via API
 
 ---
 
