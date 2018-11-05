@@ -36,7 +36,7 @@ class LoginView(View):
 
             # Determine where to direct user after successful login
             redirect_to = request.POST.get('next', '')
-            if not is_safe_url(url=redirect_to, host=request.get_host()):
+            if not is_safe_url(url=redirect_to, allowed_hosts=request.get_host()):
                 redirect_to = reverse('home')
 
             # Authenticate user

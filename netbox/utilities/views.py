@@ -57,7 +57,7 @@ class GetReturnURLMixin(object):
 
         # First, see if `return_url` was specified as a query parameter. Use it only if it's considered safe.
         query_param = request.GET.get('return_url')
-        if query_param and is_safe_url(url=query_param, host=request.get_host()):
+        if query_param and is_safe_url(url=query_param, allowed_hosts=request.get_host()):
             return query_param
 
         # Next, check if the object being modified (if any) has an absolute URL.
@@ -225,7 +225,7 @@ class ObjectEditView(GetReturnURLMixin, View):
                 return redirect(request.get_full_path())
 
             return_url = form.cleaned_data.get('return_url')
-            if return_url is not None and is_safe_url(url=return_url, host=request.get_host()):
+            if return_url is not None and is_safe_url(url=return_url, allowed_hosts=request.get_host()):
                 return redirect(return_url)
             else:
                 return redirect(self.get_return_url(request, obj))
@@ -283,7 +283,7 @@ class ObjectDeleteView(GetReturnURLMixin, View):
             messages.success(request, msg)
 
             return_url = form.cleaned_data.get('return_url')
-            if return_url is not None and is_safe_url(url=return_url, host=request.get_host()):
+            if return_url is not None and is_safe_url(url=return_url, allowed_hosts=request.get_host()):
                 return redirect(return_url)
             else:
                 return redirect(self.get_return_url(request, obj))
