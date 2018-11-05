@@ -551,9 +551,7 @@ class DeviceTypeView(View):
             orderable=False
         )
         interface_table = tables.InterfaceTemplateTable(
-            list(InterfaceTemplate.objects.order_naturally(
-                devicetype.interface_ordering
-            ).filter(device_type=devicetype)),
+            list(InterfaceTemplate.objects.filter(device_type=devicetype)),
             orderable=False
         )
         front_port_table = tables.FrontPortTemplateTable(
@@ -900,9 +898,7 @@ class DeviceView(View):
         poweroutlets = device.poweroutlets.select_related('connected_endpoint__device', 'cable')
 
         # Interfaces
-        interfaces = device.vc_interfaces.order_naturally(
-            device.device_type.interface_ordering
-        ).select_related(
+        interfaces = device.vc_interfaces.select_related(
             'lag', '_connected_interface__device', '_connected_circuittermination__circuit', 'cable'
         ).prefetch_related(
             'cable__termination_a', 'cable__termination_b', 'ip_addresses'
@@ -995,9 +991,7 @@ class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
     def get(self, request, pk):
 
         device = get_object_or_404(Device, pk=pk)
-        interfaces = device.vc_interfaces.order_naturally(
-            device.device_type.interface_ordering
-        ).connectable().select_related(
+        interfaces = device.vc_interfaces.connectable().select_related(
             '_connected_interface__device'
         )
 
@@ -1341,7 +1335,7 @@ class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
 
 class InterfaceBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     permission_required = 'dcim.change_interface'
-    queryset = Interface.objects.order_naturally()
+    queryset = Interface.objects.all()
     form = forms.InterfaceBulkRenameForm
 
 

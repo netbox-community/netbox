@@ -1472,12 +1472,12 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         # Limit LAG choices to interfaces belonging to this device (or VC master)
         if self.is_bound:
             device = Device.objects.get(pk=self.data['device'])
-            self.fields['lag'].queryset = Interface.objects.order_naturally().filter(
+            self.fields['lag'].queryset = Interface.objects.filter(
                 device__in=[device, device.get_vc_master()], form_factor=IFACE_FF_LAG
             )
         else:
             device = self.instance.device
-            self.fields['lag'].queryset = Interface.objects.order_naturally().filter(
+            self.fields['lag'].queryset = Interface.objects.filter(
                 device__in=[self.instance.device, self.instance.device.get_vc_master()], form_factor=IFACE_FF_LAG
             )
 
@@ -1608,7 +1608,7 @@ class InterfaceCreateForm(ComponentForm, forms.Form):
 
         # Limit LAG choices to interfaces belonging to this device (or its VC master)
         if self.parent is not None:
-            self.fields['lag'].queryset = Interface.objects.order_naturally().filter(
+            self.fields['lag'].queryset = Interface.objects.filter(
                 device__in=[self.parent, self.parent.get_vc_master()], form_factor=IFACE_FF_LAG
             )
         else:
@@ -1634,9 +1634,9 @@ class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         # Limit LAG choices to interfaces which belong to the parent device (or VC master)
         device = self.parent_obj
         if device is not None:
-            interface_ordering = device.device_type.interface_ordering
-            self.fields['lag'].queryset = Interface.objects.order_naturally(method=interface_ordering).filter(
-                device__in=[device, device.get_vc_master()], form_factor=IFACE_FF_LAG
+            self.fields['lag'].queryset = Interface.objects.filter(
+                device__in=[device, device.get_vc_master()],
+                form_factor=IFACE_FF_LAG
             )
         else:
             self.fields['lag'].choices = []

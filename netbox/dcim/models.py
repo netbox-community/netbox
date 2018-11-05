@@ -22,7 +22,7 @@ from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object, to_meters
 from .constants import *
 from .fields import ASNField, MACAddressField
-from .querysets import InterfaceQuerySet
+from .querysets import InterfaceManager
 
 
 class ComponentTemplateModel(models.Model):
@@ -1063,7 +1063,7 @@ class InterfaceTemplate(ComponentTemplateModel):
         verbose_name='Management only'
     )
 
-    objects = InterfaceQuerySet.as_manager()
+    objects = InterfaceManager
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -1954,7 +1954,7 @@ class Interface(CableTermination, ComponentModel):
         verbose_name='Tagged VLANs'
     )
 
-    objects = InterfaceQuerySet.as_manager()
+    objects = InterfaceManager()
     tags = TaggableManager()
 
     class Meta:

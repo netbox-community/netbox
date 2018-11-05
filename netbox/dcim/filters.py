@@ -764,10 +764,9 @@ class InterfaceFilter(django_filters.FilterSet):
 
     def filter_device(self, queryset, name, value):
         try:
-            device = Device.objects.select_related('device_type').get(**{name: value})
+            device = Device.objects.get(**{name: value})
             vc_interface_ids = [i['id'] for i in device.vc_interfaces.values('id')]
-            ordering = device.device_type.interface_ordering
-            return queryset.filter(pk__in=vc_interface_ids).order_naturally(ordering)
+            return queryset.filter(pk__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()
 
