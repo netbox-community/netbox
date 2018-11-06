@@ -1269,6 +1269,11 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
 class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Device
     q = forms.CharField(required=False, label='Search')
+    region = FilterTreeNodeMultipleChoiceField(
+        queryset=Region.objects.all(),
+        to_field_name='slug',
+        required=False,
+    )
     site = FilterChoiceField(
         queryset=Site.objects.annotate(filter_count=Count('devices')),
         to_field_name='slug',
@@ -2141,6 +2146,7 @@ class InventoryItemBulkEditForm(BootstrapMixin, BulkEditForm):
 class InventoryItemFilterForm(BootstrapMixin, forms.Form):
     model = InventoryItem
     q = forms.CharField(required=False, label='Search')
+    device = forms.CharField(required=False, label='Device name')
     manufacturer = FilterChoiceField(
         queryset=Manufacturer.objects.annotate(filter_count=Count('inventory_items')),
         to_field_name='slug',

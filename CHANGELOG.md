@@ -54,12 +54,21 @@ NetBox now supports modeling physical cables for console, power, and interface c
 
 ---
 
-v2.4.7 (FUTURE)
+v2.4.7 (2018-11-06)
+
+## Enhancements
+
+* [#2388](https://github.com/digitalocean/netbox/issues/2388) - Enable filtering of devices/VMs by region
+* [#2427](https://github.com/digitalocean/netbox/issues/2427) - Allow filtering of interfaces by assigned VLAN or VLAN ID
+* [#2512](https://github.com/digitalocean/netbox/issues/2512) - Add device field to inventory item filter form
 
 ## Bug Fixes
 
+* [#2502](https://github.com/digitalocean/netbox/issues/2502) - Allow duplicate VIPs inside a uniqueness-enforced VRF
 * [#2514](https://github.com/digitalocean/netbox/issues/2514) - Prevent new connections to already connected interfaces
 * [#2515](https://github.com/digitalocean/netbox/issues/2515) - Only use django-rq admin tmeplate if webhooks are enabled
+* [#2528](https://github.com/digitalocean/netbox/issues/2528) - Enable creating circuit terminations with interface assignment via API
+* [#2549](https://github.com/digitalocean/netbox/issues/2549) - Changed naming of `peer_device` and `peer_interface` on API /dcim/connected-device/ endpoint to use underscores
 
 ---
 
