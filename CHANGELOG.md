@@ -1,4 +1,8 @@
-v2.5.0 (FUTURE)
+v2.5-beta1 (2018-11-06)
+
+## BETA RELEASE
+
+**This is a beta release.** It is intended solely for gathering community and developer feedback in preparation for the v2.5 release. Do not run it in production, and do not give it write access to your production database. As the database schema is subject to change during the beta period, a migration path to the stable release likely will not be provided. Do not commit any data which you are not willing to lose.
 
 ## Notes
 
@@ -16,7 +20,7 @@ Django 2.1 introduces view permissions for object types (not to be confused with
 
 ## New Features
 
-### Patch Panels and Cables ([#81](https://github.com/digitalocean/netbox/issues/20))
+### Patch Panels and Cables ([#20](https://github.com/digitalocean/netbox/issues/20))
 
 NetBox now supports modeling physical cables for console, power, and interface connections. The new pass-through port component type has also been introduced to model patch panels and similar devices.
 
