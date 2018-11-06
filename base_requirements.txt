@@ -12,7 +12,6 @@ drf-yasg[validation]
 graphviz
 # py-gfm requires Markdown<3.0
 Markdown<3.0
-natsort
 netaddr
 Pillow
 psycopg2-binary

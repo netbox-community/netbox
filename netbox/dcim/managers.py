@@ -3,6 +3,7 @@ from django.db.models.expressions import RawSQL
 
 from .constants import NONCONNECTABLE_IFACE_TYPES
 
+# Regular expressions for parsing Interface names
 TYPE_RE = r"SUBSTRING({} FROM '^([^0-9\.:]+)')"
 SLOT_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?(\d{{1,9}})/') AS integer), NULL)"
 SUBSLOT_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9\.:]+)?\d{{1,9}}/(\d{{1,9}})') AS integer), NULL)"
@@ -11,6 +12,22 @@ SUBPOSITION_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?(?:\d{{1,9}}/){
 ID_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9\.:]+)?(\d{{1,9}})([^/]|$)') AS integer)"
 CHANNEL_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^.*:(\d{{1,9}})(\.\d{{1,9}})?$') AS integer), 0)"
 VC_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^.*\.(\d{{1,9}})$') AS integer), 0)"
+
+
+class DeviceComponentManager(Manager):
+
+    def get_queryset(self):
+
+        queryset = super(DeviceComponentManager, self).get_queryset()
+        table_name = self.model._meta.db_table
+        sql = r"CONCAT(REGEXP_REPLACE({}.name, '\d+$', ''), LPAD(SUBSTRING({}.name FROM '\d+$'), 8, '0'))"
+
+        # Pad any trailing digits to effect natural sorting
+        return queryset.extra(
+            select={
+                'name_padded': sql.format(table_name, table_name),
+            }
+        ).order_by('name_padded')
 
 
 class InterfaceQuerySet(QuerySet):

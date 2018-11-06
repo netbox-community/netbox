@@ -22,7 +22,7 @@ from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object, to_meters
 from .constants import *
 from .fields import ASNField, MACAddressField
-from .querysets import InterfaceManager
+from .managers import DeviceComponentManager, InterfaceManager
 
 
 class ComponentTemplateModel(models.Model):
@@ -965,6 +965,8 @@ class ConsolePortTemplate(ComponentTemplateModel):
         max_length=50
     )
 
+    objects = DeviceComponentManager()
+
     class Meta:
         ordering = ['device_type', 'name']
         unique_together = ['device_type', 'name']
@@ -985,6 +987,8 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
+
+    objects = DeviceComponentManager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -1007,6 +1011,8 @@ class PowerPortTemplate(ComponentTemplateModel):
         max_length=50
     )
 
+    objects = DeviceComponentManager()
+
     class Meta:
         ordering = ['device_type', 'name']
         unique_together = ['device_type', 'name']
@@ -1027,6 +1033,8 @@ class PowerOutletTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
+
+    objects = DeviceComponentManager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -1057,7 +1065,7 @@ class InterfaceTemplate(ComponentTemplateModel):
         verbose_name='Management only'
     )
 
-    objects = InterfaceManager
+    objects = InterfaceManager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -1091,6 +1099,8 @@ class FrontPortTemplate(ComponentTemplateModel):
         default=1,
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
+
+    objects = DeviceComponentManager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -1139,6 +1149,8 @@ class RearPortTemplate(ComponentTemplateModel):
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
 
+    objects = DeviceComponentManager()
+
     class Meta:
         ordering = ['device_type', 'name']
         unique_together = ['device_type', 'name']
@@ -1159,6 +1171,8 @@ class DeviceBayTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
+
+    objects = DeviceComponentManager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -1693,6 +1707,7 @@ class ConsolePort(CableTermination, ComponentModel):
         default=CONNECTION_STATUS_CONNECTED
     )
 
+    objects = DeviceComponentManager()
     tags = TaggableManager()
 
     csv_headers = ['console_server', 'connected_endpoint', 'device', 'console_port', 'connection_status']
@@ -1721,16 +1736,6 @@ class ConsolePort(CableTermination, ComponentModel):
 # Console server ports
 #
 
-class ConsoleServerPortManager(models.Manager):
-
-    def get_queryset(self):
-        # Pad any trailing digits to effect natural sorting
-        return super(ConsoleServerPortManager, self).get_queryset().extra(select={
-            'name_padded': r"CONCAT(REGEXP_REPLACE(dcim_consoleserverport.name, '\d+$', ''), "
-                           r"LPAD(SUBSTRING(dcim_consoleserverport.name FROM '\d+$'), 8, '0'))",
-        }).order_by('device', 'name_padded')
-
-
 class ConsoleServerPort(CableTermination, ComponentModel):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
@@ -1744,7 +1749,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         max_length=50
     )
 
-    objects = ConsoleServerPortManager()
+    objects = DeviceComponentManager()
     tags = TaggableManager()
 
     class Meta:
@@ -1785,6 +1790,7 @@ class PowerPort(CableTermination, ComponentModel):
         default=CONNECTION_STATUS_CONNECTED
     )
 
+    objects = DeviceComponentManager()
     tags = TaggableManager()
 
     csv_headers = ['pdu', 'connected_endpoint', 'device', 'power_port', 'connection_status']
@@ -1813,16 +1819,6 @@ class PowerPort(CableTermination, ComponentModel):
 # Power outlets
 #
 
-class PowerOutletManager(models.Manager):
-
-    def get_queryset(self):
-        # Pad any trailing digits to effect natural sorting
-        return super(PowerOutletManager, self).get_queryset().extra(select={
-            'name_padded': r"CONCAT(REGEXP_REPLACE(dcim_poweroutlet.name, '\d+$', ''), "
-                           r"LPAD(SUBSTRING(dcim_poweroutlet.name FROM '\d+$'), 8, '0'))",
-        }).order_by('device', 'name_padded')
-
-
 class PowerOutlet(CableTermination, ComponentModel):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
@@ -1836,7 +1832,7 @@ class PowerOutlet(CableTermination, ComponentModel):
         max_length=50
     )
 
-    objects = PowerOutletManager()
+    objects = DeviceComponentManager()
     tags = TaggableManager()
 
     class Meta:
@@ -2125,6 +2121,7 @@ class FrontPort(CableTermination, ComponentModel):
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
 
+    objects = DeviceComponentManager()
     tags = TaggableManager()
 
     class Meta:
@@ -2174,6 +2171,7 @@ class RearPort(CableTermination, ComponentModel):
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
 
+    objects = DeviceComponentManager()
     tags = TaggableManager()
 
     class Meta:
@@ -2209,6 +2207,7 @@ class DeviceBay(ComponentModel):
         null=True
     )
 
+    objects = DeviceComponentManager()
     tags = TaggableManager()
 
     class Meta:

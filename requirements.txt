@@ -11,7 +11,6 @@ djangorestframework==3.9.0
 drf-yasg[validation]==1.11.0
 graphviz==0.10.1
 Markdown==2.6.11
-natsort==5.4.1
 netaddr==0.7.19
 Pillow==5.3.0
 psycopg2-binary==2.7.5

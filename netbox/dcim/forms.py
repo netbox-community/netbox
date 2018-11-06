@@ -1,5 +1,4 @@
 import re
-from operator import attrgetter
 
 from django import forms
 from django.contrib.auth.models import User
@@ -8,7 +7,6 @@ from django.contrib.postgres.forms.array import SimpleArrayField
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count, Q
 from mptt.forms import TreeNodeChoiceField
-from natsort import natsorted
 from taggit.forms import TagField
 from timezone_field import TimeZoneFormField
 
@@ -803,7 +801,7 @@ class FrontPortTemplateCreateForm(ComponentForm):
 
         # Populate rear port choices
         choices = []
-        rear_ports = natsorted(RearPortTemplate.objects.filter(device_type=self.parent), key=attrgetter('name'))
+        rear_ports = RearPortTemplate.objects.filter(device_type=self.parent)
         for rear_port in rear_ports:
             for i in range(1, rear_port.positions + 1):
                 if (rear_port.pk, i) not in occupied_port_positions:
@@ -1687,7 +1685,7 @@ class FrontPortCreateForm(ComponentForm):
 
         # Populate rear port choices
         choices = []
-        rear_ports = natsorted(RearPort.objects.filter(device=self.parent), key=attrgetter('name'))
+        rear_ports = RearPort.objects.filter(device=self.parent)
         for rear_port in rear_ports:
             for i in range(1, rear_port.positions + 1):
                 if (rear_port.pk, i) not in occupied_port_positions:

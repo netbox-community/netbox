@@ -1,5 +1,3 @@
-from operator import attrgetter
-
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger
@@ -11,7 +9,6 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.views.generic import View
-from natsort import natsorted
 
 from circuits.models import Circuit
 from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
@@ -535,19 +532,19 @@ class DeviceTypeView(View):
 
         # Component tables
         consoleport_table = tables.ConsolePortTemplateTable(
-            natsorted(ConsolePortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name')),
+            ConsolePortTemplate.objects.filter(device_type=devicetype),
             orderable=False
         )
         consoleserverport_table = tables.ConsoleServerPortTemplateTable(
-            natsorted(ConsoleServerPortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name')),
+            ConsoleServerPortTemplate.objects.filter(device_type=devicetype),
             orderable=False
         )
         powerport_table = tables.PowerPortTemplateTable(
-            natsorted(PowerPortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name')),
+            PowerPortTemplate.objects.filter(device_type=devicetype),
             orderable=False
         )
         poweroutlet_table = tables.PowerOutletTemplateTable(
-            natsorted(PowerOutletTemplate.objects.filter(device_type=devicetype), key=attrgetter('name')),
+            PowerOutletTemplate.objects.filter(device_type=devicetype),
             orderable=False
         )
         interface_table = tables.InterfaceTemplateTable(
@@ -555,15 +552,15 @@ class DeviceTypeView(View):
             orderable=False
         )
         front_port_table = tables.FrontPortTemplateTable(
-            natsorted(FrontPortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name')),
+            FrontPortTemplate.objects.filter(device_type=devicetype),
             orderable=False
         )
         rear_port_table = tables.RearPortTemplateTable(
-            natsorted(RearPortTemplate.objects.filter(device_type=devicetype), key=attrgetter('name')),
+            RearPortTemplate.objects.filter(device_type=devicetype),
             orderable=False
         )
         devicebay_table = tables.DeviceBayTemplateTable(
-            natsorted(DeviceBayTemplate.objects.filter(device_type=devicetype), key=attrgetter('name')),
+            DeviceBayTemplate.objects.filter(device_type=devicetype),
             orderable=False
         )
         if request.user.has_perm('dcim.change_devicetype'):
@@ -880,19 +877,13 @@ class DeviceView(View):
             vc_members = []
 
         # Console ports
-        console_ports = natsorted(
-            device.consoleports.select_related('connected_endpoint__device', 'cable'),
-            key=attrgetter('name')
-        )
+        console_ports = device.consoleports.select_related('connected_endpoint__device', 'cable')
 
         # Console server ports
         consoleserverports = device.consoleserverports.select_related('connected_endpoint__device', 'cable')
 
         # Power ports
-        power_ports = natsorted(
-            device.powerports.select_related('connected_endpoint__device', 'cable'),
-            key=attrgetter('name')
-        )
+        power_ports = device.powerports.select_related('connected_endpoint__device', 'cable')
 
         # Power outlets
         poweroutlets = device.poweroutlets.select_related('connected_endpoint__device', 'cable')
@@ -911,10 +902,7 @@ class DeviceView(View):
         rear_ports = device.rearports.select_related('cable')
 
         # Device bays
-        device_bays = natsorted(
-            device.device_bays.select_related('installed_device__device_type__manufacturer'),
-            key=attrgetter('name')
-        )
+        device_bays = device.device_bays.select_related('installed_device__device_type__manufacturer')
 
         # Services
         services = device.services.all()
