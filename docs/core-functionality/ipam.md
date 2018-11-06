@@ -4,7 +4,7 @@ The first step to documenting your IP space is to define its scope by creating a
 
 * 10.0.0.0/8 (RFC 1918)
 * 100.64.0.0/10 (RFC 6598)
-* 172.16.0.0/20 (RFC 1918)
+* 172.16.0.0/12 (RFC 1918)
 * 192.168.0.0/16 (RFC 1918)
 * One or more /48s within fd00::/8 (IPv6 unique local addressing)
 

@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import django_filters
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from netaddr import EUI
 from netaddr.core import AddrFormatError
@@ -456,6 +457,16 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
     )
     name = NullableCharFieldFilter()
     asset_tag = NullableCharFieldFilter()
+    region_id = django_filters.NumberFilter(
+        method='filter_region',
+        name='pk',
+        label='Region (ID)',
+    )
+    region = django_filters.CharFilter(
+        method='filter_region',
+        name='slug',
+        label='Region (slug)',
+    )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         label='Site (ID)',
@@ -537,6 +548,16 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
             Q(asset_tag__icontains=value.strip()) |
             Q(comments__icontains=value)
         ).distinct()
+
+    def filter_region(self, queryset, name, value):
+        try:
+            region = Region.objects.get(**{name: value})
+        except ObjectDoesNotExist:
+            return queryset.none()
+        return queryset.filter(
+            Q(site__region=region) |
+            Q(site__region__in=region.get_descendants())
+        )
 
     def _mac_address(self, queryset, name, value):
         value = value.strip()
@@ -635,6 +656,14 @@ class InterfaceFilter(django_filters.FilterSet):
     tag = django_filters.CharFilter(
         name='tags__slug',
     )
+    vlan_id = django_filters.CharFilter(
+        method='filter_vlan_id',
+        label='Assigned VLAN'
+    )
+    vlan = django_filters.CharFilter(
+        method='filter_vlan',
+        label='Assigned VID'
+    )
 
     class Meta:
         model = Interface
@@ -648,6 +677,24 @@ class InterfaceFilter(django_filters.FilterSet):
             return queryset.filter(pk__in=vc_interface_ids).order_naturally(ordering)
         except Device.DoesNotExist:
             return queryset.none()
+
+    def filter_vlan_id(self, queryset, name, value):
+        value = value.strip()
+        if not value:
+            return queryset
+        return queryset.filter(
+            Q(untagged_vlan_id=value) |
+            Q(tagged_vlans=value)
+        )
+
+    def filter_vlan(self, queryset, name, value):
+        value = value.strip()
+        if not value:
+            return queryset
+        return queryset.filter(
+            Q(untagged_vlan_id__vid=value) |
+            Q(tagged_vlans__vid=value)
+        )
 
     def filter_type(self, queryset, name, value):
         value = value.strip().lower()
@@ -680,6 +727,15 @@ class InventoryItemFilter(DeviceComponentFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
+    )
+    device_id = django_filters.ModelChoiceFilter(
+        queryset=Device.objects.all(),
+        label='Device (ID)',
+    )
+    device = django_filters.ModelChoiceFilter(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        label='Device (name)',
     )
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=InventoryItem.objects.all(),

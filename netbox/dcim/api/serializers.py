@@ -472,10 +472,14 @@ class ConsoleServerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
 class NestedConsoleServerPortSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleserverport-detail')
     device = NestedDeviceSerializer(read_only=True)
+    is_connected = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['id', 'url', 'device', 'name']
+        fields = ['id', 'url', 'device', 'name', 'is_connected']
+
+    def get_is_connected(self, obj):
+        return hasattr(obj, 'connected_console') and obj.connected_console is not None
 
 
 #
@@ -495,10 +499,14 @@ class ConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
 class NestedConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:consoleport-detail')
     device = NestedDeviceSerializer(read_only=True)
+    is_connected = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = ConsolePort
-        fields = ['id', 'url', 'device', 'name']
+        fields = ['id', 'url', 'device', 'name', 'is_connected']
+
+    def get_is_connected(self, obj):
+        return obj.cs_port is not None
 
 
 #
@@ -518,10 +526,14 @@ class PowerOutletSerializer(TaggitSerializer, ValidatedModelSerializer):
 class NestedPowerOutletSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:poweroutlet-detail')
     device = NestedDeviceSerializer(read_only=True)
+    is_connected = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = PowerOutlet
-        fields = ['id', 'url', 'device', 'name']
+        fields = ['id', 'url', 'device', 'name', 'is_connected']
+
+    def get_is_connected(self, obj):
+        return hasattr(obj, 'connected_port') and obj.connected_port is not None
 
 
 #
@@ -541,23 +553,43 @@ class PowerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
 class NestedPowerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerport-detail')
     device = NestedDeviceSerializer(read_only=True)
+    is_connected = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = PowerPort
-        fields = ['id', 'url', 'device', 'name']
+        fields = ['id', 'url', 'device', 'name', 'is_connected']
+
+    def get_is_connected(self, obj):
+        return obj.power_outlet is not None
 
 
 #
 # Interfaces
 #
 
-class NestedInterfaceSerializer(WritableNestedSerializer):
+class IsConnectedMixin(object):
+    """
+    Provide a method for setting is_connected on Interface serializers.
+    """
+    def get_is_connected(self, obj):
+        """
+        Return True if the interface has a connected interface or circuit.
+        """
+        if obj.connection:
+            return True
+        if hasattr(obj, 'circuit_termination') and obj.circuit_termination is not None:
+            return True
+        return False
+
+
+class NestedInterfaceSerializer(IsConnectedMixin, WritableNestedSerializer):
     device = NestedDeviceSerializer(read_only=True)
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:interface-detail')
+    is_connected = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Interface
-        fields = ['id', 'url', 'device', 'name']
+        fields = ['id', 'url', 'device', 'name', 'is_connected']
 
 
 class InterfaceNestedCircuitSerializer(serializers.ModelSerializer):
@@ -587,7 +619,7 @@ class InterfaceVLANSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'vid', 'name', 'display_name']
 
 
-class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
+class InterfaceSerializer(TaggitSerializer, IsConnectedMixin, ValidatedModelSerializer):
     device = NestedDeviceSerializer()
     form_factor = ChoiceField(choices=IFACE_FF_CHOICES, required=False)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
@@ -630,19 +662,6 @@ class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
                 })
 
         return super(InterfaceSerializer, self).validate(data)
-
-    def get_is_connected(self, obj):
-        """
-        Return True if the interface has a connected interface or circuit termination.
-        """
-        if obj.connection:
-            return True
-        try:
-            circuit_termination = obj.circuit_termination
-            return True
-        except CircuitTermination.DoesNotExist:
-            pass
-        return False
 
     def get_interface_connection(self, obj):
         if obj.connection:

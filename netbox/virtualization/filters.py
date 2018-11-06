@@ -1,11 +1,12 @@
 from __future__ import unicode_literals
 
 import django_filters
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from netaddr import EUI
 from netaddr.core import AddrFormatError
 
-from dcim.models import DeviceRole, Interface, Platform, Site
+from dcim.models import DeviceRole, Interface, Platform, Region, Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.filters import NumericInFilter
@@ -116,6 +117,16 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         queryset=Cluster.objects.all(),
         label='Cluster (ID)',
     )
+    region_id = django_filters.NumberFilter(
+        method='filter_region',
+        name='pk',
+        label='Region (ID)',
+    )
+    region = django_filters.CharFilter(
+        method='filter_region',
+        name='slug',
+        label='Region (slug)',
+    )
     site_id = django_filters.ModelMultipleChoiceFilter(
         name='cluster__site',
         queryset=Site.objects.all(),
@@ -171,6 +182,16 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         return queryset.filter(
             Q(name__icontains=value) |
             Q(comments__icontains=value)
+        )
+
+    def filter_region(self, queryset, name, value):
+        try:
+            region = Region.objects.get(**{name: value})
+        except ObjectDoesNotExist:
+            return queryset.none()
+        return queryset.filter(
+            Q(cluster__site__region=region) |
+            Q(cluster__site__region__in=region.get_descendants())
         )
 
 

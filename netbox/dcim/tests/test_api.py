@@ -1955,7 +1955,7 @@ class ConsolePortTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['device', 'id', 'name', 'url']
+            ['device', 'id', 'is_connected', 'name', 'url']
         )
 
     def test_create_consoleport(self):
@@ -2070,7 +2070,7 @@ class ConsoleServerPortTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['device', 'id', 'name', 'url']
+            ['device', 'id', 'is_connected', 'name', 'url']
         )
 
     def test_create_consoleserverport(self):
@@ -2181,7 +2181,7 @@ class PowerPortTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['device', 'id', 'name', 'url']
+            ['device', 'id', 'is_connected', 'name', 'url']
         )
 
     def test_create_powerport(self):
@@ -2296,7 +2296,7 @@ class PowerOutletTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['device', 'id', 'name', 'url']
+            ['device', 'id', 'is_connected', 'name', 'url']
         )
 
     def test_create_poweroutlet(self):
@@ -2432,7 +2432,7 @@ class InterfaceTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['device', 'id', 'name', 'url']
+            ['device', 'id', 'is_connected', 'name', 'url']
         )
 
     def test_create_interface(self):
@@ -3053,7 +3053,7 @@ class ConnectedDeviceTest(APITestCase):
     def test_get_connected_device(self):
 
         url = reverse('dcim-api:connected-device-list')
-        response = self.client.get(url + '?peer-device=TestDevice2&peer-interface=eth0', **self.header)
+        response = self.client.get(url + '?peer_device=TestDevice2&peer_interface=eth0', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], self.device1.name)
