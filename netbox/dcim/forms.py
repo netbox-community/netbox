@@ -2201,6 +2201,7 @@ class InventoryItemBulkEditForm(BootstrapMixin, BulkEditForm):
 class InventoryItemFilterForm(BootstrapMixin, forms.Form):
     model = InventoryItem
     q = forms.CharField(required=False, label='Search')
+    device = forms.CharField(required=False, label='Device name')
     manufacturer = FilterChoiceField(
         queryset=Manufacturer.objects.annotate(filter_count=Count('inventory_items')),
         to_field_name='slug',

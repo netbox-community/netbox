@@ -707,6 +707,15 @@ class InventoryItemFilter(DeviceComponentFilterSet):
         method='search',
         label='Search',
     )
+    device_id = django_filters.ModelChoiceFilter(
+        queryset=Device.objects.all(),
+        label='Device (ID)',
+    )
+    device = django_filters.ModelChoiceFilter(
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        label='Device (name)',
+    )
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=InventoryItem.objects.all(),
         label='Parent inventory item (ID)',
