@@ -3053,7 +3053,7 @@ class ConnectedDeviceTest(APITestCase):
     def test_get_connected_device(self):
 
         url = reverse('dcim-api:connected-device-list')
-        response = self.client.get(url + '?peer-device=TestDevice2&peer-interface=eth0', **self.header)
+        response = self.client.get(url + '?peer_device=TestDevice2&peer_interface=eth0', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], self.device1.name)
