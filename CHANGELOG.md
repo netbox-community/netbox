@@ -7,6 +7,7 @@ v2.4.7 (FUTURE)
 * [#2514](https://github.com/digitalocean/netbox/issues/2514) - Prevent new connections to already connected interfaces
 * [#2515](https://github.com/digitalocean/netbox/issues/2515) - Only use django-rq admin tmeplate if webhooks are enabled
 * [#2528](https://github.com/digitalocean/netbox/issues/2528) - Enable creating circuit terminations with interface assignment via API
+* [#2549](https://github.com/digitalocean/netbox/issues/2549) - Changed naming of `peer_device` and `peer_interface` on API /dcim/connected-device/ endpoint to use underscores
 
 ---
 
