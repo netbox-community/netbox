@@ -1969,6 +1969,11 @@ class CableCSVForm(forms.ModelForm):
         self.instance.termination_b = termination_object
         return termination_object
 
+    def clean_length_unit(self):
+        # Avoid trying to save as NULL
+        length_unit = self.cleaned_data.get('length_unit', None)
+        return length_unit if length_unit is not None else ''
+
 
 class CableBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
