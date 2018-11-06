@@ -1,4 +1,4 @@
-v2.4.7 (FUTURE)
+v2.4.7 (2018-11-06)
 
 ## Enhancements
 
