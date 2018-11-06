@@ -1108,6 +1108,11 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
 class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Device
     q = forms.CharField(required=False, label='Search')
+    region = FilterTreeNodeMultipleChoiceField(
+        queryset=Region.objects.all(),
+        to_field_name='slug',
+        required=False,
+    )
     site = FilterChoiceField(
         queryset=Site.objects.annotate(filter_count=Count('devices')),
         to_field_name='slug',

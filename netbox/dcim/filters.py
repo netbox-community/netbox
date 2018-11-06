@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import django_filters
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from netaddr import EUI
 from netaddr.core import AddrFormatError
@@ -456,6 +457,16 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
     )
     name = NullableCharFieldFilter()
     asset_tag = NullableCharFieldFilter()
+    region_id = django_filters.NumberFilter(
+        method='filter_region',
+        name='pk',
+        label='Region (ID)',
+    )
+    region = django_filters.CharFilter(
+        method='filter_region',
+        name='slug',
+        label='Region (slug)',
+    )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         label='Site (ID)',
@@ -537,6 +548,16 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
             Q(asset_tag__icontains=value.strip()) |
             Q(comments__icontains=value)
         ).distinct()
+
+    def filter_region(self, queryset, name, value):
+        try:
+            region = Region.objects.get(**{name: value})
+        except ObjectDoesNotExist:
+            return queryset.none()
+        return queryset.filter(
+            Q(site__region=region) |
+            Q(site__region__in=region.get_descendants())
+        )
 
     def _mac_address(self, queryset, name, value):
         value = value.strip()

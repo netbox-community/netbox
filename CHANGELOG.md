@@ -2,6 +2,7 @@ v2.4.7 (FUTURE)
 
 ## Enhancements
 
+* [#2388](https://github.com/digitalocean/netbox/issues/2388) - Enable filtering of devices/VMs by region
 * [#2427](https://github.com/digitalocean/netbox/issues/2427) - Allow filtering of interfaces by assigned VLAN or VLAN ID
 * [#2512](https://github.com/digitalocean/netbox/issues/2512) - Add device field to inventory item filter form
 

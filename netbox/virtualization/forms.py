@@ -16,8 +16,8 @@ from tenancy.models import Tenant
 from utilities.forms import (
     AnnotatedMultipleChoiceField, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ComponentForm,
-    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, JSONField, SlugField, SmallTextarea,
-    add_blank_choice
+    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FilterTreeNodeMultipleChoiceField,
+    JSONField, SlugField, SmallTextarea, add_blank_choice,
 )
 from .constants import VM_STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -385,6 +385,11 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
     cluster_id = FilterChoiceField(
         queryset=Cluster.objects.annotate(filter_count=Count('virtual_machines')),
         label='Cluster'
+    )
+    region = FilterTreeNodeMultipleChoiceField(
+        queryset=Region.objects.all(),
+        to_field_name='slug',
+        required=False,
     )
     site = FilterChoiceField(
         queryset=Site.objects.annotate(filter_count=Count('clusters__virtual_machines')),
