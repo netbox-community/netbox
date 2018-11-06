@@ -429,7 +429,13 @@ class ConnectedDeviceViewSet(ViewSet):
     def list(self, request):
 
         peer_device_name = request.query_params.get(self._device_param.name)
+        if not peer_device_name:
+            # TODO: remove this after 2.4 as the switch to using underscores is a breaking change
+            peer_device_name = request.query_params.get('peer-device')
         peer_interface_name = request.query_params.get(self._interface_param.name)
+        if not peer_interface_name:
+            # TODO: remove this after 2.4 as the switch to using underscores is a breaking change
+            peer_interface_name = request.query_params.get('peer-interface')
         if not peer_device_name or not peer_interface_name:
             raise MissingFilterException(detail='Request must include "peer_device" and "peer_interface" filters.')
 
