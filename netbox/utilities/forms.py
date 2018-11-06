@@ -62,22 +62,6 @@ def parse_numeric_range(string, base=10):
     return list(set(values))
 
 
-def expand_numeric_pattern(string):
-    """
-    Expand a numeric pattern into a list of strings. Examples:
-      'ge-0/0/[0-3,5]' => ['ge-0/0/0', 'ge-0/0/1', 'ge-0/0/2', 'ge-0/0/3', 'ge-0/0/5']
-      'xe-0/[0,2-3]/[0-7]' => ['xe-0/0/0', 'xe-0/0/1', 'xe-0/0/2', ... 'xe-0/3/5', 'xe-0/3/6', 'xe-0/3/7']
-    """
-    lead, pattern, remnant = re.split(NUMERIC_EXPANSION_PATTERN, string, maxsplit=1)
-    parsed_range = parse_numeric_range(pattern)
-    for i in parsed_range:
-        if re.search(NUMERIC_EXPANSION_PATTERN, remnant):
-            for string in expand_numeric_pattern(remnant):
-                yield "{}{}{}".format(lead, i, string)
-        else:
-            yield "{}{}{}".format(lead, i, remnant)
-
-
 def parse_alphanumeric_range(string):
     """
     Expand an alphanumeric range (continuous or not) into a list.
@@ -120,7 +104,7 @@ def expand_alphanumeric_pattern(string):
 def expand_ipaddress_pattern(string, family):
     """
     Expand an IP address pattern into a list of strings. Examples:
-      '192.0.2.[1,2,100-250,254]/24' => ['192.0.2.1/24', '192.0.2.2/24', '192.0.2.100/24' ... '192.0.2.250/24', '192.0.2.254/24']
+      '192.0.2.[1,2,100-250]/24' => ['192.0.2.1/24', '192.0.2.2/24', '192.0.2.100/24' ... '192.0.2.250/24']
       '2001:db8:0:[0,fd-ff]::/64' => ['2001:db8:0:0::/64', '2001:db8:0:fd::/64', ... '2001:db8:0:ff::/64']
     """
     if family not in [4, 6]:
