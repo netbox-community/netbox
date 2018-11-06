@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from django.conf import settings
-from django.db.models import Count, F, Q
+from django.db.models import F, Q
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
@@ -528,32 +528,39 @@ class ConnectedDeviceViewSet(ViewSet):
     * `peer_interface`: The name of the peer interface
     """
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
-    _device_param = Parameter('peer_device', 'query',
-                              description='The name of the peer device', required=True, type=openapi.TYPE_STRING)
-    _interface_param = Parameter('peer_interface', 'query',
-                                 description='The name of the peer interface', required=True, type=openapi.TYPE_STRING)
+    _device_param = Parameter(
+        name='peer_device',
+        in_='query',
+        description='The name of the peer device',
+        required=True,
+        type=openapi.TYPE_STRING
+    )
+    _interface_param = Parameter(
+        name='peer_interface',
+        in_='query',
+        description='The name of the peer interface',
+        required=True,
+        type=openapi.TYPE_STRING
+    )
 
     def get_view_name(self):
         return "Connected Device Locator"
 
     @swagger_auto_schema(
-        manual_parameters=[_device_param, _interface_param], responses={'200': serializers.DeviceSerializer})
+        manual_parameters=[_device_param, _interface_param],
+        responses={'200': serializers.DeviceSerializer}
+    )
     def list(self, request):
 
         peer_device_name = request.query_params.get(self._device_param.name)
-        if not peer_device_name:
-            # TODO: remove this after 2.4 as the switch to using underscores is a breaking change
-            peer_device_name = request.query_params.get('peer-device')
         peer_interface_name = request.query_params.get(self._interface_param.name)
-        if not peer_interface_name:
-            # TODO: remove this after 2.4 as the switch to using underscores is a breaking change
-            peer_interface_name = request.query_params.get('peer-interface')
+
         if not peer_device_name or not peer_interface_name:
             raise MissingFilterException(detail='Request must include "peer_device" and "peer_interface" filters.')
 
         # Determine local interface from peer interface's connection
         peer_interface = get_object_or_404(Interface, device__name=peer_device_name, name=peer_interface_name)
-        local_interface = peer_interface.connected_interface
+        local_interface = peer_interface._connected_interface
 
         if local_interface is None:
             return Response()
