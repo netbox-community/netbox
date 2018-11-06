@@ -17,7 +17,7 @@ from timezone_field import TimeZoneField
 
 from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange
 from utilities.fields import ColorField, NullableCharField
-from utilities.managers import NaturalOrderByManager
+from utilities.managers import NaturalOrderingManager
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object, to_meters
 from .constants import *
@@ -179,10 +179,6 @@ class Region(MPTTModel, ChangeLoggedModel):
 # Sites
 #
 
-class SiteManager(NaturalOrderByManager):
-    natural_order_field = 'name'
-
-
 class Site(ChangeLoggedModel, CustomFieldModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
@@ -273,7 +269,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         to='extras.ImageAttachment'
     )
 
-    objects = SiteManager()
+    objects = NaturalOrderingManager()
     tags = TaggableManager()
 
     csv_headers = [
@@ -416,10 +412,6 @@ class RackRole(ChangeLoggedModel):
         )
 
 
-class RackManager(NaturalOrderByManager):
-    natural_order_field = 'name'
-
-
 class Rack(ChangeLoggedModel, CustomFieldModel):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
@@ -524,7 +516,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         to='extras.ImageAttachment'
     )
 
-    objects = RackManager()
+    objects = NaturalOrderingManager()
     tags = TaggableManager()
 
     csv_headers = [
@@ -1278,10 +1270,6 @@ class Platform(ChangeLoggedModel):
         )
 
 
-class DeviceManager(NaturalOrderByManager):
-    natural_order_field = 'name'
-
-
 class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
@@ -1419,7 +1407,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         to='extras.ImageAttachment'
     )
 
-    objects = DeviceManager()
+    objects = NaturalOrderingManager()
     tags = TaggableManager()
 
     csv_headers = [
