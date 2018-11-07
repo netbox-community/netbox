@@ -49,7 +49,7 @@ GRAPH_TYPE_CHOICES = (
 EXPORTTEMPLATE_MODELS = [
     'provider', 'circuit',                                                          # Circuits
     'site', 'region', 'rack', 'rackgroup', 'manufacturer', 'devicetype', 'device',  # DCIM
-    'consoleport', 'powerport', 'interface', 'virtualchassis',                      # DCIM
+    'consoleport', 'powerport', 'interface', 'cable', 'virtualchassis',             # DCIM
     'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf', 'service',                   # IPAM
     'secret',                                                                       # Secrets
     'tenant',                                                                       # Tenancy
