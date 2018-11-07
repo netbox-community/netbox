@@ -14,7 +14,7 @@ from dcim.filters import (
     DeviceFilter, DeviceTypeFilter, RackFilter, RackGroupFilter, SiteFilter, VirtualChassisFilter
 )
 from dcim.models import (
-    ConsolePort, Device, DeviceType, Interface, PowerPort, Rack, RackGroup, Site, VirtualChassis
+    Cable, ConsolePort, Device, DeviceType, Interface, PowerPort, Rack, RackGroup, Site, VirtualChassis
 )
 from dcim.tables import (
     DeviceDetailTable, DeviceTypeTable, RackTable, RackGroupTable, SiteTable, VirtualChassisTable
@@ -166,6 +166,7 @@ class HomeView(View):
             _connected_interface__isnull=False,
             pk__lt=F('_connected_interface')
         )
+        cables = Cable.objects.all()
 
         stats = {
 
@@ -177,6 +178,7 @@ class HomeView(View):
             'rack_count': Rack.objects.count(),
             'device_count': Device.objects.count(),
             'interface_connections_count': connected_interfaces.count(),
+            'cable_count': cables.count(),
             'console_connections_count': connected_consoleports.count(),
             'power_connections_count': connected_powerports.count(),
 
