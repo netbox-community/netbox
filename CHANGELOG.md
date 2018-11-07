@@ -1,3 +1,11 @@
+v2.4.8 (FUTURE)
+
+## Bug Fixes
+
+* [#2473](https://github.com/digitalocean/netbox/issues/2473) - Fix encoding of long (>127 character) secrets
+
+---
+
 v2.4.7 (2018-11-06)
 
 ## Enhancements

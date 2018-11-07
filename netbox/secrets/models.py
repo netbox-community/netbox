@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import os
+import sys
 
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
@@ -392,6 +393,7 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
         s = s.encode('utf8')
         if len(s) > 65535:
             raise ValueError("Maximum plaintext size is 65535 bytes.")
+
         # Minimum ciphertext size is 64 bytes to conceal the length of short secrets.
         if len(s) <= 62:
             pad_length = 62 - len(s)
@@ -399,12 +401,14 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
             pad_length = 16 - ((len(s) + 2) % 16)
         else:
             pad_length = 0
-        return (
-            chr(len(s) >> 8).encode() +
-            chr(len(s) % 256).encode() +
-            s +
-            os.urandom(pad_length)
-        )
+
+        # Python 2 compatibility
+        if sys.version_info[0] < 3:
+            header = chr(len(s) >> 8) + chr(len(s) % 256)
+        else:
+            header = bytes([len(s) >> 8]) + bytes([len(s) % 256])
+
+        return header + s + os.urandom(pad_length)
 
     def _unpad(self, s):
         """
