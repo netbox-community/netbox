@@ -22,6 +22,7 @@ def oneline(value):
     """
     return value.replace('\n', ' ')
 
+
 @register.filter()
 def placeholder(value):
     """
