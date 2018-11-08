@@ -74,7 +74,7 @@ class BulkRenameView(GetReturnURLMixin, View):
         })
 
 
-class BulkDisconnectView(View):
+class BulkDisconnectView(GetReturnURLMixin, View):
     """
     An extendable view for disconnection console/power/interface components in bulk.
     """
@@ -82,22 +82,30 @@ class BulkDisconnectView(View):
     form = None
     template_name = 'dcim/bulk_disconnect.html'
 
-    def disconnect_objects(self, objects):
-        raise NotImplementedError()
+    def post(self, request):
 
-    def post(self, request, pk):
-
-        device = get_object_or_404(Device, pk=pk)
         selected_objects = []
+        return_url = self.get_return_url(request)
 
         if '_confirm' in request.POST:
             form = self.form(request.POST)
+
             if form.is_valid():
-                count = self.disconnect_objects(form.cleaned_data['pk'])
-                messages.success(request, "Disconnected {} {} on {}".format(
-                    count, self.model._meta.verbose_name_plural, device
+
+                with transaction.atomic():
+
+                    count = 0
+                    for obj in self.model.objects.filter(pk__in=form.cleaned_data['pk']):
+                        if obj.cable is None:
+                            continue
+                        obj.cable.delete()
+                        count += 1
+
+                messages.success(request, "Disconnected {} {}".format(
+                    count, self.model._meta.verbose_name_plural
                 ))
-                return redirect(device.get_absolute_url())
+
+                return redirect(return_url)
 
         else:
             form = self.form(initial={'pk': request.POST.getlist('pk')})
@@ -105,10 +113,9 @@ class BulkDisconnectView(View):
 
         return render(request, self.template_name, {
             'form': form,
-            'device': device,
             'obj_type_plural': self.model._meta.verbose_name_plural,
             'selected_objects': selected_objects,
-            'return_url': device.get_absolute_url(),
+            'return_url': return_url,
         })
 
 
@@ -1139,14 +1146,6 @@ class ConsoleServerPortBulkDisconnectView(PermissionRequiredMixin, BulkDisconnec
     model = ConsoleServerPort
     form = forms.ConsoleServerPortBulkDisconnectForm
 
-    def disconnect_objects(self, consoleserverports):
-        return ConsolePort.objects.filter(
-            connected_endpoint__in=consoleserverports
-        ).update(
-            connected_endpoint=None,
-            connection_status=None
-        )
-
 
 class ConsoleServerPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_consoleserverport'
@@ -1222,11 +1221,6 @@ class PowerOutletBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView)
     permission_required = 'dcim.change_poweroutlet'
     model = PowerOutlet
     form = forms.PowerOutletBulkDisconnectForm
-
-    def disconnect_objects(self, poweroutlets):
-        return PowerPort.objects.filter(connected_endpoint__in=poweroutlets).update(
-            connected_endpoint=None, connection_status=None
-        )
 
 
 class PowerOutletBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -1307,11 +1301,6 @@ class InterfaceBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
     permission_required = 'dcim.change_interface'
     model = Interface
     form = forms.InterfaceBulkDisconnectForm
-
-    def disconnect_objects(self, interfaces):
-        return Interface.objects.filter(_connected_interface__in=interfaces).update(
-            _connected_interface=None, connection_status=None
-        )
 
 
 class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
