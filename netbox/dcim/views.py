@@ -1297,12 +1297,6 @@ class InterfaceDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     model = Interface
 
 
-class InterfaceBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
-    permission_required = 'dcim.change_interface'
-    model = Interface
-    form = forms.InterfaceBulkDisconnectForm
-
-
 class InterfaceBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_interface'
     queryset = Interface.objects.all()
@@ -1315,6 +1309,12 @@ class InterfaceBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     permission_required = 'dcim.change_interface'
     queryset = Interface.objects.all()
     form = forms.InterfaceBulkRenameForm
+
+
+class InterfaceBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
+    permission_required = 'dcim.change_interface'
+    model = Interface
+    form = forms.InterfaceBulkDisconnectForm
 
 
 class InterfaceBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
@@ -1355,6 +1355,12 @@ class FrontPortBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     form = forms.FrontPortBulkRenameForm
 
 
+class FrontPortBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
+    permission_required = 'dcim.change_frontport'
+    model = FrontPort
+    form = forms.FrontPortBulkDisconnectForm
+
+
 class FrontPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_frontport'
     queryset = FrontPort.objects.all()
@@ -1391,6 +1397,12 @@ class RearPortBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     permission_required = 'dcim.change_rearport'
     queryset = RearPort.objects.all()
     form = forms.RearPortBulkRenameForm
+
+
+class RearPortBulkDisconnectView(PermissionRequiredMixin, BulkDisconnectView):
+    permission_required = 'dcim.change_rearport'
+    model = RearPort
+    form = forms.RearPortBulkDisconnectForm
 
 
 class RearPortBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):

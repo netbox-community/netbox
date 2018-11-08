@@ -1723,6 +1723,13 @@ class FrontPortBulkRenameForm(BulkRenameForm):
     )
 
 
+class FrontPortBulkDisconnectForm(ConfirmationForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=FrontPort.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+
+
 #
 # Rear pass-through ports
 #
@@ -1754,6 +1761,13 @@ class RearPortCreateForm(ComponentForm):
 
 
 class RearPortBulkRenameForm(BulkRenameForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=RearPort.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+
+
+class RearPortBulkDisconnectForm(ConfirmationForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RearPort.objects.all(),
         widget=forms.MultipleHiddenInput

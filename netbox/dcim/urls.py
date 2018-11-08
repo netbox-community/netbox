@@ -221,6 +221,7 @@ urlpatterns = [
     url(r'^front-ports/(?P<pk>\d+)/delete/$', views.FrontPortDeleteView.as_view(), name='frontport_delete'),
     url(r'^front-ports/(?P<pk>\d+)/trace/$', views.CableTraceView.as_view(), name='frontport_trace', kwargs={'model': FrontPort}),
     url(r'^front-ports/rename/$', views.FrontPortBulkRenameView.as_view(), name='frontport_bulk_rename'),
+    url(r'^front-ports/disconnect/$', views.FrontPortBulkDisconnectView.as_view(), name='frontport_bulk_disconnect'),
 
     # Rear ports
     # url(r'^devices/rear-ports/add/$', views.DeviceBulkAddRearPortView.as_view(), name='device_bulk_add_rearport'),
@@ -231,6 +232,7 @@ urlpatterns = [
     url(r'^rear-ports/(?P<pk>\d+)/delete/$', views.RearPortDeleteView.as_view(), name='rearport_delete'),
     url(r'^rear-ports/(?P<pk>\d+)/trace/$', views.CableTraceView.as_view(), name='rearport_trace', kwargs={'model': RearPort}),
     url(r'^rear-ports/rename/$', views.RearPortBulkRenameView.as_view(), name='rearport_bulk_rename'),
+    url(r'^rear-ports/disconnect/$', views.RearPortBulkDisconnectView.as_view(), name='rearport_bulk_disconnect'),
 
     # Device bays
     url(r'^devices/device-bays/add/$', views.DeviceBulkAddDeviceBayView.as_view(), name='device_bulk_add_devicebay'),
