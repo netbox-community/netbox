@@ -42,7 +42,6 @@ $(document).ready(function() {
             event.preventDefault();
             search_field.val(ui.item.label);
             select_fields.val('');
-            select_fields.attr('disabled', 'disabled');
             real_field.empty();
             real_field.append($("<option></option>").attr('value', ui.item.value).text(ui.item.label));
             real_field.change();

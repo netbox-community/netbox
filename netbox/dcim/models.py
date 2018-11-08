@@ -2516,6 +2516,11 @@ class Cable(ChangeLoggedModel):
                 self.termination_a_type, self.termination_b_type
             ))
 
+        # A termination point cannot be connected to itself
+        if self.termination_a == self.termination_b:
+            print("Validation failed: same interface")
+            raise ValidationError("Cannot connect {} to itself".format(self.termination_a_type))
+
         # Check for an existing Cable connected to either termination object
         if self.termination_a.cable not in (None, self):
             raise ValidationError("{} already has a cable attached (#{})".format(
