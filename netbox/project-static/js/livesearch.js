@@ -43,6 +43,7 @@ $(document).ready(function() {
             search_field.val(ui.item.label);
             select_fields.val('');
             real_field.empty();
+            select_fields.attr('disabled', 'disabled');
             real_field.append($("<option></option>").attr('value', ui.item.value).text(ui.item.label));
             real_field.change();
             // Disable parent selection fields
