@@ -226,12 +226,12 @@ IFACE_MODE_CHOICES = [
 # Pass-through port types
 PORT_TYPE_8P8C = 1000
 PORT_TYPE_ST = 2000
-PORT_TYPE_SC_SIMPLEX = 2100
-PORT_TYPE_SC_DUPLEX = 2110
+PORT_TYPE_SC = 2100
 PORT_TYPE_FC = 2200
 PORT_TYPE_LC = 2300
 PORT_TYPE_MTRJ = 2400
 PORT_TYPE_MPO = 2500
+PORT_TYPE_LSH = 2600
 PORT_TYPE_CHOICES = [
     [
         'Copper',
@@ -242,13 +242,13 @@ PORT_TYPE_CHOICES = [
     [
         'Fiber Optic',
         [
-            [PORT_TYPE_ST, 'ST'],
-            [PORT_TYPE_SC_SIMPLEX, 'SC (Simplex)'],
-            [PORT_TYPE_SC_DUPLEX, 'SC (Duplex)'],
             [PORT_TYPE_FC, 'FC'],
             [PORT_TYPE_LC, 'LC'],
-            [PORT_TYPE_MTRJ, 'MTRJ'],
+            [PORT_TYPE_LSH, 'LSH'],
             [PORT_TYPE_MPO, 'MPO'],
+            [PORT_TYPE_MTRJ, 'MTRJ'],
+            [PORT_TYPE_SC, 'SC'],
+            [PORT_TYPE_ST, 'ST'],
         ]
     ]
 ]

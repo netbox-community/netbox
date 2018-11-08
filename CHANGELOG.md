@@ -37,11 +37,12 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#2292](https://github.com/digitalocean/netbox/issues/2292) - Removed the deprecated UserAction model
 * [#2367](https://github.com/digitalocean/netbox/issues/2367) - Removed deprecated RPCClient functionality
 
-## Bug Fixes (from v2.5-beta1)
+## Changes From v2.5-beta1
 
 * [#2563](https://github.com/digitalocean/netbox/issues/2563) - Enable export templates for cables
 * [#2566](https://github.com/digitalocean/netbox/issues/2566) - Prevent both ends of a cable from connecting to the same termination point
 * [#2567](https://github.com/digitalocean/netbox/issues/2567) - Introduced proxy models to represent console/power/interface connections
+* [#2569](https://github.com/digitalocean/netbox/issues/2569) - Added LSH fiber type; removed SC duplex/simplex designations
 
 ## API Changes
 
