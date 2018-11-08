@@ -1698,7 +1698,7 @@ class ConsolePort(CableTermination, ComponentModel):
     objects = DeviceComponentManager()
     tags = TaggableManager()
 
-    csv_headers = ['console_server', 'connected_endpoint', 'device', 'console_port', 'connection_status']
+    csv_headers = ['device', 'name']
 
     class Meta:
         ordering = ['device', 'name']
@@ -1712,11 +1712,8 @@ class ConsolePort(CableTermination, ComponentModel):
 
     def to_csv(self):
         return (
-            self.connected_endpoint.device.identifier if self.connected_endpoint else None,
-            self.connected_endpoint.name if self.connected_endpoint else None,
             self.device.identifier,
             self.name,
-            self.get_connection_status_display(),
         )
 
 
@@ -1740,6 +1737,8 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     objects = DeviceComponentManager()
     tags = TaggableManager()
 
+    csv_headers = ['device', 'name']
+
     class Meta:
         unique_together = ['device', 'name']
 
@@ -1748,6 +1747,12 @@ class ConsoleServerPort(CableTermination, ComponentModel):
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
+
+    def to_csv(self):
+        return (
+            self.device.identifier,
+            self.name,
+        )
 
 
 #
@@ -1781,7 +1786,7 @@ class PowerPort(CableTermination, ComponentModel):
     objects = DeviceComponentManager()
     tags = TaggableManager()
 
-    csv_headers = ['pdu', 'connected_endpoint', 'device', 'power_port', 'connection_status']
+    csv_headers = ['device', 'name']
 
     class Meta:
         ordering = ['device', 'name']
@@ -1795,11 +1800,8 @@ class PowerPort(CableTermination, ComponentModel):
 
     def to_csv(self):
         return (
-            self.connected_endpoint.device.identifier if self.connected_endpoint else None,
-            self.connected_endpoint.name if self.connected_endpoint else None,
             self.device.identifier,
             self.name,
-            self.get_connection_status_display(),
         )
 
 
@@ -1823,6 +1825,8 @@ class PowerOutlet(CableTermination, ComponentModel):
     objects = DeviceComponentManager()
     tags = TaggableManager()
 
+    csv_headers = ['device', 'name']
+
     class Meta:
         unique_together = ['device', 'name']
 
@@ -1831,6 +1835,12 @@ class PowerOutlet(CableTermination, ComponentModel):
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
+
+    def to_csv(self):
+        return (
+            self.device.identifier,
+            self.name,
+        )
 
 
 #
@@ -1935,6 +1945,11 @@ class Interface(CableTermination, ComponentModel):
     objects = InterfaceManager()
     tags = TaggableManager()
 
+    csv_headers = [
+        'device', 'virtual_machine', 'name', 'lag', 'form_factor', 'enabled', 'mac_address', 'mtu', 'mgmt_only',
+        'description', 'mode',
+    ]
+
     class Meta:
         ordering = ['device', 'name']
         unique_together = ['device', 'name']
@@ -1944,6 +1959,21 @@ class Interface(CableTermination, ComponentModel):
 
     def get_absolute_url(self):
         return reverse('dcim:interface', kwargs={'pk': self.pk})
+
+    def to_csv(self):
+        return (
+            self.device.identifier if self.device else None,
+            self.virtual_machine.name if self.virtual_machine else None,
+            self.name,
+            self.lag.name if self.lag else None,
+            self.get_form_factor_display(),
+            self.enabled,
+            self.mac_address,
+            self.mtu,
+            self.mgmt_only,
+            self.description,
+            self.get_mode_display(),
+        )
 
     def clean(self):
 
@@ -2112,6 +2142,8 @@ class FrontPort(CableTermination, ComponentModel):
     objects = DeviceComponentManager()
     tags = TaggableManager()
 
+    csv_headers = ['device', 'name', 'type', 'rear_port', 'rear_port_position']
+
     class Meta:
         ordering = ['device', 'name']
         unique_together = [
@@ -2121,6 +2153,15 @@ class FrontPort(CableTermination, ComponentModel):
 
     def __str__(self):
         return self.name
+
+    def to_csv(self):
+        return (
+            self.device.identifier,
+            self.name,
+            self.get_type_display(),
+            self.rear_port.name,
+            self.rear_port_position,
+        )
 
     def clean(self):
 
@@ -2162,12 +2203,22 @@ class RearPort(CableTermination, ComponentModel):
     objects = DeviceComponentManager()
     tags = TaggableManager()
 
+    csv_headers = ['device', 'name', 'type', 'positions']
+
     class Meta:
         ordering = ['device', 'name']
         unique_together = ['device', 'name']
 
     def __str__(self):
         return self.name
+
+    def to_csv(self):
+        return (
+            self.device.identifier,
+            self.name,
+            self.get_type_display(),
+            self.positions,
+        )
 
 
 #
@@ -2198,6 +2249,8 @@ class DeviceBay(ComponentModel):
     objects = DeviceComponentManager()
     tags = TaggableManager()
 
+    csv_headers = ['device', 'name', 'installed_device']
+
     class Meta:
         ordering = ['device', 'name']
         unique_together = ['device', 'name']
@@ -2207,6 +2260,13 @@ class DeviceBay(ComponentModel):
 
     def get_absolute_url(self):
         return self.device.get_absolute_url()
+
+    def to_csv(self):
+        return (
+            self.device.identifier,
+            self.name,
+            self.installed_device.identifier if self.installed_device else None,
+        )
 
     def clean(self):
 
@@ -2535,3 +2595,64 @@ class Cable(ChangeLoggedModel):
             return trace_cable(far_end, position)
 
         return trace_cable(self.termination_a), trace_cable(self.termination_b)
+
+
+#
+# Connection proxy models
+#
+
+class ConsoleConnection(ConsolePort):
+
+    csv_headers = [
+        'console_server', 'port', 'device', 'console_port', 'connection_status',
+    ]
+
+    class Meta:
+        proxy = True
+
+    def to_csv(self):
+        return (
+            self.connected_endpoint.device.identifier if self.connected_endpoint else None,
+            self.connected_endpoint.name if self.connected_endpoint else None,
+            self.device.identifier,
+            self.name,
+            self.get_connection_status_display(),
+        )
+
+
+class PowerConnection(PowerPort):
+
+    csv_headers = [
+        'pdu', 'outlet', 'device', 'power_port', 'connection_status',
+    ]
+
+    class Meta:
+        proxy = True
+
+    def to_csv(self):
+        return (
+            self.connected_endpoint.device.identifier if self.connected_endpoint else None,
+            self.connected_endpoint.name if self.connected_endpoint else None,
+            self.device.identifier,
+            self.name,
+            self.get_connection_status_display(),
+        )
+
+
+class InterfaceConnection(Interface):
+
+    csv_headers = [
+        'device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status',
+    ]
+
+    class Meta:
+        proxy = True
+
+    def to_csv(self):
+        return (
+            self.connected_endpoint.device.identifier if self.connected_endpoint else None,
+            self.connected_endpoint.name if self.connected_endpoint else None,
+            self.device.identifier,
+            self.name,
+            self.get_connection_status_display(),
+        )

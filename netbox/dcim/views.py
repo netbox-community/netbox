@@ -24,10 +24,11 @@ from utilities.views import (
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
 from .models import (
-    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
-    RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
+    Cable, ConsoleConnection, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
+    DeviceBay, DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceConnection,
+    InterfaceTemplate, InventoryItem, Manufacturer, Platform, PowerConnection, PowerOutlet, PowerOutletTemplate,
+    PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
+    VirtualChassis,
 )
 
 
@@ -1686,7 +1687,7 @@ class CableBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class ConsoleConnectionsListView(ObjectListView):
-    queryset = ConsolePort.objects.select_related(
+    queryset = ConsoleConnection.objects.select_related(
         'device', 'connected_endpoint__device'
     ).filter(
         connected_endpoint__isnull=False
@@ -1700,7 +1701,7 @@ class ConsoleConnectionsListView(ObjectListView):
 
 
 class PowerConnectionsListView(ObjectListView):
-    queryset = PowerPort.objects.select_related(
+    queryset = PowerConnection.objects.select_related(
         'device', 'connected_endpoint__device'
     ).filter(
         connected_endpoint__isnull=False
@@ -1714,7 +1715,7 @@ class PowerConnectionsListView(ObjectListView):
 
 
 class InterfaceConnectionsListView(ObjectListView):
-    queryset = Interface.objects.select_related(
+    queryset = InterfaceConnection.objects.select_related(
         'device', 'cable', '_connected_interface__device'
     ).filter(
         # Avoid duplicate connections by only selecting the lower PK in a connected pair

@@ -4,10 +4,11 @@ from django_tables2.utils import Accessor
 from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, BooleanColumn, ColorColumn, ToggleColumn
 from .models import (
-    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
-    DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    InventoryItem, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
-    RackGroup, RackReservation, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
+    Cable, ConsoleConnection, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
+    DeviceBay, DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceConnection,
+    InterfaceTemplate, InventoryItem, Manufacturer, Platform, PowerConnection, PowerOutlet, PowerOutletTemplate,
+    PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RearPort, RearPortTemplate, Region, Site,
+    VirtualChassis,
 )
 
 REGION_LINK = """
@@ -668,19 +669,22 @@ class ConsoleConnectionTable(BaseTable):
         viewname='dcim:device',
         accessor=Accessor('connected_endpoint.device'),
         args=[Accessor('connected_endpoint.device.pk')],
-        verbose_name='Console server'
+        verbose_name='Console Server'
     )
-    connected_endpoint = tables.Column(verbose_name='Port')
-    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
-    name = tables.Column(verbose_name='Console port')
-    cable = tables.LinkColumn(
-        viewname='dcim:cable',
-        args=[Accessor('cable.pk')]
+    connected_endpoint = tables.Column(
+        verbose_name='Port'
+    )
+    device = tables.LinkColumn(
+        viewname='dcim:device',
+        args=[Accessor('device.pk')]
+    )
+    name = tables.Column(
+        verbose_name='Console Port'
     )
 
     class Meta(BaseTable.Meta):
-        model = ConsolePort
-        fields = ('console_server', 'connected_endpoint', 'device', 'name', 'cable')
+        model = ConsoleConnection
+        fields = ('console_server', 'connected_endpoint', 'device', 'name', 'connection_status')
 
 
 class PowerConnectionTable(BaseTable):
@@ -690,17 +694,20 @@ class PowerConnectionTable(BaseTable):
         args=[Accessor('connected_endpoint.device.pk')],
         verbose_name='PDU'
     )
-    connected_endpoint = tables.Column(verbose_name='Outlet')
-    device = tables.LinkColumn('dcim:device', args=[Accessor('device.pk')], verbose_name='Device')
-    name = tables.Column(verbose_name='Power Port')
-    cable = tables.LinkColumn(
-        viewname='dcim:cable',
-        args=[Accessor('cable.pk')]
+    connected_endpoint = tables.Column(
+        verbose_name='Outlet'
+    )
+    device = tables.LinkColumn(
+        viewname='dcim:device',
+        args=[Accessor('device.pk')]
+    )
+    name = tables.Column(
+        verbose_name='Power Port'
     )
 
     class Meta(BaseTable.Meta):
-        model = PowerPort
-        fields = ('pdu', 'connected_endpoint', 'device', 'name', 'cable')
+        model = PowerConnection
+        fields = ('pdu', 'connected_endpoint', 'device', 'name', 'connection_status')
 
 
 class InterfaceConnectionTable(BaseTable):
@@ -736,14 +743,12 @@ class InterfaceConnectionTable(BaseTable):
         accessor=Accessor('connected_endpoint.description'),
         verbose_name='Description'
     )
-    cable = tables.LinkColumn(
-        viewname='dcim:cable',
-        args=[Accessor('cable.pk')]
-    )
 
     class Meta(BaseTable.Meta):
-        model = Interface
-        fields = ('device_a', 'interface_a', 'description_a', 'device_b', 'interface_b', 'description_b', 'cable')
+        model = InterfaceConnection
+        fields = (
+            'device_a', 'interface_a', 'description_a', 'device_b', 'interface_b', 'description_b', 'connection_status',
+        )
 
 
 #
