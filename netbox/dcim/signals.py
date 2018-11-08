@@ -45,10 +45,12 @@ def update_connected_endpoints(instance, **kwargs):
 def nullify_connected_endpoints(instance, **kwargs):
 
     # Disassociate the Cable from its termination points
-    instance.termination_a.cable = None
-    instance.termination_a.save()
-    instance.termination_b.cable = None
-    instance.termination_b.save()
+    if instance.termination_a is not None:
+        instance.termination_a.cable = None
+        instance.termination_a.save()
+    if instance.termination_b is not None:
+        instance.termination_b.cable = None
+        instance.termination_b.save()
 
     # If this Cable was part of a complete path, tear it down
     endpoint_a, endpoint_b = instance.get_path_endpoints()

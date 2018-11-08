@@ -149,3 +149,54 @@ class RackTestCase(TestCase):
             face=None,
         )
         self.assertTrue(pdu)
+
+
+class CableTestCase(TestCase):
+
+    def setUp(self):
+
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        devicerole = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        self.device1 = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='TestDevice1', site=site
+        )
+        self.device2 = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='TestDevice2', site=site
+        )
+        self.interface1 = Interface.objects.create(device=self.device1, name='eth0')
+        self.interface2 = Interface.objects.create(device=self.device2, name='eth0')
+        self.cable = Cable(termination_a=self.interface1, termination_b=self.interface2)
+        self.cable.save()
+
+    def test_cable_creation(self):
+        """
+        When a new Cable is created, it must be cached on either termination point.
+        """
+        interface1 = Interface.objects.get(pk=self.interface1.pk)
+        self.assertEqual(self.cable.termination_a, interface1)
+        interface2 = Interface.objects.get(pk=self.interface2.pk)
+        self.assertEqual(self.cable.termination_b, interface2)
+
+    def test_cable_deletion(self):
+        """
+        When a Cable is deleted, the `cable` field on its termination points must be nullified.
+        """
+        self.cable.delete()
+        interface1 = Interface.objects.get(pk=self.interface1.pk)
+        self.assertIsNone(interface1.cable)
+        interface2 = Interface.objects.get(pk=self.interface2.pk)
+        self.assertIsNone(interface2.cable)
+
+    def test_cabletermination_deletion(self):
+        """
+        When a CableTermination object is deleted, its attached Cable (if any) must also be deleted.
+        """
+        self.interface1.delete()
+        cable = Cable.objects.filter(pk=self.cable.pk).first()
+        self.assertIsNone(cable)

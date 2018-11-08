@@ -73,6 +73,18 @@ class CableTermination(models.Model):
         null=True
     )
 
+    # Generic relations to Cable. These ensure that an attached Cable is deleted if the terminated object is deleted.
+    _cabled_as_a = GenericRelation(
+        to='dcim.Cable',
+        content_type_field='termination_a_type',
+        object_id_field='termination_a_id'
+    )
+    _cabled_as_b = GenericRelation(
+        to='dcim.Cable',
+        content_type_field='termination_b_type',
+        object_id_field='termination_b_id'
+    )
+
     class Meta:
         abstract = True
 
