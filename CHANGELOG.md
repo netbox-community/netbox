@@ -44,6 +44,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#2567](https://github.com/digitalocean/netbox/issues/2567) - Introduced proxy models to represent console/power/interface connections
 * [#2569](https://github.com/digitalocean/netbox/issues/2569) - Added LSH fiber type; removed SC duplex/simplex designations
 * [#2571](https://github.com/digitalocean/netbox/issues/2571) - Enforce deletion of attached cable when deleting a termination point
+* [#2572](https://github.com/digitalocean/netbox/issues/2572) - Add button to disconnect cable from circuit termination
 
 ## API Changes
 

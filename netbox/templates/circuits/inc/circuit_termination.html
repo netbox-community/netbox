@@ -40,13 +40,20 @@
                 <td>Termination</td>
                 <td>
                     {% if termination.cable %}
+                        {% if perms.dcim.delete_cable %}
+                            <div class="pull-right">
+                                <a href="{% url 'dcim:cable_delete' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="Remove cable" class="btn btn-danger btn-xs">
+                                    <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i> Disconnect
+                                </a>
+                            </div>
+                        {% endif %}
                         <a href="{{ termination.cable.get_absolute_url }}">{{ termination.cable }}</a>
                         {% if termination.connected_endpoint %}
                             to <a href="{% url 'dcim:device' pk=termination.connected_endpoint.device.pk %}">{{ termination.connected_endpoint.device }}</a>
                             <i class="fa fa-angle-right"></i> {{ termination.connected_endpoint }}
                         {% endif %}
                     {% else %}
-                        {% if perms.circuits.change_circuittermination %}
+                        {% if perms.circuits.add_cable %}
                             <div class="pull-right">
                                 <a href="{% url 'circuits:circuittermination_connect' termination_a_id=termination.pk %}?return_url={{ circuit.get_absolute_url }}" class="btn btn-success btn-xs" title="Connect">
                                     <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i> Connect
