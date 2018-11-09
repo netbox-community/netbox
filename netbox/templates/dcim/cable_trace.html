@@ -23,18 +23,24 @@
                 {% include 'dcim/inc/cable_trace_end.html' with end=near_end %}
             </div>
             <div class="col-md-3 text-center">
-                <h4>
-                    <a href="{% url 'dcim:cable' pk=cable.pk %}">
-                        {% if cable.label %}<code>{{ cable.label }}</code>{% else %}Cable #{{ cable.pk }}{% endif %}
-                    </a>
-                </h4>
-                {{ cable.get_status_display }}<br />
-                {{ cable.get_type_display|default:"" }}
-                {% if cable.length %}- {{ cable.length }}{{ cable.length_unit }}{% endif %}
-                <span class="label color-block center-block" style="background-color: #{{ cable.color }}">&nbsp;</span>
+                {% if cable %}
+                    <h4>
+                        <a href="{% url 'dcim:cable' pk=cable.pk %}">
+                            {% if cable.label %}<code>{{ cable.label }}</code>{% else %}Cable #{{ cable.pk }}{% endif %}
+                        </a>
+                    </h4>
+                    {{ cable.get_status_display }}<br />
+                    {{ cable.get_type_display|default:"" }}
+                    {% if cable.length %}- {{ cable.length }}{{ cable.length_unit }}{% endif %}
+                    <span class="label color-block center-block" style="background-color: #{{ cable.color }}">&nbsp;</span>
+                {% else %}
+                    <h4 class="text-muted">No Cable</h4>
+                {% endif %}
             </div>
             <div class="col-md-4">
-                {% include 'dcim/inc/cable_trace_end.html' with end=far_end %}
+                {% if far_end %}
+                    {% include 'dcim/inc/cable_trace_end.html' with end=far_end %}
+                {% endif %}
             </div>
         </div>
         {% if not forloop.last %}<hr />{% endif %}
