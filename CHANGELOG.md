@@ -47,6 +47,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#2571](https://github.com/digitalocean/netbox/issues/2571) - Enforce deletion of attached cable when deleting a termination point
 * [#2572](https://github.com/digitalocean/netbox/issues/2572) - Add button to disconnect cable from circuit termination
 * [#2573](https://github.com/digitalocean/netbox/issues/2573) - Fix bulk console/power/interface disconnections
+* [#2574](https://github.com/digitalocean/netbox/issues/2574) - Remove duplicate interface links from topology maps
 
 ## API Changes
 

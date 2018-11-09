@@ -8,7 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.core.validators import ValidationError
 from django.db import models
-from django.db.models import Q
+from django.db.models import F, Q
 from django.http import HttpResponse
 from django.template import Template, Context
 from django.urls import reverse
@@ -512,6 +512,7 @@ class TopologyMap(models.Model):
         ).filter(
             Q(device__in=devices) | Q(_connected_interface__device__in=devices),
             _connected_interface__isnull=False,
+            pk__lt=F('_connected_interface')
         )
         for interface in connected_interfaces:
             style = 'solid' if interface.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
