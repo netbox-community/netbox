@@ -30,7 +30,11 @@
 
     {# Actions #}
     <td class="text-right">
-        {% if perms.dcim.add_cable %}
+        {% if frontport.cable and perms.dcim.delete_cable %}
+            <a href="{% url 'dcim:cable_delete' pk=frontport.cable.pk %}" title="Remove cable" class="btn btn-danger btn-xs">
+                <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
+            </a>
+        {% elif not frontport.cable and perms.dcim.add_cable %}
             <a href="{% url 'dcim:frontport_connect' termination_a_id=frontport.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-success btn-xs" title="Connect">
                 <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
             </a>

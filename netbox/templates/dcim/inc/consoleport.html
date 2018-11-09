@@ -31,7 +31,7 @@
     {# Actions #}
     <td class="text-right">
         {% if perms.dcim.change_consoleport %}
-            {% if cp.connected_endpoint %}
+            {% if cp.cable %}
                 {% if cp.connection_status %}
                     <a href="#" class="btn btn-warning btn-xs consoleport-toggle connected" title="Mark planned" data="{{ cp.pk }}">
                         <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>

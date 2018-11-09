@@ -31,7 +31,7 @@
     {# Actions #}
     <td class="text-right">
         {% if perms.dcim.change_powerport %}
-            {% if pp.connected_endpoint %}
+            {% if pp.cable %}
                 {% if pp.connection_status %}
                     <a href="#" class="btn btn-warning btn-xs powerport-toggle connected" title="Mark planned" data="{{ pp.pk }}">
                         <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>
