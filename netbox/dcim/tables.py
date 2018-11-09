@@ -9,7 +9,7 @@ from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, Interface, InterfaceConnection, InterfaceTemplate, InventoryItem,
     Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, Region, Site, VirtualChassis,
+    RackReservation, RackRole, Region, Site, VirtualChassis,
 )
 
 REGION_LINK = """
@@ -250,7 +250,7 @@ class RackRoleTable(BaseTable):
                                     verbose_name='')
 
     class Meta(BaseTable.Meta):
-        model = RackGroup
+        model = RackRole
         fields = ('pk', 'name', 'rack_count', 'color', 'slug', 'actions')
 
 

@@ -3,6 +3,7 @@ v2.4.8 (FUTURE)
 ## Bug Fixes
 
 * [#2473](https://github.com/digitalocean/netbox/issues/2473) - Fix encoding of long (>127 character) secrets
+* [#2575](https://github.com/digitalocean/netbox/issues/2575) - Correct model specified for rack roles table
 
 ---
 
