@@ -126,7 +126,7 @@ Install supervisor:
 # apt-get install -y supervisor
 ```
 
-Save the following as `/etc/supervisor/conf.d/netbox.conf`. Update the `command` and `directory` paths as needed. If using CentOS/RHEL, change the username from `www-data` to `nginx` or `apache`.
+Save the following as `/etc/supervisord.d/netbox.ini`. Update the `command` and `directory` paths as needed. If using CentOS/RHEL, change the username from `www-data` to `nginx` or `apache`.
 
 ```no-highlight
 [program:netbox]
