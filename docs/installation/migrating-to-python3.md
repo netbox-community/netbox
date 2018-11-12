@@ -51,26 +51,27 @@ Ensure EPEL is installed:
 # yum install -y epel-release
 ```
 
-Install Python3:
+Install Python3 and pip3, Python's package management tool:
 
 ```no-highlight
 # yum install -y python36 python36-devel python36-setuptools
+# python3.6 -m ensurepip --default-pip
 ```
 
 Install the Python3 packages required by NetBox:
 
 ```no-highlight
-# python3.6 -m pip install -r requirements.txt
+# pip3 install -r requirements.txt
 ```
 
 Replace gunicorn with the Python3 version:
 
 ```no-highlight
-# python3.6 -m pip install gunicorn
+# pip3 install gunicorn
 ```
 
 If using LDAP authentication, install the `django-auth-ldap` package:
 
 ```no-highlight
-# python3.6 -m pip install django-auth-ldap
+# pip3 install django-auth-ldap
 ```
