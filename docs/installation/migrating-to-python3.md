@@ -36,3 +36,41 @@ If using LDAP authentication, install the `django-auth-ldap` package:
 ```no-highlight
 # pip3 install django-auth-ldap
 ```
+
+## CentOS/RHEL
+
+Remove the Python2 version of gunicorn:
+
+```no-highlight
+# pip uninstall -y gunicorn
+```
+
+Ensure EPEL is installed:
+
+```no-highlight
+# yum install -y epel-release
+```
+
+Install Python3:
+
+```no-highlight
+# yum install -y python36 python36-devel python36-setuptools
+```
+
+Install the Python3 packages required by NetBox:
+
+```no-highlight
+# python3.6 -m pip install -r requirements.txt
+```
+
+Replace gunicorn with the Python3 version:
+
+```no-highlight
+# python3.6 -m pip install gunicorn
+```
+
+If using LDAP authentication, install the `django-auth-ldap` package:
+
+```no-highlight
+# python3.6 -m pip install django-auth-ldap
+```
