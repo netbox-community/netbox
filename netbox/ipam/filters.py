@@ -9,7 +9,7 @@ from netaddr.core import AddrFormatError
 from dcim.models import Site, Device, Interface
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
-from utilities.filters import NumericInFilter
+from utilities.filters import NumericInFilter, TagFilter
 from virtualization.models import VirtualMachine
 from .constants import IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, PREFIX_STATUS_CHOICES, VLAN_STATUS_CHOICES
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
@@ -31,9 +31,7 @@ class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Tenant (slug)',
     )
-    tag = django_filters.CharFilter(
-        name='tags__slug',
-    )
+    tag = TagFilter()
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -73,9 +71,7 @@ class AggregateFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='RIR (slug)',
     )
-    tag = django_filters.CharFilter(
-        name='tags__slug',
-    )
+    tag = TagFilter()
 
     class Meta:
         model = Aggregate
@@ -174,9 +170,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         choices=PREFIX_STATUS_CHOICES,
         null_value=None
     )
-    tag = django_filters.CharFilter(
-        name='tags__slug',
-    )
+    tag = TagFilter()
 
     class Meta:
         model = Prefix
@@ -303,9 +297,7 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
     role = django_filters.MultipleChoiceFilter(
         choices=IPADDRESS_ROLE_CHOICES
     )
-    tag = django_filters.CharFilter(
-        name='tags__slug',
-    )
+    tag = TagFilter()
 
     class Meta:
         model = IPAddress
@@ -422,9 +414,7 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         choices=VLAN_STATUS_CHOICES,
         null_value=None
     )
-    tag = django_filters.CharFilter(
-        name='tags__slug',
-    )
+    tag = TagFilter()
 
     class Meta:
         model = VLAN
@@ -466,9 +456,7 @@ class ServiceFilter(django_filters.FilterSet):
         to_field_name='name',
         label='Virtual machine (name)',
     )
-    tag = django_filters.CharFilter(
-        name='tags__slug',
-    )
+    tag = TagFilter()
 
     class Meta:
         model = Service

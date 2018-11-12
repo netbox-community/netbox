@@ -4,7 +4,7 @@ import django_filters
 from django.db.models import Q
 
 from extras.filters import CustomFieldFilterSet
-from utilities.filters import NumericInFilter
+from utilities.filters import NumericInFilter, TagFilter
 from .models import Tenant, TenantGroup
 
 
@@ -31,9 +31,7 @@ class TenantFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Group (slug)',
     )
-    tag = django_filters.CharFilter(
-        name='tags__slug',
-    )
+    tag = TagFilter()
 
     class Meta:
         model = Tenant
