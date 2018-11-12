@@ -7,7 +7,7 @@ from netaddr.core import AddrFormatError
 
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
-from utilities.filters import NullableCharFieldFilter, NumericInFilter
+from utilities.filters import NullableCharFieldFilter, NumericInFilter, TagFilter
 from virtualization.models import Cluster
 from .constants import *
 from .models import (
@@ -81,9 +81,7 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Tenant (slug)',
     )
-    tag = django_filters.CharFilter(
-        field_name='tags__slug',
-    )
+    tag = TagFilter()
 
     class Meta:
         model = Site
@@ -202,9 +200,7 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Role (slug)',
     )
     asset_tag = NullableCharFieldFilter()
-    tag = django_filters.CharFilter(
-        field_name='tags__slug',
-    )
+    tag = TagFilter()
 
     class Meta:
         model = Rack
@@ -346,9 +342,7 @@ class DeviceTypeFilter(CustomFieldFilterSet, django_filters.FilterSet):
         method='_pass_through_ports',
         label='Has pass-through ports',
     )
-    tag = django_filters.CharFilter(
-        field_name='tags__slug',
-    )
+    tag = TagFilter()
 
     class Meta:
         model = DeviceType
@@ -625,9 +619,7 @@ class DeviceFilter(CustomFieldFilterSet, django_filters.FilterSet):
         queryset=VirtualChassis.objects.all(),
         label='Virtual chassis (ID)',
     )
-    tag = django_filters.CharFilter(
-        field_name='tags__slug',
-    )
+    tag = TagFilter()
 
     class Meta:
         model = Device
@@ -714,9 +706,7 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         to_field_name='name',
         label='Device (name)',
     )
-    tag = django_filters.CharFilter(
-        field_name='tags__slug',
-    )
+    tag = TagFilter()
 
 
 class ConsolePortFilter(DeviceComponentFilterSet):
@@ -775,9 +765,7 @@ class InterfaceFilter(django_filters.FilterSet):
         method='_mac_address',
         label='MAC address',
     )
-    tag = django_filters.CharFilter(
-        field_name='tags__slug',
-    )
+    tag = TagFilter()
     vlan_id = django_filters.CharFilter(
         method='filter_vlan_id',
         label='Assigned VLAN'
@@ -932,9 +920,7 @@ class VirtualChassisFilter(django_filters.FilterSet):
         to_field_name='slug',
         label='Tenant (slug)',
     )
-    tag = django_filters.CharFilter(
-        field_name='tags__slug',
-    )
+    tag = TagFilter()
 
     class Meta:
         model = VirtualChassis

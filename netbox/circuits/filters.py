@@ -4,7 +4,7 @@ from django.db.models import Q
 from dcim.models import Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
-from utilities.filters import NumericInFilter
+from utilities.filters import NumericInFilter, TagFilter
 from .constants import CIRCUIT_STATUS_CHOICES
 from .models import Provider, Circuit, CircuitTermination, CircuitType
 
@@ -29,9 +29,7 @@ class ProviderFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Site (slug)',
     )
-    tag = django_filters.CharFilter(
-        field_name='tags__slug',
-    )
+    tag = TagFilter()
 
     class Meta:
         model = Provider
@@ -110,9 +108,7 @@ class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Site (slug)',
     )
-    tag = django_filters.CharFilter(
-        field_name='tags__slug',
-    )
+    tag = TagFilter()
 
     class Meta:
         model = Circuit

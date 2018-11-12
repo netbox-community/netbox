@@ -7,7 +7,7 @@ from netaddr.core import AddrFormatError
 from dcim.models import DeviceRole, Interface, Platform, Region, Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
-from utilities.filters import NumericInFilter
+from utilities.filters import NumericInFilter, TagFilter
 from .constants import VM_STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
@@ -65,9 +65,7 @@ class ClusterFilter(CustomFieldFilterSet):
         to_field_name='slug',
         label='Site (slug)',
     )
-    tag = django_filters.CharFilter(
-        field_name='tags__slug',
-    )
+    tag = TagFilter()
 
     class Meta:
         model = Cluster
@@ -172,9 +170,7 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         to_field_name='slug',
         label='Platform (slug)',
     )
-    tag = django_filters.CharFilter(
-        field_name='tags__slug',
-    )
+    tag = TagFilter()
 
     class Meta:
         model = VirtualMachine

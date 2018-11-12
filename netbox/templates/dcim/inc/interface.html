@@ -18,7 +18,7 @@
     {# LAG #}
     <td>
         {% if iface.lag %}
-            <a href="#iface_{{ iface.lag }}" class="label label-default">{{ iface.lag }}</a>
+            <a href="#iface_{{ iface.lag }}" class="label label-default" title="{{ iface.lag.description }}">{{ iface.lag }}</a>
         {% endif %}
     </td>
 

@@ -7,7 +7,7 @@ from .models import (
     Cable, ConsoleConnection, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
     DeviceBay, DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceConnection,
     InterfaceTemplate, InventoryItem, Manufacturer, Platform, PowerConnection, PowerOutlet, PowerOutletTemplate,
-    PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RearPort, RearPortTemplate, Region, Site,
+    PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
     VirtualChassis,
 )
 
@@ -261,7 +261,7 @@ class RackRoleTable(BaseTable):
                                     verbose_name='')
 
     class Meta(BaseTable.Meta):
-        model = RackGroup
+        model = RackRole
         fields = ('pk', 'name', 'rack_count', 'color', 'slug', 'actions')
 
 
