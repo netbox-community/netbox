@@ -2,7 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from taggit.models import Tag
 
-from dcim.api.serializers import (
+from dcim.api.nested_serializers import (
     NestedDeviceSerializer, NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedRackSerializer,
     NestedRegionSerializer, NestedSiteSerializer,
 )
@@ -11,12 +11,13 @@ from extras.constants import *
 from extras.models import (
     ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
 )
-from tenancy.api.serializers import NestedTenantSerializer, NestedTenantGroupSerializer
+from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
-from users.api.serializers import NestedUserSerializer
+from users.api.nested_serializers import NestedUserSerializer
 from utilities.api import (
     ChoiceField, ContentTypeField, get_serializer_for_model, SerializedPKRelatedField, ValidatedModelSerializer,
 )
+from .nested_serializers import *
 
 
 #
@@ -185,18 +186,6 @@ class ReportResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportResult
         fields = ['created', 'user', 'failed', 'data']
-
-
-class NestedReportResultSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='extras-api:report-detail',
-        lookup_field='report',
-        lookup_url_kwarg='pk'
-    )
-
-    class Meta:
-        model = ReportResult
-        fields = ['url', 'created', 'user', 'failed']
 
 
 class ReportSerializer(serializers.Serializer):

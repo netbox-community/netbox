@@ -1,10 +1,4 @@
-from django.contrib.auth.models import User
-
-from utilities.api import WritableNestedSerializer
+from .nested_serializers import *
 
 
-class NestedUserSerializer(WritableNestedSerializer):
-
-    class Meta:
-        model = User
-        fields = ['id', 'username']
+# Placeholder for future serializers

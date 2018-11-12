@@ -3433,7 +3433,7 @@ class VirtualChassisTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'url']
+            ['id', 'master', 'url']
         )
 
     def test_create_virtualchassis(self):
