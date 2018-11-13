@@ -183,7 +183,6 @@ class CableTestCase(TestCase):
             device=self.patch_pannel, name='F1', type=1000, rear_port=self.rear_port
         )
 
-
     def test_cable_creation(self):
         """
         When a new Cable is created, it must be cached on either termination point.
