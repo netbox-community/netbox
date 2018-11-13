@@ -65,6 +65,7 @@ PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 REDIS = getattr(configuration, 'REDIS', {})
+SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
@@ -110,6 +111,10 @@ configuration.DATABASE.update({'ENGINE': 'django.db.backends.postgresql'})
 DATABASES = {
     'default': configuration.DATABASE,
 }
+
+# Sessions
+if SESSION_FILE_PATH is not None:
+    SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 
 # Redis
 REDIS_HOST = REDIS.get('HOST', 'localhost')

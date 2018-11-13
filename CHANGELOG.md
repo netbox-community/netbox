@@ -36,6 +36,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#2165](https://github.com/digitalocean/netbox/issues/2165) - Improved natural ordering of Interfaces
 * [#2292](https://github.com/digitalocean/netbox/issues/2292) - Removed the deprecated UserAction model
 * [#2367](https://github.com/digitalocean/netbox/issues/2367) - Removed deprecated RPCClient functionality
+* [#2426](https://github.com/digitalocean/netbox/issues/2426) - Introduced `SESSION_FILE_PATH` configuration setting for authentication without write access to database
 
 ## Changes From v2.5-beta1
 

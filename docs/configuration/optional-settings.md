@@ -223,6 +223,14 @@ The file path to the location where custom reports will be kept. By default, thi
 
 ---
 
+## SESSION_FILE_PATH
+
+Default: None
+
+Session data is used to track authenticated users when they access NetBox. By default, NetBox stores session data in the PostgreSQL database. However, this inhibits authentication to a standby instance of NetBox without write access to the database. Alternatively, a local file path may be specified here and NetBox will store session data as files instead of using the database. Note that the user as which NetBox runs must have read and write permissions to this path.
+
+---
+
 ## TIME_ZONE
 
 Default: UTC
