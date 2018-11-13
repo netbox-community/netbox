@@ -53,6 +53,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#2579](https://github.com/digitalocean/netbox/issues/2579) - Add missing cable disconnect buttons for front/rear ports
 * [#2584](https://github.com/digitalocean/netbox/issues/2584) - Prevent a Front port from being connected to its corresponding rear port
 * [#2585](https://github.com/digitalocean/netbox/issues/2585) - Prevent cable connections that include a virtual interface
+* [#2586](https://github.com/digitalocean/netbox/issues/2585) - Added tests for the Cable model's clean() method
 
 ## API Changes
 
