@@ -2530,8 +2530,18 @@ class Cable(ChangeLoggedModel):
 
         # A termination point cannot be connected to itself
         if self.termination_a == self.termination_b:
-            print("Validation failed: same interface")
             raise ValidationError("Cannot connect {} to itself".format(self.termination_a_type))
+
+        # A front port cannot be connected to its corresponding rear port
+        if (
+            type_a in ['frontport', 'rearport'] and
+            type_b in ['frontport', 'rearport'] and
+            (
+                getattr(self.termination_a, 'rear_port', None) == self.termination_b or
+                getattr(self.termination_b, 'rear_port', None) == self.termination_a
+            )
+        ):
+            raise ValidationError("A front port cannot be connected to it corresponding rear port")
 
         # Check for an existing Cable connected to either termination object
         if self.termination_a.cable not in (None, self):
