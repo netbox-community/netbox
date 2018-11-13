@@ -16,6 +16,7 @@ urlpatterns = [
     # Config contexts
     url(r'^config-contexts/$', views.ConfigContextListView.as_view(), name='configcontext_list'),
     url(r'^config-contexts/add/$', views.ConfigContextCreateView.as_view(), name='configcontext_add'),
+    url(r'^config-contexts/edit/$', views.ConfigContextBulkEditView.as_view(), name='configcontext_bulk_edit'),
     url(r'^config-contexts/(?P<pk>\d+)/$', views.ConfigContextView.as_view(), name='configcontext'),
     url(r'^config-contexts/(?P<pk>\d+)/edit/$', views.ConfigContextEditView.as_view(), name='configcontext_edit'),
     url(r'^config-contexts/(?P<pk>\d+)/delete/$', views.ConfigContextDeleteView.as_view(), name='configcontext_delete'),

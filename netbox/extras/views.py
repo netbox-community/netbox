@@ -12,9 +12,12 @@ from django.views.generic import View
 from taggit.models import Tag
 
 from utilities.forms import ConfirmationForm
-from utilities.views import BulkDeleteView, ObjectDeleteView, ObjectEditView, ObjectListView
+from utilities.views import BulkDeleteView, BulkEditView, ObjectDeleteView, ObjectEditView, ObjectListView
 from . import filters
-from .forms import ConfigContextForm, ConfigContextFilterForm, ImageAttachmentForm, ObjectChangeFilterForm, TagForm
+from .forms import (
+    ConfigContextForm, ConfigContextBulkEditForm, ConfigContextFilterForm, ImageAttachmentForm, ObjectChangeFilterForm,
+    TagForm,
+)
 from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult
 from .reports import get_report, get_reports
 from .tables import ConfigContextTable, ObjectChangeTable, TagTable
@@ -83,6 +86,15 @@ class ConfigContextCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class ConfigContextEditView(ConfigContextCreateView):
     permission_required = 'extras.change_configcontext'
+
+
+class ConfigContextBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'extras.change_configcontext'
+    queryset = ConfigContext.objects.all()
+    filter = filters.ConfigContextFilter
+    table = ConfigContextTable
+    form = ConfigContextBulkEditForm
+    default_return_url = 'extras:configcontext_list'
 
 
 class ConfigContextDeleteView(PermissionRequiredMixin, ObjectDeleteView):
