@@ -174,6 +174,16 @@ class CableTestCase(TestCase):
         self.cable = Cable(termination_a=self.interface1, termination_b=self.interface2)
         self.cable.save()
 
+        self.power_port1 = PowerPort.objects.create(device=self.device2, name='psu1')
+        self.patch_pannel = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='TestPatchPannel', site=site
+        )
+        self.rear_port = RearPort.objects.create(device=self.patch_pannel, name='R1', type=1000)
+        self.front_port = FrontPort.objects.create(
+            device=self.patch_pannel, name='F1', type=1000, rear_port=self.rear_port
+        )
+
+
     def test_cable_creation(self):
         """
         When a new Cable is created, it must be cached on either termination point.
@@ -200,3 +210,46 @@ class CableTestCase(TestCase):
         self.interface1.delete()
         cable = Cable.objects.filter(pk=self.cable.pk).first()
         self.assertIsNone(cable)
+
+    def test_cable_validates_compatibale_types(self):
+        """
+        The clean method should have a check to ensure only compatiable port types can be connected by a cable
+        """
+        # An interface cannot be connected to a power port
+        cable = Cable(termination_a=self.interface1, termination_b=self.power_port1)
+        with self.assertRaises(ValidationError):
+            cable.clean()
+
+    def test_cable_cannot_have_the_same_terminination_on_both_ends(self):
+        """
+        A cable cannot be made with the same A and B side terminations
+        """
+        cable = Cable(termination_a=self.interface1, termination_b=self.interface1)
+        with self.assertRaises(ValidationError):
+            cable.clean()
+
+    def test_cable_front_port_cannot_connect_to_corresponding_rear_port(self):
+        """
+        A cable cannot connect a front port to its sorresponding rear port
+        """
+        cable = Cable(termination_a=self.front_port, termination_b=self.rear_port)
+        with self.assertRaises(ValidationError):
+            cable.clean()
+
+    def test_cable_cannot_be_connected_to_an_existing_connection(self):
+        """
+        Either side of a cable cannot be terminated when that side aready has a connection
+        """
+        # Try to create a cable with the same interface terminations
+        cable = Cable(termination_a=self.interface2, termination_b=self.interface1)
+        with self.assertRaises(ValidationError):
+            cable.clean()
+
+    def test_cable_cannot_connect_to_a_virtual_inteface(self):
+        """
+        A cable connection cannot include a virtual interface
+        """
+        virtual_interface = Interface(device=self.device1, name="V1", form_factor=0)
+        cable = Cable(termination_a=self.interface2, termination_b=virtual_interface)
+        with self.assertRaises(ValidationError):
+            cable.clean()
