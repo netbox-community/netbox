@@ -858,8 +858,10 @@ class DeviceView(View):
             device.device_type.interface_ordering
         ).select_related(
             'connected_as_a__interface_b__device', 'connected_as_b__interface_a__device',
-            'circuit_termination__circuit'
-        ).prefetch_related('ip_addresses')
+            'circuit_termination__circuit__provider'
+        ).prefetch_related(
+            'tags', 'ip_addresses'
+        )
 
         # Device bays
         device_bays = natsorted(
