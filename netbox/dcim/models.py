@@ -2553,6 +2553,20 @@ class Cable(ChangeLoggedModel):
                 self.termination_b, self.termination_b.cable_id
             ))
 
+        # Virtual interfaces cannot be connected
+        endpoint_a, endpoint_b = self.get_path_endpoints()
+        if (
+            (
+                isinstance(endpoint_a, Interface) and
+                endpoint_a.form_factor == IFACE_FF_VIRTUAL
+            ) or
+            (
+                isinstance(endpoint_b, Interface) and
+                endpoint_b.form_factor == IFACE_FF_VIRTUAL
+            )
+        ):
+            raise ValidationError("Cannot connect to a virtual interface")
+
         # Validate length and length_unit
         if self.length and not self.length_unit:
             raise ValidationError("Must specify a unit when setting a cable length")
