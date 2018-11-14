@@ -1851,6 +1851,8 @@ class CableCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
         termination_a_type = self.instance.termination_a._meta.model_name
         self.fields['termination_b_type'].queryset = ContentType.objects.filter(
             model__in=COMPATIBLE_TERMINATION_TYPES.get(termination_a_type)
+        ).exclude(
+            model='circuittermination'
         )
 
 

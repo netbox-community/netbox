@@ -1,3 +1,4 @@
+{% load helpers %}
 <table class="table table-hover panel-body attr-table">
     {% if termination.device %}
         {# Device component #}
@@ -5,6 +6,12 @@
             <td>Device</td>
             <td>
                 <a href="{{ termination.device.get_absolute_url }}">{{ termination.device }}</a>
+            </td>
+        </tr>
+        <tr>
+            <td>Type</td>
+            <td>
+                {{ termination|model_name|capfirst }}
             </td>
         </tr>
         <tr>
