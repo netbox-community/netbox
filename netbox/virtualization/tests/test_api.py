@@ -380,6 +380,18 @@ class VirtualMachineTest(APITestCase):
         self.assertEqual(virtualmachine4.name, data['name'])
         self.assertEqual(virtualmachine4.cluster.pk, data['cluster'])
 
+    def test_create_virtualmachine_without_cluster(self):
+
+        data = {
+            'name': 'Test Virtual Machine 4',
+        }
+
+        url = reverse('virtualization-api:virtualmachine-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(VirtualMachine.objects.count(), 3)
+
     def test_create_virtualmachine_bulk(self):
 
         data = [

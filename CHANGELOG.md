@@ -11,6 +11,7 @@ v2.4.8 (FUTURE)
 * [#2565](https://github.com/digitalocean/netbox/issues/2565) - Improved rendering of Markdown tables
 * [#2575](https://github.com/digitalocean/netbox/issues/2575) - Correct model specified for rack roles table
 * [#2588](https://github.com/digitalocean/netbox/issues/2588) - Catch all exceptions from failed NAPALM API Calls
+* [#2589](https://github.com/digitalocean/netbox/issues/2589) - Virtual machine API serializer should require cluster assignment
 
 ---
 
