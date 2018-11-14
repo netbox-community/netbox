@@ -133,6 +133,14 @@ Setting this to True will permit only authenticated users to access any part of 
 
 ---
 
+## LOGIN_TIMEOUT
+
+Default: 1209600 seconds (14 days)
+
+The liftetime (in seconds) of the authentication cookie issued to a NetBox user upon login.
+
+---
+
 ## MAINTENANCE_MODE
 
 Default: False

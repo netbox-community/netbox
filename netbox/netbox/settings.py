@@ -54,6 +54,7 @@ ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
 EMAIL = getattr(configuration, 'EMAIL', {})
 LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
+LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
 MAINTENANCE_MODE = getattr(configuration, 'MAINTENANCE_MODE', False)
 MAX_PAGE_SIZE = getattr(configuration, 'MAX_PAGE_SIZE', 1000)
 MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
@@ -113,6 +114,13 @@ DATABASES = {
 }
 
 # Sessions
+if LOGIN_TIMEOUT is not None:
+    if type(LOGIN_TIMEOUT) is not int or LOGIN_TIMEOUT < 0:
+        raise ImproperlyConfigured(
+            "LOGIN_TIMEOUT must be a positive integer (value: {})".format(LOGIN_TIMEOUT)
+        )
+    # Django default is 1209600 seconds (14 days)
+    SESSION_COOKIE_AGE = LOGIN_TIMEOUT
 if SESSION_FILE_PATH is not None:
     SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 

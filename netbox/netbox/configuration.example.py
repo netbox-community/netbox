@@ -91,6 +91,10 @@ LOGGING = {}
 # are permitted to access most data in NetBox (excluding secrets) but not make any changes.
 LOGIN_REQUIRED = False
 
+# The length of time (in seconds) for which a user will remain logged into the web UI before being prompted to
+# re-authenticate. (Default: 1209600 [14 days])
+LOGIN_TIMEOUT = None
+
 # Setting this to True will display a "maintenance mode" banner at the top of every page.
 MAINTENANCE_MODE = False
 
