@@ -19,7 +19,7 @@ from utilities.forms import (
     BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField, ComponentForm,
     ConfirmationForm, ContentTypeSelect, CSVChoiceField, ExpandableNameField, FilterChoiceField,
     FilterTreeNodeMultipleChoiceField, FlexibleModelChoiceField, JSONField, Livesearch, SelectWithPK, SmallTextarea,
-    SlugField, COLOR_CHOICES,
+    SlugField, BOOLEAN_WITH_BLANK_CHOICES, COLOR_CHOICES,
 
 )
 from virtualization.models import Cluster
@@ -650,34 +650,40 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=Manufacturer.objects.annotate(filter_count=Count('device_types')),
         to_field_name='slug'
     )
-    console_ports = forms.BooleanField(
-        required=False,
-        label='Has console ports'
-    )
-    console_server_ports = forms.BooleanField(
-        required=False,
-        label='Has console server ports'
-    )
-    power_ports = forms.BooleanField(
-        required=False,
-        label='Has power ports'
-    )
-    power_outlets = forms.BooleanField(
-        required=False,
-        label='Has power outlets'
-    )
-    interfaces = forms.BooleanField(
-        required=False,
-        label='Has interfaces'
-    )
-    pass_through_ports = forms.BooleanField(
-        required=False,
-        label='Has pass-through ports'
-    )
     subdevice_role = forms.NullBooleanField(
         required=False,
         label='Subdevice role',
         widget=forms.Select(choices=add_blank_choice(SUBDEVICE_ROLE_CHOICES))
+    )
+    console_ports = forms.NullBooleanField(
+        required=False,
+        label='Has console ports',
+        widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES)
+    )
+    console_server_ports = forms.NullBooleanField(
+        required=False,
+        label='Has console server ports',
+        widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES)
+    )
+    power_ports = forms.NullBooleanField(
+        required=False,
+        label='Has power ports',
+        widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES)
+    )
+    power_outlets = forms.NullBooleanField(
+        required=False,
+        label='Has power outlets',
+        widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES)
+    )
+    interfaces = forms.NullBooleanField(
+        required=False,
+        label='Has interfaces',
+        widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES)
+    )
+    pass_through_ports = forms.NullBooleanField(
+        required=False,
+        label='Has pass-through ports',
+        widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES)
     )
 
 
@@ -1316,11 +1322,37 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     has_primary_ip = forms.NullBooleanField(
         required=False,
         label='Has a primary IP',
-        widget=forms.Select(choices=[
-            ('', '---------'),
-            ('True', 'Yes'),
-            ('False', 'No'),
-        ])
+        widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES)
+    )
+    console_ports = forms.NullBooleanField(
+        required=False,
+        label='Has console ports',
+        widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES)
+    )
+    console_server_ports = forms.NullBooleanField(
+        required=False,
+        label='Has console server ports',
+        widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES)
+    )
+    power_ports = forms.NullBooleanField(
+        required=False,
+        label='Has power ports',
+        widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES)
+    )
+    power_outlets = forms.NullBooleanField(
+        required=False,
+        label='Has power outlets',
+        widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES)
+    )
+    interfaces = forms.NullBooleanField(
+        required=False,
+        label='Has interfaces',
+        widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES)
+    )
+    pass_through_ports = forms.NullBooleanField(
+        required=False,
+        label='Has pass-through ports',
+        widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES)
     )
 
 

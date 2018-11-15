@@ -110,9 +110,7 @@ $(document).ready(function() {
                         var conditional = attr.name.split("data-url-conditional-append-")[1].split("__");
                         var field = $("#id_" + conditional[0]);
                         var field_value = conditional[1];
-                        console.log($('option:selected', field).attr('api-value'));
                         if ($('option:selected', field).attr('api-value') === field_value){
-                            console.log(attr.value);
                             rendered_url = rendered_url + attr.value;
                         }
                     }
