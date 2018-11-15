@@ -776,8 +776,8 @@
 
 {% block javascript %}
 <script type="text/javascript">
-function toggleConnection(elem, api_url) {
-    var url = netbox_api_path + api_url + elem.attr('data') + "/";
+function toggleConnection(elem) {
+    var url = netbox_api_path + "dcim/cables/" + elem.attr('data') + "/";
     if (elem.hasClass('connected')) {
         $.ajax({
             url: url,
@@ -787,7 +787,7 @@ function toggleConnection(elem, api_url) {
                 xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
             },
             data: {
-                'connection_status': 'False'
+                'status': 'False'
             },
             context: this,
             success: function() {
@@ -806,7 +806,7 @@ function toggleConnection(elem, api_url) {
                 xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
             },
             data: {
-                'connection_status': 'True'
+                'status': 'True'
             },
             context: this,
             success: function() {
@@ -819,14 +819,8 @@ function toggleConnection(elem, api_url) {
     }
     return false;
 }
-$(".consoleport-toggle").click(function() {
-    return toggleConnection($(this), "dcim/console-ports/");
-});
-$(".powerport-toggle").click(function() {
-    return toggleConnection($(this), "dcim/power-ports/");
-});
-$(".interface-toggle").click(function() {
-    return toggleConnection($(this), "dcim/interface-connections/");
+$(".cable-toggle").click(function() {
+    return toggleConnection($(this));
 });
 // Toggle the display of IP addresses under interfaces
 $('button.toggle-ips').click(function() {

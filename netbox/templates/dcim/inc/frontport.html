@@ -1,4 +1,4 @@
-<tr class="frontport{% if frontport.cable %} {% if frontport.cable.status %}success{% else %}info{% endif %}{% endif %}">
+<tr class="frontport{% if frontport.cable.status %} success{% elif frontport.cable %} info{% endif %}">
 
     {# Checkbox #}
     {% if perms.dcim.change_frontport or perms.dcim.delete_frontport %}
@@ -30,11 +30,9 @@
 
     {# Actions #}
     <td class="text-right">
-        {% if frontport.cable and perms.dcim.delete_cable %}
-            <a href="{% url 'dcim:cable_delete' pk=frontport.cable.pk %}" title="Remove cable" class="btn btn-danger btn-xs">
-                <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
-            </a>
-        {% elif not frontport.cable and perms.dcim.add_cable %}
+        {% if frontport.cable %}
+            {% include 'dcim/inc/cable_toggle_buttons.html' with cable=frontport.cable %}
+        {% elif perms.dcim.add_cable %}
             <a href="{% url 'dcim:frontport_connect' termination_a_id=frontport.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-success btn-xs" title="Connect">
                 <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
             </a>

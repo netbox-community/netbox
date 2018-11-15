@@ -1,4 +1,4 @@
-<tr class="interface{% if not iface.enabled %} danger{% elif iface.connected_endpoint %} {% if iface.connection_status %}success{% else %}info{% endif %}{% elif iface.circuit_termination %} success{% elif iface.is_virtual %} warning{% endif %}" id="iface_{{ iface.name }}">
+<tr class="interface{% if not iface.enabled %} danger{% elif iface.cable.status %} success{% elif iface.cable %} info{% elif iface.is_virtual %} warning{% endif %}" id="iface_{{ iface.name }}">
 
     {# Checkbox #}
     {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
@@ -104,25 +104,12 @@
             </a>
         {% endif %}
         {% if perms.dcim.change_interface %}
-            {% if not iface.is_virtual %}
-                {% if iface.cable %}
-                    {% if iface.cable.status %}
-                        <a href="#" class="btn btn-warning btn-xs interface-toggle connected" data="{{ iface.cable.pk }}" title="Mark planned">
-                            <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>
-                        </a>
-                    {% else %}
-                        <a href="#" class="btn btn-success btn-xs interface-toggle" data="{{ iface.cable.pk }}" title="Mark installed">
-                            <i class="fa fa-plug" aria-hidden="true"></i>
-                        </a>
-                    {% endif %}
-                    <a href="{% url 'dcim:cable_delete' pk=iface.cable.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs" title="Remove cable">
-                        <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
-                    </a>
-                {% else %}
-                    <a href="{% url 'dcim:interface_connect' termination_a_id=iface.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-success btn-xs" title="Connect">
-                        <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
-                    </a>
-                {% endif %}
+            {% if iface.cable %}
+                {% include 'dcim/inc/cable_toggle_buttons.html' with cable=iface.cable %}
+            {% elif not iface.is_virtual and perms.dcim.add_cable %}
+                <a href="{% url 'dcim:interface_connect' termination_a_id=iface.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-success btn-xs" title="Connect">
+                    <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
+                </a>
             {% endif %}
             <a href="{% if iface.device_id %}{% url 'dcim:interface_edit' pk=iface.pk %}{% else %}{% url 'virtualization:interface_edit' pk=iface.pk %}{% endif %}?return_url={{ device.get_absolute_url }}" class="btn btn-info btn-xs" title="Edit interface">
                 <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
