@@ -1833,7 +1833,10 @@ class CableCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
         label='Name',
         widget=APISelect(
             api_url='/api/dcim/{{termination_b_type}}s/?device_id={{termination_b_device}}',
-            disabled_indicator='cable'
+            disabled_indicator='cable',
+            url_conditional_append={
+                'termination_b_type__interface': '&type=physical',
+            }
         )
     )
 

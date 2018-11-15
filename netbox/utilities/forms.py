@@ -258,9 +258,21 @@ class APISelect(SelectWithDisabled):
     :param api_url: API URL
     :param display_field: (Optional) Field to display for child in selection list. Defaults to `name`.
     :param disabled_indicator: (Optional) Mark option as disabled if this field equates true.
+    :param url_conditional_append: (Optional) A dict of URL query strings to append to the URL if the
+        condition is met. The condition is the dict key and is specified in the form `<field_name>__<field_value>`.
+        If the provided field value is selected for the given field, the URL query string will be appended to
+        the rendered URL. This is useful in cases where a particular field value dictates an additional API filter.
     """
 
-    def __init__(self, api_url, display_field=None, disabled_indicator=None, *args, **kwargs):
+    def __init__(
+        self,
+        api_url,
+        display_field=None,
+        disabled_indicator=None,
+        url_conditional_append=None,
+        *args,
+        **kwargs
+    ):
 
         super(APISelect, self).__init__(*args, **kwargs)
 
@@ -270,6 +282,9 @@ class APISelect(SelectWithDisabled):
             self.attrs['display-field'] = display_field
         if disabled_indicator:
             self.attrs['disabled-indicator'] = disabled_indicator
+        if url_conditional_append:
+            for key, value in url_conditional_append.items():
+                self.attrs["data-url-conditional-append-{}".format(key)] = value
 
 
 class APISelectMultiple(APISelect):
