@@ -9,6 +9,7 @@ urlpatterns = [
 
     # Tags
     url(r'^tags/$', views.TagListView.as_view(), name='tag_list'),
+    url(r'^tags/(?P<slug>[\w-]+)/$', views.TagView.as_view(), name='tag'),
     url(r'^tags/(?P<slug>[\w-]+)/edit/$', views.TagEditView.as_view(), name='tag_edit'),
     url(r'^tags/(?P<slug>[\w-]+)/delete/$', views.TagDeleteView.as_view(), name='tag_delete'),
     url(r'^tags/delete/$', views.TagBulkDeleteView.as_view(), name='tag_bulk_delete'),

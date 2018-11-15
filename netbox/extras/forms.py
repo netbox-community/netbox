@@ -208,6 +208,11 @@ class AddRemoveTagsForm(forms.Form):
         self.fields['remove_tags'] = TagField(required=False)
 
 
+class TagFilterForm(BootstrapMixin, forms.Form):
+    model = Tag
+    q = forms.CharField(required=False, label='Search')
+
+
 #
 # Config contexts
 #

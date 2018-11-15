@@ -3,6 +3,7 @@ v2.4.8 (FUTURE)
 ## Enhancements
 
 * [#2490](https://github.com/digitalocean/netbox/issues/2490) - Added bulk editing for config contexts
+* [#2557](https://github.com/digitalocean/netbox/issues/2557) - Added object view for tags
 
 ## Bug Fixes
 
