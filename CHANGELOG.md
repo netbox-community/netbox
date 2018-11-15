@@ -53,6 +53,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#2574](https://github.com/digitalocean/netbox/issues/2574) - Remove duplicate interface links from topology maps
 * [#2578](https://github.com/digitalocean/netbox/issues/2578) - Reorganized nested serializers
 * [#2579](https://github.com/digitalocean/netbox/issues/2579) - Add missing cable disconnect buttons for front/rear ports
+* [#2583](https://github.com/digitalocean/netbox/issues/2583) - Cleaned up component filters for device and device type
 * [#2584](https://github.com/digitalocean/netbox/issues/2584) - Prevent a Front port from being connected to its corresponding rear port
 * [#2585](https://github.com/digitalocean/netbox/issues/2585) - Prevent cable connections that include a virtual interface
 * [#2586](https://github.com/digitalocean/netbox/issues/2585) - Added tests for the Cable model's clean() method
