@@ -70,7 +70,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='circuittermination',
             name='connection_status',
-            field=models.NullBooleanField(default=True),
+            field=models.NullBooleanField(),
         ),
         migrations.AddField(
             model_name='circuittermination',

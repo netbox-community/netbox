@@ -174,6 +174,11 @@ class Migration(migrations.Migration):
             name='connected_endpoint',
             field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='connected_endpoint', to='dcim.ConsoleServerPort'),
         ),
+        migrations.AlterField(
+            model_name='consoleport',
+            name='connection_status',
+            field=models.NullBooleanField(),
+        ),
         migrations.AddField(
             model_name='consoleport',
             name='cable',
@@ -206,6 +211,11 @@ class Migration(migrations.Migration):
             name='connected_endpoint',
             field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='connected_endpoint', to='dcim.PowerOutlet'),
         ),
+        migrations.AlterField(
+            model_name='powerport',
+            name='connection_status',
+            field=models.NullBooleanField(),
+        ),
         migrations.AddField(
             model_name='powerport',
             name='cable',
@@ -236,7 +246,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='interface',
             name='connection_status',
-            field=models.NullBooleanField(default=True),
+            field=models.NullBooleanField(),
         ),
         migrations.AddField(
             model_name='interface',
@@ -274,4 +284,35 @@ class Migration(migrations.Migration):
             name='InterfaceConnection',
         ),
 
+        # Proxy models
+        migrations.CreateModel(
+            name='ConsoleConnection',
+            fields=[
+            ],
+            options={
+                'proxy': True,
+                'indexes': [],
+            },
+            bases=('dcim.consoleport',),
+        ),
+        migrations.CreateModel(
+            name='InterfaceConnection',
+            fields=[
+            ],
+            options={
+                'proxy': True,
+                'indexes': [],
+            },
+            bases=('dcim.interface',),
+        ),
+        migrations.CreateModel(
+            name='PowerConnection',
+            fields=[
+            ],
+            options={
+                'proxy': True,
+                'indexes': [],
+            },
+            bases=('dcim.powerport',),
+        ),
     ]
