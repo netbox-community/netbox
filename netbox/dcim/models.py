@@ -88,7 +88,7 @@ class CableTermination(models.Model):
     class Meta:
         abstract = True
 
-    def trace(self, position=1):
+    def trace(self, position=1, follow_circuits=False):
         """
         Return a list representing a complete cable path, with each individual segment represented as a three-tuple:
             [
@@ -97,7 +97,7 @@ class CableTermination(models.Model):
                 (termination E, cable, termination F)
             ]
         """
-        def get_peer_port(termination, position=1):
+        def get_peer_port(termination, position=1, follow_circuits=False):
             from circuits.models import CircuitTermination
 
             # Map a front port to its corresponding rear port
@@ -117,7 +117,7 @@ class CableTermination(models.Model):
                 return peer_port, 1
 
             # Follow a circuit to its other termination
-            elif isinstance(termination, CircuitTermination):
+            elif isinstance(termination, CircuitTermination) and follow_circuits:
                 peer_termination = termination.get_peer_termination()
                 if peer_termination is None:
                     return None, None
@@ -133,7 +133,7 @@ class CableTermination(models.Model):
         far_end = self.cable.termination_b if self.cable.termination_a == self else self.cable.termination_a
         path = [(self, self.cable, far_end)]
 
-        peer_port, position = get_peer_port(far_end, position)
+        peer_port, position = get_peer_port(far_end, position, follow_circuits)
         if peer_port is None:
             return path
 
@@ -1704,7 +1704,7 @@ class ConsolePort(CableTermination, ComponentModel):
     )
     connection_status = models.NullBooleanField(
         choices=CONNECTION_STATUS_CHOICES,
-        default=CONNECTION_STATUS_CONNECTED
+        blank=True
     )
 
     objects = DeviceComponentManager()
@@ -1792,7 +1792,7 @@ class PowerPort(CableTermination, ComponentModel):
     )
     connection_status = models.NullBooleanField(
         choices=CONNECTION_STATUS_CHOICES,
-        default=CONNECTION_STATUS_CONNECTED
+        blank=True
     )
 
     objects = DeviceComponentManager()
@@ -1897,7 +1897,7 @@ class Interface(CableTermination, ComponentModel):
     )
     connection_status = models.NullBooleanField(
         choices=CONNECTION_STATUS_CHOICES,
-        default=CONNECTION_STATUS_CONNECTED
+        blank=True
     )
     lag = models.ForeignKey(
         to='self',
@@ -2554,7 +2554,7 @@ class Cable(ChangeLoggedModel):
             ))
 
         # Virtual interfaces cannot be connected
-        endpoint_a, endpoint_b = self.get_path_endpoints()
+        endpoint_a, endpoint_b, _ = self.get_path_endpoints()
         if (
             (
                 isinstance(endpoint_a, Interface) and
@@ -2600,42 +2600,18 @@ class Cable(ChangeLoggedModel):
         Traverse both ends of a cable path and return its connected endpoints. Note that one or both endpoints may be
         None.
         """
-        def trace_cable(termination, position=1):
+        a_path = self.termination_a.trace()
+        b_path = self.termination_b.trace()
 
-            # Given a front port, follow the cable connected to the corresponding rear port/position
-            if isinstance(termination, FrontPort):
-                peer_port = termination.rear_port
-                position = termination.rear_port_position
+        # Determine overall path status (connected or planned)
+        cables = [segment[1] for segment in a_path + b_path]
+        if all(cables) and all([c.status for c in cables]):
+            path_status = CONNECTION_STATUS_CONNECTED
+        else:
+            path_status = CONNECTION_STATUS_PLANNED
 
-            # Given a rear port/position, follow the cable connected to the corresponding front port
-            elif isinstance(termination, RearPort):
-                if position not in range(1, termination.positions + 1):
-                    raise Exception("Invalid position for {} ({} positions): {})".format(
-                        termination, termination.positions, position
-                    ))
-                peer_port = FrontPort.objects.get(
-                    rear_port=termination,
-                    rear_port_position=position,
-                )
-                position = 1
-
-            # Termination is not a pass-through port, so we've reached the end of the path
-            else:
-                return termination
-
-            # Find the cable (if any) attached to the peer port
-            next_cable = peer_port.cable
-
-            # If no cable exists, return None
-            if next_cable is None:
-                return None
-
-            far_end = next_cable.termination_b if next_cable.termination_a == peer_port else next_cable.termination_a
-
-            # Return the far side termination of the cable
-            return trace_cable(far_end, position)
-
-        return trace_cable(self.termination_a), trace_cable(self.termination_b)
+        # (A path end, B path end, connected/planned)
+        return a_path[-1][2], b_path[-1][2], path_status
 
 
 #

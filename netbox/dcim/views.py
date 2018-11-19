@@ -1625,7 +1625,7 @@ class CableTraceView(View):
 
         return render(request, 'dcim/cable_trace.html', {
             'obj': obj,
-            'trace': obj.trace(),
+            'trace': obj.trace(follow_circuits=True),
         })
 
 

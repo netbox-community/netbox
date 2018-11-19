@@ -1,5 +1,6 @@
 from django.test import TestCase
 
+from dcim.constants import *
 from dcim.models import *
 
 
@@ -252,3 +253,95 @@ class CableTestCase(TestCase):
         cable = Cable(termination_a=self.interface2, termination_b=virtual_interface)
         with self.assertRaises(ValidationError):
             cable.clean()
+
+
+class CablePathTestCase(TestCase):
+
+    def setUp(self):
+
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        devicerole = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        self.device1 = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Device 1', site=site
+        )
+        self.device2 = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Device 2', site=site
+        )
+        self.interface1 = Interface.objects.create(device=self.device1, name='eth0')
+        self.interface2 = Interface.objects.create(device=self.device2, name='eth0')
+        self.panel1 = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Panel 1', site=site
+        )
+        self.panel2 = Device.objects.create(
+            device_type=devicetype, device_role=devicerole, name='Test Panel 2', site=site
+        )
+        self.rear_port1 = RearPort.objects.create(
+            device=self.panel1, name='Rear Port 1', type=PORT_TYPE_8P8C
+        )
+        self.front_port1 = FrontPort.objects.create(
+            device=self.panel1, name='Front Port 1', type=PORT_TYPE_8P8C, rear_port=self.rear_port1
+        )
+        self.rear_port2 = RearPort.objects.create(
+            device=self.panel2, name='Rear Port 2', type=PORT_TYPE_8P8C
+        )
+        self.front_port2 = FrontPort.objects.create(
+            device=self.panel2, name='Front Port 2', type=PORT_TYPE_8P8C, rear_port=self.rear_port2
+        )
+
+    def test_path_completion(self):
+
+        # First segment
+        cable1 = Cable(termination_a=self.interface1, termination_b=self.front_port1)
+        cable1.save()
+        interface1 = Interface.objects.get(pk=self.interface1.pk)
+        self.assertIsNone(interface1.connected_endpoint)
+        self.assertIsNone(interface1.connection_status)
+
+        # Second segment
+        cable2 = Cable(termination_a=self.rear_port1, termination_b=self.rear_port2)
+        cable2.save()
+        interface1 = Interface.objects.get(pk=self.interface1.pk)
+        self.assertIsNone(interface1.connected_endpoint)
+        self.assertIsNone(interface1.connection_status)
+
+        # Third segment
+        cable3 = Cable(termination_a=self.front_port2, termination_b=self.interface2, status=CONNECTION_STATUS_PLANNED)
+        cable3.save()
+        interface1 = Interface.objects.get(pk=self.interface1.pk)
+        self.assertEqual(interface1.connected_endpoint, self.interface2)
+        self.assertEqual(interface1.connection_status, CONNECTION_STATUS_PLANNED)
+
+        # Switch third segment from planned to connected
+        cable3.status = CONNECTION_STATUS_CONNECTED
+        cable3.save()
+        interface1 = Interface.objects.get(pk=self.interface1.pk)
+        self.assertEqual(interface1.connected_endpoint, self.interface2)
+        self.assertEqual(interface1.connection_status, CONNECTION_STATUS_CONNECTED)
+
+    def test_path_teardown(self):
+
+        # Build the path
+        cable1 = Cable(termination_a=self.interface1, termination_b=self.front_port1)
+        cable1.save()
+        cable2 = Cable(termination_a=self.rear_port1, termination_b=self.rear_port2)
+        cable2.save()
+        cable3 = Cable(termination_a=self.front_port2, termination_b=self.interface2)
+        cable3.save()
+        interface1 = Interface.objects.get(pk=self.interface1.pk)
+        self.assertEqual(interface1.connected_endpoint, self.interface2)
+        self.assertEqual(interface1.connection_status, CONNECTION_STATUS_CONNECTED)
+
+        # Remove a cable
+        cable2.delete()
+        interface1 = Interface.objects.get(pk=self.interface1.pk)
+        self.assertIsNone(interface1.connected_endpoint)
+        self.assertIsNone(interface1.connection_status)
+        interface2 = Interface.objects.get(pk=self.interface2.pk)
+        self.assertIsNone(interface2.connected_endpoint)
+        self.assertIsNone(interface2.connection_status)

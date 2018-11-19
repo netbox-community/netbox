@@ -23,26 +23,35 @@ def clear_virtualchassis_members(instance, **kwargs):
 
 @receiver(post_save, sender=Cable)
 def update_connected_endpoints(instance, **kwargs):
+    """
+    When a Cable is saved, check for and update its two connected endpoints
+    """
 
     # Cache the Cable on its two termination points
-    instance.termination_a.cable = instance
-    instance.termination_a.save()
-    instance.termination_b.cable = instance
-    instance.termination_b.save()
+    if instance.termination_a.cable != instance:
+        instance.termination_a.cable = instance
+        instance.termination_a.save()
+    if instance.termination_b.cable != instance:
+        instance.termination_b.cable = instance
+        instance.termination_b.save()
 
     # Check if this Cable has formed a complete path. If so, update both endpoints.
-    endpoint_a, endpoint_b = instance.get_path_endpoints()
+    endpoint_a, endpoint_b, path_status = instance.get_path_endpoints()
     if endpoint_a is not None and endpoint_b is not None:
         endpoint_a.connected_endpoint = endpoint_b
-        endpoint_a.connection_status = True
+        endpoint_a.connection_status = path_status
         endpoint_a.save()
         endpoint_b.connected_endpoint = endpoint_a
-        endpoint_b.connection_status = True
+        endpoint_b.connection_status = path_status
         endpoint_b.save()
 
 
 @receiver(pre_delete, sender=Cable)
 def nullify_connected_endpoints(instance, **kwargs):
+    """
+    When a Cable is deleted, check for and update its two connected endpoints
+    """
+    endpoint_a, endpoint_b, _ = instance.get_path_endpoints()
 
     # Disassociate the Cable from its termination points
     if instance.termination_a is not None:
@@ -53,7 +62,6 @@ def nullify_connected_endpoints(instance, **kwargs):
         instance.termination_b.save()
 
     # If this Cable was part of a complete path, tear it down
-    endpoint_a, endpoint_b = instance.get_path_endpoints()
     if endpoint_a is not None and endpoint_b is not None:
         endpoint_a.connected_endpoint = None
         endpoint_a.connection_status = None

@@ -237,7 +237,7 @@ class CircuitTermination(CableTermination):
     )
     connection_status = models.NullBooleanField(
         choices=CONNECTION_STATUS_CHOICES,
-        default=CONNECTION_STATUS_CONNECTED
+        blank=True
     )
     port_speed = models.PositiveIntegerField(
         verbose_name='Port speed (Kbps)'
