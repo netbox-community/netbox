@@ -34,8 +34,13 @@ def console_connections_to_cables(apps, schema_editor):
         )
 
         # Cache the Cable on its two termination points
-        ConsolePort.objects.filter(pk=consoleport.id).update(cable=cable)
-        ConsoleServerPort.objects.filter(pk=consoleport.connected_endpoint_id).update(cable=cable)
+        ConsolePort.objects.filter(pk=consoleport.id).update(
+            cable=cable
+        )
+        ConsoleServerPort.objects.filter(pk=consoleport.connected_endpoint_id).update(
+            connection_status=consoleport.connection_status,
+            cable=cable
+        )
 
     cable_count = Cable.objects.filter(termination_a_type=consoleport_type).count()
     if 'test' not in sys.argv:
@@ -70,8 +75,13 @@ def power_connections_to_cables(apps, schema_editor):
         )
 
         # Cache the Cable on its two termination points
-        PowerPort.objects.filter(pk=powerport.id).update(cable=cable)
-        PowerOutlet.objects.filter(pk=powerport.connected_endpoint_id).update(cable=cable)
+        PowerPort.objects.filter(pk=powerport.id).update(
+            cable=cable
+        )
+        PowerOutlet.objects.filter(pk=powerport.connected_endpoint_id).update(
+            connection_status=powerport.connection_status,
+            cable=cable
+        )
 
     cable_count = Cable.objects.filter(termination_a_type=powerport_type).count()
     if 'test' not in sys.argv:
@@ -194,6 +204,11 @@ class Migration(migrations.Migration):
             name='cable',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.Cable'),
         ),
+        migrations.AddField(
+            model_name='consoleserverport',
+            name='connection_status',
+            field=models.NullBooleanField(),
+        ),
 
         # Alter power port models
         migrations.RenameField(
@@ -230,6 +245,11 @@ class Migration(migrations.Migration):
             model_name='poweroutlet',
             name='cable',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.Cable'),
+        ),
+        migrations.AddField(
+            model_name='poweroutlet',
+            name='connection_status',
+            field=models.NullBooleanField(),
         ),
 
         # Alter the Interface model

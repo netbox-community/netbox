@@ -2,7 +2,8 @@ from taggit_serializer.serializers import TaggitSerializer, TagListSerializerFie
 
 from circuits.constants import CIRCUIT_STATUS_CHOICES
 from circuits.models import Provider, Circuit, CircuitTermination, CircuitType
-from dcim.api.nested_serializers import NestedCableSerializer, NestedInterfaceSerializer, NestedSiteSerializer
+from dcim.api.nested_serializers import NestedCableSerializer, NestedSiteSerializer
+from dcim.api.serializers import ConnectedEndpointSerializer
 from extras.api.customfields import CustomFieldModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import ChoiceField, ValidatedModelSerializer
@@ -50,15 +51,14 @@ class CircuitSerializer(TaggitSerializer, CustomFieldModelSerializer):
         ]
 
 
-class CircuitTerminationSerializer(ValidatedModelSerializer):
+class CircuitTerminationSerializer(ConnectedEndpointSerializer):
     circuit = NestedCircuitSerializer()
     site = NestedSiteSerializer()
-    connected_endpoint = NestedInterfaceSerializer(read_only=True)
     cable = NestedCableSerializer(read_only=True)
 
     class Meta:
         model = CircuitTermination
         fields = [
             'id', 'circuit', 'term_side', 'site', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
-            'description', 'connected_endpoint', 'cable',
+            'description', 'connected_endpoint', 'connection_status', 'cable',
         ]

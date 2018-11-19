@@ -1745,6 +1745,10 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
+    connection_status = models.NullBooleanField(
+        choices=CONNECTION_STATUS_CHOICES,
+        blank=True
+    )
 
     objects = DeviceComponentManager()
     tags = TaggableManager()
@@ -1832,6 +1836,10 @@ class PowerOutlet(CableTermination, ComponentModel):
     )
     name = models.CharField(
         max_length=50
+    )
+    connection_status = models.NullBooleanField(
+        choices=CONNECTION_STATUS_CHOICES,
+        blank=True
     )
 
     objects = DeviceComponentManager()

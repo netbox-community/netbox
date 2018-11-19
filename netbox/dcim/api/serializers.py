@@ -22,6 +22,24 @@ from virtualization.api.nested_serializers import NestedClusterSerializer
 from .nested_serializers import *
 
 
+class ConnectedEndpointSerializer(ValidatedModelSerializer):
+    connected_endpoint = serializers.SerializerMethodField(read_only=True)
+    connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, read_only=True)
+
+    def get_connected_endpoint(self, obj):
+        """
+        Return the appropriate serializer for the type of connected object.
+        """
+        if getattr(obj, 'connected_endpoint', None) is None:
+            return None
+
+        serializer = get_serializer_for_model(obj.connected_endpoint, prefix='Nested')
+        context = {'request': self.context['request']}
+        data = serializer(obj.connected_endpoint, context=context).data
+
+        return data
+
+
 #
 # Regions/sites
 #
@@ -306,20 +324,18 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
         return obj.get_config_context()
 
 
-class ConsoleServerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
+class ConsoleServerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['id', 'device', 'name', 'connected_endpoint', 'cable', 'tags']
-        read_only_fields = ['connected_endpoint']
+        fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'cable', 'tags']
 
 
-class ConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
+class ConsolePortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
-    connected_endpoint = NestedConsoleServerPortSerializer(read_only=True)
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
@@ -328,20 +344,18 @@ class ConsolePortSerializer(TaggitSerializer, ValidatedModelSerializer):
         fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'cable', 'tags']
 
 
-class PowerOutletSerializer(TaggitSerializer, ValidatedModelSerializer):
+class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
         model = PowerOutlet
-        fields = ['id', 'device', 'name', 'connected_endpoint', 'cable', 'tags']
-        read_only_fields = ['connected_endpoint']
+        fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'cable', 'tags']
 
 
-class PowerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
+class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
-    connected_endpoint = NestedPowerOutletSerializer(read_only=True)
     cable = NestedCableSerializer(read_only=True)
     tags = TagListSerializerField(required=False)
 
@@ -350,11 +364,10 @@ class PowerPortSerializer(TaggitSerializer, ValidatedModelSerializer):
         fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'cable', 'tags']
 
 
-class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
+class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     form_factor = ChoiceField(choices=IFACE_FF_CHOICES, required=False)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
-    connected_endpoint = serializers.SerializerMethodField(read_only=True)
     mode = ChoiceField(choices=IFACE_MODE_CHOICES, required=False, allow_null=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
@@ -370,7 +383,8 @@ class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
         model = Interface
         fields = [
             'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
-            'connected_endpoint', 'cable', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags', 'count_ipaddresses',
+            'connected_endpoint', 'connection_status', 'cable', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags',
+            'count_ipaddresses',
         ]
 
     # TODO: This validation should be handled by Interface.clean()
@@ -392,19 +406,6 @@ class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
                 })
 
         return super(InterfaceSerializer, self).validate(data)
-
-    def get_connected_endpoint(self, obj):
-        """
-        Return the appropriate serializer for the type of connected object.
-        """
-        if obj.connected_endpoint is None:
-            return None
-
-        serializer = get_serializer_for_model(obj.connected_endpoint, prefix='Nested')
-        context = {'request': self.context['request']}
-        data = serializer(obj.connected_endpoint, context=context).data
-
-        return data
 
 
 class RearPortSerializer(ValidatedModelSerializer):
