@@ -900,7 +900,7 @@ class DeviceView(View):
         interfaces = device.vc_interfaces.select_related(
             'lag', '_connected_interface__device', '_connected_circuittermination__circuit', 'cable'
         ).prefetch_related(
-            'cable__termination_a', 'cable__termination_b', 'ip_addresses'
+            'cable__termination_a', 'cable__termination_b', 'ip_addresses', 'tags'
         )
 
         # Front ports

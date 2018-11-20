@@ -390,6 +390,19 @@ table.report th a {
     top: -51px;
 }
 
+/* Rendered Markdown */
+.rendered-markdown table {
+    width: 100%;
+}
+.rendered-markdown th {
+    border-bottom: 2px solid #dddddd;
+    padding: 8px;
+}
+.rendered-markdown td {
+    border-top: 1px solid #dddddd;
+    padding: 8px;
+}
+
 /* AJAX loader */
 .loading {
     position: fixed;

@@ -1,5 +1,6 @@
 import django_tables2 as tables
-from taggit.models import Tag
+from django_tables2.utils import Accessor
+from taggit.models import Tag, TaggedItem
 
 from utilities.tables import BaseTable, BooleanColumn, ToggleColumn
 from .models import ConfigContext, ObjectChange
@@ -10,6 +11,14 @@ TAG_ACTIONS = """
 {% endif %}
 {% if perms.taggit.delete_tag %}
     <a href="{% url 'extras:tag_delete' slug=record.slug %}" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-trash" aria-hidden="true"></i></a>
+{% endif %}
+"""
+
+TAGGED_ITEM = """
+{% if value.get_absolute_url %}
+    <a href="{{ value.get_absolute_url }}">{{ value }}</a>
+{% else %}
+    {{ value }}
 {% endif %}
 """
 
@@ -53,6 +62,10 @@ OBJECTCHANGE_REQUEST_ID = """
 
 class TagTable(BaseTable):
     pk = ToggleColumn()
+    name = tables.LinkColumn(
+        viewname='extras:tag',
+        args=[Accessor('slug')]
+    )
     actions = tables.TemplateColumn(
         template_code=TAG_ACTIONS,
         attrs={'td': {'class': 'text-right'}},
@@ -62,6 +75,21 @@ class TagTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Tag
         fields = ('pk', 'name', 'items', 'slug', 'actions')
+
+
+class TaggedItemTable(BaseTable):
+    content_object = tables.TemplateColumn(
+        template_code=TAGGED_ITEM,
+        orderable=False,
+        verbose_name='Object'
+    )
+    content_type = tables.Column(
+        verbose_name='Type'
+    )
+
+    class Meta(BaseTable.Meta):
+        model = TaggedItem
+        fields = ('content_object', 'content_type')
 
 
 class ConfigContextTable(BaseTable):

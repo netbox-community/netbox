@@ -52,7 +52,7 @@ class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):
 class VirtualMachineSerializer(TaggitSerializer, CustomFieldModelSerializer):
     status = ChoiceField(choices=VM_STATUS_CHOICES, required=False)
     site = NestedSiteSerializer(read_only=True)
-    cluster = NestedClusterSerializer(required=False, allow_null=True)
+    cluster = NestedClusterSerializer()
     role = NestedDeviceRoleSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     platform = NestedPlatformSerializer(required=False, allow_null=True)

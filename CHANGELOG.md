@@ -80,13 +80,21 @@ NetBox now supports modeling physical cables for console, power, and interface c
 
 ---
 
-v2.4.8 (FUTURE)
+v2.4.8 (2018-11-20)
+
+## Enhancements
+
+* [#2490](https://github.com/digitalocean/netbox/issues/2490) - Added bulk editing for config contexts
+* [#2557](https://github.com/digitalocean/netbox/issues/2557) - Added object view for tags
 
 ## Bug Fixes
 
 * [#2473](https://github.com/digitalocean/netbox/issues/2473) - Fix encoding of long (>127 character) secrets
 * [#2558](https://github.com/digitalocean/netbox/issues/2558) - Filter on all tags when multiple are passed
+* [#2565](https://github.com/digitalocean/netbox/issues/2565) - Improved rendering of Markdown tables
 * [#2575](https://github.com/digitalocean/netbox/issues/2575) - Correct model specified for rack roles table
+* [#2588](https://github.com/digitalocean/netbox/issues/2588) - Catch all exceptions from failed NAPALM API Calls
+* [#2589](https://github.com/digitalocean/netbox/issues/2589) - Virtual machine API serializer should require cluster assignment
 
 ---
 
