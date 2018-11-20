@@ -3,6 +3,9 @@
 
 {% block content %}
 <div class="pull-right">
+    {% if perms.dcim.add_cable %}
+        {% import_button 'dcim:cable_import' %}
+    {% endif %}
     {% export_button content_type %}
 </div>
 <h1>{% block title %}Cables{% endblock %}</h1>
