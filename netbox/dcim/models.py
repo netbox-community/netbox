@@ -2608,15 +2608,18 @@ class Cable(ChangeLoggedModel):
         Traverse both ends of a cable path and return its connected endpoints. Note that one or both endpoints may be
         None.
         """
-        a_path = self.termination_a.trace()
-        b_path = self.termination_b.trace()
+        a_path = self.termination_b.trace()
+        b_path = self.termination_a.trace()
 
         # Determine overall path status (connected or planned)
-        cables = [segment[1] for segment in a_path + b_path]
-        if all(cables) and all([c.status for c in cables]):
-            path_status = CONNECTION_STATUS_CONNECTED
-        else:
+        if self.status == CONNECTION_STATUS_PLANNED:
             path_status = CONNECTION_STATUS_PLANNED
+        else:
+            path_status = CONNECTION_STATUS_CONNECTED
+            for segment in a_path[1:] + b_path[1:]:
+                if segment[1] is None or segment[1].status == CONNECTION_STATUS_PLANNED:
+                    path_status = CONNECTION_STATUS_PLANNED
+                    break
 
         # (A path end, B path end, connected/planned)
         return a_path[-1][2], b_path[-1][2], path_status
