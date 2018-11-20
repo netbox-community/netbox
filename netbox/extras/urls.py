@@ -9,6 +9,7 @@ urlpatterns = [
 
     # Tags
     url(r'^tags/$', views.TagListView.as_view(), name='tag_list'),
+    url(r'^tags/(?P<slug>[\w-]+)/$', views.TagView.as_view(), name='tag'),
     url(r'^tags/(?P<slug>[\w-]+)/edit/$', views.TagEditView.as_view(), name='tag_edit'),
     url(r'^tags/(?P<slug>[\w-]+)/delete/$', views.TagDeleteView.as_view(), name='tag_delete'),
     url(r'^tags/delete/$', views.TagBulkDeleteView.as_view(), name='tag_bulk_delete'),
@@ -16,6 +17,7 @@ urlpatterns = [
     # Config contexts
     url(r'^config-contexts/$', views.ConfigContextListView.as_view(), name='configcontext_list'),
     url(r'^config-contexts/add/$', views.ConfigContextCreateView.as_view(), name='configcontext_add'),
+    url(r'^config-contexts/edit/$', views.ConfigContextBulkEditView.as_view(), name='configcontext_bulk_edit'),
     url(r'^config-contexts/(?P<pk>\d+)/$', views.ConfigContextView.as_view(), name='configcontext'),
     url(r'^config-contexts/(?P<pk>\d+)/edit/$', views.ConfigContextEditView.as_view(), name='configcontext_edit'),
     url(r'^config-contexts/(?P<pk>\d+)/delete/$', views.ConfigContextDeleteView.as_view(), name='configcontext_delete'),

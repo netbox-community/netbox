@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django import template
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
@@ -9,15 +10,20 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
 from django.views.generic import View
-from taggit.models import Tag
+from django_tables2 import RequestConfig
+from taggit.models import Tag, TaggedItem
 
 from utilities.forms import ConfirmationForm
-from utilities.views import BulkDeleteView, ObjectDeleteView, ObjectEditView, ObjectListView
+from utilities.paginator import EnhancedPaginator
+from utilities.views import BulkDeleteView, BulkEditView, ObjectDeleteView, ObjectEditView, ObjectListView
 from . import filters
-from .forms import ConfigContextForm, ConfigContextFilterForm, ImageAttachmentForm, ObjectChangeFilterForm, TagForm
+from .forms import (
+    ConfigContextForm, ConfigContextBulkEditForm, ConfigContextFilterForm, ImageAttachmentForm, ObjectChangeFilterForm,
+    TagFilterForm, TagForm,
+)
 from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult
 from .reports import get_report, get_reports
-from .tables import ConfigContextTable, ObjectChangeTable, TagTable
+from .tables import ConfigContextTable, ObjectChangeTable, TagTable, TaggedItemTable
 
 
 #
@@ -25,9 +31,43 @@ from .tables import ConfigContextTable, ObjectChangeTable, TagTable
 #
 
 class TagListView(ObjectListView):
-    queryset = Tag.objects.annotate(items=Count('taggit_taggeditem_items')).order_by('name')
+    queryset = Tag.objects.annotate(
+        items=Count('taggit_taggeditem_items')
+    ).order_by(
+        'name'
+    )
+    filter = filters.TagFilter
+    filter_form = TagFilterForm
     table = TagTable
     template_name = 'extras/tag_list.html'
+
+
+class TagView(View):
+
+    def get(self, request, slug):
+
+        tag = get_object_or_404(Tag, slug=slug)
+        tagged_items = TaggedItem.objects.filter(
+            tag=tag
+        ).select_related(
+            'content_type'
+        ).prefetch_related(
+            'content_object'
+        )
+
+        # Generate a table of all items tagged with this Tag
+        items_table = TaggedItemTable(tagged_items)
+        paginate = {
+            'klass': EnhancedPaginator,
+            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+        }
+        RequestConfig(request, paginate).configure(items_table)
+
+        return render(request, 'extras/tag.html', {
+            'tag': tag,
+            'items_count': tagged_items.count(),
+            'items_table': items_table,
+        })
 
 
 class TagEditView(PermissionRequiredMixin, ObjectEditView):
@@ -45,7 +85,11 @@ class TagDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'circuits.delete_circuittype'
-    queryset = Tag.objects.annotate(items=Count('taggit_taggeditem_items')).order_by('name')
+    queryset = Tag.objects.annotate(
+        items=Count('taggit_taggeditem_items')
+    ).order_by(
+        'name'
+    )
     table = TagTable
     default_return_url = 'extras:tag_list'
 
@@ -83,6 +127,15 @@ class ConfigContextCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class ConfigContextEditView(ConfigContextCreateView):
     permission_required = 'extras.change_configcontext'
+
+
+class ConfigContextBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'extras.change_configcontext'
+    queryset = ConfigContext.objects.all()
+    filter = filters.ConfigContextFilter
+    table = ConfigContextTable
+    form = ConfigContextBulkEditForm
+    default_return_url = 'extras:configcontext_list'
 
 
 class ConfigContextDeleteView(PermissionRequiredMixin, ObjectDeleteView):

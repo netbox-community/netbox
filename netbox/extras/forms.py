@@ -13,8 +13,8 @@ from taggit.models import Tag
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, BulkEditForm, FilterChoiceField, FilterTreeNodeMultipleChoiceField, LaxURLField,
-    JSONField, SlugField,
+    add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, FilterChoiceField,
+    FilterTreeNodeMultipleChoiceField, LaxURLField, JSONField, SlugField,
 )
 from .constants import (
     CF_FILTER_DISABLED, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL,
@@ -208,6 +208,11 @@ class AddRemoveTagsForm(forms.Form):
         self.fields['remove_tags'] = TagField(required=False)
 
 
+class TagFilterForm(BootstrapMixin, forms.Form):
+    model = Tag
+    q = forms.CharField(required=False, label='Search')
+
+
 #
 # Config contexts
 #
@@ -225,6 +230,28 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
             'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'tenant_groups',
             'tenants', 'data',
         ]
+
+
+class ConfigContextBulkEditForm(BootstrapMixin, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ConfigContext.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    weight = forms.IntegerField(
+        required=False,
+        min_value=0
+    )
+    is_active = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    description = forms.CharField(
+        required=False,
+        max_length=100
+    )
+
+    class Meta:
+        nullable_fields = ['description']
 
 
 class ConfigContextFilterForm(BootstrapMixin, forms.Form):

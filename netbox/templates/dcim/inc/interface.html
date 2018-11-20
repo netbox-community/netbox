@@ -1,4 +1,5 @@
-<tr class="interface{% if not iface.enabled %} danger{% elif iface.connection and iface.connection.connection_status or iface.circuit_termination %} success{% elif iface.connection and not iface.connection.connection_status %} info{% elif iface.is_virtual %} warning{% endif %}" id="iface_{{ iface.name }}">
+{% load helpers %}
+<tr class="interface{% if not iface.enabled %} danger{% elif iface.connection and iface.connection.connection_status or iface.circuit_termination %} success{% elif iface.connection and not iface.connection.connection_status %} info{% elif iface.is_virtual %} warning{% endif %}" id="interface_{{ iface.name }}">
 
     {# Checkbox #}
     {% if perms.dcim.change_interface or perms.dcim.delete_interface %}
@@ -7,32 +8,53 @@
         </td>
     {% endif %}
 
-    {# Icon and name #}
+    {# Icon/name/MAC #}
     <td>
         <span title="{{ iface.get_form_factor_display }}">
             <i class="fa fa-fw fa-{% if iface.mgmt_only %}wrench{% elif iface.is_lag %}align-justify{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}exchange{% endif %}"></i>
             <a href="{{ iface.get_absolute_url }}">{{ iface }}</a>
         </span>
+        {% if iface.mac_address %}
+            <br/><small class="text-muted">{{ iface.mac_address }}</small>
+        {% endif %}
     </td>
 
     {# LAG #}
     <td>
         {% if iface.lag %}
-            <a href="#iface_{{ iface.lag }}" class="label label-default">{{ iface.lag }}</a>
+            <a href="#interface_{{ iface.lag }}" class="label label-primary" title="{{ iface.lag.description }}">{{ iface.lag }}</a>
         {% endif %}
     </td>
 
-    {# Description #}
-    <td>{{ iface.description|default:"&mdash;" }}</td>
+    {# Description/tags #}
+    <td>
+        {% if iface.description %}
+            {{ iface.description }}<br/>
+        {% endif %}
+        {% for tag in iface.tags.all %}
+            {% tag tag %}
+        {% empty %}
+            {% if not iface.description %}&mdash;{% endif %}
+        {% endfor %}
+    </td>
+
+    {# MTU #}
+    <td>{{ iface.mtu|default:"&mdash;" }}</td>
 
     {# 802.1Q mode #}
-    <td>{{ iface.get_mode_display }}</td>
+    <td>{{ iface.get_mode_display|default:"&mdash;" }}</td>
 
     {# Connection or type #}
     {% if iface.is_lag %}
         <td colspan="2" class="text-muted">
             LAG interface<br />
-            <small class="text-muted">{{ iface.member_interfaces.all|join:", "|default:"No members" }}</small>
+            <small class="text-muted">
+                {% for member in iface.member_interfaces.all %}
+                    <a href="#interface_{{ member.name }}">{{ member }}</a>{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                    No members
+                {% endfor %}
+            </small>
         </td>
     {% elif iface.is_virtual %}
         <td colspan="2" class="text-muted">Virtual interface</td>
@@ -138,7 +160,7 @@
             {% endif %}
 
             {# IP addresses table #}
-            <td colspan="7" style="padding: 0">
+            <td colspan="8" style="padding: 0">
                 <table class="table table-condensed interface-ips">
                     <thead>
                         <tr class="text-muted">

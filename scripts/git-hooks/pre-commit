@@ -1,0 +1,14 @@
+#!/bin/sh
+# Create a link to this file at .git/hooks/pre-commit to
+# force PEP8 validation prior to committing
+#
+# Ignored violations:
+#
+#   W504: Line break after binary operator
+#   E501: Line too long
+
+exec 1>&2
+
+echo "Validating PEP8 compliance..."
+pycodestyle --ignore=W504,E501 netbox/
+

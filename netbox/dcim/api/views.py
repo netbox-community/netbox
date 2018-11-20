@@ -263,9 +263,9 @@ class DeviceViewSet(CustomFieldModelViewSet):
         # Check that NAPALM is installed
         try:
             import napalm
+            from napalm.base.exceptions import ModuleImportError
         except ImportError:
             raise ServiceUnavailable("NAPALM is not installed. Please see the documentation for instructions.")
-        from napalm.base.exceptions import ModuleImportError
 
         # Validate the configured driver
         try:
@@ -309,7 +309,9 @@ class DeviceViewSet(CustomFieldModelViewSet):
             try:
                 response[method] = getattr(d, method)()
             except NotImplementedError:
-                response[method] = {'error': 'Method not implemented for NAPALM driver {}'.format(driver)}
+                response[method] = {'error': 'Method {} not implemented for NAPALM driver {}'.format(method, driver)}
+            except Exception as e:
+                response[method] = {'error': 'Method {} failed: {}'.format(method, e)}
         d.close()
 
         return Response(response)

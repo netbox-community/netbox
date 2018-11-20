@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+import string
 
 from Crypto.PublicKey import RSA
 from django.conf import settings
@@ -88,7 +89,7 @@ class SecretTestCase(TestCase):
         """
         Test basic encryption and decryption functionality using a random master key.
         """
-        plaintext = "FooBar123"
+        plaintext = string.printable * 2
         secret_key = generate_random_key()
         s = Secret(plaintext=plaintext)
         s.encrypt(secret_key)

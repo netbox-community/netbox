@@ -28,10 +28,3 @@ NetBox components are arranged into functional subsections called _apps_ (a carr
 * `tenancy`: Tenants (such as customers) to which NetBox objects may be assigned
 * `utilities`: Resources which are not user-facing (extendable classes, etc.)
 * `virtualization`: Virtual machines and clusters
-
-## Style Guide
-
-NetBox generally follows the [Django style guide](https://docs.djangoproject.com/en/dev/internals/contributing/writing-code/coding-style/), which is itself based on [PEP 8](https://www.python.org/dev/peps/pep-0008/). The following exceptions are noted:
-
-* [Pycodestyle](https://github.com/pycqa/pycodestyle) is used to validate code formatting, ignoring certain violations. See `scripts/cibuild.sh`.
-* Constants may be imported via wildcard (for example, `from .constants import *`).

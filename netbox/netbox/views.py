@@ -197,7 +197,7 @@ class HomeView(View):
             'stats': stats,
             'topology_maps': TopologyMap.objects.filter(site__isnull=True),
             'report_results': ReportResult.objects.order_by('-created')[:10],
-            'changelog': ObjectChange.objects.select_related('user')[:50]
+            'changelog': ObjectChange.objects.select_related('user', 'changed_object_type')[:50]
         })
 
 

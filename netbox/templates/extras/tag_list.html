@@ -4,8 +4,11 @@
 {% block content %}
 <h1>{% block title %}Tags{% endblock %}</h1>
 <div class="row">
-	<div class="col-md-12">
+	<div class="col-md-9">
         {% include 'utilities/obj_table.html' with bulk_delete_url='extras:tag_bulk_delete' %}
+    </div>
+    <div class="col-md-3">
+		{% include 'inc/search_panel.html' %}
     </div>
 </div>
 {% endblock %}

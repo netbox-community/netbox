@@ -290,7 +290,7 @@
                 <div class="panel-heading">
                     <strong>Comments</strong>
                 </div>
-                <div class="panel-body">
+                <div class="panel-body rendered-markdown">
                     {% if device.comments %}
                         {{ device.comments|gfm }}
                     {% else %}
@@ -525,6 +525,7 @@
                                 <th>Name</th>
                                 <th>LAG</th>
                                 <th>Description</th>
+                                <th>MTU</th>
                                 <th>Mode</th>
                                 <th colspan="2">Connection</th>
                                 <th></th>

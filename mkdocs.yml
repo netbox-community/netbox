@@ -45,7 +45,9 @@ pages:
         - Examples: 'api/examples.md'
     - Development:
         - Introduction: 'development/index.md'
+        - Style Guide: 'development/style-guide.md'
         - Utility Views: 'development/utility-views.md'
+        - Extending Models: 'development/extending-models.md'
         - Release Checklist: 'development/release-checklist.md'
 
 markdown_extensions:
