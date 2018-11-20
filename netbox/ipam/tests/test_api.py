@@ -566,7 +566,7 @@ class PrefixTest(APITestCase):
 
         # Try to create one more prefix
         response = self.client.post(url, {'prefix_length': 30}, **self.header)
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertIn('detail', response.data)
 
     def test_create_multiple_available_prefixes(self):
@@ -583,7 +583,7 @@ class PrefixTest(APITestCase):
             {'prefix_length': 30, 'description': 'Test Prefix 5'},
         ]
         response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertIn('detail', response.data)
 
         # Verify that no prefixes were created (the entire /28 is still available)
@@ -628,7 +628,7 @@ class PrefixTest(APITestCase):
 
         # Try to create one more IP
         response = self.client.post(url, {}, **self.header)
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertIn('detail', response.data)
 
     def test_create_multiple_available_ips(self):
@@ -639,7 +639,7 @@ class PrefixTest(APITestCase):
         # Try to create nine IPs (only eight are available)
         data = [{'description': 'Test IP {}'.format(i)} for i in range(1, 10)]  # 9 IPs
         response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertIn('detail', response.data)
 
         # Verify that no IPs were created (eight are still available)

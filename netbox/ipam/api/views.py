@@ -96,25 +96,34 @@ class PrefixViewSet(CustomFieldModelViewSet):
             for i, requested_prefix in enumerate(requested_prefixes):
 
                 # Validate requested prefix size
-                error_msg = None
-                if 'prefix_length' not in requested_prefix:
-                    error_msg = "Item {}: prefix_length field missing".format(i)
-                elif not isinstance(requested_prefix['prefix_length'], int):
-                    error_msg = "Item {}: Invalid prefix length ({})".format(
-                        i, requested_prefix['prefix_length']
-                    )
-                elif prefix.family == 4 and requested_prefix['prefix_length'] > 32:
-                    error_msg = "Item {}: Invalid prefix length ({}) for IPv4".format(
-                        i, requested_prefix['prefix_length']
-                    )
-                elif prefix.family == 6 and requested_prefix['prefix_length'] > 128:
-                    error_msg = "Item {}: Invalid prefix length ({}) for IPv6".format(
-                        i, requested_prefix['prefix_length']
-                    )
-                if error_msg:
+                prefix_length = requested_prefix.get('prefix_length')
+                if prefix_length is None:
                     return Response(
                         {
-                            "detail": error_msg
+                            "detail": "Item {}: prefix_length field missing".format(i)
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                try:
+                    prefix_length = int(prefix_length)
+                except ValueError:
+                    return Response(
+                        {
+                            "detail": "Item {}: Invalid prefix length ({})".format(i, prefix_length),
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                if prefix.family == 4 and prefix_length > 32:
+                    return Response(
+                        {
+                            "detail": "Item {}: Invalid prefix length ({}) for IPv4".format(i, prefix_length),
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                elif prefix.family == 6 and prefix_length > 128:
+                    return Response(
+                        {
+                            "detail": "Item {}: Invalid prefix length ({}) for IPv6".format(i, prefix_length),
                         },
                         status=status.HTTP_400_BAD_REQUEST
                     )
@@ -131,7 +140,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
                         {
                             "detail": "Insufficient space is available to accommodate the requested prefix size(s)"
                         },
-                        status=status.HTTP_400_BAD_REQUEST
+                        status=status.HTTP_204_NO_CONTENT
                     )
 
                 # Remove the allocated prefix from the list of available prefixes
@@ -187,7 +196,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
                         "detail": "An insufficient number of IP addresses are available within the prefix {} ({} "
                                   "requested, {} available)".format(prefix, len(requested_ips), len(available_ips))
                     },
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_204_NO_CONTENT
                 )
 
             # Assign addresses from the list of available IPs and copy VRF assignment from the parent prefix
