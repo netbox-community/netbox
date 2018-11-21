@@ -1,3 +1,4 @@
+{% load helpers %}
 <tr class="frontport{% if frontport.cable.status %} success{% elif frontport.cable %} info{% endif %}">
 
     {# Checkbox #}
@@ -18,6 +19,9 @@
     {# Rear port #}
     <td>{{ frontport.rear_port }}</td>
     <td>{{ frontport.rear_port_position }}</td>
+
+    {# Description #}
+    <td>{{ frontport.description|placeholder }}</td>
 
     {# Cable #}
     <td>

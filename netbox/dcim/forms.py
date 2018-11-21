@@ -1685,13 +1685,13 @@ class FrontPortForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = FrontPort
-        fields = ['device', 'name', 'type', 'rear_port', 'rear_port_position', 'tags']
+        fields = ['device', 'name', 'type', 'rear_port', 'rear_port_position', 'description', 'tags']
         widgets = {
             'device': forms.HiddenInput(),
         }
 
 
-# TODO: Merge with  FrontPortTemplateCreateForm to remove duplicate logic
+# TODO: Merge with FrontPortTemplateCreateForm to remove duplicate logic
 class FrontPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
@@ -1703,6 +1703,9 @@ class FrontPortCreateForm(ComponentForm):
         choices=[],
         label='Rear ports',
         help_text='Select one rear port assignment for each front port being created.'
+    )
+    description = forms.CharField(
+        required=False
     )
 
     def __init__(self, *args, **kwargs):
@@ -1771,7 +1774,7 @@ class RearPortForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = RearPort
-        fields = ['device', 'name', 'type', 'positions', 'tags']
+        fields = ['device', 'name', 'type', 'positions', 'description', 'tags']
         widgets = {
             'device': forms.HiddenInput(),
         }
@@ -1789,6 +1792,9 @@ class RearPortCreateForm(ComponentForm):
         max_value=64,
         initial=1,
         help_text='The number of front ports which may be mapped to each rear port'
+    )
+    description = forms.CharField(
+        required=False
     )
 
 

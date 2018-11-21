@@ -19,6 +19,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=64)),
                 ('type', models.PositiveSmallIntegerField()),
                 ('rear_port_position', models.PositiveSmallIntegerField(default=1, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(64)])),
+                ('description', models.CharField(blank=True, max_length=100)),
                 ('device', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='frontports', to='dcim.Device')),
             ],
             options={
@@ -44,6 +45,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=64)),
                 ('type', models.PositiveSmallIntegerField()),
                 ('positions', models.PositiveSmallIntegerField(default=1, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(64)])),
+                ('description', models.CharField(blank=True, max_length=100)),
                 ('device', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rearports', to='dcim.Device')),
                 ('tags', taggit.managers.TaggableManager(through='taggit.TaggedItem', to='taggit.Tag')),
             ],

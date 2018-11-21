@@ -2158,11 +2158,15 @@ class FrontPort(CableTermination, ComponentModel):
         default=1,
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
 
     objects = DeviceComponentManager()
     tags = TaggableManager()
 
-    csv_headers = ['device', 'name', 'type', 'rear_port', 'rear_port_position']
+    csv_headers = ['device', 'name', 'type', 'rear_port', 'rear_port_position', 'description']
 
     class Meta:
         ordering = ['device', 'name']
@@ -2181,6 +2185,7 @@ class FrontPort(CableTermination, ComponentModel):
             self.get_type_display(),
             self.rear_port.name,
             self.rear_port_position,
+            self.description,
         )
 
     def clean(self):
@@ -2219,11 +2224,15 @@ class RearPort(CableTermination, ComponentModel):
         default=1,
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
 
     objects = DeviceComponentManager()
     tags = TaggableManager()
 
-    csv_headers = ['device', 'name', 'type', 'positions']
+    csv_headers = ['device', 'name', 'type', 'positions', 'description']
 
     class Meta:
         ordering = ['device', 'name']
@@ -2238,6 +2247,7 @@ class RearPort(CableTermination, ComponentModel):
             self.name,
             self.get_type_display(),
             self.positions,
+            self.description,
         )
 
 

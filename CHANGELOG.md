@@ -58,6 +58,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#2585](https://github.com/digitalocean/netbox/issues/2585) - Prevent cable connections that include a virtual interface
 * [#2586](https://github.com/digitalocean/netbox/issues/2586) - Added tests for the Cable model's clean() method
 * [#2593](https://github.com/digitalocean/netbox/issues/2593) - Fix toggling of connected cable's status
+* [#2601](https://github.com/digitalocean/netbox/issues/2601) - Added a `description` field to pass-through ports
 * [#2602](https://github.com/digitalocean/netbox/issues/2602) - Return HTTP 204 when no new IPs/prefixes are available for provisioning
 
 ## API Changes

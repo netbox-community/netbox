@@ -594,7 +594,7 @@ class FrontPortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = FrontPort
-        fields = ('name', 'type', 'rear_port', 'rear_port_position')
+        fields = ('name', 'type', 'rear_port', 'rear_port_position', 'description')
         empty_text = "None"
 
 
@@ -602,7 +602,7 @@ class RearPortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RearPort
-        fields = ('name', 'type', 'positions')
+        fields = ('name', 'type', 'positions', 'description')
         empty_text = "None"
 
 
