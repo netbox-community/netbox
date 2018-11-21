@@ -81,10 +81,17 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
 
     def paginate_queryset(self, queryset, request, view=None):
 
-        try:
-            self.count = queryset.count()
-        except (AttributeError, TypeError):
+        if hasattr(queryset, 'all'):
+            # TODO: This breaks filtering by annotated values
+            # Make a clone of the queryset with any annotations stripped (performance hack)
+            qs = queryset.all()
+            qs.query.annotations.clear()
+            self.count = qs.count()
+
+        else:
+            # We're dealing with an iterable, not a QuerySet
             self.count = len(queryset)
+
         self.limit = self.get_limit(request)
         self.offset = self.get_offset(request)
         self.request = request
