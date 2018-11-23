@@ -657,7 +657,6 @@ class InterfaceFilter(django_filters.FilterSet):
         null_value=None
     )
 
-
     class Meta:
         model = Interface
         fields = ['name', 'enabled', 'mtu', 'mgmt_only']
