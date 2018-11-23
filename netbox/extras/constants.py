@@ -1,10 +1,6 @@
 from __future__ import unicode_literals
 
 
-# https://www.postgresql.org/docs/current/libpq-status.html#LIBPQ-PQSERVERVERSION
-DB_MINIMUM_VERSION = 90400  # 9.4.0
-
-
 # Models which support custom fields
 CUSTOMFIELD_MODELS = (
     'provider', 'circuit',                                         # Circuits
