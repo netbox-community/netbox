@@ -9,14 +9,16 @@ import django.db.models.deletion
 import extras.models
 from django.db.utils import OperationalError
 
-from extras.constants import (CF_FILTER_DISABLED, CF_FILTER_EXACT, CF_FILTER_LOOSE,
-                              CF_TYPE_SELECT, DB_MINIMUM_VERSION)
+from extras.constants import CF_FILTER_DISABLED, CF_FILTER_EXACT, CF_FILTER_LOOSE, CF_TYPE_SELECT
 
 
 def verify_postgresql_version(apps, schema_editor):
     """
     Verify that PostgreSQL is version 9.4 or higher.
     """
+    # https://www.postgresql.org/docs/current/libpq-status.html#LIBPQ-PQSERVERVERSION
+    DB_MINIMUM_VERSION = 90400  # 9.4.0
+
     try:
         pg_version = connection.pg_version
 
