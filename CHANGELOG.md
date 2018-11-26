@@ -1,3 +1,11 @@
+v2.4.9 (FUTURE)
+
+## Bug Fixes
+
+* [#2606](https://github.com/digitalocean/netbox/issues/2606) - Fixed filtering for interfaces with a virtual form factor
+
+---
+
 v2.4.8 (2018-11-20)
 
 ## Enhancements
