@@ -13,7 +13,7 @@ from utilities.filters import NullableCharFieldFilter, NumericInFilter, TagFilte
 from virtualization.models import Cluster
 from .constants import (
     DEVICE_STATUS_CHOICES, IFACE_FF_LAG, NONCONNECTABLE_IFACE_TYPES, SITE_STATUS_CHOICES, VIRTUAL_IFACE_TYPES,
-    WIRELESS_IFACE_TYPES,
+    WIRELESS_IFACE_TYPES, IFACE_FF_CHOICES,
 )
 from .models import (
     ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -652,10 +652,14 @@ class InterfaceFilter(django_filters.FilterSet):
         method='filter_vlan',
         label='Assigned VID'
     )
+    form_factor = django_filters.MultipleChoiceFilter(
+        choices=IFACE_FF_CHOICES,
+        null_value=None
+    )
 
     class Meta:
         model = Interface
-        fields = ['name', 'form_factor', 'enabled', 'mtu', 'mgmt_only']
+        fields = ['name', 'enabled', 'mtu', 'mgmt_only']
 
     def filter_device(self, queryset, name, value):
         try:
