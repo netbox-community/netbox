@@ -1,4 +1,4 @@
-v2.5-beta2 (FUTURE)
+v2.5-beta2 (2018-11-26)
 
 ## BETA RELEASE
 
