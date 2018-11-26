@@ -78,12 +78,17 @@ class ChoiceField(Field):
         return data
 
     def to_internal_value(self, data):
-        # Hotwiring boolean values
         if hasattr(data, 'lower'):
+            # Hotwiring boolean values from string
             if data.lower() == 'true':
                 return True
             if data.lower() == 'false':
                 return False
+            # Check for string representation of an integer (e.g. "123")
+            try:
+                data = int(data)
+            except ValueError:
+                pass
         return data
 
 
