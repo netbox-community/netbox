@@ -552,12 +552,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     def clean(self):
 
         # Validate outer dimensions and unit
-        if self.outer_width and not self.outer_unit:
-            raise ValidationError("Must specify a unit when setting an outer width")
-        if self.outer_depth and not self.outer_unit:
-            raise ValidationError("Must specify a unit when setting an outer depth")
-        if self.outer_unit and self.outer_width is None and self.outer_depth is None:
-            self.length_unit = ''
+        if (self.outer_width or self.outer_depth) and not self.outer_unit:
+            raise ValidationError("Must specify a unit when setting an outer width/depth")
+        else:
+            self.outer_unit = ''
 
         if self.pk:
             # Validate that Rack is tall enough to house the installed Devices
