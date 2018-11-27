@@ -2,6 +2,7 @@ v2.4.9 (FUTURE)
 
 ## Bug Fixes
 
+* [#2400](https://github.com/digitalocean/netbox/issues/2400) - Correct representation of nested object assignment in API docs
 * [#2606](https://github.com/digitalocean/netbox/issues/2606) - Fixed filtering for interfaces with a virtual form factor
 * [#2613](https://github.com/digitalocean/netbox/issues/2613) - Decrease live search minimum characters to three
 * [#2615](https://github.com/digitalocean/netbox/issues/2615) - Tweak live search widget to use brief format for API requests
@@ -73,7 +74,6 @@ v2.4.5 (2018-10-02)
 
 ## Bug Fixes
 
-* [#2400](https://github.com/digitalocean/netbox/issues/2400) - API variable type mismatch at creating/modifying an entry
 * [#2406](https://github.com/digitalocean/netbox/issues/2406) - Remove hard-coded limit of 1000 objects from API-populated form fields
 * [#2414](https://github.com/digitalocean/netbox/issues/2414) - Tags field missing from device/VM component creation forms
 * [#2442](https://github.com/digitalocean/netbox/issues/2442) - Nullify "next" link in API when limit=0 is passed
