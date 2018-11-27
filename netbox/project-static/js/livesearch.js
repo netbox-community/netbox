@@ -24,7 +24,7 @@ $(document).ready(function() {
         source: function(request, response) {
             $.ajax({
                 type: 'GET',
-                url: search_field.attr('data-source'),
+                url: search_field.attr('data-source') + '?brief=1',
                 data: search_key + '=' + request.term,
                 success: function(data) {
                     var choices = [];
