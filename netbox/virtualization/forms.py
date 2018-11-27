@@ -34,7 +34,9 @@ class ClusterTypeForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = ClusterType
-        fields = ['name', 'slug']
+        fields = [
+            'name', 'slug',
+        ]
 
 
 class ClusterTypeCSVForm(forms.ModelForm):
@@ -57,7 +59,9 @@ class ClusterGroupForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = ClusterGroup
-        fields = ['name', 'slug']
+        fields = [
+            'name', 'slug',
+        ]
 
 
 class ClusterGroupCSVForm(forms.ModelForm):
@@ -76,12 +80,18 @@ class ClusterGroupCSVForm(forms.ModelForm):
 #
 
 class ClusterForm(BootstrapMixin, CustomFieldForm):
-    comments = CommentField(widget=SmallTextarea)
-    tags = TagField(required=False)
+    comments = CommentField(
+        widget=SmallTextarea()
+    )
+    tags = TagField(
+        required=False
+    )
 
     class Meta:
         model = Cluster
-        fields = ['name', 'type', 'group', 'site', 'comments', 'tags']
+        fields = [
+            'name', 'type', 'group', 'site', 'comments', 'tags',
+        ]
 
 
 class ClusterCSVForm(forms.ModelForm):
@@ -118,32 +128,54 @@ class ClusterCSVForm(forms.ModelForm):
 
 
 class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Cluster.objects.all(), widget=forms.MultipleHiddenInput)
-    type = forms.ModelChoiceField(queryset=ClusterType.objects.all(), required=False)
-    group = forms.ModelChoiceField(queryset=ClusterGroup.objects.all(), required=False)
-    site = forms.ModelChoiceField(queryset=Site.objects.all(), required=False)
-    comments = CommentField(widget=SmallTextarea)
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Cluster.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ModelChoiceField(
+        queryset=ClusterType.objects.all(),
+        required=False
+    )
+    group = forms.ModelChoiceField(
+        queryset=ClusterGroup.objects.all(),
+        required=False
+    )
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False
+    )
+    comments = CommentField(
+        widget=SmallTextarea()
+    )
 
     class Meta:
-        nullable_fields = ['group', 'site', 'comments']
+        nullable_fields = [
+            'group', 'site', 'comments',
+        ]
 
 
 class ClusterFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Cluster
     q = forms.CharField(required=False, label='Search')
     type = FilterChoiceField(
-        queryset=ClusterType.objects.annotate(filter_count=Count('clusters')),
+        queryset=ClusterType.objects.annotate(
+            filter_count=Count('clusters')
+        ),
         to_field_name='slug',
         required=False,
     )
     group = FilterChoiceField(
-        queryset=ClusterGroup.objects.annotate(filter_count=Count('clusters')),
+        queryset=ClusterGroup.objects.annotate(
+            filter_count=Count('clusters')
+        ),
         to_field_name='slug',
         null_label='-- None --',
         required=False,
     )
     site = FilterChoiceField(
-        queryset=Site.objects.annotate(filter_count=Count('clusters')),
+        queryset=Site.objects.annotate(
+            filter_count=Count('clusters')
+        ),
         to_field_name='slug',
         null_label='-- None --',
         required=False,
@@ -155,7 +187,10 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
         queryset=Region.objects.all(),
         required=False,
         widget=forms.Select(
-            attrs={'filter-for': 'site', 'nullable': 'true'}
+            attrs={
+                'filter-for': 'site',
+                'nullable': 'true',
+            }
         )
     )
     site = ChainedModelChoiceField(
@@ -166,7 +201,9 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
         required=False,
         widget=APISelect(
             api_url='/api/dcim/sites/?region_id={{region}}',
-            attrs={'filter-for': 'rack'}
+            attrs={
+                'filter-for': 'rack',
+            }
         )
     )
     rack = ChainedModelChoiceField(
@@ -177,7 +214,10 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
         required=False,
         widget=APISelect(
             api_url='/api/dcim/racks/?site_id={{site}}',
-            attrs={'filter-for': 'devices', 'nullable': 'true'}
+            attrs={
+                'filter-for': 'devices',
+                'nullable': 'true',
+            }
         )
     )
     devices = ChainedModelMultipleChoiceField(
@@ -194,7 +234,9 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
     )
 
     class Meta:
-        fields = ['region', 'site', 'rack', 'devices']
+        fields = [
+            'region', 'site', 'rack', 'devices',
+        ]
 
     def __init__(self, cluster, *args, **kwargs):
 
@@ -205,7 +247,6 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
         self.fields['devices'].choices = []
 
     def clean(self):
-
         super().clean()
 
         # If the Cluster is assigned to a Site, all Devices must be assigned to that Site.
@@ -220,7 +261,10 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
 
 
 class ClusterRemoveDevicesForm(ConfirmationForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Device.objects.all(), widget=forms.MultipleHiddenInput)
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
 
 
 #
@@ -232,7 +276,10 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         queryset=ClusterGroup.objects.all(),
         required=False,
         widget=forms.Select(
-            attrs={'filter-for': 'cluster', 'nullable': 'true'}
+            attrs={
+                'filter-for': 'cluster',
+                'nullable': 'true',
+            }
         )
     )
     cluster = ChainedModelChoiceField(
@@ -244,8 +291,12 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             api_url='/api/virtualization/clusters/?group_id={{cluster_group}}'
         )
     )
-    tags = TagField(required=False)
-    local_context_data = JSONField(required=False)
+    tags = TagField(
+        required=False
+    )
+    local_context_data = JSONField(
+        required=False
+    )
 
     class Meta:
         model = VirtualMachine
@@ -254,7 +305,8 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             'vcpus', 'memory', 'disk', 'comments', 'tags', 'local_context_data',
         ]
         help_texts = {
-            'local_context_data': "Local config context data overwrites all sources contexts in the final rendered config context",
+            'local_context_data': "Local config context data overwrites all sources contexts in the final rendered "
+                                  "config context",
         }
 
     def __init__(self, *args, **kwargs):
@@ -319,7 +371,9 @@ class VirtualMachineCSVForm(forms.ModelForm):
         }
     )
     role = forms.ModelChoiceField(
-        queryset=DeviceRole.objects.filter(vm_role=True),
+        queryset=DeviceRole.objects.filter(
+            vm_role=True
+        ),
         required=False,
         to_field_name='name',
         help_text='Name of functional role',
@@ -352,24 +406,61 @@ class VirtualMachineCSVForm(forms.ModelForm):
 
 
 class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(queryset=VirtualMachine.objects.all(), widget=forms.MultipleHiddenInput)
-    status = forms.ChoiceField(choices=add_blank_choice(VM_STATUS_CHOICES), required=False, initial='')
-    cluster = forms.ModelChoiceField(queryset=Cluster.objects.all(), required=False)
-    role = forms.ModelChoiceField(queryset=DeviceRole.objects.filter(vm_role=True), required=False)
-    tenant = forms.ModelChoiceField(queryset=Tenant.objects.all(), required=False)
-    platform = forms.ModelChoiceField(queryset=Platform.objects.all(), required=False)
-    vcpus = forms.IntegerField(required=False, label='vCPUs')
-    memory = forms.IntegerField(required=False, label='Memory (MB)')
-    disk = forms.IntegerField(required=False, label='Disk (GB)')
-    comments = CommentField(widget=SmallTextarea)
+    pk = forms.ModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    status = forms.ChoiceField(
+        choices=add_blank_choice(VM_STATUS_CHOICES),
+        required=False,
+        initial=''
+    )
+    cluster = forms.ModelChoiceField(
+        queryset=Cluster.objects.all(),
+        required=False
+    )
+    role = forms.ModelChoiceField(
+        queryset=DeviceRole.objects.filter(
+            vm_role=True
+        ),
+        required=False
+    )
+    tenant = forms.ModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
+    platform = forms.ModelChoiceField(
+        queryset=Platform.objects.all(),
+        required=False
+    )
+    vcpus = forms.IntegerField(
+        required=False,
+        label='vCPUs'
+    )
+    memory = forms.IntegerField(
+        required=False,
+        label='Memory (MB)'
+    )
+    disk = forms.IntegerField(
+        required=False,
+        label='Disk (GB)'
+    )
+    comments = CommentField(
+        widget=SmallTextarea()
+    )
 
     class Meta:
-        nullable_fields = ['role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments']
+        nullable_fields = [
+            'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',
+        ]
 
 
 class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = VirtualMachine
-    q = forms.CharField(required=False, label='Search')
+    q = forms.CharField(
+        required=False,
+        label='Search'
+    )
     cluster_group = FilterChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
@@ -381,7 +472,9 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
         null_label='-- None --'
     )
     cluster_id = FilterChoiceField(
-        queryset=Cluster.objects.annotate(filter_count=Count('virtual_machines')),
+        queryset=Cluster.objects.annotate(
+            filter_count=Count('virtual_machines')
+        ),
         label='Cluster'
     )
     region = FilterTreeNodeMultipleChoiceField(
@@ -390,12 +483,18 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
         required=False,
     )
     site = FilterChoiceField(
-        queryset=Site.objects.annotate(filter_count=Count('clusters__virtual_machines')),
+        queryset=Site.objects.annotate(
+            filter_count=Count('clusters__virtual_machines')
+        ),
         to_field_name='slug',
         null_label='-- None --'
     )
     role = FilterChoiceField(
-        queryset=DeviceRole.objects.filter(vm_role=True).annotate(filter_count=Count('virtual_machines')),
+        queryset=DeviceRole.objects.filter(
+            vm_role=True
+        ).annotate(
+            filter_count=Count('virtual_machines')
+        ),
         to_field_name='slug',
         null_label='-- None --'
     )
@@ -406,12 +505,16 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
         required=False
     )
     tenant = FilterChoiceField(
-        queryset=Tenant.objects.annotate(filter_count=Count('virtual_machines')),
+        queryset=Tenant.objects.annotate(
+            filter_count=Count('virtual_machines')
+        ),
         to_field_name='slug',
         null_label='-- None --'
     )
     platform = FilterChoiceField(
-        queryset=Platform.objects.annotate(filter_count=Count('virtual_machines')),
+        queryset=Platform.objects.annotate(
+            filter_count=Count('virtual_machines')
+        ),
         to_field_name='slug',
         null_label='-- None --'
     )
@@ -422,7 +525,9 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
 #
 
 class InterfaceForm(BootstrapMixin, forms.ModelForm):
-    tags = TagField(required=False)
+    tags = TagField(
+        required=False
+    )
 
     class Meta:
         model = Interface
@@ -442,7 +547,6 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         }
 
     def clean(self):
-
         super().clean()
 
         # Validate VLAN assignments
@@ -460,13 +564,34 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
 
 
 class InterfaceCreateForm(ComponentForm):
-    name_pattern = ExpandableNameField(label='Name')
-    form_factor = forms.ChoiceField(choices=VIFACE_FF_CHOICES, initial=IFACE_FF_VIRTUAL, widget=forms.HiddenInput())
-    enabled = forms.BooleanField(required=False)
-    mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
-    mac_address = forms.CharField(required=False, label='MAC Address')
-    description = forms.CharField(max_length=100, required=False)
-    tags = TagField(required=False)
+    name_pattern = ExpandableNameField(
+        label='Name'
+    )
+    form_factor = forms.ChoiceField(
+        choices=VIFACE_FF_CHOICES,
+        initial=IFACE_FF_VIRTUAL,
+        widget=forms.HiddenInput()
+    )
+    enabled = forms.BooleanField(
+        required=False
+    )
+    mtu = forms.IntegerField(
+        required=False,
+        min_value=1,
+        max_value=32767,
+        label='MTU'
+    )
+    mac_address = forms.CharField(
+        required=False,
+        label='MAC Address'
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+    tags = TagField(
+        required=False
+    )
 
     def __init__(self, *args, **kwargs):
 
@@ -478,13 +603,29 @@ class InterfaceCreateForm(ComponentForm):
 
 
 class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Interface.objects.all(), widget=forms.MultipleHiddenInput)
-    enabled = forms.NullBooleanField(required=False, widget=BulkEditNullBooleanSelect)
-    mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
-    description = forms.CharField(max_length=100, required=False)
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Interface.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    mtu = forms.IntegerField(
+        required=False,
+        min_value=1,
+        max_value=32767,
+        label='MTU'
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
 
     class Meta:
-        nullable_fields = ['mtu', 'description']
+        nullable_fields = [
+            'mtu', 'description',
+        ]
 
 
 #
@@ -492,12 +633,32 @@ class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):
 #
 
 class VirtualMachineBulkAddComponentForm(BootstrapMixin, forms.Form):
-    pk = forms.ModelMultipleChoiceField(queryset=VirtualMachine.objects.all(), widget=forms.MultipleHiddenInput)
-    name_pattern = ExpandableNameField(label='Name')
+    pk = forms.ModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    name_pattern = ExpandableNameField(
+        label='Name'
+    )
 
 
 class VirtualMachineBulkAddInterfaceForm(VirtualMachineBulkAddComponentForm):
-    form_factor = forms.ChoiceField(choices=VIFACE_FF_CHOICES, initial=IFACE_FF_VIRTUAL, widget=forms.HiddenInput())
-    enabled = forms.BooleanField(required=False, initial=True)
-    mtu = forms.IntegerField(required=False, min_value=1, max_value=32767, label='MTU')
-    description = forms.CharField(max_length=100, required=False)
+    form_factor = forms.ChoiceField(
+        choices=VIFACE_FF_CHOICES,
+        initial=IFACE_FF_VIRTUAL,
+        widget=forms.HiddenInput()
+    )
+    enabled = forms.BooleanField(
+        required=False,
+        initial=True
+    )
+    mtu = forms.IntegerField(
+        required=False,
+        min_value=1,
+        max_value=32767,
+        label='MTU'
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )

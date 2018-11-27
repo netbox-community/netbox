@@ -39,7 +39,9 @@ class SecretRoleForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = SecretRole
-        fields = ['name', 'slug', 'users', 'groups']
+        fields = [
+            'name', 'slug', 'users', 'groups',
+        ]
 
 
 class SecretRoleCSVForm(forms.ModelForm):
@@ -62,7 +64,11 @@ class SecretForm(BootstrapMixin, CustomFieldForm):
         max_length=65535,
         required=False,
         label='Plaintext',
-        widget=forms.PasswordInput(attrs={'class': 'requires-session-key'})
+        widget=forms.PasswordInput(
+            attrs={
+                'class': 'requires-session-key',
+            }
+        )
     )
     plaintext2 = forms.CharField(
         max_length=65535,
@@ -70,14 +76,17 @@ class SecretForm(BootstrapMixin, CustomFieldForm):
         label='Plaintext (verify)',
         widget=forms.PasswordInput()
     )
-    tags = TagField(required=False)
+    tags = TagField(
+        required=False
+    )
 
     class Meta:
         model = Secret
-        fields = ['role', 'name', 'plaintext', 'plaintext2', 'tags']
+        fields = [
+            'role', 'name', 'plaintext', 'plaintext2', 'tags',
+        ]
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
         # A plaintext value is required when creating a new Secret
@@ -128,19 +137,35 @@ class SecretCSVForm(forms.ModelForm):
 
 
 class SecretBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Secret.objects.all(), widget=forms.MultipleHiddenInput)
-    role = forms.ModelChoiceField(queryset=SecretRole.objects.all(), required=False)
-    name = forms.CharField(max_length=100, required=False)
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Secret.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    role = forms.ModelChoiceField(
+        queryset=SecretRole.objects.all(),
+        required=False
+    )
+    name = forms.CharField(
+        max_length=100,
+        required=False
+    )
 
     class Meta:
-        nullable_fields = ['name']
+        nullable_fields = [
+            'name',
+        ]
 
 
 class SecretFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Secret
-    q = forms.CharField(required=False, label='Search')
+    q = forms.CharField(
+        required=False,
+        label='Search'
+    )
     role = FilterChoiceField(
-        queryset=SecretRole.objects.annotate(filter_count=Count('secrets')),
+        queryset=SecretRole.objects.annotate(
+            filter_count=Count('secrets')
+        ),
         to_field_name='slug'
     )
 
@@ -169,5 +194,15 @@ class UserKeyForm(BootstrapMixin, forms.ModelForm):
 
 
 class ActivateUserKeyForm(forms.Form):
-    _selected_action = forms.ModelMultipleChoiceField(queryset=UserKey.objects.all(), label='User Keys')
-    secret_key = forms.CharField(label='Your private key', widget=forms.Textarea(attrs={'class': 'vLargeTextField'}))
+    _selected_action = forms.ModelMultipleChoiceField(
+        queryset=UserKey.objects.all(),
+        label='User Keys'
+    )
+    secret_key = forms.CharField(
+        widget=forms.Textarea(
+            attrs={
+                'class': 'vLargeTextField',
+            }
+        ),
+        label='Your private key'
+    )

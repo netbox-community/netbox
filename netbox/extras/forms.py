@@ -193,7 +193,9 @@ class TagForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Tag
-        fields = ['name', 'slug']
+        fields = [
+            'name', 'slug',
+        ]
 
 
 class AddRemoveTagsForm(forms.Form):
@@ -208,7 +210,10 @@ class AddRemoveTagsForm(forms.Form):
 
 class TagFilterForm(BootstrapMixin, forms.Form):
     model = Tag
-    q = forms.CharField(required=False, label='Search')
+    q = forms.CharField(
+        required=False,
+        label='Search'
+    )
 
 
 #
@@ -249,7 +254,9 @@ class ConfigContextBulkEditForm(BootstrapMixin, BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ['description']
+        nullable_fields = [
+            'description',
+        ]
 
 
 class ConfigContextFilterForm(BootstrapMixin, forms.Form):
@@ -291,7 +298,9 @@ class ImageAttachmentForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = ImageAttachment
-        fields = ['name', 'image']
+        fields = [
+            'name', 'image',
+        ]
 
 
 #

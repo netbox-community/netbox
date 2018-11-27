@@ -18,7 +18,9 @@ class TenantGroupForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = TenantGroup
-        fields = ['name', 'slug']
+        fields = [
+            'name', 'slug',
+        ]
 
 
 class TenantGroupCSVForm(forms.ModelForm):
@@ -39,11 +41,15 @@ class TenantGroupCSVForm(forms.ModelForm):
 class TenantForm(BootstrapMixin, CustomFieldForm):
     slug = SlugField()
     comments = CommentField()
-    tags = TagField(required=False)
+    tags = TagField(
+        required=False
+    )
 
     class Meta:
         model = Tenant
-        fields = ['name', 'slug', 'group', 'description', 'comments', 'tags']
+        fields = [
+            'name', 'slug', 'group', 'description', 'comments', 'tags',
+        ]
 
 
 class TenantCSVForm(forms.ModelForm):
@@ -68,18 +74,31 @@ class TenantCSVForm(forms.ModelForm):
 
 
 class TenantBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
-    pk = forms.ModelMultipleChoiceField(queryset=Tenant.objects.all(), widget=forms.MultipleHiddenInput)
-    group = forms.ModelChoiceField(queryset=TenantGroup.objects.all(), required=False)
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Tenant.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    group = forms.ModelChoiceField(
+        queryset=TenantGroup.objects.all(),
+        required=False
+    )
 
     class Meta:
-        nullable_fields = ['group']
+        nullable_fields = [
+            'group',
+        ]
 
 
 class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Tenant
-    q = forms.CharField(required=False, label='Search')
+    q = forms.CharField(
+        required=False,
+        label='Search'
+    )
     group = FilterChoiceField(
-        queryset=TenantGroup.objects.annotate(filter_count=Count('tenants')),
+        queryset=TenantGroup.objects.annotate(
+            filter_count=Count('tenants')
+        ),
         to_field_name='slug',
         null_label='-- None --'
     )
@@ -94,7 +113,10 @@ class TenancyForm(ChainedFieldsMixin, forms.Form):
         queryset=TenantGroup.objects.all(),
         required=False,
         widget=forms.Select(
-            attrs={'filter-for': 'tenant', 'nullable': 'true'}
+            attrs={
+                'filter-for': 'tenant',
+                'nullable': 'true',
+            }
         )
     )
     tenant = ChainedModelChoiceField(

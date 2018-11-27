@@ -19,11 +19,16 @@ class PasswordChangeForm(BootstrapMixin, DjangoPasswordChangeForm):
 
 
 class TokenForm(BootstrapMixin, forms.ModelForm):
-    key = forms.CharField(required=False, help_text="If no key is provided, one will be generated automatically.")
+    key = forms.CharField(
+        required=False,
+        help_text="If no key is provided, one will be generated automatically."
+    )
 
     class Meta:
         model = Token
-        fields = ['key', 'write_enabled', 'expires', 'description']
+        fields = [
+            'key', 'write_enabled', 'expires', 'description',
+        ]
         help_texts = {
             'expires': 'YYYY-MM-DD [HH:MM:SS]'
         }
