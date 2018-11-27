@@ -56,6 +56,11 @@ class SiteSerializer(TaggitSerializer, CustomFieldModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     time_zone = TimeZoneField(required=False)
     tags = TagListSerializerField(required=False)
+    count_prefixes = serializers.IntegerField(read_only=True)
+    count_vlans = serializers.IntegerField(read_only=True)
+    count_racks = serializers.IntegerField(read_only=True)
+    count_devices = serializers.IntegerField(read_only=True)
+    count_circuits = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Site

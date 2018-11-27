@@ -3,6 +3,7 @@ v2.4.9 (FUTURE)
 ## Bug Fixes
 
 * [#2400](https://github.com/digitalocean/netbox/issues/2400) - Correct representation of nested object assignment in API docs
+* [#2576](https://github.com/digitalocean/netbox/issues/2576) - Correct type for count_* fields in site API representation
 * [#2606](https://github.com/digitalocean/netbox/issues/2606) - Fixed filtering for interfaces with a virtual form factor
 * [#2613](https://github.com/digitalocean/netbox/issues/2613) - Decrease live search minimum characters to three
 * [#2615](https://github.com/digitalocean/netbox/issues/2615) - Tweak live search widget to use brief format for API requests
