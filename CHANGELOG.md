@@ -3,6 +3,7 @@ v2.4.9 (FUTURE)
 ## Bug Fixes
 
 * [#2606](https://github.com/digitalocean/netbox/issues/2606) - Fixed filtering for interfaces with a virtual form factor
+* [#2613](https://github.com/digitalocean/netbox/issues/2613) - Decrease live search minimum characters to three
 
 ---
 
