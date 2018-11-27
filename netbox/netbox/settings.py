@@ -275,9 +275,12 @@ RQ_QUEUES = {
 
 # drf_yasg settings for Swagger
 SWAGGER_SETTINGS = {
+    'DEFAULT_AUTO_SCHEMA_CLASS': 'utilities.custom_inspectors.NetBoxSwaggerAutoSchema',
     'DEFAULT_FIELD_INSPECTORS': [
         'utilities.custom_inspectors.NullableBooleanFieldInspector',
         'utilities.custom_inspectors.CustomChoiceFieldInspector',
+        'utilities.custom_inspectors.TagListFieldInspector',
+        'utilities.custom_inspectors.SerializedPKRelatedFieldInspector',
         'drf_yasg.inspectors.CamelCaseJSONFilter',
         'drf_yasg.inspectors.ReferencingSerializerInspector',
         'drf_yasg.inspectors.RelatedFieldInspector',

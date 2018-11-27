@@ -1,9 +1,52 @@
 from drf_yasg import openapi
-from drf_yasg.inspectors import FieldInspector, NotHandled, PaginatorInspector, FilterInspector
+from drf_yasg.inspectors import FieldInspector, NotHandled, PaginatorInspector, FilterInspector, SwaggerAutoSchema
 from rest_framework.fields import ChoiceField
+from rest_framework.relations import ManyRelatedField
+from taggit_serializer.serializers import TagListSerializerField
 
 from extras.api.customfields import CustomFieldsSerializer
-from utilities.api import ChoiceField
+from utilities.api import ChoiceField, SerializedPKRelatedField, WritableNestedSerializer
+
+
+class NetBoxSwaggerAutoSchema(SwaggerAutoSchema):
+    def get_request_serializer(self):
+        serializer = super().get_request_serializer()
+
+        if serializer is not None and self.method in self.implicit_body_methods:
+            properties = {}
+            for child_name, child in serializer.fields.items():
+                if isinstance(child, (ChoiceField, WritableNestedSerializer)):
+                    properties[child_name] = None
+                elif isinstance(child, ManyRelatedField) and isinstance(child.child_relation, SerializedPKRelatedField):
+                    properties[child_name] = None
+
+            if properties:
+                writable_class = type('Writable' + type(serializer).__name__, (type(serializer),), properties)
+                serializer = writable_class()
+
+        return serializer
+
+
+class SerializedPKRelatedFieldInspector(FieldInspector):
+    def field_to_swagger_object(self, field, swagger_object_type, use_references, **kwargs):
+        SwaggerType, ChildSwaggerType = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
+        if isinstance(field, SerializedPKRelatedField):
+            return self.probe_field_inspectors(field.serializer(), ChildSwaggerType, use_references)
+
+        return NotHandled
+
+
+class TagListFieldInspector(FieldInspector):
+    def field_to_swagger_object(self, field, swagger_object_type, use_references, **kwargs):
+        SwaggerType, ChildSwaggerType = self._get_partial_types(field, swagger_object_type, use_references, **kwargs)
+        if isinstance(field, TagListSerializerField):
+            child_schema = self.probe_field_inspectors(field.child, ChildSwaggerType, use_references)
+            return SwaggerType(
+                type=openapi.TYPE_ARRAY,
+                items=child_schema,
+            )
+
+        return NotHandled
 
 
 class CustomChoiceFieldInspector(FieldInspector):
