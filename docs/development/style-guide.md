@@ -28,6 +28,19 @@ To invoke `pycodestyle` manually, run:
 pycodestyle --ignore=W504,E501 netbox/
 ```
 
+## Introducing New Dependencies
+
+The introduction of a new dependency is best avoided unless it is absolutely necessary. For small features, it's generally preferable to replicate functionality within the NetBox code base rather than to introduce reliance on an external project. This reduces both the burden of tracking new releases and our exposure to outside bugs and attacks.
+
+If there's a strong case for introducing a new depdency, it must meet the following criteria:
+
+* Its complete source code must be published and freely accessible without registration.
+* Its license must be conducive to inclusion in an open source project.
+* It must be actively maintained, with no longer than one year between releases.
+* It must be available via the [Python Package Index](https://pypi.org/) (PyPI).
+
+When adding a new dependency, a short description of the package and the URL of its code repository must be added to `base_requirements.txt`. Additionally, a line specifying the package name pinned to the current stable release must be added to `requirements.txt`. This ensures that NetBox will install only the known-good release and simplify support efforts.
+
 ## General Guidance
 
 * When in doubt, remain consistent: It is better to be consistently incorrect than inconsistently correct. If you notice in the course of unrelated work a pattern that should be corrected, continue to follow the pattern for now and open a bug so that the entire code base can be evaluated at a later point.
