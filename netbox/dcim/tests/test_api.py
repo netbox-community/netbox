@@ -20,7 +20,7 @@ class RegionTest(APITestCase):
 
     def setUp(self):
 
-        super(RegionTest, self).setUp()
+        super().setUp()
 
         self.region1 = Region.objects.create(name='Test Region 1', slug='test-region-1')
         self.region2 = Region.objects.create(name='Test Region 2', slug='test-region-2')
@@ -121,7 +121,7 @@ class SiteTest(APITestCase):
 
     def setUp(self):
 
-        super(SiteTest, self).setUp()
+        super().setUp()
 
         self.region1 = Region.objects.create(name='Test Region 1', slug='test-region-1')
         self.region2 = Region.objects.create(name='Test Region 2', slug='test-region-2')
@@ -256,7 +256,7 @@ class RackGroupTest(APITestCase):
 
     def setUp(self):
 
-        super(RackGroupTest, self).setUp()
+        super().setUp()
 
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
@@ -366,7 +366,7 @@ class RackRoleTest(APITestCase):
 
     def setUp(self):
 
-        super(RackRoleTest, self).setUp()
+        super().setUp()
 
         self.rackrole1 = RackRole.objects.create(name='Test Rack Role 1', slug='test-rack-role-1', color='ff0000')
         self.rackrole2 = RackRole.objects.create(name='Test Rack Role 2', slug='test-rack-role-2', color='00ff00')
@@ -474,7 +474,7 @@ class RackTest(APITestCase):
 
     def setUp(self):
 
-        super(RackTest, self).setUp()
+        super().setUp()
 
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
@@ -608,7 +608,7 @@ class RackReservationTest(APITestCase):
 
     def setUp(self):
 
-        super(RackReservationTest, self).setUp()
+        super().setUp()
 
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.rack1 = Rack.objects.create(site=self.site1, name='Test Rack 1')
@@ -719,7 +719,7 @@ class ManufacturerTest(APITestCase):
 
     def setUp(self):
 
-        super(ManufacturerTest, self).setUp()
+        super().setUp()
 
         self.manufacturer1 = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.manufacturer2 = Manufacturer.objects.create(name='Test Manufacturer 2', slug='test-manufacturer-2')
@@ -820,7 +820,7 @@ class DeviceTypeTest(APITestCase):
 
     def setUp(self):
 
-        super(DeviceTypeTest, self).setUp()
+        super().setUp()
 
         self.manufacturer1 = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.manufacturer2 = Manufacturer.objects.create(name='Test Manufacturer 2', slug='test-manufacturer-2')
@@ -936,7 +936,7 @@ class ConsolePortTemplateTest(APITestCase):
 
     def setUp(self):
 
-        super(ConsolePortTemplateTest, self).setUp()
+        super().setUp()
 
         self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.devicetype = DeviceType.objects.create(
@@ -1036,7 +1036,7 @@ class ConsoleServerPortTemplateTest(APITestCase):
 
     def setUp(self):
 
-        super(ConsoleServerPortTemplateTest, self).setUp()
+        super().setUp()
 
         self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.devicetype = DeviceType.objects.create(
@@ -1136,7 +1136,7 @@ class PowerPortTemplateTest(APITestCase):
 
     def setUp(self):
 
-        super(PowerPortTemplateTest, self).setUp()
+        super().setUp()
 
         self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.devicetype = DeviceType.objects.create(
@@ -1236,7 +1236,7 @@ class PowerOutletTemplateTest(APITestCase):
 
     def setUp(self):
 
-        super(PowerOutletTemplateTest, self).setUp()
+        super().setUp()
 
         self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.devicetype = DeviceType.objects.create(
@@ -1336,7 +1336,7 @@ class InterfaceTemplateTest(APITestCase):
 
     def setUp(self):
 
-        super(InterfaceTemplateTest, self).setUp()
+        super().setUp()
 
         self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.devicetype = DeviceType.objects.create(
@@ -1436,7 +1436,7 @@ class DeviceBayTemplateTest(APITestCase):
 
     def setUp(self):
 
-        super(DeviceBayTemplateTest, self).setUp()
+        super().setUp()
 
         self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         self.devicetype = DeviceType.objects.create(
@@ -1536,7 +1536,7 @@ class DeviceRoleTest(APITestCase):
 
     def setUp(self):
 
-        super(DeviceRoleTest, self).setUp()
+        super().setUp()
 
         self.devicerole1 = DeviceRole.objects.create(
             name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
@@ -1650,7 +1650,7 @@ class PlatformTest(APITestCase):
 
     def setUp(self):
 
-        super(PlatformTest, self).setUp()
+        super().setUp()
 
         self.platform1 = Platform.objects.create(name='Test Platform 1', slug='test-platform-1')
         self.platform2 = Platform.objects.create(name='Test Platform 2', slug='test-platform-2')
@@ -1751,7 +1751,7 @@ class DeviceTest(APITestCase):
 
     def setUp(self):
 
-        super(DeviceTest, self).setUp()
+        super().setUp()
 
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
@@ -1913,7 +1913,7 @@ class ConsolePortTest(APITestCase):
 
     def setUp(self):
 
-        super(ConsolePortTest, self).setUp()
+        super().setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -2026,7 +2026,7 @@ class ConsoleServerPortTest(APITestCase):
 
     def setUp(self):
 
-        super(ConsoleServerPortTest, self).setUp()
+        super().setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -2137,7 +2137,7 @@ class PowerPortTest(APITestCase):
 
     def setUp(self):
 
-        super(PowerPortTest, self).setUp()
+        super().setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -2250,7 +2250,7 @@ class PowerOutletTest(APITestCase):
 
     def setUp(self):
 
-        super(PowerOutletTest, self).setUp()
+        super().setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -2361,7 +2361,7 @@ class InterfaceTest(APITestCase):
 
     def setUp(self):
 
-        super(InterfaceTest, self).setUp()
+        super().setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -2560,7 +2560,7 @@ class DeviceBayTest(APITestCase):
 
     def setUp(self):
 
-        super(DeviceBayTest, self).setUp()
+        super().setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -2683,7 +2683,7 @@ class InventoryItemTest(APITestCase):
 
     def setUp(self):
 
-        super(InventoryItemTest, self).setUp()
+        super().setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -2799,7 +2799,7 @@ class CableTest(APITestCase):
 
     def setUp(self):
 
-        super(CableTest, self).setUp()
+        super().setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
@@ -2940,7 +2940,7 @@ class ConnectionTest(APITestCase):
 
     def setUp(self):
 
-        super(ConnectionTest, self).setUp()
+        super().setUp()
 
         self.site = Site.objects.create(
             name='Test Site 1', slug='test-site-1'
@@ -3304,7 +3304,7 @@ class ConnectedDeviceTest(APITestCase):
 
     def setUp(self):
 
-        super(ConnectedDeviceTest, self).setUp()
+        super().setUp()
 
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')
@@ -3346,7 +3346,7 @@ class VirtualChassisTest(APITestCase):
 
     def setUp(self):
 
-        super(VirtualChassisTest, self).setUp()
+        super().setUp()
 
         site = Site.objects.create(name='Test Site', slug='test-site')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer', slug='test-manufacturer')

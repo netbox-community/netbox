@@ -9,7 +9,7 @@ class TenantGroupTest(APITestCase):
 
     def setUp(self):
 
-        super(TenantGroupTest, self).setUp()
+        super().setUp()
 
         self.tenantgroup1 = TenantGroup.objects.create(name='Test Tenant Group 1', slug='test-tenant-group-1')
         self.tenantgroup2 = TenantGroup.objects.create(name='Test Tenant Group 2', slug='test-tenant-group-2')
@@ -110,7 +110,7 @@ class TenantTest(APITestCase):
 
     def setUp(self):
 
-        super(TenantTest, self).setUp()
+        super().setUp()
 
         self.tenantgroup1 = TenantGroup.objects.create(name='Test Tenant Group 1', slug='test-tenant-group-1')
         self.tenantgroup2 = TenantGroup.objects.create(name='Test Tenant Group 2', slug='test-tenant-group-2')

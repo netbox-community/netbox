@@ -193,7 +193,7 @@ class ColorSelect(forms.Select):
 
     def __init__(self, *args, **kwargs):
         kwargs['choices'] = add_blank_choice(COLOR_CHOICES)
-        super(ColorSelect, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class BulkEditNullBooleanSelect(forms.NullBooleanSelect):
@@ -202,7 +202,7 @@ class BulkEditNullBooleanSelect(forms.NullBooleanSelect):
     """
 
     def __init__(self, *args, **kwargs):
-        super(BulkEditNullBooleanSelect, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Override the built-in choice labels
         self.choices = (
@@ -242,17 +242,17 @@ class ArrayFieldSelectMultiple(SelectWithDisabled, forms.SelectMultiple):
     """
     def __init__(self, *args, **kwargs):
         self.delimiter = kwargs.pop('delimiter', ',')
-        super(ArrayFieldSelectMultiple, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def optgroups(self, name, value, attrs=None):
         # Split the delimited string of values into a list
         if value:
             value = value[0].split(self.delimiter)
-        return super(ArrayFieldSelectMultiple, self).optgroups(name, value, attrs)
+        return super().optgroups(name, value, attrs)
 
     def value_from_datadict(self, data, files, name):
         # Condense the list of selected choices into a delimited string
-        data = super(ArrayFieldSelectMultiple, self).value_from_datadict(data, files, name)
+        data = super().value_from_datadict(data, files, name)
         return self.delimiter.join(data)
 
 
@@ -279,7 +279,7 @@ class APISelect(SelectWithDisabled):
         **kwargs
     ):
 
-        super(APISelect, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.attrs['class'] = 'api-select'
         self.attrs['api-url'] = '/{}{}'.format(settings.BASE_PATH, api_url.lstrip('/'))  # Inject BASE_PATH
@@ -308,7 +308,7 @@ class Livesearch(forms.TextInput):
 
     def __init__(self, query_key, query_url, field_to_update, obj_label=None, *args, **kwargs):
 
-        super(Livesearch, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.attrs = {
             'data-key': query_key,
@@ -336,7 +336,7 @@ class CSVDataField(forms.CharField):
         self.fields = fields
         self.required_fields = required_fields
 
-        super(CSVDataField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.strip = False
         if not self.label:
@@ -382,12 +382,12 @@ class CSVChoiceField(forms.ChoiceField):
     """
 
     def __init__(self, choices, *args, **kwargs):
-        super(CSVChoiceField, self).__init__(choices=choices, *args, **kwargs)
+        super().__init__(choices=choices, *args, **kwargs)
         self.choices = [(label, label) for value, label in unpack_grouped_choices(choices)]
         self.choice_values = {label: value for value, label in unpack_grouped_choices(choices)}
 
     def clean(self, value):
-        value = super(CSVChoiceField, self).clean(value)
+        value = super().clean(value)
         if not value:
             return None
         if value not in self.choice_values:
@@ -401,7 +401,7 @@ class ExpandableNameField(forms.CharField):
       Example: 'Gi0/[1-3]' => ['Gi0/1', 'Gi0/2', 'Gi0/3']
     """
     def __init__(self, *args, **kwargs):
-        super(ExpandableNameField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if not self.help_text:
             self.help_text = 'Alphanumeric ranges are supported for bulk creation.<br />' \
                              'Mixed cases and types within a single range are not supported.<br />' \
@@ -421,7 +421,7 @@ class ExpandableIPAddressField(forms.CharField):
       Example: '192.0.2.[1-254]/24' => ['192.0.2.1/24', '192.0.2.2/24', '192.0.2.3/24' ... '192.0.2.254/24']
     """
     def __init__(self, *args, **kwargs):
-        super(ExpandableIPAddressField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if not self.help_text:
             self.help_text = 'Specify a numeric range to create multiple IPs.<br />'\
                              'Example: <code>192.0.2.[1,5,100-254]/24</code>'
@@ -450,7 +450,7 @@ class CommentField(forms.CharField):
         required = kwargs.pop('required', False)
         label = kwargs.pop('label', self.default_label)
         help_text = kwargs.pop('help_text', self.default_helptext)
-        super(CommentField, self).__init__(required=required, label=label, help_text=help_text, *args, **kwargs)
+        super().__init__(required=required, label=label, help_text=help_text, *args, **kwargs)
 
 
 class FlexibleModelChoiceField(forms.ModelChoiceField):
@@ -490,7 +490,7 @@ class ChainedModelChoiceField(forms.ModelChoiceField):
     """
     def __init__(self, chains=None, *args, **kwargs):
         self.chains = chains
-        super(ChainedModelChoiceField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class ChainedModelMultipleChoiceField(forms.ModelMultipleChoiceField):
@@ -499,7 +499,7 @@ class ChainedModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     """
     def __init__(self, chains=None, *args, **kwargs):
         self.chains = chains
-        super(ChainedModelMultipleChoiceField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class SlugField(forms.SlugField):
@@ -509,7 +509,7 @@ class SlugField(forms.SlugField):
     def __init__(self, slug_source='name', *args, **kwargs):
         label = kwargs.pop('label', "Slug")
         help_text = kwargs.pop('help_text', "URL-friendly unique shorthand")
-        super(SlugField, self).__init__(label=label, help_text=help_text, *args, **kwargs)
+        super().__init__(label=label, help_text=help_text, *args, **kwargs)
         self.widget.attrs['slug-source'] = slug_source
 
 
@@ -536,10 +536,10 @@ class FilterChoiceFieldMixin(object):
             kwargs['required'] = False
         if 'widget' not in kwargs:
             kwargs['widget'] = forms.SelectMultiple(attrs={'size': 6})
-        super(FilterChoiceFieldMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def label_from_instance(self, obj):
-        label = super(FilterChoiceFieldMixin, self).label_from_instance(obj)
+        label = super().label_from_instance(obj)
         if hasattr(obj, 'filter_count'):
             return '{} ({})'.format(label, obj.filter_count)
         return label
@@ -582,7 +582,7 @@ class AnnotatedMultipleChoiceField(forms.MultipleChoiceField):
         self.annotate_field = annotate_field
         self.static_choices = unpack_grouped_choices(choices)
 
-        super(AnnotatedMultipleChoiceField, self).__init__(choices=self.annotate_choices, *args, **kwargs)
+        super().__init__(choices=self.annotate_choices, *args, **kwargs)
 
 
 class LaxURLField(forms.URLField):
@@ -599,7 +599,7 @@ class JSONField(_JSONField):
     Custom wrapper around Django's built-in JSONField to avoid presenting "null" as the default text.
     """
     def __init__(self, *args, **kwargs):
-        super(JSONField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if not self.help_text:
             self.help_text = 'Enter context data in <a href="https://json.org/">JSON</a> format.'
             self.widget.attrs['placeholder'] = ''
@@ -621,7 +621,7 @@ class BootstrapMixin(forms.BaseForm):
     Add the base Bootstrap CSS classes to form elements.
     """
     def __init__(self, *args, **kwargs):
-        super(BootstrapMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         exempt_widgets = [
             forms.CheckboxInput, forms.ClearableFileInput, forms.FileInput, forms.RadioSelect
@@ -642,7 +642,7 @@ class ChainedFieldsMixin(forms.BaseForm):
     Iterate through all ChainedModelChoiceFields in the form and modify their querysets based on chained fields.
     """
     def __init__(self, *args, **kwargs):
-        super(ChainedFieldsMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         for field_name, field in self.fields.items():
 
@@ -691,7 +691,7 @@ class ComponentForm(BootstrapMixin, forms.Form):
     """
     def __init__(self, parent, *args, **kwargs):
         self.parent = parent
-        super(ComponentForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_iterative_data(self, iteration):
         return {}
@@ -702,7 +702,7 @@ class BulkEditForm(forms.Form):
     Base form for editing multiple objects in bulk
     """
     def __init__(self, model, parent_obj=None, *args, **kwargs):
-        super(BulkEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.model = model
         self.parent_obj = parent_obj
         self.nullable_fields = []

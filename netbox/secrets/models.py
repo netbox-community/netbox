@@ -85,7 +85,7 @@ class UserKey(models.Model):
         )
 
     def __init__(self, *args, **kwargs):
-        super(UserKey, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Store the initial public_key and master_key_cipher to check for changes on save().
         self.__initial_public_key = self.public_key
@@ -125,7 +125,7 @@ class UserKey(models.Model):
                     )
                 })
 
-        super(UserKey, self).clean()
+        super().clean()
 
     def save(self, *args, **kwargs):
 
@@ -138,7 +138,7 @@ class UserKey(models.Model):
             master_key = generate_random_key()
             self.master_key_cipher = encrypt_master_key(master_key, self.public_key)
 
-        super(UserKey, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
 
@@ -148,7 +148,7 @@ class UserKey(models.Model):
             raise Exception("Cannot delete the last active UserKey when Secrets exist! This would render all secrets "
                             "inaccessible.")
 
-        super(UserKey, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
     def is_filled(self):
         """
@@ -230,7 +230,7 @@ class SessionKey(models.Model):
         # Encrypt master key using the session key
         self.cipher = strxor.strxor(self.key, master_key)
 
-        super(SessionKey, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def get_master_key(self, session_key):
 
@@ -356,7 +356,7 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
 
     def __init__(self, *args, **kwargs):
         self.plaintext = kwargs.pop('plaintext', None)
-        super(Secret, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def __str__(self):
         if self.role and self.device and self.name:

@@ -17,7 +17,7 @@ class CustomFieldFilter(django_filters.Filter):
     def __init__(self, custom_field, *args, **kwargs):
         self.cf_type = custom_field.type
         self.filter_logic = custom_field.filter_logic
-        super(CustomFieldFilter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def filter(self, queryset, value):
 
@@ -63,7 +63,7 @@ class CustomFieldFilterSet(django_filters.FilterSet):
     """
 
     def __init__(self, *args, **kwargs):
-        super(CustomFieldFilterSet, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         obj_type = ContentType.objects.get_for_model(self._meta.model)
         custom_fields = CustomField.objects.filter(obj_type=obj_type).exclude(filter_logic=CF_FILTER_DISABLED)

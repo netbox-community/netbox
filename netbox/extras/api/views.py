@@ -50,7 +50,7 @@ class CustomFieldModelViewSet(ModelViewSet):
                 custom_field_choices[cfc.id] = cfc.value
         custom_field_choices = custom_field_choices
 
-        context = super(CustomFieldModelViewSet, self).get_serializer_context()
+        context = super().get_serializer_context()
         context.update({
             'custom_fields': custom_fields,
             'custom_field_choices': custom_field_choices,
@@ -59,7 +59,7 @@ class CustomFieldModelViewSet(ModelViewSet):
 
     def get_queryset(self):
         # Prefetch custom field values
-        return super(CustomFieldModelViewSet, self).get_queryset().prefetch_related('custom_field_values__field')
+        return super().get_queryset().prefetch_related('custom_field_values__field')
 
 
 #

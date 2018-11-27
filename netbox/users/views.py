@@ -132,7 +132,7 @@ class UserKeyEditView(View):
         except UserKey.DoesNotExist:
             self.userkey = UserKey(user=request.user)
 
-        return super(UserKeyEditView, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
         form = UserKeyForm(instance=self.userkey)

@@ -250,7 +250,7 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             initial['vlan_group'] = instance.vlan.group
         kwargs['initial'] = initial
 
-        super(PrefixForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.fields['vrf'].empty_label = 'Global'
 
@@ -311,7 +311,7 @@ class PrefixCSVForm(forms.ModelForm):
 
     def clean(self):
 
-        super(PrefixCSVForm, self).clean()
+        super().clean()
 
         site = self.cleaned_data.get('site')
         vlan_group = self.cleaned_data.get('vlan_group')
@@ -483,7 +483,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
             initial['nat_device'] = instance.nat_inside.device
         kwargs['initial'] = initial
 
-        super(IPAddressForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.fields['vrf'].empty_label = 'Global'
 
@@ -505,7 +505,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
                 self.initial['primary_for_parent'] = True
 
     def clean(self):
-        super(IPAddressForm, self).clean()
+        super().clean()
 
         # Primary IP assignment is only available if an interface has been assigned.
         if self.cleaned_data.get('primary_for_parent') and not self.cleaned_data.get('interface'):
@@ -515,7 +515,7 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
 
     def save(self, *args, **kwargs):
 
-        ipaddress = super(IPAddressForm, self).save(*args, **kwargs)
+        ipaddress = super().save(*args, **kwargs)
 
         # Assign/clear this IPAddress as the primary for the associated Device/VirtualMachine.
         if self.cleaned_data['primary_for_parent']:
@@ -548,7 +548,7 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         fields = ['address', 'vrf', 'status', 'role', 'description', 'tenant_group', 'tenant']
 
     def __init__(self, *args, **kwargs):
-        super(IPAddressBulkAddForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['vrf'].empty_label = 'Global'
 
 
@@ -613,7 +613,7 @@ class IPAddressCSVForm(forms.ModelForm):
 
     def clean(self):
 
-        super(IPAddressCSVForm, self).clean()
+        super().clean()
 
         device = self.cleaned_data.get('device')
         virtual_machine = self.cleaned_data.get('virtual_machine')
@@ -662,7 +662,7 @@ class IPAddressCSVForm(forms.ModelForm):
                 name=self.cleaned_data['interface_name']
             )
 
-        ipaddress = super(IPAddressCSVForm, self).save(*args, **kwargs)
+        ipaddress = super().save(*args, **kwargs)
 
         # Set as primary for device/VM
         if self.cleaned_data['is_primary']:
@@ -851,7 +851,7 @@ class VLANCSVForm(forms.ModelForm):
 
     def clean(self):
 
-        super(VLANCSVForm, self).clean()
+        super().clean()
 
         site = self.cleaned_data.get('site')
         group_name = self.cleaned_data.get('group_name')
@@ -928,7 +928,7 @@ class ServiceForm(BootstrapMixin, CustomFieldForm):
 
     def __init__(self, *args, **kwargs):
 
-        super(ServiceForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Limit IP address choices to those assigned to interfaces of the parent device/VM
         if self.instance.device:

@@ -78,7 +78,7 @@ class SecretForm(BootstrapMixin, CustomFieldForm):
 
     def __init__(self, *args, **kwargs):
 
-        super(SecretForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # A plaintext value is required when creating a new Secret
         if not self.instance.pk:
@@ -122,7 +122,7 @@ class SecretCSVForm(forms.ModelForm):
         }
 
     def save(self, *args, **kwargs):
-        s = super(SecretCSVForm, self).save(*args, **kwargs)
+        s = super().save(*args, **kwargs)
         s.plaintext = str(self.cleaned_data['plaintext'])
         return s
 

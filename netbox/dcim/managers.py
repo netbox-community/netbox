@@ -18,7 +18,7 @@ class DeviceComponentManager(Manager):
 
     def get_queryset(self):
 
-        queryset = super(DeviceComponentManager, self).get_queryset()
+        queryset = super().get_queryset()
         table_name = self.model._meta.db_table
         sql = r"CONCAT(REGEXP_REPLACE({}.name, '\d+$', ''), LPAD(SUBSTRING({}.name FROM '\d+$'), 8, '0'))"
 

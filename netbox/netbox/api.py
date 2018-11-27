@@ -58,14 +58,14 @@ class TokenPermissions(DjangoModelPermissions):
     def __init__(self):
         # LOGIN_REQUIRED determines whether read-only access is provided to anonymous users.
         self.authenticated_users_only = settings.LOGIN_REQUIRED
-        super(TokenPermissions, self).__init__()
+        super().__init__()
 
     def has_permission(self, request, view):
         # If token authentication is in use, verify that the token allows write operations (for unsafe methods).
         if request.method not in SAFE_METHODS and isinstance(request.auth, Token):
             if not request.auth.write_enabled:
                 return False
-        return super(TokenPermissions, self).has_permission(request, view)
+        return super().has_permission(request, view)
 
 
 #
@@ -132,7 +132,7 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
         if not self.limit:
             return None
 
-        return super(OptionalLimitOffsetPagination, self).get_next_link()
+        return super().get_next_link()
 
     def get_previous_link(self):
 
@@ -140,7 +140,7 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
         if not self.limit:
             return None
 
-        return super(OptionalLimitOffsetPagination, self).get_previous_link()
+        return super().get_previous_link()
 
 
 #

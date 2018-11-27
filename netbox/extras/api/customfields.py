@@ -105,7 +105,7 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
                     custom_fields[cfv.field.name] = cfv.value
             instance.custom_fields = custom_fields
 
-        super(CustomFieldModelSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if self.instance is not None:
 
@@ -137,7 +137,7 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
 
         with transaction.atomic():
 
-            instance = super(CustomFieldModelSerializer, self).create(validated_data)
+            instance = super().create(validated_data)
 
             # Save custom fields
             if custom_fields is not None:
@@ -152,7 +152,7 @@ class CustomFieldModelSerializer(ValidatedModelSerializer):
 
         with transaction.atomic():
 
-            instance = super(CustomFieldModelSerializer, self).update(instance, validated_data)
+            instance = super().update(instance, validated_data)
 
             # Save custom fields
             if custom_fields is not None:

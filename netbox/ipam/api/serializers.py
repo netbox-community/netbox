@@ -87,7 +87,7 @@ class VLANGroupSerializer(ValidatedModelSerializer):
                 validator(data)
 
         # Enforce model validation
-        super(VLANGroupSerializer, self).validate(data)
+        super().validate(data)
 
         return data
 
@@ -118,7 +118,7 @@ class VLANSerializer(TaggitSerializer, CustomFieldModelSerializer):
                 validator(data)
 
         # Enforce model validation
-        super(VLANSerializer, self).validate(data)
+        super().validate(data)
 
         return data
 

@@ -12,7 +12,7 @@ class TaggedItemTest(APITestCase):
 
     def setUp(self):
 
-        super(TaggedItemTest, self).setUp()
+        super().setUp()
 
     def test_create_tagged_item(self):
 

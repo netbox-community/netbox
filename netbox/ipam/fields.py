@@ -40,7 +40,7 @@ class BaseIPField(models.Field):
     def formfield(self, **kwargs):
         defaults = {'form_class': self.form_class()}
         defaults.update(kwargs)
-        return super(BaseIPField, self).formfield(**defaults)
+        return super().formfield(**defaults)
 
 
 class IPNetworkField(BaseIPField):

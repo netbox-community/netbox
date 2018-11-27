@@ -13,7 +13,7 @@ class ProviderTest(APITestCase):
 
     def setUp(self):
 
-        super(ProviderTest, self).setUp()
+        super().setUp()
 
         self.provider1 = Provider.objects.create(name='Test Provider 1', slug='test-provider-1')
         self.provider2 = Provider.objects.create(name='Test Provider 2', slug='test-provider-2')
@@ -135,7 +135,7 @@ class CircuitTypeTest(APITestCase):
 
     def setUp(self):
 
-        super(CircuitTypeTest, self).setUp()
+        super().setUp()
 
         self.circuittype1 = CircuitType.objects.create(name='Test Circuit Type 1', slug='test-circuit-type-1')
         self.circuittype2 = CircuitType.objects.create(name='Test Circuit Type 2', slug='test-circuit-type-2')
@@ -210,7 +210,7 @@ class CircuitTest(APITestCase):
 
     def setUp(self):
 
-        super(CircuitTest, self).setUp()
+        super().setUp()
 
         self.provider1 = Provider.objects.create(name='Test Provider 1', slug='test-provider-1')
         self.provider2 = Provider.objects.create(name='Test Provider 2', slug='test-provider-2')
@@ -326,7 +326,7 @@ class CircuitTerminationTest(APITestCase):
 
     def setUp(self):
 
-        super(CircuitTerminationTest, self).setUp()
+        super().setUp()
 
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.site2 = Site.objects.create(name='Test Site 2', slug='test-site-2')

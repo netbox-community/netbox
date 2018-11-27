@@ -261,7 +261,7 @@ class CustomFieldValue(models.Model):
         if self.pk and self.value is None:
             self.delete()
         else:
-            super(CustomFieldValue, self).save(*args, **kwargs)
+            super().save(*args, **kwargs)
 
 
 class CustomFieldChoice(models.Model):
@@ -293,7 +293,7 @@ class CustomFieldChoice(models.Model):
     def delete(self, using=None, keep_parents=False):
         # When deleting a CustomFieldChoice, delete all CustomFieldValues which point to it
         pk = self.pk
-        super(CustomFieldChoice, self).delete(using, keep_parents)
+        super().delete(using, keep_parents)
         CustomFieldValue.objects.filter(field__type=CF_TYPE_SELECT, serialized_value=str(pk)).delete()
 
 
@@ -603,7 +603,7 @@ class ImageAttachment(models.Model):
 
         _name = self.image.name
 
-        super(ImageAttachment, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
         # Delete file from disk
         self.image.delete(save=False)
@@ -841,7 +841,7 @@ class ObjectChange(models.Model):
         self.user_name = self.user.username
         self.object_repr = str(self.changed_object)
 
-        return super(ObjectChange, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('extras:objectchange', args=[self.pk])

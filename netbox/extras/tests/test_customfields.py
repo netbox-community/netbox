@@ -101,7 +101,7 @@ class CustomFieldAPITest(APITestCase):
 
     def setUp(self):
 
-        super(CustomFieldAPITest, self).setUp()
+        super().setUp()
 
         content_type = ContentType.objects.get_for_model(Site)
 

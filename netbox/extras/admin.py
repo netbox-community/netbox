@@ -28,7 +28,7 @@ class WebhookForm(forms.ModelForm):
         exclude = []
 
     def __init__(self, *args, **kwargs):
-        super(WebhookForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         order_content_types(self.fields['obj_type'])
 
@@ -56,7 +56,7 @@ class CustomFieldForm(forms.ModelForm):
         exclude = []
 
     def __init__(self, *args, **kwargs):
-        super(CustomFieldForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         order_content_types(self.fields['obj_type'])
 
@@ -96,7 +96,7 @@ class ExportTemplateForm(forms.ModelForm):
         exclude = []
 
     def __init__(self, *args, **kwargs):
-        super(ExportTemplateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Format ContentType choices
         order_content_types(self.fields['content_type'])

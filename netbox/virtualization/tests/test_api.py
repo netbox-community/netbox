@@ -13,7 +13,7 @@ class ClusterTypeTest(APITestCase):
 
     def setUp(self):
 
-        super(ClusterTypeTest, self).setUp()
+        super().setUp()
 
         self.clustertype1 = ClusterType.objects.create(name='Test Cluster Type 1', slug='test-cluster-type-1')
         self.clustertype2 = ClusterType.objects.create(name='Test Cluster Type 2', slug='test-cluster-type-2')
@@ -114,7 +114,7 @@ class ClusterGroupTest(APITestCase):
 
     def setUp(self):
 
-        super(ClusterGroupTest, self).setUp()
+        super().setUp()
 
         self.clustergroup1 = ClusterGroup.objects.create(name='Test Cluster Group 1', slug='test-cluster-group-1')
         self.clustergroup2 = ClusterGroup.objects.create(name='Test Cluster Group 2', slug='test-cluster-group-2')
@@ -215,7 +215,7 @@ class ClusterTest(APITestCase):
 
     def setUp(self):
 
-        super(ClusterTest, self).setUp()
+        super().setUp()
 
         cluster_type = ClusterType.objects.create(name='Test Cluster Type 1', slug='test-cluster-type-1')
         cluster_group = ClusterGroup.objects.create(name='Test Cluster Group 1', slug='test-cluster-group-1')
@@ -328,7 +328,7 @@ class VirtualMachineTest(APITestCase):
 
     def setUp(self):
 
-        super(VirtualMachineTest, self).setUp()
+        super().setUp()
 
         cluster_type = ClusterType.objects.create(name='Test Cluster Type 1', slug='test-cluster-type-1')
         cluster_group = ClusterGroup.objects.create(name='Test Cluster Group 1', slug='test-cluster-group-1')
@@ -458,7 +458,7 @@ class InterfaceTest(APITestCase):
 
     def setUp(self):
 
-        super(InterfaceTest, self).setUp()
+        super().setUp()
 
         clustertype = ClusterType.objects.create(name='Test Cluster Type 1', slug='test-cluster-type-1')
         cluster = Cluster.objects.create(name='Test Cluster 1', type=clustertype)

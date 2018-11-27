@@ -200,13 +200,13 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
 
         self.cluster = cluster
 
-        super(ClusterAddDevicesForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.fields['devices'].choices = []
 
     def clean(self):
 
-        super(ClusterAddDevicesForm, self).clean()
+        super().clean()
 
         # If the Cluster is assigned to a Site, all Devices must be assigned to that Site.
         if self.cluster.site is not None:
@@ -266,7 +266,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             initial['cluster_group'] = instance.cluster.group
             kwargs['initial'] = initial
 
-        super(VirtualMachineForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if self.instance.pk:
 
@@ -443,7 +443,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
 
     def clean(self):
 
-        super(InterfaceForm, self).clean()
+        super().clean()
 
         # Validate VLAN assignments
         tagged_vlans = self.cleaned_data['tagged_vlans']
@@ -474,7 +474,7 @@ class InterfaceCreateForm(ComponentForm):
         kwargs['initial'] = kwargs.get('initial', {}).copy()
         kwargs['initial'].update({'enabled': True})
 
-        super(InterfaceCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class InterfaceBulkEditForm(BootstrapMixin, BulkEditForm):

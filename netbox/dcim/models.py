@@ -544,7 +544,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         ]
 
     def __str__(self):
-        return self.display_name or super(Rack, self).__str__()
+        return self.display_name or super().__str__()
 
     def get_absolute_url(self):
         return reverse('dcim:rack', args=[self.pk])
@@ -582,7 +582,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         if self.pk:
             _site_id = Rack.objects.get(pk=self.pk).site_id
 
-        super(Rack, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         # Update racked devices if the assigned Site has been changed.
         if _site_id is not None and self.site_id != _site_id:
@@ -894,7 +894,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         return self.model
 
     def __init__(self, *args, **kwargs):
-        super(DeviceType, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Save a copy of u_height for validation in clean()
         self._original_u_height = self.u_height
@@ -1437,7 +1437,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         )
 
     def __str__(self):
-        return self.display_name or super(Device, self).__str__()
+        return self.display_name or super().__str__()
 
     def get_absolute_url(self):
         return reverse('dcim:device', args=[self.pk])
@@ -1552,7 +1552,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 
         is_new = not bool(self.pk)
 
-        super(Device, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         # If this is a new Device, instantiate all of the related components per the DeviceType definition
         if is_new:
@@ -2055,7 +2055,7 @@ class Interface(CableTermination, ComponentModel):
         if self.pk and self.mode is not IFACE_MODE_TAGGED:
             self.tagged_vlans.clear()
 
-        return super(Interface, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     def log_change(self, user, request_id, action):
         """
@@ -2522,7 +2522,7 @@ class Cable(ChangeLoggedModel):
 
     def __init__(self, *args, **kwargs):
 
-        super(Cable, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Create an ID string for use by __str__(). We have to save a copy of pk since it's nullified after .delete()
         # is called.
@@ -2595,7 +2595,7 @@ class Cable(ChangeLoggedModel):
         if self.length and self.length_unit:
             self._abs_length = to_meters(self.length, self.length_unit)
 
-        super(Cable, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def to_csv(self):
         return (

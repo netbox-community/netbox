@@ -63,7 +63,7 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
         verbose_name_plural = 'VRFs'
 
     def __str__(self):
-        return self.display_name or super(VRF, self).__str__()
+        return self.display_name or super().__str__()
 
     def get_absolute_url(self):
         return reverse('ipam:vrf', args=[self.pk])
@@ -198,7 +198,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         if self.prefix:
             # Infer address family from IPNetwork object
             self.family = self.prefix.version
-        super(Aggregate, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def to_csv(self):
         return (
@@ -369,7 +369,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
             self.prefix = self.prefix.cidr
             # Infer address family from IPNetwork object
             self.family = self.prefix.version
-        super(Prefix, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def to_csv(self):
         return (
@@ -484,7 +484,7 @@ class IPAddressManager(models.Manager):
         then re-cast this value to INET() so that records will be ordered properly. We are essentially re-casting each
         IP address as a /32 or /128.
         """
-        qs = super(IPAddressManager, self).get_queryset()
+        qs = super().get_queryset()
         return qs.annotate(host=RawSQL('INET(HOST(ipam_ipaddress.address))', [])).order_by('family', 'host')
 
 
@@ -605,7 +605,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         if self.address:
             # Infer address family from IPAddress object
             self.family = self.address.version
-        super(IPAddress, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def to_csv(self):
 
@@ -773,7 +773,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         verbose_name_plural = 'VLANs'
 
     def __str__(self):
-        return self.display_name or super(VLAN, self).__str__()
+        return self.display_name or super().__str__()
 
     def get_absolute_url(self):
         return reverse('ipam:vlan', args=[self.pk])

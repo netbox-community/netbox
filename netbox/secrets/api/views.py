@@ -56,14 +56,14 @@ class SecretViewSet(ModelViewSet):
     def get_serializer_context(self):
 
         # Make the master key available to the serializer for encrypting plaintext values
-        context = super(SecretViewSet, self).get_serializer_context()
+        context = super().get_serializer_context()
         context['master_key'] = self.master_key
 
         return context
 
     def initial(self, request, *args, **kwargs):
 
-        super(SecretViewSet, self).initial(request, *args, **kwargs)
+        super().initial(request, *args, **kwargs)
 
         if request.user.is_authenticated:
 

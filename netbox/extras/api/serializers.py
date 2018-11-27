@@ -108,7 +108,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
             )
 
         # Enforce model validation
-        super(ImageAttachmentSerializer, self).validate(data)
+        super().validate(data)
 
         return data
 

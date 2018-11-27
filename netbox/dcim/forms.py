@@ -382,7 +382,7 @@ class RackCSVForm(forms.ModelForm):
 
     def clean(self):
 
-        super(RackCSVForm, self).clean()
+        super().clean()
 
         site = self.cleaned_data.get('site')
         group_name = self.cleaned_data.get('group_name')
@@ -527,7 +527,7 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
 
-        super(RackReservationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Populate rack unit choices
         self.fields['units'].widget.choices = self._get_unit_choices()
@@ -797,7 +797,7 @@ class FrontPortTemplateCreateForm(ComponentForm):
 
     def __init__(self, *args, **kwargs):
 
-        super(FrontPortTemplateCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Determine which rear port positions are occupied. These will be excluded from the list of available mappings.
         occupied_port_positions = [
@@ -1015,7 +1015,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             initial['manufacturer'] = instance.device_type.manufacturer
             kwargs['initial'] = initial
 
-        super(DeviceForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if self.instance.pk:
 
@@ -1139,7 +1139,7 @@ class BaseDeviceCSVForm(forms.ModelForm):
 
     def clean(self):
 
-        super(BaseDeviceCSVForm, self).clean()
+        super().clean()
 
         manufacturer = self.cleaned_data.get('manufacturer')
         model_name = self.cleaned_data.get('model_name')
@@ -1192,7 +1192,7 @@ class DeviceCSVForm(BaseDeviceCSVForm):
 
     def clean(self):
 
-        super(DeviceCSVForm, self).clean()
+        super().clean()
 
         site = self.cleaned_data.get('site')
         rack_group = self.cleaned_data.get('rack_group')
@@ -1241,7 +1241,7 @@ class ChildDeviceCSVForm(BaseDeviceCSVForm):
 
     def clean(self):
 
-        super(ChildDeviceCSVForm, self).clean()
+        super().clean()
 
         parent = self.cleaned_data.get('parent')
         device_bay_name = self.cleaned_data.get('device_bay_name')
@@ -1493,7 +1493,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(InterfaceForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces belonging to this device (or VC master)
         if self.is_bound:
@@ -1509,7 +1509,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
 
     def clean(self):
 
-        super(InterfaceForm, self).clean()
+        super().clean()
 
         # Validate VLAN assignments
         tagged_vlans = self.cleaned_data['tagged_vlans']
@@ -1542,7 +1542,7 @@ class InterfaceAssignVLANsForm(BootstrapMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
 
-        super(InterfaceAssignVLANsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if self.instance.mode == IFACE_MODE_ACCESS:
             self.initial['tagged'] = False
@@ -1587,7 +1587,7 @@ class InterfaceAssignVLANsForm(BootstrapMixin, forms.ModelForm):
 
     def clean(self):
 
-        super(InterfaceAssignVLANsForm, self).clean()
+        super().clean()
 
         # Only untagged VLANs permitted on an access interface
         if self.instance.mode == IFACE_MODE_ACCESS and len(self.cleaned_data['vlans']) > 1:
@@ -1605,7 +1605,7 @@ class InterfaceAssignVLANsForm(BootstrapMixin, forms.ModelForm):
         else:
             self.instance.untagged_vlan_id = self.cleaned_data['vlans'][0]
 
-        return super(InterfaceAssignVLANsForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class InterfaceCreateForm(ComponentForm, forms.Form):
@@ -1630,7 +1630,7 @@ class InterfaceCreateForm(ComponentForm, forms.Form):
         kwargs['initial'] = kwargs.get('initial', {}).copy()
         kwargs['initial'].update({'enabled': True})
 
-        super(InterfaceCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces belonging to this device (or its VC master)
         if self.parent is not None:
@@ -1655,7 +1655,7 @@ class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         nullable_fields = ['lag', 'mtu', 'description', 'mode']
 
     def __init__(self, *args, **kwargs):
-        super(InterfaceBulkEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Limit LAG choices to interfaces which belong to the parent device (or VC master)
         device = self.parent_obj
@@ -1710,7 +1710,7 @@ class FrontPortCreateForm(ComponentForm):
 
     def __init__(self, *args, **kwargs):
 
-        super(FrontPortCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Determine which rear port positions are occupied. These will be excluded from the list of available mappings.
         occupied_port_positions = [
@@ -1886,7 +1886,7 @@ class CableCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
-        super(CableCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Define available types for endpoint B based on the type of endpoint A
         termination_a_type = self.instance.termination_a._meta.model_name
@@ -2123,7 +2123,7 @@ class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
 
     def __init__(self, device_bay, *args, **kwargs):
 
-        super(PopulateDeviceBayForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.fields['installed_device'].queryset = Device.objects.filter(
             site=device_bay.device.site,
@@ -2236,7 +2236,7 @@ class VirtualChassisForm(BootstrapMixin, forms.ModelForm):
 class BaseVCMemberFormSet(forms.BaseModelFormSet):
 
     def clean(self):
-        super(BaseVCMemberFormSet, self).clean()
+        super().clean()
 
         # Check for duplicate VC position values
         vc_position_list = []
@@ -2260,7 +2260,7 @@ class DeviceVCMembershipForm(forms.ModelForm):
         }
 
     def __init__(self, validate_vc_position=False, *args, **kwargs):
-        super(DeviceVCMembershipForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Require VC position (only required when the Device is a VirtualChassis member)
         self.fields['vc_position'].required = True

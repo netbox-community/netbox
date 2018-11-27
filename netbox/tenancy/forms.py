@@ -117,4 +117,4 @@ class TenancyForm(ChainedFieldsMixin, forms.Form):
             initial['tenant_group'] = instance.tenant.group
             kwargs['initial'] = initial
 
-        super(TenancyForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)

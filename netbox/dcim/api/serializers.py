@@ -121,7 +121,7 @@ class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
             validator(data)
 
         # Enforce model validation
-        super(RackSerializer, self).validate(data)
+        super().validate(data)
 
         return data
 
@@ -294,7 +294,7 @@ class DeviceSerializer(TaggitSerializer, CustomFieldModelSerializer):
             validator(data)
 
         # Enforce model validation
-        super(DeviceSerializer, self).validate(data)
+        super().validate(data)
 
         return data
 
@@ -405,7 +405,7 @@ class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
                                     "be global.".format(vlan)
                 })
 
-        return super(InterfaceSerializer, self).validate(data)
+        return super().validate(data)
 
 
 class RearPortSerializer(ValidatedModelSerializer):

@@ -17,7 +17,7 @@ class NullableCharFieldFilter(django_filters.CharFilter):
 
     def filter(self, qs, value):
         if value != self.null_value:
-            return super(NullableCharFieldFilter, self).filter(qs, value)
+            return super().filter(qs, value)
         qs = self.get_method(qs)(**{'{}__isnull'.format(self.name): True})
         return qs.distinct() if self.distinct else qs
 
@@ -34,4 +34,4 @@ class TagFilter(django_filters.ModelMultipleChoiceFilter):
         kwargs.setdefault('conjoined', True)
         kwargs.setdefault('queryset', Tag.objects.all())
 
-        super(TagFilter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)

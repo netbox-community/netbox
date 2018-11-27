@@ -21,7 +21,7 @@ class UserKeyAdmin(admin.ModelAdmin):
 
     def get_actions(self, request):
         # Bulk deletion is disabled at the manager level, so remove the action from the admin site for this model.
-        actions = super(UserKeyAdmin, self).get_actions(request)
+        actions = super().get_actions(request)
         if 'delete_selected' in actions:
             del actions['delete_selected']
         if not request.user.has_perm('secrets.activate_userkey'):

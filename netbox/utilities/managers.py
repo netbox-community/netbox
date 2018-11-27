@@ -15,7 +15,7 @@ class NaturalOrderingManager(Manager):
 
     def get_queryset(self):
 
-        queryset = super(NaturalOrderingManager, self).get_queryset()
+        queryset = super().get_queryset()
 
         db_table = self.model._meta.db_table
         db_field = self.natural_order_field

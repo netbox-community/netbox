@@ -715,7 +715,7 @@ class IPAddressAssignView(PermissionRequiredMixin, View):
         if 'interface' not in request.GET:
             return redirect('ipam:ipaddress_add')
 
-        return super(IPAddressAssignView, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
 

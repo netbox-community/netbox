@@ -5,7 +5,7 @@ from django.db.models.sql.compiler import SQLCompiler
 class NullsFirstSQLCompiler(SQLCompiler):
 
     def get_order_by(self):
-        result = super(NullsFirstSQLCompiler, self).get_order_by()
+        result = super().get_order_by()
         if result:
             return [(expr, (sql + ' NULLS FIRST', params, is_ref)) for (expr, (sql, params, is_ref)) in result]
         return result
@@ -28,5 +28,5 @@ class NullsFirstQuerySet(models.QuerySet):
     """
 
     def __init__(self, model=None, query=None, using=None, hints=None):
-        super(NullsFirstQuerySet, self).__init__(model, query, using, hints)
+        super().__init__(model, query, using, hints)
         self.query = query or NullsFirstQuery(self.model)

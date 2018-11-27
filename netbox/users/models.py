@@ -48,7 +48,7 @@ class Token(models.Model):
     def save(self, *args, **kwargs):
         if not self.key:
             self.key = self.generate_key()
-        return super(Token, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     def generate_key(self):
         # Generate a random 160-bit key expressed in hexadecimal.

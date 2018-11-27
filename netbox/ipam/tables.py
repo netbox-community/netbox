@@ -464,7 +464,7 @@ class InterfaceVLANTable(BaseTable):
 
     def __init__(self, interface, *args, **kwargs):
         self.interface = interface
-        super(InterfaceVLANTable, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 #

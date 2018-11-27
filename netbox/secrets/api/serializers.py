@@ -49,6 +49,6 @@ class SecretSerializer(TaggitSerializer, CustomFieldModelSerializer):
             validator(data)
 
         # Enforce model validation
-        super(SecretSerializer, self).validate(data)
+        super().validate(data)
 
         return data
