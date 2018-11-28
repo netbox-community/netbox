@@ -1,5 +1,9 @@
 v2.4.9 (FUTURE)
 
+## Enhancements
+
+* [#2597](https://github.com/digitalocean/netbox/issues/2597) - Add FibreChannel SFP28 (32GFC) interface form factor
+
 ## Bug Fixes
 
 * [#2400](https://github.com/digitalocean/netbox/issues/2400) - Correct representation of nested object assignment in API docs
