@@ -1,8 +1,4 @@
-v2.5-beta2 (2018-11-26)
-
-## BETA RELEASE
-
-**This is a beta release.** It is intended solely for gathering community and developer feedback in preparation for the v2.5 release. Do not run it in production, and do not give it write access to your production database. As the database schema is subject to change during the beta period, a migration path to the stable release likely will not be provided. Do not commit any data which you are not willing to lose.
+v2.5.0 (FUTURE)
 
 ## Notes
 
@@ -39,29 +35,9 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#2367](https://github.com/digitalocean/netbox/issues/2367) - Removed deprecated RPCClient functionality
 * [#2426](https://github.com/digitalocean/netbox/issues/2426) - Introduced `SESSION_FILE_PATH` configuration setting for authentication without write access to database
 
-## Changes From v2.5-beta1
+## Changes From v2.5-beta2
 
-* [#2554](https://github.com/digitalocean/netbox/issues/2554) - Fix cable trace display when following a rear port with no cable attached
-* [#2563](https://github.com/digitalocean/netbox/issues/2563) - Enable export templates for cables
-* [#2566](https://github.com/digitalocean/netbox/issues/2566) - Prevent both ends of a cable from connecting to the same termination point
-* [#2567](https://github.com/digitalocean/netbox/issues/2567) - Introduced proxy models to represent console/power/interface connections
-* [#2569](https://github.com/digitalocean/netbox/issues/2569) - Added LSH fiber type; removed SC duplex/simplex designations
-* [#2570](https://github.com/digitalocean/netbox/issues/2570) - Add bulk disconnect view for front/rear pass-through ports
-* [#2571](https://github.com/digitalocean/netbox/issues/2571) - Enforce deletion of attached cable when deleting a termination point
-* [#2572](https://github.com/digitalocean/netbox/issues/2572) - Add button to disconnect cable from circuit termination
-* [#2573](https://github.com/digitalocean/netbox/issues/2573) - Fix bulk console/power/interface disconnections
-* [#2574](https://github.com/digitalocean/netbox/issues/2574) - Remove duplicate interface links from topology maps
-* [#2578](https://github.com/digitalocean/netbox/issues/2578) - Reorganized nested serializers
-* [#2579](https://github.com/digitalocean/netbox/issues/2579) - Add missing cable disconnect buttons for front/rear ports
-* [#2583](https://github.com/digitalocean/netbox/issues/2583) - Cleaned up component filters for device and device type
-* [#2584](https://github.com/digitalocean/netbox/issues/2584) - Prevent a Front port from being connected to its corresponding rear port
-* [#2585](https://github.com/digitalocean/netbox/issues/2585) - Prevent cable connections that include a virtual interface
-* [#2586](https://github.com/digitalocean/netbox/issues/2586) - Added tests for the Cable model's clean() method
-* [#2593](https://github.com/digitalocean/netbox/issues/2593) - Fix toggling of connected cable's status
-* [#2601](https://github.com/digitalocean/netbox/issues/2601) - Added a `description` field to pass-through ports
-* [#2602](https://github.com/digitalocean/netbox/issues/2602) - Return HTTP 204 when no new IPs/prefixes are available for provisioning
-* [#2608](https://github.com/digitalocean/netbox/issues/2608) - Fixed null `outer_unit` error on rack import
-* [#2609](https://github.com/digitalocean/netbox/issues/2609) - Fixed exception when ChoiceField integer value is passed as a string
+* [#2624](https://github.com/digitalocean/netbox/issues/2624) - Delete associated content type and permissions when removing InterfaceConnection model
 
 ## API Changes
 

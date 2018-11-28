@@ -131,6 +131,15 @@ def interface_connections_to_cables(apps, schema_editor):
         print("{} cables created".format(cable_count))
 
 
+def delete_interfaceconnection_content_type(apps, schema_editor):
+    """
+    Delete the ContentType for the InterfaceConnection model. (This is not done automatically upon model deletion.)
+    """
+    ContentType = apps.get_model('contenttypes', 'ContentType')
+    InterfaceConnection = apps.get_model('dcim', 'InterfaceConnection')
+    ContentType.objects.get_for_model(InterfaceConnection).delete()
+
+
 class Migration(migrations.Migration):
     atomic = False
 
@@ -291,7 +300,8 @@ class Migration(migrations.Migration):
         migrations.RunPython(power_connections_to_cables),
         migrations.RunPython(interface_connections_to_cables),
 
-        # Delete the InterfaceConnection model
+        # Delete the InterfaceConnection model and its ContentType
+        migrations.RunPython(delete_interfaceconnection_content_type),
         migrations.RemoveField(
             model_name='interfaceconnection',
             name='interface_a',
