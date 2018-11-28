@@ -37,6 +37,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 
 ## Changes From v2.5-beta2
 
+* [#2622](https://github.com/digitalocean/netbox/issues/2622) - Enable filtering cables by multiple types/colors
 * [#2624](https://github.com/digitalocean/netbox/issues/2624) - Delete associated content type and permissions when removing InterfaceConnection model
 
 ## API Changes

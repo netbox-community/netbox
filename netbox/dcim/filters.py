@@ -7,6 +7,7 @@ from netaddr.core import AddrFormatError
 
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
+from utilities.constants import COLOR_CHOICES
 from utilities.filters import NullableCharFieldFilter, NumericInFilter, TagFilter
 from virtualization.models import Cluster
 from .constants import *
@@ -928,6 +929,12 @@ class CableFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
+    )
+    type = django_filters.MultipleChoiceFilter(
+        choices=CABLE_TYPE_CHOICES
+    )
+    color = django_filters.MultipleChoiceFilter(
+        choices=COLOR_CHOICES
     )
 
     class Meta:

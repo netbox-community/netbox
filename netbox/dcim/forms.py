@@ -2501,9 +2501,10 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         annotate_field='type',
         required=False
     )
-    color = forms.ChoiceField(
-        choices=add_blank_choice(COLOR_CHOICES),
-        widget=ColorSelect(),
+    color = AnnotatedMultipleChoiceField(
+        choices=COLOR_CHOICES,
+        annotate=Cable.objects.all(),
+        annotate_field='color',
         required=False
     )
 

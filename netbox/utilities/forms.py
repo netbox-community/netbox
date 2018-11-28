@@ -10,34 +10,9 @@ from django.db.models import Count
 from django.urls import reverse_lazy
 from mptt.forms import TreeNodeMultipleChoiceField
 
+from .constants import *
 from .validators import EnhancedURLValidator
 
-COLOR_CHOICES = (
-    ('aa1409', 'Dark red'),
-    ('f44336', 'Red'),
-    ('e91e63', 'Pink'),
-    ('ff66ff', 'Fuschia'),
-    ('9c27b0', 'Purple'),
-    ('673ab7', 'Dark purple'),
-    ('3f51b5', 'Indigo'),
-    ('2196f3', 'Blue'),
-    ('03a9f4', 'Light blue'),
-    ('00bcd4', 'Cyan'),
-    ('009688', 'Teal'),
-    ('2f6a31', 'Dark green'),
-    ('4caf50', 'Green'),
-    ('8bc34a', 'Light green'),
-    ('cddc39', 'Lime'),
-    ('ffeb3b', 'Yellow'),
-    ('ffc107', 'Amber'),
-    ('ff9800', 'Orange'),
-    ('ff5722', 'Dark orange'),
-    ('795548', 'Brown'),
-    ('c0c0c0', 'Light grey'),
-    ('9e9e9e', 'Grey'),
-    ('607d8b', 'Dark grey'),
-    ('111111', 'Black'),
-)
 NUMERIC_EXPANSION_PATTERN = r'\[((?:\d+[?:,-])+\d+)\]'
 ALPHANUMERIC_EXPANSION_PATTERN = r'\[((?:[a-zA-Z0-9]+[?:,-])+[a-zA-Z0-9]+)\]'
 IP4_EXPANSION_PATTERN = r'\[((?:[0-9]{1,3}[?:,-])+[0-9]{1,3})\]'
