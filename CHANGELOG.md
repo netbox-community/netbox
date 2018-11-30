@@ -14,6 +14,10 @@ The UserAction model, which was deprecated by the new change logging feature in 
 
 Django 2.1 introduces view permissions for object types (not to be confused with object-level permissions). Implementation of [#323](https://github.com/digitalocean/netbox/issues/323) is planned for NetBox v2.6. Users are encourage to begin assigning view permissions as desired in preparation for their eventual enforcement.
 
+### upgrade.sh No Longer Invokes sudo
+
+The `upgrade.sh` script has been tweaked so that it no longer invokes `sudo` internally. This was done to ensure compatibility when running NetBox inside a Python virtual environment. If you need elevated permissions when upgrading NetBox, call the upgrade script with `sudo upgrade.sh`.
+
 ## New Features
 
 ### Patch Panels and Cables ([#20](https://github.com/digitalocean/netbox/issues/20))
@@ -34,6 +38,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#2292](https://github.com/digitalocean/netbox/issues/2292) - Removed the deprecated UserAction model
 * [#2367](https://github.com/digitalocean/netbox/issues/2367) - Removed deprecated RPCClient functionality
 * [#2426](https://github.com/digitalocean/netbox/issues/2426) - Introduced `SESSION_FILE_PATH` configuration setting for authentication without write access to database
+* [#2594](https://github.com/digitalocean/netbox/issues/2594) - `upgrade.sh` no longer invokes sudo
 
 ## Changes From v2.5-beta2
 

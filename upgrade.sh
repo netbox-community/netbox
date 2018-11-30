@@ -8,28 +8,19 @@
 PYTHON="python3"
 PIP="pip3"
 
-# Optionally use sudo if not already root, and always prompt for password
-# before running the command
-PREFIX="sudo -k "
-if [ "$(whoami)" = "root" ]; then
-	# When running upgrade as root, ask user to confirm if they wish to
-	# continue
-	read -n1 -rsp $'Running NetBox upgrade as root, press any key to continue or ^C to cancel\n'
-	PREFIX=""
-fi
-
+# TODO: Remove this in v2.6 as it is no longer needed under Python 3
 # Delete stale bytecode
-COMMAND="${PREFIX}find . -name \"*.pyc\" -delete"
+COMMAND="find . -name \"*.pyc\" -delete"
 echo "Cleaning up stale Python bytecode ($COMMAND)..."
 eval $COMMAND
 
 # Uninstall any Python packages which are no longer needed
-COMMAND="${PREFIX}${PIP} uninstall -r old_requirements.txt -y"
+COMMAND="${PIP} uninstall -r old_requirements.txt -y"
 echo "Removing old Python packages ($COMMAND)..."
 eval $COMMAND
 
 # Install any new Python packages
-COMMAND="${PREFIX}${PIP} install -r requirements.txt --upgrade"
+COMMAND="${PIP} install -r requirements.txt --upgrade"
 echo "Updating required Python packages ($COMMAND)..."
 eval $COMMAND
 
