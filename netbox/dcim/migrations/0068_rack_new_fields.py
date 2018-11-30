@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rack',
             name='outer_unit',
-            field=models.CharField(blank=True, max_length=2),
+            field=models.PositiveSmallIntegerField(blank=True, null=True),
         ),
         migrations.AddField(
             model_name='rack',

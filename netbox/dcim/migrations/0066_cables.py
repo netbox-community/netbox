@@ -166,7 +166,7 @@ class Migration(migrations.Migration):
                 ('label', models.CharField(blank=True, max_length=100)),
                 ('color', utilities.fields.ColorField(blank=True, max_length=6)),
                 ('length', models.PositiveSmallIntegerField(blank=True, null=True)),
-                ('length_unit', models.CharField(blank=True, max_length=2)),
+                ('length_unit', models.PositiveSmallIntegerField(blank=True, null=True)),
                 ('_abs_length', models.DecimalField(blank=True, decimal_places=4, max_digits=10, null=True)),
                 ('termination_a_type', models.ForeignKey(limit_choices_to={'model__in': ['consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontport', 'rearport']}, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.ContentType')),
                 ('termination_b_type', models.ForeignKey(limit_choices_to={'model__in': ['consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontport', 'rearport']}, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.ContentType')),

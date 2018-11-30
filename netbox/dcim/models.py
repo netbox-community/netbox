@@ -511,10 +511,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         null=True
     )
-    outer_unit = models.CharField(
+    outer_unit = models.PositiveSmallIntegerField(
         choices=RACK_DIMENSION_UNIT_CHOICES,
-        max_length=2,
-        blank=True
+        blank=True,
+        null=True
     )
     comments = models.TextField(
         blank=True
@@ -552,10 +552,10 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     def clean(self):
 
         # Validate outer dimensions and unit
-        if (self.outer_width or self.outer_depth) and not self.outer_unit:
+        if (self.outer_width is not None or self.outer_depth is not None) and self.outer_unit is None:
             raise ValidationError("Must specify a unit when setting an outer width/depth")
         else:
-            self.outer_unit = ''
+            self.outer_unit = None
 
         if self.pk:
             # Validate that Rack is tall enough to house the installed Devices
@@ -2495,10 +2495,10 @@ class Cable(ChangeLoggedModel):
         blank=True,
         null=True
     )
-    length_unit = models.CharField(
+    length_unit = models.PositiveSmallIntegerField(
         choices=CABLE_LENGTH_UNIT_CHOICES,
-        max_length=2,
-        blank=True
+        blank=True,
+        null=True
     )
     # Stores the normalized length (in meters) for database ordering
     _abs_length = models.DecimalField(
@@ -2584,10 +2584,10 @@ class Cable(ChangeLoggedModel):
             raise ValidationError("Cannot connect to a virtual interface")
 
         # Validate length and length_unit
-        if self.length and not self.length_unit:
+        if self.length is not None and self.length_unit is None:
             raise ValidationError("Must specify a unit when setting a cable length")
-        if self.length_unit and self.length is None:
-            self.length_unit = ''
+        else:
+            self.length_unit = None
 
     def save(self, *args, **kwargs):
 
