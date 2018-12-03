@@ -45,6 +45,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#2622](https://github.com/digitalocean/netbox/issues/2622) - Enable filtering cables by multiple types/colors
 * [#2624](https://github.com/digitalocean/netbox/issues/2624) - Delete associated content type and permissions when removing InterfaceConnection model
 * [#2616](https://github.com/digitalocean/netbox/issues/2616) - Convert Rack `outer_unit` and Cable `length_unit` to integer-based choice fields
+* [#2639](https://github.com/digitalocean/netbox/issues/2639) - Fix preservation of length/dimensions unit for racks and cables
 
 ## API Changes
 

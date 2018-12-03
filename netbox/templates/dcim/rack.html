@@ -158,7 +158,7 @@
                     <td>Outer Width</td>
                     <td>
                         {% if rack.outer_width %}
-                            <span>{{ rack.outer_width }}{{ rack.outer_unit }}</span>
+                            <span>{{ rack.outer_width }} {{ rack.get_outer_unit_display }}</span>
                         {% else %}
                             <span class="text-muted">&mdash;</span>
                         {% endif %}
@@ -168,7 +168,7 @@
                     <td>Outer Depth</td>
                     <td>
                         {% if rack.outer_depth %}
-                            <span>{{ rack.outer_depth }}{{ rack.outer_unit }}</span>
+                            <span>{{ rack.outer_depth }} {{ rack.get_outer_unit_display }}</span>
                         {% else %}
                             <span class="text-muted">&mdash;</span>
                         {% endif %}

@@ -554,7 +554,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         # Validate outer dimensions and unit
         if (self.outer_width is not None or self.outer_depth is not None) and self.outer_unit is None:
             raise ValidationError("Must specify a unit when setting an outer width/depth")
-        else:
+        elif self.outer_width is None and self.outer_depth is None:
             self.outer_unit = None
 
         if self.pk:
@@ -2586,7 +2586,7 @@ class Cable(ChangeLoggedModel):
         # Validate length and length_unit
         if self.length is not None and self.length_unit is None:
             raise ValidationError("Must specify a unit when setting a cable length")
-        else:
+        elif self.length is None:
             self.length_unit = None
 
     def save(self, *args, **kwargs):

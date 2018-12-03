@@ -31,7 +31,7 @@
                     </h4>
                     {{ cable.get_status_display }}<br />
                     {{ cable.get_type_display|default:"" }}
-                    {% if cable.length %}- {{ cable.length }}{{ cable.length_unit }}{% endif %}
+                    {% if cable.length %}- {{ cable.length }}{{ cable.get_length_unit_display }}{% endif %}
                     <span class="label color-block center-block" style="background-color: #{{ cable.color }}">&nbsp;</span>
                 {% else %}
                     <h4 class="text-muted">No Cable</h4>
