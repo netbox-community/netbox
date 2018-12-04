@@ -12,6 +12,7 @@ v2.4.9 (FUTURE)
 * [#2606](https://github.com/digitalocean/netbox/issues/2606) - Fixed filtering for interfaces with a virtual form factor
 * [#2613](https://github.com/digitalocean/netbox/issues/2613) - Decrease live search minimum characters to three
 * [#2615](https://github.com/digitalocean/netbox/issues/2615) - Tweak live search widget to use brief format for API requests
+* [#2623](https://github.com/digitalocean/netbox/issues/2623) - Removed the need to pass the model class to the rqworker process for webhooks
 
 ---
 
