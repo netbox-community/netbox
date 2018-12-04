@@ -27,13 +27,13 @@
                     {% ifequal u.device.face face_id %}
                         <a href="{% url 'dcim:device' pk=u.device.pk %}" data-toggle="popover" data-trigger="hover" data-container="body" data-html="true"
                            data-content="{{ u.device.device_role }}<br />{{ u.device.device_type.full_name }} ({{ u.device.device_type.u_height }}U){% if u.device.asset_tag %}<br />{{ u.device.asset_tag }}{% endif %}{% if u.device.serial %}<br />{{ u.device.serial }}{% endif %}">
-                            {{ u.device.name|default:u.device.device_role }}
+                            {{ u.device }}
                             {% if u.device.devicebay_count %}
                                 ({{ u.device.get_children.count }}/{{ u.device.devicebay_count }})
                             {% endif %}
                         </a>
                     {% else %}
-                        <span>{{ u.device.name|default:u.device.device_role }}</span>
+                        <span>{{ u.device }}</span>
                     {% endifequal %}
                 </li>
             {% else %}
