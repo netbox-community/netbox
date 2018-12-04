@@ -45,6 +45,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#2622](https://github.com/digitalocean/netbox/issues/2622) - Enable filtering cables by multiple types/colors
 * [#2624](https://github.com/digitalocean/netbox/issues/2624) - Delete associated content type and permissions when removing InterfaceConnection model
 * [#2616](https://github.com/digitalocean/netbox/issues/2616) - Convert Rack `outer_unit` and Cable `length_unit` to integer-based choice fields
+* [#2632](https://github.com/digitalocean/netbox/issues/2632) - Change representation of null values from `0` to `null`
 * [#2639](https://github.com/digitalocean/netbox/issues/2639) - Fix preservation of length/dimensions unit for racks and cables
 
 ## API Changes
@@ -66,6 +67,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * Added a `description` field to the CircuitTermination serializer
 * Added `ipaddress_count` to InterfaceSerializer to show the count of assigned IP addresses for each interface
 * The `available-prefixes` and `available-ips` IPAM endpoints now return an HTTP 204 response instead of HTTP 400 when no new objects can be created
+* Filtering on null values now uses the string `null` instead of zero
 
 ---
 
