@@ -54,6 +54,8 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * The `rpc_client` field has been removed from dcim.Platform (see #2367)
 * Introduced a new API endpoint for cables at `/dcim/cables/`
 * New endpoints for front and rear pass-through ports (and their templates) in parallel with existing device components
+* The fields `interface_connection` on Interface and `interface` on CircuitTermination have been replaced with `connected_endpoint` and `connection_status`
+* A new `cable` field has been added to console, power, and interface components and to circuit terminations
 * New fields for dcim.Rack: `status`, `asset_tag`, `outer_width`, `outer_depth`, `outer_unit`
 * The following boolean filters on dcim.Device and dcim.DeviceType have been renamed:
     * `is_console_server`: `console_server_ports`
