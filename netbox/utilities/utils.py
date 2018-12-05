@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from collections import OrderedDict
 import datetime
 import json
 import six
@@ -109,3 +110,16 @@ def serialize_object(obj, extra=None):
         data.update(extra)
 
     return data
+
+
+def deepmerge(original, new):
+    """
+    Deep merge two dictionaries (new into original) and return a new dict
+    """
+    merged = OrderedDict(original)
+    for key, val in new.items():
+        if key in original and isinstance(original[key], dict) and isinstance(val, dict):
+            merged[key] = deepmerge(original[key], val)
+        else:
+            merged[key] = val
+    return merged

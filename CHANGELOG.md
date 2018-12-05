@@ -3,6 +3,7 @@ v2.4.9 (FUTURE)
 ## Enhancements
 
 * [#2089](https://github.com/digitalocean/netbox/issues/2089) - Add SONET interface form factors
+* [#2495](https://github.com/digitalocean/netbox/issues/2495) - Enable deep-merging of config context data
 * [#2597](https://github.com/digitalocean/netbox/issues/2597) - Add FibreChannel SFP28 (32GFC) interface form factor
 
 ## Bug Fixes

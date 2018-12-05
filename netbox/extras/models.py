@@ -18,7 +18,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.safestring import mark_safe
 
 from dcim.constants import CONNECTION_STATUS_CONNECTED
-from utilities.utils import foreground_color
+from utilities.utils import deepmerge, foreground_color
 from .constants import *
 from .querysets import ConfigContextQuerySet
 
@@ -727,11 +727,11 @@ class ConfigContextModel(models.Model):
         # Compile all config data, overwriting lower-weight values with higher-weight values where a collision occurs
         data = OrderedDict()
         for context in ConfigContext.objects.get_for_object(self):
-            data.update(context.data)
+            data = deepmerge(data, context.data)
 
-        # If the object has local config context data defined, that data overwrites all rendered data
+        # If the object has local config context data defined, merge it last
         if self.local_context_data is not None:
-            data.update(self.local_context_data)
+            data = deepmerge(data, self.local_context_data)
 
         return data
 
