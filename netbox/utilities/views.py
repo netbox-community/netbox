@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import Count, ProtectedError
 from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
-from django.http import HttpResponseServerError
+from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist, TemplateSyntaxError
@@ -24,7 +24,7 @@ from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
 from utilities.forms import BootstrapMixin, CSVDataField
-from utilities.utils import queryset_to_csv
+from utilities.utils import csv_format
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
 from .paginator import EnhancedPaginator
@@ -88,6 +88,23 @@ class ObjectListView(View):
     table = None
     template_name = None
 
+    def queryset_to_csv(self):
+        """
+        Export the queryset of objects as comma-separated value (CSV), using the model's to_csv() method.
+        """
+        csv_data = []
+
+        # Start with the column headers
+        headers = ','.join(self.queryset.model.csv_headers)
+        csv_data.append(headers)
+
+        # Iterate through the queryset appending each object
+        for obj in self.queryset:
+            data = csv_format(obj.to_csv())
+            csv_data.append(data)
+
+        return csv_data
+
     def get(self, request):
 
         model = self.queryset.model
@@ -113,9 +130,17 @@ class ObjectListView(View):
                     request,
                     "There was an error rendering the selected export template ({}).".format(et.name)
                 )
-        # Fall back to built-in CSV export if no template was specified
+
+        # Fall back to built-in CSV formatting if export requested but no template specified
         elif 'export' in request.GET and hasattr(model, 'to_csv'):
-            return queryset_to_csv(self.queryset)
+            data = self.queryset_to_csv()
+            response = HttpResponse(
+                '\n'.join(data),
+                content_type='text/csv'
+            )
+            filename = 'netbox_{}.csv'.format(self.queryset.model._meta.verbose_name_plural)
+            response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+            return response
 
         # Provide a hook to tweak the queryset based on the request immediately prior to rendering the object list
         self.queryset = self.alter_queryset(request)
