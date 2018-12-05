@@ -47,6 +47,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#2616](https://github.com/digitalocean/netbox/issues/2616) - Convert Rack `outer_unit` and Cable `length_unit` to integer-based choice fields
 * [#2632](https://github.com/digitalocean/netbox/issues/2632) - Change representation of null values from `0` to `null`
 * [#2639](https://github.com/digitalocean/netbox/issues/2639) - Fix preservation of length/dimensions unit for racks and cables
+* [#2626](https://github.com/digitalocean/netbox/issues/2626) - Remove extraneous permissions generated from proxy models
 
 ## API Changes
 

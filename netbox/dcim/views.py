@@ -17,6 +17,7 @@ from ipam.models import Prefix, VLAN
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
+from utilities.utils import csv_format
 from utilities.views import (
     BulkComponentCreateView, BulkDeleteView, BulkEditView, BulkImportView, ComponentCreateView, GetReturnURLMixin,
     ObjectDeleteView, ObjectEditView, ObjectListView,
@@ -24,11 +25,10 @@ from utilities.views import (
 from virtualization.models import VirtualMachine
 from . import filters, forms, tables
 from .models import (
-    Cable, ConsoleConnection, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
-    DeviceBay, DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceConnection,
-    InterfaceTemplate, InventoryItem, Manufacturer, Platform, PowerConnection, PowerOutlet, PowerOutletTemplate,
-    PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
-    VirtualChassis,
+    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
+    InventoryItem, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
+    RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
 )
 
 
@@ -1688,7 +1688,7 @@ class CableBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class ConsoleConnectionsListView(ObjectListView):
-    queryset = ConsoleConnection.objects.select_related(
+    queryset = ConsolePort.objects.select_related(
         'device', 'connected_endpoint__device'
     ).filter(
         connected_endpoint__isnull=False
@@ -1700,9 +1700,25 @@ class ConsoleConnectionsListView(ObjectListView):
     table = tables.ConsoleConnectionTable
     template_name = 'dcim/console_connections_list.html'
 
+    def queryset_to_csv(self):
+        csv_data = [
+            # Headers
+            ','.join(['console_server', 'port', 'device', 'console_port', 'connection_status'])
+        ]
+        for obj in self.queryset:
+            csv = csv_format([
+                obj.connected_endpoint.device.identifier if obj.connected_endpoint else None,
+                obj.connected_endpoint.name if obj.connected_endpoint else None,
+                obj.device.identifier,
+                obj.name,
+                obj.get_connection_status_display(),
+            ])
+            csv_data.append(csv)
+        return csv_data
+
 
 class PowerConnectionsListView(ObjectListView):
-    queryset = PowerConnection.objects.select_related(
+    queryset = PowerPort.objects.select_related(
         'device', 'connected_endpoint__device'
     ).filter(
         connected_endpoint__isnull=False
@@ -1714,9 +1730,25 @@ class PowerConnectionsListView(ObjectListView):
     table = tables.PowerConnectionTable
     template_name = 'dcim/power_connections_list.html'
 
+    def queryset_to_csv(self):
+        csv_data = [
+            # Headers
+            ','.join(['pdu', 'outlet', 'device', 'power_port', 'connection_status'])
+        ]
+        for obj in self.queryset:
+            csv = csv_format([
+                obj.connected_endpoint.device.identifier if obj.connected_endpoint else None,
+                obj.connected_endpoint.name if obj.connected_endpoint else None,
+                obj.device.identifier,
+                obj.name,
+                obj.get_connection_status_display(),
+            ])
+            csv_data.append(csv)
+        return csv_data
+
 
 class InterfaceConnectionsListView(ObjectListView):
-    queryset = InterfaceConnection.objects.select_related(
+    queryset = Interface.objects.select_related(
         'device', 'cable', '_connected_interface__device'
     ).filter(
         # Avoid duplicate connections by only selecting the lower PK in a connected pair
@@ -1729,6 +1761,22 @@ class InterfaceConnectionsListView(ObjectListView):
     filter_form = forms.InterfaceConnectionFilterForm
     table = tables.InterfaceConnectionTable
     template_name = 'dcim/interface_connections_list.html'
+
+    def queryset_to_csv(self):
+        csv_data = [
+            # Headers
+            ','.join(['device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status'])
+        ]
+        for obj in self.queryset:
+            csv = csv_format([
+                obj.connected_endpoint.device.identifier if obj.connected_endpoint else None,
+                obj.connected_endpoint.name if obj.connected_endpoint else None,
+                obj.device.identifier,
+                obj.name,
+                obj.get_connection_status_display(),
+            ])
+            csv_data.append(csv)
+        return csv_data
 
 
 #

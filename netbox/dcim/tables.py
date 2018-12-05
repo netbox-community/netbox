@@ -4,11 +4,10 @@ from django_tables2.utils import Accessor
 from tenancy.tables import COL_TENANT
 from utilities.tables import BaseTable, BooleanColumn, ColorColumn, ToggleColumn
 from .models import (
-    Cable, ConsoleConnection, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device,
-    DeviceBay, DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceConnection,
-    InterfaceTemplate, InventoryItem, Manufacturer, Platform, PowerConnection, PowerOutlet, PowerOutletTemplate,
-    PowerPort, PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
-    VirtualChassis,
+    Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
+    DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
+    InventoryItem, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
+    RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
 )
 
 REGION_LINK = """
@@ -683,7 +682,7 @@ class ConsoleConnectionTable(BaseTable):
     )
 
     class Meta(BaseTable.Meta):
-        model = ConsoleConnection
+        model = ConsolePort
         fields = ('console_server', 'connected_endpoint', 'device', 'name', 'connection_status')
 
 
@@ -706,7 +705,7 @@ class PowerConnectionTable(BaseTable):
     )
 
     class Meta(BaseTable.Meta):
-        model = PowerConnection
+        model = PowerPort
         fields = ('pdu', 'connected_endpoint', 'device', 'name', 'connection_status')
 
 
@@ -745,7 +744,7 @@ class InterfaceConnectionTable(BaseTable):
     )
 
     class Meta(BaseTable.Meta):
-        model = InterfaceConnection
+        model = Interface
         fields = (
             'device_a', 'interface_a', 'description_a', 'device_b', 'interface_b', 'description_b', 'connection_status',
         )

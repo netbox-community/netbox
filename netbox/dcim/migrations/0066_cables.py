@@ -313,36 +313,4 @@ class Migration(migrations.Migration):
         migrations.DeleteModel(
             name='InterfaceConnection',
         ),
-
-        # Proxy models
-        migrations.CreateModel(
-            name='ConsoleConnection',
-            fields=[
-            ],
-            options={
-                'proxy': True,
-                'indexes': [],
-            },
-            bases=('dcim.consoleport',),
-        ),
-        migrations.CreateModel(
-            name='InterfaceConnection',
-            fields=[
-            ],
-            options={
-                'proxy': True,
-                'indexes': [],
-            },
-            bases=('dcim.interface',),
-        ),
-        migrations.CreateModel(
-            name='PowerConnection',
-            fields=[
-            ],
-            options={
-                'proxy': True,
-                'indexes': [],
-            },
-            bases=('dcim.powerport',),
-        ),
     ]
