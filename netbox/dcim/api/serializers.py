@@ -23,8 +23,17 @@ from .nested_serializers import *
 
 
 class ConnectedEndpointSerializer(ValidatedModelSerializer):
+    connected_endpoint_type = serializers.SerializerMethodField(read_only=True)
     connected_endpoint = serializers.SerializerMethodField(read_only=True)
     connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, read_only=True)
+
+    def get_connected_endpoint_type(self, obj):
+        if obj.connected_endpoint is None:
+            return None
+        return '{}.{}'.format(
+            obj.connected_endpoint._meta.app_label,
+            obj.connected_endpoint._meta.model_name
+        )
 
     def get_connected_endpoint(self, obj):
         """
@@ -331,7 +340,10 @@ class ConsoleServerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer)
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'cable', 'tags']
+        fields = [
+            'id', 'device', 'name', 'connected_endpoint_type', 'connected_endpoint', 'connection_status', 'cable',
+            'tags',
+        ]
 
 
 class ConsolePortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
@@ -341,7 +353,10 @@ class ConsolePortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
 
     class Meta:
         model = ConsolePort
-        fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'cable', 'tags']
+        fields = [
+            'id', 'device', 'name', 'connected_endpoint_type', 'connected_endpoint', 'connection_status', 'cable',
+            'tags',
+        ]
 
 
 class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
@@ -351,7 +366,10 @@ class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
 
     class Meta:
         model = PowerOutlet
-        fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'cable', 'tags']
+        fields = [
+            'id', 'device', 'name', 'connected_endpoint_type', 'connected_endpoint', 'connection_status', 'cable',
+            'tags',
+        ]
 
 
 class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
@@ -361,7 +379,10 @@ class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
 
     class Meta:
         model = PowerPort
-        fields = ['id', 'device', 'name', 'connected_endpoint', 'connection_status', 'cable', 'tags']
+        fields = [
+            'id', 'device', 'name', 'connected_endpoint_type', 'connected_endpoint', 'connection_status', 'cable',
+            'tags',
+        ]
 
 
 class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
@@ -383,8 +404,8 @@ class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
         model = Interface
         fields = [
             'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
-            'connected_endpoint', 'connection_status', 'cable', 'mode', 'untagged_vlan', 'tagged_vlans', 'tags',
-            'count_ipaddresses',
+            'connected_endpoint_type', 'connected_endpoint', 'connection_status', 'cable', 'mode', 'untagged_vlan',
+            'tagged_vlans', 'tags', 'count_ipaddresses',
         ]
 
     # TODO: This validation should be handled by Interface.clean()

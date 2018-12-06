@@ -50,6 +50,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#2632](https://github.com/digitalocean/netbox/issues/2632) - Change representation of null values from `0` to `null`
 * [#2639](https://github.com/digitalocean/netbox/issues/2639) - Fix preservation of length/dimensions unit for racks and cables
 * [#2648](https://github.com/digitalocean/netbox/issues/2648) - Include the `connection_status` field in nested represenations of connectable device components
+* [#2649](https://github.com/digitalocean/netbox/issues/2649) - Add `connected_endpoint_type` to connectable device component API representations
 
 ## API Changes
 
