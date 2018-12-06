@@ -1951,7 +1951,7 @@ class ConsolePortTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['cable', 'device', 'id', 'name', 'url']
+            ['cable', 'connection_status', 'device', 'id', 'name', 'url']
         )
 
     def test_create_consoleport(self):
@@ -2064,7 +2064,7 @@ class ConsoleServerPortTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['cable', 'device', 'id', 'name', 'url']
+            ['cable', 'connection_status', 'device', 'id', 'name', 'url']
         )
 
     def test_create_consoleserverport(self):
@@ -2175,7 +2175,7 @@ class PowerPortTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['cable', 'device', 'id', 'name', 'url']
+            ['cable', 'connection_status', 'device', 'id', 'name', 'url']
         )
 
     def test_create_powerport(self):
@@ -2288,7 +2288,7 @@ class PowerOutletTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['cable', 'device', 'id', 'name', 'url']
+            ['cable', 'connection_status', 'device', 'id', 'name', 'url']
         )
 
     def test_create_poweroutlet(self):
@@ -2425,7 +2425,7 @@ class InterfaceTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['cable', 'device', 'id', 'name', 'url']
+            ['cable', 'connection_status', 'device', 'id', 'name', 'url']
         )
 
     def test_create_interface(self):
