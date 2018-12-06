@@ -28,12 +28,12 @@ class ConnectedEndpointSerializer(ValidatedModelSerializer):
     connection_status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, read_only=True)
 
     def get_connected_endpoint_type(self, obj):
-        if obj.connected_endpoint is None:
-            return None
-        return '{}.{}'.format(
-            obj.connected_endpoint._meta.app_label,
-            obj.connected_endpoint._meta.model_name
-        )
+        if hasattr(obj, 'connected_endpoint') and obj.connected_endpoint is not None:
+            return '{}.{}'.format(
+                obj.connected_endpoint._meta.app_label,
+                obj.connected_endpoint._meta.model_name
+            )
+        return None
 
     def get_connected_endpoint(self, obj):
         """
