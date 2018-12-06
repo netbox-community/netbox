@@ -728,8 +728,7 @@ class PowerOutletFilter(DeviceComponentFilterSet):
 
 class InterfaceFilter(django_filters.FilterSet):
     """
-    Not using DeviceComponentFilterSet for Interfaces because we need to glean the ordering logic from the parent
-    Device's DeviceType.
+    Not using DeviceComponentFilterSet for Interfaces because we need to check for VirtualChassis membership.
     """
     device = django_filters.CharFilter(
         method='filter_device',
@@ -771,7 +770,7 @@ class InterfaceFilter(django_filters.FilterSet):
     def filter_device(self, queryset, name, value):
         try:
             device = Device.objects.get(**{name: value})
-            vc_interface_ids = [i['id'] for i in device.vc_interfaces.values('id')]
+            vc_interface_ids = device.vc_interfaces.values_list('id', flat=True)
             return queryset.filter(pk__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()
