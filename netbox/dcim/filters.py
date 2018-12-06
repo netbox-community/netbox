@@ -699,31 +699,51 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
 
 
 class ConsolePortFilter(DeviceComponentFilterSet):
+    cabled = django_filters.BooleanFilter(
+        field_name='cable',
+        lookup_expr='isnull',
+        exclude=True
+    )
 
     class Meta:
         model = ConsolePort
-        fields = ['name']
+        fields = ['name', 'connection_status']
 
 
 class ConsoleServerPortFilter(DeviceComponentFilterSet):
+    cabled = django_filters.BooleanFilter(
+        field_name='cable',
+        lookup_expr='isnull',
+        exclude=True
+    )
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['name']
+        fields = ['name', 'connection_status']
 
 
 class PowerPortFilter(DeviceComponentFilterSet):
+    cabled = django_filters.BooleanFilter(
+        field_name='cable',
+        lookup_expr='isnull',
+        exclude=True
+    )
 
     class Meta:
         model = PowerPort
-        fields = ['name']
+        fields = ['name', 'connection_status']
 
 
 class PowerOutletFilter(DeviceComponentFilterSet):
+    cabled = django_filters.BooleanFilter(
+        field_name='cable',
+        lookup_expr='isnull',
+        exclude=True
+    )
 
     class Meta:
         model = PowerOutlet
-        fields = ['name']
+        fields = ['name', 'connection_status']
 
 
 class InterfaceFilter(django_filters.FilterSet):
@@ -739,6 +759,11 @@ class InterfaceFilter(django_filters.FilterSet):
         method='filter_device',
         field_name='pk',
         label='Device (ID)',
+    )
+    cabled = django_filters.BooleanFilter(
+        field_name='cable',
+        lookup_expr='isnull',
+        exclude=True
     )
     type = django_filters.CharFilter(
         method='filter_type',
@@ -765,7 +790,7 @@ class InterfaceFilter(django_filters.FilterSet):
 
     class Meta:
         model = Interface
-        fields = ['name', 'form_factor', 'enabled', 'mtu', 'mgmt_only']
+        fields = ['name', 'connection_status', 'form_factor', 'enabled', 'mtu', 'mgmt_only']
 
     def filter_device(self, queryset, name, value):
         try:
@@ -814,6 +839,11 @@ class InterfaceFilter(django_filters.FilterSet):
 
 
 class FrontPortFilter(DeviceComponentFilterSet):
+    cabled = django_filters.BooleanFilter(
+        field_name='cable',
+        lookup_expr='isnull',
+        exclude=True
+    )
 
     class Meta:
         model = FrontPort
@@ -821,6 +851,11 @@ class FrontPortFilter(DeviceComponentFilterSet):
 
 
 class RearPortFilter(DeviceComponentFilterSet):
+    cabled = django_filters.BooleanFilter(
+        field_name='cable',
+        lookup_expr='isnull',
+        exclude=True
+    )
 
     class Meta:
         model = RearPort
