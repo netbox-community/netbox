@@ -46,6 +46,9 @@ def console_connections_to_cables(apps, schema_editor):
     if 'test' not in sys.argv:
         print("{} cables created".format(cable_count))
 
+    # Normalize connection_status for all non-connected ConsolePorts
+    ConsolePort.objects.filter(connected_endpoint__isnull=True).update(connection_status=None)
+
 
 def power_connections_to_cables(apps, schema_editor):
     """
@@ -86,6 +89,9 @@ def power_connections_to_cables(apps, schema_editor):
     cable_count = Cable.objects.filter(termination_a_type=powerport_type).count()
     if 'test' not in sys.argv:
         print("{} cables created".format(cable_count))
+
+    # Normalize connection_status for all non-connected PowerPorts
+    PowerPort.objects.filter(connected_endpoint__isnull=True).update(connection_status=None)
 
 
 def interface_connections_to_cables(apps, schema_editor):
