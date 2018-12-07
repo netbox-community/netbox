@@ -36,3 +36,9 @@ If using LDAP authentication, install the `django-auth-ldap` package:
 ```no-highlight
 # pip3 install django-auth-ldap
 ```
+
+If using Webhooks, install the `django-rq` package:
+
+```no-highlight
+# pip3 install django-rq
+```

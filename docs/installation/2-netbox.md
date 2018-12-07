@@ -246,13 +246,13 @@ At this point, NetBox should be able to run. We can verify this by starting a de
 Performing system checks...
 
 System check identified no issues (0 silenced).
-June 17, 2016 - 16:17:36
-Django version 1.9.7, using settings 'netbox.settings'
+November 28, 2018 - 09:33:45
+Django version 2.0.9, using settings 'netbox.settings'
 Starting development server at http://0.0.0.0:8000/
 Quit the server with CONTROL-C.
 ```
 
-Now if we navigate to the name or IP of the server (as defined in `ALLOWED_HOSTS`) we should be greeted with the NetBox home page. Note that this built-in web service is for development and testing purposes only. **It is not suited for production use.**
+Next, connect to the name or IP of the server (as defined in `ALLOWED_HOSTS`) on port 8000; for example, <http://127.0.0.1:8000/>. You should be greeted with the NetBox home page. Note that this built-in web service is for development and testing purposes only. **It is not suited for production use.**
 
 !!! warning
     If the test service does not run, or you cannot reach the NetBox home page, something has gone wrong. Do not proceed with the rest of this guide until the installation has been corrected.

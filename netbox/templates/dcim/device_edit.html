@@ -63,6 +63,13 @@
         </div>
     </div>
     <div class="panel panel-default">
+        <div class="panel-heading"><strong>Virtualization</strong></div>
+        <div class="panel-body">
+            {% render_field form.cluster_group %}
+            {% render_field form.cluster %}
+        </div>
+    </div>
+    <div class="panel panel-default">
         <div class="panel-heading"><strong>Tenancy</strong></div>
         <div class="panel-body">
             {% render_field form.tenant_group %}

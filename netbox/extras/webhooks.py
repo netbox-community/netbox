@@ -45,7 +45,7 @@ def enqueue_webhooks(instance, action):
                 "extras.webhooks_worker.process_webhook",
                 webhook,
                 serializer.data,
-                instance.__class__,
+                instance._meta.model_name,
                 action,
                 str(datetime.datetime.now())
             )

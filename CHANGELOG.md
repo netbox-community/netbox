@@ -1,3 +1,24 @@
+v2.4.9 (2018-12-07)
+
+## Enhancements
+
+* [#2089](https://github.com/digitalocean/netbox/issues/2089) - Add SONET interface form factors
+* [#2495](https://github.com/digitalocean/netbox/issues/2495) - Enable deep-merging of config context data
+* [#2597](https://github.com/digitalocean/netbox/issues/2597) - Add FibreChannel SFP28 (32GFC) interface form factor
+
+## Bug Fixes
+
+* [#2400](https://github.com/digitalocean/netbox/issues/2400) - Correct representation of nested object assignment in API docs
+* [#2576](https://github.com/digitalocean/netbox/issues/2576) - Correct type for count_* fields in site API representation
+* [#2606](https://github.com/digitalocean/netbox/issues/2606) - Fixed filtering for interfaces with a virtual form factor
+* [#2611](https://github.com/digitalocean/netbox/issues/2611) - Fix error handling when assigning a clustered device to a different site
+* [#2613](https://github.com/digitalocean/netbox/issues/2613) - Decrease live search minimum characters to three
+* [#2615](https://github.com/digitalocean/netbox/issues/2615) - Tweak live search widget to use brief format for API requests
+* [#2623](https://github.com/digitalocean/netbox/issues/2623) - Removed the need to pass the model class to the rqworker process for webhooks
+* [#2634](https://github.com/digitalocean/netbox/issues/2634) - Enforce consistent representation of unnamed devices in rack view
+
+---
+
 v2.4.8 (2018-11-20)
 
 ## Enhancements
