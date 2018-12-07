@@ -1,0 +1,27 @@
+{% load helpers %}
+
+<div class="panel panel-default">
+    <div class="panel-heading text-center">
+        {% if end.device %}
+            <strong><a href="{{ end.device.get_absolute_url }}">{{ end.device }}</a></strong>
+        {% else %}
+            <strong><a href="{{ end.circuit.get_absolute_url }}">{{ end.circuit }}</a></strong>
+        {% endif %}
+    </div>
+    <div class="panel-body text-center">
+        {% if end.device %}
+            {# Device component #}
+            {% with model=end|model_name %}
+                <strong>{{ model|bettertitle }} {{ end }}</strong><br />
+                {% if model == 'interface' %}
+                    {{ end.get_form_factor_display }}
+                {% elif model == 'front port' or model == 'rear port' %}
+                    {{ end.get_type_display }}
+                {% endif %}
+            {% endwith %}
+        {% else %}
+            {# Circuit termination #}
+            <strong>Side {{ end.term_side }}</strong>
+        {% endif %}
+    </div>
+</div>

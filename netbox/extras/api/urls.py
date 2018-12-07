@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from rest_framework import routers
 
 from . import views
@@ -17,7 +15,7 @@ router = routers.DefaultRouter()
 router.APIRootView = ExtrasRootView
 
 # Field choices
-router.register(r'_choices', views.ExtrasFieldChoicesViewSet, base_name='field-choice')
+router.register(r'_choices', views.ExtrasFieldChoicesViewSet, basename='field-choice')
 
 # Graphs
 router.register(r'graphs', views.GraphViewSet)
@@ -38,13 +36,10 @@ router.register(r'image-attachments', views.ImageAttachmentViewSet)
 router.register(r'config-contexts', views.ConfigContextViewSet)
 
 # Reports
-router.register(r'reports', views.ReportViewSet, base_name='report')
+router.register(r'reports', views.ReportViewSet, basename='report')
 
 # Change logging
 router.register(r'object-changes', views.ObjectChangeViewSet)
-
-# Recent activity
-router.register(r'recent-activity', views.RecentActivityViewSet)
 
 app_name = 'extras-api'
 urlpatterns = router.urls

@@ -1,7 +1,3 @@
-from __future__ import unicode_literals
-
-import sys
-
 from django.conf import settings
 from django.db import ProgrammingError
 from django.http import Http404, HttpResponseRedirect
@@ -72,11 +68,7 @@ class ExceptionHandlingMiddleware(object):
             custom_template = 'exceptions/programming_error.html'
         elif isinstance(exception, ImportError):
             custom_template = 'exceptions/import_error.html'
-        elif (
-            sys.version_info[0] >= 3 and isinstance(exception, PermissionError)
-        ) or (
-            isinstance(exception, OSError) and exception.errno == 13
-        ):
+        elif isinstance(exception, PermissionError):
             custom_template = 'exceptions/permission_error.html'
 
         # Return a custom error message, or fall back to Django's default 500 error handling

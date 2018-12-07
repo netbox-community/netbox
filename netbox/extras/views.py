@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django import template
 from django.conf import settings
 from django.contrib import messages
@@ -58,7 +56,7 @@ class TagView(View):
         # Generate a table of all items tagged with this Tag
         items_table = TaggedItemTable(tagged_items)
         paginate = {
-            'klass': EnhancedPaginator,
+            'paginator_class': EnhancedPaginator,
             'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
         }
         RequestConfig(request, paginate).configure(items_table)

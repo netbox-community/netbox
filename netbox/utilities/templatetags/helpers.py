@@ -1,11 +1,12 @@
-from __future__ import unicode_literals
-
 import datetime
 import json
 
 from django import template
 from django.utils.safestring import mark_safe
 from markdown import markdown
+
+from utilities.forms import unpack_grouped_choices
+
 
 register = template.Library()
 
@@ -20,6 +21,17 @@ def oneline(value):
     Replace each line break with a single space
     """
     return value.replace('\n', ' ')
+
+
+@register.filter()
+def placeholder(value):
+    """
+    Render a muted placeholder if value equates to False.
+    """
+    if value:
+        return value
+    placeholder = '<span class="text-muted">&mdash;</span>'
+    return mark_safe(placeholder)
 
 
 @register.filter()
@@ -96,6 +108,8 @@ def humanize_speed(speed):
         100000 => "100 Mbps"
         10000000 => "10 Gbps"
     """
+    if not speed:
+        return ''
     if speed >= 1000000000 and speed % 1000000000 == 0:
         return '{} Tbps'.format(int(speed / 1000000000))
     elif speed >= 1000000 and speed % 1000000 == 0:
@@ -115,14 +129,16 @@ def example_choices(field, arg=3):
     """
     examples = []
     if hasattr(field, 'queryset'):
-        choices = [(obj.pk, getattr(obj, field.to_field_name)) for obj in field.queryset[:arg + 1]]
+        choices = [
+            (obj.pk, getattr(obj, field.to_field_name)) for obj in field.queryset[:arg + 1]
+        ]
     else:
         choices = field.choices
-    for id, label in choices:
+    for value, label in unpack_grouped_choices(choices):
         if len(examples) == arg:
             examples.append('etc.')
             break
-        if not id or not label:
+        if not value or not label:
             continue
         examples.append(label)
     return ', '.join(examples) or 'None'

@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 
 # Models which support custom fields
 CUSTOMFIELD_MODELS = (
@@ -51,7 +49,7 @@ GRAPH_TYPE_CHOICES = (
 EXPORTTEMPLATE_MODELS = [
     'provider', 'circuit',                                                          # Circuits
     'site', 'region', 'rack', 'rackgroup', 'manufacturer', 'devicetype', 'device',  # DCIM
-    'consoleport', 'powerport', 'interfaceconnection', 'virtualchassis',            # DCIM
+    'consoleport', 'powerport', 'interface', 'cable', 'virtualchassis',             # DCIM
     'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf', 'service',                   # IPAM
     'secret',                                                                       # Secrets
     'tenant',                                                                       # Tenancy

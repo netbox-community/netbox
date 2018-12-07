@@ -91,6 +91,10 @@ LOGGING = {}
 # are permitted to access most data in NetBox (excluding secrets) but not make any changes.
 LOGIN_REQUIRED = False
 
+# The length of time (in seconds) for which a user will remain logged into the web UI before being prompted to
+# re-authenticate. (Default: 1209600 [14 days])
+LOGIN_TIMEOUT = None
+
 # Setting this to True will display a "maintenance mode" banner at the top of every page.
 MAINTENANCE_MODE = False
 
@@ -121,10 +125,6 @@ PAGINATE_COUNT = 50
 # prefer IPv4 instead.
 PREFER_IPV4 = False
 
-# The Webhook event backend is disabled by default. Set this to True to enable it. Note that this requires a Redis
-# database be configured and accessible by NetBox (see `REDIS` below).
-WEBHOOKS_ENABLED = False
-
 # Redis database settings (optional). A Redis database is required only if the webhooks backend is enabled.
 REDIS = {
     'HOST': 'localhost',
@@ -138,8 +138,17 @@ REDIS = {
 # this setting is derived from the installed location.
 # REPORTS_ROOT = '/opt/netbox/netbox/reports'
 
+# By default, NetBox will store session data in the database. Alternatively, a file path can be specified here to use
+# local file storage instead. (This can be useful for enabling authentication on a standby instance with read-only
+# database access.) Note that the user as which NetBox runs must have read and write permissions to this path.
+SESSION_FILE_PATH = None
+
 # Time zone (default: UTC)
 TIME_ZONE = 'UTC'
+
+# The webhooks backend is disabled by default. Set this to True to enable it. Note that this requires a Redis
+# database be configured and accessible by NetBox.
+WEBHOOKS_ENABLED = False
 
 # Date/time formatting. See the following link for supported formats:
 # https://docs.djangoproject.com/en/dev/ref/templates/builtins/#date

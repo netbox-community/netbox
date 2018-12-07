@@ -1,3 +1,82 @@
+v2.5.0 (FUTURE)
+
+## Notes
+
+### Python 3 Required
+
+As promised, Python 2 support has been completed removed. Python 3.5 or higher is now required to run NetBox. Please see [our Python 3 migration guide](https://netbox.readthedocs.io/en/stable/installation/migrating-to-python3/) for assistance with upgrading.
+
+### Removed Deprecated User Activity Log
+
+The UserAction model, which was deprecated by the new change logging feature in NetBox v2.4, has been removed. If you need to archive legacy user activity, do so prior to upgrading to NetBox v2.5, as the database migration will remove all data associated with this model.
+
+### View Permissions in Django 2.1
+
+Django 2.1 introduces view permissions for object types (not to be confused with object-level permissions). Implementation of [#323](https://github.com/digitalocean/netbox/issues/323) is planned for NetBox v2.6. Users are encourage to begin assigning view permissions as desired in preparation for their eventual enforcement.
+
+### upgrade.sh No Longer Invokes sudo
+
+The `upgrade.sh` script has been tweaked so that it no longer invokes `sudo` internally. This was done to ensure compatibility when running NetBox inside a Python virtual environment. If you need elevated permissions when upgrading NetBox, call the upgrade script with `sudo upgrade.sh`.
+
+## New Features
+
+### Patch Panels and Cables ([#20](https://github.com/digitalocean/netbox/issues/20))
+
+NetBox now supports modeling physical cables for console, power, and interface connections. The new pass-through port component type has also been introduced to model patch panels and similar devices.
+
+## Enhancements
+
+* [#450](https://github.com/digitalocean/netbox/issues/450) - Added `outer_width` and `outer_depth` fields to rack model
+* [#867](https://github.com/digitalocean/netbox/issues/867) - Added `description` field to circuit terminations
+* [#1444](https://github.com/digitalocean/netbox/issues/1444) - Added an `asset_tag` field for racks
+* [#1931](https://github.com/digitalocean/netbox/issues/1931) - Added a count of assigned IP addresses to the interface API serializer
+* [#2000](https://github.com/digitalocean/netbox/issues/2000) - Dropped support for Python 2
+* [#2053](https://github.com/digitalocean/netbox/issues/2053) - Introduced the `LOGIN_TIMEOUT` configuration setting
+* [#2057](https://github.com/digitalocean/netbox/issues/2057) - Added description columns to interface connections list
+* [#2104](https://github.com/digitalocean/netbox/issues/2104) - Added a `status` field for racks
+* [#2165](https://github.com/digitalocean/netbox/issues/2165) - Improved natural ordering of Interfaces
+* [#2292](https://github.com/digitalocean/netbox/issues/2292) - Removed the deprecated UserAction model
+* [#2367](https://github.com/digitalocean/netbox/issues/2367) - Removed deprecated RPCClient functionality
+* [#2426](https://github.com/digitalocean/netbox/issues/2426) - Introduced `SESSION_FILE_PATH` configuration setting for authentication without write access to database
+* [#2594](https://github.com/digitalocean/netbox/issues/2594) - `upgrade.sh` no longer invokes sudo
+
+## Changes From v2.5-beta2
+
+* [#2474](https://github.com/digitalocean/netbox/issues/2474) - Add `cabled` and `connection_status` filters for device components
+* [#2616](https://github.com/digitalocean/netbox/issues/2616) - Convert Rack `outer_unit` and Cable `length_unit` to integer-based choice fields
+* [#2622](https://github.com/digitalocean/netbox/issues/2622) - Enable filtering cables by multiple types/colors
+* [#2624](https://github.com/digitalocean/netbox/issues/2624) - Delete associated content type and permissions when removing InterfaceConnection model
+* [#2626](https://github.com/digitalocean/netbox/issues/2626) - Remove extraneous permissions generated from proxy models
+* [#2632](https://github.com/digitalocean/netbox/issues/2632) - Change representation of null values from `0` to `null`
+* [#2639](https://github.com/digitalocean/netbox/issues/2639) - Fix preservation of length/dimensions unit for racks and cables
+* [#2648](https://github.com/digitalocean/netbox/issues/2648) - Include the `connection_status` field in nested represenations of connectable device components
+* [#2649](https://github.com/digitalocean/netbox/issues/2649) - Add `connected_endpoint_type` to connectable device component API representations
+
+## API Changes
+
+* The `/extras/recent-activity/` endpoint (replaced by change logging in v2.4) has been removed
+* The `rpc_client` field has been removed from dcim.Platform (see #2367)
+* Introduced a new API endpoint for cables at `/dcim/cables/`
+* New endpoints for front and rear pass-through ports (and their templates) in parallel with existing device components
+* The fields `interface_connection` on Interface and `interface` on CircuitTermination have been replaced with `connected_endpoint` and `connection_status`
+* A new `cable` field has been added to console, power, and interface components and to circuit terminations
+* New fields for dcim.Rack: `status`, `asset_tag`, `outer_width`, `outer_depth`, `outer_unit`
+* The following boolean filters on dcim.Device and dcim.DeviceType have been renamed:
+    * `is_console_server`: `console_server_ports`
+    * `is_pdu`: `power_outlets`
+    * `is_network_device`: `interfaces`
+* The following new boolean filters have been introduced for dcim.Device and dcim.DeviceType:
+    * `console_ports`
+    * `power_ports`
+    * `pass_through_ports`
+* The field `interface_ordering` has been removed from the DeviceType serializer
+* Added a `description` field to the CircuitTermination serializer
+* Added `ipaddress_count` to InterfaceSerializer to show the count of assigned IP addresses for each interface
+* The `available-prefixes` and `available-ips` IPAM endpoints now return an HTTP 204 response instead of HTTP 400 when no new objects can be created
+* Filtering on null values now uses the string `null` instead of zero
+
+---
+
 v2.4.9 (2018-12-07)
 
 ## Enhancements

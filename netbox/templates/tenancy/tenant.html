@@ -71,13 +71,7 @@
                 </tr>
                 <tr>
                     <td>Description</td>
-                    <td>
-                        {% if tenant.description %}
-                            {{ tenant.description }}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ tenant.description|placeholder }}</td>
                 </tr>
             </table>
         </div>

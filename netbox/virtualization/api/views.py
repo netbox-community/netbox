@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from dcim.models import Interface
 from extras.api.views import CustomFieldModelViewSet
 from utilities.api import FieldChoicesViewSet, ModelViewSet
@@ -25,19 +23,19 @@ class VirtualizationFieldChoicesViewSet(FieldChoicesViewSet):
 class ClusterTypeViewSet(ModelViewSet):
     queryset = ClusterType.objects.all()
     serializer_class = serializers.ClusterTypeSerializer
-    filter_class = filters.ClusterTypeFilter
+    filterset_class = filters.ClusterTypeFilter
 
 
 class ClusterGroupViewSet(ModelViewSet):
     queryset = ClusterGroup.objects.all()
     serializer_class = serializers.ClusterGroupSerializer
-    filter_class = filters.ClusterGroupFilter
+    filterset_class = filters.ClusterGroupFilter
 
 
 class ClusterViewSet(CustomFieldModelViewSet):
     queryset = Cluster.objects.select_related('type', 'group').prefetch_related('tags')
     serializer_class = serializers.ClusterSerializer
-    filter_class = filters.ClusterFilter
+    filterset_class = filters.ClusterFilter
 
 
 #
@@ -48,7 +46,7 @@ class VirtualMachineViewSet(CustomFieldModelViewSet):
     queryset = VirtualMachine.objects.select_related(
         'cluster__site', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6'
     ).prefetch_related('tags')
-    filter_class = filters.VirtualMachineFilter
+    filterset_class = filters.VirtualMachineFilter
 
     def get_serializer_class(self):
         """
@@ -69,7 +67,7 @@ class InterfaceViewSet(ModelViewSet):
         virtual_machine__isnull=False
     ).select_related('virtual_machine').prefetch_related('tags')
     serializer_class = serializers.InterfaceSerializer
-    filter_class = filters.InterfaceFilter
+    filterset_class = filters.InterfaceFilter
 
     def get_serializer_class(self):
         request = self.get_serializer_context()['request']

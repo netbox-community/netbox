@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -35,7 +33,7 @@ class IPAMFieldChoicesViewSet(FieldChoicesViewSet):
 class VRFViewSet(CustomFieldModelViewSet):
     queryset = VRF.objects.select_related('tenant').prefetch_related('tags')
     serializer_class = serializers.VRFSerializer
-    filter_class = filters.VRFFilter
+    filterset_class = filters.VRFFilter
 
 
 #
@@ -45,7 +43,7 @@ class VRFViewSet(CustomFieldModelViewSet):
 class RIRViewSet(ModelViewSet):
     queryset = RIR.objects.all()
     serializer_class = serializers.RIRSerializer
-    filter_class = filters.RIRFilter
+    filterset_class = filters.RIRFilter
 
 
 #
@@ -55,7 +53,7 @@ class RIRViewSet(ModelViewSet):
 class AggregateViewSet(CustomFieldModelViewSet):
     queryset = Aggregate.objects.select_related('rir').prefetch_related('tags')
     serializer_class = serializers.AggregateSerializer
-    filter_class = filters.AggregateFilter
+    filterset_class = filters.AggregateFilter
 
 
 #
@@ -65,7 +63,7 @@ class AggregateViewSet(CustomFieldModelViewSet):
 class RoleViewSet(ModelViewSet):
     queryset = Role.objects.all()
     serializer_class = serializers.RoleSerializer
-    filter_class = filters.RoleFilter
+    filterset_class = filters.RoleFilter
 
 
 #
@@ -75,7 +73,7 @@ class RoleViewSet(ModelViewSet):
 class PrefixViewSet(CustomFieldModelViewSet):
     queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role').prefetch_related('tags')
     serializer_class = serializers.PrefixSerializer
-    filter_class = filters.PrefixFilter
+    filterset_class = filters.PrefixFilter
 
     @action(detail=True, url_path='available-prefixes', methods=['get', 'post'])
     def available_prefixes(self, request, pk=None):
@@ -98,25 +96,34 @@ class PrefixViewSet(CustomFieldModelViewSet):
             for i, requested_prefix in enumerate(requested_prefixes):
 
                 # Validate requested prefix size
-                error_msg = None
-                if 'prefix_length' not in requested_prefix:
-                    error_msg = "Item {}: prefix_length field missing".format(i)
-                elif not isinstance(requested_prefix['prefix_length'], int):
-                    error_msg = "Item {}: Invalid prefix length ({})".format(
-                        i, requested_prefix['prefix_length']
-                    )
-                elif prefix.family == 4 and requested_prefix['prefix_length'] > 32:
-                    error_msg = "Item {}: Invalid prefix length ({}) for IPv4".format(
-                        i, requested_prefix['prefix_length']
-                    )
-                elif prefix.family == 6 and requested_prefix['prefix_length'] > 128:
-                    error_msg = "Item {}: Invalid prefix length ({}) for IPv6".format(
-                        i, requested_prefix['prefix_length']
-                    )
-                if error_msg:
+                prefix_length = requested_prefix.get('prefix_length')
+                if prefix_length is None:
                     return Response(
                         {
-                            "detail": error_msg
+                            "detail": "Item {}: prefix_length field missing".format(i)
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                try:
+                    prefix_length = int(prefix_length)
+                except ValueError:
+                    return Response(
+                        {
+                            "detail": "Item {}: Invalid prefix length ({})".format(i, prefix_length),
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                if prefix.family == 4 and prefix_length > 32:
+                    return Response(
+                        {
+                            "detail": "Item {}: Invalid prefix length ({}) for IPv4".format(i, prefix_length),
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                elif prefix.family == 6 and prefix_length > 128:
+                    return Response(
+                        {
+                            "detail": "Item {}: Invalid prefix length ({}) for IPv6".format(i, prefix_length),
                         },
                         status=status.HTTP_400_BAD_REQUEST
                     )
@@ -133,7 +140,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
                         {
                             "detail": "Insufficient space is available to accommodate the requested prefix size(s)"
                         },
-                        status=status.HTTP_400_BAD_REQUEST
+                        status=status.HTTP_204_NO_CONTENT
                     )
 
                 # Remove the allocated prefix from the list of available prefixes
@@ -189,7 +196,7 @@ class PrefixViewSet(CustomFieldModelViewSet):
                         "detail": "An insufficient number of IP addresses are available within the prefix {} ({} "
                                   "requested, {} available)".format(prefix, len(requested_ips), len(available_ips))
                     },
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_204_NO_CONTENT
                 )
 
             # Assign addresses from the list of available IPs and copy VRF assignment from the parent prefix
@@ -248,7 +255,7 @@ class IPAddressViewSet(CustomFieldModelViewSet):
         'nat_outside', 'tags',
     )
     serializer_class = serializers.IPAddressSerializer
-    filter_class = filters.IPAddressFilter
+    filterset_class = filters.IPAddressFilter
 
 
 #
@@ -258,7 +265,7 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 class VLANGroupViewSet(ModelViewSet):
     queryset = VLANGroup.objects.select_related('site')
     serializer_class = serializers.VLANGroupSerializer
-    filter_class = filters.VLANGroupFilter
+    filterset_class = filters.VLANGroupFilter
 
 
 #
@@ -268,7 +275,7 @@ class VLANGroupViewSet(ModelViewSet):
 class VLANViewSet(CustomFieldModelViewSet):
     queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role').prefetch_related('tags')
     serializer_class = serializers.VLANSerializer
-    filter_class = filters.VLANFilter
+    filterset_class = filters.VLANFilter
 
 
 #
@@ -278,4 +285,4 @@ class VLANViewSet(CustomFieldModelViewSet):
 class ServiceViewSet(ModelViewSet):
     queryset = Service.objects.select_related('device').prefetch_related('tags')
     serializer_class = serializers.ServiceSerializer
-    filter_class = filters.ServiceFilter
+    filterset_class = filters.ServiceFilter

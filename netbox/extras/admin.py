@@ -1,12 +1,9 @@
-from __future__ import unicode_literals
-
 from django import forms
 from django.contrib import admin
-from django.utils.safestring import mark_safe
 
 from netbox.admin import admin_site
 from utilities.forms import LaxURLField
-from .models import CustomField, CustomFieldChoice, Graph, ExportTemplate, TopologyMap, UserAction, Webhook
+from .models import CustomField, CustomFieldChoice, Graph, ExportTemplate, TopologyMap, Webhook
 
 
 def order_content_types(field):
@@ -31,7 +28,7 @@ class WebhookForm(forms.ModelForm):
         exclude = []
 
     def __init__(self, *args, **kwargs):
-        super(WebhookForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         order_content_types(self.fields['obj_type'])
 
@@ -59,7 +56,7 @@ class CustomFieldForm(forms.ModelForm):
         exclude = []
 
     def __init__(self, *args, **kwargs):
-        super(CustomFieldForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         order_content_types(self.fields['obj_type'])
 
@@ -99,7 +96,7 @@ class ExportTemplateForm(forms.ModelForm):
         exclude = []
 
     def __init__(self, *args, **kwargs):
-        super(ExportTemplateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Format ContentType choices
         order_content_types(self.fields['content_type'])
@@ -122,16 +119,3 @@ class TopologyMapAdmin(admin.ModelAdmin):
     prepopulated_fields = {
         'slug': ['name'],
     }
-
-
-#
-# User actions
-#
-
-@admin.register(UserAction, site=admin_site)
-class UserActionAdmin(admin.ModelAdmin):
-    actions = None
-    list_display = ['user', 'action', 'content_type', 'object_id', '_message']
-
-    def _message(self, obj):
-        return mark_safe(obj.message)

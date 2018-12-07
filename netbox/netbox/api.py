@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.conf import settings
 from rest_framework import authentication, exceptions
 from rest_framework.pagination import LimitOffsetPagination
@@ -59,16 +57,15 @@ class TokenPermissions(DjangoModelPermissions):
     """
     def __init__(self):
         # LOGIN_REQUIRED determines whether read-only access is provided to anonymous users.
-        from django.conf import settings
         self.authenticated_users_only = settings.LOGIN_REQUIRED
-        super(TokenPermissions, self).__init__()
+        super().__init__()
 
     def has_permission(self, request, view):
         # If token authentication is in use, verify that the token allows write operations (for unsafe methods).
         if request.method not in SAFE_METHODS and isinstance(request.auth, Token):
             if not request.auth.write_enabled:
                 return False
-        return super(TokenPermissions, self).has_permission(request, view)
+        return super().has_permission(request, view)
 
 
 #
@@ -84,10 +81,17 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
 
     def paginate_queryset(self, queryset, request, view=None):
 
-        try:
-            self.count = queryset.count()
-        except (AttributeError, TypeError):
+        if hasattr(queryset, 'all'):
+            # TODO: This breaks filtering by annotated values
+            # Make a clone of the queryset with any annotations stripped (performance hack)
+            qs = queryset.all()
+            qs.query.annotations.clear()
+            self.count = qs.count()
+
+        else:
+            # We're dealing with an iterable, not a QuerySet
             self.count = len(queryset)
+
         self.limit = self.get_limit(request)
         self.offset = self.get_offset(request)
         self.request = request
@@ -128,7 +132,7 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
         if not self.limit:
             return None
 
-        return super(OptionalLimitOffsetPagination, self).get_next_link()
+        return super().get_next_link()
 
     def get_previous_link(self):
 
@@ -136,7 +140,7 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
         if not self.limit:
             return None
 
-        return super(OptionalLimitOffsetPagination, self).get_previous_link()
+        return super().get_previous_link()
 
 
 #

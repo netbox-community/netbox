@@ -1,11 +1,8 @@
-from __future__ import unicode_literals
-
 from django.conf.urls import url
 
 from extras.views import ObjectChangeLogView
 from . import views
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
-
 
 app_name = 'ipam'
 urlpatterns = [

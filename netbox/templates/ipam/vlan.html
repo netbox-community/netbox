@@ -129,13 +129,7 @@
                     </tr>
                     <tr>
                         <td>Description</td>
-                        <td>
-                            {% if vlan.description %}
-                                {{ vlan.description }}
-                            {% else %}
-                                <span class="text-muted">N/A</span>
-                            {% endif %}
-                        </td>
+                        <td>{{ vlan.description|placeholder }}</td>
                     </tr>
                 </table>
             </div>

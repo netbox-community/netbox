@@ -1,7 +1,4 @@
-from __future__ import unicode_literals
-
 import django_filters
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from taggit.models import Tag
@@ -9,7 +6,7 @@ from taggit.models import Tag
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from .constants import CF_FILTER_DISABLED, CF_FILTER_EXACT, CF_TYPE_BOOLEAN, CF_TYPE_SELECT
-from .models import ConfigContext, CustomField, Graph, ExportTemplate, ObjectChange, TopologyMap, UserAction
+from .models import ConfigContext, CustomField, Graph, ExportTemplate, ObjectChange, TopologyMap
 
 
 class CustomFieldFilter(django_filters.Filter):
@@ -20,12 +17,12 @@ class CustomFieldFilter(django_filters.Filter):
     def __init__(self, custom_field, *args, **kwargs):
         self.cf_type = custom_field.type
         self.filter_logic = custom_field.filter_logic
-        super(CustomFieldFilter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def filter(self, queryset, value):
 
         # Skip filter on empty value
-        if not value.strip():
+        if value is None or not value.strip():
             return queryset
 
         # Selection fields get special treatment (values must be integers)
@@ -66,12 +63,12 @@ class CustomFieldFilterSet(django_filters.FilterSet):
     """
 
     def __init__(self, *args, **kwargs):
-        super(CustomFieldFilterSet, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         obj_type = ContentType.objects.get_for_model(self._meta.model)
         custom_fields = CustomField.objects.filter(obj_type=obj_type).exclude(filter_logic=CF_FILTER_DISABLED)
         for cf in custom_fields:
-            self.filters['cf_{}'.format(cf.name)] = CustomFieldFilter(name=cf.name, custom_field=cf)
+            self.filters['cf_{}'.format(cf.name)] = CustomFieldFilter(field_name=cf.name, custom_field=cf)
 
 
 class GraphFilter(django_filters.FilterSet):
@@ -109,12 +106,12 @@ class TagFilter(django_filters.FilterSet):
 
 class TopologyMapFilter(django_filters.FilterSet):
     site_id = django_filters.ModelMultipleChoiceFilter(
-        name='site',
+        field_name='site',
         queryset=Site.objects.all(),
         label='Site',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='site__slug',
+        field_name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
@@ -131,67 +128,67 @@ class ConfigContextFilter(django_filters.FilterSet):
         label='Search',
     )
     region_id = django_filters.ModelMultipleChoiceFilter(
-        name='regions',
+        field_name='regions',
         queryset=Region.objects.all(),
         label='Region',
     )
     region = django_filters.ModelMultipleChoiceFilter(
-        name='regions__slug',
+        field_name='regions__slug',
         queryset=Region.objects.all(),
         to_field_name='slug',
         label='Region (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
-        name='sites',
+        field_name='sites',
         queryset=Site.objects.all(),
         label='Site',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='sites__slug',
+        field_name='sites__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
-        name='roles',
+        field_name='roles',
         queryset=DeviceRole.objects.all(),
         label='Role',
     )
     role = django_filters.ModelMultipleChoiceFilter(
-        name='roles__slug',
+        field_name='roles__slug',
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
     )
     platform_id = django_filters.ModelMultipleChoiceFilter(
-        name='platforms',
+        field_name='platforms',
         queryset=Platform.objects.all(),
         label='Platform',
     )
     platform = django_filters.ModelMultipleChoiceFilter(
-        name='platforms__slug',
+        field_name='platforms__slug',
         queryset=Platform.objects.all(),
         to_field_name='slug',
         label='Platform (slug)',
     )
     tenant_group_id = django_filters.ModelMultipleChoiceFilter(
-        name='tenant_groups',
+        field_name='tenant_groups',
         queryset=TenantGroup.objects.all(),
         label='Tenant group',
     )
     tenant_group = django_filters.ModelMultipleChoiceFilter(
-        name='tenant_groups__slug',
+        field_name='tenant_groups__slug',
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
         label='Tenant group (slug)',
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
-        name='tenants',
+        field_name='tenants',
         queryset=Tenant.objects.all(),
         label='Tenant',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
-        name='tenants__slug',
+        field_name='tenants__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
@@ -229,15 +226,3 @@ class ObjectChangeFilter(django_filters.FilterSet):
             Q(user_name__icontains=value) |
             Q(object_repr__icontains=value)
         )
-
-
-class UserActionFilter(django_filters.FilterSet):
-    username = django_filters.ModelMultipleChoiceFilter(
-        name='user__username',
-        queryset=User.objects.all(),
-        to_field_name='username',
-    )
-
-    class Meta:
-        model = UserAction
-        fields = ['user']

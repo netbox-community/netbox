@@ -1,14 +1,13 @@
-from __future__ import unicode_literals
-
-from rest_framework import serializers
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from circuits.constants import CIRCUIT_STATUS_CHOICES
-from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
-from dcim.api.serializers import NestedInterfaceSerializer, NestedSiteSerializer
+from circuits.models import Provider, Circuit, CircuitTermination, CircuitType
+from dcim.api.nested_serializers import NestedCableSerializer, NestedSiteSerializer
+from dcim.api.serializers import ConnectedEndpointSerializer
 from extras.api.customfields import CustomFieldModelSerializer
-from tenancy.api.serializers import NestedTenantSerializer
-from utilities.api import ChoiceField, ValidatedModelSerializer, WritableNestedSerializer
+from tenancy.api.nested_serializers import NestedTenantSerializer
+from utilities.api import ChoiceField, ValidatedModelSerializer
+from .nested_serializers import *
 
 
 #
@@ -26,16 +25,8 @@ class ProviderSerializer(TaggitSerializer, CustomFieldModelSerializer):
         ]
 
 
-class NestedProviderSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provider-detail')
-
-    class Meta:
-        model = Provider
-        fields = ['id', 'url', 'name', 'slug']
-
-
 #
-# Circuit types
+# Circuits
 #
 
 class CircuitTypeSerializer(ValidatedModelSerializer):
@@ -44,18 +35,6 @@ class CircuitTypeSerializer(ValidatedModelSerializer):
         model = CircuitType
         fields = ['id', 'name', 'slug']
 
-
-class NestedCircuitTypeSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittype-detail')
-
-    class Meta:
-        model = CircuitType
-        fields = ['id', 'url', 'name', 'slug']
-
-
-#
-# Circuits
-#
 
 class CircuitSerializer(TaggitSerializer, CustomFieldModelSerializer):
     provider = NestedProviderSerializer()
@@ -72,25 +51,14 @@ class CircuitSerializer(TaggitSerializer, CustomFieldModelSerializer):
         ]
 
 
-class NestedCircuitSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuit-detail')
-
-    class Meta:
-        model = Circuit
-        fields = ['id', 'url', 'cid']
-
-
-#
-# Circuit Terminations
-#
-
-class CircuitTerminationSerializer(ValidatedModelSerializer):
+class CircuitTerminationSerializer(ConnectedEndpointSerializer):
     circuit = NestedCircuitSerializer()
     site = NestedSiteSerializer()
-    interface = NestedInterfaceSerializer(required=False, allow_null=True)
+    cable = NestedCableSerializer(read_only=True)
 
     class Meta:
         model = CircuitTermination
         fields = [
-            'id', 'circuit', 'term_side', 'site', 'interface', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
+            'id', 'circuit', 'term_side', 'site', 'port_speed', 'upstream_speed', 'xconnect_id', 'pp_info',
+            'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status', 'cable',
         ]

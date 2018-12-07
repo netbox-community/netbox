@@ -1,50 +1,56 @@
-<tr class="consoleserverport{% if csp.connected_console and not csp.connected_console.connection_status %} info{% endif %}">
+<tr class="consoleserverport{% if csp.cable.status %} success{% elif csp.cable %} info{% endif %}">
+
+    {# Checkbox #}
     {% if perms.dcim.change_consoleserverport or perms.dcim.delete_consoleserverport %}
         <td class="pk">
             <input name="pk" type="checkbox" value="{{ csp.pk }}" />
         </td>
     {% endif %}
+
+    {# Name #}
     <td>
         <i class="fa fa-fw fa-keyboard-o"></i> {{ csp }}
     </td>
-    {% if csp.connected_console %}
+
+    {# Cable #}
+    <td>
+        {% if csp.cable %}
+            <a href="{{ csp.cable.get_absolute_url }}">{{ csp.cable }}</a>
+        {% else %}
+            &mdash;
+        {% endif %}
+    </td>
+
+    {# Connection #}
+    {% if csp.connected_endpoint %}
         <td>
-            <a href="{% url 'dcim:device' pk=csp.connected_console.device.pk %}">{{ csp.connected_console.device }}</a>
+            <a href="{% url 'dcim:device' pk=csp.connected_endpoint.device.pk %}">{{ csp.connected_endpoint.device }}</a>
         </td>
         <td>
-            {{ csp.connected_console }}
+            {{ csp.connected_endpoint }}
         </td>
     {% else %}
         <td colspan="2">
             <span class="text-muted">Not connected</span>
         </td>
     {% endif %}
+
+    {# Actions #}
     <td class="text-right">
+        {% if csp.cable %}
+            {% include 'dcim/inc/cable_toggle_buttons.html' with cable=csp.cable %}
+        {% elif perms.dcim.add_cable %}
+            <a href="{% url 'dcim:consoleserverport_connect' termination_a_id=csp.pk %}?return_url={{ device.get_absolute_url }}" title="Connect" class="btn btn-success btn-xs">
+                <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
+            </a>
+        {% endif %}
         {% if perms.dcim.change_consoleserverport %}
-            {% if csp.connected_console %}
-                {% if csp.connected_console.connection_status %}
-                    <a href="#" class="btn btn-warning btn-xs consoleport-toggle connected" title="Mark planned" data="{{ csp.connected_console.pk }}">
-                        <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>
-                    </a>
-                {% else %}
-                    <a href="#" class="btn btn-success btn-xs consoleport-toggle" title="Mark installed" data="{{ csp.connected_console.pk }}">
-                        <i class="fa fa-plug" aria-hidden="true"></i>
-                    </a>
-                {% endif %}
-                <a href="{% url 'dcim:consoleserverport_disconnect' pk=csp.pk %}" title="Delete connection" class="btn btn-danger btn-xs">
-                    <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
-                </a>
-            {% else %}
-                <a href="{% url 'dcim:consoleserverport_connect' pk=csp.pk %}" title="Connect" class="btn btn-success btn-xs">
-                    <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
-                </a>
-            {% endif %}
             <a href="{% url 'dcim:consoleserverport_edit' pk=csp.pk %}" title="Edit port" class="btn btn-info btn-xs">
                 <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
             </a>
         {% endif %}
         {% if perms.dcim.delete_consoleserverport %}
-            {% if csp.connected_console %}
+            {% if csp.connected_endpoint %}
                 <button class="btn btn-danger btn-xs" disabled="disabled">
                     <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </button>

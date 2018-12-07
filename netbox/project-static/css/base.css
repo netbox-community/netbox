@@ -429,6 +429,10 @@ table.report th a {
 }
 
 /* Misc */
+.color-block {
+    display: block;
+    width: 80px;
+}
 .text-nowrap {
     white-space: nowrap;
 }

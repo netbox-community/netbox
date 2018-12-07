@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from dcim.constants import DEVICE_STATUS_ACTIVE, DEVICE_STATUS_OFFLINE, DEVICE_STATUS_STAGED
 
 # VirtualMachine statuses (replicated from Device statuses)

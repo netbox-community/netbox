@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import django_tables2 as tables
 from django.utils.safestring import mark_safe
 from django_tables2.utils import Accessor
@@ -25,12 +23,6 @@ STATUS_LABEL = """
 class CircuitTerminationColumn(tables.Column):
 
     def render(self, value):
-        if value.interface:
-            return mark_safe('<a href="{}" title="{}">{}</a>'.format(
-                value.interface.device.get_absolute_url(),
-                value.site,
-                value.interface.device
-            ))
         return mark_safe('<a href="{}">{}</a>'.format(
             value.site.get_absolute_url(),
             value.site

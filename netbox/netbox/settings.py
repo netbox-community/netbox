@@ -7,6 +7,13 @@ import warnings
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
 
+# Check for Python 3.5+
+if sys.version_info < (3, 5):
+    raise RuntimeError(
+        "NetBox requires Python 3.5 or higher (current: Python {})".format(sys.version.split()[0])
+    )
+
+# Check for configuration file
 try:
     from netbox import configuration
 except ImportError:
@@ -14,15 +21,8 @@ except ImportError:
         "Configuration file is not present. Please define netbox/netbox/configuration.py per the documentation."
     )
 
-# Raise a deprecation warning for Python 2.x
-if sys.version_info[0] < 3:
-    warnings.warn(
-        "Support for Python 2 will be removed in NetBox v2.5. Please consider migration to Python 3 at your earliest "
-        "opportunity. Guidance is available in the documentation at http://netbox.readthedocs.io/.",
-        DeprecationWarning
-    )
 
-VERSION = '2.4.9'
+VERSION = '2.5-beta2'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -55,6 +55,7 @@ ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
 EMAIL = getattr(configuration, 'EMAIL', {})
 LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
+LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
 MAINTENANCE_MODE = getattr(configuration, 'MAINTENANCE_MODE', False)
 MAX_PAGE_SIZE = getattr(configuration, 'MAX_PAGE_SIZE', 1000)
 MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
@@ -66,6 +67,7 @@ PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 REDIS = getattr(configuration, 'REDIS', {})
+SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
@@ -111,6 +113,17 @@ configuration.DATABASE.update({'ENGINE': 'django.db.backends.postgresql'})
 DATABASES = {
     'default': configuration.DATABASE,
 }
+
+# Sessions
+if LOGIN_TIMEOUT is not None:
+    if type(LOGIN_TIMEOUT) is not int or LOGIN_TIMEOUT < 0:
+        raise ImproperlyConfigured(
+            "LOGIN_TIMEOUT must be a positive integer (value: {})".format(LOGIN_TIMEOUT)
+        )
+    # Django default is 1209600 seconds (14 days)
+    SESSION_COOKIE_AGE = LOGIN_TIMEOUT
+if SESSION_FILE_PATH is not None:
+    SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 
 # Redis
 REDIS_HOST = REDIS.get('HOST', 'localhost')
@@ -235,7 +248,7 @@ SECRETS_MIN_PUBKEY_SIZE = 2048
 
 # Django filters
 FILTERS_NULL_CHOICE_LABEL = 'None'
-FILTERS_NULL_CHOICE_VALUE = '0'  # Must be a string
+FILTERS_NULL_CHOICE_VALUE = 'null'
 
 # Django REST framework (API)
 REST_FRAMEWORK_VERSION = VERSION[0:3]  # Use major.minor as API version

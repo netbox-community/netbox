@@ -1,5 +1,5 @@
 {% extends '_base.html' %}
-{% load static from staticfiles %}
+{% load static %}
 {% load helpers %}
 
 {% block title %}{{ provider }}{% endblock %}
@@ -67,23 +67,11 @@
             <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>ASN</td>
-                    <td>
-                        {% if provider.asn %}
-                            {{ provider.asn }}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ provider.asn|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Account</td>
-                    <td>
-                        {% if provider.account %}
-                            {{ provider.account }}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ provider.account|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Customer Portal</td>
@@ -91,29 +79,17 @@
                         {% if provider.portal_url %}
                             <a href="{{ provider.portal_url }}">{{ provider.portal_url }}</a>
                         {% else %}
-                            <span class="text-muted">N/A</span>
+                            <span class="text-muted">&mdash;</span>
                         {% endif %}
                     </td>
                 </tr>
                 <tr>
                     <td>NOC Contact</td>
-                    <td>
-                        {% if provider.noc_contact %}
-                            {{ provider.noc_contact|linebreaksbr }}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ provider.noc_contact|linebreaksbr|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Admin Contact</td>
-                    <td>
-                        {% if provider.admin_contact %}
-                            {{ provider.admin_contact|linebreaksbr }}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ provider.admin_contact|linebreaksbr|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Circuits</td>
@@ -205,7 +181,7 @@
         </div>
     </div>
 </div>
-{% include 'inc/graphs_modal.html' %}
+{% include 'inc/modal.html' with modal_name='graphs' %}
 {% endblock %}
 
 {% block javascript %}

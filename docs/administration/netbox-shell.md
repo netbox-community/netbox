@@ -9,7 +9,7 @@ This will launch a customized version of [the built-in Django shell](https://doc
 ```
 $ ./manage.py nbshell
 ### NetBox interactive shell (jstretch-laptop)
-### Python 2.7.6 | Django 1.11.3 | NetBox 2.1.0-dev
+### Python 3.5.2 | Django 2.0.8 | NetBox 2.4.3
 ### lsmodels() will show available models. Use help(<model>) for more info.
 ```
 

@@ -105,13 +105,7 @@
                 </tr>
                 <tr>
                     <td>Description</td>
-                    <td>
-                        {% if ipaddress.description %}
-                            <span>{{ ipaddress.description }}</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ ipaddress.description|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Assignment</td>
@@ -119,7 +113,7 @@
                         {% if ipaddress.interface %}
                             <span><a href="{{ ipaddress.interface.parent.get_absolute_url }}">{{ ipaddress.interface.parent }}</a> ({{ ipaddress.interface }})</span>
                         {% else %}
-                            <span class="text-muted">None</span>
+                            <span class="text-muted">&mdash;</span>
                         {% endif %}
                     </td>
                 </tr>

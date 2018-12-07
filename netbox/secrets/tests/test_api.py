@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import base64
 
 from django.urls import reverse
@@ -53,7 +51,7 @@ class SecretRoleTest(APITestCase):
 
     def setUp(self):
 
-        super(SecretRoleTest, self).setUp()
+        super().setUp()
 
         self.secretrole1 = SecretRole.objects.create(name='Test Secret Role 1', slug='test-secret-role-1')
         self.secretrole2 = SecretRole.objects.create(name='Test Secret Role 2', slug='test-secret-role-2')
@@ -154,7 +152,7 @@ class SecretTest(APITestCase):
 
     def setUp(self):
 
-        super(SecretTest, self).setUp()
+        super().setUp()
 
         userkey = UserKey(user=self.user, public_key=PUBLIC_KEY)
         userkey.save()
@@ -296,7 +294,7 @@ class GetSessionKeyTest(APITestCase):
 
     def setUp(self):
 
-        super(GetSessionKeyTest, self).setUp()
+        super().setUp()
 
         userkey = UserKey(user=self.user, public_key=PUBLIC_KEY)
         userkey.save()

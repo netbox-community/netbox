@@ -1,24 +1,23 @@
-from __future__ import unicode_literals
-
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from taggit.models import Tag
 
-from dcim.api.serializers import (
+from dcim.api.nested_serializers import (
     NestedDeviceSerializer, NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedRackSerializer,
     NestedRegionSerializer, NestedSiteSerializer,
 )
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
-from extras.models import (
-    ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap, UserAction,
-)
 from extras.constants import *
-from tenancy.api.serializers import NestedTenantSerializer, NestedTenantGroupSerializer
+from extras.models import (
+    ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
+)
+from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
-from users.api.serializers import NestedUserSerializer
+from users.api.nested_serializers import NestedUserSerializer
 from utilities.api import (
     ChoiceField, ContentTypeField, get_serializer_for_model, SerializedPKRelatedField, ValidatedModelSerializer,
 )
+from .nested_serializers import *
 
 
 #
@@ -109,7 +108,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
             )
 
         # Enforce model validation
-        super(ImageAttachmentSerializer, self).validate(data)
+        super().validate(data)
 
         return data
 
@@ -189,18 +188,6 @@ class ReportResultSerializer(serializers.ModelSerializer):
         fields = ['created', 'user', 'failed', 'data']
 
 
-class NestedReportResultSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='extras-api:report-detail',
-        lookup_field='report',
-        lookup_url_kwarg='pk'
-    )
-
-    class Meta:
-        model = ReportResult
-        fields = ['url', 'created', 'user', 'failed']
-
-
 class ReportSerializer(serializers.Serializer):
     module = serializers.CharField(max_length=255)
     name = serializers.CharField(max_length=255)
@@ -240,16 +227,3 @@ class ObjectChangeSerializer(serializers.ModelSerializer):
         context = {'request': self.context['request']}
         data = serializer(obj.changed_object, context=context).data
         return data
-
-
-#
-# User actions
-#
-
-class UserActionSerializer(serializers.ModelSerializer):
-    user = NestedUserSerializer()
-    action = ChoiceField(choices=ACTION_CHOICES)
-
-    class Meta:
-        model = UserAction
-        fields = ['id', 'time', 'user', 'action', 'message']

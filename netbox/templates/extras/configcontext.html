@@ -55,13 +55,7 @@
                     </tr>
                     <tr>
                         <td>Description</td>
-                        <td>
-                            {% if configcontext.description %}
-                                {{ configcontext.description }}
-                            {% else %}
-                                <span class="text-muted">N/A</span>
-                            {% endif %}
-                        </td>
+                        <td>{{ configcontext.description|placeholder }}</td>
                     </tr>
                     <tr>
                         <td>Active</td>

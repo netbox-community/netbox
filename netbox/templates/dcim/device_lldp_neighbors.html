@@ -22,15 +22,13 @@
                 {% for iface in interfaces %}
                     <tr id="{{ iface.name }}">
                         <td>{{ iface }}</td>
-                        {% if iface.connection %}
-                            {% with iface.connected_interface as connected_iface %}
-                                <td class="configured_device" data="{{ connected_iface.device }}">
-                                    <a href="{% url 'dcim:device' pk=connected_iface.device.pk %}">{{ connected_iface.device }}</a>
-                                </td>
-                                <td class="configured_interface" data="{{ connected_iface }}">
-                                    <span title="{{ connected_iface.get_form_factor_display }}">{{ connected_iface }}</span>
-                                </td>
-                            {% endwith %}
+                        {% if iface.connected_endpoint %}
+                            <td class="configured_device" data="{{ iface.connected_endpoint.device }}">
+                                <a href="{% url 'dcim:device' pk=iface.connected_endpoint.device.pk %}">{{ iface.connected_endpoint.device }}</a>
+                            </td>
+                            <td class="configured_interface" data="{{ iface.connected_endpoint }}">
+                                <span title="{{ iface.connected_endpoint.get_form_factor_display }}">{{ iface.connected_endpoint }}</span>
+                            </td>
                         {% else %}
                             <td colspan="2">None</td>
                         {% endif %}

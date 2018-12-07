@@ -1,8 +1,6 @@
-from __future__ import unicode_literals
-
+import sys
 from collections import OrderedDict
 from copy import deepcopy
-import sys
 
 from django.conf import settings
 from django.contrib import messages
@@ -11,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import Count, ProtectedError
 from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHiddenInput, Textarea
-from django.http import HttpResponseServerError
+from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist, TemplateSyntaxError
@@ -25,9 +23,8 @@ from django.views.generic import View
 from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
-from utilities.utils import queryset_to_csv
 from utilities.forms import BootstrapMixin, CSVDataField
-from .constants import M2M_FIELD_TYPES
+from utilities.utils import csv_format
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
 from .paginator import EnhancedPaginator
@@ -60,7 +57,7 @@ class GetReturnURLMixin(object):
 
         # First, see if `return_url` was specified as a query parameter. Use it only if it's considered safe.
         query_param = request.GET.get('return_url')
-        if query_param and is_safe_url(url=query_param, host=request.get_host()):
+        if query_param and is_safe_url(url=query_param, allowed_hosts=request.get_host()):
             return query_param
 
         # Next, check if the object being modified (if any) has an absolute URL.
@@ -91,6 +88,23 @@ class ObjectListView(View):
     table = None
     template_name = None
 
+    def queryset_to_csv(self):
+        """
+        Export the queryset of objects as comma-separated value (CSV), using the model's to_csv() method.
+        """
+        csv_data = []
+
+        # Start with the column headers
+        headers = ','.join(self.queryset.model.csv_headers)
+        csv_data.append(headers)
+
+        # Iterate through the queryset appending each object
+        for obj in self.queryset:
+            data = csv_format(obj.to_csv())
+            csv_data.append(data)
+
+        return csv_data
+
     def get(self, request):
 
         model = self.queryset.model
@@ -116,9 +130,17 @@ class ObjectListView(View):
                     request,
                     "There was an error rendering the selected export template ({}).".format(et.name)
                 )
-        # Fall back to built-in CSV export if no template was specified
+
+        # Fall back to built-in CSV formatting if export requested but no template specified
         elif 'export' in request.GET and hasattr(model, 'to_csv'):
-            return queryset_to_csv(self.queryset)
+            data = self.queryset_to_csv()
+            response = HttpResponse(
+                '\n'.join(data),
+                content_type='text/csv'
+            )
+            filename = 'netbox_{}.csv'.format(self.queryset.model._meta.verbose_name_plural)
+            response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+            return response
 
         # Provide a hook to tweak the queryset based on the request immediately prior to rendering the object list
         self.queryset = self.alter_queryset(request)
@@ -140,7 +162,7 @@ class ObjectListView(View):
 
         # Apply the request context
         paginate = {
-            'klass': EnhancedPaginator,
+            'paginator_class': EnhancedPaginator,
             'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
         }
         RequestConfig(request, paginate).configure(table)
@@ -228,7 +250,7 @@ class ObjectEditView(GetReturnURLMixin, View):
                 return redirect(request.get_full_path())
 
             return_url = form.cleaned_data.get('return_url')
-            if return_url is not None and is_safe_url(url=return_url, host=request.get_host()):
+            if return_url is not None and is_safe_url(url=return_url, allowed_hosts=request.get_host()):
                 return redirect(return_url)
             else:
                 return redirect(self.get_return_url(request, obj))
@@ -286,7 +308,7 @@ class ObjectDeleteView(GetReturnURLMixin, View):
             messages.success(request, msg)
 
             return_url = form.cleaned_data.get('return_url')
-            if return_url is not None and is_safe_url(url=return_url, host=request.get_host()):
+            if return_url is not None and is_safe_url(url=return_url, allowed_hosts=request.get_host()):
                 return redirect(return_url)
             else:
                 return redirect(self.get_return_url(request, obj))
@@ -713,10 +735,11 @@ class ComponentCreateView(View):
             data = deepcopy(request.POST)
             data[self.parent_field] = parent.pk
 
-            for name in form.cleaned_data['name_pattern']:
+            for i, name in enumerate(form.cleaned_data['name_pattern']):
 
                 # Initialize the individual component form
                 data['name'] = name
+                data.update(form.get_iterative_data(i))
                 component_form = self.model_form(data)
 
                 if component_form.is_valid():

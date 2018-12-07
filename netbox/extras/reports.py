@@ -1,10 +1,7 @@
-from __future__ import unicode_literals
-
-from collections import OrderedDict
 import importlib
 import inspect
 import pkgutil
-import sys
+from collections import OrderedDict
 
 from django.conf import settings
 from django.utils import timezone
@@ -26,22 +23,12 @@ def get_report(module_name, report_name):
     """
     file_path = '{}/{}.py'.format(settings.REPORTS_ROOT, module_name)
 
-    # Python 3.5+
-    if sys.version_info >= (3, 5):
-        spec = importlib.util.spec_from_file_location(module_name, file_path)
-        module = importlib.util.module_from_spec(spec)
-        try:
-            spec.loader.exec_module(module)
-        except FileNotFoundError:
-            return None
-
-    # Python 2.7
-    else:
-        import imp
-        try:
-            module = imp.load_source(module_name, file_path)
-        except IOError:
-            return None
+    spec = importlib.util.spec_from_file_location(module_name, file_path)
+    module = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(module)
+    except FileNotFoundError:
+        return None
 
     report = getattr(module, report_name, None)
     if report is None:

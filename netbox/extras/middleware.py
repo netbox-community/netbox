@@ -1,9 +1,7 @@
-from __future__ import unicode_literals
-
-from datetime import timedelta
 import random
 import threading
 import uuid
+from datetime import timedelta
 
 from django.conf import settings
 from django.db.models.signals import post_delete, post_save
@@ -15,7 +13,6 @@ from .constants import (
     OBJECTCHANGE_ACTION_CREATE, OBJECTCHANGE_ACTION_DELETE, OBJECTCHANGE_ACTION_UPDATE,
 )
 from .models import ObjectChange
-
 
 _thread_locals = threading.local()
 

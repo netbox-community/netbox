@@ -1,10 +1,7 @@
-from __future__ import unicode_literals
-
-from netaddr import AddrFormatError, EUI, mac_unix_expanded
-
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from netaddr import AddrFormatError, EUI, mac_unix_expanded
 
 
 class ASNField(models.BigIntegerField):
