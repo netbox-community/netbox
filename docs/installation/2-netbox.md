@@ -5,16 +5,16 @@ This section of the documentation discusses installing and configuring the NetBo
 **Ubuntu**
 
 ```no-highlight
-# apt-get install -y python3 python3-dev python3-setuptools build-essential libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev zlib1g-dev
-# easy_install3 pip
+# apt-get install -y python3 python3-pip python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev zlib1g-dev
 ```
 
 **CentOS**
 
 ```no-highlight
 # yum install -y epel-release
-# yum install -y gcc python34 python34-devel python34-setuptools libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel redhat-rpm-config
-# easy_install-3.4 pip
+# yum install -y gcc python36 python36-devel python36-setuptools libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel redhat-rpm-config
+# easy_install-3.6 pip
+# ln -s /usr/bin/python36 /usr/bin/python3
 ```
 
 You may opt to install NetBox either from a numbered release or by cloning the master branch of its repository on GitHub.
