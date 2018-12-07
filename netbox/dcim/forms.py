@@ -20,7 +20,7 @@ from utilities.forms import (
     ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FilterTreeNodeMultipleChoiceField,
     FlexibleModelChoiceField, JSONField, Livesearch, SelectWithDisabled, SelectWithPK, SmallTextarea, SlugField,
 )
-from virtualization.models import Cluster
+from virtualization.models import Cluster, ClusterGroup
 from .constants import (
     CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_CONNECTED, DEVICE_STATUS_CHOICES, IFACE_FF_CHOICES, IFACE_FF_LAG,
     IFACE_MODE_ACCESS, IFACE_MODE_CHOICES, IFACE_MODE_TAGGED_ALL, IFACE_ORDERING_CHOICES, RACK_FACE_CHOICES,
@@ -820,6 +820,23 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             display_field='model'
         )
     )
+    cluster_group = forms.ModelChoiceField(
+        queryset=ClusterGroup.objects.all(),
+        required=False,
+        widget=forms.Select(
+            attrs={'filter-for': 'cluster', 'nullable': 'true'}
+        )
+    )
+    cluster = ChainedModelChoiceField(
+        queryset=Cluster.objects.all(),
+        chains=(
+            ('group', 'cluster_group'),
+        ),
+        required=False,
+        widget=APISelect(
+            api_url='/api/virtualization/clusters/?group_id={{cluster_group}}',
+        )
+    )
     comments = CommentField()
     tags = TagField(required=False)
     local_context_data = JSONField(required=False)
@@ -828,8 +845,8 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         model = Device
         fields = [
             'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'position', 'face',
-            'status', 'platform', 'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant', 'comments', 'tags',
-            'local_context_data'
+            'status', 'platform', 'primary_ip4', 'primary_ip6', 'cluster_group', 'cluster', 'tenant_group', 'tenant',
+            'comments', 'tags', 'local_context_data'
         ]
         help_texts = {
             'device_role': "The function this device serves",
