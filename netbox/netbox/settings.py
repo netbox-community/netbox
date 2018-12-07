@@ -7,10 +7,10 @@ import warnings
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
 
-# Check for Python 3.5+
-if sys.version_info < (3, 5):
+# Check for Python 3.4+
+if sys.version_info < (3, 4):
     raise RuntimeError(
-        "NetBox requires Python 3.5 or higher (current: Python {})".format(sys.version.split()[0])
+        "NetBox requires Python 3.4 or higher (current: Python {})".format(sys.version.split()[0])
     )
 
 # Check for configuration file
