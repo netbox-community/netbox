@@ -39,6 +39,7 @@ NetBox now supports modeling physical cables for console, power, and interface c
 * [#2367](https://github.com/digitalocean/netbox/issues/2367) - Removed deprecated RPCClient functionality
 * [#2426](https://github.com/digitalocean/netbox/issues/2426) - Introduced `SESSION_FILE_PATH` configuration setting for authentication without write access to database
 * [#2594](https://github.com/digitalocean/netbox/issues/2594) - `upgrade.sh` no longer invokes sudo
+* [#2655](https://github.com/digitalocean/netbox/issues/2655) - Add FibreChannel QSFP28 (4x32GFC) interface form factor
 
 ## Changes From v2.5-beta2
 
