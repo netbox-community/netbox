@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import django_filters
 from django.db.models import Q
 
@@ -16,7 +14,10 @@ class TenantGroupFilter(django_filters.FilterSet):
 
 
 class TenantFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    id__in = NumericInFilter(name='id', lookup_expr='in')
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -26,7 +27,7 @@ class TenantFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Group (ID)',
     )
     group = django_filters.ModelMultipleChoiceFilter(
-        name='group__slug',
+        field_name='group__slug',
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
         label='Group (slug)',

@@ -1,0 +1,36 @@
+{% load helpers %}
+<table class="table table-hover panel-body attr-table">
+    {% if termination.device %}
+        {# Device component #}
+        <tr>
+            <td>Device</td>
+            <td>
+                <a href="{{ termination.device.get_absolute_url }}">{{ termination.device }}</a>
+            </td>
+        </tr>
+        <tr>
+            <td>Type</td>
+            <td>
+                {{ termination|model_name|capfirst }}
+            </td>
+        </tr>
+        <tr>
+            <td>Component</td>
+            <td>{{ termination }}</td>
+        </tr>
+    {% else %}
+        {# Circuit termination #}
+        <tr>
+            <td>Provider</td>
+            <td>
+                <a href="{{ termination.circuit.provider.get_absolute_url }}">{{ termination.circuit.provider }}</a>
+            </td>
+        </tr>
+        <tr>
+            <td>Circuit</td>
+            <td>
+                <a href="{{ termination.circuit.get_absolute_url }}">{{ termination.circuit }}</a> (Side {{ termination.term_side }})
+            </td>
+        </tr>
+    {% endif %}
+</table>

@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.urls import reverse
 from rest_framework import status
 
@@ -14,7 +12,7 @@ class TaggedItemTest(APITestCase):
 
     def setUp(self):
 
-        super(TaggedItemTest, self).setUp()
+        super().setUp()
 
     def test_create_tagged_item(self):
 

@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
@@ -14,7 +12,7 @@ class VRFTest(APITestCase):
 
     def setUp(self):
 
-        super(VRFTest, self).setUp()
+        super().setUp()
 
         self.vrf1 = VRF.objects.create(name='Test VRF 1', rd='65000:1')
         self.vrf2 = VRF.objects.create(name='Test VRF 2', rd='65000:2')
@@ -115,7 +113,7 @@ class RIRTest(APITestCase):
 
     def setUp(self):
 
-        super(RIRTest, self).setUp()
+        super().setUp()
 
         self.rir1 = RIR.objects.create(name='Test RIR 1', slug='test-rir-1')
         self.rir2 = RIR.objects.create(name='Test RIR 2', slug='test-rir-2')
@@ -216,7 +214,7 @@ class AggregateTest(APITestCase):
 
     def setUp(self):
 
-        super(AggregateTest, self).setUp()
+        super().setUp()
 
         self.rir1 = RIR.objects.create(name='Test RIR 1', slug='test-rir-1')
         self.rir2 = RIR.objects.create(name='Test RIR 2', slug='test-rir-2')
@@ -319,7 +317,7 @@ class RoleTest(APITestCase):
 
     def setUp(self):
 
-        super(RoleTest, self).setUp()
+        super().setUp()
 
         self.role1 = Role.objects.create(name='Test Role 1', slug='test-role-1')
         self.role2 = Role.objects.create(name='Test Role 2', slug='test-role-2')
@@ -420,7 +418,7 @@ class PrefixTest(APITestCase):
 
     def setUp(self):
 
-        super(PrefixTest, self).setUp()
+        super().setUp()
 
         self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
         self.vrf1 = VRF.objects.create(name='Test VRF 1', rd='65000:1')
@@ -568,7 +566,7 @@ class PrefixTest(APITestCase):
 
         # Try to create one more prefix
         response = self.client.post(url, {'prefix_length': 30}, **self.header)
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertIn('detail', response.data)
 
     def test_create_multiple_available_prefixes(self):
@@ -585,7 +583,7 @@ class PrefixTest(APITestCase):
             {'prefix_length': 30, 'description': 'Test Prefix 5'},
         ]
         response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertIn('detail', response.data)
 
         # Verify that no prefixes were created (the entire /28 is still available)
@@ -630,7 +628,7 @@ class PrefixTest(APITestCase):
 
         # Try to create one more IP
         response = self.client.post(url, {}, **self.header)
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertIn('detail', response.data)
 
     def test_create_multiple_available_ips(self):
@@ -641,7 +639,7 @@ class PrefixTest(APITestCase):
         # Try to create nine IPs (only eight are available)
         data = [{'description': 'Test IP {}'.format(i)} for i in range(1, 10)]  # 9 IPs
         response = self.client.post(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertIn('detail', response.data)
 
         # Verify that no IPs were created (eight are still available)
@@ -659,7 +657,7 @@ class IPAddressTest(APITestCase):
 
     def setUp(self):
 
-        super(IPAddressTest, self).setUp()
+        super().setUp()
 
         self.vrf1 = VRF.objects.create(name='Test VRF 1', rd='65000:1')
         self.ipaddress1 = IPAddress.objects.create(address=IPNetwork('192.168.0.1/24'))
@@ -758,7 +756,7 @@ class VLANGroupTest(APITestCase):
 
     def setUp(self):
 
-        super(VLANGroupTest, self).setUp()
+        super().setUp()
 
         self.vlangroup1 = VLANGroup.objects.create(name='Test VLAN Group 1', slug='test-vlan-group-1')
         self.vlangroup2 = VLANGroup.objects.create(name='Test VLAN Group 2', slug='test-vlan-group-2')
@@ -859,7 +857,7 @@ class VLANTest(APITestCase):
 
     def setUp(self):
 
-        super(VLANTest, self).setUp()
+        super().setUp()
 
         self.vlan1 = VLAN.objects.create(vid=1, name='Test VLAN 1')
         self.vlan2 = VLAN.objects.create(vid=2, name='Test VLAN 2')
@@ -960,7 +958,7 @@ class ServiceTest(APITestCase):
 
     def setUp(self):
 
-        super(ServiceTest, self).setUp()
+        super().setUp()
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')

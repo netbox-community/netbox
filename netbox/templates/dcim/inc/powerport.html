@@ -1,45 +1,49 @@
-<tr class="powerport{% if pp.power_outlet and not pp.connection_status %} info{% endif %}">
+<tr class="powerport{% if pp.cable.status %} success{% elif pp.cable %} info{% endif %}">
+
+    {# Name #}
     <td>
         <i class="fa fa-fw fa-bolt"></i> {{ pp }}
     </td>
-    {% if pp.power_outlet %}
+
+    {# Cable #}
+    <td>
+        {% if pp.cable %}
+            <a href="{{ pp.cable.get_absolute_url }}">{{ pp.cable }}</a>
+        {% else %}
+            &mdash;
+        {% endif %}
+    </td>
+
+    {# Connection #}
+    {% if pp.connected_endpoint %}
         <td>
-            <a href="{% url 'dcim:device' pk=pp.power_outlet.device.pk %}">{{ pp.power_outlet.device }}</a>
+            <a href="{% url 'dcim:device' pk=pp.connected_endpoint.device.pk %}">{{ pp.connected_endpoint.device }}</a>
         </td>
         <td>
-            {{ pp.power_outlet }}
+            {{ pp.connected_endpoint }}
         </td>
     {% else %}
         <td colspan="2">
             <span class="text-muted">Not connected</span>
         </td>
     {% endif %}
+
+    {# Actions #}
     <td class="text-right">
-        {% if perms.dcim.change_powerport %}
-            {% if pp.power_outlet %}
-                {% if pp.connection_status %}
-                    <a href="#" class="btn btn-warning btn-xs powerport-toggle connected" title="Mark planned" data="{{ pp.pk }}">
-                        <i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>
-                    </a>
-                {% else %}
-                    <a href="#" class="btn btn-success btn-xs powerport-toggle" title="Mark installed" data="{{ pp.pk }}">
-                        <i class="fa fa-plug" aria-hidden="true"></i>
-                    </a>
-                {% endif %}
-            <a href="{% url 'dcim:powerport_disconnect' pk=pp.pk %}" title="Delete connection" class="btn btn-danger btn-xs">
-                <i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i>
+        {% if pp.cable %}
+            {% include 'dcim/inc/cable_toggle_buttons.html' with cable=pp.cable %}
+        {% elif perms.dcim.add_cable %}
+            <a href="{% url 'dcim:powerport_connect' termination_a_id=pp.pk %}?return_url={{ device.get_absolute_url }}" title="Connect" class="btn btn-success btn-xs">
+                <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
             </a>
-            {% else %}
-                <a href="{% url 'dcim:powerport_connect' pk=pp.pk %}" title="Connect" class="btn btn-success btn-xs">
-                    <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
-                </a>
-            {% endif %}
+        {% endif %}
+        {% if perms.dcim.change_powerport %}
             <a href="{% url 'dcim:powerport_edit' pk=pp.pk %}" title="Edit port" class="btn btn-info btn-xs">
                 <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
             </a>
         {% endif %}
         {% if perms.dcim.delete_powerport %}
-            {% if pp.power_outlet %}
+            {% if pp.connected_endpoint %}
                 <button class="btn btn-danger btn-xs" disabled="disabled">
                     <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                 </button>

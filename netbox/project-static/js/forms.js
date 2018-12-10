@@ -91,14 +91,30 @@ $(document).ready(function() {
                 var filter_regex = /\{\{([a-z_]+)\}\}/g;
                 var match;
                 var rendered_url = api_url;
+                var filter_field;
                 while (match = filter_regex.exec(api_url)) {
-                    var filter_field = $('#id_' + match[1]);
-                    if (filter_field.val()) {
+                    filter_field = $('#id_' + match[1]);
+                    var custom_attr = $('option:selected', filter_field).attr('api-value');
+                    if (custom_attr) {
+                        rendered_url = rendered_url.replace(match[0], custom_attr);
+                    } else if (filter_field.val()) {
                         rendered_url = rendered_url.replace(match[0], filter_field.val());
                     } else if (filter_field.attr('nullable') == 'true') {
                         rendered_url = rendered_url.replace(match[0], '0');
                     }
                 }
+
+                // Account for any conditional URL append strings
+                $.each(child_field[0].attributes, function(index, attr){
+                    if (attr.name.includes("data-url-conditional-append-")){
+                        var conditional = attr.name.split("data-url-conditional-append-")[1].split("__");
+                        var field = $("#id_" + conditional[0]);
+                        var field_value = conditional[1];
+                        if ($('option:selected', field).attr('api-value') === field_value){
+                            rendered_url = rendered_url + attr.value;
+                        }
+                    }
+                })
 
                 // If all URL variables have been replaced, make the API call
                 if (rendered_url.search('{{') < 0) {

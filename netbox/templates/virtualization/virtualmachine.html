@@ -116,7 +116,7 @@
                                 <span>(NAT: {{ virtualmachine.primary_ip4.nat_outside.address.ip }})</span>
                             {% endif %}
                         {% else %}
-                            <span class="text-muted">N/A</span>
+                            <span class="text-muted">&mdash;</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -131,7 +131,7 @@
                                 <span>(NAT: {{ virtualmachine.primary_ip6.nat_outside.address.ip }})</span>
                             {% endif %}
                         {% else %}
-                            <span class="text-muted">N/A</span>
+                            <span class="text-muted">&mdash;</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -181,13 +181,7 @@
             <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td><i class="fa fa-tachometer"></i> Virtual CPUs</td>
-                    <td>
-                        {% if virtualmachine.vcpus %}
-                            {{ virtualmachine.vcpus }}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ virtualmachine.vcpus|placeholder }}</td>
                 </tr>
                 <tr>
                     <td><i class="fa fa-microchip"></i> Memory</td>
@@ -195,7 +189,7 @@
                         {% if virtualmachine.memory %}
                             {{ virtualmachine.memory }} MB
                         {% else %}
-                            <span class="text-muted">N/A</span>
+                            <span class="text-muted">&mdash;</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -205,7 +199,7 @@
                         {% if virtualmachine.disk %}
                             {{ virtualmachine.disk }} GB
                         {% else %}
-                            <span class="text-muted">N/A</span>
+                            <span class="text-muted">&mdash;</span>
                         {% endif %}
                     </td>
                 </tr>

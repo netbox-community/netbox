@@ -19,7 +19,7 @@ sudo yum install -y openldap-devel
 ## Install django-auth-ldap
 
 ```no-highlight
-sudo pip install django-auth-ldap
+pip3 install django-auth-ldap
 ```
 
 # Configuration

@@ -39,6 +39,8 @@
                 </div>
                 <div class="list-group-item">
                     <h4 class="list-group-item-heading">Connections</h4>
+                    <span class="badge pull-right">{{ stats.cable_count }}</span>
+                    <p style="padding-left: 20px;"><a href="{% url 'dcim:cable_list' %}">Cables</a></p>
                     <span class="badge pull-right">{{ stats.interface_connections_count }}</span>
                     <p style="padding-left: 20px;"><a href="{% url 'dcim:interface_connections_list' %}">Interfaces</a></p>
                     <span class="badge pull-right">{{ stats.console_connections_count }}</span>

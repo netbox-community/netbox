@@ -160,13 +160,7 @@
                     </tr>
                     <tr>
                         <td>Description</td>
-                        <td>
-                            {% if prefix.description %}
-                                <span>{{ prefix.description }}</span>
-                            {% else %}
-                                <span class="text-muted">N/A</span>
-                            {% endif %}
-                        </td>
+                        <td>{{ prefix.description|placeholder }}</td>
                     </tr>
                     <tr>
                         <td>Is a pool</td>

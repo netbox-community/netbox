@@ -1,9 +1,7 @@
-from __future__ import unicode_literals
-
 import django_filters
+import netaddr
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-import netaddr
 from netaddr.core import AddrFormatError
 
 from dcim.models import Site, Device, Interface
@@ -16,7 +14,10 @@ from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLAN
 
 
 class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    id__in = NumericInFilter(name='id', lookup_expr='in')
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -26,7 +27,7 @@ class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Tenant (ID)',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
-        name='tenant__slug',
+        field_name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
@@ -48,7 +49,10 @@ class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
 
 class RIRFilter(django_filters.FilterSet):
-    id__in = NumericInFilter(name='id', lookup_expr='in')
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
 
     class Meta:
         model = RIR
@@ -56,7 +60,10 @@ class RIRFilter(django_filters.FilterSet):
 
 
 class AggregateFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    id__in = NumericInFilter(name='id', lookup_expr='in')
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -66,7 +73,7 @@ class AggregateFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='RIR (ID)',
     )
     rir = django_filters.ModelMultipleChoiceFilter(
-        name='rir__slug',
+        field_name='rir__slug',
         queryset=RIR.objects.all(),
         to_field_name='slug',
         label='RIR (slug)',
@@ -97,7 +104,10 @@ class RoleFilter(django_filters.FilterSet):
 
 
 class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    id__in = NumericInFilter(name='id', lookup_expr='in')
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -123,7 +133,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='VRF',
     )
     vrf = django_filters.ModelMultipleChoiceFilter(
-        name='vrf__rd',
+        field_name='vrf__rd',
         queryset=VRF.objects.all(),
         to_field_name='rd',
         label='VRF (RD)',
@@ -133,7 +143,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Tenant (ID)',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
-        name='tenant__slug',
+        field_name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
@@ -143,7 +153,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='site__slug',
+        field_name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
@@ -153,7 +163,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='VLAN (ID)',
     )
     vlan_vid = django_filters.NumberFilter(
-        name='vlan__vid',
+        field_name='vlan__vid',
         label='VLAN number (1-4095)',
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
@@ -161,7 +171,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Role (ID)',
     )
     role = django_filters.ModelMultipleChoiceFilter(
-        name='role__slug',
+        field_name='role__slug',
         queryset=Role.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
@@ -228,7 +238,10 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
 
 class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    id__in = NumericInFilter(name='id', lookup_expr='in')
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -250,7 +263,7 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='VRF',
     )
     vrf = django_filters.ModelMultipleChoiceFilter(
-        name='vrf__rd',
+        field_name='vrf__rd',
         queryset=VRF.objects.all(),
         to_field_name='rd',
         label='VRF (RD)',
@@ -260,28 +273,28 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Tenant (ID)',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
-        name='tenant__slug',
+        field_name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
     )
     device = django_filters.CharFilter(
         method='filter_device',
-        name='name',
+        field_name='name',
         label='Device',
     )
     device_id = django_filters.NumberFilter(
         method='filter_device',
-        name='pk',
+        field_name='pk',
         label='Device (ID)',
     )
     virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
-        name='interface__virtual_machine',
+        field_name='interface__virtual_machine',
         queryset=VirtualMachine.objects.all(),
         label='Virtual machine (ID)',
     )
     virtual_machine = django_filters.ModelMultipleChoiceFilter(
-        name='interface__virtual_machine__name',
+        field_name='interface__virtual_machine__name',
         queryset=VirtualMachine.objects.all(),
         to_field_name='name',
         label='Virtual machine (name)',
@@ -353,7 +366,7 @@ class VLANGroupFilter(django_filters.FilterSet):
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='site__slug',
+        field_name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
@@ -365,7 +378,10 @@ class VLANGroupFilter(django_filters.FilterSet):
 
 
 class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
-    id__in = NumericInFilter(name='id', lookup_expr='in')
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -375,7 +391,7 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Site (ID)',
     )
     site = django_filters.ModelMultipleChoiceFilter(
-        name='site__slug',
+        field_name='site__slug',
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site (slug)',
@@ -385,7 +401,7 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Group (ID)',
     )
     group = django_filters.ModelMultipleChoiceFilter(
-        name='group__slug',
+        field_name='group__slug',
         queryset=VLANGroup.objects.all(),
         to_field_name='slug',
         label='Group',
@@ -395,7 +411,7 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Tenant (ID)',
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
-        name='tenant__slug',
+        field_name='tenant__slug',
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         label='Tenant (slug)',
@@ -405,7 +421,7 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         label='Role (ID)',
     )
     role = django_filters.ModelMultipleChoiceFilter(
-        name='role__slug',
+        field_name='role__slug',
         queryset=Role.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
@@ -441,7 +457,7 @@ class ServiceFilter(django_filters.FilterSet):
         label='Device (ID)',
     )
     device = django_filters.ModelMultipleChoiceFilter(
-        name='device__name',
+        field_name='device__name',
         queryset=Device.objects.all(),
         to_field_name='name',
         label='Device (name)',
@@ -451,7 +467,7 @@ class ServiceFilter(django_filters.FilterSet):
         label='Virtual machine (ID)',
     )
     virtual_machine = django_filters.ModelMultipleChoiceFilter(
-        name='virtual_machine__name',
+        field_name='virtual_machine__name',
         queryset=VirtualMachine.objects.all(),
         to_field_name='name',
         label='Virtual machine (name)',

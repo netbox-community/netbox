@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.admin import AdminSite
-from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
+from django.contrib.auth.models import Group, User
 from taggit.admin import TagAdmin
 from taggit.models import Tag
 

@@ -70,13 +70,7 @@
                 </tr>
                 <tr>
                     <td>Description</td>
-                    <td>
-                        {% if service.description %}
-                            {{ service.description }}
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ service.description|placeholder }}</td>
                 </tr>
 		    </table>
         </div>

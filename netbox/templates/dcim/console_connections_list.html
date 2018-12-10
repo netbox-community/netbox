@@ -3,9 +3,6 @@
 
 {% block content %}
 <div class="pull-right">
-    {% if perms.dcim.change_consoleport %}
-        {% import_button 'dcim:console_connections_import' %}
-    {% endif %}
     {% export_button content_type %}
 </div>
 <h1>{% block title %}Console Connections{% endblock %}</h1>

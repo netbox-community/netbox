@@ -76,10 +76,7 @@
         "model": "MX960",
         "slug": "mx960",
         "u_height": 16,
-        "is_full_depth": true,
-        "is_console_server": false,
-        "is_pdu": false,
-        "is_network_device": true
+        "is_full_depth": true
     }
 },
 {
@@ -92,10 +89,7 @@
         "model": "EX9214",
         "slug": "ex9214",
         "u_height": 16,
-        "is_full_depth": true,
-        "is_console_server": false,
-        "is_pdu": false,
-        "is_network_device": true
+        "is_full_depth": true
     }
 },
 {
@@ -108,10 +102,7 @@
         "model": "QFX5100-24Q",
         "slug": "qfx5100-24q",
         "u_height": 1,
-        "is_full_depth": true,
-        "is_console_server": false,
-        "is_pdu": false,
-        "is_network_device": true
+        "is_full_depth": true
     }
 },
 {
@@ -124,10 +115,7 @@
         "model": "QFX5100-48S",
         "slug": "qfx5100-48s",
         "u_height": 1,
-        "is_full_depth": true,
-        "is_console_server": false,
-        "is_pdu": false,
-        "is_network_device": true
+        "is_full_depth": true
     }
 },
 {
@@ -140,10 +128,7 @@
         "model": "CM4148",
         "slug": "cm4148",
         "u_height": 1,
-        "is_full_depth": true,
-        "is_console_server": true,
-        "is_pdu": false,
-        "is_network_device": false
+        "is_full_depth": true
     }
 },
 {
@@ -156,10 +141,7 @@
         "model": "CWG-24VYM415C9",
         "slug": "cwg-24vym415c9",
         "u_height": 0,
-        "is_full_depth": false,
-        "is_console_server": false,
-        "is_pdu": true,
-        "is_network_device": false
+        "is_full_depth": false
     }
 },
 {
@@ -1903,8 +1885,7 @@
     "pk": 1,
     "fields": {
         "name": "Juniper Junos",
-        "slug": "juniper-junos",
-        "rpc_client": "juniper-junos"
+        "slug": "juniper-junos"
     }
 },
 {
@@ -1912,8 +1893,7 @@
     "pk": 2,
     "fields": {
         "name": "Opengear",
-        "slug": "opengear",
-        "rpc_client": "opengear"
+        "slug": "opengear"
     }
 },
 {
@@ -2153,7 +2133,7 @@
     "fields": {
         "device": 1,
         "name": "Console (RE0)",
-        "cs_port": 27,
+        "connected_endpoint": 27,
         "connection_status": true
     }
 },
@@ -2163,7 +2143,7 @@
     "fields": {
         "device": 1,
         "name": "Console (RE1)",
-        "cs_port": 38,
+        "connected_endpoint": 38,
         "connection_status": true
     }
 },
@@ -2173,7 +2153,7 @@
     "fields": {
         "device": 2,
         "name": "Console (RE0)",
-        "cs_port": 5,
+        "connected_endpoint": 5,
         "connection_status": true
     }
 },
@@ -2183,7 +2163,7 @@
     "fields": {
         "device": 2,
         "name": "Console (RE1)",
-        "cs_port": 16,
+        "connected_endpoint": 16,
         "connection_status": true
     }
 },
@@ -2193,7 +2173,7 @@
     "fields": {
         "device": 3,
         "name": "Console",
-        "cs_port": 49,
+        "connected_endpoint": 49,
         "connection_status": true
     }
 },
@@ -2203,7 +2183,7 @@
     "fields": {
         "device": 4,
         "name": "Console",
-        "cs_port": 48,
+        "connected_endpoint": 48,
         "connection_status": true
     }
 },
@@ -2213,7 +2193,7 @@
     "fields": {
         "device": 5,
         "name": "Console",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2223,7 +2203,7 @@
     "fields": {
         "device": 6,
         "name": "Console",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2233,7 +2213,7 @@
     "fields": {
         "device": 7,
         "name": "Console (RE0)",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2243,7 +2223,7 @@
     "fields": {
         "device": 7,
         "name": "Console (RE1)",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2253,7 +2233,7 @@
     "fields": {
         "device": 8,
         "name": "Console (RE0)",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2263,7 +2243,7 @@
     "fields": {
         "device": 8,
         "name": "Console (RE1)",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2273,7 +2253,7 @@
     "fields": {
         "device": 9,
         "name": "Console",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2283,7 +2263,7 @@
     "fields": {
         "device": 11,
         "name": "Serial",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2293,7 +2273,7 @@
     "fields": {
         "device": 12,
         "name": "Serial",
-        "cs_port": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2687,7 +2667,7 @@
     "fields": {
         "device": 1,
         "name": "PEM0",
-        "power_outlet": 25,
+        "connected_endpoint": 25,
         "connection_status": true
     }
 },
@@ -2697,7 +2677,7 @@
     "fields": {
         "device": 1,
         "name": "PEM1",
-        "power_outlet": 49,
+        "connected_endpoint": 49,
         "connection_status": true
     }
 },
@@ -2707,7 +2687,7 @@
     "fields": {
         "device": 1,
         "name": "PEM2",
-        "power_outlet": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2717,7 +2697,7 @@
     "fields": {
         "device": 1,
         "name": "PEM3",
-        "power_outlet": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2727,7 +2707,7 @@
     "fields": {
         "device": 2,
         "name": "PEM0",
-        "power_outlet": 26,
+        "connected_endpoint": 26,
         "connection_status": true
     }
 },
@@ -2737,7 +2717,7 @@
     "fields": {
         "device": 2,
         "name": "PEM1",
-        "power_outlet": 50,
+        "connected_endpoint": 50,
         "connection_status": true
     }
 },
@@ -2747,7 +2727,7 @@
     "fields": {
         "device": 2,
         "name": "PEM2",
-        "power_outlet": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2757,7 +2737,7 @@
     "fields": {
         "device": 2,
         "name": "PEM3",
-        "power_outlet": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2767,7 +2747,7 @@
     "fields": {
         "device": 4,
         "name": "PSU0",
-        "power_outlet": 28,
+        "connected_endpoint": 28,
         "connection_status": true
     }
 },
@@ -2777,7 +2757,7 @@
     "fields": {
         "device": 4,
         "name": "PSU1",
-        "power_outlet": 52,
+        "connected_endpoint": 52,
         "connection_status": true
     }
 },
@@ -2787,7 +2767,7 @@
     "fields": {
         "device": 5,
         "name": "PSU0",
-        "power_outlet": 56,
+        "connected_endpoint": 56,
         "connection_status": true
     }
 },
@@ -2797,7 +2777,7 @@
     "fields": {
         "device": 5,
         "name": "PSU1",
-        "power_outlet": 32,
+        "connected_endpoint": 32,
         "connection_status": true
     }
 },
@@ -2807,7 +2787,7 @@
     "fields": {
         "device": 3,
         "name": "PSU0",
-        "power_outlet": 27,
+        "connected_endpoint": 27,
         "connection_status": true
     }
 },
@@ -2817,7 +2797,7 @@
     "fields": {
         "device": 3,
         "name": "PSU1",
-        "power_outlet": 51,
+        "connected_endpoint": 51,
         "connection_status": true
     }
 },
@@ -2827,7 +2807,7 @@
     "fields": {
         "device": 7,
         "name": "PEM0",
-        "power_outlet": 53,
+        "connected_endpoint": 53,
         "connection_status": true
     }
 },
@@ -2837,7 +2817,7 @@
     "fields": {
         "device": 7,
         "name": "PEM1",
-        "power_outlet": 29,
+        "connected_endpoint": 29,
         "connection_status": true
     }
 },
@@ -2847,7 +2827,7 @@
     "fields": {
         "device": 7,
         "name": "PEM2",
-        "power_outlet": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2857,7 +2837,7 @@
     "fields": {
         "device": 7,
         "name": "PEM3",
-        "power_outlet": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2867,7 +2847,7 @@
     "fields": {
         "device": 8,
         "name": "PEM0",
-        "power_outlet": 54,
+        "connected_endpoint": 54,
         "connection_status": true
     }
 },
@@ -2877,7 +2857,7 @@
     "fields": {
         "device": 8,
         "name": "PEM1",
-        "power_outlet": 30,
+        "connected_endpoint": 30,
         "connection_status": true
     }
 },
@@ -2887,7 +2867,7 @@
     "fields": {
         "device": 8,
         "name": "PEM2",
-        "power_outlet": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2897,7 +2877,7 @@
     "fields": {
         "device": 8,
         "name": "PEM3",
-        "power_outlet": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -2907,7 +2887,7 @@
     "fields": {
         "device": 6,
         "name": "PSU0",
-        "power_outlet": 55,
+        "connected_endpoint": 55,
         "connection_status": true
     }
 },
@@ -2917,7 +2897,7 @@
     "fields": {
         "device": 6,
         "name": "PSU1",
-        "power_outlet": 31,
+        "connected_endpoint": 31,
         "connection_status": true
     }
 },
@@ -2927,7 +2907,7 @@
     "fields": {
         "device": 9,
         "name": "PSU",
-        "power_outlet": null,
+        "connected_endpoint": null,
         "connection_status": true
     }
 },
@@ -5747,159 +5727,6 @@
         "form_factor": 800,
         "mgmt_only": true,
         "description": ""
-    }
-},
-{
-    "model": "dcim.interfaceconnection",
-    "pk": 3,
-    "fields": {
-        "interface_a": 99,
-        "interface_b": 15,
-        "connection_status": true
-    }
-},
-{
-    "model": "dcim.interfaceconnection",
-    "pk": 4,
-    "fields": {
-        "interface_a": 100,
-        "interface_b": 153,
-        "connection_status": true
-    }
-},
-{
-    "model": "dcim.interfaceconnection",
-    "pk": 5,
-    "fields": {
-        "interface_a": 46,
-        "interface_b": 14,
-        "connection_status": true
-    }
-},
-{
-    "model": "dcim.interfaceconnection",
-    "pk": 6,
-    "fields": {
-        "interface_a": 47,
-        "interface_b": 152,
-        "connection_status": true
-    }
-},
-{
-    "model": "dcim.interfaceconnection",
-    "pk": 7,
-    "fields": {
-        "interface_a": 91,
-        "interface_b": 144,
-        "connection_status": true
-    }
-},
-{
-    "model": "dcim.interfaceconnection",
-    "pk": 8,
-    "fields": {
-        "interface_a": 92,
-        "interface_b": 145,
-        "connection_status": true
-    }
-},
-{
-    "model": "dcim.interfaceconnection",
-    "pk": 16,
-    "fields": {
-        "interface_a": 189,
-        "interface_b": 37,
-        "connection_status": true
-    }
-},
-{
-    "model": "dcim.interfaceconnection",
-    "pk": 17,
-    "fields": {
-        "interface_a": 192,
-        "interface_b": 175,
-        "connection_status": true
-    }
-},
-{
-    "model": "dcim.interfaceconnection",
-    "pk": 18,
-    "fields": {
-        "interface_a": 195,
-        "interface_b": 41,
-        "connection_status": true
-    }
-},
-{
-    "model": "dcim.interfaceconnection",
-    "pk": 19,
-    "fields": {
-        "interface_a": 198,
-        "interface_b": 179,
-        "connection_status": true
-    }
-},
-{
-    "model": "dcim.interfaceconnection",
-    "pk": 20,
-    "fields": {
-        "interface_a": 191,
-        "interface_b": 197,
-        "connection_status": true
-    }
-},
-{
-    "model": "dcim.interfaceconnection",
-    "pk": 21,
-    "fields": {
-        "interface_a": 194,
-        "interface_b": 200,
-        "connection_status": true
-    }
-},
-{
-    "model": "dcim.interfaceconnection",
-    "pk": 22,
-    "fields": {
-        "interface_a": 9,
-        "interface_b": 218,
-        "connection_status": true
-    }
-},
-{
-    "model": "dcim.interfaceconnection",
-    "pk": 23,
-    "fields": {
-        "interface_a": 8,
-        "interface_b": 206,
-        "connection_status": true
-    }
-},
-{
-    "model": "dcim.interfaceconnection",
-    "pk": 24,
-    "fields": {
-        "interface_a": 7,
-        "interface_b": 212,
-        "connection_status": true
-    }
-},
-{
-    "model": "dcim.interfaceconnection",
-    "pk": 25,
-    "fields": {
-        "interface_a": 217,
-        "interface_b": 205,
-        "connection_status": true
-    }
-},
-{
-    "model": "dcim.interfaceconnection",
-    "pk": 26,
-    "fields": {
-        "interface_a": 216,
-        "interface_b": 211,
-        "connection_status": true
     }
 }
 ]

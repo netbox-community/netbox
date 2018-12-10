@@ -1,8 +1,8 @@
 import hashlib
 import hmac
-import requests
 import json
 
+import requests
 from django_rq import job
 from rest_framework.utils.encoders import JSONEncoder
 

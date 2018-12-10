@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from datetime import date
 
 from django.contrib.contenttypes.models import ContentType
@@ -103,7 +101,7 @@ class CustomFieldAPITest(APITestCase):
 
     def setUp(self):
 
-        super(CustomFieldAPITest, self).setUp()
+        super().setUp()
 
         content_type = ContentType.objects.get_for_model(Site)
 

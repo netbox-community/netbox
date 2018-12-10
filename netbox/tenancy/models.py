@@ -1,16 +1,12 @@
-from __future__ import unicode_literals
-
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
-from django.utils.encoding import python_2_unicode_compatible
 from taggit.managers import TaggableManager
 
 from extras.models import CustomFieldModel
 from utilities.models import ChangeLoggedModel
 
 
-@python_2_unicode_compatible
 class TenantGroup(ChangeLoggedModel):
     """
     An arbitrary collection of Tenants.
@@ -41,7 +37,6 @@ class TenantGroup(ChangeLoggedModel):
         )
 
 
-@python_2_unicode_compatible
 class Tenant(ChangeLoggedModel, CustomFieldModel):
     """
     A Tenant represents an organization served by the NetBox owner. This is typically a customer or an internal

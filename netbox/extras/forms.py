@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from collections import OrderedDict
 
 from django import forms
@@ -104,7 +102,7 @@ class CustomFieldForm(forms.ModelForm):
         self.custom_fields = []
         self.obj_type = ContentType.objects.get_for_model(self._meta.model)
 
-        super(CustomFieldForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Add all applicable CustomFields to the form
         custom_fields = []
@@ -140,7 +138,7 @@ class CustomFieldForm(forms.ModelForm):
             cfv.save()
 
     def save(self, commit=True):
-        obj = super(CustomFieldForm, self).save(commit)
+        obj = super().save(commit)
 
         # Handle custom fields the same way we do M2M fields
         if commit:
@@ -154,7 +152,7 @@ class CustomFieldForm(forms.ModelForm):
 class CustomFieldBulkEditForm(BulkEditForm):
 
     def __init__(self, *args, **kwargs):
-        super(CustomFieldBulkEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.custom_fields = []
         self.obj_type = ContentType.objects.get_for_model(self.model)
@@ -177,7 +175,7 @@ class CustomFieldFilterForm(forms.Form):
 
         self.obj_type = ContentType.objects.get_for_model(self.model)
 
-        super(CustomFieldFilterForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Add all applicable CustomFields to the form
         custom_fields = get_custom_fields_for_model(self.obj_type, filterable_only=True).items()
@@ -195,13 +193,15 @@ class TagForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = Tag
-        fields = ['name', 'slug']
+        fields = [
+            'name', 'slug',
+        ]
 
 
 class AddRemoveTagsForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
-        super(AddRemoveTagsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Add add/remove tags fields
         self.fields['add_tags'] = TagField(required=False)
@@ -210,7 +210,10 @@ class AddRemoveTagsForm(forms.Form):
 
 class TagFilterForm(BootstrapMixin, forms.Form):
     model = Tag
-    q = forms.CharField(required=False, label='Search')
+    q = forms.CharField(
+        required=False,
+        label='Search'
+    )
 
 
 #
@@ -251,7 +254,9 @@ class ConfigContextBulkEditForm(BootstrapMixin, BulkEditForm):
     )
 
     class Meta:
-        nullable_fields = ['description']
+        nullable_fields = [
+            'description',
+        ]
 
 
 class ConfigContextFilterForm(BootstrapMixin, forms.Form):
@@ -293,7 +298,9 @@ class ImageAttachmentForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = ImageAttachment
-        fields = ['name', 'image']
+        fields = [
+            'name', 'image',
+        ]
 
 
 #

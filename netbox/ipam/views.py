@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import netaddr
 from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -338,7 +336,7 @@ class AggregateView(View):
             prefix_table.columns.show('pk')
 
         paginate = {
-            'klass': EnhancedPaginator,
+            'paginator_class': EnhancedPaginator,
             'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
         }
         RequestConfig(request, paginate).configure(prefix_table)
@@ -514,7 +512,7 @@ class PrefixPrefixesView(View):
             prefix_table.columns.show('pk')
 
         paginate = {
-            'klass': EnhancedPaginator,
+            'paginator_class': EnhancedPaginator,
             'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
         }
         RequestConfig(request, paginate).configure(prefix_table)
@@ -553,7 +551,7 @@ class PrefixIPAddressesView(View):
             ip_table.columns.show('pk')
 
         paginate = {
-            'klass': EnhancedPaginator,
+            'paginator_class': EnhancedPaginator,
             'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
         }
         RequestConfig(request, paginate).configure(ip_table)
@@ -717,7 +715,7 @@ class IPAddressAssignView(PermissionRequiredMixin, View):
         if 'interface' not in request.GET:
             return redirect('ipam:ipaddress_add')
 
-        return super(IPAddressAssignView, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
 
@@ -842,7 +840,7 @@ class VLANGroupVLANsView(View):
         vlan_table.columns.hide('group')
 
         paginate = {
-            'klass': EnhancedPaginator,
+            'paginator_class': EnhancedPaginator,
             'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
         }
         RequestConfig(request, paginate).configure(vlan_table)
@@ -901,7 +899,7 @@ class VLANMembersView(View):
         members_table = tables.VLANMemberTable(members)
 
         paginate = {
-            'klass': EnhancedPaginator,
+            'paginator_class': EnhancedPaginator,
             'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
         }
         RequestConfig(request, paginate).configure(members_table)

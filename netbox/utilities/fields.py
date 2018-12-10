@@ -1,10 +1,7 @@
-from __future__ import unicode_literals
-
 from django.core.validators import RegexValidator
 from django.db import models
 
 from .forms import ColorSelect
-
 
 ColorValidator = RegexValidator(
     regex='^[0-9a-f]{6}$',
@@ -31,8 +28,8 @@ class ColorField(models.CharField):
 
     def __init__(self, *args, **kwargs):
         kwargs['max_length'] = 6
-        super(ColorField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def formfield(self, **kwargs):
         kwargs['widget'] = ColorSelect
-        return super(ColorField, self).formfield(**kwargs)
+        return super().formfield(**kwargs)

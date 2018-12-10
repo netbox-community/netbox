@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.contrib import messages
 from django.utils.html import escape
 from django.utils.safestring import mark_safe

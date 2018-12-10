@@ -133,6 +133,14 @@ Setting this to True will permit only authenticated users to access any part of 
 
 ---
 
+## LOGIN_TIMEOUT
+
+Default: 1209600 seconds (14 days)
+
+The liftetime (in seconds) of the authentication cookie issued to a NetBox user upon login.
+
+---
+
 ## MAINTENANCE_MODE
 
 Default: False
@@ -220,6 +228,14 @@ When determining the primary IP address for a device, IPv6 is preferred over IPv
 Default: $BASE_DIR/netbox/reports/
 
 The file path to the location where custom reports will be kept. By default, this is the `netbox/reports/` directory within the base NetBox installation path.
+
+---
+
+## SESSION_FILE_PATH
+
+Default: None
+
+Session data is used to track authenticated users when they access NetBox. By default, NetBox stores session data in the PostgreSQL database. However, this inhibits authentication to a standby instance of NetBox without write access to the database. Alternatively, a local file path may be specified here and NetBox will store session data as files instead of using the database. Note that the user as which NetBox runs must have read and write permissions to this path.
 
 ---
 

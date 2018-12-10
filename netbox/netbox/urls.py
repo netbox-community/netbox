@@ -1,10 +1,8 @@
-from __future__ import unicode_literals
-
 from django.conf import settings
 from django.conf.urls import include, url
 from django.views.static import serve
-from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
 
 from netbox.views import APIRootView, HomeView, SearchView
 from users.views import LoginView, LogoutView

@@ -1,17 +1,16 @@
-from __future__ import unicode_literals
-
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
-from dcim.api.serializers import NestedDeviceSerializer
+from dcim.api.nested_serializers import NestedDeviceSerializer
 from extras.api.customfields import CustomFieldModelSerializer
 from secrets.models import Secret, SecretRole
-from utilities.api import ValidatedModelSerializer, WritableNestedSerializer
+from utilities.api import ValidatedModelSerializer
+from .nested_serializers import *
 
 
 #
-# SecretRoles
+# Secrets
 #
 
 class SecretRoleSerializer(ValidatedModelSerializer):
@@ -20,18 +19,6 @@ class SecretRoleSerializer(ValidatedModelSerializer):
         model = SecretRole
         fields = ['id', 'name', 'slug']
 
-
-class NestedSecretRoleSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='secrets-api:secretrole-detail')
-
-    class Meta:
-        model = SecretRole
-        fields = ['id', 'url', 'name', 'slug']
-
-
-#
-# Secrets
-#
 
 class SecretSerializer(TaggitSerializer, CustomFieldModelSerializer):
     device = NestedDeviceSerializer()
@@ -62,6 +49,6 @@ class SecretSerializer(TaggitSerializer, CustomFieldModelSerializer):
             validator(data)
 
         # Enforce model validation
-        super(SecretSerializer, self).validate(data)
+        super().validate(data)
 
         return data

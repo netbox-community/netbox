@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import django_tables2 as tables
 
 from utilities.tables import BaseTable, ToggleColumn

@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from collections import OrderedDict
 from datetime import date
 
@@ -10,12 +8,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.core.validators import ValidationError
 from django.db import models
-from django.db.models import Q
+from django.db.models import F, Q
 from django.http import HttpResponse
 from django.template import Template, Context
 from django.urls import reverse
-from django.utils.encoding import python_2_unicode_compatible
-from django.utils.safestring import mark_safe
 
 from dcim.constants import CONNECTION_STATUS_CONNECTED
 from utilities.utils import deepmerge, foreground_color
@@ -27,7 +23,6 @@ from .querysets import ConfigContextQuerySet
 # Webhooks
 #
 
-@python_2_unicode_compatible
 class Webhook(models.Model):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
@@ -136,7 +131,6 @@ class CustomFieldModel(models.Model):
             return OrderedDict([(field, None) for field in fields])
 
 
-@python_2_unicode_compatible
 class CustomField(models.Model):
     obj_type = models.ManyToManyField(
         to=ContentType,
@@ -227,7 +221,6 @@ class CustomField(models.Model):
         return serialized_value
 
 
-@python_2_unicode_compatible
 class CustomFieldValue(models.Model):
     field = models.ForeignKey(
         to='extras.CustomField',
@@ -268,10 +261,9 @@ class CustomFieldValue(models.Model):
         if self.pk and self.value is None:
             self.delete()
         else:
-            super(CustomFieldValue, self).save(*args, **kwargs)
+            super().save(*args, **kwargs)
 
 
-@python_2_unicode_compatible
 class CustomFieldChoice(models.Model):
     field = models.ForeignKey(
         to='extras.CustomField',
@@ -301,7 +293,7 @@ class CustomFieldChoice(models.Model):
     def delete(self, using=None, keep_parents=False):
         # When deleting a CustomFieldChoice, delete all CustomFieldValues which point to it
         pk = self.pk
-        super(CustomFieldChoice, self).delete(using, keep_parents)
+        super().delete(using, keep_parents)
         CustomFieldValue.objects.filter(field__type=CF_TYPE_SELECT, serialized_value=str(pk)).delete()
 
 
@@ -309,7 +301,6 @@ class CustomFieldChoice(models.Model):
 # Graphs
 #
 
-@python_2_unicode_compatible
 class Graph(models.Model):
     type = models.PositiveSmallIntegerField(
         choices=GRAPH_TYPE_CHOICES
@@ -351,7 +342,6 @@ class Graph(models.Model):
 # Export templates
 #
 
-@python_2_unicode_compatible
 class ExportTemplate(models.Model):
     content_type = models.ForeignKey(
         to=ContentType,
@@ -410,7 +400,6 @@ class ExportTemplate(models.Model):
 # Topology maps
 #
 
-@python_2_unicode_compatible
 class TopologyMap(models.Model):
     name = models.CharField(
         max_length=50,
@@ -515,18 +504,22 @@ class TopologyMap(models.Model):
     def add_network_connections(self, devices):
 
         from circuits.models import CircuitTermination
-        from dcim.models import InterfaceConnection
+        from dcim.models import Interface
 
         # Add all interface connections to the graph
-        connections = InterfaceConnection.objects.filter(
-            interface_a__device__in=devices, interface_b__device__in=devices
+        connected_interfaces = Interface.objects.select_related(
+            '_connected_interface__device'
+        ).filter(
+            Q(device__in=devices) | Q(_connected_interface__device__in=devices),
+            _connected_interface__isnull=False,
+            pk__lt=F('_connected_interface')
         )
-        for c in connections:
-            style = 'solid' if c.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
-            self.graph.edge(c.interface_a.device.name, c.interface_b.device.name, style=style)
+        for interface in connected_interfaces:
+            style = 'solid' if interface.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
+            self.graph.edge(interface.device.name, interface.connected_endpoint.device.name, style=style)
 
         # Add all circuits to the graph
-        for termination in CircuitTermination.objects.filter(term_side='A', interface__device__in=devices):
+        for termination in CircuitTermination.objects.filter(term_side='A', connected_endpoint__device__in=devices):
             peer_termination = termination.get_peer_termination()
             if (peer_termination is not None and peer_termination.interface is not None and
                     peer_termination.interface.device in devices):
@@ -537,20 +530,18 @@ class TopologyMap(models.Model):
         from dcim.models import ConsolePort
 
         # Add all console connections to the graph
-        console_ports = ConsolePort.objects.filter(device__in=devices, cs_port__device__in=devices)
-        for cp in console_ports:
+        for cp in ConsolePort.objects.filter(device__in=devices, connected_endpoint__device__in=devices):
             style = 'solid' if cp.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
-            self.graph.edge(cp.cs_port.device.name, cp.device.name, style=style)
+            self.graph.edge(cp.connected_endpoint.device.name, cp.device.name, style=style)
 
     def add_power_connections(self, devices):
 
         from dcim.models import PowerPort
 
         # Add all power connections to the graph
-        power_ports = PowerPort.objects.filter(device__in=devices, power_outlet__device__in=devices)
-        for pp in power_ports:
+        for pp in PowerPort.objects.filter(device__in=devices, connected_endpoint__device__in=devices):
             style = 'solid' if pp.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
-            self.graph.edge(pp.power_outlet.device.name, pp.device.name, style=style)
+            self.graph.edge(pp.connected_endpoint.device.name, pp.device.name, style=style)
 
 
 #
@@ -571,7 +562,6 @@ def image_upload(instance, filename):
     return '{}{}_{}_{}'.format(path, instance.content_type.name, instance.object_id, filename)
 
 
-@python_2_unicode_compatible
 class ImageAttachment(models.Model):
     """
     An uploaded image which is associated with an object.
@@ -613,7 +603,7 @@ class ImageAttachment(models.Model):
 
         _name = self.image.name
 
-        super(ImageAttachment, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
         # Delete file from disk
         self.image.delete(save=False)
@@ -769,7 +759,6 @@ class ReportResult(models.Model):
 # Change logging
 #
 
-@python_2_unicode_compatible
 class ObjectChange(models.Model):
     """
     Record a change to an object and the user account associated with that change. A change record may optionally
@@ -852,7 +841,7 @@ class ObjectChange(models.Model):
         self.user_name = self.user.username
         self.object_repr = str(self.changed_object)
 
-        return super(ObjectChange, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('extras:objectchange', args=[self.pk])
@@ -871,101 +860,3 @@ class ObjectChange(models.Model):
             self.object_repr,
             self.object_data,
         )
-
-
-#
-# User actions
-#
-
-class UserActionManager(models.Manager):
-
-    # Actions affecting a single object
-    def log_action(self, user, obj, action, message):
-        self.model.objects.create(
-            content_type=ContentType.objects.get_for_model(obj),
-            object_id=obj.pk,
-            user=user,
-            action=action,
-            message=message,
-        )
-
-    def log_create(self, user, obj, message=''):
-        self.log_action(user, obj, ACTION_CREATE, message)
-
-    def log_edit(self, user, obj, message=''):
-        self.log_action(user, obj, ACTION_EDIT, message)
-
-    def log_delete(self, user, obj, message=''):
-        self.log_action(user, obj, ACTION_DELETE, message)
-
-    # Actions affecting multiple objects
-    def log_bulk_action(self, user, content_type, action, message):
-        self.model.objects.create(
-            content_type=content_type,
-            user=user,
-            action=action,
-            message=message,
-        )
-
-    def log_import(self, user, content_type, message=''):
-        self.log_bulk_action(user, content_type, ACTION_IMPORT, message)
-
-    def log_bulk_create(self, user, content_type, message=''):
-        self.log_bulk_action(user, content_type, ACTION_BULK_CREATE, message)
-
-    def log_bulk_edit(self, user, content_type, message=''):
-        self.log_bulk_action(user, content_type, ACTION_BULK_EDIT, message)
-
-    def log_bulk_delete(self, user, content_type, message=''):
-        self.log_bulk_action(user, content_type, ACTION_BULK_DELETE, message)
-
-
-# TODO: Remove UserAction, which has been replaced by ObjectChange.
-@python_2_unicode_compatible
-class UserAction(models.Model):
-    """
-    DEPRECATED: A record of an action (add, edit, or delete) performed on an object by a User.
-    """
-    time = models.DateTimeField(
-        auto_now_add=True,
-        editable=False
-    )
-    user = models.ForeignKey(
-        to=User,
-        on_delete=models.CASCADE,
-        related_name='actions'
-    )
-    content_type = models.ForeignKey(
-        to=ContentType,
-        on_delete=models.CASCADE
-    )
-    object_id = models.PositiveIntegerField(
-        blank=True,
-        null=True
-    )
-    action = models.PositiveSmallIntegerField(
-        choices=ACTION_CHOICES
-    )
-    message = models.TextField(
-        blank=True
-    )
-
-    objects = UserActionManager()
-
-    class Meta:
-        ordering = ['-time']
-
-    def __str__(self):
-        if self.message:
-            return '{} {}'.format(self.user, self.message)
-        return '{} {} {}'.format(self.user, self.get_action_display(), self.content_type)
-
-    def icon(self):
-        if self.action in [ACTION_CREATE, ACTION_BULK_CREATE, ACTION_IMPORT]:
-            return mark_safe('<i class="glyphicon glyphicon-plus text-success"></i>')
-        elif self.action in [ACTION_EDIT, ACTION_BULK_EDIT]:
-            return mark_safe('<i class="glyphicon glyphicon-pencil text-warning"></i>')
-        elif self.action in [ACTION_DELETE, ACTION_BULK_DELETE]:
-            return mark_safe('<i class="glyphicon glyphicon-remove text-danger"></i>')
-        else:
-            return ''

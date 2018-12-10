@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import base64
 
 from django.contrib import messages
@@ -230,7 +228,7 @@ class SecretBulkImportView(BulkImportView):
                 messages.error(request, "No session key found for this user.")
 
             if self.master_key is not None:
-                return super(SecretBulkImportView, self).post(request)
+                return super().post(request)
             else:
                 messages.error(request, "Invalid private key! Unable to encrypt secret data.")
 

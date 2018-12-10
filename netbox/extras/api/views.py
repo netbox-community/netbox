@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count
 from django.http import Http404, HttpResponse
@@ -13,7 +11,6 @@ from taggit.models import Tag
 from extras import filters
 from extras.models import (
     ConfigContext, CustomField, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
-    UserAction,
 )
 from extras.reports import get_report, get_reports
 from utilities.api import FieldChoicesViewSet, IsAuthenticatedOrLoginNotRequired, ModelViewSet
@@ -53,7 +50,7 @@ class CustomFieldModelViewSet(ModelViewSet):
                 custom_field_choices[cfc.id] = cfc.value
         custom_field_choices = custom_field_choices
 
-        context = super(CustomFieldModelViewSet, self).get_serializer_context()
+        context = super().get_serializer_context()
         context.update({
             'custom_fields': custom_fields,
             'custom_field_choices': custom_field_choices,
@@ -62,7 +59,7 @@ class CustomFieldModelViewSet(ModelViewSet):
 
     def get_queryset(self):
         # Prefetch custom field values
-        return super(CustomFieldModelViewSet, self).get_queryset().prefetch_related('custom_field_values__field')
+        return super().get_queryset().prefetch_related('custom_field_values__field')
 
 
 #
@@ -72,7 +69,7 @@ class CustomFieldModelViewSet(ModelViewSet):
 class GraphViewSet(ModelViewSet):
     queryset = Graph.objects.all()
     serializer_class = serializers.GraphSerializer
-    filter_class = filters.GraphFilter
+    filterset_class = filters.GraphFilter
 
 
 #
@@ -82,7 +79,7 @@ class GraphViewSet(ModelViewSet):
 class ExportTemplateViewSet(ModelViewSet):
     queryset = ExportTemplate.objects.all()
     serializer_class = serializers.ExportTemplateSerializer
-    filter_class = filters.ExportTemplateFilter
+    filterset_class = filters.ExportTemplateFilter
 
 
 #
@@ -92,7 +89,7 @@ class ExportTemplateViewSet(ModelViewSet):
 class TopologyMapViewSet(ModelViewSet):
     queryset = TopologyMap.objects.select_related('site')
     serializer_class = serializers.TopologyMapSerializer
-    filter_class = filters.TopologyMapFilter
+    filterset_class = filters.TopologyMapFilter
 
     @action(detail=True)
     def render(self, request, pk):
@@ -121,7 +118,7 @@ class TopologyMapViewSet(ModelViewSet):
 class TagViewSet(ModelViewSet):
     queryset = Tag.objects.annotate(tagged_items=Count('taggit_taggeditem_items'))
     serializer_class = serializers.TagSerializer
-    filter_class = filters.TagFilter
+    filterset_class = filters.TagFilter
 
 
 #
@@ -142,7 +139,7 @@ class ConfigContextViewSet(ModelViewSet):
         'regions', 'sites', 'roles', 'platforms', 'tenant_groups', 'tenants',
     )
     serializer_class = serializers.ConfigContextSerializer
-    filter_class = filters.ConfigContextFilter
+    filterset_class = filters.ConfigContextFilter
 
 
 #
@@ -231,17 +228,4 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     """
     queryset = ObjectChange.objects.select_related('user')
     serializer_class = serializers.ObjectChangeSerializer
-    filter_class = filters.ObjectChangeFilter
-
-
-#
-# User activity
-#
-
-class RecentActivityViewSet(ReadOnlyModelViewSet):
-    """
-    DEPRECATED: List all UserActions to provide a log of recent activity.
-    """
-    queryset = UserAction.objects.all()
-    serializer_class = serializers.UserActionSerializer
-    filter_class = filters.UserActionFilter
+    filterset_class = filters.ObjectChangeFilter

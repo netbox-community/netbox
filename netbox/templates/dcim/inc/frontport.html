@@ -1,0 +1,55 @@
+{% load helpers %}
+<tr class="frontport{% if frontport.cable.status %} success{% elif frontport.cable %} info{% endif %}">
+
+    {# Checkbox #}
+    {% if perms.dcim.change_frontport or perms.dcim.delete_frontport %}
+        <td class="pk">
+            <input name="pk" type="checkbox" value="{{ frontport.pk }}" />
+        </td>
+    {% endif %}
+
+    {# Name #}
+    <td>
+        <i class="fa fa-fw fa-square{% if not frontport.cable %}-o{% endif %}"></i> {{ frontport }}
+    </td>
+
+    {# Type #}
+    <td>{{ frontport.get_type_display }}</td>
+
+    {# Rear port #}
+    <td>{{ frontport.rear_port }}</td>
+    <td>{{ frontport.rear_port_position }}</td>
+
+    {# Description #}
+    <td>{{ frontport.description|placeholder }}</td>
+
+    {# Cable #}
+    <td>
+        {% if frontport.cable %}
+            <a href="{{ frontport.cable.get_absolute_url }}">{{ frontport.cable }}</a>
+        {% else %}
+            <span class="text-muted">Not connected</span>
+        {% endif %}
+    </td>
+
+    {# Actions #}
+    <td class="text-right">
+        {% if frontport.cable %}
+            {% include 'dcim/inc/cable_toggle_buttons.html' with cable=frontport.cable %}
+        {% elif perms.dcim.add_cable %}
+            <a href="{% url 'dcim:frontport_connect' termination_a_id=frontport.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-success btn-xs" title="Connect">
+                <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
+            </a>
+        {% endif %}
+        {% if perms.dcim.change_frontport %}
+            <a href="{% url 'dcim:frontport_edit' pk=frontport.pk %}?return_url={{ device.get_absolute_url }}" title="Edit port" class="btn btn-info btn-xs">
+                <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+            </a>
+        {% endif %}
+        {% if perms.dcim.delete_frontport %}
+            <a href="{% url 'dcim:frontport_delete' pk=frontport.pk %}?return_url={{ device.get_absolute_url }}" title="Delete port" class="btn btn-danger btn-xs">
+                <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+            </a>
+        {% endif %}
+    </td>
+</tr>

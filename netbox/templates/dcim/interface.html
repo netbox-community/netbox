@@ -82,33 +82,15 @@
                 </tr>
                 <tr>
                     <td>Description</td>
-                    <td>
-                        {% if interface.description %}
-                            <span>{{ interface.description }}</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ interface.description|placeholder }} </td>
                 </tr>
                 <tr>
                     <td>MTU</td>
-                    <td>
-                        {% if interface.mtu %}
-                            <span>{{ interface.mtu }}</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ interface.mtu|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>MAC Address</td>
-                    <td>
-                        {% if interface.mac_address %}
-                            <span>{{ interface.mac_address }}</span>
-                        {% else %}
-                            <span class="text-muted">N/A</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ interface.mac_address|placeholder }}</span></td>
                 </tr>
                 <tr>
                     <td>802.1Q Mode</td>
@@ -122,119 +104,100 @@
         {% if interface.is_connectable %}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <strong>Connected Interface</strong>
+                    <strong>Connection</strong>
                 </div>
-                {% if connected_interface %}
+                {% if interface.cable %}
                     <table class="table table-hover panel-body attr-table">
-                        <tr>
-                            <td>{% if connected_interface.device %}Device{% else %}Virtual Machine{% endif %}</td>
-                            <td>
-                                <a href="{{ connected_interface.parent.get_absolute_url }}">{{ connected_interface.parent }}</a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Name</td>
-                            <td>
-                                <a href="{{ connected_interface.get_absolute_url }}">{{ connected_interface.name }}</a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Type</td>
-                            <td>{{ connected_interface.get_form_factor_display }}</td>
-                        </tr>
-                        <tr>
-                            <td>Enabled</td>
-                            <td>
-                                {% if connected_interface.enabled %}
-                                    <span class="text-success"><i class="fa fa-check"></i></span>
-                                {% else %}
-                                    <span class="text-danger"><i class="fa fa-close"></i></span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>LAG</td>
-                            <td>
-                                {% if connected_interface.lag%}
-                                    <a href="{{ connected_interface.lag.get_absolute_url }}">{{ connected_interface.lag }}</a>
-                                {% else %}
-                                    <span class="text-muted">None</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Description</td>
-                            <td>
-                                {% if connected_interface.description %}
-                                    <span>{{ connected_interface.description }}</span>
-                                {% else %}
-                                    <span class="text-muted">N/A</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>MTU</td>
-                            <td>
-                                {% if connected_interface.mtu %}
-                                    <span>{{ connected_interface.mtu }}</span>
-                                {% else %}
-                                    <span class="text-muted">N/A</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>MAC Address</td>
-                            <td>
-                                {% if connected_interface.mac_address %}
-                                    <span>{{ connected_interface.mac_address }}</span>
-                                {% else %}
-                                    <span class="text-muted">N/A</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>802.1Q Mode</td>
-                            <td>{{ connected_interface.get_mode_display }}</td>
-                        </tr>
-                        {% if interface.connection %}
+                        {% if connected_interface %}
                             <tr>
-                                <td>Connection Status</td>
+                                <td>Device</td>
                                 <td>
-                                    {% if interface.connection.connection_status %}
-                                        <span class="label label-success">{{ interface.connection.get_connection_status_display }}</span>
+                                    <a href="{{ connected_interface.parent.get_absolute_url }}">{{ connected_interface.device }}</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Name</td>
+                                <td>
+                                    <a href="{{ connected_interface.get_absolute_url }}">{{ connected_interface.name }}</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Type</td>
+                                <td>{{ connected_interface.get_form_factor_display }}</td>
+                            </tr>
+                            <tr>
+                                <td>Enabled</td>
+                                <td>
+                                    {% if connected_interface.enabled %}
+                                        <span class="text-success"><i class="fa fa-check"></i></span>
                                     {% else %}
-                                        <span class="label label-info">{{ interface.connection.get_connection_status_display }}</span>
+                                        <span class="text-danger"><i class="fa fa-close"></i></span>
                                     {% endif %}
                                 </td>
                             </tr>
+                            <tr>
+                                <td>LAG</td>
+                                <td>
+                                    {% if connected_interface.lag%}
+                                        <a href="{{ connected_interface.lag.get_absolute_url }}">{{ connected_interface.lag }}</a>
+                                    {% else %}
+                                        <span class="text-muted">None</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Description</td>
+                                <td>{{ connected_interface.description|placeholder }}</td>
+                            </tr>
+                            <tr>
+                                <td>MTU</td>
+                                <td>{{ connected_interface.mtu|placeholder }}</td>
+                            </tr>
+                            <tr>
+                                <td>MAC Address</td>
+                                <td>{{ connected_interface.mac_address|placeholder }}</td>
+                            </tr>
+                            <tr>
+                                <td>802.1Q Mode</td>
+                                <td>{{ connected_interface.get_mode_display }}</td>
+                            </tr>
+                        {% elif connected_circuittermination %}
+                            {% with ct=connected_circuittermination %}
+                                <tr>
+                                    <td>Circuit</td>
+                                    <td><a href="{{ ct.circuit.get_absolute_url }}">{{ ct.circuit }}</a></td>
+                                </tr>
+                                <tr>
+                                    <td>Side</td>
+                                    <td>{{ ct.term_side }}</td>
+                                </tr>
+                            {% endwith %}
                         {% endif %}
+                        <tr>
+                            <td>Cable</td>
+                            <td>
+                                <a href="{{ interface.cable.get_absolute_url }}">{{ interface.cable }}</a>
+                                <a href="{% url 'dcim:interface_trace' pk=interface.pk %}" class="btn btn-primary btn-xs" title="Trace">
+                                    <i class="fa fa-share-alt" aria-hidden="true"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Connection Status</td>
+                            <td>
+                                {% if interface.connection_status %}
+                                    <span class="label label-success">{{ interface.get_connection_status_display }}</span>
+                                {% else %}
+                                    <span class="label label-info">{{ interface.get_connection_status_display }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
                     </table>
                 {% else %}
                     <div class="panel-body text-muted">
-                        No connected interface
+                        Not connected
                     </div>
                 {% endif %}
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong>Circuit Termination</strong>
-                </div>
-                <table class="table table-hover panel-body">
-                    {% if interface.circuit_termination %}
-                        <tr>
-                            <td>Circuit</td>
-                            <td><a href="{{ interface.circuit_termination.circuit.get_absolute_url }}">{{ interface.circuit_termination.circuit }}</a></td>
-                        </tr>
-                        <tr>
-                            <td>Side</td>
-                            <td>{{ interface.circuit_termination.term_side }}</td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="2" class="text-muted">None</td>
-                        </tr>
-                    {% endif %}
-                </table>
             </div>
         {% endif %}
         {% if interface.is_lag %}
