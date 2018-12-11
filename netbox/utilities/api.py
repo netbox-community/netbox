@@ -78,17 +78,26 @@ class ChoiceField(Field):
         return data
 
     def to_internal_value(self, data):
+
+        # Provide an explicit error message if the request is trying to write a dict
+        if type(data) is dict:
+            raise ValidationError('Value must be passed directly (e.g. "foo": 123); do not use a dictionary.')
+
+        # Check for string representations of boolean/integer values
         if hasattr(data, 'lower'):
-            # Hotwiring boolean values from string
             if data.lower() == 'true':
-                return True
-            if data.lower() == 'false':
-                return False
-            # Check for string representation of an integer (e.g. "123")
-            try:
-                data = int(data)
-            except ValueError:
-                pass
+                data = True
+            elif data.lower() == 'false':
+                data = False
+            else:
+                try:
+                    data = int(data)
+                except ValueError:
+                    pass
+
+        if data not in self._choices:
+            raise ValidationError("{} is not a valid choice.".format(data))
+
         return data
 
 

@@ -3,6 +3,7 @@ v2.5.1 (FUTURE)
 ## Bug Fixes
 
 * [#2666](https://github.com/digitalocean/netbox/issues/2666) - Correct display of length unit in cables list
+* [#2676](https://github.com/digitalocean/netbox/issues/2676) - Fix exception when passing dictionary value to a ChoiceField
 
 ---
 
