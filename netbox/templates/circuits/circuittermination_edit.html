@@ -10,7 +10,7 @@
         {% endfor %}
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
-                <h3>{% block title %}Circuit {{ obj.circuit }} - {{ form.term_side.value }} Side{% endblock %}</h3>
+                <h3>{% block title %}{{ obj.circuit.provider }} {{ obj.circuit }} - Side {{ form.term_side.value }}{% endblock %}</h3>
                 {% if form.non_field_errors %}
                     <div class="panel panel-danger">
                         <div class="panel-heading"><strong>Errors</strong></div>

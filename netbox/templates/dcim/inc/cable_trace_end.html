@@ -5,7 +5,7 @@
         {% if end.device %}
             <strong><a href="{{ end.device.get_absolute_url }}">{{ end.device }}</a></strong>
         {% else %}
-            <strong><a href="{{ end.circuit.get_absolute_url }}">{{ end.circuit }}</a></strong>
+            <strong><a href="{{ end.circuit.provider.get_absolute_url }}">{{ end.circuit.provider }}</a></strong>
         {% endif %}
     </div>
     <div class="panel-body text-center">
@@ -21,7 +21,8 @@
             {% endwith %}
         {% else %}
             {# Circuit termination #}
-            <strong>Side {{ end.term_side }}</strong>
+            <strong><a href="{{ end.circuit.get_absolute_url }}">{{ end.circuit }}</a></strong><br/>
+            {{ end }}
         {% endif %}
     </div>
 </div>

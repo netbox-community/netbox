@@ -164,6 +164,10 @@
                         {% elif connected_circuittermination %}
                             {% with ct=connected_circuittermination %}
                                 <tr>
+                                    <td>Provider</td>
+                                    <td><a href="{{ ct.circuit.provider.get_absolute_url }}">{{ ct.circuit.provider }}</a></td>
+                                </tr>
+                                <tr>
                                     <td>Circuit</td>
                                     <td><a href="{{ ct.circuit.get_absolute_url }}">{{ ct.circuit }}</a></td>
                                 </tr>

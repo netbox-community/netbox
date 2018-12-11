@@ -176,7 +176,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         unique_together = ['provider', 'cid']
 
     def __str__(self):
-        return '{} {}'.format(self.provider, self.cid)
+        return self.cid
 
     def get_absolute_url(self):
         return reverse('circuits:circuit', args=[self.pk])
