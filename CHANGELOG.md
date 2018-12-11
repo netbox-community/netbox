@@ -1,3 +1,11 @@
+v2.5.1 (FUTURE)
+
+## Bug Fixes
+
+* [#2666](https://github.com/digitalocean/netbox/issues/2666) - Correct display of length unit in cables list
+
+---
+
 v2.5.0 (2018-12-10)
 
 ## Notes
