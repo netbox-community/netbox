@@ -1,5 +1,9 @@
 v2.5.1 (FUTURE)
 
+## Enhancements
+
+* [#2655](https://github.com/digitalocean/netbox/issues/265) - Add 128GFC Fibrechannel interface type
+
 ## Bug Fixes
 
 * [#2666](https://github.com/digitalocean/netbox/issues/2666) - Correct display of length unit in cables list
