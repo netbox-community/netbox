@@ -6,6 +6,7 @@ v2.5.1 (FUTURE)
 
 ## Bug Fixes
 
+* [#2662](https://github.com/digitalocean/netbox/issues/2662) - Fix ImproperlyConfigured exception when rendering API docs
 * [#2666](https://github.com/digitalocean/netbox/issues/2666) - Correct display of length unit in cables list
 * [#2676](https://github.com/digitalocean/netbox/issues/2676) - Fix exception when passing dictionary value to a ChoiceField
 * [#2678](https://github.com/digitalocean/netbox/issues/2678) - Fix error when viewing webhook in admin UI without write permission
