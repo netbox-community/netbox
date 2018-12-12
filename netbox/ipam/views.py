@@ -894,7 +894,7 @@ class VLANMembersView(View):
     def get(self, request, pk):
 
         vlan = get_object_or_404(VLAN.objects.all(), pk=pk)
-        members = vlan.get_members().select_related('device', 'virtual_machine')
+        members = vlan.get_members().select_related('device', 'virtual_machine').distinct()
 
         members_table = tables.VLANMemberTable(members)
 
