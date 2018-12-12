@@ -812,7 +812,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         return Interface.objects.filter(
             Q(untagged_vlan_id=self.pk) |
             Q(tagged_vlans=self.pk)
-        )
+        ).distinct()
 
 
 class Service(ChangeLoggedModel, CustomFieldModel):

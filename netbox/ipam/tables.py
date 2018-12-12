@@ -430,7 +430,7 @@ class VLANDetailTable(VLANTable):
 
 class VLANMemberTable(BaseTable):
     parent = tables.LinkColumn(order_by=['device', 'virtual_machine'])
-    name = tables.Column(verbose_name='Interface')
+    name = tables.LinkColumn(verbose_name='Interface')
     untagged = tables.TemplateColumn(
         template_code=VLAN_MEMBER_UNTAGGED,
         orderable=False
