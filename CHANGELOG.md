@@ -12,6 +12,7 @@ v2.5.1 (FUTURE)
 * [#2676](https://github.com/digitalocean/netbox/issues/2676) - Fix exception when passing dictionary value to a ChoiceField
 * [#2678](https://github.com/digitalocean/netbox/issues/2678) - Fix error when viewing webhook in admin UI without write permission
 * [#2680](https://github.com/digitalocean/netbox/issues/2680) - Disallow POST requests to `/dcim/interface-connections/` API endpoint
+* [#2683](https://github.com/digitalocean/netbox/issues/2683) - Fix exception when connecting a cable to a RearPort with no corresponding FrontPort
 * [#2684](https://github.com/digitalocean/netbox/issues/2684) - Fix custom field filtering
 
 ---

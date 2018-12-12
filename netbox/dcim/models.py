@@ -110,11 +110,14 @@ class CableTermination(models.Model):
                     raise Exception("Invalid position for {} ({} positions): {})".format(
                         termination, termination.positions, position
                     ))
-                peer_port = FrontPort.objects.get(
-                    rear_port=termination,
-                    rear_port_position=position,
-                )
-                return peer_port, 1
+                try:
+                    peer_port = FrontPort.objects.get(
+                        rear_port=termination,
+                        rear_port_position=position,
+                    )
+                    return peer_port, 1
+                except ObjectDoesNotExist:
+                    return None, None
 
             # Follow a circuit to its other termination
             elif isinstance(termination, CircuitTermination) and follow_circuits:
@@ -2629,5 +2632,7 @@ class Cable(ChangeLoggedModel):
                     path_status = CONNECTION_STATUS_PLANNED
                     break
 
-        # (A path end, B path end, connected/planned)
-        return a_path[-1][2], b_path[-1][2], path_status
+        a_endpoint = a_path[-1][2]
+        b_endpoint = b_path[-1][2]
+
+        return a_endpoint, b_endpoint, path_status
