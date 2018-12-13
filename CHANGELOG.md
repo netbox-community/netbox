@@ -1,3 +1,24 @@
+v2.5.1 (2018-12-13)
+
+## Enhancements
+
+* [#2655](https://github.com/digitalocean/netbox/issues/2655) - Add 128GFC Fibrechannel interface type
+* [#2674](https://github.com/digitalocean/netbox/issues/2674) - Enable filtering changelog by object type under web UI
+
+## Bug Fixes
+
+* [#2662](https://github.com/digitalocean/netbox/issues/2662) - Fix ImproperlyConfigured exception when rendering API docs
+* [#2663](https://github.com/digitalocean/netbox/issues/2663) - Prevent duplicate interfaces from appearing under VLAN members view
+* [#2666](https://github.com/digitalocean/netbox/issues/2666) - Correct display of length unit in cables list
+* [#2676](https://github.com/digitalocean/netbox/issues/2676) - Fix exception when passing dictionary value to a ChoiceField
+* [#2678](https://github.com/digitalocean/netbox/issues/2678) - Fix error when viewing webhook in admin UI without write permission
+* [#2680](https://github.com/digitalocean/netbox/issues/2680) - Disallow POST requests to `/dcim/interface-connections/` API endpoint
+* [#2683](https://github.com/digitalocean/netbox/issues/2683) - Fix exception when connecting a cable to a RearPort with no corresponding FrontPort
+* [#2684](https://github.com/digitalocean/netbox/issues/2684) - Fix custom field filtering
+* [#2687](https://github.com/digitalocean/netbox/issues/2687) - Correct naming of before/after filters for changelog entries
+
+---
+
 v2.5.0 (2018-12-10)
 
 ## Notes

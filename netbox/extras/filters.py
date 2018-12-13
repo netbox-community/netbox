@@ -31,12 +31,12 @@ class CustomFieldFilter(django_filters.Filter):
                 # Treat 0 as None
                 if int(value) == 0:
                     return queryset.exclude(
-                        custom_field_values__field__name=self.name,
+                        custom_field_values__field__name=self.field_name,
                     )
                 # Match on exact CustomFieldChoice PK
                 else:
                     return queryset.filter(
-                        custom_field_values__field__name=self.name,
+                        custom_field_values__field__name=self.field_name,
                         custom_field_values__serialized_value=value,
                     )
             except ValueError:
@@ -45,12 +45,12 @@ class CustomFieldFilter(django_filters.Filter):
         # Apply the assigned filter logic (exact or loose)
         if self.cf_type == CF_TYPE_BOOLEAN or self.filter_logic == CF_FILTER_EXACT:
             queryset = queryset.filter(
-                custom_field_values__field__name=self.name,
+                custom_field_values__field__name=self.field_name,
                 custom_field_values__serialized_value=value
             )
         else:
             queryset = queryset.filter(
-                custom_field_values__field__name=self.name,
+                custom_field_values__field__name=self.field_name,
                 custom_field_values__serialized_value__icontains=value
             )
 

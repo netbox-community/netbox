@@ -30,7 +30,8 @@ class WebhookForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        order_content_types(self.fields['obj_type'])
+        if 'obj_type' in self.fields:
+            order_content_types(self.fields['obj_type'])
 
 
 @admin.register(Webhook, site=admin_site)

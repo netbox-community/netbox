@@ -62,7 +62,7 @@ def nullify_connected_endpoints(instance, **kwargs):
         instance.termination_b.save()
 
     # If this Cable was part of a complete path, tear it down
-    if endpoint_a is not None and endpoint_b is not None:
+    if hasattr(endpoint_a, 'connected_endpoint') and hasattr(endpoint_b, 'connected_endpoint'):
         endpoint_a.connected_endpoint = None
         endpoint_a.connection_status = None
         endpoint_a.save()

@@ -484,7 +484,7 @@ class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
     filterset_class = filters.PowerConnectionFilter
 
 
-class InterfaceConnectionViewSet(ModelViewSet):
+class InterfaceConnectionViewSet(ListModelMixin, GenericViewSet):
     queryset = Interface.objects.select_related(
         'device', '_connected_interface', '_connected_circuittermination'
     ).filter(

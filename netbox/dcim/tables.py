@@ -179,7 +179,7 @@ CABLE_TERMINATION_PARENT = """
 """
 
 CABLE_LENGTH = """
-{% if record.length %}{{ record.length }}{{ record.length_unit }}{% else %}&mdash;{% endif %}
+{% if record.length %}{{ record.length }} {{ record.get_length_unit_display }}{% else %}&mdash;{% endif %}
 """
 
 
