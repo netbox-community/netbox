@@ -11,7 +11,7 @@ from taggit.models import Tag
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, FilterChoiceField,
+    add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ContentTypeSelect, FilterChoiceField,
     FilterTreeNodeMultipleChoiceField, LaxURLField, JSONField, SlugField,
 )
 from .constants import (
@@ -307,7 +307,7 @@ class ImageAttachmentForm(BootstrapMixin, forms.ModelForm):
 # Change logging
 #
 
-class ObjectChangeFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
     model = ObjectChange
     q = forms.CharField(
         required=False,
@@ -335,4 +335,10 @@ class ObjectChangeFilterForm(BootstrapMixin, CustomFieldFilterForm):
     user = forms.ModelChoiceField(
         queryset=User.objects.order_by('username'),
         required=False
+    )
+    changed_object_type = forms.ModelChoiceField(
+        queryset=ContentType.objects.order_by('model'),
+        required=False,
+        widget=ContentTypeSelect(),
+        label='Object Type'
     )

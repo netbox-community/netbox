@@ -3,6 +3,7 @@ v2.5.1 (FUTURE)
 ## Enhancements
 
 * [#2655](https://github.com/digitalocean/netbox/issues/2655) - Add 128GFC Fibrechannel interface type
+* [#2674](https://github.com/digitalocean/netbox/issues/2674) - Enable filtering changelog by object type under web UI
 
 ## Bug Fixes
 
