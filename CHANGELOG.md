@@ -15,6 +15,7 @@ v2.5.1 (FUTURE)
 * [#2680](https://github.com/digitalocean/netbox/issues/2680) - Disallow POST requests to `/dcim/interface-connections/` API endpoint
 * [#2683](https://github.com/digitalocean/netbox/issues/2683) - Fix exception when connecting a cable to a RearPort with no corresponding FrontPort
 * [#2684](https://github.com/digitalocean/netbox/issues/2684) - Fix custom field filtering
+* [#2687](https://github.com/digitalocean/netbox/issues/2687) - Correct naming of before/after filters for changelog entries
 
 ---
 
