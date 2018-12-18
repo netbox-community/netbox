@@ -501,8 +501,9 @@ class PrefixPrefixesView(View):
         ).annotate_depth(limit=0)
 
         # Annotate available prefixes
-        if child_prefixes:
-            child_prefixes = add_available_prefixes(prefix.prefix, child_prefixes)
+        if request.GET.get('show_available', None):
+            if child_prefixes:
+                child_prefixes = add_available_prefixes(prefix.prefix, child_prefixes)
 
         prefix_table = tables.PrefixDetailTable(child_prefixes)
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
@@ -541,7 +542,8 @@ class PrefixIPAddressesView(View):
         ipaddresses = prefix.get_child_ips().select_related(
             'vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for'
         )
-        ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses, prefix.is_pool)
+        if request.GET.get('show_available', None):
+            ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses, prefix.is_pool)
 
         ip_table = tables.IPAddressTable(ipaddresses)
         if request.user.has_perm('ipam.change_ipaddress') or request.user.has_perm('ipam.delete_ipaddress'):
