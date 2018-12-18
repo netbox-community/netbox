@@ -52,6 +52,12 @@
     </div>
     <h1>{% block title %}{{ prefix }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=prefix %}
+    <div class="pull-right">
+        <div class="btn-group" role="group">
+            <a href="{{ request.path }}{% querystring request show_available=None %}" class="btn btn-default{% if not request.GET.show_available %} active{% endif %}">Hide available</a>
+            <a href="{{ request.path }}{% querystring request show_available='on' %}" class="btn btn-default{% if request.GET.show_available %} active{% endif %}">Show available</a>
+        </div>
+    </div>
     <ul class="nav nav-tabs" style="margin-bottom: 20px">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{% url 'ipam:prefix' pk=prefix.pk %}">Prefix</a>
