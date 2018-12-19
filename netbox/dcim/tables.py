@@ -29,7 +29,8 @@ SITE_REGION_LINK = """
 """
 
 COLOR_LABEL = """
-<label class="label" style="background-color: #{{ record.color }}">{{ record }}</label>
+{% load helpers %}
+<label class="label" style="color: {{ record.color|fgcolor }}; background-color: #{{ record.color }}">{{ record }}</label>
 """
 
 DEVICE_LINK = """
