@@ -2,6 +2,7 @@ v2.5.2 (FUTURE)
 
 ## Enhancements
 
+* [#2561](https://github.com/digitalocean/netbox/issues/2561) - Add 200G and 400G interface types
 * [#2701](https://github.com/digitalocean/netbox/issues/2701) - Enable filtering of prefixes by exact prefix value
 
 ## Bug Fixes
