@@ -6,6 +6,7 @@ v2.5.2 (FUTURE)
 
 ## Bug Fixes
 
+* [#2691](https://github.com/digitalocean/netbox/issues/2691) - Cable trace should follow circuits
 * [#2698](https://github.com/digitalocean/netbox/issues/2698) - Remove pagination restriction on bulk component creation for devices/VMs
 * [#2707](https://github.com/digitalocean/netbox/issues/2707) - Correct permission evaluation for circuit termination cabling
 

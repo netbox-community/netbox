@@ -140,7 +140,7 @@ class CableTermination(models.Model):
         if peer_port is None:
             return path
 
-        next_segment = peer_port.trace(position)
+        next_segment = peer_port.trace(position, follow_circuits)
         if next_segment is None:
             return path + [(peer_port, None, None)]
 
