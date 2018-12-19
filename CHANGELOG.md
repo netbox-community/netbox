@@ -1,5 +1,9 @@
 v2.5.2 (FUTURE)
 
+## Enhancements
+
+* [#2701](https://github.com/digitalocean/netbox/issues/2701) - Enable filtering of prefixes by exact prefix value
+
 ## Bug Fixes
 
 * [#2707](https://github.com/digitalocean/netbox/issues/2707) - Correct permission evaluation for circuit termination cabling
