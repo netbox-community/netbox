@@ -95,6 +95,9 @@ AUTH_LDAP_GROUP_TYPE = GroupOfNamesType()
 # Define a group required to login.
 AUTH_LDAP_REQUIRE_GROUP = "CN=NETBOX_USERS,DC=example,DC=com"
 
+# Mirror LDAP group assignments.
+AUTH_LDAP_MIRROR_GROUPS = True
+
 # Define special user types using groups. Exercise great caution when assigning superuser status.
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {
     "is_active": "cn=active,ou=groups,dc=example,dc=com",
