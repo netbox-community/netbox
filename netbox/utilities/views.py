@@ -789,9 +789,12 @@ class BulkComponentCreateView(GetReturnURLMixin, View):
 
     def post(self, request):
 
+        parent_model_name = self.parent_model._meta.verbose_name_plural
+        model_name = self.model._meta.verbose_name_plural
+
         # Are we editing *all* objects in the queryset or just a selected subset?
         if request.POST.get('_all') and self.filter is not None:
-            pk_list = [obj.pk for obj in self.filter(request.GET, self.model.objects.only('pk')).qs]
+            pk_list = [obj.pk for obj in self.filter(request.GET, self.parent_model.objects.only('pk')).qs]
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
@@ -829,9 +832,9 @@ class BulkComponentCreateView(GetReturnURLMixin, View):
 
                     messages.success(request, "Added {} {} to {} {}.".format(
                         len(new_components),
-                        self.model._meta.verbose_name_plural,
+                        model_name,
                         len(form.cleaned_data['pk']),
-                        self.parent_model._meta.verbose_name_plural
+                        parent_model_name
                     ))
                     return redirect(self.get_return_url(request))
 
@@ -840,7 +843,8 @@ class BulkComponentCreateView(GetReturnURLMixin, View):
 
         return render(request, self.template_name, {
             'form': form,
-            'component_name': self.model._meta.verbose_name_plural,
+            'parent_model_name': parent_model_name,
+            'model_name': model_name,
             'table': table,
             'return_url': self.get_return_url(request),
         })

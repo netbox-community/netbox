@@ -2,7 +2,8 @@
 {% load form_helpers %}
 
 {% block content %}
-<h1>Add {{ component_name|title }}</h1>
+<h1>{% block title %}Add {{ model_name|title }}{% endblock %}</h1>
+<p>{{ table.rows|length }} {{ parent_model_name }} selected</p>
 <form action="." method="post" class="form form-horizontal">
     {% csrf_token %}
     {% if request.POST.return_url %}
@@ -27,7 +28,7 @@
                 </div>
             {% endif %}
             <div class="panel panel-default">
-                <div class="panel-heading"><strong>{{ component_name|title }} to Add</strong></div>
+                <div class="panel-heading"><strong>{{ model_name|title }} to Add</strong></div>
                 <div class="panel-body">
                     {% for field in form.visible_fields %}
                         {% render_field field %}

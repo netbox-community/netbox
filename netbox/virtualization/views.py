@@ -369,5 +369,6 @@ class VirtualMachineBulkAddInterfaceView(PermissionRequiredMixin, BulkComponentC
     form = forms.VirtualMachineBulkAddInterfaceForm
     model = Interface
     model_form = forms.InterfaceForm
+    filter = filters.VirtualMachineFilter
     table = tables.VirtualMachineTable
     default_return_url = 'virtualization:virtualmachine_list'
