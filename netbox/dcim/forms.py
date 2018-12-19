@@ -2703,6 +2703,12 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
         to_field_name='slug',
         null_label='-- None --'
     )
+    discovered = forms.NullBooleanField(
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
 
 
 #
