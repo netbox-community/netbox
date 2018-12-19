@@ -1,3 +1,11 @@
+v2.5.2 (FUTURE)
+
+## Bug Fixes
+
+* [#2707](https://github.com/digitalocean/netbox/issues/2707) - Correct permission evaluation for circuit termination cabling
+
+---
+
 v2.5.1 (2018-12-13)
 
 ## Enhancements
