@@ -55,8 +55,9 @@ class GetReturnURLMixin(object):
 
     def get_return_url(self, request, obj=None):
 
-        # First, see if `return_url` was specified as a query parameter. Use it only if it's considered safe.
-        query_param = request.GET.get('return_url')
+        # First, see if `return_url` was specified as a query parameter or form data. Use this URL only if it's
+        # considered safe.
+        query_param = request.GET.get('return_url') or request.POST.get('return_url')
         if query_param and is_safe_url(url=query_param, allowed_hosts=request.get_host()):
             return query_param
 
