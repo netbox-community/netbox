@@ -116,3 +116,21 @@ AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
 * `is_active` - All users must be mapped to at least this group to enable authentication. Without this, users cannot log in.
 * `is_staff` - Users mapped to this group are enabled for access to the administration tools; this is the equivalent of checking the "staff status" box on a manually created user. This doesn't grant any specific permissions.
 * `is_superuser` - Users mapped to this group will be granted superuser status. Superusers are implicitly granted all permissions.
+
+# Troubleshooting LDAP
+`supervisorctl restart netbox` restarts the Netbox service, and initiates any changes made to `ldap_config.py`. If there are syntax errors present, the Netbox process will not spawn an instance, and errors should be logged to `/var/log/supervisor/`.
+
+
+For troubleshooting LDAP user/group queries, add the following lines to the start of `ldap_config.py` after `import ldap`.
+
+```python
+import logging, logging.handlers
+logfile = "/opt/netbox/logs/django-ldap-debug.log"
+my_logger = logging.getLogger('django_auth_ldap')
+my_logger.setLevel(logging.DEBUG)
+handler = logging.handlers.RotatingFileHandler(
+   logfile, maxBytes=1024 * 500, backupCount=5)
+my_logger.addHandler(handler)
+```
+
+Ensure the file and path specified in logfile exist and are write and executable by the application service account. Restart the netbox service and attempt to log into the site to trigger log entries to this file.
