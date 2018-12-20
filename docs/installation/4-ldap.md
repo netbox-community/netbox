@@ -118,8 +118,8 @@ AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
 * `is_superuser` - Users mapped to this group will be granted superuser status. Superusers are implicitly granted all permissions.
 
 # Troubleshooting LDAP
-`supervisorctl restart netbox` restarts the Netbox service, and initiates any changes made to `ldap_config.py`. If there are syntax errors present, the Netbox process will not spawn an instance, and errors should be logged to `/var/log/supervisor/`.
 
+`supervisorctl restart netbox` restarts the Netbox service, and initiates any changes made to `ldap_config.py`. If there are syntax errors present, the NetBox process will not spawn an instance, and errors should be logged to `/var/log/supervisor/`.
 
 For troubleshooting LDAP user/group queries, add the following lines to the start of `ldap_config.py` after `import ldap`.
 
@@ -133,4 +133,4 @@ handler = logging.handlers.RotatingFileHandler(
 my_logger.addHandler(handler)
 ```
 
-Ensure the file and path specified in logfile exist and are write and executable by the application service account. Restart the netbox service and attempt to log into the site to trigger log entries to this file.
+Ensure the file and path specified in logfile exist and are writable and executable by the application service account. Restart the netbox service and attempt to log into the site to trigger log entries to this file.
