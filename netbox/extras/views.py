@@ -82,7 +82,7 @@ class TagDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 
 class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'circuits.delete_circuittype'
+    permission_required = 'taggit.delete_tag'
     queryset = Tag.objects.annotate(
         items=Count('taggit_taggeditem_items')
     ).order_by(

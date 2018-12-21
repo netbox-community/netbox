@@ -60,7 +60,7 @@ class CableTraceMixin(object):
         # Initialize the path array
         path = []
 
-        for near_end, cable, far_end in obj.trace():
+        for near_end, cable, far_end in obj.trace(follow_circuits=True):
 
             # Serialize each object
             serializer_a = get_serializer_for_model(near_end, prefix='Nested')

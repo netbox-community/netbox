@@ -1,11 +1,13 @@
 import datetime
 import json
+import re
 
 from django import template
 from django.utils.safestring import mark_safe
 from markdown import markdown
 
 from utilities.forms import unpack_grouped_choices
+from utilities.utils import foreground_color
 
 
 register = template.Library()
@@ -150,6 +152,17 @@ def tzoffset(value):
     Returns the hour offset of a given time zone using the current time.
     """
     return datetime.datetime.now(value).strftime('%z')
+
+
+@register.filter()
+def fgcolor(value):
+    """
+    Return black (#000000) or white (#ffffff) given an arbitrary background color in RRGGBB format.
+    """
+    value = value.lower().strip('#')
+    if not re.match('^[0-9a-f]{6}$', value):
+        return ''
+    return '#{}'.format(foreground_color(value))
 
 
 #

@@ -112,6 +112,10 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         method='search',
         label='Search',
     )
+    prefix = django_filters.CharFilter(
+        method='filter_prefix',
+        label='Prefix',
+    )
     within = django_filters.CharFilter(
         method='search_within',
         label='Within prefix',
@@ -196,6 +200,15 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         except (AddrFormatError, ValueError):
             pass
         return queryset.filter(qs_filter)
+
+    def filter_prefix(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        try:
+            query = str(netaddr.IPNetwork(value).cidr)
+            return queryset.filter(prefix=query)
+        except ValidationError:
+            return queryset.none()
 
     def search_within(self, queryset, name, value):
         value = value.strip()
