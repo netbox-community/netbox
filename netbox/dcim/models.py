@@ -21,6 +21,7 @@ from utilities.managers import NaturalOrderingManager
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object, to_meters
 from .constants import *
+from .exceptions import LoopDetected
 from .fields import ASNField, MACAddressField
 from .managers import DeviceComponentManager, InterfaceManager
 
@@ -88,7 +89,7 @@ class CableTermination(models.Model):
     class Meta:
         abstract = True
 
-    def trace(self, position=1, follow_circuits=False):
+    def trace(self, position=1, follow_circuits=False, cable_history=None):
         """
         Return a list representing a complete cable path, with each individual segment represented as a three-tuple:
             [
@@ -133,6 +134,13 @@ class CableTermination(models.Model):
         if not self.cable:
             return [(self, None, None)]
 
+        # Record cable history to detect loops
+        if cable_history is None:
+            cable_history = []
+        elif self.cable in cable_history:
+            raise LoopDetected()
+        cable_history.append(self.cable)
+
         far_end = self.cable.termination_b if self.cable.termination_a == self else self.cable.termination_a
         path = [(self, self.cable, far_end)]
 
@@ -140,7 +148,11 @@ class CableTermination(models.Model):
         if peer_port is None:
             return path
 
-        next_segment = peer_port.trace(position, follow_circuits)
+        try:
+            next_segment = peer_port.trace(position, follow_circuits, cable_history)
+        except LoopDetected:
+            return path
+
         if next_segment is None:
             return path + [(peer_port, None, None)]
 
