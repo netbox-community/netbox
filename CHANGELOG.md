@@ -13,6 +13,7 @@ v2.5.2 (FUTURE)
 * [#2704](https://github.com/digitalocean/netbox/issues/2704) - Fix form select widget population on parent with null value
 * [#2707](https://github.com/digitalocean/netbox/issues/2707) - Correct permission evaluation for circuit termination cabling
 * [#2712](https://github.com/digitalocean/netbox/issues/2712) - Preserve list filtering after editing objects in bulk
+* [#2717](https://github.com/digitalocean/netbox/issues/2717) - Fix bulk deletion of tags
 
 ---
 
