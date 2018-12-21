@@ -16,6 +16,7 @@ v2.5.2 (FUTURE)
 * [#2717](https://github.com/digitalocean/netbox/issues/2717) - Fix bulk deletion of tags
 * [#2721](https://github.com/digitalocean/netbox/issues/2721) - Detect loops when tracing front/rear ports
 * [#2723](https://github.com/digitalocean/netbox/issues/2723) - Correct permission evaluation when bulk deleting tags
+* [#2724](https://github.com/digitalocean/netbox/issues/2724) - Limit rear port choices to current device when editing a front port
 
 ---
 
