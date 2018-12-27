@@ -118,6 +118,11 @@ NAPALM_TIMEOUT = 30
 # be provided as a dictionary.
 NAPALM_ARGS = {}
 
+# Enable or disable the natural sort order when listing objects (see https://en.wikipedia.org/wiki/Natural_sort_order
+# for details). However, it is less efficient than the default sort, leading up to a high CPU consumption in database
+# when sorting a lot of objects (a few thousands).
+NATURAL_ORDERING = True
+
 # Determine how many objects to display per page within a list. (Default: 50)
 PAGINATE_COUNT = 50
 

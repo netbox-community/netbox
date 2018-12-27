@@ -207,6 +207,15 @@ The amount of time (in seconds) to wait for NAPALM to connect to a device.
 
 ---
 
+## NATURAL_ORDERING
+
+Default: True
+
+Enable or disable the natural sort order when listing objects (see the Wikipedia page for [Natural sort order](https://en.wikipedia.org/wiki/Natural_sort_order)).
+However, it is less efficient than the default sort, leading up to a high CPU consumption in database when sorting a lot of objects (a few thousands).
+
+---
+
 ## PAGINATE_COUNT
 
 Default: 50

@@ -296,7 +296,8 @@ class Site(ChangeLoggedModel, CustomFieldModel):
         to='extras.ImageAttachment'
     )
 
-    objects = NaturalOrderingManager()
+    if settings.NATURAL_ORDERING:
+        objects = NaturalOrderingManager()
     tags = TaggableManager()
 
     csv_headers = [
@@ -543,7 +544,8 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         to='extras.ImageAttachment'
     )
 
-    objects = NaturalOrderingManager()
+    if settings.NATURAL_ORDERING:
+        objects = NaturalOrderingManager()
     tags = TaggableManager()
 
     csv_headers = [
@@ -1432,7 +1434,8 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         to='extras.ImageAttachment'
     )
 
-    objects = NaturalOrderingManager()
+    if settings.NATURAL_ORDERING:
+        objects = NaturalOrderingManager()
     tags = TaggableManager()
 
     csv_headers = [
