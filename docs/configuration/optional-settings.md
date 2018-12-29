@@ -255,6 +255,23 @@ Enable this option to run the webhook backend. See the docs section on the webho
 
 ---
 
+## CHECK_UPDATES
+
+Default: False
+
+Enable this option to check automatically for updates.
+
+------
+
+## CHECK_UPDATES_URL
+
+Default: https://github.com/digitalocean/netbox.git
+
+In case if you're using a fork or a self hosted version you can change the version check url.
+Because we use git to check version updates based on tags.
+
+---
+
 ## Date and Time Formatting
 
 You may define custom formatting for date and times. For detailed instructions on writing format strings, please see [the Django documentation](https://docs.djangoproject.com/en/dev/ref/templates/builtins/#date).

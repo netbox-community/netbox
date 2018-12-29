@@ -8,7 +8,7 @@ from markdown import markdown
 
 from utilities.forms import unpack_grouped_choices
 from utilities.utils import foreground_color
-
+from utilities.version_check import check_newer_version
 
 register = template.Library()
 
@@ -208,3 +208,11 @@ def tag(tag, url_name=None):
         'tag': tag,
         'url_name': url_name,
     }
+
+
+@register.inclusion_tag('utilities/templatetags/checkUpdates.html')
+def check_updates():
+    """
+    Display if there is a update
+    """
+    return check_newer_version()

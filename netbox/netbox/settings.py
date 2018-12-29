@@ -337,6 +337,10 @@ INTERNAL_IPS = (
     '::1',
 )
 
+# Automatic update check
+CHECK_UPDATES = getattr(configuration, 'CHECK_UPDATES', False)
+CHECK_UPDATES_URL = getattr(configuration, 'CHECK_UPDATES_URL', 'https://github.com/digitalocean/netbox.git')
+HAS_UPDATES = {'latest_version': '1.0', 'last_updated': None}
 
 try:
     HOSTNAME = socket.gethostname()
