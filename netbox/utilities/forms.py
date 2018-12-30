@@ -238,10 +238,13 @@ class APISelect(SelectWithDisabled):
     :param api_url: API URL
     :param display_field: (Optional) Field to display for child in selection list. Defaults to `name`.
     :param disabled_indicator: (Optional) Mark option as disabled if this field equates true.
-    :param url_conditional_append: (Optional) A dict of URL query strings to append to the URL if the
+    :param conditional_query_params: (Optional) A dict of URL query params to append to the URL if the
         condition is met. The condition is the dict key and is specified in the form `<field_name>__<field_value>`.
-        If the provided field value is selected for the given field, the URL query string will be appended to
-        the rendered URL. This is useful in cases where a particular field value dictates an additional API filter.
+        If the provided field value is selected for the given field, the URL query param will be appended to
+        the rendered URL. The value is the in the from `<param_name>=<param_value>`. This is useful in cases where
+        a particular field value dictates an additional API filter.
+    :param additional_query_params: A dict of query params to append to the API request. The key is the name
+        of the query param and the value if the query param's value.
     """
 
     def __init__(
@@ -249,22 +252,45 @@ class APISelect(SelectWithDisabled):
         api_url,
         display_field=None,
         disabled_indicator=None,
-        url_conditional_append=None,
+        conditional_query_params=None,
+        additional_query_params=None,
         *args,
         **kwargs
     ):
 
         super().__init__(*args, **kwargs)
 
-        self.attrs['class'] = 'api-select'
-        self.attrs['api-url'] = '/{}{}'.format(settings.BASE_PATH, api_url.lstrip('/'))  # Inject BASE_PATH
+        self.attrs['class'] = 'netbox-select2-api'
+        self.attrs['data-url'] = '/{}{}'.format(settings.BASE_PATH, api_url.lstrip('/'))  # Inject BASE_PATH
         if display_field:
             self.attrs['display-field'] = display_field
         if disabled_indicator:
             self.attrs['disabled-indicator'] = disabled_indicator
-        if url_conditional_append:
-            for key, value in url_conditional_append.items():
-                self.attrs["data-url-conditional-append-{}".format(key)] = value
+        if conditional_query_params:
+            for key, value in conditional_query_params.items():
+                self.add_conditional_query_param(key, value)
+        if additional_query_params:
+            for key, value in additional_query_params.items():
+                self.add_additional_query_param(key, value)
+
+    def add_additional_query_param(self, name, value):
+        """
+        Add details for an additional query param in the form of a data-* attribute.
+
+        :param name: The name of the query param
+        :param value: The value of the query param
+        """
+        self.attrs['data-additional-query-param-{}'.format(name)] = value
+
+    def add_conditional_query_param(self, condition, value):
+        """
+        Add details for a URL query strings to append to the URL if the condition is met.
+        The condition is specified in the form `<field_name>__<field_value>`.
+
+        :param condition: The condition for the query param
+        :param value: The value of the query param
+        """
+        self.attrs['data-conditional-query-param-{}'.format(condition)] = value
 
 
 class APISelectMultiple(APISelect):

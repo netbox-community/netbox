@@ -1247,7 +1247,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
             # If editing an existing device, exclude it from the list of occupied rack units. This ensures that a device
             # can be flipped from one face to another.
-            self.fields['position'].widget.attrs['api-url'] += '&exclude={}'.format(self.instance.pk)
+            self.fields['position'].widget.add_additional_query_param('exclude', self.instance.pk)
 
             # Limit platform by manufacturer
             self.fields['platform'].queryset = Platform.objects.filter(
@@ -2243,7 +2243,8 @@ class CableCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
         required=False,
         widget=forms.Select(
             attrs={
-                'filter-for': 'termination_b_rack',
+                'data-filter-for-termination_b_rack': 'site_id',
+                'data-filter-for-termination_b_device': 'site_id',
             }
         )
     )
@@ -2255,9 +2256,9 @@ class CableCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
         label='Rack',
         required=False,
         widget=APISelect(
-            api_url='/api/dcim/racks/?site_id={{termination_b_site}}',
+            api_url='/api/dcim/racks/',
             attrs={
-                'filter-for': 'termination_b_device',
+                'data-filter-for-termination_b_device': 'rack_id',
                 'nullable': 'true',
             }
         )
@@ -2269,12 +2270,11 @@ class CableCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
             ('rack', 'termination_b_rack'),
         ),
         label='Device',
-        required=False,
         widget=APISelect(
-            api_url='/api/dcim/devices/?site_id={{termination_b_site}}&rack_id={{termination_b_rack}}',
+            api_url='/api/dcim/devices/',
             display_field='display_name',
             attrs={
-                'filter-for': 'termination_b_id',
+                'data-filter-for-termination_b_id': 'device_id',
             }
         )
     )
@@ -2290,19 +2290,15 @@ class CableCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
     termination_b_type = forms.ModelChoiceField(
         queryset=ContentType.objects.all(),
         label='Type',
-        widget=ContentTypeSelect(
-            attrs={
-                'filter-for': 'termination_b_id',
-            }
-        )
+        widget=ContentTypeSelect()
     )
     termination_b_id = forms.IntegerField(
         label='Name',
         widget=APISelect(
-            api_url='/api/dcim/{{termination_b_type}}s/?device_id={{termination_b_device}}',
+            api_url='/api/dcim/{{termination_b_type}}s/',
             disabled_indicator='cable',
-            url_conditional_append={
-                'termination_b_type__interface': '&type=physical',
+            conditional_query_params={
+                'termination_b_type__interface': 'type=physical',
             }
         )
     )
@@ -2310,7 +2306,7 @@ class CableCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
     class Meta:
         model = Cable
         fields = [
-            'termination_b_site', 'termination_b_rack', 'termination_b_device', 'livesearch', 'termination_b_type',
+            'termination_b_site', 'termination_b_rack', 'termination_b_device', 'termination_b_type',
             'termination_b_id', 'type', 'status', 'label', 'color', 'length', 'length_unit',
         ]
 
