@@ -35,7 +35,7 @@ Create a file in the same directory as `configuration.py` (typically `netbox/net
 import ldap
 
 # Server URI
-AUTH_LDAP_SERVER_URI = "ldaps://ad.example.com"
+AUTH_LDAP_SERVER_URI = "ldap://ad.example.com"
 
 # The following may be needed if you are binding to Active Directory.
 AUTH_LDAP_CONNECTION_OPTIONS = {
