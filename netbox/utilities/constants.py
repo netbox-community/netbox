@@ -2,6 +2,7 @@ COLOR_CHOICES = (
     ('aa1409', 'Dark red'),
     ('f44336', 'Red'),
     ('e91e63', 'Pink'),
+    ('ffe4e1', 'Rose'),
     ('ff66ff', 'Fuschia'),
     ('9c27b0', 'Purple'),
     ('673ab7', 'Dark purple'),
@@ -10,6 +11,7 @@ COLOR_CHOICES = (
     ('03a9f4', 'Light blue'),
     ('00bcd4', 'Cyan'),
     ('009688', 'Teal'),
+    ('00ffff', 'Aqua'),
     ('2f6a31', 'Dark green'),
     ('4caf50', 'Green'),
     ('8bc34a', 'Light green'),
@@ -23,4 +25,5 @@ COLOR_CHOICES = (
     ('9e9e9e', 'Grey'),
     ('607d8b', 'Dark grey'),
     ('111111', 'Black'),
+    ('ffffff', 'White'),
 )
