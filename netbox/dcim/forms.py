@@ -2241,10 +2241,11 @@ class CableCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
         queryset=Site.objects.all(),
         label='Site',
         required=False,
-        widget=forms.Select(
-            attrs={
-                'data-filter-for-termination_b_rack': 'site_id',
-                'data-filter-for-termination_b_device': 'site_id',
+        widget=APISelect(
+            api_url='/api/dcim/sites/',
+            filter_for={
+                'termination_b_rack': 'site_id',
+                'termination_b_device': 'site_id',
             }
         )
     )
@@ -2257,8 +2258,10 @@ class CableCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
         required=False,
         widget=APISelect(
             api_url='/api/dcim/racks/',
+            filter_for={
+                'termination_b_device': 'rack_id',
+            },
             attrs={
-                'data-filter-for-termination_b_device': 'rack_id',
                 'nullable': 'true',
             }
         )
@@ -2270,21 +2273,13 @@ class CableCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
             ('rack', 'termination_b_rack'),
         ),
         label='Device',
+        required=False,
         widget=APISelect(
             api_url='/api/dcim/devices/',
             display_field='display_name',
-            attrs={
-                'data-filter-for-termination_b_id': 'device_id',
+            filter_for={
+                'termination_b_id': 'device_id',
             }
-        )
-    )
-    livesearch = forms.CharField(
-        required=False,
-        label='Device',
-        widget=Livesearch(
-            query_key='q',
-            query_url='dcim-api:device-list',
-            field_to_update='termination_b_device'
         )
     )
     termination_b_type = forms.ModelChoiceField(

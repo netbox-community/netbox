@@ -238,6 +238,8 @@ class APISelect(SelectWithDisabled):
     :param api_url: API URL
     :param display_field: (Optional) Field to display for child in selection list. Defaults to `name`.
     :param disabled_indicator: (Optional) Mark option as disabled if this field equates true.
+    :param filter_for: (Optional) A dict of chained form fields for which this field is a filter. The key is the
+        name of the filter-for field (child field) and the value is the name of the query param filter.
     :param conditional_query_params: (Optional) A dict of URL query params to append to the URL if the
         condition is met. The condition is the dict key and is specified in the form `<field_name>__<field_value>`.
         If the provided field value is selected for the given field, the URL query param will be appended to
@@ -252,6 +254,7 @@ class APISelect(SelectWithDisabled):
         api_url,
         display_field=None,
         disabled_indicator=None,
+        filter_for=None,
         conditional_query_params=None,
         additional_query_params=None,
         *args,
@@ -266,12 +269,24 @@ class APISelect(SelectWithDisabled):
             self.attrs['display-field'] = display_field
         if disabled_indicator:
             self.attrs['disabled-indicator'] = disabled_indicator
+        if filter_for:
+            for key, value in filter_for.items():
+                self.add_filter_for(key, value) 
         if conditional_query_params:
             for key, value in conditional_query_params.items():
                 self.add_conditional_query_param(key, value)
         if additional_query_params:
             for key, value in additional_query_params.items():
                 self.add_additional_query_param(key, value)
+
+    def add_filter_for(self, name, value):
+        """
+        Add details for an additional query param in the form of a data-filter-for-* attribute.
+
+        :param name: The name of the query param
+        :param value: The value of the query param
+        """
+        self.attrs['data-filter-for-{}'.format(name)] = value
 
     def add_additional_query_param(self, name, value):
         """
