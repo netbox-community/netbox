@@ -119,11 +119,6 @@ label.required {
 input[name="pk"] {
     margin-top: 0;
 }
-/* Get around the background color problem if someone chooses white for the background */
-label[style="background-color: #ffffff"] {
-    color: #000000;
-}
-
 
 /* Tables */
 th.pk, td.pk {
