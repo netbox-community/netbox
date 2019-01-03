@@ -124,7 +124,7 @@ class BulkDisconnectView(GetReturnURLMixin, View):
 #
 
 class RegionListView(ObjectListView):
-    queryset = Region.objects.annotate(site_count=Count('sites'))
+    queryset = Region.objects.all()
     filter = filters.RegionFilter
     filter_form = forms.RegionFilterForm
     table = tables.RegionTable

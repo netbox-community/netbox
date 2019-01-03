@@ -201,6 +201,13 @@ class Region(MPTTModel, ChangeLoggedModel):
             self.parent.name if self.parent else None,
         )
 
+    @property
+    def site_count(self):
+        return Site.objects.filter(
+            Q(region=self) |
+            Q(region__in=self.get_descendants())
+        ).count()
+
 
 #
 # Sites

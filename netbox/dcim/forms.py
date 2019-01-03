@@ -236,9 +236,10 @@ class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
         required=False
     )
     region = FilterTreeNodeMultipleChoiceField(
-        queryset=Region.objects.annotate(filter_count=Count('sites')),
+        queryset=Region.objects.all(),
         to_field_name='slug',
         required=False,
+        count_attr='site_count'
     )
     tenant = FilterChoiceField(
         queryset=Tenant.objects.annotate(filter_count=Count('sites')),
