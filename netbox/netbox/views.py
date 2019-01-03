@@ -11,13 +11,13 @@ from circuits.filters import CircuitFilter, ProviderFilter
 from circuits.models import Circuit, Provider
 from circuits.tables import CircuitTable, ProviderTable
 from dcim.filters import (
-    DeviceFilter, DeviceTypeFilter, RackFilter, RackGroupFilter, SiteFilter, VirtualChassisFilter, CableFilter
+    CableFilter, DeviceFilter, DeviceTypeFilter, RackFilter, RackGroupFilter, SiteFilter, VirtualChassisFilter
 )
 from dcim.models import (
-    Cable, ConsolePort, Device, DeviceType, Interface, PowerPort, Rack, RackGroup, Site, VirtualChassis, Cable
+    Cable, ConsolePort, Device, DeviceType, Interface, PowerPort, Rack, RackGroup, Site, VirtualChassis
 )
 from dcim.tables import (
-    DeviceDetailTable, DeviceTypeTable, RackTable, RackGroupTable, SiteTable, VirtualChassisTable, CableTable
+    CableTable, DeviceDetailTable, DeviceTypeTable, RackTable, RackGroupTable, SiteTable, VirtualChassisTable
 )
 from extras.models import ObjectChange, ReportResult, TopologyMap
 from ipam.filters import AggregateFilter, IPAddressFilter, PrefixFilter, VLANFilter, VRFFilter
