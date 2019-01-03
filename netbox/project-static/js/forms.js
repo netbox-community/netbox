@@ -158,34 +158,41 @@ $(document).ready(function() {
     });
 
     // API backed tags
-    var tags = $('#id_tags').val() === "" ? [] : $('#id_tags').val().split(/,\s*/);
+    var tags = $('#id_tags');
+    if (tags.length > 0 && tags.val().length > 0){
+        tags = $('#id_tags').val().split(/,\s*/);
+    } else {
+        tags = [];
+    }
     tag_objs = $.map(tags, function (tag) {
         return {
             id: tag,
             text: tag,
+            selected: true
         }
     });
     // Replace the django issued text input with a select element
     $('#id_tags').replaceWith('<select name="tags" id="id_tags" class="form-control"></select>');
     $('#id_tags').select2({
-        tags: tag_objs,
-        data: function(params) {
-            // paging
-            var offset = params.page * 50 || 0;
-            var parameters = {
-                q: params.term,
-                brief: 1,
-                limit: 50,
-                offset: offset,
-            };
-            return parameters;
-        },
+        tags: true,
+        data: tag_objs,
         multiple: true,
         allowClear: true,
         placeholder: "Tags",
         ajax: {
             delay: 250,
             url: "/api/extras/tags/",
+            data: function(params) {
+                // paging
+                var offset = params.page * 50 || 0;
+                var parameters = {
+                    q: params.term,
+                    brief: 1,
+                    limit: 50,
+                    offset: offset,
+                };
+                return parameters;
+            },
             processResults: function (data) {
                 var results = $.map(data.results, function (obj) {
                     return {
@@ -204,16 +211,14 @@ $(document).ready(function() {
             }
         }
     });
-    $('#id_tags').val(tags).trigger("change");
     $('#id_tags').closest('form').submit(function(event){
         // django-taggit can only accept a single comma seperated string value
         var value = $('#id_tags').val();
-        var final_tags = "";
         if (value.length > 0){
-            final_tags = value.join(', ');
+            var final_tags = value.join(', ');
+            $('#id_tags').val(null).trigger('change');
+            var option = new Option(final_tags, final_tags, true, true);
+            $('#id_tags').append(option).trigger('change');
         }
-        $('#id_tags').val(null);
-        var option = new Option(final_tags, final_tags, true, true);
-        $('#id_tags').append(option);
     });
 });
