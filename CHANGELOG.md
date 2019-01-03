@@ -2,6 +2,7 @@ v2.5.3 (FUTURE)
 
 ## Enhancements
 
+* [#1630](https://github.com/digitalocean/netbox/issues/1630) - Enable bulk editing of prefix/IP mask length
 * [#2693](https://github.com/digitalocean/netbox/issues/2693) - Additional cable colors
 * [#2726](https://github.com/digitalocean/netbox/issues/2726) - Include cables in global search
 

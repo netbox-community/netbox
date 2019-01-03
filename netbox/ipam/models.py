@@ -385,6 +385,15 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
             self.description,
         )
 
+    def _set_prefix_length(self, value):
+        """
+        Expose the IPNetwork object's prefixlen attribute on the parent model so that it can be manipulated directly,
+        e.g. for bulk editing.
+        """
+        if self.prefix is not None:
+            self.prefix.prefixlen = value
+    prefix_length = property(fset=_set_prefix_length)
+
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]
 
@@ -629,6 +638,15 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
             is_primary,
             self.description,
         )
+
+    def _set_mask_length(self, value):
+        """
+        Expose the IPNetwork object's prefixlen attribute on the parent model so that it can be manipulated directly,
+        e.g. for bulk editing.
+        """
+        if self.address is not None:
+            self.address.prefixlen = value
+    mask_length = property(fset=_set_mask_length)
 
     @property
     def device(self):
