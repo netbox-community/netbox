@@ -19,7 +19,7 @@ from utilities.forms import (
     BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField, ComponentForm,
     ConfirmationForm, ContentTypeSelect, CSVChoiceField, ExpandableNameField, FilterChoiceField,
     FilterTreeNodeMultipleChoiceField, FlexibleModelChoiceField, JSONField, Livesearch, SelectWithPK, SmallTextarea,
-    SlugField, BOOLEAN_WITH_BLANK_CHOICES, COLOR_CHOICES,
+    SlugField, StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES, COLOR_CHOICES,
 
 )
 from virtualization.models import Cluster, ClusterGroup
@@ -109,7 +109,10 @@ class RegionFilterForm(BootstrapMixin, forms.Form):
 class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     region = TreeNodeChoiceField(
         queryset=Region.objects.all(),
-        required=False
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/regions/"
+        )
     )
     slug = SlugField()
     comments = CommentField()
@@ -135,6 +138,8 @@ class SiteForm(BootstrapMixin, TenancyForm, CustomFieldForm):
                     'rows': 3,
                 }
             ),
+            'status': StaticSelect2(),
+            'time_zone': StaticSelect2(),
         }
         help_texts = {
             'name': "Full name of the site",

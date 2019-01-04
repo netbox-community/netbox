@@ -336,6 +336,18 @@ class Livesearch(forms.TextInput):
             self.attrs['data-label'] = obj_label
 
 
+class StaticSelect2(SelectWithDisabled):
+    """
+    A static content using the Select2 widget
+    """
+
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        self.attrs['class'] = 'netbox-select2-static'
+
+
 #
 # Form fields
 #

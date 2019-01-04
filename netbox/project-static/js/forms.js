@@ -81,9 +81,17 @@ $(document).ready(function() {
         return rendered_url
     }
 
+    // Static choice selection
+    $('.netbox-select2-static').select2({
+        allowClear: true,
+        placeholder: "---------",
+    })
+
     // API backed single selection
     // Includes live search and chained fields
     $('.netbox-select2-api').select2({
+        allowClear: true,
+        placeholder: "---------",
         ajax: {
             delay: 500,
             url: function(params) {
