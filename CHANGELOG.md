@@ -8,6 +8,11 @@ v2.5.3 (FUTURE)
 * [#2693](https://github.com/digitalocean/netbox/issues/2693) - Additional cable colors
 * [#2726](https://github.com/digitalocean/netbox/issues/2726) - Include cables in global search
 
+## Bug Fixes
+
+* [#2742](https://github.com/digitalocean/netbox/issues/2742) - Preserve cluster assignment when editing a device
+
+
 ---
 
 v2.5.2 (2018-12-21)
