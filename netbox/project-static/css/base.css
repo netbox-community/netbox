@@ -140,6 +140,9 @@ table.attr-table td:nth-child(1) {
 div.paginator {
     margin-bottom: 20px;
 }
+div.paginator form {
+    margin-bottom: 6px;
+}
 nav ul.pagination {
     margin-top: 0;
     margin-bottom: 8px !important;

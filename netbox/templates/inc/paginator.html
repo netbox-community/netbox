@@ -1,6 +1,6 @@
 {% load helpers %}
 
-<div class="paginator pull-right">
+<div class="paginator pull-right text-right">
     {% if paginator.num_pages > 1 %}
         <nav>
             <ul class="pagination pull-right">
@@ -19,6 +19,13 @@
                 {% endif %}
             </ul>
         </nav>
+        <form method="get">
+            <select name="per_page" id="per_page">
+                {% for n in settings.PER_PAGE_DEFAULTS %}
+                    <option value="{{ n }}"{% if page.paginator.per_page == n %} selected="selected"{% endif %}>{{ n }}</option>
+                {% endfor %}
+            </select> per page
+        </form>
     {% endif %}
     {% if page %}
         <div class="text-right text-muted">

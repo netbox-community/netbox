@@ -1,3 +1,21 @@
+v2.5.3 (FUTURE)
+
+## Enhancements
+
+* [#1630](https://github.com/digitalocean/netbox/issues/1630) - Enable bulk editing of prefix/IP mask length
+* [#1870](https://github.com/digitalocean/netbox/issues/1870) - Add per-page toggle to object lists
+* [#1871](https://github.com/digitalocean/netbox/issues/1871) - Enable filtering sites by parent region
+* [#1983](https://github.com/digitalocean/netbox/issues/1983) - Enable regular expressions when bulk renaming device components
+* [#2693](https://github.com/digitalocean/netbox/issues/2693) - Additional cable colors
+* [#2726](https://github.com/digitalocean/netbox/issues/2726) - Include cables in global search
+
+## Bug Fixes
+
+* [#2742](https://github.com/digitalocean/netbox/issues/2742) - Preserve cluster assignment when editing a device
+
+
+---
+
 v2.5.2 (2018-12-21)
 
 ## Enhancements

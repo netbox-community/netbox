@@ -1,5 +1,10 @@
 $(document).ready(function() {
 
+    // Pagination
+    $('select#per_page').change(function() {
+        this.form.submit();
+    });
+
     // "Toggle" checkbox for object lists (PK column)
     $('input:checkbox.toggle').click(function() {
         $(this).closest('table').find('input:checkbox[name=pk]').prop('checked', $(this).prop('checked'));

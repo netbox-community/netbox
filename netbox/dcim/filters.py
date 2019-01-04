@@ -62,14 +62,14 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         choices=SITE_STATUS_CHOICES,
         null_value=None
     )
-    region_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Region.objects.all(),
+    region_id = django_filters.NumberFilter(
+        method='filter_region',
+        field_name='pk',
         label='Region (ID)',
     )
-    region = django_filters.ModelMultipleChoiceFilter(
-        field_name='region__slug',
-        queryset=Region.objects.all(),
-        to_field_name='slug',
+    region = django_filters.CharFilter(
+        method='filter_region',
+        field_name='slug',
         label='Region (slug)',
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
@@ -107,6 +107,16 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         except ValueError:
             pass
         return queryset.filter(qs_filter)
+
+    def filter_region(self, queryset, name, value):
+        try:
+            region = Region.objects.get(**{name: value})
+        except ObjectDoesNotExist:
+            return queryset.none()
+        return queryset.filter(
+            Q(region=region) |
+            Q(region__in=region.get_descendants())
+        )
 
 
 class RackGroupFilter(django_filters.FilterSet):
