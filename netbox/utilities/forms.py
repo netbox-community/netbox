@@ -271,7 +271,7 @@ class APISelect(SelectWithDisabled):
             self.attrs['disabled-indicator'] = disabled_indicator
         if filter_for:
             for key, value in filter_for.items():
-                self.add_filter_for(key, value) 
+                self.add_filter_for(key, value)
         if conditional_query_params:
             for key, value in conditional_query_params.items():
                 self.add_conditional_query_param(key, value)
