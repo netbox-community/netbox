@@ -50,6 +50,11 @@ class TenantForm(BootstrapMixin, CustomFieldForm):
         fields = [
             'name', 'slug', 'group', 'description', 'comments', 'tags',
         ]
+        widgets = {
+            'group': APISelect(
+                api_url="/api/tenancy/tenant-groups/"
+            )
+        }
 
 
 class TenantCSVForm(forms.ModelForm):
@@ -112,9 +117,12 @@ class TenancyForm(ChainedFieldsMixin, forms.Form):
     tenant_group = forms.ModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
-        widget=forms.Select(
+        widget=APISelect(
+            api_url="/api/tenancy/tenant-groups/",
+            filter_for={
+                'tenant': 'group_id',
+            },
             attrs={
-                'filter-for': 'tenant',
                 'nullable': 'true',
             }
         )
@@ -126,7 +134,7 @@ class TenancyForm(ChainedFieldsMixin, forms.Form):
         ),
         required=False,
         widget=APISelect(
-            api_url='/api/tenancy/tenants/?group_id={{tenant_group}}'
+            api_url='/api/tenancy/tenants/'
         )
     )
 

@@ -195,7 +195,34 @@ class SelectWithDisabled(forms.Select):
     option_template_name = 'widgets/selectwithdisabled_option.html'
 
 
-class SelectWithPK(forms.Select):
+class StaticSelect2(SelectWithDisabled):
+    """
+    A static content using the Select2 widget
+
+    :param filter_for: (Optional) A dict of chained form fields for which this field is a filter. The key is the
+        name of the filter-for field (child field) and the value is the name of the query param filter.
+    """
+
+    def __init__(self, filter_for=None, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        self.attrs['class'] = 'netbox-select2-static'
+        if filter_for:
+            for key, value in filter_for.items():
+                self.add_filter_for(key, value)
+
+    def add_filter_for(self, name, value):
+        """
+        Add details for an additional query param in the form of a data-filter-for-* attribute.
+
+        :param name: The name of the query param
+        :param value: The value of the query param
+        """
+        self.attrs['data-filter-for-{}'.format(name)] = value
+
+
+class SelectWithPK(StaticSelect2):
     """
     Include the primary key of each option in the option label (e.g. "Router7 (4721)").
     """
@@ -334,18 +361,6 @@ class Livesearch(forms.TextInput):
 
         if obj_label:
             self.attrs['data-label'] = obj_label
-
-
-class StaticSelect2(SelectWithDisabled):
-    """
-    A static content using the Select2 widget
-    """
-
-    def __init__(self, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-
-        self.attrs['class'] = 'netbox-select2-static'
 
 
 #
