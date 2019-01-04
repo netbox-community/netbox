@@ -1,3 +1,5 @@
+import re
+
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger
@@ -50,7 +52,16 @@ class BulkRenameView(GetReturnURLMixin, View):
 
             if form.is_valid():
                 for obj in selected_objects:
-                    obj.new_name = obj.name.replace(form.cleaned_data['find'], form.cleaned_data['replace'])
+                    find = form.cleaned_data['find']
+                    replace = form.cleaned_data['replace']
+                    if form.cleaned_data['use_regex']:
+                        try:
+                            obj.new_name = re.sub(find, replace, obj.name)
+                        # Catch regex group reference errors
+                        except re.error:
+                            obj.new_name = obj.name
+                    else:
+                        obj.new_name = obj.name.replace(find, replace)
 
                 if '_apply' in request.POST:
                     for obj in selected_objects:
