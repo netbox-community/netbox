@@ -1,3 +1,7 @@
+Select2 issues
+* [#2590](https://github.com/digitalocean/netbox/issues/2590) - Implemented the color picker with Select2 to show colors in the background
+
+
 v2.5.3 (FUTURE)
 
 ## Enhancements
