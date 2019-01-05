@@ -169,6 +169,7 @@ class ColorSelect(forms.Select):
     def __init__(self, *args, **kwargs):
         kwargs['choices'] = add_blank_choice(COLOR_CHOICES)
         super().__init__(*args, **kwargs)
+        self.attrs['class'] = 'netbox-select2-color-picker'
 
 
 class BulkEditNullBooleanSelect(forms.NullBooleanSelect):

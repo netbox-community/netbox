@@ -120,6 +120,117 @@ input[name="pk"] {
     margin-top: 0;
 }
 
+/* Color Selections */
+.color-selection-aa1409 {
+    background-color: #aa1409;
+    color: #ffffff;
+}
+.color-selection-f44336 {
+    background-color: #f44336;
+    color: #ffffff;
+}
+.color-selection-e91e63 {
+    background-color: #e91e63;
+    color: #ffffff;
+}
+.color-selection-ffe4e1 {
+    background-color: #ffe4e1;
+    color: #000000;
+}
+.color-selection-ff66ff {
+    background-color: #ff66ff;
+    color: #ffffff;
+}
+.color-selection-9c27b0 {
+    background-color: #9c27b0;
+    color: #ffffff;
+}
+.color-selection-673ab7 {
+    background-color: #673ab7;
+    color: #ffffff;
+}
+.color-selection-3f51b5 {
+    background-color: #3f51b5;
+    color: #ffffff;
+}
+.color-selection-2196f3 {
+    background-color: #2196f3;
+    color: #ffffff;
+}
+.color-selection-03a9f4 {
+    background-color: #03a9f4;
+    color: #ffffff;
+}
+.color-selection-00bcd4 {
+    background-color: #00bcd4;
+    color: #ffffff;
+}
+.color-selection-009688 {
+    background-color: #009688;
+    color: #ffffff;
+}
+.color-selection-00ffff {
+    background-color: #00ffff;
+    color: #ffffff;
+}
+.color-selection-2f6a31 {
+    background-color: #2f6a31;
+    color: #ffffff;
+}
+.color-selection-4caf50 {
+    background-color: #4caf50;
+    color: #ffffff;
+}
+.color-selection-8bc34a {
+    background-color: #8bc34a;
+    color: #ffffff;
+}
+.color-selection-cddc39 {
+    background-color: #cddc39;
+    color: #000000;
+}
+.color-selection-ffeb3b {
+    background-color: #ffeb3b;
+    color: #000000;
+}
+.color-selection-ffc107 {
+    background-color: #ffc107;
+    color: #000000;
+}
+.color-selection-ff9800 {
+    background-color: #ff9800;
+    color: #ffffff;
+}
+.color-selection-ff5722 {
+    background-color: #ff5722;
+    color: #ffffff;
+}
+.color-selection-795548 {
+    background-color: #795548;
+    color: #ffffff;
+}
+.color-selection-c0c0c0 {
+    background-color: #c0c0c0;
+    color: #000000;
+}
+.color-selection-9e9e9e {
+    background-color: #9e9e9e;
+    color: #ffffff;
+}
+.color-selection-607d8b {
+    background-color: #607d8b;
+    color: #ffffff;
+}
+.color-selection-111111 {
+    background-color: #111111;
+    color: #ffffff;
+}
+.color-selection-ffffff {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+
 /* Tables */
 th.pk, td.pk {
     padding-bottom: 6px;

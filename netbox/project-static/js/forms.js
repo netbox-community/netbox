@@ -86,6 +86,22 @@ $(document).ready(function() {
         return rendered_url
     }
 
+    function colorPickerClassCopy(data, container) {
+        console.log("hello");
+        if (data.element) {
+            $(container).addClass($(data.element).attr("class"));
+        }
+        return data.text;
+    }
+
+    // Color Picker
+    $('.netbox-select2-color-picker').select2({
+        allowClear: true,
+        placeholder: "---------",
+        templateResult: colorPickerClassCopy,
+        templateSelection: colorPickerClassCopy,
+    })
+
     // Static choice selection
     $('.netbox-select2-static').select2({
         allowClear: true,
