@@ -50,6 +50,7 @@ and run `upgrade.sh`.
 ## Community SDK
 
 - [netbox-client-ruby](https://github.com/ninech/netbox-client-ruby) A ruby client library for Netbox v2.
+- [netboxapi-client](https://github.com/bpetit/netboxapi-client) Python client library and CLI tool for Netbox.
 
 ## Ansible Inventory
 
