@@ -12,6 +12,7 @@ v2.5.3 (FUTURE)
 ## Bug Fixes
 
 * [#2742](https://github.com/digitalocean/netbox/issues/2742) - Preserve cluster assignment when editing a device
+* [#2757](https://github.com/digitalocean/netbox/issues/2757) - Always treat first/last IPs within a /31 or /127 as usable
 * [#2762](https://github.com/digitalocean/netbox/issues/2762) - Add missing DCIM field values to API `_choices` endpoint
 
 
