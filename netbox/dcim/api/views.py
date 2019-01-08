@@ -35,13 +35,18 @@ from .exceptions import MissingFilterException
 
 class DCIMFieldChoicesViewSet(FieldChoicesViewSet):
     fields = (
-        (Cable, ['length_unit']),
-        (Device, ['face', 'status']),
+        (Cable, ['length_unit', 'status', 'type']),
         (ConsolePort, ['connection_status']),
-        (Interface, ['connection_status', 'form_factor', 'mode']),
+        (Device, ['face', 'status']),
+        (DeviceType, ['subdevice_role']),
+        (FrontPort, ['type']),
+        (FrontPortTemplate, ['type']),
+        (Interface, ['form_factor', 'mode']),
         (InterfaceTemplate, ['form_factor']),
         (PowerPort, ['connection_status']),
         (Rack, ['outer_unit', 'status', 'type', 'width']),
+        (RearPort, ['type']),
+        (RearPortTemplate, ['type']),
         (Site, ['status']),
     )
 
