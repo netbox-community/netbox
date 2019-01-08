@@ -67,6 +67,7 @@ $(document).ready(function() {
         form.submit();
     });
 
+    // Parse URLs which may contain variable refrences to other field values
     function parseURL(url) {
         var filter_regex = /\{\{([a-z_]+)\}\}/g;
         var match;
@@ -86,8 +87,8 @@ $(document).ready(function() {
         return rendered_url
     }
 
+    // Assign color picker selection classes
     function colorPickerClassCopy(data, container) {
-        console.log("hello");
         if (data.element) {
             $(container).addClass($(data.element).attr("class"));
         }
@@ -108,23 +109,27 @@ $(document).ready(function() {
         placeholder: "---------",
     })
 
-    // API backed single selection
+    // API backed selection
     // Includes live search and chained fields
+    // The `multiple` setting may be controled via a data-* attribute
     $('.netbox-select2-api').select2({
         allowClear: true,
         placeholder: "---------",
+
         ajax: {
             delay: 500,
+
             url: function(params) {
                 var element = this[0];
-                var url = element.getAttribute("data-url");
-                url = parseURL(url);
+                var url = parseURL(element.getAttribute("data-url"));
+
                 if (url.includes("{{")) {
-                    // URL is not furry rendered yet, abort the request
-                    return null;
+                    // URL is not fully rendered yet, abort the request
+                    return false;
                 }
                 return url;
             },
+
             data: function(params) {
                 var element = this[0];
                 // Paging
@@ -136,29 +141,35 @@ $(document).ready(function() {
                     limit: 50,
                     offset: offset,
                 };
+
                 // filter-for fields from a chain
                 var attr_name = "data-filter-for-" + $(element).attr("name");
                 var form = $(element).closest('form');
                 var filter_for_elements = form.find("select[" + attr_name + "]");
+
                 filter_for_elements.each(function(index, filter_for_element) {
                     var param_name = $(filter_for_element).attr(attr_name);
                     var value = $(filter_for_element).val();
+
                     if (param_name && value) {
-                        parameters[param_name] = $(filter_for_element).val();
+                        parameters[param_name] = value;
                     }
                 });
+
                 // Conditional query params
                 $.each(element.attributes, function(index, attr){
                     if (attr.name.includes("data-conditional-query-param-")){
                         var conditional = attr.name.split("data-conditional-query-param-")[1].split("__");
                         var field = $("#id_" + conditional[0]);
                         var field_value = conditional[1];
+                        
                         if ($('option:selected', field).attr('api-value') === field_value){
                             var _val = attr.value.split("=");
                             parameters[_val[0]] = _val[1];
                         }
                     }
                 })
+
                 // Additional query params
                 $.each(element.attributes, function(index, attr){
                     if (attr.name.includes("data-additional-query-param-")){
@@ -166,14 +177,28 @@ $(document).ready(function() {
                         parameters[param_name] = attr.value;
                     }
                 })
-                return parameters;
+
+                // This will handle params with multiple values (i.e. for list filter forms)
+                return $.param(parameters, true);
             },
+
             processResults: function (data) {
                 var element = this.$element[0];
                 var results = $.map(data.results, function (obj) {
-                    obj.text = obj.name || obj[element.getAttribute('display-field')];
+                    obj.text = obj[element.getAttribute('display-field')] || obj.name;
+                    obj.id = obj[element.getAttribute('value-field')] || obj.id;
                     return obj;
                 });
+
+                // Handle the null option
+                if (element.getAttribute('data-null-option')) {
+                    var null_option = $(element).children()[0]
+                    results.unshift({
+                        id: null_option.value,
+                        text: null_option.text
+                    });
+                }
+
                 // Check if there are more results to page
                 var page = data.next !== null;
                 return {
@@ -208,9 +233,11 @@ $(document).ready(function() {
         multiple: true,
         allowClear: true,
         placeholder: "Tags",
+
         ajax: {
             delay: 250,
             url: "/api/extras/tags/",
+
             data: function(params) {
                 // paging
                 var offset = params.page * 50 || 0;
@@ -222,6 +249,7 @@ $(document).ready(function() {
                 };
                 return parameters;
             },
+
             processResults: function (data) {
                 var results = $.map(data.results, function (obj) {
                     return {
@@ -229,6 +257,7 @@ $(document).ready(function() {
                         text: obj.name
                     }
                 });
+
                 // Check if there are more results to page
                 var page = data.next !== null;
                 return {

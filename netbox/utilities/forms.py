@@ -186,6 +186,7 @@ class BulkEditNullBooleanSelect(forms.NullBooleanSelect):
             ('2', 'Yes'),
             ('3', 'No'),
         )
+        self.attrs['class'] = 'netbox-select2-static'
 
 
 class SelectWithDisabled(forms.Select):
@@ -221,6 +222,14 @@ class StaticSelect2(SelectWithDisabled):
         :param value: The value of the query param
         """
         self.attrs['data-filter-for-{}'.format(name)] = value
+
+
+class StaticSelect2Multiple(StaticSelect2, forms.SelectMultiple):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.attrs['data-multiple'] = 1
 
 
 class SelectWithPK(StaticSelect2):
@@ -265,6 +274,7 @@ class APISelect(SelectWithDisabled):
 
     :param api_url: API URL
     :param display_field: (Optional) Field to display for child in selection list. Defaults to `name`.
+    :param value_field: (Optional) Field to use for the option value in selection list. Defaults to `id`.
     :param disabled_indicator: (Optional) Mark option as disabled if this field equates true.
     :param filter_for: (Optional) A dict of chained form fields for which this field is a filter. The key is the
         name of the filter-for field (child field) and the value is the name of the query param filter.
@@ -273,18 +283,21 @@ class APISelect(SelectWithDisabled):
         If the provided field value is selected for the given field, the URL query param will be appended to
         the rendered URL. The value is the in the from `<param_name>=<param_value>`. This is useful in cases where
         a particular field value dictates an additional API filter.
-    :param additional_query_params: A dict of query params to append to the API request. The key is the name
-        of the query param and the value if the query param's value.
+    :param additional_query_params: Optional) A dict of query params to append to the API request. The key is the
+        name of the query param and the value if the query param's value.
+    :param null_option: If true, include the static null option in the selection list.
     """
 
     def __init__(
         self,
         api_url,
         display_field=None,
+        value_field=None,
         disabled_indicator=None,
         filter_for=None,
         conditional_query_params=None,
         additional_query_params=None,
+        null_option=False,
         *args,
         **kwargs
     ):
@@ -295,6 +308,8 @@ class APISelect(SelectWithDisabled):
         self.attrs['data-url'] = '/{}{}'.format(settings.BASE_PATH, api_url.lstrip('/'))  # Inject BASE_PATH
         if display_field:
             self.attrs['display-field'] = display_field
+        if value_field:
+            self.attrs['value-field'] = value_field
         if disabled_indicator:
             self.attrs['disabled-indicator'] = disabled_indicator
         if filter_for:
@@ -306,6 +321,8 @@ class APISelect(SelectWithDisabled):
         if additional_query_params:
             for key, value in additional_query_params.items():
                 self.add_additional_query_param(key, value)
+        if null_option:
+            self.attrs['data-null-option'] = 1
 
     def add_filter_for(self, name, value):
         """
@@ -336,8 +353,12 @@ class APISelect(SelectWithDisabled):
         self.attrs['data-conditional-query-param-{}'.format(condition)] = value
 
 
-class APISelectMultiple(APISelect):
-    allow_multiple_selected = True
+class APISelectMultiple(APISelect, forms.SelectMultiple):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.attrs['data-multiple'] = 1
 
 
 class Livesearch(forms.TextInput):
