@@ -13,6 +13,7 @@ This section of the documentation discusses installing and configuring the NetBo
 ```no-highlight
 # yum install -y epel-release
 # yum install -y gcc python36 python36-devel python36-setuptools libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel redhat-rpm-config
+# ln -s /usr/lib64/python3.6 /usr/local/lib/python3.6 (without the symlink, easy_install-3.6 pip won't work)
 # easy_install-3.6 pip
 # ln -s /usr/bin/python36 /usr/bin/python3
 ```
