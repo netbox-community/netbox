@@ -17,7 +17,7 @@ from tenancy.models import Tenant
 from utilities.forms import (
     AnnotatedMultipleChoiceField, APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple,
     BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField,
-    ColorSelect, CommentField, ComponentForm, ConfirmationForm, ContentTypeSelect, CSVChoiceField, 
+    ColorSelect, CommentField, ComponentForm, ConfirmationForm, ContentTypeSelect, CSVChoiceField,
     ExpandableNameField, FilterChoiceField, FilterTreeNodeMultipleChoiceField, FlexibleModelChoiceField,
     JSONField, Livesearch, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple,
     BOOLEAN_WITH_BLANK_CHOICES, COLOR_CHOICES,
@@ -264,10 +264,8 @@ class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
         required=False,
         label='Search'
     )
-    status = AnnotatedMultipleChoiceField(
+    status = forms.MultipleChoiceField(
         choices=SITE_STATUS_CHOICES,
-        annotate=Site.objects.all(),
-        annotate_field='status',
         required=False,
         widget=StaticSelect2Multiple()
     )
@@ -281,7 +279,7 @@ class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
         )
     )
     tenant = FilterChoiceField(
-        queryset=Tenant.objects.annotate(filter_count=Count('sites')),
+        queryset=Tenant.objects.all(),
         to_field_name='slug',
         null_label='-- None --',
         widget=APISelectMultiple(
@@ -332,9 +330,7 @@ class RackGroupCSVForm(forms.ModelForm):
 
 class RackGroupFilterForm(BootstrapMixin, forms.Form):
     site = FilterChoiceField(
-        queryset=Site.objects.annotate(
-            filter_count=Count('rack_groups')
-        ),
+        queryset=Site.objects.all(),
         to_field_name='slug',
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
@@ -609,9 +605,7 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
         label='Search'
     )
     site = FilterChoiceField(
-        queryset=Site.objects.annotate(
-            filter_count=Count('racks')
-        ),
+        queryset=Site.objects.all(),
         to_field_name='slug',
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
@@ -619,11 +613,7 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
         )
     )
     group_id = FilterChoiceField(
-        queryset=RackGroup.objects.select_related(
-            'site'
-        ).annotate(
-            filter_count=Count('racks')
-        ),
+        queryset=RackGroup.objects.select_related('site'),
         label='Rack group',
         null_label='-- None --',
         widget=APISelectMultiple(
@@ -632,9 +622,7 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
         )
     )
     tenant = FilterChoiceField(
-        queryset=Tenant.objects.annotate(
-            filter_count=Count('racks')
-        ),
+        queryset=Tenant.objects.all(),
         to_field_name='slug',
         null_label='-- None --',
         widget=APISelectMultiple(
@@ -651,9 +639,7 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
         widget=StaticSelect2Multiple()
     )
     role = FilterChoiceField(
-        queryset=RackRole.objects.annotate(
-            filter_count=Count('racks')
-        ),
+        queryset=RackRole.objects.all(),
         to_field_name='slug',
         null_label='-- None --',
         widget=APISelectMultiple(
@@ -713,9 +699,7 @@ class RackReservationFilterForm(BootstrapMixin, forms.Form):
         label='Search'
     )
     site = FilterChoiceField(
-        queryset=Site.objects.annotate(
-            filter_count=Count('racks__reservations')
-        ),
+        queryset=Site.objects.all(),
         to_field_name='slug',
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
@@ -723,11 +707,7 @@ class RackReservationFilterForm(BootstrapMixin, forms.Form):
         )
     )
     group_id = FilterChoiceField(
-        queryset=RackGroup.objects.select_related(
-            'site'
-        ).annotate(
-            filter_count=Count('racks__reservations')
-        ),
+        queryset=RackGroup.objects.select_related('site'),
         label='Rack group',
         null_label='-- None --',
         widget=APISelectMultiple(
@@ -736,9 +716,7 @@ class RackReservationFilterForm(BootstrapMixin, forms.Form):
         )
     )
     tenant = FilterChoiceField(
-        queryset=Tenant.objects.annotate(
-            filter_count=Count('rackreservations')
-        ),
+        queryset=Tenant.objects.all(),
         to_field_name='slug',
         null_label='-- None --',
         widget=APISelectMultiple(
@@ -886,9 +864,7 @@ class DeviceTypeFilterForm(BootstrapMixin, CustomFieldFilterForm):
         label='Search'
     )
     manufacturer = FilterChoiceField(
-        queryset=Manufacturer.objects.annotate(
-            filter_count=Count('device_types')
-        ),
+        queryset=Manufacturer.objects.all(),
         to_field_name='slug',
         widget=APISelectMultiple(
             api_url="/api/dcim/manufacturers/",
@@ -1690,9 +1666,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
         )
     )
     site = FilterChoiceField(
-        queryset=Site.objects.annotate(
-            filter_count=Count('devices')
-        ),
+        queryset=Site.objects.all(),
         to_field_name='slug',
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
@@ -1706,8 +1680,6 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     rack_group_id = FilterChoiceField(
         queryset=RackGroup.objects.select_related(
             'site'
-        ).annotate(
-            filter_count=Count('racks__devices')
         ),
         label='Rack group',
         widget=APISelectMultiple(
@@ -1718,9 +1690,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
         )
     )
     rack_id = FilterChoiceField(
-        queryset=Rack.objects.annotate(
-            filter_count=Count('devices')
-        ),
+        queryset=Rack.objects.all(),
         label='Rack',
         null_label='-- None --',
         widget=APISelectMultiple(
@@ -1729,9 +1699,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
         )
     )
     role = FilterChoiceField(
-        queryset=DeviceRole.objects.annotate(
-            filter_count=Count('devices')
-        ),
+        queryset=DeviceRole.objects.all(),
         to_field_name='slug',
         widget=APISelectMultiple(
             api_url="/api/dcim/device-roles/",
@@ -1740,9 +1708,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
         )
     )
     tenant = FilterChoiceField(
-        queryset=Tenant.objects.annotate(
-            filter_count=Count('devices')
-        ),
+        queryset=Tenant.objects.all(),
         to_field_name='slug',
         null_label='-- None --',
         widget=APISelectMultiple(
@@ -1764,10 +1730,6 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     device_type_id = FilterChoiceField(
         queryset=DeviceType.objects.select_related(
             'manufacturer'
-        ).order_by(
-            'model'
-        ).annotate(
-            filter_count=Count('instances'),
         ),
         label='Model',
         widget=APISelectMultiple(
@@ -1776,9 +1738,7 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
         )
     )
     platform = FilterChoiceField(
-        queryset=Platform.objects.annotate(
-            filter_count=Count('devices')
-        ),
+        queryset=Platform.objects.all(),
         to_field_name='slug',
         null_label='-- None --',
         widget=APISelectMultiple(
@@ -2941,9 +2901,7 @@ class InventoryItemFilterForm(BootstrapMixin, forms.Form):
         label='Device name'
     )
     manufacturer = FilterChoiceField(
-        queryset=Manufacturer.objects.annotate(
-            filter_count=Count('inventory_items')
-        ),
+        queryset=Manufacturer.objects.all(),
         to_field_name='slug',
         null_label='-- None --'
     )
