@@ -10,12 +10,15 @@ v2.5.3 (FUTURE)
 * [#1870](https://github.com/digitalocean/netbox/issues/1870) - Add per-page toggle to object lists
 * [#1871](https://github.com/digitalocean/netbox/issues/1871) - Enable filtering sites by parent region
 * [#1983](https://github.com/digitalocean/netbox/issues/1983) - Enable regular expressions when bulk renaming device components
+* [#2682](https://github.com/digitalocean/netbox/issues/2682) - Add DAC and AOC cable types
 * [#2693](https://github.com/digitalocean/netbox/issues/2693) - Additional cable colors
 * [#2726](https://github.com/digitalocean/netbox/issues/2726) - Include cables in global search
 
 ## Bug Fixes
 
 * [#2742](https://github.com/digitalocean/netbox/issues/2742) - Preserve cluster assignment when editing a device
+* [#2757](https://github.com/digitalocean/netbox/issues/2757) - Always treat first/last IPs within a /31 or /127 as usable
+* [#2762](https://github.com/digitalocean/netbox/issues/2762) - Add missing DCIM field values to API `_choices` endpoint
 
 
 ---

@@ -20,6 +20,11 @@
             </ul>
         </nav>
         <form method="get">
+            {% for k, v in request.GET.items %}
+                {% if k != 'per_page' %}
+                    <input type="hidden" name="{{ k }}" value="{{ v }}" />
+                {% endif %}
+            {% endfor %}
             <select name="per_page" id="per_page">
                 {% for n in settings.PER_PAGE_DEFAULTS %}
                     <option value="{{ n }}"{% if page.paginator.per_page == n %} selected="selected"{% endif %}>{{ n }}</option>
