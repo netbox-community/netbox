@@ -717,14 +717,16 @@ class ChainedFieldsMixin(forms.BaseForm):
 
                 filters_dict = {}
                 for (db_field, parent_field) in field.chains:
-                    if self.is_bound and parent_field in self.data:
+                    if self.fields[parent_field].widget.attrs.get('nullable'):
+                        filters_dict[db_field] = None
+                    elif self.is_bound and parent_field in self.data and self.data[parent_field]:
                         filters_dict[db_field] = self.data[parent_field] or None
                     elif self.initial.get(parent_field):
                         filters_dict[db_field] = self.initial[parent_field]
-                    elif self.fields[parent_field].widget.attrs.get('nullable'):
-                        filters_dict[db_field] = None
                     else:
                         break
+
+                print(filters_dict)
 
                 if filters_dict:
                     field.queryset = field.queryset.filter(**filters_dict)

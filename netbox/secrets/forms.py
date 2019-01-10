@@ -1,7 +1,6 @@
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from django import forms
-from django.db.models import Count
 from taggit.forms import TagField
 
 from dcim.models import Device
@@ -178,9 +177,7 @@ class SecretFilterForm(BootstrapMixin, CustomFieldFilterForm):
         label='Search'
     )
     role = FilterChoiceField(
-        queryset=SecretRole.objects.annotate(
-            filter_count=Count('secrets')
-        ),
+        queryset=SecretRole.objects.all(),
         to_field_name='slug',
         widget=APISelectMultiple(
             api_url="/api/secrets/secret-roles/",
