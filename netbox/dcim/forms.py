@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count, Q
+from django.db.models import Q
 from mptt.forms import TreeNodeChoiceField
 from taggit.forms import TagField
 from timezone_field import TimeZoneFormField
@@ -15,13 +15,11 @@ from ipam.models import IPAddress, VLAN, VLANGroup
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    AnnotatedMultipleChoiceField, APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple,
-    BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField,
-    ColorSelect, CommentField, ComponentForm, ConfirmationForm, ContentTypeSelect, CSVChoiceField,
-    ExpandableNameField, FilterChoiceField, FilterTreeNodeMultipleChoiceField, FlexibleModelChoiceField,
-    JSONField, Livesearch, SelectWithPK, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple,
-    BOOLEAN_WITH_BLANK_CHOICES, COLOR_CHOICES,
-
+    APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
+    BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField,
+    ComponentForm, ConfirmationForm, ContentTypeSelect, CSVChoiceField, ExpandableNameField,
+    FilterChoiceField, FlexibleModelChoiceField, JSONField, SelectWithPK, SmallTextarea, SlugField,
+    StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES
 )
 from virtualization.models import Cluster, ClusterGroup
 from .constants import *
@@ -29,7 +27,7 @@ from .models import (
     Cable, DeviceBay, DeviceBayTemplate, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate,
     Device, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate, Manufacturer,
     InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
+    RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis
 )
 
 DEVICE_BY_PK_RE = r'{\d+\}'
@@ -631,10 +629,8 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
             null_option=True,
         )
     )
-    status = AnnotatedMultipleChoiceField(
+    status = forms.MultipleChoiceField(
         choices=RACK_STATUS_CHOICES,
-        annotate=Rack.objects.all(),
-        annotate_field='status',
         required=False,
         widget=StaticSelect2Multiple()
     )
@@ -1747,10 +1743,8 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
             null_option=True,
         )
     )
-    status = AnnotatedMultipleChoiceField(
+    status = forms.MultipleChoiceField(
         choices=DEVICE_STATUS_CHOICES,
-        annotate=Device.objects.all(),
-        annotate_field='status',
         required=False,
         widget=StaticSelect2Multiple()
     )
@@ -2085,8 +2079,8 @@ class InterfaceAssignVLANsForm(BootstrapMixin, forms.ModelForm):
 
         # Add non-grouped global VLANs
         global_vlans = VLAN.objects.filter(site=None, group=None).exclude(pk__in=assigned_vlans)
-        vlan_choices.append((
-            'Global', [(vlan.pk, vlan) for vlan in global_vlans])
+        vlan_choices.append(
+            ('Global', [(vlan.pk, vlan) for vlan in global_vlans])
         )
 
         # Add grouped global VLANs
