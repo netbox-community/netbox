@@ -27,10 +27,10 @@ RIR_UTILIZATION = """
 
 RIR_ACTIONS = """
 <a href="{% url 'ipam:rir_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
-    <i class="fa fa-history"></i>
+    <i class="mdi mdi-history"></i>
 </a>
 {% if perms.ipam.change_rir %}
-    <a href="{% url 'ipam:rir_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+    <a href="{% url 'ipam:rir_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="mdi mdi-lead-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
@@ -49,16 +49,16 @@ ROLE_VLAN_COUNT = """
 
 ROLE_ACTIONS = """
 <a href="{% url 'ipam:role_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
-    <i class="fa fa-history"></i>
+    <i class="mdi mdi-history"></i>
 </a>
 {% if perms.ipam.change_role %}
-    <a href="{% url 'ipam:role_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+    <a href="{% url 'ipam:role_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="mdi mdi-lead-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
 PREFIX_LINK = """
 {% if record.has_children %}
-    <span class="text-nowrap" style="padding-left: {{ record.depth }}0px "><i class="fa fa-caret-right"></i></a>
+    <span class="text-nowrap" style="padding-left: {{ record.depth }}0px "><i class="mdi mdi-chevron-right"></i></a>
 {% else %}
     <span class="text-nowrap" style="padding-left: {{ record.depth }}9px">
 {% endif %}
@@ -142,29 +142,29 @@ VLAN_ROLE_LINK = """
 
 VLANGROUP_ACTIONS = """
 <a href="{% url 'ipam:vlangroup_changelog' pk=record.pk %}" class="btn btn-default btn-xs" title="Changelog">
-    <i class="fa fa-history"></i>
+    <i class="mdi mdi-history"></i>
 </a>
 {% with next_vid=record.get_next_available_vid %}
     {% if next_vid and perms.ipam.add_vlan %}
         <a href="{% url 'ipam:vlan_add' %}?site={{ record.site_id }}&group={{ record.pk }}&vid={{ next_vid }}" title="Add VLAN" class="btn btn-xs btn-success">
-            <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+            <i class="mdi mdi-plus" aria-hidden="true"></i>
         </a>
     {% endif %}
 {% endwith %}
 {% if perms.ipam.change_vlangroup %}
-    <a href="{% url 'ipam:vlangroup_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+    <a href="{% url 'ipam:vlangroup_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="mdi mdi-lead-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
 VLAN_MEMBER_UNTAGGED = """
 {% if record.untagged_vlan_id == vlan.pk %}
-    <i class="glyphicon glyphicon-ok">
+    <i class="mdi mdi-check-circle">
 {% endif %}
 """
 
 VLAN_MEMBER_ACTIONS = """
 {% if perms.dcim.change_interface %}
-    <a href="{% if record.device %}{% url 'dcim:interface_edit' pk=record.pk %}{% else %}{% url 'virtualization:interface_edit' pk=record.pk %}{% endif %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil"></i></a>
+    <a href="{% if record.device %}{% url 'dcim:interface_edit' pk=record.pk %}{% else %}{% url 'virtualization:interface_edit' pk=record.pk %}{% endif %}" class="btn btn-xs btn-warning"><i class="mdi mdi-lead-pencil"></i></a>
 {% endif %}
 """
 

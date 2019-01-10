@@ -374,6 +374,23 @@ table.interface-ips th {
     font-weight: normal;
 }
 
+/* Interfaces */
+#interfaces_table tr.ipaddresses td:nth-child(2) {
+    padding: 0;
+}
+#interfaces_table tr.ipaddresses td:nth-child(2) tr th:first-child,
+#interfaces_table tr.ipaddresses td:nth-child(2) tr td:first-child{
+    border-left: 1px solid #ddd;
+}
+#interfaces_table tr.ipaddresses td:nth-child(2) td.text-right {
+    padding-right: 8px;
+}
+tr a.trace {
+    position: relative;
+    top: -1px;
+    margin-left: 3px;
+}
+
 /* Reports */
 table.reports td.method {
     font-family: monospace;
@@ -413,7 +430,7 @@ table.report th a {
     z-index: 999;
     height: 2em;
     width: 2em;
-    overflow: show;
+    overflow: visible;
     margin: auto;
     top: 0;
     left: 0;
@@ -464,4 +481,64 @@ td .progress {
 }
 textarea {
     font-family: Consolas, Lucida Console, monospace;
+}
+/* MaterialDesign Icons */
+.mdi::before {
+    font-size: 14px;
+    line-height: 14px;
+}
+.mdi.mdi-magnify::before,
+.mdi.mdi-close::before,
+.mdi.mdi-plus::before {
+    font-weight: bold;
+}
+.mdi.mdi-fw::before {
+    width: 1.2857142857142858em;
+    text-align: center;
+}
+.mdi.mdi-7em::before {
+    font-size: 7em;
+}
+.btn .mdi {
+    vertical-align: text-top;
+}
+.btn .mdi::before {
+    margin: 0 -3px;
+    font-size: 20px;
+}
+.btn-xs .mdi {
+    vertical-align: unset;
+}
+.btn-xs .mdi::before {
+    vertical-align: text-top;
+    font-size: 17px;
+}
+.btn-sm .mdi {
+    vertical-align: text-top;
+}
+.btn-sm .mdi::before {
+    font-size: 17px;
+    margin: 0;
+}
+span.mdi::before {
+    font-size: 18px;
+}
+span.label .mdi {
+    vertical-align: text-top;
+}
+span.label .mdi::before {
+    vertical-align: text-top;
+    margin: 0 -3px;
+}
+tr.interface span i.mdi::before {
+    vertical-align: middle;
+    font-size: 16px;
+}
+tr.interface span i.mdi.mdi-format-align-justify::before {
+    vertical-align: text-top;
+}
+.table i.mdi.mdi-chevron-right::before {
+    vertical-align: text-bottom;
+    margin-left: -5px;
+    margin-right: -5px;
 }

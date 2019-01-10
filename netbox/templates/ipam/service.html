@@ -16,7 +16,7 @@
                 <input type="text" name="q" class="form-control" placeholder="Search Services" />
                 <span class="input-group-btn">
                     <button type="submit" class="btn btn-primary">
-                        <span class="fa fa-search" aria-hidden="true"></span>
+                        <span class="mdi mdi-magnify" aria-hidden="true"></span>
                     </button>
                 </span>
             </div>
@@ -26,7 +26,7 @@
 {% if perms.dcim.change_service %}
     <div class="pull-right">
         <a href="{% url 'ipam:service_edit' pk=service.pk %}" class="btn btn-warning">
-          <span class="fa fa-pencil" aria-hidden="true"></span>
+          <span class="mdi mdi-lead-pencil" aria-hidden="true"></span>
           Edit this service
         </a>
     </div>

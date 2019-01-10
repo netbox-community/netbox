@@ -18,7 +18,7 @@
             {% if perms.dcim.change_devicetype %}
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Components <span class="caret"></span>
+                        <span class="mdi mdi-plus" aria-hidden="true"></span> Add Components <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
                         {% if perms.dcim.add_consoleporttemplate %}<li><a href="{% url 'dcim:devicetype_add_consoleport' pk=devicetype.pk %}">Console Ports</a></li>{% endif %}
@@ -32,13 +32,13 @@
                     </ul>
                 </div>
                 <a href="{% url 'dcim:devicetype_edit' pk=devicetype.pk %}" class="btn btn-warning">
-                    <span class="fa fa-pencil" aria-hidden="true"></span>
+                    <span class="mdi mdi-lead-pencil" aria-hidden="true"></span>
                     Edit this device type
                 </a>
             {% endif %}
           {% if perms.dcim.delete_devicetype %}
               <a href="{% url 'dcim:devicetype_delete' pk=devicetype.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span>
+                <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
                 Delete this device type
               </a>
           {% endif %}
@@ -87,9 +87,9 @@
                     <td>Full Depth</td>
                     <td>
                         {% if devicetype.is_full_depth %}
-                            <i class="glyphicon glyphicon-ok text-success" title="Yes"></i>
+                            <i class="mdi mdi-check-circle text-success" title="Yes"></i>
                         {% else %}
-                            <i class="glyphicon glyphicon-remove text-danger" title="No"></i>
+                            <i class="mdi mdi-close-circle text-danger" title="No"></i>
                         {% endif %}
                     </td>
                 </tr>

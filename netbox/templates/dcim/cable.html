@@ -13,12 +13,12 @@
     <div class="pull-right">
         {% if perms.dcim.change_cable %}
             <a href="{% url 'dcim:cable_edit' pk=cable.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span> Edit this cable
+                <span class="mdi mdi-lead-pencil" aria-hidden="true"></span> Edit this cable
             </a>
         {% endif %}
         {% if perms.dcim.delete_cable %}
             <a href="{% url 'dcim:cable_delete' pk=cable.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span> Delete this cable
+                <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete this cable
             </a>
         {% endif %}
     </div>

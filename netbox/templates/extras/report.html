@@ -18,7 +18,7 @@
             <form action="{% url 'extras:report_run' name=report.full_name %}" method="post">
                 {% csrf_token %}
                 {{ run_form }}
-                <button type="submit" name="_run" class="btn btn-primary"><i class="fa fa-play"></i> Run Report</button>
+                <button type="submit" name="_run" class="btn btn-primary"><i class="mdi mdi-play"></i> Run Report</button>
             </form>
         </div>
     {% endif %}

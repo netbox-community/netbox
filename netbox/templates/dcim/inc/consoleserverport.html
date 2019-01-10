@@ -9,7 +9,7 @@
 
     {# Name #}
     <td>
-        <i class="fa fa-fw fa-keyboard-o"></i> {{ csp }}
+        <i class="mdi mdi-fw mdi-keyboard-outline"></i> {{ csp }}
     </td>
 
     {# Cable #}
@@ -41,22 +41,22 @@
             {% include 'dcim/inc/cable_toggle_buttons.html' with cable=csp.cable %}
         {% elif perms.dcim.add_cable %}
             <a href="{% url 'dcim:consoleserverport_connect' termination_a_id=csp.pk %}?return_url={{ device.get_absolute_url }}" title="Connect" class="btn btn-success btn-xs">
-                <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
+                <i class="mdi mdi-arrow-collapse" aria-hidden="true"></i>
             </a>
         {% endif %}
         {% if perms.dcim.change_consoleserverport %}
             <a href="{% url 'dcim:consoleserverport_edit' pk=csp.pk %}" title="Edit port" class="btn btn-info btn-xs">
-                <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+                <i class="mdi mdi-lead-pencil" aria-hidden="true"></i>
             </a>
         {% endif %}
         {% if perms.dcim.delete_consoleserverport %}
             {% if csp.connected_endpoint %}
                 <button class="btn btn-danger btn-xs" disabled="disabled">
-                    <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+                    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
                 </button>
             {% else %}
                 <a href="{% url 'dcim:consoleserverport_delete' pk=csp.pk %}?return_url={{ device.get_absolute_url }}" title="Delete port" class="btn btn-danger btn-xs">
-                    <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+                    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
                 </a>
             {% endif %}
         {% endif %}

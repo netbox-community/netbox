@@ -15,7 +15,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search VRFs" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -25,13 +25,13 @@
     <div class="pull-right">
         {% if perms.ipam.change_vrf %}
             <a href="{% url 'ipam:vrf_edit' pk=vrf.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span>
+                <span class="mdi mdi-lead-pencil" aria-hidden="true"></span>
                 Edit this VRF
             </a>
         {% endif %}
         {% if perms.ipam.delete_vrf %}
             <a href="{% url 'ipam:vrf_delete' pk=vrf.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span>
+                <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
                 Delete this VRF
             </a>
         {% endif %}
@@ -74,9 +74,9 @@
                     <td>Unique IP Space</td>
                     <td>
                         {% if vrf.enforce_unique %}
-                            <i class="glyphicon glyphicon-ok text-success" title="Yes"></i>
+                            <i class="mdi mdi-check-circle text-success" title="Yes"></i>
                         {% else %}
-                            <i class="glyphicon glyphicon-remove text-danger" title="No"></i>
+                            <i class="mdi mdi-close-circle text-danger" title="No"></i>
                         {% endif %}
                     </td>
                 </tr>

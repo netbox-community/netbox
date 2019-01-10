@@ -5,10 +5,10 @@ from .models import Tenant, TenantGroup
 
 TENANTGROUP_ACTIONS = """
 <a href="{% url 'tenancy:tenantgroup_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
-    <i class="fa fa-history"></i>
+    <i class="mdi mdi-history"></i>
 </a>
 {% if perms.tenancy.change_tenantgroup %}
-    <a href="{% url 'tenancy:tenantgroup_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+    <a href="{% url 'tenancy:tenantgroup_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="mdi mdi-lead-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 

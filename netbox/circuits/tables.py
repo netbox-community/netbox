@@ -8,10 +8,10 @@ from .models import Circuit, CircuitType, Provider
 
 CIRCUITTYPE_ACTIONS = """
 <a href="{% url 'circuits:circuittype_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
-    <i class="fa fa-history"></i>
+    <i class="mdi mdi-history"></i>
 </a>
 {% if perms.circuit.change_circuittype %}
-    <a href="{% url 'circuits:circuittype_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+    <a href="{% url 'circuits:circuittype_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="mdi mdi-lead-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 

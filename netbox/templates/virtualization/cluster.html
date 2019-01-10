@@ -18,7 +18,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search clusters" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -28,13 +28,13 @@
     <div class="pull-right">
         {% if perms.virtualization.change_cluster %}
             <a href="{% url 'virtualization:cluster_edit' pk=cluster.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span>
+                <span class="mdi mdi-lead-pencil" aria-hidden="true"></span>
                 Edit this cluster
             </a>
         {% endif %}
         {% if perms.dcim.delete_cluster %}
             <a href="{% url 'virtualization:cluster_delete' pk=cluster.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span>
+                <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
                 Delete this cluster
             </a>
         {% endif %}
@@ -122,12 +122,12 @@
                 <div class="panel-footer">
                     <div class="pull-right">
                         <a href="{% url 'virtualization:cluster_add_devices' pk=cluster.pk %}" class="btn btn-primary btn-xs">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            <span class="mdi mdi-plus" aria-hidden="true"></span>
                             Add devices
                         </a>
                     </div>
                     <button type="submit" name="_remove" class="btn btn-danger primary btn-xs">
-                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
                         Remove devices
                     </button>
                 </div>

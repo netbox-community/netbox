@@ -67,7 +67,7 @@
                         <ul class="list-group">
                             {% for report in module_reports %}
                                 <a href="#report.{{ report.name }}" class="list-group-item">
-                                    <i class="fa fa-list-alt"></i> {{ report.name }}
+                                    <i class="mdi mdi-view-list"></i> {{ report.name }}
                                     <div class="pull-right">
                                         {% include 'extras/inc/report_label.html' with result=report.result %}
                                     </div>

@@ -18,7 +18,7 @@
                     <input type="text" name="q" class="form-control" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -28,13 +28,13 @@
     <div class="pull-right">
         {% if perms.circuits.change_circuit %}
             <a href="{% url 'circuits:circuit_edit' pk=circuit.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span>
+                <span class="mdi mdi-lead-pencil" aria-hidden="true"></span>
                 Edit this circuit
             </a>
         {% endif %}
         {% if perms.circuits.delete_circuit %}
             <a href="{% url 'circuits:circuit_delete' pk=circuit.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span>
+                <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
                 Delete this circuit
             </a>
         {% endif %}
@@ -85,7 +85,7 @@
                         {% if circuit.tenant %}
                             {% if circuit.tenant.group %}
                                 <a href="{{ circuit.tenant.group.get_absolute_url }}">{{ circuit.tenant.group }}</a>
-                                <i class="fa fa-angle-right"></i>
+                                <i class="mdi mdi-chevron-right"></i>
                             {% endif %}
                             <a href="{{ circuit.tenant.get_absolute_url }}">{{ circuit.tenant }}</a>
                         {% else %}

@@ -8,19 +8,19 @@ from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 CLUSTERTYPE_ACTIONS = """
 <a href="{% url 'virtualization:clustertype_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
-    <i class="fa fa-history"></i>
+    <i class="mdi mdi-history"></i>
 </a>
 {% if perms.virtualization.change_clustertype %}
-    <a href="{% url 'virtualization:clustertype_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+    <a href="{% url 'virtualization:clustertype_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="mdi mdi-lead-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
 CLUSTERGROUP_ACTIONS = """
 <a href="{% url 'virtualization:clustergroup_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
-    <i class="fa fa-history"></i>
+    <i class="mdi mdi-history"></i>
 </a>
 {% if perms.virtualization.change_clustergroup %}
-    <a href="{% url 'virtualization:clustergroup_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+    <a href="{% url 'virtualization:clustergroup_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="mdi mdi-lead-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 

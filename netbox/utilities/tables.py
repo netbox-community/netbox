@@ -40,9 +40,9 @@ class BooleanColumn(tables.Column):
     """
     def render(self, value):
         if value is True:
-            rendered = '<span class="text-success"><i class="fa fa-check"></i></span>'
+            rendered = '<span class="text-success"><i class="mdi mdi-check-circle"></i></span>'
         elif value is False:
-            rendered = '<span class="text-danger"><i class="fa fa-close"></i></span>'
+            rendered = '<span class="text-danger"><i class="mdi mdi-close-circle"></i></span>'
         else:
             rendered = '<span class="text-muted">&mdash;</span>'
         return mark_safe(rendered)

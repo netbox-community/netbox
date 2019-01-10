@@ -23,7 +23,7 @@
             {% include 'dcim/inc/interface_vlans_table.html' %}
             <div class="panel-footer text-right">
                 <a href="{% url 'dcim:interface_assign_vlans' pk=obj.pk %}?return_url={% url 'dcim:interface_edit' pk=obj.pk %}" class="btn btn-primary btn-xs{% if form.instance.mode == 100 and form.instance.untagged_vlan %} disabled{% endif %}">
-                    <i class="glyphicon glyphicon-plus"></i> Add VLANs
+                    <i class="mdi mdi-plus"></i> Add VLANs
                 </a>
             </div>
         </div>

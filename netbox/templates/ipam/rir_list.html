@@ -6,12 +6,12 @@
 <div class="pull-right">
     {% if request.GET.family == '6' %}
         <a href="{% url 'ipam:rir_list' %}" class="btn btn-default">
-            <span class="fa fa-table" aria-hidden="true"></span>
+            <span class="mdi mdi-table" aria-hidden="true"></span>
             IPv4 Stats
         </a>
     {% else %}
         <a href="{% url 'ipam:rir_list' %}?family=6{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" class="btn btn-default">
-            <span class="fa fa-table" aria-hidden="true"></span>
+            <span class="mdi mdi-table" aria-hidden="true"></span>
             IPv6 Stats
         </a>
     {% endif %}

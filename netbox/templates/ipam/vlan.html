@@ -21,7 +21,7 @@
                 <input type="text" name="q" class="form-control" placeholder="Search VLANs" />
                 <span class="input-group-btn">
                     <button type="submit" class="btn btn-primary">
-                        <span class="fa fa-search" aria-hidden="true"></span>
+                        <span class="mdi mdi-magnify" aria-hidden="true"></span>
                     </button>
                 </span>
             </div>
@@ -31,13 +31,13 @@
     <div class="pull-right">
         {% if perms.ipam.change_vlan %}
             <a href="{% url 'ipam:vlan_edit' pk=vlan.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span>
+                <span class="mdi mdi-lead-pencil" aria-hidden="true"></span>
                 Edit this VLAN
             </a>
         {% endif %}
         {% if perms.ipam.delete_vlan %}
             <a href="{% url 'ipam:vlan_delete' pk=vlan.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span>
+                <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
                 Delete this VLAN
             </a>
         {% endif %}
@@ -71,7 +71,7 @@
                             {% if vlan.site %}
                                 {% if vlan.site.region %}
                                     <a href="{{ vlan.site.region.get_absolute_url }}">{{ vlan.site.region }}</a>
-                                    <i class="fa fa-angle-right"></i>
+                                    <i class="mdi mdi-chevron-right"></i>
                                 {% endif %}
                                 <a href="{% url 'dcim:site' slug=vlan.site.slug %}">{{ vlan.site }}</a>
                             {% else %}
@@ -103,7 +103,7 @@
                             {% if vlan.tenant %}
                                 {% if vlan.tenant.group %}
                                     <a href="{{ vlan.tenant.group.get_absolute_url }}">{{ vlan.tenant.group }}</a>
-                                    <i class="fa fa-angle-right"></i>
+                                    <i class="mdi mdi-chevron-right"></i>
                                 {% endif %}
                                 <a href="{{ vlan.tenant.get_absolute_url }}">{{ vlan.tenant }}</a>
                             {% else %}
@@ -145,7 +145,7 @@
                 {% if perms.ipam.add_prefix %}
                     <div class="panel-footer text-right">
                         <a href="{% url 'ipam:prefix_add' %}?{% if vlan.tenant %}tenant={{ vlan.tenant.pk }}&{% endif %}site={{ vlan.site.pk }}&vlan={{ vlan.pk }}" class="btn btn-primary btn-xs">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            <span class="mdi mdi-plus" aria-hidden="true"></span>
                             Add a prefix
                         </a>
                     </div>

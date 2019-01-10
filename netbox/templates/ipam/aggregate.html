@@ -16,7 +16,7 @@
                     <input type="text" name="q" class="form-control" placeholder="Search aggregates" />
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="fa fa-search" aria-hidden="true"></span>
+                            <span class="mdi mdi-magnify" aria-hidden="true"></span>
                         </button>
                     </span>
                 </div>
@@ -26,13 +26,13 @@
     <div class="pull-right">
         {% if perms.ipam.change_aggregate %}
             <a href="{% url 'ipam:aggregate_edit' pk=aggregate.pk %}" class="btn btn-warning">
-                <span class="fa fa-pencil" aria-hidden="true"></span>
+                <span class="mdi mdi-lead-pencil" aria-hidden="true"></span>
                 Edit this aggregate
             </a>
         {% endif %}
         {% if perms.ipam.delete_aggregate %}
             <a href="{% url 'ipam:aggregate_delete' pk=aggregate.pk %}" class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span>
+                <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
                 Delete this aggregate
             </a>
         {% endif %}

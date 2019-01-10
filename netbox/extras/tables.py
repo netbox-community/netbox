@@ -7,10 +7,10 @@ from .models import ConfigContext, ObjectChange
 
 TAG_ACTIONS = """
 {% if perms.taggit.change_tag %}
-    <a href="{% url 'extras:tag_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+    <a href="{% url 'extras:tag_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="mdi mdi-lead-pencil" aria-hidden="true"></i></a>
 {% endif %}
 {% if perms.taggit.delete_tag %}
-    <a href="{% url 'extras:tag_delete' slug=record.slug %}" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-trash" aria-hidden="true"></i></a>
+    <a href="{% url 'extras:tag_delete' slug=record.slug %}" class="btn btn-xs btn-danger"><i class="mdi mdi-trash-can-outline" aria-hidden="true"></i></a>
 {% endif %}
 """
 
@@ -24,10 +24,10 @@ TAGGED_ITEM = """
 
 CONFIGCONTEXT_ACTIONS = """
 {% if perms.extras.change_configcontext %}
-    <a href="{% url 'extras:configcontext_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+    <a href="{% url 'extras:configcontext_edit' pk=record.pk %}" class="btn btn-xs btn-warning"><i class="mdi mdi-lead-pencil" aria-hidden="true"></i></a>
 {% endif %}
 {% if perms.extras.delete_configcontext %}
-    <a href="{% url 'extras:configcontext_delete' pk=record.pk %}" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-trash" aria-hidden="true"></i></a>
+    <a href="{% url 'extras:configcontext_delete' pk=record.pk %}" class="btn btn-xs btn-danger"><i class="mdi mdi-trash-can-outline" aria-hidden="true"></i></a>
 {% endif %}
 """
 

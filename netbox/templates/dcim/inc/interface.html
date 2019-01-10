@@ -11,7 +11,7 @@
     {# Icon and name #}
     <td class="text-nowrap">
         <span title="{{ iface.get_form_factor_display }}">
-            <i class="fa fa-fw fa-{% if iface.mgmt_only %}wrench{% elif iface.is_lag %}align-justify{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}exchange{% endif %}"></i>
+            <i class="mdi mdi-fw mdi-{% if iface.mgmt_only %}wrench{% elif iface.is_lag %}format-align-justify{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}transit-connection-variant{% endif %}"></i>
             <a href="{{ iface.get_absolute_url }}">{{ iface }}</a>
         </span>
         {% if iface.mac_address %}
@@ -48,8 +48,8 @@
     <td class="text-nowrap">
         {% if iface.cable %}
             <a href="{{ iface.cable.get_absolute_url }}">{{ iface.cable }}</a>
-            <a href="{% url 'dcim:interface_trace' pk=iface.pk %}" class="btn btn-primary btn-xs" title="Trace">
-                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            <a href="{% url 'dcim:interface_trace' pk=iface.pk %}" class="trace btn btn-primary btn-xs" title="Trace">
+                <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
             </a>
         {% else %}
             &mdash;
@@ -95,7 +95,7 @@
                         <a href="{% url 'dcim:device' pk=peer_termination.connected_endpoint.device.pk %}">
                             {{ peer_termination.connected_endpoint.device }}
                         </a><br/>
-                        <small>via <i class="fa fa-fw fa-globe" title="Circuit"></i>
+                        <small>via <i class="mdi mdi-fw mdi-earth" title="Circuit"></i>
                             <a href="{{ iface.connected_endpoint.circuit.get_absolure_url }}">
                                 {{ iface.connected_endpoint.circuit.provider }}
                                 {{ iface.connected_endpoint.circuit }}
@@ -110,7 +110,7 @@
                         <a href="{% url 'dcim:site' slug=peer_termination.site.slug %}">
                             {{ peer_termination.site }}
                         </a>
-                        via <i class="fa fa-fw fa-globe" title="Circuit"></i>
+                        via <i class="mdi mdi-fw mdi-earth" title="Circuit"></i>
                         <a href="{{ iface.connected_endpoint.circuit.get_absolute_url }}">
                             {{ iface.connected_endpoint.circuit.provider }}
                             {{ iface.connected_endpoint.circuit }}
@@ -119,7 +119,7 @@
                 {% endif %}
             {% else %}
                 <td colspan="2">
-                    <i class="fa fa-fw fa-globe" title="Circuit"></i>
+                    <i class="mdi mdi-fw mdi-earth" title="Circuit"></i>
                     <a href="{{ iface.connected_endpoint.circuit.get_absolute_url }}">
                         {{ iface.connected_endpoint.circuit.provider }}
                         {{ iface.connected_endpoint.circuit }}
@@ -138,13 +138,13 @@
         {% if show_graphs %}
             {% if iface.connected_endpoint %}
                 <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ device.name }} - {{ iface.name }}" data-url="{% url 'dcim-api:interface-graphs' pk=iface.pk %}" title="Show graphs">
-                    <i class="glyphicon glyphicon-signal" aria-hidden="true"></i>
+                    <i class="mdi mdi-signal" aria-hidden="true"></i>
                 </button>
             {% endif %}
         {% endif %}
         {% if perms.ipam.add_ipaddress %}
             <a href="{% url 'ipam:ipaddress_add' %}?interface={{ iface.pk }}&return_url={{ device.get_absolute_url }}" class="btn btn-xs btn-success" title="Add IP address">
-                <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+                <i class="mdi mdi-plus" aria-hidden="true"></i>
             </a>
         {% endif %}
         {% if perms.dcim.change_interface %}
@@ -152,21 +152,21 @@
                 {% include 'dcim/inc/cable_toggle_buttons.html' with cable=iface.cable %}
             {% elif not iface.is_virtual and perms.dcim.add_cable %}
                 <a href="{% url 'dcim:interface_connect' termination_a_id=iface.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-success btn-xs" title="Connect">
-                    <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
+                    <i class="mdi mdi-arrow-collapse" aria-hidden="true"></i>
                 </a>
             {% endif %}
             <a href="{% if iface.device_id %}{% url 'dcim:interface_edit' pk=iface.pk %}{% else %}{% url 'virtualization:interface_edit' pk=iface.pk %}{% endif %}?return_url={{ device.get_absolute_url }}" class="btn btn-info btn-xs" title="Edit interface">
-                <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+                <i class="mdi mdi-lead-pencil" aria-hidden="true"></i>
             </a>
         {% endif %}
         {% if perms.dcim.delete_interface %}
             {% if iface.connection or iface.circuit_termination %}
                 <button class="btn btn-danger btn-xs" disabled="disabled">
-                    <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+                    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
                 </button>
             {% else %}
                 <a href="{% if iface.device_id %}{% url 'dcim:interface_delete' pk=iface.pk %}{% else %}{% url 'virtualization:interface_delete' pk=iface.pk %}{% endif %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs" title="Delete interface">
-                    <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+                    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
                 </a>
             {% endif %}
         {% endif %}
@@ -182,7 +182,7 @@
             {% endif %}
 
             {# IP addresses table #}
-            <td colspan="9" style="padding: 0">
+            <td colspan="9">
                 <table class="table table-condensed interface-ips">
                     <thead>
                         <tr class="text-muted">
@@ -234,12 +234,12 @@
                             <td class="text-right text-nowrap">
                                 {% if perms.ipam.change_ipaddress %}
                                     <a href="{% url 'ipam:ipaddress_edit' pk=ip.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-info btn-xs">
-                                        <i class="glyphicon glyphicon-pencil" aria-hidden="true" title="Edit IP address"></i>
+                                        <i class="mdi mdi-lead-pencil" aria-hidden="true" title="Edit IP address"></i>
                                     </a>
                                 {% endif %}
                                 {% if perms.ipam.delete_ipaddress %}
                                     <a href="{% url 'ipam:ipaddress_delete' pk=ip.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
-                                        <i class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete IP address"></i>
+                                        <i class="mdi mdi-trash-can-outline" aria-hidden="true" title="Delete IP address"></i>
                                     </a>
                                 {% endif %}
                             </td>
