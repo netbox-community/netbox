@@ -1,5 +1,4 @@
 from django import forms
-from django.db.models import Count
 from taggit.forms import TagField
 
 from dcim.models import Site
@@ -7,8 +6,8 @@ from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEdit
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    AnnotatedMultipleChoiceField, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField, FilterChoiceField,
-    SmallTextarea, SlugField,
+    APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField,
+    FilterChoiceField, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple
 )
 from .constants import CIRCUIT_STATUS_CHOICES
 from .models import Circuit, CircuitTermination, CircuitType, Provider
@@ -107,7 +106,11 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
     )
     site = FilterChoiceField(
         queryset=Site.objects.all(),
-        to_field_name='slug'
+        to_field_name='slug',
+        widget=APISelect(
+            api_url="/api/dcim/sites/",
+            value_field="slug",
+        )
     )
     asn = forms.IntegerField(
         required=False,
@@ -161,6 +164,16 @@ class CircuitForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             'install_date': "Format: YYYY-MM-DD",
             'commit_rate': "Committed rate",
         }
+        widgets = {
+            'provider': APISelect(
+                api_url="/api/circuits/providers/"
+            ),
+            'type': APISelect(
+                api_url="/api/circuits/circuit-types/"
+            ),
+            'status': StaticSelect2(),
+
+        }
 
 
 class CircuitCSVForm(forms.ModelForm):
@@ -209,20 +222,30 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
     )
     type = forms.ModelChoiceField(
         queryset=CircuitType.objects.all(),
-        required=False
+        required=False,
+        widget=APISelect(
+            api_url="/api/circuits/circuit-types/"
+        )
     )
     provider = forms.ModelChoiceField(
         queryset=Provider.objects.all(),
-        required=False
+        required=False,
+        widget=APISelect(
+            api_url="/api/circuits/providers/"
+        )
     )
     status = forms.ChoiceField(
         choices=add_blank_choice(CIRCUIT_STATUS_CHOICES),
         required=False,
-        initial=''
+        initial='',
+        widget=StaticSelect2()
     )
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
-        required=False
+        required=False,
+        widget=APISelect(
+            api_url="/api/tenancy/tenants/"
+        )
     )
     commit_rate = forms.IntegerField(
         required=False,
@@ -249,35 +272,45 @@ class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
         label='Search'
     )
     type = FilterChoiceField(
-        queryset=CircuitType.objects.annotate(
-            filter_count=Count('circuits')
-        ),
-        to_field_name='slug'
+        queryset=CircuitType.objects.all(),
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/circuits/circuit-types/",
+            value_field="slug",
+        )
     )
     provider = FilterChoiceField(
-        queryset=Provider.objects.annotate(
-            filter_count=Count('circuits')
-        ),
-        to_field_name='slug'
+        queryset=Provider.objects.all(),
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/circuits/providers/",
+            value_field="slug",
+        )
     )
-    status = AnnotatedMultipleChoiceField(
+    status = forms.MultipleChoiceField(
         choices=CIRCUIT_STATUS_CHOICES,
         annotate=Circuit.objects.all(),
         annotate_field='status',
-        required=False
+        required=False,
+        widget=StaticSelect2Multiple()
     )
     tenant = FilterChoiceField(
-        queryset=Tenant.objects.annotate(
-            filter_count=Count('circuits')
-        ),
+        queryset=Tenant.objects.all(),
         to_field_name='slug',
-        null_label='-- None --'
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenants/",
+            value_field="slug",
+            null_option=True,
+        )
     )
     site = FilterChoiceField(
-        queryset=Site.objects.annotate(
-            filter_count=Count('circuit_terminations')
-        ),
-        to_field_name='slug'
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/",
+            value_field="slug",
+        )
     )
     commit_rate = forms.IntegerField(
         required=False,
@@ -304,4 +337,7 @@ class CircuitTerminationForm(BootstrapMixin, forms.ModelForm):
         }
         widgets = {
             'term_side': forms.HiddenInput(),
+            'site': APISelect(
+                api_url="/api/dcim/sites/"
+            )
         }
