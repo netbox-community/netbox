@@ -6,7 +6,10 @@ from taggit.forms import TagField
 
 from dcim.models import Device
 from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldFilterForm, CustomFieldForm
-from utilities.forms import BootstrapMixin, FilterChoiceField, FlexibleModelChoiceField, SlugField
+from utilities.forms import (
+    APISelect, APISelectMultiple, BootstrapMixin, FilterChoiceField, FlexibleModelChoiceField, SlugField,
+    StaticSelect2Multiple
+)
 from .models import Secret, SecretRole, UserKey
 
 
@@ -42,6 +45,10 @@ class SecretRoleForm(BootstrapMixin, forms.ModelForm):
         fields = [
             'name', 'slug', 'users', 'groups',
         ]
+        widgets = {
+            'users': StaticSelect2Multiple(),
+            'groups': StaticSelect2Multiple(),
+        }
 
 
 class SecretRoleCSVForm(forms.ModelForm):
@@ -85,6 +92,11 @@ class SecretForm(BootstrapMixin, CustomFieldForm):
         fields = [
             'role', 'name', 'plaintext', 'plaintext2', 'tags',
         ]
+        widgets = {
+            'role': APISelect(
+                api_url="/api/secrets/secret-roles/"
+            )
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -143,7 +155,10 @@ class SecretBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
     )
     role = forms.ModelChoiceField(
         queryset=SecretRole.objects.all(),
-        required=False
+        required=False,
+        widget=APISelect(
+            api_url="/api/secrets/secret-roles/"
+        )
     )
     name = forms.CharField(
         max_length=100,
@@ -166,7 +181,11 @@ class SecretFilterForm(BootstrapMixin, CustomFieldFilterForm):
         queryset=SecretRole.objects.annotate(
             filter_count=Count('secrets')
         ),
-        to_field_name='slug'
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/secrets/secret-roles/",
+            value_field="slug",
+        )
     )
 
 
