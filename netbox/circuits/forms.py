@@ -289,8 +289,6 @@ class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
     )
     status = forms.MultipleChoiceField(
         choices=CIRCUIT_STATUS_CHOICES,
-        annotate=Circuit.objects.all(),
-        annotate_field='status',
         required=False,
         widget=StaticSelect2Multiple()
     )

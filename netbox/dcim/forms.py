@@ -1600,7 +1600,7 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         required=False,
         label='Type',
         widget=APISelect(
-            api_url="/api/dcim/device-types"
+            api_url="/api/dcim/device-types/"
         )
     )
     device_role = forms.ModelChoiceField(
@@ -1608,21 +1608,21 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         required=False,
         label='Role',
         widget=APISelect(
-            api_url="/api/dcim/device-roles"
+            api_url="/api/dcim/device-roles/"
         )
     )
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False,
         widget=APISelect(
-            api_url="/api/tenancy/tenants"
+            api_url="/api/tenancy/tenants/"
         )
     )
     platform = forms.ModelChoiceField(
         queryset=Platform.objects.all(),
         required=False,
         widget=APISelect(
-            api_url="/api/dcim/platforms"
+            api_url="/api/dcim/platforms/"
         )
     )
     status = forms.ChoiceField(
