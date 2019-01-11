@@ -385,6 +385,15 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
             self.description,
         )
 
+    def _set_prefix_length(self, value):
+        """
+        Expose the IPNetwork object's prefixlen attribute on the parent model so that it can be manipulated directly,
+        e.g. for bulk editing.
+        """
+        if self.prefix is not None:
+            self.prefix.prefixlen = value
+    prefix_length = property(fset=_set_prefix_length)
+
     def get_status_class(self):
         return STATUS_CHOICE_CLASSES[self.status]
 
@@ -429,12 +438,23 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         child_ips = netaddr.IPSet([ip.address.ip for ip in self.get_child_ips()])
         available_ips = prefix - child_ips
 
-        # Remove unusable IPs from non-pool prefixes
-        if not self.is_pool:
-            available_ips -= netaddr.IPSet([
-                netaddr.IPAddress(self.prefix.first),
-                netaddr.IPAddress(self.prefix.last),
-            ])
+        # All IP addresses within a pool are considered usable
+        if self.is_pool:
+            return available_ips
+
+        # All IP addresses within a point-to-point prefix (IPv4 /31 or IPv6 /127) are considered usable
+        if (
+            self.family == 4 and self.prefix.prefixlen == 31  # RFC 3021
+        ) or (
+            self.family == 6 and self.prefix.prefixlen == 127  # RFC 6164
+        ):
+            return available_ips
+
+        # Omit first and last IP address from the available set
+        available_ips -= netaddr.IPSet([
+            netaddr.IPAddress(self.prefix.first),
+            netaddr.IPAddress(self.prefix.last),
+        ])
 
         return available_ips
 
@@ -629,6 +649,15 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
             is_primary,
             self.description,
         )
+
+    def _set_mask_length(self, value):
+        """
+        Expose the IPNetwork object's prefixlen attribute on the parent model so that it can be manipulated directly,
+        e.g. for bulk editing.
+        """
+        if self.address is not None:
+            self.address.prefixlen = value
+    mask_length = property(fset=_set_mask_length)
 
     @property
     def device(self):

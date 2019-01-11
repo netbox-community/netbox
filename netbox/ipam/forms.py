@@ -422,6 +422,11 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         required=False,
         label='VRF'
     )
+    prefix_length = forms.IntegerField(
+        min_value=1,
+        max_value=127,
+        required=False
+    )
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False
@@ -818,6 +823,11 @@ class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         queryset=VRF.objects.all(),
         required=False,
         label='VRF'
+    )
+    mask_length = forms.IntegerField(
+        min_value=1,
+        max_value=128,
+        required=False
     )
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),

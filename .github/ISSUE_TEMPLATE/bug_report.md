@@ -17,15 +17,20 @@ about: Report a reproducible bug in the current release of NetBox
 -->
 ### Environment
 * Python version:  <!-- Example: 3.5.4 -->
-* NetBox version:  <!-- Example: 2.3.6 -->
+* NetBox version:  <!-- Example: 2.5.2 -->
 
 <!--
-    Describe in detail the steps that someone else can take to reproduce this
-    bug using the current stable release of NetBox (or the current beta release
-    where applicable).
+    Describe in detail the exact steps that someone else can take to reproduce
+    this bug using the current stable release of NetBox (or the current beta
+    release where applicable). Begin with the creation of any necessary
+    database objects and call out every operation being performed explicitly.
+    If reporting a bug in the REST API, be sure to reconstruct the raw HTTP
+    request(s) being made: Don't rely on a wrapper like pynetbox.
 -->
 ### Steps to Reproduce
-
+1.
+2.
+3.
 
 <!-- What did you expect to happen? -->
 ### Expected Behavior

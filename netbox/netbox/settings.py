@@ -22,7 +22,7 @@ except ImportError:
     )
 
 
-VERSION = '2.5.2'
+VERSION = '2.5.3'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -245,6 +245,14 @@ LOGIN_URL = '/{}login/'.format(BASE_PATH)
 
 # Secrets
 SECRETS_MIN_PUBKEY_SIZE = 2048
+
+# Pagination
+PER_PAGE_DEFAULTS = [
+    25, 50, 100, 250, 500, 1000
+]
+if PAGINATE_COUNT not in PER_PAGE_DEFAULTS:
+    PER_PAGE_DEFAULTS.append(PAGINATE_COUNT)
+    PER_PAGE_DEFAULTS = sorted(PER_PAGE_DEFAULTS)
 
 # Django filters
 FILTERS_NULL_CHOICE_LABEL = 'None'

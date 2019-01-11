@@ -339,11 +339,14 @@ CABLE_TYPE_CAT5E = 1510
 CABLE_TYPE_CAT6 = 1600
 CABLE_TYPE_CAT6A = 1610
 CABLE_TYPE_CAT7 = 1700
+CABLE_TYPE_DAC_ACTIVE = 1800
+CABLE_TYPE_DAC_PASSIVE = 1810
 CABLE_TYPE_MMF_OM1 = 3010
 CABLE_TYPE_MMF_OM2 = 3020
 CABLE_TYPE_MMF_OM3 = 3030
 CABLE_TYPE_MMF_OM4 = 3040
 CABLE_TYPE_SMF = 3500
+CABLE_TYPE_AOC = 3800
 CABLE_TYPE_POWER = 5000
 CABLE_TYPE_CHOICES = (
     (
@@ -354,6 +357,8 @@ CABLE_TYPE_CHOICES = (
             (CABLE_TYPE_CAT6, 'CAT6'),
             (CABLE_TYPE_CAT6A, 'CAT6a'),
             (CABLE_TYPE_CAT7, 'CAT7'),
+            (CABLE_TYPE_DAC_ACTIVE, 'Direct Attach Copper (Active)'),
+            (CABLE_TYPE_DAC_PASSIVE, 'Direct Attach Copper (Passive)'),
         ),
     ),
     (
@@ -363,6 +368,7 @@ CABLE_TYPE_CHOICES = (
             (CABLE_TYPE_MMF_OM3, 'Multimode Fiber (OM3)'),
             (CABLE_TYPE_MMF_OM4, 'Multimode Fiber (OM4)'),
             (CABLE_TYPE_SMF, 'Singlemode Fiber'),
+            (CABLE_TYPE_AOC, 'Active Optical Cabling (AOC)'),
         ),
     ),
     (CABLE_TYPE_POWER, 'Power'),

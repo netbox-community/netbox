@@ -505,8 +505,9 @@ class FilterChoiceIterator(forms.models.ModelChoiceIterator):
 class FilterChoiceFieldMixin(object):
     iterator = FilterChoiceIterator
 
-    def __init__(self, null_label=None, *args, **kwargs):
+    def __init__(self, null_label=None, count_attr='filter_count', *args, **kwargs):
         self.null_label = null_label
+        self.count_attr = count_attr
         if 'required' not in kwargs:
             kwargs['required'] = False
         if 'widget' not in kwargs:
@@ -515,8 +516,9 @@ class FilterChoiceFieldMixin(object):
 
     def label_from_instance(self, obj):
         label = super().label_from_instance(obj)
-        if hasattr(obj, 'filter_count'):
-            return '{} ({})'.format(label, obj.filter_count)
+        obj_count = getattr(obj, self.count_attr, None)
+        if obj_count is not None:
+            return '{} ({})'.format(label, obj_count)
         return label
 
 
