@@ -361,30 +361,6 @@ class APISelectMultiple(APISelect, forms.SelectMultiple):
         self.attrs['data-multiple'] = 1
 
 
-class Livesearch(forms.TextInput):
-    """
-    A text widget that carries a few extra bits of data for use in AJAX-powered autocomplete search
-
-    :param query_key: The name of the parameter to query against
-    :param query_url: The name of the API URL to query
-    :param field_to_update: The name of the "real" form field whose value is being set
-    :param obj_label: The field to use as the option label (optional)
-    """
-
-    def __init__(self, query_key, query_url, field_to_update, obj_label=None, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-
-        self.attrs = {
-            'data-key': query_key,
-            'data-source': reverse_lazy(query_url),
-            'data-field': field_to_update,
-        }
-
-        if obj_label:
-            self.attrs['data-label'] = obj_label
-
-
 #
 # Form fields
 #
@@ -618,38 +594,6 @@ class FilterChoiceField(FilterChoiceFieldMixin, forms.ModelMultipleChoiceField):
 
 class FilterTreeNodeMultipleChoiceField(FilterChoiceFieldMixin, TreeNodeMultipleChoiceField):
     pass
-
-
-class AnnotatedMultipleChoiceField(forms.MultipleChoiceField):
-    """
-    Render a set of static choices with each choice annotated to include a count of related objects. For example, this
-    field can be used to display a list of all available device statuses along with the number of devices currently
-    assigned to each status.
-    """
-
-    def annotate_choices(self):
-        queryset = self.annotate.values(
-            self.annotate_field
-        ).annotate(
-            count=Count(self.annotate_field)
-        ).order_by(
-            self.annotate_field
-        )
-        choice_counts = {
-            c[self.annotate_field]: c['count'] for c in queryset
-        }
-        annotated_choices = [
-            (c[0], '{} ({})'.format(c[1], choice_counts.get(c[0], 0))) for c in self.static_choices
-        ]
-
-        return annotated_choices
-
-    def __init__(self, choices, annotate, annotate_field, *args, **kwargs):
-        self.annotate = annotate
-        self.annotate_field = annotate_field
-        self.static_choices = unpack_grouped_choices(choices)
-
-        super().__init__(choices=self.annotate_choices, *args, **kwargs)
 
 
 class LaxURLField(forms.URLField):
