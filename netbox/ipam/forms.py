@@ -913,6 +913,7 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
         choices=IPADDRESS_ROLE_CHOICES,
         annotate=IPAddress.objects.all(),
         annotate_field='role',
+        include_null=True,
         required=False
     )
 

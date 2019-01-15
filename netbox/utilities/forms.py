@@ -538,6 +538,8 @@ class AnnotatedMultipleChoiceField(forms.MultipleChoiceField):
     """
 
     def annotate_choices(self):
+
+        # Aggregate objects by choice field values
         queryset = self.annotate.values(
             self.annotate_field
         ).annotate(
@@ -548,18 +550,31 @@ class AnnotatedMultipleChoiceField(forms.MultipleChoiceField):
         choice_counts = {
             c[self.annotate_field]: c['count'] for c in queryset
         }
-        annotated_choices = [
-            (c[0], '{} ({})'.format(c[1], choice_counts.get(c[0], 0))) for c in self.static_choices
-        ]
+
+        annotated_choices = []
+
+        # Optionally add a "none" choice
+        if self.include_null:
+            annotated_choices.append((
+                settings.FILTERS_NULL_CHOICE_VALUE,
+                '-- {} --'.format(settings.FILTERS_NULL_CHOICE_LABEL)
+            ))
+
+        # Append each choice and its annotated count
+        for c in self.static_choices:
+            annotated_choices.append(
+                (c[0], '{} ({})'.format(c[1], choice_counts.get(c[0], 0)))
+            )
 
         return annotated_choices
 
-    def __init__(self, choices, annotate, annotate_field, *args, **kwargs):
+    def __init__(self, choices, annotate, annotate_field, include_null=False, **kwargs):
         self.annotate = annotate
         self.annotate_field = annotate_field
+        self.include_null = include_null
         self.static_choices = unpack_grouped_choices(choices)
 
-        super().__init__(choices=self.annotate_choices, *args, **kwargs)
+        super().__init__(choices=self.annotate_choices, **kwargs)
 
 
 class LaxURLField(forms.URLField):
