@@ -187,6 +187,12 @@ $(document).ready(function() {
                 var results = $.map(data.results, function (obj) {
                     obj.text = obj[element.getAttribute('display-field')] || obj.name;
                     obj.id = obj[element.getAttribute('value-field')] || obj.id;
+
+                    if(element.getAttribute('disabled-indicator') && obj[element.getAttribute('disabled-indicator')]) {
+                        // The disabled-indicator equated to true, so we disable this option
+                        console.log("hello");
+                        obj.disabled = true;
+                    }
                     return obj;
                 });
 
