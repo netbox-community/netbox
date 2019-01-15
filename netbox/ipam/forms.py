@@ -995,8 +995,7 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
     role = forms.MultipleChoiceField(
         choices=IPADDRESS_ROLE_CHOICES,
         required=False,
-        widget=StaticSelect2Multiple(),
-        include_null=True
+        widget=StaticSelect2Multiple()
     )
 
 
