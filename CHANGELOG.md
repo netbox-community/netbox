@@ -1,3 +1,11 @@
+v2.5.4 (FUTURE)
+
+## Bug Fixes
+
+* [#2783](https://github.com/digitalocean/netbox/issues/2783) - Fix AttributeError exception when attempting to delete region(s)
+
+---
+
 v2.5.3 (2019-01-11)
 
 ## Enhancements
