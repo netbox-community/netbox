@@ -5,8 +5,16 @@ Select2 issues
 * [#2753](https://github.com/digitalocean/netbox/issues/2753) - Implemented Select2 to replace most all instances of select fields in forms
 
 
+v2.5.4 (FUTURE)
 
-v2.5.3 (FUTURE)
+## Bug Fixes
+
+* [#2779](https://github.com/digitalocean/netbox/issues/2779) - Include "none" option when filter IP addresses by role
+* [#2783](https://github.com/digitalocean/netbox/issues/2783) - Fix AttributeError exception when attempting to delete region(s)
+
+---
+
+v2.5.3 (2019-01-11)
 
 ## Enhancements
 
@@ -23,6 +31,7 @@ v2.5.3 (FUTURE)
 * [#2742](https://github.com/digitalocean/netbox/issues/2742) - Preserve cluster assignment when editing a device
 * [#2757](https://github.com/digitalocean/netbox/issues/2757) - Always treat first/last IPs within a /31 or /127 as usable
 * [#2762](https://github.com/digitalocean/netbox/issues/2762) - Add missing DCIM field values to API `_choices` endpoint
+* [#2777](https://github.com/digitalocean/netbox/issues/2777) - Fix cable validation to handle duplicate connections on import
 
 
 ---

@@ -996,6 +996,7 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
         choices=IPADDRESS_ROLE_CHOICES,
         required=False,
         widget=StaticSelect2Multiple()
+        include_null=True,
     )
 
 

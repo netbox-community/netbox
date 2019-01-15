@@ -2558,52 +2558,55 @@ class Cable(ChangeLoggedModel):
 
     def clean(self):
 
-        # Check that termination types are compatible
-        type_a = self.termination_a_type.model
-        type_b = self.termination_b_type.model
-        if type_b not in COMPATIBLE_TERMINATION_TYPES.get(type_a):
-            raise ValidationError("Incompatible termination types: {} and {}".format(
-                self.termination_a_type, self.termination_b_type
-            ))
+        if self.termination_a and self.termination_b:
 
-        # A termination point cannot be connected to itself
-        if self.termination_a == self.termination_b:
-            raise ValidationError("Cannot connect {} to itself".format(self.termination_a_type))
+            type_a = self.termination_a_type.model
+            type_b = self.termination_b_type.model
 
-        # A front port cannot be connected to its corresponding rear port
-        if (
-            type_a in ['frontport', 'rearport'] and
-            type_b in ['frontport', 'rearport'] and
-            (
-                getattr(self.termination_a, 'rear_port', None) == self.termination_b or
-                getattr(self.termination_b, 'rear_port', None) == self.termination_a
-            )
-        ):
-            raise ValidationError("A front port cannot be connected to it corresponding rear port")
+            # Check that termination types are compatible
+            if type_b not in COMPATIBLE_TERMINATION_TYPES.get(type_a):
+                raise ValidationError("Incompatible termination types: {} and {}".format(
+                    self.termination_a_type, self.termination_b_type
+                ))
 
-        # Check for an existing Cable connected to either termination object
-        if self.termination_a.cable not in (None, self):
-            raise ValidationError("{} already has a cable attached (#{})".format(
-                self.termination_a, self.termination_a.cable_id
-            ))
-        if self.termination_b.cable not in (None, self):
-            raise ValidationError("{} already has a cable attached (#{})".format(
-                self.termination_b, self.termination_b.cable_id
-            ))
+            # A termination point cannot be connected to itself
+            if self.termination_a == self.termination_b:
+                raise ValidationError("Cannot connect {} to itself".format(self.termination_a_type))
 
-        # Virtual interfaces cannot be connected
-        endpoint_a, endpoint_b, _ = self.get_path_endpoints()
-        if (
-            (
-                isinstance(endpoint_a, Interface) and
-                endpoint_a.form_factor == IFACE_FF_VIRTUAL
-            ) or
-            (
-                isinstance(endpoint_b, Interface) and
-                endpoint_b.form_factor == IFACE_FF_VIRTUAL
-            )
-        ):
-            raise ValidationError("Cannot connect to a virtual interface")
+            # A front port cannot be connected to its corresponding rear port
+            if (
+                type_a in ['frontport', 'rearport'] and
+                type_b in ['frontport', 'rearport'] and
+                (
+                    getattr(self.termination_a, 'rear_port', None) == self.termination_b or
+                    getattr(self.termination_b, 'rear_port', None) == self.termination_a
+                )
+            ):
+                raise ValidationError("A front port cannot be connected to it corresponding rear port")
+
+            # Check for an existing Cable connected to either termination object
+            if self.termination_a.cable not in (None, self):
+                raise ValidationError("{} already has a cable attached (#{})".format(
+                    self.termination_a, self.termination_a.cable_id
+                ))
+            if self.termination_b.cable not in (None, self):
+                raise ValidationError("{} already has a cable attached (#{})".format(
+                    self.termination_b, self.termination_b.cable_id
+                ))
+
+            # Virtual interfaces cannot be connected
+            endpoint_a, endpoint_b, _ = self.get_path_endpoints()
+            if (
+                (
+                    isinstance(endpoint_a, Interface) and
+                    endpoint_a.form_factor == IFACE_FF_VIRTUAL
+                ) or
+                (
+                    isinstance(endpoint_b, Interface) and
+                    endpoint_b.form_factor == IFACE_FF_VIRTUAL
+                )
+            ):
+                raise ValidationError("Cannot connect to a virtual interface")
 
         # Validate length and length_unit
         if self.length is not None and self.length_unit is None:
