@@ -4,7 +4,8 @@ from taggit.forms import TagField
 
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from utilities.forms import (
-    APISelect, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField, FilterChoiceField, SlugField,
+    APISelect, APISelectMultiple, BootstrapMixin, ChainedFieldsMixin, ChainedModelChoiceField, CommentField,
+    FilterChoiceField, SlugField,
 )
 from .models import Tenant, TenantGroup
 
@@ -50,6 +51,11 @@ class TenantForm(BootstrapMixin, CustomFieldForm):
         fields = [
             'name', 'slug', 'group', 'description', 'comments', 'tags',
         ]
+        widgets = {
+            'group': APISelect(
+                api_url="/api/tenancy/tenant-groups/"
+            )
+        }
 
 
 class TenantCSVForm(forms.ModelForm):
@@ -80,7 +86,10 @@ class TenantBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
     )
     group = forms.ModelChoiceField(
         queryset=TenantGroup.objects.all(),
-        required=False
+        required=False,
+        widget=APISelect(
+            api_url="/api/tenancy/tenant-groups/"
+        )
     )
 
     class Meta:
@@ -96,11 +105,14 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
         label='Search'
     )
     group = FilterChoiceField(
-        queryset=TenantGroup.objects.annotate(
-            filter_count=Count('tenants')
-        ),
+        queryset=TenantGroup.objects.all(),
         to_field_name='slug',
-        null_label='-- None --'
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenant-groups/",
+            value_field="slug",
+            null_option=True,
+        )
     )
 
 
@@ -112,9 +124,12 @@ class TenancyForm(ChainedFieldsMixin, forms.Form):
     tenant_group = forms.ModelChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
-        widget=forms.Select(
+        widget=APISelect(
+            api_url="/api/tenancy/tenant-groups/",
+            filter_for={
+                'tenant': 'group_id',
+            },
             attrs={
-                'filter-for': 'tenant',
                 'nullable': 'true',
             }
         )
@@ -126,7 +141,7 @@ class TenancyForm(ChainedFieldsMixin, forms.Form):
         ),
         required=False,
         widget=APISelect(
-            api_url='/api/tenancy/tenants/?group_id={{tenant_group}}'
+            api_url='/api/tenancy/tenants/'
         )
     )
 

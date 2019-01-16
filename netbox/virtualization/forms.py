@@ -1,7 +1,5 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.db.models import Count
-from mptt.forms import TreeNodeChoiceField
 from taggit.forms import TagField
 
 from dcim.constants import IFACE_FF_VIRTUAL, IFACE_MODE_ACCESS, IFACE_MODE_TAGGED_ALL
@@ -12,10 +10,10 @@ from ipam.models import IPAddress
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
 from utilities.forms import (
-    AnnotatedMultipleChoiceField, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
+    add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ComponentForm,
-    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, FilterTreeNodeMultipleChoiceField,
-    JSONField, SlugField, SmallTextarea, add_blank_choice,
+    ConfirmationForm, CSVChoiceField, ExpandableNameField, FilterChoiceField, JSONField, SlugField,
+    SmallTextarea, StaticSelect2, StaticSelect2Multiple
 )
 from .constants import VM_STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -92,6 +90,17 @@ class ClusterForm(BootstrapMixin, CustomFieldForm):
         fields = [
             'name', 'type', 'group', 'site', 'comments', 'tags',
         ]
+        widgets = {
+            'type': APISelect(
+                api_url="/api/virtualization/cluster-types/"
+            ),
+            'group': APISelect(
+                api_url="/api/virtualization/cluster-groups/"
+            ),
+            'site': APISelect(
+                api_url="/api/dcim/sites/"
+            ),
+        }
 
 
 class ClusterCSVForm(forms.ModelForm):
@@ -134,15 +143,24 @@ class ClusterBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
     )
     type = forms.ModelChoiceField(
         queryset=ClusterType.objects.all(),
-        required=False
+        required=False,
+        widget=APISelect(
+            api_url="/api/virtualization/cluster-types/"
+        )
     )
     group = forms.ModelChoiceField(
         queryset=ClusterGroup.objects.all(),
-        required=False
+        required=False,
+        widget=APISelect(
+            api_url="/api/virtualization/cluster-groups/"
+        )
     )
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/sites/"
+        )
     )
     comments = CommentField(
         widget=SmallTextarea()
@@ -158,37 +176,48 @@ class ClusterFilterForm(BootstrapMixin, CustomFieldFilterForm):
     model = Cluster
     q = forms.CharField(required=False, label='Search')
     type = FilterChoiceField(
-        queryset=ClusterType.objects.annotate(
-            filter_count=Count('clusters')
-        ),
+        queryset=ClusterType.objects.all(),
         to_field_name='slug',
         required=False,
+        widget=APISelectMultiple(
+            api_url="/api/virtualization/cluster-types/",
+            value_field='slug',
+        )
     )
     group = FilterChoiceField(
-        queryset=ClusterGroup.objects.annotate(
-            filter_count=Count('clusters')
-        ),
+        queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
         null_label='-- None --',
         required=False,
+        widget=APISelectMultiple(
+            api_url="/api/virtualization/cluster-groups/",
+            value_field='slug',
+            null_option=True,
+        )
     )
     site = FilterChoiceField(
-        queryset=Site.objects.annotate(
-            filter_count=Count('clusters')
-        ),
+        queryset=Site.objects.all(),
         to_field_name='slug',
         null_label='-- None --',
         required=False,
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/",
+            value_field='slug',
+            null_option=True,
+        )
     )
 
 
 class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
-    region = TreeNodeChoiceField(
+    region = forms.ModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        widget=forms.Select(
+        widget=APISelect(
+            api_url="/api/dcim/regions/",
+            filter_for={
+                "site": "region_id",
+            },
             attrs={
-                'filter-for': 'site',
                 'nullable': 'true',
             }
         )
@@ -200,9 +229,10 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
         ),
         required=False,
         widget=APISelect(
-            api_url='/api/dcim/sites/?region_id={{region}}',
-            attrs={
-                'filter-for': 'rack',
+            api_url='/api/dcim/sites/',
+            filter_for={
+                "rack": "site_id",
+                "devices": "site_id",
             }
         )
     )
@@ -213,9 +243,11 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
         ),
         required=False,
         widget=APISelect(
-            api_url='/api/dcim/racks/?site_id={{site}}',
+            api_url='/api/dcim/racks/',
+            filter_for={
+                "devices": "rack_id"
+            },
             attrs={
-                'filter-for': 'devices',
                 'nullable': 'true',
             }
         )
@@ -227,7 +259,7 @@ class ClusterAddDevicesForm(BootstrapMixin, ChainedFieldsMixin, forms.Form):
             ('rack', 'rack'),
         ),
         widget=APISelectMultiple(
-            api_url='/api/dcim/devices/?site_id={{site}}&rack_id={{rack}}',
+            api_url='/api/dcim/devices/',
             display_field='display_name',
             disabled_indicator='cluster'
         )
@@ -275,9 +307,12 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     cluster_group = forms.ModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
-        widget=forms.Select(
+        widget=APISelect(
+            api_url='/api/virtualization/cluster-groups/',
+            filter_for={
+                "cluster": "group_id",
+            },
             attrs={
-                'filter-for': 'cluster',
                 'nullable': 'true',
             }
         )
@@ -288,7 +323,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             ('group', 'cluster_group'),
         ),
         widget=APISelect(
-            api_url='/api/virtualization/clusters/?group_id={{cluster_group}}'
+            api_url='/api/virtualization/clusters/'
         )
     )
     tags = TagField(
@@ -307,6 +342,20 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         help_texts = {
             'local_context_data': "Local config context data overwrites all sources contexts in the final rendered "
                                   "config context",
+        }
+        widgets = {
+            "status": StaticSelect2(),
+            "role": APISelect(
+                api_url="/api/dcim/device-roles/",
+                additional_query_params={
+                    "vm_role": "true"
+                }
+            ),
+            'primary_ip4': StaticSelect2(),
+            'primary_ip6': StaticSelect2(),
+            'platform': APISelect(
+                api_url='/api/dcim/platforms/'
+            )
         }
 
     def __init__(self, *args, **kwargs):
@@ -413,25 +462,41 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
     status = forms.ChoiceField(
         choices=add_blank_choice(VM_STATUS_CHOICES),
         required=False,
-        initial=''
+        initial='',
+        widget=StaticSelect2(),
     )
     cluster = forms.ModelChoiceField(
         queryset=Cluster.objects.all(),
-        required=False
+        required=False,
+        widget=APISelect(
+            api_url='/api/virtualization/clusters/'
+        )
     )
     role = forms.ModelChoiceField(
         queryset=DeviceRole.objects.filter(
             vm_role=True
         ),
-        required=False
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/device-roles/",
+            additional_query_params={
+                "vm_role": "true"
+            }
+        )
     )
     tenant = forms.ModelChoiceField(
         queryset=Tenant.objects.all(),
-        required=False
+        required=False,
+        widget=APISelect(
+            api_url='/api/tenancy/tenants/'
+        )
     )
     platform = forms.ModelChoiceField(
         queryset=Platform.objects.all(),
-        required=False
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/platforms/'
+        )
     )
     vcpus = forms.IntegerField(
         required=False,
@@ -464,59 +529,87 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
     cluster_group = FilterChoiceField(
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
-        null_label='-- None --'
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url='/api/virtualization/cluster-groups/',
+            value_field="slug",
+            null_option=True,
+        )
     )
     cluster_type = FilterChoiceField(
         queryset=ClusterType.objects.all(),
         to_field_name='slug',
-        null_label='-- None --'
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url='/api/virtualization/cluster-types/',
+            value_field="slug",
+            null_option=True,
+        )
     )
     cluster_id = FilterChoiceField(
-        queryset=Cluster.objects.annotate(
-            filter_count=Count('virtual_machines')
-        ),
-        label='Cluster'
+        queryset=Cluster.objects.all(),
+        label='Cluster',
+        widget=APISelectMultiple(
+            api_url='/api/virtualization/clusters/',
+        )
     )
-    region = FilterTreeNodeMultipleChoiceField(
+    region = FilterChoiceField(
         queryset=Region.objects.all(),
         to_field_name='slug',
         required=False,
+        widget=APISelectMultiple(
+            api_url='/api/dcim/regions/',
+            value_field="slug",
+            null_option=True,
+        )
     )
     site = FilterChoiceField(
-        queryset=Site.objects.annotate(
-            filter_count=Count('clusters__virtual_machines')
-        ),
+        queryset=Site.objects.all(),
         to_field_name='slug',
-        null_label='-- None --'
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url='/api/dcim/sites/',
+            value_field="slug",
+            null_option=True,
+        )
     )
     role = FilterChoiceField(
-        queryset=DeviceRole.objects.filter(
-            vm_role=True
-        ).annotate(
-            filter_count=Count('virtual_machines')
-        ),
+        queryset=DeviceRole.objects.filter(vm_role=True),
         to_field_name='slug',
-        null_label='-- None --'
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url='/api/dcim/device-roles/',
+            value_field="slug",
+            null_option=True,
+            additional_query_params={
+                'vm_role': 'true'
+            }
+        )
     )
-    status = AnnotatedMultipleChoiceField(
+    status = forms.MultipleChoiceField(
         choices=VM_STATUS_CHOICES,
-        annotate=VirtualMachine.objects.all(),
-        annotate_field='status',
-        required=False
+        required=False,
+        widget=StaticSelect2Multiple()
     )
     tenant = FilterChoiceField(
-        queryset=Tenant.objects.annotate(
-            filter_count=Count('virtual_machines')
-        ),
+        queryset=Tenant.objects.all(),
         to_field_name='slug',
-        null_label='-- None --'
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url='/api/tenancy/tenants/',
+            value_field="slug",
+            null_option=True,
+        )
     )
     platform = FilterChoiceField(
-        queryset=Platform.objects.annotate(
-            filter_count=Count('virtual_machines')
-        ),
+        queryset=Platform.objects.all(),
         to_field_name='slug',
-        null_label='-- None --'
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url='/api/dcim/platforms/',
+            value_field="slug",
+            null_option=True,
+        )
     )
 
 
@@ -538,6 +631,7 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         widgets = {
             'virtual_machine': forms.HiddenInput(),
             'form_factor': forms.HiddenInput(),
+            'mode': StaticSelect2()
         }
         labels = {
             'mode': '802.1Q Mode',
