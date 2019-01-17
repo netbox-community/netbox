@@ -570,6 +570,13 @@ class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
             null_option=True,
         )
     )
+    is_pool = forms.NullBooleanField(
+        required=False,
+        label='Is a pool',
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
     expand = forms.BooleanField(
         required=False,
         label='Expand prefix hierarchy'
