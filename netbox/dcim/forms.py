@@ -2212,6 +2212,10 @@ class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         label='Parent LAG',
         widget=StaticSelect2()
     )
+    mac_address = forms.CharField(
+        required=False,
+        label='MAC Address'
+    )
     mtu = forms.IntegerField(
         required=False,
         min_value=1,
@@ -2235,7 +2239,7 @@ class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
 
     class Meta:
         nullable_fields = [
-            'lag', 'mtu', 'description', 'mode',
+            'lag', 'mac_address', 'mtu', 'description', 'mode',
         ]
 
     def __init__(self, *args, **kwargs):

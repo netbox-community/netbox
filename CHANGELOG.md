@@ -4,6 +4,7 @@ v2.5.4 (FUTURE)
 
 * [#2516](https://github.com/digitalocean/netbox/issues/2516) - Implemented Select2 for all Model backed selection fields
 * [#2590](https://github.com/digitalocean/netbox/issues/2590) - Implemented the color picker with Select2 to show colors in the background
+* [#2733](https://github.com/digitalocean/netbox/issues/2733) - Enable bulk assignment of MAC addresses to interfaces
 * [#2735](https://github.com/digitalocean/netbox/issues/2735) - Implemented Select2 for all list filter form select elements
 * [#2753](https://github.com/digitalocean/netbox/issues/2753) - Implemented Select2 to replace most all instances of select fields in forms
 * [#2766](https://github.com/digitalocean/netbox/issues/2766) - Extend users admin table to include superuser and active fields
