@@ -22,6 +22,7 @@ def oneline(value):
     """
     Replace each line break with a single space
     """
+    value = value.replace('\r', '')
     return value.replace('\n', ' ')
 
 
