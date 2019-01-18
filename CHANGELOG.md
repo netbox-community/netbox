@@ -14,6 +14,7 @@ v2.5.4 (FUTURE)
 
 * [#2779](https://github.com/digitalocean/netbox/issues/2779) - Include "none" option when filter IP addresses by role
 * [#2783](https://github.com/digitalocean/netbox/issues/2783) - Fix AttributeError exception when attempting to delete region(s)
+* [#2798](https://github.com/digitalocean/netbox/issues/2798) - Properly URL-encode "map it" link on site view
 
 ---
 
