@@ -99,15 +99,17 @@ $(document).ready(function() {
     $('.netbox-select2-color-picker').select2({
         allowClear: true,
         placeholder: "---------",
+        theme: "bootstrap",
         templateResult: colorPickerClassCopy,
-        templateSelection: colorPickerClassCopy,
-    })
+        templateSelection: colorPickerClassCopy
+    });
 
     // Static choice selection
     $('.netbox-select2-static').select2({
         allowClear: true,
         placeholder: "---------",
-    })
+        theme: "bootstrap"
+    });
 
     // API backed selection
     // Includes live search and chained fields
@@ -115,7 +117,7 @@ $(document).ready(function() {
     $('.netbox-select2-api').select2({
         allowClear: true,
         placeholder: "---------",
-
+        theme: "bootstrap",
         ajax: {
             delay: 500,
 
@@ -162,13 +164,13 @@ $(document).ready(function() {
                         var conditional = attr.name.split("data-conditional-query-param-")[1].split("__");
                         var field = $("#id_" + conditional[0]);
                         var field_value = conditional[1];
-                        
+
                         if ($('option:selected', field).attr('api-value') === field_value){
                             var _val = attr.value.split("=");
                             parameters[_val[0]] = _val[1];
                         }
                     }
-                })
+                });
 
                 // Additional query params
                 $.each(element.attributes, function(index, attr){
@@ -176,7 +178,7 @@ $(document).ready(function() {
                         var param_name = attr.name.split("data-additional-query-param-")[1]
                         parameters[param_name] = attr.value;
                     }
-                })
+                });
 
                 // This will handle params with multiple values (i.e. for list filter forms)
                 return $.param(parameters, true);
