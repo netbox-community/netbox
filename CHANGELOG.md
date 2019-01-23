@@ -9,6 +9,7 @@ v2.5.4 (FUTURE)
 * [#2753](https://github.com/digitalocean/netbox/issues/2753) - Implemented Select2 to replace most all instances of select fields in forms
 * [#2766](https://github.com/digitalocean/netbox/issues/2766) - Extend users admin table to include superuser and active fields
 * [#2782](https://github.com/digitalocean/netbox/issues/2782) - Add `is_pool` field for prefix filtering
+* [#2807](https://github.com/digitalocean/netbox/issues/2807) - Include device site/rack assignment in cable trace view
 
 ## Bug Fixes
 
