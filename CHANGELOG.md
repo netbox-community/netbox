@@ -11,6 +11,7 @@ v2.5.4 (FUTURE)
 * [#2782](https://github.com/digitalocean/netbox/issues/2782) - Add `is_pool` field for prefix filtering
 * [#2807](https://github.com/digitalocean/netbox/issues/2807) - Include device site/rack assignment in cable trace view
 * [#2808](https://github.com/digitalocean/netbox/issues/2808) - Loosen version pinning for Django to allow patch releases
+* [#2810](https://github.com/digitalocean/netbox/issues/2810) - Include description fields in interface connections export
 
 ## Bug Fixes
 
