@@ -17,6 +17,7 @@ v2.5.4 (FUTURE)
 * [#2783](https://github.com/digitalocean/netbox/issues/2783) - Fix AttributeError exception when attempting to delete region(s)
 * [#2795](https://github.com/digitalocean/netbox/issues/2795) - Fix duplicate display of pagination controls on child prefix/IP tables
 * [#2798](https://github.com/digitalocean/netbox/issues/2798) - Properly URL-encode "map it" link on site view
+* [#2802](https://github.com/digitalocean/netbox/issues/2802) - Better error handling for unsupported NAPALM methods
 
 ---
 
