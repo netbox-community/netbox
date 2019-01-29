@@ -134,8 +134,8 @@ $(document).ready(function() {
 
             data: function(params) {
                 var element = this[0];
-                // Paging
-                var offset = params.page * 50 || 0;
+                // Paging. Note that `params.page` indexes at 1
+                var offset = (params.page - 1) * 50 || 0;
                 // Base query params
                 var parameters = {
                     q: params.term,
@@ -246,8 +246,8 @@ $(document).ready(function() {
             url: "/api/extras/tags/",
 
             data: function(params) {
-                // paging
-                var offset = params.page * 50 || 0;
+                // Paging. Note that `params.page` indexes at 1
+                var offset = (params.page - 1) * 50 || 0;
                 var parameters = {
                     q: params.term,
                     brief: 1,
