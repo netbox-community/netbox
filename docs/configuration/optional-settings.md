@@ -251,7 +251,7 @@ The time zone NetBox will use when dealing with dates and times. It is recommend
 
 Default: False
 
-Enable this option to run the webhook backend. See the docs section on the webhook backend [here](../miscellaneous/webhooks/) for more information on setup and use.
+Enable this option to run the webhook backend. See the docs section on the webhook backend [here](../additional-features/webhooks/) for more information on setup and use.
 
 ---
 
@@ -274,7 +274,7 @@ SHORT_DATETIME_FORMAT = 'Y-m-d H:i'  # 2016-06-27 13:23
 
 ## Redis Connection Settings
 
-[Redis](https://redis.io/) is a key-value store which functions as a very lightweight database. It is required when enabling NetBox [webhooks](../miscellaneous/webhooks/). A Redis connection is configured using a dictionary similar to the following:
+[Redis](https://redis.io/) is a key-value store which functions as a very lightweight database. It is required when enabling NetBox [webhooks](../additional-features/webhooks/). A Redis connection is configured using a dictionary similar to the following:
 
 ```
 REDIS = {
