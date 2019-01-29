@@ -12,7 +12,7 @@
                 <div class="col-md-10">
                     {% for obj_type in results %}
                         <h3 id="{{ obj_type.name|lower }}">{{ obj_type.name|bettertitle }}</h3>
-                        {% include 'panel_table.html' with table=obj_type.table hide_paginator=True %}
+                        {% include 'panel_table.html' with table=obj_type.table %}
                         <a href="{{ obj_type.url }}" class="btn btn-primary pull-right">
                             <span class="fa fa-arrow-right" aria-hidden="true"></span>
                             {% if obj_type.table.page.has_next %}

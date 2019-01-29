@@ -3,7 +3,13 @@
 <div class="panel panel-default">
     <div class="panel-heading text-center">
         {% if end.device %}
-            <strong><a href="{{ end.device.get_absolute_url }}">{{ end.device }}</a></strong>
+            <strong><a href="{{ end.device.get_absolute_url }}">{{ end.device }}</a></strong><br/>
+            <small>
+                <a href="{{ end.device.site.get_absolute_url }}">{{ end.device.site }}</a>
+                {% if end.device.rack %}
+                    / <a href="{{ end.device.rack.get_absolute_url }}">{{ end.device.rack }}</a>
+                {% endif %}
+            </small>
         {% else %}
             <strong><a href="{{ end.circuit.provider.get_absolute_url }}">{{ end.circuit.provider }}</a></strong>
         {% endif %}

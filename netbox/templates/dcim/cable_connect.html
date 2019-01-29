@@ -107,14 +107,14 @@
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane active" id="search">
-                                {% render_field form.livesearch %}
+                                &nbsp;
                             </div>
                             <div class="tab-pane" id="select">
                                 {% render_field form.termination_b_site %}
                                 {% render_field form.termination_b_rack %}
-                                {% render_field form.termination_b_device %}
                             </div>
                         </div>
+                        {% render_field form.termination_b_device %}
                         {% render_field form.termination_b_type %}
                         {% render_field form.termination_b_id %}
                     </div>

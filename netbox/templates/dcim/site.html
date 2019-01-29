@@ -139,7 +139,7 @@
                     <td>
                         {% if site.physical_address %}
                             <div class="pull-right">
-                                <a href="http://maps.google.com/?q={{ site.physical_address|oneline }}" target="_blank" class="btn btn-primary btn-xs">
+                                <a href="http://maps.google.com/?q={{ site.physical_address|oneline|urlencode }}" target="_blank" class="btn btn-primary btn-xs">
                                     <i class="glyphicon glyphicon-map-marker"></i> Map it
                                 </a>
                             </div>

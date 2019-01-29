@@ -67,135 +67,223 @@ $(document).ready(function() {
         form.submit();
     });
 
-    // API select widget
-    $('select[filter-for]').change(function() {
-
-        // Resolve child field by ID specified in parent
-        var child_names = $(this).attr('filter-for');
-        var parent = this;
-
-        // allow more than one child
-        $.each(child_names.split(" "), function(_, child_name){
-
-            var child_field = $('#id_' + child_name);
-            var child_selected = child_field.val();
-
-            // Wipe out any existing options within the child field and create a default option
-            child_field.empty();
-            if (!child_field.attr('multiple')) {
-                child_field.append($("<option></option>").attr("value", "").text("---------"));
+    // Parse URLs which may contain variable refrences to other field values
+    function parseURL(url) {
+        var filter_regex = /\{\{([a-z_]+)\}\}/g;
+        var match;
+        var rendered_url = url;
+        var filter_field;
+        while (match = filter_regex.exec(url)) {
+            filter_field = $('#id_' + match[1]);
+            var custom_attr = $('option:selected', filter_field).attr('api-value');
+            if (custom_attr) {
+                rendered_url = rendered_url.replace(match[0], custom_attr);
+            } else if (filter_field.val()) {
+                rendered_url = rendered_url.replace(match[0], filter_field.val());
+            } else if (filter_field.attr('nullable') == 'true') {
+                rendered_url = rendered_url.replace(match[0], 'null');
             }
+        }
+        return rendered_url
+    }
 
-            if ($(parent).val() || $(parent).attr('nullable') == 'true') {
-                var api_url = child_field.attr('api-url') + '&limit=0&brief=1';
-                var disabled_indicator = child_field.attr('disabled-indicator');
-                var initial_value = child_field.attr('initial');
-                var display_field = child_field.attr('display-field') || 'name';
+    // Assign color picker selection classes
+    function colorPickerClassCopy(data, container) {
+        if (data.element) {
+            $(container).addClass($(data.element).attr("class"));
+        }
+        return data.text;
+    }
 
-                // Determine the filter fields needed to make an API call
-                var filter_regex = /\{\{([a-z_]+)\}\}/g;
-                var match;
-                var rendered_url = api_url;
-                var filter_field;
-                while (match = filter_regex.exec(api_url)) {
-                    filter_field = $('#id_' + match[1]);
-                    var custom_attr = $('option:selected', filter_field).attr('api-value');
-                    if (custom_attr) {
-                        rendered_url = rendered_url.replace(match[0], custom_attr);
-                    } else if (filter_field.val()) {
-                        rendered_url = rendered_url.replace(match[0], filter_field.val());
-                    } else if (filter_field.attr('nullable') == 'true') {
-                        rendered_url = rendered_url.replace(match[0], 'null');
-                    }
-                }
-
-                // Account for any conditional URL append strings
-                $.each(child_field[0].attributes, function(index, attr){
-                    if (attr.name.includes("data-url-conditional-append-")){
-                        var conditional = attr.name.split("data-url-conditional-append-")[1].split("__");
-                        var field = $("#id_" + conditional[0]);
-                        var field_value = conditional[1];
-                        if ($('option:selected', field).attr('api-value') === field_value){
-                            rendered_url = rendered_url + attr.value;
-                        }
-                    }
-                })
-
-                // If all URL variables have been replaced, make the API call
-                if (rendered_url.search('{{') < 0) {
-                    console.log(child_name + ": Fetching " + rendered_url);
-                    $.ajax({
-                        url: rendered_url,
-                        dataType: 'json',
-                        success: function(response, status) {
-                            $.each(response.results, function(index, choice) {
-                                var option = $("<option></option>").attr("value", choice.id).text(choice[display_field]);
-                                if (disabled_indicator && choice[disabled_indicator] && choice.id != initial_value) {
-                                    option.attr("disabled", "disabled");
-                                } else if (choice.id == child_selected) {
-                                    option.attr("selected", "selected");
-                                }
-                                child_field.append(option);
-                            });
-                        }
-                    });
-                }
-
-            }
-
-            // Trigger change event in case the child field is the parent of another field
-            child_field.change();
-        });
-
+    // Color Picker
+    $('.netbox-select2-color-picker').select2({
+        allowClear: true,
+        placeholder: "---------",
+        theme: "bootstrap",
+        templateResult: colorPickerClassCopy,
+        templateSelection: colorPickerClassCopy
     });
 
-    // Auto-complete tags
-    function split_tags(val) {
-      return val.split(/,\s*/);
-    }
-    $("#id_tags")
-      .on("keydown", function(event) {
-        if (event.keyCode === $.ui.keyCode.TAB &&
-            $(this).autocomplete("instance").menu.active) {
-          event.preventDefault();
-        }
-      })
-      .autocomplete({
-        source: function(request, response) {
-            $.ajax({
-                type: 'GET',
-                url: netbox_api_path + 'extras/tags/',
-                data: 'q=' + split_tags(request.term).pop(),
-                success: function(data) {
-                    var choices = [];
-                    $.each(data.results, function (index, choice) {
-                        choices.push(choice.name);
-                    });
-                    response(choices);
+    // Static choice selection
+    $('.netbox-select2-static').select2({
+        allowClear: true,
+        placeholder: "---------",
+        theme: "bootstrap"
+    });
+
+    // API backed selection
+    // Includes live search and chained fields
+    // The `multiple` setting may be controled via a data-* attribute
+    $('.netbox-select2-api').select2({
+        allowClear: true,
+        placeholder: "---------",
+        theme: "bootstrap",
+        ajax: {
+            delay: 500,
+
+            url: function(params) {
+                var element = this[0];
+                var url = parseURL(element.getAttribute("data-url"));
+
+                if (url.includes("{{")) {
+                    // URL is not fully rendered yet, abort the request
+                    return false;
                 }
-            });
-        },
-        search: function() {
-          // Need 3 or more characters to begin searching
-          var term = split_tags(this.value).pop();
-          if (term.length < 3) {
-            return false;
-          }
-        },
-        focus: function() {
-          // prevent value inserted on focus
-          return false;
-        },
-        select: function(event, ui) {
-          var terms = split_tags(this.value);
-          // remove the current input
-          terms.pop();
-          // add the selected item
-          terms.push(ui.item.value);
-          // add placeholder to get the comma-and-space at the end
-          terms.push("");
-          this.value = terms.join(", ");
-          return false;
+                return url;
+            },
+
+            data: function(params) {
+                var element = this[0];
+                // Paging. Note that `params.page` indexes at 1
+                var offset = (params.page - 1) * 50 || 0;
+                // Base query params
+                var parameters = {
+                    q: params.term,
+                    brief: 1,
+                    limit: 50,
+                    offset: offset,
+                };
+
+                // filter-for fields from a chain
+                var attr_name = "data-filter-for-" + $(element).attr("name");
+                var form = $(element).closest('form');
+                var filter_for_elements = form.find("select[" + attr_name + "]");
+
+                filter_for_elements.each(function(index, filter_for_element) {
+                    var param_name = $(filter_for_element).attr(attr_name);
+                    var value = $(filter_for_element).val();
+
+                    if (param_name && value) {
+                        parameters[param_name] = value;
+                    }
+                });
+
+                // Conditional query params
+                $.each(element.attributes, function(index, attr){
+                    if (attr.name.includes("data-conditional-query-param-")){
+                        var conditional = attr.name.split("data-conditional-query-param-")[1].split("__");
+                        var field = $("#id_" + conditional[0]);
+                        var field_value = conditional[1];
+
+                        if ($('option:selected', field).attr('api-value') === field_value){
+                            var _val = attr.value.split("=");
+                            parameters[_val[0]] = _val[1];
+                        }
+                    }
+                });
+
+                // Additional query params
+                $.each(element.attributes, function(index, attr){
+                    if (attr.name.includes("data-additional-query-param-")){
+                        var param_name = attr.name.split("data-additional-query-param-")[1]
+                        parameters[param_name] = attr.value;
+                    }
+                });
+
+                // This will handle params with multiple values (i.e. for list filter forms)
+                return $.param(parameters, true);
+            },
+
+            processResults: function (data) {
+                var element = this.$element[0];
+                var results = $.map(data.results, function (obj) {
+                    obj.text = obj[element.getAttribute('display-field')] || obj.name;
+                    obj.id = obj[element.getAttribute('value-field')] || obj.id;
+
+                    if(element.getAttribute('disabled-indicator') && obj[element.getAttribute('disabled-indicator')]) {
+                        // The disabled-indicator equated to true, so we disable this option
+                        obj.disabled = true;
+                    }
+                    return obj;
+                });
+
+                // Handle the null option
+                if (element.getAttribute('data-null-option')) {
+                    var null_option = $(element).children()[0]
+                    results.unshift({
+                        id: null_option.value,
+                        text: null_option.text
+                    });
+                }
+
+                // Check if there are more results to page
+                var page = data.next !== null;
+                return {
+                    results: results,
+                    pagination: {
+                        more: page
+                    }
+                };
+            }
         }
-      });
+    });
+
+    // API backed tags
+    var tags = $('#id_tags');
+    if (tags.length > 0 && tags.val().length > 0){
+        tags = $('#id_tags').val().split(/,\s*/);
+    } else {
+        tags = [];
+    }
+    tag_objs = $.map(tags, function (tag) {
+        return {
+            id: tag,
+            text: tag,
+            selected: true
+        }
+    });
+    // Replace the django issued text input with a select element
+    $('#id_tags').replaceWith('<select name="tags" id="id_tags" class="form-control"></select>');
+    $('#id_tags').select2({
+        tags: true,
+        data: tag_objs,
+        multiple: true,
+        allowClear: true,
+        placeholder: "Tags",
+
+        ajax: {
+            delay: 250,
+            url: "/api/extras/tags/",
+
+            data: function(params) {
+                // Paging. Note that `params.page` indexes at 1
+                var offset = (params.page - 1) * 50 || 0;
+                var parameters = {
+                    q: params.term,
+                    brief: 1,
+                    limit: 50,
+                    offset: offset,
+                };
+                return parameters;
+            },
+
+            processResults: function (data) {
+                var results = $.map(data.results, function (obj) {
+                    return {
+                        id: obj.name,
+                        text: obj.name
+                    }
+                });
+
+                // Check if there are more results to page
+                var page = data.next !== null;
+                return {
+                    results: results,
+                    pagination: {
+                        more: page
+                    }
+                };
+            }
+        }
+    });
+    $('#id_tags').closest('form').submit(function(event){
+        // django-taggit can only accept a single comma seperated string value
+        var value = $('#id_tags').val();
+        if (value.length > 0){
+            var final_tags = value.join(', ');
+            $('#id_tags').val(null).trigger('change');
+            var option = new Option(final_tags, final_tags, true, true);
+            $('#id_tags').append(option).trigger('change');
+        }
+    });
 });

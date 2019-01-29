@@ -169,6 +169,7 @@ class ColorSelect(forms.Select):
     def __init__(self, *args, **kwargs):
         kwargs['choices'] = add_blank_choice(COLOR_CHOICES)
         super().__init__(*args, **kwargs)
+        self.attrs['class'] = 'netbox-select2-color-picker'
 
 
 class BulkEditNullBooleanSelect(forms.NullBooleanSelect):
@@ -185,6 +186,7 @@ class BulkEditNullBooleanSelect(forms.NullBooleanSelect):
             ('2', 'Yes'),
             ('3', 'No'),
         )
+        self.attrs['class'] = 'netbox-select2-static'
 
 
 class SelectWithDisabled(forms.Select):
@@ -195,7 +197,42 @@ class SelectWithDisabled(forms.Select):
     option_template_name = 'widgets/selectwithdisabled_option.html'
 
 
-class SelectWithPK(forms.Select):
+class StaticSelect2(SelectWithDisabled):
+    """
+    A static content using the Select2 widget
+
+    :param filter_for: (Optional) A dict of chained form fields for which this field is a filter. The key is the
+        name of the filter-for field (child field) and the value is the name of the query param filter.
+    """
+
+    def __init__(self, filter_for=None, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        self.attrs['class'] = 'netbox-select2-static'
+        if filter_for:
+            for key, value in filter_for.items():
+                self.add_filter_for(key, value)
+
+    def add_filter_for(self, name, value):
+        """
+        Add details for an additional query param in the form of a data-filter-for-* attribute.
+
+        :param name: The name of the query param
+        :param value: The value of the query param
+        """
+        self.attrs['data-filter-for-{}'.format(name)] = value
+
+
+class StaticSelect2Multiple(StaticSelect2, forms.SelectMultiple):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.attrs['data-multiple'] = 1
+
+
+class SelectWithPK(StaticSelect2):
     """
     Include the primary key of each option in the option label (e.g. "Router7 (4721)").
     """
@@ -237,62 +274,91 @@ class APISelect(SelectWithDisabled):
 
     :param api_url: API URL
     :param display_field: (Optional) Field to display for child in selection list. Defaults to `name`.
+    :param value_field: (Optional) Field to use for the option value in selection list. Defaults to `id`.
     :param disabled_indicator: (Optional) Mark option as disabled if this field equates true.
-    :param url_conditional_append: (Optional) A dict of URL query strings to append to the URL if the
+    :param filter_for: (Optional) A dict of chained form fields for which this field is a filter. The key is the
+        name of the filter-for field (child field) and the value is the name of the query param filter.
+    :param conditional_query_params: (Optional) A dict of URL query params to append to the URL if the
         condition is met. The condition is the dict key and is specified in the form `<field_name>__<field_value>`.
-        If the provided field value is selected for the given field, the URL query string will be appended to
-        the rendered URL. This is useful in cases where a particular field value dictates an additional API filter.
+        If the provided field value is selected for the given field, the URL query param will be appended to
+        the rendered URL. The value is the in the from `<param_name>=<param_value>`. This is useful in cases where
+        a particular field value dictates an additional API filter.
+    :param additional_query_params: Optional) A dict of query params to append to the API request. The key is the
+        name of the query param and the value if the query param's value.
+    :param null_option: If true, include the static null option in the selection list.
     """
 
     def __init__(
         self,
         api_url,
         display_field=None,
+        value_field=None,
         disabled_indicator=None,
-        url_conditional_append=None,
+        filter_for=None,
+        conditional_query_params=None,
+        additional_query_params=None,
+        null_option=False,
         *args,
         **kwargs
     ):
 
         super().__init__(*args, **kwargs)
 
-        self.attrs['class'] = 'api-select'
-        self.attrs['api-url'] = '/{}{}'.format(settings.BASE_PATH, api_url.lstrip('/'))  # Inject BASE_PATH
+        self.attrs['class'] = 'netbox-select2-api'
+        self.attrs['data-url'] = '/{}{}'.format(settings.BASE_PATH, api_url.lstrip('/'))  # Inject BASE_PATH
         if display_field:
             self.attrs['display-field'] = display_field
+        if value_field:
+            self.attrs['value-field'] = value_field
         if disabled_indicator:
             self.attrs['disabled-indicator'] = disabled_indicator
-        if url_conditional_append:
-            for key, value in url_conditional_append.items():
-                self.attrs["data-url-conditional-append-{}".format(key)] = value
+        if filter_for:
+            for key, value in filter_for.items():
+                self.add_filter_for(key, value)
+        if conditional_query_params:
+            for key, value in conditional_query_params.items():
+                self.add_conditional_query_param(key, value)
+        if additional_query_params:
+            for key, value in additional_query_params.items():
+                self.add_additional_query_param(key, value)
+        if null_option:
+            self.attrs['data-null-option'] = 1
+
+    def add_filter_for(self, name, value):
+        """
+        Add details for an additional query param in the form of a data-filter-for-* attribute.
+
+        :param name: The name of the query param
+        :param value: The value of the query param
+        """
+        self.attrs['data-filter-for-{}'.format(name)] = value
+
+    def add_additional_query_param(self, name, value):
+        """
+        Add details for an additional query param in the form of a data-* attribute.
+
+        :param name: The name of the query param
+        :param value: The value of the query param
+        """
+        self.attrs['data-additional-query-param-{}'.format(name)] = value
+
+    def add_conditional_query_param(self, condition, value):
+        """
+        Add details for a URL query strings to append to the URL if the condition is met.
+        The condition is specified in the form `<field_name>__<field_value>`.
+
+        :param condition: The condition for the query param
+        :param value: The value of the query param
+        """
+        self.attrs['data-conditional-query-param-{}'.format(condition)] = value
 
 
-class APISelectMultiple(APISelect):
-    allow_multiple_selected = True
+class APISelectMultiple(APISelect, forms.SelectMultiple):
 
-
-class Livesearch(forms.TextInput):
-    """
-    A text widget that carries a few extra bits of data for use in AJAX-powered autocomplete search
-
-    :param query_key: The name of the parameter to query against
-    :param query_url: The name of the API URL to query
-    :param field_to_update: The name of the "real" form field whose value is being set
-    :param obj_label: The field to use as the option label (optional)
-    """
-
-    def __init__(self, query_key, query_url, field_to_update, obj_label=None, *args, **kwargs):
-
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.attrs = {
-            'data-key': query_key,
-            'data-source': reverse_lazy(query_url),
-            'data-field': field_to_update,
-        }
-
-        if obj_label:
-            self.attrs['data-label'] = obj_label
+        self.attrs['data-multiple'] = 1
 
 
 #
@@ -530,38 +596,6 @@ class FilterTreeNodeMultipleChoiceField(FilterChoiceFieldMixin, TreeNodeMultiple
     pass
 
 
-class AnnotatedMultipleChoiceField(forms.MultipleChoiceField):
-    """
-    Render a set of static choices with each choice annotated to include a count of related objects. For example, this
-    field can be used to display a list of all available device statuses along with the number of devices currently
-    assigned to each status.
-    """
-
-    def annotate_choices(self):
-        queryset = self.annotate.values(
-            self.annotate_field
-        ).annotate(
-            count=Count(self.annotate_field)
-        ).order_by(
-            self.annotate_field
-        )
-        choice_counts = {
-            c[self.annotate_field]: c['count'] for c in queryset
-        }
-        annotated_choices = [
-            (c[0], '{} ({})'.format(c[1], choice_counts.get(c[0], 0))) for c in self.static_choices
-        ]
-
-        return annotated_choices
-
-    def __init__(self, choices, annotate, annotate_field, *args, **kwargs):
-        self.annotate = annotate
-        self.annotate_field = annotate_field
-        self.static_choices = unpack_grouped_choices(choices)
-
-        super().__init__(choices=self.annotate_choices, *args, **kwargs)
-
-
 class LaxURLField(forms.URLField):
     """
     Modifies Django's built-in URLField in two ways:
@@ -627,7 +661,7 @@ class ChainedFieldsMixin(forms.BaseForm):
 
                 filters_dict = {}
                 for (db_field, parent_field) in field.chains:
-                    if self.is_bound and parent_field in self.data:
+                    if self.is_bound and parent_field in self.data and self.data[parent_field]:
                         filters_dict[db_field] = self.data[parent_field] or None
                     elif self.initial.get(parent_field):
                         filters_dict[db_field] = self.initial[parent_field]

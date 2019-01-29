@@ -54,7 +54,11 @@ class ComponentModel(models.Model):
         """
         Log an ObjectChange including the parent Device/VM.
         """
-        parent = self.device if self.device is not None else getattr(self, 'virtual_machine', None)
+        try:
+            parent = getattr(self, 'device', None) or getattr(self, 'virtual_machine', None)
+        except ObjectDoesNotExist:
+            # The parent device/VM has already been deleted
+            parent = None
         ObjectChange(
             user=user,
             request_id=request_id,

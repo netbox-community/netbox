@@ -1,3 +1,29 @@
+v2.5.4 (2019-01-29)
+
+## Enhancements
+
+* [#2516](https://github.com/digitalocean/netbox/issues/2516) - Implemented Select2 for all Model backed selection fields
+* [#2590](https://github.com/digitalocean/netbox/issues/2590) - Implemented the color picker with Select2 to show colors in the background
+* [#2733](https://github.com/digitalocean/netbox/issues/2733) - Enable bulk assignment of MAC addresses to interfaces
+* [#2735](https://github.com/digitalocean/netbox/issues/2735) - Implemented Select2 for all list filter form select elements
+* [#2753](https://github.com/digitalocean/netbox/issues/2753) - Implemented Select2 to replace most all instances of select fields in forms
+* [#2766](https://github.com/digitalocean/netbox/issues/2766) - Extend users admin table to include superuser and active fields
+* [#2782](https://github.com/digitalocean/netbox/issues/2782) - Add `is_pool` field for prefix filtering
+* [#2807](https://github.com/digitalocean/netbox/issues/2807) - Include device site/rack assignment in cable trace view
+* [#2808](https://github.com/digitalocean/netbox/issues/2808) - Loosen version pinning for Django to allow patch releases
+* [#2810](https://github.com/digitalocean/netbox/issues/2810) - Include description fields in interface connections export
+
+## Bug Fixes
+
+* [#2779](https://github.com/digitalocean/netbox/issues/2779) - Include "none" option when filter IP addresses by role
+* [#2783](https://github.com/digitalocean/netbox/issues/2783) - Fix AttributeError exception when attempting to delete region(s)
+* [#2795](https://github.com/digitalocean/netbox/issues/2795) - Fix duplicate display of pagination controls on child prefix/IP tables
+* [#2798](https://github.com/digitalocean/netbox/issues/2798) - Properly URL-encode "map it" link on site view
+* [#2802](https://github.com/digitalocean/netbox/issues/2802) - Better error handling for unsupported NAPALM methods
+* [#2816](https://github.com/digitalocean/netbox/issues/2816) - Handle exception when deleting a device with connected components
+
+---
+
 v2.5.3 (2019-01-11)
 
 ## Enhancements

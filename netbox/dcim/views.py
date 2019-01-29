@@ -162,7 +162,7 @@ class RegionBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class RegionBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_region'
-    queryset = Region.objects.annotate(site_count=Count('sites'))
+    queryset = Region.objects.all()
     filter = filters.RegionFilter
     table = tables.RegionTable
     default_return_url = 'dcim:region_list'
@@ -1782,14 +1782,20 @@ class InterfaceConnectionsListView(ObjectListView):
     def queryset_to_csv(self):
         csv_data = [
             # Headers
-            ','.join(['device_a', 'interface_a', 'device_b', 'interface_b', 'connection_status'])
+            ','.join([
+                'device_a', 'interface_a', 'interface_a_description',
+                'device_b', 'interface_b', 'interface_b_description',
+                'connection_status'
+            ])
         ]
         for obj in self.queryset:
             csv = csv_format([
                 obj.connected_endpoint.device.identifier if obj.connected_endpoint else None,
                 obj.connected_endpoint.name if obj.connected_endpoint else None,
+                obj.connected_endpoint.description if obj.connected_endpoint else None,
                 obj.device.identifier,
                 obj.name,
+                obj.description,
                 obj.get_connection_status_display(),
             ])
             csv_data.append(csv)
