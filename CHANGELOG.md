@@ -20,6 +20,7 @@ v2.5.4 (FUTURE)
 * [#2795](https://github.com/digitalocean/netbox/issues/2795) - Fix duplicate display of pagination controls on child prefix/IP tables
 * [#2798](https://github.com/digitalocean/netbox/issues/2798) - Properly URL-encode "map it" link on site view
 * [#2802](https://github.com/digitalocean/netbox/issues/2802) - Better error handling for unsupported NAPALM methods
+* [#2816](https://github.com/digitalocean/netbox/issues/2816) - Handle exception when deleting a device with connected components
 
 ---
 
