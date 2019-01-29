@@ -73,53 +73,58 @@ $(document).ready(function() {
         url: "{% url 'dcim-api:device-napalm' pk=device.pk %}?method=get_facts&method=get_environment",
         dataType: 'json',
         success: function(json) {
-            $('#hostname').html(json['get_facts']['hostname']);
-            $('#fqdn').html(json['get_facts']['fqdn']);
-            $('#vendor').html(json['get_facts']['vendor']);
-            $('#model').html(json['get_facts']['model']);
-            $('#serial_number').html(json['get_facts']['serial_number']);
-            $('#os_version').html(json['get_facts']['os_version']);
-            // Calculate uptime
-            var uptime = json['get_facts']['uptime'];
-            console.log(uptime);
-            var uptime_days = Math.floor(uptime / 86400);
-            var uptime_hours = Math.floor(uptime % 86400 / 3600);
-            var uptime_minutes = Math.floor(uptime % 3600 / 60);
-            $('#uptime').html(uptime_days + "d " + uptime_hours + "h " + uptime_minutes + "m");
-            $.each(json['get_environment']['cpu'], function(name, obj) {
-                var row="<tr><td>" + name + "</td><td>" + obj['%usage'] + "%</td></tr>";
-                $("#cpu").after(row)
-            });
-            $('#memory').after("<tr><td>Used</td><td>" + json['get_environment']['memory']['used_ram'] + "</td></tr>");
-            $('#memory').after("<tr><td>Available</td><td>" + json['get_environment']['memory']['available_ram'] + "</td></tr>");
-            $.each(json['get_environment']['temperature'], function(name, obj) {
-                var style = "success";
-                if (obj['is_alert']) {
-                    style = "warning";
-                } else if (obj['is_critical']) {
-                    style = "danger";
-                }
-                var row="<tr class=\"" + style +"\"><td>" + name + "</td><td>" + obj['temperature'] + "°C</td></tr>";
-                $("#temperature").after(row)
-            });
-            $.each(json['get_environment']['fans'], function(name, obj) {
-                var row;
-                if (obj['status']) {
-                    row="<tr class=\"success\"><td>" + name + "</td><td><i class=\"fa fa-check text-success\"></i></td></tr>";
-                } else {
-                    row="<tr class=\"error\"><td>" + name + "</td><td><i class=\"fa fa-close text-error\"></i></td></tr>";
-                }
-                $("#fans").after(row)
-            });
-            $.each(json['get_environment']['power'], function(name, obj) {
-                var row;
-                if (obj['status']) {
-                    row="<tr class=\"success\"><td>" + name + "</td><td><i class=\"fa fa-check text-success\"></i></td></tr>";
-                } else {
-                    row="<tr class=\"danger\"><td>" + name + "</td><td><i class=\"fa fa-close text-danger\"></i></td></tr>";
-                }
-                $("#power").after(row)
-            });
+            if (!json['get_facts']['error']) {
+                $('#hostname').html(json['get_facts']['hostname']);
+                $('#fqdn').html(json['get_facts']['fqdn']);
+                $('#vendor').html(json['get_facts']['vendor']);
+                $('#model').html(json['get_facts']['model']);
+                $('#serial_number').html(json['get_facts']['serial_number']);
+                $('#os_version').html(json['get_facts']['os_version']);
+                // Calculate uptime
+                var uptime = json['get_facts']['uptime'];
+                console.log(uptime);
+                var uptime_days = Math.floor(uptime / 86400);
+                var uptime_hours = Math.floor(uptime % 86400 / 3600);
+                var uptime_minutes = Math.floor(uptime % 3600 / 60);
+                $('#uptime').html(uptime_days + "d " + uptime_hours + "h " + uptime_minutes + "m");
+            }
+            
+            if (!json['get_environment']['error']) {
+                $.each(json['get_environment']['cpu'], function(name, obj) {
+                    var row="<tr><td>" + name + "</td><td>" + obj['%usage'] + "%</td></tr>";
+                    $("#cpu").after(row)
+                });
+                $('#memory').after("<tr><td>Used</td><td>" + json['get_environment']['memory']['used_ram'] + "</td></tr>");
+                $('#memory').after("<tr><td>Available</td><td>" + json['get_environment']['memory']['available_ram'] + "</td></tr>");
+                $.each(json['get_environment']['temperature'], function(name, obj) {
+                    var style = "success";
+                    if (obj['is_alert']) {
+                        style = "warning";
+                    } else if (obj['is_critical']) {
+                        style = "danger";
+                    }
+                    var row="<tr class=\"" + style +"\"><td>" + name + "</td><td>" + obj['temperature'] + "°C</td></tr>";
+                    $("#temperature").after(row)
+                });
+                $.each(json['get_environment']['fans'], function(name, obj) {
+                    var row;
+                    if (obj['status']) {
+                        row="<tr class=\"success\"><td>" + name + "</td><td><i class=\"fa fa-check text-success\"></i></td></tr>";
+                    } else {
+                        row="<tr class=\"error\"><td>" + name + "</td><td><i class=\"fa fa-close text-error\"></i></td></tr>";
+                    }
+                    $("#fans").after(row)
+                });
+                $.each(json['get_environment']['power'], function(name, obj) {
+                    var row;
+                    if (obj['status']) {
+                        row="<tr class=\"success\"><td>" + name + "</td><td><i class=\"fa fa-check text-success\"></i></td></tr>";
+                    } else {
+                        row="<tr class=\"danger\"><td>" + name + "</td><td><i class=\"fa fa-close text-danger\"></i></td></tr>";
+                    }
+                    $("#power").after(row)
+                });
+            }
         },
         error: function(xhr) {
             alert(xhr.responseText);
