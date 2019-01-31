@@ -37,7 +37,7 @@ and run `upgrade.sh`.
 
 ## Alternative Installations
 
-* [Docker container](https://github.com/netbox-community/docker) (via [@cimnine](https://github.com/cimnine))
+* [Docker container](https://github.com/netbox-community/netbox-docker) (via [@cimnine](https://github.com/cimnine))
 * [Vagrant deployment](https://github.com/ryanmerolle/netbox-vagrant) (via [@ryanmerolle](https://github.com/ryanmerolle))
 * [Ansible deployment](https://github.com/lae/ansible-role-netbox) (via [@lae](https://github.com/lae))
 
