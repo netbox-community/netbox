@@ -11,6 +11,7 @@ v2.5.5 (FUTURE)
 * [#2824](https://github.com/digitalocean/netbox/issues/2824) - Fix template exception when viewing rack elevations list
 * [#2833](https://github.com/digitalocean/netbox/issues/2833) - Fix form widget for front port template creation
 * [#2835](https://github.com/digitalocean/netbox/issues/2835) - Fix certain model filters did not support the `q` query param
+* [#2837](https://github.com/digitalocean/netbox/issues/2837) - Fix select2 nullable filter fields add multiple null_option elements when paging
 
 ---
 
