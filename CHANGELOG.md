@@ -1,5 +1,9 @@
 v2.5.5 (FUTURE)
 
+## Enhancements
+
+* [#2809](https://github.com/digitalocean/netbox/issues/2809) - Remove VRF child prefixes table; link to main prefixes view
+
 ## Bug Fixes
 
 * [#2824](https://github.com/digitalocean/netbox/issues/2824) - Fix template exception when viewing rack elevations list
