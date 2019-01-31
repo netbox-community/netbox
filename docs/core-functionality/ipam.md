@@ -83,7 +83,7 @@ An IP address can be designated as the network address translation (NAT) inside 
 
 A VRF object in NetBox represents a virtual routing and forwarding (VRF) domain. Each VRF is essentially a separate routing table. VRFs are commonly used to isolate customers or organizations from one another within a network, or to route overlapping address space (e.g. multiple instances of the 10.0.0.0/8 space).
 
-Each VRF is assigned a unique name and route distinguisher (RD). The RD is expected to take one of the forms prescribed in [RFC 4364](https://tools.ietf.org/html/rfc4364#section-4.2), however its formatting is not strictly enforced.
+Each VRF is assigned a unique name and an optional route distinguisher (RD). The RD is expected to take one of the forms prescribed in [RFC 4364](https://tools.ietf.org/html/rfc4364#section-4.2), however its formatting is not strictly enforced.
 
 Each prefix and IP address may be assigned to one (and only one) VRF. If you have a prefix or IP address which exists in multiple VRFs, you will need to create a separate instance of it in NetBox for each VRF. Any IP prefix or address not assigned to a VRF is said to belong to the "global" table.
 

@@ -2,6 +2,7 @@ v2.5.5 (FUTURE)
 
 ## Enhancements
 
+* [#2805](https://github.com/digitalocean/netbox/issues/2805) - Allow null route distinguisher for VRFs
 * [#2809](https://github.com/digitalocean/netbox/issues/2809) - Remove VRF child prefixes table; link to main prefixes view
 * [#2825](https://github.com/digitalocean/netbox/issues/2825) - Include directly connected device for front/rear ports
 
