@@ -3,7 +3,7 @@ from django.db import models
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
-from dcim.constants import CONNECTION_STATUS_CHOICES, CONNECTION_STATUS_CONNECTED, STATUS_CLASSES
+from dcim.constants import CONNECTION_STATUS_CHOICES, STATUS_CLASSES
 from dcim.fields import ASNField
 from dcim.models import CableTermination
 from extras.models import CustomFieldModel, ObjectChange
@@ -282,6 +282,10 @@ class CircuitTermination(CableTermination):
             action=action,
             object_data=serialize_object(self)
         ).save()
+
+    @property
+    def parent(self):
+        return self.circuit
 
     def get_peer_termination(self):
         peer_side = 'Z' if self.term_side == 'A' else 'A'
