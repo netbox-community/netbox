@@ -3,6 +3,7 @@ v2.5.5 (FUTURE)
 ## Bug Fixes
 
 * [#2824](https://github.com/digitalocean/netbox/issues/2824) - Fix template exception when viewing rack elevations list
+* [#2833](https://github.com/digitalocean/netbox/issues/2833) - Fix form widget for front port template creation
 
 ---
 
