@@ -7,19 +7,19 @@ from netaddr.core import AddrFormatError
 from dcim.models import DeviceRole, Interface, Platform, Region, Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
-from utilities.filters import NumericInFilter, TagFilter
+from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
 from .constants import VM_STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
-class ClusterTypeFilter(django_filters.FilterSet):
+class ClusterTypeFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = ClusterType
         fields = ['name', 'slug']
 
 
-class ClusterGroupFilter(django_filters.FilterSet):
+class ClusterGroupFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = ClusterGroup
@@ -196,6 +196,10 @@ class VirtualMachineFilter(CustomFieldFilterSet):
 
 
 class InterfaceFilter(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
     virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine',
         queryset=VirtualMachine.objects.all(),
@@ -225,3 +229,10 @@ class InterfaceFilter(django_filters.FilterSet):
             return queryset.filter(mac_address=mac)
         except AddrFormatError:
             return queryset.none()
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value)
+        )

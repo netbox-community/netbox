@@ -2,11 +2,11 @@ import django_filters
 from django.db.models import Q
 
 from extras.filters import CustomFieldFilterSet
-from utilities.filters import NumericInFilter, TagFilter
+from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
 from .models import Tenant, TenantGroup
 
 
-class TenantGroupFilter(django_filters.FilterSet):
+class TenantGroupFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = TenantGroup

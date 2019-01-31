@@ -7,7 +7,7 @@ from netaddr.core import AddrFormatError
 from dcim.models import Site, Device, Interface
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
-from utilities.filters import NumericInFilter, TagFilter
+from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
 from virtualization.models import VirtualMachine
 from .constants import IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, PREFIX_STATUS_CHOICES, VLAN_STATUS_CHOICES
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
@@ -48,7 +48,7 @@ class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
         fields = ['name', 'rd', 'enforce_unique']
 
 
-class RIRFilter(django_filters.FilterSet):
+class RIRFilter(NameSlugSearchFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -96,7 +96,11 @@ class AggregateFilter(CustomFieldFilterSet, django_filters.FilterSet):
         return queryset.filter(qs_filter)
 
 
-class RoleFilter(django_filters.FilterSet):
+class RoleFilter(NameSlugSearchFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
 
     class Meta:
         model = Role
@@ -373,7 +377,7 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
             return queryset.none()
 
 
-class VLANGroupFilter(django_filters.FilterSet):
+class VLANGroupFilter(NameSlugSearchFilterSet):
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         label='Site (ID)',
