@@ -126,14 +126,11 @@ class VRFView(View):
     def get(self, request, pk):
 
         vrf = get_object_or_404(VRF.objects.all(), pk=pk)
-        prefix_table = tables.PrefixTable(
-            list(Prefix.objects.filter(vrf=vrf).select_related('site', 'role')), orderable=False
-        )
-        prefix_table.exclude = ('vrf',)
+        prefix_count = Prefix.objects.filter(vrf=vrf).count()
 
         return render(request, 'ipam/vrf.html', {
             'vrf': vrf,
-            'prefix_table': prefix_table,
+            'prefix_count': prefix_count,
         })
 
 

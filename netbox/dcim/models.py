@@ -68,6 +68,10 @@ class ComponentModel(models.Model):
             object_data=serialize_object(self)
         ).save()
 
+    @property
+    def parent(self):
+        return getattr(self, 'device', None)
+
 
 class CableTermination(models.Model):
     cable = models.ForeignKey(
@@ -161,6 +165,14 @@ class CableTermination(models.Model):
             return path + [(peer_port, None, None)]
 
         return path + next_segment
+
+    def get_cable_peer(self):
+        if self.cable is None:
+            return None
+        if self._cabled_as_a:
+            return self.cable.termination_b
+        if self._cabled_as_b:
+            return self.cable.termination_a
 
 
 #

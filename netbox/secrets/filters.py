@@ -3,11 +3,11 @@ from django.db.models import Q
 
 from dcim.models import Device
 from extras.filters import CustomFieldFilterSet
-from utilities.filters import NumericInFilter, TagFilter
+from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
 from .models import Secret, SecretRole
 
 
-class SecretRoleFilter(django_filters.FilterSet):
+class SecretRoleFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = SecretRole

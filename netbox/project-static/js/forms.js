@@ -197,8 +197,8 @@ $(document).ready(function() {
                     return obj;
                 });
 
-                // Handle the null option
-                if (element.getAttribute('data-null-option')) {
+                // Handle the null option, but only add it once
+                if (element.getAttribute('data-null-option') && data.previous === null) {
                     var null_option = $(element).children()[0]
                     results.unshift({
                         id: null_option.value,

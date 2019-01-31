@@ -16,7 +16,7 @@ class VRFTest(APITestCase):
 
         self.vrf1 = VRF.objects.create(name='Test VRF 1', rd='65000:1')
         self.vrf2 = VRF.objects.create(name='Test VRF 2', rd='65000:2')
-        self.vrf3 = VRF.objects.create(name='Test VRF 3', rd='65000:3')
+        self.vrf3 = VRF.objects.create(name='Test VRF 3')  # No RD
 
     def test_get_vrf(self):
 
@@ -44,19 +44,26 @@ class VRFTest(APITestCase):
 
     def test_create_vrf(self):
 
-        data = {
-            'name': 'Test VRF 4',
-            'rd': '65000:4',
-        }
+        data_list = [
+            # VRF with RD
+            {
+                'name': 'Test VRF 4',
+                'rd': '65000:4',
+            },
+            # VRF without RD
+            {
+                'name': 'Test VRF 5',
+            }
+        ]
 
         url = reverse('ipam-api:vrf-list')
-        response = self.client.post(url, data, format='json', **self.header)
 
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(VRF.objects.count(), 4)
-        vrf4 = VRF.objects.get(pk=response.data['id'])
-        self.assertEqual(vrf4.name, data['name'])
-        self.assertEqual(vrf4.rd, data['rd'])
+        for data in data_list:
+            response = self.client.post(url, data, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            vrf = VRF.objects.get(pk=response.data['id'])
+            self.assertEqual(vrf.name, data['name'])
+            self.assertEqual(vrf.rd, data['rd'] if 'rd' in data else None)
 
     def test_create_vrf_bulk(self):
 

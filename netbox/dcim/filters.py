@@ -8,7 +8,7 @@ from netaddr.core import AddrFormatError
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.constants import COLOR_CHOICES
-from utilities.filters import NullableCharFieldFilter, NumericInFilter, TagFilter
+from utilities.filters import NameSlugSearchFilterSet, NullableCharFieldFilter, NumericInFilter, TagFilter
 from virtualization.models import Cluster
 from .constants import *
 from .models import (
@@ -19,11 +19,7 @@ from .models import (
 )
 
 
-class RegionFilter(django_filters.FilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
+class RegionFilter(NameSlugSearchFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Region.objects.all(),
         label='Parent region (ID)',
@@ -38,15 +34,6 @@ class RegionFilter(django_filters.FilterSet):
     class Meta:
         model = Region
         fields = ['name', 'slug']
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        qs_filter = (
-            Q(name__icontains=value) |
-            Q(slug__icontains=value)
-        )
-        return queryset.filter(qs_filter)
 
 
 class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
@@ -119,11 +106,7 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         )
 
 
-class RackGroupFilter(django_filters.FilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label='Search',
-    )
+class RackGroupFilter(NameSlugSearchFilterSet):
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         label='Site (ID)',
@@ -139,17 +122,8 @@ class RackGroupFilter(django_filters.FilterSet):
         model = RackGroup
         fields = ['site_id', 'name', 'slug']
 
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        qs_filter = (
-            Q(name__icontains=value) |
-            Q(slug__icontains=value)
-        )
-        return queryset.filter(qs_filter)
 
-
-class RackRoleFilter(django_filters.FilterSet):
+class RackRoleFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = RackRole
@@ -303,7 +277,7 @@ class RackReservationFilter(django_filters.FilterSet):
         )
 
 
-class ManufacturerFilter(django_filters.FilterSet):
+class ManufacturerFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = Manufacturer
@@ -393,7 +367,7 @@ class DeviceTypeFilter(CustomFieldFilterSet):
         )
 
 
-class DeviceTypeComponentFilterSet(django_filters.FilterSet):
+class DeviceTypeComponentFilterSet(NameSlugSearchFilterSet):
     devicetype_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceType.objects.all(),
         field_name='device_type_id',
@@ -457,14 +431,14 @@ class DeviceBayTemplateFilter(DeviceTypeComponentFilterSet):
         fields = ['name']
 
 
-class DeviceRoleFilter(django_filters.FilterSet):
+class DeviceRoleFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = DeviceRole
         fields = ['name', 'slug', 'color', 'vm_role']
 
 
-class PlatformFilter(django_filters.FilterSet):
+class PlatformFilter(NameSlugSearchFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer',
         queryset=Manufacturer.objects.all(),
@@ -696,6 +670,10 @@ class DeviceFilter(CustomFieldFilterSet):
 
 
 class DeviceComponentFilterSet(django_filters.FilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
     device_id = django_filters.ModelChoiceFilter(
         queryset=Device.objects.all(),
         label='Device (ID)',
@@ -706,6 +684,13 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         label='Device (name)',
     )
     tag = TagFilter()
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value)
+        )
 
 
 class ConsolePortFilter(DeviceComponentFilterSet):

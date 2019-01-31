@@ -22,14 +22,20 @@
     {# Description #}
     <td>{{ rearport.description|placeholder }}</td>
 
-    {# Cable #}
-    <td>
-        {% if rearport.cable %}
+    {# Cable/connection #}
+    {% if rearport.cable %}
+        <td>
             <a href="{{ rearport.cable.get_absolute_url }}">{{ rearport.cable }}</a>
-        {% else %}
+        </td>
+        {% with far_end=rearport.get_cable_peer %}
+            <td><a href="{{ far_end.parent.get_absolute_url }}">{{ far_end.parent }}</a></td>
+            <td>{{ far_end }}</td>
+        {% endwith %}
+    {% else %}
+        <td colspan="3">
             <span class="text-muted">Not connected</span>
-        {% endif %}
-    </td>
+        </td>
+    {% endif %}
 
     {# Actions #}
     <td class="text-right">

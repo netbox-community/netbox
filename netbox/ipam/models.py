@@ -29,6 +29,8 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
     rd = models.CharField(
         max_length=21,
         unique=True,
+        blank=True,
+        null=True,
         verbose_name='Route distinguisher'
     )
     tenant = models.ForeignKey(

@@ -1,4 +1,5 @@
 import django_filters
+from django.db.models import Q
 from taggit.models import Tag
 
 
@@ -35,3 +36,21 @@ class TagFilter(django_filters.ModelMultipleChoiceFilter):
         kwargs.setdefault('queryset', Tag.objects.all())
 
         super().__init__(*args, **kwargs)
+
+
+class NameSlugSearchFilterSet(django_filters.FilterSet):
+    """
+    A base class for adding the search method to models which only expose the `name` and `slug` fields
+    """
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(slug__icontains=value)
+        )

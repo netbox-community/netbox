@@ -23,14 +23,20 @@
     {# Description #}
     <td>{{ frontport.description|placeholder }}</td>
 
-    {# Cable #}
-    <td>
-        {% if frontport.cable %}
+    {# Cable/connection #}
+    {% if frontport.cable %}
+        <td>
             <a href="{{ frontport.cable.get_absolute_url }}">{{ frontport.cable }}</a>
-        {% else %}
+        </td>
+        {% with far_end=frontport.get_cable_peer %}
+            <td><a href="{{ far_end.parent.get_absolute_url }}">{{ far_end.parent }}</a></td>
+            <td>{{ far_end }}</td>
+        {% endwith %}
+    {% else %}
+        <td colspan="3">
             <span class="text-muted">Not connected</span>
-        {% endif %}
-    </td>
+        </td>
+    {% endif %}
 
     {# Actions #}
     <td class="text-right">

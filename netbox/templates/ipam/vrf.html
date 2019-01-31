@@ -84,18 +84,18 @@
                     <td>Description</td>
                     <td>{{ vrf.description|placeholder }}</td>
                 </tr>
+                <tr>
+                    <td>Prefixes</td>
+                    <td>
+                        <a href="{% url 'ipam:prefix_list' %}?vrf={{ vrf.rd }}">{{ prefix_count }}</a>
+                    </td>
+                </tr>
 		    </table>
         </div>
-        {% include 'inc/custom_fields_panel.html' with obj=vrf %}
         {% include 'extras/inc/tags_panel.html' with tags=vrf.tags.all url='ipam:vrf_list' %}
 	</div>
 	<div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Prefixes</strong>
-            </div>
-            {% include 'responsive_table.html' with table=prefix_table %}
-        </div>
-	</div>
+        {% include 'inc/custom_fields_panel.html' with obj=vrf %}
+    </div>
 </div>
 {% endblock %}

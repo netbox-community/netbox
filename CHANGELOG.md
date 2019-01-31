@@ -1,3 +1,20 @@
+v2.5.5 (2019-01-31)
+
+## Enhancements
+
+* [#2805](https://github.com/digitalocean/netbox/issues/2805) - Allow null route distinguisher for VRFs
+* [#2809](https://github.com/digitalocean/netbox/issues/2809) - Remove VRF child prefixes table; link to main prefixes view
+* [#2825](https://github.com/digitalocean/netbox/issues/2825) - Include directly connected device for front/rear ports
+
+## Bug Fixes
+
+* [#2824](https://github.com/digitalocean/netbox/issues/2824) - Fix template exception when viewing rack elevations list
+* [#2833](https://github.com/digitalocean/netbox/issues/2833) - Fix form widget for front port template creation
+* [#2835](https://github.com/digitalocean/netbox/issues/2835) - Fix certain model filters did not support the `q` query param
+* [#2837](https://github.com/digitalocean/netbox/issues/2837) - Fix select2 nullable filter fields add multiple null_option elements when paging
+
+---
+
 v2.5.4 (2019-01-29)
 
 ## Enhancements

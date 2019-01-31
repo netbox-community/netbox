@@ -1066,7 +1066,6 @@ class FrontPortTemplateCreateForm(ComponentForm):
         choices=[],
         label='Rear ports',
         help_text='Select one rear port assignment for each front port being created.',
-        widget=StaticSelect2(),
     )
 
     def __init__(self, *args, **kwargs):
