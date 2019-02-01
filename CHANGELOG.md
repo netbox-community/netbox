@@ -1,3 +1,11 @@
+v2.5.6 (FUTURE)
+
+## Bug Fixes
+
+* [#2844](https://github.com/digitalocean/netbox/issues/2844) - Correct display of far cable end for pass-through ports
+
+---
+
 v2.5.5 (2019-01-31)
 
 ## Enhancements

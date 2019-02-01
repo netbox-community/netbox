@@ -169,9 +169,9 @@ class CableTermination(models.Model):
     def get_cable_peer(self):
         if self.cable is None:
             return None
-        if self._cabled_as_a:
+        if self._cabled_as_a.exists():
             return self.cable.termination_b
-        if self._cabled_as_b:
+        if self._cabled_as_b.exists():
             return self.cable.termination_a
 
 
