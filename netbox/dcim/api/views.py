@@ -1,3 +1,5 @@
+import re
+
 from collections import OrderedDict
 
 from django.conf import settings
@@ -159,6 +161,11 @@ class RackViewSet(CustomFieldModelViewSet):
                 exclude_pk = None
         elevation = rack.get_rack_units(face, exclude_pk)
 
+        query = request.GET.get('q',None)
+        if query.strip():
+            regex = re.compile(str(query.strip()))
+            elevation = list(filter(lambda ru: regex.search(ru.get('name')),elevation))
+        
         page = self.paginate_queryset(elevation)
         if page is not None:
             rack_units = serializers.RackUnitSerializer(page, many=True, context={'request': request})
