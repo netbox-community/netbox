@@ -3,6 +3,7 @@ v2.5.6 (FUTURE)
 ## Bug Fixes
 
 * [#2844](https://github.com/digitalocean/netbox/issues/2844) - Correct display of far cable end for pass-through ports
+* [#2857](https://github.com/digitalocean/netbox/issues/2857) - Add `display_name` to DeviceType API serializer; fix DeviceType list for bulk device edit
 
 ---
 

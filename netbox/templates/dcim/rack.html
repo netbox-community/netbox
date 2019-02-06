@@ -208,7 +208,7 @@
                                 <a href="{% url 'dcim:device' pk=device.pk %}">{{ device }}</a>
                             </td>
                             <td>{{ device.device_role }}</td>
-                            <td>{{ device.device_type.full_name }}</td>
+                            <td>{{ device.device_type.display_name }}</td>
                             <td>
                                 {% if device.parent_bay %}
                                     <a href="{{ device.parent_bay.device.get_absolute_url }}">{{ device.parent_bay }}</a>

@@ -163,7 +163,7 @@
                     <tr>
                         <td>Device Type</td>
                         <td>
-                            <span><a href="{% url 'dcim:devicetype' pk=device.device_type.pk %}">{{ device.device_type.full_name }}</a> ({{ device.device_type.u_height }}U)</span>
+                            <span><a href="{% url 'dcim:devicetype' pk=device.device_type.pk %}">{{ device.device_type.display_name }}</a> ({{ device.device_type.u_height }}U)</span>
                         </td>
                     </tr>
                     <tr>
@@ -416,7 +416,7 @@
                                         <span class="text-muted">&mdash;</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ rd.device_type.full_name }}</td>
+                                <td>{{ rd.device_type.display_name }}</td>
                             </tr>
                         {% endfor %}
                     </table>

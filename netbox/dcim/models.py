@@ -980,7 +980,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
             })
 
     @property
-    def full_name(self):
+    def display_name(self):
         return '{} {}'.format(self.manufacturer.name, self.model)
 
     @property

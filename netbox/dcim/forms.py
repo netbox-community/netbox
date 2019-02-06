@@ -1599,7 +1599,8 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         required=False,
         label='Type',
         widget=APISelect(
-            api_url="/api/dcim/device-types/"
+            api_url="/api/dcim/device-types/",
+            display_field='display_name'
         )
     )
     device_role = forms.ModelChoiceField(

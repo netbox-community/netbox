@@ -100,7 +100,7 @@ class NestedDeviceTypeSerializer(WritableNestedSerializer):
 
     class Meta:
         model = DeviceType
-        fields = ['id', 'url', 'manufacturer', 'model', 'slug']
+        fields = ['id', 'url', 'manufacturer', 'model', 'slug', 'display_name']
 
 
 class NestedRearPortTemplateSerializer(WritableNestedSerializer):

@@ -517,7 +517,7 @@ class DeviceTable(BaseTable):
     device_role = tables.TemplateColumn(DEVICE_ROLE, verbose_name='Role')
     device_type = tables.LinkColumn(
         'dcim:devicetype', args=[Accessor('device_type.pk')], verbose_name='Type',
-        text=lambda record: record.device_type.full_name
+        text=lambda record: record.device_type.display_name
     )
 
     class Meta(BaseTable.Meta):
