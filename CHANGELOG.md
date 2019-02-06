@@ -3,6 +3,7 @@ v2.5.6 (FUTURE)
 ## Bug Fixes
 
 * [#2844](https://github.com/digitalocean/netbox/issues/2844) - Correct display of far cable end for pass-through ports
+* [#2845](https://github.com/digitalocean/netbox/issues/2845) - Enable filtering of rack unit list by unit ID
 * [#2856](https://github.com/digitalocean/netbox/issues/2856) - Fix navigation links between LAG interfaces and their members on device view
 * [#2857](https://github.com/digitalocean/netbox/issues/2857) - Add `display_name` to DeviceType API serializer; fix DeviceType list for bulk device edit
 
