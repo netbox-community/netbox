@@ -531,7 +531,7 @@ class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
         null_label='-- Global --',
         widget=APISelectMultiple(
             api_url="/api/ipam/vrfs/",
-            value_field="slug",
+            value_field="rd",
             null_option=True,
         )
     )
@@ -980,7 +980,7 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
         null_label='-- Global --',
         widget=APISelectMultiple(
             api_url="/api/ipam/vrfs/",
-            value_field="slug",
+            value_field="rd",
             null_option=True,
         )
     )
