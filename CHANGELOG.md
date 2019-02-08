@@ -7,6 +7,7 @@ v2.5.6 (FUTURE)
 * [#2845](https://github.com/digitalocean/netbox/issues/2845) - Enable filtering of rack unit list by unit ID
 * [#2856](https://github.com/digitalocean/netbox/issues/2856) - Fix navigation links between LAG interfaces and their members on device view
 * [#2857](https://github.com/digitalocean/netbox/issues/2857) - Add `display_name` to DeviceType API serializer; fix DeviceType list for bulk device edit
+* [#2864](https://github.com/digitalocean/netbox/issues/2864) - Correct display of VRF name when no RD is assigned
 
 ---
 
