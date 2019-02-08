@@ -1,5 +1,9 @@
 v2.5.6 (FUTURE)
 
+## Enhancements
+
+* [#2854](https://github.com/digitalocean/netbox/issues/2854) - Enable bulk editing of pass-through ports
+
 ## Bug Fixes
 
 * [#2841](https://github.com/digitalocean/netbox/issues/2841) - Fix filtering by VRF for prefix and IP address lists

@@ -1360,6 +1360,14 @@ class FrontPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     model = FrontPort
 
 
+class FrontPortBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_frontport'
+    queryset = FrontPort.objects.all()
+    parent_model = Device
+    table = tables.FrontPortTable
+    form = forms.FrontPortBulkEditForm
+
+
 class FrontPortBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     permission_required = 'dcim.change_frontport'
     queryset = FrontPort.objects.all()
@@ -1402,6 +1410,14 @@ class RearPortEditView(PermissionRequiredMixin, ObjectEditView):
 class RearPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_rearport'
     model = RearPort
+
+
+class RearPortBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_rearport'
+    queryset = RearPort.objects.all()
+    parent_model = Device
+    table = tables.RearPortTable
+    form = forms.RearPortBulkEditForm
 
 
 class RearPortBulkRenameView(PermissionRequiredMixin, BulkRenameView):
