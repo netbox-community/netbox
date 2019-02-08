@@ -2,6 +2,7 @@ v2.5.6 (FUTURE)
 
 ## Enhancements
 
+* [#2839](https://github.com/digitalocean/netbox/issues/2839) - Add "110 punch" type for pass-through ports
 * [#2854](https://github.com/digitalocean/netbox/issues/2854) - Enable bulk editing of pass-through ports
 
 ## Bug Fixes

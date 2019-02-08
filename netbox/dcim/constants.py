@@ -255,6 +255,7 @@ IFACE_MODE_CHOICES = [
 
 # Pass-through port types
 PORT_TYPE_8P8C = 1000
+PORT_TYPE_110_PUNCH = 1100
 PORT_TYPE_ST = 2000
 PORT_TYPE_SC = 2100
 PORT_TYPE_FC = 2200
@@ -267,6 +268,7 @@ PORT_TYPE_CHOICES = [
         'Copper',
         [
             [PORT_TYPE_8P8C, '8P8C'],
+            [PORT_TYPE_110_PUNCH, '110 Punch'],
         ],
     ],
     [
