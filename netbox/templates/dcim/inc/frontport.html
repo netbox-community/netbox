@@ -29,7 +29,19 @@
             <a href="{{ frontport.cable.get_absolute_url }}">{{ frontport.cable }}</a>
         </td>
         {% with far_end=frontport.get_cable_peer %}
-            <td><a href="{{ far_end.parent.get_absolute_url }}">{{ far_end.parent }}</a></td>
+            <td>
+                {% if far_end.parent.provider %}
+                    <i class="fa fa-fw fa-globe" title="Circuit"></i>
+                    <a href="{{ far_end.parent.get_absolute_url }}">
+                        {{ far_end.parent.provider }}
+                        {{ far_end.parent }}
+                    </a>
+                {% else %}
+                    <a href="{{ far_end.parent.get_absolute_url }}">
+                        {{ far_end.parent }}
+                    </a>
+                {% endif %}
+            </td>
             <td>{{ far_end }}</td>
         {% endwith %}
     {% else %}
