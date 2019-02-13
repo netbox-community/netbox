@@ -136,7 +136,8 @@ PLATFORM_ACTIONS = """
 """
 
 DEVICE_ROLE = """
-<label class="label" style="background-color: #{{ record.device_role.color }}">{{ value }}</label>
+{% load helpers %}
+<label class="label" style="color: {{ record.device_role.color|fgcolor }}; background-color: #{{ record.device_role.color }}">{{ value }}</label>
 """
 
 STATUS_LABEL = """

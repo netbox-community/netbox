@@ -14,6 +14,7 @@ v2.5.6 (FUTURE)
 * [#2857](https://github.com/digitalocean/netbox/issues/2857) - Add `display_name` to DeviceType API serializer; fix DeviceType list for bulk device edit
 * [#2862](https://github.com/digitalocean/netbox/issues/2862) - Follow return URL when connecting a cable
 * [#2864](https://github.com/digitalocean/netbox/issues/2864) - Correct display of VRF name when no RD is assigned
+* [#2877](https://github.com/digitalocean/netbox/issues/2877) - Fixed device role label display on light background color
 
 ---
 
