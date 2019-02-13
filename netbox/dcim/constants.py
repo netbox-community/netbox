@@ -91,6 +91,10 @@ IFACE_FF_80211G = 2610
 IFACE_FF_80211N = 2620
 IFACE_FF_80211AC = 2630
 IFACE_FF_80211AD = 2640
+# Cellular
+IFACE_FF_GSM = 2810
+IFACE_FF_CDMA = 2820
+IFACE_FF_LTE = 2830
 # SONET
 IFACE_FF_SONET_OC3 = 6100
 IFACE_FF_SONET_OC12 = 6200
@@ -172,6 +176,14 @@ IFACE_FF_CHOICES = [
             [IFACE_FF_80211N, 'IEEE 802.11n'],
             [IFACE_FF_80211AC, 'IEEE 802.11ac'],
             [IFACE_FF_80211AD, 'IEEE 802.11ad'],
+        ]
+    ],
+    [
+        'Cellular',
+        [
+            [IFACE_FF_GSM, 'GSM'],
+            [IFACE_FF_CDMA, 'CDMA'],
+            [IFACE_FF_LTE, 'LTE'],
         ]
     ],
     [
