@@ -26,9 +26,24 @@
     {% if rearport.cable %}
         <td>
             <a href="{{ rearport.cable.get_absolute_url }}">{{ rearport.cable }}</a>
+            <a href="{% url 'dcim:rearport_trace' pk=rearport.pk %}" class="btn btn-primary btn-xs" title="Trace">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
         </td>
         {% with far_end=rearport.get_cable_peer %}
-            <td><a href="{{ far_end.parent.get_absolute_url }}">{{ far_end.parent }}</a></td>
+            <td>
+                {% if far_end.parent.provider %}
+                    <i class="fa fa-fw fa-globe" title="Circuit"></i>
+                    <a href="{{ far_end.parent.get_absolute_url }}">
+                        {{ far_end.parent.provider }}
+                        {{ far_end.parent }}
+                    </a>
+                {% else %}
+                    <a href="{{ far_end.parent.get_absolute_url }}">
+                        {{ far_end.parent }}
+                    </a>
+                {% endif %}
+            </td>
             <td>{{ far_end }}</td>
         {% endwith %}
     {% else %}

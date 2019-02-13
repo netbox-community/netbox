@@ -136,7 +136,8 @@ PLATFORM_ACTIONS = """
 """
 
 DEVICE_ROLE = """
-<label class="label" style="background-color: #{{ record.device_role.color }}">{{ value }}</label>
+{% load helpers %}
+<label class="label" style="color: {{ record.device_role.color|fgcolor }}; background-color: #{{ record.device_role.color }}">{{ value }}</label>
 """
 
 STATUS_LABEL = """
@@ -517,7 +518,7 @@ class DeviceTable(BaseTable):
     device_role = tables.TemplateColumn(DEVICE_ROLE, verbose_name='Role')
     device_type = tables.LinkColumn(
         'dcim:devicetype', args=[Accessor('device_type.pk')], verbose_name='Type',
-        text=lambda record: record.device_type.full_name
+        text=lambda record: record.device_type.display_name
     )
 
     class Meta(BaseTable.Meta):

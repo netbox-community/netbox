@@ -159,6 +159,11 @@ class RackViewSet(CustomFieldModelViewSet):
                 exclude_pk = None
         elevation = rack.get_rack_units(face, exclude_pk)
 
+        # Enable filtering rack units by ID
+        q = request.GET.get('q', None)
+        if q:
+            elevation = [u for u in elevation if q in str(u['id'])]
+
         page = self.paginate_queryset(elevation)
         if page is not None:
             rack_units = serializers.RackUnitSerializer(page, many=True, context={'request': request})

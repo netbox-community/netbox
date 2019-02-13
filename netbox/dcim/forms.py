@@ -1599,7 +1599,8 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         required=False,
         label='Type',
         widget=APISelect(
-            api_url="/api/dcim/device-types/"
+            api_url="/api/dcim/device-types/",
+            display_field='display_name'
         )
     )
     device_role = forms.ModelChoiceField(
@@ -2359,6 +2360,27 @@ class FrontPortCreateForm(ComponentForm):
         }
 
 
+class FrontPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Interface.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PORT_TYPE_CHOICES),
+        required=False,
+        widget=StaticSelect2()
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = [
+            'description',
+        ]
+
+
 class FrontPortBulkRenameForm(BulkRenameForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=FrontPort.objects.all(),
@@ -2410,6 +2432,27 @@ class RearPortCreateForm(ComponentForm):
     description = forms.CharField(
         required=False
     )
+
+
+class RearPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Interface.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(PORT_TYPE_CHOICES),
+        required=False,
+        widget=StaticSelect2()
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = [
+            'description',
+        ]
 
 
 class RearPortBulkRenameForm(BulkRenameForm):

@@ -91,6 +91,10 @@ IFACE_FF_80211G = 2610
 IFACE_FF_80211N = 2620
 IFACE_FF_80211AC = 2630
 IFACE_FF_80211AD = 2640
+# Cellular
+IFACE_FF_GSM = 2810
+IFACE_FF_CDMA = 2820
+IFACE_FF_LTE = 2830
 # SONET
 IFACE_FF_SONET_OC3 = 6100
 IFACE_FF_SONET_OC12 = 6200
@@ -175,6 +179,14 @@ IFACE_FF_CHOICES = [
         ]
     ],
     [
+        'Cellular',
+        [
+            [IFACE_FF_GSM, 'GSM'],
+            [IFACE_FF_CDMA, 'CDMA'],
+            [IFACE_FF_LTE, 'LTE'],
+        ]
+    ],
+    [
         'SONET',
         [
             [IFACE_FF_SONET_OC3, 'OC-3/STM-1'],
@@ -255,6 +267,7 @@ IFACE_MODE_CHOICES = [
 
 # Pass-through port types
 PORT_TYPE_8P8C = 1000
+PORT_TYPE_110_PUNCH = 1100
 PORT_TYPE_ST = 2000
 PORT_TYPE_SC = 2100
 PORT_TYPE_FC = 2200
@@ -267,6 +280,7 @@ PORT_TYPE_CHOICES = [
         'Copper',
         [
             [PORT_TYPE_8P8C, '8P8C'],
+            [PORT_TYPE_110_PUNCH, '110 Punch'],
         ],
     ],
     [

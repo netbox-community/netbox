@@ -180,8 +180,8 @@ class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
     class Meta:
         model = DeviceType
         fields = [
-            'id', 'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'instance_count',
+            'id', 'manufacturer', 'model', 'slug', 'display_name', 'part_number', 'u_height', 'is_full_depth',
+            'subdevice_role', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'instance_count',
         ]
 
 

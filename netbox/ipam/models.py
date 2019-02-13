@@ -81,9 +81,9 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
 
     @property
     def display_name(self):
-        if self.name and self.rd:
+        if self.rd:
             return "{} ({})".format(self.name, self.rd)
-        return None
+        return self.name
 
 
 class RIR(ChangeLoggedModel):

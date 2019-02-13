@@ -855,7 +855,7 @@ class DeviceTypeTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'manufacturer', 'model', 'slug', 'url']
+            ['display_name', 'id', 'manufacturer', 'model', 'slug', 'url']
         )
 
     def test_create_devicetype(self):

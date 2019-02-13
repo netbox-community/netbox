@@ -1,3 +1,26 @@
+v2.5.6 (2019-02-13)
+
+## Enhancements
+
+* [#2758](https://github.com/digitalocean/netbox/issues/2758) - Add cable trace button to pass-through ports
+* [#2839](https://github.com/digitalocean/netbox/issues/2839) - Add "110 punch" type for pass-through ports
+* [#2854](https://github.com/digitalocean/netbox/issues/2854) - Enable bulk editing of pass-through ports
+* [#2866](https://github.com/digitalocean/netbox/issues/2866) - Add cellular interface types (GSM/CDMA/LTE)
+
+## Bug Fixes
+
+* [#2841](https://github.com/digitalocean/netbox/issues/2841) - Fix filtering by VRF for prefix and IP address lists
+* [#2844](https://github.com/digitalocean/netbox/issues/2844) - Correct display of far cable end for pass-through ports
+* [#2845](https://github.com/digitalocean/netbox/issues/2845) - Enable filtering of rack unit list by unit ID
+* [#2856](https://github.com/digitalocean/netbox/issues/2856) - Fix navigation links between LAG interfaces and their members on device view
+* [#2857](https://github.com/digitalocean/netbox/issues/2857) - Add `display_name` to DeviceType API serializer; fix DeviceType list for bulk device edit
+* [#2862](https://github.com/digitalocean/netbox/issues/2862) - Follow return URL when connecting a cable
+* [#2864](https://github.com/digitalocean/netbox/issues/2864) - Correct display of VRF name when no RD is assigned
+* [#2877](https://github.com/digitalocean/netbox/issues/2877) - Fixed device role label display on light background color
+* [#2880](https://github.com/digitalocean/netbox/issues/2880) - Sanitize user password if an exception is raised during login
+
+---
+
 v2.5.5 (2019-01-31)
 
 ## Enhancements

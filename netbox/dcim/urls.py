@@ -215,6 +215,7 @@ urlpatterns = [
     # Front ports
     # url(r'^devices/front-ports/add/$', views.DeviceBulkAddFrontPortView.as_view(), name='device_bulk_add_frontport'),
     url(r'^devices/(?P<pk>\d+)/front-ports/add/$', views.FrontPortCreateView.as_view(), name='frontport_add'),
+    url(r'^devices/(?P<pk>\d+)/front-ports/edit/$', views.FrontPortBulkEditView.as_view(), name='frontport_bulk_edit'),
     url(r'^devices/(?P<pk>\d+)/front-ports/delete/$', views.FrontPortBulkDeleteView.as_view(), name='frontport_bulk_delete'),
     url(r'^front-ports/(?P<termination_a_id>\d+)/connect/$', views.CableCreateView.as_view(), name='frontport_connect', kwargs={'termination_a_type': FrontPort}),
     url(r'^front-ports/(?P<pk>\d+)/edit/$', views.FrontPortEditView.as_view(), name='frontport_edit'),
@@ -226,6 +227,7 @@ urlpatterns = [
     # Rear ports
     # url(r'^devices/rear-ports/add/$', views.DeviceBulkAddRearPortView.as_view(), name='device_bulk_add_rearport'),
     url(r'^devices/(?P<pk>\d+)/rear-ports/add/$', views.RearPortCreateView.as_view(), name='rearport_add'),
+    url(r'^devices/(?P<pk>\d+)/rear-ports/edit/$', views.RearPortBulkEditView.as_view(), name='rearport_bulk_edit'),
     url(r'^devices/(?P<pk>\d+)/rear-ports/delete/$', views.RearPortBulkDeleteView.as_view(), name='rearport_bulk_delete'),
     url(r'^rear-ports/(?P<termination_a_id>\d+)/connect/$', views.CableCreateView.as_view(), name='rearport_connect', kwargs={'termination_a_type': RearPort}),
     url(r'^rear-ports/(?P<pk>\d+)/edit/$', views.RearPortEditView.as_view(), name='rearport_edit'),
