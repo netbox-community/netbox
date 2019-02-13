@@ -16,6 +16,7 @@ v2.5.6 (FUTURE)
 * [#2862](https://github.com/digitalocean/netbox/issues/2862) - Follow return URL when connecting a cable
 * [#2864](https://github.com/digitalocean/netbox/issues/2864) - Correct display of VRF name when no RD is assigned
 * [#2877](https://github.com/digitalocean/netbox/issues/2877) - Fixed device role label display on light background color
+* [#2880](https://github.com/digitalocean/netbox/issues/2880) - Sanitize user password if an exception is raised during login
 
 ---
 

@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
+from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
 
 from secrets.forms import UserKeyForm
@@ -22,6 +23,10 @@ from .models import Token
 
 class LoginView(View):
     template_name = 'login.html'
+
+    @method_decorator(sensitive_post_parameters('password'))
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
     def get(self, request):
         form = LoginForm(request)
