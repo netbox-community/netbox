@@ -128,4 +128,4 @@ Reports can be run on the CLI by invoking the management command:
 python3 manage.py runreport <module>
 ```
 
-One or more report modules may be specified.
+where ``<module>`` is the name of the python file in the ``reports`` directory without the ``.py`` extension.  One or more report modules may be specified.
