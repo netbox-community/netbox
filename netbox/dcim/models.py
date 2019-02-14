@@ -16,7 +16,7 @@ from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
 
 from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange
-from utilities.fields import ColorField, NullableCharField
+from utilities.fields import ColorField
 from utilities.managers import NaturalOrderingManager
 from utilities.models import ChangeLoggedModel
 from utilities.utils import serialize_object, to_meters
@@ -470,7 +470,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     name = models.CharField(
         max_length=50
     )
-    facility_id = NullableCharField(
+    facility_id = models.CharField(
         max_length=50,
         blank=True,
         null=True,
@@ -511,7 +511,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         verbose_name='Serial number'
     )
-    asset_tag = NullableCharField(
+    asset_tag = models.CharField(
         max_length=50,
         blank=True,
         null=True,
@@ -1354,7 +1354,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         blank=True,
         null=True
     )
-    name = NullableCharField(
+    name = models.CharField(
         max_length=64,
         blank=True,
         null=True,
@@ -1365,7 +1365,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         blank=True,
         verbose_name='Serial number'
     )
-    asset_tag = NullableCharField(
+    asset_tag = models.CharField(
         max_length=50,
         blank=True,
         null=True,
@@ -2389,7 +2389,7 @@ class InventoryItem(ComponentModel):
         verbose_name='Serial number',
         blank=True
     )
-    asset_tag = NullableCharField(
+    asset_tag = models.CharField(
         max_length=50,
         unique=True,
         blank=True,
