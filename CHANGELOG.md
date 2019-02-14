@@ -1,3 +1,10 @@
+v2.5.7 (FUTURE)
+
+## Bug Fixes
+
+* [#2888](https://github.com/digitalocean/netbox/issues/2888) - Correct foreground color of device roles in rack elevations
+* [#2893](https://github.com/digitalocean/netbox/issues/2893) - Remove duplicate display of VRF RD on IP address view
+
 v2.5.6 (2019-02-13)
 
 ## Enhancements
