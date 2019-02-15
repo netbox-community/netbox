@@ -602,7 +602,7 @@ class DeviceFilter(CustomFieldFilterSet):
 
     class Meta:
         model = Device
-        fields = ['serial', 'position']
+        fields = ['serial', 'position', 'face']
 
     def search(self, queryset, name, value):
         if not value.strip():

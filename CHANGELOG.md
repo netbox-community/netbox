@@ -2,6 +2,7 @@ v2.5.7 (FUTURE)
 
 ## Enhancements
 
+* [#2357](https://github.com/digitalocean/netbox/issues/2357) - Enable filtering of devices by rack face
 * [#2903](https://github.com/digitalocean/netbox/issues/2903) - Clarify purpose of tags field on interface edit form
 
 ## Bug Fixes
