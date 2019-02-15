@@ -83,11 +83,11 @@ This script:
 Finally, restart the WSGI service to run the new code. If you followed this guide for the initial installation, this is done using `supervisorctl`:
 
 ```no-highlight
-# sudo supervisorctl restart netbox
+# sudo systemctl restart netbox
 ```
 
 If using webhooks, also restart the Redis worker:
 
 ```no-highlight
-# sudo supervisorctl restart netbox-rqworker
+# sudo systemctl restart netbox-rqworker
 ```

@@ -108,42 +108,95 @@ Install gunicorn:
 # pip3 install gunicorn
 ```
 
-Save the following configuration in the root netbox installation path as `gunicorn_config.py` (e.g. `/opt/netbox/gunicorn_config.py` per our example installation). Be sure to verify the location of the gunicorn executable on your server (e.g. `which gunicorn`) and to update the `pythonpath` variable if needed. If using CentOS/RHEL, change the username from `www-data` to `nginx` or `apache`.
+# systemd configuration
+
+Copy or link contrib/netbox.service and contrib/netbox-rq.service to /etc/systemd/system/netbox.service and /etc/systemd/system/netbox-rq.service
 
 ```no-highlight
-command = '/usr/bin/gunicorn'
-pythonpath = '/opt/netbox/netbox'
-bind = '127.0.0.1:8001'
-workers = 3
-user = 'www-data'
+# copy contrib/netbox.service to /etc/systemd/system/netbox.service
+# copy contrib/netbox-rq.service to /etc/systemd/system/netbox-rq.service
 ```
 
-# supervisord Installation
-
-Install supervisor:
+Edit /etc/systemd/system/netbox.service and /etc/systemd/system/netbox-rq.service Be sure to verify the location of the gunicorn executable on your server (e.g. `which gunicorn`).  If using CentOS/RHEL.  Change the username from `www-data` to `nginx` or `apache`:
 
 ```no-highlight
-# apt-get install -y supervisor
+/usr/bin/gunicorn --pid ${PidPath} --bind ${Bind} --workers ${Workers} --threads ${Threads} --timeout ${Timeout} --error-log ${ErrorLog} --pythonpath ${WorkingDirectory}/netbox ${ExtraArgs} netbox.wsgi
 ```
 
-Save the following as `/etc/supervisor/conf.d/netbox.conf`. Update the `command` and `directory` paths as needed. If using CentOS/RHEL, change the username from `www-data` to `nginx` or `apache`.
-
 ```no-highlight
-[program:netbox]
-command = gunicorn -c /opt/netbox/gunicorn_config.py netbox.wsgi
-directory = /opt/netbox/netbox/
-user = www-data
-
-[program:netbox-rqworker]
-command = python3 /opt/netbox/netbox/manage.py rqworker
-directory = /opt/netbox/netbox/
-user = www-data
+User=www-data
+Group=www-data
 ```
 
-Then, restart the supervisor service to detect and run the gunicorn service:
+Copy contrib/netbox.env to /etc/sysconfig/netbox.env
 
 ```no-highlight
-# service supervisor restart
+# mkdir /etc/sysconfig/netbox.env
+# copy contrib/netbox.env to /etc/sysconfig/netbox.env
+```
+
+Edit /etc/sysconfig/netbox.env and change the settings as required.  Update the `WorkingDirectory` variable if needed.
+
+```no-highlight
+# Name is the Process Name
+#
+Name = 'Netbox'
+
+# GUExec is the gunicorn executable path
+#
+GUExec=/bin/gunicorn
+
+# WorkingDirectory is the Working Directory for Netbox.
+#
+WorkingDirectory=/usr/local/netbox/
+
+# PidPath is the path to the pid for the netbox WSGI
+#
+PidPath=/var/run/netbox.pid
+
+# Bind is the ip and port that the Netbox WSGI should bind to
+#
+Bind='127.0.0.1:8001'
+
+# Workers is the number of workers that GUnicorn should spawn.
+# Workers should be: cores * 2 + 1.  So if you have 8 cores, it would be 17.
+#
+Workers=3
+
+# Threads
+#     The number of threads for handling requests
+#
+Threads=3
+
+# Timeout is the timeout
+#
+Timeout=120
+
+# ErrorLog
+#     ErrorLog is the logfile for the ErrorLog
+#
+ErrorLog='/usr/local/netbox/netbox.log'
+
+# ExtraArgs
+#    ExtraArgs is a string of extra arguments for Gunicorn
+#
+ExtraArgs='--capture-output'
+```
+
+Then, restart the systemd daemon service to detect the netbox service and start the netbox service:
+
+```no-highlight
+# systemctl daemon-reload
+# systemctl start netbox.service
+# systemctl enable netbox.service
+```
+
+
+If using webhooks, also start the Redis worker:
+
+```no-highlight
+# systemctl start netbox-rq.service
+# systemctl enable netbox-rq.service
 ```
 
 At this point, you should be able to connect to the nginx HTTP service at the server name or IP address you provided. If you are unable to connect, check that the nginx service is running and properly configured. If you receive a 502 (bad gateway) error, this indicates that gunicorn is misconfigured or not running.
