@@ -1,5 +1,9 @@
 v2.5.7 (FUTURE)
 
+## Enhancements
+
+* [#2903](https://github.com/digitalocean/netbox/issues/2903) - Clarify purpose of tags field on interface edit form
+
 ## Bug Fixes
 
 * [#2884](https://github.com/digitalocean/netbox/issues/2884) - Don't display connect button for wireless interfaces
