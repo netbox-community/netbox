@@ -291,16 +291,23 @@ class DeviceViewSet(CustomFieldModelViewSet):
 
     def get_serializer_class(self):
         """
-        Include rendered config context when retrieving a single Device.
+        Select the specific serializer based on the request context.
+
+        If the `brief` query param equates to True, return the NestedDeviceSerializer
+
+        If the `exclude` query param includes `config_context` as a value, return the DeviceSerializer
+
+        Else, return the DeviceWithConfigContextSerializer
         """
-        if self.action == 'retrieve':
-            return serializers.DeviceWithConfigContextSerializer
 
         request = self.get_serializer_context()['request']
         if request.query_params.get('brief', False):
             return serializers.NestedDeviceSerializer
 
-        return serializers.DeviceSerializer
+        elif 'config_context' in request.query_params.get('exclude', []):
+            return serializers.DeviceSerializer
+
+        return serializers.DeviceWithConfigContextSerializer
 
     @action(detail=True, url_path='napalm')
     def napalm(self, request, pk):
