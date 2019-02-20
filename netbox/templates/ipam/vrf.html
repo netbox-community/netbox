@@ -87,7 +87,7 @@
                 <tr>
                     <td>Prefixes</td>
                     <td>
-                        <a href="{% url 'ipam:prefix_list' %}?vrf={{ vrf.rd }}">{{ prefix_count }}</a>
+                        <a href="{% url 'ipam:prefix_list' %}?vrf_id={{ vrf.pk }}">{{ prefix_count }}</a>
                     </td>
                 </tr>
 		    </table>
