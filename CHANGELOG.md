@@ -14,6 +14,7 @@ v2.5.7 (FUTURE)
 * [#2895](https://github.com/digitalocean/netbox/issues/2895) - Fix filtering of nullable character fields
 * [#2901](https://github.com/digitalocean/netbox/issues/2901) - Fix ordering regions by site count
 * [#2910](https://github.com/digitalocean/netbox/issues/2910) - Fix config context list and edit forms to use Select2 elements
+* [#2914](https://github.com/digitalocean/netbox/issues/2914) - Fix empty connected circuit link on device interfaces list
 
 v2.5.6 (2019-02-13)
 
