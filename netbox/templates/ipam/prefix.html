@@ -54,22 +54,22 @@
     {% include 'inc/created_updated.html' with obj=prefix %}
     <div class="pull-right">
         <div class="btn-group" role="group">
-            <a href="{{ request.path }}{% querystring request show_available=None %}" class="btn btn-default{% if not request.GET.show_available %} active{% endif %}">Hide available</a>
-            <a href="{{ request.path }}{% querystring request show_available='on' %}" class="btn btn-default{% if request.GET.show_available %} active{% endif %}">Show available</a>
+            <a href="{{ request.path }}{% querystring request show_available='on' %}" class="btn btn-default{% if show_available %} active{% endif %}">Show available</a>
+	    <a href="{{ request.path }}{% querystring request show_available='off' %}" class="btn btn-default{% if not show_available %} active{% endif %}">Hide available</a>
         </div>
     </div>
     <ul class="nav nav-tabs" style="margin-bottom: 20px">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
-            <a href="{% url 'ipam:prefix' pk=prefix.pk %}{% if request.GET.show_available %}{% querystring request show_available='on' %}{% endif %}">Prefix</a>
+            <a href="{% url 'ipam:prefix' pk=prefix.pk %}">Prefix</a>
         </li>
         <li role="presentation"{% if active_tab == 'prefixes' %} class="active"{% endif %}>
-            <a href="{% url 'ipam:prefix_prefixes' pk=prefix.pk %}{% if request.GET.show_available %}{% querystring request show_available='on' %}{% endif %}">Child Prefixes <span class="badge">{{ prefix.get_child_prefixes.count }}</span></a>
+		<a href="{% url 'ipam:prefix_prefixes' pk=prefix.pk %}">Child Prefixes <span class="badge">{{ prefix.get_child_prefixes.count }}</span></a>
         </li>
         <li role="presentation"{% if active_tab == 'ip-addresses' %} class="active"{% endif %}>
-            <a href="{% url 'ipam:prefix_ipaddresses' pk=prefix.pk %}{% if request.GET.show_available %}{% querystring request show_available='on' %}{% endif %}">IP Addresses <span class="badge">{{ prefix.get_child_ips.count }}</span></a>
+            <a href="{% url 'ipam:prefix_ipaddresses' pk=prefix.pk %}">IP Addresses <span class="badge">{{ prefix.get_child_ips.count }}</span></a>
         </li>
         <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'ipam:prefix_changelog' pk=prefix.pk %}{% if request.GET.show_available %}{% querystring request show_available='on' %}{% endif %}">Changelog</a>
+            <a href="{% url 'ipam:prefix_changelog' pk=prefix.pk %}">Changelog</a>
         </li>
     </ul>
 {% endblock %}

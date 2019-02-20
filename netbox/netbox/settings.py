@@ -74,6 +74,7 @@ SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 WEBHOOKS_ENABLED = getattr(configuration, 'WEBHOOKS_ENABLED', False)
+HIDE_AVAILABLE_PREFIXES = getattr(configuration, 'HIDE_AVAILABLE_PREFIXES', False)
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 

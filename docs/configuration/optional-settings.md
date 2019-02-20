@@ -255,6 +255,14 @@ Enable this option to run the webhook backend. See the docs section on the webho
 
 ---
 
+## HIDE_AVAILABLE_PREFIXES
+
+Default: False
+
+Enable this option if you want to hide all available child prefixes and child ip addresses that is shown by default if this option is set to False.
+
+---
+
 ## Date and Time Formatting
 
 You may define custom formatting for date and times. For detailed instructions on writing format strings, please see [the Django documentation](https://docs.djangoproject.com/en/dev/ref/templates/builtins/#date).

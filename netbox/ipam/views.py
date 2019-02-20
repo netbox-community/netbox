@@ -500,10 +500,23 @@ class PrefixPrefixesView(View):
             'site', 'vlan', 'role',
         ).annotate_depth(limit=0)
 
-        # Annotate available prefixes
-        if request.GET.get('show_available', None):
-            if child_prefixes:
+        if not settings.HIDE_AVAILABLE_PREFIXES:
+            # Show all available unless explicit set not to show
+            if request.GET.get('show_available', '') == 'off':
+                show_available = False
+            else:
+                # Default to show all available when default configuration is set
                 child_prefixes = add_available_prefixes(prefix.prefix, child_prefixes)
+                show_available = True
+        else:
+            # Default set to always hide available,
+            # but explicit want to show addresses anyway
+            if request.GET.get('show_available', '') == 'on':
+                child_prefixes = add_available_prefixes(prefix.prefix, child_prefixes)
+                show_available = True
+            else:
+                # Setting is set to True then hide them by default
+                show_available = False
 
         prefix_table = tables.PrefixDetailTable(child_prefixes)
         if request.user.has_perm('ipam.change_prefix') or request.user.has_perm('ipam.delete_prefix'):
@@ -529,6 +542,7 @@ class PrefixPrefixesView(View):
             'permissions': permissions,
             'bulk_querystring': 'vrf_id={}&within={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),
             'active_tab': 'prefixes',
+            'show_available': show_available,
         })
 
 
@@ -542,8 +556,24 @@ class PrefixIPAddressesView(View):
         ipaddresses = prefix.get_child_ips().select_related(
             'vrf', 'interface__device', 'primary_ip4_for', 'primary_ip6_for'
         )
-        if request.GET.get('show_available', None):
-            ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses, prefix.is_pool)
+
+        if not settings.HIDE_AVAILABLE_PREFIXES:
+            # Show all available unless explicit set not to show
+            if request.GET.get('show_available', '') == 'off':
+                show_available = False
+            else:
+                # Default to show all available when default configuration is set
+                ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses, prefix.is_pool)
+                show_available = True
+        else:
+            # Default set to always hide available,
+            # but explicit want to show addresses anyway
+            if request.GET.get('show_available', '') == 'on':
+                ipaddresses = add_available_ipaddresses(prefix.prefix, ipaddresses, prefix.is_pool)
+                show_available = True
+            else:
+                # Setting is set to True then hide them by default
+                show_available = False
 
         ip_table = tables.IPAddressTable(ipaddresses)
         if request.user.has_perm('ipam.change_ipaddress') or request.user.has_perm('ipam.delete_ipaddress'):
@@ -569,6 +599,7 @@ class PrefixIPAddressesView(View):
             'permissions': permissions,
             'bulk_querystring': 'vrf_id={}&parent={}'.format(prefix.vrf.pk if prefix.vrf else '0', prefix.prefix),
             'active_tab': 'ip-addresses',
+            'show_available': show_available,
         })
 
 
