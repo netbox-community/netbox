@@ -1,9 +1,8 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
-from taggit.models import Tag, TaggedItem
 
-from utilities.tables import BaseTable, BooleanColumn, ToggleColumn
-from .models import ConfigContext, ObjectChange
+from utilities.tables import BaseTable, BooleanColumn, ColorColumn, ToggleColumn
+from .models import ConfigContext, ObjectChange, Tag, TaggedItem
 
 TAG_ACTIONS = """
 {% if perms.taggit.change_tag %}
@@ -71,10 +70,11 @@ class TagTable(BaseTable):
         attrs={'td': {'class': 'text-right'}},
         verbose_name=''
     )
+    color = ColorColumn()
 
     class Meta(BaseTable.Meta):
         model = Tag
-        fields = ('pk', 'name', 'items', 'slug', 'actions')
+        fields = ('pk', 'name', 'items', 'slug', 'color', 'actions')
 
 
 class TaggedItemTable(BaseTable):

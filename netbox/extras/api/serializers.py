@@ -1,6 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
-from taggit.models import Tag
 
 from dcim.api.nested_serializers import (
     NestedDeviceSerializer, NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedRackSerializer,
@@ -10,6 +9,7 @@ from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
 from extras.constants import *
 from extras.models import (
     ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
+    Tag
 )
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
@@ -80,7 +80,7 @@ class TagSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'slug', 'tagged_items']
+        fields = ['id', 'name', 'slug', 'color', 'comments', 'tagged_items']
 
 
 #

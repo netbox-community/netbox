@@ -15,7 +15,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
 
-from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange
+from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
 from utilities.fields import ColorField
 from utilities.managers import NaturalOrderingManager
 from utilities.models import ChangeLoggedModel
@@ -319,7 +319,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     )
 
     objects = NaturalOrderingManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
@@ -566,7 +566,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     )
 
     objects = NaturalOrderingManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'site', 'group_name', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
@@ -914,7 +914,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'comments',
@@ -1455,7 +1455,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     )
 
     objects = NaturalOrderingManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
@@ -1743,7 +1743,7 @@ class ConsolePort(CableTermination, ComponentModel):
     )
 
     objects = DeviceComponentManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name']
 
@@ -1786,7 +1786,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     )
 
     objects = DeviceComponentManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name']
 
@@ -1835,7 +1835,7 @@ class PowerPort(CableTermination, ComponentModel):
     )
 
     objects = DeviceComponentManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name']
 
@@ -1878,7 +1878,7 @@ class PowerOutlet(CableTermination, ComponentModel):
     )
 
     objects = DeviceComponentManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name']
 
@@ -1998,7 +1998,7 @@ class Interface(CableTermination, ComponentModel):
     )
 
     objects = InterfaceManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'device', 'virtual_machine', 'name', 'lag', 'form_factor', 'enabled', 'mac_address', 'mtu', 'mgmt_only',
@@ -2199,7 +2199,7 @@ class FrontPort(CableTermination, ComponentModel):
     )
 
     objects = DeviceComponentManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'rear_port', 'rear_port_position', 'description']
 
@@ -2265,7 +2265,7 @@ class RearPort(CableTermination, ComponentModel):
     )
 
     objects = DeviceComponentManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'positions', 'description']
 
@@ -2312,7 +2312,7 @@ class DeviceBay(ComponentModel):
     )
 
     objects = DeviceComponentManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'installed_device']
 
@@ -2405,7 +2405,7 @@ class InventoryItem(ComponentModel):
         blank=True
     )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
@@ -2452,7 +2452,7 @@ class VirtualChassis(ChangeLoggedModel):
         blank=True
     )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['master', 'domain']
 

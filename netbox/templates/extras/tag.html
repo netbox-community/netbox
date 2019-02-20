@@ -59,7 +59,25 @@
                             {{ items_count }}
                         </td>
                     </tr>
+                    <tr>
+                        <td>Color</td>
+                        <td>
+                            <span class="label color-block" style="background-color: #{{ tag.color }}">&nbsp;</span>
+                        </td>
+                    </tr>
                 </table>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Comments</strong>
+                </div>
+                <div class="panel-body rendered-markdown">
+                    {% if tag.comments %}
+                        {{ tag.comments|gfm }}
+                    {% else %}
+                        <span class="text-muted">None</span>
+                    {% endif %}
+                </div>
             </div>
         </div>
         <div class="col-md-6">

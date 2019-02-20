@@ -6,11 +6,11 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
-from taggit.models import Tag
 
 from extras import filters
 from extras.models import (
     ConfigContext, CustomField, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
+    Tag
 )
 from extras.reports import get_report, get_reports
 from utilities.api import FieldChoicesViewSet, IsAuthenticatedOrLoginNotRequired, ModelViewSet
@@ -115,7 +115,7 @@ class TopologyMapViewSet(ModelViewSet):
 #
 
 class TagViewSet(ModelViewSet):
-    queryset = Tag.objects.annotate(tagged_items=Count('taggit_taggeditem_items'))
+    queryset = Tag.objects.annotate(tagged_items=Count('extras_taggeditem_items'))
     serializer_class = serializers.TagSerializer
     filterset_class = filters.TagFilter
 

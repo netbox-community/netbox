@@ -10,7 +10,7 @@ from django.urls import reverse
 from taggit.managers import TaggableManager
 
 from dcim.models import Interface
-from extras.models import CustomFieldModel
+from extras.models import CustomFieldModel, TaggedItem
 from utilities.models import ChangeLoggedModel
 from .constants import *
 from .fields import IPNetworkField, IPAddressField
@@ -55,7 +55,7 @@ class VRF(ChangeLoggedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['name', 'rd', 'tenant', 'enforce_unique', 'description']
 
@@ -154,7 +154,7 @@ class Aggregate(ChangeLoggedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['prefix', 'rir', 'date_added', 'description']
 
@@ -324,7 +324,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     )
 
     objects = PrefixQuerySet.as_manager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'prefix', 'vrf', 'tenant', 'site', 'vlan_group', 'vlan_vid', 'status', 'role', 'is_pool', 'description',
@@ -583,7 +583,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
     )
 
     objects = IPAddressManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface_name', 'is_primary',
@@ -790,7 +790,7 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['site', 'group_name', 'vid', 'name', 'tenant', 'status', 'role', 'description']
 
@@ -892,7 +892,7 @@ class Service(ChangeLoggedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'virtual_machine', 'name', 'protocol', 'description']
 

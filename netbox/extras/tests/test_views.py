@@ -4,10 +4,9 @@ import uuid
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.urls import reverse
-from taggit.models import Tag
 
 from dcim.models import Site
-from extras.models import ConfigContext, ObjectChange
+from extras.models import ConfigContext, ObjectChange, Tag
 
 
 class TagTestCase(TestCase):

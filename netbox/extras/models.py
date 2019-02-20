@@ -12,8 +12,10 @@ from django.db.models import F, Q
 from django.http import HttpResponse
 from django.template import Template, Context
 from django.urls import reverse
+from taggit.models import TagBase, GenericTaggedItemBase
 
 from dcim.constants import CONNECTION_STATUS_CONNECTED
+from utilities.fields import ColorField
 from utilities.utils import deepmerge, foreground_color
 from .constants import *
 from .querysets import ConfigContextQuerySet
@@ -860,3 +862,23 @@ class ObjectChange(models.Model):
             self.object_repr,
             self.object_data,
         )
+
+
+#
+# Tags
+#
+
+
+class Tag(TagBase):
+    color = ColorField()
+    comments = models.TextField(
+        blank=True
+    )
+
+
+class TaggedItem(GenericTaggedItemBase):
+    tag = models.ForeignKey(
+        to=Tag,
+        related_name="%(app_label)s_%(class)s_items",
+        on_delete=models.CASCADE
+    )

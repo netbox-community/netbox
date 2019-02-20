@@ -10,6 +10,11 @@ context data may observe a performance drop when returning multiple objects. To 
 Config Context is not needed, the query parameter `?exclude=config_context` may be added to the request as to remove
 the Config Context from being included in any results.
 
+## Enhancements
+
+* [#2324](https://github.com/digitalocean/netbox/issues/2324) - Add color option for tags
+* [#2791](https://github.com/digitalocean/netbox/issues/2791) - Add a comment field for tags
+
 ---
 
 v2.5.7 (FUTURE)
