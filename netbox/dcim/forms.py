@@ -2752,6 +2752,11 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         required=False,
         label='Search'
     )
+    status = forms.MultipleChoiceField(
+        choices=CONNECTION_STATUS_CHOICES,
+        required=False,
+        widget=StaticSelect2()
+    )
     type = forms.MultipleChoiceField(
         choices=CABLE_TYPE_CHOICES,
         required=False,
