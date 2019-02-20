@@ -63,7 +63,7 @@
             <a href="{% url 'ipam:prefix' pk=prefix.pk %}">Prefix</a>
         </li>
         <li role="presentation"{% if active_tab == 'prefixes' %} class="active"{% endif %}>
-		<a href="{% url 'ipam:prefix_prefixes' pk=prefix.pk %}">Child Prefixes <span class="badge">{{ prefix.get_child_prefixes.count }}</span></a>
+            <a href="{% url 'ipam:prefix_prefixes' pk=prefix.pk %}">Child Prefixes <span class="badge">{{ prefix.get_child_prefixes.count }}</span></a>
         </li>
         <li role="presentation"{% if active_tab == 'ip-addresses' %} class="active"{% endif %}>
             <a href="{% url 'ipam:prefix_ipaddresses' pk=prefix.pk %}">IP Addresses <span class="badge">{{ prefix.get_child_ips.count }}</span></a>
