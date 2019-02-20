@@ -6,6 +6,7 @@ v2.5.8 (FUTURE)
 * [#2923](https://github.com/digitalocean/netbox/issues/2923) - Provider filter form's site field should be blank by default
 * [#2938](https://github.com/digitalocean/netbox/issues/2938) - Enforce deterministic ordering of device components returned by API
 * [#2939](https://github.com/digitalocean/netbox/issues/2939) - Exclude circuit terminations from API interface connections endpoint
+* [#2598](https://github.com/digitalocean/netbox/issues/2598) - Child prefix and ip address view options
 
 ---
 
