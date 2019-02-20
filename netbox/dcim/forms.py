@@ -2362,7 +2362,7 @@ class FrontPortCreateForm(ComponentForm):
 
 class FrontPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        queryset=Interface.objects.all(),
+        queryset=FrontPort.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
     type = forms.ChoiceField(
@@ -2436,7 +2436,7 @@ class RearPortCreateForm(ComponentForm):
 
 class RearPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        queryset=Interface.objects.all(),
+        queryset=RearPort.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
     type = forms.ChoiceField(

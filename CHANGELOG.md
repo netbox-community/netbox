@@ -17,6 +17,7 @@ v2.5.7 (FUTURE)
 * [#2912](https://github.com/digitalocean/netbox/issues/2912) - Cable type in filter form should be blank by default
 * [#2913](https://github.com/digitalocean/netbox/issues/2913) - Fix assigned prefixes link on VRF view
 * [#2914](https://github.com/digitalocean/netbox/issues/2914) - Fix empty connected circuit link on device interfaces list
+* [#2915](https://github.com/digitalocean/netbox/issues/2915) - Fix bulk editing of pass-through ports
 
 v2.5.6 (2019-02-13)
 
