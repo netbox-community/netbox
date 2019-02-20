@@ -14,11 +14,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='tag',
             name='color',
-            field=utilities.fields.ColorField(max_length=6),
+            field=utilities.fields.ColorField(max_length=6, default='9e9e9e'),
         ),
         migrations.AddField(
             model_name='tag',
             name='comments',
-            field=models.TextField(blank=True),
+            field=models.TextField(blank=True, default=''),
         ),
     ]

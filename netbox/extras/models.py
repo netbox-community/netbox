@@ -870,9 +870,12 @@ class ObjectChange(models.Model):
 
 
 class Tag(TagBase):
-    color = ColorField()
+    color = ColorField(
+        default='9e9e9e'
+    )
     comments = models.TextField(
-        blank=True
+        blank=True,
+        default=''
     )
 
 
