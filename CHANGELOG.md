@@ -13,6 +13,7 @@ the Config Context from being included in any results.
 ## Enhancements
 
 * [#2324](https://github.com/digitalocean/netbox/issues/2324) - Add color option for tags
+* [#2643](https://github.com/digitalocean/netbox/issues/2643) - Add `description` field to console/power components and device bays
 * [#2791](https://github.com/digitalocean/netbox/issues/2791) - Add a comment field for tags
 
 ---

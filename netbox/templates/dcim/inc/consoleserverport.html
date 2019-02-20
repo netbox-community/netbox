@@ -1,3 +1,5 @@
+{% load helpers %}
+
 <tr class="consoleserverport{% if csp.cable.status %} success{% elif csp.cable %} info{% endif %}">
 
     {# Checkbox #}
@@ -12,12 +14,17 @@
         <i class="fa fa-fw fa-keyboard-o"></i> {{ csp }}
     </td>
 
+    {# Description #}
+    <td>
+        {{ csp.description|placeholder }}
+    </td>
+
     {# Cable #}
     <td>
         {% if csp.cable %}
             <a href="{{ csp.cable.get_absolute_url }}">{{ csp.cable }}</a>
         {% else %}
-            &mdash;
+            <span class="text-muted">&mdash;</span>
         {% endif %}
     </td>
 

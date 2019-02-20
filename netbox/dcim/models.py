@@ -46,6 +46,10 @@ class ComponentTemplateModel(models.Model):
 
 
 class ComponentModel(models.Model):
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
 
     class Meta:
         abstract = True
@@ -1745,7 +1749,7 @@ class ConsolePort(CableTermination, ComponentModel):
     objects = DeviceComponentManager()
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name']
+    csv_headers = ['device', 'name', 'description']
 
     class Meta:
         ordering = ['device', 'name']
@@ -1761,6 +1765,7 @@ class ConsolePort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.description,
         )
 
 
@@ -1788,7 +1793,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     objects = DeviceComponentManager()
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name']
+    csv_headers = ['device', 'name', 'description']
 
     class Meta:
         unique_together = ['device', 'name']
@@ -1803,6 +1808,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.description,
         )
 
 
@@ -1841,7 +1847,7 @@ class PowerPort(CableTermination, ComponentModel):
 
     class Meta:
         ordering = ['device', 'name']
-        unique_together = ['device', 'name']
+        unique_together = ['device', 'name', 'description']
 
     def __str__(self):
         return self.name
@@ -1853,6 +1859,7 @@ class PowerPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.description,
         )
 
 
@@ -1883,7 +1890,7 @@ class PowerOutlet(CableTermination, ComponentModel):
     csv_headers = ['device', 'name']
 
     class Meta:
-        unique_together = ['device', 'name']
+        unique_together = ['device', 'name', 'description']
 
     def __str__(self):
         return self.name
@@ -1895,6 +1902,7 @@ class PowerOutlet(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.description,
         )
 
 
@@ -1972,10 +1980,6 @@ class Interface(CableTermination, ComponentModel):
         default=False,
         verbose_name='OOB Management',
         help_text='This interface is used only for out-of-band management'
-    )
-    description = models.CharField(
-        max_length=100,
-        blank=True
     )
     mode = models.PositiveSmallIntegerField(
         choices=IFACE_MODE_CHOICES,
@@ -2193,10 +2197,6 @@ class FrontPort(CableTermination, ComponentModel):
         default=1,
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
-    description = models.CharField(
-        max_length=100,
-        blank=True
-    )
 
     objects = DeviceComponentManager()
     tags = TaggableManager(through=TaggedItem)
@@ -2259,10 +2259,6 @@ class RearPort(CableTermination, ComponentModel):
         default=1,
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
-    description = models.CharField(
-        max_length=100,
-        blank=True
-    )
 
     objects = DeviceComponentManager()
     tags = TaggableManager(through=TaggedItem)
@@ -2314,7 +2310,7 @@ class DeviceBay(ComponentModel):
     objects = DeviceComponentManager()
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'installed_device']
+    csv_headers = ['device', 'name', 'installed_device', 'description']
 
     class Meta:
         ordering = ['device', 'name']
@@ -2331,6 +2327,7 @@ class DeviceBay(ComponentModel):
             self.device.identifier,
             self.name,
             self.installed_device.identifier if self.installed_device else None,
+            self.description,
         )
 
     def clean(self):
@@ -2399,10 +2396,6 @@ class InventoryItem(ComponentModel):
     discovered = models.BooleanField(
         default=False,
         verbose_name='Discovered'
-    )
-    description = models.CharField(
-        max_length=100,
-        blank=True
     )
 
     tags = TaggableManager(through=TaggedItem)
