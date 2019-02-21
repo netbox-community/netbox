@@ -3,6 +3,7 @@ v2.5.7 (FUTURE)
 ## Enhancements
 
 * [#2357](https://github.com/digitalocean/netbox/issues/2357) - Enable filtering of devices by rack face
+* [#2638](https://github.com/digitalocean/netbox/issues/2638) - Add button to copy unlocked secret to clipboard
 * [#2870](https://github.com/digitalocean/netbox/issues/2870) - Add Markdown rendering for provider NOC/admin contact fields
 * [#2878](https://github.com/digitalocean/netbox/issues/2878) - Add cable types for OS1/OS2 singlemode fiber
 * [#2890](https://github.com/digitalocean/netbox/issues/2890) - Add port types for APC fiber
