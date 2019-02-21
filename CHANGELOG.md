@@ -11,6 +11,7 @@ v2.5.7 (FUTURE)
 
 ## Bug Fixes
 
+* [#2852](https://github.com/digitalocean/netbox/issues/2852) - Allow filtering devices by null rack position
 * [#2884](https://github.com/digitalocean/netbox/issues/2884) - Don't display connect button for wireless interfaces
 * [#2888](https://github.com/digitalocean/netbox/issues/2888) - Correct foreground color of device roles in rack elevations
 * [#2893](https://github.com/digitalocean/netbox/issues/2893) - Remove duplicate display of VRF RD on IP address view

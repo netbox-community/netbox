@@ -43,6 +43,12 @@ RACK_STATUS_CHOICES = [
     [RACK_STATUS_DEPRECATED, 'Deprecated'],
 ]
 
+# Device rack position
+DEVICE_POSITION_CHOICES = [
+    # Rack.u_height is limited to 100
+    (i, 'Unit {}'.format(i)) for i in range(1, 101)
+]
+
 # Parent/child device roles
 SUBDEVICE_ROLE_PARENT = True
 SUBDEVICE_ROLE_CHILD = False
