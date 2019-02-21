@@ -28,6 +28,13 @@ class AppTaggitAlterModelTable(migrations.AlterModelTable):
 
 
 class Migration(migrations.Migration):
+    """
+    Rename the tables from taggit_* to extras_*
+
+    Note that while we change the database state, we are not deleting the django
+    model state for the taggit models. Doing so would result in makemigrations
+    recreating them.
+    """
 
     dependencies = [
         ('taggit', '0001_initial'),

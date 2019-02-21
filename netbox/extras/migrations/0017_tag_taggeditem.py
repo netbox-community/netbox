@@ -36,6 +36,10 @@ class Migration(migrations.Migration):
                 'abstract': False,
             },
         ),
+        migrations.AlterIndexTogether(
+            name='taggeditem',
+            index_together={('content_type', 'object_id')},
+        ),
     ]
 
     operations = [
