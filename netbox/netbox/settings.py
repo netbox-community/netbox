@@ -22,7 +22,7 @@ except ImportError:
     )
 
 
-VERSION = '2.5.7'
+VERSION = '2.5.8-dev'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
