@@ -67,7 +67,7 @@
                     <td>VRF</td>
                     <td>
                         {% if ipaddress.vrf %}
-                            <a href="{% url 'ipam:vrf' pk=ipaddress.vrf.pk %}">{{ ipaddress.vrf }}</a> ({{ ipaddress.vrf.rd }})
+                            <a href="{% url 'ipam:vrf' pk=ipaddress.vrf.pk %}">{{ ipaddress.vrf }}</a>
                         {% else %}
                             <span>Global</span>
                         {% endif %}

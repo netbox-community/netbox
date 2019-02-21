@@ -96,7 +96,7 @@
                             {{ peer_termination.connected_endpoint.device }}
                         </a><br/>
                         <small>via <i class="fa fa-fw fa-globe" title="Circuit"></i>
-                            <a href="{{ iface.connected_endpoint.circuit.get_absolure_url }}">
+                            <a href="{{ iface.connected_endpoint.circuit.get_absolute_url }}">
                                 {{ iface.connected_endpoint.circuit.provider }}
                                 {{ iface.connected_endpoint.circuit }}
                             </a>
@@ -150,7 +150,7 @@
         {% if perms.dcim.change_interface %}
             {% if iface.cable %}
                 {% include 'dcim/inc/cable_toggle_buttons.html' with cable=iface.cable %}
-            {% elif not iface.is_virtual and perms.dcim.add_cable %}
+            {% elif iface.is_connectable and perms.dcim.add_cable %}
                 <a href="{% url 'dcim:interface_connect' termination_a_id=iface.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-success btn-xs" title="Connect">
                     <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
                 </a>

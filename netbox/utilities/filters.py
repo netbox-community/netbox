@@ -1,4 +1,5 @@
 import django_filters
+from django.conf import settings
 from django.db.models import Q
 from taggit.models import Tag
 
@@ -14,12 +15,11 @@ class NullableCharFieldFilter(django_filters.CharFilter):
     """
     Allow matching on null field values by passing a special string used to signify NULL.
     """
-    null_value = 'NULL'
 
     def filter(self, qs, value):
-        if value != self.null_value:
+        if value != settings.FILTERS_NULL_CHOICE_VALUE:
             return super().filter(qs, value)
-        qs = self.get_method(qs)(**{'{}__isnull'.format(self.name): True})
+        qs = self.get_method(qs)(**{'{}__isnull'.format(self.field_name): True})
         return qs.distinct() if self.distinct else qs
 
 

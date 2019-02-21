@@ -1,3 +1,29 @@
+v2.5.7 (2019-02-21)
+
+## Enhancements
+
+* [#2357](https://github.com/digitalocean/netbox/issues/2357) - Enable filtering of devices by rack face
+* [#2638](https://github.com/digitalocean/netbox/issues/2638) - Add button to copy unlocked secret to clipboard
+* [#2870](https://github.com/digitalocean/netbox/issues/2870) - Add Markdown rendering for provider NOC/admin contact fields
+* [#2878](https://github.com/digitalocean/netbox/issues/2878) - Add cable types for OS1/OS2 singlemode fiber
+* [#2890](https://github.com/digitalocean/netbox/issues/2890) - Add port types for APC fiber
+* [#2898](https://github.com/digitalocean/netbox/issues/2898) - Enable filtering cables list by connection status
+* [#2903](https://github.com/digitalocean/netbox/issues/2903) - Clarify purpose of tags field on interface edit form
+
+## Bug Fixes
+
+* [#2852](https://github.com/digitalocean/netbox/issues/2852) - Allow filtering devices by null rack position
+* [#2884](https://github.com/digitalocean/netbox/issues/2884) - Don't display connect button for wireless interfaces
+* [#2888](https://github.com/digitalocean/netbox/issues/2888) - Correct foreground color of device roles in rack elevations
+* [#2893](https://github.com/digitalocean/netbox/issues/2893) - Remove duplicate display of VRF RD on IP address view
+* [#2895](https://github.com/digitalocean/netbox/issues/2895) - Fix filtering of nullable character fields
+* [#2901](https://github.com/digitalocean/netbox/issues/2901) - Fix ordering regions by site count
+* [#2910](https://github.com/digitalocean/netbox/issues/2910) - Fix config context list and edit forms to use Select2 elements
+* [#2912](https://github.com/digitalocean/netbox/issues/2912) - Cable type in filter form should be blank by default
+* [#2913](https://github.com/digitalocean/netbox/issues/2913) - Fix assigned prefixes link on VRF view
+* [#2914](https://github.com/digitalocean/netbox/issues/2914) - Fix empty connected circuit link on device interfaces list
+* [#2915](https://github.com/digitalocean/netbox/issues/2915) - Fix bulk editing of pass-through ports
+
 v2.5.6 (2019-02-13)
 
 ## Enhancements

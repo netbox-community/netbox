@@ -43,6 +43,12 @@ RACK_STATUS_CHOICES = [
     [RACK_STATUS_DEPRECATED, 'Deprecated'],
 ]
 
+# Device rack position
+DEVICE_POSITION_CHOICES = [
+    # Rack.u_height is limited to 100
+    (i, 'Unit {}'.format(i)) for i in range(1, 101)
+]
+
 # Parent/child device roles
 SUBDEVICE_ROLE_PARENT = True
 SUBDEVICE_ROLE_CHILD = False
@@ -270,11 +276,14 @@ PORT_TYPE_8P8C = 1000
 PORT_TYPE_110_PUNCH = 1100
 PORT_TYPE_ST = 2000
 PORT_TYPE_SC = 2100
+PORT_TYPE_SC_APC = 2110
 PORT_TYPE_FC = 2200
 PORT_TYPE_LC = 2300
+PORT_TYPE_LC_APC = 2310
 PORT_TYPE_MTRJ = 2400
 PORT_TYPE_MPO = 2500
 PORT_TYPE_LSH = 2600
+PORT_TYPE_LSH_APC = 2610
 PORT_TYPE_CHOICES = [
     [
         'Copper',
@@ -288,10 +297,13 @@ PORT_TYPE_CHOICES = [
         [
             [PORT_TYPE_FC, 'FC'],
             [PORT_TYPE_LC, 'LC'],
+            [PORT_TYPE_LC_APC, 'LC/APC'],
             [PORT_TYPE_LSH, 'LSH'],
+            [PORT_TYPE_LSH_APC, 'LSH/APC'],
             [PORT_TYPE_MPO, 'MPO'],
             [PORT_TYPE_MTRJ, 'MTRJ'],
             [PORT_TYPE_SC, 'SC'],
+            [PORT_TYPE_SC_APC, 'SC/APC'],
             [PORT_TYPE_ST, 'ST'],
         ]
     ]
@@ -355,11 +367,14 @@ CABLE_TYPE_CAT6A = 1610
 CABLE_TYPE_CAT7 = 1700
 CABLE_TYPE_DAC_ACTIVE = 1800
 CABLE_TYPE_DAC_PASSIVE = 1810
+CABLE_TYPE_MMF = 3000
 CABLE_TYPE_MMF_OM1 = 3010
 CABLE_TYPE_MMF_OM2 = 3020
 CABLE_TYPE_MMF_OM3 = 3030
 CABLE_TYPE_MMF_OM4 = 3040
 CABLE_TYPE_SMF = 3500
+CABLE_TYPE_SMF_OS1 = 3510
+CABLE_TYPE_SMF_OS2 = 3520
 CABLE_TYPE_AOC = 3800
 CABLE_TYPE_POWER = 5000
 CABLE_TYPE_CHOICES = (
@@ -377,11 +392,14 @@ CABLE_TYPE_CHOICES = (
     ),
     (
         'Fiber', (
+            (CABLE_TYPE_MMF, 'Multimode Fiber'),
             (CABLE_TYPE_MMF_OM1, 'Multimode Fiber (OM1)'),
             (CABLE_TYPE_MMF_OM2, 'Multimode Fiber (OM2)'),
             (CABLE_TYPE_MMF_OM3, 'Multimode Fiber (OM3)'),
             (CABLE_TYPE_MMF_OM4, 'Multimode Fiber (OM4)'),
             (CABLE_TYPE_SMF, 'Singlemode Fiber'),
+            (CABLE_TYPE_SMF_OS1, 'Singlemode Fiber (OS1)'),
+            (CABLE_TYPE_SMF_OS2, 'Singlemode Fiber (OS2)'),
             (CABLE_TYPE_AOC, 'Active Optical Cabling (AOC)'),
         ),
     ),

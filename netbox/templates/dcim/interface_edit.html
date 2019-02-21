@@ -14,20 +14,29 @@
             {% render_field form.mgmt_only %}
             {% render_field form.description %}
             {% render_field form.mode %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><strong>Tags</strong></div>
+        <div class="panel-body">
             {% render_field form.tags %}
         </div>
     </div>
-    {% if obj.mode %}
-        <div class="panel panel-default" id="vlans_panel">
-            <div class="panel-heading"><strong>802.1Q VLANs</strong></div>
+    <div class="panel panel-default" id="vlans_panel">
+        <div class="panel-heading"><strong>802.1Q VLANs</strong></div>
+        {% if obj.mode %}
             {% include 'dcim/inc/interface_vlans_table.html' %}
             <div class="panel-footer text-right">
                 <a href="{% url 'dcim:interface_assign_vlans' pk=obj.pk %}?return_url={% url 'dcim:interface_edit' pk=obj.pk %}" class="btn btn-primary btn-xs{% if form.instance.mode == 100 and form.instance.untagged_vlan %} disabled{% endif %}">
                     <i class="glyphicon glyphicon-plus"></i> Add VLANs
                 </a>
             </div>
-        </div>
-    {% endif %}
+        {% else %}
+            <div class="panel-body text-center text-muted">
+                <p>802.1Q mode not set</p>
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}
 
 {% block buttons %}

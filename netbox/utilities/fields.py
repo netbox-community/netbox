@@ -10,6 +10,8 @@ ColorValidator = RegexValidator(
 )
 
 
+# Deprecated: Retained only to ensure successful migration from early releases
+# Use models.CharField(null=True) instead
 class NullableCharField(models.CharField):
     description = "Stores empty values as NULL rather than ''"
 
