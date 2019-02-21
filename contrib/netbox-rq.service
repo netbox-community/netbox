@@ -12,9 +12,9 @@ EnvironmentFile=/etc/sysconfig/netbox.env
 User=www-data
 Group=www-data
 
-WorkingDirectory=$WorkingDirectory
+WorkingDirectory=${WorkingDirectory}
 
-ExecStart=/usr/bin/python3 $WorkingDirectory/netbox/manage.py rqworker
+ExecStart=/usr/bin/python3 ${WorkingDirectory}/netbox/manage.py rqworker
 
 Restart=on-failure
 RestartSec=30

@@ -14,7 +14,7 @@ Group=www-data
 PIDFile=${PidPath}
 WorkingDirectory=${WorkingDirectory}
 
-ExecStart=/usr/bin/gunicorn --pid ${PidPath} --bind ${Bind} --workers ${Workers} --threads ${Threads} --timeout ${Timeout} --error-log ${ErrorLog} --pythonpath ${WorkingDirectory}/netbox ${ExtraArgs} netbox.wsgi
+ExecStart=/usr/local/bin/gunicorn --pid ${PidPath} --pythonpath ${WorkingDirectory}/netbox --config ${ConfigPath} netbox.wsgi
 
 Restart=on-failure
 RestartSec=30

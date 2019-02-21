@@ -80,7 +80,7 @@ This script:
 
 # Restart the WSGI Service
 
-Finally, restart the WSGI service to run the new code. If you followed this guide for the initial installation, this is done using `supervisorctl`:
+Finally, restart the WSGI service to run the new code. If you followed this guide for the initial installation, this is done using `systemctl:
 
 ```no-highlight
 # sudo systemctl restart netbox
@@ -91,3 +91,6 @@ If using webhooks, also restart the Redis worker:
 ```no-highlight
 # sudo systemctl restart netbox-rqworker
 ```
+
+!!! note
+    It's possible you are still using supervisord instead of the linux native systemd.  If you are still using supervisord you can restart the services by either restarting supervisord or by using supervisorctl to restart netbox.
