@@ -868,7 +868,10 @@ class ObjectChange(models.Model):
 # Tags
 #
 
-from utilities.models import ChangeLoggedModel
+# TODO: figure out a way around this circular import for ObjectChange
+from utilities.models import ChangeLoggedModel  # noqa: E402
+
+
 class Tag(TagBase, ChangeLoggedModel):
     color = ColorField(
         default='9e9e9e'
