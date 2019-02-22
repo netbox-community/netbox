@@ -1,3 +1,11 @@
+v2.5.8 (FUTURE)
+
+## Bug Fixes
+
+* [#2923](https://github.com/digitalocean/netbox/issues/2923) - Provider filter form's site field should be blank by default
+
+---
+
 v2.5.7 (2019-02-21)
 
 ## Enhancements
@@ -23,6 +31,8 @@ v2.5.7 (2019-02-21)
 * [#2913](https://github.com/digitalocean/netbox/issues/2913) - Fix assigned prefixes link on VRF view
 * [#2914](https://github.com/digitalocean/netbox/issues/2914) - Fix empty connected circuit link on device interfaces list
 * [#2915](https://github.com/digitalocean/netbox/issues/2915) - Fix bulk editing of pass-through ports
+
+---
 
 v2.5.6 (2019-02-13)
 
