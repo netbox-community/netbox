@@ -7,13 +7,7 @@ import utilities.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0018_rename_tag_tables'),
-        ('circuits', '0015_custom_tag_models'),
-        ('dcim', '0070_custom_tag_models'),
-        ('ipam', '0025_custom_tag_models'),
-        ('secrets', '0006_custom_tag_models'),
-        ('tenancy', '0006_custom_tag_models'),
-        ('virtualization', '0009_custom_tag_models'),
+        ('extras', '0018_tag_data'),
     ]
 
     operations = [
@@ -26,5 +20,15 @@ class Migration(migrations.Migration):
             model_name='tag',
             name='comments',
             field=models.TextField(blank=True, default=''),
+        ),
+        migrations.AddField(
+            model_name='tag',
+            name='created',
+            field=models.DateField(auto_now_add=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='tag',
+            name='last_updated',
+            field=models.DateTimeField(auto_now=True, null=True),
         ),
     ]

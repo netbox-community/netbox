@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('virtualization', '0008_virtualmachine_local_context_data'),
-        ('extras', '0018_rename_tag_tables'),
+        ('extras', '0017_tag_taggeditem'),
     ]
 
     operations = [

@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('circuits', '0014_circuittermination_description'),
-        ('extras', '0018_rename_tag_tables'),
+        ('extras', '0017_tag_taggeditem'),
     ]
 
     operations = [

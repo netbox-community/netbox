@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
         ('extras', '0016_exporttemplate_add_cable'),
     ]
 
-    state_operations = [
+    operations = [
         migrations.CreateModel(
             name='Tag',
             fields=[
@@ -40,11 +40,4 @@ class Migration(migrations.Migration):
             name='taggeditem',
             index_together={('content_type', 'object_id')},
         ),
-    ]
-
-    operations = [
-        migrations.SeparateDatabaseAndState(
-            database_operations=None,
-            state_operations=state_operations
-        )
     ]

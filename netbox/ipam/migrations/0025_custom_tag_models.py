@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('ipam', '0024_vrf_allow_null_rd'),
-        ('extras', '0018_rename_tag_tables'),
+        ('extras', '0017_tag_taggeditem'),
     ]
 
     operations = [

@@ -868,8 +868,8 @@ class ObjectChange(models.Model):
 # Tags
 #
 
-
-class Tag(TagBase):
+from utilities.models import ChangeLoggedModel
+class Tag(TagBase, ChangeLoggedModel):
     color = ColorField(
         default='9e9e9e'
     )
@@ -885,3 +885,8 @@ class TaggedItem(GenericTaggedItemBase):
         related_name="%(app_label)s_%(class)s_items",
         on_delete=models.CASCADE
     )
+
+    class Meta:
+        index_together = (
+            ("content_type", "object_id")
+        )
