@@ -647,6 +647,9 @@ class CableTable(BaseTable):
         orderable=False,
         verbose_name=''
     )
+    status = tables.TemplateColumn(
+        template_code=STATUS_LABEL
+    )
     length = tables.TemplateColumn(
         template_code=CABLE_LENGTH,
         order_by='_abs_length'

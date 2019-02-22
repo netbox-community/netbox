@@ -543,6 +543,10 @@ class DeviceFilter(CustomFieldFilterSet):
         queryset=Rack.objects.all(),
         label='Rack (ID)',
     )
+    position = django_filters.ChoiceFilter(
+        choices=DEVICE_POSITION_CHOICES,
+        null_label='Non-racked'
+    )
     cluster_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Cluster.objects.all(),
         label='VM cluster (ID)',
@@ -602,7 +606,7 @@ class DeviceFilter(CustomFieldFilterSet):
 
     class Meta:
         model = Device
-        fields = ['serial', 'position', 'face']
+        fields = ['serial', 'face']
 
     def search(self, queryset, name, value):
         if not value.strip():

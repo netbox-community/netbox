@@ -1,4 +1,6 @@
 $(document).ready(function() {
+    // Instantiate ClipboardJS on all copy buttons
+    new ClipboardJS('button.copy-secret');
 
     // Unlocking a secret
     $('button.unlock-secret').click(function(event) {
@@ -45,6 +47,7 @@ $(document).ready(function() {
                     console.log("Secret retrieved successfully");
                     $('#secret_' + secret_id).text(response.plaintext);
                     $('button.unlock-secret[secret-id=' + secret_id + ']').hide();
+                    $('button.copy-secret[secret-id=' + secret_id + ']').show();
                     $('button.lock-secret[secret-id=' + secret_id + ']').show();
                 } else {
                     console.log("Secret was not decrypted. Prompt user for private key.");
@@ -67,6 +70,7 @@ $(document).ready(function() {
         var secret_div = $('#secret_' + secret_id);
         secret_div.html('********');
         $('button.lock-secret[secret-id=' + secret_id + ']').hide();
+        $('button.copy-secret[secret-id=' + secret_id + ']').hide();
         $('button.unlock-secret[secret-id=' + secret_id + ']').show();
     }
 

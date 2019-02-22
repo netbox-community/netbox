@@ -2644,6 +2644,9 @@ class Cable(ChangeLoggedModel):
             self.length_unit,
         )
 
+    def get_status_class(self):
+        return 'success' if self.status else 'info'
+
     def get_path_endpoints(self):
         """
         Traverse both ends of a cable path and return its connected endpoints. Note that one or both endpoints may be

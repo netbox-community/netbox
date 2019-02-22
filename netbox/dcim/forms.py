@@ -2410,7 +2410,7 @@ class FrontPortCreateForm(ComponentForm):
 
 class FrontPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        queryset=Interface.objects.all(),
+        queryset=FrontPort.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
     type = forms.ChoiceField(
@@ -2484,7 +2484,7 @@ class RearPortCreateForm(ComponentForm):
 
 class RearPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        queryset=Interface.objects.all(),
+        queryset=RearPort.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
     type = forms.ChoiceField(
@@ -2801,8 +2801,13 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         label='Search'
     )
     type = forms.MultipleChoiceField(
-        choices=CABLE_TYPE_CHOICES,
+        choices=add_blank_choice(CABLE_TYPE_CHOICES),
         required=False,
+        widget=StaticSelect2()
+    )
+    status = forms.ChoiceField(
+        required=False,
+        choices=add_blank_choice(CONNECTION_STATUS_CHOICES),
         widget=StaticSelect2()
     )
     color = forms.CharField(
