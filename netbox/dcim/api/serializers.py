@@ -346,8 +346,8 @@ class ConsoleServerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer)
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'id', 'device', 'name', 'connected_endpoint_type', 'connected_endpoint', 'connection_status', 'cable',
-            'tags',
+            'id', 'device', 'name', 'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status',
+            'cable', 'tags',
         ]
 
 
@@ -359,8 +359,8 @@ class ConsolePortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     class Meta:
         model = ConsolePort
         fields = [
-            'id', 'device', 'name', 'connected_endpoint_type', 'connected_endpoint', 'connection_status', 'cable',
-            'tags',
+            'id', 'device', 'name', 'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status',
+            'cable', 'tags',
         ]
 
 
@@ -372,8 +372,8 @@ class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     class Meta:
         model = PowerOutlet
         fields = [
-            'id', 'device', 'name', 'connected_endpoint_type', 'connected_endpoint', 'connection_status', 'cable',
-            'tags',
+            'id', 'device', 'name', 'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status',
+            'cable', 'tags',
         ]
 
 
@@ -385,8 +385,8 @@ class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     class Meta:
         model = PowerPort
         fields = [
-            'id', 'device', 'name', 'connected_endpoint_type', 'connected_endpoint', 'connection_status', 'cable',
-            'tags',
+            'id', 'device', 'name', 'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status',
+            'cable', 'tags',
         ]
 
 
@@ -475,7 +475,7 @@ class DeviceBaySerializer(TaggitSerializer, ValidatedModelSerializer):
 
     class Meta:
         model = DeviceBay
-        fields = ['id', 'device', 'name', 'installed_device', 'tags']
+        fields = ['id', 'device', 'name', 'description', 'installed_device', 'tags']
 
 
 #
