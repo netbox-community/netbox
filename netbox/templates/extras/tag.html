@@ -31,6 +31,15 @@
         {% endif %}
     </div>
     <h1>{% block title %}Tag: {{ tag }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' with obj=tag %}
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ tag.get_absolute_url }}">Tag</a>
+        </li>
+        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+            <a href="{% url 'extras:tag_changelog' slug=tag.slug %}">Changelog</a>
+        </li>
+    </ul>
 {% endblock %}
 
 {% block content %}

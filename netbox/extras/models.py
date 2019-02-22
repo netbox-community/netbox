@@ -881,6 +881,9 @@ class Tag(TagBase, ChangeLoggedModel):
         default=''
     )
 
+    def get_absolute_url(self):
+        return reverse('extras:tag', args=[self.slug])
+
 
 class TaggedItem(GenericTaggedItemBase):
     tag = models.ForeignKey(

@@ -5,6 +5,9 @@ from utilities.tables import BaseTable, BooleanColumn, ColorColumn, ToggleColumn
 from .models import ConfigContext, ObjectChange, Tag, TaggedItem
 
 TAG_ACTIONS = """
+<a href="{% url 'extras:tag_changelog' slug=record.slug %}" class="btn btn-default btn-xs" title="Changelog">
+    <i class="fa fa-history"></i>
+</a>
 {% if perms.taggit.change_tag %}
     <a href="{% url 'extras:tag_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
