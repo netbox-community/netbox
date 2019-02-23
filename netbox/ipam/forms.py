@@ -6,7 +6,7 @@ from taggit.forms import TagField
 from dcim.models import Site, Rack, Device, Interface
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import TenancyForm
-from tenancy.models import Tenant
+from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditNullBooleanSelect, ChainedModelChoiceField,
     CSVChoiceField, ExpandableIPAddressField, FilterChoiceField, FlexibleModelChoiceField, ReturnURLForm, SlugField,
@@ -102,6 +102,19 @@ class VRFFilterForm(BootstrapMixin, CustomFieldFilterForm):
     q = forms.CharField(
         required=False,
         label='Search'
+    )
+    tenant_group = FilterChoiceField(
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenant-groups/",
+            value_field="slug",
+            null_option=True,
+            filter_for={
+                'tenant': 'group'
+            }
+        )
     )
     tenant = FilterChoiceField(
         queryset=Tenant.objects.all(),
@@ -533,6 +546,19 @@ class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
             api_url="/api/ipam/vrfs/",
             value_field="rd",
             null_option=True,
+        )
+    )
+    tenant_group = FilterChoiceField(
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenant-groups/",
+            value_field="slug",
+            null_option=True,
+            filter_for={
+                'tenant': 'group'
+            }
         )
     )
     tenant = FilterChoiceField(
@@ -984,6 +1010,19 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
             null_option=True,
         )
     )
+    tenant_group = FilterChoiceField(
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenant-groups/",
+            value_field="slug",
+            null_option=True,
+            filter_for={
+                'tenant': 'group'
+            }
+        )
+    )
     tenant = FilterChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='slug',
@@ -1248,6 +1287,19 @@ class VLANFilterForm(BootstrapMixin, CustomFieldFilterForm):
         widget=APISelectMultiple(
             api_url="/api/ipam/vlan-groups/",
             null_option=True,
+        )
+    )
+    tenant_group = FilterChoiceField(
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenant-groups/",
+            value_field="slug",
+            null_option=True,
+            filter_for={
+                'tenant': 'group'
+            }
         )
     )
     tenant = FilterChoiceField(

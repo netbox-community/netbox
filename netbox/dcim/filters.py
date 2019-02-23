@@ -6,7 +6,7 @@ from netaddr import EUI
 from netaddr.core import AddrFormatError
 
 from extras.filters import CustomFieldFilterSet
-from tenancy.models import Tenant
+from tenancy.models import Tenant, TenantGroup
 from utilities.constants import COLOR_CHOICES
 from utilities.filters import NameSlugSearchFilterSet, NullableCharFieldFilter, NumericInFilter, TagFilter
 from virtualization.models import Cluster
@@ -58,6 +58,18 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         method='filter_region',
         field_name='slug',
         label='Region (slug)',
+    )
+    tenant_group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='tenant__group__id',
+        queryset=TenantGroup.objects.all(),
+        to_field_name='id',
+        label='Tenant Group (ID)',
+    )
+    tenant_group = django_filters.ModelMultipleChoiceFilter(
+        field_name='tenant__group__slug',
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        label='Tenant Group (slug)',
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Tenant.objects.all(),
@@ -160,6 +172,18 @@ class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
         to_field_name='slug',
         label='Group',
     )
+    tenant_group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='tenant__group__id',
+        queryset=TenantGroup.objects.all(),
+        to_field_name='id',
+        label='Tenant Group (ID)',
+    )
+    tenant_group = django_filters.ModelMultipleChoiceFilter(
+        field_name='tenant__group__slug',
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        label='Tenant Group (slug)',
+    )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Tenant.objects.all(),
         label='Tenant (ID)',
@@ -240,6 +264,18 @@ class RackReservationFilter(django_filters.FilterSet):
         queryset=RackGroup.objects.all(),
         to_field_name='slug',
         label='Group',
+    )
+    tenant_group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='tenant__group__id',
+        queryset=TenantGroup.objects.all(),
+        to_field_name='id',
+        label='Tenant Group (ID)',
+    )
+    tenant_group = django_filters.ModelMultipleChoiceFilter(
+        field_name='tenant__group__slug',
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        label='Tenant Group (slug)',
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Tenant.objects.all(),
@@ -490,6 +526,18 @@ class DeviceFilter(CustomFieldFilterSet):
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
+    )
+    tenant_group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='tenant__group__id',
+        queryset=TenantGroup.objects.all(),
+        to_field_name='id',
+        label='Tenant Group (ID)',
+    )
+    tenant_group = django_filters.ModelMultipleChoiceFilter(
+        field_name='tenant__group__slug',
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        label='Tenant Group (slug)',
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Tenant.objects.all(),

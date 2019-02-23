@@ -8,7 +8,7 @@ from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, S
 from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
 from ipam.models import IPAddress
 from tenancy.forms import TenancyForm
-from tenancy.models import Tenant
+from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ComponentForm,
@@ -590,6 +590,19 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
         choices=VM_STATUS_CHOICES,
         required=False,
         widget=StaticSelect2Multiple()
+    )
+    tenant_group = FilterChoiceField(
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenant-groups/",
+            value_field="slug",
+            null_option=True,
+            filter_for={
+                'tenant': 'group'
+            }
+        )
     )
     tenant = FilterChoiceField(
         queryset=Tenant.objects.all(),

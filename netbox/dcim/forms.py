@@ -13,7 +13,7 @@ from timezone_field import TimeZoneFormField
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from ipam.models import IPAddress, VLAN, VLANGroup
 from tenancy.forms import TenancyForm
-from tenancy.models import Tenant
+from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
     BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField,
@@ -274,6 +274,19 @@ class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
         widget=APISelectMultiple(
             api_url="/api/dcim/regions/",
             value_field="slug",
+        )
+    )
+    tenant_group = FilterChoiceField(
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenant-groups/",
+            value_field="slug",
+            null_option=True,
+            filter_for={
+                'tenant': 'group'
+            }
         )
     )
     tenant = FilterChoiceField(
@@ -619,6 +632,19 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
             null_option=True,
         )
     )
+    tenant_group = FilterChoiceField(
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenant-groups/",
+            value_field="slug",
+            null_option=True,
+            filter_for={
+                'tenant': 'group'
+            }
+        )
+    )
     tenant = FilterChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='slug',
@@ -709,6 +735,19 @@ class RackReservationFilterForm(BootstrapMixin, forms.Form):
         widget=APISelectMultiple(
             api_url="/api/dcim/rack-groups/",
             null_option=True,
+        )
+    )
+    tenant_group = FilterChoiceField(
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenant-groups/",
+            value_field="slug",
+            null_option=True,
+            filter_for={
+                'tenant': 'group'
+            }
         )
     )
     tenant = FilterChoiceField(
@@ -1701,6 +1740,19 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
             api_url="/api/dcim/device-roles/",
             value_field="slug",
             null_option=True,
+        )
+    )
+    tenant_group = FilterChoiceField(
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenant-groups/",
+            value_field="slug",
+            null_option=True,
+            filter_for={
+                'tenant': 'group'
+            }
         )
     )
     tenant = FilterChoiceField(

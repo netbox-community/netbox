@@ -6,7 +6,7 @@ from netaddr.core import AddrFormatError
 
 from dcim.models import DeviceRole, Interface, Platform, Region, Site
 from extras.filters import CustomFieldFilterSet
-from tenancy.models import Tenant
+from tenancy.models import Tenant, TenantGroup
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
 from .constants import VM_STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -149,6 +149,18 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
+    )
+    tenant_group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='tenant__group__id',
+        queryset=TenantGroup.objects.all(),
+        to_field_name='id',
+        label='Tenant Group (ID)',
+    )
+    tenant_group = django_filters.ModelMultipleChoiceFilter(
+        field_name='tenant__group__slug',
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        label='Tenant Group (slug)',
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Tenant.objects.all(),
