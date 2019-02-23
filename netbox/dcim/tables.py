@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
-from tenancy.tables import COL_TENANT
+from tenancy.tables import COL_TENANT, COL_TENANTGROUP_TENANT
 from utilities.tables import BaseTable, BooleanColumn, ColorColumn, ToggleColumn
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -214,7 +214,7 @@ class SiteTable(BaseTable):
     name = tables.LinkColumn(order_by=('_nat1', '_nat2', '_nat3'))
     status = tables.TemplateColumn(template_code=STATUS_LABEL, verbose_name='Status')
     region = tables.TemplateColumn(template_code=SITE_REGION_LINK)
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
+    tenant = tables.TemplateColumn(template_code=COL_TENANTGROUP_TENANT)
 
     class Meta(BaseTable.Meta):
         model = Site
@@ -275,7 +275,7 @@ class RackTable(BaseTable):
     name = tables.LinkColumn(order_by=('_nat1', '_nat2', '_nat3'))
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
     group = tables.Column(accessor=Accessor('group.name'), verbose_name='Group')
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
+    tenant = tables.TemplateColumn(template_code=COL_TENANTGROUP_TENANT)
     status = tables.TemplateColumn(STATUS_LABEL)
     role = tables.TemplateColumn(RACK_ROLE)
     u_height = tables.TemplateColumn("{{ record.u_height }}U", verbose_name='Height')
@@ -305,7 +305,7 @@ class RackDetailTable(RackTable):
 
 class RackReservationTable(BaseTable):
     pk = ToggleColumn()
-    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
+    tenant = tables.TemplateColumn(template_code=COL_TENANTGROUP_TENANT)
     rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')])
     unit_list = tables.Column(orderable=False, verbose_name='Units')
     actions = tables.TemplateColumn(
@@ -512,7 +512,7 @@ class DeviceTable(BaseTable):
         template_code=DEVICE_LINK
     )
     status = tables.TemplateColumn(template_code=STATUS_LABEL, verbose_name='Status')
-    tenant = tables.TemplateColumn(template_code=COL_TENANT)
+    tenant = tables.TemplateColumn(template_code=COL_TENANTGROUP_TENANT)
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')])
     rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')])
     device_role = tables.TemplateColumn(DEVICE_ROLE, verbose_name='Role')
