@@ -49,14 +49,14 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         choices=SITE_STATUS_CHOICES,
         null_value=None
     )
-    region_id = django_filters.NumberFilter(
-        method='filter_region',
-        field_name='pk',
+    region_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Region.objects.all(),
         label='Region (ID)',
     )
-    region = django_filters.CharFilter(
-        method='filter_region',
-        field_name='slug',
+    region = django_filters.ModelMultipleChoiceFilter(
+        field_name='region__slug',
+        queryset=Region.objects.all(),
+        to_field_name='slug',
         label='Region (slug)',
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
@@ -513,14 +513,16 @@ class DeviceFilter(CustomFieldFilterSet):
     )
     name = NullableCharFieldFilter()
     asset_tag = NullableCharFieldFilter()
-    region_id = django_filters.NumberFilter(
-        method='filter_region',
-        field_name='pk',
+    region_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='site__region__id',
+        queryset=Region.objects.all(),
+        to_field_name='id',
         label='Region (ID)',
     )
-    region = django_filters.CharFilter(
-        method='filter_region',
-        field_name='slug',
+    region = django_filters.ModelMultipleChoiceFilter(
+        field_name='site__region__slug',
+        queryset=Region.objects.all(),
+        to_field_name='slug',
         label='Region (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
