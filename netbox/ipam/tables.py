@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django_tables2.utils import Accessor
 
 from dcim.models import Interface
-from tenancy.tables import COL_TENANT,COL_TENANTGROUP_TENANT
+from tenancy.tables import COL_TENANT, COL_TENANTGROUP_TENANT
 from utilities.tables import BaseTable, BooleanColumn, ToggleColumn
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
