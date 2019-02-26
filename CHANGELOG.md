@@ -2,6 +2,7 @@ v2.5.8 (FUTURE)
 
 ## Bug Fixes
 
+* [#2705](https://github.com/digitalocean/netbox/issues/2705) - Fix endpoint grouping in API docs
 * [#2923](https://github.com/digitalocean/netbox/issues/2923) - Provider filter form's site field should be blank by default
 
 ---
