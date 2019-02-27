@@ -98,16 +98,6 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
             pass
         return queryset.filter(qs_filter)
 
-    def filter_region(self, queryset, name, value):
-        try:
-            region = Region.objects.get(**{name: value})
-        except ObjectDoesNotExist:
-            return queryset.none()
-        return queryset.filter(
-            Q(region=region) |
-            Q(region__in=region.get_descendants())
-        )
-
 
 class RackGroupFilter(NameSlugSearchFilterSet):
     site_id = django_filters.ModelMultipleChoiceFilter(
@@ -516,14 +506,15 @@ class DeviceFilter(CustomFieldFilterSet):
     )
     name = NullableCharFieldFilter()
     asset_tag = NullableCharFieldFilter()
-    region_id = django_filters.NumberFilter(
-        method='filter_region',
-        field_name='pk',
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='region__in',
         label='Region (ID)',
     )
-    region = django_filters.CharFilter(
-        method='filter_region',
-        field_name='slug',
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='region__in',
+        to_field_name='slug',
         label='Region (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
