@@ -4,6 +4,7 @@ v2.5.8 (FUTURE)
 
 * [#2705](https://github.com/digitalocean/netbox/issues/2705) - Fix endpoint grouping in API docs
 * [#2923](https://github.com/digitalocean/netbox/issues/2923) - Provider filter form's site field should be blank by default
+* [#2938](https://github.com/digitalocean/netbox/issues/2938) - Enforce deterministic ordering of device components returned by API
 
 ---
 
