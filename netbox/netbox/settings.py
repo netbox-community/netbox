@@ -6,6 +6,7 @@ import warnings
 
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
+from django.urls import reverse_lazy
 
 # Django 2.1 requires Python 3.5+
 if sys.version_info < (3, 5):
@@ -330,6 +331,11 @@ SWAGGER_SETTINGS = {
     'VALIDATOR_URL': None,
     'DEFAULT_INFO': 'netbox.urls.swagger_info',
     'DEFAULT_MODEL_DEPTH': 0,
+    'SPEC_URL': reverse_lazy('schema_swagger', kwargs={'format': '.yaml'}),
+}
+
+REDOC_SETTINGS = {
+    'SPEC_URL': reverse_lazy('schema_swagger', kwargs={'format': '.yaml'}),
 }
 
 

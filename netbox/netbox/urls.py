@@ -55,7 +55,7 @@ _patterns = [
     url(r'^api/virtualization/', include('virtualization.api.urls')),
     url(r'^api/docs/$', schema_view.with_ui('swagger', cache_timeout=600), name='api_docs'),
     url(r'^api/redoc/$', schema_view.with_ui('redoc', cache_timeout=600), name='api_redocs'),
-    url(r'^api/swagger(?P<format>.json|.yaml)$', schema_view.without_ui(cache_timeout=600), name='schema_swagger'),
+    url(r'^api/swagger(?P<format>.yaml)$', schema_view.without_ui(cache_timeout=600), name='schema_swagger'),
 
     # Serving static media in Django to pipe it through LoginRequiredMiddleware
     url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
