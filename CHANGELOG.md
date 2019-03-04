@@ -3,6 +3,7 @@ v2.5.8 (FUTURE)
 ## Bug Fixes
 
 * [#2705](https://github.com/digitalocean/netbox/issues/2705) - Fix endpoint grouping in API docs
+* [#2781](https://github.com/digitalocean/netbox/issues/2781) - Fix filtering of sites/devices/VMs by multiple regions
 * [#2923](https://github.com/digitalocean/netbox/issues/2923) - Provider filter form's site field should be blank by default
 * [#2938](https://github.com/digitalocean/netbox/issues/2938) - Enforce deterministic ordering of device components returned by API
 * [#2939](https://github.com/digitalocean/netbox/issues/2939) - Exclude circuit terminations from API interface connections endpoint

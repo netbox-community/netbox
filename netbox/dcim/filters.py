@@ -1,6 +1,5 @@
 import django_filters
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from netaddr import EUI
 from netaddr.core import AddrFormatError
@@ -508,12 +507,12 @@ class DeviceFilter(CustomFieldFilterSet):
     asset_tag = NullableCharFieldFilter()
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='region__in',
+        field_name='site__region__in',
         label='Region (ID)',
     )
     region = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
-        field_name='region__in',
+        field_name='site__region__in',
         to_field_name='slug',
         label='Region (slug)',
     )
@@ -612,16 +611,6 @@ class DeviceFilter(CustomFieldFilterSet):
             Q(asset_tag__icontains=value.strip()) |
             Q(comments__icontains=value)
         ).distinct()
-
-    def filter_region(self, queryset, name, value):
-        try:
-            region = Region.objects.get(**{name: value})
-        except ObjectDoesNotExist:
-            return queryset.none()
-        return queryset.filter(
-            Q(site__region=region) |
-            Q(site__region__in=region.get_descendants())
-        )
 
     def _mac_address(self, queryset, name, value):
         value = value.strip()
