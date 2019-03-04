@@ -335,6 +335,8 @@ SWAGGER_SETTINGS = {
 }
 
 REDOC_SETTINGS = {
+    'EXPAND_RESPONSES': '',
+    'NATIVE_SCROLLBARS': True,
     'SPEC_URL': reverse_lazy('schema_swagger', kwargs={'format': '.yaml'}),
 }
 
