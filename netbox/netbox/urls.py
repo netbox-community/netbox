@@ -8,16 +8,18 @@ from netbox.views import APIRootView, HomeView, SearchView
 from users.views import LoginView, LogoutView
 from .admin import admin_site
 
+swagger_info = openapi.Info(
+    title="NetBox API",
+    default_version='v2',
+    description="API to access NetBox",
+    terms_of_service="https://github.com/digitalocean/netbox",
+    contact=openapi.Contact(email="netbox@digitalocean.com"),
+    license=openapi.License(name="Apache v2 License"),
+)
+
+
 schema_view = get_schema_view(
-    openapi.Info(
-        title="NetBox API",
-        default_version='v2',
-        description="API to access NetBox",
-        terms_of_service="https://github.com/digitalocean/netbox",
-        contact=openapi.Contact(email="netbox@digitalocean.com"),
-        license=openapi.License(name="Apache v2 License"),
-    ),
-    validators=['flex', 'ssv'],
+    swagger_info,
     validators=[],
     public=True,
 )
