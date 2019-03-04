@@ -329,6 +329,7 @@ SWAGGER_SETTINGS = {
     },
     'VALIDATOR_URL': None,
     'DEFAULT_INFO': 'netbox.urls.swagger_info',
+    'DEFAULT_MODEL_DEPTH': 0,
 }
 
 
