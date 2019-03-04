@@ -1843,11 +1843,11 @@ class PowerPort(CableTermination, ComponentModel):
     objects = DeviceComponentManager()
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name']
+    csv_headers = ['device', 'name', 'description']
 
     class Meta:
         ordering = ['device', 'name']
-        unique_together = ['device', 'name', 'description']
+        unique_together = ['device', 'name']
 
     def __str__(self):
         return self.name
@@ -1887,10 +1887,10 @@ class PowerOutlet(CableTermination, ComponentModel):
     objects = DeviceComponentManager()
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name']
+    csv_headers = ['device', 'name', 'description']
 
     class Meta:
-        unique_together = ['device', 'name', 'description']
+        unique_together = ['device', 'name']
 
     def __str__(self):
         return self.name
