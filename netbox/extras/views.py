@@ -9,7 +9,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 from django_tables2 import RequestConfig
-from taggit.models import Tag, TaggedItem
 
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
@@ -19,7 +18,7 @@ from .forms import (
     ConfigContextForm, ConfigContextBulkEditForm, ConfigContextFilterForm, ImageAttachmentForm, ObjectChangeFilterForm,
     TagFilterForm, TagForm,
 )
-from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult
+from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult, Tag, TaggedItem
 from .reports import get_report, get_reports
 from .tables import ConfigContextTable, ObjectChangeTable, TagTable, TaggedItemTable
 
@@ -30,7 +29,7 @@ from .tables import ConfigContextTable, ObjectChangeTable, TagTable, TaggedItemT
 
 class TagListView(ObjectListView):
     queryset = Tag.objects.annotate(
-        items=Count('taggit_taggeditem_items')
+        items=Count('extras_taggeditem_items')
     ).order_by(
         'name'
     )
@@ -69,22 +68,23 @@ class TagView(View):
 
 
 class TagEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'taggit.change_tag'
+    permission_required = 'extras.change_tag'
     model = Tag
     model_form = TagForm
     default_return_url = 'extras:tag_list'
+    template_name = 'extras/tag_edit.html'
 
 
 class TagDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'taggit.delete_tag'
+    permission_required = 'extras.delete_tag'
     model = Tag
     default_return_url = 'extras:tag_list'
 
 
 class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'taggit.delete_tag'
+    permission_required = 'extras.delete_tag'
     queryset = Tag.objects.annotate(
-        items=Count('taggit_taggeditem_items')
+        items=Count('extras_taggeditem_items')
     ).order_by(
         'name'
     )

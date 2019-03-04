@@ -50,16 +50,23 @@ class VirtualMachineViewSet(CustomFieldModelViewSet):
 
     def get_serializer_class(self):
         """
-        Include rendered config context when retrieving a single VirtualMachine.
+        Select the specific serializer based on the request context.
+
+        If the `brief` query param equates to True, return the NestedVirtualMachineSerializer
+
+        If the `exclude` query param includes `config_context` as a value, return the VirtualMachineSerializer
+
+        Else, return the VirtualMachineWithConfigContextSerializer
         """
-        if self.action == 'retrieve':
-            return serializers.VirtualMachineWithConfigContextSerializer
 
         request = self.get_serializer_context()['request']
         if request.query_params.get('brief', False):
             return serializers.NestedVirtualMachineSerializer
 
-        return serializers.VirtualMachineSerializer
+        elif 'config_context' in request.query_params.get('exclude', []):
+            return serializers.VirtualMachineSerializer
+
+        return serializers.VirtualMachineWithConfigContextSerializer
 
 
 class InterfaceViewSet(ModelViewSet):

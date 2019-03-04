@@ -1,7 +1,8 @@
 import django_filters
 from django.conf import settings
 from django.db.models import Q
-from taggit.models import Tag
+
+from extras.models import Tag
 
 
 class NumericInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):

@@ -1,3 +1,5 @@
+{% load helpers %}
+
 <tr class="poweroutlet{% if po.cable.status %} success{% elif po.cable %} info{% endif %}">
 
     {# Checkbox #}
@@ -12,12 +14,17 @@
         <i class="fa fa-fw fa-bolt"></i> {{ po }}
     </td>
 
+    {# Description #}
+    <td>
+        {{ po.description|placeholder }}
+    </td>
+
     {# Cable #}
     <td>
         {% if po.cable %}
             <a href="{{ po.cable.get_absolute_url }}">{{ po.cable }}</a>
         {% else %}
-            &mdash;
+            <span class="text-muted">&mdash;</span>
         {% endif %}
     </td>
 

@@ -693,7 +693,8 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(name__icontains=value)
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
         )
 
 
@@ -706,7 +707,7 @@ class ConsolePortFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = ConsolePort
-        fields = ['name', 'connection_status']
+        fields = ['name', 'description', 'connection_status']
 
 
 class ConsoleServerPortFilter(DeviceComponentFilterSet):
@@ -718,7 +719,7 @@ class ConsoleServerPortFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['name', 'connection_status']
+        fields = ['name', 'description', 'connection_status']
 
 
 class PowerPortFilter(DeviceComponentFilterSet):
@@ -730,7 +731,7 @@ class PowerPortFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = PowerPort
-        fields = ['name', 'connection_status']
+        fields = ['name', 'description', 'connection_status']
 
 
 class PowerOutletFilter(DeviceComponentFilterSet):
@@ -742,7 +743,7 @@ class PowerOutletFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = PowerOutlet
-        fields = ['name', 'connection_status']
+        fields = ['name', 'description', 'connection_status']
 
 
 class InterfaceFilter(django_filters.FilterSet):
@@ -797,13 +798,14 @@ class InterfaceFilter(django_filters.FilterSet):
 
     class Meta:
         model = Interface
-        fields = ['name', 'connection_status', 'form_factor', 'enabled', 'mtu', 'mgmt_only']
+        fields = ['name', 'connection_status', 'form_factor', 'enabled', 'mtu', 'mgmt_only', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(name__icontains=value)
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
         ).distinct()
 
     def filter_device(self, queryset, name, value):
@@ -861,7 +863,7 @@ class FrontPortFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = FrontPort
-        fields = ['name', 'type']
+        fields = ['name', 'type', 'description']
 
 
 class RearPortFilter(DeviceComponentFilterSet):
@@ -873,14 +875,14 @@ class RearPortFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = RearPort
-        fields = ['name', 'type']
+        fields = ['name', 'type', 'description']
 
 
 class DeviceBayFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = DeviceBay
-        fields = ['name']
+        fields = ['name', 'description']
 
 
 class InventoryItemFilter(DeviceComponentFilterSet):

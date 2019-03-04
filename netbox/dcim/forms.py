@@ -1854,7 +1854,7 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsolePort
         fields = [
-            'device', 'name', 'tags',
+            'device', 'name', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -1864,6 +1864,10 @@ class ConsolePortForm(BootstrapMixin, forms.ModelForm):
 class ConsolePortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
     )
     tags = TagField(
         required=False
@@ -1882,7 +1886,7 @@ class ConsoleServerPortForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'device', 'name', 'tags',
+            'device', 'name', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -1893,9 +1897,29 @@ class ConsoleServerPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
     tags = TagField(
         required=False
     )
+
+
+class ConsoleServerPortBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=ConsoleServerPort.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = [
+            'description',
+        ]
 
 
 class ConsoleServerPortBulkRenameForm(BulkRenameForm):
@@ -1924,7 +1948,7 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerPort
         fields = [
-            'device', 'name', 'tags',
+            'device', 'name', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -1934,6 +1958,10 @@ class PowerPortForm(BootstrapMixin, forms.ModelForm):
 class PowerPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
     )
     tags = TagField(
         required=False
@@ -1952,7 +1980,7 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerOutlet
         fields = [
-            'device', 'name', 'tags',
+            'device', 'name', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
@@ -1963,9 +1991,29 @@ class PowerOutletCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
     tags = TagField(
         required=False
     )
+
+
+class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=PowerOutlet.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+    description = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = [
+            'description',
+        ]
 
 
 class PowerOutletBulkRenameForm(BulkRenameForm):
@@ -2781,7 +2829,7 @@ class DeviceBayForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = DeviceBay
         fields = [
-            'device', 'name', 'tags',
+            'device', 'name', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),

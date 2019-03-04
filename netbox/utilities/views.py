@@ -157,7 +157,7 @@ class ObjectListView(View):
 
         # Construct queryset for tags list
         if hasattr(model, 'tags'):
-            tags = model.tags.annotate(count=Count('taggit_taggeditem_items')).order_by('name')
+            tags = model.tags.annotate(count=Count('extras_taggeditem_items')).order_by('name')
         else:
             tags = None
 

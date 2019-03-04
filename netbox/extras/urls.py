@@ -1,6 +1,8 @@
 from django.conf.urls import url
 
 from extras import views
+from extras.models import Tag
+
 
 app_name = 'extras'
 urlpatterns = [
@@ -11,6 +13,7 @@ urlpatterns = [
     url(r'^tags/(?P<slug>[\w-]+)/$', views.TagView.as_view(), name='tag'),
     url(r'^tags/(?P<slug>[\w-]+)/edit/$', views.TagEditView.as_view(), name='tag_edit'),
     url(r'^tags/(?P<slug>[\w-]+)/delete/$', views.TagDeleteView.as_view(), name='tag_delete'),
+    url(r'^tags/(?P<slug>[\w-]+)/changelog/$', views.ObjectChangeLogView.as_view(), name='tag_changelog', kwargs={'model': Tag}),
 
     # Config contexts
     url(r'^config-contexts/$', views.ConfigContextListView.as_view(), name='configcontext_list'),

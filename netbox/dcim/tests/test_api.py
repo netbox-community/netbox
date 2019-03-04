@@ -1791,6 +1791,16 @@ class DeviceTest(APITestCase):
             site=self.site1,
             cluster=self.cluster1
         )
+        self.device_with_context_data = Device.objects.create(
+            device_type=self.devicetype1,
+            device_role=self.devicerole1,
+            name='Device with context data',
+            site=self.site1,
+            local_context_data={
+                'A': 1,
+                'B': 2
+            }
+        )
 
     def test_get_device(self):
 
@@ -1806,7 +1816,7 @@ class DeviceTest(APITestCase):
         url = reverse('dcim-api:device-list')
         response = self.client.get(url, **self.header)
 
-        self.assertEqual(response.data['count'], 3)
+        self.assertEqual(response.data['count'], 4)
 
     def test_list_devices_brief(self):
 
@@ -1832,7 +1842,7 @@ class DeviceTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Device.objects.count(), 4)
+        self.assertEqual(Device.objects.count(), 5)
         device4 = Device.objects.get(pk=response.data['id'])
         self.assertEqual(device4.device_type_id, data['device_type'])
         self.assertEqual(device4.device_role_id, data['device_role'])
@@ -1867,7 +1877,7 @@ class DeviceTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Device.objects.count(), 6)
+        self.assertEqual(Device.objects.count(), 7)
         self.assertEqual(response.data[0]['name'], data[0]['name'])
         self.assertEqual(response.data[1]['name'], data[1]['name'])
         self.assertEqual(response.data[2]['name'], data[2]['name'])
@@ -1891,7 +1901,7 @@ class DeviceTest(APITestCase):
         response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(Device.objects.count(), 3)
+        self.assertEqual(Device.objects.count(), 4)
         device1 = Device.objects.get(pk=response.data['id'])
         self.assertEqual(device1.device_type_id, data['device_type'])
         self.assertEqual(device1.device_role_id, data['device_role'])
@@ -1906,7 +1916,21 @@ class DeviceTest(APITestCase):
         response = self.client.delete(url, **self.header)
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Device.objects.count(), 2)
+        self.assertEqual(Device.objects.count(), 3)
+
+    def test_config_context_included_by_default_in_list_view(self):
+
+        url = reverse('dcim-api:device-list') + '?slug=device-with-context-data'
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['results'][0].get('config_context', {}).get('A'), 1)
+
+    def test_config_context_excluded(self):
+
+        url = reverse('dcim-api:device-list') + '?exclude=config_context'
+        response = self.client.get(url, **self.header)
+
+        self.assertFalse('config_context' in response.data['results'][0])
 
 
 class ConsolePortTest(APITestCase):

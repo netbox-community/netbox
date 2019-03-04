@@ -1,3 +1,30 @@
+v2.6.0 (FUTURE)
+
+## Changes
+
+### API Device/VM Config Context Included by Default ([#2350](https://github.com/digitalocean/netbox/issues/2350))
+
+The rendered Config Context for Devices and VMs is now included by default in all API results (list and detail views).
+Previously the rendered Config Context was only available in the detail view for objects. Users with large amounts of
+context data may observe a performance drop when returning multiple objects. To combat this, in cases where the rendered
+Config Context is not needed, the query parameter `?exclude=config_context` may be added to the request as to remove
+the Config Context from being included in any results.
+
+### Tag Permissions Changed
+
+NetBox now makes use of its own `Tag` model instead of the vanilla model which ships with django-taggit. This new model
+lives in the `extras` app and thus any permissions that you may have configured using "Taggit | Tag" should be changed
+to now use "Extras | Tag."
+
+## Enhancements
+
+* [#2324](https://github.com/digitalocean/netbox/issues/2324) - Add color option for tags
+* [#2643](https://github.com/digitalocean/netbox/issues/2643) - Add `description` field to console/power components and device bays
+* [#2791](https://github.com/digitalocean/netbox/issues/2791) - Add a comment field for tags
+* [#2926](https://github.com/digitalocean/netbox/issues/2926) - Add changelog to the Tag model
+
+---
+
 v2.5.8 (FUTURE)
 
 ## Bug Fixes

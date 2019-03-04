@@ -12,8 +12,10 @@ from django.db.models import F, Q
 from django.http import HttpResponse
 from django.template import Template, Context
 from django.urls import reverse
+from taggit.models import TagBase, GenericTaggedItemBase
 
 from dcim.constants import CONNECTION_STATUS_CONNECTED
+from utilities.fields import ColorField
 from utilities.utils import deepmerge, foreground_color
 from .constants import *
 from .querysets import ConfigContextQuerySet
@@ -859,4 +861,38 @@ class ObjectChange(models.Model):
             self.related_object_id,
             self.object_repr,
             self.object_data,
+        )
+
+
+#
+# Tags
+#
+
+# TODO: figure out a way around this circular import for ObjectChange
+from utilities.models import ChangeLoggedModel  # noqa: E402
+
+
+class Tag(TagBase, ChangeLoggedModel):
+    color = ColorField(
+        default='9e9e9e'
+    )
+    comments = models.TextField(
+        blank=True,
+        default=''
+    )
+
+    def get_absolute_url(self):
+        return reverse('extras:tag', args=[self.slug])
+
+
+class TaggedItem(GenericTaggedItemBase):
+    tag = models.ForeignKey(
+        to=Tag,
+        related_name="%(app_label)s_%(class)s_items",
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        index_together = (
+            ("content_type", "object_id")
         )

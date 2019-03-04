@@ -15,7 +15,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
 
-from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange
+from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
 from utilities.fields import ColorField
 from utilities.managers import NaturalOrderingManager
 from utilities.models import ChangeLoggedModel
@@ -46,6 +46,10 @@ class ComponentTemplateModel(models.Model):
 
 
 class ComponentModel(models.Model):
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
 
     class Meta:
         abstract = True
@@ -319,7 +323,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     )
 
     objects = NaturalOrderingManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
@@ -566,7 +570,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     )
 
     objects = NaturalOrderingManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'site', 'group_name', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
@@ -914,7 +918,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'comments',
@@ -1455,7 +1459,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     )
 
     objects = NaturalOrderingManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
@@ -1743,9 +1747,9 @@ class ConsolePort(CableTermination, ComponentModel):
     )
 
     objects = DeviceComponentManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name']
+    csv_headers = ['device', 'name', 'description']
 
     class Meta:
         ordering = ['device', 'name']
@@ -1761,6 +1765,7 @@ class ConsolePort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.description,
         )
 
 
@@ -1786,9 +1791,9 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     )
 
     objects = DeviceComponentManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name']
+    csv_headers = ['device', 'name', 'description']
 
     class Meta:
         unique_together = ['device', 'name']
@@ -1803,6 +1808,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.description,
         )
 
 
@@ -1835,13 +1841,13 @@ class PowerPort(CableTermination, ComponentModel):
     )
 
     objects = DeviceComponentManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name']
 
     class Meta:
         ordering = ['device', 'name']
-        unique_together = ['device', 'name']
+        unique_together = ['device', 'name', 'description']
 
     def __str__(self):
         return self.name
@@ -1853,6 +1859,7 @@ class PowerPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.description,
         )
 
 
@@ -1878,12 +1885,12 @@ class PowerOutlet(CableTermination, ComponentModel):
     )
 
     objects = DeviceComponentManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name']
 
     class Meta:
-        unique_together = ['device', 'name']
+        unique_together = ['device', 'name', 'description']
 
     def __str__(self):
         return self.name
@@ -1895,6 +1902,7 @@ class PowerOutlet(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.description,
         )
 
 
@@ -1973,10 +1981,6 @@ class Interface(CableTermination, ComponentModel):
         verbose_name='OOB Management',
         help_text='This interface is used only for out-of-band management'
     )
-    description = models.CharField(
-        max_length=100,
-        blank=True
-    )
     mode = models.PositiveSmallIntegerField(
         choices=IFACE_MODE_CHOICES,
         blank=True,
@@ -1998,7 +2002,7 @@ class Interface(CableTermination, ComponentModel):
     )
 
     objects = InterfaceManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'device', 'virtual_machine', 'name', 'lag', 'form_factor', 'enabled', 'mac_address', 'mtu', 'mgmt_only',
@@ -2193,13 +2197,9 @@ class FrontPort(CableTermination, ComponentModel):
         default=1,
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
-    description = models.CharField(
-        max_length=100,
-        blank=True
-    )
 
     objects = DeviceComponentManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'rear_port', 'rear_port_position', 'description']
 
@@ -2259,13 +2259,9 @@ class RearPort(CableTermination, ComponentModel):
         default=1,
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
-    description = models.CharField(
-        max_length=100,
-        blank=True
-    )
 
     objects = DeviceComponentManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'positions', 'description']
 
@@ -2312,9 +2308,9 @@ class DeviceBay(ComponentModel):
     )
 
     objects = DeviceComponentManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'installed_device']
+    csv_headers = ['device', 'name', 'installed_device', 'description']
 
     class Meta:
         ordering = ['device', 'name']
@@ -2331,6 +2327,7 @@ class DeviceBay(ComponentModel):
             self.device.identifier,
             self.name,
             self.installed_device.identifier if self.installed_device else None,
+            self.description,
         )
 
     def clean(self):
@@ -2400,12 +2397,8 @@ class InventoryItem(ComponentModel):
         default=False,
         verbose_name='Discovered'
     )
-    description = models.CharField(
-        max_length=100,
-        blank=True
-    )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
@@ -2452,7 +2445,7 @@ class VirtualChassis(ChangeLoggedModel):
         blank=True
     )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['master', 'domain']
 
