@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count
 from django.http import Http404, HttpResponse
@@ -9,8 +11,8 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 
 from extras import filters
 from extras.models import (
-    ConfigContext, CustomField, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
-    Tag
+    ConfigContext, CustomField, CustomFieldChoice, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
+    Tag,
 )
 from extras.reports import get_report, get_reports
 from utilities.api import FieldChoicesViewSet, IsAuthenticatedOrLoginNotRequired, ModelViewSet
@@ -26,6 +28,36 @@ class ExtrasFieldChoicesViewSet(FieldChoicesViewSet):
         (CustomField, ['type']),
         (Graph, ['type']),
     )
+
+
+#
+# Custom field choices
+#
+
+class CustomFieldChoicesViewSet(ViewSet):
+    """
+    """
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
+
+    def __init__(self, *args, **kwargs):
+        super(CustomFieldChoicesViewSet, self).__init__(*args, **kwargs)
+
+        self._fields = OrderedDict()
+
+        for cfc in CustomFieldChoice.objects.all():
+            self._fields.setdefault(cfc.field.name, {})
+            self._fields[cfc.field.name][cfc.value] = cfc.pk
+
+    def list(self, request):
+        return Response(self._fields)
+
+    def retrieve(self, request, pk):
+        if pk not in self._fields:
+            raise Http404
+        return Response(self._fields[pk])
+
+    def get_view_name(self):
+        return "Custom Field choices"
 
 
 #

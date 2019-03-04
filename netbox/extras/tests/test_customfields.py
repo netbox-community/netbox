@@ -6,9 +6,10 @@ from django.urls import reverse
 from rest_framework import status
 
 from dcim.models import Site
-from extras.constants import CF_TYPE_TEXT, CF_TYPE_INTEGER, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_SELECT, CF_TYPE_URL
+from extras.constants import CF_TYPE_TEXT, CF_TYPE_INTEGER, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_SELECT, CF_TYPE_URL, CF_TYPE_SELECT
 from extras.models import CustomField, CustomFieldValue, CustomFieldChoice
 from utilities.testing import APITestCase
+from virtualization.models import VirtualMachine
 
 
 class CustomFieldTest(TestCase):
@@ -299,3 +300,33 @@ class CustomFieldAPITest(APITestCase):
         self.assertEqual(response.data['custom_fields'].get('magic_choice'), data['custom_fields']['magic_choice'])
         cfv = self.site.custom_field_values.get(field=self.cf_select)
         self.assertEqual(cfv.value.pk, data['custom_fields']['magic_choice'])
+
+
+class CustomFieldChoiceAPITest(APITestCase):
+    def setUp(self):
+        super().setUp()
+
+        vm_content_type = ContentType.objects.get_for_model(VirtualMachine)
+
+        self.cf_1 = CustomField.objects.create(name="cf_1", type=CF_TYPE_SELECT)
+        self.cf_2 = CustomField.objects.create(name="cf_2", type=CF_TYPE_SELECT)
+
+        self.cf_choice_1 = CustomFieldChoice.objects.create(field=self.cf_1, value="cf_field_1", weight=100)
+        self.cf_choice_2 = CustomFieldChoice.objects.create(field=self.cf_1, value="cf_field_2", weight=50)
+        self.cf_choice_3 = CustomFieldChoice.objects.create(field=self.cf_2, value="cf_field_3", weight=10)
+
+    def test_list_cfc(self):
+        url = reverse('extras-api:custom-field-choice-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data[self.cf_1.name]), 2)
+        self.assertEqual(len(response.data[self.cf_2.name]), 1)
+
+        self.assertTrue(self.cf_choice_1.value in response.data[self.cf_1.name])
+        self.assertTrue(self.cf_choice_2.value in response.data[self.cf_1.name])
+        self.assertTrue(self.cf_choice_3.value in response.data[self.cf_2.name])
+
+        self.assertEqual(self.cf_choice_1.pk, response.data[self.cf_1.name][self.cf_choice_1.value])
+        self.assertEqual(self.cf_choice_2.pk, response.data[self.cf_1.name][self.cf_choice_2.value])
+        self.assertEqual(self.cf_choice_3.pk, response.data[self.cf_2.name][self.cf_choice_3.value])
