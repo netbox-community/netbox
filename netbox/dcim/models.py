@@ -2423,7 +2423,7 @@ class InventoryItem(ComponentModel):
 
     def to_csv(self):
         return (
-            self.device.name or '{' + self.device.pk + '}',
+            self.device.name or '{{{}}}'.format(self.device.pk),
             self.name,
             self.manufacturer.name if self.manufacturer else None,
             self.part_id,
