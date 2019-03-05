@@ -54,7 +54,7 @@
     {% endif %}
 
     {# Actions #}
-    <td class="text-right">
+    <td class="text-right noprint">
         {% if frontport.cable %}
             {% include 'dcim/inc/cable_toggle_buttons.html' with cable=frontport.cable %}
         {% elif perms.dcim.add_cable %}

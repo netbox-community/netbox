@@ -2,7 +2,7 @@
 {% load helpers %}
 
 {% block header %}
-    <div class="row">
+    <div class="row noprint">
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'ipam:vlan_list' %}">VLANs</a></li>
@@ -28,7 +28,7 @@
         </form>
         </div>
     </div>
-    <div class="pull-right">
+    <div class="pull-right noprint">
         {% if perms.ipam.change_vlan %}
             <a href="{% url 'ipam:vlan_edit' pk=vlan.pk %}" class="btn btn-warning">
                 <span class="fa fa-pencil" aria-hidden="true"></span>
@@ -143,7 +143,7 @@
                 </div>
                 {% include 'responsive_table.html' with table=prefix_table %}
                 {% if perms.ipam.add_prefix %}
-                    <div class="panel-footer text-right">
+                    <div class="panel-footer text-right noprint">
                         <a href="{% url 'ipam:prefix_add' %}?{% if vlan.tenant %}tenant={{ vlan.tenant.pk }}&{% endif %}site={{ vlan.site.pk }}&vlan={{ vlan.pk }}" class="btn btn-primary btn-xs">
                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                             Add a prefix

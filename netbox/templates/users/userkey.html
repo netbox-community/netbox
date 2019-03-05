@@ -4,7 +4,7 @@
 
 {% block usercontent %}
     {% if userkey %}
-        <div class="pull-right">
+        <div class="pull-right noprint">
             <a href="{% url 'user:userkey_edit' %}" class="btn btn-warning">
                 <span class="fa fa-pencil" aria-hidden="true"></span>
                 Edit user key
@@ -28,7 +28,7 @@
         <pre>{{ userkey.public_key }}</pre>
         <hr />
         {% if userkey.session_key %}
-            <div class="pull-right">
+            <div class="pull-right noprint">
                 <a href="{% url 'user:sessionkey_delete' %}" class="btn btn-danger">
                     <span class="fa fa-trash" aria-hidden="true"></span>
                     Delete session key

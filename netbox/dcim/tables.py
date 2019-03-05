@@ -196,7 +196,7 @@ class RegionTable(BaseTable):
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(
         template_code=REGION_ACTIONS,
-        attrs={'td': {'class': 'text-right'}},
+        attrs={'td': {'class': 'text-right noprint'}},
         verbose_name=''
     )
 
@@ -239,7 +239,7 @@ class RackGroupTable(BaseTable):
     slug = tables.Column()
     actions = tables.TemplateColumn(
         template_code=RACKGROUP_ACTIONS,
-        attrs={'td': {'class': 'text-right'}},
+        attrs={'td': {'class': 'text-right noprint'}},
         verbose_name=''
     )
 
@@ -258,7 +258,7 @@ class RackRoleTable(BaseTable):
     rack_count = tables.Column(verbose_name='Racks')
     color = tables.TemplateColumn(COLOR_LABEL, verbose_name='Color')
     slug = tables.Column(verbose_name='Slug')
-    actions = tables.TemplateColumn(template_code=RACKROLE_ACTIONS, attrs={'td': {'class': 'text-right'}},
+    actions = tables.TemplateColumn(template_code=RACKROLE_ACTIONS, attrs={'td': {'class': 'text-right noprint'}},
                                     verbose_name='')
 
     class Meta(BaseTable.Meta):
@@ -309,7 +309,7 @@ class RackReservationTable(BaseTable):
     rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')])
     unit_list = tables.Column(orderable=False, verbose_name='Units')
     actions = tables.TemplateColumn(
-        template_code=RACKRESERVATION_ACTIONS, attrs={'td': {'class': 'text-right'}}, verbose_name=''
+        template_code=RACKRESERVATION_ACTIONS, attrs={'td': {'class': 'text-right noprint'}}, verbose_name=''
     )
 
     class Meta(BaseTable.Meta):
@@ -327,7 +327,7 @@ class ManufacturerTable(BaseTable):
     devicetype_count = tables.Column(verbose_name='Device Types')
     platform_count = tables.Column(verbose_name='Platforms')
     slug = tables.Column(verbose_name='Slug')
-    actions = tables.TemplateColumn(template_code=MANUFACTURER_ACTIONS, attrs={'td': {'class': 'text-right'}},
+    actions = tables.TemplateColumn(template_code=MANUFACTURER_ACTIONS, attrs={'td': {'class': 'text-right noprint'}},
                                     verbose_name='')
 
     class Meta(BaseTable.Meta):
@@ -463,7 +463,7 @@ class DeviceRoleTable(BaseTable):
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(
         template_code=DEVICEROLE_ACTIONS,
-        attrs={'td': {'class': 'text-right'}},
+        attrs={'td': {'class': 'text-right noprint'}},
         verbose_name=''
     )
 
@@ -492,7 +492,7 @@ class PlatformTable(BaseTable):
     )
     actions = tables.TemplateColumn(
         template_code=PLATFORM_ACTIONS,
-        attrs={'td': {'class': 'text-right'}},
+        attrs={'td': {'class': 'text-right noprint'}},
         verbose_name=''
     )
 
@@ -779,7 +779,7 @@ class VirtualChassisTable(BaseTable):
     member_count = tables.Column(verbose_name='Members')
     actions = tables.TemplateColumn(
         template_code=VIRTUALCHASSIS_ACTIONS,
-        attrs={'td': {'class': 'text-right'}},
+        attrs={'td': {'class': 'text-right noprint'}},
         verbose_name=''
     )
 

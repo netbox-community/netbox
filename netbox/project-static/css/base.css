@@ -49,6 +49,23 @@ footer p {
     }
 }
 
+.noprint {
+
+}
+
+@media print {
+    body {
+        padding-top: 0px;
+    }
+    .noprint {
+        display: none !important;
+    }
+
+    a[href]:after {
+        content: none !important;
+    }
+}
+
 /* Collapse the nav menu on displays less than 960px wide */
 @media (max-width: 959px) {
     .navbar-header {
