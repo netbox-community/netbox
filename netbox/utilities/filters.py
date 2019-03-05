@@ -4,6 +4,15 @@ from django.db.models import Q
 from taggit.models import Tag
 
 
+class TreeNodeMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
+    """
+    Filters for a set of Models, including all descendant models within a Tree.  Example: [<Region: R1>,<Region: R2>]
+    """
+    def filter(self, qs, value):
+        value = [node.get_descendants(include_self=True) for node in value]
+        return super().filter(qs, value)
+
+
 class NumericInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
     """
     Filters for a set of numeric values. Example: id__in=100,200,300
