@@ -359,7 +359,7 @@ class ExportTemplate(models.Model):
     )
     template_code = models.TextField()
     mime_type = models.CharField(
-        max_length=15,
+        max_length=50,
         blank=True
     )
     file_extension = models.CharField(

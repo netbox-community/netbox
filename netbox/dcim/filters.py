@@ -1,6 +1,5 @@
 import django_filters
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from netaddr import EUI
 from netaddr.core import AddrFormatError
@@ -8,7 +7,9 @@ from netaddr.core import AddrFormatError
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.constants import COLOR_CHOICES
-from utilities.filters import NameSlugSearchFilterSet, NullableCharFieldFilter, NumericInFilter, TagFilter
+from utilities.filters import (
+    NameSlugSearchFilterSet, NullableCharFieldFilter, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
+)
 from virtualization.models import Cluster
 from .constants import *
 from .models import (
@@ -49,14 +50,15 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         choices=SITE_STATUS_CHOICES,
         null_value=None
     )
-    region_id = django_filters.NumberFilter(
-        method='filter_region',
-        field_name='pk',
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='region__in',
         label='Region (ID)',
     )
-    region = django_filters.CharFilter(
-        method='filter_region',
-        field_name='slug',
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='region__in',
+        to_field_name='slug',
         label='Region (slug)',
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
@@ -94,16 +96,6 @@ class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
         except ValueError:
             pass
         return queryset.filter(qs_filter)
-
-    def filter_region(self, queryset, name, value):
-        try:
-            region = Region.objects.get(**{name: value})
-        except ObjectDoesNotExist:
-            return queryset.none()
-        return queryset.filter(
-            Q(region=region) |
-            Q(region__in=region.get_descendants())
-        )
 
 
 class RackGroupFilter(NameSlugSearchFilterSet):
@@ -513,14 +505,15 @@ class DeviceFilter(CustomFieldFilterSet):
     )
     name = NullableCharFieldFilter()
     asset_tag = NullableCharFieldFilter()
-    region_id = django_filters.NumberFilter(
-        method='filter_region',
-        field_name='pk',
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='site__region__in',
         label='Region (ID)',
     )
-    region = django_filters.CharFilter(
-        method='filter_region',
-        field_name='slug',
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='site__region__in',
+        to_field_name='slug',
         label='Region (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
@@ -618,16 +611,6 @@ class DeviceFilter(CustomFieldFilterSet):
             Q(asset_tag__icontains=value.strip()) |
             Q(comments__icontains=value)
         ).distinct()
-
-    def filter_region(self, queryset, name, value):
-        try:
-            region = Region.objects.get(**{name: value})
-        except ObjectDoesNotExist:
-            return queryset.none()
-        return queryset.filter(
-            Q(site__region=region) |
-            Q(site__region__in=region.get_descendants())
-        )
 
     def _mac_address(self, queryset, name, value):
         value = value.strip()

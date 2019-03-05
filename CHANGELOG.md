@@ -31,10 +31,15 @@ v2.5.8 (FUTURE)
 ## Bug Fixes
 
 * [#2705](https://github.com/digitalocean/netbox/issues/2705) - Fix endpoint grouping in API docs
+* [#2781](https://github.com/digitalocean/netbox/issues/2781) - Fix filtering of sites/devices/VMs by multiple regions
 * [#2923](https://github.com/digitalocean/netbox/issues/2923) - Provider filter form's site field should be blank by default
 * [#2938](https://github.com/digitalocean/netbox/issues/2938) - Enforce deterministic ordering of device components returned by API
 * [#2939](https://github.com/digitalocean/netbox/issues/2939) - Exclude circuit terminations from API interface connections endpoint
 * [#2952](https://github.com/digitalocean/netbox/issues/2952) - Added the `slug` field to the Tenant filter for use in the API and search function
+* [#2954](https://github.com/digitalocean/netbox/issues/2954) - Remove trailing slashes to fix root/template paths on Windows
+* [#2961](https://github.com/digitalocean/netbox/issues/2961) - Prevent exception when exporting inventory items belonging to unnamed devices
+* [#2962](https://github.com/digitalocean/netbox/issues/2962) - Increase ExportTemplate `mime_type` field length
+* [#2966](https://github.com/digitalocean/netbox/issues/2966) - Accept `null` cable length_unit via API
 
 ---
 
