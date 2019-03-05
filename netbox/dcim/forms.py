@@ -12,8 +12,8 @@ from timezone_field import TimeZoneFormField
 
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from ipam.models import IPAddress, VLAN, VLANGroup
-from tenancy.forms import TenancyForm
-from tenancy.models import Tenant, TenantGroup
+from tenancy.forms import TenancyForm, TenancyFilterForm
+from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
     BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField,
@@ -256,8 +256,10 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         ]
 
 
-class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Site
+    # Order the form fields, fields not listed are appended
+    field_order = ['q', 'status', 'region']
     q = forms.CharField(
         required=False,
         label='Search'
@@ -274,29 +276,6 @@ class SiteFilterForm(BootstrapMixin, CustomFieldFilterForm):
         widget=APISelectMultiple(
             api_url="/api/dcim/regions/",
             value_field="slug",
-        )
-    )
-    tenant_group = FilterChoiceField(
-        queryset=TenantGroup.objects.all(),
-        to_field_name='slug',
-        null_label='-- None --',
-        widget=APISelectMultiple(
-            api_url="/api/tenancy/tenant-groups/",
-            value_field="slug",
-            null_option=True,
-            filter_for={
-                'tenant': 'group'
-            }
-        )
-    )
-    tenant = FilterChoiceField(
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        null_label='-- None --',
-        widget=APISelectMultiple(
-            api_url="/api/tenancy/tenants/",
-            value_field="slug",
-            null_option=True,
         )
     )
 
@@ -609,8 +588,10 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
         ]
 
 
-class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Rack
+    # Order the form fields, fields not listed are appended
+    field_order = ['q', 'site', 'group_id']
     q = forms.CharField(
         required=False,
         label='Search'
@@ -629,29 +610,6 @@ class RackFilterForm(BootstrapMixin, CustomFieldFilterForm):
         null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/dcim/rack-groups/",
-            null_option=True,
-        )
-    )
-    tenant_group = FilterChoiceField(
-        queryset=TenantGroup.objects.all(),
-        to_field_name='slug',
-        null_label='-- None --',
-        widget=APISelectMultiple(
-            api_url="/api/tenancy/tenant-groups/",
-            value_field="slug",
-            null_option=True,
-            filter_for={
-                'tenant': 'group'
-            }
-        )
-    )
-    tenant = FilterChoiceField(
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        null_label='-- None --',
-        widget=APISelectMultiple(
-            api_url="/api/tenancy/tenants/",
-            value_field="slug",
             null_option=True,
         )
     )
@@ -715,7 +673,9 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
         return unit_choices
 
 
-class RackReservationFilterForm(BootstrapMixin, forms.Form):
+class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm, forms.Form):
+    # Order the form fields, fields not listed are appended
+    field_order = ['q', 'site', 'group_id']
     q = forms.CharField(
         required=False,
         label='Search'
@@ -734,29 +694,6 @@ class RackReservationFilterForm(BootstrapMixin, forms.Form):
         null_label='-- None --',
         widget=APISelectMultiple(
             api_url="/api/dcim/rack-groups/",
-            null_option=True,
-        )
-    )
-    tenant_group = FilterChoiceField(
-        queryset=TenantGroup.objects.all(),
-        to_field_name='slug',
-        null_label='-- None --',
-        widget=APISelectMultiple(
-            api_url="/api/tenancy/tenant-groups/",
-            value_field="slug",
-            null_option=True,
-            filter_for={
-                'tenant': 'group'
-            }
-        )
-    )
-    tenant = FilterChoiceField(
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        null_label='-- None --',
-        widget=APISelectMultiple(
-            api_url="/api/tenancy/tenants/",
-            value_field="slug",
             null_option=True,
         )
     )
@@ -1682,8 +1619,10 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         ]
 
 
-class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class DeviceFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Device
+    # Order the form fields, fields not listed are appended
+    field_order = ['q', 'region', 'site', 'rack_group_id', 'rack_id', 'role']
     q = forms.CharField(
         required=False,
         label='Search'
@@ -1738,29 +1677,6 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
         to_field_name='slug',
         widget=APISelectMultiple(
             api_url="/api/dcim/device-roles/",
-            value_field="slug",
-            null_option=True,
-        )
-    )
-    tenant_group = FilterChoiceField(
-        queryset=TenantGroup.objects.all(),
-        to_field_name='slug',
-        null_label='-- None --',
-        widget=APISelectMultiple(
-            api_url="/api/tenancy/tenant-groups/",
-            value_field="slug",
-            null_option=True,
-            filter_for={
-                'tenant': 'group'
-            }
-        )
-    )
-    tenant = FilterChoiceField(
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        null_label='-- None --',
-        widget=APISelectMultiple(
-            api_url="/api/tenancy/tenants/",
             value_field="slug",
             null_option=True,
         )

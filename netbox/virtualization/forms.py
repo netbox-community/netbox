@@ -7,7 +7,7 @@ from dcim.forms import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
 from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
 from ipam.models import IPAddress
-from tenancy.forms import TenancyForm
+from tenancy.forms import TenancyForm, TenancyFilterForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
@@ -336,7 +336,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     class Meta:
         model = VirtualMachine
         fields = [
-            'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
+            'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant_group', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
             'vcpus', 'memory', 'disk', 'comments', 'tags', 'local_context_data',
         ]
         help_texts = {
@@ -520,8 +520,10 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
         ]
 
 
-class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = VirtualMachine
+    # Order the form fields, fields not listed are appended
+    field_order = ['q', 'cluster_group', 'cluster_type', 'cluster_id', 'region', 'site']
     q = forms.CharField(
         required=False,
         label='Search'
@@ -590,29 +592,6 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
         choices=VM_STATUS_CHOICES,
         required=False,
         widget=StaticSelect2Multiple()
-    )
-    tenant_group = FilterChoiceField(
-        queryset=TenantGroup.objects.all(),
-        to_field_name='slug',
-        null_label='-- None --',
-        widget=APISelectMultiple(
-            api_url="/api/tenancy/tenant-groups/",
-            value_field="slug",
-            null_option=True,
-            filter_for={
-                'tenant': 'group'
-            }
-        )
-    )
-    tenant = FilterChoiceField(
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        null_label='-- None --',
-        widget=APISelectMultiple(
-            api_url='/api/tenancy/tenants/',
-            value_field="slug",
-            null_option=True,
-        )
     )
     platform = FilterChoiceField(
         queryset=Platform.objects.all(),

@@ -6,14 +6,14 @@ from netaddr.core import AddrFormatError
 
 from dcim.models import Site, Device, Interface
 from extras.filters import CustomFieldFilterSet
-from tenancy.models import Tenant, TenantGroup
+from tenancy.filters import TenancyFilterSet
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
 from virtualization.models import VirtualMachine
 from .constants import IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, PREFIX_STATUS_CHOICES, VLAN_STATUS_CHOICES
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 
-class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
+class VRFFilter(TenancyFilterSet, CustomFieldFilterSet, django_filters.FilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -21,28 +21,6 @@ class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
-    )
-    tenant_group_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__group__id',
-        queryset=TenantGroup.objects.all(),
-        to_field_name='id',
-        label='Tenant Group (ID)',
-    )
-    tenant_group = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__group__slug',
-        queryset=TenantGroup.objects.all(),
-        to_field_name='slug',
-        label='Tenant Group (slug)',
-    )
-    tenant_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Tenant.objects.all(),
-        label='Tenant (ID)',
-    )
-    tenant = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__slug',
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        label='Tenant (slug)',
     )
     tag = TagFilter()
 
@@ -119,7 +97,7 @@ class RoleFilter(NameSlugSearchFilterSet):
         fields = ['name', 'slug']
 
 
-class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
+class PrefixFilter(TenancyFilterSet, CustomFieldFilterSet, django_filters.FilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -157,28 +135,6 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         queryset=VRF.objects.all(),
         to_field_name='rd',
         label='VRF (RD)',
-    )
-    tenant_group_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__group__id',
-        queryset=TenantGroup.objects.all(),
-        to_field_name='id',
-        label='Tenant Group (ID)',
-    )
-    tenant_group = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__group__slug',
-        queryset=TenantGroup.objects.all(),
-        to_field_name='slug',
-        label='Tenant Group (slug)',
-    )
-    tenant_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Tenant.objects.all(),
-        label='Tenant (ID)',
-    )
-    tenant = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__slug',
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        label='Tenant (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
@@ -278,7 +234,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         return queryset.filter(prefix__net_mask_length=value)
 
 
-class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
+class IPAddressFilter(TenancyFilterSet, CustomFieldFilterSet, django_filters.FilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -308,28 +264,6 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
         queryset=VRF.objects.all(),
         to_field_name='rd',
         label='VRF (RD)',
-    )
-    tenant_group_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__group__id',
-        queryset=TenantGroup.objects.all(),
-        to_field_name='id',
-        label='Tenant Group (ID)',
-    )
-    tenant_group = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__group__slug',
-        queryset=TenantGroup.objects.all(),
-        to_field_name='slug',
-        label='Tenant Group (slug)',
-    )
-    tenant_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Tenant.objects.all(),
-        label='Tenant (ID)',
-    )
-    tenant = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__slug',
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        label='Tenant (slug)',
     )
     device = django_filters.CharFilter(
         method='filter_device',
@@ -430,7 +364,7 @@ class VLANGroupFilter(NameSlugSearchFilterSet):
         fields = ['name', 'slug']
 
 
-class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
+class VLANFilter(TenancyFilterSet, CustomFieldFilterSet, django_filters.FilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -458,28 +392,6 @@ class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
         queryset=VLANGroup.objects.all(),
         to_field_name='slug',
         label='Group',
-    )
-    tenant_group_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__group__id',
-        queryset=TenantGroup.objects.all(),
-        to_field_name='id',
-        label='Tenant Group (ID)',
-    )
-    tenant_group = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__group__slug',
-        queryset=TenantGroup.objects.all(),
-        to_field_name='slug',
-        label='Tenant Group (slug)',
-    )
-    tenant_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Tenant.objects.all(),
-        label='Tenant (ID)',
-    )
-    tenant = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__slug',
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        label='Tenant (slug)',
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Role.objects.all(),

@@ -3,7 +3,7 @@ from django.db.models import Q
 
 from dcim.models import Site
 from extras.filters import CustomFieldFilterSet
-from tenancy.models import Tenant, TenantGroup
+from tenancy.filters import TenancyFilterSet
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
 from .constants import CIRCUIT_STATUS_CHOICES
 from .models import Provider, Circuit, CircuitTermination, CircuitType
@@ -54,7 +54,7 @@ class CircuitTypeFilter(NameSlugSearchFilterSet):
         fields = ['name', 'slug']
 
 
-class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
+class CircuitFilter(CustomFieldFilterSet, TenancyFilterSet, django_filters.FilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -86,28 +86,6 @@ class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=CIRCUIT_STATUS_CHOICES,
         null_value=None
-    )
-    tenant_group_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__group__id',
-        queryset=TenantGroup.objects.all(),
-        to_field_name='id',
-        label='Tenant Group (ID)',
-    )
-    tenant_group = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__group__slug',
-        queryset=TenantGroup.objects.all(),
-        to_field_name='slug',
-        label='Tenant Group (slug)',
-    )
-    tenant_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Tenant.objects.all(),
-        label='Tenant (ID)',
-    )
-    tenant = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__slug',
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        label='Tenant (slug)',
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='terminations__site',

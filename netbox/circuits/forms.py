@@ -3,8 +3,8 @@ from taggit.forms import TagField
 
 from dcim.models import Site
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
-from tenancy.forms import TenancyForm
-from tenancy.models import Tenant, TenantGroup
+from tenancy.forms import TenancyForm, TenancyFilterForm
+from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField,
     FilterChoiceField, SmallTextarea, SlugField, StaticSelect2, StaticSelect2Multiple
@@ -265,8 +265,10 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         ]
 
 
-class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Circuit
+    # Order the form fields, fields not listed are appended
+    field_order = ['q', 'type', 'provider', 'status']
     q = forms.CharField(
         required=False,
         label='Search'
@@ -291,29 +293,6 @@ class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
         choices=CIRCUIT_STATUS_CHOICES,
         required=False,
         widget=StaticSelect2Multiple()
-    )
-    tenant_group = FilterChoiceField(
-        queryset=TenantGroup.objects.all(),
-        to_field_name='slug',
-        null_label='-- None --',
-        widget=APISelectMultiple(
-            api_url="/api/tenancy/tenant-groups/",
-            value_field="slug",
-            null_option=True,
-            filter_for={
-                'tenant': 'group'
-            }
-        )
-    )
-    tenant = FilterChoiceField(
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        null_label='-- None --',
-        widget=APISelectMultiple(
-            api_url="/api/tenancy/tenants/",
-            value_field="slug",
-            null_option=True,
-        )
     )
     site = FilterChoiceField(
         queryset=Site.objects.all(),
