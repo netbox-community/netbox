@@ -9,6 +9,7 @@ v2.5.8 (FUTURE)
 * [#2939](https://github.com/digitalocean/netbox/issues/2939) - Exclude circuit terminations from API interface connections endpoint
 * [#2952](https://github.com/digitalocean/netbox/issues/2952) - Added the `slug` field to the Tenant filter for use in the API and search function
 * [#2954](https://github.com/digitalocean/netbox/issues/2954) - Remove trailing slashes to fix root/template paths on Windows
+* [#2962](https://github.com/digitalocean/netbox/issues/2962) - Increase ExportTemplate `mime_type` field length
 
 ---
 
