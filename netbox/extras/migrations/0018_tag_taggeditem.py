@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('extras', '0016_exporttemplate_add_cable'),
+        ('extras', '0017_exporttemplate_mime_type_length'),
     ]
 
     operations = [

@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('secrets', '0005_change_logging'),
-        ('extras', '0017_tag_taggeditem'),
+        ('extras', '0018_tag_taggeditem'),
     ]
 
     operations = [
