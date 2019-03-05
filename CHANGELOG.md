@@ -11,6 +11,7 @@ v2.5.8 (FUTURE)
 * [#2954](https://github.com/digitalocean/netbox/issues/2954) - Remove trailing slashes to fix root/template paths on Windows
 * [#2961](https://github.com/digitalocean/netbox/issues/2961) - Prevent exception when exporting inventory items belonging to unnamed devices
 * [#2962](https://github.com/digitalocean/netbox/issues/2962) - Increase ExportTemplate `mime_type` field length
+* [#2966](https://github.com/digitalocean/netbox/issues/2966) - Accept `null` cable length_unit via API
 
 ---
 
