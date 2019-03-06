@@ -469,7 +469,7 @@ class TopologyMap(models.Model):
             # Add each device to the graph
             devices = []
             for query in device_set.strip(';').split(';'):  # Split regexes on semicolons
-                devices += Device.objects.filter(name__regex=query).select_related('device_role')
+                devices += Device.objects.filter(**self.get_filter(query)).select_related('device_role')
             # Remove duplicate devices
             devices = [d for d in devices if d.id not in seen]
             seen.update([d.id for d in devices])
@@ -488,7 +488,7 @@ class TopologyMap(models.Model):
         device_superset = Q()
         for device_set in self.device_sets:
             for query in device_set.split(';'):  # Split regexes on semicolons
-                device_superset = device_superset | Q(name__regex=query)
+                device_superset = device_superset | Q(**self.get_filter(query))
         devices = Device.objects.filter(*(device_superset,))
 
         # Draw edges depending on graph type
@@ -500,6 +500,13 @@ class TopologyMap(models.Model):
             self.add_power_connections(devices)
 
         return self.graph.pipe(format=img_format)
+
+    def get_filter(self, splitq):
+        if splitq.startswith('@tag:'):
+            q = splitq[5:]
+            return {"tags__name__in": q.split(',')}
+        else:
+            return {"name__regex": splitq}
 
     def add_network_connections(self, devices):
 
