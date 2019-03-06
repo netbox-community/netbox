@@ -1,0 +1,89 @@
+<table id="interfaces_vlan_table" class="table table-hover table-headings panel-body component-list"
+    style="display: none">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>LAG</th>
+            <th>Description</th>
+            <th>Mode</th>
+            <th>Untagged</th>
+            <th>Tagged</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for iface in interfaces %}
+
+
+        {% load helpers %}
+        <tr class="interface{% if not iface.enabled %} danger{% elif iface.cable.status %} success{% elif iface.cable %} info{% elif iface.is_virtual %} warning{% endif %}"
+            id="interface_{{ iface.name }}">
+
+
+            {# Icon and name #}
+            <td class="text-nowrap">
+                <span title="{{ iface.get_form_factor_display }}">
+                    <i
+                        class="fa fa-fw fa-{% if iface.mgmt_only %}wrench{% elif iface.is_lag %}align-justify{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}exchange{% endif %}"></i>
+                    <a href="{{ iface.get_absolute_url }}">{{ iface }}</a>
+                </span>
+                {% if iface.mac_address %}
+                <br /><small class="text-muted">{{ iface.mac_address }}</small>
+                {% endif %}
+            </td>
+
+            {# LAG #}
+            <td>
+                {% if iface.lag %}
+                <a href="#interface_{{ iface.lag }}" class="label label-primary"
+                    title="{{ iface.lag.description }}">{{ iface.lag }}</a>
+                {% endif %}
+            </td>
+
+            {# Description/tags #}
+            <td>
+                {% if iface.description %}
+                {{ iface.description }}<br />
+                {% endif %}
+                {% for tag in iface.tags.all %}
+                {% tag tag %}
+                {% empty %}
+                {% if not iface.description %}&mdash;{% endif %}
+                {% endfor %}
+            </td>
+
+            {# 802.1Q mode #}
+            <td>{{ iface.get_mode_display|default:"&mdash;" }}</td>
+
+
+            <td>
+
+                {% with tagged_vlans=iface.tagged_vlans.all %}
+                {% if iface.untagged_vlan and iface.untagged_vlan not in tagged_vlans %}
+                <a href="{{ iface.untagged_vlan.get_absolute_url }}"
+                    title="{{ iface.untagged_vlan.name }}">{{ iface.untagged_vlan.vid }}</a>
+                {% endif %}
+                {% endwith %}
+
+            </td>
+
+
+            <td>
+
+                {# VlanID Tagged #}
+
+                {% with tagged_vlans=iface.tagged_vlans.all %}
+                {% for vlan in tagged_vlans %}
+                <a href="{{ vlan.get_absolute_url }}" title="{{ vlan.name }}">{{ vlan.vid }}</a>,
+                {% endfor %}
+                {% endwith %}
+
+
+            </td>
+
+
+        </tr>
+
+
+        {% endfor %}
+    </tbody>
+</table>
