@@ -1,5 +1,9 @@
 v2.5.8 (FUTURE)
 
+## Enhancements
+
+* [#2435](https://github.com/digitalocean/netbox/issues/2435) - Printer friendly CSS
+
 ## Bug Fixes
 
 * [#2705](https://github.com/digitalocean/netbox/issues/2705) - Fix endpoint grouping in API docs

@@ -2,7 +2,7 @@
 {% load helpers %}
 
 {% block header %}
-    <div class="row">
+    <div class="row noprint">
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'ipam:vrf_list' %}">VRFs</a></li>
@@ -22,7 +22,7 @@
             </form>
         </div>
     </div>
-    <div class="pull-right">
+    <div class="pull-right noprint">
         {% if perms.ipam.change_vrf %}
             <a href="{% url 'ipam:vrf_edit' pk=vrf.pk %}" class="btn btn-warning">
                 <span class="fa fa-pencil" aria-hidden="true"></span>

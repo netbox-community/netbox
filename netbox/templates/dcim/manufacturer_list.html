@@ -2,7 +2,7 @@
 {% load buttons %}
 
 {% block content %}
-<div class="pull-right">
+<div class="pull-right noprint">
     {% if perms.dcim.add_manufacturer %}
         {% add_button 'dcim:manufacturer_add' %}
         {% import_button 'dcim:manufacturer_import' %}

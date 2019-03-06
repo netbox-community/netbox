@@ -49,7 +49,7 @@ class ClusterTypeTable(BaseTable):
     cluster_count = tables.Column(verbose_name='Clusters')
     actions = tables.TemplateColumn(
         template_code=CLUSTERTYPE_ACTIONS,
-        attrs={'td': {'class': 'text-right'}},
+        attrs={'td': {'class': 'text-right noprint'}},
         verbose_name=''
     )
 
@@ -68,7 +68,7 @@ class ClusterGroupTable(BaseTable):
     cluster_count = tables.Column(verbose_name='Clusters')
     actions = tables.TemplateColumn(
         template_code=CLUSTERGROUP_ACTIONS,
-        attrs={'td': {'class': 'text-right'}},
+        attrs={'td': {'class': 'text-right noprint'}},
         verbose_name=''
     )
 
