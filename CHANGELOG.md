@@ -16,6 +16,7 @@ v2.5.8 (FUTURE)
 * [#2961](https://github.com/digitalocean/netbox/issues/2961) - Prevent exception when exporting inventory items belonging to unnamed devices
 * [#2962](https://github.com/digitalocean/netbox/issues/2962) - Increase ExportTemplate `mime_type` field length
 * [#2966](https://github.com/digitalocean/netbox/issues/2966) - Accept `null` cable length_unit via API
+* [#2972](https://github.com/digitalocean/netbox/issues/2972) - Improve ContentTypeField serializer to elegantly handle invalid data
 * [#2976](https://github.com/digitalocean/netbox/issues/2976) - Add delete button to tag view
 
 ---
