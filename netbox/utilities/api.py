@@ -109,10 +109,10 @@ class ContentTypeField(Field):
         return "{}.{}".format(obj.app_label, obj.model)
 
     def to_internal_value(self, data):
-        app_label, model = data.split('.')
         try:
+            app_label, model = data.split('.')
             return ContentType.objects.get_by_natural_key(app_label=app_label, model=model)
-        except ContentType.DoesNotExist:
+        except (ContentType.DoesNotExist, ValueError):
             raise ValidationError("Invalid content type")
 
 
