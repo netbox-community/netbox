@@ -49,20 +49,16 @@ footer p {
     }
 }
 
-.noprint {
-
-}
-
+/* Printer friendly CSS class and various fixes for printing. */
 @media print {
     body {
         padding-top: 0px;
     }
-    .noprint {
-        display: none !important;
-    }
-
     a[href]:after {
         content: none !important;
+    }
+    .noprint {
+        display: none !important;
     }
 }
 
