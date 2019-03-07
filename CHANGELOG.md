@@ -6,6 +6,7 @@ v2.5.8 (FUTURE)
 
 ## Bug Fixes
 
+* [#2065](https://github.com/digitalocean/netbox/issues/2065) - Correct documentation for VM interface serializer
 * [#2705](https://github.com/digitalocean/netbox/issues/2705) - Fix endpoint grouping in API docs
 * [#2781](https://github.com/digitalocean/netbox/issues/2781) - Fix filtering of sites/devices/VMs by multiple regions
 * [#2923](https://github.com/digitalocean/netbox/issues/2923) - Provider filter form's site field should be blank by default

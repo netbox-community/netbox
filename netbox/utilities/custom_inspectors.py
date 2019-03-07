@@ -5,14 +5,14 @@ from rest_framework.fields import ChoiceField
 from rest_framework.relations import ManyRelatedField
 from taggit_serializer.serializers import TagListSerializerField
 
-from dcim.api.serializers import InterfaceSerializer as DCIMInterfaceSerializer
+from dcim.api.serializers import InterfaceSerializer as DeviceInterfaceSerializer
 from virtualization.api.serializers import InterfaceSerializer as VirtualMachineInterfaceSerializer
 from extras.api.customfields import CustomFieldsSerializer
 from utilities.api import ChoiceField, SerializedPKRelatedField, WritableNestedSerializer
 
 
 # this might be ugly, but it limits drf_yasg-specific code to this file
-DCIMInterfaceSerializer.Meta.ref_name = 'DCIMInterface'
+DeviceInterfaceSerializer.Meta.ref_name = 'DeviceInterface'
 VirtualMachineInterfaceSerializer.Meta.ref_name = 'VirtualMachineInterface'
 
 
