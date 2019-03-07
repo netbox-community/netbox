@@ -635,8 +635,8 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         Include the connected Interface (if any).
         """
 
-        # It's possible that an IpAddress can be deleted _after_ its parent Interface, in which case trying to resolve
-        # the component parent will raise DoesNotExist.
+        # It's possible that an IPAddress can be deleted _after_ its parent Interface, in which case trying to resolve
+        # the interface will raise DoesNotExist.
         try:
             parent_obj = self.interface
         except ObjectDoesNotExist:
