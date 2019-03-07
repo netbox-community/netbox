@@ -8,7 +8,7 @@ django-taggit==0.23.0
 django-taggit-serializer==0.1.7
 django-timezone-field==3.0
 djangorestframework==3.9.0
-drf-yasg[validation]==1.11.1
+drf-yasg[validation]==1.14.0
 graphviz==0.10.1
 Markdown==2.6.11
 netaddr==0.7.19
