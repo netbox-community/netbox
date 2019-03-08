@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
@@ -80,6 +81,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
             'config_context', 'created', 'last_updated',
         ]
 
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_config_context(self, obj):
         return obj.get_config_context()
 

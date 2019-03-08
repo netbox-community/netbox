@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
@@ -35,6 +36,7 @@ class ConnectedEndpointSerializer(ValidatedModelSerializer):
             )
         return None
 
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_connected_endpoint(self, obj):
         """
         Return the appropriate serializer for the type of connected object.
@@ -312,6 +314,7 @@ class DeviceSerializer(TaggitSerializer, CustomFieldModelSerializer):
 
         return data
 
+    @swagger_serializer_method(serializer_or_field=NestedDeviceSerializer)
     def get_parent_device(self, obj):
         try:
             device_bay = obj.parent_bay
@@ -334,6 +337,7 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
             'custom_fields', 'config_context', 'created', 'last_updated',
         ]
 
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_config_context(self, obj):
         return obj.get_config_context()
 
@@ -531,9 +535,11 @@ class CableSerializer(ValidatedModelSerializer):
 
         return data
 
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_termination_a(self, obj):
         return self._get_termination(obj, 'a')
 
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_termination_b(self, obj):
         return self._get_termination(obj, 'b')
 
@@ -564,6 +570,7 @@ class InterfaceConnectionSerializer(ValidatedModelSerializer):
         model = Interface
         fields = ['interface_a', 'interface_b', 'connection_status']
 
+    @swagger_serializer_method(serializer_or_field=NestedInterfaceSerializer)
     def get_interface_a(self, obj):
         context = {'request': self.context['request']}
         return NestedInterfaceSerializer(instance=obj, context=context).data

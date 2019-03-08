@@ -24,6 +24,10 @@ to now use "Extras | Tag."
 * [#2791](https://github.com/digitalocean/netbox/issues/2791) - Add a `comment` field for tags
 * [#2926](https://github.com/digitalocean/netbox/issues/2926) - Add changelog to the Tag model
 
+## Bug Fixes
+
+* [#2968](https://github.com/digitalocean/netbox/issues/2968) - Correct API documentation for SerializerMethodFields
+
 ---
 
 v2.5.8 (FUTURE)

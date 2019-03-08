@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
 from dcim.api.nested_serializers import (
@@ -112,6 +113,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 
         return data
 
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_parent(self, obj):
 
         # Static mapping of models to their nested serializers
@@ -215,6 +217,7 @@ class ObjectChangeSerializer(serializers.ModelSerializer):
             'id', 'time', 'user', 'user_name', 'request_id', 'action', 'content_type', 'changed_object', 'object_data',
         ]
 
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_changed_object(self, obj):
         """
         Serialize a nested representation of the changed object.
