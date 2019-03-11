@@ -1,3 +1,10 @@
+v2.5.9 (FUTURE)
+
+## Bug Fixes
+
+* [#2577](https://github.com/digitalocean/netbox/issues/2577) - Clarification of wording in API regarding filtering
+* [#2991](https://github.com/digitalocean/netbox/issues/2991) - Correct documentation for API Filtering
+
 v2.5.8 (2019-03-11)
 
 ## Enhancements
