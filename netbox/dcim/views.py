@@ -1,5 +1,6 @@
 import re
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger
@@ -353,8 +354,9 @@ class RackElevationListView(View):
         total_count = racks.count()
 
         # Pagination
-        paginator = EnhancedPaginator(racks, 25)
+        per_page = request.GET.get('per_page', settings.PAGINATE_COUNT)
         page_number = request.GET.get('page', 1)
+        paginator = EnhancedPaginator(racks, per_page)
         try:
             page = paginator.page(page_number)
         except PageNotAnInteger:
