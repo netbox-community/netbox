@@ -2557,16 +2557,15 @@ class Cable(ChangeLoggedModel):
             ('termination_b_type', 'termination_b_id'),
         )
 
-    def __init__(self, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-
-        # Create an ID string for use by __str__(). We have to save a copy of pk since it's nullified after .delete()
-        # is called.
-        self.id_string = '#{}'.format(self.pk)
-
     def __str__(self):
-        return self.label or self.id_string
+        if self.label:
+            return self.label
+
+        # Save a copy of the PK on the instance since it's nullified if .delete() is called
+        if not hasattr(self, 'id_string'):
+            self.id_string = '#{}'.format(self.pk)
+
+        return self.id_string
 
     def get_absolute_url(self):
         return reverse('dcim:cable', args=[self.pk])

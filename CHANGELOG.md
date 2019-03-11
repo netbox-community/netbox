@@ -21,6 +21,7 @@ v2.5.8 (FUTURE)
 * [#2972](https://github.com/digitalocean/netbox/issues/2972) - Improve ContentTypeField serializer to elegantly handle invalid data
 * [#2976](https://github.com/digitalocean/netbox/issues/2976) - Add delete button to tag view
 * [#2980](https://github.com/digitalocean/netbox/issues/2980) - Improve rendering time for API docs
+* [#2984](https://github.com/digitalocean/netbox/issues/2984) - Fix logging of unlabeled cable ID on cable deletion
 
 ---
 
