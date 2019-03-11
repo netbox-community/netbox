@@ -2,7 +2,7 @@
 {% load buttons %}
 
 {% block content %}
-<div class="pull-right">
+<div class="pull-right noprint">
     {% if perms.dcim.add_rackrole %}
         {% add_button 'dcim:rackrole_add' %}
         {% import_button 'dcim:rackrole_import' %}

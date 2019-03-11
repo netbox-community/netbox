@@ -2,7 +2,7 @@
 {% load helpers %}
 
 {% block header %}
-    <div class="row">
+    <div class="row noprint">
         <div class="col-md-12">
             <ol class="breadcrumb">
                 {% if interface.device %}
@@ -15,7 +15,7 @@
             </ol>
         </div>
     </div>
-    <div class="pull-right">
+    <div class="pull-right noprint">
         {% if perms.dcim.change_interface %}
             <a href="{% if interface.device %}{% url 'dcim:interface_edit' pk=interface.pk %}{% else %}{% url 'virtualization:interface_edit' pk=interface.pk %}{% endif %}" class="btn btn-warning">
                 <span class="fa fa-pencil" aria-hidden="true"></span> Edit this interface

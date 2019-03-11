@@ -49,6 +49,19 @@ footer p {
     }
 }
 
+/* Printer friendly CSS class and various fixes for printing. */
+@media print {
+    body {
+        padding-top: 0px;
+    }
+    a[href]:after {
+        content: none !important;
+    }
+    .noprint {
+        display: none !important;
+    }
+}
+
 /* Collapse the nav menu on displays less than 960px wide */
 @media (max-width: 959px) {
     .navbar-header {

@@ -2,7 +2,7 @@
 {% load buttons %}
 
 {% block content %}
-<div class="pull-right">
+<div class="pull-right noprint">
     {% if perms.virtualization.add_clustertype %}
         {% add_button 'virtualization:clustertype_add' %}
         {% import_button 'virtualization:clustertype_import' %}

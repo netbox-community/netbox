@@ -2,7 +2,7 @@
 {% load helpers %}
 
 {% block content %}
-<div class="btn-group pull-right" role="group">
+<div class="btn-group pull-right noprint" role="group">
     <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face=0 %}" class="btn btn-default{% if request.GET.face != '1' %} active{% endif %}">Front</a>
     <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face=1 %}" class="btn btn-default{% if request.GET.face == '1' %} active{% endif %}">Rear</a>
 </div>
@@ -38,7 +38,7 @@
             <p>No racks found</p>
         </div>
     {% endif %}
-    <div class="col-md-3">
+    <div class="col-md-3 noprint">
 		{% include 'inc/search_panel.html' %}
     </div>
 </div>

@@ -31,7 +31,7 @@ class TenantGroupTable(BaseTable):
     tenant_count = tables.Column(verbose_name='Tenants')
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(
-        template_code=TENANTGROUP_ACTIONS, attrs={'td': {'class': 'text-right'}}, verbose_name=''
+        template_code=TENANTGROUP_ACTIONS, attrs={'td': {'class': 'text-right noprint'}}, verbose_name=''
     )
 
     class Meta(BaseTable.Meta):

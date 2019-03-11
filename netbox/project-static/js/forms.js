@@ -90,6 +90,10 @@ $(document).ready(function() {
     // Assign color picker selection classes
     function colorPickerClassCopy(data, container) {
         if (data.element) {
+            // Remove any existing color-selection classes
+            $(container).attr('class', function(i, c) {
+                return c.replace(/(^|\s)color-selection-\S+/g, '');
+            });
             $(container).addClass($(data.element).attr("class"));
         }
         return data.text;

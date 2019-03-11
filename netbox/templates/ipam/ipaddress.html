@@ -2,7 +2,7 @@
 {% load helpers %}
 
 {% block header %}
-    <div class="row">
+    <div class="row noprint">
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'ipam:ipaddress_list' %}">IP Addresses</a></li>
@@ -25,7 +25,7 @@
             </form>
         </div>
     </div>
-    <div class="pull-right">
+    <div class="pull-right noprint">
         {% if perms.ipam.change_ipaddress %}
             <a href="{% url 'ipam:ipaddress_edit' pk=ipaddress.pk %}" class="btn btn-warning">
                 <span class="fa fa-pencil" aria-hidden="true"></span>
@@ -150,7 +150,7 @@
         {% if duplicate_ips_table.rows %}
             {% include 'panel_table.html' with table=duplicate_ips_table heading='Duplicate IP Addresses' panel_class='danger' %}
         {% endif %}
-        {% include 'panel_table.html' with table=related_ips_table heading='Related IP Addresses' panel_class='default' %}
+        {% include 'panel_table.html' with table=related_ips_table heading='Related IP Addresses' panel_class='default noprint' %}
 	</div>
 </div>
 {% endblock %}

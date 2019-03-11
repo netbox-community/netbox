@@ -2,7 +2,7 @@
 {% load buttons %}
 
 {% block content %}
-<div class="pull-right">
+<div class="pull-right noprint">
     {% if perms.circuits.add_circuittype %}
         {% add_button 'circuits:circuittype_add' %}
         {% import_button 'circuits:circuittype_import' %}

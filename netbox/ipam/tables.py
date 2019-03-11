@@ -203,7 +203,7 @@ class RIRTable(BaseTable):
     name = tables.LinkColumn(verbose_name='Name')
     is_private = BooleanColumn(verbose_name='Private')
     aggregate_count = tables.Column(verbose_name='Aggregates')
-    actions = tables.TemplateColumn(template_code=RIR_ACTIONS, attrs={'td': {'class': 'text-right'}}, verbose_name='')
+    actions = tables.TemplateColumn(template_code=RIR_ACTIONS, attrs={'td': {'class': 'text-right noprint'}}, verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = RIR
@@ -288,7 +288,7 @@ class RoleTable(BaseTable):
         orderable=False,
         verbose_name='VLANs'
     )
-    actions = tables.TemplateColumn(template_code=ROLE_ACTIONS, attrs={'td': {'class': 'text-right'}}, verbose_name='')
+    actions = tables.TemplateColumn(template_code=ROLE_ACTIONS, attrs={'td': {'class': 'text-right noprint'}}, verbose_name='')
 
     class Meta(BaseTable.Meta):
         model = Role
@@ -392,7 +392,7 @@ class VLANGroupTable(BaseTable):
     site = tables.LinkColumn('dcim:site', args=[Accessor('site.slug')], verbose_name='Site')
     vlan_count = tables.Column(verbose_name='VLANs')
     slug = tables.Column(verbose_name='Slug')
-    actions = tables.TemplateColumn(template_code=VLANGROUP_ACTIONS, attrs={'td': {'class': 'text-right'}},
+    actions = tables.TemplateColumn(template_code=VLANGROUP_ACTIONS, attrs={'td': {'class': 'text-right noprint'}},
                                     verbose_name='')
 
     class Meta(BaseTable.Meta):
@@ -437,7 +437,7 @@ class VLANMemberTable(BaseTable):
     )
     actions = tables.TemplateColumn(
         template_code=VLAN_MEMBER_ACTIONS,
-        attrs={'td': {'class': 'text-right'}},
+        attrs={'td': {'class': 'text-right noprint'}},
         verbose_name=''
     )
 

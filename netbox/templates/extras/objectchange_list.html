@@ -2,7 +2,7 @@
 {% load buttons %}
 
 {% block content %}
-<div class="pull-right">
+<div class="pull-right noprint">
     {% export_button content_type %}
 </div>
 <h1>{% block title %}Changelog{% endblock %}</h1>
@@ -10,7 +10,7 @@
 	<div class="col-md-9">
         {% include 'utilities/obj_table.html' %}
     </div>
-    <div class="col-md-3">
+    <div class="col-md-3 noprint">
 		{% include 'inc/search_panel.html' %}
     </div>
 </div>

@@ -27,7 +27,7 @@ class DeviceComponentManager(Manager):
             select={
                 'name_padded': sql.format(table_name, table_name),
             }
-        ).order_by('name_padded')
+        ).order_by('name_padded', 'pk')
 
 
 class InterfaceQuerySet(QuerySet):

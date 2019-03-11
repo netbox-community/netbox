@@ -496,11 +496,11 @@ class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
 
 class InterfaceConnectionViewSet(ListModelMixin, GenericViewSet):
     queryset = Interface.objects.select_related(
-        'device', '_connected_interface', '_connected_circuittermination'
+        'device', '_connected_interface__device'
     ).filter(
         # Avoid duplicate connections by only selecting the lower PK in a connected pair
-        Q(_connected_interface__isnull=False, pk__lt=F('_connected_interface')) |
-        Q(_connected_circuittermination__isnull=False)
+        _connected_interface__isnull=False,
+        pk__lt=F('_connected_interface')
     )
     serializer_class = serializers.InterfaceConnectionSerializer
     filterset_class = filters.InterfaceConnectionFilter
