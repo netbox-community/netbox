@@ -8,7 +8,7 @@ from django.db.models import ManyToManyField
 from django.http import Http404
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import BasePermission
-from rest_framework.relations import PrimaryKeyRelatedField
+from rest_framework.relations import PrimaryKeyRelatedField, RelatedField
 from rest_framework.response import Response
 from rest_framework.serializers import Field, ModelSerializer, ValidationError
 from rest_framework.viewsets import ModelViewSet as _ModelViewSet, ViewSet
@@ -101,19 +101,30 @@ class ChoiceField(Field):
         return data
 
 
-class ContentTypeField(Field):
+class ContentTypeField(RelatedField):
     """
     Represent a ContentType as '<app_label>.<model>'
     """
-    def to_representation(self, obj):
-        return "{}.{}".format(obj.app_label, obj.model)
+    default_error_messages = {
+        "does_not_exist": "Invalid content type: {content_type}",
+        "invalid": "Invalid value. Specify a content type as '<app_label>.<model_name>'.",
+    }
+
+    # Can't set this as an attribute because it raises an exception when the field is read-only
+    def get_queryset(self):
+        return ContentType.objects.all()
 
     def to_internal_value(self, data):
-        app_label, model = data.split('.')
         try:
+            app_label, model = data.split('.')
             return ContentType.objects.get_by_natural_key(app_label=app_label, model=model)
-        except ContentType.DoesNotExist:
-            raise ValidationError("Invalid content type")
+        except ObjectDoesNotExist:
+            self.fail('does_not_exist', content_type=data)
+        except (TypeError, ValueError):
+            self.fail('invalid')
+
+    def to_representation(self, obj):
+        return "{}.{}".format(obj.app_label, obj.model)
 
 
 class TimeZoneField(Field):

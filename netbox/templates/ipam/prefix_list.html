@@ -3,7 +3,7 @@
 {% load helpers %}
 
 {% block content %}
-<div class="pull-right">
+<div class="pull-right noprint">
     <div class="btn-group" role="group">
         <a href="{% url 'ipam:prefix_list' %}{% querystring request expand=None page=1 %}" class="btn btn-default{% if not request.GET.expand %} active{% endif %}">Collapse</a>
         <a href="{% url 'ipam:prefix_list' %}{% querystring request expand='on' page=1 %}" class="btn btn-default{% if request.GET.expand %} active{% endif %}">Expand</a>
@@ -19,7 +19,7 @@
 	<div class="col-md-9">
         {% include 'utilities/obj_table.html' with bulk_edit_url='ipam:prefix_bulk_edit' bulk_delete_url='ipam:prefix_bulk_delete' %}
 	</div>
-	<div class="col-md-3">
+	<div class="col-md-3 noprint">
 		{% include 'inc/search_panel.html' %}
 		{% include 'inc/tags_panel.html' %}
 	</div>

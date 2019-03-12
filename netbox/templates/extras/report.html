@@ -4,7 +4,7 @@
 {% block title %}{{ report.name }}{% endblock %}
 
 {% block content %}
-    <div class="row">
+    <div class="row noprint">
         <div class="col-md-12">
             <ol class="breadcrumb">
                 <li><a href="{% url 'extras:report_list' %}">Reports</a></li>
@@ -14,7 +14,7 @@
         </div>
     </div>
     {% if perms.extras.add_reportresult %}
-        <div class="pull-right">
+        <div class="pull-right noprint">
             <form action="{% url 'extras:report_run' name=report.full_name %}" method="post">
                 {% csrf_token %}
                 {{ run_form }}

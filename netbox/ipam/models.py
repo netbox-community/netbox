@@ -1,7 +1,7 @@
 import netaddr
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Q
@@ -10,8 +10,9 @@ from django.urls import reverse
 from taggit.managers import TaggableManager
 
 from dcim.models import Interface
-from extras.models import CustomFieldModel, TaggedItem
+from extras.models import CustomFieldModel, ObjectChange, TaggedItem
 from utilities.models import ChangeLoggedModel
+from utilities.utils import serialize_object
 from .constants import *
 from .fields import IPNetworkField, IPAddressField
 from .querysets import PrefixQuerySet
@@ -628,6 +629,27 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
             # Infer address family from IPAddress object
             self.family = self.address.version
         super().save(*args, **kwargs)
+
+    def log_change(self, user, request_id, action):
+        """
+        Include the connected Interface (if any).
+        """
+
+        # It's possible that an IPAddress can be deleted _after_ its parent Interface, in which case trying to resolve
+        # the interface will raise DoesNotExist.
+        try:
+            parent_obj = self.interface
+        except ObjectDoesNotExist:
+            parent_obj = None
+
+        ObjectChange(
+            user=user,
+            request_id=request_id,
+            changed_object=self,
+            related_object=parent_obj,
+            action=action,
+            object_data=serialize_object(self)
+        ).save()
 
     def to_csv(self):
 

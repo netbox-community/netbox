@@ -9,7 +9,7 @@
             {% for token in tokens %}
                 <div class="panel panel-{% if token.is_expired %}danger{% else %}default{% endif %}">
                     <div class="panel-heading">
-                        <div class="pull-right">
+                        <div class="pull-right noprint">
                             {% if perms.users.change_token %}
                                 <a href="{% url 'user:token_edit' pk=token.pk %}" class="btn btn-xs btn-warning">Edit</a>
                             {% endif %}

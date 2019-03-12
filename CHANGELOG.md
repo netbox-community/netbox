@@ -30,20 +30,33 @@ to now use "Extras | Tag."
 
 ---
 
-v2.5.8 (FUTURE)
+v2.5.8 (2019-03-11)
+
+## Enhancements
+
+* [#2435](https://github.com/digitalocean/netbox/issues/2435) - Printer friendly CSS
 
 ## Bug Fixes
 
+* [#2065](https://github.com/digitalocean/netbox/issues/2065) - Correct documentation for VM interface serializer
 * [#2705](https://github.com/digitalocean/netbox/issues/2705) - Fix endpoint grouping in API docs
 * [#2781](https://github.com/digitalocean/netbox/issues/2781) - Fix filtering of sites/devices/VMs by multiple regions
 * [#2923](https://github.com/digitalocean/netbox/issues/2923) - Provider filter form's site field should be blank by default
 * [#2938](https://github.com/digitalocean/netbox/issues/2938) - Enforce deterministic ordering of device components returned by API
 * [#2939](https://github.com/digitalocean/netbox/issues/2939) - Exclude circuit terminations from API interface connections endpoint
+* [#2940](https://github.com/digitalocean/netbox/issues/2940) - Allow CSV import of prefixes/IPs to VRF without an RD assigned
+* [#2944](https://github.com/digitalocean/netbox/issues/2944) - Record the deletion of an IP address in the changelog of its parent interface (if any)
 * [#2952](https://github.com/digitalocean/netbox/issues/2952) - Added the `slug` field to the Tenant filter for use in the API and search function
 * [#2954](https://github.com/digitalocean/netbox/issues/2954) - Remove trailing slashes to fix root/template paths on Windows
 * [#2961](https://github.com/digitalocean/netbox/issues/2961) - Prevent exception when exporting inventory items belonging to unnamed devices
 * [#2962](https://github.com/digitalocean/netbox/issues/2962) - Increase ExportTemplate `mime_type` field length
 * [#2966](https://github.com/digitalocean/netbox/issues/2966) - Accept `null` cable length_unit via API
+* [#2972](https://github.com/digitalocean/netbox/issues/2972) - Improve ContentTypeField serializer to elegantly handle invalid data
+* [#2976](https://github.com/digitalocean/netbox/issues/2976) - Add delete button to tag view
+* [#2980](https://github.com/digitalocean/netbox/issues/2980) - Improve rendering time for API docs
+* [#2982](https://github.com/digitalocean/netbox/issues/2982) - Correct CSS class assignment on color picker
+* [#2984](https://github.com/digitalocean/netbox/issues/2984) - Fix logging of unlabeled cable ID on cable deletion
+* [#2985](https://github.com/digitalocean/netbox/issues/2985) - Fix pagination page length for rack elevations
 
 ---
 

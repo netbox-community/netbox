@@ -29,6 +29,12 @@
                 Edit this tag
             </a>
         {% endif %}
+        {% if perms.taggit.delete_tag %}
+            <a href="{% url 'extras:tag_delete' slug=tag.slug %}" class="btn btn-danger">
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                Delete this tag
+            </a>
+        {% endif %}
     </div>
     <h1>{% block title %}Tag: {{ tag }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=tag %}

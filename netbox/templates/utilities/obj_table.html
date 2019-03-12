@@ -4,7 +4,7 @@
         {% csrf_token %}
         <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
         {% if table.paginator.num_pages > 1 %}
-            <div id="select_all_box" class="hidden panel panel-default">
+            <div id="select_all_box" class="hidden panel panel-default noprint">
                 <div class="panel-body">
                     <div class="checkbox-inline">
                         <label for="select_all">
@@ -28,7 +28,7 @@
             </div>
         {% endif %}
         {% include table_template|default:'responsive_table.html' %}
-        <div class="pull-left">
+        <div class="pull-left noprint">
             {% block extra_actions %}{% endblock %}
             {% if bulk_edit_url and permissions.change %}
                 <button type="submit" name="_edit" formaction="{% url bulk_edit_url %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-warning btn-sm">

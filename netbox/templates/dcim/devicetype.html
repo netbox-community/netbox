@@ -4,7 +4,7 @@
 {% block title %}{{ devicetype.manufacturer }} {{ devicetype.model }}{% endblock %}
 
 {% block header %}
-    <div class="row">
+    <div class="row noprint">
         <div class="col-md-12">
             <ol class="breadcrumb">
                 <li><a href="{% url 'dcim:devicetype_list' %}">Device Types</a></li>
@@ -14,7 +14,7 @@
         </div>
     </div>
     {% if perms.dcim.change_devicetype or perms.dcim.delete_devicetype %}
-        <div class="pull-right">
+        <div class="pull-right noprint">
             {% if perms.dcim.change_devicetype %}
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

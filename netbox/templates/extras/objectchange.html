@@ -4,7 +4,7 @@
 {% block title %}{{ objectchange }}{% endblock %}
 
 {% block header %}
-    <div class="row">
+    <div class="row noprint">
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'extras:objectchange_list' %}">Changelog</a></li>
@@ -97,7 +97,7 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            {% include 'panel_table.html' with table=related_changes_table heading='Related Changes' %}
+            {% include 'panel_table.html' with table=related_changes_table heading='Related Changes' panel_class='noprint' %}
             {% if related_changes_count > related_changes_table.rows|length %}
                 <div class="pull-right">
                     <a href="{% url 'extras:objectchange_list' %}?request_id={{ objectchange.request_id }}" class="btn btn-primary">See all {{ related_changes_count|add:"1" }} changes</a>

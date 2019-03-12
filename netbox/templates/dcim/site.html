@@ -4,7 +4,7 @@
 {% load helpers %}
 
 {% block header %}
-    <div class="row">
+    <div class="row noprint">
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'dcim:site_list' %}">Sites</a></li>
@@ -30,7 +30,7 @@
             </form>
         </div>
     </div>
-    <div class="pull-right">
+    <div class="pull-right noprint">
         {% if show_graphs %}
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ site.name }}" data-url="{% url 'dcim-api:site-graphs' pk=site.pk %}" title="Show graphs">
                 <i class="fa fa-signal" aria-hidden="true"></i>
@@ -138,7 +138,7 @@
                     <td>Physical Address</td>
                     <td>
                         {% if site.physical_address %}
-                            <div class="pull-right">
+                            <div class="pull-right noprint">
                                 <a href="http://maps.google.com/?q={{ site.physical_address|oneline|urlencode }}" target="_blank" class="btn btn-primary btn-xs">
                                     <i class="glyphicon glyphicon-map-marker"></i> Map it
                                 </a>
@@ -157,7 +157,7 @@
                     <td>GPS Coordinates</td>
                     <td>
                         {% if site.latitude and site.longitude %}
-                            <div class="pull-right">
+                            <div class="pull-right noprint">
                                 <a href="http://maps.google.com/?q={{ site.latitude }},{{ site.longitude }}" target="_blank" class="btn btn-primary btn-xs">
                                     <i class="glyphicon glyphicon-map-marker"></i> Map it
                                 </a>
@@ -251,7 +251,7 @@
                         <tr>
                             <td><i class="fa fa-fw fa-folder-o"></i> <a href="{{ rg.get_absolute_url }}">{{ rg }}</a></td>
                             <td>{{ rg.rack_count }}</td>
-                            <td class="text-right">
+                            <td class="text-right noprint">
                                 <a href="{% url 'dcim:rack_elevation_list' %}?group_id={{ rg.pk }}" class="btn btn-xs btn-primary" title="View elevations">
                                     <i class="fa fa-eye"></i>
                                 </a>
@@ -271,7 +271,7 @@
             </div>
             {% include 'inc/image_attachments.html' with images=site.images.all %}
             {% if perms.extras.add_imageattachment %}
-                <div class="panel-footer text-right">
+                <div class="panel-footer text-right noprint">
                     <a href="{% url 'dcim:site_add_image' object_id=site.pk %}" class="btn btn-primary btn-xs">
                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                         Attach an image

@@ -43,7 +43,7 @@
     {% endif %}
 
     {# Actions #}
-    <td class="text-right">
+    <td class="text-right noprint">
         {% if csp.cable %}
             {% include 'dcim/inc/cable_toggle_buttons.html' with cable=csp.cable %}
         {% elif perms.dcim.add_cable %}
