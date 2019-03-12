@@ -2129,6 +2129,8 @@ class PowerPanelListView(ObjectListView):
     ).annotate(
         powerfeed_count=Count('powerfeeds')
     )
+    filter = filters.PowerPanelFilter
+    filter_form = forms.PowerPanelFilterForm
     table = tables.PowerPanelTable
     template_name = 'dcim/powerpanel_list.html'
 
@@ -2175,6 +2177,7 @@ class PowerPanelBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     ).annotate(
         rack_count=Count('powerfeeds')
     )
+    filter = filters.PowerPanelFilter
     table = tables.PowerPanelTable
     default_return_url = 'dcim:powerpanel_list'
 
@@ -2187,8 +2190,8 @@ class PowerFeedListView(ObjectListView):
     queryset = PowerFeed.objects.select_related(
         'power_panel', 'rack'
     )
-    # filter = filters.PowerFeedFilter
-    # filter_form = forms.PowerFeedFilterForm
+    filter = filters.PowerFeedFilter
+    filter_form = forms.PowerFeedFilterForm
     table = tables.PowerFeedTable
     template_name = 'dcim/powerfeed_list.html'
 
@@ -2232,7 +2235,7 @@ class PowerFeedBulkImportView(PermissionRequiredMixin, BulkImportView):
 class PowerFeedBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_powerfeed'
     queryset = PowerFeed.objects.select_related('power_panel', 'rack')
-    # filter = filters.PowerFeedFilter
+    filter = filters.PowerFeedFilter
     table = tables.PowerFeedTable
     form = forms.PowerFeedBulkEditForm
     default_return_url = 'dcim:powerfeed_list'
@@ -2241,6 +2244,6 @@ class PowerFeedBulkEditView(PermissionRequiredMixin, BulkEditView):
 class PowerFeedBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_powerfeed'
     queryset = PowerFeed.objects.select_related('power_panel', 'rack')
-    # filter = filters.PowerFeedFilter
+    filter = filters.PowerFeedFilter
     table = tables.PowerFeedTable
     default_return_url = 'dcim:powerfeed_list'

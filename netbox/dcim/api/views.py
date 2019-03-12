@@ -542,7 +542,7 @@ class VirtualChassisViewSet(ModelViewSet):
 class PowerPanelViewSet(ModelViewSet):
     queryset = PowerPanel.objects.all()
     serializer_class = serializers.PowerPanelSerializer
-    # filterset_class = filters.PowerPanelFilter
+    filterset_class = filters.PowerPanelFilter
 
 
 #
@@ -552,7 +552,7 @@ class PowerPanelViewSet(ModelViewSet):
 class PowerFeedViewSet(ModelViewSet):
     queryset = PowerFeed.objects.all()
     serializer_class = serializers.PowerFeedSerializer
-    # filterset_class = filters.PowerFeedFilter
+    filterset_class = filters.PowerFeedFilter
 
 
 #

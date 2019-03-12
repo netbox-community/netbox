@@ -3208,6 +3208,34 @@ class PowerPanelCSVForm(forms.ModelForm):
         fields = PowerPanel.csv_headers
 
 
+class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = PowerPanel
+    q = forms.CharField(
+        required=False,
+        label='Search'
+    )
+    site = FilterChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/",
+            value_field="slug",
+            filter_for={
+                'rack_id': 'site',
+            }
+        )
+    )
+    rack_group_id = FilterChoiceField(
+        queryset=RackGroup.objects.all(),
+        label='Rack group (ID)',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/rack-groups/",
+            null_option=True,
+        )
+    )
+
+
 #
 # Power feeds
 #
@@ -3333,3 +3361,51 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         nullable_fields = [
             'rackgroup', 'comments',
         ]
+
+
+class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
+    model = PowerFeed
+    q = forms.CharField(
+        required=False,
+        label='Search'
+    )
+    site = FilterChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/",
+            value_field="slug",
+            filter_for={
+                'rack_id': 'site',
+            }
+        )
+    )
+    rack_id = FilterChoiceField(
+        queryset=Rack.objects.all(),
+        label='Rack',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/racks/",
+            null_option=True,
+        )
+    )
+    status = forms.MultipleChoiceField(
+        choices=POWERFEED_STATUS_CHOICES,
+        required=False,
+        widget=StaticSelect2Multiple()
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(POWERFEED_TYPE_CHOICES),
+        required=False,
+        widget=StaticSelect2()
+    )
+    supply = forms.ChoiceField(
+        choices=add_blank_choice(POWERFEED_SUPPLY_CHOICES),
+        required=False,
+        widget=StaticSelect2()
+    )
+    phase = forms.ChoiceField(
+        choices=add_blank_choice(POWERFEED_PHASE_CHOICES),
+        required=False,
+        widget=StaticSelect2()
+    )
