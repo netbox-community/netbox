@@ -6,7 +6,8 @@ from secrets.views import secret_add
 from . import views
 from .models import (
     Cable, ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, FrontPort, Interface, Manufacturer, Platform,
-    PowerPort, PowerOutlet, Rack, RackGroup, RackReservation, RackRole, RearPort, Region, Site, VirtualChassis,
+    PowerFeed, PowerPanel, PowerPort, PowerOutlet, Rack, RackGroup, RackReservation, RackRole, RearPort, Region, Site,
+    VirtualChassis,
 )
 
 app_name = 'dcim'
@@ -278,5 +279,24 @@ urlpatterns = [
     url(r'^virtual-chassis/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='virtualchassis_changelog', kwargs={'model': VirtualChassis}),
     url(r'^virtual-chassis/(?P<pk>\d+)/add-member/$', views.VirtualChassisAddMemberView.as_view(), name='virtualchassis_add_member'),
     url(r'^virtual-chassis-members/(?P<pk>\d+)/delete/$', views.VirtualChassisRemoveMemberView.as_view(), name='virtualchassis_remove_member'),
+
+    # Power panels
+    url(r'^power-panels/$', views.PowerPanelListView.as_view(), name='powerpanel_list'),
+    url(r'^power-panels/add/$', views.PowerPanelCreateView.as_view(), name='powerpanel_add'),
+    url(r'^power-panels/import/$', views.PowerPanelBulkImportView.as_view(), name='powerpanel_import'),
+    url(r'^power-panels/delete/$', views.PowerPanelBulkDeleteView.as_view(), name='powerpanel_bulk_delete'),
+    url(r'^power-panels/(?P<pk>\d+)/edit/$', views.PowerPanelEditView.as_view(), name='powerpanel_edit'),
+    url(r'^power-panels/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='powerpanel_changelog', kwargs={'model': PowerPanel}),
+
+    # Racks
+    url(r'^power-feeds/$', views.PowerFeedListView.as_view(), name='powerfeed_list'),
+    url(r'^power-feeds/add/$', views.PowerFeedEditView.as_view(), name='powerfeed_add'),
+    url(r'^power-feeds/import/$', views.PowerFeedBulkImportView.as_view(), name='powerfeed_import'),
+    url(r'^power-feeds/edit/$', views.PowerFeedBulkEditView.as_view(), name='powerfeed_bulk_edit'),
+    url(r'^power-feeds/delete/$', views.PowerFeedBulkDeleteView.as_view(), name='powerfeed_bulk_delete'),
+    url(r'^power-feeds/(?P<pk>\d+)/$', views.PowerFeedView.as_view(), name='powerfeed'),
+    url(r'^power-feeds/(?P<pk>\d+)/edit/$', views.PowerFeedEditView.as_view(), name='powerfeed_edit'),
+    url(r'^power-feeds/(?P<pk>\d+)/delete/$', views.PowerFeedDeleteView.as_view(), name='powerfeed_delete'),
+    url(r'^power-feeds/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='powerfeed_changelog', kwargs={'model': PowerFeed}),
 
 ]

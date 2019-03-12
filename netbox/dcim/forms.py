@@ -26,8 +26,8 @@ from .constants import *
 from .models import (
     Cable, DeviceBay, DeviceBayTemplate, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate,
     Device, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate, Manufacturer,
-    InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack, RackGroup,
-    RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis
+    InventoryItem, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort, PowerPortTemplate,
+    Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
 )
 
 DEVICE_BY_PK_RE = r'{\d+\}'
@@ -3156,3 +3156,169 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
         to_field_name='slug',
         null_label='-- None --',
     )
+
+
+#
+# Power panels
+#
+
+class PowerPanelForm(BootstrapMixin, forms.ModelForm):
+    rackgroup = ChainedModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        chains=(
+            ('site', 'site'),
+        ),
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/rack-groups/',
+        )
+    )
+
+    class Meta:
+        model = PowerPanel
+        fields = [
+            'site', 'rackgroup', 'name',
+        ]
+        widgets = {
+            'site': APISelect(
+                api_url="/api/dcim/sites/",
+                filter_for={
+                    'rackgroup': 'site_id',
+                }
+            ),
+        }
+
+
+class PowerPanelCSVForm(forms.ModelForm):
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='name',
+        help_text='Name of parent site',
+        error_messages={
+            'invalid_choice': 'Site not found.',
+        }
+    )
+    group_name = forms.CharField(
+        help_text='Name of rack group',
+        required=False
+    )
+
+    class Meta:
+        model = PowerPanel
+        fields = PowerPanel.csv_headers
+
+
+#
+# Power feeds
+#
+
+class PowerFeedForm(BootstrapMixin, CustomFieldForm):
+    tags = TagField(
+        required=False
+    )
+
+    class Meta:
+        model = PowerFeed
+        fields = [
+            'powerpanel', 'rack', 'name', 'type', 'status', 'supply', 'voltage', 'amperage', 'phase', 'max_utilization',
+            'comments', 'tags',
+        ]
+        widgets = {
+            'site': APISelect(
+                api_url="/api/dcim/sites/",
+                filter_for={
+                    'rackgroup': 'site_id',
+                }
+            ),
+            'type': StaticSelect2(),
+            'status': StaticSelect2(),
+            'supply': StaticSelect2(),
+            'phase': StaticSelect2(),
+        }
+
+
+class PowerFeedCSVForm(forms.ModelForm):
+    type = CSVChoiceField(
+        choices=POWERFEED_TYPE_CHOICES,
+        required=False,
+        help_text='Primary or redundant'
+    )
+    status = CSVChoiceField(
+        choices=POWERFEED_STATUS_CHOICES,
+        required=False,
+        help_text='Operational status'
+    )
+    supply = CSVChoiceField(
+        choices=POWERFEED_SUPPLY_CHOICES,
+        required=False,
+        help_text='AC/DC'
+    )
+
+    class Meta:
+        model = PowerFeed
+        fields = PowerFeed.csv_headers
+
+
+class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=PowerFeed.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    powerpanel = forms.ModelChoiceField(
+        queryset=PowerPanel.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/sites",
+            filter_for={
+                'rackgroup': 'site_id',
+            }
+        )
+    )
+    rackgroup = forms.ModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/rack-groups",
+        )
+    )
+    type = forms.ChoiceField(
+        choices=add_blank_choice(POWERFEED_TYPE_CHOICES),
+        required=False,
+        initial='',
+        widget=StaticSelect2()
+    )
+    status = forms.ChoiceField(
+        choices=add_blank_choice(POWERFEED_STATUS_CHOICES),
+        required=False,
+        initial='',
+        widget=StaticSelect2()
+    )
+    supply = forms.ChoiceField(
+        choices=add_blank_choice(POWERFEED_SUPPLY_CHOICES),
+        required=False,
+        initial='',
+        widget=StaticSelect2()
+    )
+    voltage = forms.IntegerField(
+        required=False
+    )
+    amperage = forms.IntegerField(
+        required=False
+    )
+    phase = forms.ChoiceField(
+        choices=add_blank_choice(POWERFEED_PHASE_CHOICES),
+        required=False,
+        initial='',
+        widget=StaticSelect2()
+    )
+    max_utilization = forms.IntegerField(
+        required=False
+    )
+    comments = forms.CharField(
+        required=False
+    )
+
+    class Meta:
+        nullable_fields = [
+            'rackgroup', 'comments',
+        ]

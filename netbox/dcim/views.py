@@ -30,8 +30,9 @@ from . import filters, forms, tables
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    InventoryItem, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
-    RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
+    InventoryItem, Manufacturer, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
+    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
+    VirtualChassis,
 )
 
 
@@ -2114,3 +2115,113 @@ class VirtualChassisRemoveMemberView(PermissionRequiredMixin, GetReturnURLMixin,
             'form': form,
             'return_url': self.get_return_url(request, device),
         })
+
+
+#
+# Power panels
+#
+
+class PowerPanelListView(ObjectListView):
+    queryset = PowerPanel.objects.select_related(
+        'site', 'rackgroup'
+    ).annotate(
+        rack_count=Count('powerfeeds')
+    )
+    table = tables.PowerPanelTable
+    template_name = 'dcim/powerpanel_list.html'
+
+
+class PowerPanelCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.add_powerpanel'
+    model = PowerPanel
+    model_form = forms.PowerPanelForm
+    default_return_url = 'dcim:powerpanel_list'
+
+
+class PowerPanelEditView(PowerPanelCreateView):
+    permission_required = 'dcim.change_powerpanel'
+
+
+class PowerPanelBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_powerpanel'
+    model_form = forms.PowerPanelCSVForm
+    table = tables.PowerPanelTable
+    default_return_url = 'dcim:powerpanel_list'
+
+
+class PowerPanelBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_powerpanel'
+    queryset = PowerPanel.objects.select_related(
+        'site', 'rack_group'
+    ).annotate(
+        rack_count=Count('powerfeeds')
+    )
+    table = tables.PowerPanelTable
+    default_return_url = 'dcim:powerpanel_list'
+
+
+#
+# Power feeds
+#
+
+class PowerFeedListView(ObjectListView):
+    queryset = PowerFeed.objects.select_related(
+        'powerpanel', 'rack'
+    )
+    # filter = filters.PowerFeedFilter
+    # filter_form = forms.PowerFeedFilterForm
+    table = tables.PowerFeedTable
+    template_name = 'dcim/powerfeed_list.html'
+
+
+class PowerFeedView(View):
+
+    def get(self, request, pk):
+
+        powerfeed = get_object_or_404(PowerFeed.objects.select_related('panel', 'rack'), pk=pk)
+
+        return render(request, 'dcim/powerfeed.html', {
+            'powerfeed': powerfeed,
+        })
+
+
+class PowerFeedCreateView(PermissionRequiredMixin, ObjectEditView):
+    permission_required = 'dcim.add_powerfeed'
+    model = PowerFeed
+    model_form = forms.PowerFeedForm
+    template_name = 'dcim/powerfeed_edit.html'
+    default_return_url = 'dcim:powerfeed_list'
+
+
+class PowerFeedEditView(PowerFeedCreateView):
+    permission_required = 'dcim.change_powerfeed'
+
+
+class PowerFeedDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_powerfeed'
+    model = PowerFeed
+    default_return_url = 'dcim:powerfeed_list'
+
+
+class PowerFeedBulkImportView(PermissionRequiredMixin, BulkImportView):
+    permission_required = 'dcim.add_powerfeed'
+    model_form = forms.PowerFeedCSVForm
+    table = tables.PowerFeedTable
+    default_return_url = 'dcim:powerfeed_list'
+
+
+class PowerFeedBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_powerfeed'
+    queryset = PowerFeed.objects.select_related('powerpanel', 'rack')
+    # filter = filters.PowerFeedFilter
+    table = tables.PowerFeedTable
+    form = forms.PowerFeedBulkEditForm
+    default_return_url = 'dcim:powerfeed_list'
+
+
+class PowerFeedBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_powerfeed'
+    queryset = PowerFeed.objects.select_related('powerpanel', 'rack')
+    # filter = filters.PowerFeedFilter
+    table = tables.PowerFeedTable
+    default_return_url = 'dcim:powerfeed_list'

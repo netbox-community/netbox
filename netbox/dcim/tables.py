@@ -6,8 +6,9 @@ from utilities.tables import BaseTable, BooleanColumn, ColorColumn, ToggleColumn
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    InventoryItem, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
-    RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
+    InventoryItem, Manufacturer, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
+    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
+    VirtualChassis,
 )
 
 REGION_LINK = """
@@ -786,3 +787,48 @@ class VirtualChassisTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = VirtualChassis
         fields = ('pk', 'master', 'domain', 'member_count', 'actions')
+
+
+#
+# Power panels
+#
+
+class PowerPanelTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.LinkColumn()
+    powerfeed_count = tables.Column(
+        verbose_name='Feeds'
+    )
+    actions = tables.TemplateColumn(
+        template_code=RACKROLE_ACTIONS,
+        attrs={
+            'td': {'class': 'text-right noprint'}
+        },
+        verbose_name=''
+    )
+
+    class Meta(BaseTable.Meta):
+        model = PowerPanel
+        fields = ('pk', 'name', 'site', 'rackgroup', 'powerfeed_count', 'actions')
+
+
+#
+# Power feeds
+#
+
+class PowerFeedTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.LinkColumn()
+    powerpanel = tables.LinkColumn(
+        viewname='dcim:powerpanel',
+        args=[Accessor('powerpanel.pk')],
+
+    )
+    rack = tables.LinkColumn(
+        viewname='dcim:rack',
+        accessor=Accessor('rack.pk')
+    )
+
+    class Meta(BaseTable.Meta):
+        model = PowerFeed
+        fields = ('pk', 'name', 'powerpanel', 'rack', 'type', 'status', 'supply', 'voltage', 'amperage', 'phase')

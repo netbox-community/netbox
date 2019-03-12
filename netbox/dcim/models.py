@@ -2668,3 +2668,134 @@ class Cable(ChangeLoggedModel):
         b_endpoint = b_path[-1][2]
 
         return a_endpoint, b_endpoint, path_status
+
+
+#
+# Power
+#
+
+class PowerPanel(ChangeLoggedModel):
+    """
+    A distribution point for electrical power; e.g. a data center RPP.
+    """
+    site = models.ForeignKey(
+        to='Site',
+        on_delete=models.PROTECT
+    )
+    rackgroup = models.ForeignKey(
+        to='RackGroup',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True
+    )
+    name = models.CharField(
+        max_length=50
+    )
+
+    csv_headers = ['site', 'rackgroup', 'name']
+
+    class Meta:
+        ordering = ['site', 'name']
+        unique_together = ['site', 'name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('dcim:powerpanel', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.site.name,
+            self.rackgroup.name if self.rackgroup else None,
+            self.name,
+        )
+
+
+class PowerFeed(ChangeLoggedModel, CustomFieldModel):
+    """
+    An electrical circuit delivered from a PowerPanel.
+    """
+    powerpanel = models.ForeignKey(
+        to='PowerPanel',
+        on_delete=models.PROTECT,
+        related_name='powerfeeds'
+    )
+    rack = models.ForeignKey(
+        to='Rack',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True
+    )
+    name = models.CharField(
+        max_length=50
+    )
+    type = models.PositiveSmallIntegerField(
+        choices=POWERFEED_TYPE_CHOICES,
+        default=POWERFEED_TYPE_PRIMARY
+    )
+    status = models.PositiveSmallIntegerField(
+        choices=POWERFEED_STATUS_CHOICES,
+        default=POWERFEED_STATUS_ACTIVE
+    )
+    supply = models.PositiveSmallIntegerField(
+        choices=POWERFEED_SUPPLY_CHOICES,
+        default=POWERFEED_SUPPLY_AC
+    )
+    voltage = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1)],
+        default=120
+    )
+    amperage = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1)],
+        default=20
+    )
+    phase = models.PositiveSmallIntegerField(
+        choices=POWERFEED_PHASE_CHOICES,
+        default=POWERFEED_PHASE_SINGLE
+    )
+    max_utilization = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(100)],
+        default=80,
+        help_text="Maximum permissible draw (percentage)"
+    )
+    comments = models.TextField(
+        blank=True
+    )
+    custom_field_values = GenericRelation(
+        to='extras.CustomFieldValue',
+        content_type_field='obj_type',
+        object_id_field='obj_id'
+    )
+
+    tags = TaggableManager(through=TaggedItem)
+
+    csv_headers = [
+        'powerpanel', 'rack', 'name', 'type', 'status', 'supply', 'voltage', 'amperage', 'phase', 'max_utilization',
+        'comments',
+    ]
+
+    class Meta:
+        ordering = ['powerpanel', 'name']
+        unique_together = ['powerpanel', 'name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('dcim:powerfeed', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.powerpanel.name,
+            self.rack.name if self.rack else None,
+            self.name,
+            self.get_type_display(),
+            self.get_status_display(),
+            self.get_supply_display(),
+            self.voltage,
+            self.amperage,
+            self.get_phase_display(),
+            self.max_utilization,
+            self.comments,
+        )
