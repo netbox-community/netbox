@@ -8,11 +8,11 @@
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'dcim:powerfeed_list' %}">Power Feeds</a></li>
-                <li><a href="{{ powerfeed.site.get_absolute_url }}">{{ powerfeed.site }}</a></li>
-                {% if powerfeed.rackgroup %}
-                    <li><a href="{{ powerfeed.rackgroup.get_absolute_url }}">{{ powerfeed.rackgroup }}</a></li>
+                <li><a href="{{ powerfeed.power_panel.get_absolute_url }}">{{ powerfeed.power_panel }}</a></li>
+                {% if powerfeed.rack %}
+                    <li><a href="{{ powerfeed.rack.get_absolute_url }}">{{ powerfeed.rack }}</a></li>
                 {% endif %}
-                <li>{{ site }}</li>
+                <li>{{ powerfeed }}</li>
             </ol>
         </div>
         <div class="col-sm-4 col-md-3">
@@ -57,7 +57,7 @@
                 <tr>
                     <td>Power Panel</td>
                     <td>
-                        <a href="{{ powerfeed.powerpanel.get_absolute_url }}">{{ powerfeed.powerpanel }}</a>
+                        <a href="{{ powerfeed.power_panel.get_absolute_url }}">{{ powerfeed.power_panel }}</a>
                     </td>
                 </tr>
                 <tr>

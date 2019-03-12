@@ -2131,6 +2131,17 @@ class PowerPanelListView(ObjectListView):
     template_name = 'dcim/powerpanel_list.html'
 
 
+class PowerPanelView(View):
+
+    def get(self, request, pk):
+
+        powerpanel = get_object_or_404(PowerPanel.objects.select_related('site', 'rack_group'), pk=pk)
+
+        return render(request, 'dcim/powerpanel.html', {
+            'powerpanel': powerpanel,
+        })
+
+
 class PowerPanelCreateView(PermissionRequiredMixin, ObjectEditView):
     permission_required = 'dcim.add_powerpanel'
     model = PowerPanel
@@ -2140,6 +2151,12 @@ class PowerPanelCreateView(PermissionRequiredMixin, ObjectEditView):
 
 class PowerPanelEditView(PowerPanelCreateView):
     permission_required = 'dcim.change_powerpanel'
+
+
+class PowerPanelDeleteView(PermissionRequiredMixin, ObjectDeleteView):
+    permission_required = 'dcim.delete_powerpanel'
+    model = PowerPanel
+    default_return_url = 'dcim:powerpanel_list'
 
 
 class PowerPanelBulkImportView(PermissionRequiredMixin, BulkImportView):
@@ -2178,7 +2195,7 @@ class PowerFeedView(View):
 
     def get(self, request, pk):
 
-        powerfeed = get_object_or_404(PowerFeed.objects.select_related('panel', 'rack'), pk=pk)
+        powerfeed = get_object_or_404(PowerFeed.objects.select_related('power_panel', 'rack'), pk=pk)
 
         return render(request, 'dcim/powerfeed.html', {
             'powerfeed': powerfeed,

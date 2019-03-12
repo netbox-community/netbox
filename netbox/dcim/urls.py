@@ -285,7 +285,9 @@ urlpatterns = [
     url(r'^power-panels/add/$', views.PowerPanelCreateView.as_view(), name='powerpanel_add'),
     url(r'^power-panels/import/$', views.PowerPanelBulkImportView.as_view(), name='powerpanel_import'),
     url(r'^power-panels/delete/$', views.PowerPanelBulkDeleteView.as_view(), name='powerpanel_bulk_delete'),
+    url(r'^power-panels/(?P<pk>\d+)/$', views.PowerPanelView.as_view(), name='powerpanel'),
     url(r'^power-panels/(?P<pk>\d+)/edit/$', views.PowerPanelEditView.as_view(), name='powerpanel_edit'),
+    url(r'^power-panels/(?P<pk>\d+)/delete/$', views.PowerPanelDeleteView.as_view(), name='powerpanel_delete'),
     url(r'^power-panels/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='powerpanel_changelog', kwargs={'model': PowerPanel}),
 
     # Racks

@@ -2682,7 +2682,7 @@ class PowerPanel(ChangeLoggedModel):
         to='Site',
         on_delete=models.PROTECT
     )
-    rackgroup = models.ForeignKey(
+    rack_group = models.ForeignKey(
         to='RackGroup',
         on_delete=models.PROTECT,
         blank=True,
@@ -2692,7 +2692,7 @@ class PowerPanel(ChangeLoggedModel):
         max_length=50
     )
 
-    csv_headers = ['site', 'rackgroup', 'name']
+    csv_headers = ['site', 'rack_group', 'name']
 
     class Meta:
         ordering = ['site', 'name']
@@ -2707,7 +2707,7 @@ class PowerPanel(ChangeLoggedModel):
     def to_csv(self):
         return (
             self.site.name,
-            self.rackgroup.name if self.rackgroup else None,
+            self.rack_group.name if self.rack_group else None,
             self.name,
         )
 
@@ -2716,7 +2716,7 @@ class PowerFeed(ChangeLoggedModel, CustomFieldModel):
     """
     An electrical circuit delivered from a PowerPanel.
     """
-    powerpanel = models.ForeignKey(
+    power_panel = models.ForeignKey(
         to='PowerPanel',
         on_delete=models.PROTECT,
         related_name='powerfeeds'
@@ -2771,13 +2771,13 @@ class PowerFeed(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'powerpanel', 'rack', 'name', 'type', 'status', 'supply', 'voltage', 'amperage', 'phase', 'max_utilization',
+        'power_panel', 'rack', 'name', 'type', 'status', 'supply', 'voltage', 'amperage', 'phase', 'max_utilization',
         'comments',
     ]
 
     class Meta:
-        ordering = ['powerpanel', 'name']
-        unique_together = ['powerpanel', 'name']
+        ordering = ['power_panel', 'name']
+        unique_together = ['power_panel', 'name']
 
     def __str__(self):
         return self.name
@@ -2787,7 +2787,7 @@ class PowerFeed(ChangeLoggedModel, CustomFieldModel):
 
     def to_csv(self):
         return (
-            self.powerpanel.name,
+            self.power_panel.name,
             self.rack.name if self.rack else None,
             self.name,
             self.get_type_display(),

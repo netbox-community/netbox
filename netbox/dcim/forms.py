@@ -3163,7 +3163,7 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
 #
 
 class PowerPanelForm(BootstrapMixin, forms.ModelForm):
-    rackgroup = ChainedModelChoiceField(
+    rack_group = ChainedModelChoiceField(
         queryset=RackGroup.objects.all(),
         chains=(
             ('site', 'site'),
@@ -3177,7 +3177,7 @@ class PowerPanelForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerPanel
         fields = [
-            'site', 'rackgroup', 'name',
+            'site', 'rack_group', 'name',
         ]
         widgets = {
             'site': APISelect(
@@ -3198,7 +3198,7 @@ class PowerPanelCSVForm(forms.ModelForm):
             'invalid_choice': 'Site not found.',
         }
     )
-    group_name = forms.CharField(
+    rackgroup_name = forms.CharField(
         help_text='Name of rack group',
         required=False
     )
@@ -3213,6 +3213,17 @@ class PowerPanelCSVForm(forms.ModelForm):
 #
 
 class PowerFeedForm(BootstrapMixin, CustomFieldForm):
+    site = ChainedModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/sites/',
+            filter_for={
+                'power_panel': 'site_id',
+                'rack': 'site_id',
+            }
+        )
+    )
     tags = TagField(
         required=False
     )
@@ -3220,15 +3231,15 @@ class PowerFeedForm(BootstrapMixin, CustomFieldForm):
     class Meta:
         model = PowerFeed
         fields = [
-            'powerpanel', 'rack', 'name', 'type', 'status', 'supply', 'voltage', 'amperage', 'phase', 'max_utilization',
-            'comments', 'tags',
+            'site', 'power_panel', 'rack', 'name', 'type', 'status', 'supply', 'voltage', 'amperage', 'phase',
+            'max_utilization', 'comments', 'tags',
         ]
         widgets = {
-            'site': APISelect(
-                api_url="/api/dcim/sites/",
-                filter_for={
-                    'rackgroup': 'site_id',
-                }
+            'power_panel': APISelect(
+                api_url="/api/dcim/power-panels/"
+            ),
+            'rack': APISelect(
+                api_url="/api/dcim/racks/"
             ),
             'type': StaticSelect2(),
             'status': StaticSelect2(),
