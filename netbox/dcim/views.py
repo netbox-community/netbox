@@ -392,10 +392,12 @@ class RackView(View):
         prev_rack = Rack.objects.filter(site=rack.site, name__lt=rack.name).order_by('-name').first()
 
         reservations = RackReservation.objects.filter(rack=rack)
+        power_feeds = PowerFeed.objects.filter(rack=rack).select_related('power_panel')
 
         return render(request, 'dcim/rack.html', {
             'rack': rack,
             'reservations': reservations,
+            'power_feeds': power_feeds,
             'nonracked_devices': nonracked_devices,
             'next_rack': next_rack,
             'prev_rack': prev_rack,
@@ -2123,9 +2125,9 @@ class VirtualChassisRemoveMemberView(PermissionRequiredMixin, GetReturnURLMixin,
 
 class PowerPanelListView(ObjectListView):
     queryset = PowerPanel.objects.select_related(
-        'site', 'rackgroup'
+        'site', 'rack_group'
     ).annotate(
-        rack_count=Count('powerfeeds')
+        powerfeed_count=Count('powerfeeds')
     )
     table = tables.PowerPanelTable
     template_name = 'dcim/powerpanel_list.html'
@@ -2183,7 +2185,7 @@ class PowerPanelBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class PowerFeedListView(ObjectListView):
     queryset = PowerFeed.objects.select_related(
-        'powerpanel', 'rack'
+        'power_panel', 'rack'
     )
     # filter = filters.PowerFeedFilter
     # filter_form = forms.PowerFeedFilterForm
@@ -2229,7 +2231,7 @@ class PowerFeedBulkImportView(PermissionRequiredMixin, BulkImportView):
 
 class PowerFeedBulkEditView(PermissionRequiredMixin, BulkEditView):
     permission_required = 'dcim.change_powerfeed'
-    queryset = PowerFeed.objects.select_related('powerpanel', 'rack')
+    queryset = PowerFeed.objects.select_related('power_panel', 'rack')
     # filter = filters.PowerFeedFilter
     table = tables.PowerFeedTable
     form = forms.PowerFeedBulkEditForm
@@ -2238,7 +2240,7 @@ class PowerFeedBulkEditView(PermissionRequiredMixin, BulkEditView):
 
 class PowerFeedBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     permission_required = 'dcim.delete_powerfeed'
-    queryset = PowerFeed.objects.select_related('powerpanel', 'rack')
+    queryset = PowerFeed.objects.select_related('power_panel', 'rack')
     # filter = filters.PowerFeedFilter
     table = tables.PowerFeedTable
     default_return_url = 'dcim:powerfeed_list'

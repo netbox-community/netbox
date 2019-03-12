@@ -2730,17 +2730,21 @@ class PowerFeed(ChangeLoggedModel, CustomFieldModel):
     name = models.CharField(
         max_length=50
     )
-    type = models.PositiveSmallIntegerField(
-        choices=POWERFEED_TYPE_CHOICES,
-        default=POWERFEED_TYPE_PRIMARY
-    )
     status = models.PositiveSmallIntegerField(
         choices=POWERFEED_STATUS_CHOICES,
         default=POWERFEED_STATUS_ACTIVE
     )
+    type = models.PositiveSmallIntegerField(
+        choices=POWERFEED_TYPE_CHOICES,
+        default=POWERFEED_TYPE_PRIMARY
+    )
     supply = models.PositiveSmallIntegerField(
         choices=POWERFEED_SUPPLY_CHOICES,
         default=POWERFEED_SUPPLY_AC
+    )
+    phase = models.PositiveSmallIntegerField(
+        choices=POWERFEED_PHASE_CHOICES,
+        default=POWERFEED_PHASE_SINGLE
     )
     voltage = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)],
@@ -2749,10 +2753,6 @@ class PowerFeed(ChangeLoggedModel, CustomFieldModel):
     amperage = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)],
         default=20
-    )
-    phase = models.PositiveSmallIntegerField(
-        choices=POWERFEED_PHASE_CHOICES,
-        default=POWERFEED_PHASE_SINGLE
     )
     max_utilization = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(100)],
@@ -2771,7 +2771,7 @@ class PowerFeed(ChangeLoggedModel, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'power_panel', 'rack', 'name', 'type', 'status', 'supply', 'voltage', 'amperage', 'phase', 'max_utilization',
+        'power_panel', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'max_utilization',
         'comments',
     ]
 
@@ -2790,12 +2790,18 @@ class PowerFeed(ChangeLoggedModel, CustomFieldModel):
             self.power_panel.name,
             self.rack.name if self.rack else None,
             self.name,
-            self.get_type_display(),
             self.get_status_display(),
+            self.get_type_display(),
             self.get_supply_display(),
+            self.get_phase_display(),
             self.voltage,
             self.amperage,
-            self.get_phase_display(),
             self.max_utilization,
             self.comments,
         )
+
+    def get_type_class(self):
+        return STATUS_CLASSES[self.type]
+
+    def get_status_class(self):
+        return STATUS_CLASSES[self.status]

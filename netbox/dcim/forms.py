@@ -3183,7 +3183,7 @@ class PowerPanelForm(BootstrapMixin, forms.ModelForm):
             'site': APISelect(
                 api_url="/api/dcim/sites/",
                 filter_for={
-                    'rackgroup': 'site_id',
+                    'rack_group': 'site_id',
                 }
             ),
         }
@@ -3231,7 +3231,7 @@ class PowerFeedForm(BootstrapMixin, CustomFieldForm):
     class Meta:
         model = PowerFeed
         fields = [
-            'site', 'power_panel', 'rack', 'name', 'type', 'status', 'supply', 'voltage', 'amperage', 'phase',
+            'site', 'power_panel', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage',
             'max_utilization', 'comments', 'tags',
         ]
         widgets = {
@@ -3241,23 +3241,23 @@ class PowerFeedForm(BootstrapMixin, CustomFieldForm):
             'rack': APISelect(
                 api_url="/api/dcim/racks/"
             ),
-            'type': StaticSelect2(),
             'status': StaticSelect2(),
+            'type': StaticSelect2(),
             'supply': StaticSelect2(),
             'phase': StaticSelect2(),
         }
 
 
 class PowerFeedCSVForm(forms.ModelForm):
-    type = CSVChoiceField(
-        choices=POWERFEED_TYPE_CHOICES,
-        required=False,
-        help_text='Primary or redundant'
-    )
     status = CSVChoiceField(
         choices=POWERFEED_STATUS_CHOICES,
         required=False,
         help_text='Operational status'
+    )
+    type = CSVChoiceField(
+        choices=POWERFEED_TYPE_CHOICES,
+        required=False,
+        help_text='Primary or redundant'
     )
     supply = CSVChoiceField(
         choices=POWERFEED_SUPPLY_CHOICES,
@@ -3292,14 +3292,14 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
             api_url="/api/dcim/rack-groups",
         )
     )
-    type = forms.ChoiceField(
-        choices=add_blank_choice(POWERFEED_TYPE_CHOICES),
+    status = forms.ChoiceField(
+        choices=add_blank_choice(POWERFEED_STATUS_CHOICES),
         required=False,
         initial='',
         widget=StaticSelect2()
     )
-    status = forms.ChoiceField(
-        choices=add_blank_choice(POWERFEED_STATUS_CHOICES),
+    type = forms.ChoiceField(
+        choices=add_blank_choice(POWERFEED_TYPE_CHOICES),
         required=False,
         initial='',
         widget=StaticSelect2()
@@ -3310,17 +3310,17 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         initial='',
         widget=StaticSelect2()
     )
-    voltage = forms.IntegerField(
-        required=False
-    )
-    amperage = forms.IntegerField(
-        required=False
-    )
     phase = forms.ChoiceField(
         choices=add_blank_choice(POWERFEED_PHASE_CHOICES),
         required=False,
         initial='',
         widget=StaticSelect2()
+    )
+    voltage = forms.IntegerField(
+        required=False
+    )
+    amperage = forms.IntegerField(
+        required=False
     )
     max_utilization = forms.IntegerField(
         required=False

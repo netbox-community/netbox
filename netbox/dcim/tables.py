@@ -145,6 +145,10 @@ STATUS_LABEL = """
 <span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
 """
 
+TYPE_LABEL = """
+<span class="label label-{{ record.get_type_class }}">{{ record.get_type_display }}</span>
+"""
+
 DEVICE_PRIMARY_IP = """
 {{ record.primary_ip6.address.ip|default:"" }}
 {% if record.primary_ip6 and record.primary_ip4 %}<br />{% endif %}
@@ -799,17 +803,10 @@ class PowerPanelTable(BaseTable):
     powerfeed_count = tables.Column(
         verbose_name='Feeds'
     )
-    actions = tables.TemplateColumn(
-        template_code=RACKROLE_ACTIONS,
-        attrs={
-            'td': {'class': 'text-right noprint'}
-        },
-        verbose_name=''
-    )
 
     class Meta(BaseTable.Meta):
         model = PowerPanel
-        fields = ('pk', 'name', 'site', 'rackgroup', 'powerfeed_count', 'actions')
+        fields = ('pk', 'name', 'site', 'rack_group', 'powerfeed_count')
 
 
 #
@@ -819,16 +816,18 @@ class PowerPanelTable(BaseTable):
 class PowerFeedTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
-    powerpanel = tables.LinkColumn(
+    power_panel = tables.LinkColumn(
         viewname='dcim:powerpanel',
-        args=[Accessor('powerpanel.pk')],
+        args=[Accessor('power_panel.pk')],
 
     )
-    rack = tables.LinkColumn(
-        viewname='dcim:rack',
-        accessor=Accessor('rack.pk')
+    status = tables.TemplateColumn(
+        template_code=STATUS_LABEL
+    )
+    type = tables.TemplateColumn(
+        template_code=TYPE_LABEL
     )
 
     class Meta(BaseTable.Meta):
         model = PowerFeed
-        fields = ('pk', 'name', 'powerpanel', 'rack', 'type', 'status', 'supply', 'voltage', 'amperage', 'phase')
+        fields = ('pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase')
