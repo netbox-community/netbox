@@ -2,6 +2,7 @@ v2.5.9 (FUTURE)
 
 ## Bug Fixes
 
+* [#2207](https://github.com/digitalocean/netbox/issues/2207) - Fixes Deterministic Ordering of Interfaces
 * [#2577](https://github.com/digitalocean/netbox/issues/2577) - Clarification of wording in API regarding filtering
 * [#2991](https://github.com/digitalocean/netbox/issues/2991) - Correct documentation for API Filtering
 
