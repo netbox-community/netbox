@@ -71,7 +71,7 @@ class InterfaceManager(Manager):
 
         sql_col = '{}.name'.format(self.model._meta.db_table)
         ordering = [
-            '_slot', '_subslot', '_position', '_subposition', '_type', '_id', '_channel', '_vc', 'name', 'id'
+            '_slot', '_subslot', '_position', '_subposition', '_type', '_id', '_channel', '_vc', 'name', 'pk'
 
         ]
 
