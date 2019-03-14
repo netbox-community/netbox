@@ -195,7 +195,7 @@ class IPAddressSerializer(TaggitSerializer, CustomFieldModelSerializer):
     role = ChoiceField(choices=IPADDRESS_ROLE_CHOICES, required=False, allow_null=True)
     interface = IPAddressInterfaceSerializer(required=False, allow_null=True)
     nat_inside = NestedIPAddressSerializer(required=False, allow_null=True)
-    nat_outside = NestedIPAddressSerializer(read_only=True)
+    nat_outside = NestedIPAddressSerializer(required=False, read_only=True)
     tags = TagListSerializerField(required=False)
 
     class Meta:
