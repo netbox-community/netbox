@@ -1,13 +1,17 @@
 v2.5.9 (FUTURE)
 
+## Enhancements
+
+* [#3011](https://github.com/digitalocean/netbox/issues/3011) - Add SSL support for django-rq (requires django-rq v1.3.1+)
+
 ## Bug Fixes
 
-* [#3014](https://github.com/digitalocean/netbox/issues/3014) - Fixes VM Role filtering
 * [#2207](https://github.com/digitalocean/netbox/issues/2207) - Fixes Deterministic Ordering of Interfaces
 * [#2577](https://github.com/digitalocean/netbox/issues/2577) - Clarification of wording in API regarding filtering
 * [#2924](https://github.com/digitalocean/netbox/issues/2924) - Add interface type for QSFP28 50GE
 * [#2936](https://github.com/digitalocean/netbox/issues/2936) - Fix device role selection showing duplicate first entry
 * [#2998](https://github.com/digitalocean/netbox/issues/2998) - Limit device query to non-racked devices if no rack selected when creating a cable
+* [#3014](https://github.com/digitalocean/netbox/issues/3014) - Fixes VM Role filtering
 
 v2.5.8 (2019-03-11)
 
