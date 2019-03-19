@@ -132,6 +132,7 @@ REDIS = {
     'PASSWORD': '',
     'DATABASE': 0,
     'DEFAULT_TIMEOUT': 300,
+    'SSL': False,
 }
 
 # The file path where custom reports will be stored. A trailing slash is not needed. Note that the default value of
