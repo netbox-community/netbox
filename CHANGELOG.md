@@ -2,6 +2,7 @@ v2.5.9 (FUTURE)
 
 ## Bug Fixes
 
+* [#3014](https://github.com/digitalocean/netbox/issues/3014) - Fixes VM Role filtering
 * [#2207](https://github.com/digitalocean/netbox/issues/2207) - Fixes Deterministic Ordering of Interfaces
 * [#2577](https://github.com/digitalocean/netbox/issues/2577) - Clarification of wording in API regarding filtering
 * [#2924](https://github.com/digitalocean/netbox/issues/2924) - Add interface type for QSFP28 50GE
