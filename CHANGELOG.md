@@ -6,6 +6,7 @@ v2.5.9 (FUTURE)
 * [#2577](https://github.com/digitalocean/netbox/issues/2577) - Clarification of wording in API regarding filtering
 * [#2924](https://github.com/digitalocean/netbox/issues/2924) - Add interface type for QSFP28 50GE
 * [#2936](https://github.com/digitalocean/netbox/issues/2936) - Fix device role selection showing duplicate first entry
+* [#2998](https://github.com/digitalocean/netbox/issues/2998) - Limit device query to non-racked devices if no rack selected when creating a cable
 
 v2.5.8 (2019-03-11)
 

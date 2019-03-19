@@ -155,10 +155,13 @@ $(document).ready(function() {
 
                 filter_for_elements.each(function(index, filter_for_element) {
                     var param_name = $(filter_for_element).attr(attr_name);
+                    var is_nullable = $(filter_for_element).attr("nullable");
                     var value = $(filter_for_element).val();
 
                     if (param_name && value) {
                         parameters[param_name] = value;
+                    } else if (param_name && is_nullable) {
+                        parameters[param_name] = "null";
                     }
                 });
 
