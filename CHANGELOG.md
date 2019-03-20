@@ -2,6 +2,7 @@ v2.5.9 (FUTURE)
 
 ## Enhancements
 
+* [#2902](https://github.com/digitalocean/netbox/issues/2902) - Replace supervisord with systemd
 * [#3011](https://github.com/digitalocean/netbox/issues/3011) - Add SSL support for django-rq (requires django-rq v1.3.1+)
 
 ## Bug Fixes
@@ -47,7 +48,6 @@ v2.5.7 (2019-02-21)
 
 ## Enhancements
 
-* [#2902](https://github.com/digitalocean/netbox/issues/2902) - Replace supervisord with systemd
 * [#2357](https://github.com/digitalocean/netbox/issues/2357) - Enable filtering of devices by rack face
 * [#2638](https://github.com/digitalocean/netbox/issues/2638) - Add button to copy unlocked secret to clipboard
 * [#2870](https://github.com/digitalocean/netbox/issues/2870) - Add Markdown rendering for provider NOC/admin contact fields
