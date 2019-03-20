@@ -54,7 +54,7 @@
                 <div class="col-xs-4 text-center">
                     <p class="text-muted">{% now 'Y-m-d H:i:s T' %}</p>
                 </div>
-                <div class="col-xs-4 text-right">
+                <div class="col-xs-4 text-right noprint">
                     <p class="text-muted">
                         <i class="fa fa-fw fa-book text-primary"></i> <a href="http://netbox.readthedocs.io/">Docs</a> &middot;
                         <i class="fa fa-fw fa-cloud text-primary"></i> <a href="{% url 'api_docs' %}">API</a> &middot;
@@ -69,6 +69,7 @@
 <script src="{% static 'jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
 <script src="{% static 'bootstrap-3.3.7-dist/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'select2-4.0.5/js/select2.min.js' %}"></script>
+<script src="{% static 'clipboard-2.0.4.min.js' %}"></script>
 <script src="{% static 'js/forms.js' %}?v{{ settings.VERSION }}"></script>
 <script type="text/javascript">
     var netbox_api_path = "/{{ settings.BASE_PATH }}api/";

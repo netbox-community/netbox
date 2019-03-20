@@ -2,7 +2,7 @@
 {% load buttons %}
 
 {% block content %}
-<div class="pull-right">
+<div class="pull-right noprint">
     {% export_button content_type %}
 </div>
 <h1>{% block title %}Console Connections{% endblock %}</h1>
@@ -11,7 +11,7 @@
         {% include 'responsive_table.html' %}
         {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
     </div>
-    <div class="col-md-3">
+    <div class="col-md-3 noprint">
 		{% include 'inc/search_panel.html' %}
     </div>
 </div>

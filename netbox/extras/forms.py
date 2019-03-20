@@ -11,8 +11,8 @@ from taggit.models import Tag
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
-    add_blank_choice, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ContentTypeSelect, FilterChoiceField,
-    FilterTreeNodeMultipleChoiceField, LaxURLField, JSONField, SlugField,
+    add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ContentTypeSelect,
+    FilterChoiceField, FilterTreeNodeMultipleChoiceField, LaxURLField, JSONField, SlugField,
 )
 from .constants import (
     CF_FILTER_DISABLED, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL,
@@ -221,10 +221,6 @@ class TagFilterForm(BootstrapMixin, forms.Form):
 #
 
 class ConfigContextForm(BootstrapMixin, forms.ModelForm):
-    regions = TreeNodeMultipleChoiceField(
-        queryset=Region.objects.all(),
-        required=False
-    )
     data = JSONField()
 
     class Meta:
@@ -233,6 +229,26 @@ class ConfigContextForm(BootstrapMixin, forms.ModelForm):
             'name', 'weight', 'description', 'is_active', 'regions', 'sites', 'roles', 'platforms', 'tenant_groups',
             'tenants', 'data',
         ]
+        widgets = {
+            'regions': APISelectMultiple(
+                api_url="/api/dcim/regions/"
+            ),
+            'sites': APISelectMultiple(
+                api_url="/api/dcim/sites/"
+            ),
+            'roles': APISelectMultiple(
+                api_url="/api/dcim/device-roles/"
+            ),
+            'platforms': APISelectMultiple(
+                api_url="/api/dcim/platforms/"
+            ),
+            'tenant_groups': APISelectMultiple(
+                api_url="/api/tenancy/tenant-groups/"
+            ),
+            'tenants': APISelectMultiple(
+                api_url="/api/tenancy/tenants/"
+            )
+        }
 
 
 class ConfigContextBulkEditForm(BootstrapMixin, BulkEditForm):
@@ -264,29 +280,53 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
         required=False,
         label='Search'
     )
-    region = FilterTreeNodeMultipleChoiceField(
+    region = FilterChoiceField(
         queryset=Region.objects.all(),
-        to_field_name='slug'
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/regions/",
+            value_field="slug",
+        )
     )
     site = FilterChoiceField(
         queryset=Site.objects.all(),
-        to_field_name='slug'
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/",
+            value_field="slug",
+        )
     )
     role = FilterChoiceField(
         queryset=DeviceRole.objects.all(),
-        to_field_name='slug'
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/device-roles/",
+            value_field="slug",
+        )
     )
     platform = FilterChoiceField(
         queryset=Platform.objects.all(),
-        to_field_name='slug'
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/platforms/",
+            value_field="slug",
+        )
     )
     tenant_group = FilterChoiceField(
         queryset=TenantGroup.objects.all(),
-        to_field_name='slug'
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenant-groups/",
+            value_field="slug",
+        )
     )
     tenant = FilterChoiceField(
         queryset=Tenant.objects.all(),
-        to_field_name='slug'
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenants/",
+            value_field="slug",
+        )
     )
 
 

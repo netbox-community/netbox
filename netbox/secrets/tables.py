@@ -23,7 +23,7 @@ class SecretRoleTable(BaseTable):
     secret_count = tables.Column(verbose_name='Secrets')
     slug = tables.Column(verbose_name='Slug')
     actions = tables.TemplateColumn(
-        template_code=SECRETROLE_ACTIONS, attrs={'td': {'class': 'text-right'}}, verbose_name=''
+        template_code=SECRETROLE_ACTIONS, attrs={'td': {'class': 'text-right noprint'}}, verbose_name=''
     )
 
     class Meta(BaseTable.Meta):

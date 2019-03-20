@@ -68,7 +68,7 @@ class TagTable(BaseTable):
     )
     actions = tables.TemplateColumn(
         template_code=TAG_ACTIONS,
-        attrs={'td': {'class': 'text-right'}},
+        attrs={'td': {'class': 'text-right noprint'}},
         verbose_name=''
     )
 

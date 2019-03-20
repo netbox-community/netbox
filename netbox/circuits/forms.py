@@ -107,7 +107,7 @@ class ProviderFilterForm(BootstrapMixin, CustomFieldFilterForm):
     site = FilterChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
-        widget=APISelect(
+        widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
         )

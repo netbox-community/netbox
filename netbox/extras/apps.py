@@ -22,6 +22,7 @@ class ExtrasConfig(AppConfig):
                     port=settings.REDIS_PORT,
                     db=settings.REDIS_DATABASE,
                     password=settings.REDIS_PASSWORD or None,
+                    ssl=settings.REDIS_SSL,
                 )
                 rs.ping()
             except redis.exceptions.ConnectionError:

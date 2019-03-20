@@ -23,7 +23,7 @@
             <span class="text-muted">Vacant</span>
         </td>
     {% endif %}
-    <td class="text-right">
+    <td class="text-right noprint">
         {% if perms.dcim.change_devicebay %}
             {% if devicebay.installed_device %}
                 <a href="{% url 'dcim:devicebay_depopulate' pk=devicebay.pk %}" class="btn btn-danger btn-xs">

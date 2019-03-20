@@ -96,7 +96,7 @@
                             {{ peer_termination.connected_endpoint.device }}
                         </a><br/>
                         <small>via <i class="fa fa-fw fa-globe" title="Circuit"></i>
-                            <a href="{{ iface.connected_endpoint.circuit.get_absolure_url }}">
+                            <a href="{{ iface.connected_endpoint.circuit.get_absolute_url }}">
                                 {{ iface.connected_endpoint.circuit.provider }}
                                 {{ iface.connected_endpoint.circuit }}
                             </a>
@@ -134,7 +134,7 @@
     {% endif %}
 
     {# Buttons #}
-    <td class="text-right text-nowrap">
+    <td class="text-right text-nowrap noprint">
         {% if show_graphs %}
             {% if iface.connected_endpoint %}
                 <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ device.name }} - {{ iface.name }}" data-url="{% url 'dcim-api:interface-graphs' pk=iface.pk %}" title="Show graphs">
@@ -231,7 +231,7 @@
                             </td>
 
                             {# Buttons #}
-                            <td class="text-right text-nowrap">
+                            <td class="text-right text-nowrap noprint">
                                 {% if perms.ipam.change_ipaddress %}
                                     <a href="{% url 'ipam:ipaddress_edit' pk=ip.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-info btn-xs">
                                         <i class="glyphicon glyphicon-pencil" aria-hidden="true" title="Edit IP address"></i>

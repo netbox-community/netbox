@@ -27,7 +27,7 @@ class DeviceComponentManager(Manager):
             select={
                 'name_padded': sql.format(table_name, table_name),
             }
-        ).order_by('name_padded')
+        ).order_by('name_padded', 'pk')
 
 
 class InterfaceQuerySet(QuerySet):
@@ -64,11 +64,15 @@ class InterfaceManager(Manager):
 
         The original `name` field is considered in its entirety to serve as a fallback in the event interfaces do not
         match any of the prescribed fields.
+
+        The `id` field is included to enforce deterministic ordering of interfaces in similar vein of other device
+        components.
         """
 
         sql_col = '{}.name'.format(self.model._meta.db_table)
         ordering = [
-            '_slot', '_subslot', '_position', '_subposition', '_type', '_id', '_channel', '_vc', 'name',
+            '_slot', '_subslot', '_position', '_subposition', '_type', '_id', '_channel', '_vc', 'name', 'pk'
+
         ]
 
         fields = {

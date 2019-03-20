@@ -29,7 +29,11 @@ def cache_changed_object(instance, **kwargs):
 
 def _record_object_deleted(request, instance, **kwargs):
 
-    # Record that the object was deleted.
+    # Force resolution of request.user in case it's still a SimpleLazyObject. This seems to happen
+    # occasionally during tests, but haven't been able to determine why.
+    assert request.user.is_authenticated
+
+    # Record that the object was deleted
     if hasattr(instance, 'log_change'):
         instance.log_change(request.user, request.id, OBJECTCHANGE_ACTION_DELETE)
 

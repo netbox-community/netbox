@@ -3,7 +3,7 @@
 {% load humanize %}
 
 {% block content %}
-<div class="pull-right">
+<div class="pull-right noprint">
     {% if request.GET.family == '6' %}
         <a href="{% url 'ipam:rir_list' %}" class="btn btn-default">
             <span class="fa fa-table" aria-hidden="true"></span>
@@ -29,7 +29,7 @@
             <div class="alert alert-info pull-right"><strong>Note:</strong> Numbers shown indicate /64 prefixes.</div>
         {% endif %}
     </div>
-	<div class="col-md-3">
+	<div class="col-md-3 noprint">
 		{% include 'inc/search_panel.html' %}
 	</div>
 </div>
