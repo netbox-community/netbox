@@ -20,12 +20,16 @@
     </td>
 
     {# Connection #}
-    {% if pp.connected_endpoint %}
+    {% if pp.connected_endpoint.device %}
         <td>
             <a href="{% url 'dcim:device' pk=pp.connected_endpoint.device.pk %}">{{ pp.connected_endpoint.device }}</a>
         </td>
         <td>
             {{ pp.connected_endpoint }}
+        </td>
+    {% elif pp.connected_endpoint %}
+        <td colspan="2">
+            <a href="{{ pp.connected_endpoint.get_absolute_url }}">{{ pp.connected_endpoint }}</a>
         </td>
     {% else %}
         <td colspan="2">

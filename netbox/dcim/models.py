@@ -1828,10 +1828,17 @@ class PowerPort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
-    connected_endpoint = models.OneToOneField(
+    _connected_poweroutlet = models.OneToOneField(
         to='dcim.PowerOutlet',
         on_delete=models.SET_NULL,
         related_name='connected_endpoint',
+        blank=True,
+        null=True
+    )
+    _connected_powerfeed = models.OneToOneField(
+        to='dcim.PowerFeed',
+        on_delete=models.SET_NULL,
+        related_name='+',
         blank=True,
         null=True
     )
@@ -1861,6 +1868,28 @@ class PowerPort(CableTermination, ComponentModel):
             self.name,
             self.description,
         )
+
+    @property
+    def connected_endpoint(self):
+        if self._connected_poweroutlet:
+            return self._connected_poweroutlet
+        return self._connected_powerfeed
+
+    @connected_endpoint.setter
+    def connected_endpoint(self, value):
+        if value is None:
+            self._connected_poweroutlet = None
+            self._connected_powerfeed = None
+        elif isinstance(value, PowerOutlet):
+            self._connected_poweroutlet = value
+            self._connected_powerfeed = None
+        elif isinstance(value, PowerFeed):
+            self._connected_poweroutlet = None
+            self._connected_powerfeed = value
+        else:
+            raise ValueError(
+                "Connected endpoint must be a PowerOutlet or PowerFeed, not {}.".format(type(value))
+            )
 
 
 #
@@ -2646,6 +2675,14 @@ class Cable(ChangeLoggedModel):
     def get_status_class(self):
         return 'success' if self.status else 'info'
 
+    def get_compatible_types(self):
+        """
+        Return all termination types compatible with termination A.
+        """
+        if self.termination_a is None:
+            return
+        return COMPATIBLE_TERMINATION_TYPES[self.termination_a._meta.model_name]
+
     def get_path_endpoints(self):
         """
         Traverse both ends of a cable path and return its connected endpoints. Note that one or both endpoints may be
@@ -2712,7 +2749,7 @@ class PowerPanel(ChangeLoggedModel):
         )
 
 
-class PowerFeed(ChangeLoggedModel, CustomFieldModel):
+class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
     """
     An electrical circuit delivered from a PowerPanel.
     """
@@ -2726,6 +2763,17 @@ class PowerFeed(ChangeLoggedModel, CustomFieldModel):
         on_delete=models.PROTECT,
         blank=True,
         null=True
+    )
+    connected_endpoint = models.OneToOneField(
+        to='dcim.PowerPort',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    connection_status = models.NullBooleanField(
+        choices=CONNECTION_STATUS_CHOICES,
+        blank=True
     )
     name = models.CharField(
         max_length=50

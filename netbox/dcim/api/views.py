@@ -496,7 +496,7 @@ class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
     queryset = PowerPort.objects.select_related(
         'device', 'connected_endpoint__device'
     ).filter(
-        connected_endpoint__isnull=False
+        _connected_poweroutlet__isnull=False
     )
     serializer_class = serializers.PowerPortSerializer
     filterset_class = filters.PowerConnectionFilter

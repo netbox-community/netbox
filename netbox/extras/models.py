@@ -541,7 +541,7 @@ class TopologyMap(models.Model):
         from dcim.models import PowerPort
 
         # Add all power connections to the graph
-        for pp in PowerPort.objects.filter(device__in=devices, connected_endpoint__device__in=devices):
+        for pp in PowerPort.objects.filter(device__in=devices, _connected_poweroutlet__device__in=devices):
             style = 'solid' if pp.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
             self.graph.edge(pp.connected_endpoint.device.name, pp.device.name, style=style)
 

@@ -10,6 +10,7 @@ from mptt.forms import TreeNodeChoiceField
 from taggit.forms import TagField
 from timezone_field import TimeZoneFormField
 
+from circuits.models import Circuit, CircuitTermination, Provider
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from ipam.models import IPAddress, VLAN, VLANGroup
 from tenancy.forms import TenancyForm
@@ -2521,7 +2522,7 @@ class RearPortBulkDisconnectForm(ConfirmationForm):
 # Cables
 #
 
-class CableCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
+class ConnectCableToDeviceForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
     termination_b_site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         label='Site',
@@ -2600,6 +2601,104 @@ class CableCreateForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
         ).exclude(
             model='circuittermination'
         )
+
+
+class ConnectCableToCircuitForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
+    termination_b_provider = forms.ModelChoiceField(
+        queryset=Provider.objects.all(),
+        label='Provider',
+        widget=APISelect(
+            api_url='/api/circuits/providers/',
+            filter_for={
+                'termination_b_circuit': 'provider_id',
+            }
+        )
+    )
+    termination_b_circuit = ChainedModelChoiceField(
+        queryset=Circuit.objects.all(),
+        chains=(
+            ('provider', 'termination_b_provider'),
+        ),
+        label='Circuit',
+        widget=APISelect(
+            api_url='/api/circuits/circuits/',
+            display_field='cid',
+            filter_for={
+                'termination_b_id': 'circuit_id',
+            }
+        )
+    )
+    termination_b_id = forms.IntegerField(
+        label='Termination',
+        widget=APISelect(
+            api_url='/api/circuits/circuit-terminations/',
+            disabled_indicator='cable'
+        )
+    )
+
+    class Meta:
+        model = Cable
+        fields = [
+            'termination_b_provider', 'termination_b_circuit', 'termination_b_id', 'type', 'status', 'label', 'color',
+            'length', 'length_unit',
+        ]
+
+
+class ConnectCableToPowerFeedForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
+    termination_b_site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        label='Site',
+        widget=APISelect(
+            api_url='/api/dcim/sites/',
+            display_field='cid',
+            filter_for={
+                'termination_b_rackgroup': 'site_id',
+                'termination_b_powerpanel': 'site_id',
+            }
+        )
+    )
+    termination_b_rackgroup = ChainedModelChoiceField(
+        queryset=RackGroup.objects.all(),
+        label='Rack Group',
+        chains=(
+            ('site', 'termination_b_site'),
+        ),
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/rack-groups/',
+            display_field='cid',
+            filter_for={
+                'termination_b_powerpanel': 'rackgroup_id',
+            }
+        )
+    )
+    termination_b_powerpanel = ChainedModelChoiceField(
+        queryset=PowerPanel.objects.all(),
+        chains=(
+            ('site', 'termination_b_site'),
+            ('rack_group', 'termination_b_rackgroup'),
+        ),
+        label='Power Panel',
+        widget=APISelect(
+            api_url='/api/dcim/power-panels/',
+            filter_for={
+                'termination_b_powerfeed': 'powerpanel_id',
+            }
+        )
+    )
+    termination_b_id = forms.IntegerField(
+        label='Power Feed',
+        widget=APISelect(
+            api_url='/api/dcim/power-feeds/',
+        )
+    )
+
+    class Meta:
+        model = Cable
+        fields = [
+            'termination_b_rackgroup', 'termination_b_powerpanel', 'termination_b_id', 'type', 'status', 'label',
+            'color', 'length', 'length_unit',
+        ]
 
 
 class CableForm(BootstrapMixin, forms.ModelForm):

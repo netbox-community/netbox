@@ -3,6 +3,7 @@ import re
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import transaction
 from django.db.models import Count, F
@@ -10,10 +11,11 @@ from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
+from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
-from circuits.models import Circuit
+from circuits.models import Circuit, CircuitTermination
 from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from extras.views import ObjectConfigContextView
 from ipam.models import Prefix, VLAN
@@ -913,7 +915,7 @@ class DeviceView(View):
         consoleserverports = device.consoleserverports.select_related('connected_endpoint__device', 'cable')
 
         # Power ports
-        power_ports = device.powerports.select_related('connected_endpoint__device', 'cable')
+        power_ports = device.powerports.select_related('_connected_poweroutlet__device', 'cable')
 
         # Power outlets
         poweroutlets = device.poweroutlets.select_related('connected_endpoint__device', 'cable')
@@ -1673,20 +1675,76 @@ class CableTraceView(View):
         })
 
 
-class CableCreateView(PermissionRequiredMixin, ObjectEditView):
+class CableCreateView(PermissionRequiredMixin, GetReturnURLMixin, View):
     permission_required = 'dcim.add_cable'
-    model = Cable
-    model_form = forms.CableCreateForm
     template_name = 'dcim/cable_connect.html'
 
-    def alter_obj(self, obj, request, url_args, url_kwargs):
+    def _get_form_class(self):
+        if self.termination_b_type == 'circuit':
+            return forms.ConnectCableToCircuitForm
+        if self.termination_b_type == 'powerfeed':
+            return forms.ConnectCableToPowerFeedForm
+        return forms.ConnectCableToDeviceForm
+
+    def dispatch(self, request, *args, **kwargs):
 
         # Retrieve endpoint A based on the given type and PK
-        termination_a_type = url_kwargs.get('termination_a_type')
-        termination_a_id = url_kwargs.get('termination_a_id')
-        obj.termination_a = termination_a_type.objects.get(pk=termination_a_id)
+        termination_a_type = kwargs.get('termination_a_type')
+        termination_a_id = kwargs.get('termination_a_id')
+        self.obj = Cable(
+            termination_a=termination_a_type.objects.get(pk=termination_a_id)
+        )
 
-        return obj
+        self.termination_b_type = request.GET.get('type')
+        if self.termination_b_type == 'circuit':
+            self.obj.termination_b_type = ContentType.objects.get_for_model(CircuitTermination)
+        elif self.termination_b_type == 'powerfeed':
+            self.obj.termination_b_type = ContentType.objects.get_for_model(PowerFeed)
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+
+        # Parse initial data manually to avoid setting field values as lists
+        initial_data = {k: request.GET[k] for k in request.GET}
+
+        form = self._get_form_class()(instance=self.obj, initial=initial_data)
+
+        return render(request, self.template_name, {
+            'obj': self.obj,
+            'obj_type': Cable._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(request, self.obj),
+        })
+
+    def post(self, request, *args, **kwargs):
+
+        form = self._get_form_class()(request.POST, request.FILES, instance=self.obj)
+
+        if form.is_valid():
+            obj = form.save()
+
+            msg = 'Created cable <a href="{}">{}</a>'.format(
+                obj.get_absolute_url(),
+                escape(obj)
+            )
+            messages.success(request, mark_safe(msg))
+
+            if '_addanother' in request.POST:
+                return redirect(request.get_full_path())
+
+            return_url = form.cleaned_data.get('return_url')
+            if return_url is not None and is_safe_url(url=return_url, allowed_hosts=request.get_host()):
+                return redirect(return_url)
+            else:
+                return redirect(self.get_return_url(request, obj))
+
+        return render(request, self.template_name, {
+            'obj': self.obj,
+            'obj_type': Cable._meta.verbose_name,
+            'form': form,
+            'return_url': self.get_return_url(request, self.obj),
+        })
 
 
 class CableEditView(PermissionRequiredMixin, ObjectEditView):
@@ -1763,11 +1821,11 @@ class ConsoleConnectionsListView(ObjectListView):
 
 class PowerConnectionsListView(ObjectListView):
     queryset = PowerPort.objects.select_related(
-        'device', 'connected_endpoint__device'
+        'device', '_connected_poweroutlet__device'
     ).filter(
-        connected_endpoint__isnull=False
+        _connected_poweroutlet__isnull=False
     ).order_by(
-        'cable', 'connected_endpoint__device__name', 'connected_endpoint__name'
+        'cable', '_connected_poweroutlet__device__name', '_connected_poweroutlet__name'
     )
     filter = filters.PowerConnectionFilter
     filter_form = forms.PowerConnectionFilterForm

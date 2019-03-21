@@ -420,7 +420,7 @@ CABLE_TERMINATION_TYPE_CHOICES = {
 COMPATIBLE_TERMINATION_TYPES = {
     'consoleport': ['consoleserverport', 'frontport', 'rearport'],
     'consoleserverport': ['consoleport', 'frontport', 'rearport'],
-    'powerport': ['poweroutlet'],
+    'powerport': ['poweroutlet', 'powerfeed'],
     'poweroutlet': ['powerport'],
     'interface': ['interface', 'circuittermination', 'frontport', 'rearport'],
     'frontport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport', 'circuittermination'],
