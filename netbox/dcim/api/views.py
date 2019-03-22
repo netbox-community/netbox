@@ -35,7 +35,7 @@ from .exceptions import MissingFilterException
 
 class DCIMFieldChoicesViewSet(FieldChoicesViewSet):
     fields = (
-        (Cable, ['length_unit', 'status', 'type']),
+        (Cable, ['length_unit', 'status', 'termination_a_type', 'termination_b_type', 'type']),
         (ConsolePort, ['connection_status']),
         (Device, ['face', 'status']),
         (DeviceType, ['subdevice_role']),
