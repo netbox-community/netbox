@@ -23,7 +23,6 @@ from . import serializers
 
 class ExtrasFieldChoicesViewSet(FieldChoicesViewSet):
     fields = (
-        (CustomField, ['type']),
         (Graph, ['type']),
     )
 

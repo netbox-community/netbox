@@ -32,7 +32,9 @@ def get_serializer_for_model(model, prefix=''):
     try:
         return dynamic_import(serializer_name)
     except AttributeError:
-        return None
+        raise Exception(
+            "Could not determine serializer for {}.{} with prefix '{}'".format(app_name, model_name, prefix)
+        )
 
 
 #
@@ -100,6 +102,10 @@ class ChoiceField(Field):
 
         return data
 
+    @property
+    def choices(self):
+        return self._choices
+
 
 class ContentTypeField(RelatedField):
     """
@@ -109,10 +115,6 @@ class ContentTypeField(RelatedField):
         "does_not_exist": "Invalid content type: {content_type}",
         "invalid": "Invalid value. Specify a content type as '<app_label>.<model_name>'.",
     }
-
-    # Can't set this as an attribute because it raises an exception when the field is read-only
-    def get_queryset(self):
-        return ContentType.objects.all()
 
     def to_internal_value(self, data):
         try:
@@ -256,10 +258,14 @@ class FieldChoicesViewSet(ViewSet):
         self._fields = OrderedDict()
         for cls, field_list in self.fields:
             for field_name in field_list:
+
                 model_name = cls._meta.verbose_name.lower().replace(' ', '-')
                 key = ':'.join([model_name, field_name])
+
+                serializer = get_serializer_for_model(cls)()
                 choices = []
-                for k, v in cls._meta.get_field(field_name).choices:
+
+                for k, v in serializer.get_fields()[field_name].choices.items():
                     if type(v) in [list, tuple]:
                         for k2, v2 in v:
                             choices.append({

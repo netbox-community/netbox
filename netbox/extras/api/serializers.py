@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from taggit.models import Tag
@@ -88,7 +89,9 @@ class TagSerializer(ValidatedModelSerializer):
 #
 
 class ImageAttachmentSerializer(ValidatedModelSerializer):
-    content_type = ContentTypeField()
+    content_type = ContentTypeField(
+        queryset=ContentType.objects.all()
+    )
     parent = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
