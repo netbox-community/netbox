@@ -2198,9 +2198,15 @@ class PowerPanelView(View):
     def get(self, request, pk):
 
         powerpanel = get_object_or_404(PowerPanel.objects.select_related('site', 'rack_group'), pk=pk)
+        powerfeed_table = tables.PowerFeedTable(
+            data=PowerFeed.objects.filter(power_panel=powerpanel).select_related('rack'),
+            orderable=False
+        )
+        powerfeed_table.exclude = ['power_panel']
 
         return render(request, 'dcim/powerpanel.html', {
             'powerpanel': powerpanel,
+            'powerfeed_table': powerfeed_table,
         })
 
 

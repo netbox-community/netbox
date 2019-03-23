@@ -48,7 +48,7 @@
 
 {% block content %}
 <div class="row">
-	<div class="col-md-7">
+	<div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Power Feed</strong>
@@ -82,6 +82,25 @@
                         <span class="label label-{{ powerfeed.get_status_class }}">{{ powerfeed.get_status_display }}</span>
                     </td>
                 </tr>
+                <tr>
+                    <td>Connected Device</td>
+                    <td>
+                        {% if powerfeed.connected_endpoint %}
+                            <a href="{{ powerfeed.connected_endpoint.device.get_absolute_url }}">{{ powerfeed.connected_endpoint.device }}</a> ({{ powerfeed.connected_endpoint }})
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Electrical Characteristics</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
                 <tr>
                     <td>Supply</td>
                     <td>{{ powerfeed.get_supply_display }}</td>
