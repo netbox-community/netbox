@@ -10,7 +10,7 @@ from extras.constants import WEBHOOK_CT_JSON, WEBHOOK_CT_X_WWW_FORM_ENCODED, OBJ
 
 
 @job('default')
-def process_webhook(webhook, data, model_name, event, timestamp):
+def process_webhook(webhook, data, model_name, event, timestamp, username):
     """
     Make a POST request to the defined Webhook
     """
@@ -18,6 +18,7 @@ def process_webhook(webhook, data, model_name, event, timestamp):
         'event': dict(OBJECTCHANGE_ACTION_CHOICES)[event].lower(),
         'timestamp': timestamp,
         'model': model_name,
+        'username': username,
         'data': data
     }
     headers = {
