@@ -4,6 +4,7 @@ v2.5.9 (FUTURE)
 
 * [#2933](https://github.com/digitalocean/netbox/issues/2933) - Add username to outbound webhook requests
 * [#3011](https://github.com/digitalocean/netbox/issues/3011) - Add SSL support for django-rq (requires django-rq v1.3.1+)
+* [#3025](https://github.com/digitalocean/netbox/issues/3025) - Add request ID to outbound webhook requests (for correlating all changes part of a single request)
 
 ## Bug Fixes
 
