@@ -208,14 +208,25 @@ class ReportDetailSerializer(ReportSerializer):
 #
 
 class ObjectChangeSerializer(serializers.ModelSerializer):
-    user = NestedUserSerializer(read_only=True)
-    content_type = ContentTypeField(read_only=True)
-    changed_object = serializers.SerializerMethodField(read_only=True)
+    user = NestedUserSerializer(
+        read_only=True
+    )
+    action = ChoiceField(
+        choices=OBJECTCHANGE_ACTION_CHOICES,
+        read_only=True
+    )
+    changed_object_type = ContentTypeField(
+        read_only=True
+    )
+    changed_object = serializers.SerializerMethodField(
+        read_only=True
+    )
 
     class Meta:
         model = ObjectChange
         fields = [
-            'id', 'time', 'user', 'user_name', 'request_id', 'action', 'content_type', 'changed_object', 'object_data',
+            'id', 'time', 'user', 'user_name', 'request_id', 'action', 'changed_object_type', 'changed_object',
+            'object_data',
         ]
 
     def get_changed_object(self, obj):

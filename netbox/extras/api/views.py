@@ -10,7 +10,7 @@ from taggit.models import Tag
 
 from extras import filters
 from extras.models import (
-    ConfigContext, CustomField, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
+    ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
 )
 from extras.reports import get_report, get_reports
 from utilities.api import FieldChoicesViewSet, IsAuthenticatedOrLoginNotRequired, ModelViewSet
@@ -24,6 +24,7 @@ from . import serializers
 class ExtrasFieldChoicesViewSet(FieldChoicesViewSet):
     fields = (
         (Graph, ['type']),
+        (ObjectChange, ['action']),
     )
 
 
