@@ -8,7 +8,7 @@ v2.5.9 (FUTURE)
 
 ## Bug Fixes
 
-* [#2207](https://github.com/digitalocean/netbox/issues/2207) - Fixes Deterministic Ordering of Interfaces
+* [#2207](https://github.com/digitalocean/netbox/issues/2207) - Fixes deterministic ordering of interfaces
 * [#2577](https://github.com/digitalocean/netbox/issues/2577) - Clarification of wording in API regarding filtering
 * [#2924](https://github.com/digitalocean/netbox/issues/2924) - Add interface type for QSFP28 50GE
 * [#2936](https://github.com/digitalocean/netbox/issues/2936) - Fix device role selection showing duplicate first entry
@@ -16,6 +16,7 @@ v2.5.9 (FUTURE)
 * [#3001](https://github.com/digitalocean/netbox/issues/3001) - Fix API representation of ObjectChange `action` and add `changed_object_type`
 * [#3014](https://github.com/digitalocean/netbox/issues/3014) - Fixes VM Role filtering
 * [#3022](https://github.com/digitalocean/netbox/issues/3022) - Add missing cable termination types to DCIM `_choices` endpoint
+* [#3026](https://github.com/digitalocean/netbox/issues/3026) - Tweak prefix/IP filter forms to filter using VRF ID rather than route distinguisher
 
 v2.5.8 (2019-03-11)
 
