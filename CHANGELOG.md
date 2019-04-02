@@ -19,6 +19,7 @@ v2.5.9 (FUTURE)
 * [#3022](https://github.com/digitalocean/netbox/issues/3022) - Add missing cable termination types to DCIM `_choices` endpoint
 * [#3026](https://github.com/digitalocean/netbox/issues/3026) - Tweak prefix/IP filter forms to filter using VRF ID rather than route distinguisher
 * [#3027](https://github.com/digitalocean/netbox/issues/3027) - Ignore empty local context data when rendering config contexts
+* [#3032](https://github.com/digitalocean/netbox/issues/3032) - Save assigned tags when creating a new secret
 
 v2.5.8 (2019-03-11)
 
