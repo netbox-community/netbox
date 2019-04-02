@@ -22,7 +22,7 @@ except ImportError:
     )
 
 
-VERSION = '2.5.8'
+VERSION = '2.5.9'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -131,6 +131,7 @@ REDIS_PORT = REDIS.get('PORT', 6379)
 REDIS_PASSWORD = REDIS.get('PASSWORD', '')
 REDIS_DATABASE = REDIS.get('DATABASE', 0)
 REDIS_DEFAULT_TIMEOUT = REDIS.get('DEFAULT_TIMEOUT', 300)
+REDIS_SSL = REDIS.get('SSL', False)
 
 # Email
 EMAIL_HOST = EMAIL.get('SERVER')
@@ -291,6 +292,7 @@ RQ_QUEUES = {
         'DB': REDIS_DATABASE,
         'PASSWORD': REDIS_PASSWORD,
         'DEFAULT_TIMEOUT': REDIS_DEFAULT_TIMEOUT,
+        'SSL': REDIS_SSL,
     }
 }
 

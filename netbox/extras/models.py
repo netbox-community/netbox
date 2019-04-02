@@ -720,7 +720,7 @@ class ConfigContextModel(models.Model):
             data = deepmerge(data, context.data)
 
         # If the object has local config context data defined, merge it last
-        if self.local_context_data is not None:
+        if self.local_context_data:
             data = deepmerge(data, self.local_context_data)
 
         return data
