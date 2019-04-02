@@ -250,7 +250,7 @@ $(document).ready(function() {
 
         ajax: {
             delay: 250,
-            url: "/api/extras/tags/",
+            url: netbox_api_path + "extras/tags/",
 
             data: function(params) {
                 // Paging. Note that `params.page` indexes at 1

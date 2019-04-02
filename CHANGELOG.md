@@ -15,6 +15,7 @@ v2.5.9 (FUTURE)
 * [#2998](https://github.com/digitalocean/netbox/issues/2998) - Limit device query to non-racked devices if no rack selected when creating a cable
 * [#3001](https://github.com/digitalocean/netbox/issues/3001) - Fix API representation of ObjectChange `action` and add `changed_object_type`
 * [#3014](https://github.com/digitalocean/netbox/issues/3014) - Fixes VM Role filtering
+* [#3019](https://github.com/digitalocean/netbox/issues/3019) - Fix tag population when running NetBox within a path
 * [#3022](https://github.com/digitalocean/netbox/issues/3022) - Add missing cable termination types to DCIM `_choices` endpoint
 * [#3026](https://github.com/digitalocean/netbox/issues/3026) - Tweak prefix/IP filter forms to filter using VRF ID rather than route distinguisher
 * [#3027](https://github.com/digitalocean/netbox/issues/3027) - Ignore empty local context data when rendering config contexts
