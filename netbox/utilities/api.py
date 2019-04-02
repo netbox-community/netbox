@@ -21,6 +21,10 @@ class ServiceUnavailable(APIException):
     default_detail = "Service temporarily unavailable, please try again later."
 
 
+class SerializerNotFound(Exception):
+    pass
+
+
 def get_serializer_for_model(model, prefix=''):
     """
     Dynamically resolve and return the appropriate serializer for a model.
@@ -32,7 +36,7 @@ def get_serializer_for_model(model, prefix=''):
     try:
         return dynamic_import(serializer_name)
     except AttributeError:
-        raise Exception(
+        raise SerializerNotFound(
             "Could not determine serializer for {}.{} with prefix '{}'".format(app_name, model_name, prefix)
         )
 
@@ -236,9 +240,10 @@ class ModelViewSet(_ModelViewSet):
         # exists
         request = self.get_serializer_context()['request']
         if request.query_params.get('brief', False):
-            serializer_class = get_serializer_for_model(self.queryset.model, prefix='Nested')
-            if serializer_class is not None:
-                return serializer_class
+            try:
+                return get_serializer_for_model(self.queryset.model, prefix='Nested')
+            except SerializerNotFound:
+                pass
 
         # Fall back to the hard-coded serializer class
         return self.serializer_class
