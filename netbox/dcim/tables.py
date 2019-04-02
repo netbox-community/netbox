@@ -822,11 +822,11 @@ class PowerFeedTable(BaseTable):
     name = tables.LinkColumn()
     power_panel = tables.LinkColumn(
         viewname='dcim:powerpanel',
-        args=[Accessor('pk')],
+        args=[Accessor('power_panel.pk')],
     )
     rack = tables.LinkColumn(
         viewname='dcim:rack',
-        args=[Accessor('pk')]
+        args=[Accessor('rack.pk')]
     )
     status = tables.TemplateColumn(
         template_code=STATUS_LABEL
