@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
@@ -89,7 +90,9 @@ class TagSerializer(ValidatedModelSerializer):
 #
 
 class ImageAttachmentSerializer(ValidatedModelSerializer):
-    content_type = ContentTypeField()
+    content_type = ContentTypeField(
+        queryset=ContentType.objects.all()
+    )
     parent = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -207,14 +210,25 @@ class ReportDetailSerializer(ReportSerializer):
 #
 
 class ObjectChangeSerializer(serializers.ModelSerializer):
-    user = NestedUserSerializer(read_only=True)
-    content_type = ContentTypeField(read_only=True)
-    changed_object = serializers.SerializerMethodField(read_only=True)
+    user = NestedUserSerializer(
+        read_only=True
+    )
+    action = ChoiceField(
+        choices=OBJECTCHANGE_ACTION_CHOICES,
+        read_only=True
+    )
+    changed_object_type = ContentTypeField(
+        read_only=True
+    )
+    changed_object = serializers.SerializerMethodField(
+        read_only=True
+    )
 
     class Meta:
         model = ObjectChange
         fields = [
-            'id', 'time', 'user', 'user_name', 'request_id', 'action', 'content_type', 'changed_object', 'object_data',
+            'id', 'time', 'user', 'user_name', 'request_id', 'action', 'changed_object_type', 'changed_object',
+            'object_data',
         ]
 
     @swagger_serializer_method(serializer_or_field=serializers.DictField)

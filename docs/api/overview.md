@@ -261,7 +261,7 @@ A list of objects retrieved via the API can be filtered by passing one or more q
 GET /api/ipam/prefixes/?status=1
 ```
 
-The same filter can be incldued multiple times. These will effect a logical OR and return objects matching any of the given values. For example, the following will return all active and reserved prefixes:
+Certain filters can be included multiple times within a single request. These will effect a logical OR and return objects matching any of the given values. For example, the following will return all active and reserved prefixes:
 
 ```
 GET /api/ipam/prefixes/?status=1&status=2

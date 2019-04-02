@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from django.conf import settings
-from django.db.models import F, Q
+from django.db.models import F
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
@@ -36,7 +36,7 @@ from .exceptions import MissingFilterException
 
 class DCIMFieldChoicesViewSet(FieldChoicesViewSet):
     fields = (
-        (Cable, ['length_unit', 'status', 'type']),
+        (Cable, ['length_unit', 'status', 'termination_a_type', 'termination_b_type', 'type']),
         (ConsolePort, ['connection_status']),
         (Device, ['face', 'status']),
         (DeviceType, ['subdevice_role']),

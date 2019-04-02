@@ -283,6 +283,7 @@ REDIS = {
     'PASSWORD': '',
     'DATABASE': 0,
     'DEFAULT_TIMEOUT': 300,
+    'SSL': False,
 }
 ```
 
@@ -315,3 +316,9 @@ The TCP port to use when connecting to the Redis server.
 Default: None
 
 The password to use when authenticating to the Redis server (optional).
+
+### SSL
+
+Default: False
+
+Use secure sockets layer to encrypt the connections to the Redis server.
