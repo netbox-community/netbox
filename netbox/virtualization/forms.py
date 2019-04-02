@@ -348,7 +348,7 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
             "role": APISelect(
                 api_url="/api/dcim/device-roles/",
                 additional_query_params={
-                    "vm_role": "true"
+                    "vm_role": "True"
                 }
             ),
             'primary_ip4': StaticSelect2(),
@@ -480,7 +480,7 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
         widget=APISelect(
             api_url="/api/dcim/device-roles/",
             additional_query_params={
-                "vm_role": "true"
+                "vm_role": "True"
             }
         )
     )
@@ -582,7 +582,7 @@ class VirtualMachineFilterForm(BootstrapMixin, CustomFieldFilterForm):
             value_field="slug",
             null_option=True,
             additional_query_params={
-                'vm_role': 'true'
+                'vm_role': "True"
             }
         )
     )

@@ -30,6 +30,31 @@ to now use "Extras | Tag."
 
 ---
 
+v2.5.9 (2019-04-01)
+
+## Enhancements
+
+* [#2933](https://github.com/digitalocean/netbox/issues/2933) - Add username to outbound webhook requests
+* [#3011](https://github.com/digitalocean/netbox/issues/3011) - Add SSL support for django-rq (requires django-rq v1.3.1+)
+* [#3025](https://github.com/digitalocean/netbox/issues/3025) - Add request ID to outbound webhook requests (for correlating all changes part of a single request)
+
+## Bug Fixes
+
+* [#2207](https://github.com/digitalocean/netbox/issues/2207) - Fixes deterministic ordering of interfaces
+* [#2577](https://github.com/digitalocean/netbox/issues/2577) - Clarification of wording in API regarding filtering
+* [#2924](https://github.com/digitalocean/netbox/issues/2924) - Add interface type for QSFP28 50GE
+* [#2936](https://github.com/digitalocean/netbox/issues/2936) - Fix device role selection showing duplicate first entry
+* [#2998](https://github.com/digitalocean/netbox/issues/2998) - Limit device query to non-racked devices if no rack selected when creating a cable
+* [#3001](https://github.com/digitalocean/netbox/issues/3001) - Fix API representation of ObjectChange `action` and add `changed_object_type`
+* [#3014](https://github.com/digitalocean/netbox/issues/3014) - Fixes VM Role filtering
+* [#3019](https://github.com/digitalocean/netbox/issues/3019) - Fix tag population when running NetBox within a path
+* [#3022](https://github.com/digitalocean/netbox/issues/3022) - Add missing cable termination types to DCIM `_choices` endpoint
+* [#3026](https://github.com/digitalocean/netbox/issues/3026) - Tweak prefix/IP filter forms to filter using VRF ID rather than route distinguisher
+* [#3027](https://github.com/digitalocean/netbox/issues/3027) - Ignore empty local context data when rendering config contexts
+* [#3032](https://github.com/digitalocean/netbox/issues/3032) - Save assigned tags when creating a new secret
+
+---
+
 v2.5.8 (2019-03-11)
 
 ## Enhancements

@@ -1700,7 +1700,6 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
         widget=APISelectMultiple(
             api_url="/api/dcim/device-roles/",
             value_field="slug",
-            null_option=True,
         )
     )
     tenant = FilterChoiceField(

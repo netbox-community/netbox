@@ -11,7 +11,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 
 from extras import filters
 from extras.models import (
-    ConfigContext, CustomField, CustomFieldChoice, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
+    ConfigContext, CustomFieldChoice, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
     Tag,
 )
 from extras.reports import get_report, get_reports
@@ -25,8 +25,8 @@ from . import serializers
 
 class ExtrasFieldChoicesViewSet(FieldChoicesViewSet):
     fields = (
-        (CustomField, ['type']),
         (Graph, ['type']),
+        (ObjectChange, ['action']),
     )
 
 

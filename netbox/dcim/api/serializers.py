@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
@@ -506,8 +507,12 @@ class InventoryItemSerializer(TaggitSerializer, ValidatedModelSerializer):
 #
 
 class CableSerializer(ValidatedModelSerializer):
-    termination_a_type = ContentTypeField()
-    termination_b_type = ContentTypeField()
+    termination_a_type = ContentTypeField(
+        queryset=ContentType.objects.filter(model__in=CABLE_TERMINATION_TYPES)
+    )
+    termination_b_type = ContentTypeField(
+        queryset=ContentType.objects.filter(model__in=CABLE_TERMINATION_TYPES)
+    )
     termination_a = serializers.SerializerMethodField(read_only=True)
     termination_b = serializers.SerializerMethodField(read_only=True)
     status = ChoiceField(choices=CONNECTION_STATUS_CHOICES, required=False)
