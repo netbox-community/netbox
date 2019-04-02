@@ -800,6 +800,10 @@ class VirtualChassisTable(BaseTable):
 class PowerPanelTable(BaseTable):
     pk = ToggleColumn()
     name = tables.LinkColumn()
+    site = tables.LinkColumn(
+        viewname='dcim:site',
+        args=[Accessor('site.slug')]
+    )
     powerfeed_count = tables.Column(
         verbose_name='Feeds'
     )
@@ -818,7 +822,7 @@ class PowerFeedTable(BaseTable):
     name = tables.LinkColumn()
     power_panel = tables.LinkColumn(
         viewname='dcim:powerpanel',
-        args=[Accessor('rack.pk')],
+        args=[Accessor('pk')],
     )
     rack = tables.LinkColumn(
         viewname='dcim:rack',
