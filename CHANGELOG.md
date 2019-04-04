@@ -6,6 +6,7 @@ v2.5.10 (FUTURE)
 * [#3039](https://github.com/digitalocean/netbox/issues/3039) - Fix exception when retrieving change object for a component template via API
 * [#3041](https://github.com/digitalocean/netbox/issues/3041) - Fix form widget for bulk cable label update
 * [#3044](https://github.com/digitalocean/netbox/issues/3044) - Ignore site/rack fields when connecting a new cable via device search
+* [#3046](https://github.com/digitalocean/netbox/issues/3046) - Fix exception at reports API endpoint
 
 ---
 
