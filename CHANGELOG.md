@@ -1,3 +1,11 @@
+v2.5.10 (FUTURE)
+
+## Bug Fixes
+
+* [#3041](https://github.com/digitalocean/netbox/issues/3041) - Fix form widget for bulk cable label update
+
+---
+
 v2.5.9 (2019-04-01)
 
 ## Enhancements
