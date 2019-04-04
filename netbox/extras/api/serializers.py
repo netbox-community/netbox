@@ -16,7 +16,8 @@ from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantG
 from tenancy.models import Tenant, TenantGroup
 from users.api.nested_serializers import NestedUserSerializer
 from utilities.api import (
-    ChoiceField, ContentTypeField, get_serializer_for_model, SerializedPKRelatedField, ValidatedModelSerializer,
+    ChoiceField, ContentTypeField, get_serializer_for_model, SerializerNotFound, SerializedPKRelatedField,
+    ValidatedModelSerializer,
 )
 from .nested_serializers import *
 
@@ -235,9 +236,14 @@ class ObjectChangeSerializer(serializers.ModelSerializer):
         """
         if obj.changed_object is None:
             return None
-        serializer = get_serializer_for_model(obj.changed_object, prefix='Nested')
-        if serializer is None:
+
+        try:
+            serializer = get_serializer_for_model(obj.changed_object, prefix='Nested')
+        except SerializerNotFound:
             return obj.object_repr
-        context = {'request': self.context['request']}
+        context = {
+            'request': self.context['request']
+        }
         data = serializer(obj.changed_object, context=context).data
+
         return data

@@ -2,6 +2,7 @@ v2.5.10 (FUTURE)
 
 ## Bug Fixes
 
+* [#3039](https://github.com/digitalocean/netbox/issues/3039) - Fix exception when retrieving change object for a component template via API
 * [#3041](https://github.com/digitalocean/netbox/issues/3041) - Fix form widget for bulk cable label update
 
 ---
