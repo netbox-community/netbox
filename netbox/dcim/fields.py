@@ -2,7 +2,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from netaddr import AddrFormatError, EUI, mac_unix_expanded
-import pprint
 
 
 class ASNField(models.BigIntegerField):
