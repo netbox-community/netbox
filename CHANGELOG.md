@@ -7,6 +7,7 @@ v2.5.10 (FUTURE)
 * [#3041](https://github.com/digitalocean/netbox/issues/3041) - Fix form widget for bulk cable label update
 * [#3044](https://github.com/digitalocean/netbox/issues/3044) - Ignore site/rack fields when connecting a new cable via device search
 * [#3046](https://github.com/digitalocean/netbox/issues/3046) - Fix exception at reports API endpoint
+* [#3047](https://github.com/digitalocean/netbox/issues/3047) - Fix exception when writing mac address for an interface via API
 
 ---
 
