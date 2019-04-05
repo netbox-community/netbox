@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from netaddr import AddrFormatError, EUI, mac_unix_expanded
+import pprint
 
 
 class ASNField(models.BigIntegerField):
@@ -31,7 +32,7 @@ class MACAddressField(models.Field):
         try:
             return EUI(value, version=48, dialect=mac_unix_expanded_uppercase)
         except AddrFormatError as e:
-            raise ValidationError(e)
+            raise ValidationError("Invalid MAC address format: {}".format(value))
 
     def db_type(self, connection):
         return 'macaddr'
