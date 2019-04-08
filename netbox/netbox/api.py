@@ -147,18 +147,18 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
 # Miscellaneous
 #
 
-def get_view_name(view_cls, suffix=None):
+def get_view_name(view, suffix=None):
     """
     Derive the view name from its associated model, if it has one. Fall back to DRF's built-in `get_view_name`.
     """
-    if hasattr(view_cls, 'queryset'):
+    if hasattr(view, 'queryset'):
         # Determine the model name from the queryset.
-        name = view_cls.queryset.model._meta.verbose_name
+        name = view.queryset.model._meta.verbose_name
         name = ' '.join([w[0].upper() + w[1:] for w in name.split()])  # Capitalize each word
 
     else:
         # Replicate DRF's built-in behavior.
-        name = view_cls.__name__
+        name = view.__class__.__name__
         name = formatting.remove_trailing_string(name, 'View')
         name = formatting.remove_trailing_string(name, 'ViewSet')
         name = formatting.camelcase_to_spaces(name)

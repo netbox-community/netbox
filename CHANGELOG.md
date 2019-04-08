@@ -1,3 +1,21 @@
+v2.5.10 (2019-04-08)
+
+## Enhancements
+
+* [#3052](https://github.com/digitalocean/netbox/issues/3052) - Add Jinja2 support for export templates
+
+## Bug Fixes
+
+* [#2937](https://github.com/digitalocean/netbox/issues/2937) - Redirect to list view after editing an object from list view
+* [#3036](https://github.com/digitalocean/netbox/issues/3036) - DCIM interfaces API endpoint should not include VM interfaces
+* [#3039](https://github.com/digitalocean/netbox/issues/3039) - Fix exception when retrieving change object for a component template via API
+* [#3041](https://github.com/digitalocean/netbox/issues/3041) - Fix form widget for bulk cable label update
+* [#3044](https://github.com/digitalocean/netbox/issues/3044) - Ignore site/rack fields when connecting a new cable via device search
+* [#3046](https://github.com/digitalocean/netbox/issues/3046) - Fix exception at reports API endpoint
+* [#3047](https://github.com/digitalocean/netbox/issues/3047) - Fix exception when writing mac address for an interface via API
+
+---
+
 v2.5.9 (2019-04-01)
 
 ## Enhancements
