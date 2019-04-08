@@ -6,6 +6,7 @@ v2.5.10 (FUTURE)
 
 ## Bug Fixes
 
+* [#2937](https://github.com/digitalocean/netbox/issues/2937) - Redirect to list view after editing an object from list view
 * [#3036](https://github.com/digitalocean/netbox/issues/3036) - DCIM interfaces API endpoint should not include VM interfaces
 * [#3039](https://github.com/digitalocean/netbox/issues/3039) - Fix exception when retrieving change object for a component template via API
 * [#3041](https://github.com/digitalocean/netbox/issues/3041) - Fix form widget for bulk cable label update
