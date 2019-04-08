@@ -82,7 +82,7 @@ class ExportTemplateFilter(django_filters.FilterSet):
 
     class Meta:
         model = ExportTemplate
-        fields = ['content_type', 'name']
+        fields = ['content_type', 'name', 'template_language']
 
 
 class TagFilter(django_filters.FilterSet):

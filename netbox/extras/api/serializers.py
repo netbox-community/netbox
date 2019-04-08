@@ -55,10 +55,17 @@ class RenderedGraphSerializer(serializers.ModelSerializer):
 #
 
 class ExportTemplateSerializer(ValidatedModelSerializer):
+    template_language = ChoiceField(
+        choices=TEMPLATE_LANGUAGE_CHOICES,
+        default=TEMPLATE_LANGUAGE_JINJA2
+    )
 
     class Meta:
         model = ExportTemplate
-        fields = ['id', 'content_type', 'name', 'description', 'template_code', 'mime_type', 'file_extension']
+        fields = [
+            'id', 'content_type', 'name', 'description', 'template_language', 'template_code', 'mime_type',
+            'file_extension',
+        ]
 
 
 #

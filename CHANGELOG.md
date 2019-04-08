@@ -1,5 +1,9 @@
 v2.5.10 (FUTURE)
 
+## Enhancements
+
+* [#3052](https://github.com/digitalocean/netbox/issues/3052) - Add Jinja2 support for export templates
+
 ## Bug Fixes
 
 * [#3036](https://github.com/digitalocean/netbox/issues/3036) - DCIM interfaces API endpoint should not include VM interfaces
