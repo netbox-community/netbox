@@ -15,7 +15,7 @@ from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
-from circuits.models import Circuit, CircuitTermination
+from circuits.models import Circuit
 from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from extras.views import ObjectConfigContextView
 from ipam.models import Prefix, VLAN
@@ -1679,27 +1679,28 @@ class CableCreateView(PermissionRequiredMixin, GetReturnURLMixin, View):
     permission_required = 'dcim.add_cable'
     template_name = 'dcim/cable_connect.html'
 
-    def _get_form_class(self):
-        if self.termination_b_type == 'circuit':
-            return forms.ConnectCableToCircuitForm
-        if self.termination_b_type == 'powerfeed':
-            return forms.ConnectCableToPowerFeedForm
-        return forms.ConnectCableToDeviceForm
-
     def dispatch(self, request, *args, **kwargs):
 
-        # Retrieve endpoint A based on the given type and PK
         termination_a_type = kwargs.get('termination_a_type')
         termination_a_id = kwargs.get('termination_a_id')
-        self.obj = Cable(
-            termination_a=termination_a_type.objects.get(pk=termination_a_id)
-        )
 
-        self.termination_b_type = request.GET.get('type')
-        if self.termination_b_type == 'circuit':
-            self.obj.termination_b_type = ContentType.objects.get_for_model(CircuitTermination)
-        elif self.termination_b_type == 'powerfeed':
-            self.obj.termination_b_type = ContentType.objects.get_for_model(PowerFeed)
+        termination_b_type_name = kwargs.get('termination_b_type')
+        self.termination_b_type = ContentType.objects.get(model=termination_b_type_name.replace('-', ''))
+
+        self.obj = Cable(
+            termination_a=termination_a_type.objects.get(pk=termination_a_id),
+            termination_b_type=self.termination_b_type
+        )
+        self.form_class = {
+            'console-port': forms.ConnectCableToConsolePortForm,
+            'console-server-port': forms.ConnectCableToConsoleServerPortForm,
+            'power-port': forms.ConnectCableToPowerPortForm,
+            'power-outlet': forms.ConnectCableToPowerOutletForm,
+            'interface': forms.ConnectCableToInterfaceForm,
+            'front-port': forms.ConnectCableToFrontPortForm,
+            'power-feed': forms.ConnectCableToPowerFeedForm,
+            'circuit-termination': forms.ConnectCableToCircuitTerminationForm,
+        }[termination_b_type_name]
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -1708,18 +1709,19 @@ class CableCreateView(PermissionRequiredMixin, GetReturnURLMixin, View):
         # Parse initial data manually to avoid setting field values as lists
         initial_data = {k: request.GET[k] for k in request.GET}
 
-        form = self._get_form_class()(instance=self.obj, initial=initial_data)
+        form = self.form_class(instance=self.obj, initial=initial_data)
 
         return render(request, self.template_name, {
             'obj': self.obj,
             'obj_type': Cable._meta.verbose_name,
+            'termination_b_type': self.termination_b_type.name,
             'form': form,
             'return_url': self.get_return_url(request, self.obj),
         })
 
     def post(self, request, *args, **kwargs):
 
-        form = self._get_form_class()(request.POST, request.FILES, instance=self.obj)
+        form = self.form_class(request.POST, request.FILES, instance=self.obj)
 
         if form.is_valid():
             obj = form.save()
@@ -1742,6 +1744,7 @@ class CableCreateView(PermissionRequiredMixin, GetReturnURLMixin, View):
         return render(request, self.template_name, {
             'obj': self.obj,
             'obj_type': Cable._meta.verbose_name,
+            'termination_b_type': self.termination_b_type.name,
             'form': form,
             'return_url': self.get_return_url(request, self.obj),
         })

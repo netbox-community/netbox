@@ -2522,6 +2522,9 @@ class RearPortBulkDisconnectForm(ConfirmationForm):
 #
 
 class ConnectCableToDeviceForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
+    """
+    Base form for connecting a Cable to a Device component
+    """
     termination_b_site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         label='Site',
@@ -2567,42 +2570,89 @@ class ConnectCableToDeviceForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelFo
             }
         )
     )
-    termination_b_type = forms.ModelChoiceField(
-        queryset=ContentType.objects.all(),
-        label='Type',
-        widget=ContentTypeSelect()
-    )
-    termination_b_id = forms.IntegerField(
-        label='Name',
-        widget=APISelect(
-            api_url='/api/dcim/{{termination_b_type}}s/',
-            disabled_indicator='cable',
-            conditional_query_params={
-                'termination_b_type__interface': 'type=physical',
-            }
-        )
-    )
 
     class Meta:
         model = Cable
         fields = [
-            'termination_b_site', 'termination_b_rack', 'termination_b_device', 'termination_b_type',
-            'termination_b_id', 'type', 'status', 'label', 'color', 'length', 'length_unit',
+            'termination_b_site', 'termination_b_rack', 'termination_b_device', 'termination_b_id', 'type', 'status',
+            'label', 'color', 'length', 'length_unit',
         ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
-        # Define available types for endpoint B based on the type of endpoint A
-        termination_a_type = self.instance.termination_a._meta.model_name
-        self.fields['termination_b_type'].queryset = ContentType.objects.filter(
-            model__in=COMPATIBLE_TERMINATION_TYPES.get(termination_a_type)
-        ).exclude(
-            model='circuittermination'
+class ConnectCableToConsolePortForm(ConnectCableToDeviceForm):
+    termination_b_id = forms.IntegerField(
+        label='Name',
+        widget=APISelect(
+            api_url='/api/dcim/console-ports/',
+            disabled_indicator='cable',
         )
+    )
 
 
-class ConnectCableToCircuitForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
+class ConnectCableToConsoleServerPortForm(ConnectCableToDeviceForm):
+    termination_b_id = forms.IntegerField(
+        label='Name',
+        widget=APISelect(
+            api_url='/api/dcim/console-server-ports/',
+            disabled_indicator='cable',
+        )
+    )
+
+
+class ConnectCableToPowerPortForm(ConnectCableToDeviceForm):
+    termination_b_id = forms.IntegerField(
+        label='Name',
+        widget=APISelect(
+            api_url='/api/dcim/power-ports/',
+            disabled_indicator='cable',
+        )
+    )
+
+
+class ConnectCableToPowerOutletForm(ConnectCableToDeviceForm):
+    termination_b_id = forms.IntegerField(
+        label='Name',
+        widget=APISelect(
+            api_url='/api/dcim/power-outlets/',
+            disabled_indicator='cable',
+        )
+    )
+
+
+class ConnectCableToInterfaceForm(ConnectCableToDeviceForm):
+    termination_b_id = forms.IntegerField(
+        label='Name',
+        widget=APISelect(
+            api_url='/api/dcim/interfaces/',
+            disabled_indicator='cable',
+            additional_query_params={
+                'type': 'physical',
+            }
+        )
+    )
+
+
+class ConnectCableToFrontPortForm(ConnectCableToDeviceForm):
+    termination_b_id = forms.IntegerField(
+        label='Name',
+        widget=APISelect(
+            api_url='/api/dcim/front-ports/',
+            disabled_indicator='cable',
+        )
+    )
+
+
+class ConnectCableToRearPortForm(ConnectCableToDeviceForm):
+    termination_b_id = forms.IntegerField(
+        label='Name',
+        widget=APISelect(
+            api_url='/api/dcim/rear-ports/',
+            disabled_indicator='cable',
+        )
+    )
+
+
+class ConnectCableToCircuitTerminationForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelForm):
     termination_b_provider = forms.ModelChoiceField(
         queryset=Provider.objects.all(),
         label='Provider',
@@ -2610,6 +2660,17 @@ class ConnectCableToCircuitForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelF
             api_url='/api/circuits/providers/',
             filter_for={
                 'termination_b_circuit': 'provider_id',
+            }
+        )
+    )
+    termination_b_site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        label='Site',
+        required=False,
+        widget=APISelect(
+            api_url='/api/dcim/sites/',
+            filter_for={
+                'termination_b_circuit': 'site_id',
             }
         )
     )
@@ -2628,18 +2689,19 @@ class ConnectCableToCircuitForm(BootstrapMixin, ChainedFieldsMixin, forms.ModelF
         )
     )
     termination_b_id = forms.IntegerField(
-        label='Termination',
+        label='Side',
         widget=APISelect(
             api_url='/api/circuits/circuit-terminations/',
-            disabled_indicator='cable'
+            disabled_indicator='cable',
+            display_field='term_side'
         )
     )
 
     class Meta:
         model = Cable
         fields = [
-            'termination_b_provider', 'termination_b_circuit', 'termination_b_id', 'type', 'status', 'label', 'color',
-            'length', 'length_unit',
+            'termination_b_provider', 'termination_b_site', 'termination_b_circuit', 'termination_b_id', 'type',
+            'status', 'label', 'color', 'length', 'length_unit',
         ]
 
 
@@ -2686,7 +2748,7 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, ChainedFieldsMixin, forms.Mode
         )
     )
     termination_b_id = forms.IntegerField(
-        label='Power Feed',
+        label='Name',
         widget=APISelect(
             api_url='/api/dcim/power-feeds/',
         )

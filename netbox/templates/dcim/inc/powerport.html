@@ -47,8 +47,8 @@
                     <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right">
-                    <li><a href="{% url 'dcim:powerport_connect' termination_a_id=pp.pk %}?return_url={{ device.get_absolute_url }}">Power Outlet</a></li>
-                    <li><a href="{% url 'dcim:powerport_connect' termination_a_id=pp.pk %}?type=powerfeed&return_url={{ device.get_absolute_url }}">Power Feed</a></li>
+                    <li><a href="{% url 'dcim:powerport_connect' termination_a_id=pp.pk termination_b_type='power-outlet' %}?return_url={{ device.get_absolute_url }}">Power Outlet</a></li>
+                    <li><a href="{% url 'dcim:powerport_connect' termination_a_id=pp.pk termination_b_type='power-feed' %}?return_url={{ device.get_absolute_url }}">Power Feed</a></li>
                 </ul>
             </span>
         {% endif %}
