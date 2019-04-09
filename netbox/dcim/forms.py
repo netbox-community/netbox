@@ -3296,14 +3296,30 @@ class PowerPanelCSVForm(forms.ModelForm):
             'invalid_choice': 'Site not found.',
         }
     )
-    rackgroup_name = forms.CharField(
-        help_text='Name of rack group',
-        required=False
+    rack_group_name = forms.CharField(
+        required=False,
+        help_text="Rack group name (optional)"
     )
 
     class Meta:
         model = PowerPanel
         fields = PowerPanel.csv_headers
+
+    def clean(self):
+
+        super().clean()
+
+        site = self.cleaned_data.get('site')
+        rack_group_name = self.cleaned_data.get('rack_group_name')
+
+        # Validate rack group
+        if rack_group_name:
+            try:
+                self.instance.rack_group = RackGroup.objects.get(site=site, name=rack_group_name)
+            except RackGroup.DoesNotExist:
+                raise forms.ValidationError(
+                    "Rack group {} not found in site {}".format(rack_group_name, site)
+                )
 
 
 class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
@@ -3375,6 +3391,30 @@ class PowerFeedForm(BootstrapMixin, CustomFieldForm):
 
 
 class PowerFeedCSVForm(forms.ModelForm):
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='name',
+        help_text='Name of parent site',
+        error_messages={
+            'invalid_choice': 'Site not found.',
+        }
+    )
+    panel_name = forms.ModelChoiceField(
+        queryset=PowerPanel.objects.all(),
+        to_field_name='name',
+        help_text='Name of upstream power panel',
+        error_messages={
+            'invalid_choice': 'Power panel not found.',
+        }
+    )
+    rack_group = forms.CharField(
+        required=False,
+        help_text="Rack group name (optional)"
+    )
+    rack_name = forms.CharField(
+        required=False,
+        help_text="Rack name (optional)"
+    )
     status = CSVChoiceField(
         choices=POWERFEED_STATUS_CHOICES,
         required=False,
@@ -3390,10 +3430,42 @@ class PowerFeedCSVForm(forms.ModelForm):
         required=False,
         help_text='AC/DC'
     )
+    phase = CSVChoiceField(
+        choices=POWERFEED_PHASE_CHOICES,
+        required=False,
+        help_text='Single or three-phase'
+    )
 
     class Meta:
         model = PowerFeed
         fields = PowerFeed.csv_headers
+
+    def clean(self):
+
+        super().clean()
+
+        site = self.cleaned_data.get('site')
+        panel_name = self.cleaned_data.get('panel_name')
+        rack_group = self.cleaned_data.get('rack_group')
+        rack_name = self.cleaned_data.get('rack_name')
+
+        # Validate power panel
+        if panel_name:
+            try:
+                self.instance.power_panel = PowerPanel.objects.get(site=site, name=panel_name)
+            except Rack.DoesNotExist:
+                raise forms.ValidationError(
+                    "Power panel {} not found in site {}".format(panel_name, site)
+                )
+
+        # Validate rack
+        if rack_name:
+            try:
+                self.instance.rack = Rack.objects.get(site=site, rack_group=rack_group, name=rack_name)
+            except Rack.DoesNotExist:
+                raise forms.ValidationError(
+                    "Rack {} not found in site {}, group {}".format(rack_name, site, rack_group)
+                )
 
 
 class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm):

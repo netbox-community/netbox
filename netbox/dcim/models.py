@@ -2729,7 +2729,7 @@ class PowerPanel(ChangeLoggedModel):
         max_length=50
     )
 
-    csv_headers = ['site', 'rack_group', 'name']
+    csv_headers = ['site', 'rack_group_name', 'name']
 
     class Meta:
         ordering = ['site', 'name']
@@ -2819,8 +2819,8 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'power_panel', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'max_utilization',
-        'comments',
+        'site', 'panel_name', 'rack_group', 'rack_name', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
+        'amperage', 'max_utilization', 'comments',
     ]
 
     class Meta:
