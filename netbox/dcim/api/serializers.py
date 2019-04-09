@@ -210,7 +210,7 @@ class PowerPortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = PowerPortTemplate
-        fields = ['id', 'device_type', 'name']
+        fields = ['id', 'device_type', 'name', 'maximum_draw', 'allocated_draw']
 
 
 class PowerOutletTemplateSerializer(ValidatedModelSerializer):
@@ -391,7 +391,7 @@ class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     class Meta:
         model = PowerPort
         fields = [
-            'id', 'device', 'name', 'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status',
+            'id', 'device', 'name', 'maximum_draw', 'allocated_draw', 'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status',
             'cable', 'tags',
         ]
 

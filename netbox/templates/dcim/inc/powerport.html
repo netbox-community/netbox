@@ -5,6 +5,15 @@
         <i class="fa fa-fw fa-bolt"></i> {{ pp }}
     </td>
 
+    {# Current draw #}
+    <td>
+        {% if pp.allocated_draw %}
+            {{ pp.allocated_draw }}W{% if pp.maximum_draw %} ({{ pp.maximum_draw }}W max){% endif %}
+        {% elif pp.maximum_draw %}
+            {{ pp.maximum_draw }}W
+        {% endif %}
+    </td>
+
     {# Description #}
     <td>
         {{ pp.description }}

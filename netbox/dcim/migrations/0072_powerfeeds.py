@@ -84,6 +84,26 @@ class Migration(migrations.Migration):
             name='_connected_powerfeed',
             field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.PowerFeed'),
         ),
+        migrations.AddField(
+            model_name='powerport',
+            name='allocated_draw',
+            field=models.PositiveSmallIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]),
+        ),
+        migrations.AddField(
+            model_name='powerport',
+            name='maximum_draw',
+            field=models.PositiveSmallIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]),
+        ),
+        migrations.AddField(
+            model_name='powerporttemplate',
+            name='allocated_draw',
+            field=models.PositiveSmallIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]),
+        ),
+        migrations.AddField(
+            model_name='powerporttemplate',
+            name='maximum_draw',
+            field=models.PositiveSmallIntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1)]),
+        ),
         migrations.AlterUniqueTogether(
             name='powerpanel',
             unique_together={('site', 'name')},

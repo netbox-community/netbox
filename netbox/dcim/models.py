@@ -1053,6 +1053,18 @@ class PowerPortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
+    maximum_draw = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1)],
+        help_text="Maximum current draw (watts)"
+    )
+    allocated_draw = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1)],
+        help_text="Allocated current draw (watts)"
+    )
 
     objects = DeviceComponentManager()
 
@@ -1828,6 +1840,18 @@ class PowerPort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
+    maximum_draw = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1)],
+        help_text="Maximum current draw (watts)"
+    )
+    allocated_draw = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1)],
+        help_text="Allocated current draw (watts)"
+    )
     _connected_poweroutlet = models.OneToOneField(
         to='dcim.PowerOutlet',
         on_delete=models.SET_NULL,
@@ -1850,7 +1874,7 @@ class PowerPort(CableTermination, ComponentModel):
     objects = DeviceComponentManager()
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'description']
+    csv_headers = ['device', 'name', 'maximum_draw', 'allocated_draw', 'description']
 
     class Meta:
         ordering = ['device', 'name']
@@ -1866,6 +1890,8 @@ class PowerPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.maximum_draw,
+            self.allocated_draw,
             self.description,
         )
 
