@@ -17,7 +17,8 @@ from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantG
 from tenancy.models import Tenant, TenantGroup
 from users.api.nested_serializers import NestedUserSerializer
 from utilities.api import (
-    ChoiceField, ContentTypeField, get_serializer_for_model, SerializedPKRelatedField, ValidatedModelSerializer,
+    ChoiceField, ContentTypeField, get_serializer_for_model, SerializerNotFound, SerializedPKRelatedField,
+    ValidatedModelSerializer,
 )
 from .nested_serializers import *
 
@@ -55,10 +56,17 @@ class RenderedGraphSerializer(serializers.ModelSerializer):
 #
 
 class ExportTemplateSerializer(ValidatedModelSerializer):
+    template_language = ChoiceField(
+        choices=TEMPLATE_LANGUAGE_CHOICES,
+        default=TEMPLATE_LANGUAGE_JINJA2
+    )
 
     class Meta:
         model = ExportTemplate
-        fields = ['id', 'content_type', 'name', 'description', 'template_code', 'mime_type', 'file_extension']
+        fields = [
+            'id', 'content_type', 'name', 'description', 'template_language', 'template_code', 'mime_type',
+            'file_extension',
+        ]
 
 
 #
@@ -238,9 +246,14 @@ class ObjectChangeSerializer(serializers.ModelSerializer):
         """
         if obj.changed_object is None:
             return None
-        serializer = get_serializer_for_model(obj.changed_object, prefix='Nested')
-        if serializer is None:
+
+        try:
+            serializer = get_serializer_for_model(obj.changed_object, prefix='Nested')
+        except SerializerNotFound:
             return obj.object_repr
-        context = {'request': self.context['request']}
+        context = {
+            'request': self.context['request']
+        }
         data = serializer(obj.changed_object, context=context).data
+
         return data

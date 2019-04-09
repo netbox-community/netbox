@@ -645,7 +645,7 @@ class InterfaceTest(APITestCase):
 
     def test_delete_interface(self):
 
-        url = reverse('dcim-api:interface-detail', kwargs={'pk': self.interface1.pk})
+        url = reverse('virtualization-api:interface-detail', kwargs={'pk': self.interface1.pk})
         response = self.client.delete(url, **self.header)
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)

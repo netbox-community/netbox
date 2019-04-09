@@ -426,7 +426,9 @@ class PowerOutletViewSet(CableTraceMixin, ModelViewSet):
 
 
 class InterfaceViewSet(CableTraceMixin, ModelViewSet):
-    queryset = Interface.objects.select_related(
+    queryset = Interface.objects.filter(
+        device__isnull=False
+    ).select_related(
         'device', '_connected_interface', '_connected_circuittermination', 'cable'
     ).prefetch_related(
         'ip_addresses', 'tags'

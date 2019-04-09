@@ -8,7 +8,7 @@ SECRETROLE_ACTIONS = """
     <i class="fa fa-history"></i>
 </a>
 {% if perms.secrets.change_secretrole %}
-    <a href="{% url 'secrets:secretrole_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+    <a href="{% url 'secrets:secretrole_edit' slug=record.slug %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 
