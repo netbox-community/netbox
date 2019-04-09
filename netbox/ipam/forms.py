@@ -341,11 +341,11 @@ class PrefixForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
 
 class PrefixCSVForm(forms.ModelForm):
-    vrf = forms.ModelChoiceField(
+    vrf = FlexibleModelChoiceField(
         queryset=VRF.objects.all(),
-        required=False,
         to_field_name='rd',
-        help_text='Route distinguisher of parent VRF',
+        required=False,
+        help_text='Route distinguisher of parent VRF (or {ID})',
         error_messages={
             'invalid_choice': 'VRF not found.',
         }
@@ -518,14 +518,12 @@ class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         label='Mask length',
         widget=StaticSelect2()
     )
-    vrf = FilterChoiceField(
+    vrf_id = FilterChoiceField(
         queryset=VRF.objects.all(),
-        to_field_name='rd',
         label='VRF',
         null_label='-- Global --',
         widget=APISelectMultiple(
             api_url="/api/ipam/vrfs/",
-            value_field="rd",
             null_option=True,
         )
     )
@@ -748,11 +746,11 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldForm):
 
 
 class IPAddressCSVForm(forms.ModelForm):
-    vrf = forms.ModelChoiceField(
+    vrf = FlexibleModelChoiceField(
         queryset=VRF.objects.all(),
-        required=False,
         to_field_name='rd',
-        help_text='Route distinguisher of the assigned VRF',
+        required=False,
+        help_text='Route distinguisher of parent VRF (or {ID})',
         error_messages={
             'invalid_choice': 'VRF not found.',
         }
@@ -959,14 +957,12 @@ class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterFo
         label='Mask length',
         widget=StaticSelect2()
     )
-    vrf = FilterChoiceField(
+    vrf_id = FilterChoiceField(
         queryset=VRF.objects.all(),
-        to_field_name='rd',
         label='VRF',
         null_label='-- Global --',
         widget=APISelectMultiple(
             api_url="/api/ipam/vrfs/",
-            value_field="rd",
             null_option=True,
         )
     )

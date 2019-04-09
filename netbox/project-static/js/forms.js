@@ -90,6 +90,10 @@ $(document).ready(function() {
     // Assign color picker selection classes
     function colorPickerClassCopy(data, container) {
         if (data.element) {
+            // Remove any existing color-selection classes
+            $(container).attr('class', function(i, c) {
+                return c.replace(/(^|\s)color-selection-\S+/g, '');
+            });
             $(container).addClass($(data.element).attr("class"));
         }
         return data.text;
@@ -151,10 +155,14 @@ $(document).ready(function() {
 
                 filter_for_elements.each(function(index, filter_for_element) {
                     var param_name = $(filter_for_element).attr(attr_name);
+                    var is_nullable = $(filter_for_element).attr("nullable");
+                    var is_visible = $(filter_for_element).is(":visible");
                     var value = $(filter_for_element).val();
 
-                    if (param_name && value) {
+                    if (param_name && is_visible && value) {
                         parameters[param_name] = value;
+                    } else if (param_name && is_visible && is_nullable) {
+                        parameters[param_name] = "null";
                     }
                 });
 
@@ -243,7 +251,7 @@ $(document).ready(function() {
 
         ajax: {
             delay: 250,
-            url: "/api/extras/tags/",
+            url: netbox_api_path + "extras/tags/",
 
             data: function(params) {
                 // Paging. Note that `params.page` indexes at 1

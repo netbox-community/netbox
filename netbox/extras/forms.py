@@ -4,7 +4,6 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-from mptt.forms import TreeNodeMultipleChoiceField
 from taggit.forms import TagField
 from taggit.models import Tag
 
@@ -12,7 +11,7 @@ from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ContentTypeSelect,
-    FilterChoiceField, FilterTreeNodeMultipleChoiceField, LaxURLField, JSONField, SlugField,
+    FilterChoiceField, LaxURLField, JSONField, SlugField,
 )
 from .constants import (
     CF_FILTER_DISABLED, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL,

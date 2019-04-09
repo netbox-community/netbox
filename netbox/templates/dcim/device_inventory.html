@@ -53,7 +53,7 @@
                     </tbody>
                 </table>
                 {% if perms.dcim.add_inventoryitem %}
-                    <div class="panel-footer text-right">
+                    <div class="panel-footer text-right noprint">
                         <a href="{% url 'dcim:inventoryitem_add' device=device.pk %}" class="btn btn-primary btn-xs">
                             <span class="fa fa-plus" aria-hidden="true"></span> Add Inventory Item
                         </a>

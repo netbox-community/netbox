@@ -8,7 +8,7 @@ from django.db.models import ManyToManyField
 from django.http import Http404
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import BasePermission
-from rest_framework.relations import PrimaryKeyRelatedField
+from rest_framework.relations import PrimaryKeyRelatedField, RelatedField
 from rest_framework.response import Response
 from rest_framework.serializers import Field, ModelSerializer, ValidationError
 from rest_framework.viewsets import ModelViewSet as _ModelViewSet, ViewSet
@@ -19,6 +19,10 @@ from .utils import dynamic_import
 class ServiceUnavailable(APIException):
     status_code = 503
     default_detail = "Service temporarily unavailable, please try again later."
+
+
+class SerializerNotFound(Exception):
+    pass
 
 
 def get_serializer_for_model(model, prefix=''):
@@ -32,7 +36,9 @@ def get_serializer_for_model(model, prefix=''):
     try:
         return dynamic_import(serializer_name)
     except AttributeError:
-        return None
+        raise SerializerNotFound(
+            "Could not determine serializer for {}.{} with prefix '{}'".format(app_name, model_name, prefix)
+        )
 
 
 #
@@ -100,20 +106,31 @@ class ChoiceField(Field):
 
         return data
 
+    @property
+    def choices(self):
+        return self._choices
 
-class ContentTypeField(Field):
+
+class ContentTypeField(RelatedField):
     """
     Represent a ContentType as '<app_label>.<model>'
     """
-    def to_representation(self, obj):
-        return "{}.{}".format(obj.app_label, obj.model)
+    default_error_messages = {
+        "does_not_exist": "Invalid content type: {content_type}",
+        "invalid": "Invalid value. Specify a content type as '<app_label>.<model_name>'.",
+    }
 
     def to_internal_value(self, data):
-        app_label, model = data.split('.')
         try:
+            app_label, model = data.split('.')
             return ContentType.objects.get_by_natural_key(app_label=app_label, model=model)
-        except ContentType.DoesNotExist:
-            raise ValidationError("Invalid content type")
+        except ObjectDoesNotExist:
+            self.fail('does_not_exist', content_type=data)
+        except (TypeError, ValueError):
+            self.fail('invalid')
+
+    def to_representation(self, obj):
+        return "{}.{}".format(obj.app_label, obj.model)
 
 
 class TimeZoneField(Field):
@@ -223,9 +240,10 @@ class ModelViewSet(_ModelViewSet):
         # exists
         request = self.get_serializer_context()['request']
         if request.query_params.get('brief', False):
-            serializer_class = get_serializer_for_model(self.queryset.model, prefix='Nested')
-            if serializer_class is not None:
-                return serializer_class
+            try:
+                return get_serializer_for_model(self.queryset.model, prefix='Nested')
+            except SerializerNotFound:
+                pass
 
         # Fall back to the hard-coded serializer class
         return self.serializer_class
@@ -245,10 +263,14 @@ class FieldChoicesViewSet(ViewSet):
         self._fields = OrderedDict()
         for cls, field_list in self.fields:
             for field_name in field_list:
+
                 model_name = cls._meta.verbose_name.lower().replace(' ', '-')
                 key = ':'.join([model_name, field_name])
+
+                serializer = get_serializer_for_model(cls)()
                 choices = []
-                for k, v in cls._meta.get_field(field_name).choices:
+
+                for k, v in serializer.get_fields()[field_name].choices.items():
                     if type(v) in [list, tuple]:
                         for k2, v2 in v:
                             choices.append({

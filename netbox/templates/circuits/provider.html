@@ -5,7 +5,7 @@
 {% block title %}{{ provider }}{% endblock %}
 
 {% block header %}
-    <div class="row">
+    <div class="row noprint">
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'circuits:provider_list' %}">Providers</a></li>
@@ -25,7 +25,7 @@
             </form>
         </div>
     </div>
-    <div class="pull-right">
+    <div class="pull-right noprint">
         {% if show_graphs %}
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#graphs_modal" data-obj="{{ provider.name }}" data-url="{% url 'circuits-api:provider-graphs' pk=provider.pk %}" title="Show graphs">
                 <i class="fa fa-signal" aria-hidden="true"></i>
@@ -172,7 +172,7 @@
                 {% endfor %}
             </table>
             {% if perms.circuits.add_circuit %}
-                <div class="panel-footer text-right">
+                <div class="panel-footer text-right noprint">
                     <a href="{% url 'circuits:circuit_add' %}?provider={{ provider.pk }}" class="btn btn-xs btn-primary">
                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add circuit
                     </a>

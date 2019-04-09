@@ -9,7 +9,7 @@ from utilities.api import get_serializer_for_model
 from .constants import WEBHOOK_MODELS
 
 
-def enqueue_webhooks(instance, action):
+def enqueue_webhooks(instance, user, request_id, action):
     """
     Find Webhook(s) assigned to this instance + action and enqueue them
     to be processed
@@ -47,5 +47,7 @@ def enqueue_webhooks(instance, action):
                 serializer.data,
                 instance._meta.model_name,
                 action,
-                str(datetime.datetime.now())
+                str(datetime.datetime.now()),
+                user.username,
+                request_id
             )

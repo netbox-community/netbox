@@ -1,7 +1,6 @@
 from collections import OrderedDict
 from datetime import date
 
-import graphviz
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -12,6 +11,8 @@ from django.db.models import F, Q
 from django.http import HttpResponse
 from django.template import Template, Context
 from django.urls import reverse
+import graphviz
+from jinja2 import Environment
 
 from dcim.constants import CONNECTION_STATUS_CONNECTED
 from utilities.utils import deepmerge, foreground_color
@@ -355,9 +356,13 @@ class ExportTemplate(models.Model):
         max_length=200,
         blank=True
     )
+    template_language = models.PositiveSmallIntegerField(
+        choices=TEMPLATE_LANGUAGE_CHOICES,
+        default=TEMPLATE_LANGUAGE_JINJA2
+    )
     template_code = models.TextField()
     mime_type = models.CharField(
-        max_length=15,
+        max_length=50,
         blank=True
     )
     file_extension = models.CharField(
@@ -374,16 +379,36 @@ class ExportTemplate(models.Model):
     def __str__(self):
         return '{}: {}'.format(self.content_type, self.name)
 
+    def render(self, queryset):
+        """
+        Render the contents of the template.
+        """
+        context = {
+            'queryset': queryset
+        }
+
+        if self.template_language == TEMPLATE_LANGUAGE_DJANGO:
+            template = Template(self.template_code)
+            output = template.render(Context(context))
+
+        elif self.template_language == TEMPLATE_LANGUAGE_JINJA2:
+            template = Environment().from_string(source=self.template_code)
+            output = template.render(**context)
+
+        else:
+            return None
+
+        # Replace CRLF-style line terminators
+        output = output.replace('\r\n', '\n')
+
+        return output
+
     def render_to_response(self, queryset):
         """
         Render the template to an HTTP response, delivered as a named file attachment
         """
-        template = Template(self.template_code)
+        output = self.render(queryset)
         mime_type = 'text/plain' if not self.mime_type else self.mime_type
-        output = template.render(Context({'queryset': queryset}))
-
-        # Replace CRLF-style line terminators
-        output = output.replace('\r\n', '\n')
 
         # Build the response
         response = HttpResponse(output, content_type=mime_type)
@@ -720,7 +745,7 @@ class ConfigContextModel(models.Model):
             data = deepmerge(data, context.data)
 
         # If the object has local config context data defined, merge it last
-        if self.local_context_data is not None:
+        if self.local_context_data:
             data = deepmerge(data, self.local_context_data)
 
         return data

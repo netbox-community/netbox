@@ -128,6 +128,7 @@ class VLANSerializer(TaggitSerializer, CustomFieldModelSerializer):
 #
 
 class PrefixSerializer(TaggitSerializer, CustomFieldModelSerializer):
+    family = ChoiceField(choices=AF_CHOICES, read_only=True)
     site = NestedSiteSerializer(required=False, allow_null=True)
     vrf = NestedVRFSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
@@ -189,6 +190,7 @@ class IPAddressInterfaceSerializer(WritableNestedSerializer):
 
 
 class IPAddressSerializer(TaggitSerializer, CustomFieldModelSerializer):
+    family = ChoiceField(choices=AF_CHOICES, read_only=True)
     vrf = NestedVRFSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=IPADDRESS_STATUS_CHOICES, required=False)

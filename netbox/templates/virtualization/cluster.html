@@ -2,7 +2,7 @@
 {% load helpers %}
 
 {% block header %}
-    <div class="row" xmlns="http://www.w3.org/1999/html">
+    <div class="row noprint" xmlns="http://www.w3.org/1999/html">
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{{ cluster.type.get_absolute_url }}">{{ cluster.type }}</a></li>
@@ -25,7 +25,7 @@
             </form>
         </div>
     </div>
-    <div class="pull-right">
+    <div class="pull-right noprint">
         {% if perms.virtualization.change_cluster %}
             <a href="{% url 'virtualization:cluster_edit' pk=cluster.pk %}" class="btn btn-warning">
                 <span class="fa fa-pencil" aria-hidden="true"></span>
@@ -119,7 +119,7 @@
             {% endif %}
             {% include 'responsive_table.html' with table=device_table %}
             {% if perms.virtualization.change_cluster %}
-                <div class="panel-footer">
+                <div class="panel-footer noprint">
                     <div class="pull-right">
                         <a href="{% url 'virtualization:cluster_add_devices' pk=cluster.pk %}" class="btn btn-primary btn-xs">
                             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>

@@ -1678,7 +1678,6 @@ class DeviceFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
         widget=APISelectMultiple(
             api_url="/api/dcim/device-roles/",
             value_field="slug",
-            null_option=True,
         )
     )
     manufacturer_id = FilterChoiceField(
@@ -2675,12 +2674,12 @@ class CableBulkEditForm(BootstrapMixin, BulkEditForm):
     status = forms.ChoiceField(
         choices=add_blank_choice(CONNECTION_STATUS_CHOICES),
         required=False,
+        widget=StaticSelect2(),
         initial=''
     )
     label = forms.CharField(
         max_length=100,
-        required=False,
-        widget=StaticSelect2()
+        required=False
     )
     color = forms.CharField(
         max_length=6,

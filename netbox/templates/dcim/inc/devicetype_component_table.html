@@ -6,7 +6,7 @@
                 <strong>{{ title }}</strong>
             </div>
             {% include 'responsive_table.html' %}
-            <div class="panel-footer">
+            <div class="panel-footer noprint">
                 {% if table.rows %}
                     {% if edit_url %}
                         <button type="submit" name="_edit" formaction="{% url edit_url pk=devicetype.pk %}?return_url={{ devicetype.get_absolute_url }}" class="btn btn-xs btn-warning">
