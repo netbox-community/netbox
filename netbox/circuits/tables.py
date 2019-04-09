@@ -11,7 +11,7 @@ CIRCUITTYPE_ACTIONS = """
     <i class="fa fa-history"></i>
 </a>
 {% if perms.circuit.change_circuittype %}
-    <a href="{% url 'circuits:circuittype_edit' slug=record.slug %}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+    <a href="{% url 'circuits:circuittype_edit' slug=record.slug %}?return_url={{ request.path }}" class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 {% endif %}
 """
 

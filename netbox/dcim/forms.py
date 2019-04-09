@@ -2853,12 +2853,12 @@ class CableBulkEditForm(BootstrapMixin, BulkEditForm):
     status = forms.ChoiceField(
         choices=add_blank_choice(CONNECTION_STATUS_CHOICES),
         required=False,
+        widget=StaticSelect2(),
         initial=''
     )
     label = forms.CharField(
         max_length=100,
-        required=False,
-        widget=StaticSelect2()
+        required=False
     )
     color = forms.CharField(
         max_length=6,

@@ -56,6 +56,14 @@ EXPORTTEMPLATE_MODELS = [
     'cluster', 'virtualmachine',                                                    # Virtualization
 ]
 
+# ExportTemplate language choices
+TEMPLATE_LANGUAGE_DJANGO = 10
+TEMPLATE_LANGUAGE_JINJA2 = 20
+TEMPLATE_LANGUAGE_CHOICES = (
+    (TEMPLATE_LANGUAGE_DJANGO, 'Django'),
+    (TEMPLATE_LANGUAGE_JINJA2, 'Jinja2'),
+)
+
 # Topology map types
 TOPOLOGYMAP_TYPE_NETWORK = 1
 TOPOLOGYMAP_TYPE_CONSOLE = 2
