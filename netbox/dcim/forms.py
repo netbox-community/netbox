@@ -2681,7 +2681,7 @@ class ConnectCableToPowerFeedForm(BootstrapMixin, ChainedFieldsMixin, forms.Mode
         widget=APISelect(
             api_url='/api/dcim/power-panels/',
             filter_for={
-                'termination_b_powerfeed': 'powerpanel_id',
+                'termination_b_id': 'power_panel_id',
             }
         )
     )

@@ -1126,6 +1126,10 @@ class PowerFeedFilter(CustomFieldFilterSet):
         to_field_name='slug',
         label='Site name (slug)',
     )
+    power_panel_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=PowerPanel.objects.all(),
+        label='Power panel (ID)',
+    )
     rack_id = django_filters.ModelMultipleChoiceFilter(
         field_name='rack',
         queryset=Rack.objects.all(),
