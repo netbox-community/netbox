@@ -9,7 +9,7 @@ import taggit.managers
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0020_add_color_comments_changelog_to_tag'),
+        ('extras', '0021_add_color_comments_changelog_to_tag'),
         ('dcim', '0071_device_components_add_description'),
     ]
 

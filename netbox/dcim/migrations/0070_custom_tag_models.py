@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('dcim', '0069_deprecate_nullablecharfield'),
-        ('extras', '0018_tag_taggeditem'),
+        ('extras', '0019_tag_taggeditem'),
     ]
 
     operations = [

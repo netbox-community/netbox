@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('tenancy', '0005_change_logging'),
-        ('extras', '0018_tag_taggeditem'),
+        ('extras', '0019_tag_taggeditem'),
     ]
 
     operations = [
