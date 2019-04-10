@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ('phase', models.PositiveSmallIntegerField(default=1)),
                 ('voltage', models.PositiveSmallIntegerField(default=120, validators=[django.core.validators.MinValueValidator(1)])),
                 ('amperage', models.PositiveSmallIntegerField(default=20, validators=[django.core.validators.MinValueValidator(1)])),
-                ('max_utilization', models.PositiveSmallIntegerField(default=80, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(100)])),
+                ('power_factor', models.PositiveSmallIntegerField(default=80, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(100)])),
                 ('comments', models.TextField(blank=True)),
                 ('cable', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='dcim.Cable')),
             ],

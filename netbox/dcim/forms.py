@@ -3464,7 +3464,7 @@ class PowerFeedForm(BootstrapMixin, CustomFieldForm):
         model = PowerFeed
         fields = [
             'site', 'power_panel', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage',
-            'max_utilization', 'comments', 'tags',
+            'power_factor', 'comments', 'tags',
         ]
         widgets = {
             'power_panel': APISelect(
@@ -3610,7 +3610,7 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
     amperage = forms.IntegerField(
         required=False
     )
-    max_utilization = forms.IntegerField(
+    power_factor = forms.IntegerField(
         required=False
     )
     comments = forms.CharField(
