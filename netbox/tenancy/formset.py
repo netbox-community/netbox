@@ -2,6 +2,7 @@ from django import forms
 from utilities.forms import APISelectMultiple, FilterChoiceField
 from .models import Tenant, TenantGroup
 
+
 #
 # Tenancy filtering form extension
 #
