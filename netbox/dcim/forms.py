@@ -977,15 +977,28 @@ class PowerPortTemplateCreateForm(ComponentForm):
 
 
 class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
+    power_port = forms.ModelChoiceField(
+        queryset=PowerPortTemplate.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'device_type', 'name',
+            'device_type', 'name', 'power_port', 'feed_leg',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
         }
+
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        # Limit power_port choices to current DeviceType
+        self.fields['power_port'].queryset = PowerPortTemplate.objects.filter(
+            device_type=self.parent
+        )
 
 
 class PowerOutletTemplateCreateForm(ComponentForm):
@@ -1972,6 +1985,10 @@ class PowerPortCreateForm(ComponentForm):
 #
 
 class PowerOutletForm(BootstrapMixin, forms.ModelForm):
+    power_port = forms.ModelChoiceField(
+        queryset=PowerPort.objects.all(),
+        required=False
+    )
     tags = TagField(
         required=False
     )
@@ -1979,11 +1996,19 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = PowerOutlet
         fields = [
-            'device', 'name', 'description', 'tags',
+            'device', 'name', 'power_port', 'feed_leg', 'description', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit power_port choices to the local device
+        self.fields['power_port'].queryset = PowerPort.objects.filter(
+            device=self.instance.device
+        )
 
 
 class PowerOutletCreateForm(ComponentForm):
@@ -2003,6 +2028,10 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerOutlet.objects.all(),
         widget=forms.MultipleHiddenInput()
+    )
+    feed_leg = forms.ChoiceField(
+        choices=POWERFEED_LEG_CHOICES,
+        required=False,
     )
     description = forms.CharField(
         max_length=100,

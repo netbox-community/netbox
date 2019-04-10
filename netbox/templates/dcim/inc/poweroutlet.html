@@ -14,6 +14,15 @@
         <i class="fa fa-fw fa-bolt"></i> {{ po }}
     </td>
 
+    {# Power port #}
+    <td>
+        {% if po.power_port %}
+            {{ po.power_port }}{% if po.feed_leg %} / {{ po.get_feed_leg_display }}{% endif %}
+        {% else %}
+            <span class="text-warning">None</span>
+        {% endif %}
+    </td>
+
     {# Description #}
     <td>
         {{ po.description|placeholder }}

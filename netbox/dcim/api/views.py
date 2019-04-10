@@ -44,6 +44,8 @@ class DCIMFieldChoicesViewSet(FieldChoicesViewSet):
         (FrontPortTemplate, ['type']),
         (Interface, ['form_factor', 'mode']),
         (InterfaceTemplate, ['form_factor']),
+        (PowerOutlet, ['feed_leg']),
+        (PowerOutletTemplate, ['feed_leg']),
         (PowerPort, ['connection_status']),
         (Rack, ['outer_unit', 'status', 'type', 'width']),
         (RearPort, ['type']),

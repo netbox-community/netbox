@@ -1088,6 +1088,19 @@ class PowerOutletTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
+    power_port = models.ForeignKey(
+        to='dcim.PowerPortTemplate',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='poweroutlet_templates'
+    )
+    feed_leg = models.PositiveSmallIntegerField(
+        choices=POWERFEED_LEG_CHOICES,
+        blank=True,
+        null=True,
+        help_text="Phase (for three-phase feeds)"
+    )
 
     objects = DeviceComponentManager()
 
@@ -1097,6 +1110,14 @@ class PowerOutletTemplate(ComponentTemplateModel):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+
+        # Validate power port assignment
+        if self.power_port and self.power_port.device_type != self.device_type:
+            raise ValidationError(
+                "Parent power port ({}) must belong to the same device type".format(self.power_port)
+            )
 
 
 class InterfaceTemplate(ComponentTemplateModel):
@@ -1934,6 +1955,19 @@ class PowerOutlet(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
+    power_port = models.ForeignKey(
+        to='dcim.PowerPort',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='poweroutlets'
+    )
+    feed_leg = models.PositiveSmallIntegerField(
+        choices=POWERFEED_LEG_CHOICES,
+        blank=True,
+        null=True,
+        help_text="Phase (for three-phase feeds)"
+    )
     connection_status = models.NullBooleanField(
         choices=CONNECTION_STATUS_CHOICES,
         blank=True
@@ -1942,7 +1976,7 @@ class PowerOutlet(CableTermination, ComponentModel):
     objects = DeviceComponentManager()
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'description']
+    csv_headers = ['device', 'name', 'power_port', 'feed_leg', 'description']
 
     class Meta:
         unique_together = ['device', 'name']
@@ -1957,8 +1991,18 @@ class PowerOutlet(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.power_port.name if self.power_port else None,
+            self.get_feed_leg_display(),
             self.description,
         )
+
+    def clean(self):
+
+        # Validate power port assignment
+        if self.power_port and self.power_port.device != self.device:
+            raise ValidationError(
+                "Parent power port ({}) must belong to the same device".format(self.power_port)
+            )
 
 
 #
