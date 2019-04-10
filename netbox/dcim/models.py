@@ -9,7 +9,7 @@ from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
@@ -1938,6 +1938,41 @@ class PowerPort(CableTermination, ComponentModel):
                 "Connected endpoint must be a PowerOutlet or PowerFeed, not {}.".format(type(value))
             )
 
+    def get_power_stats(self):
+        """
+        Return power utilization statistics
+        """
+        feed = self._connected_powerfeed
+        if not feed or not self.poweroutlets.count():
+            return None
+
+        stats = []
+        powerfeed_available = self._connected_powerfeed.available_power
+
+        outlet_ids = PowerOutlet.objects.filter(power_port=self).values_list('pk', flat=True)
+        utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
+            maximum_draw=Sum('maximum_draw'),
+            allocated_draw=Sum('allocated_draw'),
+        )
+        utilization['outlets'] = len(outlet_ids)
+        utilization['available_power'] = powerfeed_available
+        stats.append(utilization)
+
+        # Per-leg stats for three-phase feeds
+        if feed.phase == POWERFEED_PHASE_3PHASE:
+            for leg, leg_name in POWERFEED_LEG_CHOICES:
+                outlet_ids = PowerOutlet.objects.filter(power_port=self, feed_leg=leg).values_list('pk', flat=True)
+                utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
+                    maximum_draw=Sum('maximum_draw'),
+                    allocated_draw=Sum('allocated_draw'),
+                )
+                utilization['name'] = 'Leg {}'.format(leg_name)
+                utilization['outlets'] = len(outlet_ids)
+                utilization['available_power'] = powerfeed_available / 3
+                stats.append(utilization)
+
+        return stats
+
 
 #
 # Power outlets
@@ -2923,3 +2958,10 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
 
     def get_status_class(self):
         return STATUS_CLASSES[self.status]
+
+    @property
+    def available_power(self):
+        kva = self.voltage * self.amperage * self.max_utilization
+        if self.phase == POWERFEED_PHASE_3PHASE:
+            return kva * 1.732
+        return kva
