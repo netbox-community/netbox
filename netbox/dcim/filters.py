@@ -5,7 +5,7 @@ from netaddr import EUI
 from netaddr.core import AddrFormatError
 
 from extras.filters import CustomFieldFilterSet
-from tenancy.filters import TenancyFilterSet
+from tenancy.filterset import TenancyFilterSet
 from utilities.constants import COLOR_CHOICES
 from utilities.filters import (
     NameSlugSearchFilterSet, NullableCharFieldFilter, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter

@@ -3,7 +3,7 @@ from django.db.models import Q
 
 from dcim.models import Site
 from extras.filters import CustomFieldFilterSet
-from tenancy.filters import TenancyFilterSet
+from tenancy.filterset import TenancyFilterSet
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
 from .constants import CIRCUIT_STATUS_CHOICES
 from .models import Provider, Circuit, CircuitTermination, CircuitType

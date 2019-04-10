@@ -5,7 +5,8 @@ from taggit.forms import TagField
 
 from dcim.models import Site, Rack, Device, Interface
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
-from tenancy.forms import TenancyForm, TenancyFilterForm
+from tenancy.forms import TenancyForm
+from tenancy.formset import TenancyFilterForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditNullBooleanSelect, ChainedModelChoiceField,

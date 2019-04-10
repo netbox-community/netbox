@@ -8,7 +8,7 @@ from taggit.forms import TagField
 from taggit.models import Tag
 
 from dcim.models import DeviceRole, Platform, Region, Site
-from tenancy.models import Tenant, TenantGroup
+from tenancy.formset import TenancyFilterForm
 from utilities.forms import (
     add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ContentTypeSelect,
     FilterChoiceField, LaxURLField, JSONField, SlugField,
@@ -274,7 +274,7 @@ class ConfigContextBulkEditForm(BootstrapMixin, BulkEditForm):
         ]
 
 
-class ConfigContextFilterForm(BootstrapMixin, forms.Form):
+class ConfigContextFilterForm(TenancyFilterForm, BootstrapMixin, forms.Form):
     q = forms.CharField(
         required=False,
         label='Search'
@@ -311,22 +311,10 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
             value_field="slug",
         )
     )
-    tenant_group = FilterChoiceField(
-        queryset=TenantGroup.objects.all(),
-        to_field_name='slug',
-        widget=APISelectMultiple(
-            api_url="/api/tenancy/tenant-groups/",
-            value_field="slug",
-        )
-    )
-    tenant = FilterChoiceField(
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        widget=APISelectMultiple(
-            api_url="/api/tenancy/tenants/",
-            value_field="slug",
-        )
-    )
+
+    class Meta:
+        # Order the form fields, fields not listed are appended
+        field_order = ['q', 'type', 'provider', 'status']
 
 
 #

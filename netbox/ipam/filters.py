@@ -6,7 +6,7 @@ from netaddr.core import AddrFormatError
 
 from dcim.models import Site, Device, Interface
 from extras.filters import CustomFieldFilterSet
-from tenancy.filters import TenancyFilterSet
+from tenancy.filterset import TenancyFilterSet
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
 from virtualization.models import VirtualMachine
 from .constants import IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, PREFIX_STATUS_CHOICES, VLAN_STATUS_CHOICES

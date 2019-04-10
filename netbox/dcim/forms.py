@@ -12,7 +12,8 @@ from timezone_field import TimeZoneFormField
 
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from ipam.models import IPAddress, VLAN, VLANGroup
-from tenancy.forms import TenancyForm, TenancyFilterForm
+from tenancy.forms import TenancyForm
+from tenancy.formset import TenancyFilterForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
