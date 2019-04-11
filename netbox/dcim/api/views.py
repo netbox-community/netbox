@@ -410,7 +410,7 @@ class ConsoleServerPortViewSet(CableTraceMixin, ModelViewSet):
 
 class PowerPortViewSet(CableTraceMixin, ModelViewSet):
     queryset = PowerPort.objects.select_related(
-        'device', 'connected_endpoint__device', 'cable'
+        'device', '_connected_poweroutlet__device', '_connected_powerfeed', 'cable'
     ).prefetch_related(
         'tags'
     )

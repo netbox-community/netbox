@@ -215,7 +215,9 @@ class PowerPortTemplateSerializer(ValidatedModelSerializer):
 
 class PowerOutletTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
-    power_port = PowerPortTemplateSerializer()
+    power_port = PowerPortTemplateSerializer(
+        required=False
+    )
     feed_leg = ChoiceField(
         choices=POWERFEED_LEG_CHOICES,
         required=False,
@@ -378,7 +380,9 @@ class ConsolePortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
 
 class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
-    power_port = NestedPowerPortSerializer()
+    power_port = NestedPowerPortSerializer(
+        required=False
+    )
     feed_leg = ChoiceField(
         choices=POWERFEED_LEG_CHOICES,
         required=False,
