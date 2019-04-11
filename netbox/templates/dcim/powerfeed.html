@@ -8,6 +8,7 @@
         <div class="col-sm-8 col-md-9">
             <ol class="breadcrumb">
                 <li><a href="{% url 'dcim:powerfeed_list' %}">Power Feeds</a></li>
+                <li><a href="{{ powerfeed.power_panel.site.get_absolute_url }}">{{ powerfeed.power_panel.site }}</a></li>
                 <li><a href="{{ powerfeed.power_panel.get_absolute_url }}">{{ powerfeed.power_panel }}</a></li>
                 {% if powerfeed.rack %}
                     <li><a href="{{ powerfeed.rack.get_absolute_url }}">{{ powerfeed.rack }}</a></li>
@@ -118,7 +119,7 @@
                     <td>{{ powerfeed.get_phase_display }}</td>
                 </tr>
                 <tr>
-                    <td>Max Utilization</td>
+                    <td>Power Factor</td>
                     <td>{{ powerfeed.power_factor }}%</td>
                 </tr>
             </table>

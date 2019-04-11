@@ -2853,6 +2853,14 @@ class PowerPanel(ChangeLoggedModel):
             self.name,
         )
 
+    def clean(self):
+
+        # RackGroup must belong to assigned Site
+        if self.rack_group and self.rack_group.site != self.site:
+            raise ValidationError("Rack group {} ({}) is in a different site than {}".format(
+                self.rack_group, self.rack_group.site, self.site
+            ))
+
 
 class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
     """
@@ -2952,6 +2960,14 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
             self.power_factor,
             self.comments,
         )
+
+    def clean(self):
+
+        # Rack must belong to same Site as PowerPanel
+        if self.rack and self.rack.site != self.power_panel.site:
+            raise ValidationError("Rack {} ({}) and power panel {} ({}) are in different sites".format(
+                self.rack, self.rack.site, self.power_panel, self.power_panel.site
+            ))
 
     def get_type_class(self):
         return STATUS_CLASSES[self.type]

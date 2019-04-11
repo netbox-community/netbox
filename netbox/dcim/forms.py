@@ -3456,6 +3456,7 @@ class PowerFeedForm(BootstrapMixin, CustomFieldForm):
             }
         )
     )
+    comments = CommentField()
     tags = TagField(
         required=False
     )
@@ -3478,6 +3479,14 @@ class PowerFeedForm(BootstrapMixin, CustomFieldForm):
             'supply': StaticSelect2(),
             'phase': StaticSelect2(),
         }
+
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        # Initialize site field
+        if self.instance and self.instance.power_panel:
+            self.initial['site'] = self.instance.power_panel.site
 
 
 class PowerFeedCSVForm(forms.ModelForm):
@@ -3573,11 +3582,11 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
             }
         )
     )
-    rackgroup = forms.ModelChoiceField(
-        queryset=RackGroup.objects.all(),
+    rack = forms.ModelChoiceField(
+        queryset=Rack.objects.all(),
         required=False,
         widget=APISelect(
-            api_url="/api/dcim/rack-groups",
+            api_url="/api/dcim/racks",
         )
     )
     status = forms.ChoiceField(
@@ -3668,4 +3677,13 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
         choices=add_blank_choice(POWERFEED_PHASE_CHOICES),
         required=False,
         widget=StaticSelect2()
+    )
+    voltage = forms.IntegerField(
+        required=False
+    )
+    amperage = forms.IntegerField(
+        required=False
+    )
+    power_factor = forms.IntegerField(
+        required=False
     )

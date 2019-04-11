@@ -544,7 +544,7 @@ class VirtualChassisViewSet(ModelViewSet):
 #
 
 class PowerPanelViewSet(ModelViewSet):
-    queryset = PowerPanel.objects.all()
+    queryset = PowerPanel.objects.select_related('site', 'rack_group')
     serializer_class = serializers.PowerPanelSerializer
     filterset_class = filters.PowerPanelFilter
 
@@ -553,8 +553,8 @@ class PowerPanelViewSet(ModelViewSet):
 # Power feeds
 #
 
-class PowerFeedViewSet(ModelViewSet):
-    queryset = PowerFeed.objects.all()
+class PowerFeedViewSet(CustomFieldModelViewSet):
+    queryset = PowerFeed.objects.select_related('power_panel', 'rack').prefetch_related('tags')
     serializer_class = serializers.PowerFeedSerializer
     filterset_class = filters.PowerFeedFilter
 

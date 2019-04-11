@@ -1135,10 +1135,11 @@ class PowerFeedFilter(CustomFieldFilterSet):
         queryset=Rack.objects.all(),
         label='Rack (ID)',
     )
+    tag = TagFilter()
 
     class Meta:
         model = PowerFeed
-        fields = ['name', 'status', 'type', 'supply', 'phase']
+        fields = ['name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'power_factor']
 
     def search(self, queryset, name, value):
         if not value.strip():
