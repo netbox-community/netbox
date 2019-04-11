@@ -1,6 +1,5 @@
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -74,8 +73,7 @@ class LogoutView(View):
 # User profiles
 #
 
-@method_decorator(login_required, name='dispatch')
-class ProfileView(View):
+class ProfileView(LoginRequiredMixin, View):
     template_name = 'users/profile.html'
 
     def get(self, request):
@@ -85,8 +83,7 @@ class ProfileView(View):
         })
 
 
-@method_decorator(login_required, name='dispatch')
-class ChangePasswordView(View):
+class ChangePasswordView(LoginRequiredMixin, View):
     template_name = 'users/change_password.html'
 
     def get(self, request):
@@ -111,8 +108,7 @@ class ChangePasswordView(View):
         })
 
 
-@method_decorator(login_required, name='dispatch')
-class UserKeyView(View):
+class UserKeyView(LoginRequiredMixin, View):
     template_name = 'users/userkey.html'
 
     def get(self, request):
@@ -127,10 +123,9 @@ class UserKeyView(View):
         })
 
 
-class UserKeyEditView(View):
+class UserKeyEditView(LoginRequiredMixin, View):
     template_name = 'users/userkey_edit.html'
 
-    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         try:
             self.userkey = UserKey.objects.get(user=request.user)
@@ -164,7 +159,6 @@ class UserKeyEditView(View):
         })
 
 
-@method_decorator(login_required, name='dispatch')
 class SessionKeyDeleteView(LoginRequiredMixin, View):
 
     def get(self, request):
