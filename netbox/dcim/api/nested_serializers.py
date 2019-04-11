@@ -255,7 +255,7 @@ class NestedVirtualChassisSerializer(WritableNestedSerializer):
 # Power panels/feeds
 #
 
-class NestedPowerPanelSerializer(serializers.ModelSerializer):
+class NestedPowerPanelSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerpanel-detail')
 
     class Meta:
@@ -263,7 +263,7 @@ class NestedPowerPanelSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'name']
 
 
-class NestedPowerFeedSerializer(serializers.ModelSerializer):
+class NestedPowerFeedSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerfeed-detail')
 
     class Meta:
