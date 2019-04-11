@@ -422,7 +422,7 @@ CABLE_TERMINATION_TYPE_CHOICES = {
 COMPATIBLE_TERMINATION_TYPES = {
     'consoleport': ['consoleserverport', 'frontport', 'rearport'],
     'consoleserverport': ['consoleport', 'frontport', 'rearport'],
-    'powerport': ['poweroutlet'],
+    'powerport': ['poweroutlet', 'powerfeed'],
     'poweroutlet': ['powerport'],
     'interface': ['interface', 'circuittermination', 'frontport', 'rearport'],
     'frontport': ['consoleport', 'consoleserverport', 'interface', 'frontport', 'rearport', 'circuittermination'],
@@ -444,4 +444,42 @@ CABLE_LENGTH_UNIT_CHOICES = (
 RACK_DIMENSION_UNIT_CHOICES = (
     (LENGTH_UNIT_MILLIMETER, 'Millimeters'),
     (LENGTH_UNIT_INCH, 'Inches'),
+)
+
+# Power feeds
+POWERFEED_TYPE_PRIMARY = 1
+POWERFEED_TYPE_REDUNDANT = 2
+POWERFEED_TYPE_CHOICES = (
+    (POWERFEED_TYPE_PRIMARY, 'Primary'),
+    (POWERFEED_TYPE_REDUNDANT, 'Redundant'),
+)
+POWERFEED_SUPPLY_AC = 1
+POWERFEED_SUPPLY_DC = 2
+POWERFEED_SUPPLY_CHOICES = (
+    (POWERFEED_SUPPLY_AC, 'AC'),
+    (POWERFEED_SUPPLY_DC, 'DC'),
+)
+POWERFEED_PHASE_SINGLE = 1
+POWERFEED_PHASE_3PHASE = 3
+POWERFEED_PHASE_CHOICES = (
+    (POWERFEED_PHASE_SINGLE, 'Single phase'),
+    (POWERFEED_PHASE_3PHASE, 'Three-phase'),
+)
+POWERFEED_STATUS_OFFLINE = 0
+POWERFEED_STATUS_ACTIVE = 1
+POWERFEED_STATUS_PLANNED = 2
+POWERFEED_STATUS_FAILED = 4
+POWERFEED_STATUS_CHOICES = (
+    (POWERFEED_STATUS_ACTIVE, 'Active'),
+    (POWERFEED_STATUS_OFFLINE, 'Offline'),
+    (POWERFEED_STATUS_PLANNED, 'Planned'),
+    (POWERFEED_STATUS_FAILED, 'Failed'),
+)
+POWERFEED_LEG_A = 1
+POWERFEED_LEG_B = 2
+POWERFEED_LEG_C = 3
+POWERFEED_LEG_CHOICES = (
+    (POWERFEED_LEG_A, 'A'),
+    (POWERFEED_LEG_B, 'B'),
+    (POWERFEED_LEG_C, 'C'),
 )

@@ -43,7 +43,7 @@ urlpatterns = [
     url(r'^circuits/(?P<circuit>\d+)/terminations/add/$', views.CircuitTerminationCreateView.as_view(), name='circuittermination_add'),
     url(r'^circuit-terminations/(?P<pk>\d+)/edit/$', views.CircuitTerminationEditView.as_view(), name='circuittermination_edit'),
     url(r'^circuit-terminations/(?P<pk>\d+)/delete/$', views.CircuitTerminationDeleteView.as_view(), name='circuittermination_delete'),
-    url(r'^circuit-terminations/(?P<termination_a_id>\d+)/connect/$', CableCreateView.as_view(), name='circuittermination_connect', kwargs={'termination_a_type': CircuitTermination}),
+    url(r'^circuit-terminations/(?P<termination_a_id>\d+)/connect/(?P<termination_b_type>[\w-]+)/$', CableCreateView.as_view(), name='circuittermination_connect', kwargs={'termination_a_type': CircuitTermination}),
     url(r'^circuit-terminations/(?P<pk>\d+)/trace/$', CableTraceView.as_view(), name='circuittermination_trace', kwargs={'model': CircuitTermination}),
 
 ]

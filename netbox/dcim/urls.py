@@ -6,7 +6,8 @@ from secrets.views import secret_add
 from . import views
 from .models import (
     Cable, ConsolePort, ConsoleServerPort, Device, DeviceRole, DeviceType, FrontPort, Interface, Manufacturer, Platform,
-    PowerPort, PowerOutlet, Rack, RackGroup, RackReservation, RackRole, RearPort, Region, Site, VirtualChassis,
+    PowerFeed, PowerPanel, PowerPort, PowerOutlet, Rack, RackGroup, RackReservation, RackRole, RearPort, Region, Site,
+    VirtualChassis,
 )
 
 app_name = 'dcim'
@@ -161,7 +162,7 @@ urlpatterns = [
     url(r'^devices/console-ports/add/$', views.DeviceBulkAddConsolePortView.as_view(), name='device_bulk_add_consoleport'),
     url(r'^devices/(?P<pk>\d+)/console-ports/add/$', views.ConsolePortCreateView.as_view(), name='consoleport_add'),
     url(r'^devices/(?P<pk>\d+)/console-ports/delete/$', views.ConsolePortBulkDeleteView.as_view(), name='consoleport_bulk_delete'),
-    url(r'^console-ports/(?P<termination_a_id>\d+)/connect/$', views.CableCreateView.as_view(), name='consoleport_connect', kwargs={'termination_a_type': ConsolePort}),
+    url(r'^console-ports/(?P<termination_a_id>\d+)/connect/(?P<termination_b_type>[\w-]+)/$', views.CableCreateView.as_view(), name='consoleport_connect', kwargs={'termination_a_type': ConsolePort}),
     url(r'^console-ports/(?P<pk>\d+)/edit/$', views.ConsolePortEditView.as_view(), name='consoleport_edit'),
     url(r'^console-ports/(?P<pk>\d+)/delete/$', views.ConsolePortDeleteView.as_view(), name='consoleport_delete'),
     url(r'^console-ports/(?P<pk>\d+)/trace/$', views.CableTraceView.as_view(), name='consoleport_trace', kwargs={'model': ConsolePort}),
@@ -170,7 +171,7 @@ urlpatterns = [
     url(r'^devices/console-server-ports/add/$', views.DeviceBulkAddConsoleServerPortView.as_view(), name='device_bulk_add_consoleserverport'),
     url(r'^devices/(?P<pk>\d+)/console-server-ports/add/$', views.ConsoleServerPortCreateView.as_view(), name='consoleserverport_add'),
     url(r'^devices/(?P<pk>\d+)/console-server-ports/delete/$', views.ConsoleServerPortBulkDeleteView.as_view(), name='consoleserverport_bulk_delete'),
-    url(r'^console-server-ports/(?P<termination_a_id>\d+)/connect/$', views.CableCreateView.as_view(), name='consoleserverport_connect', kwargs={'termination_a_type': ConsoleServerPort}),
+    url(r'^console-server-ports/(?P<termination_a_id>\d+)/connect/(?P<termination_b_type>[\w-]+)/$', views.CableCreateView.as_view(), name='consoleserverport_connect', kwargs={'termination_a_type': ConsoleServerPort}),
     url(r'^console-server-ports/(?P<pk>\d+)/edit/$', views.ConsoleServerPortEditView.as_view(), name='consoleserverport_edit'),
     url(r'^console-server-ports/(?P<pk>\d+)/delete/$', views.ConsoleServerPortDeleteView.as_view(), name='consoleserverport_delete'),
     url(r'^console-server-ports/(?P<pk>\d+)/trace/$', views.CableTraceView.as_view(), name='consoleserverport_trace', kwargs={'model': ConsoleServerPort}),
@@ -181,7 +182,7 @@ urlpatterns = [
     url(r'^devices/power-ports/add/$', views.DeviceBulkAddPowerPortView.as_view(), name='device_bulk_add_powerport'),
     url(r'^devices/(?P<pk>\d+)/power-ports/add/$', views.PowerPortCreateView.as_view(), name='powerport_add'),
     url(r'^devices/(?P<pk>\d+)/power-ports/delete/$', views.PowerPortBulkDeleteView.as_view(), name='powerport_bulk_delete'),
-    url(r'^power-ports/(?P<termination_a_id>\d+)/connect/$', views.CableCreateView.as_view(), name='powerport_connect', kwargs={'termination_a_type': PowerPort}),
+    url(r'^power-ports/(?P<termination_a_id>\d+)/connect/(?P<termination_b_type>[\w-]+)/$', views.CableCreateView.as_view(), name='powerport_connect', kwargs={'termination_a_type': PowerPort}),
     url(r'^power-ports/(?P<pk>\d+)/edit/$', views.PowerPortEditView.as_view(), name='powerport_edit'),
     url(r'^power-ports/(?P<pk>\d+)/delete/$', views.PowerPortDeleteView.as_view(), name='powerport_delete'),
     url(r'^power-ports/(?P<pk>\d+)/trace/$', views.CableTraceView.as_view(), name='powerport_trace', kwargs={'model': PowerPort}),
@@ -190,7 +191,7 @@ urlpatterns = [
     url(r'^devices/power-outlets/add/$', views.DeviceBulkAddPowerOutletView.as_view(), name='device_bulk_add_poweroutlet'),
     url(r'^devices/(?P<pk>\d+)/power-outlets/add/$', views.PowerOutletCreateView.as_view(), name='poweroutlet_add'),
     url(r'^devices/(?P<pk>\d+)/power-outlets/delete/$', views.PowerOutletBulkDeleteView.as_view(), name='poweroutlet_bulk_delete'),
-    url(r'^power-outlets/(?P<termination_a_id>\d+)/connect/$', views.CableCreateView.as_view(), name='poweroutlet_connect', kwargs={'termination_a_type': PowerOutlet}),
+    url(r'^power-outlets/(?P<termination_a_id>\d+)/connect/(?P<termination_b_type>[\w-]+)/$', views.CableCreateView.as_view(), name='poweroutlet_connect', kwargs={'termination_a_type': PowerOutlet}),
     url(r'^power-outlets/(?P<pk>\d+)/edit/$', views.PowerOutletEditView.as_view(), name='poweroutlet_edit'),
     url(r'^power-outlets/(?P<pk>\d+)/delete/$', views.PowerOutletDeleteView.as_view(), name='poweroutlet_delete'),
     url(r'^power-outlets/(?P<pk>\d+)/trace/$', views.CableTraceView.as_view(), name='poweroutlet_trace', kwargs={'model': PowerOutlet}),
@@ -202,7 +203,7 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/interfaces/add/$', views.InterfaceCreateView.as_view(), name='interface_add'),
     url(r'^devices/(?P<pk>\d+)/interfaces/edit/$', views.InterfaceBulkEditView.as_view(), name='interface_bulk_edit'),
     url(r'^devices/(?P<pk>\d+)/interfaces/delete/$', views.InterfaceBulkDeleteView.as_view(), name='interface_bulk_delete'),
-    url(r'^interfaces/(?P<termination_a_id>\d+)/connect/$', views.CableCreateView.as_view(), name='interface_connect', kwargs={'termination_a_type': Interface}),
+    url(r'^interfaces/(?P<termination_a_id>\d+)/connect/(?P<termination_b_type>[\w-]+)/$', views.CableCreateView.as_view(), name='interface_connect', kwargs={'termination_a_type': Interface}),
     url(r'^interfaces/(?P<pk>\d+)/$', views.InterfaceView.as_view(), name='interface'),
     url(r'^interfaces/(?P<pk>\d+)/edit/$', views.InterfaceEditView.as_view(), name='interface_edit'),
     url(r'^interfaces/(?P<pk>\d+)/assign-vlans/$', views.InterfaceAssignVLANsView.as_view(), name='interface_assign_vlans'),
@@ -217,7 +218,7 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/front-ports/add/$', views.FrontPortCreateView.as_view(), name='frontport_add'),
     url(r'^devices/(?P<pk>\d+)/front-ports/edit/$', views.FrontPortBulkEditView.as_view(), name='frontport_bulk_edit'),
     url(r'^devices/(?P<pk>\d+)/front-ports/delete/$', views.FrontPortBulkDeleteView.as_view(), name='frontport_bulk_delete'),
-    url(r'^front-ports/(?P<termination_a_id>\d+)/connect/$', views.CableCreateView.as_view(), name='frontport_connect', kwargs={'termination_a_type': FrontPort}),
+    url(r'^front-ports/(?P<termination_a_id>\d+)/connect/(?P<termination_b_type>[\w-]+)/$', views.CableCreateView.as_view(), name='frontport_connect', kwargs={'termination_a_type': FrontPort}),
     url(r'^front-ports/(?P<pk>\d+)/edit/$', views.FrontPortEditView.as_view(), name='frontport_edit'),
     url(r'^front-ports/(?P<pk>\d+)/delete/$', views.FrontPortDeleteView.as_view(), name='frontport_delete'),
     url(r'^front-ports/(?P<pk>\d+)/trace/$', views.CableTraceView.as_view(), name='frontport_trace', kwargs={'model': FrontPort}),
@@ -229,7 +230,7 @@ urlpatterns = [
     url(r'^devices/(?P<pk>\d+)/rear-ports/add/$', views.RearPortCreateView.as_view(), name='rearport_add'),
     url(r'^devices/(?P<pk>\d+)/rear-ports/edit/$', views.RearPortBulkEditView.as_view(), name='rearport_bulk_edit'),
     url(r'^devices/(?P<pk>\d+)/rear-ports/delete/$', views.RearPortBulkDeleteView.as_view(), name='rearport_bulk_delete'),
-    url(r'^rear-ports/(?P<termination_a_id>\d+)/connect/$', views.CableCreateView.as_view(), name='rearport_connect', kwargs={'termination_a_type': RearPort}),
+    url(r'^rear-ports/(?P<termination_a_id>\d+)/connect/(?P<termination_b_type>[\w-]+)/$', views.CableCreateView.as_view(), name='rearport_connect', kwargs={'termination_a_type': RearPort}),
     url(r'^rear-ports/(?P<pk>\d+)/edit/$', views.RearPortEditView.as_view(), name='rearport_edit'),
     url(r'^rear-ports/(?P<pk>\d+)/delete/$', views.RearPortDeleteView.as_view(), name='rearport_delete'),
     url(r'^rear-ports/(?P<pk>\d+)/trace/$', views.CableTraceView.as_view(), name='rearport_trace', kwargs={'model': RearPort}),
@@ -278,5 +279,26 @@ urlpatterns = [
     url(r'^virtual-chassis/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='virtualchassis_changelog', kwargs={'model': VirtualChassis}),
     url(r'^virtual-chassis/(?P<pk>\d+)/add-member/$', views.VirtualChassisAddMemberView.as_view(), name='virtualchassis_add_member'),
     url(r'^virtual-chassis-members/(?P<pk>\d+)/delete/$', views.VirtualChassisRemoveMemberView.as_view(), name='virtualchassis_remove_member'),
+
+    # Power panels
+    url(r'^power-panels/$', views.PowerPanelListView.as_view(), name='powerpanel_list'),
+    url(r'^power-panels/add/$', views.PowerPanelCreateView.as_view(), name='powerpanel_add'),
+    url(r'^power-panels/import/$', views.PowerPanelBulkImportView.as_view(), name='powerpanel_import'),
+    url(r'^power-panels/delete/$', views.PowerPanelBulkDeleteView.as_view(), name='powerpanel_bulk_delete'),
+    url(r'^power-panels/(?P<pk>\d+)/$', views.PowerPanelView.as_view(), name='powerpanel'),
+    url(r'^power-panels/(?P<pk>\d+)/edit/$', views.PowerPanelEditView.as_view(), name='powerpanel_edit'),
+    url(r'^power-panels/(?P<pk>\d+)/delete/$', views.PowerPanelDeleteView.as_view(), name='powerpanel_delete'),
+    url(r'^power-panels/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='powerpanel_changelog', kwargs={'model': PowerPanel}),
+
+    # Racks
+    url(r'^power-feeds/$', views.PowerFeedListView.as_view(), name='powerfeed_list'),
+    url(r'^power-feeds/add/$', views.PowerFeedEditView.as_view(), name='powerfeed_add'),
+    url(r'^power-feeds/import/$', views.PowerFeedBulkImportView.as_view(), name='powerfeed_import'),
+    url(r'^power-feeds/edit/$', views.PowerFeedBulkEditView.as_view(), name='powerfeed_bulk_edit'),
+    url(r'^power-feeds/delete/$', views.PowerFeedBulkDeleteView.as_view(), name='powerfeed_bulk_delete'),
+    url(r'^power-feeds/(?P<pk>\d+)/$', views.PowerFeedView.as_view(), name='powerfeed'),
+    url(r'^power-feeds/(?P<pk>\d+)/edit/$', views.PowerFeedEditView.as_view(), name='powerfeed_edit'),
+    url(r'^power-feeds/(?P<pk>\d+)/delete/$', views.PowerFeedDeleteView.as_view(), name='powerfeed_delete'),
+    url(r'^power-feeds/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='powerfeed_changelog', kwargs={'model': PowerFeed}),
 
 ]

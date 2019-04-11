@@ -332,6 +332,49 @@
                     {% endif %}
                 </div>
             {% endif %}
+            {% if power_ports and poweroutlets %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong>Power Utilization</strong>
+                    </div>
+                    <table class="table table-hover panel-body">
+                        <tr>
+                            <th>Input</th>
+                            <th>Outlets</th>
+                            <th>Allocated/Max (W)</th>
+                            <th>Available (VA)</th>
+                        </tr>
+                        {% for pp in power_ports %}
+                            {% for leg in pp.get_power_stats %}
+                                <tr>
+                                    {% if leg.name %}
+                                        <td style="padding-left: 20px">{{ leg.name }}</td>
+                                    {% else %}
+                                        <td>{{ pp }}</td>
+                                    {% endif %}
+                                    <td>{{ leg.outlets|placeholder }}</td>
+                                    <td>{{ leg.allocated_draw }} / {{ leg.maximum_draw }}</td>
+                                    <td>{{ leg.available_power }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    </table>
+                    {% if perms.dcim.add_interface or perms.dcim.add_consoleport or perms.dcim.add_powerport %}
+                        <div class="panel-footer text-right noprint">
+                            {% if perms.dcim.add_consoleport %}
+                                <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console port
+                                </a>
+                            {% endif %}
+                            {% if perms.dcim.add_powerport %}
+                                <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power port
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
             {% if request.user.is_authenticated %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -627,9 +670,10 @@
                                     <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
                                 {% endif %}
                                 <th>Name</th>
+                                <th>Input/Leg</th>
                                 <th>Description</th>
                                 <th>Cable</th>
-                                <th colspan="2">Connection</th>
+                                <th colspan="3">Connection</th>
                                 <th></th>
                             </tr>
                         </thead>

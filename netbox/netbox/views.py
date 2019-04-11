@@ -166,7 +166,7 @@ class HomeView(View):
             connected_endpoint__isnull=False
         )
         connected_powerports = PowerPort.objects.filter(
-            connected_endpoint__isnull=False
+            _connected_poweroutlet__isnull=False
         )
         connected_interfaces = Interface.objects.filter(
             _connected_interface__isnull=False,

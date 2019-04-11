@@ -7,8 +7,8 @@ from dcim.constants import *
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, Interface, InterfaceTemplate, Manufacturer,
-    InventoryItem, Platform, PowerPort, PowerPortTemplate, PowerOutlet, PowerOutletTemplate, Rack, RackGroup,
-    RackReservation, RackRole, RearPort, Region, Site, VirtualChassis,
+    InventoryItem, Platform, PowerFeed, PowerPort, PowerPortTemplate, PowerOutlet, PowerOutletTemplate, PowerPanel,
+    Rack, RackGroup, RackReservation, RackRole, RearPort, Region, Site, VirtualChassis,
 )
 from ipam.models import IPAddress, VLAN
 from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
@@ -3532,3 +3532,260 @@ class VirtualChassisTest(APITestCase):
             self.assertTrue(
                 Device.objects.filter(pk=d.pk, virtual_chassis=None, vc_position=None, vc_priority=None)
             )
+
+
+class PowerPanelTest(APITestCase):
+
+    def setUp(self):
+
+        super().setUp()
+
+        self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        self.rackgroup1 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 1', slug='test-rack-group-1')
+        self.rackgroup2 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 2', slug='test-rack-group-2')
+        self.rackgroup3 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 3', slug='test-rack-group-3')
+        self.powerpanel1 = PowerPanel.objects.create(
+            site=self.site1, rack_group=self.rackgroup1, name='Test Power Panel 1'
+        )
+        self.powerpanel2 = PowerPanel.objects.create(
+            site=self.site1, rack_group=self.rackgroup2, name='Test Power Panel 2'
+        )
+        self.powerpanel3 = PowerPanel.objects.create(
+            site=self.site1, rack_group=self.rackgroup3, name='Test Power Panel 3'
+        )
+
+    def test_get_powerpanel(self):
+
+        url = reverse('dcim-api:powerpanel-detail', kwargs={'pk': self.powerpanel1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.powerpanel1.name)
+
+    def test_list_powerpanels(self):
+
+        url = reverse('dcim-api:powerpanel-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_list_powerpanels_brief(self):
+
+        url = reverse('dcim-api:powerpanel-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'url']
+        )
+
+    def test_create_powerpanel(self):
+
+        data = {
+            'name': 'Test Power Panel 4',
+            'site': self.site1.pk,
+            'rack_group': self.rackgroup1.pk,
+        }
+
+        url = reverse('dcim-api:powerpanel-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(PowerPanel.objects.count(), 4)
+        powerpanel4 = PowerPanel.objects.get(pk=response.data['id'])
+        self.assertEqual(powerpanel4.name, data['name'])
+        self.assertEqual(powerpanel4.site_id, data['site'])
+        self.assertEqual(powerpanel4.rack_group_id, data['rack_group'])
+
+    def test_create_powerpanel_bulk(self):
+
+        data = [
+            {
+                'name': 'Test Power Panel 4',
+                'site': self.site1.pk,
+                'rack_group': self.rackgroup1.pk,
+            },
+            {
+                'name': 'Test Power Panel 5',
+                'site': self.site1.pk,
+                'rack_group': self.rackgroup2.pk,
+            },
+            {
+                'name': 'Test Power Panel 6',
+                'site': self.site1.pk,
+                'rack_group': self.rackgroup3.pk,
+            },
+        ]
+
+        url = reverse('dcim-api:powerpanel-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(PowerPanel.objects.count(), 6)
+        self.assertEqual(response.data[0]['name'], data[0]['name'])
+        self.assertEqual(response.data[1]['name'], data[1]['name'])
+        self.assertEqual(response.data[2]['name'], data[2]['name'])
+
+    def test_update_powerpanel(self):
+
+        data = {
+            'name': 'Test Power Panel X',
+            'rack_group': self.rackgroup2.pk,
+        }
+
+        url = reverse('dcim-api:powerpanel-detail', kwargs={'pk': self.powerpanel1.pk})
+        response = self.client.patch(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(PowerPanel.objects.count(), 3)
+        powerpanel1 = PowerPanel.objects.get(pk=response.data['id'])
+        self.assertEqual(powerpanel1.name, data['name'])
+        self.assertEqual(powerpanel1.rack_group_id, data['rack_group'])
+
+    def test_delete_powerpanel(self):
+
+        url = reverse('dcim-api:powerpanel-detail', kwargs={'pk': self.powerpanel1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(PowerPanel.objects.count(), 2)
+
+
+class PowerFeedTest(APITestCase):
+
+    def setUp(self):
+
+        super().setUp()
+
+        self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        self.rackgroup1 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 1', slug='test-rack-group-1')
+        self.rackrole1 = RackRole.objects.create(name='Test Rack Role 1', slug='test-rack-role-1', color='ff0000')
+        self.rack1 = Rack.objects.create(
+            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 1', u_height=42,
+        )
+        self.rack2 = Rack.objects.create(
+            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 2', u_height=42,
+        )
+        self.rack3 = Rack.objects.create(
+            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 3', u_height=42,
+        )
+        self.rack4 = Rack.objects.create(
+            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 4', u_height=42,
+        )
+        self.powerpanel1 = PowerPanel.objects.create(
+            site=self.site1, rack_group=self.rackgroup1, name='Test Power Panel 1'
+        )
+        self.powerpanel2 = PowerPanel.objects.create(
+            site=self.site1, rack_group=self.rackgroup1, name='Test Power Panel 2'
+        )
+        self.powerfeed1 = PowerFeed.objects.create(
+            power_panel=self.powerpanel1, rack=self.rack1, name='Test Power Feed 1A', type=POWERFEED_TYPE_PRIMARY
+        )
+        self.powerfeed2 = PowerFeed.objects.create(
+            power_panel=self.powerpanel2, rack=self.rack1, name='Test Power Feed 1B', type=POWERFEED_TYPE_REDUNDANT
+        )
+        self.powerfeed3 = PowerFeed.objects.create(
+            power_panel=self.powerpanel1, rack=self.rack2, name='Test Power Feed 2A', type=POWERFEED_TYPE_PRIMARY
+        )
+        self.powerfeed4 = PowerFeed.objects.create(
+            power_panel=self.powerpanel2, rack=self.rack2, name='Test Power Feed 2B', type=POWERFEED_TYPE_REDUNDANT
+        )
+        self.powerfeed5 = PowerFeed.objects.create(
+            power_panel=self.powerpanel1, rack=self.rack3, name='Test Power Feed 3A', type=POWERFEED_TYPE_PRIMARY
+        )
+        self.powerfeed6 = PowerFeed.objects.create(
+            power_panel=self.powerpanel2, rack=self.rack3, name='Test Power Feed 3B', type=POWERFEED_TYPE_REDUNDANT
+        )
+
+    def test_get_powerfeed(self):
+
+        url = reverse('dcim-api:powerfeed-detail', kwargs={'pk': self.powerfeed1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.powerfeed1.name)
+
+    def test_list_powerfeeds(self):
+
+        url = reverse('dcim-api:powerfeed-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 6)
+
+    def test_list_powerfeeds_brief(self):
+
+        url = reverse('dcim-api:powerfeed-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'url']
+        )
+
+    def test_create_powerfeed(self):
+
+        data = {
+            'name': 'Test Power Feed 4A',
+            'power_panel': self.powerpanel1.pk,
+            'rack': self.rack4.pk,
+            'type': POWERFEED_TYPE_PRIMARY,
+        }
+
+        url = reverse('dcim-api:powerfeed-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(PowerFeed.objects.count(), 7)
+        powerfeed4 = PowerFeed.objects.get(pk=response.data['id'])
+        self.assertEqual(powerfeed4.name, data['name'])
+        self.assertEqual(powerfeed4.power_panel_id, data['power_panel'])
+        self.assertEqual(powerfeed4.rack_id, data['rack'])
+
+    def test_create_powerfeed_bulk(self):
+
+        data = [
+            {
+                'name': 'Test Power Feed 4A',
+                'power_panel': self.powerpanel1.pk,
+                'rack': self.rack4.pk,
+                'type': POWERFEED_TYPE_PRIMARY,
+            },
+            {
+                'name': 'Test Power Feed 4B',
+                'power_panel': self.powerpanel1.pk,
+                'rack': self.rack4.pk,
+                'type': POWERFEED_TYPE_REDUNDANT,
+            },
+        ]
+
+        url = reverse('dcim-api:powerfeed-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(PowerFeed.objects.count(), 8)
+        self.assertEqual(response.data[0]['name'], data[0]['name'])
+        self.assertEqual(response.data[1]['name'], data[1]['name'])
+
+    def test_update_powerfeed(self):
+
+        data = {
+            'name': 'Test Power Feed X',
+            'rack': self.rack4.pk,
+            'type': POWERFEED_TYPE_REDUNDANT,
+        }
+
+        url = reverse('dcim-api:powerfeed-detail', kwargs={'pk': self.powerfeed1.pk})
+        response = self.client.patch(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(PowerFeed.objects.count(), 6)
+        powerfeed1 = PowerFeed.objects.get(pk=response.data['id'])
+        self.assertEqual(powerfeed1.name, data['name'])
+        self.assertEqual(powerfeed1.rack_id, data['rack'])
+        self.assertEqual(powerfeed1.type, data['type'])
+
+    def test_delete_powerfeed(self):
+
+        url = reverse('dcim-api:powerfeed-detail', kwargs={'pk': self.powerfeed1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(PowerFeed.objects.count(), 5)

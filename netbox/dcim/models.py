@@ -9,7 +9,7 @@ from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
@@ -1053,6 +1053,18 @@ class PowerPortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
+    maximum_draw = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1)],
+        help_text="Maximum current draw (watts)"
+    )
+    allocated_draw = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1)],
+        help_text="Allocated current draw (watts)"
+    )
 
     objects = DeviceComponentManager()
 
@@ -1076,6 +1088,19 @@ class PowerOutletTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
+    power_port = models.ForeignKey(
+        to='dcim.PowerPortTemplate',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='poweroutlet_templates'
+    )
+    feed_leg = models.PositiveSmallIntegerField(
+        choices=POWERFEED_LEG_CHOICES,
+        blank=True,
+        null=True,
+        help_text="Phase (for three-phase feeds)"
+    )
 
     objects = DeviceComponentManager()
 
@@ -1085,6 +1110,14 @@ class PowerOutletTemplate(ComponentTemplateModel):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+
+        # Validate power port assignment
+        if self.power_port and self.power_port.device_type != self.device_type:
+            raise ValidationError(
+                "Parent power port ({}) must belong to the same device type".format(self.power_port)
+            )
 
 
 class InterfaceTemplate(ComponentTemplateModel):
@@ -1828,10 +1861,29 @@ class PowerPort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
-    connected_endpoint = models.OneToOneField(
+    maximum_draw = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1)],
+        help_text="Maximum current draw (watts)"
+    )
+    allocated_draw = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1)],
+        help_text="Allocated current draw (watts)"
+    )
+    _connected_poweroutlet = models.OneToOneField(
         to='dcim.PowerOutlet',
         on_delete=models.SET_NULL,
         related_name='connected_endpoint',
+        blank=True,
+        null=True
+    )
+    _connected_powerfeed = models.OneToOneField(
+        to='dcim.PowerFeed',
+        on_delete=models.SET_NULL,
+        related_name='+',
         blank=True,
         null=True
     )
@@ -1843,7 +1895,7 @@ class PowerPort(CableTermination, ComponentModel):
     objects = DeviceComponentManager()
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'description']
+    csv_headers = ['device', 'name', 'maximum_draw', 'allocated_draw', 'description']
 
     class Meta:
         ordering = ['device', 'name']
@@ -1859,8 +1911,67 @@ class PowerPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.maximum_draw,
+            self.allocated_draw,
             self.description,
         )
+
+    @property
+    def connected_endpoint(self):
+        if self._connected_poweroutlet:
+            return self._connected_poweroutlet
+        return self._connected_powerfeed
+
+    @connected_endpoint.setter
+    def connected_endpoint(self, value):
+        if value is None:
+            self._connected_poweroutlet = None
+            self._connected_powerfeed = None
+        elif isinstance(value, PowerOutlet):
+            self._connected_poweroutlet = value
+            self._connected_powerfeed = None
+        elif isinstance(value, PowerFeed):
+            self._connected_poweroutlet = None
+            self._connected_powerfeed = value
+        else:
+            raise ValueError(
+                "Connected endpoint must be a PowerOutlet or PowerFeed, not {}.".format(type(value))
+            )
+
+    def get_power_stats(self):
+        """
+        Return power utilization statistics
+        """
+        feed = self._connected_powerfeed
+        if not feed or not self.poweroutlets.count():
+            return None
+
+        stats = []
+        powerfeed_available = self._connected_powerfeed.available_power
+
+        outlet_ids = PowerOutlet.objects.filter(power_port=self).values_list('pk', flat=True)
+        utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
+            maximum_draw=Sum('maximum_draw'),
+            allocated_draw=Sum('allocated_draw'),
+        )
+        utilization['outlets'] = len(outlet_ids)
+        utilization['available_power'] = powerfeed_available
+        stats.append(utilization)
+
+        # Per-leg stats for three-phase feeds
+        if feed.phase == POWERFEED_PHASE_3PHASE:
+            for leg, leg_name in POWERFEED_LEG_CHOICES:
+                outlet_ids = PowerOutlet.objects.filter(power_port=self, feed_leg=leg).values_list('pk', flat=True)
+                utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
+                    maximum_draw=Sum('maximum_draw'),
+                    allocated_draw=Sum('allocated_draw'),
+                )
+                utilization['name'] = 'Leg {}'.format(leg_name)
+                utilization['outlets'] = len(outlet_ids)
+                utilization['available_power'] = powerfeed_available / 3
+                stats.append(utilization)
+
+        return stats
 
 
 #
@@ -1879,6 +1990,19 @@ class PowerOutlet(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
+    power_port = models.ForeignKey(
+        to='dcim.PowerPort',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='poweroutlets'
+    )
+    feed_leg = models.PositiveSmallIntegerField(
+        choices=POWERFEED_LEG_CHOICES,
+        blank=True,
+        null=True,
+        help_text="Phase (for three-phase feeds)"
+    )
     connection_status = models.NullBooleanField(
         choices=CONNECTION_STATUS_CHOICES,
         blank=True
@@ -1887,7 +2011,7 @@ class PowerOutlet(CableTermination, ComponentModel):
     objects = DeviceComponentManager()
     tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'description']
+    csv_headers = ['device', 'name', 'power_port', 'feed_leg', 'description']
 
     class Meta:
         unique_together = ['device', 'name']
@@ -1902,8 +2026,18 @@ class PowerOutlet(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.power_port.name if self.power_port else None,
+            self.get_feed_leg_display(),
             self.description,
         )
+
+    def clean(self):
+
+        # Validate power port assignment
+        if self.power_port and self.power_port.device != self.device:
+            raise ValidationError(
+                "Parent power port ({}) must belong to the same device".format(self.power_port)
+            )
 
 
 #
@@ -2646,6 +2780,14 @@ class Cable(ChangeLoggedModel):
     def get_status_class(self):
         return 'success' if self.status else 'info'
 
+    def get_compatible_types(self):
+        """
+        Return all termination types compatible with termination A.
+        """
+        if self.termination_a is None:
+            return
+        return COMPATIBLE_TERMINATION_TYPES[self.termination_a._meta.model_name]
+
     def get_path_endpoints(self):
         """
         Traverse both ends of a cable path and return its connected endpoints. Note that one or both endpoints may be
@@ -2668,3 +2810,174 @@ class Cable(ChangeLoggedModel):
         b_endpoint = b_path[-1][2]
 
         return a_endpoint, b_endpoint, path_status
+
+
+#
+# Power
+#
+
+class PowerPanel(ChangeLoggedModel):
+    """
+    A distribution point for electrical power; e.g. a data center RPP.
+    """
+    site = models.ForeignKey(
+        to='Site',
+        on_delete=models.PROTECT
+    )
+    rack_group = models.ForeignKey(
+        to='RackGroup',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True
+    )
+    name = models.CharField(
+        max_length=50
+    )
+
+    csv_headers = ['site', 'rack_group_name', 'name']
+
+    class Meta:
+        ordering = ['site', 'name']
+        unique_together = ['site', 'name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('dcim:powerpanel', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.site.name,
+            self.rack_group.name if self.rack_group else None,
+            self.name,
+        )
+
+    def clean(self):
+
+        # RackGroup must belong to assigned Site
+        if self.rack_group and self.rack_group.site != self.site:
+            raise ValidationError("Rack group {} ({}) is in a different site than {}".format(
+                self.rack_group, self.rack_group.site, self.site
+            ))
+
+
+class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
+    """
+    An electrical circuit delivered from a PowerPanel.
+    """
+    power_panel = models.ForeignKey(
+        to='PowerPanel',
+        on_delete=models.PROTECT,
+        related_name='powerfeeds'
+    )
+    rack = models.ForeignKey(
+        to='Rack',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True
+    )
+    connected_endpoint = models.OneToOneField(
+        to='dcim.PowerPort',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    connection_status = models.NullBooleanField(
+        choices=CONNECTION_STATUS_CHOICES,
+        blank=True
+    )
+    name = models.CharField(
+        max_length=50
+    )
+    status = models.PositiveSmallIntegerField(
+        choices=POWERFEED_STATUS_CHOICES,
+        default=POWERFEED_STATUS_ACTIVE
+    )
+    type = models.PositiveSmallIntegerField(
+        choices=POWERFEED_TYPE_CHOICES,
+        default=POWERFEED_TYPE_PRIMARY
+    )
+    supply = models.PositiveSmallIntegerField(
+        choices=POWERFEED_SUPPLY_CHOICES,
+        default=POWERFEED_SUPPLY_AC
+    )
+    phase = models.PositiveSmallIntegerField(
+        choices=POWERFEED_PHASE_CHOICES,
+        default=POWERFEED_PHASE_SINGLE
+    )
+    voltage = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1)],
+        default=120
+    )
+    amperage = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1)],
+        default=20
+    )
+    power_factor = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(100)],
+        default=80,
+        help_text="Maximum permissible draw (percentage)"
+    )
+    comments = models.TextField(
+        blank=True
+    )
+    custom_field_values = GenericRelation(
+        to='extras.CustomFieldValue',
+        content_type_field='obj_type',
+        object_id_field='obj_id'
+    )
+
+    tags = TaggableManager(through=TaggedItem)
+
+    csv_headers = [
+        'site', 'panel_name', 'rack_group', 'rack_name', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
+        'amperage', 'power_factor', 'comments',
+    ]
+
+    class Meta:
+        ordering = ['power_panel', 'name']
+        unique_together = ['power_panel', 'name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('dcim:powerfeed', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.power_panel.name,
+            self.rack.name if self.rack else None,
+            self.name,
+            self.get_status_display(),
+            self.get_type_display(),
+            self.get_supply_display(),
+            self.get_phase_display(),
+            self.voltage,
+            self.amperage,
+            self.power_factor,
+            self.comments,
+        )
+
+    def clean(self):
+
+        # Rack must belong to same Site as PowerPanel
+        if self.rack and self.rack.site != self.power_panel.site:
+            raise ValidationError("Rack {} ({}) and power panel {} ({}) are in different sites".format(
+                self.rack, self.rack.site, self.power_panel, self.power_panel.site
+            ))
+
+    def get_type_class(self):
+        return STATUS_CLASSES[self.type]
+
+    def get_status_class(self):
+        return STATUS_CLASSES[self.status]
+
+    @property
+    def available_power(self):
+        kva = self.voltage * self.amperage * self.power_factor
+        if self.phase == POWERFEED_PHASE_3PHASE:
+            return kva * 1.732
+        return kva

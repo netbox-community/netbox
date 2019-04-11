@@ -6,8 +6,9 @@ from utilities.tables import BaseTable, BooleanColumn, ColorColumn, ToggleColumn
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    InventoryItem, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
-    RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
+    InventoryItem, Manufacturer, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
+    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
+    VirtualChassis,
 )
 
 REGION_LINK = """
@@ -142,6 +143,10 @@ DEVICE_ROLE = """
 
 STATUS_LABEL = """
 <span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
+"""
+
+TYPE_LABEL = """
+<span class="label label-{{ record.get_type_class }}">{{ record.get_type_display }}</span>
 """
 
 DEVICE_PRIMARY_IP = """
@@ -786,3 +791,50 @@ class VirtualChassisTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = VirtualChassis
         fields = ('pk', 'master', 'domain', 'member_count', 'actions')
+
+
+#
+# Power panels
+#
+
+class PowerPanelTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.LinkColumn()
+    site = tables.LinkColumn(
+        viewname='dcim:site',
+        args=[Accessor('site.slug')]
+    )
+    powerfeed_count = tables.Column(
+        verbose_name='Feeds'
+    )
+
+    class Meta(BaseTable.Meta):
+        model = PowerPanel
+        fields = ('pk', 'name', 'site', 'rack_group', 'powerfeed_count')
+
+
+#
+# Power feeds
+#
+
+class PowerFeedTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.LinkColumn()
+    power_panel = tables.LinkColumn(
+        viewname='dcim:powerpanel',
+        args=[Accessor('power_panel.pk')],
+    )
+    rack = tables.LinkColumn(
+        viewname='dcim:rack',
+        args=[Accessor('rack.pk')]
+    )
+    status = tables.TemplateColumn(
+        template_code=STATUS_LABEL
+    )
+    type = tables.TemplateColumn(
+        template_code=TYPE_LABEL
+    )
+
+    class Meta(BaseTable.Meta):
+        model = PowerFeed
+        fields = ('pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase')

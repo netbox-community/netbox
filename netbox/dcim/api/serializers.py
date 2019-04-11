@@ -8,8 +8,9 @@ from dcim.constants import *
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceType, DeviceRole, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
-    RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
+    Manufacturer, InventoryItem, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
+    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
+    VirtualChassis,
 )
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
@@ -209,15 +210,23 @@ class PowerPortTemplateSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = PowerPortTemplate
-        fields = ['id', 'device_type', 'name']
+        fields = ['id', 'device_type', 'name', 'maximum_draw', 'allocated_draw']
 
 
 class PowerOutletTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
+    power_port = PowerPortTemplateSerializer(
+        required=False
+    )
+    feed_leg = ChoiceField(
+        choices=POWERFEED_LEG_CHOICES,
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = PowerOutletTemplate
-        fields = ['id', 'device_type', 'name']
+        fields = ['id', 'device_type', 'name', 'power_port', 'feed_leg']
 
 
 class InterfaceTemplateSerializer(ValidatedModelSerializer):
@@ -371,14 +380,26 @@ class ConsolePortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
 
 class PowerOutletSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
-    cable = NestedCableSerializer(read_only=True)
-    tags = TagListSerializerField(required=False)
+    power_port = NestedPowerPortSerializer(
+        required=False
+    )
+    feed_leg = ChoiceField(
+        choices=POWERFEED_LEG_CHOICES,
+        required=False,
+        allow_null=True
+    )
+    cable = NestedCableSerializer(
+        read_only=True
+    )
+    tags = TagListSerializerField(
+        required=False
+    )
 
     class Meta:
         model = PowerOutlet
         fields = [
-            'id', 'device', 'name', 'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status',
-            'cable', 'tags',
+            'id', 'device', 'name', 'power_port', 'feed_leg', 'description', 'connected_endpoint_type',
+            'connected_endpoint', 'connection_status', 'cable', 'tags',
         ]
 
 
@@ -390,7 +411,7 @@ class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     class Meta:
         model = PowerPort
         fields = [
-            'id', 'device', 'name', 'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status',
+            'id', 'device', 'name', 'maximum_draw', 'allocated_draw', 'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status',
             'cable', 'tags',
         ]
 
@@ -592,3 +613,56 @@ class VirtualChassisSerializer(TaggitSerializer, ValidatedModelSerializer):
     class Meta:
         model = VirtualChassis
         fields = ['id', 'master', 'domain', 'tags']
+
+
+#
+# Power panels
+#
+
+
+class PowerPanelSerializer(ValidatedModelSerializer):
+    site = NestedSiteSerializer()
+    rack_group = NestedRackGroupSerializer(
+        required=False,
+        allow_null=True,
+        default=None
+    )
+
+    class Meta:
+        model = PowerPanel
+        fields = ['id', 'site', 'rack_group', 'name']
+
+
+class PowerFeedSerializer(TaggitSerializer, CustomFieldModelSerializer):
+    power_panel = NestedPowerPanelSerializer()
+    rack = NestedRackSerializer(
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    type = ChoiceField(
+        choices=POWERFEED_TYPE_CHOICES,
+        default=POWERFEED_TYPE_PRIMARY
+    )
+    status = ChoiceField(
+        choices=POWERFEED_STATUS_CHOICES,
+        default=POWERFEED_STATUS_ACTIVE
+    )
+    supply = ChoiceField(
+        choices=POWERFEED_SUPPLY_CHOICES,
+        default=POWERFEED_SUPPLY_AC
+    )
+    phase = ChoiceField(
+        choices=POWERFEED_PHASE_CHOICES,
+        default=POWERFEED_PHASE_SINGLE
+    )
+    tags = TagListSerializerField(
+        required=False
+    )
+
+    class Meta:
+        model = PowerFeed
+        fields = [
+            'id', 'power_panel', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage',
+            'power_factor', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+        ]

@@ -15,8 +15,9 @@ from .constants import *
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    InventoryItem, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
-    RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
+    InventoryItem, Manufacturer, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
+    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
+    VirtualChassis,
 )
 
 
@@ -37,7 +38,7 @@ class RegionFilter(NameSlugSearchFilterSet):
         fields = ['name', 'slug']
 
 
-class SiteFilter(CustomFieldFilterSet, django_filters.FilterSet):
+class SiteFilter(CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -122,7 +123,7 @@ class RackRoleFilter(NameSlugSearchFilterSet):
         fields = ['name', 'slug', 'color']
 
 
-class RackFilter(CustomFieldFilterSet, django_filters.FilterSet):
+class RackFilter(CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -1065,3 +1066,86 @@ class InterfaceConnectionFilter(django_filters.FilterSet):
             Q(device__name__icontains=value) |
             Q(_connected_interface__device__name__icontains=value)
         )
+
+
+class PowerPanelFilter(django_filters.FilterSet):
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        field_name='site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site name (slug)',
+    )
+    rack_group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='rack_group',
+        queryset=RackGroup.objects.all(),
+        label='Rack group (ID)',
+    )
+
+    class Meta:
+        model = PowerPanel
+        fields = ['name']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(name__icontains=value)
+        )
+        return queryset.filter(qs_filter)
+
+
+class PowerFeedFilter(CustomFieldFilterSet):
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
+    q = django_filters.CharFilter(
+        method='search',
+        label='Search',
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='power_panel__site',
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        field_name='power_panel__site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site name (slug)',
+    )
+    power_panel_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=PowerPanel.objects.all(),
+        label='Power panel (ID)',
+    )
+    rack_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='rack',
+        queryset=Rack.objects.all(),
+        label='Rack (ID)',
+    )
+    tag = TagFilter()
+
+    class Meta:
+        model = PowerFeed
+        fields = ['name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'power_factor']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(name__icontains=value) |
+            Q(comments__icontains=value)
+        )
+        return queryset.filter(qs_filter)

@@ -14,6 +14,15 @@
         <i class="fa fa-fw fa-bolt"></i> {{ po }}
     </td>
 
+    {# Power port #}
+    <td>
+        {% if po.power_port %}
+            {{ po.power_port }}{% if po.feed_leg %} / {{ po.get_feed_leg_display }}{% endif %}
+        {% else %}
+            <span class="text-warning">None</span>
+        {% endif %}
+    </td>
+
     {# Description #}
     <td>
         {{ po.description|placeholder }}
@@ -30,14 +39,23 @@
 
     {# Connection #}
     {% if po.connected_endpoint %}
-        <td>
-            <a href="{% url 'dcim:device' pk=po.connected_endpoint.device.pk %}">{{ po.connected_endpoint.device }}</a>
-        </td>
-        <td>
-            {{ po.connected_endpoint }}
-        </td>
+        {% with pp=po.connected_endpoint %}
+            <td>
+                <a href="{% url 'dcim:device' pk=pp.device.pk %}">{{ pp.device }}</a>
+            </td>
+            <td>
+                {{ pp }}
+            </td>
+            <td>
+                {% if pp.allocated_draw %}
+                    {{ pp.allocated_draw }}W{% if pp.maximum_draw %} ({{ pp.maximum_draw }}W max){% endif %}
+                {% elif pp.maximum_draw %}
+                    {{ pp.maximum_draw }}W
+                {% endif %}
+            </td>
+        {% endwith %}
     {% else %}
-        <td colspan="2">
+        <td colspan="3">
             <span class="text-muted">Not connected</span>
         </td>
     {% endif %}
@@ -47,7 +65,7 @@
         {% if po.cable %}
             {% include 'dcim/inc/cable_toggle_buttons.html' with cable=po.cable %}
         {% elif perms.dcim.add_cable %}
-            <a href="{% url 'dcim:poweroutlet_connect' termination_a_id=po.pk %}?return_url={{ device.get_absolute_url }}" title="Connect" class="btn btn-success btn-xs">
+            <a href="{% url 'dcim:poweroutlet_connect' termination_a_id=po.pk termination_b_type='power-outlet' %}?return_url={{ device.get_absolute_url }}" title="Connect" class="btn btn-success btn-xs">
                 <i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
             </a>
         {% endif %}

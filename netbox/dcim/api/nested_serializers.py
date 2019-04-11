@@ -3,8 +3,8 @@ from rest_framework import serializers
 from dcim.constants import CONNECTION_STATUS_CHOICES
 from dcim.models import (
     Cable, ConsolePort, ConsoleServerPort, Device, DeviceBay, DeviceType, DeviceRole, FrontPort, FrontPortTemplate,
-    Interface, Manufacturer, Platform, PowerOutlet, PowerPort, Rack, RackGroup, RackRole, RearPort, RearPortTemplate,
-    Region, Site, VirtualChassis,
+    Interface, Manufacturer, Platform, PowerFeed, PowerOutlet, PowerPanel, PowerPort, Rack, RackGroup, RackRole,
+    RearPort, RearPortTemplate, Region, Site, VirtualChassis,
 )
 from utilities.api import ChoiceField, WritableNestedSerializer
 
@@ -21,7 +21,9 @@ __all__ = [
     'NestedInterfaceSerializer',
     'NestedManufacturerSerializer',
     'NestedPlatformSerializer',
+    'NestedPowerFeedSerializer',
     'NestedPowerOutletSerializer',
+    'NestedPowerPanelSerializer',
     'NestedPowerPortSerializer',
     'NestedRackGroupSerializer',
     'NestedRackRoleSerializer',
@@ -247,3 +249,23 @@ class NestedVirtualChassisSerializer(WritableNestedSerializer):
     class Meta:
         model = VirtualChassis
         fields = ['id', 'url', 'master']
+
+
+#
+# Power panels/feeds
+#
+
+class NestedPowerPanelSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerpanel-detail')
+
+    class Meta:
+        model = PowerPanel
+        fields = ['id', 'url', 'name']
+
+
+class NestedPowerFeedSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerfeed-detail')
+
+    class Meta:
+        model = PowerFeed
+        fields = ['id', 'url', 'name']

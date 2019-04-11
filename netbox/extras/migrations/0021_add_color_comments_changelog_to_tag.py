@@ -7,7 +7,7 @@ import utilities.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0019_tag_data'),
+        ('extras', '0020_tag_data'),
     ]
 
     operations = [

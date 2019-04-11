@@ -2667,7 +2667,7 @@
     "fields": {
         "device": 1,
         "name": "PEM0",
-        "connected_endpoint": 25,
+        "_connected_poweroutlet": 25,
         "connection_status": true
     }
 },
@@ -2677,7 +2677,7 @@
     "fields": {
         "device": 1,
         "name": "PEM1",
-        "connected_endpoint": 49,
+        "_connected_poweroutlet": 49,
         "connection_status": true
     }
 },
@@ -2687,7 +2687,7 @@
     "fields": {
         "device": 1,
         "name": "PEM2",
-        "connected_endpoint": null,
+        "_connected_poweroutlet": null,
         "connection_status": true
     }
 },
@@ -2697,7 +2697,7 @@
     "fields": {
         "device": 1,
         "name": "PEM3",
-        "connected_endpoint": null,
+        "_connected_poweroutlet": null,
         "connection_status": true
     }
 },
@@ -2707,7 +2707,7 @@
     "fields": {
         "device": 2,
         "name": "PEM0",
-        "connected_endpoint": 26,
+        "_connected_poweroutlet": 26,
         "connection_status": true
     }
 },
@@ -2717,7 +2717,7 @@
     "fields": {
         "device": 2,
         "name": "PEM1",
-        "connected_endpoint": 50,
+        "_connected_poweroutlet": 50,
         "connection_status": true
     }
 },
@@ -2727,7 +2727,7 @@
     "fields": {
         "device": 2,
         "name": "PEM2",
-        "connected_endpoint": null,
+        "_connected_poweroutlet": null,
         "connection_status": true
     }
 },
@@ -2737,7 +2737,7 @@
     "fields": {
         "device": 2,
         "name": "PEM3",
-        "connected_endpoint": null,
+        "_connected_poweroutlet": null,
         "connection_status": true
     }
 },
@@ -2747,7 +2747,7 @@
     "fields": {
         "device": 4,
         "name": "PSU0",
-        "connected_endpoint": 28,
+        "_connected_poweroutlet": 28,
         "connection_status": true
     }
 },
@@ -2757,7 +2757,7 @@
     "fields": {
         "device": 4,
         "name": "PSU1",
-        "connected_endpoint": 52,
+        "_connected_poweroutlet": 52,
         "connection_status": true
     }
 },
@@ -2767,7 +2767,7 @@
     "fields": {
         "device": 5,
         "name": "PSU0",
-        "connected_endpoint": 56,
+        "_connected_poweroutlet": 56,
         "connection_status": true
     }
 },
@@ -2777,7 +2777,7 @@
     "fields": {
         "device": 5,
         "name": "PSU1",
-        "connected_endpoint": 32,
+        "_connected_poweroutlet": 32,
         "connection_status": true
     }
 },
@@ -2787,7 +2787,7 @@
     "fields": {
         "device": 3,
         "name": "PSU0",
-        "connected_endpoint": 27,
+        "_connected_poweroutlet": 27,
         "connection_status": true
     }
 },
@@ -2797,7 +2797,7 @@
     "fields": {
         "device": 3,
         "name": "PSU1",
-        "connected_endpoint": 51,
+        "_connected_poweroutlet": 51,
         "connection_status": true
     }
 },
@@ -2807,7 +2807,7 @@
     "fields": {
         "device": 7,
         "name": "PEM0",
-        "connected_endpoint": 53,
+        "_connected_poweroutlet": 53,
         "connection_status": true
     }
 },
@@ -2817,7 +2817,7 @@
     "fields": {
         "device": 7,
         "name": "PEM1",
-        "connected_endpoint": 29,
+        "_connected_poweroutlet": 29,
         "connection_status": true
     }
 },
@@ -2827,7 +2827,7 @@
     "fields": {
         "device": 7,
         "name": "PEM2",
-        "connected_endpoint": null,
+        "_connected_poweroutlet": null,
         "connection_status": true
     }
 },
@@ -2837,7 +2837,7 @@
     "fields": {
         "device": 7,
         "name": "PEM3",
-        "connected_endpoint": null,
+        "_connected_poweroutlet": null,
         "connection_status": true
     }
 },
@@ -2847,7 +2847,7 @@
     "fields": {
         "device": 8,
         "name": "PEM0",
-        "connected_endpoint": 54,
+        "_connected_poweroutlet": 54,
         "connection_status": true
     }
 },
@@ -2857,7 +2857,7 @@
     "fields": {
         "device": 8,
         "name": "PEM1",
-        "connected_endpoint": 30,
+        "_connected_poweroutlet": 30,
         "connection_status": true
     }
 },
@@ -2867,7 +2867,7 @@
     "fields": {
         "device": 8,
         "name": "PEM2",
-        "connected_endpoint": null,
+        "_connected_poweroutlet": null,
         "connection_status": true
     }
 },
@@ -2877,7 +2877,7 @@
     "fields": {
         "device": 8,
         "name": "PEM3",
-        "connected_endpoint": null,
+        "_connected_poweroutlet": null,
         "connection_status": true
     }
 },
@@ -2887,7 +2887,7 @@
     "fields": {
         "device": 6,
         "name": "PSU0",
-        "connected_endpoint": 55,
+        "_connected_poweroutlet": 55,
         "connection_status": true
     }
 },
@@ -2897,7 +2897,7 @@
     "fields": {
         "device": 6,
         "name": "PSU1",
-        "connected_endpoint": 31,
+        "_connected_poweroutlet": 31,
         "connection_status": true
     }
 },
@@ -2907,7 +2907,7 @@
     "fields": {
         "device": 9,
         "name": "PSU",
-        "connected_endpoint": null,
+        "_connected_poweroutlet": null,
         "connection_status": true
     }
 },

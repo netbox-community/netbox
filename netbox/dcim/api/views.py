@@ -16,8 +16,9 @@ from dcim import filters
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    Manufacturer, InventoryItem, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
-    RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
+    Manufacturer, InventoryItem, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
+    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
+    VirtualChassis,
 )
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
@@ -43,6 +44,8 @@ class DCIMFieldChoicesViewSet(FieldChoicesViewSet):
         (FrontPortTemplate, ['type']),
         (Interface, ['form_factor', 'mode']),
         (InterfaceTemplate, ['form_factor']),
+        (PowerOutlet, ['feed_leg']),
+        (PowerOutletTemplate, ['feed_leg']),
         (PowerPort, ['connection_status']),
         (Rack, ['outer_unit', 'status', 'type', 'width']),
         (RearPort, ['type']),
@@ -407,7 +410,7 @@ class ConsoleServerPortViewSet(CableTraceMixin, ModelViewSet):
 
 class PowerPortViewSet(CableTraceMixin, ModelViewSet):
     queryset = PowerPort.objects.select_related(
-        'device', 'connected_endpoint__device', 'cable'
+        'device', '_connected_poweroutlet__device', '_connected_powerfeed', 'cable'
     ).prefetch_related(
         'tags'
     )
@@ -497,7 +500,7 @@ class PowerConnectionViewSet(ListModelMixin, GenericViewSet):
     queryset = PowerPort.objects.select_related(
         'device', 'connected_endpoint__device'
     ).filter(
-        connected_endpoint__isnull=False
+        _connected_poweroutlet__isnull=False
     )
     serializer_class = serializers.PowerPortSerializer
     filterset_class = filters.PowerConnectionFilter
@@ -534,6 +537,26 @@ class CableViewSet(ModelViewSet):
 class VirtualChassisViewSet(ModelViewSet):
     queryset = VirtualChassis.objects.prefetch_related('tags')
     serializer_class = serializers.VirtualChassisSerializer
+
+
+#
+# Power panels
+#
+
+class PowerPanelViewSet(ModelViewSet):
+    queryset = PowerPanel.objects.select_related('site', 'rack_group')
+    serializer_class = serializers.PowerPanelSerializer
+    filterset_class = filters.PowerPanelFilter
+
+
+#
+# Power feeds
+#
+
+class PowerFeedViewSet(CustomFieldModelViewSet):
+    queryset = PowerFeed.objects.select_related('power_panel', 'rack').prefetch_related('tags')
+    serializer_class = serializers.PowerFeedSerializer
+    filterset_class = filters.PowerFeedFilter
 
 
 #

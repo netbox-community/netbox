@@ -48,7 +48,7 @@ def delete_taggit_tags(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0018_tag_taggeditem'),
+        ('extras', '0019_tag_taggeditem'),
         ('circuits', '0015_custom_tag_models'),
         ('dcim', '0070_custom_tag_models'),
         ('ipam', '0025_custom_tag_models'),

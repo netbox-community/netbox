@@ -368,6 +368,29 @@
                         </li>
                     </ul>
                 </li>
+                <li class="dropdown{% if request.path|contains:'/dcim/power' %} active{% endif %}">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Power <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            {% if perms.dcim.add_powerfeed %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:powerfeed_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
+                                    <a href="{% url 'dcim:powerfeed_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:powerfeed_list' %}">Power Feeds</a>
+                        </li>
+                        <li>
+                            {% if perms.dcim.add_powerpanel %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:powerpanel_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
+                                    <a href="{% url 'dcim:powerpanel_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:powerpanel_list' %}">Power Panels</a>
+                        </li>
+                    </ul>
+                </li>
                 {% if request.user.is_authenticated %}
                     <li class="dropdown{% if request.path|contains:'/secrets/' %} active{% endif %}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Secrets <span class="caret"></span></a>
