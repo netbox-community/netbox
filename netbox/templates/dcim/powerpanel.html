@@ -44,6 +44,16 @@
     </div>
     <h1>{% block title %}{{ powerpanel }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=powerpanel %}
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ powerpanel.get_absolute_url }}">Cable</a>
+        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:powerpanel_changelog' pk=powerpanel.pk %}">Changelog</a>
+            </li>
+        {% endif %}
+    </ul>
 {% endblock %}
 
 {% block content %}

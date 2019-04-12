@@ -290,7 +290,7 @@ urlpatterns = [
     url(r'^power-panels/(?P<pk>\d+)/delete/$', views.PowerPanelDeleteView.as_view(), name='powerpanel_delete'),
     url(r'^power-panels/(?P<pk>\d+)/changelog/$', ObjectChangeLogView.as_view(), name='powerpanel_changelog', kwargs={'model': PowerPanel}),
 
-    # Racks
+    # Power feeds
     url(r'^power-feeds/$', views.PowerFeedListView.as_view(), name='powerfeed_list'),
     url(r'^power-feeds/add/$', views.PowerFeedEditView.as_view(), name='powerfeed_add'),
     url(r'^power-feeds/import/$', views.PowerFeedBulkImportView.as_view(), name='powerfeed_import'),

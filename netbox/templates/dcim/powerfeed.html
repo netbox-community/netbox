@@ -45,6 +45,16 @@
     </div>
     <h1>{% block title %}{{ powerfeed }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=powerfeed %}
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ powerfeed.get_absolute_url }}">Cable</a>
+        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:powerfeed_changelog' pk=powerfeed.pk %}">Changelog</a>
+            </li>
+        {% endif %}
+    </ul>
 {% endblock %}
 
 {% block content %}
