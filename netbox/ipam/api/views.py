@@ -66,9 +66,15 @@ class AggregateViewSet(CustomFieldModelViewSet):
 #
 
 class RoleViewSet(ModelViewSet):
+    prefix_count = Prefix.objects.filter(
+        role=OuterRef('pk')
+    ).order_by().values('role').annotate(c=Count('*')).values('c')
+    vlan_count = VLAN.objects.filter(
+        role=OuterRef('pk')
+    ).order_by().values('role').annotate(c=Count('*')).values('c')
     queryset = Role.objects.annotate(
-        prefix_count=Count('prefixes', distinct=True),
-        vlan_count=Count('vlans', distinct=True)
+        prefix_count=Subquery(prefix_count),
+        vlan_count=Subquery(vlan_count)
     )
     serializer_class = serializers.RoleSerializer
     filterset_class = filters.RoleFilter

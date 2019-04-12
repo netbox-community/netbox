@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from django.conf import settings
-from django.db.models import Count, F
+from django.db.models import Count, F, OuterRef, Subquery
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
@@ -26,6 +26,7 @@ from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from utilities.api import (
     get_serializer_for_model, IsAuthenticatedOrLoginNotRequired, FieldChoicesViewSet, ModelViewSet, ServiceUnavailable,
 )
+from virtualization.models import VirtualMachine
 from . import serializers
 from .exceptions import MissingFilterException
 
@@ -280,9 +281,15 @@ class DeviceBayTemplateViewSet(ModelViewSet):
 #
 
 class DeviceRoleViewSet(ModelViewSet):
+    device_count = Device.objects.filter(
+        device_role=OuterRef('pk')
+    ).order_by().values('device_role').annotate(c=Count('*')).values('c')
+    virtualmachine_count = VirtualMachine.objects.filter(
+        role=OuterRef('pk')
+    ).order_by().values('role').annotate(c=Count('*')).values('c')
     queryset = DeviceRole.objects.annotate(
-        device_count=Count('devices', distinct=True),
-        virtualmachine_count=Count('virtual_machines', distinct=True)
+        device_count=Subquery(device_count),
+        virtualmachine_count=Subquery(virtualmachine_count)
     )
     serializer_class = serializers.DeviceRoleSerializer
     filterset_class = filters.DeviceRoleFilter
@@ -293,9 +300,15 @@ class DeviceRoleViewSet(ModelViewSet):
 #
 
 class PlatformViewSet(ModelViewSet):
+    device_count = Device.objects.filter(
+        platform=OuterRef('pk')
+    ).order_by().values('platform').annotate(c=Count('*')).values('c')
+    virtualmachine_count = VirtualMachine.objects.filter(
+        platform=OuterRef('pk')
+    ).order_by().values('platform').annotate(c=Count('*')).values('c')
     queryset = Platform.objects.annotate(
-        device_count=Count('devices', distinct=True),
-        virtualmachine_count=Count('virtual_machines', distinct=True)
+        device_count=Subquery(device_count),
+        virtualmachine_count=Subquery(virtualmachine_count)
     )
     serializer_class = serializers.PlatformSerializer
     filterset_class = filters.PlatformFilter
