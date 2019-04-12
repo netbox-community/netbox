@@ -753,10 +753,9 @@ class InterfaceFilter(django_filters.FilterSet):
         lookup_expr='isnull',
         exclude=True
     )
-    class_ = django_filters.CharFilter(
-        field_name='class',
-        method='filter_type',
-        label='Interface type',
+    kind = django_filters.CharFilter(
+        method='filter_kind',
+        label='Kind of interface',
     )
     lag_id = django_filters.ModelMultipleChoiceFilter(
         field_name='lag',
@@ -819,7 +818,7 @@ class InterfaceFilter(django_filters.FilterSet):
             Q(tagged_vlans__vid=value)
         )
 
-    def filter_type(self, queryset, name, value):
+    def filter_kind(self, queryset, name, value):
         value = value.strip().lower()
         return {
             'physical': queryset.exclude(type__in=NONCONNECTABLE_IFACE_TYPES),
