@@ -16,8 +16,31 @@ NetBox now makes use of its own `Tag` model instead of the vanilla model which s
 lives in the `extras` app and thus any permissions that you may have configured using "Taggit | Tag" should be changed
 to now use "Extras | Tag."
 
+### View Permissions
+
+Django 2.1 introduced the ability to enforce view-only permissions for different object types. NetBox now enforces
+these by default. You can grant view permission to a user or group by assigning the "can view" permission for the
+desired object(s).
+
+To exempt certain objects from the enforcement of view permissions, so that any user (including anonymous users) can
+view them, add them to the new `EXEMPT_VIEW_PERMISSIONS` setting in `configuration.py`:
+
+```
+EXEMPT_VIEW_PERMISSIONS = [
+    'dcim.site',
+    'ipam.prefix',
+]
+```
+
+To exclude _all_ objects, effectively disabling view permissions, set:
+
+```
+EXEMPT_VIEW_PERMISSIONS = ['*']
+```
+
 ## Enhancements
 
+* [#323](https://github.com/digitalocean/netbox/issues/323) - Enforce per-object type view permissions
 * [#1792](https://github.com/digitalocean/netbox/issues/1792) - Add CustomFieldChoices API endpoint
 * [#2324](https://github.com/digitalocean/netbox/issues/2324) - Add `color` option for tags
 * [#2643](https://github.com/digitalocean/netbox/issues/2643) - Add `description` field to console/power components and device bays
