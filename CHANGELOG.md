@@ -1,22 +1,17 @@
 v2.6.0 (FUTURE)
 
-## Changes
+## New Features
 
-### API Device/VM Config Context Included by Default ([#2350](https://github.com/digitalocean/netbox/issues/2350))
+### Power Panels and Feeds ([#54](https://github.com/digitalocean/netbox/issues/54))
 
-The rendered Config Context for Devices and VMs is now included by default in all API results (list and detail views).
-Previously the rendered Config Context was only available in the detail view for objects. Users with large amounts of
-context data may observe a performance drop when returning multiple objects. To combat this, in cases where the rendered
-Config Context is not needed, the query parameter `?exclude=config_context` may be added to the request as to remove
-the Config Context from being included in any results.
+NetBox now includes support for power supply modeling, through two new models: power panels and power feeds. Power feeds
+are terminated to power panels and otpionally associated with individual racks. Each power feed defines a supply type
+(AC/DC), amperage, voltage, and phase. Power ports can be connected directly to power feeds.
 
-### Tag Permissions Changed
+Additionally, the power port model has been extended to include fields denoting maximum and allocated draw, in watts.
+This allows a device (e.g. a PDU) to calculate its total load compared to its connected power feed.
 
-NetBox now makes use of its own `Tag` model instead of the vanilla model which ships with django-taggit. This new model
-lives in the `extras` app and thus any permissions that you may have configured using "Taggit | Tag" should be changed
-to now use "Extras | Tag."
-
-### View Permissions
+### View Permissions ([#323](https://github.com/digitalocean/netbox/issues/323))
 
 Django 2.1 introduced the ability to enforce view-only permissions for different object types. NetBox now enforces
 these by default. You can grant view permission to a user or group by assigning the "can view" permission for the
@@ -37,6 +32,22 @@ To exclude _all_ objects, effectively disabling view permissions, set:
 ```
 EXEMPT_VIEW_PERMISSIONS = ['*']
 ```
+
+## Changes
+
+### API Device/VM Config Context Included by Default ([#2350](https://github.com/digitalocean/netbox/issues/2350))
+
+The rendered Config Context for Devices and VMs is now included by default in all API results (list and detail views).
+Previously the rendered Config Context was only available in the detail view for objects. Users with large amounts of
+context data may observe a performance drop when returning multiple objects. To combat this, in cases where the rendered
+Config Context is not needed, the query parameter `?exclude=config_context` may be added to the request as to remove
+the Config Context from being included in any results.
+
+### Tag Permissions Changed
+
+NetBox now makes use of its own `Tag` model instead of the vanilla model which ships with django-taggit. This new model
+lives in the `extras` app and thus any permissions that you may have configured using "Taggit | Tag" should be changed
+to now use "Extras | Tag."
 
 ## Enhancements
 
