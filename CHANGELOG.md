@@ -53,6 +53,7 @@ to now use "Extras | Tag."
 
 * [#323](https://github.com/digitalocean/netbox/issues/323) - Enforce per-object type view permissions
 * [#1792](https://github.com/digitalocean/netbox/issues/1792) - Add CustomFieldChoices API endpoint
+* [#1863](https://github.com/digitalocean/netbox/issues/1863) - Add child object counts to API representation of organizational objects
 * [#2324](https://github.com/digitalocean/netbox/issues/2324) - Add `color` option for tags
 * [#2643](https://github.com/digitalocean/netbox/issues/2643) - Add `description` field to console/power components and device bays
 * [#2791](https://github.com/digitalocean/netbox/issues/2791) - Add a `comment` field for tags
@@ -63,6 +64,8 @@ to now use "Extras | Tag."
 
 * dcim.Interface: `form_factor` has been renamed to `type`. Backward-compatibile support for `form_factor` will be maintained until NetBox v2.7.
 * dcim.Interface: The `type` filter has been renamed to `kind`.
+* dcim.DeviceType: `instance_count` has been renamed to `device_count`.
+* Organizational objects now include child object counts. For example, the Role serializer includes `prefix_count` and `vlan_count`.
 
 ## Bug Fixes
 

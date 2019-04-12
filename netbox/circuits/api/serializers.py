@@ -1,3 +1,4 @@
+from rest_framework import serializers
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from circuits.constants import CIRCUIT_STATUS_CHOICES
@@ -16,12 +17,13 @@ from .nested_serializers import *
 
 class ProviderSerializer(TaggitSerializer, CustomFieldModelSerializer):
     tags = TagListSerializerField(required=False)
+    circuit_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Provider
         fields = [
             'id', 'name', 'slug', 'asn', 'account', 'portal_url', 'noc_contact', 'admin_contact', 'comments', 'tags',
-            'custom_fields', 'created', 'last_updated',
+            'custom_fields', 'created', 'last_updated', 'circuit_count',
         ]
 
 
@@ -30,10 +32,11 @@ class ProviderSerializer(TaggitSerializer, CustomFieldModelSerializer):
 #
 
 class CircuitTypeSerializer(ValidatedModelSerializer):
+    circuit_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = CircuitType
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'circuit_count']
 
 
 class CircuitSerializer(TaggitSerializer, CustomFieldModelSerializer):

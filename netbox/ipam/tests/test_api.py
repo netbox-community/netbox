@@ -39,7 +39,7 @@ class VRFTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'rd', 'url']
+            ['id', 'name', 'prefix_count', 'rd', 'url']
         )
 
     def test_create_vrf(self):
@@ -147,7 +147,7 @@ class RIRTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['aggregate_count', 'id', 'name', 'slug', 'url']
         )
 
     def test_create_rir(self):
@@ -351,7 +351,7 @@ class RoleTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['id', 'name', 'prefix_count', 'slug', 'url', 'vlan_count']
         )
 
     def test_create_role(self):
@@ -790,7 +790,7 @@ class VLANGroupTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['id', 'name', 'slug', 'url', 'vlan_count']
         )
 
     def test_create_vlangroup(self):

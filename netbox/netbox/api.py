@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import QuerySet
 from rest_framework import authentication, exceptions
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import DjangoModelPermissions, SAFE_METHODS
@@ -96,13 +97,8 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
 
     def paginate_queryset(self, queryset, request, view=None):
 
-        if hasattr(queryset, 'all'):
-            # TODO: This breaks filtering by annotated values
-            # Make a clone of the queryset with any annotations stripped (performance hack)
-            qs = queryset.all()
-            qs.query.annotations.clear()
-            self.count = qs.count()
-
+        if type(queryset) is QuerySet:
+            self.count = queryset.count()
         else:
             # We're dealing with an iterable, not a QuerySet
             self.count = len(queryset)

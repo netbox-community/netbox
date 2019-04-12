@@ -1,3 +1,5 @@
+from django.db.models import Count
+
 from extras.api.views import CustomFieldModelViewSet
 from tenancy import filters
 from tenancy.models import Tenant, TenantGroup
@@ -18,7 +20,9 @@ class TenancyFieldChoicesViewSet(FieldChoicesViewSet):
 #
 
 class TenantGroupViewSet(ModelViewSet):
-    queryset = TenantGroup.objects.all()
+    queryset = TenantGroup.objects.annotate(
+        tenant_count=Count('tenants')
+    )
     serializer_class = serializers.TenantGroupSerializer
     filterset_class = filters.TenantGroupFilter
 

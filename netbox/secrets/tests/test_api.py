@@ -78,7 +78,7 @@ class SecretRoleTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['id', 'name', 'secret_count', 'slug', 'url']
         )
 
     def test_create_secretrole(self):

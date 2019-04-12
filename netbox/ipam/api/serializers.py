@@ -25,12 +25,13 @@ from .nested_serializers import *
 class VRFSerializer(TaggitSerializer, CustomFieldModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
+    prefix_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VRF
         fields = [
             'id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'tags', 'display_name', 'custom_fields',
-            'created', 'last_updated',
+            'created', 'last_updated', 'prefix_count',
         ]
 
 
@@ -39,10 +40,11 @@ class VRFSerializer(TaggitSerializer, CustomFieldModelSerializer):
 #
 
 class RIRSerializer(ValidatedModelSerializer):
+    aggregate_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = RIR
-        fields = ['id', 'name', 'slug', 'is_private']
+        fields = ['id', 'name', 'slug', 'is_private', 'aggregate_count']
 
 
 class AggregateSerializer(TaggitSerializer, CustomFieldModelSerializer):
@@ -63,18 +65,21 @@ class AggregateSerializer(TaggitSerializer, CustomFieldModelSerializer):
 #
 
 class RoleSerializer(ValidatedModelSerializer):
+    prefix_count = serializers.IntegerField(read_only=True)
+    vlan_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Role
-        fields = ['id', 'name', 'slug', 'weight']
+        fields = ['id', 'name', 'slug', 'weight', 'prefix_count', 'vlan_count']
 
 
 class VLANGroupSerializer(ValidatedModelSerializer):
     site = NestedSiteSerializer(required=False, allow_null=True)
+    vlan_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VLANGroup
-        fields = ['id', 'name', 'slug', 'site']
+        fields = ['id', 'name', 'slug', 'site', 'vlan_count']
         validators = []
 
     def validate(self, data):

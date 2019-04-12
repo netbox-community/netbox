@@ -59,10 +59,11 @@ class ConnectedEndpointSerializer(ValidatedModelSerializer):
 
 class RegionSerializer(serializers.ModelSerializer):
     parent = NestedRegionSerializer(required=False, allow_null=True)
+    site_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Region
-        fields = ['id', 'name', 'slug', 'parent']
+        fields = ['id', 'name', 'slug', 'parent', 'site_count']
 
 
 class SiteSerializer(TaggitSerializer, CustomFieldModelSerializer):
@@ -93,17 +94,19 @@ class SiteSerializer(TaggitSerializer, CustomFieldModelSerializer):
 
 class RackGroupSerializer(ValidatedModelSerializer):
     site = NestedSiteSerializer()
+    rack_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = RackGroup
-        fields = ['id', 'name', 'slug', 'site']
+        fields = ['id', 'name', 'slug', 'site', 'rack_count']
 
 
 class RackRoleSerializer(ValidatedModelSerializer):
+    rack_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = RackRole
-        fields = ['id', 'name', 'slug', 'color']
+        fields = ['id', 'name', 'slug', 'color', 'rack_count']
 
 
 class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
@@ -116,13 +119,14 @@ class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
     width = ChoiceField(choices=RACK_WIDTH_CHOICES, required=False)
     outer_unit = ChoiceField(choices=RACK_DIMENSION_UNIT_CHOICES, required=False)
     tags = TagListSerializerField(required=False)
+    device_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Rack
         fields = [
             'id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'status', 'role', 'serial',
             'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
         ]
         # Omit the UniqueTogetherValidator that would be automatically added to validate (group, facility_id). This
         # prevents facility_id from being interpreted as a required field.
@@ -169,23 +173,24 @@ class RackReservationSerializer(ValidatedModelSerializer):
 #
 
 class ManufacturerSerializer(ValidatedModelSerializer):
+    devicetype_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Manufacturer
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'devicetype_count']
 
 
 class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
     manufacturer = NestedManufacturerSerializer()
     subdevice_role = ChoiceField(choices=SUBDEVICE_ROLE_CHOICES, required=False, allow_null=True)
-    instance_count = serializers.IntegerField(source='instances.count', read_only=True)
     tags = TagListSerializerField(required=False)
+    device_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = DeviceType
         fields = [
             'id', 'manufacturer', 'model', 'slug', 'display_name', 'part_number', 'u_height', 'is_full_depth',
-            'subdevice_role', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'instance_count',
+            'subdevice_role', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
         ]
 
 
@@ -272,18 +277,25 @@ class DeviceBayTemplateSerializer(ValidatedModelSerializer):
 #
 
 class DeviceRoleSerializer(ValidatedModelSerializer):
+    device_count = serializers.IntegerField(read_only=True)
+    virtualmachine_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = DeviceRole
-        fields = ['id', 'name', 'slug', 'color', 'vm_role']
+        fields = ['id', 'name', 'slug', 'color', 'vm_role', 'device_count', 'virtualmachine_count']
 
 
 class PlatformSerializer(ValidatedModelSerializer):
     manufacturer = NestedManufacturerSerializer(required=False, allow_null=True)
+    device_count = serializers.IntegerField(read_only=True)
+    virtualmachine_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Platform
-        fields = ['id', 'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args']
+        fields = [
+            'id', 'name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'device_count',
+            'virtualmachine_count',
+        ]
 
 
 class DeviceSerializer(TaggitSerializer, CustomFieldModelSerializer):
@@ -613,16 +625,16 @@ class InterfaceConnectionSerializer(ValidatedModelSerializer):
 class VirtualChassisSerializer(TaggitSerializer, ValidatedModelSerializer):
     master = NestedDeviceSerializer()
     tags = TagListSerializerField(required=False)
+    member_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VirtualChassis
-        fields = ['id', 'master', 'domain', 'tags']
+        fields = ['id', 'master', 'domain', 'tags', 'member_count']
 
 
 #
 # Power panels
 #
-
 
 class PowerPanelSerializer(ValidatedModelSerializer):
     site = NestedSiteSerializer()
@@ -631,10 +643,11 @@ class PowerPanelSerializer(ValidatedModelSerializer):
         allow_null=True,
         default=None
     )
+    powerfeed_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = PowerPanel
-        fields = ['id', 'site', 'rack_group', 'name']
+        fields = ['id', 'site', 'rack_group', 'name', 'powerfeed_count']
 
 
 class PowerFeedSerializer(TaggitSerializer, CustomFieldModelSerializer):
