@@ -60,7 +60,7 @@
                 </tr>
                 <tr>
                     <td>Type</td>
-                    <td>{{ interface.get_form_factor_display }}</td>
+                    <td>{{ interface.get_type_display }}</td>
                 </tr>
                 <tr>
                     <td>Enabled</td>
@@ -125,7 +125,7 @@
                             </tr>
                             <tr>
                                 <td>Type</td>
-                                <td>{{ connected_interface.get_form_factor_display }}</td>
+                                <td>{{ connected_interface.get_type_display }}</td>
                             </tr>
                             <tr>
                                 <td>Enabled</td>
@@ -227,7 +227,7 @@
                                     <a href="{{ member.get_absolute_url }}">{{ member }}</a>
                                 </td>
                                 <td>
-                                    {{ member.get_form_factor_display }}
+                                    {{ member.get_type_display }}
                                 </td>
                             </tr>
                         {% empty %}

@@ -2,7 +2,7 @@ from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
 
-from dcim.constants import IFACE_FF_VIRTUAL, IFACE_MODE_TAGGED
+from dcim.constants import IFACE_TYPE_VIRTUAL, IFACE_MODE_TAGGED
 from dcim.models import Interface
 from ipam.models import IPAddress, VLAN
 from utilities.testing import APITestCase
@@ -489,17 +489,17 @@ class InterfaceTest(APITestCase):
         self.interface1 = Interface.objects.create(
             virtual_machine=self.virtualmachine,
             name='Test Interface 1',
-            form_factor=IFACE_FF_VIRTUAL
+            type=IFACE_TYPE_VIRTUAL
         )
         self.interface2 = Interface.objects.create(
             virtual_machine=self.virtualmachine,
             name='Test Interface 2',
-            form_factor=IFACE_FF_VIRTUAL
+            type=IFACE_TYPE_VIRTUAL
         )
         self.interface3 = Interface.objects.create(
             virtual_machine=self.virtualmachine,
             name='Test Interface 3',
-            form_factor=IFACE_FF_VIRTUAL
+            type=IFACE_TYPE_VIRTUAL
         )
 
         self.vlan1 = VLAN.objects.create(name="Test VLAN 1", vid=1)

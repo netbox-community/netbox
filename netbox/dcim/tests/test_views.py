@@ -3,7 +3,7 @@ import urllib.parse
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from dcim.constants import CABLE_TYPE_CAT6, IFACE_FF_1GE_FIXED
+from dcim.constants import CABLE_TYPE_CAT6, IFACE_TYPE_1GE_FIXED
 from dcim.models import (
     Cable, Device, DeviceRole, DeviceType, Interface, InventoryItem, Manufacturer, Platform, Rack, RackGroup,
     RackReservation, RackRole, Site, Region, VirtualChassis,
@@ -370,17 +370,17 @@ class CableTestCase(TestCase):
         device2 = Device(name='Device 2', site=site, device_type=devicetype, device_role=devicerole)
         device2.save()
 
-        iface1 = Interface(device=device1, name='Interface 1', form_factor=IFACE_FF_1GE_FIXED)
+        iface1 = Interface(device=device1, name='Interface 1', type=IFACE_TYPE_1GE_FIXED)
         iface1.save()
-        iface2 = Interface(device=device1, name='Interface 2', form_factor=IFACE_FF_1GE_FIXED)
+        iface2 = Interface(device=device1, name='Interface 2', type=IFACE_TYPE_1GE_FIXED)
         iface2.save()
-        iface3 = Interface(device=device1, name='Interface 3', form_factor=IFACE_FF_1GE_FIXED)
+        iface3 = Interface(device=device1, name='Interface 3', type=IFACE_TYPE_1GE_FIXED)
         iface3.save()
-        iface4 = Interface(device=device2, name='Interface 1', form_factor=IFACE_FF_1GE_FIXED)
+        iface4 = Interface(device=device2, name='Interface 1', type=IFACE_TYPE_1GE_FIXED)
         iface4.save()
-        iface5 = Interface(device=device2, name='Interface 2', form_factor=IFACE_FF_1GE_FIXED)
+        iface5 = Interface(device=device2, name='Interface 2', type=IFACE_TYPE_1GE_FIXED)
         iface5.save()
-        iface6 = Interface(device=device2, name='Interface 3', form_factor=IFACE_FF_1GE_FIXED)
+        iface6 = Interface(device=device2, name='Interface 3', type=IFACE_TYPE_1GE_FIXED)
         iface6.save()
 
         Cable(termination_a=iface1, termination_b=iface4, type=CABLE_TYPE_CAT6).save()

@@ -400,7 +400,7 @@ class InterfaceTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = InterfaceTemplate
-        fields = ['name', 'form_factor', 'mgmt_only']
+        fields = ['name', 'type', 'mgmt_only']
 
 
 class FrontPortTemplateFilter(DeviceTypeComponentFilterSet):
@@ -753,9 +753,9 @@ class InterfaceFilter(django_filters.FilterSet):
         lookup_expr='isnull',
         exclude=True
     )
-    type = django_filters.CharFilter(
-        method='filter_type',
-        label='Interface type',
+    kind = django_filters.CharFilter(
+        method='filter_kind',
+        label='Kind of interface',
     )
     lag_id = django_filters.ModelMultipleChoiceFilter(
         field_name='lag',
@@ -775,14 +775,14 @@ class InterfaceFilter(django_filters.FilterSet):
         method='filter_vlan',
         label='Assigned VID'
     )
-    form_factor = django_filters.MultipleChoiceFilter(
-        choices=IFACE_FF_CHOICES,
+    type = django_filters.MultipleChoiceFilter(
+        choices=IFACE_TYPE_CHOICES,
         null_value=None
     )
 
     class Meta:
         model = Interface
-        fields = ['name', 'connection_status', 'form_factor', 'enabled', 'mtu', 'mgmt_only', 'description']
+        fields = ['name', 'connection_status', 'type', 'enabled', 'mtu', 'mgmt_only', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -818,13 +818,12 @@ class InterfaceFilter(django_filters.FilterSet):
             Q(tagged_vlans__vid=value)
         )
 
-    def filter_type(self, queryset, name, value):
+    def filter_kind(self, queryset, name, value):
         value = value.strip().lower()
         return {
-            'physical': queryset.exclude(form_factor__in=NONCONNECTABLE_IFACE_TYPES),
-            'virtual': queryset.filter(form_factor__in=VIRTUAL_IFACE_TYPES),
-            'wireless': queryset.filter(form_factor__in=WIRELESS_IFACE_TYPES),
-            'lag': queryset.filter(form_factor=IFACE_FF_LAG),
+            'physical': queryset.exclude(type__in=NONCONNECTABLE_IFACE_TYPES),
+            'virtual': queryset.filter(type__in=VIRTUAL_IFACE_TYPES),
+            'wireless': queryset.filter(type__in=WIRELESS_IFACE_TYPES),
         }.get(value, queryset.none())
 
     def _mac_address(self, queryset, name, value):

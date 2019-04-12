@@ -56,7 +56,13 @@ to now use "Extras | Tag."
 * [#2324](https://github.com/digitalocean/netbox/issues/2324) - Add `color` option for tags
 * [#2643](https://github.com/digitalocean/netbox/issues/2643) - Add `description` field to console/power components and device bays
 * [#2791](https://github.com/digitalocean/netbox/issues/2791) - Add a `comment` field for tags
+* [#2920](https://github.com/digitalocean/netbox/issues/2920) - Rename Interface `form_factor` to `type`
 * [#2926](https://github.com/digitalocean/netbox/issues/2926) - Add changelog to the Tag model
+
+## API Changes
+
+* dcim.Interface: `form_factor` has been renamed to `type`. Backward-compatibile support for `form_factor` will be maintained until NetBox v2.7.
+* dcim.Interface: The `type` filter has been renamed to `kind`.
 
 ## Bug Fixes
 

@@ -415,7 +415,7 @@ class InterfaceTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = InterfaceTemplate
-        fields = ('pk', 'name', 'mgmt_only', 'form_factor')
+        fields = ('pk', 'name', 'mgmt_only', 'type')
         empty_text = "None"
 
 
@@ -593,7 +593,7 @@ class InterfaceTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Interface
-        fields = ('name', 'form_factor', 'lag', 'enabled', 'mgmt_only', 'description')
+        fields = ('name', 'type', 'lag', 'enabled', 'mgmt_only', 'description')
 
 
 class FrontPortTable(BaseTable):
