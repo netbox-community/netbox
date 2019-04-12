@@ -32,9 +32,11 @@
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ interface.get_absolute_url }}">Interface</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'dcim:interface_changelog' pk=interface.pk %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:interface_changelog' pk=interface.pk %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

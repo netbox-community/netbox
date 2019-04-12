@@ -83,6 +83,14 @@ EMAIL = {
 # (all prefixes and IP addresses not assigned to a VRF), set ENFORCE_GLOBAL_UNIQUE to True.
 ENFORCE_GLOBAL_UNIQUE = False
 
+# Exempt certain models from the enforcement of view permissions. Models listed here will be viewable by all users and
+# by anonymous users. List models in the form `<app>.<model>`. Add '*' to this list to exempt all models.
+EXEMPT_VIEW_PERMISSIONS = [
+    # 'dcim.site',
+    # 'dcim.region',
+    # 'ipam.prefix',
+]
+
 # Enable custom logging. Please see the Django documentation for detailed guidance on configuring custom logs:
 #   https://docs.djangoproject.com/en/1.11/topics/logging/
 LOGGING = {}

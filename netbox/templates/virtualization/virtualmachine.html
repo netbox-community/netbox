@@ -44,12 +44,16 @@
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ virtualmachine.get_absolute_url }}">Virtual Machine</a>
         </li>
-        <li role="presentation"{% if active_tab == 'config-context' %} class="active"{% endif %}>
-            <a href="{% url 'virtualization:virtualmachine_configcontext' pk=virtualmachine.pk %}">Config Context</a>
-        </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'virtualization:virtualmachine_changelog' pk=virtualmachine.pk %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_configcontext %}
+            <li role="presentation"{% if active_tab == 'config-context' %} class="active"{% endif %}>
+                <a href="{% url 'virtualization:virtualmachine_configcontext' pk=virtualmachine.pk %}">Config Context</a>
+            </li>
+        {% endif %}
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'virtualization:virtualmachine_changelog' pk=virtualmachine.pk %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

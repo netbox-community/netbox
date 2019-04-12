@@ -51,9 +51,11 @@
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ provider.get_absolute_url }}">Provider</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'circuits:provider_changelog' slug=provider.slug %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'circuits:provider_changelog' slug=provider.slug %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

@@ -138,7 +138,8 @@ class BulkDisconnectView(GetReturnURLMixin, View):
 # Regions
 #
 
-class RegionListView(ObjectListView):
+class RegionListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_region'
     queryset = Region.objects.add_related_count(
         Region.objects.all(),
         Site,
@@ -182,7 +183,8 @@ class RegionBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Sites
 #
 
-class SiteListView(ObjectListView):
+class SiteListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_site'
     queryset = Site.objects.select_related('region', 'tenant')
     filter = filters.SiteFilter
     filter_form = forms.SiteFilterForm
@@ -190,7 +192,8 @@ class SiteListView(ObjectListView):
     template_name = 'dcim/site_list.html'
 
 
-class SiteView(View):
+class SiteView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.view_site'
 
     def get(self, request, slug):
 
@@ -254,7 +257,8 @@ class SiteBulkEditView(PermissionRequiredMixin, BulkEditView):
 # Rack groups
 #
 
-class RackGroupListView(ObjectListView):
+class RackGroupListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_rackgroup'
     queryset = RackGroup.objects.select_related('site').annotate(rack_count=Count('racks'))
     filter = filters.RackGroupFilter
     filter_form = forms.RackGroupFilterForm
@@ -292,7 +296,8 @@ class RackGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Rack roles
 #
 
-class RackRoleListView(ObjectListView):
+class RackRoleListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_rackrole'
     queryset = RackRole.objects.annotate(rack_count=Count('racks'))
     table = tables.RackRoleTable
     template_name = 'dcim/rackrole_list.html'
@@ -327,7 +332,8 @@ class RackRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Racks
 #
 
-class RackListView(ObjectListView):
+class RackListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_rack'
     queryset = Rack.objects.select_related(
         'site', 'group', 'tenant', 'role'
     ).prefetch_related(
@@ -341,10 +347,11 @@ class RackListView(ObjectListView):
     template_name = 'dcim/rack_list.html'
 
 
-class RackElevationListView(View):
+class RackElevationListView(PermissionRequiredMixin, View):
     """
     Display a set of rack elevations side-by-side.
     """
+    permission_required = 'dcim.view_rack'
 
     def get(self, request):
 
@@ -382,7 +389,8 @@ class RackElevationListView(View):
         })
 
 
-class RackView(View):
+class RackView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.view_rack'
 
     def get(self, request, pk):
 
@@ -454,7 +462,8 @@ class RackBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Rack reservations
 #
 
-class RackReservationListView(ObjectListView):
+class RackReservationListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_rackreservation'
     queryset = RackReservation.objects.all()
     filter = filters.RackReservationFilter
     filter_form = forms.RackReservationFilterForm
@@ -510,7 +519,8 @@ class RackReservationBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Manufacturers
 #
 
-class ManufacturerListView(ObjectListView):
+class ManufacturerListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_manufacturer'
     queryset = Manufacturer.objects.annotate(
         devicetype_count=Count('device_types', distinct=True),
         platform_count=Count('platforms', distinct=True),
@@ -548,7 +558,8 @@ class ManufacturerBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Device types
 #
 
-class DeviceTypeListView(ObjectListView):
+class DeviceTypeListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_devicetype'
     queryset = DeviceType.objects.select_related('manufacturer').annotate(instance_count=Count('instances'))
     filter = filters.DeviceTypeFilter
     filter_form = forms.DeviceTypeFilterForm
@@ -556,7 +567,8 @@ class DeviceTypeListView(ObjectListView):
     template_name = 'dcim/devicetype_list.html'
 
 
-class DeviceTypeView(View):
+class DeviceTypeView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.view_devicetype'
 
     def get(self, request, pk):
 
@@ -812,7 +824,8 @@ class DeviceBayTemplateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Device roles
 #
 
-class DeviceRoleListView(ObjectListView):
+class DeviceRoleListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_devicerole'
     queryset = DeviceRole.objects.all()
     table = tables.DeviceRoleTable
     template_name = 'dcim/devicerole_list.html'
@@ -847,7 +860,8 @@ class DeviceRoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Platforms
 #
 
-class PlatformListView(ObjectListView):
+class PlatformListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_platform'
     queryset = Platform.objects.all()
     table = tables.PlatformTable
     template_name = 'dcim/platform_list.html'
@@ -882,7 +896,8 @@ class PlatformBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Devices
 #
 
-class DeviceListView(ObjectListView):
+class DeviceListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_device'
     queryset = Device.objects.select_related(
         'device_type__manufacturer', 'device_role', 'tenant', 'site', 'rack', 'primary_ip4', 'primary_ip6'
     )
@@ -892,7 +907,8 @@ class DeviceListView(ObjectListView):
     template_name = 'dcim/device_list.html'
 
 
-class DeviceView(View):
+class DeviceView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.view_device'
 
     def get(self, request, pk):
 
@@ -972,7 +988,8 @@ class DeviceView(View):
         })
 
 
-class DeviceInventoryView(View):
+class DeviceInventoryView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.view_device'
 
     def get(self, request, pk):
 
@@ -993,7 +1010,7 @@ class DeviceInventoryView(View):
 
 
 class DeviceStatusView(PermissionRequiredMixin, View):
-    permission_required = 'dcim.napalm_read'
+    permission_required = ('dcim.view_device', 'dcim.napalm_read')
 
     def get(self, request, pk):
 
@@ -1006,7 +1023,7 @@ class DeviceStatusView(PermissionRequiredMixin, View):
 
 
 class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
-    permission_required = 'dcim.napalm_read'
+    permission_required = ('dcim.view_device', 'dcim.napalm_read')
 
     def get(self, request, pk):
 
@@ -1023,7 +1040,7 @@ class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
 
 
 class DeviceConfigView(PermissionRequiredMixin, View):
-    permission_required = 'dcim.napalm_read'
+    permission_required = ('dcim.view_device', 'dcim.napalm_read')
 
     def get(self, request, pk):
 
@@ -1035,7 +1052,8 @@ class DeviceConfigView(PermissionRequiredMixin, View):
         })
 
 
-class DeviceConfigContextView(ObjectConfigContextView):
+class DeviceConfigContextView(PermissionRequiredMixin, ObjectConfigContextView):
+    permission_required = 'dcim.view_device'
     object_class = Device
     base_template = 'dcim/device.html'
 
@@ -1258,7 +1276,8 @@ class PowerOutletBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Interfaces
 #
 
-class InterfaceView(View):
+class InterfaceView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.view_interface'
 
     def get(self, request, pk):
 
@@ -1639,7 +1658,8 @@ class DeviceBulkAddDeviceBayView(PermissionRequiredMixin, BulkComponentCreateVie
 # Cables
 #
 
-class CableListView(ObjectListView):
+class CableListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_cable'
     queryset = Cable.objects.prefetch_related(
         'termination_a', 'termination_b'
     )
@@ -1649,7 +1669,8 @@ class CableListView(ObjectListView):
     template_name = 'dcim/cable_list.html'
 
 
-class CableView(View):
+class CableView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.view_cable'
 
     def get(self, request, pk):
 
@@ -1660,10 +1681,11 @@ class CableView(View):
         })
 
 
-class CableTraceView(View):
+class CableTraceView(PermissionRequiredMixin, View):
     """
     Trace a cable path beginning from the given termination.
     """
+    permission_required = 'dcim.view_cable'
 
     def get(self, request, model, pk):
 
@@ -1792,7 +1814,8 @@ class CableBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Connections
 #
 
-class ConsoleConnectionsListView(ObjectListView):
+class ConsoleConnectionsListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = ('dcim.view_consoleport', 'dcim.view_consoleserverport')
     queryset = ConsolePort.objects.select_related(
         'device', 'connected_endpoint__device'
     ).filter(
@@ -1822,7 +1845,8 @@ class ConsoleConnectionsListView(ObjectListView):
         return csv_data
 
 
-class PowerConnectionsListView(ObjectListView):
+class PowerConnectionsListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = ('dcim.view_powerport', 'dcim.view_poweroutlet')
     queryset = PowerPort.objects.select_related(
         'device', '_connected_poweroutlet__device'
     ).filter(
@@ -1852,7 +1876,8 @@ class PowerConnectionsListView(ObjectListView):
         return csv_data
 
 
-class InterfaceConnectionsListView(ObjectListView):
+class InterfaceConnectionsListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.interface'
     queryset = Interface.objects.select_related(
         'device', 'cable', '_connected_interface__device'
     ).filter(
@@ -1894,7 +1919,8 @@ class InterfaceConnectionsListView(ObjectListView):
 # Inventory items
 #
 
-class InventoryItemListView(ObjectListView):
+class InventoryItemListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_inventoryitem'
     queryset = InventoryItem.objects.select_related('device', 'manufacturer')
     filter = filters.InventoryItemFilter
     filter_form = forms.InventoryItemFilterForm
@@ -1949,7 +1975,8 @@ class InventoryItemBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Virtual chassis
 #
 
-class VirtualChassisListView(ObjectListView):
+class VirtualChassisListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_virtualchassis'
     queryset = VirtualChassis.objects.select_related('master').annotate(member_count=Count('members'))
     table = tables.VirtualChassisTable
     filter = filters.VirtualChassisFilter
@@ -2184,7 +2211,8 @@ class VirtualChassisRemoveMemberView(PermissionRequiredMixin, GetReturnURLMixin,
 # Power panels
 #
 
-class PowerPanelListView(ObjectListView):
+class PowerPanelListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_powerpanel'
     queryset = PowerPanel.objects.select_related(
         'site', 'rack_group'
     ).annotate(
@@ -2196,7 +2224,8 @@ class PowerPanelListView(ObjectListView):
     template_name = 'dcim/powerpanel_list.html'
 
 
-class PowerPanelView(View):
+class PowerPanelView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.view_powerpanel'
 
     def get(self, request, pk):
 
@@ -2253,7 +2282,8 @@ class PowerPanelBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Power feeds
 #
 
-class PowerFeedListView(ObjectListView):
+class PowerFeedListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'dcim.view_powerfeed'
     queryset = PowerFeed.objects.select_related(
         'power_panel', 'rack'
     )
@@ -2263,7 +2293,8 @@ class PowerFeedListView(ObjectListView):
     template_name = 'dcim/powerfeed_list.html'
 
 
-class PowerFeedView(View):
+class PowerFeedView(PermissionRequiredMixin, View):
+    permission_required = 'dcim.view_powerfeed'
 
     def get(self, request, pk):
 

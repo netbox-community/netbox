@@ -18,7 +18,8 @@ from .models import Tenant, TenantGroup
 # Tenant groups
 #
 
-class TenantGroupListView(ObjectListView):
+class TenantGroupListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'tenancy.view_tenantgroup'
     queryset = TenantGroup.objects.annotate(tenant_count=Count('tenants'))
     table = tables.TenantGroupTable
     template_name = 'tenancy/tenantgroup_list.html'
@@ -53,7 +54,8 @@ class TenantGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #  Tenants
 #
 
-class TenantListView(ObjectListView):
+class TenantListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'tenancy.view_tenant'
     queryset = Tenant.objects.select_related('group')
     filter = filters.TenantFilter
     filter_form = forms.TenantFilterForm
@@ -61,7 +63,8 @@ class TenantListView(ObjectListView):
     template_name = 'tenancy/tenant_list.html'
 
 
-class TenantView(View):
+class TenantView(PermissionRequiredMixin, View):
+    permission_required = 'tenancy.view_tenant'
 
     def get(self, request, slug):
 

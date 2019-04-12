@@ -4,13 +4,15 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from circuits.models import Circuit, CircuitType, Provider
+from utilities.testing import create_test_user
 
 
 class ProviderTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['circuits.view_provider'])
         self.client = Client()
+        self.client.force_login(user)
 
         Provider.objects.bulk_create([
             Provider(name='Provider 1', slug='provider-1', asn=65001),
@@ -38,8 +40,9 @@ class ProviderTestCase(TestCase):
 class CircuitTypeTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['circuits.view_circuittype'])
         self.client = Client()
+        self.client.force_login(user)
 
         CircuitType.objects.bulk_create([
             CircuitType(name='Circuit Type 1', slug='circuit-type-1'),
@@ -58,8 +61,9 @@ class CircuitTypeTestCase(TestCase):
 class CircuitTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['circuits.view_circuit'])
         self.client = Client()
+        self.client.force_login(user)
 
         provider = Provider(name='Provider 1', slug='provider-1', asn=65001)
         provider.save()
@@ -84,8 +88,8 @@ class CircuitTestCase(TestCase):
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
         self.assertEqual(response.status_code, 200)
 
-    def test_provider(self):
+    def test_circuit(self):
 
-        provider = Provider.objects.first()
-        response = self.client.get(provider.get_absolute_url())
+        circuit = Circuit.objects.first()
+        response = self.client.get(circuit.get_absolute_url())
         self.assertEqual(response.status_code, 200)

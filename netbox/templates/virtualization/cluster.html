@@ -45,9 +45,11 @@
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ cluster.get_absolute_url }}">Cluster</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'virtualization:cluster_changelog' pk=cluster.pk %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'virtualization:cluster_changelog' pk=cluster.pk %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

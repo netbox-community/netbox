@@ -56,9 +56,11 @@
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ site.get_absolute_url }}">Site</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'dcim:site_changelog' slug=site.slug %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:site_changelog' slug=site.slug %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

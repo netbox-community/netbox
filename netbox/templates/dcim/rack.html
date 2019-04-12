@@ -47,9 +47,11 @@
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ rack.get_absolute_url }}">Rack</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'dcim:rack_changelog' pk=rack.pk %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:rack_changelog' pk=rack.pk %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

@@ -51,8 +51,9 @@ CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
 DATE_FORMAT = getattr(configuration, 'DATE_FORMAT', 'N j, Y')
 DATETIME_FORMAT = getattr(configuration, 'DATETIME_FORMAT', 'N j, Y g:i a')
 DEBUG = getattr(configuration, 'DEBUG', False)
-ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
 EMAIL = getattr(configuration, 'EMAIL', {})
+ENFORCE_GLOBAL_UNIQUE = getattr(configuration, 'ENFORCE_GLOBAL_UNIQUE', False)
+EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
@@ -93,7 +94,7 @@ if LDAP_CONFIGURED:
         # Prepend LDAPBackend to the default ModelBackend
         AUTHENTICATION_BACKENDS = [
             'django_auth_ldap.backend.LDAPBackend',
-            'django.contrib.auth.backends.ModelBackend',
+            'utilities.auth_backends.ViewExemptModelBackend',
         ]
         # Optionally disable strict certificate checking
         if LDAP_IGNORE_CERT_ERRORS:
@@ -107,6 +108,10 @@ if LDAP_CONFIGURED:
             "LDAP authentication has been configured, but django-auth-ldap is not installed. You can remove "
             "netbox/ldap_config.py to disable LDAP."
         )
+else:
+    AUTHENTICATION_BACKENDS = [
+        'utilities.auth_backends.ViewExemptModelBackend',
+    ]
 
 # Database
 configuration.DATABASE.update({'ENGINE': 'django.db.backends.postgresql'})

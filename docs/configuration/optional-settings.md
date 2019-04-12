@@ -89,6 +89,30 @@ In order to send email, NetBox needs an email server configured. The following i
 
 ---
 
+## EXEMPT_VIEW_PERMISSIONS
+
+Default: Empty list
+
+A list of models to exempt from the enforcement of view permissions. Models listed here will be viewable by all users and by anonymous users.
+
+List models in the form `<app>.<model>`. For example:
+
+```
+EXEMPT_VIEW_PERMISSIONS = [
+    'dcim.site',
+    'dcim.region',
+    'ipam.prefix',
+]
+```
+
+To exempt _all_ models from view permission enforcement, set the following. (Note that `EXEMPT_VIEW_PERMISSIONS` must be an iterable.)
+
+```
+EXEMPT_VIEW_PERMISSIONS = ['*']
+```
+
+---
+
 # ENFORCE_GLOBAL_UNIQUE
 
 Default: False

@@ -96,7 +96,8 @@ class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Config contexts
 #
 
-class ConfigContextListView(ObjectListView):
+class ConfigContextListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'extras.view_configcontext'
     queryset = ConfigContext.objects.all()
     filter = filters.ConfigContextFilter
     filter_form = ConfigContextFilterForm
@@ -104,7 +105,8 @@ class ConfigContextListView(ObjectListView):
     template_name = 'extras/configcontext_list.html'
 
 
-class ConfigContextView(View):
+class ConfigContextView(PermissionRequiredMixin, View):
+    permission_required = 'extras.view_configcontext'
 
     def get(self, request, pk):
 
@@ -173,7 +175,8 @@ class ObjectConfigContextView(View):
 # Change logging
 #
 
-class ObjectChangeListView(ObjectListView):
+class ObjectChangeListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'extras.view_objectchange'
     queryset = ObjectChange.objects.select_related('user', 'changed_object_type')
     filter = filters.ObjectChangeFilter
     filter_form = ObjectChangeFilterForm
@@ -181,7 +184,8 @@ class ObjectChangeListView(ObjectListView):
     template_name = 'extras/objectchange_list.html'
 
 
-class ObjectChangeView(View):
+class ObjectChangeView(PermissionRequiredMixin, View):
+    permission_required = 'extras.view_objectchange'
 
     def get(self, request, pk):
 
@@ -272,10 +276,11 @@ class ImageAttachmentDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 # Reports
 #
 
-class ReportListView(View):
+class ReportListView(PermissionRequiredMixin, View):
     """
     Retrieve all of the available reports from disk and the recorded ReportResult (if any) for each.
     """
+    permission_required = 'extras.view_reportresult'
 
     def get(self, request):
 
@@ -295,10 +300,11 @@ class ReportListView(View):
         })
 
 
-class ReportView(View):
+class ReportView(PermissionRequiredMixin, View):
     """
     Display a single Report and its associated ReportResult (if any).
     """
+    permission_required = 'extras.view_reportresult'
 
     def get(self, request, name):
 
