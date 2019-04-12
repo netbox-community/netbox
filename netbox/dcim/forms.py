@@ -1012,11 +1012,11 @@ class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'name', 'form_factor', 'mgmt_only',
+            'device_type', 'name', 'type', 'mgmt_only',
         ]
         widgets = {
             'device_type': forms.HiddenInput(),
-            'form_factor': StaticSelect2(),
+            'type': StaticSelect2(),
         }
 
 
@@ -1024,8 +1024,8 @@ class InterfaceTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
     )
-    form_factor = forms.ChoiceField(
-        choices=IFACE_FF_CHOICES,
+    type = forms.ChoiceField(
+        choices=IFACE_TYPE_CHOICES,
         widget=StaticSelect2()
     )
     mgmt_only = forms.BooleanField(
@@ -1039,8 +1039,8 @@ class InterfaceTemplateBulkEditForm(BootstrapMixin, BulkEditForm):
         queryset=InterfaceTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
-    form_factor = forms.ChoiceField(
-        choices=add_blank_choice(IFACE_FF_CHOICES),
+    type = forms.ChoiceField(
+        choices=add_blank_choice(IFACE_TYPE_CHOICES),
         required=False,
         widget=StaticSelect2()
     )
@@ -1830,8 +1830,8 @@ class DeviceBulkAddComponentForm(BootstrapMixin, forms.Form):
 
 
 class DeviceBulkAddInterfaceForm(DeviceBulkAddComponentForm):
-    form_factor = forms.ChoiceField(
-        choices=IFACE_FF_CHOICES,
+    type = forms.ChoiceField(
+        choices=IFACE_TYPE_CHOICES,
         widget=StaticSelect2()
     )
     enabled = forms.BooleanField(
@@ -2070,12 +2070,12 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Interface
         fields = [
-            'device', 'name', 'form_factor', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description',
+            'device', 'name', 'type', 'enabled', 'lag', 'mac_address', 'mtu', 'mgmt_only', 'description',
             'mode', 'untagged_vlan', 'tagged_vlans', 'tags',
         ]
         widgets = {
             'device': forms.HiddenInput(),
-            'form_factor': StaticSelect2(),
+            'type': StaticSelect2(),
             'lag': StaticSelect2(),
             'mode': StaticSelect2(),
         }
@@ -2093,12 +2093,12 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
         if self.is_bound:
             device = Device.objects.get(pk=self.data['device'])
             self.fields['lag'].queryset = Interface.objects.filter(
-                device__in=[device, device.get_vc_master()], form_factor=IFACE_FF_LAG
+                device__in=[device, device.get_vc_master()], type=IFACE_TYPE_LAG
             )
         else:
             device = self.instance.device
             self.fields['lag'].queryset = Interface.objects.filter(
-                device__in=[self.instance.device, self.instance.device.get_vc_master()], form_factor=IFACE_FF_LAG
+                device__in=[self.instance.device, self.instance.device.get_vc_master()], type=IFACE_TYPE_LAG
             )
 
     def clean(self):
@@ -2210,8 +2210,8 @@ class InterfaceCreateForm(ComponentForm, forms.Form):
     name_pattern = ExpandableNameField(
         label='Name'
     )
-    form_factor = forms.ChoiceField(
-        choices=IFACE_FF_CHOICES,
+    type = forms.ChoiceField(
+        choices=IFACE_TYPE_CHOICES,
         widget=StaticSelect2(),
     )
     enabled = forms.BooleanField(
@@ -2262,7 +2262,7 @@ class InterfaceCreateForm(ComponentForm, forms.Form):
         # Limit LAG choices to interfaces belonging to this device (or its VC master)
         if self.parent is not None:
             self.fields['lag'].queryset = Interface.objects.filter(
-                device__in=[self.parent, self.parent.get_vc_master()], form_factor=IFACE_FF_LAG
+                device__in=[self.parent, self.parent.get_vc_master()], type=IFACE_TYPE_LAG
             )
         else:
             self.fields['lag'].queryset = Interface.objects.none()
@@ -2273,8 +2273,8 @@ class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         queryset=Interface.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
-    form_factor = forms.ChoiceField(
-        choices=add_blank_choice(IFACE_FF_CHOICES),
+    type = forms.ChoiceField(
+        choices=add_blank_choice(IFACE_TYPE_CHOICES),
         required=False,
         widget=StaticSelect2()
     )
@@ -2326,7 +2326,7 @@ class InterfaceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         if device is not None:
             self.fields['lag'].queryset = Interface.objects.filter(
                 device__in=[device, device.get_vc_master()],
-                form_factor=IFACE_FF_LAG
+                type=IFACE_TYPE_LAG
             )
         else:
             self.fields['lag'].choices = []

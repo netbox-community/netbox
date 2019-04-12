@@ -1132,9 +1132,9 @@ class InterfaceTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=64
     )
-    form_factor = models.PositiveSmallIntegerField(
-        choices=IFACE_FF_CHOICES,
-        default=IFACE_FF_10GE_SFP_PLUS
+    type = models.PositiveSmallIntegerField(
+        choices=IFACE_TYPE_CHOICES,
+        default=IFACE_TYPE_10GE_SFP_PLUS
     )
     mgmt_only = models.BooleanField(
         default=False,
@@ -1647,7 +1647,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                  self.device_type.poweroutlet_templates.all()]
             )
             Interface.objects.bulk_create(
-                [Interface(device=self, name=template.name, form_factor=template.form_factor,
+                [Interface(device=self, name=template.name, type=template.type,
                            mgmt_only=template.mgmt_only) for template in self.device_type.interface_templates.all()]
             )
             RearPort.objects.bulk_create([
@@ -2092,9 +2092,9 @@ class Interface(CableTermination, ComponentModel):
         blank=True,
         verbose_name='Parent LAG'
     )
-    form_factor = models.PositiveSmallIntegerField(
-        choices=IFACE_FF_CHOICES,
-        default=IFACE_FF_10GE_SFP_PLUS
+    type = models.PositiveSmallIntegerField(
+        choices=IFACE_TYPE_CHOICES,
+        default=IFACE_TYPE_10GE_SFP_PLUS
     )
     enabled = models.BooleanField(
         default=True
@@ -2139,7 +2139,7 @@ class Interface(CableTermination, ComponentModel):
     tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'device', 'virtual_machine', 'name', 'lag', 'form_factor', 'enabled', 'mac_address', 'mtu', 'mgmt_only',
+        'device', 'virtual_machine', 'name', 'lag', 'type', 'enabled', 'mac_address', 'mtu', 'mgmt_only',
         'description', 'mode',
     ]
 
@@ -2159,7 +2159,7 @@ class Interface(CableTermination, ComponentModel):
             self.virtual_machine.name if self.virtual_machine else None,
             self.name,
             self.lag.name if self.lag else None,
-            self.get_form_factor_display(),
+            self.get_type_display(),
             self.enabled,
             self.mac_address,
             self.mtu,
@@ -2177,18 +2177,18 @@ class Interface(CableTermination, ComponentModel):
             raise ValidationError("An interface must belong to either a device or a virtual machine.")
 
         # VM interfaces must be virtual
-        if self.virtual_machine and self.form_factor is not IFACE_FF_VIRTUAL:
+        if self.virtual_machine and self.type is not IFACE_TYPE_VIRTUAL:
             raise ValidationError({
-                'form_factor': "Virtual machines can only have virtual interfaces."
+                'type': "Virtual machines can only have virtual interfaces."
             })
 
         # Virtual interfaces cannot be connected
-        if self.form_factor in NONCONNECTABLE_IFACE_TYPES and (
+        if self.type in NONCONNECTABLE_IFACE_TYPES and (
                 self.cable or getattr(self, 'circuit_termination', False)
         ):
             raise ValidationError({
-                'form_factor': "Virtual and wireless interfaces cannot be connected to another interface or circuit. "
-                               "Disconnect the interface or choose a suitable form factor."
+                'type': "Virtual and wireless interfaces cannot be connected to another interface or circuit. "
+                        "Disconnect the interface or choose a suitable type."
             })
 
         # An interface's LAG must belong to the same device (or VC master)
@@ -2200,15 +2200,15 @@ class Interface(CableTermination, ComponentModel):
             })
 
         # A virtual interface cannot have a parent LAG
-        if self.form_factor in NONCONNECTABLE_IFACE_TYPES and self.lag is not None:
+        if self.type in NONCONNECTABLE_IFACE_TYPES and self.lag is not None:
             raise ValidationError({
-                'lag': "{} interfaces cannot have a parent LAG interface.".format(self.get_form_factor_display())
+                'lag': "{} interfaces cannot have a parent LAG interface.".format(self.get_type_display())
             })
 
         # Only a LAG can have LAG members
-        if self.form_factor != IFACE_FF_LAG and self.member_interfaces.exists():
+        if self.type != IFACE_TYPE_LAG and self.member_interfaces.exists():
             raise ValidationError({
-                'form_factor': "Cannot change interface form factor; it has LAG members ({}).".format(
+                'type': "Cannot change interface type; it has LAG members ({}).".format(
                     ", ".join([iface.name for iface in self.member_interfaces.all()])
                 )
             })
@@ -2284,19 +2284,19 @@ class Interface(CableTermination, ComponentModel):
 
     @property
     def is_connectable(self):
-        return self.form_factor not in NONCONNECTABLE_IFACE_TYPES
+        return self.type not in NONCONNECTABLE_IFACE_TYPES
 
     @property
     def is_virtual(self):
-        return self.form_factor in VIRTUAL_IFACE_TYPES
+        return self.type in VIRTUAL_IFACE_TYPES
 
     @property
     def is_wireless(self):
-        return self.form_factor in WIRELESS_IFACE_TYPES
+        return self.type in WIRELESS_IFACE_TYPES
 
     @property
     def is_lag(self):
-        return self.form_factor == IFACE_FF_LAG
+        return self.type == IFACE_TYPE_LAG
 
     @property
     def count_ipaddresses(self):
@@ -2740,11 +2740,11 @@ class Cable(ChangeLoggedModel):
             if (
                 (
                     isinstance(endpoint_a, Interface) and
-                    endpoint_a.form_factor == IFACE_FF_VIRTUAL
+                    endpoint_a.type == IFACE_TYPE_VIRTUAL
                 ) or
                 (
                     isinstance(endpoint_b, Interface) and
-                    endpoint_b.form_factor == IFACE_FF_VIRTUAL
+                    endpoint_b.type == IFACE_TYPE_VIRTUAL
                 )
             ):
                 raise ValidationError("Cannot connect to a virtual interface")

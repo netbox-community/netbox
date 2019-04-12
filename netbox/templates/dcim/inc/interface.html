@@ -10,7 +10,7 @@
 
     {# Icon and name #}
     <td class="text-nowrap">
-        <span title="{{ iface.get_form_factor_display }}">
+        <span title="{{ iface.get_type_display }}">
             <i class="fa fa-fw fa-{% if iface.mgmt_only %}wrench{% elif iface.is_lag %}align-justify{% elif iface.is_virtual %}circle{% elif iface.is_wireless %}wifi{% else %}exchange{% endif %}"></i>
             <a href="{{ iface.get_absolute_url }}">{{ iface }}</a>
         </span>
@@ -81,7 +81,7 @@
         </td>
         <td>
             <a href="{% url 'dcim:interface' pk=iface.connected_endpoint.pk %}">
-                <span title="{{ iface.connected_endpoint.get_form_factor_display }}">
+                <span title="{{ iface.connected_endpoint.get_type_display }}">
                     {{ iface.connected_endpoint }}
                 </span>
             </a>

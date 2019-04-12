@@ -231,11 +231,11 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
 
 class InterfaceTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
-    form_factor = ChoiceField(choices=IFACE_FF_CHOICES, required=False)
+    type = ChoiceField(choices=IFACE_TYPE_CHOICES, required=False)
 
     class Meta:
         model = InterfaceTemplate
-        fields = ['id', 'device_type', 'name', 'form_factor', 'mgmt_only']
+        fields = ['id', 'device_type', 'name', 'type', 'mgmt_only']
 
 
 class RearPortTemplateSerializer(ValidatedModelSerializer):
@@ -418,7 +418,7 @@ class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
 
 class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
-    form_factor = ChoiceField(choices=IFACE_FF_CHOICES, required=False)
+    type = ChoiceField(choices=IFACE_TYPE_CHOICES, required=False)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
     mode = ChoiceField(choices=IFACE_MODE_CHOICES, required=False, allow_null=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
@@ -434,7 +434,7 @@ class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     class Meta:
         model = Interface
         fields = [
-            'id', 'device', 'name', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
+            'id', 'device', 'name', 'type', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
             'connected_endpoint_type', 'connected_endpoint', 'connection_status', 'cable', 'mode', 'untagged_vlan',
             'tagged_vlans', 'tags', 'count_ipaddresses',
         ]
