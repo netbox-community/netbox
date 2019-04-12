@@ -47,7 +47,7 @@ class RegionTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['id', 'name', 'site_count', 'slug', 'url']
         )
 
     def test_create_region(self):
@@ -285,7 +285,7 @@ class RackGroupTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['id', 'name', 'rack_count', 'slug', 'url']
         )
 
     def test_create_rackgroup(self):
@@ -393,7 +393,7 @@ class RackRoleTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['id', 'name', 'rack_count', 'slug', 'url']
         )
 
     def test_create_rackrole(self):
@@ -520,7 +520,7 @@ class RackTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['display_name', 'id', 'name', 'url']
+            ['device_count', 'display_name', 'id', 'name', 'url']
         )
 
     def test_create_rack(self):
@@ -746,7 +746,7 @@ class ManufacturerTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['devicetype_count', 'id', 'name', 'slug', 'url']
         )
 
     def test_create_manufacturer(self):
@@ -855,7 +855,7 @@ class DeviceTypeTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['display_name', 'id', 'manufacturer', 'model', 'slug', 'url']
+            ['device_count', 'display_name', 'id', 'manufacturer', 'model', 'slug', 'url']
         )
 
     def test_create_devicetype(self):
@@ -1569,7 +1569,7 @@ class DeviceRoleTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['device_count', 'id', 'name', 'slug', 'url', 'virtualmachine_count']
         )
 
     def test_create_devicerole(self):
@@ -1677,7 +1677,7 @@ class PlatformTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['device_count', 'id', 'name', 'slug', 'url', 'virtualmachine_count']
         )
 
     def test_create_platform(self):
@@ -3457,7 +3457,7 @@ class VirtualChassisTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'master', 'url']
+            ['id', 'master', 'member_count', 'url']
         )
 
     def test_create_virtualchassis(self):
@@ -3575,7 +3575,7 @@ class PowerPanelTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'url']
+            ['id', 'name', 'powerfeed_count', 'url']
         )
 
     def test_create_powerpanel(self):

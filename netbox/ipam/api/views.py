@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import Count, OuterRef, Subquery
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import action
@@ -31,7 +32,9 @@ class IPAMFieldChoicesViewSet(FieldChoicesViewSet):
 #
 
 class VRFViewSet(CustomFieldModelViewSet):
-    queryset = VRF.objects.select_related('tenant').prefetch_related('tags')
+    queryset = VRF.objects.select_related('tenant').prefetch_related('tags').annotate(
+        prefix_count=Count('prefixes')
+    )
     serializer_class = serializers.VRFSerializer
     filterset_class = filters.VRFFilter
 
@@ -41,7 +44,9 @@ class VRFViewSet(CustomFieldModelViewSet):
 #
 
 class RIRViewSet(ModelViewSet):
-    queryset = RIR.objects.all()
+    queryset = RIR.objects.annotate(
+        aggregate_count=Count('aggregates')
+    )
     serializer_class = serializers.RIRSerializer
     filterset_class = filters.RIRFilter
 
@@ -61,7 +66,10 @@ class AggregateViewSet(CustomFieldModelViewSet):
 #
 
 class RoleViewSet(ModelViewSet):
-    queryset = Role.objects.all()
+    queryset = Role.objects.annotate(
+        prefix_count=Count('prefixes', distinct=True),
+        vlan_count=Count('vlans', distinct=True)
+    )
     serializer_class = serializers.RoleSerializer
     filterset_class = filters.RoleFilter
 
@@ -71,7 +79,11 @@ class RoleViewSet(ModelViewSet):
 #
 
 class PrefixViewSet(CustomFieldModelViewSet):
-    queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role').prefetch_related('tags')
+    queryset = Prefix.objects.select_related(
+        'site', 'vrf__tenant', 'tenant', 'vlan', 'role'
+    ).prefetch_related(
+        'tags'
+    )
     serializer_class = serializers.PrefixSerializer
     filterset_class = filters.PrefixFilter
 
@@ -263,7 +275,9 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 #
 
 class VLANGroupViewSet(ModelViewSet):
-    queryset = VLANGroup.objects.select_related('site')
+    queryset = VLANGroup.objects.select_related('site').annotate(
+        vlan_count=Count('vlans')
+    )
     serializer_class = serializers.VLANGroupSerializer
     filterset_class = filters.VLANGroupFilter
 

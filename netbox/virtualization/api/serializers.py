@@ -20,17 +20,19 @@ from .nested_serializers import *
 #
 
 class ClusterTypeSerializer(ValidatedModelSerializer):
+    cluster_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ClusterType
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'cluster_count']
 
 
 class ClusterGroupSerializer(ValidatedModelSerializer):
+    cluster_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ClusterGroup
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'cluster_count']
 
 
 class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):
@@ -38,11 +40,13 @@ class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):
     group = NestedClusterGroupSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
+    virtualmachine_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Cluster
         fields = [
             'id', 'name', 'type', 'group', 'site', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'virtualmachine_count',
         ]
 
 

@@ -1,3 +1,5 @@
+from django.db.models import Count
+
 from dcim.models import Interface
 from extras.api.views import CustomFieldModelViewSet
 from utilities.api import FieldChoicesViewSet, ModelViewSet
@@ -21,19 +23,25 @@ class VirtualizationFieldChoicesViewSet(FieldChoicesViewSet):
 #
 
 class ClusterTypeViewSet(ModelViewSet):
-    queryset = ClusterType.objects.all()
+    queryset = ClusterType.objects.annotate(
+        cluster_count=Count('clusters')
+    )
     serializer_class = serializers.ClusterTypeSerializer
     filterset_class = filters.ClusterTypeFilter
 
 
 class ClusterGroupViewSet(ModelViewSet):
-    queryset = ClusterGroup.objects.all()
+    queryset = ClusterGroup.objects.annotate(
+        cluster_count=Count('clusters')
+    )
     serializer_class = serializers.ClusterGroupSerializer
     filterset_class = filters.ClusterGroupFilter
 
 
 class ClusterViewSet(CustomFieldModelViewSet):
-    queryset = Cluster.objects.select_related('type', 'group').prefetch_related('tags')
+    queryset = Cluster.objects.select_related('type', 'group').prefetch_related('tags').annotate(
+        virtualmachine_count=Count('virtual_machines')
+    )
     serializer_class = serializers.ClusterSerializer
     filterset_class = filters.ClusterFilter
 

@@ -14,10 +14,11 @@ from .nested_serializers import *
 #
 
 class SecretRoleSerializer(ValidatedModelSerializer):
+    secret_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = SecretRole
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'secret_count']
 
 
 class SecretSerializer(TaggitSerializer, CustomFieldModelSerializer):

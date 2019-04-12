@@ -63,6 +63,8 @@ to now use "Extras | Tag."
 
 * dcim.Interface: `form_factor` has been renamed to `type`. Backward-compatibile support for `form_factor` will be maintained until NetBox v2.7.
 * dcim.Interface: The `type` filter has been renamed to `kind`.
+* dcim.DeviceType: `instance_count` has been renamed to `device_count`.
+
 
 ## Bug Fixes
 

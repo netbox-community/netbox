@@ -40,7 +40,7 @@ class ClusterTypeTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['cluster_count', 'id', 'name', 'slug', 'url']
         )
 
     def test_create_clustertype(self):
@@ -141,7 +141,7 @@ class ClusterGroupTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['cluster_count', 'id', 'name', 'slug', 'url']
         )
 
     def test_create_clustergroup(self):
@@ -245,7 +245,7 @@ class ClusterTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'url']
+            ['id', 'name', 'url', 'virtualmachine_count']
         )
 
     def test_create_cluster(self):

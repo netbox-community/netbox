@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from django.conf import settings
-from django.db.models import F
+from django.db.models import Count, F
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
@@ -93,7 +93,9 @@ class CableTraceMixin(object):
 #
 
 class RegionViewSet(ModelViewSet):
-    queryset = Region.objects.all()
+    queryset = Region.objects.annotate(
+        site_count=Count('sites')
+    )
     serializer_class = serializers.RegionSerializer
     filterset_class = filters.RegionFilter
 
@@ -123,7 +125,9 @@ class SiteViewSet(CustomFieldModelViewSet):
 #
 
 class RackGroupViewSet(ModelViewSet):
-    queryset = RackGroup.objects.select_related('site')
+    queryset = RackGroup.objects.select_related('site').annotate(
+        rack_count=Count('racks')
+    )
     serializer_class = serializers.RackGroupSerializer
     filterset_class = filters.RackGroupFilter
 
@@ -133,7 +137,9 @@ class RackGroupViewSet(ModelViewSet):
 #
 
 class RackRoleViewSet(ModelViewSet):
-    queryset = RackRole.objects.all()
+    queryset = RackRole.objects.annotate(
+        rack_count=Count('racks')
+    )
     serializer_class = serializers.RackRoleSerializer
     filterset_class = filters.RackRoleFilter
 
@@ -143,7 +149,13 @@ class RackRoleViewSet(ModelViewSet):
 #
 
 class RackViewSet(CustomFieldModelViewSet):
-    queryset = Rack.objects.select_related('site', 'group__site', 'tenant').prefetch_related('tags')
+    queryset = Rack.objects.select_related(
+        'site', 'group__site', 'tenant'
+    ).prefetch_related(
+        'tags'
+    ).annotate(
+        device_count=Count('devices')
+    )
     serializer_class = serializers.RackSerializer
     filterset_class = filters.RackFilter
 
@@ -192,7 +204,9 @@ class RackReservationViewSet(ModelViewSet):
 #
 
 class ManufacturerViewSet(ModelViewSet):
-    queryset = Manufacturer.objects.all()
+    queryset = Manufacturer.objects.annotate(
+        devicetype_count=Count('device_types')
+    )
     serializer_class = serializers.ManufacturerSerializer
     filterset_class = filters.ManufacturerFilter
 
@@ -202,7 +216,9 @@ class ManufacturerViewSet(ModelViewSet):
 #
 
 class DeviceTypeViewSet(CustomFieldModelViewSet):
-    queryset = DeviceType.objects.select_related('manufacturer').prefetch_related('tags')
+    queryset = DeviceType.objects.select_related('manufacturer').prefetch_related('tags').annotate(
+        device_count=Count('instances')
+    )
     serializer_class = serializers.DeviceTypeSerializer
     filterset_class = filters.DeviceTypeFilter
 
@@ -264,7 +280,10 @@ class DeviceBayTemplateViewSet(ModelViewSet):
 #
 
 class DeviceRoleViewSet(ModelViewSet):
-    queryset = DeviceRole.objects.all()
+    queryset = DeviceRole.objects.annotate(
+        device_count=Count('devices', distinct=True),
+        virtualmachine_count=Count('virtual_machines', distinct=True)
+    )
     serializer_class = serializers.DeviceRoleSerializer
     filterset_class = filters.DeviceRoleFilter
 
@@ -274,7 +293,10 @@ class DeviceRoleViewSet(ModelViewSet):
 #
 
 class PlatformViewSet(ModelViewSet):
-    queryset = Platform.objects.all()
+    queryset = Platform.objects.annotate(
+        device_count=Count('devices', distinct=True),
+        virtualmachine_count=Count('virtual_machines', distinct=True)
+    )
     serializer_class = serializers.PlatformSerializer
     filterset_class = filters.PlatformFilter
 
@@ -535,7 +557,9 @@ class CableViewSet(ModelViewSet):
 #
 
 class VirtualChassisViewSet(ModelViewSet):
-    queryset = VirtualChassis.objects.prefetch_related('tags')
+    queryset = VirtualChassis.objects.prefetch_related('tags').annotate(
+        member_count=Count('members')
+    )
     serializer_class = serializers.VirtualChassisSerializer
 
 
@@ -544,7 +568,11 @@ class VirtualChassisViewSet(ModelViewSet):
 #
 
 class PowerPanelViewSet(ModelViewSet):
-    queryset = PowerPanel.objects.select_related('site', 'rack_group')
+    queryset = PowerPanel.objects.select_related(
+        'site', 'rack_group'
+    ).annotate(
+        powerfeed_count=Count('powerfeeds')
+    )
     serializer_class = serializers.PowerPanelSerializer
     filterset_class = filters.PowerPanelFilter
 

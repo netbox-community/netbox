@@ -1,3 +1,4 @@
+from rest_framework import serializers
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from extras.api.customfields import CustomFieldModelSerializer
@@ -11,10 +12,11 @@ from .nested_serializers import *
 #
 
 class TenantGroupSerializer(ValidatedModelSerializer):
+    tenant_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = TenantGroup
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'tenant_count']
 
 
 class TenantSerializer(TaggitSerializer, CustomFieldModelSerializer):
