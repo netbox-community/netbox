@@ -10,16 +10,20 @@
                 <strong>Organization</strong>
             </div>
             <div class="list-group">
-                <div class="list-group-item">
-                    <span class="badge pull-right">{{ stats.site_count }}</span>
-                    <h4 class="list-group-item-heading"><a href="{% url 'dcim:site_list' %}">Sites</a></h4>
-                    <p class="list-group-item-text text-muted">Geographic locations</p>
-                </div>
-                <div class="list-group-item">
-                    <span class="badge pull-right">{{ stats.tenant_count }}</span>
-                    <h4 class="list-group-item-heading"><a href="{% url 'tenancy:tenant_list' %}">Tenants</a></h4>
-                    <p class="list-group-item-text text-muted">Customers or departments</p>
-                </div>
+                {% if perms.dcim.view_site %}
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.site_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'dcim:site_list' %}">Sites</a></h4>
+                        <p class="list-group-item-text text-muted">Geographic locations</p>
+                    </div>
+                {% endif %}
+                {% if perms.tenancy.view_tenant %}
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.tenant_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'tenancy:tenant_list' %}">Tenants</a></h4>
+                        <p class="list-group-item-text text-muted">Customers or departments</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
         <div class="panel panel-default">
@@ -27,26 +31,38 @@
                 <strong>DCIM</strong>
             </div>
             <div class="list-group">
-                <div class="list-group-item">
-                    <span class="badge pull-right">{{ stats.rack_count }}</span>
-                    <h4 class="list-group-item-heading"><a href="{% url 'dcim:rack_list' %}">Racks</a></h4>
-                    <p class="list-group-item-text text-muted">Equipment racks, optionally organized by group</p>
-                </div>
-                <div class="list-group-item">
-                    <span class="badge pull-right">{{ stats.device_count }}</span>
-                    <h4 class="list-group-item-heading"><a href="{% url 'dcim:device_list' %}">Devices</a></h4>
-                    <p class="list-group-item-text text-muted">Rack-mounted network equipment, servers, and other devices</p>
-                </div>
+                {% if perms.dcim.view_rack %}
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.rack_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'dcim:rack_list' %}">Racks</a></h4>
+                        <p class="list-group-item-text text-muted">Equipment racks, optionally organized by group</p>
+                    </div>
+                {% endif %}
+                {% if perms.dcim.view_device %}
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.device_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'dcim:device_list' %}">Devices</a></h4>
+                        <p class="list-group-item-text text-muted">Rack-mounted network equipment, servers, and other devices</p>
+                    </div>
+                {% endif %}
                 <div class="list-group-item">
                     <h4 class="list-group-item-heading">Connections</h4>
-                    <span class="badge pull-right">{{ stats.cable_count }}</span>
-                    <p style="padding-left: 20px;"><a href="{% url 'dcim:cable_list' %}">Cables</a></p>
-                    <span class="badge pull-right">{{ stats.interface_connections_count }}</span>
-                    <p style="padding-left: 20px;"><a href="{% url 'dcim:interface_connections_list' %}">Interfaces</a></p>
-                    <span class="badge pull-right">{{ stats.console_connections_count }}</span>
-                    <p style="padding-left: 20px;"><a href="{% url 'dcim:console_connections_list' %}">Console</a></p>
-                    <span class="badge pull-right">{{ stats.power_connections_count }}</span>
-                    <p class="list-group-item-text" style="padding-left: 20px;"><a href="{% url 'dcim:power_connections_list' %}">Power</a></p>
+                    {% if perms.dcim.view_cable %}
+                        <span class="badge pull-right">{{ stats.cable_count }}</span>
+                        <p style="padding-left: 20px;"><a href="{% url 'dcim:cable_list' %}">Cables</a></p>
+                    {% endif %}
+                    {% if perms.dcim.view_interface %}
+                        <span class="badge pull-right">{{ stats.interface_connections_count }}</span>
+                        <p style="padding-left: 20px;"><a href="{% url 'dcim:interface_connections_list' %}">Interfaces</a></p>
+                    {% endif %}
+                    {% if perms.dcim.view_consoleport and perms.dcim.view_consoleserverport %}
+                        <span class="badge pull-right">{{ stats.console_connections_count }}</span>
+                        <p style="padding-left: 20px;"><a href="{% url 'dcim:console_connections_list' %}">Console</a></p>
+                    {% endif %}
+                    {% if perms.dcim.view_powerport and perms.dcim.view_poweroutlet %}
+                        <span class="badge pull-right">{{ stats.power_connections_count }}</span>
+                        <p class="list-group-item-text" style="padding-left: 20px;"><a href="{% url 'dcim:power_connections_list' %}">Power</a></p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -55,16 +71,20 @@
                 <strong>Virtualization</strong>
             </div>
             <div class="list-group">
-                <div class="list-group-item">
-                    <span class="badge pull-right">{{ stats.cluster_count }}</span>
-                    <h4 class="list-group-item-heading"><a href="{% url 'virtualization:cluster_list' %}">Clusters</a></h4>
-                    <p class="list-group-item-text text-muted">Clusters of physical hosts in which VMs reside</p>
-                </div>
-                <div class="list-group-item">
-                    <span class="badge pull-right">{{ stats.virtualmachine_count }}</span>
-                    <h4 class="list-group-item-heading"><a href="{% url 'virtualization:virtualmachine_list' %}">Virtual Machines</a></h4>
-                    <p class="list-group-item-text text-muted">Virtual compute instances running inside clusters</p>
-                </div>
+                {% if perms.virtualization.view_cluster %}
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.cluster_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'virtualization:cluster_list' %}">Clusters</a></h4>
+                        <p class="list-group-item-text text-muted">Clusters of physical hosts in which VMs reside</p>
+                    </div>
+                {% endif %}
+                {% if perms.virtualization.view_virtualmachine %}
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.virtualmachine_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'virtualization:virtualmachine_list' %}">Virtual Machines</a></h4>
+                        <p class="list-group-item-text text-muted">Virtual compute instances running inside clusters</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -74,31 +94,41 @@
                 <strong>IPAM</strong>
             </div>
             <div class="list-group">
-                <div class="list-group-item">
-                    <span class="badge pull-right">{{ stats.vrf_count }}</span>
-                    <h4 class="list-group-item-heading"><a href="{% url 'ipam:vrf_list' %}">VRFs</a></h4>
-                    <p class="list-group-item-text text-muted">Virtual routing and forwarding tables</p>
-                </div>
-                <div class="list-group-item">
-                    <span class="badge pull-right">{{ stats.aggregate_count }}</span>
-                    <h4 class="list-group-item-heading"><a href="{% url 'ipam:aggregate_list' %}">Aggregates</a></h4>
-                    <p class="list-group-item-text text-muted">Top-level IP allocations</p>
-                </div>
-                <div class="list-group-item">
-                    <span class="badge pull-right">{{ stats.prefix_count }}</span>
-                    <h4 class="list-group-item-heading"><a href="{% url 'ipam:prefix_list' %}">Prefixes</a></h4>
-                    <p class="list-group-item-text text-muted">IPv4 and IPv6 network assignments</p>
-                </div>
-                <div class="list-group-item">
-                    <span class="badge pull-right">{{ stats.ipaddress_count }}</span>
-                    <h4 class="list-group-item-heading"><a href="{% url 'ipam:ipaddress_list' %}">IP Addresses</a></h4>
-                    <p class="list-group-item-text text-muted">Individual IPv4 and IPv6 addresses</p>
-                </div>
-                <div class="list-group-item">
-                    <span class="badge pull-right">{{ stats.vlan_count }}</span>
-                    <h4 class="list-group-item-heading"><a href="{% url 'ipam:vlan_list' %}">VLANs</a></h4>
-                    <p class="list-group-item-text text-muted">Layer two domains, identified by VLAN ID</p>
-                </div>
+                {% if perms.ipam.view_vrf %}
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.vrf_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'ipam:vrf_list' %}">VRFs</a></h4>
+                        <p class="list-group-item-text text-muted">Virtual routing and forwarding tables</p>
+                    </div>
+                {% endif %}
+                {% if perms.ipam.view_aggregate %}
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.aggregate_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'ipam:aggregate_list' %}">Aggregates</a></h4>
+                        <p class="list-group-item-text text-muted">Top-level IP allocations</p>
+                    </div>
+                {% endif %}
+                {% if perms.ipam.view_prefix %}
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.prefix_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'ipam:prefix_list' %}">Prefixes</a></h4>
+                        <p class="list-group-item-text text-muted">IPv4 and IPv6 network assignments</p>
+                    </div>
+                {% endif %}
+                {% if perms.ipam.view_ipaddress %}
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.ipaddress_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'ipam:ipaddress_list' %}">IP Addresses</a></h4>
+                        <p class="list-group-item-text text-muted">Individual IPv4 and IPv6 addresses</p>
+                    </div>
+                {% endif %}
+                {% if perms.ipam.view_vlan %}
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.vlan_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'ipam:vlan_list' %}">VLANs</a></h4>
+                        <p class="list-group-item-text text-muted">Layer two domains, identified by VLAN ID</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
         <div class="panel panel-default">
@@ -106,16 +136,20 @@
                 <strong>Circuits</strong>
             </div>
             <div class="list-group">
-                <div class="list-group-item">
-                    <span class="badge pull-right">{{ stats.provider_count }}</span>
-                    <h4 class="list-group-item-heading"><a href="{% url 'circuits:provider_list' %}">Providers</a></h4>
-                    <p class="list-group-item-text text-muted">Organizations which provide circuit connectivity</p>
-                </div>
-                <div class="list-group-item">
-                    <span class="badge pull-right">{{ stats.circuit_count }}</span>
-                    <h4 class="list-group-item-heading"><a href="{% url 'circuits:circuit_list' %}">Circuits</a></h4>
-                    <p class="list-group-item-text text-muted">Communication links for Internet transit, peering, and other services</p>
-                </div>
+                {% if perms.circuits.view_provider %}
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.provider_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'circuits:provider_list' %}">Providers</a></h4>
+                        <p class="list-group-item-text text-muted">Organizations which provide circuit connectivity</p>
+                    </div>
+                {% endif %}
+                {% if perms.circuits.view_circuit %}
+                    <div class="list-group-item">
+                        <span class="badge pull-right">{{ stats.circuit_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'circuits:circuit_list' %}">Circuits</a></h4>
+                        <p class="list-group-item-text text-muted">Communication links for Internet transit, peering, and other services</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
         {% if perms.secrets %}
@@ -134,26 +168,28 @@
         {% endif %}
     </div>
     <div class="col-sm-6 col-md-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Global Topology Maps</strong>
-            </div>
-            {% if topology_maps %}
-                <table class="table table-hover panel-body">
-                    {% for tm in topology_maps %}
-                        <tr>
-                            <td><i class="fa fa-fw fa-map-o"></i> <a href="{% url 'extras-api:topologymap-render' pk=tm.pk %}" target="_blank">{{ tm }}</a></td>
-                            <td>{{ tm.description }}</td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            {% else %}
-                <div class="panel-body text-muted">
-                    None
+        {% if perms.extras.view_topologymap %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Global Topology Maps</strong>
                 </div>
-            {% endif %}
-        </div>
-        {% if report_results %}
+                {% if topology_maps %}
+                    <table class="table table-hover panel-body">
+                        {% for tm in topology_maps %}
+                            <tr>
+                                <td><i class="fa fa-fw fa-map-o"></i> <a href="{% url 'extras-api:topologymap-render' pk=tm.pk %}" target="_blank">{{ tm }}</a></td>
+                                <td>{{ tm.description }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <div class="panel-body text-muted">
+                        None
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+        {% if report_results and perms.extras.view_reportresult %}
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <strong>Reports</strong>
@@ -168,44 +204,46 @@
                 </table>
             </div>
         {% endif %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Changelog</strong>
+        {% if perms.extras.view_objectchange %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Changelog</strong>
+                </div>
+                <div class="list-group">
+                    {% for change in changelog %}
+                        {% with action=change.get_action_display|lower %}
+                            <div class="list-group-item">
+                                {% if action == 'created' %}
+                                    <span class="label label-success"><i class="fa fa-plus"></i></span>
+                                {% elif action == 'updated' %}
+                                    <span class="label label-warning"><i class="fa fa-pencil"></i></span>
+                                {% elif action == 'deleted' %}
+                                    <span class="label label-danger"><i class="fa fa-trash"></i></span>
+                                {% endif %}
+                                {{ change.changed_object_type.name|bettertitle }}
+                                {% if change.changed_object.get_absolute_url %}
+                                    <a href="{{ change.changed_object.get_absolute_url }}">{{ change.changed_object }}</a>
+                                {% else %}
+                                    {{ change.changed_object|default:change.object_repr }}
+                                {% endif %}
+                                <br />
+                                <small>
+                                    <span class="text-muted">{{ change.user|default:change.user_name }} -</span>
+                                    <a href="{{ change.get_absolute_url }}" class="text-muted">{{ change.time|date:'SHORT_DATETIME_FORMAT' }}</a>
+                                </small>
+                            </div>
+                        {% endwith %}
+                        {% if forloop.last %}
+                            <div class="list-group-item text-right">
+                                <a href="{% url 'extras:objectchange_list' %}">View All Changes</a>
+                            </div>
+                        {% endif %}
+                    {% empty %}
+                        <div class="list-group-item text-muted">No change history found</div>
+                    {% endfor %}
+                </div>
             </div>
-            <div class="list-group">
-                {% for change in changelog %}
-                    {% with action=change.get_action_display|lower %}
-                        <div class="list-group-item">
-                            {% if action == 'created' %}
-                                <span class="label label-success"><i class="fa fa-plus"></i></span>
-                            {% elif action == 'updated' %}
-                                <span class="label label-warning"><i class="fa fa-pencil"></i></span>
-                            {% elif action == 'deleted' %}
-                                <span class="label label-danger"><i class="fa fa-trash"></i></span>
-                            {% endif %}
-                            {{ change.changed_object_type.name|bettertitle }}
-                            {% if change.changed_object.get_absolute_url %}
-                                <a href="{{ change.changed_object.get_absolute_url }}">{{ change.changed_object }}</a>
-                            {% else %}
-                                {{ change.changed_object|default:change.object_repr }}
-                            {% endif %}
-                            <br />
-                            <small>
-                                <span class="text-muted">{{ change.user|default:change.user_name }} -</span>
-                                <a href="{{ change.get_absolute_url }}" class="text-muted">{{ change.time|date:'SHORT_DATETIME_FORMAT' }}</a>
-                            </small>
-                        </div>
-                    {% endwith %}
-                    {% if forloop.last %}
-                        <div class="list-group-item text-right">
-                            <a href="{% url 'extras:objectchange_list' %}">View All Changes</a>
-                        </div>
-                    {% endif %}
-                {% empty %}
-                    <div class="list-group-item text-muted">No change history found</div>
-                {% endfor %}
-            </div>
-        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
