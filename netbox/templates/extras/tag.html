@@ -42,9 +42,11 @@
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ tag.get_absolute_url }}">Tag</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'extras:tag_changelog' slug=tag.slug %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'extras:tag_changelog' slug=tag.slug %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

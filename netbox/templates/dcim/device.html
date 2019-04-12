@@ -86,12 +86,16 @@
                 {% include 'dcim/inc/device_napalm_tabs.html' %}
             {% endif %}
         {% endif %}
-        <li role="presentation"{% if active_tab == 'config-context' %} class="active"{% endif %}>
-            <a href="{% url 'dcim:device_configcontext' pk=device.pk %}">Config Context</a>
-        </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'dcim:device_changelog' pk=device.pk %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_configcontext %}
+            <li role="presentation"{% if active_tab == 'config-context' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:device_configcontext' pk=device.pk %}">Config Context</a>
+            </li>
+        {% endif %}
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:device_changelog' pk=device.pk %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

@@ -45,9 +45,11 @@
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ tenant.get_absolute_url }}">Tenant</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'tenancy:tenant_changelog' slug=tenant.slug %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'tenancy:tenant_changelog' slug=tenant.slug %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

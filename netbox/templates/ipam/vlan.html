@@ -51,9 +51,11 @@
         <li role="presentation"{% if active_tab == 'members' %} class="active"{% endif %}>
             <a href="{% url 'ipam:vlan_members' pk=vlan.pk %}">Members <span class="badge">{{ vlan.get_members.count }}</span></a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'ipam:vlan_changelog' pk=vlan.pk %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'ipam:vlan_changelog' pk=vlan.pk %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 
