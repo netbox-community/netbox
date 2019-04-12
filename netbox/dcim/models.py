@@ -1150,6 +1150,22 @@ class InterfaceTemplate(ComponentTemplateModel):
     def __str__(self):
         return self.name
 
+    # TODO: Remove in v2.7
+    @property
+    def form_factor(self):
+        """
+        Backward-compatibility for form_factor
+        """
+        return self.type
+
+    # TODO: Remove in v2.7
+    @form_factor.setter
+    def form_factor(self, value):
+        """
+        Backward-compatibility for form_factor
+        """
+        self.type = value
+
 
 class FrontPortTemplate(ComponentTemplateModel):
     """
@@ -2253,6 +2269,22 @@ class Interface(CableTermination, ComponentModel):
             action=action,
             object_data=serialize_object(self)
         ).save()
+
+    # TODO: Remove in v2.7
+    @property
+    def form_factor(self):
+        """
+        Backward-compatibility for form_factor
+        """
+        return self.type
+
+    # TODO: Remove in v2.7
+    @form_factor.setter
+    def form_factor(self, value):
+        """
+        Backward-compatibility for form_factor
+        """
+        self.type = value
 
     @property
     def connected_endpoint(self):

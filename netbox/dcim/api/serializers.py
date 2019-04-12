@@ -232,10 +232,12 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
 class InterfaceTemplateSerializer(ValidatedModelSerializer):
     device_type = NestedDeviceTypeSerializer()
     type = ChoiceField(choices=IFACE_TYPE_CHOICES, required=False)
+    # TODO: Remove in v2.7 (backward-compatibility for form_factor)
+    form_factor = ChoiceField(choices=IFACE_TYPE_CHOICES, required=False)
 
     class Meta:
         model = InterfaceTemplate
-        fields = ['id', 'device_type', 'name', 'type', 'mgmt_only']
+        fields = ['id', 'device_type', 'name', 'type', 'form_factor', 'mgmt_only']
 
 
 class RearPortTemplateSerializer(ValidatedModelSerializer):
@@ -419,6 +421,8 @@ class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
 class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     device = NestedDeviceSerializer()
     type = ChoiceField(choices=IFACE_TYPE_CHOICES, required=False)
+    # TODO: Remove in v2.7 (backward-compatibility for form_factor)
+    form_factor = ChoiceField(choices=IFACE_TYPE_CHOICES, required=False)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
     mode = ChoiceField(choices=IFACE_MODE_CHOICES, required=False, allow_null=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
@@ -434,9 +438,9 @@ class InterfaceSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     class Meta:
         model = Interface
         fields = [
-            'id', 'device', 'name', 'type', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only', 'description',
-            'connected_endpoint_type', 'connected_endpoint', 'connection_status', 'cable', 'mode', 'untagged_vlan',
-            'tagged_vlans', 'tags', 'count_ipaddresses',
+            'id', 'device', 'name', 'type', 'form_factor', 'enabled', 'lag', 'mtu', 'mac_address', 'mgmt_only',
+            'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status', 'cable', 'mode',
+            'untagged_vlan', 'tagged_vlans', 'tags', 'count_ipaddresses',
         ]
 
     # TODO: This validation should be handled by Interface.clean()
