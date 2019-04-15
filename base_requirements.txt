@@ -18,6 +18,10 @@ django-filter
 # https://github.com/django-mptt/django-mptt
 django-mptt
 
+# Django caching using Redis
+# https://github.com/niwinz/django-redis
+django-redis
+
 # Abstraction models for rendering and paginating HTML tables
 # https://github.com/jieter/django-tables2
 django-tables2

@@ -3,6 +3,8 @@ from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.views.generic import View
 from django_tables2 import RequestConfig
 
@@ -125,6 +127,7 @@ class VRFListView(PermissionRequiredMixin, ObjectListView):
 class VRFView(PermissionRequiredMixin, View):
     permission_required = 'ipam.view_vrf'
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         vrf = get_object_or_404(VRF.objects.all(), pk=pk)
@@ -319,6 +322,7 @@ class AggregateListView(PermissionRequiredMixin, ObjectListView):
 class AggregateView(PermissionRequiredMixin, View):
     permission_required = 'ipam.view_aggregate'
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         aggregate = get_object_or_404(Aggregate, pk=pk)
@@ -456,6 +460,7 @@ class PrefixListView(PermissionRequiredMixin, ObjectListView):
 class PrefixView(PermissionRequiredMixin, View):
     permission_required = 'ipam.view_prefix'
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         prefix = get_object_or_404(Prefix.objects.select_related(
@@ -500,6 +505,7 @@ class PrefixView(PermissionRequiredMixin, View):
 class PrefixPrefixesView(PermissionRequiredMixin, View):
     permission_required = 'ipam.view_prefix'
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         prefix = get_object_or_404(Prefix.objects.all(), pk=pk)
@@ -543,6 +549,7 @@ class PrefixPrefixesView(PermissionRequiredMixin, View):
 class PrefixIPAddressesView(PermissionRequiredMixin, View):
     permission_required = 'ipam.view_prefix'
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         prefix = get_object_or_404(Prefix.objects.all(), pk=pk)
@@ -643,6 +650,7 @@ class IPAddressListView(PermissionRequiredMixin, ObjectListView):
 class IPAddressView(PermissionRequiredMixin, View):
     permission_required = 'ipam.view_ipaddress'
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         ipaddress = get_object_or_404(IPAddress.objects.select_related('vrf__tenant', 'tenant'), pk=pk)
@@ -726,6 +734,7 @@ class IPAddressAssignView(PermissionRequiredMixin, View):
 
         return super().dispatch(request, *args, **kwargs)
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request):
 
         form = forms.IPAddressAssignForm()
@@ -838,6 +847,7 @@ class VLANGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class VLANGroupVLANsView(PermissionRequiredMixin, View):
     permission_required = 'ipam.view_vlangroup'
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         vlan_group = get_object_or_404(VLANGroup.objects.all(), pk=pk)
@@ -888,6 +898,7 @@ class VLANListView(PermissionRequiredMixin, ObjectListView):
 class VLANView(PermissionRequiredMixin, View):
     permission_required = 'ipam.view_vlan'
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         vlan = get_object_or_404(VLAN.objects.select_related(
@@ -906,6 +917,7 @@ class VLANView(PermissionRequiredMixin, View):
 class VLANMembersView(PermissionRequiredMixin, View):
     permission_required = 'ipam.view_vlan'
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         vlan = get_object_or_404(VLAN.objects.all(), pk=pk)
@@ -984,6 +996,7 @@ class ServiceListView(PermissionRequiredMixin, ObjectListView):
 class ServiceView(PermissionRequiredMixin, View):
     permission_required = 'ipam.view_service'
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         service = get_object_or_404(Service, pk=pk)

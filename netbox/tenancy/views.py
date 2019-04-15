@@ -1,6 +1,9 @@
+from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, render
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.views.generic import View
 
 from circuits.models import Circuit
@@ -66,6 +69,7 @@ class TenantListView(PermissionRequiredMixin, ObjectListView):
 class TenantView(PermissionRequiredMixin, View):
     permission_required = 'tenancy.view_tenant'
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, slug):
 
         tenant = get_object_or_404(Tenant, slug=slug)

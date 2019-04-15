@@ -7,6 +7,8 @@ from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.views.generic import View
 from django_tables2 import RequestConfig
 
@@ -41,6 +43,7 @@ class TagListView(ObjectListView):
 
 class TagView(View):
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, slug):
 
         tag = get_object_or_404(Tag, slug=slug)
@@ -108,6 +111,7 @@ class ConfigContextListView(PermissionRequiredMixin, ObjectListView):
 class ConfigContextView(PermissionRequiredMixin, View):
     permission_required = 'extras.view_configcontext'
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         configcontext = get_object_or_404(ConfigContext, pk=pk)
@@ -155,6 +159,7 @@ class ObjectConfigContextView(View):
     object_class = None
     base_template = None
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         obj = get_object_or_404(self.object_class, pk=pk)
@@ -187,6 +192,7 @@ class ObjectChangeListView(PermissionRequiredMixin, ObjectListView):
 class ObjectChangeView(PermissionRequiredMixin, View):
     permission_required = 'extras.view_objectchange'
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         objectchange = get_object_or_404(ObjectChange, pk=pk)
@@ -209,6 +215,7 @@ class ObjectChangeLogView(View):
     Present a history of changes made to a particular object.
     """
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, model, **kwargs):
 
         # Get object my model and kwargs (e.g. slug='foo')
@@ -282,6 +289,7 @@ class ReportListView(PermissionRequiredMixin, View):
     """
     permission_required = 'extras.view_reportresult'
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request):
 
         reports = get_reports()
@@ -306,6 +314,7 @@ class ReportView(PermissionRequiredMixin, View):
     """
     permission_required = 'extras.view_reportresult'
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, name):
 
         # Retrieve the Report by "<module>.<report>"

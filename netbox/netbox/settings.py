@@ -28,7 +28,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Import required configuration parameters
 ALLOWED_HOSTS = DATABASE = SECRET_KEY = None
-for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
+for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS']:
     try:
         globals()[setting] = getattr(configuration, setting)
     except AttributeError:
@@ -44,6 +44,9 @@ BANNER_TOP = getattr(configuration, 'BANNER_TOP', '')
 BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
+CACHE_TIMEOUT = getattr(configuration, 'CACHE_TIMEOUT', 900)
+CACHE_MAX_ENTRIES = getattr(configuration, 'CACHE_MAX_ENTRIES', 300)
+CACHE_CULL_FREQUENCY = getattr(configuration, 'CACHE_CULL_FREQUENCY', 3)
 CHANGELOG_RETENTION = getattr(configuration, 'CHANGELOG_RETENTION', 90)
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
@@ -157,6 +160,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'corsheaders',
+    'django_redis',
     'debug_toolbar',
     'django_filters',
     'django_tables2',
@@ -217,6 +221,31 @@ TEMPLATES = [
         },
     },
 ]
+
+# Caching
+if REDIS_SSL:
+    REDIS_CACHE_CON_STRING = 'rediss://'
+else:
+    REDIS_CACHE_CON_STRING = 'redis://'
+
+if REDIS_PASSWORD:
+    REDIS_CACHE_CON_STRING = '{}@{}'.format(REDIS_PASSWORD, REDIS_CACHE_CON_STRING)
+
+REDIS_CACHE_CON_STRING = '{}{}:{}/{}'.format(REDIS_CACHE_CON_STRING, REDIS_HOST, REDIS_PORT, REDIS_DATABASE)
+CACHE_BACKEND = 'django_redis.cache.RedisCache'
+
+CACHES = {
+    "default": {
+        "BACKEND": CACHE_BACKEND,
+        "LOCATION": REDIS_CACHE_CON_STRING,
+        'TIMEOUT': CACHE_TIMEOUT,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "MAX_ENTRIES": CACHE_MAX_ENTRIES,
+            "CULL_FREQUENCY": CACHE_CULL_FREQUENCY
+        }
+    }
+}
 
 # WSGI
 WSGI_APPLICATION = 'netbox.wsgi.application'
