@@ -68,7 +68,6 @@ NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
 NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
 NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
 PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
-PROMETHEUS_ENABLE = getattr(configuration, 'PROMETHEUS_ENABLE', False)
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 REDIS = getattr(configuration, 'REDIS', {})
@@ -118,10 +117,7 @@ else:
     ]
 
 # Database
-if PROMETHEUS_ENABLE:
-    configuration.DATABASE.update({'ENGINE': 'django_prometheus.db.backends.postgresql'})
-else:
-    configuration.DATABASE.update({'ENGINE': 'django.db.backends.postgresql'})
+configuration.DATABASE.update({'ENGINE': 'django.db.backends.postgresql'})
 DATABASES = {
     'default': configuration.DATABASE,
 }
@@ -164,7 +160,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'corsheaders',
-    'django_prometheus',
     'django_redis',
     'debug_toolbar',
     'django_filters',
@@ -193,7 +188,6 @@ if WEBHOOKS_ENABLED:
 # Middleware
 MIDDLEWARE = (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -206,7 +200,6 @@ MIDDLEWARE = (
     'utilities.middleware.LoginRequiredMiddleware',
     'utilities.middleware.APIVersionMiddleware',
     'extras.middleware.ObjectChangeMiddleware',
-    'django_prometheus.middleware.PrometheusAfterMiddleware',
 )
 
 ROOT_URLCONF = 'netbox.urls'
@@ -239,11 +232,7 @@ if REDIS_PASSWORD:
     REDIS_CACHE_CON_STRING = '{}@{}'.format(REDIS_PASSWORD, REDIS_CACHE_CON_STRING)
 
 REDIS_CACHE_CON_STRING = '{}{}:{}/{}'.format(REDIS_CACHE_CON_STRING, REDIS_HOST, REDIS_PORT, REDIS_DATABASE)
-
-if PROMETHEUS_ENABLE:
-    CACHE_BACKEND = 'django_prometheus.cache.backends.redis.RedisCache'
-else:
-    CACHE_BACKEND = 'django_redis.cache.RedisCache'
+CACHE_BACKEND = 'django_redis.cache.RedisCache'
 
 CACHES = {
     "default": {

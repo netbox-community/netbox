@@ -1,7 +1,10 @@
 from collections import OrderedDict
 
+from django.conf import settings
 from django.db.models import Count, F
 from django.shortcuts import render
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.views.generic import View
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -160,6 +163,7 @@ SEARCH_TYPES = OrderedDict((
 class HomeView(View):
     template_name = 'home.html'
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request):
 
         connected_consoleports = ConsolePort.objects.filter(
@@ -219,6 +223,7 @@ class HomeView(View):
 
 class SearchView(View):
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request):
 
         # No query
@@ -272,6 +277,7 @@ class APIRootView(APIView):
     def get_view_name(self):
         return "API Root"
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, format=None):
 
         return Response(OrderedDict((

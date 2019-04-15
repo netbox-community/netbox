@@ -18,10 +18,6 @@ django-filter
 # https://github.com/django-mptt/django-mptt
 django-mptt
 
-# Prometheus metrics client implementation for Django
-# https://github.com/korfuri/django-prometheus
-django-prometheus
-
 # Django caching using Redis
 # https://github.com/niwinz/django-redis
 django-redis

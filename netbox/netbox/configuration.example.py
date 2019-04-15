@@ -60,17 +60,17 @@ BANNER_LOGIN = ''
 # BASE_PATH = 'netbox/'
 BASE_PATH = ''
 
-# Cache timeout in seconds. Set to `None` to enforce an infinate timeout. Set to 0 to dissable caching by immediatly
-# expiring keys. Defaults to 900 (15 minutes)
-CACHE_TIMEOUT = 900
-
-# Max number of entries (unique pages) to store in the cache at a time.
-CACHE_MAX_ENTRIES = 300
-
 # The fraction of entries that are culled when CACHE_MAX_ENTRIES is reached. The actual ratio is 1 / CACHE_CULL_FREQUENCY,
 # so set CACHE_CULL_FREQUENCY to 2 to cull half the entries when CACHE_MAX_ENTRIES is reached. This setting should be an
 # integer and defaults to 3
 CACHE_CULL_FREQUENCY = 3
+
+# Max number of entries (unique pages) to store in the cache at a time.
+CACHE_MAX_ENTRIES = 300
+
+# Cache timeout in seconds. Set to `None` to enforce an infinate timeout. Set to 0 to dissable caching by immediatly
+# expiring keys. Defaults to 900 (15 minutes)
+CACHE_TIMEOUT = 900
 
 # Maximum number of days to retain logged changes. Set to 0 to retain changes indefinitely. (Default: 90)
 CHANGELOG_RETENTION = 90
@@ -170,9 +170,6 @@ TIME_ZONE = 'UTC'
 # The webhooks backend is disabled by default. Set this to True to enable it. Note that this requires a Redis
 # database be configured and accessible by NetBox.
 WEBHOOKS_ENABLED = False
-
-# Expose Prometheus monitoring metrics at `/metrics`
-PROMETHEUS_ENABLE = False
 
 # Date/time formatting. See the following link for supported formats:
 # https://docs.djangoproject.com/en/dev/ref/templates/builtins/#date
