@@ -25,6 +25,16 @@ DATABASE = {
 # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-SECRET_KEY
 SECRET_KEY = ''
 
+# Redis database settings. The Redis database is used for caching and background processing such as webhooks
+REDIS = {
+    'HOST': 'localhost',
+    'PORT': 6379,
+    'PASSWORD': '',
+    'DATABASE': 0,
+    'DEFAULT_TIMEOUT': 300,
+    'SSL': False,
+}
+
 
 #########################
 #                       #
@@ -49,6 +59,18 @@ BANNER_LOGIN = ''
 # Base URL path if accessing NetBox within a directory. For example, if installed at http://example.com/netbox/, set:
 # BASE_PATH = 'netbox/'
 BASE_PATH = ''
+
+# Cache timeout in seconds. Set to `None` to enforce an infinate timeout. Set to 0 to dissable caching by immediatly
+# expiring keys. Defaults to 900 (15 minutes)
+CACHE_TIMEOUT = 900
+
+# Max number of entries (unique pages) to store in the cache at a time.
+CACHE_MAX_ENTRIES = 300
+
+# The fraction of entries that are culled when CACHE_MAX_ENTRIES is reached. The actual ratio is 1 / CACHE_CULL_FREQUENCY,
+# so set CACHE_CULL_FREQUENCY to 2 to cull half the entries when CACHE_MAX_ENTRIES is reached. This setting should be an
+# integer and defaults to 3
+CACHE_CULL_FREQUENCY = 3
 
 # Maximum number of days to retain logged changes. Set to 0 to retain changes indefinitely. (Default: 90)
 CHANGELOG_RETENTION = 90
@@ -133,16 +155,6 @@ PAGINATE_COUNT = 50
 # prefer IPv4 instead.
 PREFER_IPV4 = False
 
-# Redis database settings (optional). A Redis database is required only if the webhooks backend is enabled.
-REDIS = {
-    'HOST': 'localhost',
-    'PORT': 6379,
-    'PASSWORD': '',
-    'DATABASE': 0,
-    'DEFAULT_TIMEOUT': 300,
-    'SSL': False,
-}
-
 # The file path where custom reports will be stored. A trailing slash is not needed. Note that the default value of
 # this setting is derived from the installed location.
 # REPORTS_ROOT = '/opt/netbox/netbox/reports'
@@ -158,6 +170,9 @@ TIME_ZONE = 'UTC'
 # The webhooks backend is disabled by default. Set this to True to enable it. Note that this requires a Redis
 # database be configured and accessible by NetBox.
 WEBHOOKS_ENABLED = False
+
+# Expose Prometheus monitoring metrics at `/metrics`
+PROMETHEUS_ENABLE = False
 
 # Date/time formatting. See the following link for supported formats:
 # https://docs.djangoproject.com/en/dev/ref/templates/builtins/#date

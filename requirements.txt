@@ -3,6 +3,8 @@ django-cors-headers==2.4.0
 django-debug-toolbar==1.11
 django-filter==2.0.0
 django-mptt==0.9.1
+django-prometheus==1.0.15
+django-redis==4.5.0
 django-tables2==2.0.3
 django-taggit==0.23.0
 django-taggit-serializer==0.1.7

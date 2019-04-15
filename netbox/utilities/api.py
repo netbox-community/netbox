@@ -6,6 +6,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import ManyToManyField
 from django.http import Http404
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import BasePermission
 from rest_framework.relations import PrimaryKeyRelatedField, RelatedField
@@ -249,6 +251,21 @@ class ModelViewSet(_ModelViewSet):
         return self.serializer_class
 
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
+    def list(self, *args, **kwargs):
+        """
+        Call to super to allow for caching
+        """
+        return super().list(*args, **kwargs)
+
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
+    def retrieve(self, *args, **kwargs):
+        """
+        Call to super to allow for caching
+        """
+        return super().retrieve(*args, **kwargs)
+
+
 class FieldChoicesViewSet(ViewSet):
     """
     Expose the built-in numeric values which represent static choices for a model's field.
@@ -284,9 +301,11 @@ class FieldChoicesViewSet(ViewSet):
                         })
                 self._fields[key] = choices
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def list(self, request):
         return Response(self._fields)
 
+    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def retrieve(self, request, pk):
         if pk not in self._fields:
             raise Http404

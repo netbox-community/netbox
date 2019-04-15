@@ -6,6 +6,7 @@ from drf_yasg.views import get_schema_view
 
 from netbox.views import APIRootView, HomeView, SearchView
 from users.views import LoginView, LogoutView
+from utilities.urls import cached
 from .admin import admin_site
 
 schema_view = get_schema_view(
@@ -24,11 +25,11 @@ schema_view = get_schema_view(
 _patterns = [
 
     # Base views
-    url(r'^$', HomeView.as_view(), name='home'),
-    url(r'^search/$', SearchView.as_view(), name='search'),
+    url(r'^$', cached(HomeView.as_view()), name='home'),
+    url(r'^search/$', cached(SearchView.as_view()), name='search'),
 
     # Login/logout
-    url(r'^login/$', LoginView.as_view(), name='login'),
+    url(r'^login/$', cached(LoginView.as_view()), name='login'),
     url(r'^logout/$', LogoutView.as_view(), name='logout'),
 
     # Apps
@@ -42,7 +43,7 @@ _patterns = [
     url(r'^virtualization/', include('virtualization.urls')),
 
     # API
-    url(r'^api/$', APIRootView.as_view(), name='api-root'),
+    url(r'^api/$', cached(APIRootView.as_view()), name='api-root'),
     url(r'^api/circuits/', include('circuits.api.urls')),
     url(r'^api/dcim/', include('dcim.api.urls')),
     url(r'^api/extras/', include('extras.api.urls')),
@@ -65,6 +66,11 @@ _patterns = [
 if settings.WEBHOOKS_ENABLED:
     _patterns += [
         url(r'^admin/webhook-backend-status/', include('django_rq.urls')),
+    ]
+
+if settings.PROMETHEUS_ENABLE:
+    _patterns += [
+        url('', include('django_prometheus.urls')),
     ]
 
 if settings.DEBUG:

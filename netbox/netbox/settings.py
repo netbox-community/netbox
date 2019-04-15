@@ -28,7 +28,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Import required configuration parameters
 ALLOWED_HOSTS = DATABASE = SECRET_KEY = None
-for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY']:
+for setting in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS']:
     try:
         globals()[setting] = getattr(configuration, setting)
     except AttributeError:
@@ -44,6 +44,9 @@ BANNER_TOP = getattr(configuration, 'BANNER_TOP', '')
 BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
+CACHE_TIMEOUT = getattr(configuration, 'CACHE_TIMEOUT', 900)
+CACHE_MAX_ENTRIES = getattr(configuration, 'CACHE_MAX_ENTRIES', 300)
+CACHE_CULL_FREQUENCY = getattr(configuration, 'CACHE_CULL_FREQUENCY', 3)
 CHANGELOG_RETENTION = getattr(configuration, 'CHANGELOG_RETENTION', 90)
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
@@ -65,6 +68,7 @@ NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
 NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
 NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
 PAGINATE_COUNT = getattr(configuration, 'PAGINATE_COUNT', 50)
+PROMETHEUS_ENABLE = getattr(configuration, 'PROMETHEUS_ENABLE', False)
 PREFER_IPV4 = getattr(configuration, 'PREFER_IPV4', False)
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 REDIS = getattr(configuration, 'REDIS', {})
@@ -157,6 +161,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'corsheaders',
+    'django_prometheus',
+    'django_redis',
     'debug_toolbar',
     'django_filters',
     'django_tables2',
@@ -184,6 +190,7 @@ if WEBHOOKS_ENABLED:
 # Middleware
 MIDDLEWARE = (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -196,6 +203,7 @@ MIDDLEWARE = (
     'utilities.middleware.LoginRequiredMiddleware',
     'utilities.middleware.APIVersionMiddleware',
     'extras.middleware.ObjectChangeMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 )
 
 ROOT_URLCONF = 'netbox.urls'
@@ -217,6 +225,35 @@ TEMPLATES = [
         },
     },
 ]
+
+# Caching
+if REDIS_SSL:
+    REDIS_CACHE_CON_STRING = 'rediss://'
+else:
+    REDIS_CACHE_CON_STRING = 'redis://'
+
+if REDIS_PASSWORD:
+    REDIS_CACHE_CON_STRING = '{}@{}'.format(REDIS_PASSWORD, REDIS_CACHE_CON_STRING)
+
+REDIS_CACHE_CON_STRING = '{}{}:{}/{}'.format(REDIS_CACHE_CON_STRING, REDIS_HOST, REDIS_PORT, REDIS_DATABASE)
+
+if PROMETHEUS_ENABLE:
+    CACHE_BACKEND = 'django_prometheus.cache.backends.redis.RedisCache'
+else:
+    CACHE_BACKEND = 'django_redis.cache.RedisCache'
+
+CACHES = {
+    "default": {
+        "BACKEND": CACHE_BACKEND,
+        "LOCATION": REDIS_CACHE_CON_STRING,
+        'TIMEOUT': CACHE_TIMEOUT,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "MAX_ENTRIES": CACHE_MAX_ENTRIES,
+            "CULL_FREQUENCY": CACHE_CULL_FREQUENCY
+        }
+    }
+}
 
 # WSGI
 WSGI_APPLICATION = 'netbox.wsgi.application'
