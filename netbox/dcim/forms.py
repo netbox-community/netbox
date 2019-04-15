@@ -3485,7 +3485,7 @@ class PowerFeedForm(BootstrapMixin, CustomFieldForm):
         super().__init__(*args, **kwargs)
 
         # Initialize site field
-        if self.instance and self.instance.power_panel:
+        if self.instance and hasattr(self.instance, 'power_panel'):
             self.initial['site'] = self.instance.power_panel.site
 
 
