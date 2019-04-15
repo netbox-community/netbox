@@ -250,7 +250,6 @@ class ModelViewSet(_ModelViewSet):
         # Fall back to the hard-coded serializer class
         return self.serializer_class
 
-
     @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def list(self, *args, **kwargs):
         """
