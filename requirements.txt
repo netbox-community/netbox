@@ -16,4 +16,4 @@ netaddr==0.7.19
 Pillow==6.0.0
 psycopg2-binary==2.8.2
 py-gfm==0.1.4
-pycryptodome==3.8.2
+pycryptodome==3.8.1
