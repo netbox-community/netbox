@@ -301,6 +301,53 @@ class CustomFieldChoice(models.Model):
 
 
 #
+# Custom links
+#
+
+class CustomLink(models.Model):
+    """
+    A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
+    code to be rendered with an object as context.
+    """
+    content_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE
+    )
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+    text = models.CharField(
+        max_length=200,
+        help_text="Template code for link text"
+    )
+    url = models.CharField(
+        max_length=200,
+        help_text="Template code for link URL"
+    )
+    weight = models.PositiveSmallIntegerField(
+        default=100
+    )
+    group_name = models.CharField(
+        max_length=50,
+        blank=True
+    )
+    button_class = models.CharField(
+        max_length=30,
+        choices=BUTTON_CLASS_CHOICES
+    )
+    new_window = models.BooleanField(
+        help_text="Force link to open in a new window"
+    )
+
+    class Meta:
+        ordering = ['group_name', 'weight', 'name']
+
+    def __str__(self):
+        return self.name
+
+
+#
 # Graphs
 #
 

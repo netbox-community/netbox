@@ -3,7 +3,7 @@ from django.contrib import admin
 
 from netbox.admin import admin_site
 from utilities.forms import LaxURLField
-from .models import CustomField, CustomFieldChoice, Graph, ExportTemplate, TopologyMap, Webhook
+from .models import CustomField, CustomFieldChoice, CustomLink, Graph, ExportTemplate, TopologyMap, Webhook
 
 
 def order_content_types(field):
@@ -75,6 +75,15 @@ class CustomFieldAdmin(admin.ModelAdmin):
 
     def models(self, obj):
         return ', '.join([ct.name for ct in obj.obj_type.all()])
+
+
+#
+# Custom links
+#
+
+@admin.register(CustomLink, site=admin_site)
+class CustomLinkAdmin(admin.ModelAdmin):
+    list_display = ['name', 'content_type', 'group_name', 'weight']
 
 
 #
