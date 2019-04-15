@@ -11,6 +11,24 @@ are terminated to power panels and otpionally associated with individual racks. 
 Additionally, the power port model has been extended to include fields denoting maximum and allocated draw, in watts.
 This allows a device (e.g. a PDU) to calculate its total load compared to its connected power feed.
 
+### Caching ([#2647](https://github.com/digitalocean/netbox/issues/2647))
+
+To improve performance, NetBox now supports caching for most object and list views. Caching is implemented using Redis,
+which is now a required dependency. (Previously, Redis was required only if webhooks were enabled.)
+
+Several configuration parameters are available to control caching behavior:
+
+```
+# Cache culling frequrency; a ratio. Example: 3 will cull one third of the cache when CACHE_MAX_ENTRIES is reached.
+CACHE_CULL_FREQUENCY = 3
+
+# Max number of entries (unique pages) to store in the cache at a time
+CACHE_MAX_ENTRIES = 300
+
+# Cache timeout (in seconds)
+CACHE_TIMEOUT = 900
+```
+
 ### View Permissions ([#323](https://github.com/digitalocean/netbox/issues/323))
 
 Django 2.1 introduced the ability to enforce view-only permissions for different object types. NetBox now enforces
@@ -34,6 +52,25 @@ EXEMPT_VIEW_PERMISSIONS = ['*']
 ```
 
 ## Changes
+
+### New Dependency: Redis
+
+[Redis](https://redis.io/) is an in-memory data store similar to memcached. While Redis has been optional component of
+NetBox since the introduction of webhooks in version 2.4, it is now required to support NetBox's new caching
+functionality (as well as other planned features).
+
+Redis is configured using a configuration setting similar to `DATABASE` in `configuration.py`:
+
+```
+REDIS = {
+    'HOST': 'localhost',
+    'PORT': 6379,
+    'PASSWORD': '',
+    'DATABASE': 0,
+    'DEFAULT_TIMEOUT': 300,
+    'SSL': False,
+}
+```
 
 ### API Device/VM Config Context Included by Default ([#2350](https://github.com/digitalocean/netbox/issues/2350))
 
