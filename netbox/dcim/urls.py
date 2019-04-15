@@ -234,7 +234,7 @@ urlpatterns = [
     url(r'^rear-ports/(?P<termination_a_id>\d+)/connect/(?P<termination_b_type>[\w-]+)/$', views.CableCreateView.as_view(), name='rearport_connect', kwargs={'termination_a_type': RearPort}),
     url(r'^rear-ports/(?P<pk>\d+)/edit/$', views.RearPortEditView.as_view(), name='rearport_edit'),
     url(r'^rear-ports/(?P<pk>\d+)/delete/$', views.RearPortDeleteView.as_view(), name='rearport_delete'),
-    url(r'^rear-ports/(?P<pk>\d+)/trace/$',cached( views.CableTraceView.as_view()), name='rearport_trace', kwargs={'model': RearPort}),
+    url(r'^rear-ports/(?P<pk>\d+)/trace/$', cached(views.CableTraceView.as_view()), name='rearport_trace', kwargs={'model': RearPort}),
     url(r'^rear-ports/rename/$', cached(views.RearPortBulkRenameView.as_view()), name='rearport_bulk_rename'),
     url(r'^rear-ports/disconnect/$', views.RearPortBulkDisconnectView.as_view(), name='rearport_bulk_disconnect'),
 

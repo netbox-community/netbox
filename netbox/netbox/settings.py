@@ -118,7 +118,10 @@ else:
     ]
 
 # Database
-configuration.DATABASE.update({'ENGINE': 'django.db.backends.postgresql'})
+if PROMETHEUS_ENABLE:
+    configuration.DATABASE.update({'ENGINE': 'django_prometheus.db.backends.postgresql'})
+else:
+    configuration.DATABASE.update({'ENGINE': 'django.db.backends.postgresql'})
 DATABASES = {
     'default': configuration.DATABASE,
 }
