@@ -51,6 +51,19 @@ To exclude _all_ objects, effectively disabling view permissions, set:
 EXEMPT_VIEW_PERMISSIONS = ['*']
 ```
 
+### Custom Links ([#969](https://github.com/digitalocean/netbox/issues/969))
+
+Custom links are defined under the admin UI and will be displayed on each object of the selected type. Link text and
+URLs can be formed from Jinja2 template code, with the viewed object passed as context data. For example, to link to an
+external NMS from the device view, you might create a custom link with the following URL:
+
+```
+https://nms.local/nodes/?name={{ obj.name }}
+```
+
+Custom links appear as buttons at the top of the object view. Grouped links will render as a dropdown menu beneath a
+single button.
+
 ## Changes
 
 ### New Dependency: Redis
