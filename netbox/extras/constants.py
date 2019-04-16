@@ -46,7 +46,6 @@ CUSTOM_LINK_MODELS = [
     'dcim.powerfeed',
     'dcim.rack',
     'dcim.site',
-    'dcim.region',
     'ipam.aggregate',
     'ipam.ipaddress',
     'ipam.prefix',

@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load custom_links %}
 {% load helpers %}
 
 {% block header %}
@@ -52,6 +53,9 @@
     </div>
     <h1>{% block title %}{{ prefix }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=prefix %}
+    <div class="pull-right noprint">
+        {% custom_links prefix %}
+    </div>
     <ul class="nav nav-tabs" style="margin-bottom: 20px">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{% url 'ipam:prefix' pk=prefix.pk %}">Prefix</a>

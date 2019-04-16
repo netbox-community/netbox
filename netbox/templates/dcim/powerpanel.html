@@ -1,6 +1,6 @@
 {% extends '_base.html' %}
 {% load static %}
-{% load tz %}
+{% load custom_links %}
 {% load helpers %}
 
 {% block header %}
@@ -44,6 +44,9 @@
     </div>
     <h1>{% block title %}{{ powerpanel }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=powerpanel %}
+    <div class="pull-right noprint">
+        {% custom_links powerpanel %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ powerpanel.get_absolute_url }}">Cable</a>
