@@ -2,6 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
+import extras.models
 
 
 class Migration(migrations.Migration):
@@ -23,7 +24,7 @@ class Migration(migrations.Migration):
                 ('group_name', models.CharField(blank=True, max_length=50)),
                 ('button_class', models.CharField(default='default', max_length=30)),
                 ('new_window', models.BooleanField()),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType')),
+                ('content_type', models.ForeignKey(limit_choices_to=extras.models.get_custom_link_models, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType')),
             ],
             options={
                 'ordering': ['group_name', 'weight', 'name'],
