@@ -1,6 +1,6 @@
 {% extends '_base.html' %}
 {% load static %}
-{% load tz %}
+{% load custom_links %}
 {% load helpers %}
 
 {% block header %}
@@ -45,6 +45,9 @@
     </div>
     <h1>{% block title %}{{ powerfeed }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=powerfeed %}
+    <div class="pull-right noprint">
+        {% custom_links powerfeed %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ powerfeed.get_absolute_url }}">Cable</a>

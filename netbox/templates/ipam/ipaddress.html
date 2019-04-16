@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load custom_links %}
 {% load helpers %}
 
 {% block header %}
@@ -41,6 +42,9 @@
     </div>
     <h1>{% block title %}{{ ipaddress }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=ipaddress %}
+    <div class="pull-right noprint">
+        {% custom_links ipaddress %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ ipaddress.get_absolute_url }}">IP Address</a>

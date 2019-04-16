@@ -301,6 +301,65 @@ class CustomFieldChoice(models.Model):
 
 
 #
+# Custom links
+#
+
+def get_custom_link_models():
+    # TODO: This should match on the app_label as well as the model name to avoid potential duplicate names
+    return {
+        'model__in': [model.split('.')[1] for model in CUSTOM_LINK_MODELS],
+    }
+
+
+class CustomLink(models.Model):
+    """
+    A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
+    code to be rendered with an object as context.
+    """
+    content_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to=get_custom_link_models
+    )
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+    text = models.CharField(
+        max_length=200,
+        help_text="Jinja2 template code for link text"
+    )
+    url = models.CharField(
+        max_length=200,
+        verbose_name='URL',
+        help_text="Jinja2 template code for link URL"
+    )
+    weight = models.PositiveSmallIntegerField(
+        default=100
+    )
+    group_name = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="Links with the same group will appear as a dropdown menu"
+    )
+    button_class = models.CharField(
+        max_length=30,
+        choices=BUTTON_CLASS_CHOICES,
+        default=BUTTON_CLASS_DEFAULT,
+        help_text="The class of the first link in a group will be used for the dropdown button"
+    )
+    new_window = models.BooleanField(
+        help_text="Force link to open in a new window"
+    )
+
+    class Meta:
+        ordering = ['group_name', 'weight', 'name']
+
+    def __str__(self):
+        return self.name
+
+
+#
 # Graphs
 #
 

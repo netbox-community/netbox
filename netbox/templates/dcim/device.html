@@ -1,6 +1,7 @@
 {% extends '_base.html' %}
 {% load static %}
 {% load helpers %}
+{% load custom_links %}
 
 {% block title %}{{ device }}{% endblock %}
 
@@ -64,6 +65,9 @@
     </div>
     <h1>{{ device }}</h1>
     {% include 'inc/created_updated.html' with obj=device %}
+    <div class="pull-right noprint">
+        {% custom_links device %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{% url 'dcim:device' pk=device.pk %}">Device</a>

@@ -35,6 +35,46 @@ CF_FILTER_CHOICES = (
     (CF_FILTER_EXACT, 'Exact'),
 )
 
+# Custom links
+CUSTOM_LINK_MODELS = [
+    'circuits.circuit',
+    'circuits.provider',
+    'dcim.cable',
+    'dcim.device',
+    'dcim.devicetype',
+    'dcim.powerpanel',
+    'dcim.powerfeed',
+    'dcim.rack',
+    'dcim.site',
+    'ipam.aggregate',
+    'ipam.ipaddress',
+    'ipam.prefix',
+    'ipam.service',
+    'ipam.vlan',
+    'ipam.vrf',
+    'secrets.secret',
+    'tenancy.tenant',
+    'virtualization.cluster',
+    'virtualization.virtualmachine',
+]
+
+BUTTON_CLASS_DEFAULT = 'default'
+BUTTON_CLASS_PRIMARY = 'primary'
+BUTTON_CLASS_SUCCESS = 'success'
+BUTTON_CLASS_INFO = 'info'
+BUTTON_CLASS_WARNING = 'warning'
+BUTTON_CLASS_DANGER = 'danger'
+BUTTON_CLASS_LINK = 'link'
+BUTTON_CLASS_CHOICES = (
+    (BUTTON_CLASS_DEFAULT, 'Default'),
+    (BUTTON_CLASS_PRIMARY, 'Primary (blue)'),
+    (BUTTON_CLASS_SUCCESS, 'Success (green)'),
+    (BUTTON_CLASS_INFO, 'Info (aqua)'),
+    (BUTTON_CLASS_WARNING, 'Warning (orange)'),
+    (BUTTON_CLASS_DANGER, 'Danger (red)'),
+    (BUTTON_CLASS_LINK, 'None (link)'),
+)
+
 # Graph types
 GRAPH_TYPE_INTERFACE = 100
 GRAPH_TYPE_PROVIDER = 200
