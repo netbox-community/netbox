@@ -85,6 +85,36 @@ REDIS = {
 }
 ```
 
+### API Support for Specifying Related Objects by Attributes([#3077](https://github.com/digitalocean/netbox/issues/3077))
+
+Previously, referencing a related object in an API request required knowing the primary key (integer ID) of that object.
+For example, when creating a new device, its rack would be specified as an integer:
+
+```
+{
+    "name": "MyNewDevice",
+    "rack": 123,
+    ...
+}
+```
+
+The NetBox API now supports referencing related objects by a set of sufficiently unique attrbiutes:
+
+```
+{
+    "name": "MyNewDevice",
+    "rack": {
+        "site": {
+            "name": "Equinix DC6"
+        },
+        "name": "R204"
+    },
+    ...
+}
+```
+
+Note that if the provided parameters do not return exactly one object, a validation error is raised.
+
 ### API Device/VM Config Context Included by Default ([#2350](https://github.com/digitalocean/netbox/issues/2350))
 
 The rendered Config Context for Devices and VMs is now included by default in all API results (list and detail views).
@@ -112,6 +142,7 @@ to now use "Extras | Tag."
 
 ## API Changes
 
+* ForeignKey fields now accept either the related object PK or a dictionary of attributes describing the related object.
 * dcim.Interface: `form_factor` has been renamed to `type`. Backward-compatibile support for `form_factor` will be maintained until NetBox v2.7.
 * dcim.Interface: The `type` filter has been renamed to `kind`.
 * dcim.DeviceType: `instance_count` has been renamed to `device_count`.

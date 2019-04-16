@@ -104,23 +104,36 @@ The base serializer is used to represent the default view of a model. This inclu
 }
 ```
 
-Related objects (e.g. `ForeignKey` fields) are represented using a nested serializer. A nested serializer provides a minimal representation of an object, including only its URL and enough information to construct its name. When performing write api actions (`POST`, `PUT`, and `PATCH`), any `ForeignKey` relationships do not use the nested serializer, instead you will pass just the integer ID of the related model.
+## Related Objects
 
-When a base serializer includes one or more nested serializers, the hierarchical structure precludes it from being used for write operations. Thus, a flat representation of an object may be provided using a writable serializer. This serializer includes only raw database values and is not typically used for retrieval, except as part of the response to the creation or updating of an object.
+Related objects (e.g. `ForeignKey` fields) are represented using a nested serializer. A nested serializer provides a minimal representation of an object, including only its URL and enough information to display the object to a user. When performing write API actions (`POST`, `PUT`, and `PATCH`), related objects may be specified by either numeric ID (primary key), or by a set of attributes sufficiently unique to return the desired object.
+
+For example, when creating a new device, its rack can be specified by NetBox ID (PK):
 
 ```
 {
-    "id": 1201,
-    "site": 7,
-    "group": 4,
-    "vid": 102,
-    "name": "Users-Floor2",
-    "tenant": null,
-    "status": 1,
-    "role": 9,
-    "description": ""
+    "name": "MyNewDevice",
+    "rack": 123,
+    ...
 }
 ```
+
+Or by a set of nested attributes used to identify the rack:
+
+```
+{
+    "name": "MyNewDevice",
+    "rack": {
+        "site": {
+            "name": "Equinix DC6"
+        },
+        "name": "R204"
+    },
+    ...
+}
+```
+
+Note that if the provided parameters do not return exactly one object, a validation error is raised.
 
 ## Brief Format
 
