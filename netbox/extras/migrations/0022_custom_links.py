@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('url', models.CharField(max_length=200)),
                 ('weight', models.PositiveSmallIntegerField(default=100)),
                 ('group_name', models.CharField(blank=True, max_length=50)),
-                ('button_class', models.CharField(max_length=30)),
+                ('button_class', models.CharField(default='default', max_length=30)),
                 ('new_window', models.BooleanField()),
                 ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType')),
             ],

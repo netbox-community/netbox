@@ -81,9 +81,24 @@ class CustomFieldAdmin(admin.ModelAdmin):
 # Custom links
 #
 
+class CustomLinkForm(forms.ModelForm):
+
+    class Meta:
+        model = CustomLink
+        exclude = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Format ContentType choices
+        order_content_types(self.fields['content_type'])
+        self.fields['content_type'].choices.insert(0, ('', '---------'))
+
+
 @admin.register(CustomLink, site=admin_site)
 class CustomLinkAdmin(admin.ModelAdmin):
     list_display = ['name', 'content_type', 'group_name', 'weight']
+    form = CustomLinkForm
 
 
 #
