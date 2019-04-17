@@ -3,7 +3,7 @@ from collections import OrderedDict
 import pytz
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import FieldError, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import ManyToManyField
 from django.http import Http404
 from django.utils.decorators import method_decorator
@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import Field, ModelSerializer, ValidationError
 from rest_framework.viewsets import ModelViewSet as _ModelViewSet, ViewSet
 
-from .utils import dynamic_import
+from .utils import dict_to_filter_params, dynamic_import
 
 
 class ServiceUnavailable(APIException):
@@ -202,15 +202,48 @@ class WritableNestedSerializer(ModelSerializer):
     """
     Returns a nested representation of an object on read, but accepts only a primary key on write.
     """
+
     def to_internal_value(self, data):
+
         if data is None:
             return None
+
+        # Dictionary of related object attributes
+        if isinstance(data, dict):
+            params = dict_to_filter_params(data)
+            try:
+                return self.Meta.model.objects.get(**params)
+            except ObjectDoesNotExist:
+                raise ValidationError(
+                    "Related object not found using the provided attributes: {}".format(params)
+                )
+            except MultipleObjectsReturned:
+                raise ValidationError(
+                    "Multiple objects match the provided attributes: {}".format(params)
+                )
+            except FieldError as e:
+                raise ValidationError(e)
+
+        # Integer PK of related object
+        if isinstance(data, int):
+            pk = data
+        else:
+            try:
+                # PK might have been mistakenly passed as a string
+                pk = int(data)
+            except (TypeError, ValueError):
+                raise ValidationError(
+                    "Related objects must be referenced by numeric ID or by dictionary of attributes. Received an "
+                    "unrecognized value: {}".format(data)
+                )
+
+        # Look up object by PK
         try:
             return self.Meta.model.objects.get(pk=int(data))
-        except (TypeError, ValueError):
-            raise ValidationError("Primary key must be an integer")
         except ObjectDoesNotExist:
-            raise ValidationError("Invalid ID")
+            raise ValidationError(
+                "Related object not found using the provided numeric ID: {}".format(pk)
+            )
 
 
 #
