@@ -87,11 +87,11 @@ REDIS = {
 
 ### API Device/VM Config Context Included by Default ([#2350](https://github.com/digitalocean/netbox/issues/2350))
 
-The rendered Config Context for Devices and VMs is now included by default in all API results (list and detail views).
-Previously the rendered Config Context was only available in the detail view for objects. Users with large amounts of
+The rendered config context for devices and VMs is now included by default in all API results (list and detail views).
+Previously, the rendered config context was only available in the detail view for objects. Users with large amounts of
 context data may observe a performance drop when returning multiple objects. To combat this, in cases where the rendered
-Config Context is not needed, the query parameter `?exclude=config_context` may be added to the request as to remove
-the Config Context from being included in any results.
+config context is not needed, the query parameter `?exclude=config_context` may be added to the request as to remove
+the config context from being included in any results.
 
 ### Tag Permissions Changed
 
@@ -105,18 +105,24 @@ functionality provided by the front end UI.
 * [#323](https://github.com/digitalocean/netbox/issues/323) - Enforce per-object type view permissions
 * [#1792](https://github.com/digitalocean/netbox/issues/1792) - Add CustomFieldChoices API endpoint
 * [#1863](https://github.com/digitalocean/netbox/issues/1863) - Add child object counts to API representation of organizational objects
-* [#2324](https://github.com/digitalocean/netbox/issues/2324) - Add `color` option for tags
+* [#2324](https://github.com/digitalocean/netbox/issues/2324) - Add `color` field for tags
 * [#2643](https://github.com/digitalocean/netbox/issues/2643) - Add `description` field to console/power components and device bays
-* [#2791](https://github.com/digitalocean/netbox/issues/2791) - Add a `comment` field for tags
+* [#2791](https://github.com/digitalocean/netbox/issues/2791) - Add a `comments` field for tags
 * [#2920](https://github.com/digitalocean/netbox/issues/2920) - Rename Interface `form_factor` to `type`
 * [#2926](https://github.com/digitalocean/netbox/issues/2926) - Add changelog to the Tag model
 
 ## API Changes
 
-* dcim.Interface: `form_factor` has been renamed to `type`. Backward-compatibile support for `form_factor` will be maintained until NetBox v2.7.
-* dcim.Interface: The `type` filter has been renamed to `kind`.
-* dcim.DeviceType: `instance_count` has been renamed to `device_count`.
+* New API endpoints for power modeling: `/api/dcim/power-panels` and `/api/dcim/power-feeds/`
+* New API endpoint for custom field choices: `/api/extras/_custom_field_choices/`
 * Organizational objects now include child object counts. For example, the Role serializer includes `prefix_count` and `vlan_count`.
+* Added a `description` field for all device components.
+* dcim.Device: The devices list endpoint now includes rendered context data.
+* dcim.DeviceType: `instance_count` has been renamed to `device_count`.
+* dcim.Interface: `form_factor` has been renamed to `type`. Backward compatibility for `form_factor` will be maintained until NetBox v2.7.
+* dcim.Interface: The `type` filter has been renamed to `kind`.
+* extras.Tag: Added `color` and `comments` fields to the Tag serializer.
+* virtualization.VirtualMachine: The virtual machines list endpoint now includes rendered context data.
 
 ## Bug Fixes
 
