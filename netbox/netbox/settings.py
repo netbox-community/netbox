@@ -244,7 +244,7 @@ CACHEOPS_DEFAULTS = {
     'timeout': CACHE_TIMEOUT
 }
 CACHEOPS = {
-    'auth.user': {'ops': 'get', 'timeout': 60*15},
+    'auth.user': {'ops': 'get', 'timeout': 60 * 15},
     'auth.*': {'ops': ('fetch', 'get')},
     'auth.permission': {'ops': 'all'},
     'dcim.*': {'ops': 'all'},
