@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             },
         ),
 
-        # Update limit_choices_to for CustomFields and ExportTemplates
+        # Update limit_choices_to for CustomFields, ExportTemplates, and Webhooks
         migrations.AlterField(
             model_name='customfield',
             name='obj_type',
@@ -39,5 +39,10 @@ class Migration(migrations.Migration):
             model_name='exporttemplate',
             name='content_type',
             field=models.ForeignKey(limit_choices_to=extras.models.get_export_template_models, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType'),
+        ),
+        migrations.AlterField(
+            model_name='webhook',
+            name='obj_type',
+            field=models.ManyToManyField(limit_choices_to=extras.models.get_webhook_models, related_name='webhooks', to='contenttypes.ContentType'),
         ),
     ]

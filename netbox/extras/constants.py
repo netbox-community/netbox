@@ -195,13 +195,36 @@ WEBHOOK_CT_CHOICES = (
 )
 
 # Models which support registered webhooks
-WEBHOOK_MODELS = (
-    'provider', 'circuit',                                           # Circuits
-    'site', 'rack', 'devicetype', 'device', 'virtualchassis',        # DCIM
-    'consoleport', 'consoleserverport', 'powerport', 'poweroutlet',
-    'interface', 'devicebay', 'inventoryitem',
-    'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf', 'service',    # IPAM
-    'secret',                                                        # Secrets
-    'tenant',                                                        # Tenancy
-    'cluster', 'virtualmachine',                                     # Virtualization
-)
+WEBHOOK_MODELS = [
+    'circuits.circuit',
+    'circuits.provider',
+    'dcim.cable',
+    'dcim.consoleport',
+    'dcim.consoleserverport',
+    'dcim.device',
+    'dcim.devicebay',
+    'dcim.devicetype',
+    'dcim.interface',
+    'dcim.inventoryitem',
+    'dcim.frontport',
+    'dcim.manufacturer',
+    'dcim.poweroutlet',
+    'dcim.powerpanel',
+    'dcim.powerport',
+    'dcim.powerfeed',
+    'dcim.rack',
+    'dcim.rearport',
+    'dcim.region',
+    'dcim.site',
+    'dcim.virtualchassis',
+    'ipam.aggregate',
+    'ipam.ipaddress',
+    'ipam.prefix',
+    'ipam.service',
+    'ipam.vlan',
+    'ipam.vrf',
+    'secrets.secret',
+    'tenancy.tenant',
+    'virtualization.cluster',
+    'virtualization.virtualmachine',
+]
