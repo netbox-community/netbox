@@ -60,6 +60,17 @@ def dynamic_import(name):
     return mod
 
 
+def model_names_to_filter_dict(names):
+    """
+    Accept a list of content types in the format ['<app>.<model>', '<app>.<model>', ...] and return a dictionary
+    suitable for QuerySet filtering.
+    """
+    # TODO: This should match on the app_label as well as the model name to avoid potential duplicate names
+    return {
+        'model__in': [model.split('.')[1] for model in names],
+    }
+
+
 def serialize_object(obj, extra=None):
     """
     Return a generic JSON representation of an object using Django's built-in serializer. (This is used for things like

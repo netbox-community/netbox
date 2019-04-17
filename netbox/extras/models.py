@@ -17,7 +17,7 @@ from taggit.models import TagBase, GenericTaggedItemBase
 
 from dcim.constants import CONNECTION_STATUS_CONNECTED
 from utilities.fields import ColorField
-from utilities.utils import deepmerge, foreground_color
+from utilities.utils import deepmerge, foreground_color, model_names_to_filter_dict
 from .constants import *
 from .querysets import ConfigContextQuerySet
 
@@ -134,12 +134,16 @@ class CustomFieldModel(models.Model):
             return OrderedDict([(field, None) for field in fields])
 
 
+def get_custom_field_models():
+    return model_names_to_filter_dict(CUSTOMFIELD_MODELS)
+
+
 class CustomField(models.Model):
     obj_type = models.ManyToManyField(
         to=ContentType,
         related_name='custom_fields',
         verbose_name='Object(s)',
-        limit_choices_to={'model__in': CUSTOMFIELD_MODELS},
+        limit_choices_to=get_custom_field_models,
         help_text='The object(s) to which this field applies.'
     )
     type = models.PositiveSmallIntegerField(
@@ -305,10 +309,7 @@ class CustomFieldChoice(models.Model):
 #
 
 def get_custom_link_models():
-    # TODO: This should match on the app_label as well as the model name to avoid potential duplicate names
-    return {
-        'model__in': [model.split('.')[1] for model in CUSTOM_LINK_MODELS],
-    }
+    return model_names_to_filter_dict(CUSTOMLINK_MODELS)
 
 
 class CustomLink(models.Model):
@@ -404,11 +405,15 @@ class Graph(models.Model):
 # Export templates
 #
 
+def get_export_template_models():
+    return model_names_to_filter_dict(EXPORTTEMPLATE_MODELS)
+
+
 class ExportTemplate(models.Model):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to={'model__in': EXPORTTEMPLATE_MODELS}
+        limit_choices_to=get_export_template_models
     )
     name = models.CharField(
         max_length=100
