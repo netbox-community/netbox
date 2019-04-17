@@ -31,6 +31,7 @@ REDIS = {
     'PORT': 6379,
     'PASSWORD': '',
     'DATABASE': 0,
+    'CACHE_DATABASE': 1,
     'DEFAULT_TIMEOUT': 300,
     'SSL': False,
 }
@@ -60,16 +61,7 @@ BANNER_LOGIN = ''
 # BASE_PATH = 'netbox/'
 BASE_PATH = ''
 
-# The fraction of entries that are culled when CACHE_MAX_ENTRIES is reached. The actual ratio is 1 / CACHE_CULL_FREQUENCY,
-# so set CACHE_CULL_FREQUENCY to 2 to cull half the entries when CACHE_MAX_ENTRIES is reached. This setting should be an
-# integer and defaults to 3
-CACHE_CULL_FREQUENCY = 3
-
-# Max number of entries (unique pages) to store in the cache at a time.
-CACHE_MAX_ENTRIES = 300
-
-# Cache timeout in seconds. Set to `None` to enforce an infinate timeout. Set to 0 to dissable caching by immediatly
-# expiring keys. Defaults to 900 (15 minutes)
+# Cache timeout in seconds. Set to 0 to dissable caching. Defaults to 900 (15 minutes)
 CACHE_TIMEOUT = 900
 
 # Maximum number of days to retain logged changes. Set to 0 to retain changes indefinitely. (Default: 90)

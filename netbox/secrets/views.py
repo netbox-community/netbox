@@ -82,7 +82,6 @@ class SecretListView(PermissionRequiredMixin, ObjectListView):
 class SecretView(PermissionRequiredMixin, View):
     permission_required = 'secrets.view_secret'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         secret = get_object_or_404(Secret, pk=pk)

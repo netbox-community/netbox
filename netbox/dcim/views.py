@@ -197,7 +197,6 @@ class SiteListView(PermissionRequiredMixin, ObjectListView):
 class SiteView(PermissionRequiredMixin, View):
     permission_required = 'dcim.view_site'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, slug):
 
         site = get_object_or_404(Site.objects.select_related('region', 'tenant__group'), slug=slug)
@@ -356,7 +355,6 @@ class RackElevationListView(PermissionRequiredMixin, View):
     """
     permission_required = 'dcim.view_rack'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request):
 
         racks = Rack.objects.select_related(
@@ -396,7 +394,6 @@ class RackElevationListView(PermissionRequiredMixin, View):
 class RackView(PermissionRequiredMixin, View):
     permission_required = 'dcim.view_rack'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         rack = get_object_or_404(Rack.objects.select_related('site__region', 'tenant__group', 'group', 'role'), pk=pk)
@@ -575,7 +572,6 @@ class DeviceTypeListView(PermissionRequiredMixin, ObjectListView):
 class DeviceTypeView(PermissionRequiredMixin, View):
     permission_required = 'dcim.view_devicetype'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         devicetype = get_object_or_404(DeviceType, pk=pk)
@@ -916,7 +912,6 @@ class DeviceListView(PermissionRequiredMixin, ObjectListView):
 class DeviceView(PermissionRequiredMixin, View):
     permission_required = 'dcim.view_device'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         device = get_object_or_404(Device.objects.select_related(
@@ -998,7 +993,6 @@ class DeviceView(PermissionRequiredMixin, View):
 class DeviceInventoryView(PermissionRequiredMixin, View):
     permission_required = 'dcim.view_device'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         device = get_object_or_404(Device, pk=pk)
@@ -1020,7 +1014,6 @@ class DeviceInventoryView(PermissionRequiredMixin, View):
 class DeviceStatusView(PermissionRequiredMixin, View):
     permission_required = ('dcim.view_device', 'dcim.napalm_read')
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         device = get_object_or_404(Device, pk=pk)
@@ -1034,7 +1027,6 @@ class DeviceStatusView(PermissionRequiredMixin, View):
 class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
     permission_required = ('dcim.view_device', 'dcim.napalm_read')
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         device = get_object_or_404(Device, pk=pk)
@@ -1052,7 +1044,6 @@ class DeviceLLDPNeighborsView(PermissionRequiredMixin, View):
 class DeviceConfigView(PermissionRequiredMixin, View):
     permission_required = ('dcim.view_device', 'dcim.napalm_read')
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         device = get_object_or_404(Device, pk=pk)
@@ -1290,7 +1281,6 @@ class PowerOutletBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class InterfaceView(PermissionRequiredMixin, View):
     permission_required = 'dcim.view_interface'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         interface = get_object_or_404(Interface, pk=pk)
@@ -1511,7 +1501,6 @@ class DeviceBayDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 class DeviceBayPopulateView(PermissionRequiredMixin, View):
     permission_required = 'dcim.change_devicebay'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         device_bay = get_object_or_404(DeviceBay, pk=pk)
@@ -1546,7 +1535,6 @@ class DeviceBayPopulateView(PermissionRequiredMixin, View):
 class DeviceBayDepopulateView(PermissionRequiredMixin, View):
     permission_required = 'dcim.change_devicebay'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         device_bay = get_object_or_404(DeviceBay, pk=pk)
@@ -1686,7 +1674,6 @@ class CableListView(PermissionRequiredMixin, ObjectListView):
 class CableView(PermissionRequiredMixin, View):
     permission_required = 'dcim.view_cable'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         cable = get_object_or_404(Cable, pk=pk)
@@ -1702,7 +1689,6 @@ class CableTraceView(PermissionRequiredMixin, View):
     """
     permission_required = 'dcim.view_cable'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, model, pk):
 
         obj = get_object_or_404(model, pk=pk)
@@ -1742,7 +1728,6 @@ class CableCreateView(PermissionRequiredMixin, GetReturnURLMixin, View):
 
         return super().dispatch(request, *args, **kwargs)
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, *args, **kwargs):
 
         # Parse initial data manually to avoid setting field values as lists
@@ -2059,7 +2044,6 @@ class VirtualChassisCreateView(PermissionRequiredMixin, View):
 class VirtualChassisEditView(PermissionRequiredMixin, GetReturnURLMixin, View):
     permission_required = 'dcim.change_virtualchassis'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         virtual_chassis = get_object_or_404(VirtualChassis, pk=pk)
@@ -2128,7 +2112,6 @@ class VirtualChassisDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 class VirtualChassisAddMemberView(PermissionRequiredMixin, GetReturnURLMixin, View):
     permission_required = 'dcim.change_virtualchassis'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         virtual_chassis = get_object_or_404(VirtualChassis, pk=pk)
@@ -2183,7 +2166,6 @@ class VirtualChassisAddMemberView(PermissionRequiredMixin, GetReturnURLMixin, Vi
 class VirtualChassisRemoveMemberView(PermissionRequiredMixin, GetReturnURLMixin, View):
     permission_required = 'dcim.change_virtualchassis'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         device = get_object_or_404(Device, pk=pk, virtual_chassis__isnull=False)
@@ -2247,7 +2229,6 @@ class PowerPanelListView(PermissionRequiredMixin, ObjectListView):
 class PowerPanelView(PermissionRequiredMixin, View):
     permission_required = 'dcim.view_powerpanel'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         powerpanel = get_object_or_404(PowerPanel.objects.select_related('site', 'rack_group'), pk=pk)
@@ -2317,7 +2298,6 @@ class PowerFeedListView(PermissionRequiredMixin, ObjectListView):
 class PowerFeedView(PermissionRequiredMixin, View):
     permission_required = 'dcim.view_powerfeed'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         powerfeed = get_object_or_404(PowerFeed.objects.select_related('power_panel', 'rack'), pk=pk)

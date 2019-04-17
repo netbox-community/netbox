@@ -163,7 +163,6 @@ SEARCH_TYPES = OrderedDict((
 class HomeView(View):
     template_name = 'home.html'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request):
 
         connected_consoleports = ConsolePort.objects.filter(
@@ -223,7 +222,6 @@ class HomeView(View):
 
 class SearchView(View):
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request):
 
         # No query
@@ -277,7 +275,6 @@ class APIRootView(APIView):
     def get_view_name(self):
         return "API Root"
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, format=None):
 
         return Response(OrderedDict((

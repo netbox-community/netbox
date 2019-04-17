@@ -69,7 +69,6 @@ class TenantListView(PermissionRequiredMixin, ObjectListView):
 class TenantView(PermissionRequiredMixin, View):
     permission_required = 'tenancy.view_tenant'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, slug):
 
         tenant = get_object_or_404(Tenant, slug=slug)
