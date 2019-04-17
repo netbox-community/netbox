@@ -97,7 +97,8 @@ the Config Context from being included in any results.
 
 NetBox now makes use of its own `Tag` model instead of the vanilla model which ships with django-taggit. This new model
 lives in the `extras` app and thus any permissions that you may have configured using "Taggit | Tag" should be changed
-to now use "Extras | Tag."
+to now use "Extras | Tag." Also note that the admin interface for tags has been removed as it was redundant to the
+functionality provided by the front end UI.
 
 ## Enhancements
 

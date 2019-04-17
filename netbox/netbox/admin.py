@@ -2,17 +2,6 @@ from django.conf import settings
 from django.contrib.admin import AdminSite
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
 from django.contrib.auth.models import Group, User
-from taggit.admin import TagAdmin, TaggedItemInline
-
-from extras.models import Tag, TaggedItem
-
-
-class NetBoxTaggedItemInline(TaggedItemInline):
-    model = TaggedItem
-
-
-class NetBoxTagAdmin(TagAdmin):
-    inlines = [NetBoxTaggedItemInline]
 
 
 class NetBoxAdminSite(AdminSite):
@@ -29,7 +18,6 @@ admin_site = NetBoxAdminSite(name='admin')
 # Register external models
 admin_site.register(Group, GroupAdmin)
 admin_site.register(User, UserAdmin)
-admin_site.register(Tag, NetBoxTagAdmin)
 
 # Modify the template to include an RQ link if django_rq is installed (see RQ_SHOW_ADMIN_LINK)
 if settings.WEBHOOKS_ENABLED:
