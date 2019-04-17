@@ -1,13 +1,48 @@
 from django.test import TestCase
 
-from utilities.utils import deepmerge
+from utilities.utils import deepmerge, dict_to_filter_params
+
+
+class DictToFilterParamsTest(TestCase):
+    """
+    Validate the operation of dict_to_filter_params().
+    """
+    def setUp(self):
+        return
+
+    def test_dict_to_filter_params(self):
+
+        input = {
+            'a': True,
+            'foo': {
+                'bar': 123,
+                'baz': 456,
+            },
+            'x': {
+                'y': {
+                    'z': False
+                }
+            }
+        }
+
+        output = {
+            'a': True,
+            'foo__bar': 123,
+            'foo__baz': 456,
+            'x__y__z': False,
+        }
+
+        self.assertEqual(dict_to_filter_params(input), output)
+
+        input['x']['y']['z'] = True
+
+        self.assertNotEqual(dict_to_filter_params(input), output)
 
 
 class DeepMergeTest(TestCase):
     """
     Validate the behavior of the deepmerge() utility.
     """
-
     def setUp(self):
         return
 
