@@ -14,13 +14,15 @@ from circuits.filters import CircuitFilter, ProviderFilter
 from circuits.models import Circuit, Provider
 from circuits.tables import CircuitTable, ProviderTable
 from dcim.filters import (
-    CableFilter, DeviceFilter, DeviceTypeFilter, RackFilter, RackGroupFilter, SiteFilter, VirtualChassisFilter
+    CableFilter, DeviceFilter, DeviceTypeFilter, PowerFeedFilter, RackFilter, RackGroupFilter, SiteFilter,
+    VirtualChassisFilter,
 )
 from dcim.models import (
-    Cable, ConsolePort, Device, DeviceType, Interface, PowerPort, Rack, RackGroup, Site, VirtualChassis
+    Cable, ConsolePort, Device, DeviceType, Interface, PowerFeed, PowerPort, Rack, RackGroup, Site, VirtualChassis
 )
 from dcim.tables import (
-    CableTable, DeviceDetailTable, DeviceTypeTable, RackTable, RackGroupTable, SiteTable, VirtualChassisTable
+    CableTable, DeviceDetailTable, DeviceTypeTable, PowerFeedTable, RackTable, RackGroupTable, SiteTable,
+    VirtualChassisTable,
 )
 from extras.models import ObjectChange, ReportResult, TopologyMap
 from ipam.filters import AggregateFilter, IPAddressFilter, PrefixFilter, VLANFilter, VRFFilter
@@ -96,6 +98,12 @@ SEARCH_TYPES = OrderedDict((
         'filter': CableFilter,
         'table': CableTable,
         'url': 'dcim:cable_list',
+    }),
+    ('powerfeed', {
+        'queryset': PowerFeed.objects.all(),
+        'filter': PowerFeedFilter,
+        'table': PowerFeedTable,
+        'url': 'dcim:powerfeed_list',
     }),
     # IPAM
     ('vrf', {
