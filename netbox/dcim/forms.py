@@ -3425,7 +3425,7 @@ class PowerPanelFilterForm(BootstrapMixin, CustomFieldFilterForm):
             api_url="/api/dcim/sites/",
             value_field="slug",
             filter_for={
-                'rack_id': 'site',
+                'rack_group_id': 'site',
             }
         )
     )

@@ -189,6 +189,10 @@ CABLE_LENGTH = """
 {% if record.length %}{{ record.length }} {{ record.get_length_unit_display }}{% else %}&mdash;{% endif %}
 """
 
+POWERPANEL_POWERFEED_COUNT = """
+<a href="{% url 'dcim:powerfeed_list' %}?power_panel_id={{ record.pk }}">{{ value }}</a>
+"""
+
 
 #
 # Regions
@@ -804,7 +808,8 @@ class PowerPanelTable(BaseTable):
         viewname='dcim:site',
         args=[Accessor('site.slug')]
     )
-    powerfeed_count = tables.Column(
+    powerfeed_count = tables.TemplateColumn(
+        template_code=POWERPANEL_POWERFEED_COUNT,
         verbose_name='Feeds'
     )
 
