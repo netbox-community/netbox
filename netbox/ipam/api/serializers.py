@@ -25,13 +25,14 @@ from .nested_serializers import *
 class VRFSerializer(TaggitSerializer, CustomFieldModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
+    ipaddress_count = serializers.IntegerField(read_only=True)
     prefix_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VRF
         fields = [
             'id', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'tags', 'display_name', 'custom_fields',
-            'created', 'last_updated', 'prefix_count',
+            'created', 'last_updated', 'ipaddress_count', 'prefix_count',
         ]
 
 
@@ -104,12 +105,13 @@ class VLANSerializer(TaggitSerializer, CustomFieldModelSerializer):
     status = ChoiceField(choices=VLAN_STATUS_CHOICES, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
+    prefix_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VLAN
         fields = [
             'id', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'tags', 'display_name',
-            'custom_fields', 'created', 'last_updated',
+            'custom_fields', 'created', 'last_updated', 'prefix_count',
         ]
         validators = []
 

@@ -165,11 +165,12 @@ class RackRoleViewSet(ModelViewSet):
 
 class RackViewSet(CustomFieldModelViewSet):
     queryset = Rack.objects.select_related(
-        'site', 'group__site', 'tenant'
+        'site', 'group__site', 'role', 'tenant'
     ).prefetch_related(
         'tags'
     ).annotate(
-        device_count=Count('devices')
+        device_count=get_subquery(Device, 'rack'),
+        powerfeed_count=get_subquery(PowerFeed, 'rack')
     )
     serializer_class = serializers.RackSerializer
     filterset_class = filters.RackFilter
@@ -220,7 +221,9 @@ class RackReservationViewSet(ModelViewSet):
 
 class ManufacturerViewSet(ModelViewSet):
     queryset = Manufacturer.objects.annotate(
-        devicetype_count=Count('device_types')
+        devicetype_count=get_subquery(DeviceType, 'manufacturer'),
+        inventoryitem_count=get_subquery(InventoryItem, 'manufacturer'),
+        platform_count=get_subquery(Platform, 'manufacturer')
     )
     serializer_class = serializers.ManufacturerSerializer
     filterset_class = filters.ManufacturerFilter

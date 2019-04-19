@@ -1,8 +1,9 @@
 from django.db.models import Count
 
-from dcim.models import Interface
+from dcim.models import Device, Interface
 from extras.api.views import CustomFieldModelViewSet
 from utilities.api import FieldChoicesViewSet, ModelViewSet
+from utilities.utils import get_subquery
 from virtualization import filters
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 from . import serializers
@@ -39,8 +40,13 @@ class ClusterGroupViewSet(ModelViewSet):
 
 
 class ClusterViewSet(CustomFieldModelViewSet):
-    queryset = Cluster.objects.select_related('type', 'group').prefetch_related('tags').annotate(
-        virtualmachine_count=Count('virtual_machines')
+    queryset = Cluster.objects.select_related(
+        'type', 'group', 'site',
+    ).prefetch_related(
+        'tags'
+    ).annotate(
+        device_count=get_subquery(Device, 'cluster'),
+        virtualmachine_count=get_subquery(VirtualMachine, 'cluster')
     )
     serializer_class = serializers.ClusterSerializer
     filterset_class = filters.ClusterFilter

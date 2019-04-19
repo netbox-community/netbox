@@ -34,7 +34,8 @@ class IPAMFieldChoicesViewSet(FieldChoicesViewSet):
 
 class VRFViewSet(CustomFieldModelViewSet):
     queryset = VRF.objects.select_related('tenant').prefetch_related('tags').annotate(
-        prefix_count=Count('prefixes')
+        ipaddress_count=get_subquery(IPAddress, 'vrf'),
+        prefix_count=get_subquery(Prefix, 'vrf')
     )
     serializer_class = serializers.VRFSerializer
     filterset_class = filters.VRFFilter
@@ -288,7 +289,13 @@ class VLANGroupViewSet(ModelViewSet):
 #
 
 class VLANViewSet(CustomFieldModelViewSet):
-    queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role').prefetch_related('tags')
+    queryset = VLAN.objects.select_related(
+        'site', 'group', 'tenant', 'role'
+    ).prefetch_related(
+        'tags'
+    ).annotate(
+        prefix_count=get_subquery(Prefix, 'role')
+    )
     serializer_class = serializers.VLANSerializer
     filterset_class = filters.VLANFilter
 

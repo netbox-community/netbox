@@ -40,13 +40,14 @@ class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):
     group = NestedClusterGroupSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
+    device_count = serializers.IntegerField(read_only=True)
     virtualmachine_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Cluster
         fields = [
             'id', 'name', 'type', 'group', 'site', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
-            'virtualmachine_count',
+            'device_count', 'virtualmachine_count',
         ]
 
 

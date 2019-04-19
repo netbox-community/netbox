@@ -72,20 +72,20 @@ class SiteSerializer(TaggitSerializer, CustomFieldModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     time_zone = TimeZoneField(required=False)
     tags = TagListSerializerField(required=False)
-    prefix_count = serializers.IntegerField(read_only=True)
-    vlan_count = serializers.IntegerField(read_only=True)
-    rack_count = serializers.IntegerField(read_only=True)
-    device_count = serializers.IntegerField(read_only=True)
     circuit_count = serializers.IntegerField(read_only=True)
+    device_count = serializers.IntegerField(read_only=True)
+    prefix_count = serializers.IntegerField(read_only=True)
+    rack_count = serializers.IntegerField(read_only=True)
     virtualmachine_count = serializers.IntegerField(read_only=True)
+    vlan_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Site
         fields = [
             'id', 'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description',
             'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
-            'contact_email', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'prefix_count',
-            'vlan_count', 'rack_count', 'device_count', 'circuit_count', 'virtualmachine_count',
+            'contact_email', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'circuit_count',
+            'device_count', 'prefix_count', 'rack_count', 'virtualmachine_count', 'vlan_count',
         ]
 
 
@@ -121,13 +121,14 @@ class RackSerializer(TaggitSerializer, CustomFieldModelSerializer):
     outer_unit = ChoiceField(choices=RACK_DIMENSION_UNIT_CHOICES, required=False)
     tags = TagListSerializerField(required=False)
     device_count = serializers.IntegerField(read_only=True)
+    powerfeed_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Rack
         fields = [
             'id', 'name', 'facility_id', 'display_name', 'site', 'group', 'tenant', 'status', 'role', 'serial',
             'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'powerfeed_count',
         ]
         # Omit the UniqueTogetherValidator that would be automatically added to validate (group, facility_id). This
         # prevents facility_id from being interpreted as a required field.
@@ -175,10 +176,12 @@ class RackReservationSerializer(ValidatedModelSerializer):
 
 class ManufacturerSerializer(ValidatedModelSerializer):
     devicetype_count = serializers.IntegerField(read_only=True)
+    inventoryitem_count = serializers.IntegerField(read_only=True)
+    platform_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Manufacturer
-        fields = ['id', 'name', 'slug', 'devicetype_count']
+        fields = ['id', 'name', 'slug', 'devicetype_count', 'inventoryitem_count', 'platform_count']
 
 
 class DeviceTypeSerializer(TaggitSerializer, CustomFieldModelSerializer):
