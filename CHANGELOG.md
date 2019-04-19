@@ -16,15 +16,9 @@ This allows a device (e.g. a PDU) to calculate its total load compared to its co
 To improve performance, NetBox now supports caching for most object and list views. Caching is implemented using Redis,
 which is now a required dependency. (Previously, Redis was required only if webhooks were enabled.)
 
-Several configuration parameters are available to control caching behavior:
+A new configuration parameter is available to control the cache timeout:
 
 ```
-# Cache culling frequrency; a ratio. Example: 3 will cull one third of the cache when CACHE_MAX_ENTRIES is reached.
-CACHE_CULL_FREQUENCY = 3
-
-# Max number of entries (unique pages) to store in the cache at a time
-CACHE_MAX_ENTRIES = 300
-
 # Cache timeout (in seconds)
 CACHE_TIMEOUT = 900
 ```
@@ -68,7 +62,7 @@ single button.
 
 ### New Dependency: Redis
 
-[Redis](https://redis.io/) is an in-memory data store similar to memcached. While Redis has been optional component of
+[Redis](https://redis.io/) is an in-memory data store similar to memcached. While Redis has been an optional component of
 NetBox since the introduction of webhooks in version 2.4, it is now required to support NetBox's new caching
 functionality (as well as other planned features).
 
@@ -80,10 +74,17 @@ REDIS = {
     'PORT': 6379,
     'PASSWORD': '',
     'DATABASE': 0,
+    'CACHE_DATABASE': 1,
     'DEFAULT_TIMEOUT': 300,
     'SSL': False,
 }
 ```
+
+Note that if you were using these settings in a prior release with webhooks, the `DATABASE` setting remains the same but
+an additional `CACHE_DATABASE` setting has been added with a default value of 1 to support the caching backend. The
+`DATABASE` setting will be renamed in a future release of NetBox to better relay the meaning of the setting. It is highly
+recommended to keep the webhook and cache databases seperate. Using the same database number for both may result in webhook
+processing data being lost in cache flushing events.
 
 ### API Support for Specifying Related Objects by Attributes([#3077](https://github.com/digitalocean/netbox/issues/3077))
 
@@ -143,7 +144,7 @@ functionality provided by the front end UI.
 
 ## API Changes
 
-* New API endpoints for power modeling: `/api/dcim/power-panels` and `/api/dcim/power-feeds/`
+* New API endpoints for power modeling: `/api/dcim/power-panels/` and `/api/dcim/power-feeds/`
 * New API endpoint for custom field choices: `/api/extras/_custom_field_choices/`
 * ForeignKey fields now accept either the related object PK or a dictionary of attributes describing the related object.
 * Organizational objects now include child object counts. For example, the Role serializer includes `prefix_count` and `vlan_count`.

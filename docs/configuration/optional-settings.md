@@ -44,6 +44,14 @@ BASE_PATH = 'netbox/'
 
 ---
 
+## CACHE_TIMEOUT
+
+Default: 900
+
+The number of seconds to retain cache entries before automatically invalidating them.
+
+---
+
 ## CHANGELOG_RETENTION
 
 Default: 90
@@ -293,56 +301,3 @@ SHORT_TIME_FORMAT = 'H:i:s'          # 13:23:00
 DATETIME_FORMAT = 'N j, Y g:i a'     # June 26, 2016 1:23 p.m.
 SHORT_DATETIME_FORMAT = 'Y-m-d H:i'  # 2016-06-27 13:23
 ```
-
----
-
-## Redis Connection Settings
-
-[Redis](https://redis.io/) is a key-value store which functions as a very lightweight database. It is required when enabling NetBox [webhooks](../additional-features/webhooks/). A Redis connection is configured using a dictionary similar to the following:
-
-```
-REDIS = {
-    'HOST': 'localhost',
-    'PORT': 6379,
-    'PASSWORD': '',
-    'DATABASE': 0,
-    'DEFAULT_TIMEOUT': 300,
-    'SSL': False,
-}
-```
-
-### DATABASE
-
-Default: 0
-
-The Redis database ID.
-
-### DEFAULT_TIMEOUT
-
-Default: 300
-
-The timeout value to use when connecting to the Redis server (in seconds).
-
-### HOST
-
-Default: localhost
-
-The hostname or IP address of the Redis server.
-
-### PORT
-
-Default: 6379
-
-The TCP port to use when connecting to the Redis server.
-
-### PASSWORD
-
-Default: None
-
-The password to use when authenticating to the Redis server (optional).
-
-### SSL
-
-Default: False
-
-Use secure sockets layer to encrypt the connections to the Redis server.

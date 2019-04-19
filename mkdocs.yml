@@ -36,6 +36,7 @@ pages:
         - Reports: 'additional-features/reports.md'
         - Webhooks: 'additional-features/webhooks.md'
         - Change Logging: 'additional-features/change-logging.md'
+        - Caching: 'additional-features/caching.md'
     - Administration:
         - Replicating NetBox: 'administration/replicating-netbox.md'
         - NetBox Shell: 'administration/netbox-shell.md'
