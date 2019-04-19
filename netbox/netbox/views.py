@@ -193,11 +193,13 @@ class HomeView(View):
 
             # DCIM
             'rack_count': Rack.objects.count(),
+            'devicetype_count': DeviceType.objects.count(),
             'device_count': Device.objects.count(),
             'interface_connections_count': connected_interfaces.count(),
             'cable_count': cables.count(),
             'console_connections_count': connected_consoleports.count(),
             'power_connections_count': connected_powerports.count(),
+            'powerfeed_count': PowerFeed.objects.count(),
 
             # IPAM
             'vrf_count': VRF.objects.count(),

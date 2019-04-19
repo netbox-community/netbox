@@ -48,6 +48,16 @@
                     <p class="list-group-item-text text-muted">Equipment racks, optionally organized by group</p>
                 </div>
                 <div class="list-group-item">
+                    {% if perms.dcim.view_devicetype %}
+                        <span class="badge pull-right">{{ stats.devicetype_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'dcim:devicetype_list' %}">Device Types</a></h4>
+                    {% else %}
+                        <span class="badge pull-right"><i class="fa fa-lock"></i></span>
+                        <h4 class="list-group-item-heading">Device Types</h4>
+                    {% endif %}
+                    <p class="list-group-item-text text-muted">Physical hardware models by manufacturer</p>
+                </div>
+                <div class="list-group-item">
                     {% if perms.dcim.view_device %}
                         <span class="badge pull-right">{{ stats.device_count }}</span>
                         <h4 class="list-group-item-heading"><a href="{% url 'dcim:device_list' %}">Devices</a></h4>
@@ -92,28 +102,35 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
-                <strong>Virtualization</strong>
+                <strong>Power</strong>
             </div>
             <div class="list-group">
                 <div class="list-group-item">
-                    {% if perms.virtualization.view_cluster %}
-                        <span class="badge pull-right">{{ stats.cluster_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'virtualization:cluster_list' %}">Clusters</a></h4>
+                    {% if perms.dcim.view_powerfeed %}
+                        <span class="badge pull-right">{{ stats.powerfeed_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'dcim:powerfeed_list' %}">Power Feeds</a></h4>
                     {% else %}
                         <span class="badge pull-right"><i class="fa fa-lock"></i></span>
-                        <h4 class="list-group-item-heading">Clusters</h4>
+                        <h4 class="list-group-item-heading">Power Feeds</h4>
                     {% endif %}
-                    <p class="list-group-item-text text-muted">Clusters of physical hosts in which VMs reside</p>
+                    <p class="list-group-item-text text-muted">Electrical circuits delivering power from panels</p>
                 </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Secrets</strong>
+            </div>
+            <div class="list-group">
                 <div class="list-group-item">
-                    {% if perms.virtualization.view_virtualmachine %}
-                        <span class="badge pull-right">{{ stats.virtualmachine_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'virtualization:virtualmachine_list' %}">Virtual Machines</a></h4>
+                    {% if perms.secrets.view_secret %}
+                        <span class="badge pull-right">{{ stats.secret_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'secrets:secret_list' %}">Secrets</a></h4>
                     {% else %}
                         <span class="badge pull-right"><i class="fa fa-lock"></i></span>
-                        <h4 class="list-group-item-heading">Virtual Machines</h4>
+                        <h4 class="list-group-item-heading">Secrets</h4>
                     {% endif %}
-                    <p class="list-group-item-text text-muted">Virtual compute instances running inside clusters</p>
+                    <p class="list-group-item-text text-muted">Cryptographically secured secret data</p>
                 </div>
             </div>
         </div>
@@ -205,18 +222,28 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
-                <strong>Secrets</strong>
+                <strong>Virtualization</strong>
             </div>
             <div class="list-group">
                 <div class="list-group-item">
-                    {% if perms.secrets.view_secret %}
-                        <span class="badge pull-right">{{ stats.secret_count }}</span>
-                        <h4 class="list-group-item-heading"><a href="{% url 'secrets:secret_list' %}">Secrets</a></h4>
+                    {% if perms.virtualization.view_cluster %}
+                        <span class="badge pull-right">{{ stats.cluster_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'virtualization:cluster_list' %}">Clusters</a></h4>
                     {% else %}
                         <span class="badge pull-right"><i class="fa fa-lock"></i></span>
-                        <h4 class="list-group-item-heading">Secrets</h4>
+                        <h4 class="list-group-item-heading">Clusters</h4>
                     {% endif %}
-                    <p class="list-group-item-text text-muted">Sensitive data (such as passwords) which has been stored securely</p>
+                    <p class="list-group-item-text text-muted">Clusters of physical hosts in which VMs reside</p>
+                </div>
+                <div class="list-group-item">
+                    {% if perms.virtualization.view_virtualmachine %}
+                        <span class="badge pull-right">{{ stats.virtualmachine_count }}</span>
+                        <h4 class="list-group-item-heading"><a href="{% url 'virtualization:virtualmachine_list' %}">Virtual Machines</a></h4>
+                    {% else %}
+                        <span class="badge pull-right"><i class="fa fa-lock"></i></span>
+                        <h4 class="list-group-item-heading">Virtual Machines</h4>
+                    {% endif %}
+                    <p class="list-group-item-text text-muted">Virtual compute instances running inside clusters</p>
                 </div>
             </div>
         </div>
