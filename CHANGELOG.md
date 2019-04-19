@@ -62,8 +62,8 @@ single button.
 
 ### New Dependency: Redis
 
-[Redis](https://redis.io/) is an in-memory data store similar to memcached. While Redis has been an optional component of
-NetBox since the introduction of webhooks in version 2.4, it is now required to support NetBox's new caching
+[Redis](https://redis.io/) is an in-memory data store similar to memcached. While Redis has been an optional component
+of NetBox since the introduction of webhooks in version 2.4, it is now required to support NetBox's new caching
 functionality (as well as other planned features).
 
 Redis is configured using a configuration setting similar to `DATABASE` in `configuration.py`:
@@ -82,13 +82,13 @@ REDIS = {
 
 Note that if you were using these settings in a prior release with webhooks, the `DATABASE` setting remains the same but
 an additional `CACHE_DATABASE` setting has been added with a default value of 1 to support the caching backend. The
-`DATABASE` setting will be renamed in a future release of NetBox to better relay the meaning of the setting. It is highly
-recommended to keep the webhook and cache databases seperate. Using the same database number for both may result in webhook
-processing data being lost in cache flushing events.
+`DATABASE` setting will be renamed in a future release of NetBox to better relay the meaning of the setting. It is
+highly recommended to keep the webhook and cache databases seperate. Using the same database number for both may result
+in webhook processing data being lost during cache flushing events.
 
 ### API Support for Specifying Related Objects by Attributes([#3077](https://github.com/digitalocean/netbox/issues/3077))
 
-Previously, referencing a related object in an API request required knowing the primary key (integer ID) of that object.
+Previously, specifying a related object in an API request required knowing the primary key (integer ID) of that object.
 For example, when creating a new device, its rack would be specified as an integer:
 
 ```
@@ -99,7 +99,8 @@ For example, when creating a new device, its rack would be specified as an integ
 }
 ```
 
-The NetBox API now supports referencing related objects by a set of sufficiently unique attrbiutes:
+The NetBox API now supports referencing related objects by a set of sufficiently unique attrbiutes. For example, a rack
+can be identified by its name and parent site:
 
 ```
 {
@@ -114,17 +115,18 @@ The NetBox API now supports referencing related objects by a set of sufficiently
 }
 ```
 
-Note that if the provided parameters do not return exactly one object, a validation error is raised.
+There is no limit to the depth of nested references. Note that if the provided parameters do not return exactly one
+object, a validation error is raised.
 
 ### API Device/VM Config Context Included by Default ([#2350](https://github.com/digitalocean/netbox/issues/2350))
 
 The rendered config context for devices and VMs is now included by default in all API results (list and detail views).
-Previously, the rendered config context was only available in the detail view for objects. Users with large amounts of
-context data may observe a performance drop when returning multiple objects. To combat this, in cases where the rendered
-config context is not needed, the query parameter `?exclude=config_context` may be added to the request as to remove
-the config context from being included in any results.
+Previously, the rendered config context was available only in the detail view for individual objects. Users with large
+amounts of context data may observe a performance drop when returning multiple objects. To combat this, in cases where
+the rendered config context is not needed, the query parameter `?exclude=config_context` may be added to the request to
+exclude the config context data from the API response.
 
-### Tag Permissions Changed
+### Changes to Tag Permissions
 
 NetBox now makes use of its own `Tag` model instead of the vanilla model which ships with django-taggit. This new model
 lives in the `extras` app and thus any permissions that you may have configured using "Taggit | Tag" should be changed
@@ -133,14 +135,14 @@ functionality provided by the front end UI.
 
 ## Enhancements
 
-* [#323](https://github.com/digitalocean/netbox/issues/323) - Enforce per-object type view permissions
+* [#323](https://github.com/digitalocean/netbox/issues/323) - Enforce view permissions by object type
 * [#1792](https://github.com/digitalocean/netbox/issues/1792) - Add CustomFieldChoices API endpoint
 * [#1863](https://github.com/digitalocean/netbox/issues/1863) - Add child object counts to API representation of organizational objects
 * [#2324](https://github.com/digitalocean/netbox/issues/2324) - Add `color` field for tags
 * [#2643](https://github.com/digitalocean/netbox/issues/2643) - Add `description` field to console/power components and device bays
-* [#2791](https://github.com/digitalocean/netbox/issues/2791) - Add a `comments` field for tags
-* [#2920](https://github.com/digitalocean/netbox/issues/2920) - Rename Interface `form_factor` to `type`
-* [#2926](https://github.com/digitalocean/netbox/issues/2926) - Add changelog to the Tag model
+* [#2791](https://github.com/digitalocean/netbox/issues/2791) - Add `comments` field for tags
+* [#2920](https://github.com/digitalocean/netbox/issues/2920) - Rename Interface `form_factor` to `type` (backward-compatible until v2.7)
+* [#2926](https://github.com/digitalocean/netbox/issues/2926) - Add change logging to the Tag model
 
 ## API Changes
 
