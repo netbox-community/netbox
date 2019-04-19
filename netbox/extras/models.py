@@ -331,11 +331,11 @@ class CustomLink(models.Model):
         unique=True
     )
     text = models.CharField(
-        max_length=200,
+        max_length=500,
         help_text="Jinja2 template code for link text"
     )
     url = models.CharField(
-        max_length=200,
+        max_length=500,
         verbose_name='URL',
         help_text="Jinja2 template code for link URL"
     )

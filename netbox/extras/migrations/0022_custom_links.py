@@ -16,8 +16,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100, unique=True)),
-                ('text', models.CharField(max_length=200)),
-                ('url', models.CharField(max_length=200)),
+                ('text', models.CharField(max_length=500)),
+                ('url', models.CharField(max_length=500)),
                 ('weight', models.PositiveSmallIntegerField(default=100)),
                 ('group_name', models.CharField(blank=True, max_length=50)),
                 ('button_class', models.CharField(default='default', max_length=30)),
