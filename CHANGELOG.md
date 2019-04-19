@@ -29,8 +29,8 @@ Django 2.1 introduced the ability to enforce view-only permissions for different
 these by default. You can grant view permission to a user or group by assigning the "can view" permission for the
 desired object(s).
 
-To exempt certain objects from the enforcement of view permissions, so that any user (including anonymous users) can
-view them, add them to the new `EXEMPT_VIEW_PERMISSIONS` setting in `configuration.py`:
+To exempt certain object types from the enforcement of view permissions, so that any user (including anonymous users)
+can view them, add them to the new `EXEMPT_VIEW_PERMISSIONS` setting in `configuration.py`:
 
 ```
 EXEMPT_VIEW_PERMISSIONS = [

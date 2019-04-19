@@ -595,7 +595,11 @@ class PowerPanelViewSet(ModelViewSet):
 #
 
 class PowerFeedViewSet(CustomFieldModelViewSet):
-    queryset = PowerFeed.objects.select_related('power_panel', 'rack').prefetch_related('tags')
+    queryset = PowerFeed.objects.select_related(
+        'power_panel', 'rack'
+    ).prefetch_related(
+        'tags'
+    )
     serializer_class = serializers.PowerFeedSerializer
     filterset_class = filters.PowerFeedFilter
 
