@@ -10,6 +10,7 @@ from extras.api.views import CustomFieldModelViewSet
 from ipam import filters
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 from utilities.api import FieldChoicesViewSet, ModelViewSet
+from utilities.utils import get_subquery
 from . import serializers
 
 
@@ -66,15 +67,9 @@ class AggregateViewSet(CustomFieldModelViewSet):
 #
 
 class RoleViewSet(ModelViewSet):
-    prefix_count = Prefix.objects.filter(
-        role=OuterRef('pk')
-    ).order_by().values('role').annotate(c=Count('*')).values('c')
-    vlan_count = VLAN.objects.filter(
-        role=OuterRef('pk')
-    ).order_by().values('role').annotate(c=Count('*')).values('c')
     queryset = Role.objects.annotate(
-        prefix_count=Subquery(prefix_count),
-        vlan_count=Subquery(vlan_count)
+        prefix_count=get_subquery(Prefix, 'role'),
+        vlan_count=get_subquery(VLAN, 'role')
     )
     serializer_class = serializers.RoleSerializer
     filterset_class = filters.RoleFilter

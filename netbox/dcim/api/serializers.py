@@ -72,19 +72,20 @@ class SiteSerializer(TaggitSerializer, CustomFieldModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     time_zone = TimeZoneField(required=False)
     tags = TagListSerializerField(required=False)
-    count_prefixes = serializers.IntegerField(read_only=True)
-    count_vlans = serializers.IntegerField(read_only=True)
-    count_racks = serializers.IntegerField(read_only=True)
-    count_devices = serializers.IntegerField(read_only=True)
-    count_circuits = serializers.IntegerField(read_only=True)
+    prefix_count = serializers.IntegerField(read_only=True)
+    vlan_count = serializers.IntegerField(read_only=True)
+    rack_count = serializers.IntegerField(read_only=True)
+    device_count = serializers.IntegerField(read_only=True)
+    circuit_count = serializers.IntegerField(read_only=True)
+    virtualmachine_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Site
         fields = [
             'id', 'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description',
             'physical_address', 'shipping_address', 'latitude', 'longitude', 'contact_name', 'contact_phone',
-            'contact_email', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'count_prefixes',
-            'count_vlans', 'count_racks', 'count_devices', 'count_circuits',
+            'contact_email', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'prefix_count',
+            'vlan_count', 'rack_count', 'device_count', 'circuit_count', 'virtualmachine_count',
         ]
 
 

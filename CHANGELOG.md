@@ -155,6 +155,8 @@ functionality provided by the front end UI.
 * dcim.DeviceType: `instance_count` has been renamed to `device_count`.
 * dcim.Interface: `form_factor` has been renamed to `type`. Backward compatibility for `form_factor` will be maintained until NetBox v2.7.
 * dcim.Interface: The `type` filter has been renamed to `kind`.
+* dcim.Site: The `count_*` read-only fields have been renamed to `*_count` for consistency with other objects.
+* dcim.Site: Added the `virtualmachine_count` read-only field.
 * extras.Tag: Added `color` and `comments` fields to the Tag serializer.
 * virtualization.VirtualMachine: The virtual machines list endpoint now includes rendered context data.
 

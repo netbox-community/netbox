@@ -363,32 +363,6 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     def get_status_class(self):
         return STATUS_CLASSES[self.status]
 
-    @property
-    def count_prefixes(self):
-        return self.prefixes.count()
-
-    @property
-    def count_vlans(self):
-        return self.vlans.count()
-
-    @property
-    def count_racks(self):
-        return Rack.objects.filter(site=self).count()
-
-    @property
-    def count_devices(self):
-        return Device.objects.filter(site=self).count()
-
-    @property
-    def count_circuits(self):
-        from circuits.models import Circuit
-        return Circuit.objects.filter(terminations__site=self).count()
-
-    @property
-    def count_vms(self):
-        from virtualization.models import VirtualMachine
-        return VirtualMachine.objects.filter(cluster__site=self).count()
-
 
 #
 # Racks

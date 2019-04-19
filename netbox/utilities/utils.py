@@ -4,6 +4,7 @@ import datetime
 import json
 
 from django.core.serializers import serialize
+from django.db.models import Count, OuterRef, Subquery
 
 from dcim.constants import LENGTH_UNIT_CENTIMETER, LENGTH_UNIT_FOOT, LENGTH_UNIT_INCH, LENGTH_UNIT_METER
 
@@ -69,6 +70,23 @@ def model_names_to_filter_dict(names):
     return {
         'model__in': [model.split('.')[1] for model in names],
     }
+
+
+def get_subquery(model, field):
+    """
+    Return a Subquery suitable for annotating a child object count.
+    """
+    subquery = Subquery(
+        model.objects.filter(
+            **{field: OuterRef('pk')}
+        ).order_by().values(
+            field
+        ).annotate(
+            c=Count('*')
+        ).values('c')
+    )
+
+    return subquery
 
 
 def serialize_object(obj, extra=None):

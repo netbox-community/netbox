@@ -12,6 +12,7 @@ from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ViewSet
 
+from circuits.models import Circuit
 from dcim import filters
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
@@ -23,9 +24,11 @@ from dcim.models import (
 from extras.api.serializers import RenderedGraphSerializer
 from extras.api.views import CustomFieldModelViewSet
 from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
+from ipam.models import Prefix, VLAN
 from utilities.api import (
     get_serializer_for_model, IsAuthenticatedOrLoginNotRequired, FieldChoicesViewSet, ModelViewSet, ServiceUnavailable,
 )
+from utilities.utils import get_subquery
 from virtualization.models import VirtualMachine
 from . import serializers
 from .exceptions import MissingFilterException
@@ -106,7 +109,18 @@ class RegionViewSet(ModelViewSet):
 #
 
 class SiteViewSet(CustomFieldModelViewSet):
-    queryset = Site.objects.select_related('region', 'tenant').prefetch_related('tags')
+    queryset = Site.objects.select_related(
+        'region', 'tenant'
+    ).prefetch_related(
+        'tags'
+    ).annotate(
+        device_count=get_subquery(Device, 'site'),
+        rack_count=get_subquery(Rack, 'site'),
+        prefix_count=get_subquery(Prefix, 'site'),
+        vlan_count=get_subquery(VLAN, 'site'),
+        circuit_count=get_subquery(Circuit, 'terminations__site'),
+        virtualmachine_count=get_subquery(VirtualMachine, 'cluster__site'),
+    )
     serializer_class = serializers.SiteSerializer
     filterset_class = filters.SiteFilter
 
@@ -281,15 +295,9 @@ class DeviceBayTemplateViewSet(ModelViewSet):
 #
 
 class DeviceRoleViewSet(ModelViewSet):
-    device_count = Device.objects.filter(
-        device_role=OuterRef('pk')
-    ).order_by().values('device_role').annotate(c=Count('*')).values('c')
-    virtualmachine_count = VirtualMachine.objects.filter(
-        role=OuterRef('pk')
-    ).order_by().values('role').annotate(c=Count('*')).values('c')
     queryset = DeviceRole.objects.annotate(
-        device_count=Subquery(device_count),
-        virtualmachine_count=Subquery(virtualmachine_count)
+        device_count=get_subquery(Device, 'device_role'),
+        virtualmachine_count=get_subquery(VirtualMachine, 'role')
     )
     serializer_class = serializers.DeviceRoleSerializer
     filterset_class = filters.DeviceRoleFilter
@@ -300,15 +308,9 @@ class DeviceRoleViewSet(ModelViewSet):
 #
 
 class PlatformViewSet(ModelViewSet):
-    device_count = Device.objects.filter(
-        platform=OuterRef('pk')
-    ).order_by().values('platform').annotate(c=Count('*')).values('c')
-    virtualmachine_count = VirtualMachine.objects.filter(
-        platform=OuterRef('pk')
-    ).order_by().values('platform').annotate(c=Count('*')).values('c')
     queryset = Platform.objects.annotate(
-        device_count=Subquery(device_count),
-        virtualmachine_count=Subquery(virtualmachine_count)
+        device_count=get_subquery(Device, 'platform'),
+        virtualmachine_count=get_subquery(VirtualMachine, 'platform')
     )
     serializer_class = serializers.PlatformSerializer
     filterset_class = filters.PlatformFilter
