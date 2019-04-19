@@ -109,7 +109,6 @@ class ClusterListView(PermissionRequiredMixin, ObjectListView):
 class ClusterView(PermissionRequiredMixin, View):
     permission_required = 'virtualization.view_cluster'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         cluster = get_object_or_404(Cluster, pk=pk)
@@ -172,7 +171,6 @@ class ClusterAddDevicesView(PermissionRequiredMixin, View):
     form = forms.ClusterAddDevicesForm
     template_name = 'virtualization/cluster_add_devices.html'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         cluster = get_object_or_404(Cluster, pk=pk)
@@ -268,7 +266,6 @@ class VirtualMachineListView(PermissionRequiredMixin, ObjectListView):
 class VirtualMachineView(PermissionRequiredMixin, View):
     permission_required = 'virtualization.view_virtualmachine'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         virtualmachine = get_object_or_404(VirtualMachine.objects.select_related('tenant__group'), pk=pk)

@@ -1,9 +1,9 @@
 Django>=2.2,<2.3
+django-cacheops==4.1
 django-cors-headers==2.5.2
 django-debug-toolbar==1.11
 django-filter==2.1.0
 django-mptt==0.9.1
-django-redis==4.5.0
 django-tables2==2.0.6
 django-taggit==1.1.0
 django-taggit-serializer==0.1.7

@@ -138,6 +138,7 @@ REDIS_HOST = REDIS.get('HOST', 'localhost')
 REDIS_PORT = REDIS.get('PORT', 6379)
 REDIS_PASSWORD = REDIS.get('PASSWORD', '')
 REDIS_DATABASE = REDIS.get('DATABASE', 0)
+REDIS_CACHE_DATABASE = REDIS.get('CACHE_DATABASE', 1)
 REDIS_DEFAULT_TIMEOUT = REDIS.get('DEFAULT_TIMEOUT', 300)
 REDIS_SSL = REDIS.get('SSL', False)
 
@@ -159,8 +160,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'cacheops',
     'corsheaders',
-    'django_redis',
     'debug_toolbar',
     'django_filters',
     'django_tables2',
@@ -231,21 +232,30 @@ else:
 if REDIS_PASSWORD:
     REDIS_CACHE_CON_STRING = '{}@{}'.format(REDIS_PASSWORD, REDIS_CACHE_CON_STRING)
 
-REDIS_CACHE_CON_STRING = '{}{}:{}/{}'.format(REDIS_CACHE_CON_STRING, REDIS_HOST, REDIS_PORT, REDIS_DATABASE)
-CACHE_BACKEND = 'django_redis.cache.RedisCache'
+REDIS_CACHE_CON_STRING = '{}{}:{}/{}'.format(REDIS_CACHE_CON_STRING, REDIS_HOST, REDIS_PORT, REDIS_CACHE_DATABASE)
 
-CACHES = {
-    "default": {
-        "BACKEND": CACHE_BACKEND,
-        "LOCATION": REDIS_CACHE_CON_STRING,
-        'TIMEOUT': CACHE_TIMEOUT,
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "MAX_ENTRIES": CACHE_MAX_ENTRIES,
-            "CULL_FREQUENCY": CACHE_CULL_FREQUENCY
-        }
-    }
+if not CACHE_TIMEOUT:
+    CACHEOPS_ENABLED = False
+else:
+    CACHEOPS_ENABLED = True
+
+CACHEOPS_REDIS = REDIS_CACHE_CON_STRING
+CACHEOPS_DEFAULTS = {
+    'timeout': CACHE_TIMEOUT
 }
+CACHEOPS = {
+    'auth.user': {'ops': 'get', 'timeout': 60 * 15},
+    'auth.*': {'ops': ('fetch', 'get')},
+    'auth.permission': {'ops': 'all'},
+    'dcim.*': {'ops': 'all'},
+    'ipam.*': {'ops': 'all'},
+    'extras.*': {'ops': 'all'},
+    'secrets.*': {'ops': 'all'},
+    'users.*': {'ops': 'all'},
+    'tenancy.*': {'ops': 'all'},
+    'virtualization.*': {'ops': 'all'},
+}
+CACHEOPS_DEGRADE_ON_FAILURE = True
 
 # WSGI
 WSGI_APPLICATION = 'netbox.wsgi.application'

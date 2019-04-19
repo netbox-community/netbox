@@ -108,7 +108,6 @@ class ObjectListView(View):
 
         return csv_data
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request):
 
         model = self.queryset.model
@@ -716,7 +715,6 @@ class ComponentCreateView(View):
     model_form = None
     template_name = None
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         parent = get_object_or_404(self.parent_model, pk=pk)
