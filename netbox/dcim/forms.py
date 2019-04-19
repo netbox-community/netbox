@@ -3645,8 +3645,18 @@ class PowerFeedFilterForm(BootstrapMixin, CustomFieldFilterForm):
             api_url="/api/dcim/sites/",
             value_field="slug",
             filter_for={
+                'power_panel_id': 'site',
                 'rack_id': 'site',
             }
+        )
+    )
+    power_panel_id = FilterChoiceField(
+        queryset=PowerPanel.objects.all(),
+        label='Power panel',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/power-panels/",
+            null_option=True,
         )
     )
     rack_id = FilterChoiceField(
