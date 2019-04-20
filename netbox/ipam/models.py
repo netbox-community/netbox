@@ -4,7 +4,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Q
+from django.db.models import F, Q
 from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from taggit.managers import TaggableManager
@@ -332,7 +332,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     ]
 
     class Meta:
-        ordering = ['vrf', 'family', 'prefix']
+        ordering = [F('vrf').asc(nulls_first=True), 'family', 'prefix']
         verbose_name_plural = 'prefixes'
 
     def __str__(self):
