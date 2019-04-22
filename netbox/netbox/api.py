@@ -97,7 +97,7 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
 
     def paginate_queryset(self, queryset, request, view=None):
 
-        if type(queryset) is QuerySet:
+        if isinstance(queryset, QuerySet):
             self.count = queryset.count()
         else:
             # We're dealing with an iterable, not a QuerySet
