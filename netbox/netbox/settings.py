@@ -45,8 +45,6 @@ BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
 CACHE_TIMEOUT = getattr(configuration, 'CACHE_TIMEOUT', 900)
-CACHE_MAX_ENTRIES = getattr(configuration, 'CACHE_MAX_ENTRIES', 300)
-CACHE_CULL_FREQUENCY = getattr(configuration, 'CACHE_CULL_FREQUENCY', 3)
 CHANGELOG_RETENTION = getattr(configuration, 'CHANGELOG_RETENTION', 90)
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])

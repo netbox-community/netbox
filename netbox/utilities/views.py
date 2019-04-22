@@ -17,8 +17,6 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME
 from django.views.generic import View

@@ -7,8 +7,6 @@ from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 from django.views.generic import View
 from django_tables2 import RequestConfig
 

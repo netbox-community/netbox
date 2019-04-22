@@ -6,7 +6,6 @@ from django.db import transaction
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 from django.views.generic import View
 
 from extras.models import Graph, GRAPH_TYPE_PROVIDER
@@ -35,7 +34,6 @@ class ProviderListView(PermissionRequiredMixin, ObjectListView):
 class ProviderView(PermissionRequiredMixin, View):
     permission_required = 'circuits.view_provider'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, slug):
 
         provider = get_object_or_404(Provider, slug=slug)
@@ -151,7 +149,6 @@ class CircuitListView(PermissionRequiredMixin, ObjectListView):
 class CircuitView(PermissionRequiredMixin, View):
     permission_required = 'circuits.view_circuit'
 
-    @method_decorator(cache_page(settings.CACHE_TIMEOUT))
     def get(self, request, pk):
 
         circuit = get_object_or_404(Circuit.objects.select_related('provider', 'type', 'tenant__group'), pk=pk)

@@ -1,10 +1,7 @@
 from collections import OrderedDict
 
-from django.conf import settings
 from django.db.models import Count, F
 from django.shortcuts import render
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 from django.views.generic import View
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
