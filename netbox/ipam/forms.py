@@ -659,8 +659,8 @@ class IPAddressForm(BootstrapMixin, TenancyForm, ReturnURLForm, CustomFieldForm)
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'status', 'role', 'description', 'interface', 'primary_for_parent', 'nat_site',
-            'nat_rack', 'nat_inside', 'tenant_group', 'tenant', 'tags',
+            'address', 'vrf', 'status', 'role', 'dns_name', 'description', 'interface', 'primary_for_parent',
+            'nat_site', 'nat_rack', 'nat_inside', 'tenant_group', 'tenant', 'tags',
         ]
         widgets = {
             'status': StaticSelect2(),
@@ -746,7 +746,7 @@ class IPAddressBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'status', 'role', 'description', 'tenant_group', 'tenant',
+            'address', 'vrf', 'status', 'role', 'dns_name', 'description', 'tenant_group', 'tenant',
         ]
         widgets = {
             'status': StaticSelect2(),
@@ -919,13 +919,18 @@ class IPAddressBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         required=False,
         widget=StaticSelect2()
     )
+    dns_name = forms.CharField(
+        max_length=255,
+        required=False
+    )
     description = forms.CharField(
-        max_length=100, required=False
+        max_length=100,
+        required=False
     )
 
     class Meta:
         nullable_fields = [
-            'vrf', 'role', 'tenant', 'description',
+            'vrf', 'role', 'tenant', 'dns_name', 'description',
         ]
 
 

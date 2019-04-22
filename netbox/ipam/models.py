@@ -16,6 +16,7 @@ from utilities.utils import serialize_object
 from .constants import *
 from .fields import IPNetworkField, IPAddressField
 from .querysets import PrefixQuerySet
+from .validators import DNSValidator
 
 
 class VRF(ChangeLoggedModel, CustomFieldModel):
@@ -573,6 +574,13 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         verbose_name='NAT (Inside)',
         help_text='The IP for which this address is the "outside" IP'
     )
+    dns_name = models.CharField(
+        max_length=255,
+        blank=True,
+        validators=[DNSValidator],
+        verbose_name='DNS Name',
+        help_text='Hostname or FQDN'
+    )
     description = models.CharField(
         max_length=100,
         blank=True
@@ -588,7 +596,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
 
     csv_headers = [
         'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface_name', 'is_primary',
-        'description',
+        'dns_name', 'description',
     ]
 
     class Meta:
@@ -671,6 +679,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
             self.virtual_machine.name if self.virtual_machine else None,
             self.interface.name if self.interface else None,
             is_primary,
+            self.dns_name,
             self.description,
         )
 

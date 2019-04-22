@@ -210,8 +210,8 @@ class IPAddressSerializer(TaggitSerializer, CustomFieldModelSerializer):
     class Meta:
         model = IPAddress
         fields = [
-            'id', 'family', 'address', 'vrf', 'tenant', 'status', 'role', 'interface', 'description', 'nat_inside',
-            'nat_outside', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'family', 'address', 'vrf', 'tenant', 'status', 'role', 'interface', 'nat_inside',
+            'nat_outside', 'dns_name', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         read_only_fields = ['family']
 

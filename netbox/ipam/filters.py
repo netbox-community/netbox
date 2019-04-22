@@ -331,12 +331,13 @@ class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
 
     class Meta:
         model = IPAddress
-        fields = ['family']
+        fields = ['family', 'dns_name']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         qs_filter = (
+            Q(dns_name__icontains=value) |
             Q(description__icontains=value) |
             Q(address__istartswith=value)
         )

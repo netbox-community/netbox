@@ -135,6 +135,7 @@ functionality provided by the front end UI.
 
 ## Enhancements
 
+* [#166](https://github.com/digitalocean/netbox/issues/166) - Add `dns_name` field to IPAddress
 * [#323](https://github.com/digitalocean/netbox/issues/323) - Enforce view permissions by object type
 * [#1792](https://github.com/digitalocean/netbox/issues/1792) - Add CustomFieldChoices API endpoint
 * [#1863](https://github.com/digitalocean/netbox/issues/1863) - Add child object counts to API representation of organizational objects
