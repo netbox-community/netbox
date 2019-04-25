@@ -368,11 +368,15 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
                     })
 
     def save(self, *args, **kwargs):
-        if self.prefix:
+
+        if isinstance(self.prefix, netaddr.IPNetwork):
+
             # Clear host bits from prefix
             self.prefix = self.prefix.cidr
-            # Infer address family from IPNetwork object
+
+            # Record address family
             self.family = self.prefix.version
+
         super().save(*args, **kwargs)
 
     def to_csv(self):
@@ -579,7 +583,7 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
         blank=True,
         validators=[DNSValidator],
         verbose_name='DNS Name',
-        help_text='Hostname or FQDN'
+        help_text='Hostname or FQDN (not case-sensitive)'
     )
     description = models.CharField(
         max_length=100,
@@ -633,9 +637,14 @@ class IPAddress(ChangeLoggedModel, CustomFieldModel):
                     })
 
     def save(self, *args, **kwargs):
-        if self.address:
-            # Infer address family from IPAddress object
+
+        # Record address family
+        if isinstance(self.address, netaddr.IPNetwork):
             self.family = self.address.version
+
+        # Force dns_name to lowercase
+        self.dns_name = self.dns_name.lower()
+
         super().save(*args, **kwargs)
 
     def log_change(self, user, request_id, action):
