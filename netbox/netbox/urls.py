@@ -73,6 +73,11 @@ if settings.DEBUG:
         url(r'^__debug__/', include(debug_toolbar.urls)),
     ]
 
+if settings.METRICS_ENABLED:
+    _patterns += [
+        url('', include('django_prometheus.urls')),
+    ]
+
 # Prepend BASE_PATH
 urlpatterns = [
     url(r'^{}'.format(settings.BASE_PATH), include(_patterns))

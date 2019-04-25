@@ -77,6 +77,7 @@ LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
 MAINTENANCE_MODE = getattr(configuration, 'MAINTENANCE_MODE', False)
 MAX_PAGE_SIZE = getattr(configuration, 'MAX_PAGE_SIZE', 1000)
 MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
+METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', True)
 NAPALM_ARGS = getattr(configuration, 'NAPALM_ARGS', {})
 NAPALM_PASSWORD = getattr(configuration, 'NAPALM_PASSWORD', '')
 NAPALM_TIMEOUT = getattr(configuration, 'NAPALM_TIMEOUT', 30)
@@ -98,9 +99,14 @@ WEBHOOKS_ENABLED = getattr(configuration, 'WEBHOOKS_ENABLED', False)
 #
 
 # Only PostgreSQL is supported
-DATABASE.update({
-    'ENGINE': 'django.db.backends.postgresql'
-})
+if METRICS_ENABLED:
+    DATABASE.update({
+        'ENGINE': 'django_prometheus.db.backends.postgresql'
+    })
+else:
+    DATABASE.update({
+        'ENGINE': 'django.db.backends.postgresql'
+    })
 
 DATABASES = {
     'default': DATABASE,
@@ -161,6 +167,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'django_filters',
     'django_tables2',
+    'django_prometheus',
     'mptt',
     'rest_framework',
     'taggit',
@@ -185,6 +192,7 @@ if WEBHOOKS_ENABLED:
 # Middleware
 MIDDLEWARE = (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -197,6 +205,7 @@ MIDDLEWARE = (
     'utilities.middleware.LoginRequiredMiddleware',
     'utilities.middleware.APIVersionMiddleware',
     'extras.middleware.ObjectChangeMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 )
 
 ROOT_URLCONF = 'netbox.urls'
@@ -337,7 +346,7 @@ else:
     REDIS_CACHE_CON_STRING = 'redis://'
 
 if REDIS_PASSWORD:
-    REDIS_CACHE_CON_STRING = '{}@{}'.format(REDIS_PASSWORD, REDIS_CACHE_CON_STRING)
+    REDIS_CACHE_CON_STRING = '{}{}@'.format(REDIS_CACHE_CON_STRING, REDIS_PASSWORD)
 
 REDIS_CACHE_CON_STRING = '{}{}:{}/{}'.format(REDIS_CACHE_CON_STRING, REDIS_HOST, REDIS_PORT, REDIS_CACHE_DATABASE)
 
@@ -363,6 +372,12 @@ CACHEOPS = {
     'virtualization.*': {'ops': 'all'},
 }
 CACHEOPS_DEGRADE_ON_FAILURE = True
+
+
+#
+# Django Prometheus
+#
+PROMETHEUS_EXPORT_MIGRATIONS = False
 
 
 #

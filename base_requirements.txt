@@ -22,6 +22,10 @@ django-filter
 # https://github.com/django-mptt/django-mptt
 django-mptt
 
+# Prometheus metrics library for Django
+# https://github.com/korfuri/django-prometheus
+django-prometheus
+
 # Abstraction models for rendering and paginating HTML tables
 # https://github.com/jieter/django-tables2
 django-tables2
