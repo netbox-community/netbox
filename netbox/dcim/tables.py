@@ -707,7 +707,8 @@ class PowerConnectionTable(BaseTable):
         args=[Accessor('connected_endpoint.device.pk')],
         verbose_name='PDU'
     )
-    connected_endpoint = tables.Column(
+    outlet = tables.Column(
+        accessor=Accessor('_connected_poweroutlet'),
         verbose_name='Outlet'
     )
     device = tables.LinkColumn(
@@ -720,7 +721,7 @@ class PowerConnectionTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerPort
-        fields = ('pdu', 'connected_endpoint', 'device', 'name', 'connection_status')
+        fields = ('pdu', 'outlet', 'device', 'name', 'connection_status')
 
 
 class InterfaceConnectionTable(BaseTable):

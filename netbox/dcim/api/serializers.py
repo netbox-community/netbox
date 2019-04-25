@@ -429,8 +429,8 @@ class PowerPortSerializer(TaggitSerializer, ConnectedEndpointSerializer):
     class Meta:
         model = PowerPort
         fields = [
-            'id', 'device', 'name', 'maximum_draw', 'allocated_draw', 'description', 'connected_endpoint_type', 'connected_endpoint', 'connection_status',
-            'cable', 'tags',
+            'id', 'device', 'name', 'maximum_draw', 'allocated_draw', 'description', 'connected_endpoint_type',
+            'connected_endpoint', 'connection_status', 'cable', 'tags',
         ]
 
 

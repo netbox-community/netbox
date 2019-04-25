@@ -1025,14 +1025,14 @@ class PowerConnectionFilter(django_filters.FilterSet):
     def filter_site(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(connected_endpoint__device__site__slug=value)
+        return queryset.filter(_connected_poweroutlet__device__site__slug=value)
 
     def filter_device(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
             Q(device__name__icontains=value) |
-            Q(connected_endpoint__device__name__icontains=value)
+            Q(_connected_poweroutlet__device__name__icontains=value)
         )
 
 
