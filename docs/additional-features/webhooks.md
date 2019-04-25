@@ -4,14 +4,6 @@ A webhook defines an HTTP request that is sent to an external application when c
 
 An optional secret key can be configured for each webhook. This will append a `X-Hook-Signature` header to the request, consisting of a HMAC (SHA-512) hex digest of the request body using the secret as the key. This digest can be used by the receiver to authenticate the request's content.
 
-## Installation
-
-If you are upgrading from a previous version of Netbox and want to enable the webhook feature, please follow the directions listed in the sections below.
-
-* [Install Redis server and djano-rq package](../installation/2-netbox/#install-python-packages)
-* [Modify configuration to enable webhooks](../installation/2-netbox/#webhooks-configuration)
-* [Create supervisord program to run the rqworker process](../installation/3-http-daemon/#supervisord-installation)
-
 ## Requests
 
 The webhook POST request is structured as so (assuming `application/json` as the Content-Type):

@@ -83,13 +83,18 @@ For the exhaustive list of exposed metrics, visit the `/metrics` endpoint on you
 
 ## Changes
 
-### New Dependency: Redis
+### New Dependencies: Redis and django-rq
 
 [Redis](https://redis.io/) is an in-memory data store similar to memcached. While Redis has been an optional component
 of NetBox since the introduction of webhooks in version 2.4, it is now required to support NetBox's new caching
-functionality (as well as other planned features).
+functionality (as well as other planned features). Redis can be installed via your platform's package manager: for
+example, `sudo apt-get install redis-server` on Ubuntu or `sudo yum install redis` on CentOS.
 
-Redis is configured using a configuration setting similar to `DATABASE` in `configuration.py`:
+[`django-rq`](https://github.com/rq/django-rq) is a Django integration for Redis-based queuing used for webhook
+processing. As of v2.6 it is also a required dependency even if webhooks are not enabled. Installation of `django-rq` is
+handled automatically during the NetBox upgrade process.
+
+The Redis database is configured using a configuration setting similar to `DATABASE` in `configuration.py`:
 
 ```
 REDIS = {
