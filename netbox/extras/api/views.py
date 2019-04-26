@@ -116,7 +116,9 @@ class TopologyMapViewSet(ModelViewSet):
 #
 
 class TagViewSet(ModelViewSet):
-    queryset = Tag.objects.annotate(tagged_items=Count('taggit_taggeditem_items'))
+    queryset = Tag.objects.annotate(
+        tagged_items=Count('taggit_taggeditem_items', distinct=True)
+    )
     serializer_class = serializers.TagSerializer
     filterset_class = filters.TagFilter
 
