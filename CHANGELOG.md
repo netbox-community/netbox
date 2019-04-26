@@ -3,6 +3,7 @@
 ## Bug Fixes
 
 * [#2621](https://github.com/digitalocean/netbox/issues/2621) - Upgrade Django requirement to 2.2 to fix object deletion issue in the changelog middleware
+* [#3112](https://github.com/digitalocean/netbox/issues/3112) - Fix ordering of interface connections list by termination B name/device
 
 ---
 
