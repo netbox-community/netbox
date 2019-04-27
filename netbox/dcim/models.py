@@ -23,7 +23,7 @@ from utilities.utils import serialize_object, to_meters
 from .constants import *
 from .exceptions import LoopDetected
 from .fields import ASNField, MACAddressField
-from .managers import DeviceComponentManager, InterfaceManager
+from .managers import InterfaceManager
 
 
 class ComponentTemplateModel(models.Model):
@@ -1004,7 +1004,7 @@ class ConsolePortTemplate(ComponentTemplateModel):
         max_length=50
     )
 
-    objects = DeviceComponentManager()
+    objects = NaturalOrderingManager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -1027,7 +1027,7 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
         max_length=50
     )
 
-    objects = DeviceComponentManager()
+    objects = NaturalOrderingManager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -1050,7 +1050,7 @@ class PowerPortTemplate(ComponentTemplateModel):
         max_length=50
     )
 
-    objects = DeviceComponentManager()
+    objects = NaturalOrderingManager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -1073,7 +1073,7 @@ class PowerOutletTemplate(ComponentTemplateModel):
         max_length=50
     )
 
-    objects = DeviceComponentManager()
+    objects = NaturalOrderingManager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -1139,7 +1139,7 @@ class FrontPortTemplate(ComponentTemplateModel):
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
 
-    objects = DeviceComponentManager()
+    objects = NaturalOrderingManager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -1188,7 +1188,7 @@ class RearPortTemplate(ComponentTemplateModel):
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
 
-    objects = DeviceComponentManager()
+    objects = NaturalOrderingManager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -1211,7 +1211,7 @@ class DeviceBayTemplate(ComponentTemplateModel):
         max_length=50
     )
 
-    objects = DeviceComponentManager()
+    objects = NaturalOrderingManager()
 
     class Meta:
         ordering = ['device_type', 'name']
@@ -1742,7 +1742,7 @@ class ConsolePort(CableTermination, ComponentModel):
         blank=True
     )
 
-    objects = DeviceComponentManager()
+    objects = NaturalOrderingManager()
     tags = TaggableManager()
 
     csv_headers = ['device', 'name']
@@ -1785,7 +1785,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         blank=True
     )
 
-    objects = DeviceComponentManager()
+    objects = NaturalOrderingManager()
     tags = TaggableManager()
 
     csv_headers = ['device', 'name']
@@ -1834,7 +1834,7 @@ class PowerPort(CableTermination, ComponentModel):
         blank=True
     )
 
-    objects = DeviceComponentManager()
+    objects = NaturalOrderingManager()
     tags = TaggableManager()
 
     csv_headers = ['device', 'name']
@@ -1877,7 +1877,7 @@ class PowerOutlet(CableTermination, ComponentModel):
         blank=True
     )
 
-    objects = DeviceComponentManager()
+    objects = NaturalOrderingManager()
     tags = TaggableManager()
 
     csv_headers = ['device', 'name']
@@ -2198,7 +2198,7 @@ class FrontPort(CableTermination, ComponentModel):
         blank=True
     )
 
-    objects = DeviceComponentManager()
+    objects = NaturalOrderingManager()
     tags = TaggableManager()
 
     csv_headers = ['device', 'name', 'type', 'rear_port', 'rear_port_position', 'description']
@@ -2264,7 +2264,7 @@ class RearPort(CableTermination, ComponentModel):
         blank=True
     )
 
-    objects = DeviceComponentManager()
+    objects = NaturalOrderingManager()
     tags = TaggableManager()
 
     csv_headers = ['device', 'name', 'type', 'positions', 'description']
@@ -2311,7 +2311,7 @@ class DeviceBay(ComponentModel):
         null=True
     )
 
-    objects = DeviceComponentManager()
+    objects = NaturalOrderingManager()
     tags = TaggableManager()
 
     csv_headers = ['device', 'name', 'installed_device']

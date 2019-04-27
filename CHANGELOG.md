@@ -2,6 +2,7 @@
 
 ## Enhancements
 
+* [#2986](https://github.com/digitalocean/netbox/issues/2986) - Improve natural ordering of device components
 * [#3070](https://github.com/digitalocean/netbox/issues/3070) - Add decommissioning status for devices
 
 ## Bug Fixes
