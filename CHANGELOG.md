@@ -3,6 +3,7 @@
 ## Enhancements
 
 * [#2986](https://github.com/digitalocean/netbox/issues/2986) - Improve natural ordering of device components
+* [#3023](https://github.com/digitalocean/netbox/issues/3023) - Add support for filtering cables by connected device
 * [#3070](https://github.com/digitalocean/netbox/issues/3070) - Add decommissioning status for devices
 
 ## Bug Fixes

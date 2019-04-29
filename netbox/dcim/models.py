@@ -1704,6 +1704,21 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
             filter |= Q(device__virtual_chassis=self.virtual_chassis, mgmt_only=False)
         return Interface.objects.filter(filter)
 
+    def get_cables(self, pk_list=False):
+        """
+        Return a QuerySet or PK list matching all Cables connected to a component of this Device.
+        """
+        cable_pks = []
+        for component_model in [
+            ConsolePort, ConsoleServerPort, PowerPort, PowerOutlet, Interface, FrontPort, RearPort
+        ]:
+            cable_pks += component_model.objects.filter(
+                device=self, cable__isnull=False
+            ).values_list('cable', flat=True)
+        if pk_list:
+            return cable_pks
+        return Cable.objects.filter(pk__in=cable_pks)
+
     def get_children(self):
         """
         Return the set of child Devices installed in DeviceBays within this Device.
