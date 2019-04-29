@@ -2,7 +2,7 @@ site_name: NetBox
 theme: readthedocs
 repo_url: https://github.com/digitalocean/netbox
 
-pages:
+nav:
     - Introduction: 'index.md'
     - Installation:
         - Installing NetBox: 'installation/index.md'
