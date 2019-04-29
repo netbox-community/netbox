@@ -29,7 +29,7 @@ from .tables import ConfigContextTable, ObjectChangeTable, TagTable, TaggedItemT
 
 class TagListView(ObjectListView):
     queryset = Tag.objects.annotate(
-        items=Count('extras_taggeditem_items')
+        items=Count('taggit_taggeditem_items', distinct=True)
     ).order_by(
         'name'
     )

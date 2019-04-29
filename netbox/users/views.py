@@ -1,6 +1,9 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.models import update_last_login
+from django.contrib.auth.signals import user_logged_in
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -42,6 +45,11 @@ class LoginView(View):
             redirect_to = request.POST.get('next', '')
             if not is_safe_url(url=redirect_to, allowed_hosts=request.get_host()):
                 redirect_to = reverse('home')
+
+            # If maintenance mode is enabled, assume the database is read-only, and disable updating the user's
+            # last_login time upon authentication.
+            if settings.MAINTENANCE_MODE:
+                user_logged_in.disconnect(update_last_login, dispatch_uid='update_last_login')
 
             # Authenticate user
             auth_login(request, form.get_user())

@@ -3003,6 +3003,10 @@ class CableFilterForm(BootstrapMixin, forms.Form):
         required=False,
         widget=ColorSelect()
     )
+    device = forms.CharField(
+        required=False,
+        label='Device name'
+    )
 
 
 #
