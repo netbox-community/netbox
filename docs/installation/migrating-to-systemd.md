@@ -15,8 +15,8 @@ Migration is not required, as supervisord will still continue to function.
 Copy or link contrib/netbox.service and contrib/netbox-rq.service to /etc/systemd/system/netbox.service and /etc/systemd/system/netbox-rq.service
 
 ```no-highlight
-# cp -f contrib/netbox.service to /etc/systemd/system/netbox.service
-# cp -f contrib/netbox-rq.service to /etc/systemd/system/netbox-rq.service
+# cp contrib/netbox.service /etc/systemd/system/netbox.service
+# cp contrib/netbox-rq.service /etc/systemd/system/netbox-rq.service
 ```
 
 Edit /etc/systemd/system/netbox.service and /etc/systemd/system/netbox-rq.service. Be sure to verify the location of the gunicorn executable on your server (e.g. `which gunicorn`).  If using CentOS/RHEL.  Change the username from `www-data` to `nginx` or `apache`:
@@ -33,7 +33,7 @@ Group=www-data
 Copy contrib/netbox.env to /etc/sysconfig/netbox.env
 
 ```no-highlight
-# cp -f contrib/netbox.env to /etc/sysconfig/netbox.env
+# cp contrib/netbox.env /etc/sysconfig/netbox.env
 ```
 
 Edit /etc/sysconfig/netbox.env and change the settings as required.  Update the `WorkingDirectory` variable if needed.
@@ -45,11 +45,11 @@ Name = 'Netbox'
 
 # ConfigPath is the path to the gunicorn config file.
 #
-ConfigPath=/usr/local/netbox/gunicorn.conf
+ConfigPath=/opt/netbox/gunicorn.conf
 
 # WorkingDirectory is the Working Directory for Netbox.
 #
-WorkingDirectory=/usr/local/netbox/
+WorkingDirectory=/opt/netbox/
 
 # PidPath is the path to the pid for the netbox WSGI
 #
@@ -86,7 +86,7 @@ timeout=120
 # ErrorLog
 #     ErrorLog is the logfile for the ErrorLog
 #
-errorlog='/usr/local/netbox/netbox.log'
+errorlog='/opt/netbox/netbox.log'
 ```
 
 Then, restart the systemd daemon service to detect the netbox service and start the netbox service:
