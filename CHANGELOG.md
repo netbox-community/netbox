@@ -1,18 +1,62 @@
-v2.5.9 (FUTURE)
+2.5.11 (FUTURE)
 
 ## Enhancements
 
-* [#2902](https://github.com/digitalocean/netbox/issues/2902) - Replace supervisord with systemd
-* [#3011](https://github.com/digitalocean/netbox/issues/3011) - Add SSL support for django-rq (requires django-rq v1.3.1+)
+* [#2986](https://github.com/digitalocean/netbox/issues/2986) - Improve natural ordering of device components
+* [#3023](https://github.com/digitalocean/netbox/issues/3023) - Add support for filtering cables by connected device
+* [#3070](https://github.com/digitalocean/netbox/issues/3070) - Add decommissioning status for devices
 
 ## Bug Fixes
 
-* [#2207](https://github.com/digitalocean/netbox/issues/2207) - Fixes Deterministic Ordering of Interfaces
+* [#2621](https://github.com/digitalocean/netbox/issues/2621) - Upgrade Django requirement to 2.2 to fix object deletion issue in the changelog middleware
+* [#3112](https://github.com/digitalocean/netbox/issues/3112) - Fix ordering of interface connections list by termination B name/device
+* [#3116](https://github.com/digitalocean/netbox/issues/3116) - Fix `tagged_items` count in tags API endpoint
+* [#3118](https://github.com/digitalocean/netbox/issues/3118) - Disable `last_login` update on login when maintenance mode is enabled
+
+---
+
+v2.5.10 (2019-04-08)
+
+## Enhancements
+
+* [#3052](https://github.com/digitalocean/netbox/issues/3052) - Add Jinja2 support for export templates
+
+## Bug Fixes
+
+* [#2937](https://github.com/digitalocean/netbox/issues/2937) - Redirect to list view after editing an object from list view
+* [#3036](https://github.com/digitalocean/netbox/issues/3036) - DCIM interfaces API endpoint should not include VM interfaces
+* [#3039](https://github.com/digitalocean/netbox/issues/3039) - Fix exception when retrieving change object for a component template via API
+* [#3041](https://github.com/digitalocean/netbox/issues/3041) - Fix form widget for bulk cable label update
+* [#3044](https://github.com/digitalocean/netbox/issues/3044) - Ignore site/rack fields when connecting a new cable via device search
+* [#3046](https://github.com/digitalocean/netbox/issues/3046) - Fix exception at reports API endpoint
+* [#3047](https://github.com/digitalocean/netbox/issues/3047) - Fix exception when writing mac address for an interface via API
+
+---
+
+v2.5.9 (2019-04-01)
+
+## Enhancements
+
+* [#2933](https://github.com/digitalocean/netbox/issues/2933) - Add username to outbound webhook requests
+* [#3011](https://github.com/digitalocean/netbox/issues/3011) - Add SSL support for django-rq (requires django-rq v1.3.1+)
+* [#3025](https://github.com/digitalocean/netbox/issues/3025) - Add request ID to outbound webhook requests (for correlating all changes part of a single request)
+
+## Bug Fixes
+
+* [#2207](https://github.com/digitalocean/netbox/issues/2207) - Fixes deterministic ordering of interfaces
 * [#2577](https://github.com/digitalocean/netbox/issues/2577) - Clarification of wording in API regarding filtering
 * [#2924](https://github.com/digitalocean/netbox/issues/2924) - Add interface type for QSFP28 50GE
 * [#2936](https://github.com/digitalocean/netbox/issues/2936) - Fix device role selection showing duplicate first entry
 * [#2998](https://github.com/digitalocean/netbox/issues/2998) - Limit device query to non-racked devices if no rack selected when creating a cable
+* [#3001](https://github.com/digitalocean/netbox/issues/3001) - Fix API representation of ObjectChange `action` and add `changed_object_type`
 * [#3014](https://github.com/digitalocean/netbox/issues/3014) - Fixes VM Role filtering
+* [#3019](https://github.com/digitalocean/netbox/issues/3019) - Fix tag population when running NetBox within a path
+* [#3022](https://github.com/digitalocean/netbox/issues/3022) - Add missing cable termination types to DCIM `_choices` endpoint
+* [#3026](https://github.com/digitalocean/netbox/issues/3026) - Tweak prefix/IP filter forms to filter using VRF ID rather than route distinguisher
+* [#3027](https://github.com/digitalocean/netbox/issues/3027) - Ignore empty local context data when rendering config contexts
+* [#3032](https://github.com/digitalocean/netbox/issues/3032) - Save assigned tags when creating a new secret
+
+---
 
 v2.5.8 (2019-03-11)
 

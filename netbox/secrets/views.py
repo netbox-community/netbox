@@ -120,6 +120,8 @@ def secret_add(request, pk):
                     secret.plaintext = str(form.cleaned_data['plaintext'])
                     secret.encrypt(master_key)
                     secret.save()
+                    form.save_m2m()
+
                     messages.success(request, "Added new secret: {}.".format(secret))
                     if '_addanother' in request.POST:
                         return redirect('dcim:device_addsecret', pk=device.pk)

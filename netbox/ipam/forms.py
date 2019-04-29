@@ -524,14 +524,12 @@ class PrefixFilterForm(BootstrapMixin, CustomFieldFilterForm):
         label='Mask length',
         widget=StaticSelect2()
     )
-    vrf = FilterChoiceField(
+    vrf_id = FilterChoiceField(
         queryset=VRF.objects.all(),
-        to_field_name='rd',
         label='VRF',
         null_label='-- Global --',
         widget=APISelectMultiple(
             api_url="/api/ipam/vrfs/",
-            value_field="rd",
             null_option=True,
         )
     )
@@ -973,14 +971,12 @@ class IPAddressFilterForm(BootstrapMixin, CustomFieldFilterForm):
         label='Mask length',
         widget=StaticSelect2()
     )
-    vrf = FilterChoiceField(
+    vrf_id = FilterChoiceField(
         queryset=VRF.objects.all(),
-        to_field_name='rd',
         label='VRF',
         null_label='-- Global --',
         widget=APISelectMultiple(
             api_url="/api/ipam/vrfs/",
-            value_field="rd",
             null_option=True,
         )
     )
