@@ -9,6 +9,7 @@
 ## Bug Fixes
 
 * [#2621](https://github.com/digitalocean/netbox/issues/2621) - Upgrade Django requirement to 2.2 to fix object deletion issue in the changelog middleware
+* [#3072](https://github.com/digitalocean/netbox/issues/3072) - Preserve multiselect filter values when updating per-page count for list views
 * [#3112](https://github.com/digitalocean/netbox/issues/3112) - Fix ordering of interface connections list by termination B name/device
 * [#3116](https://github.com/digitalocean/netbox/issues/3116) - Fix `tagged_items` count in tags API endpoint
 * [#3118](https://github.com/digitalocean/netbox/issues/3118) - Disable `last_login` update on login when maintenance mode is enabled
