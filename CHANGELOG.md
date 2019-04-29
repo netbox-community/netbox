@@ -4,9 +4,10 @@ v2.6.0 (FUTURE)
 
 ### Power Panels and Feeds ([#54](https://github.com/digitalocean/netbox/issues/54))
 
-NetBox now includes support for power supply modeling, through two new models: power panels and power feeds. Power feeds
-are terminated to power panels and otpionally associated with individual racks. Each power feed defines a supply type
-(AC/DC), amperage, voltage, and phase. Power ports can be connected directly to power feeds.
+NetBox now supports power supply modeling via two new models: power panels and power feeds. Power feeds are terminated
+to power panels and are optionally associated with individual racks. Each power feed defines a supply type (AC/DC),
+amperage, voltage, and phase. A power port can be connected directly to a power feed, but a power feed may have only one
+power port connected to it.
 
 Additionally, the power port model has been extended to include fields denoting maximum and allocated draw, in watts.
 This allows a device (e.g. a PDU) to calculate its total load compared to its connected power feed.
@@ -47,12 +48,12 @@ EXEMPT_VIEW_PERMISSIONS = ['*']
 
 ### Custom Links ([#969](https://github.com/digitalocean/netbox/issues/969))
 
-Custom links are defined under the admin UI and will be displayed on each object of the selected type. Link text and
+Custom links are created under the admin UI and will be displayed on each object of the selected type. Link text and
 URLs can be formed from Jinja2 template code, with the viewed object passed as context data. For example, to link to an
 external NMS from the device view, you might create a custom link with the following URL:
 
 ```
-https://nms.local/nodes/?name={{ obj.name }}
+https://nms.example.com/nodes/?name={{ obj.name }}
 ```
 
 Custom links appear as buttons at the top of the object view. Grouped links will render as a dropdown menu beneath a
@@ -60,10 +61,10 @@ single button.
 
 ### Prometheus Metrics ([#3104](https://github.com/digitalocean/netbox/issues/3104))
 
-NetBox now supports optionally exposing native Prometheus metrics from the application. [Prometheus](https://prometheus.io/)
-is a popular time series metric platform used for monitoring. NetBox exposes metrics at the `/metrics` HTTP endpoint, e.g.
-`https://netbox.local/metrics`. Metric exposition can be toggled with the `METRICS_ENABLED` configuration setting. Metrics
-are exposed by default.
+NetBox now supports exposing native Prometheus metrics from the application. [Prometheus](https://prometheus.io/) is a
+popular time series metric platform used for monitoring. NetBox exposes metrics at the `/metrics` HTTP endpoint, e.g.
+`https://netbox.local/metrics`. Metric exposition can be toggled with the `METRICS_ENABLED` configuration setting.
+Metrics are exposed by default.
 
 NetBox makes use of the [django-prometheus](https://github.com/korfuri/django-prometheus) library to export a number of
 different types of metrics, including:
@@ -83,16 +84,12 @@ For the exhaustive list of exposed metrics, visit the `/metrics` endpoint on you
 
 ## Changes
 
-### New Dependencies: Redis and django-rq
+### New Dependency: Redis
 
 [Redis](https://redis.io/) is an in-memory data store similar to memcached. While Redis has been an optional component
 of NetBox since the introduction of webhooks in version 2.4, it is now required to support NetBox's new caching
 functionality (as well as other planned features). Redis can be installed via your platform's package manager: for
 example, `sudo apt-get install redis-server` on Ubuntu or `sudo yum install redis` on CentOS.
-
-[`django-rq`](https://github.com/rq/django-rq) is a Django integration for Redis-based queuing used for webhook
-processing. As of v2.6 it is also a required dependency even if webhooks are not enabled. Installation of `django-rq` is
-handled automatically during the NetBox upgrade process.
 
 The Redis database is configured using a configuration setting similar to `DATABASE` in `configuration.py`:
 
@@ -156,7 +153,7 @@ exclude the config context data from the API response.
 
 ### Changes to Tag Permissions
 
-NetBox now makes use of its own `Tag` model instead of the vanilla model which ships with django-taggit. This new model
+NetBox now makes use of its own `Tag` model instead of the stock model which ships with django-taggit. This new model
 lives in the `extras` app and thus any permissions that you may have configured using "Taggit | Tag" should be changed
 to now use "Extras | Tag." Also note that the admin interface for tags has been removed as it was redundant to the
 functionality provided by the front end UI.
@@ -164,8 +161,7 @@ functionality provided by the front end UI.
 ## Enhancements
 
 * [#166](https://github.com/digitalocean/netbox/issues/166) - Add `dns_name` field to IPAddress
-* [#323](https://github.com/digitalocean/netbox/issues/323) - Enforce view permissions by object type
-* [#1792](https://github.com/digitalocean/netbox/issues/1792) - Add CustomFieldChoices API endpoint
+* [#1792](https://github.com/digitalocean/netbox/issues/1792) - Add CustomFieldChoices API endpoint at `/api/extras/_custom_field_choices/`
 * [#1863](https://github.com/digitalocean/netbox/issues/1863) - Add child object counts to API representation of organizational objects
 * [#2324](https://github.com/digitalocean/netbox/issues/2324) - Add `color` field for tags
 * [#2643](https://github.com/digitalocean/netbox/issues/2643) - Add `description` field to console/power components and device bays
