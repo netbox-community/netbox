@@ -1,5 +1,9 @@
 2.5.11 (2019-04-29)
 
+## Notes
+
+This release upgrades the Django framework to version 2.2.
+
 ## Enhancements
 
 * [#2986](https://github.com/digitalocean/netbox/issues/2986) - Improve natural ordering of device components
