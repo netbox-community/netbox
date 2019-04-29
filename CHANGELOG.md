@@ -1,4 +1,8 @@
-v2.6.0 (FUTURE)
+v2.6-beta1 (2019-04-29)
+
+**WARNING:** This is a beta release of NetBox intended for development use only. **Do not** rely on it for production
+use. A migration path forward to a stable release **will not** be provided; expect to ultimately lose any data input
+into this instance.
 
 ## New Features
 
