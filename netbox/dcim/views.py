@@ -934,7 +934,7 @@ class DeviceView(PermissionRequiredMixin, View):
         power_ports = device.powerports.select_related('_connected_poweroutlet__device', 'cable')
 
         # Power outlets
-        poweroutlets = device.poweroutlets.select_related('connected_endpoint__device', 'cable')
+        poweroutlets = device.poweroutlets.select_related('connected_endpoint__device', 'cable', 'power_port')
 
         # Interfaces
         interfaces = device.vc_interfaces.select_related(

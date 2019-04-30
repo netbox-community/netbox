@@ -3,6 +3,7 @@ v2.6.0 (FUTURE)
 ## Bug Fixes (From Beta)
 
 * [#3123](https://github.com/digitalocean/netbox/issues/3123) - Exempt `/metrics` view from authentication
+* [#3125](https://github.com/digitalocean/netbox/issues/3125) - Fix exception when viewing PDUs
 
 
 ---

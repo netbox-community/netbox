@@ -1956,8 +1956,8 @@ class PowerPort(CableTermination, ComponentModel):
 
         outlet_ids = PowerOutlet.objects.filter(power_port=self).values_list('pk', flat=True)
         utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
-            maximum_draw=Sum('maximum_draw'),
-            allocated_draw=Sum('allocated_draw'),
+            maximum_draw_total=Sum('maximum_draw'),
+            allocated_draw_total=Sum('allocated_draw'),
         )
         utilization['outlets'] = len(outlet_ids)
         utilization['available_power'] = powerfeed_available
@@ -1968,8 +1968,8 @@ class PowerPort(CableTermination, ComponentModel):
             for leg, leg_name in POWERFEED_LEG_CHOICES:
                 outlet_ids = PowerOutlet.objects.filter(power_port=self, feed_leg=leg).values_list('pk', flat=True)
                 utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
-                    maximum_draw=Sum('maximum_draw'),
-                    allocated_draw=Sum('allocated_draw'),
+                    maximum_draw_total=Sum('maximum_draw'),
+                    allocated_draw_total=Sum('allocated_draw'),
                 )
                 utilization['name'] = 'Leg {}'.format(leg_name)
                 utilization['outlets'] = len(outlet_ids)
