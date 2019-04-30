@@ -1973,7 +1973,7 @@ class PowerPort(CableTermination, ComponentModel):
                 )
                 utilization['name'] = 'Leg {}'.format(leg_name)
                 utilization['outlets'] = len(outlet_ids)
-                utilization['available_power'] = powerfeed_available / 3
+                utilization['available_power'] = round(powerfeed_available / 3)
                 stats.append(utilization)
 
         return stats
@@ -2998,7 +2998,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
 
     @property
     def available_power(self):
-        kva = self.voltage * self.amperage * self.power_factor
+        kva = self.voltage * self.amperage * (self.power_factor / 100)
         if self.phase == POWERFEED_PHASE_3PHASE:
-            return kva * 1.732
-        return kva
+            return round(kva * 1.732)
+        return round(kva)
