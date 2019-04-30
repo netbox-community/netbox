@@ -1,5 +1,7 @@
 import django_filters
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from netaddr import EUI
 from netaddr.core import AddrFormatError
@@ -916,6 +918,14 @@ class CableFilter(django_filters.FilterSet):
     color = django_filters.MultipleChoiceFilter(
         choices=COLOR_CHOICES
     )
+    device = django_filters.CharFilter(
+        method='filter_connected_device',
+        field_name='name'
+    )
+    device_id = django_filters.CharFilter(
+        method='filter_connected_device',
+        field_name='pk'
+    )
 
     class Meta:
         model = Cable
@@ -925,6 +935,16 @@ class CableFilter(django_filters.FilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(label__icontains=value)
+
+    def filter_connected_device(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        try:
+            device = Device.objects.get(**{name: value})
+        except ObjectDoesNotExist:
+            return queryset.none()
+        cable_pks = device.get_cables(pk_list=True)
+        return queryset.filter(pk__in=cable_pks)
 
 
 class ConsoleConnectionFilter(django_filters.FilterSet):
