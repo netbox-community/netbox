@@ -169,12 +169,8 @@ VLAN_MEMBER_ACTIONS = """
 """
 
 TENANT_LINK = """
-{% if record.tenant and record.tenant.group %}
-    <a href="{% url 'tenancy:tenant_list' %}?group={{record.tenant.group.slug}}" title="{{ record.tenant.group.name}}">{{record.tenant.group}}</a>:<a href="{% url 'tenancy:tenant' slug=record.tenant.slug %}" title="{{ record.tenant.description }}">{{ record.tenant }}</a>
-{% elif record.tenant %}
+{% if record.tenant %}
     <a href="{% url 'tenancy:tenant' slug=record.tenant.slug %}" title="{{ record.tenant.description }}">{{ record.tenant }}</a>
-{% elif record.vrf.tenant.group %}
-    <a href="{% url 'tenancy:tenant_list' %}?group={{record.vrf.tenant.group.slug}}" title="{{ record.vrf.tenant.group.name}}">{{record.vrf.tenant.group}}</a>:<a href="{% url 'tenancy:tenant' slug=record.vrf.tenant.slug %}" title="{{ record.vrf.tenant.description }}">{{ record.vrf.tenant }}</a>*
 {% elif record.vrf.tenant %}
     <a href="{% url 'tenancy:tenant' slug=record.vrf.tenant.slug %}" title="{{ record.vrf.tenant.description }}">{{ record.vrf.tenant }}</a>*
 {% else %}

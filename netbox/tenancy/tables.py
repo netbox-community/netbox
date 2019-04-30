@@ -20,16 +20,6 @@ COL_TENANT = """
 {% endif %}
 """
 
-COL_TENANTGROUP_TENANT = """
-{% if record.tenant and record.tenant.group %}
-    <a href="{% url 'tenancy:tenant_list' %}?group={{record.tenant.group.slug}}" title="{{ record.tenant.group.name}}">{{record.tenant.group}}</a>:<a href="{% url 'tenancy:tenant' slug=record.tenant.slug %}" title="{{ record.tenant.description }}">{{ record.tenant }}</a>
-{% elif record.tenant %}
-    <a href="{% url 'tenancy:tenant' slug=record.tenant.slug %}" title="{{ record.tenant.description }}">{{ record.tenant }}</a>
-{% else %}
-    &mdash;
-{% endif %}
-"""
-
 
 #
 # Tenant groups
