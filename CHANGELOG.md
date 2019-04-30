@@ -1,3 +1,12 @@
+v2.6.0 (FUTURE)
+
+## Bug Fixes (From Beta)
+
+* [#3123](https://github.com/digitalocean/netbox/issues/3123) - Exempt `/metrics` view from authentication
+
+
+---
+
 v2.6-beta1 (2019-04-29)
 
 **WARNING:** This is a beta release of NetBox intended for development use only. **Do not** rely on it for production
