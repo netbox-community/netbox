@@ -37,4 +37,8 @@ class NaturalOrderingManager(Manager):
             else:
                 ordering.append(field)
 
+        # Default to using the _nat indexes if Meta.ordering is empty
+        if not ordering:
+            ordering = ('_nat1', '_nat2', '_nat3')
+
         return queryset.order_by(*ordering)
