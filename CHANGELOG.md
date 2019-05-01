@@ -206,6 +206,14 @@ functionality provided by the front end UI.
 
 ---
 
+2.5.12 (2019-05-01)
+
+## Bug Fixes
+
+* [#3127](https://github.com/digitalocean/netbox/issues/3127) - Fix natural ordering of device components
+
+---
+
 2.5.11 (2019-04-29)
 
 ## Notes
