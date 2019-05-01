@@ -5,6 +5,7 @@ v2.6.0 (FUTURE)
 * [#3123](https://github.com/digitalocean/netbox/issues/3123) - Exempt `/metrics` view from authentication
 * [#3125](https://github.com/digitalocean/netbox/issues/3125) - Fix exception when viewing PDUs
 * [#3126](https://github.com/digitalocean/netbox/issues/3126) - Incorrect calculation of PowerFeed available power
+* [#3130](https://github.com/digitalocean/netbox/issues/3130) - Fix exception when creating a new power outlet
 
 
 ---

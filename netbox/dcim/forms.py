@@ -2006,9 +2006,10 @@ class PowerOutletForm(BootstrapMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Limit power_port choices to the local device
-        self.fields['power_port'].queryset = PowerPort.objects.filter(
-            device=self.instance.device
-        )
+        if hasattr(self.instance, 'device'):
+            self.fields['power_port'].queryset = PowerPort.objects.filter(
+                device=self.instance.device
+            )
 
 
 class PowerOutletCreateForm(ComponentForm):
