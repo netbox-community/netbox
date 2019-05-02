@@ -2026,6 +2026,14 @@ class PowerOutletCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+    power_port = forms.ModelChoiceField(
+        queryset=PowerPort.objects.all(),
+        required=False
+    )
+    feed_leg = forms.ChoiceField(
+        choices=add_blank_choice(POWERFEED_LEG_CHOICES),
+        required=False
+    )
     description = forms.CharField(
         max_length=100,
         required=False
@@ -2034,6 +2042,13 @@ class PowerOutletCreateForm(ComponentForm):
         required=False
     )
 
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        # Limit power_port choices to those on the parent device
+        self.fields['power_port'].queryset = PowerPort.objects.filter(device=self.parent)
+
 
 class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
@@ -2041,7 +2056,7 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
         widget=forms.MultipleHiddenInput()
     )
     feed_leg = forms.ChoiceField(
-        choices=POWERFEED_LEG_CHOICES,
+        choices=add_blank_choice(POWERFEED_LEG_CHOICES),
         required=False,
     )
     description = forms.CharField(

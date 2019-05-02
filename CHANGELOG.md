@@ -7,7 +7,7 @@ v2.6.0 (FUTURE)
 * [#3126](https://github.com/digitalocean/netbox/issues/3126) - Incorrect calculation of PowerFeed available power
 * [#3130](https://github.com/digitalocean/netbox/issues/3130) - Fix exception when creating a new power outlet
 * [#3136](https://github.com/digitalocean/netbox/issues/3136) - Add power draw fields to power port creation form
-
+* [#3137](https://github.com/digitalocean/netbox/issues/3137) - Add `power_port` and `feed_leg` fields to power outlet creation form
 
 ---
 
