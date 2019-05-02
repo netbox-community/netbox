@@ -367,20 +367,6 @@
                             {% endfor %}
                         {% endfor %}
                     </table>
-                    {% if perms.dcim.add_interface or perms.dcim.add_consoleport or perms.dcim.add_powerport %}
-                        <div class="panel-footer text-right noprint">
-                            {% if perms.dcim.add_consoleport %}
-                                <a href="{% url 'dcim:consoleport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
-                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add console port
-                                </a>
-                            {% endif %}
-                            {% if perms.dcim.add_powerport %}
-                                <a href="{% url 'dcim:powerport_add' pk=device.pk %}" class="btn btn-xs btn-primary">
-                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add power port
-                                </a>
-                            {% endif %}
-                        </div>
-                    {% endif %}
                 </div>
             {% endif %}
             {% if request.user.is_authenticated %}
