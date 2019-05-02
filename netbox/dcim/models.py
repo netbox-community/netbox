@@ -1960,7 +1960,7 @@ class PowerPort(CableTermination, ComponentModel):
             allocated_draw_total=Sum('allocated_draw'),
         )
         utilization['outlets'] = len(outlet_ids)
-        utilization['available_power'] = powerfeed_available
+        utilization['available_power'] = powerfeed_available - utilization['maximum_draw_total']
         stats.append(utilization)
 
         # Per-leg stats for three-phase feeds
@@ -1973,7 +1973,10 @@ class PowerPort(CableTermination, ComponentModel):
                 )
                 utilization['name'] = 'Leg {}'.format(leg_name)
                 utilization['outlets'] = len(outlet_ids)
-                utilization['available_power'] = round(powerfeed_available / 3)
+                if utilization['maximum_draw_total']:
+                    utilization['available_power'] = round((powerfeed_available - utilization['maximum_draw_total']) / 3)
+                else:
+                    utilization['available_power'] = round(powerfeed_available / 3)
                 stats.append(utilization)
 
         return stats
