@@ -1,3 +1,11 @@
+2.5.13 (FUTURE)
+
+## Bug Fixes
+
+* [#3132](https://github.com/digitalocean/netbox/issues/3132) - Circuit termination missing from available cable termination types
+
+---
+
 2.5.12 (2019-05-01)
 
 ## Bug Fixes
