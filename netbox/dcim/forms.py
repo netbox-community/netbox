@@ -1971,6 +1971,16 @@ class PowerPortCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+    maximum_draw = forms.IntegerField(
+        min_value=1,
+        required=False,
+        help_text="Maximum draw in watts"
+    )
+    allocated_draw = forms.IntegerField(
+        min_value=1,
+        required=False,
+        help_text="Allocated draw in watts"
+    )
     description = forms.CharField(
         max_length=100,
         required=False
