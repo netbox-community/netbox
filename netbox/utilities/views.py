@@ -126,10 +126,12 @@ class ObjectListView(View):
             queryset = CustomFieldQueryset(self.queryset, custom_fields) if custom_fields else self.queryset
             try:
                 return et.render_to_response(queryset)
-            except TemplateSyntaxError:
+            except Exception as e:
                 messages.error(
                     request,
-                    "There was an error rendering the selected export template ({}).".format(et.name)
+                    "There was an error rendering the selected export template ({}): {}".format(
+                        et.name, e
+                    )
                 )
 
         # Fall back to built-in CSV formatting if export requested but no template specified

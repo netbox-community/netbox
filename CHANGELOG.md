@@ -1,5 +1,9 @@
 2.5.13 (FUTURE)
 
+## Enhancements
+
+* [#3085](https://github.com/digitalocean/netbox/issues/3085) - Catch all exceptions during export template rendering
+
 ## Bug Fixes
 
 * [#3132](https://github.com/digitalocean/netbox/issues/3132) - Circuit termination missing from available cable termination types
