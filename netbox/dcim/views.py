@@ -1177,6 +1177,14 @@ class ConsoleServerPortDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     model = ConsoleServerPort
 
 
+class ConsoleServerPortBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_consoleserverport'
+    queryset = ConsoleServerPort.objects.all()
+    parent_model = Device
+    table = tables.ConsoleServerPortTable
+    form = forms.ConsoleServerPortBulkEditForm
+
+
 class ConsoleServerPortBulkRenameView(PermissionRequiredMixin, BulkRenameView):
     permission_required = 'dcim.change_consoleserverport'
     queryset = ConsoleServerPort.objects.all()
@@ -1251,6 +1259,14 @@ class PowerOutletEditView(PermissionRequiredMixin, ObjectEditView):
 class PowerOutletDeleteView(PermissionRequiredMixin, ObjectDeleteView):
     permission_required = 'dcim.delete_poweroutlet'
     model = PowerOutlet
+
+
+class PowerOutletBulkEditView(PermissionRequiredMixin, BulkEditView):
+    permission_required = 'dcim.change_poweroutlet'
+    queryset = PowerOutlet.objects.all()
+    parent_model = Device
+    table = tables.PowerOutletTable
+    form = forms.PowerOutletBulkEditForm
 
 
 class PowerOutletBulkRenameView(PermissionRequiredMixin, BulkRenameView):

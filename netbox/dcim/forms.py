@@ -2066,7 +2066,7 @@ class PowerOutletBulkEditForm(BootstrapMixin, AddRemoveTagsForm, BulkEditForm):
 
     class Meta:
         nullable_fields = [
-            'description',
+            'feed_leg', 'description',
         ]
 
 

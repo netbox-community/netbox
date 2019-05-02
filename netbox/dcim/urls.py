@@ -170,6 +170,7 @@ urlpatterns = [
     # Console server ports
     url(r'^devices/console-server-ports/add/$', views.DeviceBulkAddConsoleServerPortView.as_view(), name='device_bulk_add_consoleserverport'),
     url(r'^devices/(?P<pk>\d+)/console-server-ports/add/$', views.ConsoleServerPortCreateView.as_view(), name='consoleserverport_add'),
+    url(r'^devices/(?P<pk>\d+)/console-server-ports/edit/$', views.ConsoleServerPortBulkEditView.as_view(), name='consoleserverport_bulk_edit'),
     url(r'^devices/(?P<pk>\d+)/console-server-ports/delete/$', views.ConsoleServerPortBulkDeleteView.as_view(), name='consoleserverport_bulk_delete'),
     url(r'^console-server-ports/(?P<termination_a_id>\d+)/connect/(?P<termination_b_type>[\w-]+)/$', views.CableCreateView.as_view(), name='consoleserverport_connect', kwargs={'termination_a_type': ConsoleServerPort}),
     url(r'^console-server-ports/(?P<pk>\d+)/edit/$', views.ConsoleServerPortEditView.as_view(), name='consoleserverport_edit'),
@@ -190,6 +191,7 @@ urlpatterns = [
     # Power outlets
     url(r'^devices/power-outlets/add/$', views.DeviceBulkAddPowerOutletView.as_view(), name='device_bulk_add_poweroutlet'),
     url(r'^devices/(?P<pk>\d+)/power-outlets/add/$', views.PowerOutletCreateView.as_view(), name='poweroutlet_add'),
+    url(r'^devices/(?P<pk>\d+)/power-outlets/edit/$', views.PowerOutletBulkEditView.as_view(), name='poweroutlet_bulk_edit'),
     url(r'^devices/(?P<pk>\d+)/power-outlets/delete/$', views.PowerOutletBulkDeleteView.as_view(), name='poweroutlet_bulk_delete'),
     url(r'^power-outlets/(?P<termination_a_id>\d+)/connect/(?P<termination_b_type>[\w-]+)/$', views.CableCreateView.as_view(), name='poweroutlet_connect', kwargs={'termination_a_type': PowerOutlet}),
     url(r'^power-outlets/(?P<pk>\d+)/edit/$', views.PowerOutletEditView.as_view(), name='poweroutlet_edit'),

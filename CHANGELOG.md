@@ -8,6 +8,7 @@ v2.6.0 (FUTURE)
 * [#3130](https://github.com/digitalocean/netbox/issues/3130) - Fix exception when creating a new power outlet
 * [#3136](https://github.com/digitalocean/netbox/issues/3136) - Add power draw fields to power port creation form
 * [#3137](https://github.com/digitalocean/netbox/issues/3137) - Add `power_port` and `feed_leg` fields to power outlet creation form
+* [#3140](https://github.com/digitalocean/netbox/issues/3140) - Add bulk edit capability for power outlets and console server ports
 
 ---
 

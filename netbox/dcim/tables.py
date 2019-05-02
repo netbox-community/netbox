@@ -576,7 +576,7 @@ class ConsoleServerPortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ConsoleServerPort
-        fields = ('name',)
+        fields = ('name', 'description')
 
 
 class PowerPortTable(BaseTable):
@@ -590,7 +590,7 @@ class PowerOutletTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerOutlet
-        fields = ('name',)
+        fields = ('name', 'description')
 
 
 class InterfaceTable(BaseTable):
