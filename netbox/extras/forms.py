@@ -333,7 +333,7 @@ class ConfigContextFilterForm(BootstrapMixin, forms.Form):
 # Filter form for local config context data
 #
 
-class LocalConfigContextFilterForm(BootstrapMixin, forms.Form):
+class LocalConfigContextFilterForm(forms.Form):
     local_context_data = forms.NullBooleanField(
         required=False,
         label='Has local config context data',
