@@ -2,6 +2,7 @@
 
 ## Enhancements
 
+* [#3150](https://github.com/digitalocean/netbox/issues/3150) - Fix formatting of cable length during cable trace
 * [#3085](https://github.com/digitalocean/netbox/issues/3085) - Catch all exceptions during export template rendering
 
 ## Bug Fixes
