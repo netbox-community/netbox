@@ -217,6 +217,7 @@ class LocalConfigContextFilter(django_filters.FilterSet):
         method='_local_context_data',
         label='Has local config context data',
     )
+
     def _local_context_data(self, queryset, name, value):
         return queryset.exclude(local_context_data__isnull=value)
 

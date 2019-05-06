@@ -1809,8 +1809,6 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, CustomField
     )
 
 
-
-
 #
 # Bulk device component creation
 #
