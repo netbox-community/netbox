@@ -1647,6 +1647,11 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
 
 class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, CustomFieldFilterForm):
     model = Device
+    # Order the form fields, fields not listed are appended
+    field_order = ['q', 'region', 'site', 'rack_group_id', 'rack_id', 'role', 'tenant', 'manufacturer_id',
+                   'device_type_id', 'platform', 'status', 'mac_address', 'has_primary_ip', 'console_ports',
+                   'console_server_ports', 'power_ports', 'power_outlets', 'interfaces', 'pass_through_ports']
+
     q = forms.CharField(
         required=False,
         label='Search'
@@ -1802,6 +1807,8 @@ class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, CustomField
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+
+
 
 
 #
