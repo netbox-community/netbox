@@ -597,6 +597,10 @@ class DeviceFilter(CustomFieldFilterSet):
         method='_pass_through_ports',
         label='Has pass-through ports',
     )
+    local_context_data = django_filters.BooleanFilter(
+        method='_local_context_data',
+        label='Has local config context data',
+    )
     tag = TagFilter()
 
     class Meta:
@@ -650,6 +654,9 @@ class DeviceFilter(CustomFieldFilterSet):
 
     def _interfaces(self, queryset, name, value):
         return queryset.exclude(interfaces__isnull=value)
+
+    def _local_context_data(self, queryset, name, value):
+        return queryset.exclude(local_context_data__isnull=value)
 
     def _pass_through_ports(self, queryset, name, value):
         return queryset.exclude(

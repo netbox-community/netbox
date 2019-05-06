@@ -1800,6 +1800,13 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    local_context_data = forms.NullBooleanField(
+        required=False,
+        label='Has local config context data',
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
 
 
 #
