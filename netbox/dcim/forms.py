@@ -10,7 +10,9 @@ from mptt.forms import TreeNodeChoiceField
 from taggit.forms import TagField
 from timezone_field import TimeZoneFormField
 
-from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
+from extras.forms import (
+    AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm, LocalConfigContextFilterForm
+)
 from ipam.models import IPAddress, VLAN, VLANGroup
 from tenancy.forms import TenancyForm
 from tenancy.models import Tenant
@@ -1643,7 +1645,7 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
         ]
 
 
-class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class DeviceFilterForm(BootstrapMixin, LocalConfigContextFilterForm, CustomFieldFilterForm):
     model = Device
     q = forms.CharField(
         required=False,
@@ -1796,13 +1798,6 @@ class DeviceFilterForm(BootstrapMixin, CustomFieldFilterForm):
     pass_through_ports = forms.NullBooleanField(
         required=False,
         label='Has pass-through ports',
-        widget=StaticSelect2(
-            choices=BOOLEAN_WITH_BLANK_CHOICES
-        )
-    )
-    local_context_data = forms.NullBooleanField(
-        required=False,
-        label='Has local config context data',
         widget=StaticSelect2(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
