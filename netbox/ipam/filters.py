@@ -56,6 +56,10 @@ class AggregateFilter(CustomFieldFilterSet):
         method='search',
         label='Search',
     )
+    prefix = django_filters.CharFilter(
+        method='filter_prefix',
+        label='Prefix',
+    )
     rir_id = django_filters.ModelMultipleChoiceFilter(
         queryset=RIR.objects.all(),
         label='RIR (ID)',
@@ -83,6 +87,15 @@ class AggregateFilter(CustomFieldFilterSet):
             pass
         return queryset.filter(qs_filter)
 
+    def filter_prefix(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        try:
+            query = str(netaddr.IPNetwork(value).cidr)
+            return queryset.filter(prefix=query)
+        except ValidationError:
+            return queryset.none()
+
 
 class RoleFilter(NameSlugSearchFilterSet):
     q = django_filters.CharFilter(
@@ -92,7 +105,7 @@ class RoleFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = Role
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
 
 class PrefixFilter(CustomFieldFilterSet):
@@ -372,7 +385,7 @@ class VLANGroupFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = VLANGroup
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
 
 class VLANFilter(CustomFieldFilterSet):
@@ -470,7 +483,7 @@ class ServiceFilter(django_filters.FilterSet):
 
     class Meta:
         model = Service
-        fields = ['name', 'protocol', 'port']
+        fields = ['id', 'name', 'protocol', 'port']
 
     def search(self, queryset, name, value):
         if not value.strip():

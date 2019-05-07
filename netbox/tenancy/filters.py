@@ -10,7 +10,7 @@ class TenantGroupFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = TenantGroup
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
 
 class TenantFilter(CustomFieldFilterSet):

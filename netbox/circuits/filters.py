@@ -47,7 +47,7 @@ class CircuitTypeFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = CircuitType
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
 
 class CircuitFilter(CustomFieldFilterSet):

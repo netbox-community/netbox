@@ -11,7 +11,7 @@ class SecretRoleFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = SecretRole
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
 
 class SecretFilter(CustomFieldFilterSet):
