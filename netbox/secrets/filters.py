@@ -14,7 +14,7 @@ class SecretRoleFilter(NameSlugSearchFilterSet):
         fields = ['name', 'slug']
 
 
-class SecretFilter(CustomFieldFilterSet, django_filters.FilterSet):
+class SecretFilter(CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'

@@ -13,7 +13,7 @@ from .constants import IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, PREFIX_
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 
-class VRFFilter(CustomFieldFilterSet, django_filters.FilterSet):
+class VRFFilter(CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -59,7 +59,7 @@ class RIRFilter(NameSlugSearchFilterSet):
         fields = ['name', 'slug', 'is_private']
 
 
-class AggregateFilter(CustomFieldFilterSet, django_filters.FilterSet):
+class AggregateFilter(CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -107,7 +107,7 @@ class RoleFilter(NameSlugSearchFilterSet):
         fields = ['name', 'slug']
 
 
-class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
+class PrefixFilter(CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -254,7 +254,7 @@ class PrefixFilter(CustomFieldFilterSet, django_filters.FilterSet):
         return queryset.filter(prefix__net_mask_length=value)
 
 
-class IPAddressFilter(CustomFieldFilterSet, django_filters.FilterSet):
+class IPAddressFilter(CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -395,7 +395,7 @@ class VLANGroupFilter(NameSlugSearchFilterSet):
         fields = ['name', 'slug']
 
 
-class VLANFilter(CustomFieldFilterSet, django_filters.FilterSet):
+class VLANFilter(CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
