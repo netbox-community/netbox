@@ -186,6 +186,7 @@ functionality provided by the front end UI.
 * [#2791](https://github.com/digitalocean/netbox/issues/2791) - Add `comments` field for tags
 * [#2920](https://github.com/digitalocean/netbox/issues/2920) - Rename Interface `form_factor` to `type` (backward-compatible until v2.7)
 * [#2926](https://github.com/digitalocean/netbox/issues/2926) - Add change logging to the Tag model
+* [#3038](https://github.com/digitalocean/netbox/issues/3038) - OR logic now used when multiple values of a query filter are passed
 
 ## API Changes
 
@@ -193,6 +194,7 @@ functionality provided by the front end UI.
 * New API endpoint for custom field choices: `/api/extras/_custom_field_choices/`
 * ForeignKey fields now accept either the related object PK or a dictionary of attributes describing the related object.
 * Organizational objects now include child object counts. For example, the Role serializer includes `prefix_count` and `vlan_count`.
+* Removed the `id__in` filter from all models. (Use `?id=1&id=2` format instead.)
 * Added a `description` field for all device components.
 * dcim.Device: The devices list endpoint now includes rendered context data.
 * dcim.DeviceType: `instance_count` has been renamed to `device_count`.

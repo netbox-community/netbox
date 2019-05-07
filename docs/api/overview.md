@@ -274,11 +274,30 @@ A list of objects retrieved via the API can be filtered by passing one or more q
 GET /api/ipam/prefixes/?status=1
 ```
 
-Certain filters can be included multiple times within a single request. These will effect a logical OR and return objects matching any of the given values. For example, the following will return all active and reserved prefixes:
+The choices available for fixed choice fields such as `status` are exposed in the API under a special `_choices` endpoint for each NetBox app. For example, the available choices for `Prefix.status` are listed at `/api/ipam/_choices/` under the key `prefix:status`:
 
 ```
-GET /api/ipam/prefixes/?status=1&status=2
+"prefix:status": [
+    {
+        "label": "Container",
+        "value": 0
+    },
+    {
+        "label": "Active",
+        "value": 1
+    },
+    {
+        "label": "Reserved",
+        "value": 2
+    },
+    {
+        "label": "Deprecated",
+        "value": 3
+    }
+],
 ```
+
+For most fields, when a filter is passed multiple times, objects matching _any_ of the provided values will be returned. For example, `GET /api/dcim/sites/?name=Foo&name=Bar` will return all sites named "Foo" _or_ "Bar". The exception to this rule is ManyToManyFields which may have multiple values assigned. Tags are the most common example of a ManyToManyField. For example, `GET /api/dcim/sites/?tag=foo&tag=bar` will return only sites tagged with both "foo" _and_ "bar".
 
 ## Custom Fields
 
