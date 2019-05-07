@@ -2,7 +2,7 @@ import django_filters
 from django.db.models import Q
 
 from extras.filters import CustomFieldFilterSet
-from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
+from utilities.filters import NameSlugSearchFilterSet, TagFilter
 from .models import Tenant, TenantGroup
 
 
@@ -14,10 +14,6 @@ class TenantGroupFilter(NameSlugSearchFilterSet):
 
 
 class TenantFilter(CustomFieldFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -36,7 +32,7 @@ class TenantFilter(CustomFieldFilterSet):
 
     class Meta:
         model = Tenant
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
     def search(self, queryset, name, value):
         if not value.strip():

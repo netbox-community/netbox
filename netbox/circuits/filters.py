@@ -4,16 +4,12 @@ from django.db.models import Q
 from dcim.models import Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
-from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
+from utilities.filters import NameSlugSearchFilterSet, TagFilter
 from .constants import CIRCUIT_STATUS_CHOICES
 from .models import Provider, Circuit, CircuitTermination, CircuitType
 
 
 class ProviderFilter(CustomFieldFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -33,7 +29,7 @@ class ProviderFilter(CustomFieldFilterSet):
 
     class Meta:
         model = Provider
-        fields = ['name', 'slug', 'asn', 'account']
+        fields = ['id', 'name', 'slug', 'asn', 'account']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -55,10 +51,6 @@ class CircuitTypeFilter(NameSlugSearchFilterSet):
 
 
 class CircuitFilter(CustomFieldFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -112,7 +104,7 @@ class CircuitFilter(CustomFieldFilterSet):
 
     class Meta:
         model = Circuit
-        fields = ['cid', 'install_date', 'commit_rate']
+        fields = ['id', 'cid', 'install_date', 'commit_rate']
 
     def search(self, queryset, name, value):
         if not value.strip():

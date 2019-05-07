@@ -1,6 +1,5 @@
 import django_filters
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from netaddr import EUI
@@ -10,7 +9,7 @@ from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.constants import COLOR_CHOICES
 from utilities.filters import (
-    NameSlugSearchFilterSet, NullableCharFieldFilter, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
+    NameSlugSearchFilterSet, NullableCharFieldFilter, TagFilter, TreeNodeMultipleChoiceFilter
 )
 from virtualization.models import Cluster
 from .constants import *
@@ -41,10 +40,6 @@ class RegionFilter(NameSlugSearchFilterSet):
 
 
 class SiteFilter(CustomFieldFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -78,7 +73,7 @@ class SiteFilter(CustomFieldFilterSet):
 
     class Meta:
         model = Site
-        fields = ['q', 'name', 'slug', 'facility', 'asn', 'contact_name', 'contact_phone', 'contact_email']
+        fields = ['id', 'name', 'slug', 'facility', 'asn', 'contact_name', 'contact_phone', 'contact_email']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -126,10 +121,6 @@ class RackRoleFilter(NameSlugSearchFilterSet):
 
 
 class RackFilter(CustomFieldFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -185,8 +176,8 @@ class RackFilter(CustomFieldFilterSet):
     class Meta:
         model = Rack
         fields = [
-            'name', 'serial', 'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
-            'outer_unit',
+            'id', 'name', 'serial', 'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width',
+            'outer_depth', 'outer_unit',
         ]
 
     def search(self, queryset, name, value):
@@ -202,10 +193,6 @@ class RackFilter(CustomFieldFilterSet):
 
 
 class RackReservationFilter(django_filters.FilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -259,7 +246,7 @@ class RackReservationFilter(django_filters.FilterSet):
 
     class Meta:
         model = RackReservation
-        fields = ['created']
+        fields = ['id', 'created']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -280,10 +267,6 @@ class ManufacturerFilter(NameSlugSearchFilterSet):
 
 
 class DeviceTypeFilter(CustomFieldFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -327,7 +310,7 @@ class DeviceTypeFilter(CustomFieldFilterSet):
     class Meta:
         model = DeviceType
         fields = [
-            'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
+            'id', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
         ]
 
     def search(self, queryset, name, value):
@@ -452,10 +435,6 @@ class PlatformFilter(NameSlugSearchFilterSet):
 
 
 class DeviceFilter(CustomFieldFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -602,7 +581,7 @@ class DeviceFilter(CustomFieldFilterSet):
 
     class Meta:
         model = Device
-        fields = ['serial', 'face']
+        fields = ['id', 'serial', 'face']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1088,10 +1067,6 @@ class InterfaceConnectionFilter(django_filters.FilterSet):
 
 
 class PowerPanelFilter(django_filters.FilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1114,7 +1089,7 @@ class PowerPanelFilter(django_filters.FilterSet):
 
     class Meta:
         model = PowerPanel
-        fields = ['name']
+        fields = ['id', 'name']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1126,10 +1101,6 @@ class PowerPanelFilter(django_filters.FilterSet):
 
 
 class PowerFeedFilter(CustomFieldFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -1158,7 +1129,7 @@ class PowerFeedFilter(CustomFieldFilterSet):
 
     class Meta:
         model = PowerFeed
-        fields = ['name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'power_factor']
+        fields = ['id', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'power_factor']
 
     def search(self, queryset, name, value):
         if not value.strip():

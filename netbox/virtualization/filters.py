@@ -7,7 +7,7 @@ from netaddr.core import AddrFormatError
 from dcim.models import DeviceRole, Interface, Platform, Region, Site
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
-from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import NameSlugSearchFilterSet, TagFilter, TreeNodeMultipleChoiceFilter
 from .constants import VM_STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
@@ -27,10 +27,6 @@ class ClusterGroupFilter(NameSlugSearchFilterSet):
 
 
 class ClusterFilter(CustomFieldFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -69,7 +65,7 @@ class ClusterFilter(CustomFieldFilterSet):
 
     class Meta:
         model = Cluster
-        fields = ['name']
+        fields = ['id', 'name']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -81,10 +77,6 @@ class ClusterFilter(CustomFieldFilterSet):
 
 
 class VirtualMachineFilter(CustomFieldFilterSet):
-    id__in = NumericInFilter(
-        field_name='id',
-        lookup_expr='in'
-    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -175,7 +167,7 @@ class VirtualMachineFilter(CustomFieldFilterSet):
 
     class Meta:
         model = VirtualMachine
-        fields = ['name', 'cluster']
+        fields = ['id', 'name', 'cluster']
 
     def search(self, queryset, name, value):
         if not value.strip():
