@@ -7,13 +7,17 @@ from netaddr.core import AddrFormatError
 from dcim.models import Site, Device, Interface
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
-from utilities.filters import NameSlugSearchFilterSet, TagFilter
+from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter
 from virtualization.models import VirtualMachine
 from .constants import IPADDRESS_ROLE_CHOICES, IPADDRESS_STATUS_CHOICES, PREFIX_STATUS_CHOICES, VLAN_STATUS_CHOICES
 from .models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
 
 
 class VRFFilter(CustomFieldFilterSet):
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -30,10 +34,6 @@ class VRFFilter(CustomFieldFilterSet):
     )
     tag = TagFilter()
 
-    class Meta:
-        model = VRF
-        fields = ['id', 'name', 'rd', 'enforce_unique']
-
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
@@ -43,15 +43,27 @@ class VRFFilter(CustomFieldFilterSet):
             Q(description__icontains=value)
         )
 
+    class Meta:
+        model = VRF
+        fields = ['name', 'rd', 'enforce_unique']
+
 
 class RIRFilter(NameSlugSearchFilterSet):
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
 
     class Meta:
         model = RIR
-        fields = ['id', 'name', 'slug', 'is_private']
+        fields = ['name', 'slug', 'is_private']
 
 
 class AggregateFilter(CustomFieldFilterSet):
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -74,7 +86,7 @@ class AggregateFilter(CustomFieldFilterSet):
 
     class Meta:
         model = Aggregate
-        fields = ['id', 'family', 'date_added']
+        fields = ['family', 'date_added']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -109,6 +121,10 @@ class RoleFilter(NameSlugSearchFilterSet):
 
 
 class PrefixFilter(CustomFieldFilterSet):
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -189,7 +205,7 @@ class PrefixFilter(CustomFieldFilterSet):
 
     class Meta:
         model = Prefix
-        fields = ['id', 'family', 'is_pool']
+        fields = ['family', 'is_pool']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -252,6 +268,10 @@ class PrefixFilter(CustomFieldFilterSet):
 
 
 class IPAddressFilter(CustomFieldFilterSet):
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -324,7 +344,7 @@ class IPAddressFilter(CustomFieldFilterSet):
 
     class Meta:
         model = IPAddress
-        fields = ['id', 'family', 'dns_name']
+        fields = ['family', 'dns_name']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -389,6 +409,10 @@ class VLANGroupFilter(NameSlugSearchFilterSet):
 
 
 class VLANFilter(CustomFieldFilterSet):
+    id__in = NumericInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -441,7 +465,7 @@ class VLANFilter(CustomFieldFilterSet):
 
     class Meta:
         model = VLAN
-        fields = ['id', 'vid', 'name']
+        fields = ['vid', 'name']
 
     def search(self, queryset, name, value):
         if not value.strip():
