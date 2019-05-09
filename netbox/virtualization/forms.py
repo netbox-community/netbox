@@ -8,7 +8,7 @@ from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, S
 from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
 from ipam.models import IPAddress
 from tenancy.forms import TenancyForm
-from tenancy.formset import TenancyFilterForm
+from tenancy.forms import TenancyFilterForm
 from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
