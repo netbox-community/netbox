@@ -268,8 +268,7 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
 
 class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Circuit
-    # Order the form fields, fields not listed are appended
-    field_order = ['q', 'type', 'provider', 'status']
+    field_order = ['q', 'type', 'provider', 'status', 'site', 'tenant_group', 'tenant', 'commit_rate']
     q = forms.CharField(
         required=False,
         label='Search'

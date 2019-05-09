@@ -9,7 +9,7 @@ from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomField
 from ipam.models import IPAddress
 from tenancy.forms import TenancyForm
 from tenancy.formset import TenancyFilterForm
-from tenancy.models import Tenant, TenantGroup
+from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect,
     ChainedFieldsMixin, ChainedModelChoiceField, ChainedModelMultipleChoiceField, CommentField, ComponentForm,
@@ -337,8 +337,8 @@ class VirtualMachineForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     class Meta:
         model = VirtualMachine
         fields = [
-            'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant_group', 'tenant', 'platform', 'primary_ip4', 'primary_ip6',
-            'vcpus', 'memory', 'disk', 'comments', 'tags', 'local_context_data',
+            'name', 'status', 'cluster_group', 'cluster', 'role', 'tenant_group', 'tenant', 'platform', 'primary_ip4',
+            'primary_ip6', 'vcpus', 'memory', 'disk', 'comments', 'tags', 'local_context_data',
         ]
         help_texts = {
             'local_context_data': "Local config context data overwrites all sources contexts in the final rendered "
@@ -523,8 +523,10 @@ class VirtualMachineBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldB
 
 class VirtualMachineFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = VirtualMachine
-    # Order the form fields, fields not listed are appended
-    field_order = ['q', 'cluster_group', 'cluster_type', 'cluster_id', 'region', 'site']
+    field_order = [
+        'q', 'cluster_group', 'cluster_type', 'cluster_id', 'status', 'role', 'region', 'site', 'tenant_group',
+        'tenant', 'platform',
+    ]
     q = forms.CharField(
         required=False,
         label='Search'

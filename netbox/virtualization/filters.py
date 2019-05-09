@@ -1,12 +1,11 @@
 import django_filters
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from netaddr import EUI
 from netaddr.core import AddrFormatError
 
 from dcim.models import DeviceRole, Interface, Platform, Region, Site
 from extras.filters import CustomFieldFilterSet
-from tenancy.filterset import TenancyFilterSet
+from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
 from .constants import VM_STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine

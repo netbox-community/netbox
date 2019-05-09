@@ -14,7 +14,7 @@ from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEdit
 from ipam.models import IPAddress, VLAN, VLANGroup
 from tenancy.forms import TenancyForm
 from tenancy.formset import TenancyFilterForm
-from tenancy.models import Tenant
+from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, ArrayFieldSelectMultiple, BootstrapMixin, BulkEditForm,
     BulkEditNullBooleanSelect, ChainedFieldsMixin, ChainedModelChoiceField, ColorSelect, CommentField,
@@ -259,8 +259,7 @@ class SiteBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
 
 class SiteFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Site
-    # Order the form fields, fields not listed are appended
-    field_order = ['q', 'status', 'region']
+    field_order = ['q', 'status', 'region', 'tenant_group', 'tenant']
     q = forms.CharField(
         required=False,
         label='Search'
@@ -591,8 +590,7 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
 
 class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Rack
-    # Order the form fields, fields not listed are appended
-    field_order = ['q', 'site', 'group_id']
+    field_order = ['q', 'site', 'group_id', 'status', 'role', 'tenant_group', 'tenant']
     q = forms.CharField(
         required=False,
         label='Search'
@@ -674,32 +672,6 @@ class RackReservationForm(BootstrapMixin, TenancyForm, forms.ModelForm):
         return unit_choices
 
 
-class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm, forms.Form):
-    # Order the form fields, fields not listed are appended
-    field_order = ['q', 'site', 'group_id']
-    q = forms.CharField(
-        required=False,
-        label='Search'
-    )
-    site = FilterChoiceField(
-        queryset=Site.objects.all(),
-        to_field_name='slug',
-        widget=APISelectMultiple(
-            api_url="/api/dcim/sites/",
-            value_field="slug",
-        )
-    )
-    group_id = FilterChoiceField(
-        queryset=RackGroup.objects.select_related('site'),
-        label='Rack group',
-        null_label='-- None --',
-        widget=APISelectMultiple(
-            api_url="/api/dcim/rack-groups/",
-            null_option=True,
-        )
-    )
-
-
 class RackReservationBulkEditForm(BootstrapMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RackReservation.objects.all(),
@@ -726,6 +698,31 @@ class RackReservationBulkEditForm(BootstrapMixin, BulkEditForm):
 
     class Meta:
         nullable_fields = []
+
+
+class RackReservationFilterForm(BootstrapMixin, TenancyFilterForm):
+    field_order = ['q', 'site', 'group_id', 'tenant_group', 'tenant']
+    q = forms.CharField(
+        required=False,
+        label='Search'
+    )
+    site = FilterChoiceField(
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/",
+            value_field="slug",
+        )
+    )
+    group_id = FilterChoiceField(
+        queryset=RackGroup.objects.select_related('site'),
+        label='Rack group',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/rack-groups/",
+            null_option=True,
+        )
+    )
 
 
 #
@@ -1622,8 +1619,10 @@ class DeviceBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
 
 class DeviceFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Device
-    # Order the form fields, fields not listed are appended
-    field_order = ['q', 'region', 'site', 'rack_group_id', 'rack_id', 'role']
+    field_order = [
+        'q', 'region', 'site', 'rack_group_id', 'rack_id', 'status', 'role', 'tenant_group', 'tenant',
+        'manufacturer_id', 'device_type_id', 'mac_address', 'has_primary_ip',
+    ]
     q = forms.CharField(
         required=False,
         label='Search'
@@ -3074,9 +3073,31 @@ class VirtualChassisFilterForm(BootstrapMixin, CustomFieldFilterForm):
     site = FilterChoiceField(
         queryset=Site.objects.all(),
         to_field_name='slug',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/sites/",
+            value_field="slug",
+        )
+    )
+    tenant_group = FilterChoiceField(
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenant-groups/",
+            value_field="slug",
+            null_option=True,
+            filter_for={
+                'tenant': 'group'
+            }
+        )
     )
     tenant = FilterChoiceField(
         queryset=Tenant.objects.all(),
         to_field_name='slug',
         null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenants/",
+            value_field="slug",
+            null_option=True,
+        )
     )

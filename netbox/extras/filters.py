@@ -4,7 +4,7 @@ from django.db.models import Q
 from taggit.models import Tag
 
 from dcim.models import DeviceRole, Platform, Region, Site
-from tenancy.filterset import TenancyFilterSet
+from tenancy.models import Tenant, TenantGroup
 from .constants import CF_FILTER_DISABLED, CF_FILTER_EXACT, CF_TYPE_BOOLEAN, CF_TYPE_SELECT
 from .models import ConfigContext, CustomField, Graph, ExportTemplate, ObjectChange, TopologyMap
 
@@ -122,7 +122,7 @@ class TopologyMapFilter(django_filters.FilterSet):
         fields = ['name', 'slug']
 
 
-class ConfigContextFilter(TenancyFilterSet, django_filters.FilterSet):
+class ConfigContextFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -170,6 +170,28 @@ class ConfigContextFilter(TenancyFilterSet, django_filters.FilterSet):
         queryset=Platform.objects.all(),
         to_field_name='slug',
         label='Platform (slug)',
+    )
+    tenant_group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='tenant_groups',
+        queryset=TenantGroup.objects.all(),
+        label='Tenant group',
+    )
+    tenant_group = django_filters.ModelMultipleChoiceFilter(
+        field_name='tenant_groups__slug',
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        label='Tenant group (slug)',
+    )
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='tenants',
+        queryset=Tenant.objects.all(),
+        label='Tenant',
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        field_name='tenants__slug',
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        label='Tenant (slug)',
     )
 
     class Meta:

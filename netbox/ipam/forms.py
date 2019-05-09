@@ -100,8 +100,7 @@ class VRFBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditForm
 
 class VRFFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = VRF
-    # Order the form fields, fields not listed are appended
-    field_order = ['q']
+    field_order = ['q', 'tenant_group', 'tenant']
     q = forms.CharField(
         required=False,
         label='Search'
@@ -492,8 +491,10 @@ class PrefixBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditF
 
 class PrefixFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Prefix
-    # Order the form fields, fields not listed are appended
-    field_order = ['q', 'within_include', 'family', 'mask_length', 'vrf']
+    field_order = [
+        'q', 'within_include', 'family', 'mask_length', 'vrf_id', 'status', 'site', 'role', 'tenant_group', 'tenant',
+        'is_pool', 'expand',
+    ]
     q = forms.CharField(
         required=False,
         label='Search'
@@ -931,8 +932,9 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
 
 class IPAddressFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = IPAddress
-    # Order the form fields, fields not listed are appended
-    field_order = ['q', 'parent', 'family', 'mask_length', 'vrf']
+    field_order = [
+        'q', 'parent', 'family', 'mask_length', 'vrf_id', 'status', 'role', 'tenant_group', 'tenant',
+    ]
     q = forms.CharField(
         required=False,
         label='Search'
@@ -1200,8 +1202,7 @@ class VLANBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
 
 class VLANFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = VLAN
-    # Order the form fields, fields not listed are appended
-    field_order = ['q', 'site', 'group_id']
+    field_order = ['q', 'site', 'group_id', 'status', 'role', 'tenant_group', 'tenant']
     q = forms.CharField(
         required=False,
         label='Search'

@@ -118,6 +118,7 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
 #
 # Tenancy form extension
 #
+
 class TenancyForm(ChainedFieldsMixin, forms.Form):
     tenant_group = forms.ModelChoiceField(
         queryset=TenantGroup.objects.all(),

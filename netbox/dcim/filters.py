@@ -1,13 +1,13 @@
 import django_filters
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from netaddr import EUI
 from netaddr.core import AddrFormatError
 
 from extras.filters import CustomFieldFilterSet
-from tenancy.filterset import TenancyFilterSet
+from tenancy.filtersets import TenancyFilterSet
+from tenancy.models import Tenant
 from utilities.constants import COLOR_CHOICES
 from utilities.filters import (
     NameSlugSearchFilterSet, NullableCharFieldFilter, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
@@ -39,7 +39,7 @@ class RegionFilter(NameSlugSearchFilterSet):
         fields = ['name', 'slug']
 
 
-class SiteFilter(TenancyFilterSet, CustomFieldFilterSet, django_filters.FilterSet):
+class SiteFilter(TenancyFilterSet, CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -114,7 +114,7 @@ class RackRoleFilter(NameSlugSearchFilterSet):
         fields = ['name', 'slug', 'color']
 
 
-class RackFilter(TenancyFilterSet, CustomFieldFilterSet, django_filters.FilterSet):
+class RackFilter(TenancyFilterSet, CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -180,7 +180,7 @@ class RackFilter(TenancyFilterSet, CustomFieldFilterSet, django_filters.FilterSe
         )
 
 
-class RackReservationFilter(TenancyFilterSet, django_filters.FilterSet):
+class RackReservationFilter(TenancyFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -875,7 +875,7 @@ class InventoryItemFilter(DeviceComponentFilterSet):
         return queryset.filter(qs_filter)
 
 
-class VirtualChassisFilter(TenancyFilterSet, django_filters.FilterSet):
+class VirtualChassisFilter(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -890,6 +890,17 @@ class VirtualChassisFilter(TenancyFilterSet, django_filters.FilterSet):
         queryset=Site.objects.all(),
         to_field_name='slug',
         label='Site name (slug)',
+    )
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='master__tenant',
+        queryset=Tenant.objects.all(),
+        label='Tenant (ID)',
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        field_name='master__tenant__slug',
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        label='Tenant (slug)',
     )
     tag = TagFilter()
 
