@@ -9,7 +9,7 @@ from .constants import CIRCUIT_STATUS_CHOICES
 from .models import Provider, Circuit, CircuitTermination, CircuitType
 
 
-class ProviderFilter(CustomFieldFilterSet, django_filters.FilterSet):
+class ProviderFilter(CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -51,10 +51,10 @@ class CircuitTypeFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = CircuitType
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
 
-class CircuitFilter(CustomFieldFilterSet, django_filters.FilterSet):
+class CircuitFilter(CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'

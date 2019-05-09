@@ -464,7 +464,7 @@ class VirtualMachineTest(APITestCase):
     def test_config_context_included_by_default_in_list_view(self):
 
         url = reverse('virtualization-api:virtualmachine-list')
-        url = '{}?id__in={}'.format(url, self.virtualmachine_with_context_data.pk)
+        url = '{}?id={}'.format(url, self.virtualmachine_with_context_data.pk)
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['results'][0].get('config_context', {}).get('A'), 1)

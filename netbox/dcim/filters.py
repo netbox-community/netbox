@@ -1,6 +1,5 @@
 import django_filters
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from netaddr import EUI
@@ -9,9 +8,7 @@ from netaddr.core import AddrFormatError
 from extras.filters import CustomFieldFilterSet
 from tenancy.models import Tenant
 from utilities.constants import COLOR_CHOICES
-from utilities.filters import (
-    NameSlugSearchFilterSet, NullableCharFieldFilter, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
-)
+from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
 from virtualization.models import Cluster
 from .constants import *
 from .models import (
@@ -37,7 +34,7 @@ class RegionFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = Region
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
 
 class SiteFilter(CustomFieldFilterSet):
@@ -78,7 +75,10 @@ class SiteFilter(CustomFieldFilterSet):
 
     class Meta:
         model = Site
-        fields = ['q', 'name', 'slug', 'facility', 'asn', 'contact_name', 'contact_phone', 'contact_email']
+        fields = [
+            'id', 'name', 'slug', 'facility', 'asn', 'latitude', 'longitude', 'contact_name', 'contact_phone',
+            'contact_email',
+        ]
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -115,14 +115,14 @@ class RackGroupFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = RackGroup
-        fields = ['site_id', 'name', 'slug']
+        fields = ['id', 'name', 'slug']
 
 
 class RackRoleFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = RackRole
-        fields = ['name', 'slug', 'color']
+        fields = ['id', 'name', 'slug', 'color']
 
 
 class RackFilter(CustomFieldFilterSet):
@@ -134,7 +134,6 @@ class RackFilter(CustomFieldFilterSet):
         method='search',
         label='Search',
     )
-    facility_id = NullableCharFieldFilter()
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
         label='Site (ID)',
@@ -179,14 +178,13 @@ class RackFilter(CustomFieldFilterSet):
         to_field_name='slug',
         label='Role (slug)',
     )
-    asset_tag = NullableCharFieldFilter()
     tag = TagFilter()
 
     class Meta:
         model = Rack
         fields = [
-            'name', 'serial', 'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
-            'outer_unit',
+            'id', 'name', 'facility_id', 'serial', 'asset_tag', 'type', 'width', 'u_height', 'desc_units',
+            'outer_width', 'outer_depth', 'outer_unit',
         ]
 
     def search(self, queryset, name, value):
@@ -276,7 +274,7 @@ class ManufacturerFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = Manufacturer
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
 
 class DeviceTypeFilter(CustomFieldFilterSet):
@@ -374,63 +372,63 @@ class ConsolePortTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = ConsolePortTemplate
-        fields = ['name']
+        fields = ['id', 'name']
 
 
 class ConsoleServerPortTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = ConsoleServerPortTemplate
-        fields = ['name']
+        fields = ['id', 'name']
 
 
 class PowerPortTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = PowerPortTemplate
-        fields = ['name']
+        fields = ['id', 'name', 'maximum_draw', 'allocated_draw']
 
 
 class PowerOutletTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = PowerOutletTemplate
-        fields = ['name']
+        fields = ['id', 'name', 'feed_leg']
 
 
 class InterfaceTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = InterfaceTemplate
-        fields = ['name', 'type', 'mgmt_only']
+        fields = ['id', 'name', 'type', 'mgmt_only']
 
 
 class FrontPortTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = FrontPortTemplate
-        fields = ['name', 'type']
+        fields = ['id', 'name', 'type']
 
 
 class RearPortTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = RearPortTemplate
-        fields = ['name', 'type']
+        fields = ['id', 'name', 'type', 'positions']
 
 
 class DeviceBayTemplateFilter(DeviceTypeComponentFilterSet):
 
     class Meta:
         model = DeviceBayTemplate
-        fields = ['name']
+        fields = ['id', 'name']
 
 
 class DeviceRoleFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = DeviceRole
-        fields = ['name', 'slug', 'color', 'vm_role']
+        fields = ['id', 'name', 'slug', 'color', 'vm_role']
 
 
 class PlatformFilter(NameSlugSearchFilterSet):
@@ -448,7 +446,7 @@ class PlatformFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = Platform
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug', 'napalm_driver']
 
 
 class DeviceFilter(CustomFieldFilterSet):
@@ -506,8 +504,6 @@ class DeviceFilter(CustomFieldFilterSet):
         to_field_name='slug',
         label='Platform (slug)',
     )
-    name = NullableCharFieldFilter()
-    asset_tag = NullableCharFieldFilter()
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region__in',
@@ -538,10 +534,6 @@ class DeviceFilter(CustomFieldFilterSet):
         field_name='rack',
         queryset=Rack.objects.all(),
         label='Rack (ID)',
-    )
-    position = django_filters.ChoiceFilter(
-        choices=DEVICE_POSITION_CHOICES,
-        null_label='Non-racked'
     )
     cluster_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Cluster.objects.all(),
@@ -602,7 +594,7 @@ class DeviceFilter(CustomFieldFilterSet):
 
     class Meta:
         model = Device
-        fields = ['serial', 'face']
+        fields = ['id', 'name', 'serial', 'asset_tag', 'face', 'position', 'vc_position', 'vc_priority']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -693,7 +685,7 @@ class ConsolePortFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = ConsolePort
-        fields = ['name', 'description', 'connection_status']
+        fields = ['id', 'name', 'description', 'connection_status']
 
 
 class ConsoleServerPortFilter(DeviceComponentFilterSet):
@@ -705,7 +697,7 @@ class ConsoleServerPortFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = ConsoleServerPort
-        fields = ['name', 'description', 'connection_status']
+        fields = ['id', 'name', 'description', 'connection_status']
 
 
 class PowerPortFilter(DeviceComponentFilterSet):
@@ -717,7 +709,7 @@ class PowerPortFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = PowerPort
-        fields = ['name', 'description', 'connection_status']
+        fields = ['id', 'name', 'maximum_draw', 'allocated_draw', 'description', 'connection_status']
 
 
 class PowerOutletFilter(DeviceComponentFilterSet):
@@ -729,7 +721,7 @@ class PowerOutletFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = PowerOutlet
-        fields = ['name', 'description', 'connection_status']
+        fields = ['id', 'name', 'feed_leg', 'description', 'connection_status']
 
 
 class InterfaceFilter(django_filters.FilterSet):
@@ -784,7 +776,7 @@ class InterfaceFilter(django_filters.FilterSet):
 
     class Meta:
         model = Interface
-        fields = ['name', 'connection_status', 'type', 'enabled', 'mtu', 'mgmt_only', 'description']
+        fields = ['id', 'name', 'connection_status', 'type', 'enabled', 'mtu', 'mgmt_only', 'mode', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -848,7 +840,7 @@ class FrontPortFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = FrontPort
-        fields = ['name', 'type', 'description']
+        fields = ['id', 'name', 'type', 'description']
 
 
 class RearPortFilter(DeviceComponentFilterSet):
@@ -860,14 +852,14 @@ class RearPortFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = RearPort
-        fields = ['name', 'type', 'description']
+        fields = ['id', 'name', 'type', 'positions', 'description']
 
 
 class DeviceBayFilter(DeviceComponentFilterSet):
 
     class Meta:
         model = DeviceBay
-        fields = ['name', 'description']
+        fields = ['id', 'name', 'description']
 
 
 class InventoryItemFilter(DeviceComponentFilterSet):
@@ -898,11 +890,10 @@ class InventoryItemFilter(DeviceComponentFilterSet):
         to_field_name='slug',
         label='Manufacturer (slug)',
     )
-    asset_tag = NullableCharFieldFilter()
 
     class Meta:
         model = InventoryItem
-        fields = ['name', 'part_id', 'serial', 'asset_tag', 'discovered']
+        fields = ['id', 'name', 'part_id', 'serial', 'asset_tag', 'discovered']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -948,7 +939,7 @@ class VirtualChassisFilter(django_filters.FilterSet):
 
     class Meta:
         model = VirtualChassis
-        fields = ['domain']
+        fields = ['id', 'domain']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -968,6 +959,9 @@ class CableFilter(django_filters.FilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=CABLE_TYPE_CHOICES
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=CONNECTION_STATUS_CHOICES
+    )
     color = django_filters.MultipleChoiceFilter(
         choices=COLOR_CHOICES
     )
@@ -982,7 +976,7 @@ class CableFilter(django_filters.FilterSet):
 
     class Meta:
         model = Cable
-        fields = ['type', 'status', 'color', 'length', 'length_unit']
+        fields = ['id', 'label', 'length', 'length_unit']
 
     def search(self, queryset, name, value):
         if not value.strip():
