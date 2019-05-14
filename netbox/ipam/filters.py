@@ -286,6 +286,12 @@ class IPAddressFilter(TenancyFilterSet, CustomFieldFilterSet):
         to_field_name='name',
         label='Virtual machine (name)',
     )
+    interface = django_filters.ModelMultipleChoiceFilter(
+        field_name='interface__name',
+        queryset=Interface.objects.all(),
+        to_field_name='name',
+        label='Interface (ID)',
+    )
     interface_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Interface.objects.all(),
         label='Interface (ID)',
