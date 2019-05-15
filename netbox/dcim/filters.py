@@ -128,6 +128,12 @@ class RackFilter(TenancyFilterSet, CustomFieldFilterSet):
         queryset=Site.objects.all(),
         label='Site (ID)',
     )
+    rack = django_filters.ModelMultipleChoiceFilter(
+        field_name='name',
+        queryset=Rack.objects.all(),
+        to_field_name='name',
+        label='Rack (name)',
+    )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='site__slug',
         queryset=Site.objects.all(),

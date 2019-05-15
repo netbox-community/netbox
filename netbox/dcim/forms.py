@@ -590,10 +590,18 @@ class RackBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEditFor
 
 class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Rack
-    field_order = ['q', 'site', 'group_id', 'status', 'role', 'tenant_group', 'tenant']
+    field_order = ['q', 'rack', 'site', 'group_id', 'status', 'role', 'tenant_group', 'tenant']
     q = forms.CharField(
         required=False,
         label='Search'
+    )
+    rack = FilterChoiceField(
+        queryset=Rack.objects.all(),
+        to_field_name='name',
+        widget=APISelectMultiple(
+            api_url="/api/dcim/racks/",
+            value_field="name",
+        )
     )
     site = FilterChoiceField(
         queryset=Site.objects.all(),
