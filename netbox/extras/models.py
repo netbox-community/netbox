@@ -106,6 +106,7 @@ class CustomFieldModel(models.Model):
     class Meta:
         abstract = True
 
+    @property
     def cf(self):
         """
         Name-based CustomFieldValue accessor for use in templates

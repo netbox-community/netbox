@@ -6,6 +6,7 @@
 * [#3150](https://github.com/digitalocean/netbox/issues/3150) - Fix formatting of cable length during cable trace
 * [#3085](https://github.com/digitalocean/netbox/issues/3085) - Catch all exceptions during export template rendering
 * [#3186](https://github.com/digitalocean/netbox/issues/3186) - Add interface name filter for IP addresses
+* [#3190](https://github.com/digitalocean/netbox/issues/3190) - Fix custom field rendering for Jinja2 export templates
 
 ## Bug Fixes
 
