@@ -247,6 +247,14 @@ class SiteBulkEditView(PermissionRequiredMixin, BulkEditView):
     default_return_url = 'dcim:site_list'
 
 
+class SiteBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_site'
+    queryset = Site.objects.select_related('region', 'tenant')
+    filter = filters.SiteFilter
+    table = tables.SiteTable
+    default_return_url = 'dcim:site_list'
+
+
 #
 # Rack groups
 #

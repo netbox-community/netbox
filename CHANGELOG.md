@@ -3,14 +3,15 @@
 ## Enhancements
 
 * [#2813](https://github.com/digitalocean/netbox/issues/2813) - Add tenant group filters
-* [#3150](https://github.com/digitalocean/netbox/issues/3150) - Fix formatting of cable length during cable trace
 * [#3085](https://github.com/digitalocean/netbox/issues/3085) - Catch all exceptions during export template rendering
+* [#3183](https://github.com/digitalocean/netbox/issues/3183) - Enable bulk deletion of sites
 * [#3186](https://github.com/digitalocean/netbox/issues/3186) - Add interface name filter for IP addresses
-* [#3190](https://github.com/digitalocean/netbox/issues/3190) - Fix custom field rendering for Jinja2 export templates
 
 ## Bug Fixes
 
 * [#3132](https://github.com/digitalocean/netbox/issues/3132) - Circuit termination missing from available cable termination types
+* [#3150](https://github.com/digitalocean/netbox/issues/3150) - Fix formatting of cable length during cable trace
+* [#3190](https://github.com/digitalocean/netbox/issues/3190) - Fix custom field rendering for Jinja2 export templates
 
 ---
 
