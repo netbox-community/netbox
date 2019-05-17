@@ -305,6 +305,11 @@ class RackDetailTable(RackTable):
 
 class RackReservationTable(BaseTable):
     pk = ToggleColumn()
+    site = tables.LinkColumn(
+        viewname='dcim:site',
+        accessor=Accessor('rack.site'),
+        args=[Accessor('rack.site.slug')],
+    )
     tenant = tables.TemplateColumn(template_code=COL_TENANT)
     rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')])
     unit_list = tables.Column(orderable=False, verbose_name='Units')
@@ -314,7 +319,7 @@ class RackReservationTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RackReservation
-        fields = ('pk', 'rack', 'unit_list', 'user', 'created', 'tenant', 'description', 'actions')
+        fields = ('pk', 'site', 'rack', 'unit_list', 'user', 'created', 'tenant', 'description', 'actions')
 
 
 #

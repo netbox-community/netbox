@@ -458,7 +458,7 @@ class RackBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class RackReservationListView(ObjectListView):
-    queryset = RackReservation.objects.all()
+    queryset = RackReservation.objects.select_related('rack__site')
     filter = filters.RackReservationFilter
     filter_form = forms.RackReservationFilterForm
     table = tables.RackReservationTable

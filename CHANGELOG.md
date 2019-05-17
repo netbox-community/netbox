@@ -5,6 +5,7 @@
 * [#2813](https://github.com/digitalocean/netbox/issues/2813) - Add tenant group filters
 * [#3085](https://github.com/digitalocean/netbox/issues/3085) - Catch all exceptions during export template rendering
 * [#3138](https://github.com/digitalocean/netbox/issues/3138) - Add 2.5GE and 5GE interface form factors
+* [#3156](https://github.com/digitalocean/netbox/issues/3156) - Add site link to rack reservations overview
 * [#3183](https://github.com/digitalocean/netbox/issues/3183) - Enable bulk deletion of sites
 * [#3186](https://github.com/digitalocean/netbox/issues/3186) - Add interface name filter for IP addresses
 
