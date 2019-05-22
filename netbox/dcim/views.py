@@ -1736,6 +1736,7 @@ class CableCreateView(PermissionRequiredMixin, GetReturnURLMixin, View):
             'power-outlet': forms.ConnectCableToPowerOutletForm,
             'interface': forms.ConnectCableToInterfaceForm,
             'front-port': forms.ConnectCableToFrontPortForm,
+            'rear-port': forms.ConnectCableToRearPortForm,
             'power-feed': forms.ConnectCableToPowerFeedForm,
             'circuit-termination': forms.ConnectCableToCircuitTerminationForm,
         }[termination_b_type_name]
