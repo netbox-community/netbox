@@ -339,7 +339,7 @@ class RackListView(ObjectListView):
         'devices__device_type'
     ).annotate(
         device_count=Count('devices')
-    )
+    ).order_by('name')
     filter = filters.RackFilter
     filter_form = forms.RackFilterForm
     table = tables.RackDetailTable
@@ -357,7 +357,7 @@ class RackElevationListView(View):
             'site', 'group', 'tenant', 'role'
         ).prefetch_related(
             'devices__device_type'
-        )
+        ).order_by('name')
         racks = filters.RackFilter(request.GET, racks).qs
         total_count = racks.count()
 
