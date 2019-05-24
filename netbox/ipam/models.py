@@ -289,7 +289,7 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
     )
     vlan = models.ForeignKey(
         to='ipam.VLAN',
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         related_name='prefixes',
         blank=True,
         null=True,
