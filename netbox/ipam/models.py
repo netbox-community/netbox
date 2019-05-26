@@ -740,9 +740,15 @@ class VLANGroup(ChangeLoggedModel):
 
     class Meta:
         ordering = ['site', 'name']
-        unique_together = [
-            ['site', 'name'],
-            ['site', 'slug'],
+        constraints = [
+            models.UniqueConstraint(
+                fields=['site', 'name'],
+                name='unique_site_and_name_on_vlangroup'
+            ),
+            models.UniqueConstraint(
+                fields=['site', 'slug'],
+                name='unique_site_and_slug_on_vlangroup'
+            )
         ]
         verbose_name = 'VLAN group'
         verbose_name_plural = 'VLAN groups'
@@ -836,9 +842,15 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
 
     class Meta:
         ordering = ['site', 'group', 'vid']
-        unique_together = [
-            ['group', 'vid'],
-            ['group', 'name'],
+        constraints = [
+            models.UniqueConstraint(
+                fields=['group', 'vid'],
+                name='unique_group_and_vid_on_vlan'
+            ),
+            models.UniqueConstraint(
+                fields=['group', 'name'],
+                name='unique_group_and_name_on_vlan'
+            )
         ]
         verbose_name = 'VLAN'
         verbose_name_plural = 'VLANs'

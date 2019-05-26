@@ -88,7 +88,14 @@ class Webhook(models.Model):
     )
 
     class Meta:
-        unique_together = ('payload_url', 'type_create', 'type_update', 'type_delete',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    'payload_url', 'type_create', 'type_update', 'type_delete'
+                ],
+                name='unique_webhook_type_and_payload_on_webhook'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -259,7 +266,12 @@ class CustomFieldValue(models.Model):
 
     class Meta:
         ordering = ['obj_type', 'obj_id']
-        unique_together = ['field', 'obj_type', 'obj_id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['field', 'obj_type', 'obj_id'],
+                name='unique_custom_field_on_customfieldvalue'
+            )
+        ]
 
     def __str__(self):
         return '{} {}'.format(self.obj, self.field)
@@ -297,7 +309,12 @@ class CustomFieldChoice(models.Model):
 
     class Meta:
         ordering = ['field', 'weight', 'value']
-        unique_together = ['field', 'value']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['field', 'value'],
+                name='unique_field_and_value_on_customfieldchoice'
+            )
+        ]
 
     def __str__(self):
         return self.value
@@ -447,8 +464,11 @@ class ExportTemplate(models.Model):
 
     class Meta:
         ordering = ['content_type', 'name']
-        unique_together = [
-            ['content_type', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['content_type', 'name'],
+                name='unique_name_and_type_on_exporttemplate'
+            )
         ]
 
     def __str__(self):

@@ -388,9 +388,15 @@ class RackGroup(ChangeLoggedModel):
 
     class Meta:
         ordering = ['site', 'name']
-        unique_together = [
-            ['site', 'name'],
-            ['site', 'slug'],
+        constraints = [
+            models.UniqueConstraint(
+                fields=['site', 'name'],
+                name='unique_site_and_name_on_rackgroup'
+            ),
+            models.UniqueConstraint(
+                fields=['site', 'slug'],
+                name='unique_site_and_slug_on_rackgroup'
+            )
         ]
 
     def __str__(self):
@@ -553,9 +559,15 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
 
     class Meta:
         ordering = ['site', 'group', 'name']
-        unique_together = [
-            ['group', 'name'],
-            ['group', 'facility_id'],
+        constraints = [
+            models.UniqueConstraint(
+                fields=['group', 'name'],
+                name='unique_group_and_name_on_rack'
+            ),
+            models.UniqueConstraint(
+                fields=['group', 'facility_id'],
+                name='unique_group_and_facility_on_rack'
+            )
         ]
 
     def __str__(self):
@@ -919,9 +931,16 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
 
     class Meta:
         ordering = ['manufacturer', 'model']
-        unique_together = [
-            ['manufacturer', 'model'],
-            ['manufacturer', 'slug'],
+        constraints = [
+            models.UniqueConstraint(
+                fields=['manufacturer', 'model'],
+                name='unique_manufacturer_and_model_on_devicetype'
+            ),
+            models.UniqueConstraint(
+                fields=['manufacturer', 'slug'],
+                name='unique_manufacturer_and_slug_on_devicetype'
+            )
+
         ]
 
     def __str__(self):
@@ -1005,7 +1024,12 @@ class ConsolePortTemplate(ComponentTemplateModel):
 
     class Meta:
         ordering = ['device_type', 'name']
-        unique_together = ['device_type', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device_type', 'name'],
+                name='unique_devicetype_and_name_on_consoleporttemplate'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -1028,7 +1052,12 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
 
     class Meta:
         ordering = ['device_type', 'name']
-        unique_together = ['device_type', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device_type', 'name'],
+                name='unique_devicetype_and_name_on_consoleserverporttemplate'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -1063,7 +1092,12 @@ class PowerPortTemplate(ComponentTemplateModel):
 
     class Meta:
         ordering = ['device_type', 'name']
-        unique_together = ['device_type', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device_type', 'name'],
+                name='unique_devicetype_and_name_on_powerporttemplate'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -1099,7 +1133,12 @@ class PowerOutletTemplate(ComponentTemplateModel):
 
     class Meta:
         ordering = ['device_type', 'name']
-        unique_together = ['device_type', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device_type', 'name'],
+                name='unique_devicetype_and_name_on_poweroutlettemplate'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -1138,7 +1177,12 @@ class InterfaceTemplate(ComponentTemplateModel):
 
     class Meta:
         ordering = ['device_type', 'name']
-        unique_together = ['device_type', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device_type', 'name'],
+                name='unique_devicetype_and_name_on_interfacetemplate'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -1189,9 +1233,15 @@ class FrontPortTemplate(ComponentTemplateModel):
 
     class Meta:
         ordering = ['device_type', 'name']
-        unique_together = [
-            ['device_type', 'name'],
-            ['rear_port', 'rear_port_position'],
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device_type', 'name'],
+                name='unique_devicetype_and_name_on_frontporttemplate'
+            ),
+            models.UniqueConstraint(
+                fields=['rear_port', 'rear_port_position'],
+                name='unique_rearport_and_rearportpos_on_frontporttemplate'
+            )
         ]
 
     def __str__(self):
@@ -1238,7 +1288,12 @@ class RearPortTemplate(ComponentTemplateModel):
 
     class Meta:
         ordering = ['device_type', 'name']
-        unique_together = ['device_type', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device_type', 'name'],
+                name='unique_devicetype_and_name_on_rearporttemplate'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -1261,7 +1316,12 @@ class DeviceBayTemplate(ComponentTemplateModel):
 
     class Meta:
         ordering = ['device_type', 'name']
-        unique_together = ['device_type', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device_type', 'name'],
+                name='unique_devicetype_and_name_on_devicebaytemplate'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -1510,9 +1570,15 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
 
     class Meta:
         ordering = ['name']
-        unique_together = [
-            ['rack', 'position', 'face'],
-            ['virtual_chassis', 'vc_position'],
+        constraints = [
+            models.UniqueConstraint(
+                fields=['rack', 'position', 'face'],
+                name='unique_rack_and_position_and_face_on_device'
+            ),
+            models.UniqueConstraint(
+                fields=['virtual_chassis', 'vc_position'],
+                name='unique_virtualchassis_and_vcpos_on_device'
+            ),
         ]
         permissions = (
             ('napalm_read', 'Read-only access to devices via NAPALM'),
@@ -1810,7 +1876,12 @@ class ConsolePort(CableTermination, ComponentModel):
 
     class Meta:
         ordering = ['device', 'name']
-        unique_together = ['device', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device', 'name'],
+                name='unique_device_and_name_on_consoleport'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -1853,7 +1924,12 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     csv_headers = ['device', 'name', 'description']
 
     class Meta:
-        unique_together = ['device', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device', 'name'],
+                name='unique_device_and_name_on_consoleserverport'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -1923,7 +1999,12 @@ class PowerPort(CableTermination, ComponentModel):
 
     class Meta:
         ordering = ['device', 'name']
-        unique_together = ['device', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device', 'name'],
+                name='unique_device_and_name_on_powerport'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -2046,7 +2127,12 @@ class PowerOutlet(CableTermination, ComponentModel):
     csv_headers = ['device', 'name', 'power_port', 'feed_leg', 'description']
 
     class Meta:
-        unique_together = ['device', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device', 'name'],
+                name='unique_device_and_name_on_poweroutlet'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -2177,7 +2263,12 @@ class Interface(CableTermination, ComponentModel):
 
     class Meta:
         ordering = ['device', 'name']
-        unique_together = ['device', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device', 'name'],
+                name='unique_device_and_name_on_interface'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -2387,9 +2478,15 @@ class FrontPort(CableTermination, ComponentModel):
 
     class Meta:
         ordering = ['device', 'name']
-        unique_together = [
-            ['device', 'name'],
-            ['rear_port', 'rear_port_position'],
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device', 'name'],
+                name='unique_device_and_name_on_frontport'
+            ),
+            models.UniqueConstraint(
+                fields=['rear_port', 'rear_port_position'],
+                name='unique_rearport_and_rearportpos_on_frontport'
+            )
         ]
 
     def __str__(self):
@@ -2449,7 +2546,12 @@ class RearPort(CableTermination, ComponentModel):
 
     class Meta:
         ordering = ['device', 'name']
-        unique_together = ['device', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device', 'name'],
+                name='unique_device_and_name_on_rearport'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -2496,7 +2598,12 @@ class DeviceBay(ComponentModel):
 
     class Meta:
         ordering = ['device', 'name']
-        unique_together = ['device', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device', 'name'],
+                name='unique_device_and_name_on_devicebay',
+            )
+        ]
 
     def __str__(self):
         return '{} - {}'.format(self.device.name, self.name)
@@ -2588,7 +2695,12 @@ class InventoryItem(ComponentModel):
 
     class Meta:
         ordering = ['device__id', 'parent__id', 'name']
-        unique_together = ['device', 'parent', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device', 'parent', 'name'],
+                name='unique_device_and_parent_and_name_on_inventoryitem'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -2727,10 +2839,16 @@ class Cable(ChangeLoggedModel):
 
     class Meta:
         ordering = ['pk']
-        unique_together = (
-            ('termination_a_type', 'termination_a_id'),
-            ('termination_b_type', 'termination_b_id'),
-        )
+        constraints = [
+            models.UniqueConstraint(
+                fields=['termination_a_type', 'termination_a_id'],
+                name='unique_terminations_a_to_b_on_cable'
+            ),
+            models.UniqueConstraint(
+                fields=['termination_b_type', 'termination_b_id'],
+                name='unique_terminations_b_to_a_on_cable'
+            )
+        ]
 
     def __str__(self):
         if self.label:

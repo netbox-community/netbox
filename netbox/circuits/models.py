@@ -173,7 +173,11 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
 
     class Meta:
         ordering = ['provider', 'cid']
-        unique_together = ['provider', 'cid']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['provider', 'cid'], name='unique_provider_and_cid'
+            )
+        ]
 
     def __str__(self):
         return self.cid
@@ -265,7 +269,12 @@ class CircuitTermination(CableTermination):
 
     class Meta:
         ordering = ['circuit', 'term_side']
-        unique_together = ['circuit', 'term_side']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['circuit', 'term_side'],
+                name='unique_circuit_and_termside'
+            )
+        ]
 
     def __str__(self):
         return 'Side {}'.format(self.get_term_side_display())

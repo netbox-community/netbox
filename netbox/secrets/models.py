@@ -352,7 +352,12 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
 
     class Meta:
         ordering = ['device', 'role', 'name']
-        unique_together = ['device', 'role', 'name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['device', 'role', 'name'],
+                name='unique_device_and_role_and_name'
+            )
+        ]
 
     def __init__(self, *args, **kwargs):
         self.plaintext = kwargs.pop('plaintext', None)
