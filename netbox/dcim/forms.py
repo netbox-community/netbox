@@ -2680,7 +2680,7 @@ class ConnectCableToInterfaceForm(ConnectCableToDeviceForm):
             api_url='/api/dcim/interfaces/',
             disabled_indicator='cable',
             additional_query_params={
-                'type': 'physical',
+                'kind': 'physical',
             }
         )
     )
