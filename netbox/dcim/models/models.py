@@ -842,8 +842,6 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         return bool(self.subdevice_role is False)
 
 
-
-
 #
 # Devices
 #
