@@ -9,6 +9,8 @@ v2.6.0 (FUTURE)
 * [#3136](https://github.com/digitalocean/netbox/issues/3136) - Add power draw fields to power port creation form
 * [#3137](https://github.com/digitalocean/netbox/issues/3137) - Add `power_port` and `feed_leg` fields to power outlet creation form
 * [#3140](https://github.com/digitalocean/netbox/issues/3140) - Add bulk edit capability for power outlets and console server ports
+* [#3204](https://github.com/digitalocean/netbox/issues/3204) - Fix interface filtering when connecting cables
+* [#3207](https://github.com/digitalocean/netbox/issues/3207) - Fix link for connecting interface to rear port
 
 ---
 
