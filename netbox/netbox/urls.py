@@ -1,16 +1,13 @@
 from django.conf import settings
 from django.conf.urls import include
-from django.urls import path, register_converter
+from django.urls import path, re_path
 from django.views.static import serve
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
 from netbox.views import APIRootView, HomeView, SearchView
 from users.views import LoginView, LogoutView
-from utilities import converters
 from .admin import admin_site
-
-register_converter(converters.JSONOrYAMLConverter, 'json_or_yaml')
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -56,7 +53,7 @@ _patterns = [
     path(r'api/virtualization/', include('virtualization.api.urls')),
     path(r'api/docs/', schema_view.with_ui('swagger'), name='api_docs'),
     path(r'api/redoc/', schema_view.with_ui('redoc'), name='api_redocs'),
-    path(r'api/swagger<json_or_yaml:format>', schema_view.without_ui(), name='schema_swagger'),
+    re_path(r'^api/swagger(?P<format>.json|.yaml)$', schema_view.without_ui(), name='schema_swagger'),
 
     # Serving static media in Django to pipe it through LoginRequiredMiddleware
     path(r'media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
