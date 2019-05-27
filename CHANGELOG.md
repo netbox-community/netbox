@@ -12,6 +12,7 @@
 
 * [#3132](https://github.com/digitalocean/netbox/issues/3132) - Circuit termination missing from available cable termination types
 * [#3150](https://github.com/digitalocean/netbox/issues/3150) - Fix formatting of cable length during cable trace
+* [#3184](https://github.com/digitalocean/netbox/issues/3184) - Correctly display color block for white cables
 * [#3190](https://github.com/digitalocean/netbox/issues/3190) - Fix custom field rendering for Jinja2 export templates
 
 ---
