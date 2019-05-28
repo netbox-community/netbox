@@ -972,7 +972,7 @@ class VLANTest(APITestCase):
         response = self.client.delete(url, **self.header)
 
         # can't use assertHttpStatus here because we don't have response.data
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 409)
 
         content = json.loads(response.content.decode('utf-8'))
         self.assertIn('detail', content)

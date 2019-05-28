@@ -4,7 +4,7 @@ import pytz
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import ManyToManyField
+from django.db.models import ManyToManyField, ProtectedError
 from django.http import Http404
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import BasePermission
@@ -247,6 +247,22 @@ class ModelViewSet(_ModelViewSet):
 
         # Fall back to the hard-coded serializer class
         return self.serializer_class
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            return super().dispatch(request, *args, **kwargs)
+        except ProtectedError as e:
+            models = '\n'.join(
+                '- {} ({})'.format(o, o._meta)
+                for o in e.protected_objects.all()
+            )
+            msg = 'You tried deleting a model that is protected by:\n{}'.format(models)
+            return self.finalize_response(
+                request,
+                Response({'detail': msg}, status=409),
+                *args,
+                **kwargs
+            )
 
 
 class FieldChoicesViewSet(ViewSet):

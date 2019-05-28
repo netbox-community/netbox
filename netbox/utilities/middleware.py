@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.db import ProgrammingError
-from django.http import Http404, HttpResponseRedirect, JsonResponse
-from django.db.models import ProtectedError
+from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 
 from .views import server_error
@@ -62,11 +61,6 @@ class ExceptionHandlingMiddleware(object):
         # Ignore Http404s (defer to Django's built-in 404 handling)
         if isinstance(exception, Http404):
             return
-
-        elif isinstance(exception, ProtectedError):
-            models = '\n'.join('- {} ({})'.format(o, o._meta) for o in exception.protected_objects.all())
-            msg = 'You tried deleting a model that is protected by:\n{}'.format(models)
-            return JsonResponse({'detail': msg}, status=403)
 
         # Determine the type of exception. If it's a common issue, return a custom error page with instructions.
         custom_template = None
