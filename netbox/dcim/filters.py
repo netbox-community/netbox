@@ -606,7 +606,7 @@ class DeviceFilter(TenancyFilterSet, CustomFieldFilterSet):
         return queryset.exclude(powerports__isnull=value)
 
     def _power_outlets(self, queryset, name, value):
-        return queryset.exclude(poweroutlets_isnull=value)
+        return queryset.exclude(poweroutlets__isnull=value)
 
     def _interfaces(self, queryset, name, value):
         return queryset.exclude(interfaces__isnull=value)
