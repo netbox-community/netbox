@@ -10,6 +10,7 @@
 
 ## Bug Fixes
 
+* [#3031](https://github.com/digitalocean/netbox/issues/3031) - Fixed form field population of tags with spaces
 * [#3132](https://github.com/digitalocean/netbox/issues/3132) - Circuit termination missing from available cable termination types
 * [#3150](https://github.com/digitalocean/netbox/issues/3150) - Fix formatting of cable length during cable trace
 * [#3184](https://github.com/digitalocean/netbox/issues/3184) - Correctly display color block for white cables
