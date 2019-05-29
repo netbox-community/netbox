@@ -70,7 +70,6 @@ class ExceptionHandlingMiddleware(object):
             custom_template = 'exceptions/import_error.html'
         elif isinstance(exception, PermissionError):
             custom_template = 'exceptions/permission_error.html'
-
         # Return a custom error message, or fall back to Django's default 500 error handling
         if custom_template:
             return server_error(request, template_name=custom_template)
