@@ -590,3 +590,14 @@ td .progress {
 textarea {
     font-family: Consolas, Lucida Console, monospace;
 }
+
+/* display form buttons always */
+@media (min-width: 992px) {
+  #form-buttons {
+    position: fixed;
+    bottom: 5em;
+  }
+  #form-buttons button {
+    margin-bottom: 5px;
+  }
+}
