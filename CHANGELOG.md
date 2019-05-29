@@ -20,6 +20,7 @@
 * [#3190](https://github.com/digitalocean/netbox/issues/3190) - Fix custom field rendering for Jinja2 export templates
 * [#3211](https://github.com/digitalocean/netbox/issues/3211) - Fix error handling when attempting to delete a protected object via API
 * [#3223](https://github.com/digitalocean/netbox/issues/3223) - Fix filtering devices by "has power outlets"
+* [#3227](https://github.com/digitalocean/netbox/issues/3227) - Fix exception when deleting a circuit with a termination(s)
 
 ---
 
