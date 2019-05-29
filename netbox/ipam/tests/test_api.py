@@ -976,7 +976,7 @@ class VLANTest(APITestCase):
 
         content = json.loads(response.content.decode('utf-8'))
         self.assertIn('detail', content)
-        self.assertTrue(content['detail'].startswith('You tried deleting a model that is protected by:'))
+        self.assertTrue(content['detail'].startswith('Unable to delete object.'))
 
 
 class ServiceTest(APITestCase):
