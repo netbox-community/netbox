@@ -328,16 +328,26 @@ class RackReservationTable(BaseTable):
 
 class ManufacturerTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(verbose_name='Name')
-    devicetype_count = tables.Column(verbose_name='Device Types')
-    platform_count = tables.Column(verbose_name='Platforms')
-    slug = tables.Column(verbose_name='Slug')
-    actions = tables.TemplateColumn(template_code=MANUFACTURER_ACTIONS, attrs={'td': {'class': 'text-right noprint'}},
-                                    verbose_name='')
+    name = tables.LinkColumn()
+    devicetype_count = tables.Column(
+        verbose_name='Device Types'
+    )
+    inventoryitem_count = tables.Column(
+        verbose_name='Inventory Items'
+    )
+    platform_count = tables.Column(
+        verbose_name='Platforms'
+    )
+    slug = tables.Column()
+    actions = tables.TemplateColumn(
+        template_code=MANUFACTURER_ACTIONS,
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = Manufacturer
-        fields = ('pk', 'name', 'devicetype_count', 'platform_count', 'slug', 'actions')
+        fields = ('pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'slug', 'actions')
 
 
 #

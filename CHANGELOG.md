@@ -5,6 +5,7 @@
 * [#2813](https://github.com/digitalocean/netbox/issues/2813) - Add tenant group filters
 * [#3085](https://github.com/digitalocean/netbox/issues/3085) - Catch all exceptions during export template rendering
 * [#3138](https://github.com/digitalocean/netbox/issues/3138) - Add 2.5GE and 5GE interface form factors
+* [#3151](https://github.com/digitalocean/netbox/issues/3151) - Add inventory item count to manufacturers list
 * [#3156](https://github.com/digitalocean/netbox/issues/3156) - Add site link to rack reservations overview
 * [#3183](https://github.com/digitalocean/netbox/issues/3183) - Enable bulk deletion of sites
 * [#3185](https://github.com/digitalocean/netbox/issues/3185) - Improve performance for custom field access within templates

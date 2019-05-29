@@ -516,6 +516,7 @@ class RackReservationBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class ManufacturerListView(ObjectListView):
     queryset = Manufacturer.objects.annotate(
         devicetype_count=Count('device_types', distinct=True),
+        inventoryitem_count=Count('inventory_items', distinct=True),
         platform_count=Count('platforms', distinct=True),
     )
     table = tables.ManufacturerTable
