@@ -16,6 +16,7 @@
 * [#3150](https://github.com/digitalocean/netbox/issues/3150) - Fix formatting of cable length during cable trace
 * [#3184](https://github.com/digitalocean/netbox/issues/3184) - Correctly display color block for white cables
 * [#3190](https://github.com/digitalocean/netbox/issues/3190) - Fix custom field rendering for Jinja2 export templates
+* [#3211](https://github.com/digitalocean/netbox/issues/3211) - Fix error handling when attempting to delete a protected object via API
 * [#3223](https://github.com/digitalocean/netbox/issues/3223) - Fix filtering devices by "has power outlets"
 
 ---

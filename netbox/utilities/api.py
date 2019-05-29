@@ -252,11 +252,8 @@ class ModelViewSet(_ModelViewSet):
         try:
             return super().dispatch(request, *args, **kwargs)
         except ProtectedError as e:
-            models = '\n'.join(
-                '- {} ({})'.format(o, o._meta)
-                for o in e.protected_objects.all()
-            )
-            msg = 'You tried deleting a model that is protected by:\n{}'.format(models)
+            models = ['{} ({})'.format(o, o._meta) for o in e.protected_objects.all()]
+            msg = 'Unable to delete object. The following dependent objects were found: {}'.format(', '.join(models))
             return self.finalize_response(
                 request,
                 Response({'detail': msg}, status=409),
