@@ -7,6 +7,7 @@
 * [#3138](https://github.com/digitalocean/netbox/issues/3138) - Add 2.5GE and 5GE interface form factors
 * [#3156](https://github.com/digitalocean/netbox/issues/3156) - Add site link to rack reservations overview
 * [#3183](https://github.com/digitalocean/netbox/issues/3183) - Enable bulk deletion of sites
+* [#3185](https://github.com/digitalocean/netbox/issues/3185) - Improve performance for custom field access within templates
 * [#3186](https://github.com/digitalocean/netbox/issues/3186) - Add interface name filter for IP addresses
 
 ## Bug Fixes

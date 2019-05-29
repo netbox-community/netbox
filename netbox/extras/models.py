@@ -102,6 +102,7 @@ class Webhook(models.Model):
 #
 
 class CustomFieldModel(models.Model):
+    _cf = None
 
     class Meta:
         abstract = True
@@ -111,9 +112,12 @@ class CustomFieldModel(models.Model):
         """
         Name-based CustomFieldValue accessor for use in templates
         """
-        if not hasattr(self, 'get_custom_fields'):
-            return dict()
-        return {field.name: value for field, value in self.get_custom_fields().items()}
+        if self._cf is None:
+            # Cache all custom field values for this instance
+            self._cf = {
+                field.name: value for field, value in self.get_custom_fields().items()
+            }
+        return self._cf
 
     def get_custom_fields(self):
         """
@@ -126,7 +130,7 @@ class CustomFieldModel(models.Model):
 
         # If the object exists, populate its custom fields with values
         if hasattr(self, 'pk'):
-            values = CustomFieldValue.objects.filter(obj_type=content_type, obj_id=self.pk).select_related('field')
+            values = self.custom_field_values.all()
             values_dict = {cfv.field_id: cfv.value for cfv in values}
             return OrderedDict([(field, values_dict.get(field.pk)) for field in fields])
         else:
