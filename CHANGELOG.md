@@ -13,6 +13,7 @@
 
 ## Bug Fixes
 
+* [#3228](https://github.com/digitalocean/netbox/issues/3228) - Fixed login link retaining query parameters
 * [#3031](https://github.com/digitalocean/netbox/issues/3031) - Fixed form field population of tags with spaces
 * [#3132](https://github.com/digitalocean/netbox/issues/3132) - Circuit termination missing from available cable termination types
 * [#3150](https://github.com/digitalocean/netbox/issues/3150) - Fix formatting of cable length during cable trace
