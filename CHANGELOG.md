@@ -1,4 +1,4 @@
-2.5.13 (FUTURE)
+2.5.13 (2019-05-31)
 
 ## Enhancements
 
@@ -13,7 +13,6 @@
 
 ## Bug Fixes
 
-* [#3228](https://github.com/digitalocean/netbox/issues/3228) - Fixed login link retaining query parameters
 * [#3031](https://github.com/digitalocean/netbox/issues/3031) - Fixed form field population of tags with spaces
 * [#3132](https://github.com/digitalocean/netbox/issues/3132) - Circuit termination missing from available cable termination types
 * [#3150](https://github.com/digitalocean/netbox/issues/3150) - Fix formatting of cable length during cable trace
@@ -22,6 +21,7 @@
 * [#3211](https://github.com/digitalocean/netbox/issues/3211) - Fix error handling when attempting to delete a protected object via API
 * [#3223](https://github.com/digitalocean/netbox/issues/3223) - Fix filtering devices by "has power outlets"
 * [#3227](https://github.com/digitalocean/netbox/issues/3227) - Fix exception when deleting a circuit with a termination(s)
+* [#3228](https://github.com/digitalocean/netbox/issues/3228) - Fixed login link retaining query parameters
 
 ---
 
