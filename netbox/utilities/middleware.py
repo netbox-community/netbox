@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import ProgrammingError
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
+import urllib
 
 from .views import server_error
 
@@ -22,7 +23,8 @@ class LoginRequiredMiddleware(object):
             # performs its own authentication.
             api_path = reverse('api-root')
             if not request.path_info.startswith(api_path) and request.path_info != settings.LOGIN_URL:
-                return HttpResponseRedirect('{}?next={}'.format(settings.LOGIN_URL, request.path_info))
+                return HttpResponseRedirect('{}?next={}'.format(settings.LOGIN_URL,
+                                                                urllib.parse.quote(request.get_full_path_info())))
         return self.get_response(request)
 
 

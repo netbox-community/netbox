@@ -319,6 +319,7 @@ class PrefixTable(BaseTable):
 
 class PrefixDetailTable(PrefixTable):
     utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False)
+    tenant = tables.TemplateColumn(template_code=COL_TENANT)
 
     class Meta(PrefixTable.Meta):
         fields = ('pk', 'prefix', 'status', 'vrf', 'utilization', 'tenant', 'site', 'vlan', 'role', 'description')
@@ -349,6 +350,7 @@ class IPAddressDetailTable(IPAddressTable):
     nat_inside = tables.LinkColumn(
         'ipam:ipaddress', args=[Accessor('nat_inside.pk')], orderable=False, verbose_name='NAT (Inside)'
     )
+    tenant = tables.TemplateColumn(template_code=COL_TENANT)
 
     class Meta(IPAddressTable.Meta):
         fields = (
@@ -423,6 +425,7 @@ class VLANTable(BaseTable):
 
 class VLANDetailTable(VLANTable):
     prefixes = tables.TemplateColumn(VLAN_PREFIXES, orderable=False, verbose_name='Prefixes')
+    tenant = tables.TemplateColumn(template_code=COL_TENANT)
 
     class Meta(VLANTable.Meta):
         fields = ('pk', 'vid', 'site', 'group', 'name', 'prefixes', 'tenant', 'status', 'role', 'description')

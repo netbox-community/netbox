@@ -4,6 +4,7 @@ from taggit.forms import TagField
 from dcim.models import Site
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
 from tenancy.forms import TenancyForm
+from tenancy.forms import TenancyFilterForm
 from tenancy.models import Tenant
 from utilities.forms import (
     APISelect, APISelectMultiple, add_blank_choice, BootstrapMixin, CommentField, CSVChoiceField,
@@ -265,8 +266,9 @@ class CircuitBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEdit
         ]
 
 
-class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
+class CircuitFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
     model = Circuit
+    field_order = ['q', 'type', 'provider', 'status', 'site', 'tenant_group', 'tenant', 'commit_rate']
     q = forms.CharField(
         required=False,
         label='Search'
@@ -291,16 +293,6 @@ class CircuitFilterForm(BootstrapMixin, CustomFieldFilterForm):
         choices=CIRCUIT_STATUS_CHOICES,
         required=False,
         widget=StaticSelect2Multiple()
-    )
-    tenant = FilterChoiceField(
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        null_label='-- None --',
-        widget=APISelectMultiple(
-            api_url="/api/tenancy/tenants/",
-            value_field="slug",
-            null_option=True,
-        )
     )
     site = FilterChoiceField(
         queryset=Site.objects.all(),

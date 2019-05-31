@@ -274,11 +274,16 @@ class CircuitTermination(CableTermination):
         """
         Reference the parent circuit when recording the change.
         """
+        try:
+            related_object = self.circuit
+        except Circuit.DoesNotExist:
+            # Parent circuit has been deleted
+            related_object = None
         ObjectChange(
             user=user,
             request_id=request_id,
             changed_object=self,
-            related_object=self.circuit,
+            related_object=related_object,
             action=action,
             object_data=serialize_object(self)
         ).save()

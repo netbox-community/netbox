@@ -267,6 +267,10 @@ $(document).ready(function() {
 
             processResults: function (data) {
                 var results = $.map(data.results, function (obj) {
+                    // If tag contains space add double quotes
+                    if (/\s/.test(obj.name))
+                        obj.name = '"' + obj.name + '"'
+
                     return {
                         id: obj.name,
                         text: obj.name

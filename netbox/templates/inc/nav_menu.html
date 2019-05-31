@@ -413,7 +413,12 @@
                         </ul>
                     </li>
                 {% else %}
-                    <li><a href="{% url 'login' %}?next={{ request.path }}"><i class="fa fa-sign-in"></i> Log in</a></li>
+                    {% url 'login' as login_url %}
+                    {% if request.path == login_url %}
+                        <li><a href="{{ request.get_full_path }}"><i class="fa fa-sign-in"></i> Log in</a></li>
+                    {% else %}
+                        <li><a href="{{ login_url }}?next={{ request.get_full_path | urlencode }}"><i class="fa fa-sign-in"></i> Log in</a></li>
+                    {% endif %}
                 {% endif %}
             </ul>
             <form action="{% url 'search' %}" method="get" class="navbar-form navbar-right" id="navbar_search" role="search">
