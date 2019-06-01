@@ -6,6 +6,7 @@ from netaddr import EUI
 from netaddr.core import AddrFormatError
 
 from extras.filters import CustomFieldFilterSet
+from tenancy.filtersets import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.constants import COLOR_CHOICES
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
@@ -37,7 +38,7 @@ class RegionFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug']
 
 
-class SiteFilter(CustomFieldFilterSet):
+class SiteFilter(TenancyFilterSet, CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -60,16 +61,6 @@ class SiteFilter(CustomFieldFilterSet):
         field_name='region__in',
         to_field_name='slug',
         label='Region (slug)',
-    )
-    tenant_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Tenant.objects.all(),
-        label='Tenant (ID)',
-    )
-    tenant = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__slug',
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        label='Tenant (slug)',
     )
     tag = TagFilter()
 
@@ -125,7 +116,7 @@ class RackRoleFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'color']
 
 
-class RackFilter(CustomFieldFilterSet):
+class RackFilter(TenancyFilterSet, CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -153,16 +144,6 @@ class RackFilter(CustomFieldFilterSet):
         queryset=RackGroup.objects.all(),
         to_field_name='slug',
         label='Group',
-    )
-    tenant_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Tenant.objects.all(),
-        label='Tenant (ID)',
-    )
-    tenant = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__slug',
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        label='Tenant (slug)',
     )
     status = django_filters.MultipleChoiceFilter(
         choices=RACK_STATUS_CHOICES,
@@ -199,7 +180,7 @@ class RackFilter(CustomFieldFilterSet):
         )
 
 
-class RackReservationFilter(django_filters.FilterSet):
+class RackReservationFilter(TenancyFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -233,16 +214,6 @@ class RackReservationFilter(django_filters.FilterSet):
         queryset=RackGroup.objects.all(),
         to_field_name='slug',
         label='Group',
-    )
-    tenant_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Tenant.objects.all(),
-        label='Tenant (ID)',
-    )
-    tenant = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__slug',
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        label='Tenant (slug)',
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
@@ -449,7 +420,7 @@ class PlatformFilter(NameSlugSearchFilterSet):
         fields = ['id', 'name', 'slug', 'napalm_driver']
 
 
-class DeviceFilter(CustomFieldFilterSet):
+class DeviceFilter(TenancyFilterSet, CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -483,16 +454,6 @@ class DeviceFilter(CustomFieldFilterSet):
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
         label='Role (slug)',
-    )
-    tenant_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Tenant.objects.all(),
-        label='Tenant (ID)',
-    )
-    tenant = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__slug',
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        label='Tenant (slug)',
     )
     platform_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Platform.objects.all(),
@@ -639,7 +600,7 @@ class DeviceFilter(CustomFieldFilterSet):
         return queryset.exclude(powerports__isnull=value)
 
     def _power_outlets(self, queryset, name, value):
-        return queryset.exclude(poweroutlets_isnull=value)
+        return queryset.exclude(poweroutlets__isnull=value)
 
     def _interfaces(self, queryset, name, value):
         return queryset.exclude(interfaces__isnull=value)

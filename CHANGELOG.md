@@ -213,6 +213,33 @@ functionality provided by the front end UI.
 
 ---
 
+2.5.13 (2019-05-31)
+
+## Enhancements
+
+* [#2813](https://github.com/digitalocean/netbox/issues/2813) - Add tenant group filters
+* [#3085](https://github.com/digitalocean/netbox/issues/3085) - Catch all exceptions during export template rendering
+* [#3138](https://github.com/digitalocean/netbox/issues/3138) - Add 2.5GE and 5GE interface form factors
+* [#3151](https://github.com/digitalocean/netbox/issues/3151) - Add inventory item count to manufacturers list
+* [#3156](https://github.com/digitalocean/netbox/issues/3156) - Add site link to rack reservations overview
+* [#3183](https://github.com/digitalocean/netbox/issues/3183) - Enable bulk deletion of sites
+* [#3185](https://github.com/digitalocean/netbox/issues/3185) - Improve performance for custom field access within templates
+* [#3186](https://github.com/digitalocean/netbox/issues/3186) - Add interface name filter for IP addresses
+
+## Bug Fixes
+
+* [#3031](https://github.com/digitalocean/netbox/issues/3031) - Fixed form field population of tags with spaces
+* [#3132](https://github.com/digitalocean/netbox/issues/3132) - Circuit termination missing from available cable termination types
+* [#3150](https://github.com/digitalocean/netbox/issues/3150) - Fix formatting of cable length during cable trace
+* [#3184](https://github.com/digitalocean/netbox/issues/3184) - Correctly display color block for white cables
+* [#3190](https://github.com/digitalocean/netbox/issues/3190) - Fix custom field rendering for Jinja2 export templates
+* [#3211](https://github.com/digitalocean/netbox/issues/3211) - Fix error handling when attempting to delete a protected object via API
+* [#3223](https://github.com/digitalocean/netbox/issues/3223) - Fix filtering devices by "has power outlets"
+* [#3227](https://github.com/digitalocean/netbox/issues/3227) - Fix exception when deleting a circuit with a termination(s)
+* [#3228](https://github.com/digitalocean/netbox/issues/3228) - Fixed login link retaining query parameters
+
+---
+
 2.5.12 (2019-05-01)
 
 ## Bug Fixes

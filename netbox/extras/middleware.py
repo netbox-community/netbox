@@ -30,10 +30,6 @@ def cache_changed_object(instance, **kwargs):
 
 def _record_object_deleted(request, instance, **kwargs):
 
-    # Force resolution of request.user in case it's still a SimpleLazyObject. This seems to happen
-    # occasionally during tests, but haven't been able to determine why.
-    assert request.user.is_authenticated
-
     # Record that the object was deleted
     if hasattr(instance, 'log_change'):
         instance.log_change(request.user, request.id, OBJECTCHANGE_ACTION_DELETE)
@@ -53,7 +49,7 @@ class ObjectChangeMiddleware(object):
         2. Enqueue any relevant webhooks.
         3. Increment metric counter for the event type
 
-    The post_save and pre_delete signals are employed to catch object modifications, however changes are recorded a bit
+    The post_save and post_delete signals are employed to catch object modifications, however changes are recorded a bit
     differently for each. Objects being saved are cached into thread-local storage for action *after* the response has
     completed. This ensures that serialization of the object is performed only after any related objects (e.g. tags)
     have been created. Conversely, deletions are acted upon immediately, so that the serialized representation of the
@@ -71,10 +67,10 @@ class ObjectChangeMiddleware(object):
         # the same request.
         request.id = uuid.uuid4()
 
-        # Signals don't include the request context, so we're currying it into the pre_delete function ahead of time.
+        # Signals don't include the request context, so we're currying it into the post_delete function ahead of time.
         record_object_deleted = curry(_record_object_deleted, request)
 
-        # Connect our receivers to the post_save and pre_delete signals.
+        # Connect our receivers to the post_save and post_delete signals.
         post_save.connect(cache_changed_object, dispatch_uid='record_object_saved')
         post_delete.connect(record_object_deleted, dispatch_uid='record_object_deleted')
 

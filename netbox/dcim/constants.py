@@ -75,6 +75,8 @@ IFACE_TYPE_100ME_FIXED = 800
 IFACE_TYPE_1GE_FIXED = 1000
 IFACE_TYPE_1GE_GBIC = 1050
 IFACE_TYPE_1GE_SFP = 1100
+IFACE_TYPE_2GE_FIXED = 1120
+IFACE_TYPE_5GE_FIXED = 1130
 IFACE_TYPE_10GE_FIXED = 1150
 IFACE_TYPE_10GE_CX4 = 1170
 IFACE_TYPE_10GE_SFP_PLUS = 1200
@@ -150,6 +152,8 @@ IFACE_TYPE_CHOICES = [
         [
             [IFACE_TYPE_100ME_FIXED, '100BASE-TX (10/100ME)'],
             [IFACE_TYPE_1GE_FIXED, '1000BASE-T (1GE)'],
+            [IFACE_TYPE_2GE_FIXED, '2.5GBASE-T (2.5GE)'],
+            [IFACE_TYPE_5GE_FIXED, '5GBASE-T (5GE)'],
             [IFACE_TYPE_10GE_FIXED, '10GBASE-T (10GE)'],
             [IFACE_TYPE_10GE_CX4, '10GBASE-CX4 (10GE)'],
         ]
@@ -360,7 +364,7 @@ CONNECTION_STATUS_CHOICES = [
 
 # Cable endpoint types
 CABLE_TERMINATION_TYPES = [
-    'consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontport', 'rearport',
+    'consoleport', 'consoleserverport', 'interface', 'poweroutlet', 'powerport', 'frontport', 'rearport', 'circuittermination',
 ]
 
 # Cable types

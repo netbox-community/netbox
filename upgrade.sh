@@ -5,6 +5,8 @@
 # Once the script completes, remember to restart the WSGI service (e.g.
 # gunicorn or uWSGI).
 
+cd "$(dirname "$0")"
+
 PYTHON="python3"
 PIP="pip3"
 
