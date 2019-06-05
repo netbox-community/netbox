@@ -13,8 +13,9 @@ from utilities.testing import create_test_user
 class TagTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['extras.view_tag'])
         self.client = Client()
+        self.client.force_login(user)
 
         Tag.objects.bulk_create([
             Tag(name='Tag 1', slug='tag-1'),
