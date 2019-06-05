@@ -27,7 +27,8 @@ from .tables import ConfigContextTable, ObjectChangeTable, TagTable, TaggedItemT
 # Tags
 #
 
-class TagListView(ObjectListView):
+class TagListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'extras.view_tag'
     queryset = Tag.objects.annotate(
         items=Count('extras_taggeditem_items', distinct=True)
     ).order_by(
