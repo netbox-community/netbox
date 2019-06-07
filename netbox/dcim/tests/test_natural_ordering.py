@@ -156,7 +156,6 @@ class NaturalOrderingTestCase(TestCase):
 
         self._compare_names(Interface.objects.filter(device=self.device), INTERFACES)
 
-
     def test_interface_ordering_huawei_vrp(self):
 
         INTERFACES = (
