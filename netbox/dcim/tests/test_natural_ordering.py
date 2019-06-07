@@ -155,3 +155,30 @@ class NaturalOrderingTestCase(TestCase):
             iface.save()
 
         self._compare_names(Interface.objects.filter(device=self.device), INTERFACES)
+
+
+    def test_interface_ordering_huawei_vrp(self):
+
+        INTERFACES = (
+            '100GE1/0/1',
+            '100GE1/0/2',
+            '100GE1/0/10',
+            '10GE1/0/1',
+            '10GE1/0/2',
+            '10GE1/0/10',
+            '25GE1/0/1',
+            '25GE1/0/2',
+            '25GE1/0/10',
+            '40GE1/0/1',
+            '40GE1/0/2',
+            '40GE1/0/10',
+            '10GE2/0/1',
+            '25GE2/0/1',
+            '100GE/2/0/4',
+        )
+
+        for name in INTERFACES:
+            iface = Interface(device=self.device, name=name)
+            iface.save()
+
+        self._compare_names(Interface.objects.filter(device=self.device), INTERFACES)

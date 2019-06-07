@@ -4,12 +4,14 @@ from django.db.models.expressions import RawSQL
 from .constants import NONCONNECTABLE_IFACE_TYPES
 
 # Regular expressions for parsing Interface names
-TYPE_RE = r"SUBSTRING({} FROM '^([^0-9\.:]+)')"
-SLOT_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?(\d{{1,9}})/') AS integer), NULL)"
-SUBSLOT_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9\.:]+)?\d{{1,9}}/(\d{{1,9}})') AS integer), NULL)"
-POSITION_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?(?:\d{{1,9}}/){{2}}(\d{{1,9}})') AS integer), NULL)"
-SUBPOSITION_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+)?(?:\d{{1,9}}/){{3}}(\d{{1,9}})') AS integer), NULL)"
-ID_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9\.:]+)?(\d{{1,9}})([^/]|$)') AS integer)"
+TYPE_RE = r"SUBSTRING({} FROM '^([^0-9\.:]+|\d{{2,3}}GE)')"
+SLOT_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+|\d{{2,3}}GE)?(\d{{1,9}})/') AS integer), NULL)"
+SUBSLOT_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9\.:]+|\d{{2,3}}GE)?\d{{1,9}}/(\d{{1,9}})') AS integer), NULL)"
+POSITION_RE = \
+    r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+|\d{{2,3}}GE)?(?:\d{{1,9}}/){{2}}(\d{{1,9}})') AS integer), NULL)"
+SUBPOSITION_RE = \
+    r"COALESCE(CAST(SUBSTRING({} FROM '^(?:[^0-9]+|\d{{2,3}}GE)?(?:\d{{1,9}}/){{3}}(\d{{1,9}})') AS integer), NULL)"
+ID_RE = r"CAST(SUBSTRING({} FROM '^(?:[^0-9\.:]+|\d{{2,3}}GE)?(\d{{1,9}})([^/]|$)') AS integer)"
 CHANNEL_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^.*:(\d{{1,9}})(\.\d{{1,9}})?$') AS integer), 0)"
 VC_RE = r"COALESCE(CAST(SUBSTRING({} FROM '^.*\.(\d{{1,9}})$') AS integer), 0)"
 
@@ -55,7 +57,7 @@ class InterfaceManager(Manager):
 
         sql_col = '{}.name'.format(self.model._meta.db_table)
         ordering = [
-            '_slot', '_subslot', '_position', '_subposition', '_type', '_id', '_channel', '_vc', 'name', 'pk'
+            '_slot', '_type', '_subslot', '_position', '_subposition', '_id', '_channel', '_vc', 'name', 'pk'
 
         ]
 
