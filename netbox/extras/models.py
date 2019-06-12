@@ -533,27 +533,20 @@ class TopologyMap(models.Model):
 
     def add_network_connections(self, devices):
 
-        from circuits.models import CircuitTermination
         from dcim.models import Interface
 
         # Add all interface connections to the graph
-        connected_interfaces = Interface.objects.select_related(
-            '_connected_interface__device'
-        ).filter(
-            Q(device__in=devices) | Q(_connected_interface__device__in=devices),
-            _connected_interface__isnull=False,
-            pk__lt=F('_connected_interface')
-        )
+        connected_interfaces = Interface.objects.exclude(cable=None)
+        seen = set()
         for interface in connected_interfaces:
+            if interface in seen:
+                continue
             style = 'solid' if interface.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
-            self.graph.edge(interface.device.name, interface.connected_endpoint.device.name, style=style)
-
-        # Add all circuits to the graph
-        for termination in CircuitTermination.objects.filter(term_side='A', connected_endpoint__device__in=devices):
-            peer_termination = termination.get_peer_termination()
-            if (peer_termination is not None and peer_termination.interface is not None and
-                    peer_termination.interface.device in devices):
-                self.graph.edge(termination.interface.device.name, peer_termination.interface.device.name, color='blue')
+            trace = interface.trace(follow_circuits=True)
+            endpoint = trace[-1][2]
+            if endpoint and endpoint.device in devices:
+                self.graph.edge(interface.device.name, endpoint.device.name, style=style)
+                seen.add(endpoint)
 
     def add_console_connections(self, devices):
 

@@ -1949,7 +1949,6 @@ class Interface(CableTermination, ComponentModel):
     _connected_circuittermination = models.ForeignKey(
         to='circuits.CircuitTermination',
         on_delete=models.SET_NULL,
-        related_name='+',
         blank=True,
         null=True
     )
