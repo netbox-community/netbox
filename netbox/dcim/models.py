@@ -1939,14 +1939,14 @@ class Interface(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=64
     )
-    _connected_interface = models.OneToOneField(
+    _connected_interface = models.ForeignKey(
         to='self',
         on_delete=models.SET_NULL,
         related_name='+',
         blank=True,
         null=True
     )
-    _connected_circuittermination = models.OneToOneField(
+    _connected_circuittermination = models.ForeignKey(
         to='circuits.CircuitTermination',
         on_delete=models.SET_NULL,
         related_name='+',
