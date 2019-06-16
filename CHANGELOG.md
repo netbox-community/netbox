@@ -12,6 +12,10 @@ v2.6.0 (FUTURE)
 * [#3204](https://github.com/digitalocean/netbox/issues/3204) - Fix interface filtering when connecting cables
 * [#3207](https://github.com/digitalocean/netbox/issues/3207) - Fix link for connecting interface to rear port
 
+## Enhancements (From Beta)
+
+* [#524](https://github.com/digitalocean/netbox/issues/524) - Added power utilization graphs to power feeds, devices, and racks
+
 ---
 
 v2.6-beta1 (2019-04-29)
