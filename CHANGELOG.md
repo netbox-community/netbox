@@ -107,6 +107,8 @@ different types of metrics, including:
 
 For the exhaustive list of exposed metrics, visit the `/metrics` endpoint on your NetBox instance.
 
+See the documentation for more details on using Prometheus metrics in NetBox.
+
 ## Changes
 
 ### New Dependency: Redis

@@ -20,3 +20,15 @@ NetBox makes use of the [django-prometheus](https://github.com/korfuri/django-pr
 - Other Django related metadata metrics
 
 For the exhaustive list of exposed metrics, visit the `/metrics` endpoint on your NetBox instance.
+
+## Multi Processing Notes
+
+When deploying NetBox in a multiprocess mannor--such as using Gunicorn as recomented in the installation docs--the Prometheus client library requires the use of shared directory
+to collect metrics from all processes. This can be any arbitrary directory to which the processes have read/write access. This directory is then made available by use of the
+`prometheus_multiproc_dir` environment variable.
+
+This can be setup by first creating a shared directory and then adding this line to the `[program:netbox]` section of the supervisor config file.
+
+```
+environment=prometheus_multiproc_dir=/tmp/prometheus_metrics
+```

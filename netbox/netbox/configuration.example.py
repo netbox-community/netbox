@@ -130,7 +130,7 @@ MAX_PAGE_SIZE = 1000
 # MEDIA_ROOT = '/opt/netbox/netbox/media'
 
 # Expose Prometheus monitoring metrics at the HTTP endpoint '/metrics'
-METRICS_ENABLED = True
+METRICS_ENABLED = False
 
 # Credentials that NetBox will uses to authenticate to devices when connecting via NAPALM.
 NAPALM_USERNAME = ''

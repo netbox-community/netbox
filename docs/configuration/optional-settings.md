@@ -199,7 +199,7 @@ The file path to the location where media files (such as image attachments) are 
 
 ## METRICS_ENABLED
 
-Default: True
+Default: False
 
 Toggle exposing Prometheus metrics at `/metrics`. See the [Prometheus Metrics](../additional-features/prometheus-metrics/) documentation for more details.
 
