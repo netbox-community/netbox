@@ -1113,7 +1113,7 @@ class PowerFeedFilter(CustomFieldFilterSet):
 
     class Meta:
         model = PowerFeed
-        fields = ['name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'power_factor']
+        fields = ['name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'max_utilization']
 
     def search(self, queryset, name, value):
         if not value.strip():

@@ -685,5 +685,5 @@ class PowerFeedSerializer(TaggitSerializer, CustomFieldModelSerializer):
         model = PowerFeed
         fields = [
             'id', 'power_panel', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage',
-            'power_factor', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'max_utilization', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]

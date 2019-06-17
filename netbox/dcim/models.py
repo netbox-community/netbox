@@ -2966,7 +2966,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
     available_power = models.PositiveSmallIntegerField(
         default=0
     )
-    power_factor = models.PositiveSmallIntegerField(
+    max_utilization = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(100)],
         default=80,
         help_text="Maximum permissible draw (percentage)"
@@ -2984,7 +2984,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
 
     csv_headers = [
         'site', 'panel_name', 'rack_group', 'rack_name', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
-        'amperage', 'power_factor', 'comments',
+        'amperage', 'max_utilization', 'comments',
     ]
 
     class Meta:
@@ -3008,7 +3008,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
             self.get_phase_display(),
             self.voltage,
             self.amperage,
-            self.power_factor,
+            self.max_utilization,
             self.comments,
         )
 
@@ -3023,7 +3023,7 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
     def save(self, *args, **kwargs):
 
         # Cache the available_power property on the instance
-        kva = self.voltage * self.amperage * (self.power_factor / 100)
+        kva = self.voltage * self.amperage * (self.max_utilization / 100)
         if self.phase == POWERFEED_PHASE_3PHASE:
             self.available_power = round(kva * 1.732)
         self.available_power = round(kva)
