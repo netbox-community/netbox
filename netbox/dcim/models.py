@@ -1964,7 +1964,7 @@ class PowerPort(CableTermination, ComponentModel):
 
     def get_power_stats(self):
         """
-        Return power utilization statistics
+        Return utilization statistics for this PowerPort.
         """
         feed = self._connected_powerfeed
         if not feed or not self.poweroutlets.count():
@@ -2963,13 +2963,14 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         validators=[MinValueValidator(1)],
         default=20
     )
-    available_power = models.PositiveSmallIntegerField(
-        default=0
-    )
     max_utilization = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(100)],
         default=80,
         help_text="Maximum permissible draw (percentage)"
+    )
+    available_power = models.PositiveSmallIntegerField(
+        default=0,
+        editable=False
     )
     comments = models.TextField(
         blank=True
@@ -3026,7 +3027,8 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         kva = self.voltage * self.amperage * (self.max_utilization / 100)
         if self.phase == POWERFEED_PHASE_3PHASE:
             self.available_power = round(kva * 1.732)
-        self.available_power = round(kva)
+        else:
+            self.available_power = round(kva)
 
         super().save(*args, **kwargs)
 
