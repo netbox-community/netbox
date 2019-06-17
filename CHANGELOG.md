@@ -1,3 +1,11 @@
+2.5.14 (FUTURE)
+
+## Bug Fixes
+
+* [#3231](https://github.com/digitalocean/netbox/issues/3231) - Fixed cosmetic error indicating a missing schema migration
+
+---
+
 2.5.13 (2019-05-31)
 
 ## Enhancements
