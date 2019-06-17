@@ -11,6 +11,7 @@ v2.6.0 (FUTURE)
 * [#3140](https://github.com/digitalocean/netbox/issues/3140) - Add bulk edit capability for power outlets and console server ports
 * [#3204](https://github.com/digitalocean/netbox/issues/3204) - Fix interface filtering when connecting cables
 * [#3207](https://github.com/digitalocean/netbox/issues/3207) - Fix link for connecting interface to rear port
+* [#3258](https://github.com/digitalocean/netbox/issues/3258) - Exception raised when creating/viewing a circuit with a non-connected termination
 
 ## Enhancements (From Beta)
 
