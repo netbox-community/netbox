@@ -9,7 +9,7 @@ from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Count, Q, Sum
+from django.db.models import Case, Count, Q, Sum, When, F, Subquery, OuterRef
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
@@ -733,6 +733,25 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         """
         u_available = len(self.get_available_units())
         return int(float(self.u_height - u_available) / self.u_height * 100)
+
+    def get_power_utilization(self):
+        """
+        Determine the utilization rate of power in the rack and return it as a percentage.
+        """
+        power_stats = PowerFeed.objects.filter(
+            rack=self
+        ).annotate(
+            allocated_draw_total=Sum('connected_endpoint__poweroutlets__connected_endpoint__allocated_draw'),
+        ).values(
+            'allocated_draw_total',
+            'available_power'
+        )
+
+        if power_stats:
+            allocated_draw_total = sum(x['allocated_draw_total'] for x in power_stats)
+            available_power_total = sum(x['available_power'] for x in power_stats)
+            return int(allocated_draw_total / available_power_total * 100) or 0
+        return 0
 
 
 class RackReservation(ChangeLoggedModel):
@@ -1961,6 +1980,10 @@ class PowerPort(CableTermination, ComponentModel):
         )
         utilization['outlets'] = len(outlet_ids)
         utilization['available_power'] = powerfeed_available
+        allocated_utilization = int(
+            float(utilization['allocated_draw_total'] or 0) / powerfeed_available * 100
+        )
+        utilization['allocated_utilization'] = allocated_utilization
         stats.append(utilization)
 
         # Per-leg stats for three-phase feeds
@@ -1974,6 +1997,10 @@ class PowerPort(CableTermination, ComponentModel):
                 utilization['name'] = 'Leg {}'.format(leg_name)
                 utilization['outlets'] = len(outlet_ids)
                 utilization['available_power'] = round(powerfeed_available / 3)
+                allocated_utilization = int(
+                    float(utilization['allocated_draw_total'] or 0) / powerfeed_available * 100
+                )
+                utilization['allocated_utilization'] = allocated_utilization
                 stats.append(utilization)
 
         return stats
@@ -2936,6 +2963,9 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
         validators=[MinValueValidator(1)],
         default=20
     )
+    available_power = models.PositiveSmallIntegerField(
+        default=0
+    )
     power_factor = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(100)],
         default=80,
@@ -2990,15 +3020,29 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
                 self.rack, self.rack.site, self.power_panel, self.power_panel.site
             ))
 
+    def save(self, *args, **kwargs):
+
+        # Cache the available_power property on the instance
+        kva = self.voltage * self.amperage * (self.power_factor / 100)
+        if self.phase == POWERFEED_PHASE_3PHASE:
+            self.available_power = round(kva * 1.732)
+        self.available_power = round(kva)
+
+        super().save(*args, **kwargs)
+
     def get_type_class(self):
         return STATUS_CLASSES[self.type]
 
     def get_status_class(self):
         return STATUS_CLASSES[self.status]
 
-    @property
-    def available_power(self):
-        kva = self.voltage * self.amperage * (self.power_factor / 100)
-        if self.phase == POWERFEED_PHASE_3PHASE:
-            return round(kva * 1.732)
-        return round(kva)
+    def get_power_stats(self):
+        """
+        Return power utilization statistics
+        """
+        power_port = self.connected_endpoint
+        if not power_port:
+            # Nothing is connected to the feed so it is not being utilized
+            return None
+
+        return power_port.get_power_stats()

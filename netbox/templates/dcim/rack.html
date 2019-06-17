@@ -207,6 +207,7 @@
                         <th>Feed</th>
                         <th>Status</th>
                         <th>Type</th>
+                        <th>Utilization</th>
                     </tr>
                     {% for powerfeed in power_feeds %}
                         <tr>
@@ -222,6 +223,7 @@
                             <td>
                                 <span class="label label-{{ powerfeed.get_type_class }}">{{ powerfeed.get_type_display }}</span>
                             </td>
+                            <td>{% utilization_graph powerfeed.get_power_stats.0.allocated_utilization %}</td>
                         </tr>
                     {% endfor %}
                 </table>

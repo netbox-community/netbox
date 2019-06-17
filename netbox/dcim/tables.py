@@ -300,11 +300,12 @@ class RackDetailTable(RackTable):
         verbose_name='Devices'
     )
     get_utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
+    get_power_utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Power Utilization')
 
     class Meta(RackTable.Meta):
         fields = (
             'pk', 'name', 'site', 'group', 'status', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',
-            'get_utilization',
+            'get_utilization', 'get_power_utilization',
         )
 
 

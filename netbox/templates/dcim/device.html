@@ -351,6 +351,7 @@
                             <th>Outlets</th>
                             <th>Allocated/Max (W)</th>
                             <th>Available (VA)</th>
+                            <th>Utilization (Allocated)</th>
                         </tr>
                         {% for pp in power_ports %}
                             {% for leg in pp.get_power_stats %}
@@ -363,6 +364,7 @@
                                     <td>{{ leg.outlets|placeholder }}</td>
                                     <td>{{ leg.allocated_draw_total }} / {{ leg.maximum_draw_total }}</td>
                                     <td>{{ leg.available_power }}</td>
+                                    <td>{% utilization_graph leg.allocated_utilization %}</td>
                                 </tr>
                             {% endfor %}
                         {% endfor %}
