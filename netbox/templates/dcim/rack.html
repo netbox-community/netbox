@@ -223,7 +223,13 @@
                             <td>
                                 <span class="label label-{{ powerfeed.get_type_class }}">{{ powerfeed.get_type_display }}</span>
                             </td>
-                            <td>{% utilization_graph powerfeed.get_power_stats.0.allocated_utilization %}</td>
+                            {% with power_port=powerfeed.connected_endpoint %}
+                                {% if power_port %}
+                                    <td>{% utilization_graph power_port.get_power_draw.allocated|percentage:powerfeed.available_power %}</td>
+                                {% else %}
+                                    <td class="text-muted">N/A</td>
+                                {% endif %}
+                            {% endwith %}
                         </tr>
                     {% endfor %}
                 </table>

@@ -166,6 +166,22 @@ def fgcolor(value):
     return '#{}'.format(foreground_color(value))
 
 
+@register.filter()
+def divide(x, y):
+    """
+    Return x/y (rounded).
+    """
+    return round(x / y)
+
+
+@register.filter()
+def percentage(x, y):
+    """
+    Return x/y as a percentage.
+    """
+    return round(x / y * 100)
+
+
 #
 # Tags
 #

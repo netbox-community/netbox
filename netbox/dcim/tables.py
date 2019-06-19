@@ -299,8 +299,16 @@ class RackDetailTable(RackTable):
         template_code=RACK_DEVICE_COUNT,
         verbose_name='Devices'
     )
-    get_utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
-    get_power_utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Power Utilization')
+    get_utilization = tables.TemplateColumn(
+        template_code=UTILIZATION_GRAPH,
+        orderable=False,
+        verbose_name='Space'
+    )
+    get_power_utilization = tables.TemplateColumn(
+        template_code=UTILIZATION_GRAPH,
+        orderable=False,
+        verbose_name='Power'
+    )
 
     class Meta(RackTable.Meta):
         fields = (
