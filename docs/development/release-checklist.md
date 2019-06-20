@@ -29,6 +29,7 @@ Update the following static libraries to their most recent stable release:
 
 * Bootstrap 3
 * Font Awesome 4
+* Select2
 * jQuery
 * jQuery UI
 

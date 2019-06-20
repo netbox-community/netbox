@@ -1,0 +1,155 @@
+{% extends '_base.html' %}
+{% load static %}
+{% load custom_links %}
+{% load helpers %}
+
+{% block header %}
+    <div class="row noprint">
+        <div class="col-sm-8 col-md-9">
+            <ol class="breadcrumb">
+                <li><a href="{% url 'dcim:powerfeed_list' %}">Power Feeds</a></li>
+                <li><a href="{{ powerfeed.power_panel.site.get_absolute_url }}">{{ powerfeed.power_panel.site }}</a></li>
+                <li><a href="{{ powerfeed.power_panel.get_absolute_url }}">{{ powerfeed.power_panel }}</a></li>
+                {% if powerfeed.rack %}
+                    <li><a href="{{ powerfeed.rack.get_absolute_url }}">{{ powerfeed.rack }}</a></li>
+                {% endif %}
+                <li>{{ powerfeed }}</li>
+            </ol>
+        </div>
+        <div class="col-sm-4 col-md-3">
+            <form action="{% url 'dcim:powerfeed_list' %}" method="get">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Search power feeds" />
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="fa fa-search" aria-hidden="true"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="pull-right noprint">
+        {% if perms.dcim.change_powerfeed %}
+            <a href="{% url 'dcim:powerfeed_edit' pk=powerfeed.pk %}" class="btn btn-warning">
+                <span class="fa fa-pencil" aria-hidden="true"></span>
+                Edit this power feed
+            </a>
+        {% endif %}
+        {% if perms.dcim.delete_powerfeed %}
+            <a href="{% url 'dcim:powerfeed_delete' pk=powerfeed.pk %}" class="btn btn-danger">
+                <span class="fa fa-trash" aria-hidden="true"></span>
+                Delete this power feed
+            </a>
+        {% endif %}
+    </div>
+    <h1>{% block title %}{{ powerfeed }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' with obj=powerfeed %}
+    <div class="pull-right noprint">
+        {% custom_links powerfeed %}
+    </div>
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ powerfeed.get_absolute_url }}">Cable</a>
+        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:powerfeed_changelog' pk=powerfeed.pk %}">Changelog</a>
+            </li>
+        {% endif %}
+    </ul>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Power Feed</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+                <tr>
+                    <td>Power Panel</td>
+                    <td>
+                        <a href="{{ powerfeed.power_panel.get_absolute_url }}">{{ powerfeed.power_panel }}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Rack</td>
+                    <td>
+                        {% if powerfeed.rack %}
+                            <a href="{{ powerfeed.rack.get_absolute_url }}">{{ powerfeed.rack }}</a>
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Type</td>
+                    <td>
+                        <span class="label label-{{ powerfeed.get_type_class }}">{{ powerfeed.get_type_display }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td>
+                        <span class="label label-{{ powerfeed.get_status_class }}">{{ powerfeed.get_status_display }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Connected Device</td>
+                    <td>
+                        {% if powerfeed.connected_endpoint %}
+                            <a href="{{ powerfeed.connected_endpoint.device.get_absolute_url }}">{{ powerfeed.connected_endpoint.device }}</a> ({{ powerfeed.connected_endpoint }})
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Utilization (Allocated)</td>
+                    {% with utilization=powerfeed.connected_endpoint.get_power_draw %}
+                        {% if utilization %}
+                            <td>
+                                {{ utilization.allocated }}VA / {{ powerfeed.available_power }}VA
+                                {% utilization_graph utilization.allocated|percentage:powerfeed.available_power %}
+                            </td>
+                        {% else %}
+                            <td class="text-muted">N/A</td>
+                        {% endif %}
+                    {% endwith %}
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Electrical Characteristics</strong>
+            </div>
+            <table class="table table-hover panel-body attr-table">
+                <tr>
+                    <td>Supply</td>
+                    <td>{{ powerfeed.get_supply_display }}</td>
+                </tr>
+                <tr>
+                    <td>Voltage</td>
+                    <td>{{ powerfeed.voltage }}V</td>
+                </tr>
+                <tr>
+                    <td>Amperage</td>
+                    <td>{{ powerfeed.amperage }}A</td>
+                </tr>
+                <tr>
+                    <td>Phase</td>
+                    <td>{{ powerfeed.get_phase_display }}</td>
+                </tr>
+                <tr>
+                    <td>Max Utilization</td>
+                    <td>{{ powerfeed.max_utilization }}%</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -7,13 +7,15 @@ from django.urls import reverse
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from ipam.constants import IP_PROTOCOL_TCP
 from ipam.models import Aggregate, IPAddress, Prefix, RIR, Role, Service, VLAN, VLANGroup, VRF
+from utilities.testing import create_test_user
 
 
 class VRFTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['ipam.view_vrf'])
         self.client = Client()
+        self.client.force_login(user)
 
         VRF.objects.bulk_create([
             VRF(name='VRF 1', rd='65000:1'),
@@ -41,8 +43,9 @@ class VRFTestCase(TestCase):
 class RIRTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['ipam.view_rir'])
         self.client = Client()
+        self.client.force_login(user)
 
         RIR.objects.bulk_create([
             RIR(name='RIR 1', slug='rir-1'),
@@ -57,18 +60,13 @@ class RIRTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-    def test_rir(self):
-
-        rir = RIR.objects.first()
-        response = self.client.get(rir.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
-
 
 class AggregateTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['ipam.view_aggregate'])
         self.client = Client()
+        self.client.force_login(user)
 
         rir = RIR(name='RIR 1', slug='rir-1')
         rir.save()
@@ -99,8 +97,9 @@ class AggregateTestCase(TestCase):
 class RoleTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['ipam.view_role'])
         self.client = Client()
+        self.client.force_login(user)
 
         Role.objects.bulk_create([
             Role(name='Role 1', slug='role-1'),
@@ -119,8 +118,9 @@ class RoleTestCase(TestCase):
 class PrefixTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['ipam.view_prefix'])
         self.client = Client()
+        self.client.force_login(user)
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -151,8 +151,9 @@ class PrefixTestCase(TestCase):
 class IPAddressTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['ipam.view_ipaddress'])
         self.client = Client()
+        self.client.force_login(user)
 
         vrf = VRF(name='VRF 1', rd='65000:1')
         vrf.save()
@@ -183,8 +184,9 @@ class IPAddressTestCase(TestCase):
 class VLANGroupTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['ipam.view_vlangroup'])
         self.client = Client()
+        self.client.force_login(user)
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -209,8 +211,9 @@ class VLANGroupTestCase(TestCase):
 class VLANTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['ipam.view_vlan'])
         self.client = Client()
+        self.client.force_login(user)
 
         vlangroup = VLANGroup(name='VLAN Group 1', slug='vlan-group-1')
         vlangroup.save()
@@ -241,8 +244,9 @@ class VLANTestCase(TestCase):
 class ServiceTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['ipam.view_service'])
         self.client = Client()
+        self.client.force_login(user)
 
         site = Site(name='Site 1', slug='site-1')
         site.save()

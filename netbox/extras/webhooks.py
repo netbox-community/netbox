@@ -14,7 +14,7 @@ def enqueue_webhooks(instance, user, request_id, action):
     Find Webhook(s) assigned to this instance + action and enqueue them
     to be processed
     """
-    if not settings.WEBHOOKS_ENABLED or instance._meta.model_name not in WEBHOOK_MODELS:
+    if not settings.WEBHOOKS_ENABLED or instance._meta.label.lower() not in WEBHOOK_MODELS:
         return
 
     # Retrieve any applicable Webhooks

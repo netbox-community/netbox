@@ -21,10 +21,11 @@ __all__ = [
 
 class NestedVRFSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vrf-detail')
+    prefix_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VRF
-        fields = ['id', 'url', 'name', 'rd']
+        fields = ['id', 'url', 'name', 'rd', 'prefix_count']
 
 
 #
@@ -33,10 +34,11 @@ class NestedVRFSerializer(WritableNestedSerializer):
 
 class NestedRIRSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:rir-detail')
+    aggregate_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = RIR
-        fields = ['id', 'url', 'name', 'slug']
+        fields = ['id', 'url', 'name', 'slug', 'aggregate_count']
 
 
 class NestedAggregateSerializer(WritableNestedSerializer):
@@ -53,18 +55,21 @@ class NestedAggregateSerializer(WritableNestedSerializer):
 
 class NestedRoleSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:role-detail')
+    prefix_count = serializers.IntegerField(read_only=True)
+    vlan_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Role
-        fields = ['id', 'url', 'name', 'slug']
+        fields = ['id', 'url', 'name', 'slug', 'prefix_count', 'vlan_count']
 
 
 class NestedVLANGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlangroup-detail')
+    vlan_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VLANGroup
-        fields = ['id', 'url', 'name', 'slug']
+        fields = ['id', 'url', 'name', 'slug', 'vlan_count']
 
 
 class NestedVLANSerializer(WritableNestedSerializer):

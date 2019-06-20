@@ -21,7 +21,7 @@ class InterfaceQuerySet(QuerySet):
         Return only physical interfaces which are capable of being connected to other interfaces (i.e. not virtual or
         wireless).
         """
-        return self.exclude(form_factor__in=NONCONNECTABLE_IFACE_TYPES)
+        return self.exclude(type__in=NONCONNECTABLE_IFACE_TYPES)
 
 
 class InterfaceManager(Manager):

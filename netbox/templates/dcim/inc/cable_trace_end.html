@@ -20,7 +20,7 @@
             {% with model=end|model_name %}
                 <strong>{{ model|bettertitle }} {{ end }}</strong><br />
                 {% if model == 'interface' %}
-                    {{ end.get_form_factor_display }}
+                    {{ end.get_type_display }}
                 {% elif model == 'front port' or model == 'rear port' %}
                     {{ end.get_type_display }}
                 {% endif %}

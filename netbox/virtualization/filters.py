@@ -15,14 +15,14 @@ class ClusterTypeFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = ClusterType
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
 
 class ClusterGroupFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = ClusterGroup
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
 
 class ClusterFilter(CustomFieldFilterSet):
@@ -164,7 +164,7 @@ class VirtualMachineFilter(TenancyFilterSet, CustomFieldFilterSet):
 
     class Meta:
         model = VirtualMachine
-        fields = ['name', 'cluster']
+        fields = ['id', 'name', 'cluster', 'vcpus', 'memory', 'disk']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -198,7 +198,7 @@ class InterfaceFilter(django_filters.FilterSet):
 
     class Meta:
         model = Interface
-        fields = ['name', 'enabled', 'mtu']
+        fields = ['id', 'name', 'enabled', 'mtu']
 
     def _mac_address(self, queryset, name, value):
         value = value.strip()

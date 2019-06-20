@@ -1,5 +1,6 @@
 {% extends '_base.html' %}
 {% load static %}
+{% load custom_links %}
 {% load helpers %}
 
 {% block title %}{{ provider }}{% endblock %}
@@ -47,13 +48,18 @@
     </div>
     <h1>{{ provider }}</h1>
     {% include 'inc/created_updated.html' with obj=provider %}
+    <div class="pull-right noprint">
+        {% custom_links provider %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ provider.get_absolute_url }}">Provider</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'circuits:provider_changelog' slug=provider.slug %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'circuits:provider_changelog' slug=provider.slug %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

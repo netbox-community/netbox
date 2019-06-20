@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load custom_links %}
 {% load helpers %}
 
 {% block title %}{{ circuit }}{% endblock %}
@@ -41,13 +42,18 @@
     </div>
     <h1>{{ circuit }}</h1>
     {% include 'inc/created_updated.html' with obj=circuit %}
+    <div class="pull-right noprint">
+        {% custom_links circuit %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ circuit.get_absolute_url }}">Circuit</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'circuits:circuit_changelog' pk=circuit.pk %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'circuits:circuit_changelog' pk=circuit.pk %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

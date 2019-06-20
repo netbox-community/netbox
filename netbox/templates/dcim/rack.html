@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load custom_links %}
 {% load helpers %}
 
 {% block header %}
@@ -43,13 +44,18 @@
     </div>
     <h1>{% block title %}Rack {{ rack }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=rack %}
+    <div class="pull-right noprint">
+        {% custom_links rack %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ rack.get_absolute_url }}">Rack</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'dcim:rack_changelog' pk=rack.pk %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:rack_changelog' pk=rack.pk %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 
@@ -190,47 +196,45 @@
                 {% endif %}
             </div>
         </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Non-Racked Devices</strong>
-            </div>
-            {% if nonracked_devices %}
-                <table class="table table-hover panel-body">
+        {% if power_feeds %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Power Feeds</strong>
+                </div>
+                <table class="table panel-body">
                     <tr>
-                        <th>Name</th>
-                        <th>Role</th>
+                        <th>Panel</th>
+                        <th>Feed</th>
+                        <th>Status</th>
                         <th>Type</th>
-                        <th>Parent</th>
+                        <th>Utilization</th>
                     </tr>
-                    {% for device in nonracked_devices %}
-                        <tr{% if device.device_type.u_height %} class="warning"{% endif %}>
+                    {% for powerfeed in power_feeds %}
+                        <tr>
                             <td>
-                                <a href="{% url 'dcim:device' pk=device.pk %}">{{ device }}</a>
+                                <a href="{{ powerfeed.power_panel.get_absolute_url }}">{{ powerfeed.power_panel.name }}</a>
+
+                            <td>
+                                <a href="{{ powerfeed.get_absolute_url }}">{{ powerfeed.name }}</a>
                             </td>
-                            <td>{{ device.device_role }}</td>
-                            <td>{{ device.device_type.display_name }}</td>
                             <td>
-                                {% if device.parent_bay %}
-                                    <a href="{{ device.parent_bay.device.get_absolute_url }}">{{ device.parent_bay }}</a>
+                                <span class="label label-{{ powerfeed.get_status_class }}">{{ powerfeed.get_status_display }}</span>
+                            </td>
+                            <td>
+                                <span class="label label-{{ powerfeed.get_type_class }}">{{ powerfeed.get_type_display }}</span>
+                            </td>
+                            {% with power_port=powerfeed.connected_endpoint %}
+                                {% if power_port %}
+                                    <td>{% utilization_graph power_port.get_power_draw.allocated|percentage:powerfeed.available_power %}</td>
                                 {% else %}
-                                    <span class="text-muted">&mdash;</span>
+                                    <td class="text-muted">N/A</td>
                                 {% endif %}
-                            </td>
+                            {% endwith %}
                         </tr>
                     {% endfor %}
                 </table>
-            {% else %}
-                <div class="panel-body text-muted">None</div>
-            {% endif %}
-            {% if perms.dcim.add_device %}
-                <div class="panel-footer text-right noprint">
-                    <a href="{% url 'dcim:device_add' %}?site={{ rack.site.pk }}&rack={{ rack.pk }}" class="btn btn-primary btn-xs">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                        Add a non-racked device
-                    </a>
-                </div>
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>Images</strong>
@@ -299,19 +303,62 @@
             {% endif %}
         </div>
 	</div>
-    <div class="row col-md-6">
-       <div class="col-md-6 col-sm-6 col-xs-12">
-          <div class="rack_header">
-            <h4>Front</h4>
-          </div>
-          {% include 'dcim/inc/rack_elevation.html' with primary_face=front_elevation secondary_face=rear_elevation face_id=0 reserved_units=rack.get_reserved_units %}
-      </div>
-      <div class="col-md-6 col-sm-6 col-xs-12">
-        <div class="rack_header">
-            <h4>Rear</h4>
+    <div class="col-md-6">
+        <div class="row" style="margin-bottom: 20px">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="rack_header">
+                    <h4>Front</h4>
+                </div>
+                {% include 'dcim/inc/rack_elevation.html' with primary_face=front_elevation secondary_face=rear_elevation face_id=0 reserved_units=rack.get_reserved_units %}
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="rack_header">
+                    <h4>Rear</h4>
+                </div>
+                {% include 'dcim/inc/rack_elevation.html' with primary_face=rear_elevation secondary_face=front_elevation face_id=1 reserved_units=rack.get_reserved_units %}
+            </div>
         </div>
-        {% include 'dcim/inc/rack_elevation.html' with primary_face=rear_elevation secondary_face=front_elevation face_id=1 reserved_units=rack.get_reserved_units %}
-      </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Non-Racked Devices</strong>
+            </div>
+            {% if nonracked_devices %}
+                <table class="table table-hover panel-body">
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Type</th>
+                        <th>Parent</th>
+                    </tr>
+                    {% for device in nonracked_devices %}
+                        <tr{% if device.device_type.u_height %} class="warning"{% endif %}>
+                            <td>
+                                <a href="{% url 'dcim:device' pk=device.pk %}">{{ device }}</a>
+                            </td>
+                            <td>{{ device.device_role }}</td>
+                            <td>{{ device.device_type.display_name }}</td>
+                            <td>
+                                {% if device.parent_bay %}
+                                    <a href="{{ device.parent_bay.device.get_absolute_url }}">{{ device.parent_bay }}</a>
+                                {% else %}
+                                    <span class="text-muted">&mdash;</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <div class="panel-body text-muted">None</div>
+            {% endif %}
+            {% if perms.dcim.add_device %}
+                <div class="panel-footer text-right noprint">
+                    <a href="{% url 'dcim:device_add' %}?site={{ rack.site.pk }}&rack={{ rack.pk }}" class="btn btn-primary btn-xs">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        Add a non-racked device
+                    </a>
+                </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}
