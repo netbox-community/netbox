@@ -177,6 +177,7 @@ scheme. This change was introuced in django-cors-headers 3.0.
 * [#2920](https://github.com/digitalocean/netbox/issues/2920) - Rename Interface `form_factor` to `type` (backward-compatible until v2.7)
 * [#2926](https://github.com/digitalocean/netbox/issues/2926) - Add change logging to the Tag model
 * [#3038](https://github.com/digitalocean/netbox/issues/3038) - OR logic now used when multiple values of a query filter are passed
+* [#3264](https://github.com/digitalocean/netbox/issues/3264) - Annotate changelog retention time on UI
 
 ## Bug Fixes
 
