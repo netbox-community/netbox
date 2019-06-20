@@ -20,9 +20,12 @@
     </td>
 
     {# Cable #}
-    <td>
+    <td class="text-nowrap">
         {% if csp.cable %}
             <a href="{{ csp.cable.get_absolute_url }}">{{ csp.cable }}</a>
+            <a href="{% url 'dcim:consoleserverport_trace' pk=csp.pk %}" class="btn btn-primary btn-xs" title="Trace">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
         {% else %}
             <span class="text-muted">&mdash;</span>
         {% endif %}
