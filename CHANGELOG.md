@@ -160,6 +160,11 @@ lives in the `extras` app and thus any permissions that you may have configured 
 to now use "Extras | Tag." Also note that the admin interface for tags has been removed as it was redundant to the
 functionality provided by the front end UI.
 
+### CORS_ORIGIN_WHITELIST Requires URI Scheme
+
+If you have the `CORS_ORIGIN_WHITELIST` configuration parameter defined, note that each origin must now incldue a URI
+scheme. This change was introuced in django-cors-headers 3.0.
+
 ## Enhancements
 
 * [#166](https://github.com/digitalocean/netbox/issues/166) - Add `dns_name` field to IPAddress
