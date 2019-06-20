@@ -1962,48 +1962,48 @@ class PowerPort(CableTermination, ComponentModel):
                 "Connected endpoint must be a PowerOutlet or PowerFeed, not {}.".format(type(value))
             )
 
-    def get_power_stats(self):
+    def get_power_draw(self):
         """
-        Return utilization statistics for this PowerPort.
+        Return the allocated and maximum power draw (in VA) and child PowerOutlet count for this PowerPort.
         """
-        feed = self._connected_powerfeed
-        if not feed or not self.poweroutlets.count():
-            return None
+        # Calculate aggregate draw of all child power outlets if no numbers have been defined manually
+        if self.allocated_draw is None and self.maximum_draw is None:
+            outlet_ids = PowerOutlet.objects.filter(power_port=self).values_list('pk', flat=True)
+            utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
+                maximum_draw_total=Sum('maximum_draw'),
+                allocated_draw_total=Sum('allocated_draw'),
+            )
+            ret = {
+                'allocated': utilization['allocated_draw_total'] or 0,
+                'maximum': utilization['maximum_draw_total'] or 0,
+                'outlet_count': len(outlet_ids),
+                'legs': [],
+            }
 
-        stats = []
-        powerfeed_available = self._connected_powerfeed.available_power
+            # Calculate per-leg aggregates for three-phase feeds
+            if self._connected_powerfeed and self._connected_powerfeed.phase == POWERFEED_PHASE_3PHASE:
+                for leg, leg_name in POWERFEED_LEG_CHOICES:
+                    outlet_ids = PowerOutlet.objects.filter(power_port=self, feed_leg=leg).values_list('pk', flat=True)
+                    utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
+                        maximum_draw_total=Sum('maximum_draw'),
+                        allocated_draw_total=Sum('allocated_draw'),
+                    )
+                    ret['legs'].append({
+                        'name': leg_name,
+                        'allocated': utilization['allocated_draw_total'] or 0,
+                        'maximum': utilization['maximum_draw_total'] or 0,
+                        'outlet_count': len(outlet_ids),
+                    })
 
-        outlet_ids = PowerOutlet.objects.filter(power_port=self).values_list('pk', flat=True)
-        utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
-            maximum_draw_total=Sum('maximum_draw'),
-            allocated_draw_total=Sum('allocated_draw'),
-        )
-        utilization['outlets'] = len(outlet_ids)
-        utilization['available_power'] = powerfeed_available
-        allocated_utilization = int(
-            float(utilization['allocated_draw_total'] or 0) / powerfeed_available * 100
-        )
-        utilization['allocated_utilization'] = allocated_utilization
-        stats.append(utilization)
+            return ret
 
-        # Per-leg stats for three-phase feeds
-        if feed.phase == POWERFEED_PHASE_3PHASE:
-            for leg, leg_name in POWERFEED_LEG_CHOICES:
-                outlet_ids = PowerOutlet.objects.filter(power_port=self, feed_leg=leg).values_list('pk', flat=True)
-                utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
-                    maximum_draw_total=Sum('maximum_draw'),
-                    allocated_draw_total=Sum('allocated_draw'),
-                )
-                utilization['name'] = 'Leg {}'.format(leg_name)
-                utilization['outlets'] = len(outlet_ids)
-                utilization['available_power'] = round(powerfeed_available / 3)
-                allocated_utilization = int(
-                    float(utilization['allocated_draw_total'] or 0) / powerfeed_available * 100
-                )
-                utilization['allocated_utilization'] = allocated_utilization
-                stats.append(utilization)
-
-        return stats
+        # Default to administratively defined values
+        return {
+            'allocated': self.allocated_draw or 0,
+            'maximum': self.maximum_draw or 0,
+            'outlet_count': PowerOutlet.objects.filter(power_port=self).count(),
+            'legs': [],
+        }
 
 
 #
@@ -3037,14 +3037,3 @@ class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
 
     def get_status_class(self):
         return STATUS_CLASSES[self.status]
-
-    def get_power_stats(self):
-        """
-        Return power utilization statistics
-        """
-        power_port = self.connected_endpoint
-        if not power_port:
-            # Nothing is connected to the feed so it is not being utilized
-            return None
-
-        return power_port.get_power_stats()

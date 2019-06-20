@@ -106,6 +106,19 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <td>Utilization (Allocated)</td>
+                    {% with utilization=powerfeed.connected_endpoint.get_power_draw %}
+                        {% if utilization %}
+                            <td>
+                                {{ utilization.allocated }}VA / {{ powerfeed.available_power }}VA
+                                {% utilization_graph utilization.allocated|percentage:powerfeed.available_power %}
+                            </td>
+                        {% else %}
+                            <td class="text-muted">N/A</td>
+                        {% endif %}
+                    {% endwith %}
+                </tr>
             </table>
         </div>
     </div>
@@ -138,30 +151,5 @@
             </table>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Power Utilization</strong>
-            </div>
-            <table class="table table-hover panel-body">
-                <tr>
-                    <th>Outlets</th>
-                    <th>Allocated/Max (W)</th>
-                    <th>Available (VA)</th>
-                    <th>Utilization (Allocated)</th>
-                </tr>
-                {% for leg in powerfeed.get_power_stats %}
-                    <tr>
-                        <td>{{ leg.outlets|placeholder }}</td>
-                        <td>{{ leg.allocated_draw_total }} / {{ leg.maximum_draw_total }}</td>
-                        <td>{{ leg.available_power }}</td>
-                        <td>{% utilization_graph leg.allocated_utilization %}</td>
-                    </tr>
-                {% endfor %}
-            </table>
-        </div>
-    </div>
-    <div class="col-md-5">
-	</div>
 </div>
 {% endblock %}
