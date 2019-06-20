@@ -1974,8 +1974,8 @@ class PowerPort(CableTermination, ComponentModel):
                 allocated_draw_total=Sum('allocated_draw'),
             )
             ret = {
-                'allocated': utilization['allocated_draw_total'],
-                'maximum': utilization['maximum_draw_total'],
+                'allocated': utilization['allocated_draw_total'] or 0,
+                'maximum': utilization['maximum_draw_total'] or 0,
                 'outlet_count': len(outlet_ids),
                 'legs': [],
             }
@@ -1990,8 +1990,8 @@ class PowerPort(CableTermination, ComponentModel):
                     )
                     ret['legs'].append({
                         'name': leg_name,
-                        'allocated': utilization['allocated_draw_total'],
-                        'maximum': utilization['maximum_draw_total'],
+                        'allocated': utilization['allocated_draw_total'] or 0,
+                        'maximum': utilization['maximum_draw_total'] or 0,
                         'outlet_count': len(outlet_ids),
                     })
 
@@ -1999,8 +1999,8 @@ class PowerPort(CableTermination, ComponentModel):
 
         # Default to administratively defined values
         return {
-            'allocated': self.allocated_draw,
-            'maximum': self.maximum_draw,
+            'allocated': self.allocated_draw or 0,
+            'maximum': self.maximum_draw or 0,
             'outlet_count': PowerOutlet.objects.filter(power_port=self).count(),
             'legs': [],
         }
