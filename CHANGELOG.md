@@ -89,7 +89,7 @@ single button.
 NetBox now supports exposing native Prometheus metrics from the application. [Prometheus](https://prometheus.io/) is a
 popular time series metric platform used for monitoring. NetBox exposes metrics at the `/metrics` HTTP endpoint, e.g.
 `https://netbox.local/metrics`. Metric exposition can be toggled with the `METRICS_ENABLED` configuration setting.
-Metrics are exposed by default.
+Metrics are not exposed by default.
 
 NetBox makes use of the [django-prometheus](https://github.com/korfuri/django-prometheus) library to export a number of
 different types of metrics, including:
