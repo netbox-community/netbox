@@ -1,41 +1,17 @@
-v2.6.0 (FUTURE)
-
-## Bug Fixes (From Beta)
-
-* [#3123](https://github.com/digitalocean/netbox/issues/3123) - Exempt `/metrics` view from authentication
-* [#3125](https://github.com/digitalocean/netbox/issues/3125) - Fix exception when viewing PDUs
-* [#3126](https://github.com/digitalocean/netbox/issues/3126) - Incorrect calculation of PowerFeed available power
-* [#3130](https://github.com/digitalocean/netbox/issues/3130) - Fix exception when creating a new power outlet
-* [#3136](https://github.com/digitalocean/netbox/issues/3136) - Add power draw fields to power port creation form
-* [#3137](https://github.com/digitalocean/netbox/issues/3137) - Add `power_port` and `feed_leg` fields to power outlet creation form
-* [#3140](https://github.com/digitalocean/netbox/issues/3140) - Add bulk edit capability for power outlets and console server ports
-* [#3204](https://github.com/digitalocean/netbox/issues/3204) - Fix interface filtering when connecting cables
-* [#3207](https://github.com/digitalocean/netbox/issues/3207) - Fix link for connecting interface to rear port
-* [#3258](https://github.com/digitalocean/netbox/issues/3258) - Exception raised when creating/viewing a circuit with a non-connected termination
-
-## Enhancements (From Beta)
-
-* [#524](https://github.com/digitalocean/netbox/issues/524) - Added power utilization graphs to power feeds, devices, and racks
-
----
-
-v2.6-beta1 (2019-04-29)
-
-**WARNING:** This is a beta release of NetBox intended for development use only. **Do not** rely on it for production
-use. A migration path forward to a stable release **will not** be provided; expect to ultimately lose any data input
-into this instance.
+v2.6.0 (2019-06-20)
 
 ## New Features
 
 ### Power Panels and Feeds ([#54](https://github.com/digitalocean/netbox/issues/54))
 
-NetBox now supports power supply modeling via two new models: power panels and power feeds. Power feeds are terminated
+NetBox now supports power circuit modeling via two new models: power panels and power feeds. Power feeds are terminated
 to power panels and are optionally associated with individual racks. Each power feed defines a supply type (AC/DC),
 amperage, voltage, and phase. A power port can be connected directly to a power feed, but a power feed may have only one
 power port connected to it.
 
-Additionally, the power port model has been extended to include fields denoting maximum and allocated draw, in watts.
-This allows a device (e.g. a PDU) to calculate its total load compared to its connected power feed.
+Additionally, the power port model, which represents a device's power input, has been extended to include fields
+denoting maximum and allocated draw, in volt-amperes. This allows a device (e.g. a PDU) to calculate its total load
+compared to its connected power feed.
 
 ### Caching ([#2647](https://github.com/digitalocean/netbox/issues/2647))
 
@@ -65,7 +41,7 @@ EXEMPT_VIEW_PERMISSIONS = [
 ]
 ```
 
-To exclude _all_ objects, effectively disabling view permissions, set:
+To exclude _all_ objects, effectively disabling view permissions and restoring pre-v2.6 behavior, set:
 
 ```
 EXEMPT_VIEW_PERMISSIONS = ['*']
@@ -87,27 +63,26 @@ single button.
 ### Prometheus Metrics ([#3104](https://github.com/digitalocean/netbox/issues/3104))
 
 NetBox now supports exposing native Prometheus metrics from the application. [Prometheus](https://prometheus.io/) is a
-popular time series metric platform used for monitoring. NetBox exposes metrics at the `/metrics` HTTP endpoint, e.g.
-`https://netbox.local/metrics`. Metric exposition can be toggled with the `METRICS_ENABLED` configuration setting.
-Metrics are not exposed by default.
+popular time series metric platform used for monitoring. Metric exposition can be toggled with the `METRICS_ENABLED`
+configuration setting; it is not enabled by default. NetBox exposes metrics at the `/metrics` HTTP endpoint, e.g.
+`https://netbox.local/metrics`.
 
 NetBox makes use of the [django-prometheus](https://github.com/korfuri/django-prometheus) library to export a number of
 different types of metrics, including:
 
-- Per model insert, update, and delete counters
-- Per view request counters
-- Per view request latency histograms
-- Request body size histograms
-- Response body size histograms
-- Response code counters
-- Database connection, execution, and error counters
-- Cache hit, miss, and invalidation counters
-- Django middleware latency histograms
-- Other Django related metadata metrics
+* Per model insert, update, and delete counters
+* Per view request counters
+* Per view request latency histograms
+* Request body size histograms
+* Response body size histograms
+* Response code counters
+* Database connection, execution, and error counters
+* Cache hit, miss, and invalidation counters
+* Django middleware latency histograms
+* Other Django related metadata metrics
 
-For the exhaustive list of exposed metrics, visit the `/metrics` endpoint on your NetBox instance.
-
-See the documentation for more details on using Prometheus metrics in NetBox.
+For the exhaustive list of exposed metrics, visit the `/metrics` endpoint on your NetBox instance. See the documentation
+for more details on using Prometheus metrics in NetBox.
 
 ## Changes
 
@@ -151,8 +126,8 @@ For example, when creating a new device, its rack would be specified as an integ
 }
 ```
 
-The NetBox API now supports referencing related objects by a set of sufficiently unique attrbiutes. For example, a rack
-can be identified by its name and parent site:
+The NetBox API now also supports referencing related objects by a set of sufficiently unique attrbiutes. For example, a
+rack can be identified by its name and parent site:
 
 ```
 {
@@ -175,8 +150,8 @@ object, a validation error is raised.
 The rendered config context for devices and VMs is now included by default in all API results (list and detail views).
 Previously, the rendered config context was available only in the detail view for individual objects. Users with large
 amounts of context data may observe a performance drop when returning multiple objects. To combat this, in cases where
-the rendered config context is not needed, the query parameter `?exclude=config_context` may be added to the request to
-exclude the config context data from the API response.
+the rendered config context is not needed, the query parameter `?exclude=config_context` may be appended to the request
+URL to exclude the config context data from the API response.
 
 ### Changes to Tag Permissions
 
@@ -188,6 +163,7 @@ functionality provided by the front end UI.
 ## Enhancements
 
 * [#166](https://github.com/digitalocean/netbox/issues/166) - Add `dns_name` field to IPAddress
+* [#524](https://github.com/digitalocean/netbox/issues/524) - Added power utilization graphs to power feeds, devices, and racks
 * [#1792](https://github.com/digitalocean/netbox/issues/1792) - Add CustomFieldChoices API endpoint at `/api/extras/_custom_field_choices/`
 * [#1863](https://github.com/digitalocean/netbox/issues/1863) - Add child object counts to API representation of organizational objects
 * [#2324](https://github.com/digitalocean/netbox/issues/2324) - Add `color` field for tags
@@ -196,6 +172,23 @@ functionality provided by the front end UI.
 * [#2920](https://github.com/digitalocean/netbox/issues/2920) - Rename Interface `form_factor` to `type` (backward-compatible until v2.7)
 * [#2926](https://github.com/digitalocean/netbox/issues/2926) - Add change logging to the Tag model
 * [#3038](https://github.com/digitalocean/netbox/issues/3038) - OR logic now used when multiple values of a query filter are passed
+
+## Bug Fixes
+
+* [#2968](https://github.com/digitalocean/netbox/issues/2968) - Correct API documentation for SerializerMethodFields
+
+## Bug Fixes From v2.6-beta1
+
+* [#3123](https://github.com/digitalocean/netbox/issues/3123) - Exempt `/metrics` view from authentication
+* [#3125](https://github.com/digitalocean/netbox/issues/3125) - Fix exception when viewing PDUs
+* [#3126](https://github.com/digitalocean/netbox/issues/3126) - Incorrect calculation of PowerFeed available power
+* [#3130](https://github.com/digitalocean/netbox/issues/3130) - Fix exception when creating a new power outlet
+* [#3136](https://github.com/digitalocean/netbox/issues/3136) - Add power draw fields to power port creation form
+* [#3137](https://github.com/digitalocean/netbox/issues/3137) - Add `power_port` and `feed_leg` fields to power outlet creation form
+* [#3140](https://github.com/digitalocean/netbox/issues/3140) - Add bulk edit capability for power outlets and console server ports
+* [#3204](https://github.com/digitalocean/netbox/issues/3204) - Fix interface filtering when connecting cables
+* [#3207](https://github.com/digitalocean/netbox/issues/3207) - Fix link for connecting interface to rear port
+* [#3258](https://github.com/digitalocean/netbox/issues/3258) - Exception raised when creating/viewing a circuit with a non-connected termination
 
 ## API Changes
 
@@ -213,10 +206,6 @@ functionality provided by the front end UI.
 * dcim.Site: Added the `virtualmachine_count` read-only field.
 * extras.Tag: Added `color` and `comments` fields to the Tag serializer.
 * virtualization.VirtualMachine: The virtual machines list endpoint now includes rendered context data.
-
-## Bug Fixes
-
-* [#2968](https://github.com/digitalocean/netbox/issues/2968) - Correct API documentation for SerializerMethodFields
 
 ---
 
