@@ -181,6 +181,7 @@ scheme. This change was introuced in django-cors-headers 3.0.
 ## Bug Fixes
 
 * [#2968](https://github.com/digitalocean/netbox/issues/2968) - Correct API documentation for SerializerMethodFields
+* [#3231](https://github.com/digitalocean/netbox/issues/3231) - Fixed cosmetic error indicating a missing schema migration
 
 ## Bug Fixes From v2.6-beta1
 
