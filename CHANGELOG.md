@@ -182,6 +182,7 @@ scheme. This change was introuced in django-cors-headers 3.0.
 
 * [#2968](https://github.com/digitalocean/netbox/issues/2968) - Correct API documentation for SerializerMethodFields
 * [#3231](https://github.com/digitalocean/netbox/issues/3231) - Fixed cosmetic error indicating a missing schema migration
+* [#3239](https://github.com/digitalocean/netbox/issues/3239) - Corrected count of tags reported via API
 
 ## Bug Fixes From v2.6-beta1
 
