@@ -340,7 +340,9 @@ class IPAddressTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = IPAddress
-        fields = ('pk', 'address', 'vrf', 'status', 'role', 'tenant', 'parent', 'interface', 'description')
+        fields = (
+            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'parent', 'interface', 'dns_name', 'description',
+        )
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, IPAddress) else '',
         }
@@ -354,7 +356,8 @@ class IPAddressDetailTable(IPAddressTable):
 
     class Meta(IPAddressTable.Meta):
         fields = (
-            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'parent', 'interface', 'description',
+            'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'nat_inside', 'parent', 'interface', 'dns_name',
+            'description',
         )
 
 

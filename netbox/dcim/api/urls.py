@@ -68,6 +68,10 @@ router.register(r'cables', views.CableViewSet)
 # Virtual chassis
 router.register(r'virtual-chassis', views.VirtualChassisViewSet)
 
+# Power
+router.register(r'power-panels', views.PowerPanelViewSet)
+router.register(r'power-feeds', views.PowerFeedViewSet)
+
 # Miscellaneous
 router.register(r'connected-device', views.ConnectedDeviceViewSet, basename='connected-device')
 

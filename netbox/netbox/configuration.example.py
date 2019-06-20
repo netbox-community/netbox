@@ -25,6 +25,17 @@ DATABASE = {
 # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-SECRET_KEY
 SECRET_KEY = ''
 
+# Redis database settings. The Redis database is used for caching and background processing such as webhooks
+REDIS = {
+    'HOST': 'localhost',
+    'PORT': 6379,
+    'PASSWORD': '',
+    'DATABASE': 0,
+    'CACHE_DATABASE': 1,
+    'DEFAULT_TIMEOUT': 300,
+    'SSL': False,
+}
+
 
 #########################
 #                       #
@@ -50,6 +61,9 @@ BANNER_LOGIN = ''
 # BASE_PATH = 'netbox/'
 BASE_PATH = ''
 
+# Cache timeout in seconds. Set to 0 to dissable caching. Defaults to 900 (15 minutes)
+CACHE_TIMEOUT = 900
+
 # Maximum number of days to retain logged changes. Set to 0 to retain changes indefinitely. (Default: 90)
 CHANGELOG_RETENTION = 90
 
@@ -58,7 +72,7 @@ CHANGELOG_RETENTION = 90
 # CORS_ORIGIN_REGEX_WHITELIST. For more information, see https://github.com/ottoyiu/django-cors-headers
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = [
-    # 'hostname.example.com',
+    # 'https://hostname.example.com',
 ]
 CORS_ORIGIN_REGEX_WHITELIST = [
     # r'^(https?://)?(\w+\.)?example\.com$',
@@ -82,6 +96,14 @@ EMAIL = {
 # Enforcement of unique IP space can be toggled on a per-VRF basis. To enforce unique IP space within the global table
 # (all prefixes and IP addresses not assigned to a VRF), set ENFORCE_GLOBAL_UNIQUE to True.
 ENFORCE_GLOBAL_UNIQUE = False
+
+# Exempt certain models from the enforcement of view permissions. Models listed here will be viewable by all users and
+# by anonymous users. List models in the form `<app>.<model>`. Add '*' to this list to exempt all models.
+EXEMPT_VIEW_PERMISSIONS = [
+    # 'dcim.site',
+    # 'dcim.region',
+    # 'ipam.prefix',
+]
 
 # Enable custom logging. Please see the Django documentation for detailed guidance on configuring custom logs:
 #   https://docs.djangoproject.com/en/1.11/topics/logging/
@@ -107,6 +129,9 @@ MAX_PAGE_SIZE = 1000
 # the default value of this setting is derived from the installed location.
 # MEDIA_ROOT = '/opt/netbox/netbox/media'
 
+# Expose Prometheus monitoring metrics at the HTTP endpoint '/metrics'
+METRICS_ENABLED = False
+
 # Credentials that NetBox will uses to authenticate to devices when connecting via NAPALM.
 NAPALM_USERNAME = ''
 NAPALM_PASSWORD = ''
@@ -124,16 +149,6 @@ PAGINATE_COUNT = 50
 # When determining the primary IP address for a device, IPv6 is preferred over IPv4 by default. Set this to True to
 # prefer IPv4 instead.
 PREFER_IPV4 = False
-
-# Redis database settings (optional). A Redis database is required only if the webhooks backend is enabled.
-REDIS = {
-    'HOST': 'localhost',
-    'PORT': 6379,
-    'PASSWORD': '',
-    'DATABASE': 0,
-    'DEFAULT_TIMEOUT': 300,
-    'SSL': False,
-}
 
 # The file path where custom reports will be stored. A trailing slash is not needed. Note that the default value of
 # this setting is derived from the installed location.

@@ -1,6 +1,7 @@
 {% extends '_base.html' %}
 {% load static %}
 {% load tz %}
+{% load custom_links %}
 {% load helpers %}
 
 {% block header %}
@@ -52,13 +53,18 @@
     </div>
     <h1>{% block title %}{{ site }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=site %}
+    <div class="pull-right noprint">
+        {% custom_links site %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ site.get_absolute_url }}">Site</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'dcim:site_changelog' slug=site.slug %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:site_changelog' slug=site.slug %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

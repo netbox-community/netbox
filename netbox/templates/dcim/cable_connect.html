@@ -22,7 +22,7 @@
         </div>
     {% endif %}
     {% with termination_a=form.instance.termination_a %}
-        <h3>{% block title %}Connect {{ termination_a.device }} {{ termination_a }}{% endblock %}</h3>
+        <h3>{% block title %}Connect {{ termination_a.device }} {{ termination_a }} to {{ termination_b_type|bettertitle }}{% endblock %}</h3>
         <div class="row">
             <div class="col-md-5">
                 <div class="panel panel-default">
@@ -101,21 +101,43 @@
                         <strong>B Side</strong>
                     </div>
                     <div class="panel-body">
-                        <ul class="nav nav-tabs" role="tablist">
-                            <li role="presentation" class="active"><a href="#search" aria-controls="search" role="tab" data-toggle="tab">Search</a></li>
-                            <li role="presentation"><a href="#select" aria-controls="home" role="tab" data-toggle="tab">Select</a></li>
-                        </ul>
-                        <div class="tab-content">
-                            <div class="tab-pane active" id="search">
-                                &nbsp;
-                            </div>
-                            <div class="tab-pane" id="select">
-                                {% render_field form.termination_b_site %}
-                                {% render_field form.termination_b_rack %}
+                        {% if tabs %}
+                            <ul class="nav nav-tabs">
+                                {% for url, link in tabs %}
+                                    <li role="presentation"><a href="{{ url }}">{{ link }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        {% if 'termination_b_provider' in form.fields %}
+                            {% render_field form.termination_b_provider %}
+                        {% endif %}
+                        {% if 'termination_b_site' in form.fields %}
+                            {% render_field form.termination_b_site %}
+                        {% endif %}
+                        {% if 'termination_b_rackgroup' in form.fields %}
+                            {% render_field form.termination_b_rackgroup %}
+                        {% endif %}
+                        {% if 'termination_b_rack' in form.fields %}
+                            {% render_field form.termination_b_rack %}
+                        {% endif %}
+                        {% if 'termination_b_device' in form.fields %}
+                            {% render_field form.termination_b_device %}
+                        {% endif %}
+                        {% if 'termination_b_type' in form.fields %}
+                            {% render_field form.termination_b_type %}
+                        {% endif %}
+                        {% if 'termination_b_powerpanel' in form.fields %}
+                            {% render_field form.termination_b_powerpanel %}
+                        {% endif %}
+                        {% if 'termination_b_circuit' in form.fields %}
+                            {% render_field form.termination_b_circuit %}
+                        {% endif %}
+                        <div class="form-group">
+                            <label class="col-md-3 control-label required">Type</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static">{{ termination_b_type|capfirst }}</p>
                             </div>
                         </div>
-                        {% render_field form.termination_b_device %}
-                        {% render_field form.termination_b_type %}
                         {% render_field form.termination_b_id %}
                     </div>
                 </div>

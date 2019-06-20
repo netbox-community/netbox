@@ -9,13 +9,13 @@ from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Count, Q
+from django.db.models import Case, Count, Q, Sum, When, F, Subquery, OuterRef
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
 from taggit.managers import TaggableManager
 from timezone_field import TimeZoneField
 
-from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange
+from extras.models import ConfigContextModel, CustomFieldModel, ObjectChange, TaggedItem
 from utilities.fields import ColorField
 from utilities.managers import NaturalOrderingManager
 from utilities.models import ChangeLoggedModel
@@ -46,6 +46,10 @@ class ComponentTemplateModel(models.Model):
 
 
 class ComponentModel(models.Model):
+    description = models.CharField(
+        max_length=100,
+        blank=True
+    )
 
     class Meta:
         abstract = True
@@ -319,7 +323,7 @@ class Site(ChangeLoggedModel, CustomFieldModel):
     )
 
     objects = NaturalOrderingManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'name', 'slug', 'status', 'region', 'tenant', 'facility', 'asn', 'time_zone', 'description', 'physical_address',
@@ -358,32 +362,6 @@ class Site(ChangeLoggedModel, CustomFieldModel):
 
     def get_status_class(self):
         return STATUS_CLASSES[self.status]
-
-    @property
-    def count_prefixes(self):
-        return self.prefixes.count()
-
-    @property
-    def count_vlans(self):
-        return self.vlans.count()
-
-    @property
-    def count_racks(self):
-        return Rack.objects.filter(site=self).count()
-
-    @property
-    def count_devices(self):
-        return Device.objects.filter(site=self).count()
-
-    @property
-    def count_circuits(self):
-        from circuits.models import Circuit
-        return Circuit.objects.filter(terminations__site=self).count()
-
-    @property
-    def count_vms(self):
-        from virtualization.models import VirtualMachine
-        return VirtualMachine.objects.filter(cluster__site=self).count()
 
 
 #
@@ -566,7 +544,7 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
     )
 
     objects = NaturalOrderingManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'site', 'group_name', 'name', 'facility_id', 'tenant', 'status', 'role', 'type', 'serial', 'asset_tag', 'width',
@@ -756,6 +734,25 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         u_available = len(self.get_available_units())
         return int(float(self.u_height - u_available) / self.u_height * 100)
 
+    def get_power_utilization(self):
+        """
+        Determine the utilization rate of power in the rack and return it as a percentage.
+        """
+        power_stats = PowerFeed.objects.filter(
+            rack=self
+        ).annotate(
+            allocated_draw_total=Sum('connected_endpoint__poweroutlets__connected_endpoint__allocated_draw'),
+        ).values(
+            'allocated_draw_total',
+            'available_power'
+        )
+
+        if power_stats:
+            allocated_draw_total = sum(x['allocated_draw_total'] for x in power_stats)
+            available_power_total = sum(x['available_power'] for x in power_stats)
+            return int(allocated_draw_total / available_power_total * 100) or 0
+        return 0
+
 
 class RackReservation(ChangeLoggedModel):
     """
@@ -914,7 +911,7 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'comments',
@@ -1049,6 +1046,18 @@ class PowerPortTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
+    maximum_draw = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1)],
+        help_text="Maximum current draw (watts)"
+    )
+    allocated_draw = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1)],
+        help_text="Allocated current draw (watts)"
+    )
 
     objects = NaturalOrderingManager()
 
@@ -1072,6 +1081,19 @@ class PowerOutletTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=50
     )
+    power_port = models.ForeignKey(
+        to='dcim.PowerPortTemplate',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='poweroutlet_templates'
+    )
+    feed_leg = models.PositiveSmallIntegerField(
+        choices=POWERFEED_LEG_CHOICES,
+        blank=True,
+        null=True,
+        help_text="Phase (for three-phase feeds)"
+    )
 
     objects = NaturalOrderingManager()
 
@@ -1081,6 +1103,14 @@ class PowerOutletTemplate(ComponentTemplateModel):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+
+        # Validate power port assignment
+        if self.power_port and self.power_port.device_type != self.device_type:
+            raise ValidationError(
+                "Parent power port ({}) must belong to the same device type".format(self.power_port)
+            )
 
 
 class InterfaceTemplate(ComponentTemplateModel):
@@ -1095,9 +1125,9 @@ class InterfaceTemplate(ComponentTemplateModel):
     name = models.CharField(
         max_length=64
     )
-    form_factor = models.PositiveSmallIntegerField(
-        choices=IFACE_FF_CHOICES,
-        default=IFACE_FF_10GE_SFP_PLUS
+    type = models.PositiveSmallIntegerField(
+        choices=IFACE_TYPE_CHOICES,
+        default=IFACE_TYPE_10GE_SFP_PLUS
     )
     mgmt_only = models.BooleanField(
         default=False,
@@ -1112,6 +1142,22 @@ class InterfaceTemplate(ComponentTemplateModel):
 
     def __str__(self):
         return self.name
+
+    # TODO: Remove in v2.7
+    @property
+    def form_factor(self):
+        """
+        Backward-compatibility for form_factor
+        """
+        return self.type
+
+    # TODO: Remove in v2.7
+    @form_factor.setter
+    def form_factor(self, value):
+        """
+        Backward-compatibility for form_factor
+        """
+        self.type = value
 
 
 class FrontPortTemplate(ComponentTemplateModel):
@@ -1455,7 +1501,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
     )
 
     objects = NaturalOrderingManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'name', 'device_role', 'tenant', 'manufacturer', 'model_name', 'platform', 'serial', 'asset_tag', 'status',
@@ -1610,7 +1656,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
                  self.device_type.poweroutlet_templates.all()]
             )
             Interface.objects.bulk_create(
-                [Interface(device=self, name=template.name, form_factor=template.form_factor,
+                [Interface(device=self, name=template.name, type=template.type,
                            mgmt_only=template.mgmt_only) for template in self.device_type.interface_templates.all()]
             )
             RearPort.objects.bulk_create([
@@ -1758,9 +1804,9 @@ class ConsolePort(CableTermination, ComponentModel):
     )
 
     objects = NaturalOrderingManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name']
+    csv_headers = ['device', 'name', 'description']
 
     class Meta:
         ordering = ['device', 'name']
@@ -1776,6 +1822,7 @@ class ConsolePort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.description,
         )
 
 
@@ -1801,9 +1848,9 @@ class ConsoleServerPort(CableTermination, ComponentModel):
     )
 
     objects = NaturalOrderingManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name']
+    csv_headers = ['device', 'name', 'description']
 
     class Meta:
         unique_together = ['device', 'name']
@@ -1818,6 +1865,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.description,
         )
 
 
@@ -1837,10 +1885,29 @@ class PowerPort(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
-    connected_endpoint = models.OneToOneField(
+    maximum_draw = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1)],
+        help_text="Maximum current draw (watts)"
+    )
+    allocated_draw = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(1)],
+        help_text="Allocated current draw (watts)"
+    )
+    _connected_poweroutlet = models.OneToOneField(
         to='dcim.PowerOutlet',
         on_delete=models.SET_NULL,
         related_name='connected_endpoint',
+        blank=True,
+        null=True
+    )
+    _connected_powerfeed = models.OneToOneField(
+        to='dcim.PowerFeed',
+        on_delete=models.SET_NULL,
+        related_name='+',
         blank=True,
         null=True
     )
@@ -1850,9 +1917,9 @@ class PowerPort(CableTermination, ComponentModel):
     )
 
     objects = NaturalOrderingManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name']
+    csv_headers = ['device', 'name', 'maximum_draw', 'allocated_draw', 'description']
 
     class Meta:
         ordering = ['device', 'name']
@@ -1868,7 +1935,75 @@ class PowerPort(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.maximum_draw,
+            self.allocated_draw,
+            self.description,
         )
+
+    @property
+    def connected_endpoint(self):
+        if self._connected_poweroutlet:
+            return self._connected_poweroutlet
+        return self._connected_powerfeed
+
+    @connected_endpoint.setter
+    def connected_endpoint(self, value):
+        if value is None:
+            self._connected_poweroutlet = None
+            self._connected_powerfeed = None
+        elif isinstance(value, PowerOutlet):
+            self._connected_poweroutlet = value
+            self._connected_powerfeed = None
+        elif isinstance(value, PowerFeed):
+            self._connected_poweroutlet = None
+            self._connected_powerfeed = value
+        else:
+            raise ValueError(
+                "Connected endpoint must be a PowerOutlet or PowerFeed, not {}.".format(type(value))
+            )
+
+    def get_power_draw(self):
+        """
+        Return the allocated and maximum power draw (in VA) and child PowerOutlet count for this PowerPort.
+        """
+        # Calculate aggregate draw of all child power outlets if no numbers have been defined manually
+        if self.allocated_draw is None and self.maximum_draw is None:
+            outlet_ids = PowerOutlet.objects.filter(power_port=self).values_list('pk', flat=True)
+            utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
+                maximum_draw_total=Sum('maximum_draw'),
+                allocated_draw_total=Sum('allocated_draw'),
+            )
+            ret = {
+                'allocated': utilization['allocated_draw_total'] or 0,
+                'maximum': utilization['maximum_draw_total'] or 0,
+                'outlet_count': len(outlet_ids),
+                'legs': [],
+            }
+
+            # Calculate per-leg aggregates for three-phase feeds
+            if self._connected_powerfeed and self._connected_powerfeed.phase == POWERFEED_PHASE_3PHASE:
+                for leg, leg_name in POWERFEED_LEG_CHOICES:
+                    outlet_ids = PowerOutlet.objects.filter(power_port=self, feed_leg=leg).values_list('pk', flat=True)
+                    utilization = PowerPort.objects.filter(_connected_poweroutlet_id__in=outlet_ids).aggregate(
+                        maximum_draw_total=Sum('maximum_draw'),
+                        allocated_draw_total=Sum('allocated_draw'),
+                    )
+                    ret['legs'].append({
+                        'name': leg_name,
+                        'allocated': utilization['allocated_draw_total'] or 0,
+                        'maximum': utilization['maximum_draw_total'] or 0,
+                        'outlet_count': len(outlet_ids),
+                    })
+
+            return ret
+
+        # Default to administratively defined values
+        return {
+            'allocated': self.allocated_draw or 0,
+            'maximum': self.maximum_draw or 0,
+            'outlet_count': PowerOutlet.objects.filter(power_port=self).count(),
+            'legs': [],
+        }
 
 
 #
@@ -1887,15 +2022,28 @@ class PowerOutlet(CableTermination, ComponentModel):
     name = models.CharField(
         max_length=50
     )
+    power_port = models.ForeignKey(
+        to='dcim.PowerPort',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='poweroutlets'
+    )
+    feed_leg = models.PositiveSmallIntegerField(
+        choices=POWERFEED_LEG_CHOICES,
+        blank=True,
+        null=True,
+        help_text="Phase (for three-phase feeds)"
+    )
     connection_status = models.NullBooleanField(
         choices=CONNECTION_STATUS_CHOICES,
         blank=True
     )
 
     objects = NaturalOrderingManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name']
+    csv_headers = ['device', 'name', 'power_port', 'feed_leg', 'description']
 
     class Meta:
         unique_together = ['device', 'name']
@@ -1910,7 +2058,18 @@ class PowerOutlet(CableTermination, ComponentModel):
         return (
             self.device.identifier,
             self.name,
+            self.power_port.name if self.power_port else None,
+            self.get_feed_leg_display(),
+            self.description,
         )
+
+    def clean(self):
+
+        # Validate power port assignment
+        if self.power_port and self.power_port.device != self.device:
+            raise ValidationError(
+                "Parent power port ({}) must belong to the same device".format(self.power_port)
+            )
 
 
 #
@@ -1965,9 +2124,9 @@ class Interface(CableTermination, ComponentModel):
         blank=True,
         verbose_name='Parent LAG'
     )
-    form_factor = models.PositiveSmallIntegerField(
-        choices=IFACE_FF_CHOICES,
-        default=IFACE_FF_10GE_SFP_PLUS
+    type = models.PositiveSmallIntegerField(
+        choices=IFACE_TYPE_CHOICES,
+        default=IFACE_TYPE_10GE_SFP_PLUS
     )
     enabled = models.BooleanField(
         default=True
@@ -1987,10 +2146,6 @@ class Interface(CableTermination, ComponentModel):
         default=False,
         verbose_name='OOB Management',
         help_text='This interface is used only for out-of-band management'
-    )
-    description = models.CharField(
-        max_length=100,
-        blank=True
     )
     mode = models.PositiveSmallIntegerField(
         choices=IFACE_MODE_CHOICES,
@@ -2013,10 +2168,10 @@ class Interface(CableTermination, ComponentModel):
     )
 
     objects = InterfaceManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
-        'device', 'virtual_machine', 'name', 'lag', 'form_factor', 'enabled', 'mac_address', 'mtu', 'mgmt_only',
+        'device', 'virtual_machine', 'name', 'lag', 'type', 'enabled', 'mac_address', 'mtu', 'mgmt_only',
         'description', 'mode',
     ]
 
@@ -2036,7 +2191,7 @@ class Interface(CableTermination, ComponentModel):
             self.virtual_machine.name if self.virtual_machine else None,
             self.name,
             self.lag.name if self.lag else None,
-            self.get_form_factor_display(),
+            self.get_type_display(),
             self.enabled,
             self.mac_address,
             self.mtu,
@@ -2054,18 +2209,18 @@ class Interface(CableTermination, ComponentModel):
             raise ValidationError("An interface must belong to either a device or a virtual machine.")
 
         # VM interfaces must be virtual
-        if self.virtual_machine and self.form_factor is not IFACE_FF_VIRTUAL:
+        if self.virtual_machine and self.type is not IFACE_TYPE_VIRTUAL:
             raise ValidationError({
-                'form_factor': "Virtual machines can only have virtual interfaces."
+                'type': "Virtual machines can only have virtual interfaces."
             })
 
         # Virtual interfaces cannot be connected
-        if self.form_factor in NONCONNECTABLE_IFACE_TYPES and (
+        if self.type in NONCONNECTABLE_IFACE_TYPES and (
                 self.cable or getattr(self, 'circuit_termination', False)
         ):
             raise ValidationError({
-                'form_factor': "Virtual and wireless interfaces cannot be connected to another interface or circuit. "
-                               "Disconnect the interface or choose a suitable form factor."
+                'type': "Virtual and wireless interfaces cannot be connected to another interface or circuit. "
+                        "Disconnect the interface or choose a suitable type."
             })
 
         # An interface's LAG must belong to the same device (or VC master)
@@ -2077,15 +2232,15 @@ class Interface(CableTermination, ComponentModel):
             })
 
         # A virtual interface cannot have a parent LAG
-        if self.form_factor in NONCONNECTABLE_IFACE_TYPES and self.lag is not None:
+        if self.type in NONCONNECTABLE_IFACE_TYPES and self.lag is not None:
             raise ValidationError({
-                'lag': "{} interfaces cannot have a parent LAG interface.".format(self.get_form_factor_display())
+                'lag': "{} interfaces cannot have a parent LAG interface.".format(self.get_type_display())
             })
 
         # Only a LAG can have LAG members
-        if self.form_factor != IFACE_FF_LAG and self.member_interfaces.exists():
+        if self.type != IFACE_TYPE_LAG and self.member_interfaces.exists():
             raise ValidationError({
-                'form_factor': "Cannot change interface form factor; it has LAG members ({}).".format(
+                'type': "Cannot change interface type; it has LAG members ({}).".format(
                     ", ".join([iface.name for iface in self.member_interfaces.all()])
                 )
             })
@@ -2131,6 +2286,22 @@ class Interface(CableTermination, ComponentModel):
             object_data=serialize_object(self)
         ).save()
 
+    # TODO: Remove in v2.7
+    @property
+    def form_factor(self):
+        """
+        Backward-compatibility for form_factor
+        """
+        return self.type
+
+    # TODO: Remove in v2.7
+    @form_factor.setter
+    def form_factor(self, value):
+        """
+        Backward-compatibility for form_factor
+        """
+        self.type = value
+
     @property
     def connected_endpoint(self):
         if self._connected_interface:
@@ -2161,19 +2332,19 @@ class Interface(CableTermination, ComponentModel):
 
     @property
     def is_connectable(self):
-        return self.form_factor not in NONCONNECTABLE_IFACE_TYPES
+        return self.type not in NONCONNECTABLE_IFACE_TYPES
 
     @property
     def is_virtual(self):
-        return self.form_factor in VIRTUAL_IFACE_TYPES
+        return self.type in VIRTUAL_IFACE_TYPES
 
     @property
     def is_wireless(self):
-        return self.form_factor in WIRELESS_IFACE_TYPES
+        return self.type in WIRELESS_IFACE_TYPES
 
     @property
     def is_lag(self):
-        return self.form_factor == IFACE_FF_LAG
+        return self.type == IFACE_TYPE_LAG
 
     @property
     def count_ipaddresses(self):
@@ -2208,13 +2379,9 @@ class FrontPort(CableTermination, ComponentModel):
         default=1,
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
-    description = models.CharField(
-        max_length=100,
-        blank=True
-    )
 
     objects = NaturalOrderingManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'rear_port', 'rear_port_position', 'description']
 
@@ -2274,13 +2441,9 @@ class RearPort(CableTermination, ComponentModel):
         default=1,
         validators=[MinValueValidator(1), MaxValueValidator(64)]
     )
-    description = models.CharField(
-        max_length=100,
-        blank=True
-    )
 
     objects = NaturalOrderingManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['device', 'name', 'type', 'positions', 'description']
 
@@ -2327,9 +2490,9 @@ class DeviceBay(ComponentModel):
     )
 
     objects = NaturalOrderingManager()
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
-    csv_headers = ['device', 'name', 'installed_device']
+    csv_headers = ['device', 'name', 'installed_device', 'description']
 
     class Meta:
         ordering = ['device', 'name']
@@ -2346,6 +2509,7 @@ class DeviceBay(ComponentModel):
             self.device.identifier,
             self.name,
             self.installed_device.identifier if self.installed_device else None,
+            self.description,
         )
 
     def clean(self):
@@ -2415,12 +2579,8 @@ class InventoryItem(ComponentModel):
         default=False,
         verbose_name='Discovered'
     )
-    description = models.CharField(
-        max_length=100,
-        blank=True
-    )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'device', 'name', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description',
@@ -2467,7 +2627,7 @@ class VirtualChassis(ChangeLoggedModel):
         blank=True
     )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['master', 'domain']
 
@@ -2628,11 +2788,11 @@ class Cable(ChangeLoggedModel):
             if (
                 (
                     isinstance(endpoint_a, Interface) and
-                    endpoint_a.form_factor == IFACE_FF_VIRTUAL
+                    endpoint_a.type == IFACE_TYPE_VIRTUAL
                 ) or
                 (
                     isinstance(endpoint_b, Interface) and
-                    endpoint_b.form_factor == IFACE_FF_VIRTUAL
+                    endpoint_b.type == IFACE_TYPE_VIRTUAL
                 )
             ):
                 raise ValidationError("Cannot connect to a virtual interface")
@@ -2668,6 +2828,14 @@ class Cable(ChangeLoggedModel):
     def get_status_class(self):
         return 'success' if self.status else 'info'
 
+    def get_compatible_types(self):
+        """
+        Return all termination types compatible with termination A.
+        """
+        if self.termination_a is None:
+            return
+        return COMPATIBLE_TERMINATION_TYPES[self.termination_a._meta.model_name]
+
     def get_path_endpoints(self):
         """
         Traverse both ends of a cable path and return its connected endpoints. Note that one or both endpoints may be
@@ -2690,3 +2858,182 @@ class Cable(ChangeLoggedModel):
         b_endpoint = b_path[-1][2]
 
         return a_endpoint, b_endpoint, path_status
+
+
+#
+# Power
+#
+
+class PowerPanel(ChangeLoggedModel):
+    """
+    A distribution point for electrical power; e.g. a data center RPP.
+    """
+    site = models.ForeignKey(
+        to='Site',
+        on_delete=models.PROTECT
+    )
+    rack_group = models.ForeignKey(
+        to='RackGroup',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True
+    )
+    name = models.CharField(
+        max_length=50
+    )
+
+    csv_headers = ['site', 'rack_group_name', 'name']
+
+    class Meta:
+        ordering = ['site', 'name']
+        unique_together = ['site', 'name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('dcim:powerpanel', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.site.name,
+            self.rack_group.name if self.rack_group else None,
+            self.name,
+        )
+
+    def clean(self):
+
+        # RackGroup must belong to assigned Site
+        if self.rack_group and self.rack_group.site != self.site:
+            raise ValidationError("Rack group {} ({}) is in a different site than {}".format(
+                self.rack_group, self.rack_group.site, self.site
+            ))
+
+
+class PowerFeed(ChangeLoggedModel, CableTermination, CustomFieldModel):
+    """
+    An electrical circuit delivered from a PowerPanel.
+    """
+    power_panel = models.ForeignKey(
+        to='PowerPanel',
+        on_delete=models.PROTECT,
+        related_name='powerfeeds'
+    )
+    rack = models.ForeignKey(
+        to='Rack',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True
+    )
+    connected_endpoint = models.OneToOneField(
+        to='dcim.PowerPort',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    connection_status = models.NullBooleanField(
+        choices=CONNECTION_STATUS_CHOICES,
+        blank=True
+    )
+    name = models.CharField(
+        max_length=50
+    )
+    status = models.PositiveSmallIntegerField(
+        choices=POWERFEED_STATUS_CHOICES,
+        default=POWERFEED_STATUS_ACTIVE
+    )
+    type = models.PositiveSmallIntegerField(
+        choices=POWERFEED_TYPE_CHOICES,
+        default=POWERFEED_TYPE_PRIMARY
+    )
+    supply = models.PositiveSmallIntegerField(
+        choices=POWERFEED_SUPPLY_CHOICES,
+        default=POWERFEED_SUPPLY_AC
+    )
+    phase = models.PositiveSmallIntegerField(
+        choices=POWERFEED_PHASE_CHOICES,
+        default=POWERFEED_PHASE_SINGLE
+    )
+    voltage = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1)],
+        default=120
+    )
+    amperage = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1)],
+        default=20
+    )
+    max_utilization = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(100)],
+        default=80,
+        help_text="Maximum permissible draw (percentage)"
+    )
+    available_power = models.PositiveSmallIntegerField(
+        default=0,
+        editable=False
+    )
+    comments = models.TextField(
+        blank=True
+    )
+    custom_field_values = GenericRelation(
+        to='extras.CustomFieldValue',
+        content_type_field='obj_type',
+        object_id_field='obj_id'
+    )
+
+    tags = TaggableManager(through=TaggedItem)
+
+    csv_headers = [
+        'site', 'panel_name', 'rack_group', 'rack_name', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
+        'amperage', 'max_utilization', 'comments',
+    ]
+
+    class Meta:
+        ordering = ['power_panel', 'name']
+        unique_together = ['power_panel', 'name']
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('dcim:powerfeed', args=[self.pk])
+
+    def to_csv(self):
+        return (
+            self.power_panel.name,
+            self.rack.name if self.rack else None,
+            self.name,
+            self.get_status_display(),
+            self.get_type_display(),
+            self.get_supply_display(),
+            self.get_phase_display(),
+            self.voltage,
+            self.amperage,
+            self.max_utilization,
+            self.comments,
+        )
+
+    def clean(self):
+
+        # Rack must belong to same Site as PowerPanel
+        if self.rack and self.rack.site != self.power_panel.site:
+            raise ValidationError("Rack {} ({}) and power panel {} ({}) are in different sites".format(
+                self.rack, self.rack.site, self.power_panel, self.power_panel.site
+            ))
+
+    def save(self, *args, **kwargs):
+
+        # Cache the available_power property on the instance
+        kva = self.voltage * self.amperage * (self.max_utilization / 100)
+        if self.phase == POWERFEED_PHASE_3PHASE:
+            self.available_power = round(kva * 1.732)
+        else:
+            self.available_power = round(kva)
+
+        super().save(*args, **kwargs)
+
+    def get_type_class(self):
+        return STATUS_CLASSES[self.type]
+
+    def get_status_class(self):
+        return STATUS_CLASSES[self.status]

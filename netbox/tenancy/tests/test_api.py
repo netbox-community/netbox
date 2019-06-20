@@ -36,7 +36,7 @@ class TenantGroupTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['id', 'name', 'slug', 'tenant_count', 'url']
         )
 
     def test_create_tenantgroup(self):

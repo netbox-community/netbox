@@ -19,26 +19,29 @@ __all__ = [
 
 class NestedClusterTypeSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustertype-detail')
+    cluster_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ClusterType
-        fields = ['id', 'url', 'name', 'slug']
+        fields = ['id', 'url', 'name', 'slug', 'cluster_count']
 
 
 class NestedClusterGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustergroup-detail')
+    cluster_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ClusterGroup
-        fields = ['id', 'url', 'name', 'slug']
+        fields = ['id', 'url', 'name', 'slug', 'cluster_count']
 
 
 class NestedClusterSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:cluster-detail')
+    virtualmachine_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Cluster
-        fields = ['id', 'url', 'name']
+        fields = ['id', 'url', 'name', 'virtualmachine_count']
 
 
 #

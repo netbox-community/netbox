@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from taggit.forms import TagField
 
-from dcim.constants import IFACE_FF_VIRTUAL, IFACE_MODE_ACCESS, IFACE_MODE_TAGGED_ALL
+from dcim.constants import IFACE_TYPE_VIRTUAL, IFACE_MODE_ACCESS, IFACE_MODE_TAGGED_ALL
 from dcim.forms import INTERFACE_MODE_HELP_TEXT
 from dcim.models import Device, DeviceRole, Interface, Platform, Rack, Region, Site
 from extras.forms import AddRemoveTagsForm, CustomFieldBulkEditForm, CustomFieldForm, CustomFieldFilterForm
@@ -19,8 +19,8 @@ from utilities.forms import (
 from .constants import VM_STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
-VIFACE_FF_CHOICES = (
-    (IFACE_FF_VIRTUAL, 'Virtual'),
+VIFACE_TYPE_CHOICES = (
+    (IFACE_TYPE_VIRTUAL, 'Virtual'),
 )
 
 
@@ -620,12 +620,12 @@ class InterfaceForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Interface
         fields = [
-            'virtual_machine', 'name', 'form_factor', 'enabled', 'mac_address', 'mtu', 'description', 'mode', 'tags',
+            'virtual_machine', 'name', 'type', 'enabled', 'mac_address', 'mtu', 'description', 'mode', 'tags',
             'untagged_vlan', 'tagged_vlans',
         ]
         widgets = {
             'virtual_machine': forms.HiddenInput(),
-            'form_factor': forms.HiddenInput(),
+            'type': forms.HiddenInput(),
             'mode': StaticSelect2()
         }
         labels = {
@@ -656,9 +656,9 @@ class InterfaceCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
     )
-    form_factor = forms.ChoiceField(
-        choices=VIFACE_FF_CHOICES,
-        initial=IFACE_FF_VIRTUAL,
+    type = forms.ChoiceField(
+        choices=VIFACE_TYPE_CHOICES,
+        initial=IFACE_TYPE_VIRTUAL,
         widget=forms.HiddenInput()
     )
     enabled = forms.BooleanField(
@@ -732,9 +732,9 @@ class VirtualMachineBulkAddComponentForm(BootstrapMixin, forms.Form):
 
 
 class VirtualMachineBulkAddInterfaceForm(VirtualMachineBulkAddComponentForm):
-    form_factor = forms.ChoiceField(
-        choices=VIFACE_FF_CHOICES,
-        initial=IFACE_FF_VIRTUAL,
+    type = forms.ChoiceField(
+        choices=VIFACE_TYPE_CHOICES,
+        initial=IFACE_TYPE_VIRTUAL,
         widget=forms.HiddenInput()
     )
     enabled = forms.BooleanField(

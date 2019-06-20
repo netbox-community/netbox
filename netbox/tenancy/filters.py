@@ -10,10 +10,10 @@ class TenantGroupFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = TenantGroup
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
 
-class TenantFilter(CustomFieldFilterSet, django_filters.FilterSet):
+class TenantFilter(CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'

@@ -6,7 +6,7 @@ from django.urls import reverse
 from taggit.managers import TaggableManager
 
 from dcim.models import Device
-from extras.models import ConfigContextModel, CustomFieldModel
+from extras.models import ConfigContextModel, CustomFieldModel, TaggedItem
 from utilities.models import ChangeLoggedModel
 from .constants import DEVICE_STATUS_ACTIVE, VM_STATUS_CHOICES, VM_STATUS_CLASSES
 
@@ -119,7 +119,7 @@ class Cluster(ChangeLoggedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['name', 'type', 'group', 'site', 'comments']
 
@@ -238,7 +238,7 @@ class VirtualMachine(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = [
         'name', 'status', 'role', 'cluster', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'comments',

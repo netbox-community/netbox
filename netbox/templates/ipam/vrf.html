@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load custom_links %}
 {% load helpers %}
 
 {% block header %}
@@ -38,13 +39,18 @@
     </div>
     <h1>{% block title %}VRF {{ vrf }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=vrf %}
+    <div class="pull-right noprint">
+        {% custom_links vrf %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ vrf.get_absolute_url }}">VRF</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'ipam:vrf_changelog' pk=vrf.pk %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'ipam:vrf_changelog' pk=vrf.pk %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

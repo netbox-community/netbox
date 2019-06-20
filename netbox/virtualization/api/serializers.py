@@ -1,8 +1,9 @@
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from dcim.api.nested_serializers import NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer
-from dcim.constants import IFACE_FF_CHOICES, IFACE_FF_VIRTUAL, IFACE_MODE_CHOICES
+from dcim.constants import IFACE_TYPE_CHOICES, IFACE_TYPE_VIRTUAL, IFACE_MODE_CHOICES
 from dcim.models import Interface
 from extras.api.customfields import CustomFieldModelSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer
@@ -19,17 +20,19 @@ from .nested_serializers import *
 #
 
 class ClusterTypeSerializer(ValidatedModelSerializer):
+    cluster_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ClusterType
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'cluster_count']
 
 
 class ClusterGroupSerializer(ValidatedModelSerializer):
+    cluster_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ClusterGroup
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'cluster_count']
 
 
 class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):
@@ -37,11 +40,14 @@ class ClusterSerializer(TaggitSerializer, CustomFieldModelSerializer):
     group = NestedClusterGroupSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer(required=False, allow_null=True)
     tags = TagListSerializerField(required=False)
+    device_count = serializers.IntegerField(read_only=True)
+    virtualmachine_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Cluster
         fields = [
             'id', 'name', 'type', 'group', 'site', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'device_count', 'virtualmachine_count',
         ]
 
 
@@ -80,6 +86,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
             'config_context', 'created', 'last_updated',
         ]
 
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_config_context(self, obj):
         return obj.get_config_context()
 
@@ -90,7 +97,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 
 class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
     virtual_machine = NestedVirtualMachineSerializer()
-    form_factor = ChoiceField(choices=IFACE_FF_CHOICES, default=IFACE_FF_VIRTUAL, required=False)
+    type = ChoiceField(choices=IFACE_TYPE_CHOICES, default=IFACE_TYPE_VIRTUAL, required=False)
     mode = ChoiceField(choices=IFACE_MODE_CHOICES, required=False, allow_null=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
@@ -104,6 +111,6 @@ class InterfaceSerializer(TaggitSerializer, ValidatedModelSerializer):
     class Meta:
         model = Interface
         fields = [
-            'id', 'virtual_machine', 'name', 'form_factor', 'enabled', 'mtu', 'mac_address', 'description', 'mode',
+            'id', 'virtual_machine', 'name', 'type', 'enabled', 'mtu', 'mac_address', 'description', 'mode',
             'untagged_vlan', 'tagged_vlans', 'tags',
         ]
