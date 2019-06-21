@@ -951,10 +951,6 @@ class PowerPortTemplateCreateForm(ComponentForm):
 
 
 class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
-    power_port = forms.ModelChoiceField(
-        queryset=PowerPortTemplate.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = PowerOutletTemplate
@@ -965,6 +961,21 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
             'device_type': forms.HiddenInput(),
         }
 
+
+class PowerOutletTemplateCreateForm(ComponentForm):
+    name_pattern = ExpandableNameField(
+        label='Name'
+    )
+    power_port = forms.ModelChoiceField(
+        queryset=PowerPortTemplate.objects.all(),
+        required=False
+    )
+    feed_leg = forms.ChoiceField(
+        choices=add_blank_choice(POWERFEED_LEG_CHOICES),
+        required=False,
+        widget=StaticSelect2()
+    )
+
     def __init__(self, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
@@ -973,12 +984,6 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
         self.fields['power_port'].queryset = PowerPortTemplate.objects.filter(
             device_type=self.parent
         )
-
-
-class PowerOutletTemplateCreateForm(ComponentForm):
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
 
 
 class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):

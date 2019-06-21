@@ -1,3 +1,11 @@
+v2.6.1 (FUTURE)
+
+## Bug Fixes
+
+* [#3275](https://github.com/digitalocean/netbox/issues/3275) - Fix error when adding power outlets to a device type
+
+---
+
 v2.6.0 (2019-06-20)
 
 ## New Features
