@@ -9,7 +9,7 @@ from extras.models import Tag
 def multivalue_field_factory(field_class):
     """
     Given a form field class, return a subclass capable of accepting multiple values. This allows us to OR on multiple
-    filter values while maintaining the field's built-in vlaidation. Example: GET /api/dcim/devices/?name=foo&name=bar
+    filter values while maintaining the field's built-in validation. Example: GET /api/dcim/devices/?name=foo&name=bar
     """
     class NewField(field_class):
         widget = forms.SelectMultiple
@@ -17,7 +17,10 @@ def multivalue_field_factory(field_class):
         def to_python(self, value):
             if not value:
                 return []
-            return [super(field_class, self).to_python(v) for v in value]
+            return [
+                # Only append non-empty values (this avoids e.g. trying to cast '' as an integer)
+                super(field_class, self).to_python(v) for v in value if v
+            ]
 
     return type('MultiValue{}'.format(field_class.__name__), (NewField,), dict())
 
