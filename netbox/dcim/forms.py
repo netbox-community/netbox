@@ -606,7 +606,6 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
             }
         )
     )
-
     group_id = ChainedModelChoiceField(
         label='Rack group',
         queryset=RackGroup.objects.select_related('site'),
