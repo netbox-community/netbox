@@ -3585,7 +3585,7 @@ class PowerFeedCSVForm(forms.ModelForm):
         # Validate rack
         if rack_name:
             try:
-                self.instance.rack = Rack.objects.get(site=site, rack_group=rack_group, name=rack_name)
+                self.instance.rack = Rack.objects.get(site=site, group__name=rack_group, name=rack_name)
             except Rack.DoesNotExist:
                 raise forms.ValidationError(
                     "Rack {} not found in site {}, group {}".format(rack_name, site, rack_group)
