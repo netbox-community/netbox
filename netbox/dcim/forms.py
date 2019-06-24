@@ -1750,6 +1750,13 @@ class DeviceFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    virtual_chassis_member = forms.NullBooleanField(
+        required=False,
+        label='Virtual chassis member',
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
     console_ports = forms.NullBooleanField(
         required=False,
         label='Has console ports',
