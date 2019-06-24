@@ -601,12 +601,18 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
+            filter_for={
+                'group_id': 'site'
+            }
         )
     )
-    group_id = FilterChoiceField(
-        queryset=RackGroup.objects.select_related('site'),
+
+    group_id = ChainedModelChoiceField(
         label='Rack group',
-        null_label='-- None --',
+        queryset=RackGroup.objects.select_related('site'),
+        chains=(
+            ('site', 'site'),
+        ),
         widget=APISelectMultiple(
             api_url="/api/dcim/rack-groups/",
             null_option=True,
