@@ -359,7 +359,7 @@
                                     <td>{{ pp }}</td>
                                     <td>{{ utilization.outlet_count }}</td>
                                     <td>{{ utilization.allocated }}VA</td>
-                                    {% if powerfeed %}
+                                    {% if powerfeed.available_power %}
                                         <td>{{ powerfeed.available_power }}VA</td>
                                         <td>{% utilization_graph utilization.allocated|percentage:powerfeed.available_power %}</td>
                                     {% else %}

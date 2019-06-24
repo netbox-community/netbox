@@ -4,6 +4,7 @@ v2.6.1 (FUTURE)
 
 * [#3275](https://github.com/digitalocean/netbox/issues/3275) - Fix error when adding power outlets to a device type
 * [#3279](https://github.com/digitalocean/netbox/issues/3279) - Reset the PostgreSQL sequence for Tag and TaggedItem IDs
+* [#3290](https://github.com/digitalocean/netbox/issues/3290) - Fix server error when viewing cascaded PDUs
 
 ---
 
