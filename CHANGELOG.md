@@ -8,6 +8,7 @@ v2.6.1 (FUTURE)
 ## Bug Fixes
 
 * [#3229](https://github.com/digitalocean/netbox/issues/3229) - Limit rack group selection by parent site on racks list
+* [#3269](https://github.com/digitalocean/netbox/issues/3269) - Raise validation error when specifying non-existent cable terminations
 * [#3275](https://github.com/digitalocean/netbox/issues/3275) - Fix error when adding power outlets to a device type
 * [#3279](https://github.com/digitalocean/netbox/issues/3279) - Reset the PostgreSQL sequence for Tag and TaggedItem IDs
 * [#3283](https://github.com/digitalocean/netbox/issues/3283) - Fix rack group assignment on PowerFeed CSV import
