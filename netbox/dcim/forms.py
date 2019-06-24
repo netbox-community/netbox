@@ -612,6 +612,7 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         chains=(
             ('site', 'site'),
         ),
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/rack-groups/",
             null_option=True,
