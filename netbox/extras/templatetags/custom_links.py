@@ -15,7 +15,8 @@ GROUP_BUTTON = '<div class="btn-group">\n' \
                '<button type="button" class="btn btn-sm btn-{} dropdown-toggle" data-toggle="dropdown">\n' \
                '{} <span class="caret"></span>\n' \
                '</button>\n' \
-               '<ul class="dropdown-menu pull-right">\n'
+               '<ul class="dropdown-menu pull-right">\n' \
+               '{}</ul></div>'
 GROUP_LINK = '<li><a href="{}"{}>{}</a></li>\n'
 
 
@@ -35,32 +36,40 @@ def custom_links(obj):
     template_code = ''
     group_names = OrderedDict()
 
-    # Organize custom links by group
     for cl in custom_links:
+
+        # Organize custom links by group
         if cl.group_name and cl.group_name in group_names:
             group_names[cl.group_name].append(cl)
         elif cl.group_name:
             group_names[cl.group_name] = [cl]
 
-    # Add non-grouped links
-    for cl in custom_links:
-        if not cl.group_name:
-            link_target = ' target="_blank"' if cl.new_window else ''
-            template_code += LINK_BUTTON.format(
-                cl.url, link_target, cl.button_class, cl.text
-            )
+        # Add non-grouped links
+        else:
+            text_rendered = Environment().from_string(source=cl.text).render(**context)
+            if text_rendered:
+                link_target = ' target="_blank"' if cl.new_window else ''
+                template_code += LINK_BUTTON.format(
+                    cl.url, link_target, cl.button_class, text_rendered
+                )
 
     # Add grouped links to template
     for group, links in group_names.items():
-        template_code += GROUP_BUTTON.format(
-            links[0].button_class, group
-        )
+
+        links_rendered = []
+
         for cl in links:
-            link_target = ' target="_blank"' if cl.new_window else ''
-            template_code += GROUP_LINK.format(
-                cl.url, link_target, cl.text
+            text_rendered = Environment().from_string(source=cl.text).render(**context)
+            if text_rendered:
+                link_target = ' target="_blank"' if cl.new_window else ''
+                links_rendered.append(
+                    GROUP_LINK.format(cl.url, link_target, cl.text)
+                )
+
+        if links_rendered:
+            template_code += GROUP_BUTTON.format(
+                links[0].button_class, group, ''.join(links_rendered)
             )
-        template_code += '</ul>\n</div>\n'
 
     # Render template
     rendered = Environment().from_string(source=template_code).render(**context)

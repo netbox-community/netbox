@@ -1,5 +1,9 @@
 v2.6.1 (FUTURE)
 
+## Enhancements
+
+* [#3281](https://github.com/digitalocean/netbox/issues/3281) - Hide custom links which render as empty text
+
 ## Bug Fixes
 
 * [#3275](https://github.com/digitalocean/netbox/issues/3275) - Fix error when adding power outlets to a device type
