@@ -15,6 +15,9 @@
     <td>
         {% if cp.cable %}
             <a href="{{ cp.cable.get_absolute_url }}">{{ cp.cable }}</a>
+            <a href="{% url 'dcim:consoleport_trace' pk=cp.pk %}" class="btn btn-primary btn-xs" title="Trace">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
         {% else %}
             &mdash;
         {% endif %}

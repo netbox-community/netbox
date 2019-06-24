@@ -23,6 +23,9 @@
     <td>
         {% if pp.cable %}
             <a href="{{ pp.cable.get_absolute_url }}">{{ pp.cable }}</a>
+            <a href="{% url 'dcim:powerport_trace' pk=pp.pk %}" class="btn btn-primary btn-xs" title="Trace">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
         {% else %}
             &mdash;
         {% endif %}

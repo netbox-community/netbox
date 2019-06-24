@@ -2,6 +2,7 @@ v2.6.1 (FUTURE)
 
 ## Enhancements
 
+* [#3277](https://github.com/digitalocean/netbox/issues/3277) - Add cable trace buttons for console and power ports
 * [#3281](https://github.com/digitalocean/netbox/issues/3281) - Hide custom links which render as empty text
 
 ## Bug Fixes
