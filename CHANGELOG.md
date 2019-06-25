@@ -1,3 +1,23 @@
+v2.6.1 (2019-06-25)
+
+## Enhancements
+
+* [#3154](https://github.com/digitalocean/netbox/issues/3154) - Add `virtual_chassis_member` device filter
+* [#3277](https://github.com/digitalocean/netbox/issues/3277) - Add cable trace buttons for console and power ports
+* [#3281](https://github.com/digitalocean/netbox/issues/3281) - Hide custom links which render as empty text
+
+## Bug Fixes
+
+* [#3229](https://github.com/digitalocean/netbox/issues/3229) - Limit rack group selection by parent site on racks list
+* [#3269](https://github.com/digitalocean/netbox/issues/3269) - Raise validation error when specifying non-existent cable terminations
+* [#3275](https://github.com/digitalocean/netbox/issues/3275) - Fix error when adding power outlets to a device type
+* [#3279](https://github.com/digitalocean/netbox/issues/3279) - Reset the PostgreSQL sequence for Tag and TaggedItem IDs
+* [#3283](https://github.com/digitalocean/netbox/issues/3283) - Fix rack group assignment on PowerFeed CSV import
+* [#3290](https://github.com/digitalocean/netbox/issues/3290) - Fix server error when viewing cascaded PDUs
+* [#3292](https://github.com/digitalocean/netbox/issues/3292) - Ignore empty URL query parameters
+
+---
+
 v2.6.0 (2019-06-20)
 
 ## New Features

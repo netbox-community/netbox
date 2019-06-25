@@ -601,12 +601,18 @@ class RackFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm):
         widget=APISelectMultiple(
             api_url="/api/dcim/sites/",
             value_field="slug",
+            filter_for={
+                'group_id': 'site'
+            }
         )
     )
-    group_id = FilterChoiceField(
-        queryset=RackGroup.objects.select_related('site'),
+    group_id = ChainedModelChoiceField(
         label='Rack group',
-        null_label='-- None --',
+        queryset=RackGroup.objects.select_related('site'),
+        chains=(
+            ('site', 'site'),
+        ),
+        required=False,
         widget=APISelectMultiple(
             api_url="/api/dcim/rack-groups/",
             null_option=True,
@@ -951,10 +957,6 @@ class PowerPortTemplateCreateForm(ComponentForm):
 
 
 class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
-    power_port = forms.ModelChoiceField(
-        queryset=PowerPortTemplate.objects.all(),
-        required=False
-    )
 
     class Meta:
         model = PowerOutletTemplate
@@ -965,6 +967,21 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
             'device_type': forms.HiddenInput(),
         }
 
+
+class PowerOutletTemplateCreateForm(ComponentForm):
+    name_pattern = ExpandableNameField(
+        label='Name'
+    )
+    power_port = forms.ModelChoiceField(
+        queryset=PowerPortTemplate.objects.all(),
+        required=False
+    )
+    feed_leg = forms.ChoiceField(
+        choices=add_blank_choice(POWERFEED_LEG_CHOICES),
+        required=False,
+        widget=StaticSelect2()
+    )
+
     def __init__(self, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
@@ -973,12 +990,6 @@ class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):
         self.fields['power_port'].queryset = PowerPortTemplate.objects.filter(
             device_type=self.parent
         )
-
-
-class PowerOutletTemplateCreateForm(ComponentForm):
-    name_pattern = ExpandableNameField(
-        label='Name'
-    )
 
 
 class InterfaceTemplateForm(BootstrapMixin, forms.ModelForm):
@@ -1735,6 +1746,13 @@ class DeviceFilterForm(BootstrapMixin, TenancyFilterForm, CustomFieldFilterForm)
     has_primary_ip = forms.NullBooleanField(
         required=False,
         label='Has a primary IP',
+        widget=StaticSelect2(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    virtual_chassis_member = forms.NullBooleanField(
+        required=False,
+        label='Virtual chassis member',
         widget=StaticSelect2(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
@@ -3580,7 +3598,7 @@ class PowerFeedCSVForm(forms.ModelForm):
         # Validate rack
         if rack_name:
             try:
-                self.instance.rack = Rack.objects.get(site=site, rack_group=rack_group, name=rack_name)
+                self.instance.rack = Rack.objects.get(site=site, group__name=rack_group, name=rack_name)
             except Rack.DoesNotExist:
                 raise forms.ValidationError(
                     "Rack {} not found in site {}, group {}".format(rack_name, site, rack_group)

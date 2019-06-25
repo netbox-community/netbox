@@ -527,6 +527,10 @@ class DeviceFilter(TenancyFilterSet, CustomFieldFilterSet):
         queryset=VirtualChassis.objects.all(),
         label='Virtual chassis (ID)',
     )
+    virtual_chassis_member = django_filters.BooleanFilter(
+        method='_virtual_chassis_member',
+        label='Is a virtual chassis member'
+    )
     console_ports = django_filters.BooleanFilter(
         method='_console_ports',
         label='Has console ports',
@@ -589,6 +593,9 @@ class DeviceFilter(TenancyFilterSet, CustomFieldFilterSet):
                 Q(primary_ip4__isnull=False) |
                 Q(primary_ip6__isnull=False)
             )
+
+    def _virtual_chassis_member(self, queryset, name, value):
+        return queryset.exclude(virtual_chassis__isnull=value)
 
     def _console_ports(self, queryset, name, value):
         return queryset.exclude(consoleports__isnull=value)

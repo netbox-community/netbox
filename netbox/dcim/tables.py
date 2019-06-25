@@ -433,7 +433,7 @@ class PowerOutletTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerOutletTemplate
-        fields = ('pk', 'name')
+        fields = ('pk', 'name', 'power_port', 'feed_leg')
         empty_text = "None"
 
 

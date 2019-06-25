@@ -12,7 +12,7 @@ from django.core.exceptions import ImproperlyConfigured
 # Environment setup
 #
 
-VERSION = '2.6.0'
+VERSION = '2.6.1'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -346,7 +346,7 @@ else:
     REDIS_CACHE_CON_STRING = 'redis://'
 
 if REDIS_PASSWORD:
-    REDIS_CACHE_CON_STRING = '{}{}@'.format(REDIS_CACHE_CON_STRING, REDIS_PASSWORD)
+    REDIS_CACHE_CON_STRING = '{}:{}@'.format(REDIS_CACHE_CON_STRING, REDIS_PASSWORD)
 
 REDIS_CACHE_CON_STRING = '{}{}:{}/{}'.format(REDIS_CACHE_CON_STRING, REDIS_HOST, REDIS_PORT, REDIS_CACHE_DATABASE)
 
