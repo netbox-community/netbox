@@ -1,4 +1,4 @@
-v2.6.1 (FUTURE)
+v2.6.1 (2019-06-25)
 
 ## Enhancements
 
