@@ -1,3 +1,11 @@
+v2.6.2 (FUTURE)
+
+## Enhancements
+
+* [#984](https://github.com/digitalocean/netbox/issues/984) - Allow ordering circuits by A/Z side
+
+---
+
 v2.6.1 (2019-06-25)
 
 ## Enhancements

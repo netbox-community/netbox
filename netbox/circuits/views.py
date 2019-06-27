@@ -1,11 +1,9 @@
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, OuterRef, Subquery
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.decorators import method_decorator
 from django.views.generic import View
 
 from extras.models import Graph, GRAPH_TYPE_PROVIDER
@@ -135,10 +133,14 @@ class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 
 class CircuitListView(PermissionRequiredMixin, ObjectListView):
     permission_required = 'circuits.view_circuit'
+    _terminations = CircuitTermination.objects.filter(circuit=OuterRef('pk'))
     queryset = Circuit.objects.select_related(
         'provider', 'type', 'tenant'
     ).prefetch_related(
         'terminations__site'
+    ).annotate(
+        a_side=Subquery(_terminations.filter(term_side='A').values('site__name')[:1]),
+        z_side=Subquery(_terminations.filter(term_side='Z').values('site__name')[:1]),
     )
     filter = filters.CircuitFilter
     filter_form = forms.CircuitFilterForm
