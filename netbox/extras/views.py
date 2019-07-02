@@ -146,7 +146,7 @@ class ConfigContextDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 
 class ConfigContextBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'extras.delete_cconfigcontext'
+    permission_required = 'extras.delete_configcontext'
     queryset = ConfigContext.objects.all()
     table = ConfigContextTable
     default_return_url = 'extras:configcontext_list'

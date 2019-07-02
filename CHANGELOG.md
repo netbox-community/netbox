@@ -4,6 +4,10 @@ v2.6.2 (FUTURE)
 
 * [#984](https://github.com/digitalocean/netbox/issues/984) - Allow ordering circuits by A/Z side
 
+## Bug Fixes
+
+* [#3317](https://github.com/digitalocean/netbox/issues/3317) - Fix permissions for ConfigContextBulkDeleteView
+
 ---
 
 v2.6.1 (2019-06-25)
