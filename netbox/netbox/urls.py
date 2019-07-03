@@ -79,6 +79,11 @@ if settings.METRICS_ENABLED:
         path('', include('django_prometheus.urls')),
     ]
 
+if settings.HEALTH_CHECK_ENABLED:
+    _patterns += [
+        path(r'health/', include('watchman.urls')),
+    ]
+
 # Prepend BASE_PATH
 urlpatterns = [
     path(r'{}'.format(settings.BASE_PATH), include(_patterns))

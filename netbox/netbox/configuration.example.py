@@ -166,6 +166,9 @@ TIME_ZONE = 'UTC'
 # database be configured and accessible by NetBox.
 WEBHOOKS_ENABLED = False
 
+# The health check endpoint reports if NetBox is operational, Set this to True to enable it.
+HEALTH_CHECK_ENABLED = False
+
 # Date/time formatting. See the following link for supported formats:
 # https://docs.djangoproject.com/en/dev/ref/templates/builtins/#date
 DATE_FORMAT = 'N j, Y'

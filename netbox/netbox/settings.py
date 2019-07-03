@@ -92,6 +92,7 @@ SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 WEBHOOKS_ENABLED = getattr(configuration, 'WEBHOOKS_ENABLED', False)
+HEALTH_CHECK_ENABLED = getattr(configuration, 'HEALTH_CHECK_ENABLED', False)
 
 
 #
@@ -188,6 +189,9 @@ INSTALLED_APPS = [
 # Only load django-rq if the webhook backend is enabled
 if WEBHOOKS_ENABLED:
     INSTALLED_APPS.append('django_rq')
+
+if HEALTH_CHECK_ENABLED:
+    INSTALLED_APPS.append('watchman')
 
 # Middleware
 MIDDLEWARE = (
