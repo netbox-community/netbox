@@ -1,4 +1,3 @@
-*.pyc
 /netbox/netbox/configuration.py
 /netbox/netbox/ldap_config.py
 /netbox/reports/*
@@ -10,3 +9,8 @@
 fabfile.py
 *.swp
 gunicorn_config.py
+netbox.iml
+Pipfile
+__pycache__/
+/venv/
+/out/
