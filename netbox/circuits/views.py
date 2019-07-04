@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, OuterRef, Subquery
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
 
@@ -20,7 +20,8 @@ from .models import Circuit, CircuitTermination, CircuitType, Provider
 # Providers
 #
 
-class ProviderListView(ObjectListView):
+class ProviderListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'circuits.view_provider'
     queryset = Provider.objects.annotate(count_circuits=Count('circuits'))
     filter = filters.ProviderFilter
     filter_form = forms.ProviderFilterForm
@@ -28,7 +29,8 @@ class ProviderListView(ObjectListView):
     template_name = 'circuits/provider_list.html'
 
 
-class ProviderView(View):
+class ProviderView(PermissionRequiredMixin, View):
+    permission_required = 'circuits.view_provider'
 
     def get(self, request, slug):
 
@@ -93,7 +95,8 @@ class ProviderBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Circuit Types
 #
 
-class CircuitTypeListView(ObjectListView):
+class CircuitTypeListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'circuits.view_circuittype'
     queryset = CircuitType.objects.annotate(circuit_count=Count('circuits'))
     table = tables.CircuitTypeTable
     template_name = 'circuits/circuittype_list.html'
@@ -128,11 +131,16 @@ class CircuitTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Circuits
 #
 
-class CircuitListView(ObjectListView):
+class CircuitListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'circuits.view_circuit'
+    _terminations = CircuitTermination.objects.filter(circuit=OuterRef('pk'))
     queryset = Circuit.objects.select_related(
         'provider', 'type', 'tenant'
     ).prefetch_related(
         'terminations__site'
+    ).annotate(
+        a_side=Subquery(_terminations.filter(term_side='A').values('site__name')[:1]),
+        z_side=Subquery(_terminations.filter(term_side='Z').values('site__name')[:1]),
     )
     filter = filters.CircuitFilter
     filter_form = forms.CircuitFilterForm
@@ -140,7 +148,8 @@ class CircuitListView(ObjectListView):
     template_name = 'circuits/circuit_list.html'
 
 
-class CircuitView(View):
+class CircuitView(PermissionRequiredMixin, View):
+    permission_required = 'circuits.view_circuit'
 
     def get(self, request, pk):
 

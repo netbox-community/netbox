@@ -1,16 +1,35 @@
+{% load helpers %}
+
 <tr class="devicebay">
     {% if perms.dcim.change_devicebay or perms.dcim.delete_devicebay %}
         <td class="pk">
             <input name="pk" type="checkbox" value="{{ devicebay.pk }}" />
         </td>
     {% endif %}
+
+    {# Name #}
     <td>
         <i class="fa fa-fw fa-{% if devicebay.installed_device %}dot-circle-o{% else %}circle-o{% endif %}"></i> {{ devicebay.name }}
     </td>
+
+    {# Status #}
+    <td>
+        {% if devicebay.installed_device %}
+            <span class="label label-{{ devicebay.installed_device.get_status_class }}">
+                {{ devicebay.installed_device.get_status_display }}
+            </span>
+        {% else %}
+            <span class="label label-default">Vacant</span>
+        {% endif %}
+    </td>
+
+    {# Description #}
+    <td>
+        {{ devicebay.description|placeholder }}
+    </td>
+
+    {# Installed device #}
     {% if devicebay.installed_device %}
-        <td>
-            <span class="label label-{{ devicebay.installed_device.get_status_class }}">{{ devicebay.installed_device.get_status_display }}</span>
-        </td>
         <td>
             <a href="{% url 'dcim:device' pk=devicebay.installed_device.pk %}">{{ devicebay.installed_device }}</a>
         </td>
@@ -18,11 +37,9 @@
             <span>{{ devicebay.installed_device.device_type.display_name }}</span>
         </td>
     {% else %}
-        <td></td>
-        <td colspan="2">
-            <span class="text-muted">Vacant</span>
-        </td>
+        <td colspan="2"></td>
     {% endif %}
+
     <td class="text-right noprint">
         {% if perms.dcim.change_devicebay %}
             {% if devicebay.installed_device %}

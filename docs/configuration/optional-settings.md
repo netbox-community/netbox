@@ -44,6 +44,14 @@ BASE_PATH = 'netbox/'
 
 ---
 
+## CACHE_TIMEOUT
+
+Default: 900
+
+The number of seconds to retain cache entries before automatically invalidating them.
+
+---
+
 ## CHANGELOG_RETENTION
 
 Default: 90
@@ -64,7 +72,13 @@ If True, cross-origin resource sharing (CORS) requests will be accepted from all
 
 ## CORS_ORIGIN_REGEX_WHITELIST
 
-These settings specify a list of origins that are authorized to make cross-site API requests. Use `CORS_ORIGIN_WHITELIST` to define a list of exact hostnames, or `CORS_ORIGIN_REGEX_WHITELIST` to define a set of regular expressions. (These settings have no effect if `CORS_ORIGIN_ALLOW_ALL` is True.)
+These settings specify a list of origins that are authorized to make cross-site API requests. Use `CORS_ORIGIN_WHITELIST` to define a list of exact hostnames, or `CORS_ORIGIN_REGEX_WHITELIST` to define a set of regular expressions. (These settings have no effect if `CORS_ORIGIN_ALLOW_ALL` is True.) For example:
+
+```
+CORS_ORIGIN_WHITELIST = [
+    'https://example.com',
+]
+```
 
 ---
 
@@ -86,6 +100,30 @@ In order to send email, NetBox needs an email server configured. The following i
 * PASSSWORD - Password with which to authenticate
 * TIMEOUT - Amount of time to wait for a connection (seconds)
 * FROM_EMAIL - Sender address for emails sent by NetBox
+
+---
+
+## EXEMPT_VIEW_PERMISSIONS
+
+Default: Empty list
+
+A list of models to exempt from the enforcement of view permissions. Models listed here will be viewable by all users and by anonymous users.
+
+List models in the form `<app>.<model>`. For example:
+
+```
+EXEMPT_VIEW_PERMISSIONS = [
+    'dcim.site',
+    'dcim.region',
+    'ipam.prefix',
+]
+```
+
+To exempt _all_ models from view permission enforcement, set the following. (Note that `EXEMPT_VIEW_PERMISSIONS` must be an iterable.)
+
+```
+EXEMPT_VIEW_PERMISSIONS = ['*']
+```
 
 ---
 
@@ -162,6 +200,14 @@ An API consumer can request an arbitrary number of objects by appending the "lim
 Default: $BASE_DIR/netbox/media/
 
 The file path to the location where media files (such as image attachments) are stored. By default, this is the `netbox/media/` directory within the base NetBox installation path.
+
+---
+
+## METRICS_ENABLED
+
+Default: False
+
+Toggle exposing Prometheus metrics at `/metrics`. See the [Prometheus Metrics](../additional-features/prometheus-metrics/) documentation for more details.
 
 ---
 
@@ -269,56 +315,3 @@ SHORT_TIME_FORMAT = 'H:i:s'          # 13:23:00
 DATETIME_FORMAT = 'N j, Y g:i a'     # June 26, 2016 1:23 p.m.
 SHORT_DATETIME_FORMAT = 'Y-m-d H:i'  # 2016-06-27 13:23
 ```
-
----
-
-## Redis Connection Settings
-
-[Redis](https://redis.io/) is a key-value store which functions as a very lightweight database. It is required when enabling NetBox [webhooks](../additional-features/webhooks/). A Redis connection is configured using a dictionary similar to the following:
-
-```
-REDIS = {
-    'HOST': 'localhost',
-    'PORT': 6379,
-    'PASSWORD': '',
-    'DATABASE': 0,
-    'DEFAULT_TIMEOUT': 300,
-    'SSL': False,
-}
-```
-
-### DATABASE
-
-Default: 0
-
-The Redis database ID.
-
-### DEFAULT_TIMEOUT
-
-Default: 300
-
-The timeout value to use when connecting to the Redis server (in seconds).
-
-### HOST
-
-Default: localhost
-
-The hostname or IP address of the Redis server.
-
-### PORT
-
-Default: 6379
-
-The TCP port to use when connecting to the Redis server.
-
-### PASSWORD
-
-Default: None
-
-The password to use when authenticating to the Redis server (optional).
-
-### SSL
-
-Default: False
-
-Use secure sockets layer to encrypt the connections to the Redis server.

@@ -37,6 +37,17 @@
         {% endif %}
     </div>
     <h1>{% block title %}Tag: {{ tag }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' with obj=tag %}
+    <ul class="nav nav-tabs">
+        <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
+            <a href="{{ tag.get_absolute_url }}">Tag</a>
+        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'extras:tag_changelog' slug=tag.slug %}">Changelog</a>
+            </li>
+        {% endif %}
+    </ul>
 {% endblock %}
 
 {% block content %}
@@ -65,7 +76,25 @@
                             {{ items_count }}
                         </td>
                     </tr>
+                    <tr>
+                        <td>Color</td>
+                        <td>
+                            <span class="label color-block" style="background-color: #{{ tag.color }}">&nbsp;</span>
+                        </td>
+                    </tr>
                 </table>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Comments</strong>
+                </div>
+                <div class="panel-body rendered-markdown">
+                    {% if tag.comments %}
+                        {{ tag.comments|gfm }}
+                    {% else %}
+                        <span class="text-muted">None</span>
+                    {% endif %}
+                </div>
             </div>
         </div>
         <div class="col-md-6">

@@ -10,7 +10,8 @@ __all__ = [
 
 class NestedSecretRoleSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='secrets-api:secretrole-detail')
+    secret_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = SecretRole
-        fields = ['id', 'url', 'name', 'slug']
+        fields = ['id', 'url', 'name', 'slug', 'secret_count']

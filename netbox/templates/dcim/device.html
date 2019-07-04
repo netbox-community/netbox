@@ -1,6 +1,7 @@
 {% extends '_base.html' %}
 {% load static %}
 {% load helpers %}
+{% load custom_links %}
 
 {% block title %}{{ device }}{% endblock %}
 
@@ -64,6 +65,9 @@
     </div>
     <h1>{{ device }}</h1>
     {% include 'inc/created_updated.html' with obj=device %}
+    <div class="pull-right noprint">
+        {% custom_links device %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{% url 'dcim:device' pk=device.pk %}">Device</a>
@@ -86,12 +90,16 @@
                 {% include 'dcim/inc/device_napalm_tabs.html' %}
             {% endif %}
         {% endif %}
-        <li role="presentation"{% if active_tab == 'config-context' %} class="active"{% endif %}>
-            <a href="{% url 'dcim:device_configcontext' pk=device.pk %}">Config Context</a>
-        </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'dcim:device_changelog' pk=device.pk %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_configcontext %}
+            <li role="presentation"{% if active_tab == 'config-context' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:device_configcontext' pk=device.pk %}">Config Context</a>
+            </li>
+        {% endif %}
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:device_changelog' pk=device.pk %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 
@@ -332,6 +340,49 @@
                     {% endif %}
                 </div>
             {% endif %}
+            {% if power_ports and poweroutlets %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong>Power Utilization</strong>
+                    </div>
+                    <table class="table table-hover panel-body">
+                        <tr>
+                            <th>Input</th>
+                            <th>Outlets</th>
+                            <th>Allocated</th>
+                            <th>Available</th>
+                            <th>Utilization</th>
+                        </tr>
+                        {% for pp in power_ports %}
+                            {% with utilization=pp.get_power_draw powerfeed=pp.connected_endpoint %}
+                                <tr>
+                                    <td>{{ pp }}</td>
+                                    <td>{{ utilization.outlet_count }}</td>
+                                    <td>{{ utilization.allocated }}VA</td>
+                                    {% if powerfeed.available_power %}
+                                        <td>{{ powerfeed.available_power }}VA</td>
+                                        <td>{% utilization_graph utilization.allocated|percentage:powerfeed.available_power %}</td>
+                                    {% else %}
+                                        <td class="text-muted">&mdash;</td>
+                                        <td class="text-muted">&mdash;</td>
+                                    {% endif %}
+                                </tr>
+                                {% for leg in utilization.legs %}
+                                    <tr>
+                                        <td style="padding-left: 20px">Leg {{ leg.name }}</td>
+                                        <td>{{ leg.outlet_count }}</td>
+                                        <td>{{ leg.allocated }}</td>
+                                        <td>{{ powerfeed.available_power|divide:3 }}VA</td>
+                                        {% with phase_available=powerfeed.available_power|divide:3 %}
+                                            <td>{% utilization_graph leg.allocated|percentage:phase_available %}</td>
+                                        {% endwith %}
+                                    </tr>
+                                {% endfor %}
+                            {% endwith %}
+                        {% endfor %}
+                    </table>
+                </div>
+            {% endif %}
             {% if request.user.is_authenticated %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -445,6 +496,7 @@
                                 {% endif %}
                                 <th>Name</th>
                                 <th>Status</th>
+                                <th>Description</th>
                                 <th colspan="2">Installed Device</th>
                                 <th></th>
                             </tr>
@@ -570,6 +622,7 @@
                                     <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
                                 {% endif %}
                                 <th>Name</th>
+                                <th>Description</th>
                                 <th>Cable</th>
                                 <th colspan="2">Connection</th>
                                 <th></th>
@@ -585,6 +638,9 @@
                         {% if consoleserverports and perms.dcim.change_consoleport %}
                             <button type="submit" name="_rename" formaction="{% url 'dcim:consoleserverport_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
                                 <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
+                            </button>
+                            <button type="submit" name="_edit" formaction="{% url 'dcim:consoleserverport_bulk_edit' pk=device.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
+                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit
                             </button>
                             <button type="submit" name="_disconnect" formaction="{% url 'dcim:consoleserverport_bulk_disconnect' %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                                 <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect
@@ -625,8 +681,10 @@
                                     <th class="pk"><input type="checkbox" class="toggle" title="Toggle all" /></th>
                                 {% endif %}
                                 <th>Name</th>
+                                <th>Input/Leg</th>
+                                <th>Description</th>
                                 <th>Cable</th>
-                                <th colspan="2">Connection</th>
+                                <th colspan="3">Connection</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -640,6 +698,9 @@
                         {% if poweroutlets and perms.dcim.change_powerport %}
                             <button type="submit" name="_rename" formaction="{% url 'dcim:poweroutlet_bulk_rename' %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
                                 <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Rename
+                            </button>
+                            <button type="submit" name="_edit" formaction="{% url 'dcim:poweroutlet_bulk_edit' pk=device.pk %}?return_url={{ device.get_absolute_url }}" class="btn btn-warning btn-xs">
+                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit
                             </button>
                             <button type="submit" name="_disconnect" formaction="{% url 'dcim:poweroutlet_bulk_disconnect' %}?return_url={{ device.get_absolute_url }}" class="btn btn-danger btn-xs">
                                 <span class="glyphicon glyphicon-resize-full" aria-hidden="true"></span> Disconnect

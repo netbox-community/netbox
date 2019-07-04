@@ -586,6 +586,7 @@ ul.nav-tabs, ul.nav-pills {
 /* Fix progress bar margin inside table cells */
 td .progress {
     margin-bottom: 0;
+    min-width: 100px;
 }
 textarea {
     font-family: Consolas, Lucida Console, monospace;

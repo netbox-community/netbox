@@ -1,12 +1,11 @@
 import django_filters
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
-from taggit.models import Tag
 
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from .constants import CF_FILTER_DISABLED, CF_FILTER_EXACT, CF_TYPE_BOOLEAN, CF_TYPE_SELECT
-from .models import ConfigContext, CustomField, Graph, ExportTemplate, ObjectChange, TopologyMap
+from .models import ConfigContext, CustomField, Graph, ExportTemplate, ObjectChange, Tag, TopologyMap
 
 
 class CustomFieldFilter(django_filters.Filter):

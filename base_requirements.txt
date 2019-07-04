@@ -2,6 +2,10 @@
 # https://github.com/django/django
 Django
 
+# Django caching using Redis
+# https://github.com/Suor/django-cacheops
+django-cacheops
+
 # Django middleware which permits cross-domain API requests
 # https://github.com/OttoYiu/django-cors-headers
 django-cors-headers
@@ -17,6 +21,14 @@ django-filter
 # Modified Preorder Tree Traversal (recursive nesting of objects)
 # https://github.com/django-mptt/django-mptt
 django-mptt
+
+# Django integration for RQ (Reqis queuing)
+# https://github.com/rq/django-rq
+django-rq
+
+# Prometheus metrics library for Django
+# https://github.com/korfuri/django-prometheus
+django-prometheus
 
 # Abstraction models for rendering and paginating HTML tables
 # https://github.com/jieter/django-tables2

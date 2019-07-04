@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count
 from django.http import Http404, HttpResponse
@@ -6,11 +8,11 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
-from taggit.models import Tag
 
 from extras import filters
 from extras.models import (
-    ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
+    ConfigContext, CustomFieldChoice, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
+    Tag,
 )
 from extras.reports import get_report, get_reports
 from utilities.api import FieldChoicesViewSet, IsAuthenticatedOrLoginNotRequired, ModelViewSet
@@ -27,6 +29,36 @@ class ExtrasFieldChoicesViewSet(FieldChoicesViewSet):
         (Graph, ['type']),
         (ObjectChange, ['action']),
     )
+
+
+#
+# Custom field choices
+#
+
+class CustomFieldChoicesViewSet(ViewSet):
+    """
+    """
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
+
+    def __init__(self, *args, **kwargs):
+        super(CustomFieldChoicesViewSet, self).__init__(*args, **kwargs)
+
+        self._fields = OrderedDict()
+
+        for cfc in CustomFieldChoice.objects.all():
+            self._fields.setdefault(cfc.field.name, {})
+            self._fields[cfc.field.name][cfc.value] = cfc.pk
+
+    def list(self, request):
+        return Response(self._fields)
+
+    def retrieve(self, request, pk):
+        if pk not in self._fields:
+            raise Http404
+        return Response(self._fields[pk])
+
+    def get_view_name(self):
+        return "Custom Field choices"
 
 
 #
@@ -117,7 +149,7 @@ class TopologyMapViewSet(ModelViewSet):
 
 class TagViewSet(ModelViewSet):
     queryset = Tag.objects.annotate(
-        tagged_items=Count('taggit_taggeditem_items', distinct=True)
+        tagged_items=Count('extras_taggeditem_items', distinct=True)
     )
     serializer_class = serializers.TagSerializer
     filterset_class = filters.TagFilter

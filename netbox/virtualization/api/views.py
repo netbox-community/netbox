@@ -1,6 +1,9 @@
-from dcim.models import Interface
+from django.db.models import Count
+
+from dcim.models import Device, Interface
 from extras.api.views import CustomFieldModelViewSet
 from utilities.api import FieldChoicesViewSet, ModelViewSet
+from utilities.utils import get_subquery
 from virtualization import filters
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 from . import serializers
@@ -21,19 +24,30 @@ class VirtualizationFieldChoicesViewSet(FieldChoicesViewSet):
 #
 
 class ClusterTypeViewSet(ModelViewSet):
-    queryset = ClusterType.objects.all()
+    queryset = ClusterType.objects.annotate(
+        cluster_count=Count('clusters')
+    )
     serializer_class = serializers.ClusterTypeSerializer
     filterset_class = filters.ClusterTypeFilter
 
 
 class ClusterGroupViewSet(ModelViewSet):
-    queryset = ClusterGroup.objects.all()
+    queryset = ClusterGroup.objects.annotate(
+        cluster_count=Count('clusters')
+    )
     serializer_class = serializers.ClusterGroupSerializer
     filterset_class = filters.ClusterGroupFilter
 
 
 class ClusterViewSet(CustomFieldModelViewSet):
-    queryset = Cluster.objects.select_related('type', 'group').prefetch_related('tags')
+    queryset = Cluster.objects.select_related(
+        'type', 'group', 'site',
+    ).prefetch_related(
+        'tags'
+    ).annotate(
+        device_count=get_subquery(Device, 'cluster'),
+        virtualmachine_count=get_subquery(VirtualMachine, 'cluster')
+    )
     serializer_class = serializers.ClusterSerializer
     filterset_class = filters.ClusterFilter
 
@@ -50,16 +64,23 @@ class VirtualMachineViewSet(CustomFieldModelViewSet):
 
     def get_serializer_class(self):
         """
-        Include rendered config context when retrieving a single VirtualMachine.
+        Select the specific serializer based on the request context.
+
+        If the `brief` query param equates to True, return the NestedVirtualMachineSerializer
+
+        If the `exclude` query param includes `config_context` as a value, return the VirtualMachineSerializer
+
+        Else, return the VirtualMachineWithConfigContextSerializer
         """
-        if self.action == 'retrieve':
-            return serializers.VirtualMachineWithConfigContextSerializer
 
         request = self.get_serializer_context()['request']
         if request.query_params.get('brief', False):
             return serializers.NestedVirtualMachineSerializer
 
-        return serializers.VirtualMachineSerializer
+        elif 'config_context' in request.query_params.get('exclude', []):
+            return serializers.VirtualMachineSerializer
+
+        return serializers.VirtualMachineWithConfigContextSerializer
 
 
 class InterfaceViewSet(ModelViewSet):

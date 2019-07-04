@@ -27,7 +27,7 @@
                                 <a href="{% url 'dcim:device' pk=iface.connected_endpoint.device.pk %}">{{ iface.connected_endpoint.device }}</a>
                             </td>
                             <td class="configured_interface" data="{{ iface.connected_endpoint }}">
-                                <span title="{{ iface.connected_endpoint.get_form_factor_display }}">{{ iface.connected_endpoint }}</span>
+                                <span title="{{ iface.connected_endpoint.get_type_display }}">{{ iface.connected_endpoint }}</span>
                             </td>
                         {% elif iface.connected_endpoint.circuit %}
                             {% with circuit=iface.connected_endpoint.circuit %}

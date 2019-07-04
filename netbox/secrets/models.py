@@ -14,7 +14,7 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes
 from taggit.managers import TaggableManager
 
-from extras.models import CustomFieldModel
+from extras.models import CustomFieldModel, TaggedItem
 from utilities.models import ChangeLoggedModel
 from .exceptions import InvalidKey
 from .hashers import SecretValidationHasher
@@ -345,7 +345,7 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     plaintext = None
     csv_headers = ['device', 'role', 'name', 'plaintext']

@@ -1,6 +1,7 @@
 sudo: required
 services:
   - postgresql
+  - redis-server
 addons:
   postgresql: "9.4"
 language: python

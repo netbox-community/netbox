@@ -1,13 +1,24 @@
 
 # Models which support custom fields
-CUSTOMFIELD_MODELS = (
-    'provider', 'circuit',                                         # Circuits
-    'site', 'rack', 'devicetype', 'device',                        # DCIM
-    'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf', 'service',  # IPAM
-    'secret',                                                      # Secrets
-    'tenant',                                                      # Tenancy
-    'cluster', 'virtualmachine',                                   # Virtualization
-)
+CUSTOMFIELD_MODELS = [
+    'circuits.circuit',
+    'circuits.provider',
+    'dcim.device',
+    'dcim.devicetype',
+    'dcim.powerfeed',
+    'dcim.rack',
+    'dcim.site',
+    'ipam.aggregate',
+    'ipam.ipaddress',
+    'ipam.prefix',
+    'ipam.service',
+    'ipam.vlan',
+    'ipam.vrf',
+    'secrets.secret',
+    'tenancy.tenant',
+    'virtualization.cluster',
+    'virtualization.virtualmachine',
+]
 
 # Custom field types
 CF_TYPE_TEXT = 100
@@ -35,6 +46,46 @@ CF_FILTER_CHOICES = (
     (CF_FILTER_EXACT, 'Exact'),
 )
 
+# Custom links
+CUSTOMLINK_MODELS = [
+    'circuits.circuit',
+    'circuits.provider',
+    'dcim.cable',
+    'dcim.device',
+    'dcim.devicetype',
+    'dcim.powerpanel',
+    'dcim.powerfeed',
+    'dcim.rack',
+    'dcim.site',
+    'ipam.aggregate',
+    'ipam.ipaddress',
+    'ipam.prefix',
+    'ipam.service',
+    'ipam.vlan',
+    'ipam.vrf',
+    'secrets.secret',
+    'tenancy.tenant',
+    'virtualization.cluster',
+    'virtualization.virtualmachine',
+]
+
+BUTTON_CLASS_DEFAULT = 'default'
+BUTTON_CLASS_PRIMARY = 'primary'
+BUTTON_CLASS_SUCCESS = 'success'
+BUTTON_CLASS_INFO = 'info'
+BUTTON_CLASS_WARNING = 'warning'
+BUTTON_CLASS_DANGER = 'danger'
+BUTTON_CLASS_LINK = 'link'
+BUTTON_CLASS_CHOICES = (
+    (BUTTON_CLASS_DEFAULT, 'Default'),
+    (BUTTON_CLASS_PRIMARY, 'Primary (blue)'),
+    (BUTTON_CLASS_SUCCESS, 'Success (green)'),
+    (BUTTON_CLASS_INFO, 'Info (aqua)'),
+    (BUTTON_CLASS_WARNING, 'Warning (orange)'),
+    (BUTTON_CLASS_DANGER, 'Danger (red)'),
+    (BUTTON_CLASS_LINK, 'None (link)'),
+)
+
 # Graph types
 GRAPH_TYPE_INTERFACE = 100
 GRAPH_TYPE_PROVIDER = 200
@@ -47,13 +98,32 @@ GRAPH_TYPE_CHOICES = (
 
 # Models which support export templates
 EXPORTTEMPLATE_MODELS = [
-    'provider', 'circuit',                                                          # Circuits
-    'site', 'region', 'rack', 'rackgroup', 'manufacturer', 'devicetype', 'device',  # DCIM
-    'consoleport', 'powerport', 'interface', 'cable', 'virtualchassis',             # DCIM
-    'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf', 'service',                   # IPAM
-    'secret',                                                                       # Secrets
-    'tenant',                                                                       # Tenancy
-    'cluster', 'virtualmachine',                                                    # Virtualization
+    'circuits.circuit',
+    'circuits.provider',
+    'dcim.cable',
+    'dcim.consoleport',
+    'dcim.device',
+    'dcim.devicetype',
+    'dcim.interface',
+    'dcim.manufacturer',
+    'dcim.powerpanel',
+    'dcim.powerport',
+    'dcim.powerfeed',
+    'dcim.rack',
+    'dcim.rackgroup',
+    'dcim.region',
+    'dcim.site',
+    'dcim.virtualchassis',
+    'ipam.aggregate',
+    'ipam.ipaddress',
+    'ipam.prefix',
+    'ipam.service',
+    'ipam.vlan',
+    'ipam.vrf',
+    'secrets.secret',
+    'tenancy.tenant',
+    'virtualization.cluster',
+    'virtualization.virtualmachine',
 ]
 
 # ExportTemplate language choices
@@ -125,13 +195,36 @@ WEBHOOK_CT_CHOICES = (
 )
 
 # Models which support registered webhooks
-WEBHOOK_MODELS = (
-    'provider', 'circuit',                                           # Circuits
-    'site', 'rack', 'devicetype', 'device', 'virtualchassis',        # DCIM
-    'consoleport', 'consoleserverport', 'powerport', 'poweroutlet',
-    'interface', 'devicebay', 'inventoryitem',
-    'aggregate', 'prefix', 'ipaddress', 'vlan', 'vrf', 'service',    # IPAM
-    'secret',                                                        # Secrets
-    'tenant',                                                        # Tenancy
-    'cluster', 'virtualmachine',                                     # Virtualization
-)
+WEBHOOK_MODELS = [
+    'circuits.circuit',
+    'circuits.provider',
+    'dcim.cable',
+    'dcim.consoleport',
+    'dcim.consoleserverport',
+    'dcim.device',
+    'dcim.devicebay',
+    'dcim.devicetype',
+    'dcim.interface',
+    'dcim.inventoryitem',
+    'dcim.frontport',
+    'dcim.manufacturer',
+    'dcim.poweroutlet',
+    'dcim.powerpanel',
+    'dcim.powerport',
+    'dcim.powerfeed',
+    'dcim.rack',
+    'dcim.rearport',
+    'dcim.region',
+    'dcim.site',
+    'dcim.virtualchassis',
+    'ipam.aggregate',
+    'ipam.ipaddress',
+    'ipam.prefix',
+    'ipam.service',
+    'ipam.vlan',
+    'ipam.vrf',
+    'secrets.secret',
+    'tenancy.tenant',
+    'virtualization.cluster',
+    'virtualization.virtualmachine',
+]

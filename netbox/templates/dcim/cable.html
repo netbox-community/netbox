@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load custom_links %}
 {% load helpers %}
 
 {% block header %}
@@ -23,13 +24,19 @@
         {% endif %}
     </div>
     <h1>{% block title %}Cable {{ cable }}{% endblock %}</h1>
+    {% include 'inc/created_updated.html' with obj=cable %}
+    <div class="pull-right noprint">
+        {% custom_links cable %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ cable.get_absolute_url }}">Cable</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'dcim:cable_changelog' pk=cable.pk %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:cable_changelog' pk=cable.pk %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

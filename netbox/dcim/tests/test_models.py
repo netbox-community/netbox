@@ -249,7 +249,7 @@ class CableTestCase(TestCase):
         """
         A cable connection cannot include a virtual interface
         """
-        virtual_interface = Interface(device=self.device1, name="V1", form_factor=0)
+        virtual_interface = Interface(device=self.device1, name="V1", type=0)
         cable = Cable(termination_a=self.interface2, termination_b=virtual_interface)
         with self.assertRaises(ValidationError):
             cable.clean()
