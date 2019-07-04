@@ -1903,7 +1903,7 @@ class PowerConnectionsListView(PermissionRequiredMixin, ObjectListView):
 
 
 class InterfaceConnectionsListView(PermissionRequiredMixin, ObjectListView):
-    permission_required = 'dcim.interface'
+    permission_required = 'dcim.view_interface'
     queryset = Interface.objects.select_related(
         'device', 'cable', '_connected_interface__device'
     ).filter(
