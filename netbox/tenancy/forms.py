@@ -1,5 +1,4 @@
 from django import forms
-from django.db.models import Count
 from taggit.forms import TagField
 
 from extras.forms import AddRemoveTagsForm, CustomFieldForm, CustomFieldBulkEditForm, CustomFieldFilterForm
@@ -117,7 +116,7 @@ class TenantFilterForm(BootstrapMixin, CustomFieldFilterForm):
 
 
 #
-# Tenancy form extension
+# Form extensions
 #
 
 class TenancyForm(ChainedFieldsMixin, forms.Form):
@@ -155,3 +154,29 @@ class TenancyForm(ChainedFieldsMixin, forms.Form):
             kwargs['initial'] = initial
 
         super().__init__(*args, **kwargs)
+
+
+class TenancyFilterForm(forms.Form):
+    tenant_group = FilterChoiceField(
+        queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenant-groups/",
+            value_field="slug",
+            null_option=True,
+            filter_for={
+                'tenant': 'group'
+            }
+        )
+    )
+    tenant = FilterChoiceField(
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        null_label='-- None --',
+        widget=APISelectMultiple(
+            api_url="/api/tenancy/tenants/",
+            value_field="slug",
+            null_option=True,
+        )
+    )

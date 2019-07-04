@@ -247,6 +247,14 @@ class SiteBulkEditView(PermissionRequiredMixin, BulkEditView):
     default_return_url = 'dcim:site_list'
 
 
+class SiteBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
+    permission_required = 'dcim.delete_site'
+    queryset = Site.objects.select_related('region', 'tenant')
+    filter = filters.SiteFilter
+    table = tables.SiteTable
+    default_return_url = 'dcim:site_list'
+
+
 #
 # Rack groups
 #
@@ -450,7 +458,7 @@ class RackBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 #
 
 class RackReservationListView(ObjectListView):
-    queryset = RackReservation.objects.all()
+    queryset = RackReservation.objects.select_related('rack__site')
     filter = filters.RackReservationFilter
     filter_form = forms.RackReservationFilterForm
     table = tables.RackReservationTable
@@ -508,6 +516,7 @@ class RackReservationBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 class ManufacturerListView(ObjectListView):
     queryset = Manufacturer.objects.annotate(
         devicetype_count=Count('device_types', distinct=True),
+        inventoryitem_count=Count('inventory_items', distinct=True),
         platform_count=Count('platforms', distinct=True),
     )
     table = tables.ManufacturerTable
