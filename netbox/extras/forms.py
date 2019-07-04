@@ -10,8 +10,8 @@ from taggit.models import Tag
 from dcim.models import DeviceRole, Platform, Region, Site
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import (
-    add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, ContentTypeSelect,
-    FilterChoiceField, LaxURLField, JSONField, SlugField, StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES
+    add_blank_choice, APISelectMultiple, BootstrapMixin, BulkEditForm, BulkEditNullBooleanSelect, CommentField,
+    ContentTypeSelect, FilterChoiceField, LaxURLField, JSONField, SlugField, StaticSelect2, BOOLEAN_WITH_BLANK_CHOICES
 )
 from .constants import (
     CF_FILTER_DISABLED, CF_TYPE_BOOLEAN, CF_TYPE_DATE, CF_TYPE_INTEGER, CF_TYPE_SELECT, CF_TYPE_URL,
