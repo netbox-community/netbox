@@ -61,7 +61,7 @@ Once CI has completed on the PR, merge it.
 
 ## Create a New Release
 
-Draft a [new release](https://github.com/digitalocean/netbox/releases/new) with the following parameters.
+Draft a [new release](https://github.com/netbox-community/netbox/releases/new) with the following parameters.
 
 * **Tag:** Current version (e.g. `v2.3.4`)
 * **Target:** `master`

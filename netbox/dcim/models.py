@@ -2271,7 +2271,7 @@ class Interface(CableTermination, ComponentModel):
 
         # It's possible that an Interface can be deleted _after_ its parent Device/VM, in which case trying to resolve
         # the component parent will raise DoesNotExist. For more discussion, see
-        # https://github.com/digitalocean/netbox/issues/2323
+        # https://github.com/netbox-community/netbox/issues/2323
         try:
             parent_obj = self.device or self.virtual_machine
         except ObjectDoesNotExist:
