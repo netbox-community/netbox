@@ -16,11 +16,11 @@ For real-time discussion, you can join the #netbox Slack channel on [NetworkToCo
 
 ## Reporting Bugs
 
-* First, ensure that you've installed the [latest stable version](https://github.com/digitalocean/netbox/releases)
+* First, ensure that you've installed the [latest stable version](https://github.com/netbox-community/netbox/releases)
 of NetBox. If you're running an older version, it's possible that the bug has
 already been fixed.
 
-* Next, check the GitHub [issues list](https://github.com/digitalocean/netbox/issues)
+* Next, check the GitHub [issues list](https://github.com/netbox-community/netbox/issues)
 to see if the bug you've found has already been reported. If you think you may
 be experiencing a reported issue that hasn't already been resolved, please
 click "add a reaction" in the top right corner of the issue and add a thumbs
@@ -51,7 +51,7 @@ your issue.
 
 ## Feature Requests
 
-* First, check the GitHub [issues list](https://github.com/digitalocean/netbox/issues)
+* First, check the GitHub [issues list](https://github.com/netbox-community/netbox/issues)
 to see if the feature you're requesting is already listed. (Be sure to search
 closed issues as well, since some feature requests have been rejected.) If the
 feature you'd like to see has already been requested and is open, click "add a
