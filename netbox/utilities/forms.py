@@ -298,6 +298,7 @@ class APISelect(SelectWithDisabled):
         conditional_query_params=None,
         additional_query_params=None,
         null_option=False,
+        full=False,
         *args,
         **kwargs
     ):
@@ -306,6 +307,8 @@ class APISelect(SelectWithDisabled):
 
         self.attrs['class'] = 'netbox-select2-api'
         self.attrs['data-url'] = '/{}{}'.format(settings.BASE_PATH, api_url.lstrip('/'))  # Inject BASE_PATH
+        if full:
+            self.attrs['data-full'] = full
         if display_field:
             self.attrs['display-field'] = display_field
         if value_field:
