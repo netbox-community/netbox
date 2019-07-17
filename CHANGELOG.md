@@ -3,6 +3,7 @@ v2.6.2 (FUTURE)
 ## Enhancements
 
 * [#984](https://github.com/netbox-community/netbox/issues/984) - Allow ordering circuits by A/Z side
+* [#3307](https://github.com/netbox-community/netbox/issues/3307) - Add power panels count to home page
 
 ## Bug Fixes
 
