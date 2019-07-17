@@ -15,7 +15,7 @@ from dcim.filters import (
     VirtualChassisFilter,
 )
 from dcim.models import (
-    Cable, ConsolePort, Device, DeviceType, Interface, PowerFeed, PowerPort, Rack, RackGroup, Site, VirtualChassis
+    Cable, ConsolePort, Device, DeviceType, Interface, PowerPanel, PowerFeed, PowerPort, Rack, RackGroup, Site, VirtualChassis
 )
 from dcim.tables import (
     CableTable, DeviceDetailTable, DeviceTypeTable, PowerFeedTable, RackTable, RackGroupTable, SiteTable,
@@ -196,6 +196,7 @@ class HomeView(View):
             'cable_count': cables.count(),
             'console_connections_count': connected_consoleports.count(),
             'power_connections_count': connected_powerports.count(),
+            'powerpanel_count': PowerPanel.objects.count(),
             'powerfeed_count': PowerFeed.objects.count(),
 
             # IPAM
