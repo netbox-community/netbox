@@ -1187,7 +1187,9 @@ class DeviceRoleCSVForm(forms.ModelForm):
 #
 
 class PlatformForm(BootstrapMixin, forms.ModelForm):
-    slug = SlugField()
+    slug = SlugField(
+        max_length=64
+    )
 
     class Meta:
         model = Platform
