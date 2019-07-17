@@ -8,6 +8,7 @@ v2.6.2 (FUTURE)
 ## Bug Fixes
 
 * [#3317](https://github.com/netbox-community/netbox/issues/3317) - Fix permissions for ConfigContextBulkDeleteView
+* [#3323](https://github.com/netbox-community/netbox/issues/3323) - Fix permission evaluation for interface connections view
 * [#3342](https://github.com/netbox-community/netbox/issues/3342) - Fix cluster delete button
 
 ---
