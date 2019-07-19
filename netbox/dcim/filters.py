@@ -9,7 +9,9 @@ from extras.filters import CustomFieldFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.constants import COLOR_CHOICES
-from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import (
+    MultiValueNumberFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter,
+)
 from virtualization.models import Cluster
 from .constants import *
 from .models import (
@@ -624,7 +626,7 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         method='search',
         label='Search',
     )
-    device_id = django_filters.ModelChoiceFilter(
+    device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
         label='Device (ID)',
     )
@@ -705,8 +707,8 @@ class InterfaceFilter(django_filters.FilterSet):
         field_name='name',
         label='Device',
     )
-    device_id = django_filters.NumberFilter(
-        method='filter_device',
+    device_id = MultiValueNumberFilter(
+        method='filter_device_id',
         field_name='pk',
         label='Device (ID)',
     )
@@ -758,6 +760,17 @@ class InterfaceFilter(django_filters.FilterSet):
         try:
             device = Device.objects.get(**{name: value})
             vc_interface_ids = device.vc_interfaces.values_list('id', flat=True)
+            return queryset.filter(pk__in=vc_interface_ids)
+        except Device.DoesNotExist:
+            return queryset.none()
+
+    def filter_device_id(self, queryset, name, id_list):
+        # Include interfaces belonging to peer virtual chassis members
+        vc_interface_ids = []
+        try:
+            devices = Device.objects.filter(pk__in=id_list)
+            for device in devices:
+                vc_interface_ids += device.vc_interfaces.values_list('id', flat=True)
             return queryset.filter(pk__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()
