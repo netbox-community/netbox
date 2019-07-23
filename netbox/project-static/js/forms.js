@@ -211,7 +211,7 @@ $(document).ready(function() {
                         results[record.site.name + ":" + record.group.name].children.push(record);
                     }
                     else if( record.group !== undefined && record.group !== null ) {
-                        results[record.group.name] = results[record.group.name] || { text: record.group.name }
+                        results[record.group.name] = results[record.group.name] || { text: record.group.name, children: [] }
                         results[record.group.name].children.push(record);
                     }
                     else if( record.site !== undefined && record.site !== null ) {
