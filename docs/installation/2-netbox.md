@@ -56,7 +56,7 @@ If `git` is not already installed, install it:
 Next, clone the **master** branch of the NetBox GitHub repository into the current directory:
 
 ```no-highlight
-# git clone -b master https://github.com/digitalocean/netbox.git .
+# git clone -b master https://github.com/netbox-community/netbox.git .
 Cloning into '.'...
 remote: Counting objects: 1994, done.
 remote: Compressing objects: 100% (150/150), done.
