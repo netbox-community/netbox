@@ -349,7 +349,7 @@ $(document).ready(function() {
                 $('select#id_tagged_vlans').val([]);
                 $('select#id_tagged_vlans').trigger('change');
                 $('select#id_untagged_vlan').parent().parent().show();
-                $('select#id_tagged_vlans').parent().parent().show();
+                $('select#id_tagged_vlans').parent().parent().hide();
             }
         });
         $('select#id_mode').trigger('change');
