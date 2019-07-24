@@ -579,6 +579,7 @@ class VirtualChassisViewSet(ModelViewSet):
         member_count=Count('members')
     )
     serializer_class = serializers.VirtualChassisSerializer
+    filterset_class = filters.VirtualChassisFilter
 
 
 #

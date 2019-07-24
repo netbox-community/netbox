@@ -5,6 +5,7 @@ v2.6.2 (FUTURE)
 * [#984](https://github.com/netbox-community/netbox/issues/984) - Allow ordering circuits by A/Z side
 * [#3307](https://github.com/netbox-community/netbox/issues/3307) - Add power panels count to home page
 * [#3314](https://github.com/netbox-community/netbox/issues/3314) - Paginate object changelog entries
+* [#3370](https://github.com/netbox-community/netbox/issues/3370) - Add filter class to VirtualChassis API
 
 ## Bug Fixes
 
