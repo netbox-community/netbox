@@ -11,7 +11,7 @@
         {% include 'utilities/obj_table.html' %}
         {% if settings.CHANGELOG_RETENTION %}
             <div class="pull-right text-muted">
-                Changelog retention: {{ settings.CHANGELOG_RETENTION }} days
+                Changelog retention: {% if settings.CHANGELOG_RETENTION == 0 %}Indefinite{% else %}{{ settings.CHANGELOG_RETENTION }} days{% endif %}
             </div>
         {% endif %}
     </div>
