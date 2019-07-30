@@ -1268,7 +1268,7 @@ class DeviceForm(BootstrapMixin, TenancyForm, CustomFieldForm):
         required=False,
         widget=APISelect(
             api_url='/api/dcim/racks/',
-            display_field='display_name',
+            display_field='display_name'
         )
     )
     position = forms.TypedChoiceField(

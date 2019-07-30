@@ -10,6 +10,7 @@ v2.6.2 (FUTURE)
 
 ## Bug Fixes
 
+* [#3289](https://github.com/netbox-community/netbox/issues/3289) - Prevent position from being nullified when moving a device to a new rack
 * [#3293](https://github.com/netbox-community/netbox/issues/3293) - Enable filtering device components by multiple device IDs
 * [#3315](https://github.com/netbox-community/netbox/issues/3315) - Enable filtering devices/interfaces by multiple MAC addresses
 * [#3317](https://github.com/netbox-community/netbox/issues/3317) - Fix permissions for ConfigContextBulkDeleteView
