@@ -978,6 +978,16 @@ class PowerPortTemplateCreateForm(ComponentForm):
     name_pattern = ExpandableNameField(
         label='Name'
     )
+    maximum_draw = forms.IntegerField(
+        min_value=1,
+        required=False,
+        help_text="Maximum current draw (watts)"
+    )
+    allocated_draw = forms.IntegerField(
+        min_value=1,
+        required=False,
+        help_text="Allocated current draw (watts)"
+    )
 
 
 class PowerOutletTemplateForm(BootstrapMixin, forms.ModelForm):

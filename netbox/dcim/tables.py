@@ -424,7 +424,7 @@ class PowerPortTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerPortTemplate
-        fields = ('pk', 'name')
+        fields = ('pk', 'name', 'maximum_draw', 'allocated_draw')
         empty_text = "None"
 
 
