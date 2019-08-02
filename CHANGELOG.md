@@ -18,6 +18,7 @@ v2.6.2 (FUTURE)
 * [#3317](https://github.com/netbox-community/netbox/issues/3317) - Fix permissions for ConfigContextBulkDeleteView
 * [#3323](https://github.com/netbox-community/netbox/issues/3323) - Fix permission evaluation for interface connections view
 * [#3342](https://github.com/netbox-community/netbox/issues/3342) - Fix cluster delete button
+* [#3385](https://github.com/netbox-community/netbox/issues/3385) - Fix power panels list when bulk editing power feeds
 
 ---
 

@@ -3638,7 +3638,7 @@ class PowerFeedBulkEditForm(BootstrapMixin, AddRemoveTagsForm, CustomFieldBulkEd
         queryset=PowerPanel.objects.all(),
         required=False,
         widget=APISelect(
-            api_url="/api/dcim/sites",
+            api_url="/api/dcim/power-panels/",
             filter_for={
                 'rackgroup': 'site_id',
             }
