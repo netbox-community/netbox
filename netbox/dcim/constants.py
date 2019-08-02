@@ -280,6 +280,7 @@ IFACE_MODE_CHOICES = [
 # Pass-through port types
 PORT_TYPE_8P8C = 1000
 PORT_TYPE_110_PUNCH = 1100
+PORT_TYPE_BNC = 1200
 PORT_TYPE_ST = 2000
 PORT_TYPE_SC = 2100
 PORT_TYPE_SC_APC = 2110
@@ -296,6 +297,7 @@ PORT_TYPE_CHOICES = [
         [
             [PORT_TYPE_8P8C, '8P8C'],
             [PORT_TYPE_110_PUNCH, '110 Punch'],
+            [PORT_TYPE_BNC, 'BNC'],
         ],
     ],
     [
@@ -376,6 +378,7 @@ CABLE_TYPE_CAT6A = 1610
 CABLE_TYPE_CAT7 = 1700
 CABLE_TYPE_DAC_ACTIVE = 1800
 CABLE_TYPE_DAC_PASSIVE = 1810
+CABLE_TYPE_COAXIAL = 1900
 CABLE_TYPE_MMF = 3000
 CABLE_TYPE_MMF_OM1 = 3010
 CABLE_TYPE_MMF_OM2 = 3020
@@ -397,6 +400,7 @@ CABLE_TYPE_CHOICES = (
             (CABLE_TYPE_CAT7, 'CAT7'),
             (CABLE_TYPE_DAC_ACTIVE, 'Direct Attach Copper (Active)'),
             (CABLE_TYPE_DAC_PASSIVE, 'Direct Attach Copper (Passive)'),
+            (CABLE_TYPE_COAXIAL, 'Coaxial'),
         ),
     ),
     (

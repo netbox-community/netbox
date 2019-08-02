@@ -3,6 +3,7 @@ from django import forms
 from django.conf import settings
 from django.db import models
 
+from dcim.forms import MACAddressField
 from extras.models import Tag
 
 
@@ -47,6 +48,14 @@ class MultiValueNumberFilter(django_filters.MultipleChoiceFilter):
 
 class MultiValueTimeFilter(django_filters.MultipleChoiceFilter):
     field_class = multivalue_field_factory(forms.TimeField)
+
+
+class MACAddressFilter(django_filters.CharFilter):
+    field_class = MACAddressField
+
+
+class MultiValueMACAddressFilter(django_filters.MultipleChoiceFilter):
+    field_class = multivalue_field_factory(MACAddressField)
 
 
 class TreeNodeMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):

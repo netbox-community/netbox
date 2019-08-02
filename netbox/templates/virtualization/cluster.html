@@ -33,7 +33,7 @@
                 Edit this cluster
             </a>
         {% endif %}
-        {% if perms.dcim.delete_cluster %}
+        {% if perms.virtualization.delete_cluster %}
             <a href="{% url 'virtualization:cluster_delete' pk=cluster.pk %}" class="btn btn-danger">
                 <span class="fa fa-trash" aria-hidden="true"></span>
                 Delete this cluster

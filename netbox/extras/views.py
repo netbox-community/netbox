@@ -146,7 +146,7 @@ class ConfigContextDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 
 class ConfigContextBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'extras.delete_cconfigcontext'
+    permission_required = 'extras.delete_configcontext'
     queryset = ConfigContext.objects.all()
     table = ConfigContextTable
     default_return_url = 'extras:configcontext_list'
@@ -228,6 +228,13 @@ class ObjectChangeLogView(View):
             orderable=False
         )
 
+        # Apply the request context
+        paginate = {
+            'paginator_class': EnhancedPaginator,
+            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+        }
+        RequestConfig(request, paginate).configure(objectchanges_table)
+
         # Check whether a header template exists for this model
         base_template = '{}/{}.html'.format(model._meta.app_label, model._meta.model_name)
         try:
@@ -239,7 +246,7 @@ class ObjectChangeLogView(View):
 
         return render(request, 'extras/object_changelog.html', {
             object_var: obj,
-            'objectchanges_table': objectchanges_table,
+            'table': objectchanges_table,
             'base_template': base_template,
             'active_tab': 'changelog',
         })

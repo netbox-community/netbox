@@ -2271,7 +2271,7 @@ class Interface(CableTermination, ComponentModel):
 
         # It's possible that an Interface can be deleted _after_ its parent Device/VM, in which case trying to resolve
         # the component parent will raise DoesNotExist. For more discussion, see
-        # https://github.com/digitalocean/netbox/issues/2323
+        # https://github.com/netbox-community/netbox/issues/2323
         try:
             parent_obj = self.device or self.virtual_machine
         except ObjectDoesNotExist:
@@ -2771,6 +2771,16 @@ class Cable(ChangeLoggedModel):
             raise ValidationError("Incompatible termination types: {} and {}".format(
                 self.termination_a_type, self.termination_b_type
             ))
+
+        # A component with multiple positions must be connected to a component with an equal number of positions
+        term_a_positions = getattr(self.termination_a, 'positions', 1)
+        term_b_positions = getattr(self.termination_b, 'positions', 1)
+        if term_a_positions != term_b_positions:
+            raise ValidationError(
+                "{} has {} positions and {} has {}. Both terminations must have the same number of positions.".format(
+                    self.termination_a, term_a_positions, self.termination_b, term_b_positions
+                )
+            )
 
         # A termination point cannot be connected to itself
         if self.termination_a == self.termination_b:

@@ -2,14 +2,15 @@ import django_filters
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
-from netaddr import EUI
-from netaddr.core import AddrFormatError
 
 from extras.filters import CustomFieldFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from tenancy.models import Tenant
 from utilities.constants import COLOR_CHOICES
-from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import (
+    MultiValueMACAddressFilter, MultiValueNumberFilter, NameSlugSearchFilterSet, NumericInFilter, TagFilter,
+    TreeNodeMultipleChoiceFilter,
+)
 from virtualization.models import Cluster
 from .constants import *
 from .models import (
@@ -514,8 +515,8 @@ class DeviceFilter(TenancyFilterSet, CustomFieldFilterSet):
         field_name='device_type__is_full_depth',
         label='Is full depth',
     )
-    mac_address = django_filters.CharFilter(
-        method='_mac_address',
+    mac_address = MultiValueMACAddressFilter(
+        field_name='interfaces__mac_address',
         label='MAC address',
     )
     has_primary_ip = django_filters.BooleanFilter(
@@ -572,16 +573,6 @@ class DeviceFilter(TenancyFilterSet, CustomFieldFilterSet):
             Q(comments__icontains=value)
         ).distinct()
 
-    def _mac_address(self, queryset, name, value):
-        value = value.strip()
-        if not value:
-            return queryset
-        try:
-            mac = EUI(value.strip())
-            return queryset.filter(interfaces__mac_address=mac).distinct()
-        except AddrFormatError:
-            return queryset.none()
-
     def _has_primary_ip(self, queryset, name, value):
         if value:
             return queryset.filter(
@@ -624,7 +615,7 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         method='search',
         label='Search',
     )
-    device_id = django_filters.ModelChoiceFilter(
+    device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
         label='Device (ID)',
     )
@@ -705,8 +696,8 @@ class InterfaceFilter(django_filters.FilterSet):
         field_name='name',
         label='Device',
     )
-    device_id = django_filters.NumberFilter(
-        method='filter_device',
+    device_id = MultiValueNumberFilter(
+        method='filter_device_id',
         field_name='pk',
         label='Device (ID)',
     )
@@ -724,10 +715,7 @@ class InterfaceFilter(django_filters.FilterSet):
         queryset=Interface.objects.all(),
         label='LAG interface (ID)',
     )
-    mac_address = django_filters.CharFilter(
-        method='_mac_address',
-        label='MAC address',
-    )
+    mac_address = MultiValueMACAddressFilter()
     tag = TagFilter()
     vlan_id = django_filters.CharFilter(
         method='filter_vlan_id',
@@ -762,6 +750,17 @@ class InterfaceFilter(django_filters.FilterSet):
         except Device.DoesNotExist:
             return queryset.none()
 
+    def filter_device_id(self, queryset, name, id_list):
+        # Include interfaces belonging to peer virtual chassis members
+        vc_interface_ids = []
+        try:
+            devices = Device.objects.filter(pk__in=id_list)
+            for device in devices:
+                vc_interface_ids += device.vc_interfaces.values_list('id', flat=True)
+            return queryset.filter(pk__in=vc_interface_ids)
+        except Device.DoesNotExist:
+            return queryset.none()
+
     def filter_vlan_id(self, queryset, name, value):
         value = value.strip()
         if not value:
@@ -787,16 +786,6 @@ class InterfaceFilter(django_filters.FilterSet):
             'virtual': queryset.filter(type__in=VIRTUAL_IFACE_TYPES),
             'wireless': queryset.filter(type__in=WIRELESS_IFACE_TYPES),
         }.get(value, queryset.none())
-
-    def _mac_address(self, queryset, name, value):
-        value = value.strip()
-        if not value:
-            return queryset
-        try:
-            mac = EUI(value.strip())
-            return queryset.filter(mac_address=mac)
-        except AddrFormatError:
-            return queryset.none()
 
 
 class FrontPortFilter(DeviceComponentFilterSet):

@@ -21,10 +21,10 @@ You may opt to install NetBox either from a numbered release or by cloning the m
 
 ## Option A: Download a Release
 
-Download the [latest stable release](https://github.com/digitalocean/netbox/releases) from GitHub as a tarball or ZIP archive and extract it to your desired path. In this example, we'll use `/opt/netbox`.
+Download the [latest stable release](https://github.com/netbox-community/netbox/releases) from GitHub as a tarball or ZIP archive and extract it to your desired path. In this example, we'll use `/opt/netbox`.
 
 ```no-highlight
-# wget https://github.com/digitalocean/netbox/archive/vX.Y.Z.tar.gz
+# wget https://github.com/netbox-community/netbox/archive/vX.Y.Z.tar.gz
 # tar -xzf vX.Y.Z.tar.gz -C /opt
 # cd /opt/
 # ln -s netbox-X.Y.Z/ netbox
@@ -56,7 +56,7 @@ If `git` is not already installed, install it:
 Next, clone the **master** branch of the NetBox GitHub repository into the current directory:
 
 ```no-highlight
-# git clone -b master https://github.com/digitalocean/netbox.git .
+# git clone -b master https://github.com/netbox-community/netbox.git .
 Cloning into '.'...
 remote: Counting objects: 1994, done.
 remote: Compressing objects: 100% (150/150), done.
