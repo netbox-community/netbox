@@ -175,7 +175,7 @@ class Circuit(ChangeLoggedModel, CustomFieldModel):
         ordering = ['provider', 'cid']
         constraints = [
             models.UniqueConstraint(
-                fields=['provider', 'cid'], name='unique_provider_and_cid'
+                fields=['provider', 'cid'], name='circuit_provider_cid_key'
             )
         ]
 
@@ -272,7 +272,7 @@ class CircuitTermination(CableTermination):
         constraints = [
             models.UniqueConstraint(
                 fields=['circuit', 'term_side'],
-                name='unique_circuit_and_termside'
+                name='circuittermination_circuit_termside_key'
             )
         ]
 
