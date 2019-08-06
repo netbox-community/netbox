@@ -1,6 +1,7 @@
 import base64
 
 from Crypto.PublicKey import RSA
+from django.db.models import Count
 from django.http import HttpResponseBadRequest
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -32,7 +33,9 @@ class SecretsFieldChoicesViewSet(FieldChoicesViewSet):
 #
 
 class SecretRoleViewSet(ModelViewSet):
-    queryset = SecretRole.objects.all()
+    queryset = SecretRole.objects.annotate(
+        secret_count=Count('secrets')
+    )
     serializer_class = serializers.SecretRoleSerializer
     permission_classes = [IsAuthenticated]
     filterset_class = filters.SecretRoleFilter

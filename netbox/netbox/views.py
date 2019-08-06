@@ -11,13 +11,15 @@ from circuits.filters import CircuitFilter, ProviderFilter
 from circuits.models import Circuit, Provider
 from circuits.tables import CircuitTable, ProviderTable
 from dcim.filters import (
-    CableFilter, DeviceFilter, DeviceTypeFilter, RackFilter, RackGroupFilter, SiteFilter, VirtualChassisFilter
+    CableFilter, DeviceFilter, DeviceTypeFilter, PowerFeedFilter, RackFilter, RackGroupFilter, SiteFilter,
+    VirtualChassisFilter,
 )
 from dcim.models import (
-    Cable, ConsolePort, Device, DeviceType, Interface, PowerPort, Rack, RackGroup, Site, VirtualChassis
+    Cable, ConsolePort, Device, DeviceType, Interface, PowerPanel, PowerFeed, PowerPort, Rack, RackGroup, Site, VirtualChassis
 )
 from dcim.tables import (
-    CableTable, DeviceDetailTable, DeviceTypeTable, RackTable, RackGroupTable, SiteTable, VirtualChassisTable
+    CableTable, DeviceDetailTable, DeviceTypeTable, PowerFeedTable, RackTable, RackGroupTable, SiteTable,
+    VirtualChassisTable,
 )
 from extras.models import ObjectChange, ReportResult, TopologyMap
 from ipam.filters import AggregateFilter, IPAddressFilter, PrefixFilter, VLANFilter, VRFFilter
@@ -94,6 +96,12 @@ SEARCH_TYPES = OrderedDict((
         'table': CableTable,
         'url': 'dcim:cable_list',
     }),
+    ('powerfeed', {
+        'queryset': PowerFeed.objects.all(),
+        'filter': PowerFeedFilter,
+        'table': PowerFeedTable,
+        'url': 'dcim:powerfeed_list',
+    }),
     # IPAM
     ('vrf', {
         'queryset': VRF.objects.select_related('tenant'),
@@ -166,7 +174,7 @@ class HomeView(View):
             connected_endpoint__isnull=False
         )
         connected_powerports = PowerPort.objects.filter(
-            connected_endpoint__isnull=False
+            _connected_poweroutlet__isnull=False
         )
         connected_interfaces = Interface.objects.filter(
             _connected_interface__isnull=False,
@@ -182,11 +190,14 @@ class HomeView(View):
 
             # DCIM
             'rack_count': Rack.objects.count(),
+            'devicetype_count': DeviceType.objects.count(),
             'device_count': Device.objects.count(),
             'interface_connections_count': connected_interfaces.count(),
             'cable_count': cables.count(),
             'console_connections_count': connected_consoleports.count(),
             'power_connections_count': connected_powerports.count(),
+            'powerpanel_count': PowerPanel.objects.count(),
+            'powerfeed_count': PowerFeed.objects.count(),
 
             # IPAM
             'vrf_count': VRF.objects.count(),

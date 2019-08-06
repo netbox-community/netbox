@@ -9,7 +9,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 from django_tables2 import RequestConfig
-from taggit.models import Tag, TaggedItem
 
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator
@@ -19,7 +18,7 @@ from .forms import (
     ConfigContextForm, ConfigContextBulkEditForm, ConfigContextFilterForm, ImageAttachmentForm, ObjectChangeFilterForm,
     TagFilterForm, TagForm,
 )
-from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult
+from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult, Tag, TaggedItem
 from .reports import get_report, get_reports
 from .tables import ConfigContextTable, ObjectChangeTable, TagTable, TaggedItemTable
 
@@ -28,9 +27,10 @@ from .tables import ConfigContextTable, ObjectChangeTable, TagTable, TaggedItemT
 # Tags
 #
 
-class TagListView(ObjectListView):
+class TagListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'extras.view_tag'
     queryset = Tag.objects.annotate(
-        items=Count('taggit_taggeditem_items', distinct=True)
+        items=Count('extras_taggeditem_items', distinct=True)
     ).order_by(
         'name'
     )
@@ -69,22 +69,23 @@ class TagView(View):
 
 
 class TagEditView(PermissionRequiredMixin, ObjectEditView):
-    permission_required = 'taggit.change_tag'
+    permission_required = 'extras.change_tag'
     model = Tag
     model_form = TagForm
     default_return_url = 'extras:tag_list'
+    template_name = 'extras/tag_edit.html'
 
 
 class TagDeleteView(PermissionRequiredMixin, ObjectDeleteView):
-    permission_required = 'taggit.delete_tag'
+    permission_required = 'extras.delete_tag'
     model = Tag
     default_return_url = 'extras:tag_list'
 
 
 class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'taggit.delete_tag'
+    permission_required = 'extras.delete_tag'
     queryset = Tag.objects.annotate(
-        items=Count('taggit_taggeditem_items')
+        items=Count('extras_taggeditem_items')
     ).order_by(
         'name'
     )
@@ -96,7 +97,8 @@ class TagBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Config contexts
 #
 
-class ConfigContextListView(ObjectListView):
+class ConfigContextListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'extras.view_configcontext'
     queryset = ConfigContext.objects.all()
     filter = filters.ConfigContextFilter
     filter_form = ConfigContextFilterForm
@@ -104,7 +106,8 @@ class ConfigContextListView(ObjectListView):
     template_name = 'extras/configcontext_list.html'
 
 
-class ConfigContextView(View):
+class ConfigContextView(PermissionRequiredMixin, View):
+    permission_required = 'extras.view_configcontext'
 
     def get(self, request, pk):
 
@@ -143,7 +146,7 @@ class ConfigContextDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 
 
 class ConfigContextBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
-    permission_required = 'extras.delete_cconfigcontext'
+    permission_required = 'extras.delete_configcontext'
     queryset = ConfigContext.objects.all()
     table = ConfigContextTable
     default_return_url = 'extras:configcontext_list'
@@ -173,7 +176,8 @@ class ObjectConfigContextView(View):
 # Change logging
 #
 
-class ObjectChangeListView(ObjectListView):
+class ObjectChangeListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'extras.view_objectchange'
     queryset = ObjectChange.objects.select_related('user', 'changed_object_type')
     filter = filters.ObjectChangeFilter
     filter_form = ObjectChangeFilterForm
@@ -181,7 +185,8 @@ class ObjectChangeListView(ObjectListView):
     template_name = 'extras/objectchange_list.html'
 
 
-class ObjectChangeView(View):
+class ObjectChangeView(PermissionRequiredMixin, View):
+    permission_required = 'extras.view_objectchange'
 
     def get(self, request, pk):
 
@@ -223,6 +228,13 @@ class ObjectChangeLogView(View):
             orderable=False
         )
 
+        # Apply the request context
+        paginate = {
+            'paginator_class': EnhancedPaginator,
+            'per_page': request.GET.get('per_page', settings.PAGINATE_COUNT)
+        }
+        RequestConfig(request, paginate).configure(objectchanges_table)
+
         # Check whether a header template exists for this model
         base_template = '{}/{}.html'.format(model._meta.app_label, model._meta.model_name)
         try:
@@ -234,7 +246,7 @@ class ObjectChangeLogView(View):
 
         return render(request, 'extras/object_changelog.html', {
             object_var: obj,
-            'objectchanges_table': objectchanges_table,
+            'table': objectchanges_table,
             'base_template': base_template,
             'active_tab': 'changelog',
         })
@@ -272,10 +284,11 @@ class ImageAttachmentDeleteView(PermissionRequiredMixin, ObjectDeleteView):
 # Reports
 #
 
-class ReportListView(View):
+class ReportListView(PermissionRequiredMixin, View):
     """
     Retrieve all of the available reports from disk and the recorded ReportResult (if any) for each.
     """
+    permission_required = 'extras.view_reportresult'
 
     def get(self, request):
 
@@ -295,10 +308,11 @@ class ReportListView(View):
         })
 
 
-class ReportView(View):
+class ReportView(PermissionRequiredMixin, View):
     """
     Display a single Report and its associated ReportResult (if any).
     """
+    permission_required = 'extras.view_reportresult'
 
     def get(self, request, name):
 

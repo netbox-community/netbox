@@ -113,7 +113,8 @@ def add_available_vlans(vlan_group, vlans):
 # VRFs
 #
 
-class VRFListView(ObjectListView):
+class VRFListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'ipam.view_vrf'
     queryset = VRF.objects.select_related('tenant')
     filter = filters.VRFFilter
     filter_form = forms.VRFFilterForm
@@ -121,7 +122,8 @@ class VRFListView(ObjectListView):
     template_name = 'ipam/vrf_list.html'
 
 
-class VRFView(View):
+class VRFView(PermissionRequiredMixin, View):
+    permission_required = 'ipam.view_vrf'
 
     def get(self, request, pk):
 
@@ -180,7 +182,8 @@ class VRFBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # RIRs
 #
 
-class RIRListView(ObjectListView):
+class RIRListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'ipam.view_rir'
     queryset = RIR.objects.annotate(aggregate_count=Count('aggregates'))
     filter = filters.RIRFilter
     filter_form = forms.RIRFilterForm
@@ -286,7 +289,8 @@ class RIRBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Aggregates
 #
 
-class AggregateListView(ObjectListView):
+class AggregateListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'ipam.view_aggregate'
     queryset = Aggregate.objects.select_related('rir').extra(select={
         'child_count': 'SELECT COUNT(*) FROM ipam_prefix WHERE ipam_prefix.prefix <<= ipam_aggregate.prefix',
     })
@@ -312,7 +316,8 @@ class AggregateListView(ObjectListView):
         }
 
 
-class AggregateView(View):
+class AggregateView(PermissionRequiredMixin, View):
+    permission_required = 'ipam.view_aggregate'
 
     def get(self, request, pk):
 
@@ -398,7 +403,8 @@ class AggregateBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Prefix/VLAN roles
 #
 
-class RoleListView(ObjectListView):
+class RoleListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'ipam.view_role'
     queryset = Role.objects.all()
     table = tables.RoleTable
     template_name = 'ipam/role_list.html'
@@ -433,7 +439,8 @@ class RoleBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Prefixes
 #
 
-class PrefixListView(ObjectListView):
+class PrefixListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'ipam.view_prefix'
     queryset = Prefix.objects.select_related('site', 'vrf__tenant', 'tenant', 'vlan', 'role')
     filter = filters.PrefixFilter
     filter_form = forms.PrefixFilterForm
@@ -446,7 +453,8 @@ class PrefixListView(ObjectListView):
         return self.queryset.annotate_depth(limit=limit)
 
 
-class PrefixView(View):
+class PrefixView(PermissionRequiredMixin, View):
+    permission_required = 'ipam.view_prefix'
 
     def get(self, request, pk):
 
@@ -489,7 +497,8 @@ class PrefixView(View):
         })
 
 
-class PrefixPrefixesView(View):
+class PrefixPrefixesView(PermissionRequiredMixin, View):
+    permission_required = 'ipam.view_prefix'
 
     def get(self, request, pk):
 
@@ -531,7 +540,8 @@ class PrefixPrefixesView(View):
         })
 
 
-class PrefixIPAddressesView(View):
+class PrefixIPAddressesView(PermissionRequiredMixin, View):
+    permission_required = 'ipam.view_prefix'
 
     def get(self, request, pk):
 
@@ -617,7 +627,8 @@ class PrefixBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # IP addresses
 #
 
-class IPAddressListView(ObjectListView):
+class IPAddressListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'ipam.view_ipaddress'
     queryset = IPAddress.objects.select_related(
         'vrf__tenant', 'tenant', 'nat_inside'
     ).prefetch_related(
@@ -629,7 +640,8 @@ class IPAddressListView(ObjectListView):
     template_name = 'ipam/ipaddress_list.html'
 
 
-class IPAddressView(View):
+class IPAddressView(PermissionRequiredMixin, View):
+    permission_required = 'ipam.view_ipaddress'
 
     def get(self, request, pk):
 
@@ -788,7 +800,8 @@ class IPAddressBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # VLAN groups
 #
 
-class VLANGroupListView(ObjectListView):
+class VLANGroupListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'ipam.view_vlangroup'
     queryset = VLANGroup.objects.select_related('site').annotate(vlan_count=Count('vlans'))
     filter = filters.VLANGroupFilter
     filter_form = forms.VLANGroupFilterForm
@@ -822,7 +835,9 @@ class VLANGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
     default_return_url = 'ipam:vlangroup_list'
 
 
-class VLANGroupVLANsView(View):
+class VLANGroupVLANsView(PermissionRequiredMixin, View):
+    permission_required = 'ipam.view_vlangroup'
+
     def get(self, request, pk):
 
         vlan_group = get_object_or_404(VLANGroup.objects.all(), pk=pk)
@@ -861,7 +876,8 @@ class VLANGroupVLANsView(View):
 # VLANs
 #
 
-class VLANListView(ObjectListView):
+class VLANListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'ipam.view_vlan'
     queryset = VLAN.objects.select_related('site', 'group', 'tenant', 'role').prefetch_related('prefixes')
     filter = filters.VLANFilter
     filter_form = forms.VLANFilterForm
@@ -869,7 +885,8 @@ class VLANListView(ObjectListView):
     template_name = 'ipam/vlan_list.html'
 
 
-class VLANView(View):
+class VLANView(PermissionRequiredMixin, View):
+    permission_required = 'ipam.view_vlan'
 
     def get(self, request, pk):
 
@@ -886,7 +903,8 @@ class VLANView(View):
         })
 
 
-class VLANMembersView(View):
+class VLANMembersView(PermissionRequiredMixin, View):
+    permission_required = 'ipam.view_vlan'
 
     def get(self, request, pk):
 
@@ -954,7 +972,8 @@ class VLANBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Services
 #
 
-class ServiceListView(ObjectListView):
+class ServiceListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'ipam.view_service'
     queryset = Service.objects.select_related('device', 'virtual_machine')
     filter = filters.ServiceFilter
     filter_form = forms.ServiceFilterForm
@@ -962,7 +981,8 @@ class ServiceListView(ObjectListView):
     template_name = 'ipam/service_list.html'
 
 
-class ServiceView(View):
+class ServiceView(PermissionRequiredMixin, View):
+    permission_required = 'ipam.view_service'
 
     def get(self, request, pk):
 

@@ -3,7 +3,7 @@ from django.db import models
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
-from extras.models import CustomFieldModel
+from extras.models import CustomFieldModel, TaggedItem
 from utilities.models import ChangeLoggedModel
 
 
@@ -70,7 +70,7 @@ class Tenant(ChangeLoggedModel, CustomFieldModel):
         object_id_field='obj_id'
     )
 
-    tags = TaggableManager()
+    tags = TaggableManager(through=TaggedItem)
 
     csv_headers = ['name', 'slug', 'group', 'description', 'comments']
 

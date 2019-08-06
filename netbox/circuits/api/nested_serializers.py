@@ -17,10 +17,11 @@ __all__ = [
 
 class NestedProviderSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provider-detail')
+    circuit_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Provider
-        fields = ['id', 'url', 'name', 'slug']
+        fields = ['id', 'url', 'name', 'slug', 'circuit_count']
 
 
 #
@@ -29,10 +30,11 @@ class NestedProviderSerializer(WritableNestedSerializer):
 
 class NestedCircuitTypeSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittype-detail')
+    circuit_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = CircuitType
-        fields = ['id', 'url', 'name', 'slug']
+        fields = ['id', 'url', 'name', 'slug', 'circuit_count']
 
 
 class NestedCircuitSerializer(WritableNestedSerializer):

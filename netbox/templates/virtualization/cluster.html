@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load custom_links %}
 {% load helpers %}
 
 {% block header %}
@@ -32,7 +33,7 @@
                 Edit this cluster
             </a>
         {% endif %}
-        {% if perms.dcim.delete_cluster %}
+        {% if perms.virtualization.delete_cluster %}
             <a href="{% url 'virtualization:cluster_delete' pk=cluster.pk %}" class="btn btn-danger">
                 <span class="fa fa-trash" aria-hidden="true"></span>
                 Delete this cluster
@@ -41,13 +42,18 @@
     </div>
     <h1>{% block title %}{{ cluster }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=cluster %}
+    <div class="pull-right noprint">
+        {% custom_links cluster %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ cluster.get_absolute_url }}">Cluster</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'virtualization:cluster_changelog' pk=cluster.pk %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'virtualization:cluster_changelog' pk=cluster.pk %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

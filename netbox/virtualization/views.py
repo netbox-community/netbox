@@ -22,7 +22,8 @@ from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 # Cluster types
 #
 
-class ClusterTypeListView(ObjectListView):
+class ClusterTypeListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'virtualization.view_clustertype'
     queryset = ClusterType.objects.annotate(cluster_count=Count('clusters'))
     table = tables.ClusterTypeTable
     template_name = 'virtualization/clustertype_list.html'
@@ -57,7 +58,8 @@ class ClusterTypeBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Cluster groups
 #
 
-class ClusterGroupListView(ObjectListView):
+class ClusterGroupListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'virtualization.view_clustergroup'
     queryset = ClusterGroup.objects.annotate(cluster_count=Count('clusters'))
     table = tables.ClusterGroupTable
     template_name = 'virtualization/clustergroup_list.html'
@@ -92,7 +94,8 @@ class ClusterGroupBulkDeleteView(PermissionRequiredMixin, BulkDeleteView):
 # Clusters
 #
 
-class ClusterListView(ObjectListView):
+class ClusterListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'virtualization.view_cluster'
     queryset = Cluster.objects.select_related('type', 'group', 'site')
     table = tables.ClusterTable
     filter = filters.ClusterFilter
@@ -100,7 +103,8 @@ class ClusterListView(ObjectListView):
     template_name = 'virtualization/cluster_list.html'
 
 
-class ClusterView(View):
+class ClusterView(PermissionRequiredMixin, View):
+    permission_required = 'virtualization.view_cluster'
 
     def get(self, request, pk):
 
@@ -247,7 +251,8 @@ class ClusterRemoveDevicesView(PermissionRequiredMixin, View):
 # Virtual machines
 #
 
-class VirtualMachineListView(ObjectListView):
+class VirtualMachineListView(PermissionRequiredMixin, ObjectListView):
+    permission_required = 'virtualization.view_virtualmachine'
     queryset = VirtualMachine.objects.select_related('cluster', 'tenant', 'role', 'primary_ip4', 'primary_ip6')
     filter = filters.VirtualMachineFilter
     filter_form = forms.VirtualMachineFilterForm
@@ -255,7 +260,8 @@ class VirtualMachineListView(ObjectListView):
     template_name = 'virtualization/virtualmachine_list.html'
 
 
-class VirtualMachineView(View):
+class VirtualMachineView(PermissionRequiredMixin, View):
+    permission_required = 'virtualization.view_virtualmachine'
 
     def get(self, request, pk):
 
@@ -270,7 +276,8 @@ class VirtualMachineView(View):
         })
 
 
-class VirtualMachineConfigContextView(ObjectConfigContextView):
+class VirtualMachineConfigContextView(PermissionRequiredMixin, ObjectConfigContextView):
+    permission_required = 'virtualization.view_virtualmachine'
     object_class = VirtualMachine
     base_template = 'virtualization/virtualmachine.html'
 

@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load custom_links %}
 {% load helpers %}
 
 {% block header %}
@@ -41,13 +42,18 @@
     </div>
     <h1>{% block title %}{{ ipaddress }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=ipaddress %}
+    <div class="pull-right noprint">
+        {% custom_links ipaddress %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ ipaddress.get_absolute_url }}">IP Address</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'ipam:ipaddress_changelog' pk=ipaddress.pk %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'ipam:ipaddress_changelog' pk=ipaddress.pk %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 
@@ -102,6 +108,10 @@
                             <span class="text-muted">None</span>
                         {% endif %}
                     </td>
+                </tr>
+                <tr>
+                    <td>DNS Name</td>
+                    <td>{{ ipaddress.dns_name|placeholder }}</td>
                 </tr>
                 <tr>
                     <td>Description</td>

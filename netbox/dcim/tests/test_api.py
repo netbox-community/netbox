@@ -7,8 +7,8 @@ from dcim.constants import *
 from dcim.models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, Interface, InterfaceTemplate, Manufacturer,
-    InventoryItem, Platform, PowerPort, PowerPortTemplate, PowerOutlet, PowerOutletTemplate, Rack, RackGroup,
-    RackReservation, RackRole, RearPort, Region, Site, VirtualChassis,
+    InventoryItem, Platform, PowerFeed, PowerPort, PowerPortTemplate, PowerOutlet, PowerOutletTemplate, PowerPanel,
+    Rack, RackGroup, RackReservation, RackRole, RearPort, Region, Site, VirtualChassis,
 )
 from ipam.models import IPAddress, VLAN
 from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
@@ -47,7 +47,7 @@ class RegionTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['id', 'name', 'site_count', 'slug', 'url']
         )
 
     def test_create_region(self):
@@ -285,7 +285,7 @@ class RackGroupTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['id', 'name', 'rack_count', 'slug', 'url']
         )
 
     def test_create_rackgroup(self):
@@ -393,7 +393,7 @@ class RackRoleTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['id', 'name', 'rack_count', 'slug', 'url']
         )
 
     def test_create_rackrole(self):
@@ -520,7 +520,7 @@ class RackTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['display_name', 'id', 'name', 'url']
+            ['device_count', 'display_name', 'id', 'name', 'url']
         )
 
     def test_create_rack(self):
@@ -746,7 +746,7 @@ class ManufacturerTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['devicetype_count', 'id', 'name', 'slug', 'url']
         )
 
     def test_create_manufacturer(self):
@@ -855,7 +855,7 @@ class DeviceTypeTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['display_name', 'id', 'manufacturer', 'model', 'slug', 'url']
+            ['device_count', 'display_name', 'id', 'manufacturer', 'model', 'slug', 'url']
         )
 
     def test_create_devicetype(self):
@@ -1569,7 +1569,7 @@ class DeviceRoleTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['device_count', 'id', 'name', 'slug', 'url', 'virtualmachine_count']
         )
 
     def test_create_devicerole(self):
@@ -1677,7 +1677,7 @@ class PlatformTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['device_count', 'id', 'name', 'slug', 'url', 'virtualmachine_count']
         )
 
     def test_create_platform(self):
@@ -1791,6 +1791,16 @@ class DeviceTest(APITestCase):
             site=self.site1,
             cluster=self.cluster1
         )
+        self.device_with_context_data = Device.objects.create(
+            device_type=self.devicetype1,
+            device_role=self.devicerole1,
+            name='Device with context data',
+            site=self.site1,
+            local_context_data={
+                'A': 1,
+                'B': 2
+            }
+        )
 
     def test_get_device(self):
 
@@ -1806,7 +1816,7 @@ class DeviceTest(APITestCase):
         url = reverse('dcim-api:device-list')
         response = self.client.get(url, **self.header)
 
-        self.assertEqual(response.data['count'], 3)
+        self.assertEqual(response.data['count'], 4)
 
     def test_list_devices_brief(self):
 
@@ -1832,7 +1842,7 @@ class DeviceTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Device.objects.count(), 4)
+        self.assertEqual(Device.objects.count(), 5)
         device4 = Device.objects.get(pk=response.data['id'])
         self.assertEqual(device4.device_type_id, data['device_type'])
         self.assertEqual(device4.device_role_id, data['device_role'])
@@ -1867,7 +1877,7 @@ class DeviceTest(APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(Device.objects.count(), 6)
+        self.assertEqual(Device.objects.count(), 7)
         self.assertEqual(response.data[0]['name'], data[0]['name'])
         self.assertEqual(response.data[1]['name'], data[1]['name'])
         self.assertEqual(response.data[2]['name'], data[2]['name'])
@@ -1891,7 +1901,7 @@ class DeviceTest(APITestCase):
         response = self.client.put(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(Device.objects.count(), 3)
+        self.assertEqual(Device.objects.count(), 4)
         device1 = Device.objects.get(pk=response.data['id'])
         self.assertEqual(device1.device_type_id, data['device_type'])
         self.assertEqual(device1.device_role_id, data['device_role'])
@@ -1906,7 +1916,21 @@ class DeviceTest(APITestCase):
         response = self.client.delete(url, **self.header)
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Device.objects.count(), 2)
+        self.assertEqual(Device.objects.count(), 3)
+
+    def test_config_context_included_by_default_in_list_view(self):
+
+        url = reverse('dcim-api:device-list') + '?slug=device-with-context-data'
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['results'][0].get('config_context', {}).get('A'), 1)
+
+    def test_config_context_excluded(self):
+
+        url = reverse('dcim-api:device-list') + '?exclude=config_context'
+        response = self.client.get(url, **self.header)
+
+        self.assertFalse('config_context' in response.data['results'][0])
 
 
 class ConsolePortTest(APITestCase):
@@ -2529,7 +2553,7 @@ class InterfaceTest(APITestCase):
     def test_update_interface(self):
 
         lag_interface = Interface.objects.create(
-            device=self.device, name='Test LAG Interface', form_factor=IFACE_FF_LAG
+            device=self.device, name='Test LAG Interface', type=IFACE_TYPE_LAG
         )
 
         data = {
@@ -2817,7 +2841,7 @@ class CableTest(APITestCase):
         )
         for device in [self.device1, self.device2]:
             for i in range(0, 10):
-                Interface(device=device, form_factor=IFACE_FF_1GE_FIXED, name='eth{}'.format(i)).save()
+                Interface(device=device, type=IFACE_TYPE_1GE_FIXED, name='eth{}'.format(i)).save()
 
         self.cable1 = Cable(
             termination_a=self.device1.interfaces.get(name='eth0'),
@@ -3386,23 +3410,23 @@ class VirtualChassisTest(APITestCase):
             device_type=device_type, device_role=device_role, name='StackSwitch9', site=site
         )
         for i in range(0, 13):
-            Interface.objects.create(device=self.device1, name='1/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+            Interface.objects.create(device=self.device1, name='1/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device2, name='2/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+            Interface.objects.create(device=self.device2, name='2/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device3, name='3/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+            Interface.objects.create(device=self.device3, name='3/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device4, name='1/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+            Interface.objects.create(device=self.device4, name='1/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device5, name='2/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+            Interface.objects.create(device=self.device5, name='2/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device6, name='3/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+            Interface.objects.create(device=self.device6, name='3/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device7, name='1/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+            Interface.objects.create(device=self.device7, name='1/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device8, name='2/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+            Interface.objects.create(device=self.device8, name='2/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
         for i in range(0, 13):
-            Interface.objects.create(device=self.device9, name='3/{}'.format(i), form_factor=IFACE_FF_1GE_FIXED)
+            Interface.objects.create(device=self.device9, name='3/{}'.format(i), type=IFACE_TYPE_1GE_FIXED)
 
         # Create two VirtualChassis with three members each
         self.vc1 = VirtualChassis.objects.create(master=self.device1, domain='test-domain-1')
@@ -3433,7 +3457,7 @@ class VirtualChassisTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'master', 'url']
+            ['id', 'master', 'member_count', 'url']
         )
 
     def test_create_virtualchassis(self):
@@ -3508,3 +3532,260 @@ class VirtualChassisTest(APITestCase):
             self.assertTrue(
                 Device.objects.filter(pk=d.pk, virtual_chassis=None, vc_position=None, vc_priority=None)
             )
+
+
+class PowerPanelTest(APITestCase):
+
+    def setUp(self):
+
+        super().setUp()
+
+        self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        self.rackgroup1 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 1', slug='test-rack-group-1')
+        self.rackgroup2 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 2', slug='test-rack-group-2')
+        self.rackgroup3 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 3', slug='test-rack-group-3')
+        self.powerpanel1 = PowerPanel.objects.create(
+            site=self.site1, rack_group=self.rackgroup1, name='Test Power Panel 1'
+        )
+        self.powerpanel2 = PowerPanel.objects.create(
+            site=self.site1, rack_group=self.rackgroup2, name='Test Power Panel 2'
+        )
+        self.powerpanel3 = PowerPanel.objects.create(
+            site=self.site1, rack_group=self.rackgroup3, name='Test Power Panel 3'
+        )
+
+    def test_get_powerpanel(self):
+
+        url = reverse('dcim-api:powerpanel-detail', kwargs={'pk': self.powerpanel1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.powerpanel1.name)
+
+    def test_list_powerpanels(self):
+
+        url = reverse('dcim-api:powerpanel-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 3)
+
+    def test_list_powerpanels_brief(self):
+
+        url = reverse('dcim-api:powerpanel-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'powerfeed_count', 'url']
+        )
+
+    def test_create_powerpanel(self):
+
+        data = {
+            'name': 'Test Power Panel 4',
+            'site': self.site1.pk,
+            'rack_group': self.rackgroup1.pk,
+        }
+
+        url = reverse('dcim-api:powerpanel-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(PowerPanel.objects.count(), 4)
+        powerpanel4 = PowerPanel.objects.get(pk=response.data['id'])
+        self.assertEqual(powerpanel4.name, data['name'])
+        self.assertEqual(powerpanel4.site_id, data['site'])
+        self.assertEqual(powerpanel4.rack_group_id, data['rack_group'])
+
+    def test_create_powerpanel_bulk(self):
+
+        data = [
+            {
+                'name': 'Test Power Panel 4',
+                'site': self.site1.pk,
+                'rack_group': self.rackgroup1.pk,
+            },
+            {
+                'name': 'Test Power Panel 5',
+                'site': self.site1.pk,
+                'rack_group': self.rackgroup2.pk,
+            },
+            {
+                'name': 'Test Power Panel 6',
+                'site': self.site1.pk,
+                'rack_group': self.rackgroup3.pk,
+            },
+        ]
+
+        url = reverse('dcim-api:powerpanel-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(PowerPanel.objects.count(), 6)
+        self.assertEqual(response.data[0]['name'], data[0]['name'])
+        self.assertEqual(response.data[1]['name'], data[1]['name'])
+        self.assertEqual(response.data[2]['name'], data[2]['name'])
+
+    def test_update_powerpanel(self):
+
+        data = {
+            'name': 'Test Power Panel X',
+            'rack_group': self.rackgroup2.pk,
+        }
+
+        url = reverse('dcim-api:powerpanel-detail', kwargs={'pk': self.powerpanel1.pk})
+        response = self.client.patch(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(PowerPanel.objects.count(), 3)
+        powerpanel1 = PowerPanel.objects.get(pk=response.data['id'])
+        self.assertEqual(powerpanel1.name, data['name'])
+        self.assertEqual(powerpanel1.rack_group_id, data['rack_group'])
+
+    def test_delete_powerpanel(self):
+
+        url = reverse('dcim-api:powerpanel-detail', kwargs={'pk': self.powerpanel1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(PowerPanel.objects.count(), 2)
+
+
+class PowerFeedTest(APITestCase):
+
+    def setUp(self):
+
+        super().setUp()
+
+        self.site1 = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        self.rackgroup1 = RackGroup.objects.create(site=self.site1, name='Test Rack Group 1', slug='test-rack-group-1')
+        self.rackrole1 = RackRole.objects.create(name='Test Rack Role 1', slug='test-rack-role-1', color='ff0000')
+        self.rack1 = Rack.objects.create(
+            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 1', u_height=42,
+        )
+        self.rack2 = Rack.objects.create(
+            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 2', u_height=42,
+        )
+        self.rack3 = Rack.objects.create(
+            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 3', u_height=42,
+        )
+        self.rack4 = Rack.objects.create(
+            site=self.site1, group=self.rackgroup1, role=self.rackrole1, name='Test Rack 4', u_height=42,
+        )
+        self.powerpanel1 = PowerPanel.objects.create(
+            site=self.site1, rack_group=self.rackgroup1, name='Test Power Panel 1'
+        )
+        self.powerpanel2 = PowerPanel.objects.create(
+            site=self.site1, rack_group=self.rackgroup1, name='Test Power Panel 2'
+        )
+        self.powerfeed1 = PowerFeed.objects.create(
+            power_panel=self.powerpanel1, rack=self.rack1, name='Test Power Feed 1A', type=POWERFEED_TYPE_PRIMARY
+        )
+        self.powerfeed2 = PowerFeed.objects.create(
+            power_panel=self.powerpanel2, rack=self.rack1, name='Test Power Feed 1B', type=POWERFEED_TYPE_REDUNDANT
+        )
+        self.powerfeed3 = PowerFeed.objects.create(
+            power_panel=self.powerpanel1, rack=self.rack2, name='Test Power Feed 2A', type=POWERFEED_TYPE_PRIMARY
+        )
+        self.powerfeed4 = PowerFeed.objects.create(
+            power_panel=self.powerpanel2, rack=self.rack2, name='Test Power Feed 2B', type=POWERFEED_TYPE_REDUNDANT
+        )
+        self.powerfeed5 = PowerFeed.objects.create(
+            power_panel=self.powerpanel1, rack=self.rack3, name='Test Power Feed 3A', type=POWERFEED_TYPE_PRIMARY
+        )
+        self.powerfeed6 = PowerFeed.objects.create(
+            power_panel=self.powerpanel2, rack=self.rack3, name='Test Power Feed 3B', type=POWERFEED_TYPE_REDUNDANT
+        )
+
+    def test_get_powerfeed(self):
+
+        url = reverse('dcim-api:powerfeed-detail', kwargs={'pk': self.powerfeed1.pk})
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['name'], self.powerfeed1.name)
+
+    def test_list_powerfeeds(self):
+
+        url = reverse('dcim-api:powerfeed-list')
+        response = self.client.get(url, **self.header)
+
+        self.assertEqual(response.data['count'], 6)
+
+    def test_list_powerfeeds_brief(self):
+
+        url = reverse('dcim-api:powerfeed-list')
+        response = self.client.get('{}?brief=1'.format(url), **self.header)
+
+        self.assertEqual(
+            sorted(response.data['results'][0]),
+            ['id', 'name', 'url']
+        )
+
+    def test_create_powerfeed(self):
+
+        data = {
+            'name': 'Test Power Feed 4A',
+            'power_panel': self.powerpanel1.pk,
+            'rack': self.rack4.pk,
+            'type': POWERFEED_TYPE_PRIMARY,
+        }
+
+        url = reverse('dcim-api:powerfeed-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(PowerFeed.objects.count(), 7)
+        powerfeed4 = PowerFeed.objects.get(pk=response.data['id'])
+        self.assertEqual(powerfeed4.name, data['name'])
+        self.assertEqual(powerfeed4.power_panel_id, data['power_panel'])
+        self.assertEqual(powerfeed4.rack_id, data['rack'])
+
+    def test_create_powerfeed_bulk(self):
+
+        data = [
+            {
+                'name': 'Test Power Feed 4A',
+                'power_panel': self.powerpanel1.pk,
+                'rack': self.rack4.pk,
+                'type': POWERFEED_TYPE_PRIMARY,
+            },
+            {
+                'name': 'Test Power Feed 4B',
+                'power_panel': self.powerpanel1.pk,
+                'rack': self.rack4.pk,
+                'type': POWERFEED_TYPE_REDUNDANT,
+            },
+        ]
+
+        url = reverse('dcim-api:powerfeed-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(PowerFeed.objects.count(), 8)
+        self.assertEqual(response.data[0]['name'], data[0]['name'])
+        self.assertEqual(response.data[1]['name'], data[1]['name'])
+
+    def test_update_powerfeed(self):
+
+        data = {
+            'name': 'Test Power Feed X',
+            'rack': self.rack4.pk,
+            'type': POWERFEED_TYPE_REDUNDANT,
+        }
+
+        url = reverse('dcim-api:powerfeed-detail', kwargs={'pk': self.powerfeed1.pk})
+        response = self.client.patch(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(PowerFeed.objects.count(), 6)
+        powerfeed1 = PowerFeed.objects.get(pk=response.data['id'])
+        self.assertEqual(powerfeed1.name, data['name'])
+        self.assertEqual(powerfeed1.rack_id, data['rack'])
+        self.assertEqual(powerfeed1.type, data['type'])
+
+    def test_delete_powerfeed(self):
+
+        url = reverse('dcim-api:powerfeed-detail', kwargs={'pk': self.powerfeed1.pk})
+        response = self.client.delete(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(PowerFeed.objects.count(), 5)

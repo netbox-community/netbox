@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load custom_links %}
 {% load helpers %}
 
 {% block header %}
@@ -41,13 +42,18 @@
     </div>
     <h1>{% block title %}{{ tenant }}{% endblock %}</h1>
     {% include 'inc/created_updated.html' with obj=tenant %}
+    <div class="pull-right noprint">
+        {% custom_links tenant %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ tenant.get_absolute_url }}">Tenant</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'tenancy:tenant_changelog' slug=tenant.slug %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'tenancy:tenant_changelog' slug=tenant.slug %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

@@ -1,7 +1,7 @@
 # Migration
 
 !!! warning
-    Beginning with v2.5, NetBox will no longer support Python 2. It is strongly recommended that you upgrade to Python 3 as soon as possible.
+    As of version 2.5, NetBox no longer supports Python 2. Python 3 is required to run any 2.5 release or later.
 
 ## Ubuntu
 
@@ -35,10 +35,4 @@ If using LDAP authentication, install the `django-auth-ldap` package:
 
 ```no-highlight
 # pip3 install django-auth-ldap
-```
-
-If using Webhooks, install the `django-rq` package:
-
-```no-highlight
-# pip3 install django-rq
 ```

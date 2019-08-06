@@ -5,14 +5,10 @@
 # Once the script completes, remember to restart the WSGI service (e.g.
 # gunicorn or uWSGI).
 
+cd "$(dirname "$0")"
+
 PYTHON="python3"
 PIP="pip3"
-
-# TODO: Remove this in v2.6 as it is no longer needed under Python 3
-# Delete stale bytecode
-COMMAND="find . -name \"*.pyc\" -delete"
-echo "Cleaning up stale Python bytecode ($COMMAND)..."
-eval $COMMAND
 
 # Uninstall any Python packages which are no longer needed
 COMMAND="${PIP} uninstall -r old_requirements.txt -y"

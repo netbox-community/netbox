@@ -1,21 +1,22 @@
 import urllib.parse
 
-from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from dcim.constants import CABLE_TYPE_CAT6, IFACE_FF_1GE_FIXED
+from dcim.constants import CABLE_TYPE_CAT6, IFACE_TYPE_1GE_FIXED
 from dcim.models import (
     Cable, Device, DeviceRole, DeviceType, Interface, InventoryItem, Manufacturer, Platform, Rack, RackGroup,
     RackReservation, RackRole, Site, Region, VirtualChassis,
 )
+from utilities.testing import create_test_user
 
 
 class RegionTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['dcim.view_region'])
         self.client = Client()
+        self.client.force_login(user)
 
         # Create three Regions
         for i in range(1, 4):
@@ -32,8 +33,9 @@ class RegionTestCase(TestCase):
 class SiteTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['dcim.view_site'])
         self.client = Client()
+        self.client.force_login(user)
 
         region = Region(name='Region 1', slug='region-1')
         region.save()
@@ -64,8 +66,9 @@ class SiteTestCase(TestCase):
 class RackGroupTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['dcim.view_rackgroup'])
         self.client = Client()
+        self.client.force_login(user)
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -84,11 +87,12 @@ class RackGroupTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class RackTypeTestCase(TestCase):
+class RackRoleTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['dcim.view_rackrole'])
         self.client = Client()
+        self.client.force_login(user)
 
         RackRole.objects.bulk_create([
             RackRole(name='Rack Role 1', slug='rack-role-1'),
@@ -107,12 +111,9 @@ class RackTypeTestCase(TestCase):
 class RackReservationTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['dcim.view_rackreservation'])
         self.client = Client()
-
-        User = get_user_model()
-        user = User(username='testuser', email='testuser@example.com')
-        user.save()
+        self.client.force_login(user)
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -137,8 +138,9 @@ class RackReservationTestCase(TestCase):
 class RackTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['dcim.view_rack'])
         self.client = Client()
+        self.client.force_login(user)
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -169,8 +171,9 @@ class RackTestCase(TestCase):
 class ManufacturerTypeTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['dcim.view_manufacturer'])
         self.client = Client()
+        self.client.force_login(user)
 
         Manufacturer.objects.bulk_create([
             Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
@@ -189,8 +192,9 @@ class ManufacturerTypeTestCase(TestCase):
 class DeviceTypeTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['dcim.view_devicetype'])
         self.client = Client()
+        self.client.force_login(user)
 
         manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
         manufacturer.save()
@@ -221,8 +225,9 @@ class DeviceTypeTestCase(TestCase):
 class DeviceRoleTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['dcim.view_devicerole'])
         self.client = Client()
+        self.client.force_login(user)
 
         DeviceRole.objects.bulk_create([
             DeviceRole(name='Device Role 1', slug='device-role-1'),
@@ -241,8 +246,9 @@ class DeviceRoleTestCase(TestCase):
 class PlatformTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['dcim.view_platform'])
         self.client = Client()
+        self.client.force_login(user)
 
         Platform.objects.bulk_create([
             Platform(name='Platform 1', slug='platform-1'),
@@ -261,8 +267,9 @@ class PlatformTestCase(TestCase):
 class DeviceTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['dcim.view_device'])
         self.client = Client()
+        self.client.force_login(user)
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -303,8 +310,9 @@ class DeviceTestCase(TestCase):
 class InventoryItemTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['dcim.view_inventoryitem'])
         self.client = Client()
+        self.client.force_login(user)
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -337,18 +345,13 @@ class InventoryItemTestCase(TestCase):
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
         self.assertEqual(response.status_code, 200)
 
-    def test_inventoryitem(self):
-
-        inventoryitem = InventoryItem.objects.first()
-        response = self.client.get(inventoryitem.get_absolute_url())
-        self.assertEqual(response.status_code, 200)
-
 
 class CableTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['dcim.view_cable'])
         self.client = Client()
+        self.client.force_login(user)
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -367,17 +370,17 @@ class CableTestCase(TestCase):
         device2 = Device(name='Device 2', site=site, device_type=devicetype, device_role=devicerole)
         device2.save()
 
-        iface1 = Interface(device=device1, name='Interface 1', form_factor=IFACE_FF_1GE_FIXED)
+        iface1 = Interface(device=device1, name='Interface 1', type=IFACE_TYPE_1GE_FIXED)
         iface1.save()
-        iface2 = Interface(device=device1, name='Interface 2', form_factor=IFACE_FF_1GE_FIXED)
+        iface2 = Interface(device=device1, name='Interface 2', type=IFACE_TYPE_1GE_FIXED)
         iface2.save()
-        iface3 = Interface(device=device1, name='Interface 3', form_factor=IFACE_FF_1GE_FIXED)
+        iface3 = Interface(device=device1, name='Interface 3', type=IFACE_TYPE_1GE_FIXED)
         iface3.save()
-        iface4 = Interface(device=device2, name='Interface 1', form_factor=IFACE_FF_1GE_FIXED)
+        iface4 = Interface(device=device2, name='Interface 1', type=IFACE_TYPE_1GE_FIXED)
         iface4.save()
-        iface5 = Interface(device=device2, name='Interface 2', form_factor=IFACE_FF_1GE_FIXED)
+        iface5 = Interface(device=device2, name='Interface 2', type=IFACE_TYPE_1GE_FIXED)
         iface5.save()
-        iface6 = Interface(device=device2, name='Interface 3', form_factor=IFACE_FF_1GE_FIXED)
+        iface6 = Interface(device=device2, name='Interface 3', type=IFACE_TYPE_1GE_FIXED)
         iface6.save()
 
         Cable(termination_a=iface1, termination_b=iface4, type=CABLE_TYPE_CAT6).save()
@@ -401,11 +404,12 @@ class CableTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class VirtualMachineTestCase(TestCase):
+class VirtualChassisTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['dcim.view_virtualchassis'])
         self.client = Client()
+        self.client.force_login(user)
 
         site = Site.objects.create(name='Site 1', slug='site-1')
         manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer-1')
@@ -449,10 +453,4 @@ class VirtualMachineTestCase(TestCase):
         url = reverse('dcim:virtualchassis_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-
-    def test_virtualchassis(self):
-
-        virtualchassis = VirtualChassis.objects.first()
-        response = self.client.get(virtualchassis.get_absolute_url())
         self.assertEqual(response.status_code, 200)

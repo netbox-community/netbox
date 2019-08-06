@@ -1,3 +1,5 @@
+import json
+
 from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
@@ -39,7 +41,7 @@ class VRFTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'rd', 'url']
+            ['id', 'name', 'prefix_count', 'rd', 'url']
         )
 
     def test_create_vrf(self):
@@ -147,7 +149,7 @@ class RIRTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['aggregate_count', 'id', 'name', 'slug', 'url']
         )
 
     def test_create_rir(self):
@@ -351,7 +353,7 @@ class RoleTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['id', 'name', 'prefix_count', 'slug', 'url', 'vlan_count']
         )
 
     def test_create_role(self):
@@ -790,7 +792,7 @@ class VLANGroupTest(APITestCase):
 
         self.assertEqual(
             sorted(response.data['results'][0]),
-            ['id', 'name', 'slug', 'url']
+            ['id', 'name', 'slug', 'url', 'vlan_count']
         )
 
     def test_create_vlangroup(self):
@@ -869,6 +871,8 @@ class VLANTest(APITestCase):
         self.vlan1 = VLAN.objects.create(vid=1, name='Test VLAN 1')
         self.vlan2 = VLAN.objects.create(vid=2, name='Test VLAN 2')
         self.vlan3 = VLAN.objects.create(vid=3, name='Test VLAN 3')
+
+        self.prefix1 = Prefix.objects.create(prefix=IPNetwork('192.168.1.0/24'))
 
     def test_get_vlan(self):
 
@@ -959,6 +963,20 @@ class VLANTest(APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertEqual(VLAN.objects.count(), 2)
+
+    def test_delete_vlan_with_prefix(self):
+        self.prefix1.vlan = self.vlan1
+        self.prefix1.save()
+
+        url = reverse('ipam-api:vlan-detail', kwargs={'pk': self.vlan1.pk})
+        response = self.client.delete(url, **self.header)
+
+        # can't use assertHttpStatus here because we don't have response.data
+        self.assertEqual(response.status_code, 409)
+
+        content = json.loads(response.content.decode('utf-8'))
+        self.assertIn('detail', content)
+        self.assertTrue(content['detail'].startswith('Unable to delete object.'))
 
 
 class ServiceTest(APITestCase):

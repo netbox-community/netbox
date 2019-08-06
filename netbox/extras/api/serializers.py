@@ -1,7 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
-from taggit.models import Tag
 
 from dcim.api.nested_serializers import (
     NestedDeviceSerializer, NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedRackSerializer,
@@ -11,6 +11,7 @@ from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site
 from extras.constants import *
 from extras.models import (
     ConfigContext, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
+    Tag
 )
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
@@ -89,7 +90,7 @@ class TagSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'slug', 'tagged_items']
+        fields = ['id', 'name', 'slug', 'color', 'comments', 'tagged_items']
 
 
 #
@@ -123,6 +124,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 
         return data
 
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_parent(self, obj):
 
         # Static mapping of models to their nested serializers
@@ -237,6 +239,7 @@ class ObjectChangeSerializer(serializers.ModelSerializer):
             'object_data',
         ]
 
+    @swagger_serializer_method(serializer_or_field=serializers.DictField)
     def get_changed_object(self, obj):
         """
         Serialize a nested representation of the changed object.

@@ -11,10 +11,10 @@ class SecretRoleFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = SecretRole
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
 
-class SecretFilter(CustomFieldFilterSet, django_filters.FilterSet):
+class SecretFilter(CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'

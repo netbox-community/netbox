@@ -3,14 +3,16 @@ import urllib.parse
 from django.test import Client, TestCase
 from django.urls import reverse
 
+from utilities.testing import create_test_user
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
 class ClusterGroupTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['virtualization.view_clustergroup'])
         self.client = Client()
+        self.client.force_login(user)
 
         ClusterGroup.objects.bulk_create([
             ClusterGroup(name='Cluster Group 1', slug='cluster-group-1'),
@@ -29,8 +31,9 @@ class ClusterGroupTestCase(TestCase):
 class ClusterTypeTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['virtualization.view_clustertype'])
         self.client = Client()
+        self.client.force_login(user)
 
         ClusterType.objects.bulk_create([
             ClusterType(name='Cluster Type 1', slug='cluster-type-1'),
@@ -49,8 +52,9 @@ class ClusterTypeTestCase(TestCase):
 class ClusterTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['virtualization.view_cluster'])
         self.client = Client()
+        self.client.force_login(user)
 
         clustergroup = ClusterGroup(name='Cluster Group 1', slug='cluster-group-1')
         clustergroup.save()
@@ -85,8 +89,9 @@ class ClusterTestCase(TestCase):
 class VirtualMachineTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['virtualization.view_virtualmachine'])
         self.client = Client()
+        self.client.force_login(user)
 
         clustertype = ClusterType(name='Cluster Type 1', slug='cluster-type-1')
         clustertype.save()

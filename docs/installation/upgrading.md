@@ -4,12 +4,12 @@ As with the initial installation, you can upgrade NetBox by either downloading t
 
 ## Option A: Download a Release
 
-Download the [latest stable release](https://github.com/digitalocean/netbox/releases) from GitHub as a tarball or ZIP archive. Extract it to your desired path. In this example, we'll use `/opt/netbox`.
+Download the [latest stable release](https://github.com/netbox-community/netbox/releases) from GitHub as a tarball or ZIP archive. Extract it to your desired path. In this example, we'll use `/opt/netbox`.
 
 Download and extract the latest version:
 
 ```no-highlight
-# wget https://github.com/digitalocean/netbox/archive/vX.Y.Z.tar.gz
+# wget https://github.com/netbox-community/netbox/archive/vX.Y.Z.tar.gz
 # tar -xzf vX.Y.Z.tar.gz -C /opt
 # cd /opt/
 # ln -sfn netbox-X.Y.Z/ netbox

@@ -1,25 +1,19 @@
 import urllib.parse
 
-from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from secrets.models import Secret, SecretRole
+from utilities.testing import create_test_user
 
 
 class SecretRoleTestCase(TestCase):
 
     def setUp(self):
-
-        TEST_USERNAME = 'testuser'
-        TEST_PASSWORD = 'testpassword'
-
-        User = get_user_model()
-        User.objects.create(username=TEST_USERNAME, email='testuser@example.com', password=TEST_PASSWORD)
-
+        user = create_test_user(permissions=['secrets.view_secretrole'])
         self.client = Client()
-        self.client.login(username=TEST_USERNAME, password=TEST_PASSWORD)
+        self.client.force_login(user)
 
         SecretRole.objects.bulk_create([
             SecretRole(name='Secret Role 1', slug='secret-role-1'),
@@ -29,7 +23,7 @@ class SecretRoleTestCase(TestCase):
 
     def test_secretrole_list(self):
 
-        url = reverse('secrets:secret_list')
+        url = reverse('secrets:secretrole_list')
 
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -38,8 +32,9 @@ class SecretRoleTestCase(TestCase):
 class SecretTestCase(TestCase):
 
     def setUp(self):
-
+        user = create_test_user(permissions=['secrets.view_secret'])
         self.client = Client()
+        self.client.force_login(user)
 
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -75,7 +70,7 @@ class SecretTestCase(TestCase):
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)), follow=True)
         self.assertEqual(response.status_code, 200)
 
-    def test_configcontext(self):
+    def test_secret(self):
 
         secret = Secret.objects.first()
         response = self.client.get(secret.get_absolute_url(), follow=True)

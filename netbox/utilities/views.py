@@ -1,5 +1,4 @@
 import sys
-from collections import OrderedDict
 from copy import deepcopy
 
 from django.conf import settings
@@ -12,7 +11,7 @@ from django.forms import CharField, Form, ModelMultipleChoiceField, MultipleHidd
 from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
-from django.template.exceptions import TemplateDoesNotExist, TemplateSyntaxError
+from django.template.exceptions import TemplateDoesNotExist
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.http import is_safe_url
@@ -23,28 +22,12 @@ from django.views.generic import View
 from django_tables2 import RequestConfig
 
 from extras.models import CustomField, CustomFieldValue, ExportTemplate
+from extras.querysets import CustomFieldQueryset
 from utilities.forms import BootstrapMixin, CSVDataField
 from utilities.utils import csv_format
 from .error_handlers import handle_protectederror
 from .forms import ConfirmationForm
 from .paginator import EnhancedPaginator
-
-
-class CustomFieldQueryset:
-    """
-    Annotate custom fields on objects within a QuerySet.
-    """
-
-    def __init__(self, queryset, custom_fields):
-        self.queryset = queryset
-        self.model = queryset.model
-        self.custom_fields = custom_fields
-
-    def __iter__(self):
-        for obj in self.queryset:
-            values_dict = {cfv.field_id: cfv.value for cfv in obj.custom_field_values.all()}
-            obj.custom_fields = OrderedDict([(field, values_dict.get(field.pk)) for field in self.custom_fields])
-            yield obj
 
 
 class GetReturnURLMixin(object):
@@ -115,8 +98,9 @@ class ObjectListView(View):
             self.queryset = self.filter(request.GET, self.queryset).qs
 
         # If this type of object has one or more custom fields, prefetch any relevant custom field values
-        custom_fields = CustomField.objects.filter(obj_type=ContentType.objects.get_for_model(model))\
-            .prefetch_related('choices')
+        custom_fields = CustomField.objects.filter(
+            obj_type=ContentType.objects.get_for_model(model)
+        ).prefetch_related('choices')
         if custom_fields:
             self.queryset = self.queryset.prefetch_related('custom_field_values')
 
@@ -126,10 +110,12 @@ class ObjectListView(View):
             queryset = CustomFieldQueryset(self.queryset, custom_fields) if custom_fields else self.queryset
             try:
                 return et.render_to_response(queryset)
-            except TemplateSyntaxError:
+            except Exception as e:
                 messages.error(
                     request,
-                    "There was an error rendering the selected export template ({}).".format(et.name)
+                    "There was an error rendering the selected export template ({}): {}".format(
+                        et.name, e
+                    )
                 )
 
         # Fall back to built-in CSV formatting if export requested but no template specified
@@ -157,7 +143,7 @@ class ObjectListView(View):
 
         # Construct queryset for tags list
         if hasattr(model, 'tags'):
-            tags = model.tags.annotate(count=Count('taggit_taggeditem_items')).order_by('name')
+            tags = model.tags.annotate(count=Count('extras_taggeditem_items')).order_by('name')
         else:
             tags = None
 

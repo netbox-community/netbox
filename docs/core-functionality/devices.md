@@ -81,7 +81,7 @@ Power ports connect only to power outlets. Power connections can be marked as ei
 
 Interfaces connect to one another in a symmetric manner: If interface A connects to interface B, interface B therefore connects to interface A. Each type of connection can be classified as either *planned* or *connected*.
 
-Each interface is a assigned a form factor denoting its physical properties. Two special form factors exist: the "virtual" form factor can be used to designate logical interfaces (such as SVIs), and the "LAG" form factor can be used to desinate link aggregation groups to which physical interfaces can be assigned.
+Each interface is a assigned a type denoting its physical properties. Two special types exist: the "virtual" type can be used to designate logical interfaces (such as SVIs), and the "LAG" type can be used to desinate link aggregation groups to which physical interfaces can be assigned.
 
 Each interface can also be enabled or disabled, and optionally designated as management-only (for out-of-band management). Fields are also provided to store an interface's MTU and MAC address.
 
@@ -95,7 +95,7 @@ Pass-through ports can also be used to model "bump in the wire" devices, such as
 
 ### Device Bays
 
-Device bays represent the ability of a device to house child devices. For example, you might install four blade servers into a 2U chassis. The chassis would appear in the rack elevation as a 2U device with four device bays. Each server within it would be defined as a 0U device installed in one of the device bays. Child devices do not appear within rack elevations, but they are included in the "Non-Racked Devices" list within the rack view.
+Device bays represent the ability of a device to house child devices. For example, you might install four blade servers into a 2U chassis. The chassis would appear in the rack elevation as a 2U device with four device bays. Each server within it would be defined as a 0U device installed in one of the device bays. Child devices do not appear within rack elevations or the "Non-Racked Devices" list within the rack view.
 
 Child devices are first-class Devices in their own right: that is, fully independent managed entities which don't share any control plane with the parent.  Just like normal devices, child devices have their own platform (OS), role, tags, and interfaces.  You cannot create a LAG between interfaces in different child devices.
 

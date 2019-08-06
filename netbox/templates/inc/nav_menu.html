@@ -20,7 +20,7 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Organization <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li class="dropdown-header">Sites</li>
-                        <li>
+                        <li{% if not perms.dcim.view_site %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_site %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'dcim:site_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -29,7 +29,7 @@
                             {% endif %}
                             <a href="{% url 'dcim:site_list' %}">Sites</a>
                         </li>
-                        <li>
+                        <li{% if not perms.dcim.view_region %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_region %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'dcim:region_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -40,7 +40,7 @@
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Tenancy</li>
-                        <li>
+                        <li{% if not perms.tenancy.view_tenant %} class="disabled"{% endif %}>
                             {% if perms.tenancy.add_tenant %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'tenancy:tenant_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -49,7 +49,7 @@
                             {% endif %}
                             <a href="{% url 'tenancy:tenant_list' %}">Tenants</a>
                         </li>
-                        <li>
+                        <li{% if not perms.tenancy.view_tenantgroup %} class="disabled"{% endif %}>
                             {% if perms.tenancy.add_tenantgroup %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'tenancy:tenantgroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -60,16 +60,16 @@
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Miscellaneous</li>
-                        <li>
+                        <li{% if not perms.extras.view_tag %} class="disabled"{% endif %}>
                             <a href="{% url 'extras:tag_list' %}">Tags</a>
                         </li>
-                        <li>
+                        <li{% if not perms.extras.view_configcontext %} class="disabled"{% endif %}>
                             <a href="{% url 'extras:configcontext_list' %}">Config Contexts</a>
                         </li>
-                        <li>
+                        <li{% if not perms.extras.view_reportresult %} class="disabled"{% endif %}>
                             <a href="{% url 'extras:report_list' %}">Reports</a>
                         </li>
-                        <li>
+                        <li{% if not perms.extras.view_objectchange %} class="disabled"{% endif %}>
                             <a href="{% url 'extras:objectchange_list' %}">Changelog</a>
                         </li>
                     </ul>
@@ -78,7 +78,7 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Racks <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li class="dropdown-header">Racks</li>
-                        <li>
+                        <li{% if not perms.dcim.view_rack %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_rack %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'dcim:rack_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -87,7 +87,7 @@
                             {% endif %}
                             <a href="{% url 'dcim:rack_list' %}">Racks</a>
                         </li>
-                        <li>
+                        <li{% if not perms.dcim.view_rackgroup %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_rackgroup %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'dcim:rackgroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -96,7 +96,7 @@
                             {% endif %}
                             <a href="{% url 'dcim:rackgroup_list' %}">Rack Groups</a>
                         </li>
-                        <li>
+                        <li{% if not perms.dcim.view_rackrole %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_rackrole %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'dcim:rackrole_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -105,10 +105,10 @@
                             {% endif %}
                             <a href="{% url 'dcim:rackrole_list' %}">Rack Roles</a>
                         </li>
-                        <li>
+                        <li{% if not perms.dcim.view_rack %} class="disabled"{% endif %}>
                             <a href="{% url 'dcim:rack_elevation_list' %}">Elevations</a>
                         </li>
-                        <li>
+                        <li{% if not perms.dcim.view_rackreservation %} class="disabled"{% endif %}>
                             <a href="{% url 'dcim:rackreservation_list' %}">Reservations</a>
                         </li>
                     </ul>
@@ -117,7 +117,7 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Devices <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li class="dropdown-header">Devices</li>
-                        <li>
+                        <li{% if not perms.dcim.view_device %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_device %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'dcim:device_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -126,7 +126,7 @@
                             {% endif %}
                             <a href="{% url 'dcim:device_list' %}">Devices</a>
                         </li>
-                        <li>
+                        <li{% if not perms.dcim.view_devicerole %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_devicerole %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'dcim:devicerole_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -135,7 +135,7 @@
                             {% endif %}
                             <a href="{% url 'dcim:devicerole_list' %}">Device Roles</a>
                         </li>
-                        <li>
+                        <li{% if not perms.dcim.view_platform %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_platform %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'dcim:platform_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -144,12 +144,12 @@
                             {% endif %}
                             <a href="{% url 'dcim:platform_list' %}">Platforms</a>
                         </li>
-                        <li>
+                        <li{% if not perms.dcim.view_virtualchassis %} class="disabled"{% endif %}>
                             <a href="{% url 'dcim:virtualchassis_list' %}">Virtual Chassis</a>
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Device Types</li>
-                        <li>
+                        <li{% if not perms.dcim.view_devicetype %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_devicetype %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'dcim:devicetype_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -158,7 +158,7 @@
                             {% endif %}
                             <a href="{% url 'dcim:devicetype_list' %}">Device Types</a>
                         </li>
-                        <li>
+                        <li{% if not perms.dcim.view_manufacturer %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_manufacturer %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'dcim:manufacturer_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -169,7 +169,7 @@
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Inventory</li>
-                        <li>
+                        <li{% if not perms.dcim.view_inventoryitem %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_inventoryitem %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'dcim:inventoryitem_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
@@ -179,7 +179,7 @@
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Connections</li>
-                        <li>
+                        <li{% if not perms.dcim.view_cable %} class="disabled"{% endif %}>
                             {% if perms.dcim.add_cable %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'dcim:cable_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
@@ -187,13 +187,13 @@
                             {% endif %}
                             <a href="{% url 'dcim:cable_list' %}">Cables</a>
                         </li>
-                        <li>
+                        <li{% if not perms.dcim.view_consoleport or not perms.dcim.view_consoleserverport %} class="disabled"{% endif %}>
                             <a href="{% url 'dcim:console_connections_list' %}">Console Connections</a>
                         </li>
-                        <li>
+                        <li{% if not perms.dcim.view_powerport or not perms.dcim.view_poweroutlet %} class="disabled"{% endif %}>
                             <a href="{% url 'dcim:power_connections_list' %}">Power Connections</a>
                         </li>
-                        <li>
+                        <li{% if not perms.dcim.view_interface %} class="disabled"{% endif %}>
                             <a href="{% url 'dcim:interface_connections_list' %}">Interface Connections</a>
                         </li>
                     </ul>
@@ -202,7 +202,7 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">IPAM <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li class="dropdown-header">IP Addresses</li>
-                        <li>
+                        <li{% if not perms.ipam.view_ipaddress %} class="disabled"{% endif %}>
                             {% if perms.ipam.add_ipaddress %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'ipam:ipaddress_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -213,7 +213,7 @@
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Prefixes</li>
-                        <li>
+                        <li{% if not perms.ipam.view_prefix %} class="disabled"{% endif %}>
                             {% if perms.ipam.add_prefix %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'ipam:prefix_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -222,7 +222,7 @@
                             {% endif %}
                             <a href="{% url 'ipam:prefix_list' %}">Prefixes</a>
                         </li>
-                        <li>
+                        <li{% if not perms.ipam.view_role %} class="disabled"{% endif %}>
                             {% if perms.ipam.add_role %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'ipam:role_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -233,7 +233,7 @@
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Aggregates</li>
-                        <li>
+                        <li{% if not perms.ipam.view_aggregate %} class="disabled"{% endif %}>
                             {% if perms.ipam.add_aggregate %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'ipam:aggregate_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -242,7 +242,7 @@
                             {% endif %}
                             <a href="{% url 'ipam:aggregate_list' %}">Aggregates</a>
                         </li>
-                        <li>
+                        <li{% if not perms.ipam.view_rir %} class="disabled"{% endif %}>
                             {% if perms.ipam.add_rir %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'ipam:rir_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -253,7 +253,7 @@
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">VRFs</li>
-                        <li>
+                        <li{% if not perms.ipam.view_vrf %} class="disabled"{% endif %}>
                             {% if perms.ipam.add_vrf %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'ipam:vrf_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -264,7 +264,7 @@
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">VLANs</li>
-                        <li>
+                        <li{% if not perms.ipam.view_vlan %} class="disabled"{% endif %}>
                             {% if perms.ipam.add_vlan %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'ipam:vlan_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -273,7 +273,7 @@
                             {% endif %}
                             <a href="{% url 'ipam:vlan_list' %}">VLANs</a>
                         </li>
-                        <li>
+                        <li{% if not perms.ipam.view_vlangroup %} class="disabled"{% endif %}>
                             {% if perms.ipam.add_vlangroup %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'ipam:vlangroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -284,7 +284,7 @@
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Services</li>
-                        <li>
+                        <li{% if not perms.ipam.view_service %} class="disabled"{% endif %}>
                             <a href="{% url 'ipam:service_list' %}">Services</a>
                         </li>
                     </ul>
@@ -293,7 +293,7 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Virtualization <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li class="dropdown-header">Virtual Machines</li>
-                        <li>
+                        <li{% if not perms.virtualization.view_virtualmachine %} class="disabled"{% endif %}>
                             {% if perms.virtualization.add_virtualmachine %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'virtualization:virtualmachine_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -304,7 +304,7 @@
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Clusters</li>
-                        <li>
+                        <li{% if not perms.virtualization.view_cluster %} class="disabled"{% endif %}>
                             {% if perms.virtualization.add_cluster %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'virtualization:cluster_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -313,7 +313,7 @@
                             {% endif %}
                             <a href="{% url 'virtualization:cluster_list' %}">Clusters</a>
                         </li>
-                        <li>
+                        <li{% if not perms.virtualization.view_clustertype %} class="disabled"{% endif %}>
                             {% if perms.virtualization.add_clustertype %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'virtualization:clustertype_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -322,7 +322,7 @@
                             {% endif %}
                             <a href="{% url 'virtualization:clustertype_list' %}">Cluster Types</a>
                         </li>
-                        <li>
+                        <li{% if not perms.virtualization.view_clustergroup %} class="disabled"{% endif %}>
                             {% if perms.virtualization.add_clustergroup %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'virtualization:clustergroup_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -337,7 +337,7 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Circuits <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li class="dropdown-header">Circuits</li>
-                        <li>
+                        <li{% if not perms.circuits.view_circuit %} class="disabled"{% endif %}>
                             {% if perms.circuits.add_circuit %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'circuits:circuit_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -346,7 +346,7 @@
                             {% endif %}
                             <a href="{% url 'circuits:circuit_list' %}">Circuits</a>
                         </li>
-                        <li>
+                        <li{% if not perms.circuits.view_circuittype %} class="disabled"{% endif %}>
                             {% if perms.circuits.add_circuittype %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'circuits:circuittype_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -357,7 +357,7 @@
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Providers</li>
-                        <li>
+                        <li{% if not perms.circuits.view_provider %} class="disabled"{% endif %}>
                             {% if perms.circuits.add_provider %}
                                 <div class="buttons pull-right">
                                     <a href="{% url 'circuits:provider_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
@@ -368,31 +368,53 @@
                         </li>
                     </ul>
                 </li>
-                {% if request.user.is_authenticated %}
-                    <li class="dropdown{% if request.path|contains:'/secrets/' %} active{% endif %}">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Secrets <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li class="dropdown-header">Secrets</li>
-                            <li>
-                                {% if perms.secrets.add_secret %}
-                                    <div class="buttons pull-right">
-                                        <a href="{% url 'secrets:secret_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
-                                    </div>
-                                {% endif %}
-                                <a href="{% url 'secrets:secret_list' %}">Secrets</a>
-                            </li>
-                            <li>
-                                {% if perms.secrets.add_secretrole %}
-                                    <div class="buttons pull-right">
-                                        <a href="{% url 'secrets:secretrole_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
-                                        <a href="{% url 'secrets:secretrole_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
-                                    </div>
-                                {% endif %}
-                                <a href="{% url 'secrets:secretrole_list' %}">Secret Roles</a>
-                            </li>
-                        </ul>
-                    </li>
-                {% endif %}
+                <li class="dropdown{% if request.path|contains:'/dcim/power' %} active{% endif %}">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Power <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-header">Power</li>
+                        <li{% if not perms.dcim.view_powerfeed %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_powerfeed %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:powerfeed_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
+                                    <a href="{% url 'dcim:powerfeed_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:powerfeed_list' %}">Power Feeds</a>
+                        </li>
+                        <li{% if not perms.dcim.view_powerpanel %} class="disabled"{% endif %}>
+                            {% if perms.dcim.add_powerpanel %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'dcim:powerpanel_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
+                                    <a href="{% url 'dcim:powerpanel_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'dcim:powerpanel_list' %}">Power Panels</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown{% if request.path|contains:'/secrets/' %} active{% endif %}">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Secrets <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-header">Secrets</li>
+                        <li{% if not perms.secrets.view_secret %} class="disabled"{% endif %}>
+                            {% if perms.secrets.add_secret %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'secrets:secret_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'secrets:secret_list' %}">Secrets</a>
+                        </li>
+                        <li{% if not perms.secrets.view_secretrole %} class="disabled"{% endif %}>
+                            {% if perms.secrets.add_secretrole %}
+                                <div class="buttons pull-right">
+                                    <a href="{% url 'secrets:secretrole_add' %}" class="btn btn-xs btn-success" title="Add"><i class="fa fa-plus"></i></a>
+                                    <a href="{% url 'secrets:secretrole_import' %}" class="btn btn-xs btn-info" title="Import"><i class="fa fa-download"></i></a>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'secrets:secretrole_list' %}">Secret Roles</a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
             {% endif %}
             <ul class="nav navbar-nav navbar-right">
@@ -413,7 +435,12 @@
                         </ul>
                     </li>
                 {% else %}
-                    <li><a href="{% url 'login' %}?next={{ request.path }}"><i class="fa fa-sign-in"></i> Log in</a></li>
+                    {% url 'login' as login_url %}
+                    {% if request.path == login_url %}
+                        <li><a href="{{ request.get_full_path }}"><i class="fa fa-sign-in"></i> Log in</a></li>
+                    {% else %}
+                        <li><a href="{{ login_url }}?next={{ request.get_full_path | urlencode }}"><i class="fa fa-sign-in"></i> Log in</a></li>
+                    {% endif %}
                 {% endif %}
             </ul>
             <form action="{% url 'search' %}" method="get" class="navbar-form navbar-right" id="navbar_search" role="search">

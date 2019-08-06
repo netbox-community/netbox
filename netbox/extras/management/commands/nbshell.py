@@ -6,7 +6,6 @@ from django import get_version
 from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.db.models import Model
 
 APPS = ['circuits', 'dcim', 'extras', 'ipam', 'secrets', 'tenancy', 'users', 'virtualization']
 
@@ -38,16 +37,10 @@ class Command(BaseCommand):
         for app in APPS:
             self.django_models[app] = []
 
-            # Models
-            app_models = sys.modules['{}.models'.format(app)]
-            for name in dir(app_models):
-                model = getattr(app_models, name)
-                try:
-                    if issubclass(model, Model) and model._meta.app_label == app:
-                        namespace[name] = model
-                        self.django_models[app].append(name)
-                except TypeError:
-                    pass
+            # Load models from each app
+            for model in apps.get_app_config(app).get_models():
+                namespace[model.__name__] = model
+                self.django_models[app].append(model.__name__)
 
             # Constants
             try:

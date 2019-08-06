@@ -20,15 +20,6 @@ STATUS_LABEL = """
 """
 
 
-class CircuitTerminationColumn(tables.Column):
-
-    def render(self, value):
-        return mark_safe('<a href="{}">{}</a>'.format(
-            value.site.get_absolute_url(),
-            value.site
-        ))
-
-
 #
 # Providers
 #
@@ -77,9 +68,13 @@ class CircuitTable(BaseTable):
     provider = tables.LinkColumn('circuits:provider', args=[Accessor('provider.slug')])
     status = tables.TemplateColumn(template_code=STATUS_LABEL, verbose_name='Status')
     tenant = tables.TemplateColumn(template_code=COL_TENANT)
-    termination_a = CircuitTerminationColumn(orderable=False, verbose_name='A Side')
-    termination_z = CircuitTerminationColumn(orderable=False, verbose_name='Z Side')
+    a_side = tables.Column(
+        verbose_name='A Side'
+    )
+    z_side = tables.Column(
+        verbose_name='Z Side'
+    )
 
     class Meta(BaseTable.Meta):
         model = Circuit
-        fields = ('pk', 'cid', 'status', 'type', 'provider', 'tenant', 'termination_a', 'termination_z', 'description')
+        fields = ('pk', 'cid', 'status', 'type', 'provider', 'tenant', 'a_side', 'z_side', 'description')

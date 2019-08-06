@@ -1,12 +1,11 @@
 import django_filters
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from netaddr import EUI
 from netaddr.core import AddrFormatError
 
 from dcim.models import DeviceRole, Interface, Platform, Region, Site
 from extras.filters import CustomFieldFilterSet
-from tenancy.models import Tenant
+from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import NameSlugSearchFilterSet, NumericInFilter, TagFilter, TreeNodeMultipleChoiceFilter
 from .constants import VM_STATUS_CHOICES
 from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -16,14 +15,14 @@ class ClusterTypeFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = ClusterType
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
 
 class ClusterGroupFilter(NameSlugSearchFilterSet):
 
     class Meta:
         model = ClusterGroup
-        fields = ['name', 'slug']
+        fields = ['id', 'name', 'slug']
 
 
 class ClusterFilter(CustomFieldFilterSet):
@@ -80,7 +79,7 @@ class ClusterFilter(CustomFieldFilterSet):
         )
 
 
-class VirtualMachineFilter(CustomFieldFilterSet):
+class VirtualMachineFilter(TenancyFilterSet, CustomFieldFilterSet):
     id__in = NumericInFilter(
         field_name='id',
         lookup_expr='in'
@@ -151,16 +150,6 @@ class VirtualMachineFilter(CustomFieldFilterSet):
         to_field_name='slug',
         label='Role (slug)',
     )
-    tenant_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Tenant.objects.all(),
-        label='Tenant (ID)',
-    )
-    tenant = django_filters.ModelMultipleChoiceFilter(
-        field_name='tenant__slug',
-        queryset=Tenant.objects.all(),
-        to_field_name='slug',
-        label='Tenant (slug)',
-    )
     platform_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Platform.objects.all(),
         label='Platform (ID)',
@@ -175,7 +164,7 @@ class VirtualMachineFilter(CustomFieldFilterSet):
 
     class Meta:
         model = VirtualMachine
-        fields = ['name', 'cluster']
+        fields = ['id', 'name', 'cluster', 'vcpus', 'memory', 'disk']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -209,7 +198,7 @@ class InterfaceFilter(django_filters.FilterSet):
 
     class Meta:
         model = Interface
-        fields = ['name', 'enabled', 'mtu']
+        fields = ['id', 'name', 'enabled', 'mtu']
 
     def _mac_address(self, queryset, name, value):
         value = value.strip()

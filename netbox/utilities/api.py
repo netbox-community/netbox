@@ -3,8 +3,8 @@ from collections import OrderedDict
 import pytz
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import ManyToManyField
+from django.core.exceptions import FieldError, MultipleObjectsReturned, ObjectDoesNotExist
+from django.db.models import ManyToManyField, ProtectedError
 from django.http import Http404
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import BasePermission
@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import Field, ModelSerializer, ValidationError
 from rest_framework.viewsets import ModelViewSet as _ModelViewSet, ViewSet
 
-from .utils import dynamic_import
+from .utils import dict_to_filter_params, dynamic_import
 
 
 class ServiceUnavailable(APIException):
@@ -200,22 +200,48 @@ class WritableNestedSerializer(ModelSerializer):
     """
     Returns a nested representation of an object on read, but accepts only a primary key on write.
     """
-    def run_validators(self, value):
-        # DRF v3.8.2: Skip running validators on the data, since we only accept an integer PK instead of a dict. For
-        # more context, see:
-        #  https://github.com/encode/django-rest-framework/pull/5922/commits/2227bc47f8b287b66775948ffb60b2d9378ac84f
-        #  https://github.com/encode/django-rest-framework/issues/6053
-        return
 
     def to_internal_value(self, data):
+
         if data is None:
             return None
+
+        # Dictionary of related object attributes
+        if isinstance(data, dict):
+            params = dict_to_filter_params(data)
+            try:
+                return self.Meta.model.objects.get(**params)
+            except ObjectDoesNotExist:
+                raise ValidationError(
+                    "Related object not found using the provided attributes: {}".format(params)
+                )
+            except MultipleObjectsReturned:
+                raise ValidationError(
+                    "Multiple objects match the provided attributes: {}".format(params)
+                )
+            except FieldError as e:
+                raise ValidationError(e)
+
+        # Integer PK of related object
+        if isinstance(data, int):
+            pk = data
+        else:
+            try:
+                # PK might have been mistakenly passed as a string
+                pk = int(data)
+            except (TypeError, ValueError):
+                raise ValidationError(
+                    "Related objects must be referenced by numeric ID or by dictionary of attributes. Received an "
+                    "unrecognized value: {}".format(data)
+                )
+
+        # Look up object by PK
         try:
             return self.Meta.model.objects.get(pk=int(data))
-        except (TypeError, ValueError):
-            raise ValidationError("Primary key must be an integer")
         except ObjectDoesNotExist:
-            raise ValidationError("Invalid ID")
+            raise ValidationError(
+                "Related object not found using the provided numeric ID: {}".format(pk)
+            )
 
 
 #
@@ -247,6 +273,31 @@ class ModelViewSet(_ModelViewSet):
 
         # Fall back to the hard-coded serializer class
         return self.serializer_class
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            return super().dispatch(request, *args, **kwargs)
+        except ProtectedError as e:
+            models = ['{} ({})'.format(o, o._meta) for o in e.protected_objects.all()]
+            msg = 'Unable to delete object. The following dependent objects were found: {}'.format(', '.join(models))
+            return self.finalize_response(
+                request,
+                Response({'detail': msg}, status=409),
+                *args,
+                **kwargs
+            )
+
+    def list(self, *args, **kwargs):
+        """
+        Call to super to allow for caching
+        """
+        return super().list(*args, **kwargs)
+
+    def retrieve(self, *args, **kwargs):
+        """
+        Call to super to allow for caching
+        """
+        return super().retrieve(*args, **kwargs)
 
 
 class FieldChoicesViewSet(ViewSet):

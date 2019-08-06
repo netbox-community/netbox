@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load custom_links %}
 {% load helpers %}
 
 {% block title %}{{ devicetype.manufacturer }} {{ devicetype.model }}{% endblock %}
@@ -46,13 +47,18 @@
     {% endif %}
     <h1>{{ devicetype.manufacturer }} {{ devicetype.model }}</h1>
     {% include 'inc/created_updated.html' with obj=devicetype %}
+    <div class="pull-right noprint">
+        {% custom_links devicetype %}
+    </div>
     <ul class="nav nav-tabs">
         <li role="presentation"{% if not active_tab %} class="active"{% endif %}>
             <a href="{{ devicetype.get_absolute_url }}">Device Type</a>
         </li>
-        <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
-            <a href="{% url 'dcim:devicetype_changelog' pk=devicetype.pk %}">Changelog</a>
-        </li>
+        {% if perms.extras.view_objectchange %}
+            <li role="presentation"{% if active_tab == 'changelog' %} class="active"{% endif %}>
+                <a href="{% url 'dcim:devicetype_changelog' pk=devicetype.pk %}">Changelog</a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 

@@ -6,8 +6,9 @@ from utilities.tables import BaseTable, BooleanColumn, ColorColumn, ToggleColumn
 from .models import (
     Cable, ConsolePort, ConsolePortTemplate, ConsoleServerPort, ConsoleServerPortTemplate, Device, DeviceBay,
     DeviceBayTemplate, DeviceRole, DeviceType, FrontPort, FrontPortTemplate, Interface, InterfaceTemplate,
-    InventoryItem, Manufacturer, Platform, PowerOutlet, PowerOutletTemplate, PowerPort, PowerPortTemplate, Rack,
-    RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site, VirtualChassis,
+    InventoryItem, Manufacturer, Platform, PowerFeed, PowerOutlet, PowerOutletTemplate, PowerPanel, PowerPort,
+    PowerPortTemplate, Rack, RackGroup, RackReservation, RackRole, RearPort, RearPortTemplate, Region, Site,
+    VirtualChassis,
 )
 
 REGION_LINK = """
@@ -144,6 +145,10 @@ STATUS_LABEL = """
 <span class="label label-{{ record.get_status_class }}">{{ record.get_status_display }}</span>
 """
 
+TYPE_LABEL = """
+<span class="label label-{{ record.get_type_class }}">{{ record.get_type_display }}</span>
+"""
+
 DEVICE_PRIMARY_IP = """
 {{ record.primary_ip6.address.ip|default:"" }}
 {% if record.primary_ip6 and record.primary_ip4 %}<br />{% endif %}
@@ -182,6 +187,10 @@ CABLE_TERMINATION_PARENT = """
 
 CABLE_LENGTH = """
 {% if record.length %}{{ record.length }} {{ record.get_length_unit_display }}{% else %}&mdash;{% endif %}
+"""
+
+POWERPANEL_POWERFEED_COUNT = """
+<a href="{% url 'dcim:powerfeed_list' %}?power_panel_id={{ record.pk }}">{{ value }}</a>
 """
 
 
@@ -290,12 +299,21 @@ class RackDetailTable(RackTable):
         template_code=RACK_DEVICE_COUNT,
         verbose_name='Devices'
     )
-    get_utilization = tables.TemplateColumn(UTILIZATION_GRAPH, orderable=False, verbose_name='Utilization')
+    get_utilization = tables.TemplateColumn(
+        template_code=UTILIZATION_GRAPH,
+        orderable=False,
+        verbose_name='Space'
+    )
+    get_power_utilization = tables.TemplateColumn(
+        template_code=UTILIZATION_GRAPH,
+        orderable=False,
+        verbose_name='Power'
+    )
 
     class Meta(RackTable.Meta):
         fields = (
             'pk', 'name', 'site', 'group', 'status', 'facility_id', 'tenant', 'role', 'u_height', 'device_count',
-            'get_utilization',
+            'get_utilization', 'get_power_utilization',
         )
 
 
@@ -305,7 +323,12 @@ class RackDetailTable(RackTable):
 
 class RackReservationTable(BaseTable):
     pk = ToggleColumn()
-    tenant = tables.LinkColumn('tenancy:tenant', args=[Accessor('tenant.slug')])
+    site = tables.LinkColumn(
+        viewname='dcim:site',
+        accessor=Accessor('rack.site'),
+        args=[Accessor('rack.site.slug')],
+    )
+    tenant = tables.TemplateColumn(template_code=COL_TENANT)
     rack = tables.LinkColumn('dcim:rack', args=[Accessor('rack.pk')])
     unit_list = tables.Column(orderable=False, verbose_name='Units')
     actions = tables.TemplateColumn(
@@ -314,7 +337,7 @@ class RackReservationTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = RackReservation
-        fields = ('pk', 'rack', 'unit_list', 'user', 'created', 'tenant', 'description', 'actions')
+        fields = ('pk', 'site', 'rack', 'unit_list', 'user', 'created', 'tenant', 'description', 'actions')
 
 
 #
@@ -323,16 +346,26 @@ class RackReservationTable(BaseTable):
 
 class ManufacturerTable(BaseTable):
     pk = ToggleColumn()
-    name = tables.LinkColumn(verbose_name='Name')
-    devicetype_count = tables.Column(verbose_name='Device Types')
-    platform_count = tables.Column(verbose_name='Platforms')
-    slug = tables.Column(verbose_name='Slug')
-    actions = tables.TemplateColumn(template_code=MANUFACTURER_ACTIONS, attrs={'td': {'class': 'text-right noprint'}},
-                                    verbose_name='')
+    name = tables.LinkColumn()
+    devicetype_count = tables.Column(
+        verbose_name='Device Types'
+    )
+    inventoryitem_count = tables.Column(
+        verbose_name='Inventory Items'
+    )
+    platform_count = tables.Column(
+        verbose_name='Platforms'
+    )
+    slug = tables.Column()
+    actions = tables.TemplateColumn(
+        template_code=MANUFACTURER_ACTIONS,
+        attrs={'td': {'class': 'text-right noprint'}},
+        verbose_name=''
+    )
 
     class Meta(BaseTable.Meta):
         model = Manufacturer
-        fields = ('pk', 'name', 'devicetype_count', 'platform_count', 'slug', 'actions')
+        fields = ('pk', 'name', 'devicetype_count', 'inventoryitem_count', 'platform_count', 'slug', 'actions')
 
 
 #
@@ -391,7 +424,7 @@ class PowerPortTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerPortTemplate
-        fields = ('pk', 'name')
+        fields = ('pk', 'name', 'maximum_draw', 'allocated_draw')
         empty_text = "None"
 
 
@@ -400,7 +433,7 @@ class PowerOutletTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerOutletTemplate
-        fields = ('pk', 'name')
+        fields = ('pk', 'name', 'power_port', 'feed_leg')
         empty_text = "None"
 
 
@@ -410,7 +443,7 @@ class InterfaceTemplateTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = InterfaceTemplate
-        fields = ('pk', 'name', 'mgmt_only', 'form_factor')
+        fields = ('pk', 'name', 'mgmt_only', 'type')
         empty_text = "None"
 
 
@@ -567,7 +600,7 @@ class ConsoleServerPortTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = ConsoleServerPort
-        fields = ('name',)
+        fields = ('name', 'description')
 
 
 class PowerPortTable(BaseTable):
@@ -581,14 +614,14 @@ class PowerOutletTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerOutlet
-        fields = ('name',)
+        fields = ('name', 'description')
 
 
 class InterfaceTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = Interface
-        fields = ('name', 'form_factor', 'lag', 'enabled', 'mgmt_only', 'description')
+        fields = ('name', 'type', 'lag', 'enabled', 'mgmt_only', 'description')
 
 
 class FrontPortTable(BaseTable):
@@ -698,7 +731,8 @@ class PowerConnectionTable(BaseTable):
         args=[Accessor('connected_endpoint.device.pk')],
         verbose_name='PDU'
     )
-    connected_endpoint = tables.Column(
+    outlet = tables.Column(
+        accessor=Accessor('_connected_poweroutlet'),
         verbose_name='Outlet'
     )
     device = tables.LinkColumn(
@@ -711,7 +745,7 @@ class PowerConnectionTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = PowerPort
-        fields = ('pdu', 'connected_endpoint', 'device', 'name', 'connection_status')
+        fields = ('pdu', 'outlet', 'device', 'name', 'connection_status')
 
 
 class InterfaceConnectionTable(BaseTable):
@@ -786,3 +820,51 @@ class VirtualChassisTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = VirtualChassis
         fields = ('pk', 'master', 'domain', 'member_count', 'actions')
+
+
+#
+# Power panels
+#
+
+class PowerPanelTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.LinkColumn()
+    site = tables.LinkColumn(
+        viewname='dcim:site',
+        args=[Accessor('site.slug')]
+    )
+    powerfeed_count = tables.TemplateColumn(
+        template_code=POWERPANEL_POWERFEED_COUNT,
+        verbose_name='Feeds'
+    )
+
+    class Meta(BaseTable.Meta):
+        model = PowerPanel
+        fields = ('pk', 'name', 'site', 'rack_group', 'powerfeed_count')
+
+
+#
+# Power feeds
+#
+
+class PowerFeedTable(BaseTable):
+    pk = ToggleColumn()
+    name = tables.LinkColumn()
+    power_panel = tables.LinkColumn(
+        viewname='dcim:powerpanel',
+        args=[Accessor('power_panel.pk')],
+    )
+    rack = tables.LinkColumn(
+        viewname='dcim:rack',
+        args=[Accessor('rack.pk')]
+    )
+    status = tables.TemplateColumn(
+        template_code=STATUS_LABEL
+    )
+    type = tables.TemplateColumn(
+        template_code=TYPE_LABEL
+    )
+
+    class Meta(BaseTable.Meta):
+        model = PowerFeed
+        fields = ('pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase')
