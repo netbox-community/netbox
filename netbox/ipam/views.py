@@ -649,7 +649,7 @@ class IPAddressView(PermissionRequiredMixin, View):
 
         # Parent prefixes table
         parent_prefixes = Prefix.objects.filter(
-            vrf=ipaddress.vrf, prefix__net_contains=str(ipaddress.address.ip)
+            vrf=ipaddress.vrf, prefix__net_contains_or_equals=str(ipaddress.address.ip)
         ).select_related(
             'site', 'role'
         )

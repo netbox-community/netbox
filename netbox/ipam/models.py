@@ -346,16 +346,6 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
 
         if self.prefix:
 
-            # Disallow host masks
-            if self.prefix.version == 4 and self.prefix.prefixlen == 32:
-                raise ValidationError({
-                    'prefix': "Cannot create host addresses (/32) as prefixes. Create an IPv4 address instead."
-                })
-            elif self.prefix.version == 6 and self.prefix.prefixlen == 128:
-                raise ValidationError({
-                    'prefix': "Cannot create host addresses (/128) as prefixes. Create an IPv6 address instead."
-                })
-
             # Enforce unique IP space (if applicable)
             if (self.vrf is None and settings.ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
                 duplicate_prefixes = self.get_duplicates()
@@ -423,6 +413,10 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
         Return all IPAddresses within this Prefix and VRF. If this Prefix is a container in the global table, return
         child IPAddresses belonging to any VRF.
         """
+        if self.prefix.prefixlen == 32:
+            return IPAddress.objects.filter(vrf=self.vrf, address__net_host=str(self.prefix.cidr))
+        if self.prefix.prefixlen == 128:
+            return IPAddress.objects.filter(vrf=self.vrf, address__net_host=str(self.prefix.cidr))
         if self.vrf is None and self.status == PREFIX_STATUS_CONTAINER:
             return IPAddress.objects.filter(address__net_host_contained=str(self.prefix))
         else:
@@ -452,9 +446,9 @@ class Prefix(ChangeLoggedModel, CustomFieldModel):
 
         # All IP addresses within a point-to-point prefix (IPv4 /31 or IPv6 /127) are considered usable
         if (
-            self.family == 4 and self.prefix.prefixlen == 31  # RFC 3021
+            self.family == 4 and self.prefix.prefixlen >= 31  # RFC 3021
         ) or (
-            self.family == 6 and self.prefix.prefixlen == 127  # RFC 6164
+            self.family == 6 and self.prefix.prefixlen >= 127  # RFC 6164
         ):
             return available_ips
 
