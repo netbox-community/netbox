@@ -1,3 +1,11 @@
+v2.6.3 (FUTURE)
+
+## Bug Fixes
+
+* [#3405](https://github.com/netbox-community/netbox/issues/3405) - Fix population of power port/outlet details on device creation
+
+---
+
 v2.6.2 (2019-08-02)
 
 ## Enhancements
