@@ -1240,7 +1240,7 @@ class FrontPortTemplate(ComponentTemplateModel):
             ),
             models.UniqueConstraint(
                 fields=['rear_port', 'rear_port_position'],
-                name='frontporttemplate_rearport_rearportpos_key'
+                name='frontporttemplate_rearport_rearportposition_key'
             )
         ]
 
@@ -1577,7 +1577,7 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
             ),
             models.UniqueConstraint(
                 fields=['virtual_chassis', 'vc_position'],
-                name='device_virtualchassis_vcpos_key'
+                name='device_virtualchassis_vcposition_key'
             ),
         ]
         permissions = (
@@ -2485,7 +2485,7 @@ class FrontPort(CableTermination, ComponentModel):
             ),
             models.UniqueConstraint(
                 fields=['rear_port', 'rear_port_position'],
-                name='frontport_rearport_rearportpos_key'
+                name='frontport_rearport_rearportposition_key'
             )
         ]
 

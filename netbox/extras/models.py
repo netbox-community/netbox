@@ -269,7 +269,7 @@ class CustomFieldValue(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['field', 'obj_type', 'obj_id'],
-                name='customfieldvalue_customfield_key'
+                name='customfieldvalue_field_objtype_objid_key'
             )
         ]
 
