@@ -743,11 +743,11 @@ class VLANGroup(ChangeLoggedModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['site', 'name'],
-                name='vlangroup_site_name_key'
+                name='ipam_vlangroup_site_name_key'
             ),
             models.UniqueConstraint(
                 fields=['site', 'slug'],
-                name='vlangroup_site_slug_key'
+                name='ipam_vlangroup_site_slug_key'
             )
         ]
         verbose_name = 'VLAN group'
@@ -845,11 +845,11 @@ class VLAN(ChangeLoggedModel, CustomFieldModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['group', 'vid'],
-                name='vlan_group_vid_key'
+                name='ipam_vlan_group_vid_key'
             ),
             models.UniqueConstraint(
                 fields=['group', 'name'],
-                name='vlan_group_name_key'
+                name='ipam_vlan_group_name_key'
             )
         ]
         verbose_name = 'VLAN'

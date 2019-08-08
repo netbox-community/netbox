@@ -93,7 +93,7 @@ class Webhook(models.Model):
                 fields=[
                     'payload_url', 'type_create', 'type_update', 'type_delete'
                 ],
-                name='webhook_webhooktype_payload_key'
+                name='extras_webhook_payload_url_type_create_type_update_type_delete_key'
             )
         ]
 
@@ -269,7 +269,7 @@ class CustomFieldValue(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['field', 'obj_type', 'obj_id'],
-                name='customfieldvalue_field_objtype_objid_key'
+                name='extras_customfieldvalue_field_obj_type_obj_id_key'
             )
         ]
 
@@ -312,7 +312,7 @@ class CustomFieldChoice(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['field', 'value'],
-                name='customfieldchoice_field_value_key'
+                name='extras_customfieldchoice_field_value_key'
             )
         ]
 
@@ -467,7 +467,7 @@ class ExportTemplate(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['content_type', 'name'],
-                name='exporttemplate_name_contenttype_key'
+                name='extras_exporttemplate_content_type_name_key'
             )
         ]
 

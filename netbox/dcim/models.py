@@ -391,11 +391,11 @@ class RackGroup(ChangeLoggedModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['site', 'name'],
-                name='rackgroup_site_name_key'
+                name='dcim_rackgroup_site_name_key'
             ),
             models.UniqueConstraint(
                 fields=['site', 'slug'],
-                name='rackgroup_site_slug_key'
+                name='dcim_rackgroup_site_slug_key'
             )
         ]
 
@@ -562,11 +562,11 @@ class Rack(ChangeLoggedModel, CustomFieldModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['group', 'name'],
-                name='rack_group_name_key'
+                name='dcim_rack_group_name_key'
             ),
             models.UniqueConstraint(
                 fields=['group', 'facility_id'],
-                name='rack_group_facility_key'
+                name='dcim_rack_group_facility_key'
             )
         ]
 
@@ -934,11 +934,11 @@ class DeviceType(ChangeLoggedModel, CustomFieldModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['manufacturer', 'model'],
-                name='devicetype_manufacturer_model_key'
+                name='dcim_devicetype_manufacturer_model_key'
             ),
             models.UniqueConstraint(
                 fields=['manufacturer', 'slug'],
-                name='devicetype_manufacturer_slug_key'
+                name='dcim_devicetype_manufacturer_slug_key'
             )
 
         ]
@@ -1027,7 +1027,7 @@ class ConsolePortTemplate(ComponentTemplateModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device_type', 'name'],
-                name='consoleporttemplate_devicetype_name_key'
+                name='dcim_consoleporttemplate_device_type_name_key'
             )
         ]
 
@@ -1055,7 +1055,7 @@ class ConsoleServerPortTemplate(ComponentTemplateModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device_type', 'name'],
-                name='consoleserverporttemplate_devicetype_name_key'
+                name='dcim_consoleserverporttemplate_device_type_name_key'
             )
         ]
 
@@ -1095,7 +1095,7 @@ class PowerPortTemplate(ComponentTemplateModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device_type', 'name'],
-                name='powerporttemplate_devicetype_name_key'
+                name='dcim_powerporttemplate_device_type_name_key'
             )
         ]
 
@@ -1136,7 +1136,7 @@ class PowerOutletTemplate(ComponentTemplateModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device_type', 'name'],
-                name='poweroutlettemplate_devicetype_name_key'
+                name='dcim_poweroutlettemplate_device_type_name_key'
             )
         ]
 
@@ -1180,7 +1180,7 @@ class InterfaceTemplate(ComponentTemplateModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device_type', 'name'],
-                name='interfacetemplate_devicetype_name_key'
+                name='dcim_interfacetemplate_device_type_name_key'
             )
         ]
 
@@ -1236,11 +1236,11 @@ class FrontPortTemplate(ComponentTemplateModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device_type', 'name'],
-                name='frontporttemplate_devicetype_name_key'
+                name='dcim_frontporttemplate_device_type_name_key'
             ),
             models.UniqueConstraint(
                 fields=['rear_port', 'rear_port_position'],
-                name='frontporttemplate_rearport_rearportposition_key'
+                name='dcim_frontporttemplate_rear_port_rear_port_position_key'
             )
         ]
 
@@ -1291,7 +1291,7 @@ class RearPortTemplate(ComponentTemplateModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device_type', 'name'],
-                name='rearporttemplate_devicetype_name_key'
+                name='dcim_rearporttemplate_device_type_name_key'
             )
         ]
 
@@ -1319,7 +1319,7 @@ class DeviceBayTemplate(ComponentTemplateModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device_type', 'name'],
-                name='devicebaytemplate_devicetype_name_key'
+                name='dcim_devicebaytemplate_device_type_name_key'
             )
         ]
 
@@ -1573,11 +1573,11 @@ class Device(ChangeLoggedModel, ConfigContextModel, CustomFieldModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['rack', 'position', 'face'],
-                name='device_rack_position_face_key'
+                name='dcim_device_rack_position_face_key'
             ),
             models.UniqueConstraint(
                 fields=['virtual_chassis', 'vc_position'],
-                name='device_virtualchassis_vcposition_key'
+                name='dcim_device_virtual_chassis_vc_position_key'
             ),
         ]
         permissions = (
@@ -1879,7 +1879,7 @@ class ConsolePort(CableTermination, ComponentModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device', 'name'],
-                name='consoleport_device_name_key'
+                name='dcim_consoleport_device_name_key'
             )
         ]
 
@@ -1927,7 +1927,7 @@ class ConsoleServerPort(CableTermination, ComponentModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device', 'name'],
-                name='consoleserverport_device_name_key'
+                name='dcim_consoleserverport_device_name_key'
             )
         ]
 
@@ -2002,7 +2002,7 @@ class PowerPort(CableTermination, ComponentModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device', 'name'],
-                name='powerport_device_name_key'
+                name='dcim_powerport_device_name_key'
             )
         ]
 
@@ -2130,7 +2130,7 @@ class PowerOutlet(CableTermination, ComponentModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device', 'name'],
-                name='poweroutlet_device_name_key'
+                name='dcim_poweroutlet_device_name_key'
             )
         ]
 
@@ -2266,7 +2266,7 @@ class Interface(CableTermination, ComponentModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device', 'name'],
-                name='interface_device_name_key'
+                name='dcim_interface_device_name_key'
             )
         ]
 
@@ -2481,11 +2481,11 @@ class FrontPort(CableTermination, ComponentModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device', 'name'],
-                name='frontport_device_name_key'
+                name='dcim_frontport_device_name_key'
             ),
             models.UniqueConstraint(
                 fields=['rear_port', 'rear_port_position'],
-                name='frontport_rearport_rearportposition_key'
+                name='dcim_frontport_rear_port_rear_port_position_key'
             )
         ]
 
@@ -2549,7 +2549,7 @@ class RearPort(CableTermination, ComponentModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device', 'name'],
-                name='rearport_device_name_key'
+                name='dcim_rearport_device_name_key'
             )
         ]
 
@@ -2601,7 +2601,7 @@ class DeviceBay(ComponentModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device', 'name'],
-                name='devicebay_device_name_key',
+                name='dcim_devicebay_device_name_key',
             )
         ]
 
@@ -2698,7 +2698,7 @@ class InventoryItem(ComponentModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device', 'parent', 'name'],
-                name='inventoryitem_device_parent_name_key'
+                name='dcim_inventoryitem_device_parent_name_key'
             )
         ]
 
@@ -2842,11 +2842,11 @@ class Cable(ChangeLoggedModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['termination_a_type', 'termination_a_id'],
-                name='cable_terminationatype_terminationaid_key'
+                name='dcim_cable_termination_a_type_termination_a_id_key'
             ),
             models.UniqueConstraint(
                 fields=['termination_b_type', 'termination_b_id'],
-                name='cable_terminationbtype_terminationbid_key'
+                name='dcim_cable_termination_b_type_termination_b_id_key'
             )
         ]
 

@@ -355,7 +355,7 @@ class Secret(ChangeLoggedModel, CustomFieldModel):
         constraints = [
             models.UniqueConstraint(
                 fields=['device', 'role', 'name'],
-                name='secret_device_role_name_key'
+                name='secrets_secret_device_role_name_key'
             )
         ]
 
