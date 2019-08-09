@@ -1,0 +1,77 @@
+{% extends '_base.html' %}
+{% load helpers %}
+{% load form_helpers %}
+{% load log_levels %}
+
+{% block title %}{{ script }}{% endblock %}
+
+{% block content %}
+    <div class="row noprint">
+        <div class="col-md-12">
+            <ol class="breadcrumb">
+                <li><a href="{% url 'extras:script_list' %}">Scripts</a></li>
+                <li><a href="{% url 'extras:script_list' %}#module.{{ module }}">{{ module|bettertitle }}</a></li>
+                <li>{{ script }}</li>
+            </ol>
+        </div>
+    </div>
+    <h1>{{ script }}</h1>
+    <p>{{ script.description }}</p>
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active">
+            <a href="#run" role="tab" data-toggle="tab" class="active">Run</a>
+        </li>
+        <li role="presentation">
+            <a href="#source" role="tab" data-toggle="tab">Source</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="run">
+            {% if script.log %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <strong>Script Output</strong>
+                            </div>
+                            <table class="table table-hover panel-body">
+                                <tr>
+                                    <th>Line</th>
+                                    <th>Level</th>
+                                    <th>Message</th>
+                                </tr>
+                                {% for level, message in script.log %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{% log_level level %}</td>
+                                        <td>{{ message }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2">
+                    <form action="" method="post">
+                    {% csrf_token %}
+                        {% if form %}
+                            {% render_form form %}
+                        {% else %}
+                            <p>This script does not require any input to run.</p>
+                        {% endif %}
+                        <div class="pull-right">
+                            <button type="submit" name="_run" class="btn btn-primary"><i class="fa fa-play"></i> Run Script</button>
+                            <a href="{% url 'extras:script_list' %}" class="btn btn-default">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="source">
+            <strong>{{ script.filename }}</strong>
+            <pre>{{ script.source }}</pre>
+        </div>
+    </div>
+{% endblock %}

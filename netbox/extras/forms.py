@@ -380,3 +380,18 @@ class ObjectChangeFilterForm(BootstrapMixin, forms.Form):
         widget=ContentTypeSelect(),
         label='Object Type'
     )
+
+
+#
+# Scripts
+#
+
+class ScriptForm(BootstrapMixin, forms.Form):
+
+    def __init__(self, vars, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        # Dynamically populate fields for variables
+        for name, var in vars:
+            self.fields[name] = var.as_field()

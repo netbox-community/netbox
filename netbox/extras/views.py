@@ -1,8 +1,9 @@
 from django import template
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
+from django.db import transaction
 from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
@@ -20,6 +21,7 @@ from .forms import (
 )
 from .models import ConfigContext, ImageAttachment, ObjectChange, ReportResult, Tag, TaggedItem
 from .reports import get_report, get_reports
+from .scripts import get_scripts
 from .tables import ConfigContextTable, ObjectChangeTable, TagTable, TaggedItemTable
 
 
@@ -355,3 +357,53 @@ class ReportRunView(PermissionRequiredMixin, View):
             messages.success(request, mark_safe(msg))
 
         return redirect('extras:report', name=report.full_name)
+
+
+#
+# Scripts
+#
+
+class ScriptListView(LoginRequiredMixin, View):
+
+    def get(self, request):
+
+        return render(request, 'extras/script_list.html', {
+            'scripts': get_scripts(),
+        })
+
+
+class ScriptView(LoginRequiredMixin, View):
+
+    def _get_script(self, module, name):
+        scripts = get_scripts()
+        try:
+            return scripts[module][name]()
+        except KeyError:
+            raise Http404
+
+    def get(self, request, module, name):
+
+        script = self._get_script(module, name)
+        form = script.as_form()
+
+        return render(request, 'extras/script.html', {
+            'module': module,
+            'script': script,
+            'form': form,
+        })
+
+    def post(self, request, module, name):
+
+        script = self._get_script(module, name)
+        form = script.as_form(request.POST)
+
+        if form.is_valid():
+
+            with transaction.atomic():
+                script.run(form.cleaned_data)
+
+        return render(request, 'extras/script.html', {
+            'module': module,
+            'script': script,
+            'form': form,
+        })
