@@ -10,6 +10,15 @@ from .constants import LOG_DEFAULT, LOG_FAILURE, LOG_INFO, LOG_SUCCESS, LOG_WARN
 from .forms import ScriptForm
 
 
+__all__ = [
+    'Script',
+    'StringVar',
+    'IntegerVar',
+    'BooleanVar',
+    'ObjectVar',
+]
+
+
 class OptionalBooleanField(forms.BooleanField):
     required = False
 
@@ -117,13 +126,24 @@ class Script:
         self.source = inspect.getsource(self.__class__)
 
     def __str__(self):
-        if hasattr(self, 'name'):
-            return self.name
+        if hasattr(self, 'script_name'):
+            return self.script_name
         return self.__class__.__name__
 
     def _get_vars(self):
-        # TODO: This should preserve var ordering
-        return inspect.getmembers(self, is_variable)
+        vars = OrderedDict()
+
+        # Infer order from script_fields (Python 3.5 and lower)
+        if hasattr(self, 'script_fields'):
+            for name in self.script_fields:
+                vars[name] = getattr(self, name)
+
+        # Default to order of declaration on class
+        for name, attr in self.__class__.__dict__.items():
+            if name not in vars and issubclass(attr.__class__, ScriptVariable):
+                vars[name] = attr
+
+        return vars
 
     def run(self, data):
         raise NotImplementedError("The script must define a run() method.")

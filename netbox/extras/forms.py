@@ -393,5 +393,5 @@ class ScriptForm(BootstrapMixin, forms.Form):
         super().__init__(*args, **kwargs)
 
         # Dynamically populate fields for variables
-        for name, var in vars:
+        for name, var in vars.items():
             self.fields[name] = var.as_field()
