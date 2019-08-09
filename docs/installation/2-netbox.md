@@ -5,14 +5,14 @@ This section of the documentation discusses installing and configuring the NetBo
 **Ubuntu**
 
 ```no-highlight
-# apt-get install -y python3 python3-pip python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev graphviz libpq-dev libssl-dev redis-server zlib1g-dev
+# apt-get install -y python3 python3-pip python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev redis-server zlib1g-dev
 ```
 
 **CentOS**
 
 ```no-highlight
 # yum install -y epel-release
-# yum install -y gcc python36 python36-devel python36-setuptools libxml2-devel libxslt-devel libffi-devel graphviz openssl-devel redhat-rpm-config redis
+# yum install -y gcc python36 python36-devel python36-setuptools libxml2-devel libxslt-devel libffi-devel openssl-devel redhat-rpm-config redis
 # easy_install-3.6 pip
 # ln -s /usr/bin/python36 /usr/bin/python3
 ```

@@ -54,10 +54,6 @@ djangorestframework
 # https://github.com/axnsan12/drf-yasg
 drf-yasg[validation]
 
-# Python interface to the graphviz graph rendering utility
-# https://github.com/xflr6/graphviz
-graphviz
-
 # Simple markup language for rendering HTML
 # https://github.com/Python-Markdown/markdown
 # py-gfm requires Markdown<3.0

@@ -32,7 +32,6 @@ pages:
         - Context Data: 'additional-features/context-data.md'
         - Export Templates: 'additional-features/export-templates.md'
         - Graphs: 'additional-features/graphs.md'
-        - Topology Maps: 'additional-features/topology-maps.md'
         - Reports: 'additional-features/reports.md'
         - Webhooks: 'additional-features/webhooks.md'
         - Change Logging: 'additional-features/change-logging.md'

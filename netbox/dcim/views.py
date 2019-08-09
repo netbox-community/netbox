@@ -16,7 +16,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from circuits.models import Circuit
-from extras.models import Graph, TopologyMap, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
+from extras.models import Graph, GRAPH_TYPE_INTERFACE, GRAPH_TYPE_SITE
 from extras.views import ObjectConfigContextView
 from ipam.models import Prefix, VLAN
 from ipam.tables import InterfaceIPAddressTable, InterfaceVLANTable
@@ -207,14 +207,12 @@ class SiteView(PermissionRequiredMixin, View):
             'vm_count': VirtualMachine.objects.filter(cluster__site=site).count(),
         }
         rack_groups = RackGroup.objects.filter(site=site).annotate(rack_count=Count('racks'))
-        topology_maps = TopologyMap.objects.filter(site=site)
         show_graphs = Graph.objects.filter(type=GRAPH_TYPE_SITE).exists()
 
         return render(request, 'dcim/site.html', {
             'site': site,
             'stats': stats,
             'rack_groups': rack_groups,
-            'topology_maps': topology_maps,
             'show_graphs': show_graphs,
         })
 

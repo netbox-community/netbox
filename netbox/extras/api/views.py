@@ -2,8 +2,7 @@ from collections import OrderedDict
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count
-from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404
+from django.http import Http404
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -11,8 +10,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 
 from extras import filters
 from extras.models import (
-    ConfigContext, CustomFieldChoice, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, TopologyMap,
-    Tag,
+    ConfigContext, CustomFieldChoice, ExportTemplate, Graph, ImageAttachment, ObjectChange, ReportResult, Tag,
 )
 from extras.reports import get_report, get_reports
 from utilities.api import FieldChoicesViewSet, IsAuthenticatedOrLoginNotRequired, ModelViewSet
@@ -113,34 +111,6 @@ class ExportTemplateViewSet(ModelViewSet):
     queryset = ExportTemplate.objects.all()
     serializer_class = serializers.ExportTemplateSerializer
     filterset_class = filters.ExportTemplateFilter
-
-
-#
-# Topology maps
-#
-
-class TopologyMapViewSet(ModelViewSet):
-    queryset = TopologyMap.objects.select_related('site')
-    serializer_class = serializers.TopologyMapSerializer
-    filterset_class = filters.TopologyMapFilter
-
-    @action(detail=True)
-    def render(self, request, pk):
-
-        tmap = get_object_or_404(TopologyMap, pk=pk)
-        img_format = 'png'
-
-        try:
-            data = tmap.render(img_format=img_format)
-        except Exception as e:
-            return HttpResponse(
-                "There was an error generating the requested graph: %s" % e
-            )
-
-        response = HttpResponse(data, content_type='image/{}'.format(img_format))
-        response['Content-Disposition'] = 'inline; filename="{}.{}"'.format(tmap.slug, img_format)
-
-        return response
 
 
 #

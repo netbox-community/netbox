@@ -7,17 +7,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.core.validators import ValidationError
 from django.db import models
-from django.db.models import F, Q
 from django.http import HttpResponse
 from django.template import Template, Context
 from django.urls import reverse
-import graphviz
 from jinja2 import Environment
 from taggit.models import TagBase, GenericTaggedItemBase
 
-from dcim.constants import CONNECTION_STATUS_CONNECTED
 from utilities.fields import ColorField
-from utilities.utils import deepmerge, foreground_color, model_names_to_filter_dict
+from utilities.utils import deepmerge, model_names_to_filter_dict
 from .constants import *
 from .querysets import ConfigContextQuerySet
 
@@ -494,154 +491,6 @@ class ExportTemplate(models.Model):
         response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
 
         return response
-
-
-#
-# Topology maps
-#
-
-class TopologyMap(models.Model):
-    name = models.CharField(
-        max_length=50,
-        unique=True
-    )
-    slug = models.SlugField(
-        unique=True
-    )
-    type = models.PositiveSmallIntegerField(
-        choices=TOPOLOGYMAP_TYPE_CHOICES,
-        default=TOPOLOGYMAP_TYPE_NETWORK
-    )
-    site = models.ForeignKey(
-        to='dcim.Site',
-        on_delete=models.CASCADE,
-        related_name='topology_maps',
-        blank=True,
-        null=True
-    )
-    device_patterns = models.TextField(
-        help_text='Identify devices to include in the diagram using regular '
-                  'expressions, one per line. Each line will result in a new '
-                  'tier of the drawing. Separate multiple regexes within a '
-                  'line using semicolons. Devices will be rendered in the '
-                  'order they are defined.'
-    )
-    description = models.CharField(
-        max_length=100,
-        blank=True
-    )
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
-
-    @property
-    def device_sets(self):
-        if not self.device_patterns:
-            return None
-        return [line.strip() for line in self.device_patterns.split('\n')]
-
-    def render(self, img_format='png'):
-
-        from dcim.models import Device
-
-        # Construct the graph
-        if self.type == TOPOLOGYMAP_TYPE_NETWORK:
-            G = graphviz.Graph
-        else:
-            G = graphviz.Digraph
-        self.graph = G()
-        self.graph.graph_attr['ranksep'] = '1'
-        seen = set()
-        for i, device_set in enumerate(self.device_sets):
-
-            subgraph = G(name='sg{}'.format(i))
-            subgraph.graph_attr['rank'] = 'same'
-            subgraph.graph_attr['directed'] = 'true'
-
-            # Add a pseudonode for each device_set to enforce hierarchical layout
-            subgraph.node('set{}'.format(i), label='', shape='none', width='0')
-            if i:
-                self.graph.edge('set{}'.format(i - 1), 'set{}'.format(i), style='invis')
-
-            # Add each device to the graph
-            devices = []
-            for query in device_set.strip(';').split(';'):  # Split regexes on semicolons
-                devices += Device.objects.filter(name__regex=query).select_related('device_role')
-            # Remove duplicate devices
-            devices = [d for d in devices if d.id not in seen]
-            seen.update([d.id for d in devices])
-            for d in devices:
-                bg_color = '#{}'.format(d.device_role.color)
-                fg_color = '#{}'.format(foreground_color(d.device_role.color))
-                subgraph.node(d.name, style='filled', fillcolor=bg_color, fontcolor=fg_color, fontname='sans')
-
-            # Add an invisible connection to each successive device in a set to enforce horizontal order
-            for j in range(0, len(devices) - 1):
-                subgraph.edge(devices[j].name, devices[j + 1].name, style='invis')
-
-            self.graph.subgraph(subgraph)
-
-        # Compile list of all devices
-        device_superset = Q()
-        for device_set in self.device_sets:
-            for query in device_set.split(';'):  # Split regexes on semicolons
-                device_superset = device_superset | Q(name__regex=query)
-        devices = Device.objects.filter(*(device_superset,))
-
-        # Draw edges depending on graph type
-        if self.type == TOPOLOGYMAP_TYPE_NETWORK:
-            self.add_network_connections(devices)
-        elif self.type == TOPOLOGYMAP_TYPE_CONSOLE:
-            self.add_console_connections(devices)
-        elif self.type == TOPOLOGYMAP_TYPE_POWER:
-            self.add_power_connections(devices)
-
-        return self.graph.pipe(format=img_format)
-
-    def add_network_connections(self, devices):
-
-        from circuits.models import CircuitTermination
-        from dcim.models import Interface
-
-        # Add all interface connections to the graph
-        connected_interfaces = Interface.objects.select_related(
-            '_connected_interface__device'
-        ).filter(
-            Q(device__in=devices) | Q(_connected_interface__device__in=devices),
-            _connected_interface__isnull=False,
-            pk__lt=F('_connected_interface')
-        )
-        for interface in connected_interfaces:
-            style = 'solid' if interface.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
-            self.graph.edge(interface.device.name, interface.connected_endpoint.device.name, style=style)
-
-        # Add all circuits to the graph
-        for termination in CircuitTermination.objects.filter(term_side='A', connected_endpoint__device__in=devices):
-            peer_termination = termination.get_peer_termination()
-            if (peer_termination is not None and peer_termination.interface is not None and
-                    peer_termination.interface.device in devices):
-                self.graph.edge(termination.interface.device.name, peer_termination.interface.device.name, color='blue')
-
-    def add_console_connections(self, devices):
-
-        from dcim.models import ConsolePort
-
-        # Add all console connections to the graph
-        for cp in ConsolePort.objects.filter(device__in=devices, connected_endpoint__device__in=devices):
-            style = 'solid' if cp.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
-            self.graph.edge(cp.connected_endpoint.device.name, cp.device.name, style=style)
-
-    def add_power_connections(self, devices):
-
-        from dcim.models import PowerPort
-
-        # Add all power connections to the graph
-        for pp in PowerPort.objects.filter(device__in=devices, _connected_poweroutlet__device__in=devices):
-            style = 'solid' if pp.connection_status == CONNECTION_STATUS_CONNECTED else 'dashed'
-            self.graph.edge(pp.connected_endpoint.device.name, pp.device.name, style=style)
 
 
 #
